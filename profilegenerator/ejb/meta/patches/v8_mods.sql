@@ -26,3 +26,12 @@ foreign key (user_id) references users (id)
 ;
 
 create sequence assignment_seq;
+
+create table setting(
+  setting_id int4 not null primary key,
+  parent_id int4,
+  name varchar(256) not null,
+  value varchar(256) not null
+);
+
+create sequence setting_seq;

@@ -22,6 +22,8 @@ public class Setting {
     private Object m_value;
     
     private int m_id;
+    
+    private SettingSet m_parent;
 
     public Setting() {
     }
@@ -35,6 +37,18 @@ public class Setting {
         m_value = value;
     }
 
+    /**
+     * @return Returns the parent.
+     */
+    public SettingSet getParent() {
+        return m_parent;
+    }
+    /**
+     * @param parent The parent to set.
+     */
+    public void setParent(SettingSet parent) {
+        m_parent = parent;
+    }
     /**
      * @return Returns the id.
      */

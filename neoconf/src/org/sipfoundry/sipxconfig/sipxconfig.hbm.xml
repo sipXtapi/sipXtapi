@@ -46,6 +46,9 @@
 			</generator>
 		</id>
 		<property name="name" column="name"/>
+		<!-- property name="value" column="value"/ -->
+		<!-- many-to-one name="parent" column="parent_id" 
+			class="org.sipfoundry.sipxconfig.setting.SettingSet"/ -->
 	</class>	
 	<!--
 	  -  LEGACY DATABASE MODEL 
