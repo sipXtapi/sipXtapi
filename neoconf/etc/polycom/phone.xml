@@ -1374,7 +1374,7 @@
 		</setting>
 	</group>
 	<group name="nat">
-		<label>Network Address Translation</label>
+		<label>NAT</label>
 		<description>These parameters define port and IP address changes used 
 			in NAT traversal. The port changes will change the port used by the 
 			phone, while the IP entry simply changes the IP advertised in the 

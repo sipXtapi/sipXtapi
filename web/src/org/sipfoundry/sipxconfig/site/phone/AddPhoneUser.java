@@ -48,8 +48,9 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
         while (usersIds.hasNext()) {
             Integer userId = (Integer) usersIds.next();
             User user = context.loadUser(userId.intValue());            
-            Line line = new Line();
+            Line line = new Line();            
             line.setUser(user);
+            line.setFolder(context.loadRootLineFolder());
             endpoint.addLine(line);
         }
         context.storeEndpoint(endpoint);

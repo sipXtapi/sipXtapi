@@ -37,14 +37,13 @@ public class NewPhoneTest extends TestCase {
         
         MockControl daoControl = MockControl.createStrictControl(PhoneContext.class);
         PhoneContext dao = (PhoneContext) daoControl.getMock();
-        //dao.storeSetting(endpoint.getSettingValues());
+        page.setPhoneContext(dao);
         dao.storeEndpoint(endpoint);
-        dao.flush();
+        //dao.flush();
         daoControl.replay();
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycleControl.expectAndReturn(cycle.getAttribute(PhoneContext.CONTEXT_BEAN_NAME), dao);
         cycle.activate(ManagePhones.PAGE);
         cycleControl.replay();
 

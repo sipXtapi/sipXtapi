@@ -50,6 +50,7 @@ C L E A N  U P
  + default values when loading
  + Move user and organization to common
  + remove PhonePageUtils, use new Globals map to get spring beans
+ + ui unittests
 
 N O T   T O   D I S T A N T   F U T U R E 
 -----------------------------------------

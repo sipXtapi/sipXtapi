@@ -49,8 +49,7 @@ public class EndpointTestDb extends TestCase {
         e.setPhoneId(Polycom.MODEL_300.getModelId());
         e.setSerialNumber("999123456");
         e.setName("unittest-sample phone1");
-        Folder rootFolder = m_settingDao.loadRootFolder(Endpoint.FOLDER_RESOURCE_NAME); 
-        e.setFolder(rootFolder);
+        e.setFolder(m_context.loadRootEndpointFolder());
         m_context.storeEndpoint(e);
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("endpoint");
@@ -58,7 +57,7 @@ public class EndpointTestDb extends TestCase {
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveEndpointExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[endpoint_id_1]", new Integer(e.getId()));
-        expectedRds.addReplacementObject("[folder_id]", new Integer(rootFolder.getId()));
+        expectedRds.addReplacementObject("[folder_id]", new Integer(e.getFolder().getId()));
         expectedRds.addReplacementObject("[null]", null);
         
         ITable expected = expectedRds.getTable("endpoint");

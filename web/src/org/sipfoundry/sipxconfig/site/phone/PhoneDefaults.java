@@ -122,8 +122,8 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
             setPhoneId(Polycom.MODEL_600.getModelId());
         }
         // future, edit other meta storages, not just root's
-        setEndpointFolder(getSettingDao().loadRootFolder(Endpoint.FOLDER_RESOURCE_NAME));
-        setLineFolder(getSettingDao().loadRootFolder(Line.FOLDER_RESOURCE_NAME));
+        setEndpointFolder(getPhoneContext().loadRootEndpointFolder());
+        setLineFolder(getPhoneContext().loadRootLineFolder());
         
         m_blankEndpoint = new Endpoint();
         m_blankEndpoint.setPhoneId(getPhoneId());

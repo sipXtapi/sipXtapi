@@ -1,27 +1,39 @@
 <html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-</head>
-<body>
-<span jwcid="$content$">
- 		<ul class="tabArea">
-            <li jwcid="deviceIdTab"><a jwcid="deviceIdLink">Device Identification</a></li>
-            <li class="gap">|</li>
-            <li jwcid="linesTab"><a href="#" jwcid="linesLink">Lines</a></li>
-            <span jwcid="settingsTabs">
-                <li class="gap">|</li>
-                <li jwcid="settingsTab" class="tab"><a href="#" jwcid="settingsLink"><span jwcid="settingsTabLabel">Settings</span></a></li>
-            </span>
-		</ul>
-     	<span jwcid="phoneLabel"/>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+	</head>
+	<body>
+		<span jwcid="$content$">
+			<div id="settings-nav">
+				<ul>
+					<li>
+						<a jwcid="deviceIdLink">Device Identification</a>
+					</li>
+					<li>
+						<a href="#" jwcid="linesLink">Lines</a>
+					</li>
+					<span jwcid="settingsTabs">
+						<li>
+							<a href="#" jwcid="settingsLink">
+								<span jwcid="settingsTabLabel"/>
+							</a>
+						</li>
+					</span>
+				</ul>
+			</div>
+			<span jwcid="phoneLabel"/>
 			<div class="help">
 				<b>Quick Links</b>
 				<ul>
-					<li><a href="#">Create new line?</a></li>
-			    </ul>
-				</div>
-			<h2><span jwcid="heading">Page Heading</span></h2>
+					<li>
+						<a href="#">Create new line?</a>
+					</li>
+				</ul>
+			</div>
+			<h2>
+				<span jwcid="heading">Page Heading</span>
+			</h2>
 			<span jwcid="@RenderBody"/>
-</span>
-</body>
+		</span>
+	</body>
 </html>

@@ -53,8 +53,8 @@ public class LineTestDb extends TestCase {
         User user = m_context.loadUserByDisplayId("testuser");
 
         Line line = new Line();
-        line.setFolder(m_settingDao.loadRootFolder(Line.FOLDER_RESOURCE_NAME));
         line.setUser(user);
+        line.setFolder(m_context.loadRootLineFolder());
         endpoint.addLine(line);
         m_context.storeEndpoint(endpoint);
         
@@ -83,8 +83,8 @@ public class LineTestDb extends TestCase {
         User user = m_context.loadUserByDisplayId("testuser");
 
         Line thirdLine = new Line();
-        thirdLine.setFolder(m_settingDao.loadRootFolder(Line.FOLDER_RESOURCE_NAME));
         thirdLine.setUser(user);
+        thirdLine.setFolder(m_context.loadRootLineFolder());
         endpoint.addLine(thirdLine);
         m_context.storeEndpoint(endpoint);
 

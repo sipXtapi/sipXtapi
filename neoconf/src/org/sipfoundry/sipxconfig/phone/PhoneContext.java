@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.setting.Folder;
 
 
 
@@ -87,4 +88,8 @@ public interface PhoneContext extends CoreContext {
     public void storeEndpoint(Endpoint endpoint);
 
     public void deleteEndpoint(Endpoint endpoint);
+    
+    public Folder loadRootEndpointFolder();
+    
+    public Folder loadRootLineFolder();
 }

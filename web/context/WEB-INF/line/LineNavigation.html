@@ -1,22 +1,31 @@
 <html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-</head>
-<body>
-<span jwcid="$content$">
- 		<div class="tabArea">
-            <a href="#" jwcid="lineTab" class="tab active">Authorization</a>
-            <span jwcid="settingsTabs">
-                <a href="#" jwcid="settingsTab" class="tab"><span jwcid="settingsTabLabel">Settings</span></a>
-            </span>
-		</div>
-     	<span jwcid="lineLabel"/>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+	</head>
+	<body>
+		<span jwcid="$content$">
+			<div id="settings-nav">
+				<ul>
+					<a href="#" jwcid="lineTab" class="tab active">
+						Authorization</a>
+					<span jwcid="settingsTabs">
+						<li>
+							<a href="#" jwcid="settingsTab">
+								<span jwcid="settingsTabLabel"/>
+							</a>
+						</li>
+					</span>
+				</ul>
+			</div>
+			<span jwcid="lineLabel"/>
 			<div class="help">
 				<b>Quick Links</b>
-    		</div>
-			<h2><span jwcid="heading">Page Heading</span></h2>
+			</div>
+			<h2>
+				<span jwcid="heading">Page Heading</span>
+			</h2>
 			<span jwcid="@RenderBody"/>
-        </span>
-</span>
-</body>
+		</span>
+		</span>
+	</body>
 </html>

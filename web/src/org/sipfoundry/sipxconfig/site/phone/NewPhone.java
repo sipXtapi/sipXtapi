@@ -29,11 +29,17 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     public abstract Endpoint getEndpoint();
     
     public abstract void setEndpoint(Endpoint endpoint);
+    
+    public abstract PhoneContext getPhoneContext();
+    
+    public abstract void setPhoneContext(PhoneContext phoneContext);
 
     public void finish(IRequestCycle cycle) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
-        context.storeEndpoint(getEndpoint());
-        context.flush();
+        getPhoneContext().storeEndpoint(getEndpoint());
+
+        // nec.?
+        // getPhoneContext().flush();
+        
         cycle.activate(ManagePhones.PAGE);
     }
 
@@ -48,6 +54,7 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     public void pageBeginRender(PageEvent event_) {
         // always fresh object
         Endpoint endpoint = new Endpoint();
+        endpoint.setFolder(getPhoneContext().loadRootEndpointFolder());
         setEndpoint(endpoint);
     }
 }
