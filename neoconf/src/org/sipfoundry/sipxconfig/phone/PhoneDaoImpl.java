@@ -57,7 +57,7 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
         getHibernateTemplate().saveOrUpdate(setting);
         if (depth > 0 || depth == CASCADE && setting.getSettings().size() > 0) {
             Iterator children = setting.getSettings().values().iterator();
-            int nextDepth = (depth == CASCADE ? CASCADE : depth -1); 
+            int nextDepth = (depth == CASCADE ? CASCADE : depth - 1); 
             while (children.hasNext()) {
                 Setting child = (Setting) children.next();
                 storeSetting(child, nextDepth);                    
@@ -70,7 +70,7 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
         // or custom script acceptable too 
         Iterator children = setting.getSettings().values().iterator();
         while (children.hasNext()) {
-            deleteSetting((Setting)children.next());
+            deleteSetting((Setting) children.next());
         }
         getHibernateTemplate().delete(setting);                
     }

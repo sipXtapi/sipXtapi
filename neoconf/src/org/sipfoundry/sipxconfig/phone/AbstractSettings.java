@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Base class for vendor specific setting management
  */
-abstract public class AbstractSettings {
+public abstract class AbstractSettings {
 
     private SettingSet m_settings;
     
@@ -56,10 +56,11 @@ abstract public class AbstractSettings {
     public SettingSet defaultSettings(String name) {
         SettingSet settings = getSettings(name);
         if (settings == null) {
-            m_settings.addSetting(settings = new SettingSet(name));
+            settings = new SettingSet(name);
+            m_settings.addSetting(settings);
         }
 
-    	return settings;
+        return settings;
     }
     
     /**
@@ -71,7 +72,8 @@ abstract public class AbstractSettings {
     public Setting defaultSetting(String name, Object value) {
         Setting setting = getSetting(name);
         if (setting == null) {
-            m_settings.addSetting(setting = new Setting(name, value));
+            setting = new Setting(name, value);
+            m_settings.addSetting(setting);
         }
         
         return setting;

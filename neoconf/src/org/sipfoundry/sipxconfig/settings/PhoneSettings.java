@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.phone.SettingSet;
  */
 public class PhoneSettings extends AbstractSettings {
     
-    public final static String NETWORK_SETTINGS = "networkSettings";
+    public static final String NETWORK_SETTINGS = "networkSettings";
     
     private NetworkSettings m_network;
 
