@@ -10,11 +10,6 @@
         global.sipXconfigContext.getBean("dialPlanManager")
     </property-specification>    
 
-
-	<component id="EditPhone" type="PageLink">
-		<static-binding name="page">EditPhone</static-binding>
-	</component>
-    
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>
     </component>

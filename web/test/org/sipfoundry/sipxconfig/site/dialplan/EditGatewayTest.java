@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.TestCase;
 
@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.site.dialplan.EditCustomDialRule;
+import org.sipfoundry.sipxconfig.site.dialplan.EditGateway;
+import org.sipfoundry.sipxconfig.site.dialplan.ListGateways;
 
 /**
  * EditGatewayTest

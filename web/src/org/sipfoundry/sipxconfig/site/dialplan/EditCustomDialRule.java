@@ -21,8 +21,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
-import org.sipfoundry.sipxconfig.site.EditGateway;
-import org.sipfoundry.sipxconfig.site.SelectGateways;
 
 /**
  * EditCustomeDialRule

@@ -11,113 +11,92 @@
  */
 package org.sipfoundry.sipxconfig.site.ui;
 
-import java.io.IOException;
+import net.sourceforge.jwebunit.WebTestCase;
 
-import junit.framework.TestCase;
-
-import org.xml.sax.SAXException;
-
-import com.meterware.httpunit.SubmitButton;
-import com.meterware.httpunit.WebForm;
-import com.meterware.httpunit.WebLink;
-import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
 
 /**
  * GatewaysTestUi
  */
-public class GatewaysTestUi extends TestCase {
-
-    private WebResponse m_home;
-
+public class GatewaysTestUi extends WebTestCase {
     protected void setUp() throws Exception {
-        m_home = TestUiHelper.getHomePage();
-        // reset page
-        m_home = TestUiHelper.resetDialPlans(m_home);
+        getTestContext().setBaseUrl(TestUiHelper.SIPXCONFIG_URL);
+        beginAt("/");
+        clickLink("resetDialPlans");
     }
 
     public void testAddGateways() throws Exception {
-        WebLink link = m_home.getLinkWith("List Gateways");
-        WebResponse listGateways = link.click();
+        clickLink("ListGateways");
 
-        WebTable gatewaysTable = listGateways.getTableWithID("list:gateway");
+        assertTablePresent("list:gateway");        
+        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         int lastColumn = gatewaysTable.getColumnCount() - 1;
         assertEquals(3, lastColumn);
 
-        WebLink addGatewayLink = listGateways.getLinkWithID("addGateway");
-        WebResponse addGatewayPage = addGatewayLink.click();
+        clickLink("addGateway");
 
-        addGatewayPage = addGateway(addGatewayPage, null);
+        addGateway(null);
         // if validation works we are still on the same page
-        assertEquals("Gateway Configuration", addGatewayPage.getTitle());
+        assertTableNotPresent("list:gateway");
 
-        listGateways = addGateway(addGatewayPage, "bongo");
-        gatewaysTable = listGateways.getTableWithID("list:gateway");
+        addGateway("bongo");
+        assertTablePresent("list:gateway");        
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
         assertEquals("bongoDescription", gatewaysTable.getCellAsText(1, lastColumn));
 
-        addGatewayLink = listGateways.getLinkWithID("addGateway");
-        addGatewayPage = addGatewayLink.click();
+        clickLink("addGateway");
+        addGateway("kuku");
 
-        listGateways = addGateway(addGatewayPage, "kuku");
-        gatewaysTable = listGateways.getTableWithID("list:gateway");
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         // we should have 2 gateway now
         assertEquals(3, gatewaysTable.getRowCount());
         assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
     }
 
     public void testDeleteGateways() throws Exception {
-        WebLink link = m_home.getLinkWith("List Gateways");
-        WebResponse listGateways = link.click();
+        clickLink("ListGateways");
 
         for (int i = 0; i < 10; i++) {
-            WebLink addGatewayLink = listGateways.getLinkWithID("addGateway");
-            WebResponse addGatewayPage = addGatewayLink.click();
-
-            listGateways = addGateway(addGatewayPage, "gateway" + i);
+            clickLink("addGateway");
+            addGateway("gateway" + i);
         }
 
-        WebTable gatewaysTable = listGateways.getTableWithID("list:gateway");
+        assertTablePresent("list:gateway");        
+        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(11, gatewaysTable.getRowCount());
 
-        WebForm formGateway = listGateways.getFormWithID("list:gateway:form");
-        SubmitButton buttonDelete = formGateway.getSubmitButtonWithID("list:gateway:delete");
-        formGateway.setCheckbox("selectedRow", true);
-        formGateway.setCheckbox("selectedRow$0", true);
-        listGateways = formGateway.submit(buttonDelete);
+        checkCheckbox("selectedRow");
+        checkCheckbox("selectedRow$0");
+        clickButton("list:gateway:delete");
 
-        gatewaysTable = listGateways.getTableWithID("list:gateway");
+        assertTablePresent("list:gateway");        
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(9, gatewaysTable.getRowCount());
 
-        formGateway = listGateways.getFormWithID("list:gateway:form");
-        buttonDelete = formGateway.getSubmitButtonWithID("list:gateway:delete");
-        formGateway.setCheckbox("selectedRow", true);
+        checkCheckbox("selectedRow");
         for (int i = 0; i < 7; i++) {
-            formGateway.setCheckbox("selectedRow$" + i, true);
+            checkCheckbox("selectedRow$" + i);
         }
-        listGateways = formGateway.submit(buttonDelete);
+        clickButton("list:gateway:delete");
 
-        gatewaysTable = listGateways.getTableWithID("list:gateway");
+        assertTablePresent("list:gateway");        
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(1, gatewaysTable.getRowCount());
     }
 
     /**
      * Fills and submits edit gateway form
      * 
-     * @param page edit gateway page
      * @param name response after clicking submit button
-     * @return
      */
-    private WebResponse addGateway(WebResponse page, String name) throws SAXException,
-            IOException {
-        WebForm formGateway = page.getFormWithID("gateway");
+    private void addGateway(String name) {
         if (null != name) {
-            formGateway.setParameter("gatewayName", name + "Name");
-            formGateway.setParameter("gatewayAddress", name + "Address");
-            formGateway.setParameter("gatewayDescription", name + "Description");
+            setFormElement("gatewayName", name + "Name");
+            setFormElement("gatewayAddress", name + "Address");
+            setFormElement("gatewayDescription", name + "Description");
         }
-        SubmitButton buttonSave = formGateway.getSubmitButtonWithID("gateway:save");
-        return formGateway.submit(buttonSave);
+        clickButton("gateway:save");
     }
 }

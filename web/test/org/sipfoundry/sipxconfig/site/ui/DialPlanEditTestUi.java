@@ -29,10 +29,6 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickLink("resetDialPlans");
     }
 
-    public void testHome() {
-        assertTitleEquals("");
-    }
-
     public void testAddEditPlan() {
         clickLink("ListDialPlans");
 

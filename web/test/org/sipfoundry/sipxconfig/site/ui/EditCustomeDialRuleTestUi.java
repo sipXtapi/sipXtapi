@@ -22,7 +22,7 @@ public class EditCustomeDialRuleTestUi extends WebTestCase {
     public void setUp() {
         HttpUnitOptions.setExceptionsThrownOnScriptError(false);
         
-        getTestContext().setBaseUrl("http://localhost:8080/sipxconfig");
+        getTestContext().setBaseUrl(TestUiHelper.SIPXCONFIG_URL);
         beginAt("/");
         clickLink("EditCustomDialRule");
     }
@@ -44,7 +44,6 @@ public class EditCustomeDialRuleTestUi extends WebTestCase {
         clickLink("pattern:add");
         clickLink("pattern:add");
         
-        dumpResponse(System.err);
         // delete 2
         
         clickLink("pattern:delete");
