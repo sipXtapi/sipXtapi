@@ -96,12 +96,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 
-/usr/sbin/groupadd -r @SIPXPBXUSER@ 2> /dev/null || :
-
-/usr/sbin/useradd -c "sipXpbx user" -g @SIPXPBXUSER@ \
-        -d %{sipxpbxconf} \
-        -s /bin/bash -r @SIPXPBXUSER@ 2> /dev/null || :
-
 # Add user to jboss group
 if test `/usr/bin/groups @SIPXPBXUSER@ | grep -c jboss` -eq 0
 then
