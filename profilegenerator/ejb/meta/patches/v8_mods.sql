@@ -11,10 +11,10 @@ create sequence storage_seq;
  * S E T T I N G
  */
 create table setting(
-  setting_id int4 not null primary key,
   storage_id int4 not null,
   path varchar(256) not null,
-  value varchar(256) not null
+  value varchar(256) not null,
+  primary key (storage_id, path)
 );
 
 create sequence setting_seq;

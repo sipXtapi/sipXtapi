@@ -28,8 +28,6 @@ public class SettingValue implements Serializable {
     
     private int m_id = PhoneContext.UNSAVED_ID;
     
-    private ValueStorage m_valueStorage;
-    
     /** bean access only */
     public SettingValue() {        
     }
@@ -61,16 +59,5 @@ public class SettingValue implements Serializable {
         
     public void setValue(String value) {
         m_value = value;
-    }
-
-
-    /** hibernate only */
-    public void setValueStorage(ValueStorage valueStorage) {
-        m_valueStorage = valueStorage;
-    }
-
-    /** hibernate only */
-    public ValueStorage getValueStorage() {
-        return m_valueStorage;
     }
 }

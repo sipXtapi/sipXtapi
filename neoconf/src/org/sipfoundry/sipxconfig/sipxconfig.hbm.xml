@@ -66,27 +66,15 @@
 			<generator class="sequence">
 				<param name="sequence">storage_seq</param>
 			</generator>
-		</id>
-		<map name="values" cascade="all" inverse="true">
+		</id>		
+        <!-- S E T T I N G   V A L U E -->
+		<map name="values" cascade="all" table="setting">
 			<key column="storage_id"/>
 			<index column="path" type="string"/>
-			<many-to-many class="org.sipfoundry.sipxconfig.setting.SettingValue"/>
+			<composite-element class="org.sipfoundry.sipxconfig.setting.SettingValue">
+				<property name="value" column="value" not-null="true"/>
+			</composite-element>
 	    </map>
-	</class>
-	<!-- 
-      - S E T T I N G   V A L U E 
-	  -->
-	<class name="org.sipfoundry.sipxconfig.setting.SettingValue" table="setting">
-		<jcs-cache usage="read-write"/>
-		<id name="id" column="setting_id" type="int" unsaved-value="-1">
-			<generator class="sequence">
-				<param name="sequence">setting_seq</param>
-			</generator>
-		</id>
-		<many-to-one name="valueStorage" column="storage_id" 
-			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-		<property name="path" column="path"/>
-		<property name="value" column="value"/>
 	</class>
 	<!--
 	  -  LEGACY DATABASE MODEL 

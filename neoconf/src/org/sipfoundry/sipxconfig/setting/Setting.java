@@ -198,7 +198,8 @@ public class Setting implements Cloneable {
     
     protected void checkImmutable() {
         if (m_valueStorage == null) {
-            throw new IllegalStateException("Immutable copy, you must call getCopy on root SettingGroup instance");
+            throw new UnsupportedOperationException("Immutable copy, you must " 
+                    + "call getCopy on root SettingGroup instance");
         }        
     }
     

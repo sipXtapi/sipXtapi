@@ -28,7 +28,7 @@ public class SettingGroupTest extends TestCase {
             apple.setValue("granny smith");
             fail();
         }
-        catch (IllegalStateException e) {
+        catch (UnsupportedOperationException e) {
             assertTrue(true);
         }
     }

@@ -16,6 +16,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.vendor.Polycom;
+import org.sipfoundry.sipxconfig.vendor.PolycomPhone;
 
 /**
  * Requires Database access.
@@ -41,6 +45,16 @@ public class PhoneContextTestDb extends TestCase {
     public void testSampleEndpointLine() {
         User user = createSampleUser();
         assertNotNull(createSampleLine(user));        
+    }
+    
+    public void testSampleEndpointSettings() {
+        Endpoint endpoint = createSampleEndpoint();
+        Phone phone = m_context.getPhone(endpoint);
+        SettingGroup group = phone.getSettingGroup();
+        Setting displayName = group.getSetting(PolycomPhone.REGISTRATION_SETTINGS).getSetting("displayName");
+        displayName.setValue("blah blah");
+        m_context.storeEndpoint(endpoint);
+        TestHelper.deleteOnTearDown(endpoint);
     }
 
     public void testLoadPhoneSummaries() {
@@ -91,7 +105,8 @@ public class PhoneContextTestDb extends TestCase {
         Endpoint endpoint = new Endpoint();
         // assumption that this is unique
         endpoint.setSerialNumber("f34298760024fcc1"); 
-        endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
+        // would use generic, but this has setting values 
+        endpoint.setPhoneId(Polycom.MODEL_300.getModelId());
         m_context.storeEndpoint(endpoint);
         TestHelper.deleteOnTearDown(endpoint);
         
