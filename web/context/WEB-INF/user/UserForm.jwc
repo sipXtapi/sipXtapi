@@ -24,9 +24,25 @@
         <binding name="field" expression="components.userId"/>
     </component>
     <component id="userId" type="ValidField">
-	    <binding name="value" expression="line.userId"/>
+	    <binding name="value" expression="user.userId"/>
     	<binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="Alternate Label"/>
+	    <static-binding name="displayName" value="User ID"/>
+    </component>
+    <component id="firstNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.userId"/>
+    </component>
+    <component id="firstName" type="ValidField">
+	    <binding name="value" expression="user.lastName"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+	    <static-binding name="displayName" value="First Name"/>
+    </component>
+    <component id="lastNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.userId"/>
+    </component>
+    <component id="lastName" type="ValidField">
+	    <binding name="value" expression="user.lastName"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+	    <static-binding name="displayName" value="Last Name"/>
     </component>
         
     

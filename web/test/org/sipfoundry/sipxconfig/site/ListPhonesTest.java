@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
+import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public class ListPhonesTest extends TestCase {
 
@@ -40,7 +41,7 @@ public class ListPhonesTest extends TestCase {
         
         // page w/generated abstract methods implemented
         AbstractInstantiator pageMaker = new AbstractInstantiator();
-        ListPhones page = (ListPhones) pageMaker.getInstance(ListPhones.class);
+        ManagePhones page = (ManagePhones) pageMaker.getInstance(ManagePhones.class);
         
         MockControl daoControl = MockControl.createControl(PhoneDao.class);
         PhoneDao dao = (PhoneDao) daoControl.getMock();

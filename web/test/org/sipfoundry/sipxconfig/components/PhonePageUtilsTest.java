@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 /**
  * Comments
