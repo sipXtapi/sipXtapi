@@ -37,7 +37,7 @@ public class EmergencyRoutingRules extends XmlFile {
         return m_document;
     }
 
-    public void generate(EmergencyRouting er) {
+    public void generate(EmergencyRouting er, String domainName) {
         m_document = FACTORY.createDocument();
         Element mappings = m_document.addElement("mappings", E911RULES_NAMESPACE);
         Element defaultMatch = mappings.addElement("defaultMatch");
@@ -47,7 +47,7 @@ public class EmergencyRoutingRules extends XmlFile {
         Collection exceptions = er.getExceptions();
         for (Iterator i = exceptions.iterator(); i.hasNext();) {
             RoutingException exception = (RoutingException) i.next();
-            generateException(mappings, exception);
+            generateException(mappings, exception, domainName);
         }
     }
 
@@ -67,10 +67,11 @@ public class EmergencyRoutingRules extends XmlFile {
      * 
      * @param mappings parent element
      * @param exception bean representing routing exception
+     * @param domainName name of the domain for which exceptions are generated
      */
-    private void generateException(Element mappings, RoutingException exception) {
+    private void generateException(Element mappings, RoutingException exception, String domainName) {
         Element userMatch = mappings.addElement("userMatch");
-        String[] patterns = exception.getPatterns();
+        String[] patterns = exception.getPatterns(domainName);
         for (int j = 0; j < patterns.length; j++) {
             Element userPattern = userMatch.addElement("userPattern");
             userPattern.setText(patterns[j]);

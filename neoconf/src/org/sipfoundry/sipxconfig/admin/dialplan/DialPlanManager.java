@@ -22,6 +22,8 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.phone.Organization;
 
 /**
  * DialPlanManager TODO: need interface and hibernate persistence implementation
@@ -37,6 +39,8 @@ public class DialPlanManager {
     private transient ConfigGenerator m_generator;
 
     private DialingRuleFactory m_ruleFactory;
+    
+    private CoreContext m_coreContext;
 
     public List getGateways() {
         return m_gateways;
@@ -139,9 +143,10 @@ public class DialPlanManager {
     }
     
     public void applyEmergencyRouting() {
+        Organization organization = m_coreContext.loadRootOrganization();
         try {
             EmergencyRoutingRules rules = new EmergencyRoutingRules();
-            rules.generate(m_emergencyRouting);
+            rules.generate(m_emergencyRouting, organization.getDnsDomain());
             rules.writeToFile(m_configDirectory);
         } catch (IOException e) {
             throw new RuntimeException("Application of emergency routing rules failed.", e);
@@ -182,5 +187,9 @@ public class DialPlanManager {
     
     public void setEmergencyRouting(EmergencyRouting emergencyRouting) {
         m_emergencyRouting = emergencyRouting;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

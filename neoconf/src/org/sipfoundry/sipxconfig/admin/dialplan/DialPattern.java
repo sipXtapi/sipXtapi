@@ -63,15 +63,17 @@ public class DialPattern {
     /**
      * Helper function to tokenize list of numbers into array of strings
      * 
+     * @param patternsList comma separated list of patterns, spaces are treated as separators as well
+     * @param suffix string appended to each pattern in the resulting list
      */
-    public static String[] getPatternsFromList(String patternsList) {
+    public static String[] getPatternsFromList(String patternsList, String suffix) {
         if (StringUtils.isBlank(patternsList)) {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
         StringTokenizer tokenizer = new StringTokenizer(patternsList, SEPARATORS);
         String[] patterns = new String[tokenizer.countTokens()];
         for (int i = 0; i < patterns.length; i++) {
-            patterns[i] = tokenizer.nextToken();
+            patterns[i] = tokenizer.nextToken() + suffix;
         }
         return patterns;
     }

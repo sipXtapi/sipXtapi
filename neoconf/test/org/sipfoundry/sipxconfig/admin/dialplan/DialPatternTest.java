@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * DialPatternTest
  */
@@ -31,5 +33,22 @@ public class DialPatternTest extends TestCase {
         pattern.setPrefix("");
         assertEquals("xxxxx", pattern.calculatePattern());        
     }
+    
+    public void testGetPatternsFromList() {
+        String list = "sdf, 123, 444   , 34";
+        String[] patterns = DialPattern.getPatternsFromList(list, StringUtils.EMPTY);
+        assertEquals("sdf", patterns[0]);
+        assertEquals("123", patterns[1]);
+        assertEquals("444", patterns[2]);
+        assertEquals("34", patterns[3]);
 
+        patterns = DialPattern.getPatternsFromList(list, "bongo");
+        assertEquals("sdfbongo", patterns[0]);
+        assertEquals("123bongo", patterns[1]);
+        assertEquals("444bongo", patterns[2]);
+        assertEquals("34bongo", patterns[3]);
+
+        patterns = DialPattern.getPatternsFromList(StringUtils.EMPTY, "bongo");
+        assertEquals(0, patterns.length);
+    }
 }

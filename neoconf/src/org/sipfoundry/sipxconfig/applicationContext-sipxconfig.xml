@@ -103,6 +103,29 @@
 		</property>
 	</bean>
 	<!--
+      - C O R E  C O N T E X T   I M P L
+      -->    
+    <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>        
+    </bean>
+	<!--
+      - C O R E  C O N T E X T
+      -->
+	<bean id="coreContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.common.CoreContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>coreContextImpl</value>
+			</list>
+		</property>
+	</bean>
+	<!--
       - P H O N E  C O N T E X T   I M P L
       -->
 	<bean id="phoneContextImpl" 
@@ -152,7 +175,7 @@
 		</property>
 		<property name="systemDirectory">
 			<value>${sysdir.etc}</value>
-		</property>
+		</property>                
 		<property name="modelId">
 			<value>polycom300</value>
 		</property>
@@ -163,7 +186,7 @@
 		</property>
 		<property name="systemDirectory">
 			<value>${sysdir.etc}</value>
-		</property>
+		</property>                
 		<property name="modelId">
 			<value>polycom500</value>
 		</property>
@@ -174,7 +197,7 @@
 		</property>
 		<property name="systemDirectory">
 			<value>${sysdir.etc}</value>
-		</property>
+		</property>                
 		<property name="modelId">
 			<value>polycom600</value>
 		</property>
@@ -328,6 +351,9 @@
     </bean>
     
     <bean id="dialPlanManager" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+        <property name="coreContext">
+            <ref bean="coreContext"></ref>
+        </property>
     	<property name="flexDialPlan">
             <ref bean="flexDialPlan"></ref>
         </property>

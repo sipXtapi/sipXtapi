@@ -57,7 +57,7 @@ public class EmergencyRoutingRulesTest extends XMLTestCase {
 
     public void testGenerate() throws Exception {
         EmergencyRoutingRules rules = new EmergencyRoutingRules();
-        rules.generate(m_routing);
+        rules.generate(m_routing, "domain.com");
         String generatedXml = rules.getFileContent();        
         InputStream referenceXml = EmergencyRoutingRulesTest.class.getResourceAsStream("e911rules.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml),  new StringReader(generatedXml));

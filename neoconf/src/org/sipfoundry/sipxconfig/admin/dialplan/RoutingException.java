@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+
 /**
  * RoutingException
  */
@@ -63,7 +64,8 @@ public class RoutingException extends BeanWithId {
         m_gateway = gateway;
     }
 
-    public String[] getPatterns() {
-        return DialPattern.getPatternsFromList(m_callers);
+    public String[] getPatterns(String domainName) {
+        String suffix = "@" + domainName;
+        return DialPattern.getPatternsFromList(m_callers, suffix);
     }
 }
