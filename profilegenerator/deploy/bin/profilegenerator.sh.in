@@ -27,7 +27,7 @@ fi
 export JAVA_HOME=@JAVA_HOME@
 
 # Needed for ${JBOSS_HOME}/bin/run.sh
-export PATH=$PATH:@JAVA_HOME@/bin
+export PATH=@JAVA_HOME@/bin:$PATH
 
 echo $$ > @localstatedir@/run/profilegenerator.pid
 

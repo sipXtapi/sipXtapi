@@ -21,6 +21,7 @@ profile.dir=@profiledir@
 sipxconfig.lib.dir=@SIPXCONFIGLIB@
 sipxpbx.data.dir=@SIPXPBXDATA@
 sipxpbx.conf.dir=@SIPXPBXCONF@
+sipxpbx.user=@SIPXPBXUSER@
 common.jar=${top.build.dir}/common/dist/common.jar
 commserver.jar=${top.build.dir}/profilegenerator/commserver/dist/commserver.jar
 profilegen-ejb.jar=${top.build.dir}/profilegenerator/ejb/dist/profilegen-ejb.jar
@@ -56,13 +57,13 @@ manifest.classpath=common.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen
 
 
 # J 2 E E
-jboss.home=@JBOSS_HOME@
+jboss.home=@JBOSS_HOME@/jboss
 jboss.client.lib=${jboss.home}/client
 jboss.lib=${jboss.home}/lib
 jboss.ext=${jboss.home}/lib/ext
 jboss.container.deploy=${jboss.home}/deploy
 jboss.container.lib=${jboss.container.deploy}/lib
-tomcat.home=@TOMCAT_HOME@
+tomcat.home=@JBOSS_HOME@/catalina
 tomcat.common.lib=${tomcat.home}/common/lib
 tomcat.lib=${tomcat.home}/common/lib
 wsdl4j.jar=${top.dir}/lib/wsdl4j.jar

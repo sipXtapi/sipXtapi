@@ -36,9 +36,9 @@
 
   <!-- I N S T A L L -->
   <target name="install" depends="ear" description="Deploy into JBoss container!!!">
-      <copy file="${jdbc-driver.jar}" todir="${jboss.ext}"/>
-      <copy file="bin/profilegenerator.sh.in" tofile="${bin.dir}/profilegenerator.sh"/>
-      <replace file="${bin.dir}/profilegenerator.sh"
+      <copy file="${jdbc-driver.jar}" todir="${dest.dir}${jboss.ext}"/>
+      <copy file="bin/profilegenerator.sh.in" tofile="${dest.dir}${bin.dir}/profilegenerator.sh"/>
+      <replace file="${dest.dir}${bin.dir}/profilegenerator.sh"
         propertyfile="${top.build.dir}/config.properties">
         <replacefilter token="@JAVA_HOME@" property="java.home"/>
         <replacefilter token="@JBOSS_HOME@" property="jboss.home"/>
@@ -46,27 +46,27 @@
         <replacefilter token="@bindir@" property="bin.dir"/>
         <replacefilter token="@localstatedir@" property="localstate.dir"/>
       </replace>
-      <chmod file="${bin.dir}/profilegenerator.sh" perm="ugo+x" />
+      <chmod file="${dest.dir}${bin.dir}/profilegenerator.sh" perm="ugo+x" />
 
-      <mkdir dir="${sipxpbx.conf.dir}"/>
-      <copy todir="${sipxpbx.conf.dir}">
+      <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+      <copy todir="${dest.dir}${sipxpbx.conf.dir}">
         <fileset dir="etc">
           <include name="pgs.props.in"/>
           <include name="topology.xml.in"/>
         </fileset>
       </copy>
 
-      <mkdir dir="${sipxpbx.data.dir}/sql"/>
-      <copy todir="${sipxpbx.data.dir}/sql">
+      <mkdir dir="${dest.dir}${sipxpbx.data.dir}/sql"/>
+      <copy todir="${dest.dir}${sipxpbx.data.dir}/sql">
         <fileset dir="../meta/sql" includes="**"/>
       </copy>
 
-      <mkdir dir="${sipxpbx.data.dir}/devicedefs"/>
-      <copy todir="${sipxpbx.data.dir}/devicedefs">
+      <mkdir dir="${dest.dir}${sipxpbx.data.dir}/devicedefs"/>
+      <copy todir="${dest.dir}${sipxpbx.data.dir}/devicedefs">
         <fileset dir="../meta/devicedefs" includes="**"/>
       </copy>
 
-      <copy file="${profilegenerator.ear}" todir="${jboss.container.deploy}"/>
+      <copy file="${profilegenerator.ear}" todir="${dest.dir}${jboss.container.deploy}"/>
   </target>
 
   <!-- STUB -->

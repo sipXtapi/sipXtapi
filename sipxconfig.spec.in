@@ -1,0 +1,115 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: 1
+
+Summary: Configuration Managment for SIP base Phones
+Copyright: LGPL
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXconfig
+
+# Unfortunately because of Java's .so's  TODO: Figure out a way to 
+# tell rpm find-requires to find java's so
+AutoReqProv: no
+
+Source: http://www.sipfoundry.org/pub/sipXconfig/%name-%version.tar.gz
+
+Requires: sipxtacklib >= 2.5
+Requires: sipxcommserverlib >= 2.5
+Requires: sipx-jboss >= 2.4
+Requires: rh-postgresql-server >= 7.3
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+  Configuring one phone can be a daunting task, configuring a hundred
+phones can be maddening. sipXconfig leverages JBoss, Tomcat, Axis
+SOAP, postgresql and other J2EE technologies to get the job done.
+
+%prep
+%setup -q
+
+%build
+%configure
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+# WARNING: Do use @SIPXPBXCONF@ because prefix used and 'make dist'
+# typically does not RPM's prefix
+
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog
+%attr(755,root,root) %{_bindir}
+%attr(755,root,root) %{_libdir}/lib*.so*
+%{_libdir}/lib*.la
+@JBOSS_HOME@/jboss/deploy/profilegenerator.ear
+@JBOSS_HOME@/jboss/lib/ext/*.jar
+
+# Because of generation of config files via config.defs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_prefix}/www/conf
+%config %{_prefix}/www/conf/*
+
+# Because of generation of config files via config.defs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+%config %{_sysconfdir}/sipxpbx/*
+
+%{_datadir}/sipxpbx
+
+
+%pre
+
+/usr/sbin/groupadd -r @SIPXPBXUSER@ 2> /dev/null || :
+
+/usr/sbin/useradd -c "sipXpbx user" -g @SIPXPBXUSER@ \
+        -s /sbin/nologin -r @SIPXPBXUSER@ 2> /dev/null || :
+
+# Add user to jboss group
+if test `/usr/bin/groups @SIPXPBXUSER@ | grep -c jboss` -eq 0
+then
+  Groups=`/usr/bin/groups @SIPXPBXUSER@ | sed -e 's/^@SIPXPBXUSER@ : //g' -e 's/ /,/g'`
+  /usr/sbin/usermod @SIPXPBXUSER@ -G $Groups,jboss
+fi
+
+#TODO: Verify sipxchange user can r/w to jboss's log and deploy scratch dirs
+
+%post
+
+# NOTE: will leave having started the database (or restarted)
+%{_bindir}/sipxdbmgr --setup
+
+for Database in PDS SDS; do
+  if test `%{_bindir}/sipxdbmgr --revision $Database` -eq 0
+  then
+       %{_bindir}/sipxdbmgr --create $Database
+  fi
+done
+
+################################################################
+# WARNING: This must be removed - still need to
+#   work out details with project coordinators
+###############################################################
+chown root:@SIPXPBXUSER@ %{_localstatedir}/log
+chmod g+w %{_localstatedir}/log
+
+chown root:@SIPXPBXUSER@ %{_localstatedir}/run
+chmod g+w %{_localstatedir}/run
+   
+
+

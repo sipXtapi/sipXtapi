@@ -48,9 +48,9 @@
   <target name="install">
 
     <!-- startup scripts -->
-    <mkdir dir="${bin.dir}"/>
-    <copy file="bin/profilewriter.sh.in" tofile="${bin.dir}/profilewriter.sh"/>
-    <replace file="${bin.dir}/profilewriter.sh" 
+    <mkdir dir="${dest.dir}${bin.dir}"/>
+    <copy file="bin/profilewriter.sh.in" tofile="${dest.dir}${bin.dir}/profilewriter.sh"/>
+    <replace file="${dest.dir}${bin.dir}/profilewriter.sh" 
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@JAVA_HOME@" property="java.home"/>
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
@@ -58,27 +58,27 @@
       <replacefilter token="@bindir@" property="bin.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
     </replace>
-    <chmod file="${bin.dir}/profilewriter.sh" perm="ugo+x"/>
+    <chmod file="${dest.dir}${bin.dir}/profilewriter.sh" perm="ugo+x"/>
 
     <!-- web system -->
-    <copy file="${dist.dir}/profilewriter.jar" todir="${sipxconfig.lib.dir}"/>
-    <mkdir dir="${www.dir}/doc/phone/applications"/>
-    <mkdir dir="${www.dir}/doc/phone/catalog"/>
-    <mkdir dir="${www.dir}/conf"/>
-    <mkdir dir="${profile.dir}/docroot"/>
-    <mkdir dir="${profile.dir}/tftproot"/>
+    <copy file="${dist.dir}/profilewriter.jar" todir="${dest.dir}${sipxconfig.lib.dir}"/>
+    <mkdir dir="${dest.dir}${www.dir}/doc/phone/applications"/>
+    <mkdir dir="${dest.dir}${www.dir}/doc/phone/catalog"/>
+    <mkdir dir="${dest.dir}${www.dir}/conf"/>
+    <mkdir dir="${dest.dir}${profile.dir}/docroot"/>
+    <mkdir dir="${dest.dir}${profile.dir}/tftproot"/>
 
     <!-- configuration -->
-    <mkdir dir="${sipxpbx.conf.dir}"/>
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
     <copy file="etc/profilewriter.props.in.in" 
-        tofile="${sipxpbx.conf.dir}/profilewriter.props.in" />
-    <replace file="${sipxpbx.conf.dir}/profilewriter.props.in" 
+        tofile="${dest.dir}${sipxpbx.conf.dir}/profilewriter.props.in" />
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/profilewriter.props.in" 
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@profiledir@" property="profile.dir"/>
     </replace>
 
-    <mkdir dir="${www.dir}/conf"/>
-    <copy todir="${www.dir}/conf">
+    <mkdir dir="${dest.dir}${www.dir}/conf"/>
+    <copy todir="${dest.dir}${www.dir}/conf">
       <mapper type="glob" from="*.in" to="*" />
       <fileset dir="etc">
         <include name="httpd-sipxchange-configserver-pw.conf.in.in" />
@@ -86,7 +86,7 @@
       </fileset>      
     </copy>
 
-    <replace dir="${www.dir}/conf" 
+    <replace dir="${dest.dir}${www.dir}/conf" 
         propertyfile="${top.build.dir}/config.properties">
       <include name="httpd-sipxchange-configserver-pw.conf.in"/>
       <include name="httpd-sipxchange-configserver-pw-ssl.conf.in"/>

@@ -49,21 +49,21 @@
   <!-- I N S T A L L -->
   <target name="install" depends="jar">
 
-    <mkdir dir="${sipxpbx.conf.dir}"/>
-    <copy todir="${sipxpbx.conf.dir}">
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy todir="${dest.dir}${sipxpbx.conf.dir}">
       <fileset dir="etc">
         <include name="sds-config.in"/>
         <include name="sds.props.in"/>
       </fileset>
     </copy>
 
-    <mkdir dir="${sipxpbx.data.dir}/sql"/>
-    <copy todir="${sipxpbx.data.dir}/sql">
+    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/sql"/>
+    <copy todir="${dest.dir}${sipxpbx.data.dir}/sql">
       <fileset dir="meta/sql" includes="**"/>
     </copy>
 
-    <copy file="bin/profilepublisher.sh.in" tofile="${bin.dir}/profilepublisher.sh"/>
-    <replace file="${bin.dir}/profilepublisher.sh" 
+    <copy file="bin/profilepublisher.sh.in" tofile="${dest.dir}${bin.dir}/profilepublisher.sh"/>
+    <replace file="${dest.dir}${bin.dir}/profilepublisher.sh" 
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@JAVA@" property="java"/>
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
@@ -72,9 +72,9 @@
       <replacefilter token="@libdir@" property="lib.dir"/>
       <replacefilter token="@bindir@" property="bin.dir"/>
     </replace>
-    <chmod file="${bin.dir}/profilepublisher.sh" perm="ugo+x"/>
+    <chmod file="${dest.dir}${bin.dir}/profilepublisher.sh" perm="ugo+x"/>
 
-    <copy file="${dist.dir}/profilepublisher.jar" todir="${sipxconfig.lib.dir}"/>
+    <copy file="${dist.dir}/profilepublisher.jar" todir="${dest.dir}${sipxconfig.lib.dir}"/>
 
   </target>
  

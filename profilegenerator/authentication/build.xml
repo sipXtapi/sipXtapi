@@ -28,7 +28,7 @@
 
   <!-- I N S T A L L -->
   <target name="install" depends="jar">
-    <copy file="${dist.dir}/profilegen-auth.jar" todir="${jboss.ext}"/>
+    <copy file="${dist.dir}/profilegen-auth.jar" todir="${dest.dir}${jboss.ext}"/>
   </target>
 
 </project>

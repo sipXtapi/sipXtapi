@@ -87,8 +87,8 @@
 
   <!-- I N S T A L L -->
   <target name="install" depends="war">
-    <mkdir dir="${sipxpbx.data.dir}/xslt"/>
-    <copy todir="${sipxpbx.data.dir}/xslt">
+    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/xslt"/>
+    <copy todir="${dest.dir}${sipxpbx.data.dir}/xslt">
       <fileset dir="site/xslt"/>
     </copy>
   </target>

@@ -3,12 +3,14 @@ SUBDIRS = . etc common profilegenerator profilepublisher profilewriter sipagent-
 
 EXTRA_DIST = \
     doc/license \
-    build.xml \
+    ant-targets.am \
     ant-targets.xml \
     acsite.m4 \
     CONTRIBUTORS \
+    LICENSE \
     config.properties.in \
     common \
+    sipxconfig.spec.in \
     profilegenerator \
     profilewriter \
     profilepublisher \
@@ -22,13 +24,14 @@ edit = sed \
         -e 's,@JAVA\@,@JAVA@,g' \
         -e 's,@JAVAC_OPTIMIZED\@,@JAVAC_OPTIMIZED@,g' \
         -e 's,@JAVAC_DEBUG\@,@JAVAC_DEBUG@,g' \
+        -e 's,@PACKAGE\@,@PACKAGE@,g' \
         -e 's,@VERSION\@,@VERSION@,g' \
         -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
         -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
-        -e 's,@TOMCAT_HOME\@,@TOMCAT_HOME@,g' \
         -e 's,@SIPXCONFIGLIB\@,@SIPXCONFIGLIB@,g' \
         -e 's,@SIPXPBXCONF\@,@SIPXPBXCONF@,g' \
         -e 's,@SIPXPBXDATA\@,@SIPXPBXDATA@,g' \
+        -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
         -e 's,@profiledir\@,@profiledir@,g' \
         -e 's,@wwwdir\@,@wwwdir@,g' \
         -e 's,@localstatedir\@,$(localstatedir),g' \
@@ -43,9 +46,10 @@ config.properties : config.properties.in Makefile
 	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
 
 # Alternative is to do svn export, but it's very handy to be able to 
-# create a dist tarball from a working svn chewckout
-dist-hook:
+# create a dist tarball from a working svn checkout
+dist-hook: sipxconfig.spec
 	rm -rf `find $(distdir) -type d -name .svn`
+	cp sipxconfig.spec $(distdir)
 
 
 # Override default tarball creation, need to support paths > 99 chars
@@ -57,4 +61,13 @@ dist dist-all: distdir
 	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
 	$(am__remove_distdir)
 
- 
+.PHONY : rpm
+rpm: dist
+	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
+	mv -f /usr/src/redhat/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
+	mv -f /usr/src/redhat/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
+
+# RPM Spec file
+sipxconfig.spec : sipxconfig.spec.in
+	$(edit) $(srcdir)/sipxconfig.spec.in > sipxconfig.spec
+

@@ -22,6 +22,10 @@
 
   <!-- I N I T -->
   <target name="init" depends="ant-targets.init">
+  </target>
+
+  <!-- V E R S I O N -->
+  <target name="version" depends="init">
     <copy file="meta/buildVersion.properties.in" tofile="${buildVersion.properties}"/>
     <replace file="${buildVersion.properties}" 
         propertyfile="${top.build.dir}/config.properties">
@@ -39,7 +43,7 @@
   </target>
 
   <!-- J A R -->
-  <target name="jar" depends="compile" description="PDS interface jar file">
+  <target name="jar" depends="version,compile" description="PDS interface jar file">
     <jar jarfile="${dist.dir}/common.jar">
       <fileset dir="${classes.dir}" >
           <include name="**/*.class" />
@@ -51,23 +55,31 @@
   <!-- I N S T A L L -->
   <target name="install" depends="jar">
 
-    <mkdir dir="${sipxpbx.conf.dir}"/>
-    <copy file="etc/security.policy" todir="${sipxpbx.conf.dir}"/>
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy file="etc/security.policy" todir="${dest.dir}${sipxpbx.conf.dir}"/>
 
-    <mkdir dir="${localstate.dir}/log"/>
+    <mkdir dir="${dest.dir}${localstate.dir}/log"/>
 
-    <mkdir dir="${bin.dir}"/>
-    <copy file="bin/startrmireg.sh.in" tofile="${bin.dir}/startrmireg.sh"/>
-    <replace file="${bin.dir}/startrmireg.sh" 
-        propertyfile="${top.build.dir}/config.properties">
+    <mkdir dir="${dest.dir}${bin.dir}"/>
+    <copy file="bin/startrmireg.sh.in" tofile="${dest.dir}${bin.dir}/startrmireg.sh"/>
+    <replace file="${dest.dir}${bin.dir}/startrmireg.sh"
+         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@JAVA_HOME@" property="java.home"/>
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
     </replace>
-    <chmod file="${bin.dir}/startrmireg.sh" perm="ugo+x"/>
+    <chmod file="${dest.dir}${bin.dir}/startrmireg.sh" perm="ugo+x"/>
 
-    <mkdir dir="${sipxconfig.lib.dir}"/>
-    <copy todir="${sipxconfig.lib.dir}">
+    <copy file="bin/sipxdbmgr.in" tofile="${dest.dir}${bin.dir}/sipxdbmgr"/>
+    <replace file="${dest.dir}${bin.dir}/sipxdbmgr"
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@SIPXPBXUSER@" property="sipxpbx.user"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/sipxdbmgr" perm="ugo+x"/>
+
+    <mkdir dir="${dest.dir}${sipxconfig.lib.dir}"/>
+    <copy todir="${dest.dir}${sipxconfig.lib.dir}">
       <fileset dir="${top.dir}/lib">
         <include name="axis.jar"/>
         <include name="commons-collections.jar"/>
@@ -91,7 +103,7 @@
       </fileset>
     </copy>
 
-    <copy file="${common.jar}" todir="${sipxconfig.lib.dir}"/>
+    <copy file="${common.jar}" todir="${dest.dir}${sipxconfig.lib.dir}"/>
 
   </target>
 

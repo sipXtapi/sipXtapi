@@ -1,3 +1,3 @@
 
-nobase_include_HEADERS = \
+noinst_HEADERS = \
     sipendpoint/JNIHelpers.h

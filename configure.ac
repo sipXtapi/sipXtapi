@@ -2,16 +2,26 @@
 # Process this file with autoconf to produce a configure script.
 # benign edit
 
-AC_PREREQ(2.59)
+AC_PREREQ(2.57)
 AC_INIT(sipXconfig, 2.5, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
+
+# for sipagent-jni. could not find a way to disable from make file
+# disable to not consume unnec. compile time and unnec install space
+# in particular reduce size of rpm
+AM_DISABLE_STATIC
+
 AM_INIT_AUTOMAKE(foreign)
-SFAC_AUTOMAKE_VERSION([1.8])
+SFAC_AUTOMAKE_VERSION([1.6])
+CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([common/src/com/pingtel/pds/common/PDSException.java])
 AM_CONFIG_HEADER([config.h])
+
+
 AC_PROG_LIBTOOL
+
 
 # Checks for programs.
 AC_PROG_CXX
@@ -65,10 +75,10 @@ AC_SUBST(SIPXCONFIGLIB, [$SIPXPBXDATA/lib])
 #  http://server:8090/phone/profiles
 AC_SUBST(profiledir, [${wwwdir}/doc/phone/profile])
 
+
 CHECK_JNI
 CHECK_ANT
 CHECK_JBOSS_HOME
-CHECK_TOMCAT_HOME
 
 AC_CONFIG_FILES([
     Makefile

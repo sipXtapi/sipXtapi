@@ -1,0 +1,198 @@
+#!/bin/bash
+
+Action=USAGE
+Service=$POSTGRES_SERVICE
+
+# Redhat Enterprise is distributing a modified version of postgres
+# so look for that instead
+determineServiceName()
+{
+    if test -z $Service
+    then
+        if [ -f /etc/init.d/rhdb ]
+        then
+            Service=rhdb
+        else
+            Service=postgresql
+        fi
+    fi
+}
+
+determineServiceName
+
+while [ "$#" -ne 0 ]
+do
+    case ${1} in
+
+        -s|--setup)
+        Action=SETUP
+        ;;
+
+        -c|--create)
+        Action=CREATE
+        ;;
+
+        -h|--help)
+        Action=USAGE
+        ;;
+
+        -d|--drop)
+        Action=DROP
+        ;;
+
+        -r|--revision)
+        Action=REVISION
+        ;;
+
+        *)
+        if test -z $Database
+        then
+            Database=${1}
+            shift
+        else
+            echo "Too many arguments: ${1}"
+            Action=USAGE
+            break;
+        fi
+    esac
+
+    shift #always consume 1
+done
+
+if test "$Action" = "SETUP"
+then
+
+  /etc/init.d/$Service stop >2 /dev/null
+
+  # Custom
+  if test -z $PGDATA
+  then
+      # Debian/Gentoo
+      if test -d /var/lib/postgresql/data
+      then
+          PGDATA=/var/lib/postgresql/data
+      else
+          # Redhat
+          PGDATA=/var/lib/pgsql/data
+      fi
+  fi
+
+  # harmless is executed more than once
+  su -c "initdb --pgdata=$PGDATA" postgres
+
+  # Create back up file (possibly) requiring update
+  if [ ! -f $PGDATA/pg_hba.conf-sipx.bak ]
+  then
+     cp $PGDATA/pg_hba.conf $PGDATA/pg_hba.conf.sipx.bak
+  fi
+
+  # Will allow this script to add user
+  if test `grep -c '^local *all *all *trust\b*$' \
+          $PGDATA/pg_hba.conf` -eq 0
+  then
+     echo "local all all trust" >> $PGDATA/pg_hba.conf
+  fi
+
+  # Will allow jboss to connect
+  if test `grep -c '^host *all *all *127.0.0.1 *255.255.255.255 *trust\b*$' \
+          $PGDATA/pg_hba.conf` -eq 0
+  then
+     echo "host all all 127.0.0.1 255.255.255.255 trust" >> $PGDATA/pg_hba.conf
+  fi
+
+  # Open up tcpid connections
+  sed -i-sipx.bak -e 's/\#tcpip_socket\s=\sfalse/tcpip_socket = true/g' \
+          $PGDATA/postgresql.conf
+  chown postgres:postgres $PGDATA/postgresql.conf
+
+  # Postmaster to allow connections
+  echo "-i" > $PGDATA/postmaster.opts.default
+  chmod 664 $PGDATA/postmaster.opts.default
+  chown postgres:postgres $PGDATA/postmaster.opts.default
+
+  /etc/init.d/$Service start
+
+  # If user doesn't exist in postgres' db create it, blindly dropping
+  # then blindly creating fails when PDS or SDS dbs already exists
+  if test `psql -U postgres -c \
+         "select 'yes' from pg_user where usename='sipxchange';" \
+         -d template1 | grep -c yes` -eq 0
+  then
+    createuser -U postgres --no-adduser --createdb @SIPXPBXUSER@
+  fi
+
+  exit 0
+
+elif test "$Action" = CREATE && test $Database = PDS
+then
+
+    createdb -U @SIPXPBXUSER@ --encoding=UNICODE $Database
+    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_create.sql $Database
+    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_alter.sql $Database
+    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_seq.sql $Database
+    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_initvalues.sql $Database
+
+    exit 0
+
+elif test "$Action" = CREATE && test $Database = SDS
+then
+
+    createdb -U @SIPXPBXUSER@ --encoding=UNICODE $Database
+    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilepub_create.sql $Database
+    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilepub_alter.sql $Database
+    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilepub_seq.sql $Database
+
+    exit 0
+
+elif test "$Action" = REVISION && ! test -z $Database
+then
+
+    if [ `psql -l -U postgres | grep -c "$Database"` -ne 0 ]
+    then
+        # until we have a db query to get revision, existance of db
+        # means first revision
+        echo "1"
+    else
+        # zero means no database
+        echo "0"
+    fi
+
+    exit 0
+   
+elif test "$Action" = DROP && ! test -z $Database
+then
+
+    dropdb -U @SIPXPBXUSER@ $Database
+
+    exit 0
+
+fi
+
+cat <<USAGE
+Usage: sipxdbmgr [-s|--setup]
+                 [-c|--create] [PDS|SDS]
+                 [-d|--drop] [PDS|SDS]
+                 [-r|--revision] [PDS|SDS]
+
+Manages creating, updating of sipxpbx's postgres database
+
+Options are:
+
+      --create       Create all tables in database, If db exists, it must 
+                     be dropped first. 
+
+      --setup        Setup postgresql for communicating with sipx
+
+      --drop         Drop tables in given database (w/o warning or confirmation!)
+
+      --revision     Return revision of database
+
+Notable Environment Variables:
+
+    POSTGRES_SERVICE   a guess is made to dermine postgres service.  If guess
+                       incorrect set this to the service in /etc/init.d that
+                       starts stops postgres db
+    
+
+USAGE
+exit
