@@ -29,15 +29,15 @@ edit = sed \
         -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
         -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
         -e 's,@SIPXCONFIGLIB\@,@SIPXCONFIGLIB@,g' \
-        -e 's,@SIPXPBXCONF\@,@SIPXPBXCONF@,g' \
-        -e 's,@SIPXPBXDATA\@,@SIPXPBXDATA@,g' \
+        -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
+        -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
         -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
         -e 's,@profiledir\@,@profiledir@,g' \
         -e 's,@htmldir\@,@htmldir@,g' \
         -e 's,@localstatedir\@,$(localstatedir),g' \
-        -e 's,@SIPXPBXLOG\@,@SIPXPBXLOG@,g' \
-        -e 's,@SIPXPBXRUN\@,@SIPXPBXRUN@,g' \
-        -e 's,@SIPXPBXTMP\@,@SIPXPBXTMP@,g' \
+        -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \
+        -e 's,@SIPX_RUNDIR\@,@SIPX_RUNDIR@,g' \
+        -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
         -e 's,@libdir\@,$(libdir),g' \
         -e 's,@bindir\@,$(bindir),g'
 

@@ -30,10 +30,10 @@
     <replace file="${buildVersion.properties}" 
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@VERSION@" property="version"/>
-      <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
-      <replacefilter token="@SIPXPBXTMP@" property="sipxpbx.tmp.dir"/>
-      <replacefilter token="@SIPXPBXLOG@" property="sipxpbx.log.dir"/>
+      <replacefilter token="@SIPX_CONFDIR@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@SIPX_DATADIR@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@SIPX_TMPDIR@" property="sipxpbx.tmp.dir"/>
+      <replacefilter token="@SIPX_LOGDIR@" property="sipxpbx.log.dir"/>
     </replace>
   </target>
 
@@ -64,9 +64,9 @@
     <replace file="${dest.dir}${bin.dir}/startrmireg.sh"
          propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@JAVA_HOME@" property="java.home"/>
-      <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@SIPX_CONFDIR@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
-      <replacefilter token="@SIPXPBXRUN@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@SIPX_RUNDIR@" property="sipxpbx.run.dir"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/startrmireg.sh" perm="ugo+x"/>
 
@@ -77,7 +77,7 @@
     <copy file="bin/sipxdbmgr.in" tofile="${dest.dir}${bin.dir}/sipxdbmgr"/>
     <replace file="${dest.dir}${bin.dir}/sipxdbmgr"
         propertyfile="${top.build.dir}/config.properties">
-      <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@SIPX_DATADIR@" property="sipxpbx.data.dir"/>
       <replacefilter token="@SIPXPBXUSER@" property="sipxpbx.user"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/sipxdbmgr" perm="ugo+x"/>

@@ -4,7 +4,7 @@
 # This is only available to the default (*:8090) port if there is no SSL
 LoadModule jk_module modules/mod_jk.so
 
-JkWorkersFile @SIPXPBXCONF@/workers.properties
+JkWorkersFile @SIPX_CONFDIR@/workers.properties
 JkLogFile @localstatedir@/logs/mod_jk.log
 
 #

@@ -3,12 +3,12 @@
 # Startup Script for Software Delivery Service
 # Check for SUN(tm) JVM w/ HotSpot support
 
-CONFIG_DEFS="@SIPXPBXCONF@/config.defs"
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 jars=@SIPXCONFIGLIB@
 
 CONFIG_FILES="\
-  @SIPXPBXCONF@/sds.props \
-  @SIPXPBXCONF@/sds-config \
+  @SIPX_CONFDIR@/sds.props \
+  @SIPX_CONFDIR@/sds-config \
   "
 
 # If the "config.defs" file exists and the <name>.in file exists for a
@@ -29,10 +29,10 @@ for jar in ${jars}/*.jar ; do
    CLASSPATH=$CLASSPATH:$jar
 done
 
-LIB_HOME=@SIPXPBXDATA@
+LIB_HOME=@SIPX_DATADIR@
 PDS_DEBUG=-Dpds.debug=false
 
-echo $$ > @SIPXPBXRUN@/profilepublisher.pid
+echo $$ > @SIPX_RUNDIR@/profilepublisher.pid
 
 # Production command line
-exec @JAVA@ $HOTSPOT -classpath $CLASSPATH $PDS_DEBUG -Djava.rmi.server.codebase="file:${jars}/profilepublisher.jar file:${jars}/common.jar file:${jars}/pgjdbc2.jar" -Dsds.props="@SIPXPBXCONF@/sds.props" -Djava.security.policy="file:@SIPXPBXCONF@/security.policy" -Djava.library.path=@libdir@ -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Djava.naming.provider.url="localhost:1099" com.pingtel.pds.sds.SoftwareDeliveryServer $@
+exec @JAVA@ $HOTSPOT -classpath $CLASSPATH $PDS_DEBUG -Djava.rmi.server.codebase="file:${jars}/profilepublisher.jar file:${jars}/common.jar file:${jars}/pgjdbc2.jar" -Dsds.props="@SIPX_CONFDIR@/sds.props" -Djava.security.policy="file:@SIPX_CONFDIR@/security.policy" -Djava.library.path=@libdir@ -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Djava.naming.provider.url="localhost:1099" com.pingtel.pds.sds.SoftwareDeliveryServer $@

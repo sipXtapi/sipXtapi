@@ -2,12 +2,12 @@
 
 # Startup Script for Software Delivery Service
 # Check for SUN(tm) JVM w/ HotSpot support
-jars=@SIPXPBXDATA@/lib
+jars=@SIPX_DATADIR@/lib
 
-CONFIG_DEFS="@SIPXPBXCONF@/config.defs"
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPXPBXCONF@/profilewriter.props \
+  @SIPX_CONFDIR@/profilewriter.props \
   "
 
 # If the "config.defs" file exists and the <name>.in file exists for a
@@ -30,7 +30,7 @@ done
 
 PDS_DEBUG=-Dpds.debug=true
 
-echo $$ > @SIPXPBXRUN@/profilewriter.pid
+echo $$ > @SIPX_RUNDIR@/profilewriter.pid
 
 # Production command line
-exec @JAVA_HOME@/bin/java $HOTSPOT -classpath $CLASSPATH $PDS_DEBUG -Djava.rmi.server.codebase="file:${jars}/profilewriter.jar file:${jars}/profilegen-client.jar file:${jars}/common.jar" -Dprofilewriter.props=@SIPXPBXCONF@/profilewriter.props -Djava.security.policy=file:@SIPXPBXCONF@/security.policy com.pingtel.pds.profilewriter.ProfileWriterServer $@
+exec @JAVA_HOME@/bin/java $HOTSPOT -classpath $CLASSPATH $PDS_DEBUG -Djava.rmi.server.codebase="file:${jars}/profilewriter.jar file:${jars}/profilegen-client.jar file:${jars}/common.jar" -Dprofilewriter.props=@SIPX_CONFDIR@/profilewriter.props -Djava.security.policy=file:@SIPX_CONFDIR@/security.policy com.pingtel.pds.profilewriter.ProfileWriterServer $@

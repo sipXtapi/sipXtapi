@@ -1,5 +1,5 @@
 #!/bin/sh
 
-echo $$ > @SIPXPBXRUN@/rmiregistry.pid
+echo $$ > @SIPX_RUNDIR@/rmiregistry.pid
 
-exec @JAVA_HOME@/bin/rmiregistry -J-Dsun.rmi.loader.logLevel=VERBOSE -J-Djava.security.policy=@SIPXPBXCONF@/security.policy 2001
+exec @JAVA_HOME@/bin/rmiregistry -J-Dsun.rmi.loader.logLevel=VERBOSE -J-Djava.security.policy=@SIPX_CONFDIR@/security.policy 2001

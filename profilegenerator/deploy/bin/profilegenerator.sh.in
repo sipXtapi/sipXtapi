@@ -3,11 +3,11 @@
 # Startup Script for Profile Generator Service
 # Check for SUN(tm) JVM w/ HotSpot support
 
-CONFIG_DEFS="@SIPXPBXCONF@/config.defs"
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPXPBXCONF@/pgs.props
-  @SIPXPBXCONF@/topology.xml
+  @SIPX_CONFDIR@/pgs.props
+  @SIPX_CONFDIR@/topology.xml
   "
 
 # If the "config.defs" file exists and the <name>.in file exists for a
@@ -29,7 +29,7 @@ export JAVA_HOME=@JAVA_HOME@
 # Needed for ${JBOSS_HOME}/bin/run.sh
 export PATH=@JAVA_HOME@/bin:$PATH
 
-echo $$ > @SIPXPBXRUN@/profilegenerator.pid
+echo $$ > @SIPX_RUNDIR@/profilegenerator.pid
 
 # Production command line
 cd @JBOSS_HOME@/bin

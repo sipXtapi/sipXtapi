@@ -59,7 +59,7 @@
 
     <replace file="${dest.dir}${sipxpbx.conf.dir}/sds-config.in"
         propertyfile="${top.build.dir}/config.properties">
-      <replacefilter token="@SIPXPBXLOG@" property="sipxpbx.log.dir"/>
+      <replacefilter token="@SIPX_LOGDIR@" property="sipxpbx.log.dir"/>
     </replace>
 
     <mkdir dir="${dest.dir}${sipxpbx.data.dir}/sql"/>
@@ -71,11 +71,11 @@
     <replace file="${dest.dir}${bin.dir}/profilepublisher.sh" 
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@JAVA@" property="java"/>
-      <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@SIPX_CONFDIR@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@SIPXCONFIGLIB@" property="sipxconfig.lib.dir"/>
-      <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@SIPX_DATADIR@" property="sipxpbx.data.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
-      <replacefilter token="@SIPXPBXRUN@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@SIPX_RUNDIR@" property="sipxpbx.run.dir"/>
       <replacefilter token="@libdir@" property="lib.dir"/>
       <replacefilter token="@bindir@" property="bin.dir"/>
     </replace>

@@ -53,11 +53,11 @@
     <replace file="${dest.dir}${bin.dir}/profilewriter.sh" 
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@JAVA_HOME@" property="java.home"/>
-      <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@SIPX_CONFDIR@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@SIPX_DATADIR@" property="sipxpbx.data.dir"/>
       <replacefilter token="@bindir@" property="bin.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
-      <replacefilter token="@SIPXPBXRUN@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@SIPX_RUNDIR@" property="sipxpbx.run.dir"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/profilewriter.sh" perm="ugo+x"/>
 
