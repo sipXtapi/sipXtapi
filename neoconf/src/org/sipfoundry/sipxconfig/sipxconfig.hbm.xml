@@ -38,20 +38,31 @@
 		<many-to-one name="endpoint" column="endpoint_id" 
 			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
 	</class>
-	<class name="org.sipfoundry.sipxconfig.settings.Setting" table="setting">
+	<class name="org.sipfoundry.sipxconfig.settings.Setting" table="setting" 
+		discriminator-value="0">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="setting_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">setting_seq</param>
 			</generator>
 		</id>
+		<discriminator column="type" type="int"/>
 		<property name="name" column="name"/>
-		<!-- property name="value" column="value"/ -->
-		<!-- many-to-one name="parent" column="parent_id" 
-			class="org.sipfoundry.sipxconfig.setting.SettingSet"/ -->
-	</class>	
+		<property name="string" column="string_value"/>
+		<many-to-one name="parent" column="parent_id" 
+			class="org.sipfoundry.sipxconfig.settings.SettingSet"/>
+		<subclass name="org.sipfoundry.sipxconfig.settings.SettingSet" 
+			discriminator-value="1">
+			<map name="settings" inverse="true" lazy="true">
+				<key column="parent_id"/>
+				<index column="name" type="string"/>
+				<one-to-many class="org.sipfoundry.sipxconfig.settings.Setting"/> 
+			</map>
+		</subclass>
+	</class>
 	<!--
 	  -  LEGACY DATABASE MODEL 
+	  -  standards do not nec. apply
 	  -->
 	<!--
 	- O R G A N I Z A T I O N
@@ -65,8 +76,6 @@
 			</generator>
 		</id>
 		<property name="name" column="name"/>
-		<!-- organization hierarchy not supported at this time -->
-		<!-- property name="parentId" column="parent_id"/ -->
 		<property name="dnsDomain" column="dns_domain"/>
 		<property name="stereotype" column="stereotype"/>
 	</class>

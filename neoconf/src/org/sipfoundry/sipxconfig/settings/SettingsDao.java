@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.settings;
 
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 /**
  * @author dhubler
@@ -21,8 +20,12 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
  */
 public interface SettingsDao {
     
-    public void saveSettings(SettingSet settings);
+    public static final int CASCADE = -1;
     
-    public SettingSet loadSettings(Endpoint endpoint);
+    public void storeSetting(Setting setting, int dpeth);
+
+    public void storeSetting(Setting setting);
+    
+    public SettingSet loadSettings(int id);
 
 }

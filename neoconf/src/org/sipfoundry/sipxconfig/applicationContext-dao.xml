@@ -93,7 +93,7 @@
 	<!--
       - S E T T I N G S  D A O
       -->
-	<bean id="settingDao" 
+	<bean id="settingsDao" 
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="proxyInterfaces">
 			<value>org.sipfoundry.sipxconfig.settings.SettingsDao</value>

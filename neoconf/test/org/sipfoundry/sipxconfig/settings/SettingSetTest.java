@@ -43,15 +43,15 @@ public class SettingSetTest extends TestCase {
         networkSettings.addSetting(new Setting("tftpServer"));
         rootSettings.addSetting(networkSettings);        
         Endpoint endpoint = new Endpoint();
-        settingsControl.expectAndReturn(settingsDao.loadSettings(endpoint), rootSettings);
-        settingsDao.saveSettings(rootSettings);
+        settingsControl.expectAndReturn(settingsDao.loadSettings(endpoint.getId()), rootSettings);
+        settingsDao.storeSetting(rootSettings, SettingsDao.CASCADE);
         settingsControl.replay();
         
-        SettingSet settings = settingsDao.loadSettings(endpoint);
+        SettingSet settings = settingsDao.loadSettings(endpoint.getId());
         SettingSet network = (SettingSet) settings.getSetting(SettingSet.NETWORK_SETTINGS);
         assertNotNull(network);
         network.setSetting("tftpServer", "localhost");
-        settingsDao.saveSettings(settings);
+        settingsDao.storeSetting(settings, SettingsDao.CASCADE);
         
         settingsControl.verify();        
     }

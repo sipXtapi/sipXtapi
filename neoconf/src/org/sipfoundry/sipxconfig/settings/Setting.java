@@ -21,7 +21,7 @@ public class Setting {
 
     private Object m_value;
     
-    private int m_id;
+    private int m_id = -1;
     
     private SettingSet m_parent;
 
@@ -83,6 +83,22 @@ public class Setting {
     public Object getValue() {
         return m_value;
     }
+    
+    
+    /**
+     * @return string representation of value
+     */
+    public String getString() {
+        return (m_value != null ? m_value.toString() : null);
+    }
+
+    /**
+     * Called only if the value is supposed to be a string
+     * @param string
+     */
+    public void setString(String string) {
+        m_value = string;
+    }
 
     /**
      * @param value The value to set.
@@ -90,7 +106,9 @@ public class Setting {
     public void setValue(Object value) {
         m_value = value;
     }
-
+    
+    /* to fulfill composite design pattern, but unclear there's a need at this
+     * point.  TODO : Remove if not needed
     public void addSetting(Setting settingTemp) {
         throw new IllegalArgumentException("Cannot add setting to leaf setting");
     }
@@ -98,6 +116,7 @@ public class Setting {
     public Setting getSetting(String settingNameTemp) {
         throw new IllegalArgumentException("Cannot get settings on leaf setting");
     }
+    */
 
     public Map getSettings() {
         return Collections.EMPTY_MAP;

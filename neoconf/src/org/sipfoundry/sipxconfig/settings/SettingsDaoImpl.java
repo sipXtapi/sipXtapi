@@ -11,16 +11,28 @@
  */
 package org.sipfoundry.sipxconfig.settings;
 
-import org.sipfoundry.sipxconfig.phone.Endpoint;
+import java.util.Iterator;
+
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class SettingsDaoImpl extends HibernateDaoSupport implements SettingsDao {
 
-    public void saveSettings(SettingSet settingsTemp) {        
-        throw new IllegalArgumentException("saveSettings not implemented yet");
+    public void storeSetting(Setting setting, int depth) {        
+        getHibernateTemplate().saveOrUpdate(setting);
+        if (depth > 0 || depth == CASCADE && setting.getSettings().size() > 0) {
+            Iterator children = setting.getSettings().values().iterator();
+            while (children.hasNext()) {
+                Setting child = (Setting) children.next();
+                storeSetting(child, depth - 1);                    
+            }
+        }
     }
     
-    public SettingSet loadSettings(Endpoint endpointTemp) {        
-        throw new IllegalArgumentException("loadSettings not implemented yet");
+    public void storeSetting(Setting setting) {
+        storeSetting(setting, 0);
+    }
+
+    public SettingSet loadSettings(int id) {
+        return (SettingSet) getHibernateTemplate().load(SettingSet.class, new Integer(id));
     }
 }

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.vendor;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.settings.SettingSet;
 import org.sipfoundry.sipxconfig.settings.SettingsContext;
 
 /**
@@ -88,5 +89,12 @@ public class PolycomPhone implements Phone {
     
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
+    }
+    
+    public SettingSet getDefaultSettings() {
+        SettingSet root = new SettingSet("root");
+        root.addSetting(new SettingSet("network"));
+        
+        return root;        
     }
 }

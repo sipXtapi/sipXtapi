@@ -31,7 +31,8 @@ create table setting(
   setting_id int4 not null primary key,
   parent_id int4,
   name varchar(256) not null,
-  value varchar(256) not null
+  string_value varchar(256) not null,
+  type int4
 );
 
 create sequence setting_seq;

@@ -35,6 +35,7 @@ public class SettingSet extends Setting {
     }
     
     public void addSetting(Setting setting) {
+        setting.setParent(this);
         m_settings.put(setting.getName(), setting);
     }
     
@@ -48,6 +49,13 @@ public class SettingSet extends Setting {
             throw new IllegalArgumentException("setting does not exist " + settingName);
         }
         setting.setValue(value);
+    }
+    
+    /**
+     * override to blank out stored value. it's not used
+     */
+    public String getString() {
+        return null;
     }
 
     public Map getSettings() {
