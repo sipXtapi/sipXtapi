@@ -14,11 +14,13 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringWriter;
+import java.util.Collections;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 
 /**
  * ConfigGeneratorTest
@@ -29,13 +31,18 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
 
     public void testGetFileContent() throws Exception {
-        FlexibleDialPlan empty = new FlexibleDialPlan();
-        ConfigGenerator generator = new ConfigGenerator();
+        MockControl controlPlan = MockControl.createStrictControl(FlexibleDialPlanContext.class);
+        FlexibleDialPlanContext empty = (FlexibleDialPlanContext) controlPlan.getMock();
+        empty.getGenerationRules();
+        controlPlan.setReturnValue(Collections.EMPTY_LIST);
+        controlPlan.replay();        
+        
+        ConfigGenerator generator = new ConfigGenerator();        
         generator.generate(empty);
-
         checkConfigFileGeneration(generator, new AuthRules(), ConfigFileType.AUTH_RULES);
         checkConfigFileGeneration(generator, new MappingRules(), ConfigFileType.MAPPING_RULES);
         checkConfigFileGeneration(generator, new FallbackRules(), ConfigFileType.FALLBACK_RULES);
+        controlPlan.verify();
     }
 
     /**
@@ -52,7 +59,11 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
     
     public void testActivate() throws Exception {
-        FlexibleDialPlan empty = new FlexibleDialPlan();
+        MockControl controlPlan = MockControl.createStrictControl(FlexibleDialPlanContext.class);
+        FlexibleDialPlanContext empty = (FlexibleDialPlanContext) controlPlan.getMock();
+        empty.getGenerationRules();
+        controlPlan.setReturnValue(Collections.EMPTY_LIST);
+        controlPlan.replay();        
         ConfigGenerator generator = new ConfigGenerator();
         generator.generate(empty);
         File x = File.createTempFile("test", "in");
@@ -73,5 +84,6 @@ public class ConfigGeneratorTest extends XMLTestCase {
             stream.close();
             file.deleteOnExit();
         }
+        controlPlan.verify();
     }
 }

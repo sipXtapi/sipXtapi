@@ -27,7 +27,7 @@ public class GatewaysTestUi extends WebTestCase {
     }
 
     protected void setUp() throws Exception {
-        getTestContext().setBaseUrl(TestUiHelper.SIPXCONFIG_URL);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         beginAt("/");
         clickLink("resetDialPlans");
     }

@@ -17,7 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -62,7 +62,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     private void delete() {
         Collection selectedRows = getSelectedRows();
         if (null != selectedRows) {
-            FlexibleDialPlan manager = getDialPlanManager().getFlexDialPlan();
+            FlexibleDialPlanContext manager = getDialPlanManager().getFlexDialPlan();
             manager.deleteRules(selectedRows);
         }
     }
@@ -74,7 +74,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     private void duplicate() {
         Collection selectedRows = getRowsToDuplicate();
         if (null != selectedRows) {
-            FlexibleDialPlan manager = getDialPlanManager().getFlexDialPlan();
+            FlexibleDialPlanContext manager = getDialPlanManager().getFlexDialPlan();
             manager.duplicateRules(selectedRows);
         }
     }

@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.ui;
 
+import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+
 import net.sourceforge.jwebunit.WebTestCase;
 
 /**
@@ -24,7 +26,7 @@ public class DialPlanEditTestUi extends WebTestCase {
     };
 
     public void setUp() {
-        getTestContext().setBaseUrl(TestUiHelper.SIPXCONFIG_URL);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         beginAt("/");
         clickLink("resetDialPlans");
     }

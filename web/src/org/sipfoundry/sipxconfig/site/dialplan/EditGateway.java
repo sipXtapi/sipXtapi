@@ -18,7 +18,7 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 
 /**
@@ -85,7 +85,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         // attach gateway to current rule
         Integer ruleId = getRuleId();
         if (null != ruleId) {
-            FlexibleDialPlan flexDialPlan = manager.getFlexDialPlan();
+            FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
             DialingRule rule = flexDialPlan.getRule(ruleId);
             rule.addGateway(gateway);
         }

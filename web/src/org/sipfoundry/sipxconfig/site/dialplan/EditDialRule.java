@@ -21,7 +21,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
 
@@ -111,7 +111,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     private void saveValid(IRequestCycle cycle_) {
-        FlexibleDialPlan plan = getDialPlanManager().getFlexDialPlan();
+        FlexibleDialPlanContext plan = getDialPlanManager().getFlexDialPlan();
         DialingRule rule = getRule();
         Integer ruleId = getRuleId();
         if (null == ruleId) {

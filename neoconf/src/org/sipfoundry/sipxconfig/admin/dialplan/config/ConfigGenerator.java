@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
@@ -42,7 +42,7 @@ public class ConfigGenerator {
         m_files.put(ConfigFileType.AUTH_RULES, m_auth);
     }
 
-    public void generate(FlexibleDialPlan plan) {
+    public void generate(FlexibleDialPlanContext plan) {
         List rules = plan.getGenerationRules();
 
         for (Iterator i = rules.iterator(); i.hasNext();) {

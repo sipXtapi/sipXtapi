@@ -44,7 +44,7 @@ public interface DialPlanContext {
      */
     public abstract Collection getAvailableGateways(Integer ruleId);
 
-    public abstract FlexibleDialPlan getFlexDialPlan();
+    public abstract FlexibleDialPlanContext getFlexDialPlan();
 
     public abstract ConfigGenerator generateDialPlan();
 

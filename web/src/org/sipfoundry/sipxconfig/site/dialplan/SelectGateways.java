@@ -21,7 +21,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 
 /**
@@ -74,7 +74,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
      */
     void selectGateways(Collection gatewayIds) {
         DialPlanContext manager = getDialPlanManager();
-        FlexibleDialPlan flexDialPlan = manager.getFlexDialPlan();
+        FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
         Integer ruleId = getRuleId();
         DialingRule rule = flexDialPlan.getRule(ruleId);
         if (null == rule) {

@@ -25,7 +25,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.MockControl;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
@@ -144,8 +144,12 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.VoicemailTransfer("2", extension));
         rules.add(new MappingRule.VoicemailFallback(extension));
 
-        FlexibleDialPlan plan = new FlexibleDialPlan();
-        plan.setRules(rules);
+        MockControl controlPlan = MockControl.createStrictControl(FlexibleDialPlanContext.class);
+        FlexibleDialPlanContext plan = (FlexibleDialPlanContext) controlPlan.getMock();
+        plan.getGenerationRules();
+        controlPlan.setReturnValue(rules);
+        controlPlan.replay();
+
         ConfigGenerator generator = new ConfigGenerator();
         generator.generate(plan);
 
@@ -156,6 +160,6 @@ public class MappingRulesTest extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        controlPlan.verify();
     }
-
 }

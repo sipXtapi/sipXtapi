@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * FlexibleDialPlan - dial plan consisting of list of dialing rules
  */
-public class FlexibleDialPlan {
+class FlexibleDialPlan implements FlexibleDialPlanContext {
     private List m_rules = new ArrayList();
 
     public boolean addRule(IDialingRule rule) {

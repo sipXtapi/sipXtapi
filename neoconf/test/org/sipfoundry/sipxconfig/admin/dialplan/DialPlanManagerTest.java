@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.util.Collection;
-
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;

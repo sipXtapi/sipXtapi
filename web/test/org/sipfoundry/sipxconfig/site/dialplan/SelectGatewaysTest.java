@@ -22,7 +22,7 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 
 /**
@@ -44,20 +44,27 @@ public class SelectGatewaysTest extends TestCase {
             gatewaysToAdd.add(gateway.getId());
             gateways.add(gateway);
         }
-        FlexibleDialPlan plan = new FlexibleDialPlan();
-        for (int i = 0; i < 10; i++) {
-            plan.addRule(new CustomDialingRule());
-        }
+        
+        DialingRule rule = new CustomDialingRule();
+        
+        MockControl controlPlan = MockControl.createStrictControl(FlexibleDialPlanContext.class);
+        controlPlan.setDefaultMatcher(MockControl.EQUALS_MATCHER);
+        FlexibleDialPlanContext flexDialPlan = (FlexibleDialPlanContext) controlPlan.getMock();
+        flexDialPlan.getRule(rule.getId());
+        controlPlan.setReturnValue(rule);
+        flexDialPlan.updateRule(rule.getId(), rule);
+        controlPlan.setReturnValue(true);
+        controlPlan.replay();
+        
         
         MockControl control = MockControl.createControl(DialPlanContext.class);
         DialPlanContext context = (DialPlanContext) control.getMock();
         
         control.expectAndReturn(context.getGatewayByIds(gatewaysToAdd), gateways);
-        control.expectAndReturn(context.getFlexDialPlan(), plan);
+        control.expectAndReturn(context.getFlexDialPlan(), flexDialPlan);
                 
         control.replay();
 
-        DialingRule rule = (DialingRule) plan.getRules().get(3);
         m_page.setDialPlanManager(context);
         m_page.setRuleId(rule.getId());
         m_page.selectGateways(gatewaysToAdd);
@@ -68,5 +75,8 @@ public class SelectGatewaysTest extends TestCase {
             Gateway g = (Gateway) i.next();
             assertTrue(gatewaysToAdd.contains(g.getId()));
         }
+        
+        control.verify();
+        controlPlan.verify();
     }
 }

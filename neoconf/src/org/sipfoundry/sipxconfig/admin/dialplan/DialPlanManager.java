@@ -32,7 +32,7 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
 
     private EmergencyRouting m_emergencyRouting = new EmergencyRouting(); 
 
-    private FlexibleDialPlan m_flexDialPlan = new FlexibleDialPlan();
+    private FlexibleDialPlanContext m_flexDialPlan = new FlexibleDialPlan();
 
     private transient ConfigGenerator m_generator;
 
@@ -98,11 +98,11 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
         return rule.getAvailableGateways(allGateways);
     }
 
-    public FlexibleDialPlan getFlexDialPlan() {
+    public FlexibleDialPlanContext getFlexDialPlan() {
         return m_flexDialPlan;
     }
 
-    public void setFlexDialPlan(FlexibleDialPlan flexDialPlan) {
+    public void setFlexDialPlan(FlexibleDialPlanContext flexDialPlan) {
         m_flexDialPlan = flexDialPlan;
     }
 

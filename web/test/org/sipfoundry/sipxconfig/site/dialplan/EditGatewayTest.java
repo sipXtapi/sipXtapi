@@ -18,7 +18,7 @@ import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
@@ -58,10 +58,15 @@ public class EditGatewayTest extends TestCase {
     }
 
     public void testSaveAndAssign() {
-        FlexibleDialPlan flexDialPlan = new FlexibleDialPlan();
         IDialingRule rule = new CustomDialingRule();
-        flexDialPlan.addRule(rule);
         rule.setName("my rule name");
+
+        MockControl controlPlan = MockControl.createStrictControl(FlexibleDialPlanContext.class);
+        FlexibleDialPlanContext flexDialPlan = (FlexibleDialPlanContext) controlPlan.getMock();
+        flexDialPlan.getRule(rule.getId());
+        controlPlan.setReturnValue(rule);
+        controlPlan.replay();
+
         Gateway g = new Gateway(new Integer(5));
 
         MockControl contextControl = MockControl.createStrictControl(DialPlanContext.class);
@@ -85,6 +90,7 @@ public class EditGatewayTest extends TestCase {
 
         cycleControl.verify();
         contextControl.verify();
+        controlPlan.verify();
 
         assertEquals(1, rule.getGateways().size());
         assertTrue(rule.getGateways().contains(g));

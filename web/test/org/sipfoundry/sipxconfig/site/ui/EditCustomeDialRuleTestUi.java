@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.ui;
 
+import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+
 import com.meterware.httpunit.HttpUnitOptions;
 
 import net.sourceforge.jwebunit.WebTestCase;
@@ -22,7 +24,7 @@ public class EditCustomeDialRuleTestUi extends WebTestCase {
     public void setUp() {
         HttpUnitOptions.setExceptionsThrownOnScriptError(false);
         
-        getTestContext().setBaseUrl(TestUiHelper.SIPXCONFIG_URL);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         beginAt("/");
         clickLink("EditCustomDialRule");
     }
