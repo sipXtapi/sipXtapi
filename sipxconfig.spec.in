@@ -70,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog
 %attr(755,root,root) %{_bindir}
-%attr(755,root,root) %{_libdir}/libXconfig.so*
+%attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
 %{_libdir}/lib*.la
 @JBOSS_HOME@/jboss/deploy/profilegenerator.ear
 @JBOSS_HOME@/jboss/lib/ext/*.jar
