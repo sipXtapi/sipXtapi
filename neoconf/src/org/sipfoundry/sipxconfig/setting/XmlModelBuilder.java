@@ -31,13 +31,14 @@ public class XmlModelBuilder {
 
         String set = "*/set";
         digester.addObjectCreate(set, SettingModel.class);
-        digester.addSetNext(set, addMeta, SettingMeta.class.getName());
         digester.addSetProperties(set);
+        digester.addBeanPropertySetter(set + "/label");
+        digester.addSetNext(set, addMeta, SettingMeta.class.getName());
 
         String setting = "*/setting";
         digester.addObjectCreate(setting, SettingMeta.class);
-        digester.addSetNext(setting, addMeta, SettingMeta.class.getName());
         digester.addSetProperties(setting);
+        digester.addSetNext(setting, addMeta, SettingMeta.class.getName());
 
         String possibleValues = "*/possibleValues/value";
         digester.addCallMethod(possibleValues, "addPossibleValue", 1);

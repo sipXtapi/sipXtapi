@@ -18,7 +18,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 
-public class ModelBuilderTest extends TestCase {
+public class XmlModelBuilderTest extends TestCase {
 
     private String[] m_suitsNames = new String[] { 
         "hearts", "spades", "clubs", "diamonds" 
@@ -38,7 +38,7 @@ public class ModelBuilderTest extends TestCase {
 
         SettingModel chess = (SettingModel) games.getMeta(0);
         assertEquals(chess.getName(), "chess");
-        //assertEquals("The game of chess", chess.getLabel());
+        assertEquals("The game of chess", chess.getLabel());
         assertEquals(2, chess.size());
         SettingModel colors = (SettingModel) chess.getMeta(0);       
         assertEquals(2, colors.size());
