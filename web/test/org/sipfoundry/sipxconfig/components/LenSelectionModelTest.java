@@ -9,7 +9,9 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.components;
+
+import org.sipfoundry.sipxconfig.components.LenSelectionModel;
 
 import junit.framework.TestCase;
 
@@ -23,6 +25,8 @@ public class LenSelectionModelTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         m_model = new LenSelectionModel();
+        m_model.setMin(3);
+        m_model.setMax(6);
     }
 
     protected void tearDown() throws Exception {
@@ -45,11 +49,23 @@ public class LenSelectionModelTest extends TestCase {
     }
 
     public void testGetValue() {
-        assertEquals("5 digits", m_model.getValue(2));
+        assertEquals("3", m_model.getValue(0));
+        assertEquals("5", m_model.getValue(2));
     }
 
     public void testTranslateValue() {
-        assertEquals(new Integer(5), m_model.translateValue("5 digits"));
+        String value = m_model.getValue(2);
+        assertEquals(new Integer(5), m_model.translateValue(value));
     }
 
+    public void testInvalidState() {
+        m_model.setMax(2);
+        m_model.setMin(4);
+        try {
+            m_model.getOptionCount();
+            fail("Should throw illegal state exception");
+        } catch (IllegalStateException e) {
+            // this was expected
+        }
+    }
 }

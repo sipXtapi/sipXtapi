@@ -11,8 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Arrays;
+
 /**
- * DialPattern
+ * Represents a regular expression corresponding to what users dialed. This
+ * concrete class allows for building such expression using constant prefix and
+ * number of digits in a suffic
  */
 public class DialPattern {
     private String m_prefix;
@@ -32,5 +36,13 @@ public class DialPattern {
 
     public void setPrefix(String prefix) {
         m_prefix = prefix;
+    }
+
+    public String calculatePattern() {
+        char[] fixedDigits = new char[m_digits];
+        Arrays.fill(fixedDigits, 'x');
+        StringBuffer buf = new StringBuffer(m_prefix);
+        buf.append(fixedDigits);
+        return buf.toString();
     }
 }

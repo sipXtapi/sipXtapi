@@ -17,7 +17,7 @@
     <property-specification name="localExtensionLenSelectionModel" 
 		type="org.apache.tapestry.form.IPropertySelectionModel" 
         persistent="yes">
-        	new org.sipfoundry.sipxconfig.site.LenSelectionModel()
+        	new org.sipfoundry.sipxconfig.components.LenSelectionModel()
     </property-specification>
 
 	<property-specification name="dialPlanManager" 

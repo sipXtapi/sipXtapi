@@ -46,6 +46,7 @@
 	<component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="DialingRuleCommon" specification-path="dialplan/DialingRuleCommon.jwc"/>
     <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
+    <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
