@@ -2,7 +2,7 @@
 
 # G E N E R A L
 version=@VERSION@
-top.dir=@abs_srcdir@/..
+top.dir=@abs_top_srcdir@
 java=@JAVA@
 java.home=@JAVA_HOME@
 optimize=@JAVAC_OPTIMIZED@
