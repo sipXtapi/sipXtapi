@@ -84,8 +84,8 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     }
     
     public void apply(IRequestCycle cycle_) {
-        getSettingDao().storeMetaStorage(getPhoneFolder());
-        getSettingDao().storeMetaStorage(getLineFolder());
+        getSettingDao().storeFolder(getPhoneFolder());
+        getSettingDao().storeFolder(getLineFolder());
     }
 
     public void cancel(IRequestCycle cycle) {
@@ -100,8 +100,8 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
         setPhone(getPhoneContext().getPhone(getPhoneId()));
         
         // future, edit other meta storages, not just root's
-        setPhoneFolder(getPhoneContext().getRootPhoneFolder());
-        setLineFolder(getPhoneContext().getRootLineFolder());        
+        setPhoneFolder(getSettingDao().loadRootFolder(Endpoint.FOLDER_RESOURCE_NAME));
+        setLineFolder(getSettingDao().loadRootFolder(Line.FOLDER_RESOURCE_NAME));
         
         if (getEditSetting() == null) {
             setEditSetting((Setting) getPhoneSettings().iterator().next());

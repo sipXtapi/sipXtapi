@@ -25,6 +25,8 @@ public class Folder extends AbstractStorage implements SettingVisitor {
 
     private String m_resource;
 
+    private Folder m_parent;
+
     public Map getFolderSettings() {
         return getDelegate();
     }
@@ -36,6 +38,14 @@ public class Folder extends AbstractStorage implements SettingVisitor {
     public Setting decorate(Setting setting) {
         setting.acceptVisitor(this);
         return setting;
+    }
+
+    public Folder getParent() {
+        return m_parent;
+    }
+
+    public void setParent(Folder parent) {
+        m_parent = parent;
     }
 
     public void visitSetting(Setting setting) {

@@ -22,6 +22,8 @@
 		<property name="phoneId" column="phone_id"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+		<many-to-one name="folder" column="folder_id"
+			class="org.sipfoundry.sipxconfig.setting.Folder"/>
 	    <list name="lines" table="line" lazy="true" inverse="true" cascade="all-delete-orphan">
 			<key column="endpoint_id"/>
 			<index column="position"/>
@@ -42,11 +44,13 @@
 		<many-to-one name="endpoint" column="endpoint_id" 
 			class="org.sipfoundry.sipxconfig.phone.Endpoint" not-null="true"/>
 		<property name="position" column="position"/>
-		<many-to-one name="user" column="user_id" 
+		<many-to-one name="user" column="user_id"
 			class="org.sipfoundry.sipxconfig.phone.User"/>
+		<many-to-one name="folder" column="folder_id"
+			class="org.sipfoundry.sipxconfig.setting.Folder"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-	</class>	
+	</class>
 	<!--
 	  - V A L U E  S T O R A G E
 	  -->
@@ -76,6 +80,8 @@
 		</id>		
 		<property name="label" column="label"/>
 		<property name="resource" column="resource"/>
+		<many-to-one name="parent" column="parent_id"
+			class="org.sipfoundry.sipxconfig.setting.Folder"/>
         <!-- F O L D E R  S E T T I N G  -->
 		<map name="folderSettings" cascade="all" table="folder_setting">
 			<key column="folder_id"/>
@@ -121,6 +127,10 @@
 			class="org.sipfoundry.sipxconfig.phone.Organization"/>
 		<property name="password" column="password"/>
 		<property name="userGroupId" column="ug_id"/>
+		<!-- 
+		  - PLACEHOLDER 
+			<property name="folder" column="folder_id"/>
+		 -->
 		<property name="rcsId" column="rcs_id"/>
 		<property name="lastName" column="last_name"/>
 		<property name="displayId" column="display_id"/>

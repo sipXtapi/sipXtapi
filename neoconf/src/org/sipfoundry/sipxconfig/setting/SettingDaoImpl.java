@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import net.sf.hibernate.ObjectNotFoundException;
+import java.util.List;
 
-import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
+import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
@@ -29,31 +29,28 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, new Integer(storageId));    
     }
 
-    public void storeMetaStorage(Folder storage) {
+    public void storeFolder(Folder storage) {
         getHibernateTemplate().saveOrUpdate(storage);                        
     }
     
-    public Folder loadMetaStorage(int id) {
+    public Folder loadFolder(int id) {
         return (Folder) getHibernateTemplate().load(Folder.class, new Integer(id));
     }
     
-    public Folder loadRootMetaStorage() {
+    public Folder loadRootFolder(String resource) {
+        Folder folder;
         // Represents the single meta storage id that holds the defaults
         // for all settings groups.
-        Folder meta = null;
-        try {
-            meta = (Folder) getHibernateTemplate().load(Folder.class, new Integer(1));
-        } catch (HibernateObjectRetrievalFailureException e) {
-            Throwable cause = e.getCause();
-            // make sure only reason we create new object is if it's not 
-            // created yet.  Spring wraps 4 different exceptions to one.
-            if (cause != null && cause instanceof ObjectNotFoundException) {
-                meta = new Folder();
-            } else {
-                throw e;
-            }
+        String query = "from Folder f where f.parent is null and f.resource = '" + resource + "'";
+        List folders = getHibernateTemplate().find(query);
+        if (folders.size() == 0) {
+            folder = new Folder();
+            folder.setResource(resource);      
+            storeFolder(folder);
+        } else {
+            folder = (Folder) CoreContextImpl.requireOneOrZero(folders, query);
         }
         
-        return meta;
+        return folder;
     }
 }

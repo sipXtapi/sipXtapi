@@ -19,6 +19,8 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.polycom.Polycom;
+import org.sipfoundry.sipxconfig.setting.Folder;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
 
 
@@ -31,9 +33,13 @@ public class EndpointTestDb extends TestCase {
     
     private PhoneContext m_context;
     
+    private SettingDao m_settingDao;
+    
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);        
+                PhoneContext.CONTEXT_BEAN_NAME);
+        m_settingDao = (SettingDao) TestHelper.getApplicationContext().getBean(
+                SettingDao.CONTEXT_NAME);
     }
     
     public void testSave() throws Exception {        
@@ -43,6 +49,8 @@ public class EndpointTestDb extends TestCase {
         e.setPhoneId(Polycom.MODEL_300.getModelId());
         e.setSerialNumber("999123456");
         e.setName("unittest-sample phone1");
+        Folder rootFolder = m_settingDao.loadRootFolder(Endpoint.FOLDER_RESOURCE_NAME); 
+        e.setFolder(rootFolder);
         m_context.storeEndpoint(e);
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("endpoint");
@@ -50,6 +58,7 @@ public class EndpointTestDb extends TestCase {
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveEndpointExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[endpoint_id_1]", new Integer(e.getId()));
+        expectedRds.addReplacementObject("[folder_id]", new Integer(rootFolder.getId()));
         expectedRds.addReplacementObject("[null]", null);
         
         ITable expected = expectedRds.getTable("endpoint");

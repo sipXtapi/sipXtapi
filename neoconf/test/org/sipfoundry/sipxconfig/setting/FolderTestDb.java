@@ -31,35 +31,67 @@ public class FolderTestDb extends TestCase {
         m_dao = (SettingDao) context.getBean("settingDao");
     }
 
-    public void testSave() throws Exception {
+    public void testGetRootFolder() throws Exception {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
 
-        SettingGroup root = new SettingGroup();
-        root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
-        root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea"));
-
-        Folder ms = new Folder();
-        ms.setResource("unittest");
-        ms.setLabel("food");
-        SettingGroup copy = (SettingGroup) ms.decorate(root);
-        copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
-        copy.getSetting("vegetable").getSetting("pea").setValue(null);
-
-        m_dao.storeMetaStorage(ms);
-
+        Folder root = m_dao.loadRootFolder("unittest");
         IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("setting/dbdata/SaveFolderExpected.xml");
+                .loadDataSetFlat("setting/dbdata/GetRootFolderExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[folder_id]", new Integer(ms.getId()));
+        expectedRds.addReplacementObject("[folder_id]", new Integer(root.getId()));
+        expectedRds.addReplacementObject("[null]", null);
 
-        ITable expected = expectedRds.getTable("folder_setting");
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("folder_setting");
-
+        ITable expected = expectedRds.getTable("folder");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("folder");
         Assertion.assertEquals(expected, actual);
     }
 
-    public void testUpdate() throws Exception {
+    public void testSave() throws Throwable {
+        try {
+            TestHelper.cleanInsert("dbdata/ClearDb.xml");
+
+            SettingGroup root = new SettingGroup();
+            root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
+            root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea"));
+
+            Folder ms = new Folder();
+            ms.setResource("unittest");
+            ms.setLabel("food");
+            SettingGroup copy = (SettingGroup) ms.decorate(root);
+            copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
+            copy.getSetting("vegetable").getSetting("pea").setValue(null);
+
+            m_dao.storeFolder(ms);
+
+            IDataSet expectedDs = TestHelper
+                    .loadDataSetFlat("setting/dbdata/SaveFolderExpected.xml");
+            ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+            expectedRds.addReplacementObject("[folder_id]", new Integer(ms.getId()));
+
+            ITable expected = expectedRds.getTable("folder_setting");
+
+            ITable actual = TestHelper.getConnection().createDataSet().getTable("folder_setting");
+
+            Assertion.assertEquals(expected, actual);
+        } catch (DataIntegrityViolationException e) {
+            handleDiveException(e);
+        }
+    }
+
+    /**
+     * TODO: Write Aspect to dump all SQL exception for BatchUpdateExceptions to stderr, this
+     * would be useful to all db unittests
+     */
+    private void handleDiveException(DataIntegrityViolationException e) throws Throwable {
+        Throwable t = e.getCause();
+        if (t instanceof BatchUpdateException) {
+            BatchUpdateException bue = (BatchUpdateException) t;
+            bue.getNextException().printStackTrace();
+        }
+        throw e;
+    }
+
+    public void testUpdate() throws Throwable {
         try {
             TestHelper.cleanInsert("dbdata/ClearDb.xml");
             TestHelper.cleanInsertFlat("setting/dbdata/UpdateFolderSeed.xml");
@@ -71,7 +103,7 @@ public class FolderTestDb extends TestCase {
                     .setValue("snow pea");
             root.addSetting(new SettingGroup("dairy")).addSetting(new SettingImpl("milk"));
 
-            Folder ms = m_dao.loadMetaStorage(1);
+            Folder ms = m_dao.loadFolder(1);
             Setting copy = ms.decorate(root);
             // should make it disappear
             copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
@@ -83,7 +115,7 @@ public class FolderTestDb extends TestCase {
             copy.getSetting("dairy").getSetting("milk").setHidden(true);
 
             assertEquals(2, ms.getFolderSettings().size());
-            m_dao.storeMetaStorage(ms);
+            m_dao.storeFolder(ms);
 
             IDataSet expectedDs = TestHelper
                     .loadDataSetFlat("setting/dbdata/UpdateFolderExpected.xml");
@@ -95,14 +127,7 @@ public class FolderTestDb extends TestCase {
 
             Assertion.assertEquals(expected, actual);
         } catch (DataIntegrityViolationException e) {
-            // TODO: Write Aspect to dump all SQL exception for BatchUpdateExceptions
-            // to stderr, this would be useful to all db unittests 
-            Throwable t = e.getCause();
-            if (t instanceof BatchUpdateException) {
-                BatchUpdateException bue = (BatchUpdateException) t;
-                bue.getNextException().printStackTrace();
-            }
-            throw e;
+            handleDiveException(e);
         }
     }
 }

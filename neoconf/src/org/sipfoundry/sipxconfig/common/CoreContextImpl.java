@@ -105,7 +105,7 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
      * @return first item from the collection
      * @throws IllegalStateException if more than one item in collection. In general
      */
-    private Object requireOneOrZero(Collection c, String query) {
+    public static Object requireOneOrZero(Collection c, String query) {
         if (c.size() > 2) {
             // DatabaseCorruptionExection ?
             StringBuffer error = new StringBuffer().append("read ").append(c.size())

@@ -32,5 +32,5 @@ public interface CoreContext {
     
     public List loadUserByTemplateUser(User template);
 
-    public User loadUserByDisplayId(String displayId);        
+    public User loadUserByDisplayId(String displayId);
 }

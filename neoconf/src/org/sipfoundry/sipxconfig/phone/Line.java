@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
 
+import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -21,6 +22,8 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
  */
 public class Line implements Serializable {
 
+    public static final String FOLDER_RESOURCE_NAME = "line";
+
     private static final long serialVersionUID = 1L;
 
     private int m_id = PhoneContext.UNSAVED_ID;
@@ -28,7 +31,9 @@ public class Line implements Serializable {
     private User m_user;
 
     private ValueStorage m_valueStorage;
-    
+
+    private Folder m_folder;
+
     private Endpoint m_endpoint;
 
     private int m_position;
@@ -47,6 +52,14 @@ public class Line implements Serializable {
 
     public void setUser(User user) {
         m_user = user;
+    }
+
+    public Folder getFolder() {
+        return m_folder;
+    }
+
+    public void setFolder(Folder folder) {
+        m_folder = folder;
     }
 
     public ValueStorage getValueStorage() {

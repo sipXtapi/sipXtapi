@@ -8,8 +8,10 @@ drop sequence setting_seq;
 drop table storage;
 drop sequence storage_seq;
 drop table meta_storage;
+drop sequence meta_storage_seq;
 drop table setting_meta;
 drop table folder;
+drop sequence folder_seq;
 drop table folder_setting;
 
 /* v8_mods-2 */

@@ -3,6 +3,7 @@
 <dataset>
     <line 
 		line_id="[line_id]" 
+		folder_id="2"
 		endpoint_id="1"
 		position="0" 
 		user_id="4"

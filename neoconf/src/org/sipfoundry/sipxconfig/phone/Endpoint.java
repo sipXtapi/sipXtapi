@@ -15,14 +15,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
-
 
 /**
  * Database object representing an actualy physical phone you can touch.
  */
 public class Endpoint implements PrimaryKeySource, Serializable {
+    
+    public static final String FOLDER_RESOURCE_NAME = "endpoint";
 
     private static final long serialVersionUID = 1L;
 
@@ -33,9 +35,11 @@ public class Endpoint implements PrimaryKeySource, Serializable {
     private String m_serialNumber;
 
     private String m_phoneId;
-    
+
     private ValueStorage m_valueStorage;
-    
+
+    private Folder m_folder;
+
     private List m_lines;
 
     /**
@@ -75,35 +79,43 @@ public class Endpoint implements PrimaryKeySource, Serializable {
     public void setSerialNumber(String serialNumber) {
         m_serialNumber = serialNumber;
     }
-    
+
     /**
      * @return name if set otherwise serial number, convienent for display purposes
      */
     public String getDisplayLabel() {
         return m_name != null ? m_name : m_serialNumber;
     }
-    
+
     public ValueStorage getValueStorage() {
         return m_valueStorage;
     }
-    
+
     public void setValueStorage(ValueStorage valueStorage) {
         m_valueStorage = valueStorage;
     }
-    
+
+    public Folder getFolder() {
+        return m_folder;
+    }
+
+    public void setFolder(Folder folder) {
+        m_folder = folder;
+    }
+
     public SettingGroup getSettings(Phone phone) {
         SettingGroup model = phone.getSettingModel(this);
         if (m_valueStorage == null) {
             m_valueStorage = new ValueStorage();
         }
-        
+
         return (SettingGroup) m_valueStorage.decorate(model);
     }
-    
+
     public List getLines() {
         return m_lines;
     }
-    
+
     /**
      * Sets endpoint and position values on line. Safer way then
      * calling getLines().add(line) 
@@ -118,7 +130,7 @@ public class Endpoint implements PrimaryKeySource, Serializable {
         line.setPosition(lines.size());
         lines.add(line);
     }
-    
+
     /**
      * automatically set's the endpoint object and position
      * <pre>
@@ -139,7 +151,7 @@ public class Endpoint implements PrimaryKeySource, Serializable {
     public Object getPrimaryKey() {
         return new Integer(getId());
     }
-    
+
     /**
      * Move line at position N steps up if step is positive, otherwise N steps down
      * @param position
@@ -149,7 +161,7 @@ public class Endpoint implements PrimaryKeySource, Serializable {
         List lines = getLines();
         Object line = lines.remove(position);
         int newPosition = Math.max(0, Math.min(position + step, lines.size() - 1));
-        lines.add(newPosition, line);        
+        lines.add(newPosition, line);
         for (int i = 0; i < lines.size(); i++) {
             Line l = (Line) lines.get(i);
             l.setPosition(i);

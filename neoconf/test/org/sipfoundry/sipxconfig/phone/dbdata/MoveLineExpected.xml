@@ -5,23 +5,27 @@
 		endpoint_id="1000"
         name="unittest-sample phone1"
 		storage_id="[null]"
+		folder_id="1"
         phone_id="polycom300"/> 
     <line 
 		line_id="1000" 
 		endpoint_id="1000"
 		position="1" 
 		storage_id="[null]"
+		folder_id="2"
 		user_id="4"/> 
     <line 
 		line_id="1001" 
 		endpoint_id="1000"
 		position="0" 
 		storage_id="[null]"
+		folder_id="2"
 		user_id="4"/> 
     <line 
 		line_id="1002" 
 		endpoint_id="1000"
 		position="2" 
 		storage_id="[null]"
+		folder_id="2"
 		user_id="4"/> 
 </dataset>

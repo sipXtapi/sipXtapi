@@ -4,18 +4,21 @@
  */
 
 /**
- * S E T T I N G   M E T A   S T O R A G E
+ * F O L D E R
  */
 create table folder(
   folder_id int4 not null primary key,
   resource varchar(256) not null,
-  label varchar(256) not null
+  label varchar(256),
+  parent_id int4
 );
 
 create sequence folder_seq;
+create unique index idx_folder_resource_label on folder (resource, label);
+
 
 /**
- * S E T T I N G   M E T A 
+ * F O L D E R   S E T T I N G
  */
 create table folder_setting(
   folder_id int4 not null,
@@ -54,7 +57,8 @@ create table endpoint(
   serial_number varchar(256) not null,
   name varchar(256),
   phone_id varchar(256) not null,
-  storage_id int4
+  storage_id int4,
+  folder_id int4 not null
 );
 
 /* 
@@ -69,6 +73,10 @@ foreign key (storage_id) references storage (storage_id);
 create sequence endpoint_seq;
 create unique index idx_endpoint_sernum on endpoint (serial_number);
 
+alter table line
+add constraint fk_endpoint_2
+foreign key (folder_id) references folder (folder_id);
+
 /* 
  * L I N E 
  */
@@ -77,6 +85,7 @@ create table line(
   position int4 not null,
   user_id int4 not null,
   storage_id int4,
+  folder_id int4 not null,
   endpoint_id int4 not null
 );
 create sequence line_seq;
@@ -88,6 +97,10 @@ create unique index idx_line_pos_endpt on line (endpoint_id, position);
 alter table line
 add constraint fk_line_1 
 foreign key (endpoint_id) references endpoint (endpoint_id);
+
+alter table line
+add constraint fk_line_2
+foreign key (folder_id) references folder (folder_id);
 
 /* 
  * would like to add FK contraint to setting table

@@ -20,6 +20,7 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 /**
  * You need to call 'ant reset-db-patch' which clears a lot of data in your
@@ -28,10 +29,14 @@ import org.sipfoundry.sipxconfig.TestHelper;
 public class LineTestDb extends TestCase {
 
     private PhoneContext m_context;
+    
+    private SettingDao m_settingDao;
 
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
+        m_settingDao = (SettingDao) TestHelper.getApplicationContext().getBean(
+                SettingDao.CONTEXT_NAME);
         TestHelper.setUpHibernateSession();
     }
     
@@ -48,6 +53,7 @@ public class LineTestDb extends TestCase {
         User user = m_context.loadUserByDisplayId("testuser");
 
         Line line = new Line();
+        line.setFolder(m_settingDao.loadRootFolder(Line.FOLDER_RESOURCE_NAME));
         line.setUser(user);
         endpoint.addLine(line);
         m_context.storeEndpoint(endpoint);
@@ -68,11 +74,6 @@ public class LineTestDb extends TestCase {
         Assertion.assertEquals(expected, actual);        
     }
     
-    /**
-     * Getting DBUNIT error I cannot track down now.  something to do with
-     * how it decides what to clear and what to insert and when.  funky heuristics
-     * i can't figure out.
-     */
     public void testAddingLine() throws Exception {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
@@ -82,6 +83,7 @@ public class LineTestDb extends TestCase {
         User user = m_context.loadUserByDisplayId("testuser");
 
         Line thirdLine = new Line();
+        thirdLine.setFolder(m_settingDao.loadRootFolder(Line.FOLDER_RESOURCE_NAME));
         thirdLine.setUser(user);
         endpoint.addLine(thirdLine);
         m_context.storeEndpoint(endpoint);

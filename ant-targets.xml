@@ -76,6 +76,7 @@
     <clover-setup initString="${clover.dir}/db/csdb">
       <files>
         <exclude name="**/*Test.java"/> 
+        <exclude name="**/*TestDb.java"/> 
       </files>
     </clover-setup> 
     <property name="clover.html.dir" location="${clover.dir}/html"/>

@@ -3,6 +3,7 @@
 <dataset>
     <endpoint 
 		serial_number="999123456" 		
+		folder_id="[folder_id]"
 		endpoint_id="[endpoint_id_1]"
         name="unittest-sample phone1"
         phone_id="polycom300"
