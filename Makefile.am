@@ -75,6 +75,7 @@ rpm : clean dist
 	rpmbuild -ta $(BUILDPARM) $(PACKAGE)-$(VERSION).tar.gz
 	mv -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
 	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
+	md5sum $(PACKAGE)-$(VERSION).tar.gz >$(PACKAGE)-$(VERSION).tar.gz.md5
 
 # RPM Spec file
 # Extract the options to ./configure from config.log and propagate them into the .spec file.
