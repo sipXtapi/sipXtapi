@@ -264,29 +264,24 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         String username = info[0];
         String password = info[1];
         
-        String realUserID;
-        String expectedPassword;
-
-        
         if( username == null && password == null )
         {
-           realUserID = "SDS";
-           expectedPassword = "SDS"; 
+           username = "SDS";
            super.log.trace("Authenticating as unauthenticatedIdentity=SDS");
+           mIdentity = new SimplePrincipal ( username );
+           loginOk = true;
+           return true;
         }
-        else
-        {
-	        username = normalizeUserName( username );
-	
-	        String[] arr = getUserPasswordFromDB(username);
-	        
-	        realUserID = arr [0];
-	        expectedPassword = arr [1];
-        }
+        username = normalizeUserName( username );
+
+        String[] arr = getUserPasswordFromDB(username);
+        
+        String realUserID = arr [0];
+        String expectedPassword = arr [1];
 
         mIdentity = new SimplePrincipal ( realUserID );
         
-        if ( !username.equals( "installer" ) ) {
+        if ( !realUserID.equals( "installer" ) ) {
             // a new feature that we added for IBM is the ability to use
             // an external authentication source.   This code will create
             // a plug-in (specified in the JBoss startup script) to do
@@ -319,9 +314,9 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         
                         // refresh the expected password value now we have
                         // updated it.
-                        String[] arr = getUserPasswordFromDB(username);
-                        realUserID = arr [0];
-                        expectedPassword = arr [1];
+                        String[] arr2 = getUserPasswordFromDB(username);
+                        realUserID = arr2 [0];
+                        expectedPassword = arr2 [1];
                     }
         
                 } else {
