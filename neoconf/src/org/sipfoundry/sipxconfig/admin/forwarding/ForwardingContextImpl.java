@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Session;
 
@@ -86,6 +87,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     private static class GenerateAliasesMessage implements MessageCreator {
+        private static final String PARAM_NAME = "datasettype"; 
+        private static final String TYPE_ALIAS = "aliases"; 
         /**
          * Sends generateAliases message
          * 
@@ -94,7 +97,9 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
          * @throws javax.jms.JMSException if thrown by JMS API methods
          */
         public Message createMessage(Session session) throws JMSException {
-            return session.createTextMessage("aliases");
+            MapMessage message = session.createMapMessage();
+            message.setString(PARAM_NAME, TYPE_ALIAS);
+            return message;
         }
     }
 

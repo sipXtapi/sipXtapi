@@ -12,16 +12,22 @@
 
 package com.pingtel.pds.pgs.sipxchange.datasets;
 
+import java.rmi.RemoteException;
 import java.util.Collection;
 
+import javax.ejb.CreateException;
 import javax.ejb.EJBException;
+import javax.ejb.FinderException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
+import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
+import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.pgs.common.ejb.BaseEJB;
 import com.pingtel.pds.pgs.user.UserGroupHome;
 
@@ -34,37 +40,22 @@ import com.pingtel.pds.pgs.user.UserGroupHome;
  * @author IB
  */
 public class DataSetBuilderFacade extends BaseEJB implements MessageDrivenBean, MessageListener {
-
-    // ////////////////////////////////////////////////////////////////////////
-    // Constants
-    // //
     public static final String CHANGEPOINT_ID_KEY = "changepointid";
     public static final String CHANGEPOINT_TYPE_KEY = "changepointtype";
 
-    // ////////////////////////////////////////////////////////////////////////
-    // Attributes
-    // //
-    private MessageDrivenContext mCTX;
     private DataSetBuilder mDataSetBuilder;
 
     private UserGroupHome mUserGroupHome;
 
-    // ////////////////////////////////////////////////////////////////////////
-    // Construction
-    // //
     public DataSetBuilderFacade() {
+        // empty
     }
 
-    // ////////////////////////////////////////////////////////////////////////
-    // Public Methods
-    // //
     /**
      * Standard EJB implementation
      */
     public void setMessageDrivenContext(MessageDrivenContext ctx) throws EJBException {
-
-        mCTX = ctx;
-
+        String error = "Error in DataSetBuilderFacade:setMessageDrivenContext";
         try {
             InitialContext initial = new InitialContext();
 
@@ -74,79 +65,63 @@ public class DataSetBuilderFacade extends BaseEJB implements MessageDrivenBean, 
             mDataSetBuilder = dataSetBuilderHome.create();
 
             mUserGroupHome = (UserGroupHome) initial.lookup("UserGroup");
-        } catch (Exception e) {
-            logFatal(e.toString(), e);
-            throw new EJBException("Error in DataSetBuilderFacade:setMessageDrivenContext "
-                    + e.toString());
+        } catch (NamingException e) {
+            logFatalAndRethrow(error, e);
+        } catch (RemoteException e) {
+            logFatalAndRethrow(error, e);
+        } catch (CreateException e) {
+            logFatalAndRethrow(error, e);
         }
-
     }
 
     /**
      * Standard EJB implementation
      */
     public void ejbCreate() {
+        // empty
     }
 
     /**
      * Standard EJB implementation
      */
     public void ejbRemove() {
-        mCTX = null;
+        // empty
     }
 
     /**
-     * Standard EJB implementation
+     * Handles messages sent to this bean.
+     * 
+     * Each invocation generates one data set. Each data set is generated for entire content of
+     * the database. (there is no support for incremental dataset generation).
      */
     public void onMessage(Message message) {
-
-        MapMessage mapMessage = (MapMessage) message;
+        String error = "Error in DataSetBuilderFacade:onMessage";
 
         try {
+            MapMessage mapMessage = (MapMessage) message;
             String datasetType = mapMessage.getString("datasettype");
 
-            // this is only needed until we add the code to correctly locate the
-            // 'change points' in the hierarchy. Right now we just rebuild
-            // the world.
-            Collection allRootGroups = mUserGroupHome.findTopGroups();
-
             if (datasetType.equals("credentials")) {
-                logDebug("in onMessage in DataSetBuilderFacade - doing credentials");
                 mDataSetBuilder.generateCredentials();
             } else if (datasetType.equals("aliases")) {
-                logDebug("in onMessage in DataSetBuilderFacade - doing aliases");
                 mDataSetBuilder.generateAliases();
             } else if (datasetType.equals("permissions")) {
-                logDebug("in onMessage in DataSetBuilderFacade - doing permissions");
+                Collection allRootGroups = mUserGroupHome.findTopGroups();
                 mDataSetBuilder.generatePermissions(allRootGroups);
             } else if (datasetType.equals("extensions")) {
-                logDebug("in onMessage in DataSetBuilderFacade - doing extensions");
                 mDataSetBuilder.generateExtensions();
             } else if (datasetType.equals("authexceptions")) {
-                logDebug("in onMessage in DataSetBuilderFacade - doing authexceptions");
-
-                // @todo remove
-                System.out.println("changepointid: " + mapMessage.getString(CHANGEPOINT_ID_KEY));
-                System.out.println("changepointtype: "
-                        + mapMessage.getString(CHANGEPOINT_TYPE_KEY));
-
+                Collection allRootGroups = mUserGroupHome.findTopGroups();
                 mDataSetBuilder.generateAuthExceptions(allRootGroups);
             }
-        } catch (Exception e) {
-            logFatal(e.toString(), e);
+        } catch (RemoteException e) {
+            logFatalAndRethrow(error, e);
+        } catch (PDSException e) {
+            logFatalAndRethrow(error, e);
+        } catch (JMSException e) {
+            logFatalAndRethrow(error, e);
+        } catch (FinderException e) {
+            logFatalAndRethrow(error, e);
         }
     }
-
-    // ////////////////////////////////////////////////////////////////////////
-    // Implementation Methods
-    // //
-
-    // ////////////////////////////////////////////////////////////////////////
-    // Nested / Inner classes
-    // //
-
-    // ////////////////////////////////////////////////////////////////////////
-    // Native Method Declarations
-    // //
-
 }

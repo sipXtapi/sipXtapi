@@ -225,4 +225,15 @@ public class BaseEJB {
 
         return installStereotype;
     }
+
+    /**
+     * Log and rethrow exceptions helper. Does not eat exceptions.
+     * 
+     * @param error message to be passes
+     * @param e caught exception - we'll be packaged in EJBException and rethrown
+     */
+    protected void logFatalAndRethrow(String error, Exception e) {
+        logFatal(e.toString(), e);
+        throw new EJBException(error, e);
+    }
 }
