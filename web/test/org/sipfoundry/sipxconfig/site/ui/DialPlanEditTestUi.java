@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.ui;
 
+import junit.framework.Test;
+
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import net.sourceforge.jwebunit.WebTestCase;
@@ -19,63 +21,123 @@ import net.sourceforge.jwebunit.WebTestCase;
  * DialPlanEditTestUi
  */
 public class DialPlanEditTestUi extends WebTestCase {
-    private static final String NEW_DESCRIPTION = "New kuku description";
-    private static final String[][] NAMES = { 
-        { "kukuName", "false", "kuku description" },
-        { "bongoName", "false", "bongoDescription" }, 
+    public static Test suite() throws Exception {
+        return SiteTestHelper.webTestSuite(DialPlanEditTestUi.class);
+    }
+
+    private static final String[][] NAMES = {
+        {
+            "kukuName", "false", "kuku description"
+        }, {
+            "bongoName", "false", "bongoDescription"
+        },
+    };
+
+    private static final String[][] DEFAULTS = {
+        {
+            "Emergency", "true", "Emergency", "Emergency dialing plan"
+        }, {
+            "International", "false", "International", "International dialing"
+        }, {
+            "Internal", "true", "Internal", "Default internal dialing plan"
+        }, {
+            "Local", "false", "Local", "Local dialing"
+        }, {
+            "Long Distance", "false", "Long Distance", "Long distance dialing plan"
+        }, {
+            "Restricted", "false", "Long Distance", "Restricted dialing"
+        }, {
+            "Toll free", "false", "Long Distance", "Toll free dialing"
+        }
     };
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         beginAt("/");
         clickLink("resetDialPlans");
+        clickLink("FlexibleDialPlan");
     }
 
-    public void testAddEditPlan() {
-        clickLink("FlexibleDialPlan");
+    public void testDisplayAndClean() {
+        assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
+        // remove all
+        for (int i = 0; i < 7; i++) {
+            checkCheckbox("selectedRow", i);
+        }
+        clickButton("dialplan:delete");
+        // should be empty now
+        assertTableRowsEqual("dialplan:list", 1, new String[0][0]);
+    }
 
+    public void testViewRules() {
+        for (int i = 0; i < DEFAULTS.length; i++) {
+            String name = DEFAULTS[i][0];
+            clickLinkWithText(name);
+            assertFormElementEquals("name", name);
+
+            setFormElement("name", "");
+            clickButton("rule:save");
+            // if validation kicks in we are on the same page
+            assertTextPresent("You must enter a value for Name.");
+            setFormElement("name", name + "changed");
+            clickButton("rule:save");
+            // a link corresponding to new name should be in now
+            assertLinkPresentWithText(name + "changed");
+        }
+    }
+
+    public void testCustomRuleAdd() {
         for (int i = 0; i < NAMES.length; i++) {
             String[] row = NAMES[i];
-            addDialPlan(row);
+            clickLink("dialplan:add");
+            // 2 means custom...
+            selectOption("ruleTypeSelection", "Custom");
+            clickButton("selectRule:next");
+
+            assertLinkNotPresent("pattern:delete");
+            assertLinkPresent("pattern:add");
+
+            setFormElement("name", row[0]);
+            setFormElement("description", row[2]);
+            // dial patter prefix
+            setFormElement("prefix", "333");
+            // call pattern prefix
+            setFormElement("prefix$0", "444");
+
+            clickButton("rule:save");
+
+            assertTextInTable("dialplan:list", row[2]);
+            assertLinkPresentWithText(row[0]);
         }
+    }
 
-        assertTableRowsEqual("dialplan:list", 1, NAMES);
+    // TODO: add this for custom rule test - it relies on Java script at the moment
+    private void checkAddDeletePattern() {
+        // no delete link
+        assertLinkNotPresent("pattern:delete");
+        // add 2 more
+        clickLink("pattern:add");
+        clickLink("pattern:add");
 
-        // edit
-        clickLinkWithText(NAMES[0][0]);
-        setFormElement("description", NEW_DESCRIPTION);
-        clickButton("rule:save");
-        assertTextInTable("dialplan:list", NEW_DESCRIPTION);
-        assertTextInTable("dialplan:list", NAMES[1][2]);
+        // delete 2
 
-        // check validation
-        clickLinkWithText(NAMES[0][0]);
-        setFormElement("name", "");
-        clickButton("rule:save");
-        // if validation kicks in we are on the same page
-        clickButton("cancel");
-
-        assertTextInTable("dialplan:list", NEW_DESCRIPTION);
-        assertTextInTable("dialplan:list", NAMES[1][2]);
-
-        // remove dial plan
-        checkCheckbox("selectedRow");
-        clickButton("dialplan:delete");
-
-        assertTextNotInTable("dialplan:list", NEW_DESCRIPTION);
-        assertTextInTable("dialplan:list", NAMES[1][2]);
+        clickLink("pattern:delete");
+        clickLink("pattern:delete");
+        // no delete link again
+        assertLinkNotPresent("pattern:delete");
     }
 
     /**
-     * Fills and submits edit DialPlan form
+     * Translates between Tapestry index and normal index
      * 
+     * @param id
+     * @param index
      */
-    private void addDialPlan(String[] row) {
-        clickLink("dialplan:add");
-        setFormElement("name", row[0]);
-        setFormElement("description", row[2]);
-        setFormElement("prefix", "33");
-        setFormElement("prefix$0", "33");
-        clickButton("rule:save");
+    private void checkCheckbox(String id, int index) {
+        String suffix = "";
+        if (index > 0) {
+            suffix = "$" + (index - 1);
+        }
+        checkCheckbox(id + suffix);
     }
 }

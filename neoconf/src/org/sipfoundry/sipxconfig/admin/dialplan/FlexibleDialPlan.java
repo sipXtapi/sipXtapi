@@ -112,7 +112,7 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
         for (int i = 0; i < DEFAULT_RULE_NAMES.length; i++) {
             String beanName = DEFAULT_RULE_NAMES[i];
             DialingRule rule = (DialingRule) m_beanFactory.getBean(beanName);
-            addRule(rule);
+            addRule((IDialingRule) rule.duplicate());
         }
     }
 
