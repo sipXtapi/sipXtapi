@@ -19,18 +19,18 @@ import net.sourceforge.jwebunit.WebTestCase;
 public class DialPlanEditTestUi extends WebTestCase {
     private static final String NEW_DESCRIPTION = "New kuku description";
     private static final String[][] NAMES = { 
-        { "kukuName", "Inactive", "kuku description" },
-        { "bongoName", "Inactive", "bongoDescription" }, 
+        { "kukuName", "false", "kuku description" },
+        { "bongoName", "false", "bongoDescription" }, 
     };
 
     public void setUp() {
-        getTestContext().setBaseUrl("http://localhost:8080/sipxconfig");
+        getTestContext().setBaseUrl(TestUiHelper.SIPXCONFIG_URL);
         beginAt("/");
         clickLink("resetDialPlans");
     }
 
     public void testAddEditPlan() {
-        clickLink("ListDialPlans");
+        clickLink("FlexibleDialPlan");
 
         for (int i = 0; i < NAMES.length; i++) {
             String[] row = NAMES[i];
@@ -41,18 +41,17 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         // edit
         clickLinkWithText(NAMES[0][0]);
-        setFormElement("dialPlanDescription", NEW_DESCRIPTION);
-        clickButton("dialplan:save");
+        setFormElement("description", NEW_DESCRIPTION);
+        clickButton("rule:save");
         assertTextInTable("dialplan:list", NEW_DESCRIPTION);
         assertTextInTable("dialplan:list", NAMES[1][2]);
 
         // check validation
         clickLinkWithText(NAMES[0][0]);
-        setFormElement("dialPlanName", "");
-        clickButton("dialplan:save");
+        setFormElement("name", "");
+        clickButton("rule:save");
         // if validation kicks in we are on the same page
-        assertTitleEquals("Dial Plan Configuration");
-        clickButton("dialplan:cancel");
+        clickButton("cancel");
 
         assertTextInTable("dialplan:list", NEW_DESCRIPTION);
         assertTextInTable("dialplan:list", NAMES[1][2]);
@@ -71,8 +70,10 @@ public class DialPlanEditTestUi extends WebTestCase {
      */
     private void addDialPlan(String[] row) {
         clickLink("dialplan:add");
-        setFormElement("dialPlanName", row[0]);
-        setFormElement("dialPlanDescription", row[2]);
-        clickButton("dialplan:save");
+        setFormElement("name", row[0]);
+        setFormElement("description", row[2]);
+        setFormElement("prefix", "33");
+        setFormElement("prefix$0", "33");
+        clickButton("rule:save");
     }
 }

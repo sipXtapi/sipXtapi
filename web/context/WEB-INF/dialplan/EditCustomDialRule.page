@@ -69,8 +69,8 @@
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
     </component>
-    <component id="onCancel" type="Submit">
-        <binding name="listener" expression="listeners.cancel"/>
+    <component id="onCancel" type="CancelButton">
+        <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
     </component>
     
     <!-- gateways configuration -->

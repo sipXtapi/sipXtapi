@@ -14,17 +14,13 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 /**
  * Gateway
  */
-public class Gateway {
-    private static int s_id = 1;
-
-    private Integer m_id;
+public class Gateway extends BeanWithId {
     private String m_name;
     private String m_address;
     private String m_description;
 
     public Gateway() {
-        // TODO: replace by hibernate id handling
-        setId(new Integer(s_id++));
+        //intentionally empty
     }
 
     /**
@@ -32,7 +28,7 @@ public class Gateway {
      * @param id of the existing gateway
      */
     Gateway(Integer id) {
-        setId(id);
+        super(id);
     }
 
     public String getName() {
@@ -57,31 +53,5 @@ public class Gateway {
 
     public void setDescription(String description) {
         m_description = description;
-    }
-
-    public Integer getId() {
-        return m_id;
-    }
-
-    private void setId(Integer id) {
-        m_id = id;
-    }
-
-    public boolean equals(Object o) {
-        Gateway other = (Gateway) o;
-        if (other == null) {
-            return false;
-        }
-        return m_id.equals(other.m_id);
-    }
-
-    public int hashCode() {
-        return m_id.hashCode();
-    }
-
-    public void update(Gateway gateway) {
-        m_name = gateway.m_name;
-        m_address = gateway.m_address;
-        m_description = gateway.m_description;
     }
 }

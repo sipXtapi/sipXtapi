@@ -38,7 +38,7 @@ public class FlexibleDialPlan {
         return m_rules;
     }
 
-    public DialingRule getRule(Integer id) {
+    private DialingRule getOrgRule(Integer id) {
         int i = m_rules.indexOf(new DialingRule(id));
         if (i < 0) {
             return null;
@@ -46,16 +46,25 @@ public class FlexibleDialPlan {
         return (DialingRule) m_rules.get(i);
     }
 
+    public DialingRule getRule(Integer id) {
+        final DialingRule rule = getOrgRule(id);
+        return null != rule ? (DialingRule) rule.detach() : null;
+    }
+
     public void deleteRules(Collection selectedRows) {
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            m_rules.remove(getRule(id));
+            m_rules.remove(new DialingRule(id));
         }
     }
 
-    public void updateRule(DialingRule rule) {
+    public boolean updateRule(Integer id, DialingRule rule) {
         // TODO: this is naive implementation - review after adding hibernate
-        m_rules.remove(rule);
-        m_rules.add(rule);
+        final DialingRule orgRule = getOrgRule(id);
+        if (null == orgRule) {
+            return false;
+        }
+        orgRule.update(rule);
+        return true;
     }
 }

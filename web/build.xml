@@ -23,6 +23,7 @@
 	    -->
 	<path id="runtime.dependencies">
 		<pathelement path="${commons-logging.jar}" />
+		<pathelement path="${commons-beanutils.jar}"/>
 		<pathelement path="${commons-dbcp.jar}" />
 		<pathelement path="${commons-pool.jar}" />
 		<pathelement path="${aopalliance.jar}" />

@@ -45,6 +45,7 @@
       -->
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
+	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
     <component-type type="DialingRuleCommon" specification-path="dialplan/DialingRuleCommon.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="ErrorMsg" specification-path="common/ErrorMsg.jwc"/>

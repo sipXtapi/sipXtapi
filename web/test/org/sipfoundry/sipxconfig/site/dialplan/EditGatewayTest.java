@@ -21,9 +21,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
-import org.sipfoundry.sipxconfig.site.dialplan.EditCustomDialRule;
-import org.sipfoundry.sipxconfig.site.dialplan.EditGateway;
-import org.sipfoundry.sipxconfig.site.dialplan.ListGateways;
 
 /**
  * EditGatewayTest
@@ -84,28 +81,6 @@ public class EditGatewayTest extends TestCase {
         assertTrue(rule.getGateways().contains(gateway));
     }
 
-    public void testCancel() {
-        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-
-        // return to list gateways page in normal case
-        cycle.activate(ListGateways.PAGE);
-        cycleControl.replay();
-        m_editGatewayPage.cancel(cycle);
-        cycleControl.verify();
-
-        // return to dial plan page when dial plan is set
-        DialingRule rule = new DialingRule();
-        FlexibleDialPlan flexDialPlan = m_manager.getFlexDialPlan();
-        flexDialPlan.addRule(rule);
-        m_editGatewayPage.setRuleId(rule.getId());
-        cycleControl.reset();
-        cycle.activate(EditCustomDialRule.PAGE);
-        cycleControl.replay();
-        m_editGatewayPage.cancel(cycle);
-        cycleControl.verify();
-    }
-
     public void testPageBeginRenderAdd() {
         m_editGatewayPage.pageBeginRender(null);
 
@@ -116,6 +91,7 @@ public class EditGatewayTest extends TestCase {
     public void testPageBeginRenderEdit() {
         DialPlanManager manager = new DialPlanManager();
         Gateway gateway = new Gateway();
+        gateway.setName("kuku");
         Integer id = gateway.getId();
         manager.addGateway(gateway);
 
@@ -124,6 +100,8 @@ public class EditGatewayTest extends TestCase {
         m_editGatewayPage.pageBeginRender(null);
 
         assertEquals(id, m_editGatewayPage.getGatewayId());
-        assertEquals(gateway, m_editGatewayPage.getGateway());
+        assertEquals("kuku", m_editGatewayPage.getGateway().getName());
+        assertFalse(gateway.equals(m_editGatewayPage.getGateway()));
+
     }
 }

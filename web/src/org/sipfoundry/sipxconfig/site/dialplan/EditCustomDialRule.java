@@ -112,12 +112,8 @@ public abstract class EditCustomDialRule extends BasePage implements PageRenderL
         if (null == ruleId) {
             plan.addRule(rule);
         } else {
-            plan.updateRule(rule);
+            plan.updateRule(ruleId, rule);
         }
-    }
-
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(EditFlexibleDialPlan.PAGE);
     }
 
     /**

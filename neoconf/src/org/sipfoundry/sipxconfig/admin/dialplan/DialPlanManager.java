@@ -34,7 +34,7 @@ public class DialPlanManager {
         m_gateways = gateways;
     }
 
-    public Gateway getGateway(Integer id) {
+    private Gateway getOrgGateway(Integer id) {
         if (null == id) {
             return null;
         }
@@ -43,11 +43,17 @@ public class DialPlanManager {
         if (i < 0) {
             return null;
         }
-        return (Gateway) m_gateways.get(i);
+        Gateway g = (Gateway) m_gateways.get(i);
+        return g;
+    }
+
+    public Gateway getGateway(Integer id) {
+        Gateway g = getOrgGateway(id);
+        return null != g ? (Gateway) g.detach() : null;
     }
 
     public boolean updateGateway(Integer id, Gateway gatewayData) {
-        Gateway gateway = getGateway(id);
+        Gateway gateway = getOrgGateway(id);
         if (null == gateway) {
             return false;
         }
@@ -65,6 +71,7 @@ public class DialPlanManager {
 
     public void clear() {
         m_gateways.clear();
+        m_flexDialPlan.getRules().clear();
     }
 
     public boolean deleteGateway(Integer id) {

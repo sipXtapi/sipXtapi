@@ -64,8 +64,8 @@
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
     </component>
-    <component id="onCancel" type="Submit">
-        <binding name="listener" expression="listeners.cancel"/>
+    <component id="onCancel" type="CancelButton">
+        <binding name="returnPageName" expression="nextPageName"/>
     </component>
 
     <!--

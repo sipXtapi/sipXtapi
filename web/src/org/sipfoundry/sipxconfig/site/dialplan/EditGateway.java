@@ -89,10 +89,6 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         cycle.activate(getNextPageName());
     }
 
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(getNextPageName());
-    }
-
     /**
      * Determines which page we need to get back to It should be DialPlan page
      * if we are editing gateways for dial plan And ListGateways page if we just
@@ -100,7 +96,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
      * 
      * @return name of the page that should be activated
      */
-    private String getNextPageName() {
+    public String getNextPageName() {
         Integer id = getRuleId();
         return null != id ? EditCustomDialRule.PAGE : ListGateways.PAGE;
     }
