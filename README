@@ -19,8 +19,8 @@ Then you can access the web gui from this url
   http://localhost:8080/pds
 
 ### BUG ALERT ###
-Currently there is a bug where you have to visit this link first
-before you can successfully log into sipxchange
+Currently there is a bug (XCF-12) where you have to visit this link
+first before you can successfully log into sipxchange
 
   http://localhost:8080/pds/login/logout.jsp
 

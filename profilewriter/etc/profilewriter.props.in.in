@@ -7,7 +7,7 @@ httpbaseurl=file:@profiledir@/docroot
 
 # The publishedHttpDocRoot is the fully qualified URL which is sent
 # to the SDS.   This should use either http or https (future).
-publishedHttpDocRoot=http://${MY_FULL_HOSTNAME}:${CONFIG_SERVER_HTTP_PORT}/phone/profile/
+publishedHttpDocRoot=http://${MY_FULL_HOSTNAME}:${CONFIG_SERVER_HTTP_PORT}/phone/profile/docroot/
 
 # Pingtel Specific set of rules to upgrade core software images
 pingtelcatalog=http://localhost:80/phone/catalog/catalog.txt
