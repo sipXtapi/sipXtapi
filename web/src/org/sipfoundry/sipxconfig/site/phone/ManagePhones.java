@@ -128,7 +128,6 @@ public abstract class ManagePhones extends BasePage
 
         // Generate the list of phone items
         setPhones(phoneContext.loadPhones());
-        Phone[] phones = (Phone[]) getPhones().toArray(new Phone[0]);
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }
