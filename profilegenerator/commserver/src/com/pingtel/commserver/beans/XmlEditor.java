@@ -132,7 +132,7 @@ public class XmlEditor
     }
 
     /**
-     * Save xml content to file
+     * Save xml content to file. Will not let you save xml unless it's valid
      */
     public void save(String filename)
         throws IOException

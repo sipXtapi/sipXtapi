@@ -42,12 +42,15 @@ public class XmlEditorTest extends TestCase
         xml.setContent(content.toString());
         assertTrue("invalid xml for a bad content", !xml.isValid());
         assertTrue("should be error message", xml.getErrorMessage() != null);
-        xml.save("XmlEditorTest.testInvalidXml.out");
 
-        // test save/load
-        XmlEditor xmlLoad = new XmlEditor();
-        xml.load("XmlEditorTest.testInvalidXml.out");
-        assertTrue("valid xml load single root content", !xml.isValid());
-        assertTrue("error message from loaded xml", xml.getErrorMessage() != null);
+        try
+        {
+            xml.save("XmlEditorTest.testInvalidXml.out");
+            fail("Xml editor should not let you save invalid xml");
+        }
+        catch (IOException expected)
+        {
+            assertTrue("Could not save invalid xml", true);
+        }
     }
 }
