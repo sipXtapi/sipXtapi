@@ -22,3 +22,6 @@ tftpbaseurl=file:@sipxconfig.phone.dir@/profile/tftproot
 
 # SDS Hostname or IP Address
 sdshostname=localhost
+
+# Local ip address
+myIpAddress=${MY_IP_ADDR}

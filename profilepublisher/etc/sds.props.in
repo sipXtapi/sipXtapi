@@ -18,3 +18,7 @@ x-xpressa-apps=1
 # disables these from going to the phone
 x-xpressa-install=-1
 
+# Local ip address
+myIpAddress=${MY_IP_ADDR}
+
+

@@ -51,6 +51,7 @@ public class SoftwareDeliveryServer extends Object {
     private static final String DB_DRIVERNAME    = "sds.dbDriverName";
     private static final String CATALOG_URL      = "sds.catalogURL";
     private static final String DB_CON_FACTORY   = "sds.dbConnectionFactoryClass";
+    private static final String IPADDRESS        = "myIpAddress";
 
     /** RMI Server listener for Profile updates from the profile writer */
     private ProfileListenerImpl m_profileListener;
@@ -227,7 +228,8 @@ public class SoftwareDeliveryServer extends Object {
                     serverProperties.getProperty(DB_CON_FACTORY) );
 
             // Determine the IP address of this server as it is used as a fallback default
-            String myIPAddress = InetAddress.getLocalHost().getHostAddress();
+            String myIPAddress = serverProperties.getProperty(IPADDRESS,
+                    InetAddress.getLocalHost().getHostAddress());
 
             // There is a potential race condition where the Subscriptions
             // and the projections may be updating the cache at the same time

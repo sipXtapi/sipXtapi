@@ -49,6 +49,8 @@ public class ProfileWriterServer {
     /* This property specifies the URL which is send to the SDS.  It is
        prepended to all URLs sent in NOTIFY messages */
     private static final String PROPERTIES_SDS_BASEURL = "publishedHttpDocRoot";
+    
+    private static final String PROPERTIES_MYIPADDR = "myIpAddress";
 
 
     private static Category m_logger;
@@ -90,7 +92,12 @@ public class ProfileWriterServer {
 
             fileAppender.setMaxFileSize( "1MB" );
             fileAppender.setMaxBackupIndex( 20 );
-            //fileAppender.setLayout( new PingtelXMLLayout( "PW" ) );
+
+            // XCF-45 : Uncomment but keep an eye on this. It was suspiciously commented out
+            // causing no logging. I suspect it was commented out because it was flooding the 
+            // log file but if that's the case, we will fix the extraneous logging entries 
+            // instead.
+            fileAppender.setLayout( new PingtelXMLLayout( "PW" ) );
 
             ConsoleAppender consoleAppender =
                 new ConsoleAppender( new PatternLayout ( "%-5p [%t]: %m %l%n" ),
@@ -143,15 +150,14 @@ public class ProfileWriterServer {
 
             String configFileName = System.getProperty( PROPERTIES_FILE );
 
-            if ( configFileName != null ) {
-                FileInputStream serverPropFile =
-                    new FileInputStream ( System.getProperty( PROPERTIES_FILE ) );
-                serverProperties.load( serverPropFile );
-                serverPropFile.close();
-            }
+            FileInputStream serverPropFile =
+                new FileInputStream ( System.getProperty( PROPERTIES_FILE ) );
+            serverProperties.load( serverPropFile );
+            serverPropFile.close();
 
             // Determine the IP address of this server as it is used as a fallback default
-            String myIPAddress = InetAddress.getLocalHost().getHostAddress();
+            String myIPAddress = serverProperties.getProperty(PROPERTIES_MYIPADDR,
+                    InetAddress.getLocalHost().getHostAddress());
 
             // Parse the Pingtel HTTP parameters
             String httpBaseURL = serverProperties.getProperty ( PROPERTIES_HTTPBASEURL /*, "file:/dms/docrooot" */ );
@@ -168,7 +174,7 @@ public class ProfileWriterServer {
                 serverProperties.getProperty ( PROPERTIES_SDS_BASEURL );
 
             // Create the Servant object and bind it to the rmi name 'ProfileWriter'
-            // Eventually use a proper fully qualitied name for location independence
+            // Eventually use a proper fully qualified name for location independence
             // Because the PriofileWriterImpl object is a subclass of UnicastRemoteObject
             // the construction process (superclass) exports itself - making it available
             // for remote business methods
