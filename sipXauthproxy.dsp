@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /I "src\cse" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -92,6 +92,18 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\src\sipauthproxy\AuthProxyCseObserver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\cse\CallStateEventBuilder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\cse\CallStateEventBuilder_XML.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\src\sipauthproxy\SipAaa.cpp
