@@ -2,16 +2,19 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	
-	<!-- Manages test data -->
-   <bean id="testData"
-	    class="org.sipfoundry.sipxconfig.phone.UnitTestDao">
+	<!-- 
+	  - U N I T  T E S T  D A O
+	  - Helper funtions for test data in the database
+	  -->
+	<bean id="testData" class="org.sipfoundry.sipxconfig.phone.UnitTestDao">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>
 		</property>
 		<property name="dataSource">
 			<ref bean="dataSource"/>
 		</property>
+		<property name="phoneDao">
+			<ref bean="phoneDao"/>
+		</property>
 	</bean>
-
 </beans>

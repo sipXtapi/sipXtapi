@@ -10,7 +10,7 @@
 		global.phoneContext </property-specification>
 	<property-specification name="phones" type="java.util.List"/>
 	<property-specification name="currentPhone" 
-		type="org.sipfoundry.sipxconfig.site.PhoneItem"/>
+		type="org.sipfoundry.sipxconfig.site.PhoneListRow"/>
 	<!--
 	  - B E A N S
 	  -->

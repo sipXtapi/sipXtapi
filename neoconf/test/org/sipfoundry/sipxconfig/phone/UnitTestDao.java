@@ -32,8 +32,16 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class UnitTestDao extends HibernateDaoSupport {
 
     private DataSource m_dataSource;
+    
+    private PhoneDao m_phoneDao;
 
     private int m_testUserId;
+    
+    private Endpoint m_teardownEndpoint;
+    
+    private EndpointAssignment m_teardownAssignment;
+    
+    private SettingSet m_teardownSettings;    
 
     /**
      * test that data in database is setup correctly if not, initialize it's values here. should
@@ -61,13 +69,33 @@ public class UnitTestDao extends HibernateDaoSupport {
     public DataSource getDataSource() {
         return m_dataSource;
     }
+    
+    public void setPhoneDao(PhoneDao phoneDao) {
+        m_phoneDao = phoneDao;
+    }
 
     /**
      * verify test data is still there and clean, should be called in tearDown of unittests that
      * interact with database.  There should
      */
     public boolean verifyDataUnaltered() {
-        // no checks at this time
+
+        // NOTE: If unittest fails to tear down, next unittest run
+        // may fail due to duplicate data errors
+        if (m_teardownSettings != null) {
+            m_phoneDao.deleteSetting(m_teardownSettings);
+            m_teardownSettings = null;
+        }
+        if (m_teardownAssignment != null) {
+            m_phoneDao.deleteEndpointAssignment(m_teardownAssignment);
+            m_teardownAssignment = null;
+        }
+        if (m_teardownEndpoint != null) {
+            m_phoneDao.deleteEndpoint(m_teardownEndpoint);
+            m_teardownEndpoint = null;
+        }
+        m_phoneDao.flush();
+        
         return true;
     }
 
@@ -157,5 +185,49 @@ public class UnitTestDao extends HibernateDaoSupport {
         } finally {
             statement.close();
         }
+    }
+    
+    /**
+     * Create some generic sample data, destroyed verifyDataUnaltered
+     */
+    public Endpoint createSampleEndpoint() {
+        Endpoint endpoint = new Endpoint();
+        // assumption that this is unique
+        endpoint.setSerialNumber("f34298760024fcc1"); 
+        endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
+        m_phoneDao.storeEndpoint(endpoint);
+        m_teardownEndpoint = endpoint;
+        
+        return endpoint;
+    }
+    
+    /**
+     * Create some generic sample data, destroyed verifyDataUnaltered
+     */
+    public SettingSet createSampleSettingSet() {
+        SettingSet root = new SettingSet("root");       
+        SettingSet subset = new SettingSet("subset");
+        root.addSetting(subset);
+        Setting setting = new Setting("subsetting", "value");
+        subset.addSetting(setting);
+
+        m_phoneDao.storeSetting(root, PhoneDao.CASCADE);
+        m_teardownSettings = root;
+                
+        return root;
+    }
+    
+    /**
+     * Create some generic sample data, destroyed verifyDataUnaltered
+     */
+    public EndpointAssignment createSampleEndpointAssignment(Endpoint endpoint, User user) {
+        EndpointAssignment assignment = new EndpointAssignment();
+        assignment.setUser(user);
+        assignment.setEndpoint(endpoint);
+        assignment.setLabel("work phone");
+        m_phoneDao.storeEndpointAssignment(assignment);                
+        m_teardownAssignment = assignment;
+        
+        return assignment;
     }
 }

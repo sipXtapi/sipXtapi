@@ -36,27 +36,31 @@ public class ListPhonesTest extends TestCase {
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
         cycleControl.replay();
         
+        // page w/generated abstract methods implemented
+        AbstractInstantiator pageMaker = new AbstractInstantiator();
+        ListPhones page = (ListPhones) pageMaker.getInstance(ListPhones.class);
+        
         MockControl daoControl = MockControl.createControl(PhoneDao.class);
         PhoneDao dao = (PhoneDao) daoControl.getMock();
-        List endpoints = new ArrayList();
+        List summaries = new ArrayList();
         Endpoint endpoint = new Endpoint();
         endpoint.setSerialNumber(MAC_ADDRESS);
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
-        endpoints.add(endpoint);
-        daoControl.expectAndReturn(dao.loadEndpoints(), endpoints);
+        PhoneListRow summary = new PhoneListRow();
+        summary.setPhone(phoneContext.getPhone(endpoint));
+        summaries.add(summary);
+        daoControl.expectAndReturn(dao.loadPhoneSummaries(page), summaries);
         daoControl.replay();
         
         phoneContext.setPhoneDao(dao);
 
-        AbstractInstantiator pageMaker = new AbstractInstantiator();
-        ListPhones page = (ListPhones) pageMaker.getInstance(ListPhones.class);
         page.setPhoneContext(phoneContext);
         page.pageBeginRender(new PageEvent(page, cycle));
         List phones = page.getPhones(); 
         assertNotNull(phones);
         Iterator iphones = phones.iterator();
         assertTrue(iphones.hasNext());
-        PhoneItem firstPhone = (PhoneItem) iphones.next();
+        PhoneListRow firstPhone = (PhoneListRow) iphones.next();
         assertEquals(endpoint, firstPhone.getPhone().getEndpoint());
         assertFalse(iphones.hasNext());
         

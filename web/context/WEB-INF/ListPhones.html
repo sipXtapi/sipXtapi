@@ -72,14 +72,14 @@
 				</tr>
                 <!-- RENDERED -->
                 <span jwcid="SerialNumberColumnValue@Block">
-                    <a href="#" jwcid="@DirectLink" listener="ognl:listeners.editPhone" 
-                        parameters="ognl:components.phoneRows.tableRow.endpoint.id"><span 
+                    <a href="#" jwcid="@ActionLink" listener="ognl:listeners.editPhone"><span 
                         jwcid="@Insert" 
-                        value="ognl:components.phoneRows.tableRow.endpoint.serialNumber"/></a>
+                        value="ognl:currentPhone.endpoint.serialNumber"/></a>
                 </span>
                 <span jwcid="AssignedUserColumnValue@Block">
-                    <a href="#" jwcid="@DirectLink" listener="ognl:listeners.assignUser" 
-                        parameters="ognl:components.phoneRows.tableRow.endpoint.id">{unassigned}</a>
+                    <a href="#" jwcid="@ActionLink" listener="ognl:listeners.assignUser"><span 
+                        jwcid="@Insert" 
+                        value="ognl:currentPhone.assignedUser"/></a>
                 </span>
 				<tr class="table-view-hdr">
 					<td></td>

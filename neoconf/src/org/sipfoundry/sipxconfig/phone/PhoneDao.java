@@ -13,13 +13,30 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.List;
 
+
 /**
  * Create/Retrieve/Update/Delete for Object in phone
  * package that r/w to a database.
  */
 public interface PhoneDao {
 
+    /**
+     * infinite value when specifing depth parameter to some functions 
+     */
     public static final int CASCADE = -1;
+    
+    /** 
+     * int value for objects that haven't been saved to database yet
+     * <pre>
+     *   Example:
+     *      public class MyObject {
+     * 
+     *          prviate int id = UNSAVED_ID
+     *         
+     *           ...
+     * </pre>
+     */
+    public static final int UNSAVED_ID = -1;
     
     /**
      * Commits the transaction and performs a batch of SQL commands
@@ -33,7 +50,7 @@ public interface PhoneDao {
      */
     public void flush();
     
-    public void storeSetting(Setting setting, int dpeth);
+    public void storeSetting(Setting setting, int depth);
 
     public void storeSetting(Setting setting);
     
@@ -48,9 +65,17 @@ public interface PhoneDao {
     public User loadUserByDisplayId(String displayId);
     
     public Endpoint loadEndpoint(int id);
+        
+    public List loadPhoneSummaries(PhoneSummaryFactory table);
     
+    /**
+     * Complete with endpoint and users loaded
+     * @return list of endpoint objects
     public List loadEndpoints();
-    
+
+    public List loadEndpointAssigments();
+     */
+
     public void storeEndpoint(Endpoint endpoint);
 
     public void deleteEndpoint(Endpoint endpoint);

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -44,11 +45,38 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
     public void deleteEndpoint(Endpoint endpoint) {
         getHibernateTemplate().delete(endpoint);        
     }
-
-    public List loadEndpoints() {
-        return getHibernateTemplate().find("from Endpoint");        
+        
+    public List loadPhoneSummaries(PhoneSummaryFactory factory) {        
+        String endpointQuery = "from Endpoint e order by e.id";
+        List endpoints = getHibernateTemplate().find(endpointQuery);
+        List summaries = new ArrayList(endpoints.size());
+        
+        // order by same as endpoint to help juxtapositioning 
+        String assignmentQuery = "from EndpointAssignment ea order by ea.endpoint";
+        List assignments = getHibernateTemplate().find(assignmentQuery);
+        
+        Iterator iendpoints = endpoints.iterator();
+        EndpointAssignment assignment = null;
+        PhoneContext context = factory.getPhoneContext();
+        for (int j = 0; iendpoints.hasNext();) {
+            PhoneSummary summary = factory.createPhoneSummary();
+            Endpoint endpoint = (Endpoint) iendpoints.next();
+            summary.setPhone(context.getPhone(endpoint));
+            // juxtapostion endpoint assignments
+            if (j < assignments.size()) {
+                assignment = (EndpointAssignment) assignments.get(j);
+                if (assignment.getEndpoint().equals(endpoint)) {
+                    summary.setAssignment(assignment);
+                    j++;
+                }
+            }
+            
+            summaries.add(summary);
+        }
+        
+        return summaries;
     }
-
+    
     public Endpoint loadEndpoint(int id) {
         return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
     }
