@@ -12,21 +12,23 @@
 
 package com.pingtel.pds.pgs.jsptags;
 
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+
 import com.pingtel.pds.common.EJBHomeFactory;
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.pgs.jsptags.util.ExTagSupport;
 import com.pingtel.pds.pgs.phone.CoreSoftwareHome;
+import com.pingtel.pds.pgs.phone.DeviceTypeHelper;
 import com.pingtel.pds.pgs.phone.DeviceTypeHome;
 import com.pingtel.pds.pgs.phone.Manufacturer;
 import com.pingtel.pds.pgs.phone.ManufacturerHome;
 import com.pingtel.pds.pgs.profile.RefDataAdvocate;
 import com.pingtel.pds.pgs.profile.RefDataAdvocateHome;
 import com.pingtel.pds.pgs.profile.RefPropertyHome;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import java.util.Collection;
-import java.util.Iterator;
 
 
 public class DeviceTypeSelectTag extends ExTagSupport {
@@ -43,7 +45,7 @@ public class DeviceTypeSelectTag extends ExTagSupport {
    private StringBuffer m_dtBuffer = new StringBuffer();
    private StringBuffer m_rpBuffer = new StringBuffer();
    private int i = 0;
-
+   
    public void setRefProp( String refProp )
    {
       this.m_refProp = refProp;
@@ -178,10 +180,11 @@ public class DeviceTypeSelectTag extends ExTagSupport {
                m_deviceTypeProp = ( com.pingtel.pds.pgs.phone.DeviceType )
                   deviceTypeIterator.next();
                   mfg = m_mfgHome.findByPrimaryKey(m_deviceTypeProp.getManufacturerID());
+                  String label = DeviceTypeHelper.getLabel(m_deviceTypeProp.getModel(), 
+                          mfg.getName());
                   m_dtBuffer.append( "<option value=\"" +
                                      m_deviceTypeProp.getID() + "\">" +
-                                     mfg.getName() + " - " +
-                                     m_deviceTypeProp.getModel() +
+                                     label +
                                      "\n");
             }
          }

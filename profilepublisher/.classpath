@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="test/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/sipXconfig-common"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-dbcp.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j.jar"/>
+	<classpathentry kind="src" path="/sipXconfig-profilegenerator"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/client/jboss-j2ee.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/jboss-jaas.jar"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

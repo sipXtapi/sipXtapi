@@ -223,6 +223,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB
             RE integerOnlyRegExp =
                     new RE("^[0-9]{" + MIN_EXTERNAL_FORWARDING_LENGTH + ",}$");
 
+            // HACK: why do we even pretend we can support more than one org?
             // this code looks like its unsafe however there should only be one organization
             // in the database in the sipxchange/enterprise mode.   If this requirement
             // changes we can get the individual organizations for each user and rebuild
@@ -329,7 +330,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB
                             mOrganizationHome.findByPrimaryKey(
                                     new Integer ("1") );
 
-                    xchangeRealm = xchangeOrganization.getDNSDomain();
+                    xchangeRealm = xchangeOrganization.getAuthenticationRealm();
                 }
 
                 logDebug ( "generateCredentials::creating the database XML document" );
@@ -535,7 +536,7 @@ ex.printStackTrace();
                     Element identity = new Element ( "identity" );
 
                     String trimmedAlias = alias.trim() + "@" + organization.getDNSDomain();
-                    logDebug ( "generateAliases::idemtty: " + trimmedAlias );
+                    logDebug ( "generateAliases::identity: " + trimmedAlias );
 
                     identity.setText( trimmedAlias.toString() );
 
@@ -1318,7 +1319,9 @@ ex.printStackTrace();
                 getOrganizationEJBObject(superadmin.getOrganizationID());
 
         String domain = organization.getDNSDomain();
-        String fullUserID = "superadmin@" + domain;
+        String authenticationRealm = organization.getAuthenticationRealm();
+        String displayID = "superadmin";
+        String fullUserID = displayID + "@" + domain;
 
         Element item = new Element ("item"); // root which we return
 
@@ -1327,11 +1330,11 @@ ex.printStackTrace();
         uri.addContent(fullUserID);
 
         Element realm = new Element ("realm");
-        realm.addContent(domain);
-        item.addContent( realm );
+        realm.addContent(authenticationRealm);
+        item.addContent(realm);
 
         Element userID = new Element ("userid");
-        userID.addContent(fullUserID);
+        userID.addContent(displayID);
         item.addContent(userID);
 
         Element password = new Element ("passtoken");

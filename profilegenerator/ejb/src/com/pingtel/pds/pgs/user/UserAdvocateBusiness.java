@@ -15,11 +15,11 @@ package com.pingtel.pds.pgs.user;
 
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.common.PDSDefinitions;
+import com.pingtel.pds.pgs.organization.Organization;
 import com.pingtel.pds.pgs.phone.Device;
 
 import java.rmi.RemoteException;
 import java.util.Collection;
-import java.util.Map;
 
 public interface UserAdvocateBusiness {
 
@@ -158,6 +158,17 @@ public interface UserAdvocateBusiness {
     void fixPrimaryLine ( User user, boolean fixCredential, String undigestedPassword )
          throws PDSException, RemoteException;
 
+    /**
+     * fixDnsDomain modifies previously generated primary line property settings
+     * It replaces original DNS name with a new name.
+     * It needs to be called every time organization DNS name changes
+     * 
+     * @param organization
+     * @throws PDSException is thrown for application level errors
+     * @throws RemoteException RMI related errors
+     */
+    void fixDnsDomain( Organization organization ) throws PDSException, RemoteException;
+    
     /**
      * copies a User
      *

@@ -12,7 +12,6 @@
 
 package com.pingtel.pds.pgs.phone;
 
-import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.common.XMLSupport;
@@ -76,8 +75,6 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
     private RenderProfile m_renderProfileEJBObject;
     private JobManager m_jobManagerEJBObject;
 
-
-    private MD5Encoder m_MD5 = new MD5Encoder();
     private SAXBuilder m_saxBuilder = new SAXBuilder();
     private XMLOutputter m_xmlOut = new XMLOutputter();
 
@@ -689,6 +686,7 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                 m_organizationHome.findByPrimaryKey( device.getOrganizationID() );
 
             String dnsDomain = organization.getDNSDomain();
+            String realm = organization.getAuthenticationRealm();
 
             ConfigurationSet cs = null;
 
@@ -699,6 +697,10 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
             RefProperty deviceLineRP = this.getDeviceLineRP();
             String deviceLineRPID = deviceLineRP.getID().toString();
 
+            DeviceHelper helper = new DeviceHelper(device);
+            String deviceLineURL = helper.calculateDeviceLineUrl(organization);
+            String digestedPassword = helper.getDigest(organization); 
+            
             Document doc =
                 m_saxBuilder.build(
                     new ByteArrayInputStream ( cs.getContent().getBytes() ) );
@@ -720,14 +722,14 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                         CDATA existing = (CDATA) iList.next();
                         url.removeContent( existing );
                     }
-                    url.addContent( new CDATA ( device.calculateDeviceLineURL() ) );
+                    url.addContent( new CDATA ( deviceLineURL ) );
 
                     Collection credentials = holder.getChildren( "CREDENTIAL");
                     for ( Iterator iCred = credentials.iterator(); iCred.hasNext(); ) {
                         Element credential = (Element) iCred.next();
 
-                        String realm = credential.getChild( "REALM" ).getText();
-                        if ( realm.equals( dnsDomain ) ) {
+                        String childRealm = credential.getChild( "REALM" ).getText();
+                        if ( childRealm.equals( realm ) ) {
                             Element userID = credential.getChild( "USERID" );
                             userID.setText(device.getSerialNumber() + "@" + dnsDomain);
 
@@ -741,9 +743,6 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                                 CDATA existing = (CDATA) iList.next();
                                 passtoken.removeContent( existing );
                             }
-
-                            String digestedPassword =
-                                m_MD5.encode( device.getShortName() + ":" + new Date().getTime() );
 
                             passtoken.addContent( new CDATA ( digestedPassword ) );
                         }
@@ -783,7 +782,22 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
         }
     }
 
-
+    /**
+     * Implementation of bean method
+     * @see com.pingtel.pds.pgs.phone.DeviceAdvocateBusiness#fixDnsName(com.pingtel.pds.pgs.organization.Organization)
+     */
+    public void fixDnsName(Organization organization) throws PDSException, RemoteException {
+        try {
+            Integer orgID = organization.getID();
+            Collection devices = m_deviceHome.findByOrganizationID(orgID);
+            for (Iterator i = devices.iterator(); i.hasNext();) {
+                Device device = (Device) i.next();
+                fixDeviceLine(device);
+            }
+        } catch (FinderException e) {
+            throw new PDSException("Attempt to fix DNS name for devices.", e);
+        }
+    }
 
 
     /**
@@ -883,6 +897,8 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
         String deviceExternal = null;
 
         try {
+            deviceExternal = device.getExternalID();
+            
             Organization org = null;
             try {
                 org = m_organizationHome.findByPrimaryKey( device.getOrganizationID() );
@@ -897,37 +913,15 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                         ex);
             }
 
-            deviceExternal = device.getExternalID();
-
-            String deviceLineURL = device.calculateDeviceLineURL();
-            String userID = device.getSerialNumber() + "@" + org.getDNSDomain();
-
             RefProperty rp = getDeviceLineRP();
-            StringBuffer xmlContent = new StringBuffer();
-            xmlContent.append( "<PROFILE>" +
-                                "<PHONESET_LINE ref_property_id=\"" + rp.getID() + "\">" );
-
-            String digestedPassword =
-                m_MD5.encode(   userID + ":" + new Date().getTime()  );
-
-            xmlContent.append( "<PHONESET_LINE>" );
-            xmlContent.append( "<ALLOW_FORWARDING>" + CDATAIt ( "DISABLE" ) + "</ALLOW_FORWARDING>" );
-            xmlContent.append( "<REGISTRATION>" + CDATAIt ( "REGISTER" ) + "</REGISTRATION>" );
-            xmlContent.append( "<URL>" + CDATAIt ( deviceLineURL ) + "</URL>");
-            xmlContent.append( "<CREDENTIAL autogenerated=\"true\">" );
-            xmlContent.append( "<REALM>" + CDATAIt ( org.getDNSDomain() ) + "</REALM>" );
-            xmlContent.append( "<USERID>" + CDATAIt ( userID ) + "</USERID>" );
-            xmlContent.append( "<PASSTOKEN>" + CDATAIt (  digestedPassword ) + "</PASSTOKEN>" );
-            xmlContent.append( "</CREDENTIAL>" );
-            xmlContent.append( "</PHONESET_LINE>" );
-            xmlContent.append( "</PHONESET_LINE>" );
-            xmlContent.append( "</PROFILE>" );
+            DeviceHelper helper = new DeviceHelper(device);
+            String csContent = helper.createInitialDeviceLine(org,rp);
 
             try {
                 m_csHome.create(    device.getRefConfigSetID(),
                                     PDSDefinitions.PROF_TYPE_PHONE,
                                     device,
-                                    xmlContent.toString() );
+                                    csContent );
             }
             catch ( CreateException ex ) {
                 m_ctx.setRollbackOnly();
@@ -937,7 +931,7 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                                                 "E2016",
                                                 new Object[]{   deviceExternal,
                                                                 device.getRefConfigSetID(),
-                                                                xmlContent } ),
+                                                                csContent } ),
                         ex);
             }
         }
@@ -950,8 +944,6 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                                         new Object[]{ deviceExternal } ) );
         }
     }
-
-
 
     private RefProperty getDeviceLineRP () throws PDSException {
         RefProperty rp = null;

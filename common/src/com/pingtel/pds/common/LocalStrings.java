@@ -9,16 +9,13 @@
  * 
  * $$
  */
-package com.pingtel.pds.pgs.jsptags.util;
-
-import java.io.InputStream;
-import java.io.IOException;
-
-import java.util.Hashtable;
-import java.util.ResourceBundle;
-import java.util.Locale;
+package com.pingtel.pds.common;
 
 import java.text.MessageFormat;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  */
@@ -105,6 +102,16 @@ public class LocalStrings {
      */
     public String getStr(String _id) {
         return mRb.getString(_id);
+    }
+    
+    public String getStr(String _id, String defaultString) {
+        try {
+        	return getStr(_id);
+        }
+        catch (MissingResourceException useDefault)
+		{		
+		}
+        return defaultString;
     }
 
     /**

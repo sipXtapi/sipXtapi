@@ -157,16 +157,20 @@
 
   
   <!-- C O M P I L E  T E S T S -->
-  <target name="compile.test" depends="compile,init" unless="subdirs"
+  <target name="check.compile.test">
+    <available file="${src.dir}/test" type="dir" property="tests.present"/>
+  </target>
+
+  <target name="compile.test" depends="check.compile.test,compile,init" if="tests.present" unless="subdirs"
         description="[internal] compile tests">
 
-    <javac srcdir="${src.dir}/"
+    <javac srcdir="${src.dir}/test"
        destdir="${test.classes.dir}"
        classpathref="base.path"
        debug="${debug}"
        deprecation="on"
        optimize="${optimize}"
-       includes="test/**">
+       includes="**">
       <classpath>
         <pathelement path="${classes.dir}"/>
         <pathelement location="${junit.jar}"/>
@@ -216,6 +220,9 @@
         <pathelement path="${classpath}"/>
         <pathelement location="${classes.dir}"/>
         <pathelement location="${test.classes.dir}"/>
+        <pathelement location="${src.dir}/test"/>
+		<!-- resource files -->
+        <pathelement location="${src.dir}"/>
       </classpath>
       <formatter type="plain"/>
       <formatter type="xml"/>

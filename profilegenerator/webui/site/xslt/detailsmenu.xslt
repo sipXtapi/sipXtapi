@@ -7,6 +7,7 @@
     <xsl:param name="detailstype"/>
     <xsl:param name="level"/>
     <xsl:param name="visiblefor"/>
+    <xsl:param name="modelLabel"/>
     <!-- begin processing -->
     <xsl:template match="/">
         <xsl:choose>
@@ -17,10 +18,15 @@
                             User Name: <xsl:value-of select="/details/attributes/displayid"/>
                         </td>
                         <td class="formtext" align="left" valign="top">
-                            Settings For: <xsl:value-of select="$mfgid"/>
-                            <xsl:if test="$devicetypeid != 'common'">
-                                <xsl:text> - </xsl:text><xsl:value-of select="$devicetypeid"/>
-                            </xsl:if>
+                            Settings For: 
+							<xsl:choose>
+								<xsl:when test="$devicetypeid != 'common'">
+									<xsl:value-of select="$modelLabel"/>
+							    </xsl:when>
+								<xsl:otherwise>
+    								<xsl:value-of select="$mfgid"/>
+								</xsl:otherwise>
+                            </xsl:choose>
                         </td>
                         <td class="formtext" align="right" valign="top">Settings For:</td>
                         <td>
@@ -43,10 +49,15 @@
                             User Group Name: <xsl:value-of select="/details/attributes/name"/>
                         </td>
                         <td class="formtext" align="left" valign="top">
-                            Settings For: <xsl:value-of select="$mfgid"/>
-                            <xsl:if test="$devicetypeid != 'common'">
-                                <xsl:text> - </xsl:text><xsl:value-of select="$devicetypeid"/>
-                            </xsl:if>
+                            Settings For: 
+							<xsl:choose>
+								<xsl:when test="$devicetypeid != 'common'">
+									<xsl:value-of select="$modelLabel"/>
+							    </xsl:when>
+								<xsl:otherwise>
+    								<xsl:value-of select="$mfgid"/>
+								</xsl:otherwise>
+                            </xsl:choose>
                         </td>
                         <td class="formtext" width="100" align="right" valign="top">Settings For:</td>
                         <td>
@@ -69,10 +80,15 @@
                             Device Name: <xsl:value-of select="/details/attributes/shortname"/>
                         </td>
                         <td class="formtext" align="left" valign="top">
-                            Device Type: <xsl:value-of select="$mfgid"/>
-                            <xsl:if test="$devicetypeid != 'common'">
-                                <xsl:text> - </xsl:text><xsl:value-of select="$devicetypeid"/>
-                            </xsl:if>
+                            Device Type: 
+							<xsl:choose>
+								<xsl:when test="$devicetypeid != 'common'">
+									<xsl:value-of select="$modelLabel"/>
+							    </xsl:when>
+								<xsl:otherwise>
+    								<xsl:value-of select="$mfgid"/>
+								</xsl:otherwise>
+                            </xsl:choose>
                         </td>
                         <td class="formtext" align="right" valign="top">
                             <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/configsrvr.htm#list_devices.htm#configure_device_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
@@ -95,10 +111,15 @@
                             Device Group Name: <xsl:value-of select="/details/attributes/name"/>
                         </td>
                         <td class="formtext" align="left" valign="top">
-                            Settings For: <xsl:value-of select="$mfgid"/>
-                            <xsl:if test="$devicetypeid != 'common'">
-                                <xsl:text> - </xsl:text><xsl:value-of select="$devicetypeid"/>
-                            </xsl:if>
+                            Settings For: 							
+							<xsl:choose>
+								<xsl:when test="$devicetypeid != 'common'">
+									<xsl:value-of select="$modelLabel"/>
+							    </xsl:when>
+								<xsl:otherwise>
+    								<xsl:value-of select="$mfgid"/>
+								</xsl:otherwise>
+                            </xsl:choose>
                         </td>
                         <td class="formtext" width="100" align="right" valign="top">Settings For:</td>
                         <td>

@@ -22,6 +22,8 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import com.pingtel.pds.common.LocalStrings;
+
 public class BeanUtil {
     static LocalStrings ls =
                 LocalStrings.getLocalStrings(BeanUtil.class);

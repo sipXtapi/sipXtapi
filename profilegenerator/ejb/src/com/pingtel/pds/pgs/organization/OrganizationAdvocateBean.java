@@ -22,6 +22,7 @@ import com.pingtel.pds.pgs.patch.PatchManagerHome;
 import com.pingtel.pds.pgs.phone.*;
 import com.pingtel.pds.pgs.profile.*;
 import com.pingtel.pds.pgs.user.*;
+
 import org.jdom.Element;
 
 import javax.ejb.*;
@@ -230,9 +231,9 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
         int intStereo = new Integer ( stereotype ).intValue();
 
         try {
-            if (    intStereo != this.ORG_CUSTOMER &&
-                    intStereo != this.ORG_ENTERPRISE &&
-                    intStereo != this.ORG_SERVICE_PROVIDER ) {
+            if (    intStereo != ORG_CUSTOMER &&
+                    intStereo != ORG_ENTERPRISE &&
+                    intStereo != ORG_SERVICE_PROVIDER ) {
                 m_ctx.setRollbackOnly();
 
                 throw new PDSException (
@@ -607,6 +608,7 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
                     !(organization.getDNSDomain().equals(dnsDomain))) {
 
                 organization.setDNSDomain(dnsDomain);
+                fixDomainName(organization);
             }
         } catch (FinderException ex) {
             this.m_ctx.setRollbackOnly();
@@ -636,6 +638,33 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
 
     }
 
+
+    private void fixDomainName(Organization orgChanged) throws RemoteException, PDSException {
+        String name = orgChanged.getExternalID();
+        try {
+            Context context = new InitialContext();
+            UserAdvocateHome uaHome = (UserAdvocateHome) context.lookup("UserAdvocate");
+            DeviceAdvocateHome daHome = (DeviceAdvocateHome) context.lookup("DeviceAdvocate");
+            
+            UserAdvocate ua = uaHome.create();
+            ua.fixDnsDomain(orgChanged);
+
+            DeviceAdvocate da = daHome.create();
+            da.fixDnsName(orgChanged);
+        } catch (NamingException e) {
+            logFatal( e.toString(), e );
+            throw new EJBException(e);
+        }
+        catch (CreateException ex) {
+            m_ctx.setRollbackOnly();
+
+            throw new PDSException(
+                    collateErrorMessages("UC920",
+                    "E4017",
+                    new Object[]{name}),
+                    ex);
+        }
+    }
 
     /**
      *  Standard Boiler Plate Session Bean Method Implementation

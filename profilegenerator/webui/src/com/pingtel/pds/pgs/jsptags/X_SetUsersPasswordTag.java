@@ -14,7 +14,6 @@
 package com.pingtel.pds.pgs.jsptags;
 
 import com.pingtel.pds.common.EJBHomeFactory;
-import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.RedirectServletException;
 import com.pingtel.pds.pgs.jsptags.util.ExTagSupport;
@@ -23,6 +22,7 @@ import com.pingtel.pds.pgs.organization.OrganizationHome;
 import com.pingtel.pds.pgs.user.User;
 import com.pingtel.pds.pgs.user.UserAdvocate;
 import com.pingtel.pds.pgs.user.UserAdvocateHome;
+import com.pingtel.pds.pgs.user.UserHelper;
 import com.pingtel.pds.pgs.user.UserHome;
 
 import javax.management.MBeanServer;
@@ -42,7 +42,6 @@ public class X_SetUsersPasswordTag extends ExTagSupport {
     private UserHome userHome = null;
     private OrganizationHome orgHome = null;
     private UserAdvocate m_userAdvocate = null;
-    private MD5Encoder m_md5 = new MD5Encoder();
 
     public void setUserid( String userid ){
         m_userID = userid;
@@ -86,16 +85,10 @@ public class X_SetUsersPasswordTag extends ExTagSupport {
             Organization org =
                 orgHome.findByPrimaryKey( user.getOrganizationID() );
 
-            String newStyleOldPassword =
-                m_userAdvocate.digestUsersPassword (    user.getDisplayID(),
-                                                        org.getDNSDomain(),
-                                                        m_oldPassword );
-
-            String oldStyleOldPassword =
-                calculateOldStylePasstoken( user.getDisplayID(),
-                                            org.getDNSDomain(),
-                                            m_oldPassword );
-
+            UserHelper helper = new UserHelper(user);
+            String newStyleOldPassword = helper.digestPassword( org, m_oldPassword );
+            String oldStyleOldPassword = helper.digestPasswordQualifiedUsername( org, m_oldPassword );
+            
             if ( user.getPassword() == null || user.getPassword().length() != 32 ) {
 
                 if ( user.getPassword() == null ) {
@@ -158,11 +151,6 @@ public class X_SetUsersPasswordTag extends ExTagSupport {
         }
 
         return SKIP_BODY;
-    }
-
-
-    private String calculateOldStylePasstoken(String realUserID, String realm, String password) {
-        return m_md5.encode( realUserID + ":" + realm.trim() + ":" + password.trim() );
     }
 
     protected void clearProperties() {

@@ -54,6 +54,11 @@ commons-dbcp.jar=${top.dir}/lib/commons-dbcp.jar
 commons-collections.jar=${top.dir}/lib/commons-collections.jar
 jdbc-driver.jar=${top.dir}/lib/pgjdbc2.jar
 
+# T E S T 
+# libraries used in unit tests only
+xmlunit.jar=${top.dir}/lib/xmlunit1.0.jar
+easymock.jar=${top.dir}/lib/easymock.jar
+
 # common jars located at root of ear file that ear applications can share by 
 # including in their manifest
 manifest.classpath=common.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen-jdom.jar saxpath.jar jakarta-regexp-1.3.jar

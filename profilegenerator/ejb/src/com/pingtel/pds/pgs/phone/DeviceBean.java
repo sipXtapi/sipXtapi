@@ -581,6 +581,7 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
 
 
     /**
+     * TODO: should be removed
      * calculateDeviceLineURL works out the 'DEVICE_LINE' SIP URL
      * for Pingtel Devices.
      *
@@ -588,7 +589,6 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
      * @throws PDSException is thrown for application level errors.
      */
     public String calculateDeviceLineURL () throws PDSException {
-
         String url = null;
 
         try {

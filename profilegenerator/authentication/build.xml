@@ -2,27 +2,45 @@
 
 <project name="authentication" default="jar" basedir="." >
 
-  <patternset id="test.classes" excludes="**"/>
+  <patternset id="test.classes" includes="**/*Test.class"/>
   <property name="top.build.dir" value="${basedir}/../.."/>
   <property name="build.dir" value="${top.build.dir}/profilegenerator/authentication"/>
 
   <import file="../../ant-targets.xml"/>
 
   <path id="base.path">
-      <pathelement location="${common.jar}"/>
-
-      <!-- J2EE -->
-      <fileset dir="${jboss.lib}" includes="**/*.jar"/>
+  	  <!-- J2EE -->
+  	  <!-- we should be more selective here - for now exclude the jar that we are trying to build -->
+      <fileset dir="${jboss.lib}" includes="**/*.jar"  excludes="**/profilegen-auth.jar"/>
       <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
+  	  <!-- need to show buildVersion.properties for the tests -->
+      <pathelement location="${top.build.dir}/common/dist"/> 
   </path>
   <property name="classpath" refid="base.path" />
 
+  
+  <!-- C O M P I L E -->
+  <target name="compile" depends="init" unless="subdirs"
+      description="[internal] Compile all files in src directory">
+    <!-- HACK: we need some classes from common jar -->
+  	<unjar src="${common.jar}" dest="${classes.dir}">
+  		<patternset>
+  			<include name="**/MD5Encoder.class"/>
+  			<include name="**/PathLocatorUtil.class"/>
+  			<include name="**/VersionInfo.class"/>
+  			<include name="**/PathBuffer.class"/>
+		</patternset>  		
+  	</unjar>
+  	<antcall target="ant-targets.compile"/>
+  </target>
+	
   <!-- J A R -->
   <target name="jar" depends="compile" description="build jar" >
       <jar jarfile="${dist.dir}/profilegen-auth.jar" >
         <fileset dir="${classes.dir}" >
           <include name="**/*.class" />
         </fileset>
+        <fileset file="${buildVersion.properties}"/>  	
       </jar>
   </target>
 

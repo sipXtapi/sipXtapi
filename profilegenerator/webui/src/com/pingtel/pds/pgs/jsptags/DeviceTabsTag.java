@@ -14,6 +14,7 @@ package com.pingtel.pds.pgs.jsptags;
 import com.pingtel.pds.pgs.jsptags.util.StyleTagSupport;
 import com.pingtel.pds.pgs.jsptags.ejb.TagHandlerHelperHome;
 import com.pingtel.pds.pgs.jsptags.ejb.TagHandlerHelper;
+import com.pingtel.pds.pgs.phone.DeviceTypeHelper;
 import com.pingtel.pds.common.EJBHomeFactory;
 
 import javax.servlet.jsp.JspException;
@@ -166,6 +167,8 @@ public class DeviceTabsTag extends StyleTagSupport{
                                         this.level );
             stylesheetParameters.put(   "visiblefor",
                                         this.visiblefor );
+            stylesheetParameters.put(   "modelLabel",
+                    DeviceTypeHelper.getLabel(this.devicetypeid, this.mfgid));
 
             outputTextToBrowser ( documentRootElement, stylesheetParameters );
         }

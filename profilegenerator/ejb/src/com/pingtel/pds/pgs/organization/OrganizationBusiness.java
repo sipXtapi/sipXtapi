@@ -69,4 +69,6 @@ public interface OrganizationBusiness {
     public int getStereotype () throws RemoteException;
 
     public String getExternalID () throws RemoteException;
+    
+    public String getAuthenticationRealm() throws RemoteException;
 }

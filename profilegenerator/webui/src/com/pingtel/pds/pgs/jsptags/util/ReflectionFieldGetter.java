@@ -14,6 +14,8 @@ package com.pingtel.pds.pgs.jsptags.util;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 
+import com.pingtel.pds.common.LocalStrings;
+
 public class ReflectionFieldGetter 
     implements FieldGetter {
     

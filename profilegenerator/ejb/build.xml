@@ -3,7 +3,7 @@
 <project name="ejb" default="jar" basedir=".">
 
   <patternset id="test.classes">
-    <include name="DeviceDefsXmlTest.class"/>
+    <include name="**/*Test.class"/>
   </patternset>
 
   <property name="top.build.dir" value="${basedir}/../.."/>
@@ -26,6 +26,11 @@
       <!-- J2EE -->
       <fileset dir="${jboss.lib}" includes="**/*.jar"/>
       <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
+  	
+  	  <!-- TEST -->
+  	  <!-- TODO: we need a separate classpath for tests -->
+  	  <pathelement location="${easymock.jar}"/>
+	  <pathelement location="${xmlunit.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 
@@ -43,6 +48,10 @@
           -->
         <fileset dir="${classes.dir}" >
            <include name="**/*.class" />
+        </fileset>
+
+        <fileset dir="${src.dir}" >
+           <include name="**/*.properties" />
         </fileset>
 
         <fileset dir="meta" >

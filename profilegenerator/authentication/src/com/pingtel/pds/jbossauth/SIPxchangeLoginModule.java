@@ -13,9 +13,13 @@
 
 package com.pingtel.pds.jbossauth;
 
+import org.apache.xml.utils.WrappedRuntimeException;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
+
+import com.pingtel.pds.common.MD5Encoder;
+import com.pingtel.pds.common.PathLocatorUtil;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -24,6 +28,9 @@ import javax.security.auth.callback.*;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.sql.DataSource;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.Connection;
@@ -32,6 +39,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
@@ -64,22 +73,37 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         "   WHERE   users.id = user_roles.usrs_id " +
         "   AND     users.display_id=? ";
 
-    private static final String REALM_COUNT_QUERY =
+    private static final String DNS_DOMAIN_COUNT_QUERY =
         "SELECT COUNT(*) FROM ORGANIZATIONS";
 
-    private static final String REALM_ENTERPRISE_QUERY =
+    private static final String DNS_DOMAIN_QUERY =
         "SELECT DNS_DOMAIN FROM ORGANIZATIONS WHERE ID = 1";
 
 
+    private static Properties PGS_PROPERTIES = loadPgsProperties();
+    
+    private static Properties loadPgsProperties()
+    {
+        try {
+            Properties props = new Properties();
+            String configFolder =
+                PathLocatorUtil.getInstance().getPath(
+                        PathLocatorUtil.CONFIG_FOLDER,
+                        PathLocatorUtil.PGS );
+
+            props.load( new FileInputStream ( configFolder + PathLocatorUtil.PGS_PROPS )  );
+        	return props;
+        }
+        catch ( IOException ex ) {
+            throw new WrappedRuntimeException ( ex );
+        }
+    }
+    
 //////////////////////////////////////////////////////////////////////////
 // Attributes
 ////
     /** The login identity */
     private Principal mIdentity;
-    /** The proof of login identity */
-    private char[] mCredential;
-
-    private MD5Encoder mMd5Encoder = new MD5Encoder();
 
     private String mDataSourceJndiName;
 
@@ -178,15 +202,15 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
              username = nc.getName();
              char[] tmpPassword = pc.getPassword();
              if(tmpPassword != null){
-                mCredential = new char[tmpPassword.length];
+                char[] credential = new char[tmpPassword.length];
                 System.arraycopy(   tmpPassword,
                                     0,
-                                    mCredential,
+                                    credential,
                                     0,
                                     tmpPassword.length);
 
                 pc.clearPassword();
-                password = new String(mCredential);
+                password = new String(credential);
              }
         }
         catch(java.io.IOException ioe) {
@@ -197,80 +221,76 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
                                         uce.getCallback());
         }
 
-        int startIndex = 0;
-        int endIndex = username.length();
-
-        if ( username.toLowerCase().startsWith( "sip:") )
-            startIndex = 4;
-
-        if ( username.indexOf( '@' ) != -1 ) {
-            // need to check realm
-            endIndex = username.indexOf( '@' );
-        }
-
-        username = username.substring( startIndex, endIndex );
+        username = normalizeUserName( username );
 
         this.mIdentity = new SimplePrincipal ( username );
-
+        
         String digestedPassword = null;
-
+        
         String [] arr;
         arr = getUserPasswordFromDB(username);
-
+        
         String realUserID = arr [0];
         String expectedPassword = arr [1];
-
+        
         if ( !username.equals( "installer" ) ) {
             // a new feature that we added for IBM is the ability to use
             // an external authentication source.   This code will create
             // a plug-in (specified in the JBoss startup script) to do
             // the authentication.
-            String externalAuthPlugin = System.getProperty("pds.external.auth");
-
-            if(externalAuthPlugin != null && externalAuthPlugin.length() != 0) {
+            // TODO: this is ugly - external plugin should treated in the same way as "internal authentication pugin"
+            String externalAuthPlugin = System.getProperty("pds.external.auth","");
+        
+            if( externalAuthPlugin.length() != 0 ) {
                 SIPxchangeAuthPlugin plugIn =
                         instantiatePlugIn(externalAuthPlugin);
-
+        
                 if(plugIn.isValidUser(username, password)){
-
+        
+                    // FIXME: this looks like a potential problem
+                    // it does not use realm so digests are never going to be the same
+                    // and as a result - we always update the password
+                    // looks like the intention was to update it only when external plugin authenticates the users 
+                    // while our internal passwords do not match
                     String enteredPEK =
-                            calcuateProfileEncryptionKey(username, password);
-
+                            MD5Encoder.encode(username + ":" + password);
+        
                     String existingPEK =
                             getExistingProfileEncryptionKey(username);
-
+        
                     if(!enteredPEK.equals(existingPEK)){
                         // this means that the password has changed in the
                         //external security source.
                         updateProfileEncryptionKey(username, enteredPEK);
-                        updatePassword(realUserID,getRealm(), password);
-
+                        updatePassword(realUserID, getRealm(), password);
+        
                         // refresh the expected password value now we have
                         // updated it.
                         arr = getUserPasswordFromDB(username);
                         realUserID = arr [0];
                         expectedPassword = arr [1];
                     }
-
+        
                 } else {
                     throw new LoginException("Username/password does not exist in" +
                             " plugin security source.");
                 }
             }
-
-
-            String realm = getRealm();
-            digestedPassword =
-                    calculateNewStylePasstoken(realUserID, realm, password);
-
+        
+        
+            // try both with and without DNS domain
+            String realm = getRealm().trim();
+            String dnsDomain = getDnsDomain().trim();
+            digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);
+        
             if ( !digestedPassword.equals( expectedPassword ) ) {
                 digestedPassword =
-                        calculateOldStylePasstoken(realUserID, realm, password);
+                    MD5Encoder.digestPassword(realUserID, realm, password);
             }
         }
-
+        
         mIdentity = new SimplePrincipal ( realUserID );
-
+        
         if ( expectedPassword.length() == 32 ) {
             if ( digestedPassword.equals( expectedPassword ) ) {
                 return true;
@@ -283,10 +303,31 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
                 return true;
             }
         }
-
+        
         return false;
     }
 
+
+    
+    /**
+     * Remove "sip:" prefix and domain name suffix 
+     * @param username
+     * @return
+     */
+    String normalizeUserName( String username ) {
+        int startIndex = 0;
+        int endIndex = username.length();
+
+        if ( username.toLowerCase().startsWith( "sip:") )
+            startIndex = 4;
+
+        if ( username.indexOf( '@' ) != -1 ) {
+            // need to check realm
+            endIndex = username.indexOf( '@' );
+        }
+
+        return username.substring( startIndex, endIndex );
+    }
 
     /**
      * Overriden by subclasses to return the Principal that corresponds to
@@ -389,24 +430,6 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
 //////////////////////////////////////////////////////////////////////////
 // Implementation Methods
 ////
-    private String calculateNewStylePasstoken(  String realUserID,
-                                                String realm,
-                                                String password) {
-
-        return mMd5Encoder.encode(realUserID + "@" + realm + ":" +
-                realm.trim() + ":" + password.trim() );
-    }
-
-
-    private String calculateOldStylePasstoken(  String realUserID,
-                                                String realm,
-                                                String password) {
-
-        return mMd5Encoder.encode( realUserID + ":" +
-                realm.trim() + ":" + password.trim() );
-    }
-
-
     private String [] getUserPasswordFromDB (String userid)
             throws LoginException {
 
@@ -457,7 +480,11 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
     }
 
 
-    private String getRealm () throws LoginException {
+    private String getRealm () {
+        return PGS_PROPERTIES.getProperty(PathLocatorUtil.PGS_SIPXCHANGE_REALM,"");
+    }
+
+    private String getDnsDomain () throws LoginException {
 
         String realm = null;
         Connection conn = null;
@@ -467,7 +494,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         try {
             conn = getConnection();
 
-            psCount = conn.prepareStatement( REALM_COUNT_QUERY );
+            psCount = conn.prepareStatement( DNS_DOMAIN_COUNT_QUERY );
 
             ResultSet rsCount = psCount.executeQuery();
 
@@ -477,7 +504,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
             // This is for the enterprise model
             if (count == 1) {
 
-                ps = conn.prepareStatement( REALM_ENTERPRISE_QUERY );
+                ps = conn.prepareStatement( DNS_DOMAIN_QUERY );
 
                 ResultSet rs = ps.executeQuery();
                 if( rs.next() == false )
@@ -515,13 +542,6 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         }
 
         return realm;
-    }
-
-
-    private String calcuateProfileEncryptionKey(    String userName,
-                                                    String password){
-
-        return mMd5Encoder.encode(userName + ":" + password);
     }
 
 
@@ -627,11 +647,11 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
 
 
     private void updatePassword(    String userName,
-                                    String dnsDomain,
+                                    String realm,
                                     String password) throws LoginException {
 
-        String newPassword =
-                createSIPxchangeDigest(userName, dnsDomain, password);
+        String newPassword = 
+                MD5Encoder.digestPassword(userName, realm, password);
 
         Connection conn = null;
         PreparedStatement ps = null;
@@ -669,15 +689,6 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
                 catch (SQLException ex) {}
             }
         }
-    }
-
-
-    private String createSIPxchangeDigest ( String userName,
-                                            String dnsDomain,
-                                            String password) {
-
-        return mMd5Encoder.encode(userName + "@" + dnsDomain +  ":" +
-                dnsDomain + ":" + password );
     }
 
 

@@ -635,45 +635,15 @@ public class UserBean extends JDBCAwareEJB implements EntityBean, UserBusiness {
 
         try {
             Organization org = getMyOrganization();
-
-            StringBuffer xmlContent = new StringBuffer();
-
-            boolean needsWrapping = false;
-
-            if ( getFirstName() != null && getFirstName().length() > 0 ) {
-                xmlContent.append( getFirstName() );
-                needsWrapping = true;
-            }
-
-            if ( getLastName() != null && getLastName().length() > 0 ) {
-                if ( needsWrapping ) {
-                    xmlContent.append( " " );
-                }
-
-                xmlContent.append( getLastName() );
-                needsWrapping = true;
-            }
-
-            if ( needsWrapping ) {
-                xmlContent.append( "<" );
-            }
-
-            xmlContent.append( "sip:" );
-            xmlContent.append( getDisplayID() );
-            xmlContent.append( "@" + org.getDNSDomain() );
-
-            if ( needsWrapping ) {
-                xmlContent.append( ">" );
-            }
-
-            return xmlContent.toString();
+            UserHelper helper = new UserHelper(this);
+            return helper.calculatePrimaryLineUrl(org);
         }
         catch ( RemoteException ex ) {
             throw new EJBException ( ex.toString() );
         }
     }
 
-
+    
     /**
      * returns true if this User owns any devices.  This is an optimization
      * to short cut the slow finder way of doing this.

@@ -91,7 +91,7 @@ public class BaseEJB {
                     PathLocatorUtil.CONFIG_FOLDER,
                     PathLocatorUtil.PGS );
 
-            m_pgsProperties.load( new FileInputStream ( configFolder + "pgs.props" )  );
+            m_pgsProperties.load( new FileInputStream ( configFolder + PathLocatorUtil.PGS_PROPS )  );
         }
         catch ( IOException ex ) {
             throw new RuntimeException ( ex.toString() );
@@ -179,10 +179,14 @@ public class BaseEJB {
 
 
 
-    protected String getPGSProperty ( String propertyName ) {
+    protected final String getPGSProperty ( String propertyName ) {
         return BaseEJB.m_pgsProperties.getProperty( propertyName );
     }
 
+    protected final String getPGSProperty ( String propertyName, String defaultValue) {
+        return BaseEJB.m_pgsProperties.getProperty( propertyName, defaultValue );
+    }
+    
     protected String getEnvEntry ( String envEntryName ) {
 
         try {
@@ -203,7 +207,7 @@ public class BaseEJB {
                 ConfigFileManager.getInstance().getProperty(
                         PathLocatorUtil.getInstance().getPath(
                             PathLocatorUtil.CONFIG_FOLDER, PathLocatorUtil.PGS)+
-                            "pgs.props",
+                            PathLocatorUtil.PGS_PROPS,
                         "installStereotype");
         }
         catch(FileNotFoundException e) {

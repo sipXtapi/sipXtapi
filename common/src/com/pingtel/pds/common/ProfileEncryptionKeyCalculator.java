@@ -29,7 +29,6 @@ public class ProfileEncryptionKeyCalculator {
 //////////////////////////////////////////////////////////////////////////
 // Attributes
 ////
-    private static MD5Encoder mMd5Encoder = new MD5Encoder();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,7 +41,7 @@ public class ProfileEncryptionKeyCalculator {
 ////
     public static String calculateProfileEncryptionKey(    String displayID,
                                                     String password) {
-        return mMd5Encoder.encode(displayID + ":" + password);
+        return MD5Encoder.encode(displayID + ":" + password);
     }
 
 

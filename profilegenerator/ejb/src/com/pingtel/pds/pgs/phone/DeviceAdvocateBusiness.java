@@ -14,6 +14,7 @@ package com.pingtel.pds.pgs.phone;
 import java.rmi.RemoteException;
 
 import com.pingtel.pds.common.PDSException;
+import com.pingtel.pds.pgs.organization.Organization;
 
 public interface DeviceAdvocateBusiness {
 
@@ -221,5 +222,17 @@ public interface DeviceAdvocateBusiness {
      */
     public int fetchSequenceNumber( String serialNumber, int profileType)
          throws PDSException, RemoteException;
+    
+    
+    /**
+     * Our data model stores some data - such as organization DNS name - in multiple places.
+     * Every time organization name is changes one needs to go through all devices and 
+     * fix internal device data to refer to a new name.
+     * @param organization reference to a bean which DNS domain name has been changed
+     * @throws PDSException
+     * @throws RemoteException
+     */
+    public void fixDnsName( Organization organization ) 
+        throws PDSException, RemoteException;
 
 }

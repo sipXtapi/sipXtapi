@@ -12,7 +12,10 @@
 
 package com.pingtel.pds.common;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * <p>Title: Boundary Interface Objects</p>
@@ -53,6 +56,18 @@ public final class PathLocatorUtil {
     public static final int DATA_FOLDER = 8;
 
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Properties file names constants
+    ///////////////////////////////////////////////////////////////////////////
+    public static final String PGS_PROPS = "pgs.props";
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Properties names constants
+    ///////////////////////////////////////////////////////////////////////////
+    public static final String PGS_SIPXCHANGE_REALM = "sipxchange.realm";  
+
+
+    
     /** Singleton Instance */
     private static PathLocatorUtil g_instance = null;
 

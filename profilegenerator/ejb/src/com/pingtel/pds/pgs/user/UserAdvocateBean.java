@@ -14,6 +14,33 @@
 
 package com.pingtel.pds.pgs.user;
 
+import java.io.StringReader;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.ejb.CreateException;
+import javax.ejb.DuplicateKeyException;
+import javax.ejb.EJBException;
+import javax.ejb.FinderException;
+import javax.ejb.RemoveException;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
+import org.jdom.CDATA;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
+import org.xml.sax.InputSource;
+
 import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
@@ -30,26 +57,16 @@ import com.pingtel.pds.pgs.phone.Device;
 import com.pingtel.pds.pgs.phone.DeviceAdvocate;
 import com.pingtel.pds.pgs.phone.DeviceAdvocateHome;
 import com.pingtel.pds.pgs.phone.DeviceHome;
-import com.pingtel.pds.pgs.profile.*;
-import org.jdom.CDATA;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Content;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
-import org.jdom.output.Format;
-import org.jdom.xpath.XPath;
-
-import org.xml.sax.InputSource;
-
-import javax.ejb.*;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import java.io.StringReader;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.util.*;
+import com.pingtel.pds.pgs.profile.ConfigurationSet;
+import com.pingtel.pds.pgs.profile.ConfigurationSetHome;
+import com.pingtel.pds.pgs.profile.ProfileTypeStringParser;
+import com.pingtel.pds.pgs.profile.ProjectionHelper;
+import com.pingtel.pds.pgs.profile.ProjectionHelperHome;
+import com.pingtel.pds.pgs.profile.ProjectionInput;
+import com.pingtel.pds.pgs.profile.RefProperty;
+import com.pingtel.pds.pgs.profile.RefPropertyHome;
+import com.pingtel.pds.pgs.profile.RenderProfile;
+import com.pingtel.pds.pgs.profile.RenderProfileHome;
 
 
 /**
@@ -95,9 +112,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
     // Misc.
     private SAXBuilder mSaxBuilder = new SAXBuilder();
     private XMLOutputter mXmlOutputter = new XMLOutputter();
-    private MD5Encoder mMd5Encoder = new MD5Encoder();
-
-
 
 //////////////////////////////////////////////////////////////////////////
 // Construction
@@ -277,9 +291,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
                         ex);
             }
 
-            String dnsDomain = org.getDNSDomain();
-            String digestedPassword =
-                    digestUsersPassword (id, dnsDomain, password);
+            String digestedPassword = UserHelper.digestPassword( id, org, password );
 
             User newUser =
                 mUserHome.create(   organizationID,
@@ -679,10 +691,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
                         ex);
             }
 
-            String dnsDomain = org.getDNSDomain();
-
-            String digestedPassword =
-                    digestUsersPassword (displayID, dnsDomain, password);
+            String digestedPassword = UserHelper.digestPassword( displayID, org, password );
 
             user.setPassword( digestedPassword );
 
@@ -755,6 +764,25 @@ public class UserAdvocateBean extends JDBCAwareEJB
                                                             userExternal } ) );
         }
     }
+    
+    
+    /**
+     * Implementation of the bean method
+     * @see com.pingtel.pds.pgs.user.UserAdvocateBusiness#fixDnsDomain(com.pingtel.pds.pgs.organization.Organization)
+     */
+    public void fixDnsDomain(Organization organization) throws PDSException, RemoteException {
+        try {
+            Integer orgID = organization.getID();
+            Collection users = mUserHome.findByOrganizationID(orgID);
+            for (Iterator i = users.iterator(); i.hasNext();) {
+                User user = (User) i.next();
+                // false == do not touch credentials
+                fixPrimaryLine(user,false,null);
+            }
+        } catch (FinderException e) {
+            throw new PDSException("Attempt to fix DNS name for users.", e);
+        }
+    }
 
    /**
     * fixPrimaryLine modifies previously generated primary line property settings.   This
@@ -779,6 +807,8 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
             Organization organization =
                     mOrganizationHome.findByPrimaryKey( user.getOrganizationID() );
+            final String realm = organization.getAuthenticationRealm();
+            final String displayID = user.getDisplayID();
 
             ConfigurationSet cs = null;
 
@@ -798,6 +828,14 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
             RefProperty cisco79xxLineRP = getRefProperty ( "cs_1020" );
             String cisco79xxRPID = cisco79xxLineRP.getID().toString();
+            
+            UserHelper helper = new UserHelper( user );
+            String passtoken = null;
+            if( undigestedPassword != null )
+            {
+                passtoken = helper.digestPassword(organization, undigestedPassword);                
+            }
+            
 
             Collection userLines = profile.getChildren( );
             for ( Iterator lineI = userLines.iterator(); lineI.hasNext(); ) {
@@ -805,48 +843,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
                 String rpID = setting.getAttributeValue( "ref_property_id" );
 
                 if ( rpID.equals( primaryLineRPID )  ) {
-
-                    Element holder = setting.getChild( "PRIMARY_LINE" );
-                    Element url = holder.getChild( "URL" );
-
-                    List l = url.getContent();
-                    for ( Iterator iList = l.iterator(); iList.hasNext(); ) {
-                        CDATA existing = (CDATA) iList.next();
-                        oldLineURL = existing.getText();
-
-                        iList.remove();
-                    }
-                    url.addContent( new CDATA ( user.calculatePrimaryLineURL() ) );
-
-                    if ( fixCredential ) {
-                        String userIDText = user.getDisplayID() + "@" + organization.getDNSDomain();
-
-                        Collection credentials = holder.getChildren( "CREDENTIAL");
-                        for ( Iterator iCred = credentials.iterator(); iCred.hasNext(); ) {
-                            Element credential = (Element) iCred.next();
-
-                            String realm = credential.getChild( "REALM" ).getText();
-                            if ( realm.equals( organization.getDNSDomain() ) ) {
-                                Element userID = credential.getChild( "USERID" );
-                                userID.setText( userIDText );
-
-                                String autogenerated = credential.getAttributeValue( "autogenerated" );
-                                if ( autogenerated == null )
-                                    credential.setAttribute( "autogenerated", "true" );
-
-                                Element passtokenElement = credential.getChild( "PASSTOKEN" );
-                                List list = passtokenElement.getContent();
-                                for ( Iterator iList = XMLSupport.detachableIterator(list.iterator()); iList.hasNext(); ) {
-                                    CDATA existing = (CDATA) iList.next();
-                                    passtokenElement.removeContent( existing );
-                                }
-
-                                passtokenElement.addContent( new CDATA (
-                                        calculatePrimaryLineCredentialPasstoken ( user, undigestedPassword ) ) );
-
-                            } // if
-                        } // for
-                    }
+                    helper.fixUserPrimaryLine(setting, organization, realm, fixCredential, passtoken);
                 } // if
                 else if ( rpID.equals( defaultLineRPID ) ) {
                     Element holder = setting.getChild( "USER_DEFAULT_OUTBOUND_LINE" );
@@ -880,17 +877,15 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
                     Element authName = holder.getChild ( "line1_authname" );
                     removeCDATAFromElement( authName );
-                    authName.addContent(
-                            new CDATA ( user.getDisplayID() + "@" +
-                                organization.getDNSDomain() ) );
+                    authName.addContent( new CDATA ( displayID ) );
 
                     Element identity = holder.getChild ( "line1_name" );
                     removeCDATAFromElement( identity );
-                    identity.addContent( new CDATA ( user.getDisplayID() ) );
+                    identity.addContent( new CDATA ( displayID ) );
 
                     Element shortName = holder.getChild ( "line1_shortname" );
                     removeCDATAFromElement( shortName );
-                    shortName.addContent( new CDATA ( user.getDisplayID() + "_line" ) );
+                    shortName.addContent( new CDATA ( displayID + "_line" ) );
                 }
             } // for all elements in config set
 
@@ -1684,22 +1679,20 @@ public class UserAdvocateBean extends JDBCAwareEJB
     }
 
     /**
-     * returns a digested value of the given password for the given User.
+     * Returns a digested value of the given password for the given User.
      *
      * @param displayID the user-visible ID for the User whose password is to be
      * calculated
-     * @param dnsDomain the DNS Domain for the User (needed to create the
-     * digest).
+     * @param realm - it used to be DNS domain 
      * @param password plain-text password
      * @return digested password.
+     * @see MD5Encoder.digestPassword
+     * @deprecated 
      */
     public String digestUsersPassword ( String displayID,
-                                        String dnsDomain,
+                                        String realm,
                                         String password ) {
-
-        return mMd5Encoder.encode(    displayID + "@" + dnsDomain +  ":" +
-                                dnsDomain + ":" +
-                                password );
+        return MD5Encoder.digestPassword(displayID,realm,password);
     }
 
     
@@ -1806,6 +1799,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
     private void removeCDATAFromElement(Element password) {
         List list = password.getContent();
+        // :FIXME: should be replaced by list.clear()?
         for ( Iterator iList = list.iterator(); iList.hasNext(); ) {
             CDATA existing = (CDATA) iList.next();
             iList.remove();
@@ -1817,18 +1811,36 @@ public class UserAdvocateBean extends JDBCAwareEJB
         throws PDSException {
 
         try {
-            StringBuffer xmlContent = new StringBuffer();
+            Organization org = null;
+            Integer organizationID = user.getOrganizationID();
 
-            xmlContent.append("<PROFILE>");
-            xmlContent.append(createPingtelPrimaryLineMarkup(user, undigestedPassword));
-            xmlContent.append(create79xxPrimaryLineMarkup(user, undigestedPassword));
-            xmlContent.append("</PROFILE>");
+            try {
+                org = mOrganizationHome.findByPrimaryKey( organizationID );
+                logDebug ( "found organization: " + org.getExternalID() );
+            }
+            catch ( FinderException ex ) {
+                mCTX.setRollbackOnly();
 
+                throw new PDSException(
+                        collateErrorMessages(   "E1018",
+                                                new Object[]{ organizationID }),
+                        ex);
+            }
+            
+            RefProperty rpXp = getRefProperty ( "xp_10001" );
+            logDebug ( "found PRIMARY_LINE ref property" );
+            RefProperty rpCs = getRefProperty ( "cs_1020" ); // line1
+            logDebug ( "found PRIMARY_LINE ref property" );
+            RefProperty defaultLine = getRefProperty ( "xp_2028" );
+
+            UserHelper helper = new UserHelper( user );
+            String xmlContent = helper.createInitialLine( org, rpXp, defaultLine, rpCs, undigestedPassword );
+            
             try {
                 mConfigurationSetHome.create( user.getRefConfigSetID(),
                                         PDSDefinitions.PROF_TYPE_USER,
                                         user,
-                                        xmlContent.toString() );
+                                        xmlContent );
                 logDebug ( "created configuration set" );
             }
             catch ( CreateException ex ) {
@@ -1847,129 +1859,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
             logFatal ( ex.toString(), ex );
             throw new EJBException  ( ex.toString() );
         }
-    }
-
-
-    private String createPingtelPrimaryLineMarkup ( User user,
-                                                    String undigestedPassword)
-            throws RemoteException, PDSException {
-
-        StringBuffer xmlContent = new StringBuffer();
-
-        Organization org = null;
-        Integer organizationID = user.getOrganizationID();
-        RefProperty rp = getRefProperty ( "xp_10001" );
-
-        logDebug ( "found PRIMARY_LINE ref property" );
-
-        try {
-            org = mOrganizationHome.findByPrimaryKey( organizationID );
-            logDebug ( "found organization: " + org.getExternalID() );
-        }
-        catch ( FinderException ex ) {
-            mCTX.setRollbackOnly();
-
-            throw new PDSException(
-                    collateErrorMessages(   "E1018",
-                                            new Object[]{ organizationID }),
-                    ex);
-        }
-
-        String primaryLineURL = user.calculatePrimaryLineURL();
-        xmlContent.append( "<PRIMARY_LINE ref_property_id=\"" + rp.getID() + "\">" );
-        String userID = user.getDisplayID() + "@" + org.getDNSDomain();
-        xmlContent.append( "<PRIMARY_LINE>" );
-        xmlContent.append( "<ALLOW_FORWARDING>" + CDATAIt ( "ENABLE" ) +
-                "</ALLOW_FORWARDING>" );
-        xmlContent.append( "<REGISTRATION>" + CDATAIt ( "REGISTER" ) +
-                "</REGISTRATION>" );
-        xmlContent.append( "<URL>" + CDATAIt ( primaryLineURL ) + "</URL>");
-        xmlContent.append( "<CREDENTIAL autogenerated=\"true\">" );
-        xmlContent.append( "<REALM>" + CDATAIt ( org.getDNSDomain() ) +
-                "</REALM>" );
-        xmlContent.append( "<USERID>" + CDATAIt ( userID ) + "</USERID>" );
-        xmlContent.append( "<PASSTOKEN>" +
-                CDATAIt (  calculatePrimaryLineCredentialPasstoken(
-                        user,
-                        undigestedPassword) ) +
-                    "</PASSTOKEN>" );
-
-        xmlContent.append( "</CREDENTIAL>" );
-        xmlContent.append( "</PRIMARY_LINE>" );
-        xmlContent.append( "</PRIMARY_LINE>" );
-
-
-        /////////////////////////////////////////////////////////////////
-        //
-        // Adding USER_DEFAULT_OUTBOUND_LINE setting to make the PL the
-        // default line.
-        //
-        /////////////////////////////////////////////////////////////////
-        RefProperty defaultLine = getRefProperty ( "xp_2028" );
-
-        xmlContent.append( "<USER_DEFAULT_OUTBOUND_LINE ref_property_id=\"" +
-            defaultLine.getID()+ "\">" );
-
-        xmlContent.append( "<USER_DEFAULT_OUTBOUND_LINE>" +
-                            CDATAIt ( primaryLineURL ) +
-                            "</USER_DEFAULT_OUTBOUND_LINE>");
-
-        xmlContent.append( "</USER_DEFAULT_OUTBOUND_LINE>" );
-
-        return xmlContent.toString();
-    }
-
-
-    private String create79xxPrimaryLineMarkup (    User user,
-                                                    String undigestedPassword)
-            throws RemoteException, PDSException {
-
-        StringBuffer xmlContent = new StringBuffer();
-
-        Organization org = null;
-        Integer organizationID = user.getOrganizationID();
-        RefProperty rp = getRefProperty ( "cs_1020" ); // line1
-
-        logDebug ( "found PRIMARY_LINE ref property" );
-
-        try {
-            org = mOrganizationHome.findByPrimaryKey( organizationID );
-            logDebug ( "found organization: " + org.getExternalID() );
-        }
-        catch ( FinderException ex ) {
-            mCTX.setRollbackOnly();
-
-            throw new PDSException(
-                    collateErrorMessages(   "E1018",
-                                            new Object[]{ organizationID }),
-                    ex);
-        }
-
-        xmlContent.append( "<line1 ref_property_id=\"" + rp.getID() + "\">" );
-        String userID = user.getDisplayID() + "@" + org.getDNSDomain();
-        xmlContent.append( "<container>" );
-        xmlContent.append( "<line1_password>" + CDATAIt ( undigestedPassword ) +
-                "</line1_password>" );
-
-        xmlContent.append( "<line1_displayname>" +
-                CDATAIt ( new String ("\"" +user.getFirstName() + " " +
-                            user.getLastName() + "\"").trim() ) +
-                "</line1_displayname>" );
-
-        xmlContent.append( "<line1_authname>" + CDATAIt ( userID ) +
-                "</line1_authname>");
-
-        xmlContent.append( "<line1_name>" + CDATAIt ( user.getDisplayID() ) +
-                "</line1_name>" );
-
-        xmlContent.append( "<line1_shortname>" +
-                CDATAIt ( user.getDisplayID() + "_line" ) +
-                "</line1_shortname>" );
-
-        xmlContent.append( "</container>" );
-        xmlContent.append( "</line1>" );
-
-        return xmlContent.toString();
     }
 
 
@@ -2217,36 +2106,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
     }
 
 
-    private String calculatePrimaryLineCredentialPasstoken (    User user,
-                                                                String password)
-            throws RemoteException, PDSException {
-
-        Organization org = null;
-        Integer organizationID = user.getOrganizationID();
-
-        try {
-            org = mOrganizationHome.findByPrimaryKey( organizationID );
-            logDebug ( "found organization: " + org.getExternalID() );
-        }
-        catch ( FinderException ex ) {
-            mCTX.setRollbackOnly();
-
-            throw new PDSException(
-                    collateErrorMessages(   "E1018",
-                                            new Object[]{ organizationID }),
-                    ex);
-        }
-
-        String digestedPassword =
-            mMd5Encoder.encode(
-                    user.getDisplayID() + "@" + org.getDNSDomain() + ":" +
-                    org.getDNSDomain() + ":" +
-                    password );
-
-        return digestedPassword;
-    }
-
-
     private boolean shouldUpdateExternalProfileEncryptionKey() {
         boolean returnValue = true;
         String property = getPGSProperty(EXT_PROF_ENCRYPTION_SOURCE);
@@ -2258,7 +2117,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
         return returnValue;
     }
 
-    
+
 //////////////////////////////////////////////////////////////////////////
 // Nested / Inner classes
 ////

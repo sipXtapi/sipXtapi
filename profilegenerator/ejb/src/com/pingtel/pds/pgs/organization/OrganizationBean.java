@@ -16,6 +16,7 @@ import javax.ejb.CreateException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 
+import com.pingtel.pds.common.PathLocatorUtil;
 import com.pingtel.pds.pgs.common.ejb.JDBCAwareEJB;
 
 /**
@@ -41,7 +42,7 @@ public class OrganizationBean extends JDBCAwareEJB implements EntityBean, Organi
 
 
     public String dnsDomain;
-
+    
 
     public int stereotype;
 
@@ -106,6 +107,14 @@ public class OrganizationBean extends JDBCAwareEJB implements EntityBean, Organi
         this.dnsDomain = dnsDomain;
     }
 
+    /**
+     * This is different than DNS name
+     * FIXME provide real field to back it ip
+     * @return
+     */
+    public String getAuthenticationRealm() {
+        return getPGSProperty(PathLocatorUtil.PGS_SIPXCHANGE_REALM,"");
+    }    
 
     public int getStereotype () {
         return this.stereotype;
