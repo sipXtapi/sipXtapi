@@ -48,21 +48,25 @@ beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
 sipfoundry.org.dir=@SIPFOUNDRY_ORG@
 
 # U T I L
-junit.jar=${top.dir}/lib/junit.jar
-# Jdom is beta10, JBoss 3.2.3 uses beta9
 jdom.jar=${top.dir}/lib/jdom.jar
 jaxen-core.jar=${top.dir}/lib/jaxen-core.jar
 jaxen-jdom.jar=${top.dir}/lib/jaxen-jdom.jar
 saxpath.jar=${top.dir}/lib/saxpath.jar
-#log4j.jar=${top.dir}/lib/log4j.jar
 netcomponents.jar=${top.dir}/lib/NetComponents.jar
 commons-discovery.jar=${top.dir}/lib/commons-discovery.jar
-commons-logging.jar=${top.dir}/lib/commons-logging.jar
 commons-pool.jar=${top.dir}/lib/commons-pool.jar
 commons-dbcp.jar=${top.dir}/lib/commons-dbcp.jar
-commons-collections.jar=${top.dir}/lib/commons-collections.jar
 jdbc-driver.jar=${top.dir}/lib/pg74.215.jdbc3.jar
 antlr.jar=${top.dir}/lib/antlr.jar
+
+# A N T  U T I L  J A R S
+# these jars are required by ANT tasks; they are used when starting ANT from make system
+# they are also defined in ant-targets.am: please make sure that you update their definition there
+commons-collections.jar=${top.dir}/lib/commons-collections.jar
+commons-beanutils.jar=${top.dir}/lib/commons-beanutils.jar
+commons-logging.jar=${top.dir}/lib/commons-logging.jar
+jakarta-regexp=${top.dir}/lib/jakarta-regexp-1.3.jar
+junit.jar=${top.dir}/lib/junit.jar
 
 # T E S T 
 # libraries used in unit tests only
@@ -103,15 +107,11 @@ spring.jar=${spring.home}/dist/spring.jar
 spring-dao.jar=${spring.home}/dist/spring-dao.jar
 hibernate2.jar=${spring.home}/lib/hibernate/hibernate2.jar
 odmg.jar=${spring.home}/lib/hibernate/odmg.jar
-commons-dbcp.jar=${spring.home}/lib/jakarta-commons/commons-dbcp.jar
-commons-pool.jar=${spring.home}/lib/jakarta-commons/commons-pool.jar
 aopalliance.jar=${spring.home}/lib/aopalliance/aopalliance.jar
 dom4j.jar=${spring.home}/lib/dom4j/dom4j.jar
-commons-collections.jar=${spring.home}/lib/jakarta-commons/commons-collections.jar
 ehcache.jar=${spring.home}/lib/ehcache/ehcache-1.0.jar
 cglib-full.jar=${spring.home}/lib/cglib/cglib-full-2.0.2.jar
 jta.jar=${spring.home}/lib/j2ee/jta.jar
-commons-beanutils.jar=${spring.home}/lib/jakarta-commons/commons-beanutils.jar
 commons-digester.jar=${spring.home}/lib/jakarta-commons/commons-digester.jar
 
 # J S P / J S F
@@ -130,7 +130,6 @@ bsf.jar=${top.dir}/lib/bsf-2.3.0.jar
 jakarta-oro.jar=${top.dir}/lib/jakarta-oro-2.0.6.jar
 commons-lang.jar=${top.dir}/lib/commons-lang-1.0.jar
 commons-codec.jar=${top.dir}/lib/commons-codec-1.2.jar
-# log4j.jar=${top.dir}/lib/log4j.jar
 commons-fileupload.jar=${top.dir}/lib/commons-fileupload-1.0.jar
 
 
