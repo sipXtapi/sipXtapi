@@ -21,7 +21,8 @@
     <pathelement location="${commons-collections.jar}"/>
 
     <!-- J2EE -->
-    <fileset dir="${jboss.client.lib}" includes="**/*.jar"/>
+  	<pathelement location="${j2ee.jar}"/>
+  	<pathelement location="${jboss.client.lib}/jbosssx-client.jar"/>
 
     <!-- for style target -->
     <pathelement location="${jdom.jar}"/>
