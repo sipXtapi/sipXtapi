@@ -92,8 +92,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxpbx
 
 %dir %{_localstatedir}
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxlog}
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxrun}
+
+# Not sure if these are still needed
+#%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxlog}
+#%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxrun}
 
 %pre
 
