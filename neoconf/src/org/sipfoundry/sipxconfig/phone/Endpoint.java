@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
 
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+
 
 /**
  * Database object representing an actualy physical phone you can touch.

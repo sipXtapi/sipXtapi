@@ -9,11 +9,13 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.setting;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
+
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 
 /**

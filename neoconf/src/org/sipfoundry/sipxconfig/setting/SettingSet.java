@@ -9,10 +9,11 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Map;
 import java.util.TreeMap;
+
 
 
 /**

@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+
 import junit.framework.TestCase;
 
 /**

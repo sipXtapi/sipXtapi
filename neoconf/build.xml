@@ -18,6 +18,8 @@
 		<pathelement location="${hibernate2.jar}" />
 		<pathelement location="${servlet.jar}" />
 		<pathelement location="${velocity.jar}" />
+		<pathelement location="${commons-digester.jar}"/>
+		<pathelement location="${commons-collections.jar}" />
 	</path>
 
 	<!-- 
@@ -28,9 +30,9 @@
 		<pathelement location="${commons-logging.jar}" />
 		<pathelement location="${commons-dbcp.jar}" />
 		<pathelement location="${commons-pool.jar}" />
+		<pathelement location="${commons-beanutils.jar}"/>
 		<pathelement location="${aopalliance.jar}" />
 		<pathelement location="${dom4j.jar}" />
-		<pathelement location="${commons-collections.jar}" />
 		<pathelement location="${ehcache.jar}" />
 		<pathelement location="${cglib-full.jar}" />
 		<pathelement location="${jta.jar}" />

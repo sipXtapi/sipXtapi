@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;

@@ -257,6 +257,7 @@
     -->
   <target name="test" depends="compile.test"
        description="run junit tests">
+    <echo>${classpath}</echo>
 
     <junit fork="yes" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
       <classpath refid="test.path"/>

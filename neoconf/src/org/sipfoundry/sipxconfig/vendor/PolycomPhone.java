@@ -23,7 +23,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000

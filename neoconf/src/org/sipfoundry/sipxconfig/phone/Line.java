@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
 
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+
 /**
  * Association between Users and their assigned phones.
  */

@@ -64,7 +64,7 @@ velocity.jar=${top.dir}/lib/velocity-1.4.jar
 # A N T  U T I L  J A R S
 # these jars are required by ANT tasks; they are used when starting ANT from make system
 # they are also defined in ant-targets.am: please make sure that you update their definition there
-commons-collections.jar=${top.dir}/lib/commons-collections.jar
+#commons-collections.jar=${top.dir}/lib/commons-collections.jar
 commons-beanutils.jar=${top.dir}/lib/commons-beanutils.jar
 commons-logging.jar=${top.dir}/lib/commons-logging.jar
 jakarta-regexp=${top.dir}/lib/jakarta-regexp-1.3.jar
@@ -117,6 +117,7 @@ ehcache.jar=${spring.home}/lib/ehcache/ehcache-1.0.jar
 cglib-full.jar=${spring.home}/lib/cglib/cglib-full-2.0.2.jar
 jta.jar=${spring.home}/lib/j2ee/jta.jar
 commons-digester.jar=${spring.home}/lib/jakarta-commons/commons-digester.jar
+commons-collections.jar=${spring.home}/lib/jakarta-commons/commons-collections.jar
 
 # J S P / J S F
 jsf-api.jar=${top.dir}/lib/jsf-api.jar

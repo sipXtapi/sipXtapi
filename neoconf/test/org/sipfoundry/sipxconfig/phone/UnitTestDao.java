@@ -18,6 +18,8 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**

@@ -17,7 +17,7 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 public abstract class PhoneSettings extends BasePage implements PageRenderListener {
 

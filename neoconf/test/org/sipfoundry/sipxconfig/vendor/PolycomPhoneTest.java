@@ -25,8 +25,8 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.SettingSet;
 import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 public class PolycomPhoneTest extends XMLTestCase {
         
@@ -103,6 +103,8 @@ public class PolycomPhoneTest extends XMLTestCase {
      *  3.) build validation library of common field types
      *  4.) model apis condusive to velocity syntax
      *  5.) unittestability 
+     *  6.) custom renderers, validators, parsing interpretters
+     *  7.) model use enumerations available to java code
      * 
      * D A T A B A S E :
      *  1.) store only what user has entered
@@ -132,11 +134,12 @@ public class PolycomPhoneTest extends XMLTestCase {
      *   avoid extra xml interprettation to java objects (example. cardinality
      *   would define how many are allowed, etc.
      * o This method does not have to be adopted by all phone implementation.
+     *   use a toolkit that throw different event types
      *     
      * 
      * model.xml.template
      *    <model>
-     *      <name=network>
+     *      <name=network types="$enumerationX">
      *    #if $model = xyz
      *         <name=tftpServer default=$property type=serverName>
      *             <label>This does this and should match $property</label>

@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+
 
 
 /**
