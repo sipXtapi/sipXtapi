@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -30,8 +31,6 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     private String m_name;
     private String m_description;
     private List m_gateways = new ArrayList();
-    private List m_permissions = new ArrayList();
-
     public abstract String[] getPatterns();
 
     public abstract Transform[] getTransforms();
@@ -69,13 +68,9 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     public void setGateways(List gateways) {
         m_gateways = gateways;
     }
-
+    
     public List getPermissions() {
-        return m_permissions;
-    }
-
-    public void setPermissions(List permissions) {
-        m_permissions = permissions;
+        return Collections.EMPTY_LIST;
     }
 
     /**

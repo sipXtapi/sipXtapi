@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan">
+	<class name="DialingRule" table="dialing_rule">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="dialing_rule_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">dialing_rule_seq</param>
+			</generator>
+		</id>
+		<property name="name" not-null="true"/>
+        <property name="description"/>
+        <property name="enabled"/>
+        <list name="gateways" table="dialing_rule_gateway" cascade="save-update">
+            <key column="dialing_rule_id"/>
+            <index column="index"/>
+            <many-to-many class="Gateway" column="gateway_id"/>
+        </list>
+        <joined-subclass name="CustomDialingRule" table="custom_dialing_rule">
+            <key column="custom_dialing_rule_id"/>
+            <component name="callPattern" class="CallPattern">
+				<property name="digits" type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType"/>
+                <property name="prefix"/>                
+            </component>
+            <list name="dialPatterns" table="dial_pattern">
+                <key column="custom_dialing_rule_id"/>
+                <index column="index"/>
+                <composite-element class="DialPattern">
+                    <property name="prefix"/>
+                    <property name="digits"/>                    
+                </composite-element>
+            </list>
+            <bag name="permissions" table="custom_dialing_rule_permission">
+                <key column="custom_dialing_rule_id"/>
+                <element type="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission$UserType" column="permission"/>
+            </bag>
+        </joined-subclass>
+        <joined-subclass name="EmergencyRule" table="emergency_dialing_rule">
+            <key column="emergency_dialing_rule_id"/>
+            <property name="optionalPrefix"/>
+            <property name="emergencyNumber"/>
+        </joined-subclass>
+        <joined-subclass name="InternalRule" table="internal_dialing_rule">
+            <key column="internal_dialing_rule_id"/>
+            <property name="autoAttendant"/>
+            <property name="localExtensionLen"/>
+            <property name="voiceMail"/>
+            <property name="voiceMailPrefix"/>
+        </joined-subclass>
+        <joined-subclass name="InternationalRule" table="international_dialing_rule">
+            <key column="international_dialing_rule_id"/>
+            <property name="internationalPrefix"/>
+        </joined-subclass>
+        <joined-subclass name="LocalRule" table="local_dialing_rule">
+            <key column="local_dialing_rule_id"/>
+            <property name="externalLen"/>
+            <property name="pstnPrefix"/>            
+        </joined-subclass>
+        <joined-subclass name="LongDistanceRule" table="long_distance_dialing_rule">
+            <key column="international_dialing_rule_id"/>
+            <property name="areaCodes"/>
+            <property name="externalLen"/>
+            <property name="longDistancePrefix"/>
+            <property name="permission" type="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission$UserType"/>
+            <property name="pstnPrefix"/>
+        </joined-subclass>
+	</class>
+    
+</hibernate-mapping>

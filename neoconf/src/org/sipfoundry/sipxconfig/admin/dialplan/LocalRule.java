@@ -29,8 +29,12 @@ public class LocalRule extends DialingRule {
     private int m_externalLen;
 
     public LocalRule() {
+        // empty
+    }
+
+    public List getPermissions() {
         List perms = Collections.singletonList(Permission.LOCAL_DIALING);
-        setPermissions(perms);
+        return perms;
     }
 
     public String[] getPatterns() {
@@ -38,13 +42,12 @@ public class LocalRule extends DialingRule {
         DialPattern patternShort = new DialPattern(StringUtils.EMPTY, m_externalLen);
 
         return new String[] {
-                patternFull.calculatePattern(), patternShort.calculatePattern()
+            patternFull.calculatePattern(), patternShort.calculatePattern()
         };
     }
 
     public Transform[] getTransforms() {
-        CallPattern patternNormal = new CallPattern(StringUtils.EMPTY,
-                CallDigits.VARIABLE_DIGITS);
+        CallPattern patternNormal = new CallPattern(StringUtils.EMPTY, CallDigits.VARIABLE_DIGITS);
         String user = patternNormal.calculatePattern();
         List gateways = getGateways();
         List transforms = new ArrayList(gateways.size());

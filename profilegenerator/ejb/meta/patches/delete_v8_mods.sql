@@ -15,7 +15,20 @@ drop sequence folder_seq;
 drop table folder_setting;
 
 /* v8_mods-2 */
-drop table ring;
+drop table ring cascade;
 drop sequence ring_seq;
-drop table gateway;
+drop table gateway cascade;
 drop sequence gateway_seq;
+
+drop table dialing_rule cascade;
+drop table dial_pattern cascade;
+drop table international_dialing_rule;
+drop table local_dialing_rule;
+drop table custom_dialing_rule cascade;
+drop table custom_dialing_rule_permission;
+drop table dialing_rule_gateway;
+drop table emergency_dialing_rule;
+drop table internal_dialing_rule;
+drop table long_distance_dialing_rule;
+drop sequence dialing_rule_seq;
+

@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import org.apache.commons.lang.enum.Enum;
+import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 
 public class CallDigits extends Enum {
@@ -21,5 +22,14 @@ public class CallDigits extends Enum {
 
     public CallDigits(String name) {
         super(name);
+    }
+    
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class UserType extends EnumUserType {
+        public UserType() {
+            super(CallDigits.class);
+        }
     }
 }

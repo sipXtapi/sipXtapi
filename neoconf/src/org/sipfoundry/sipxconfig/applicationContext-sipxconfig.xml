@@ -55,6 +55,7 @@
 				<value>org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

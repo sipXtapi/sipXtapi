@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 public class CustomDialingRule extends DialingRule {
     private List m_dialPatterns = new ArrayList();
     private CallPattern m_callPattern = new CallPattern();
+    private List m_permissions = new ArrayList();
 
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
@@ -73,4 +74,12 @@ public class CustomDialingRule extends DialingRule {
     public Type getType() {
         return Type.CUSTOM;
     }
+    
+    public List getPermissions() {
+        return m_permissions;
+    }
+
+    public void setPermissions(List permissions) {
+        m_permissions = permissions;
+    }    
 }

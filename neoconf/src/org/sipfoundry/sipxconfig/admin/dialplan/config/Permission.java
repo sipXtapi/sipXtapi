@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import org.apache.commons.lang.enum.Enum;
+import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 /**
  * Permission
@@ -27,5 +28,14 @@ public final class Permission extends Enum {
 
     private Permission(String permision) {
         super(permision);
+    }
+
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class UserType extends EnumUserType {
+        public UserType() {
+            super(Permission.class);
+        }
     }
 }

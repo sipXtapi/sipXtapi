@@ -27,8 +27,7 @@ public class InternationalRule extends DialingRule {
     private String m_internationalPrefix;
 
     public InternationalRule() {
-        List perms = Collections.singletonList(Permission.INTERNATIONAL_DIALING);
-        setPermissions(perms);
+        // empty
     }
 
     public String[] getPatterns() {
@@ -36,6 +35,11 @@ public class InternationalRule extends DialingRule {
         return new String[] {
             pattern
         };
+    }
+
+    public List getPermissions() {
+        List perms = Collections.singletonList(Permission.INTERNATIONAL_DIALING);
+        return perms;
     }
 
     public Transform[] getTransforms() {
