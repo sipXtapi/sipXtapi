@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
-import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 

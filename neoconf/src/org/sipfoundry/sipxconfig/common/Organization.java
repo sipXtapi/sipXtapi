@@ -9,9 +9,11 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
+
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * Ultimate parent for all objects. Represent the entire configuration for a particular company or

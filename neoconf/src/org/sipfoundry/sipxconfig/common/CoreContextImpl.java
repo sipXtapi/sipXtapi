@@ -22,19 +22,17 @@ import net.sf.hibernate.expression.Criterion;
 import net.sf.hibernate.expression.Expression;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.phone.Organization;
-import org.sipfoundry.sipxconfig.phone.User;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * CoreContextImpl
  */
 public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext {
+
     private static final char LIKE_WILDCARD = '%';    
 
     public CoreContextImpl() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public void saveUser(User user) {
@@ -94,7 +92,7 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
     }
 
     /**
-     * Catch database curruption errors when more than one record exists.
+     * Catch database corruption errors when more than one record exists.
      * In general fields should have unique indexes setup to protect against
      * this.  This method is created as a safe check only, there has been not
      * been any experiences of courupt data to date.

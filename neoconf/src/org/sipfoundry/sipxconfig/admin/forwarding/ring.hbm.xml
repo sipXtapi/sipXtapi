@@ -29,7 +29,7 @@
 				<param name="property">user</param>
 			</generator>
 		</id>        
-        <one-to-one name="user" class="org.sipfoundry.sipxconfig.phone.User" constrained="true"/>
+        <one-to-one name="user" class="org.sipfoundry.sipxconfig.common.User" constrained="true"/>
         <list name="calls" inverse="true" cascade="all-delete-orphan">
             <key column="user_id"/>
             <index column="position"/>

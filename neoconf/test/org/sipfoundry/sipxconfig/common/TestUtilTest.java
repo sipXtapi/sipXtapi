@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Properties;
 
 import junit.framework.TestCase;

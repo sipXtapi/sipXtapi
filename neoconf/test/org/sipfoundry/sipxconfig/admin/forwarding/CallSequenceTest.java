@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.phone.Organization;
-import org.sipfoundry.sipxconfig.phone.User;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.common.Organization;
+import org.sipfoundry.sipxconfig.common.User;
 
 /**
  * CallSequenceTest

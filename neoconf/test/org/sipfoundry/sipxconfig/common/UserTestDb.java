@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.common;
 
 import java.util.List;
 
@@ -20,20 +20,20 @@ import org.sipfoundry.sipxconfig.TestHelper;
 
 public class UserTestDb extends TestCase {
 
-    private PhoneContext m_context;
+    private CoreContext m_core;
     
     protected void setUp() throws Exception {
-        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);        
+        m_core = (CoreContext) TestHelper.getApplicationContext().getBean(
+                CoreContext.CONTEXT_BEAN_NAME);
     }
     
     public void testLoadUserByTemplateUser() throws Exception {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
-        TestHelper.insertFlat("phone/dbdata/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
         
         User template = new User();
         template.setDisplayId("userseed");
-        List users = m_context.loadUserByTemplateUser(template);
+        List users = m_core.loadUserByTemplateUser(template);
         
         assertEquals(6, users.size());        
     }

@@ -17,11 +17,12 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.User;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
 
 
@@ -40,6 +41,8 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public abstract PhoneContext getPhoneContext();
     
+    public abstract CoreContext getCoreContext();
+    
     public void select(IRequestCycle cycle) {
         PhoneContext context = getPhoneContext();
         Endpoint endpoint = context.loadEndpoint(getEndpointId());
@@ -49,7 +52,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
         Iterator usersIds = selections.getAllSelected().iterator();
         while (usersIds.hasNext()) {
             Integer userId = (Integer) usersIds.next();
-            User user = context.loadUser(userId.intValue());            
+            User user = getCoreContext().loadUser(userId.intValue());            
             Line line = new Line();            
             line.setUser(user);
             line.setFolder(context.loadRootLineFolder());

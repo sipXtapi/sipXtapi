@@ -45,7 +45,7 @@
 			class="org.sipfoundry.sipxconfig.phone.Endpoint" not-null="true"/>
 		<property name="position" column="position"/>
 		<many-to-one name="user" column="user_id"
-			class="org.sipfoundry.sipxconfig.phone.User"/>
+			class="org.sipfoundry.sipxconfig.common.User"/>
 		<many-to-one name="folder" column="folder_id"
 			class="org.sipfoundry.sipxconfig.setting.Folder"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
@@ -100,7 +100,7 @@
 	<!--
 	- O R G A N I Z A T I O N
 	-->
-	<class name="org.sipfoundry.sipxconfig.phone.Organization" 
+	<class name="org.sipfoundry.sipxconfig.common.Organization" 
 		table="organizations">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
@@ -115,7 +115,7 @@
 	<!-- 
 	- U S E R
 	-->
-	<class name="org.sipfoundry.sipxconfig.phone.User" table="users">
+	<class name="org.sipfoundry.sipxconfig.common.User" table="users">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
 			<generator class="sequence">
@@ -124,7 +124,7 @@
 		</id>
 		<property name="firstName" column="first_name"/>
 		<many-to-one name="organization" column="org_id" 
-			class="org.sipfoundry.sipxconfig.phone.Organization"/>
+			class="org.sipfoundry.sipxconfig.common.Organization"/>
 		<property name="password" column="password"/>
 		<property name="userGroupId" column="ug_id"/>
 		<!-- 

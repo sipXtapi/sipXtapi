@@ -16,12 +16,15 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
+	<property-specification name="coreContext" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/>    
     <!--
       - C O M P O N E N T S
       -->
     <component id="searchForm" type="UserSearch">
         <binding name="cancelListener" expression="listeners.cancel"/>
-        <binding name="phoneContext" expression="phoneContext"/>
+        <binding name="coreContext" expression="coreContext"/>
     </component>
     <component id="searchResults" type="UserTable">
         <binding name="users" expression="components.searchForm.users"/>    

@@ -18,8 +18,8 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 
 
 public abstract class UserSearch extends BaseComponent implements PageRenderListener {
@@ -34,15 +34,13 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
     
     public abstract void setUsers(List users);
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract CoreContext getCoreContext();
     
     public void search(IRequestCycle cycle_) {
-        PhoneContext context = getPhoneContext();
-        
         // keep original collection, reference has already been given to other
         // components.  
         getUsers().clear();        
-        List results = context.loadUserByTemplateUser(getUser());
+        List results = getCoreContext().loadUserByTemplateUser(getUser());
         getUsers().addAll(results);
     }
     

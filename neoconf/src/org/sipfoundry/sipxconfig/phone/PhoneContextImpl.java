@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -26,7 +25,6 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         PhoneContext {
-    private CoreContext m_coreContext;
     
     private SettingDao m_settingDao;
 
@@ -34,10 +32,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     private List m_phoneIds;
 
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
-    
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
@@ -127,31 +121,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return getHibernateTemplate().load(c, new Integer(id));
     }
     
-    // FIXME: the following functions are deprecated, use CoreContextDirectly
-    public void saveUser(User user) {
-        m_coreContext.saveUser(user);
-    }
-
-    public void deleteUser(User user) {
-        m_coreContext.deleteUser(user);
-    }
-
-    public User loadUser(int id) {
-        return m_coreContext.loadUser(id);
-    }
-
-    public User loadUserByDisplayId(String displayId) {
-        return m_coreContext.loadUserByDisplayId(displayId);
-    }
-
-    public List loadUserByTemplateUser(User template) {
-        return m_coreContext.loadUserByTemplateUser(template);
-    }
-
-    public Organization loadRootOrganization() {
-        return m_coreContext.loadRootOrganization();
-    }
-
     public Folder loadRootEndpointFolder() {
        return m_settingDao.loadRootFolder(Endpoint.FOLDER_RESOURCE_NAME);
     }

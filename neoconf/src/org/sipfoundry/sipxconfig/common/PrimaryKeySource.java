@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.common;
 
 /**
  * Most objects save save to database, and possible other types as well, can 

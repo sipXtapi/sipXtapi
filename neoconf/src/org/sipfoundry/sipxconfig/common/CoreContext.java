@@ -13,8 +13,6 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.phone.Organization;
-import org.sipfoundry.sipxconfig.phone.User;
 
 /**
  * CoreContext

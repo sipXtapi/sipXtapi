@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.BeanWithId;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
-import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.common.User;
 
 /**
  * CallSequence

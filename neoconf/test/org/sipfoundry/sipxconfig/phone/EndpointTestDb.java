@@ -19,7 +19,6 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.polycom.Polycom;
-import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
 
 

@@ -21,7 +21,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.phone.Organization;
+import org.sipfoundry.sipxconfig.common.Organization;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**

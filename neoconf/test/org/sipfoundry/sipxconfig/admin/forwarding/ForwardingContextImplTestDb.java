@@ -21,7 +21,7 @@ import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 

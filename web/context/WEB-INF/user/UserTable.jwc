@@ -37,7 +37,7 @@
     <property-specification name="selections" 
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
     <property-specification name="currentUser"
-        type="org.sipfoundry.sipxconfig.phone.User"/>
+        type="org.sipfoundry.sipxconfig.common.User"/>
 	<!--
 	  - B E A N S
 	  -->

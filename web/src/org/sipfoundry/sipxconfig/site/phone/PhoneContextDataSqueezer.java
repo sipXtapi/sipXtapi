@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PrimaryKeySource;
 
 
 public class PhoneContextDataSqueezer implements IPrimaryKeyConvertor  {

@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Folder;
 
 
@@ -21,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.Folder;
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public interface PhoneContext extends CoreContext {
+public interface PhoneContext {
     
     public static final int ROOT_PHONE_META_ID = 1000;
     

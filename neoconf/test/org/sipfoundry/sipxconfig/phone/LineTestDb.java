@@ -20,7 +20,8 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 
 /**
  * You need to call 'ant reset-db-patch' which clears a lot of data in your
@@ -30,13 +31,13 @@ public class LineTestDb extends TestCase {
 
     private PhoneContext m_context;
     
-    private SettingDao m_settingDao;
+    private CoreContext m_core;
 
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
-        m_settingDao = (SettingDao) TestHelper.getApplicationContext().getBean(
-                SettingDao.CONTEXT_NAME);
+        m_core = (CoreContext) TestHelper.getApplicationContext().getBean(
+                CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.setUpHibernateSession();
     }
     
@@ -50,7 +51,7 @@ public class LineTestDb extends TestCase {
 
         Endpoint endpoint = m_context.loadEndpoint(1);
         assertEquals(0, endpoint.getLines().size());
-        User user = m_context.loadUserByDisplayId("testuser");
+        User user = m_core.loadUserByDisplayId("testuser");
 
         Line line = new Line();
         line.setUser(user);
@@ -80,7 +81,7 @@ public class LineTestDb extends TestCase {
 
         Endpoint endpoint = m_context.loadEndpoint(1000);
         assertEquals(2, endpoint.getLines().size());
-        User user = m_context.loadUserByDisplayId("testuser");
+        User user = m_core.loadUserByDisplayId("testuser");
 
         Line thirdLine = new Line();
         thirdLine.setUser(user);

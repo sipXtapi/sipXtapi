@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.Serializable;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
+
 /**
  * Aggregation of Phone, Endpoint and Lines objects, Mostly to pull together for display to end
  * user. All data here comes from properties of other objects. You'd never want to save this

@@ -15,11 +15,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.User;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**

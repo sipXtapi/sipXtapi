@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
-import org.sipfoundry.sipxconfig.phone.Organization;
+import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class PolycomPhoneTest extends TestCase {

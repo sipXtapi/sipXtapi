@@ -160,9 +160,6 @@
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>
 		</property>
-        <property name="coreContext">
-            <ref bean="coreContextImpl"/>            
-        </property>
         <property name="settingDao">
             <ref bean="settingDaoImpl"/>            
         </property>

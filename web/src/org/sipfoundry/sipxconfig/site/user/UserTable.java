@@ -17,9 +17,9 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.User;
 import org.sipfoundry.sipxconfig.site.phone.PhoneContextDataSqueezer;
 
 public abstract class UserTable extends BaseComponent implements PageRenderListener {

@@ -9,9 +9,12 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
+
+import org.sipfoundry.sipxconfig.phone.Credential;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * User that logs in, and base info for most lines
