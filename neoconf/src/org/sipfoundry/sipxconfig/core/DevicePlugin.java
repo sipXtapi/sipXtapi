@@ -12,15 +12,38 @@
 package org.sipfoundry.sipxconfig.core;
 
 /**
- * System-wide access to plugins
+ * Implement this to add support for new devices to the system
  */
 public interface DevicePlugin {
 
-    public DeviceModel[] getModels();
+    /**
+     * File linking properties to this device
+     * 
+     * @return Absolute file path to xml file
+     */
+    public String getDefinitions();
+        
+    /**
+     * Identifying string unique across all plugins 
+     * 
+     * @return e.g. Cisco - 7960
+     */
+    public String getPluginId();
 
-    public DeviceGenerator getGenerator(DeviceModel model);
-
-    public DevicePublisher getPublisher(DeviceModel model);
-
-    public DeviceWriter getWriter(DeviceModel model);
+    /**
+     * How many files make-up the list of files this writer creates
+     * 
+     * @return zero or greater
+     */
+    public int getProfileCount();
+    
+    /**
+     * What is the filename of the Nth profile
+     * 
+     * @param profileIndex
+     * @param macAddress
+     * 
+     * @return No path, just filename
+     */
+    public String getProfileFileName(int profileIndex, String macAddress);
 }

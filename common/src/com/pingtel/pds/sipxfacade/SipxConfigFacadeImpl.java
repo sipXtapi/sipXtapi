@@ -21,7 +21,7 @@ public class SipxConfigFacadeImpl implements SipxConfigFacade {
     /* (non-Javadoc)
      * @see com.pingtel.pds.sipxfacade.SipxConfigFacade#getDeviceProfleName(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
-    public String getDeviceProfleName(int profileType, String vendor, String model,
+    public String getDeviceProfileName(int profileType, String vendor, String model,
             String macAddress) {
         
         if ( model.equalsIgnoreCase(PDSDefinitions.MODEL_HARDPHONE_CISCO_7960 ) ) {

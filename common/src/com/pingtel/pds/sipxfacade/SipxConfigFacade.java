@@ -16,7 +16,7 @@ package com.pingtel.pds.sipxfacade;
  */
 public interface SipxConfigFacade {    
     
-    public String getDeviceProfleName(int profileType, String vendor, 
+    public String getDeviceProfileName(int profileType, String vendor, 
             String model, String macAddress);
 
 }

@@ -37,5 +37,4 @@ public class DeviceDaoImpl extends HibernateDaoSupport implements DeviceDao {
             throw SessionFactoryUtils.convertHibernateAccessException(ex);
         }
     }
-
 }

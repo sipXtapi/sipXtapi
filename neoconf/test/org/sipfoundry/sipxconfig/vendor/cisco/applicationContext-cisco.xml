@@ -5,16 +5,31 @@
 <beans>
 
     <bean id="sipxconfig" class="org.sipfoundry.sipxconfig.core.SipxConfig">
-		<property name="devicePlugins">
-		    <map>
-      			<entry key="cisco">
-					<ref bean="ciscoDevicePlugin"/>
-				</entry>
-    		</map>
-		</property>
+        <property name="devicePlugins">
+            <set>
+                <ref local="cisco7960"/>
+                <ref local="cisco7940"/>
+                <ref local="cisco7905"/>
+                <ref local="cisco7912"/>
+            </set>
+        </property>
     </bean>
-		
-	<bean id="ciscoDevicePlugin" class="org.sipfoundry.sipxconfig.vendor.cisco.CiscoDevicePlugin">
-	</bean>
+                
+    <bean id="cisco7960" class="org.sipfoundry.sipxconfig.vendor.cisco.CiscoDevicePlugin">
+        <property name="pluginId"><value>cisco7960</value></property>
+    </bean>
+
+    <bean id="cisco7940" class="org.sipfoundry.sipxconfig.vendor.cisco.CiscoDevicePlugin">
+        <property name="pluginId"><value>cisco7940</value></property>
+    </bean>
+
+    <bean id="cisco7905" class="org.sipfoundry.sipxconfig.vendor.cisco.CiscoDevicePlugin">
+        <property name="pluginId"><value>cisco7905</value></property>
+    </bean>
+
+    <bean id="cisco7912" class="org.sipfoundry.sipxconfig.vendor.cisco.CiscoDevicePlugin">
+        <property name="pluginId"><value>cisco7912</value></property>
+    </bean>
+
 
 </beans>

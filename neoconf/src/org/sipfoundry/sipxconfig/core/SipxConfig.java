@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.core;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
@@ -26,15 +29,20 @@ public class SipxConfig {
     /**
      * @param devicePlugins The devicePlugins to set.
      */
-    public void setDevicePlugins(Map plugins) {
-        m_plugins = plugins;
+    public void setDevicePlugins(Set plugins) {
+        m_plugins  = new HashMap(plugins.size());
+        Iterator i = plugins.iterator();
+        while (i.hasNext()) {
+            DevicePlugin plugin = (DevicePlugin)i.next();
+            m_plugins.put(plugin.getPluginId(), plugin);
+        }
     }
 
     /**
-     * @return Returns the immutable collection of devicePlugins.
+     * @return null if no plugin by that id exists
      */
-    public Map getDevicePlugins() {
-        return Collections.unmodifiableMap(m_plugins);
+    public DevicePlugin getDevicePlugin(String pluginId) {
+        return (DevicePlugin)m_plugins.get(pluginId);
     }
 
     public DeviceDao getDeviceDao() {

@@ -16,6 +16,9 @@
       <pathelement path="${spring.jar}" />
       <pathelement path="${common.jar}" />
       <pathelement path="${hibernate2.jar}" />
+  	
+  	  <!-- TEST -->
+      <pathelement path="${easymock.jar}" />
   </path>
 
   <path id="run.path">

@@ -13,32 +13,29 @@ package org.sipfoundry.sipxconfig.vendor.cisco;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.core.DeviceModel;
 import org.sipfoundry.sipxconfig.core.DevicePlugin;
 import org.sipfoundry.sipxconfig.core.SipxConfig;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class CiscoDeviceGeneratorTest extends TestCase {
+public class CiscoDevicePluginTest extends TestCase {
     
-    private DevicePlugin m_plugin;
+    private DevicePlugin m_7960;
 
-    public void setUp()
-    {
+    public void setUp() {
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-        	"org/sipfoundry/sipxconfig/vendor/cisco/applicationContext-cisco.xml");
+                "org/sipfoundry/sipxconfig/vendor/cisco/applicationContext-cisco.xml");
         SipxConfig sipx = (SipxConfig) ctx.getBean("sipxconfig");
         assertNotNull(sipx);
 
-        m_plugin =  (DevicePlugin)sipx.getDevicePlugins().get("cisco");
-        assertTrue(m_plugin != null);
+        // TODO : Use constant for plugin id
+        m_7960 = sipx.getDevicePlugin(CiscoDevicePlugin.MODEL_7960);
+        assertTrue(m_7960 != null);
     }
-    
-    public void testGetPropertyDefitions()
-    {
-        DeviceModel[] models = m_plugin.getModels();
-        for (int i = 0; i < models.length; i++) {
-            assertNotNull(m_plugin.getGenerator(models[i]).getDefinitions());
-        }
-        
+
+    public void testGetters() {
+        assertNotNull(m_7960.getDefinitions());
+        String macAddress = "00D001E0064CF";        
+        assertEquals(m_7960.getProfileCount(), 1);                 
+        assertNotNull(m_7960.getProfileFileName(1, macAddress));
     }
 }

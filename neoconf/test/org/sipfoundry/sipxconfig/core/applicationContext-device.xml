@@ -4,12 +4,21 @@
 
 <beans>
 
+
     <!--
       -  B U S I N E S S  C O N T E X T
       -
       -  Single object holding access to all other service layer objects
       -->
     <bean id="sipxconfig" class="org.sipfoundry.sipxconfig.core.SipxConfig">
+       <!-- DeviceDao is easkmocked -->
     </bean>
+	
+    <!-- Hooks to old stuff -->
+	<bean id="sipxfacade" class="org.sipfoundry.sipxconfig.core.SipxConfigFacadeImpl">
+		<property name="sipxConfig">
+			<ref bean="sipxconfig"/>
+		</property>
+	</bean>
 
 </beans>
