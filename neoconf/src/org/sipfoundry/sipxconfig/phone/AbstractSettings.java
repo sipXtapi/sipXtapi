@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.Map;
-
 
 /**
  * Base class for vendor specific setting management
@@ -25,10 +23,6 @@ public abstract class AbstractSettings {
         m_settings = settings;
     }
     
-    public Map getEditableSettings() {        
-        return m_settings.getSettings();
-    }
-    
     /**
      * Test whether there already exists a settting by that name
      * 
@@ -39,10 +33,16 @@ public abstract class AbstractSettings {
         return m_settings.getSettings().containsKey(name);
     }
     
+    /**
+     * @return null if setting set is not defined
+     */
     public SettingSet getSettings(String name) {
         return (SettingSet) getSettings().getSetting(name);
     }
     
+    /**
+     * @return null if setting is not defined
+     */
     public Setting getSetting(String name) {
         return getSettings().getSetting(name);
     }

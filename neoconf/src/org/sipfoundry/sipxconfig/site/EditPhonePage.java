@@ -14,28 +14,28 @@ package org.sipfoundry.sipxconfig.site;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
- * Tapestry Page
+ * Tapestry Page support for editing and creating new phone endpoints
  */
-public class EditPhonePage extends BasePage {
+public abstract class EditPhonePage extends BasePage {
     
-    private Endpoint m_endpoint = new Endpoint();
+    public EditPhonePage() {
+        // TODO: Read existing one
+        setEndpoint(new Endpoint());
+    }
+    
+    public abstract PhoneContext getPhoneContext();
 
-    /**
-     * @return Returns the endpoint.
-     */
-    public Endpoint getEndpoint() {
-        return m_endpoint;
-    }
-    /**
-     * @param endpoint The endpoint to set.
-     */
-    public void setEndpoint(Endpoint endpoint) {
-        m_endpoint = endpoint;
-    }
+    public abstract void setPhoneContext(PhoneContext phoneContext);
+
+    public abstract Endpoint getEndpoint();
+    
+    public abstract void setEndpoint(Endpoint endpoint);
     
     public void save(IRequestCycle cycleTemp) {
+        getPhoneContext().getPhoneDao().storeEndpoint(getEndpoint());
         // no-op avoid eclipse warning
         cycleTemp.getClass();
     }

@@ -19,9 +19,6 @@ import java.util.TreeMap;
  * Set of data for a configurable object
  */
 public class SettingSet extends Setting {
-    
-    /** settings regarding phone's network */
-    public static final String NETWORK_SETTINGS = "network";
 
     private Map m_settings;
 

@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site;
 import java.io.Serializable;
 
 /**
- * Comments
+ * Gets serialized for each user into HttpSession.
  */
 public class Visit implements Serializable {
 

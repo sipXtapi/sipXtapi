@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.phone.AbstractSettings;
 import org.sipfoundry.sipxconfig.phone.SettingSet;
 
 /**
- * Comments
+ * Root of all settings for a phone.
  */
 public class PhoneSettings extends AbstractSettings {
     

@@ -23,8 +23,6 @@ public class Organization {
     
     private String m_dnsDomain;
     
-    //private int m_parentId;
-    
     // TODO : Enumerate stereotypes
     private int m_stereotype = 1;
     
@@ -41,19 +39,6 @@ public class Organization {
         m_dnsDomain = dnsDomain;
     }
     
-    /**
-     * @return Returns the parentId.
-    public int getParentId() {
-        return m_parentId;
-    }
-    /**
-     * @param parentId The parentId to set.
-     *
-    public void setParentId(int parentId) {
-        m_parentId = parentId;
-    }
-    */
-
     /**
      * @return Returns the stereoType.
      */

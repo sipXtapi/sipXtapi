@@ -21,11 +21,11 @@ public interface PhoneDao {
     
     /**
      * Commits the transaction and performs a batch of SQL commands
-     * to happen. Call this as high in the application stack as possible
+     * to database. Call this as high in the application stack as possible
      * for better performance and data integrity.
      * 
-     * You need to call this before you attempt to delete and object
-     * that was created before last to to flush. Not a big deal, most
+     * You need to call this before you attempt to delete an object
+     * that was created before last call to flush. Not unreasonable, most
      * times you don't delete and object before it's created, but happens
      * a lot in unittests. 
      */
@@ -48,12 +48,6 @@ public interface PhoneDao {
     public void storeEndpoint(Endpoint endpoint);
 
     public void deleteEndpoint(Endpoint endpoint);
-    
-    /* To come...not tests yet, so it doesn't exist yet
-    public Line loadLine(User user, int position);
-
-    public void storeLine(Line line);
-    */
     
     public void storeEndpointAssignment(EndpointAssignment assignment);
     

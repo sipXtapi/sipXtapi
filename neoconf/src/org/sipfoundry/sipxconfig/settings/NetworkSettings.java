@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.phone.AbstractSettings;
 import org.sipfoundry.sipxconfig.phone.SettingSet;
 
 /**
- * Comments
+ * Settings related to network parameters like proxy, tftp boot server, etc
  */
 public class NetworkSettings extends AbstractSettings {
 

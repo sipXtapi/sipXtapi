@@ -15,7 +15,9 @@ import java.util.Collections;
 import java.util.Map;
 
 
-
+/**
+ * Represent one setting in a set of settings. Composite base class to SettingSet
+ */
 public class Setting {
 
     private String m_name;
@@ -39,48 +41,35 @@ public class Setting {
     }
 
     /**
-     * @return Returns the parent.
+     * @return null only if subclass is SettingSet and it's the root setting
      */
     public SettingSet getParent() {
         return m_parent;
     }
+
     /**
-     * @param parent The parent to set.
+     * Called internally when a setting is added to its parent
      */
     public void setParent(SettingSet parent) {
         m_parent = parent;
     }
-    /**
-     * @return Returns the id.
-     */
+
     public int getId() {
         return m_id;
     }
 
-    /**
-     * @param id The id to set.
-     */
     public void setId(int id) {
         m_id = id;
     }
 
-    /**
-     * @return Returns the name.
-     */
     public String getName() {
         return m_name;
     }
 
-    /**
-     * @param name The name to set.
-     */
     public void setName(String name) {
         m_name = name;
     }
 
-    /**
-     * @return Returns the value.
-     */
     public Object getValue() {
         return m_value;
     }
@@ -101,24 +90,10 @@ public class Setting {
         m_value = string;
     }
 
-    /**
-     * @param value The value to set.
-     */
     public void setValue(Object value) {
         m_value = value;
     }
     
-    /* to fulfill composite design pattern, but unclear there's a need at this
-     * point.  TODO : Remove if not needed
-    public void addSetting(Setting settingTemp) {
-        throw new IllegalArgumentException("Cannot add setting to leaf setting");
-    }
-
-    public Setting getSetting(String settingNameTemp) {
-        throw new IllegalArgumentException("Cannot get settings on leaf setting");
-    }
-    */
-
     public Map getSettings() {
         return Collections.EMPTY_MAP;
     }

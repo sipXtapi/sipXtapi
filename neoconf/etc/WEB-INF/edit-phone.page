@@ -6,9 +6,8 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.EditPhonePage">
 
 <property-specification name="endpoint" type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-	
-<component id="insertPhoneName" type="Insert"> 
-  <binding name="value" expression="visit.foobar"/> 
-</component>
+<property-specification name="phoneContext" type="org.sipfoundry.sipxconfig.phone.PhoneContext">
+    global.phoneContext
+</property-specification>
 
 </page-specification>

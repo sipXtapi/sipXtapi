@@ -3,7 +3,6 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans> 
-
    <bean id="unittest-db"
          class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
@@ -13,16 +12,14 @@
          <value>org/sipfoundry/sipxconfig/phone/applicationContext-unittest-dao.xml</value>
        </list>
      </constructor-arg>
-   </bean>
-   
-   <!-- CoreDao must be mocked in unittest -->   
+   </bean>   
    <bean id="unittest"
         class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
        <list>
+         <!-- Daos must be mocked in unittest, see PhoneDaoImplTestDb.java -->   
          <value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
        </list>
      </constructor-arg>
-   </bean>		
-   
+   </bean>		   
 </beans>

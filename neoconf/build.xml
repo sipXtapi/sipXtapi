@@ -93,6 +93,7 @@
 
 			<lib file="${spring.jar}" />
 			<lib file="${hibernate2.jar}" />
+			<lib file="${jdbc-driver.jar}" />
 			<lib file="${odmg.jar}" />
 			<lib file="${commons-logging.jar}" />
 			<lib file="${commons-dbcp.jar}" />
