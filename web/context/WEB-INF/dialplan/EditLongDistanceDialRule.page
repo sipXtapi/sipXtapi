@@ -34,6 +34,19 @@
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
     
+    <!-- phone validator - only digits, at least one -->
+    <bean name="phoneValidator" class="org.apache.tapestry.valid.PatternValidator" lifecycle="page">
+        <set-property name="patternString">"^\\d+$"</set-property>
+        <set-property name="patternNotMatchedMessage">"Please enter digits only, for example: 123"</set-property>
+        <set-property name="required">true</set-property>
+    </bean>
+
+    <!-- phone validator - comma separated list of area codes, can be empty -->
+    <bean name="phoneSequenceValidator" class="org.apache.tapestry.valid.PatternValidator" lifecycle="page">
+        <set-property name="patternString">"^(\\d+(\\s*,?\\s*))*$"</set-property>
+        <set-property name="patternNotMatchedMessage">"Please enter comma separated list of numbers, for example: 508, 212, 333"</set-property>
+    </bean>
+
     <bean name="externalLenModel" 
         class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
         lifecycle="page">
@@ -62,17 +75,13 @@
     </component>
     
     <!-- long distance fields -->
-<!--        private String m_pstnPrefix;
-    private String m_longDistancePrefix;
-    private String m_areaCodes;
-    private int m_externalLen; -->
 
     <component id="pstnPrefixLabel" type="FieldLabel">
         <binding name="field" expression="components.pstnPrefix"/>
     </component>
     <component id="pstnPrefix" type="ValidField">
         <binding name="value" expression="rule.pstnPrefix"/>
-        <binding name="validator" expression="beans.nameValidator"/>
+        <binding name="validator" expression="beans.phoneValidator"/>
         <static-binding name="displayName" value="PSTN Prefix"/>
     </component>
 
@@ -81,7 +90,7 @@
     </component>
     <component id="longDistancePrefix" type="ValidField">
         <binding name="value" expression="rule.longDistancePrefix"/>
-        <binding name="validator" expression="beans.nameValidator"/>
+        <binding name="validator" expression="beans.phoneValidator"/>
         <static-binding name="displayName" value="Long Distance Prefix"/>
     </component>
     
@@ -90,7 +99,7 @@
     </component>
     <component id="areaCodes" type="ValidField">
         <binding name="value" expression="rule.areaCodes"/>
-        <binding name="validator" expression="beans.nameValidator"/>
+        <binding name="validator" expression="beans.phoneSequenceValidator"/>
         <static-binding name="displayName" value="Area Codes"/>
     </component>
 
