@@ -13,7 +13,7 @@
 	<path id="compile.dependencies">
 		<pathelement path="${sipxconfig.jar}" />		
 		<pathelement path="${spring.jar}" />
-		<pathelement path="${hibernate2.jar}" />
+		<pathelement path="${hibernate.jar}" />
 		<pathelement path="${servlet.jar}" />
 	</path>
 
@@ -29,7 +29,7 @@
 		<pathelement path="${dom4j.jar}" />
 		<pathelement path="${commons-collections.jar}" />
 		<pathelement path="${ehcache.jar}" />
-		<pathelement path="${cglib-full.jar}" />
+		<pathelement path="${cglib.jar}" />
 		<pathelement path="${jta.jar}" />
 		<pathelement path="${jdbc-driver.jar}" />
 		<pathelement path="${odmg.jar}" />
@@ -98,22 +98,29 @@ sysdir.var=${sipxpbx.data.dir}
 				<include name="*.properties" />
 			</classes>
 
-			<lib file="${spring.jar}" />
 			<lib file="${sipxconfig.jar}" />
-			<lib file="${hibernate2.jar}" />
-			<lib file="${jdbc-driver.jar}" />
+
+			<lib file="${spring.jar}" />
+			<lib file="${asm.jar}" />
+			<lib file="${hibernate.jar}" />
 			<lib file="${odmg.jar}" />
+			<lib file="${ehcache.jar}" />
+			<lib file="${jdbc-driver.jar}" />
+			<lib file="${logkit.jar}" />
 			<lib file="${velocity.jar}" />
 			<lib file="${commons-logging.jar}" />
 			<lib file="${commons-dbcp.jar}" />
 			<lib file="${commons-pool.jar}" />
 			<lib file="${commons-digester.jar}" />
+			<lib file="${commons-collections.jar}" />
 			<lib file="${commons-beanutils.jar}" />
+			<lib file="${commons-lang.jar}" />			
+			<lib file="${commons-codec.jar}" />			
+			<lib file="${commons-fileupload.jar}" />
 			<lib file="${aopalliance.jar}" />
 			<lib file="${dom4j.jar}" />
-			<lib file="${commons-collections.jar}" />
-			<lib file="${ehcache.jar}" />
-			<lib file="${cglib-full.jar}" />
+			<lib file="${jaxen.jar}" />
+			<lib file="${cglib.jar}" />
 			<lib file="${jta.jar}" />
 			<lib file="${tapestry.jar}" />
 			<lib file="${tapestry-contrib.jar}" />
@@ -121,12 +128,8 @@ sysdir.var=${sipxpbx.data.dir}
 			<lib file="${javassist.jar}" />
 			<lib file="${bsf.jar}" />
 			<lib file="${jakarta-oro.jar}" />
-			<lib file="${commons-lang.jar}" />			
-			<lib file="${commons-codec.jar}" />			
-			<lib file="${commons-fileupload.jar}" />
 			<lib file="${log4j.jar}" />			
 			<lib file="${tapestry.tld}" />
-
 		</war>
 	</target>
 

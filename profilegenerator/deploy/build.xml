@@ -28,8 +28,7 @@
       <fileset file="${profilegen-patch.jar}"/>
       <fileset file="${common.jar}"/>
       <fileset file="${jdom.jar}"/>
-      <fileset file="${jaxen-jdom.jar}"/>
-      <fileset file="${jaxen-core.jar}"/>
+      <fileset file="${jaxen.jar}"/>
       <fileset file="${saxpath.jar}"/>
       <fileset file="${regexp.jar}"/>
     </ear>

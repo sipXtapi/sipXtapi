@@ -108,18 +108,16 @@
       <fileset file="${commons-pool.jar}"/>
       <fileset file="${dom4j.jar}"/>
       <fileset file="${jakarta-regexp.jar}"/>
-      <fileset file="${jaxen-core.jar}"/>
-      <fileset file="${jaxen-jdom.jar}"/>
+      <fileset file="${jaxen.jar}"/>
+      <fileset file="${saxpath.jar}"/>
       <fileset file="${jaxrpc.jar}"/>
       <fileset file="${jdom.jar}"/>
       <fileset file="${log4j.jar}"/>
-      <fileset file="${NetComponents.jar}"/>
+      <fileset file="${netcomponents.jar}"/>
       <fileset file="${jdbc-driver.jar}"/>
       <fileset file="${saaj.jar}"/>
-      <fileset file="${saxpath.jar}"/>
       <fileset file="${taglibs-xtags.tld}"/>
       <fileset file="${taglibs-xtags.jar}"/>
-      <fileset file="${bogus.jar}"/>
     </copy>
 
     <copy file="${common.jar}" todir="${dest.dir}${sipxconfig.lib.dir}"/>
