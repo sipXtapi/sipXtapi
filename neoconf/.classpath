@@ -3,30 +3,21 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/aopalliance/aopalliance.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/cglib/cglib-full-2.0.2.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/dom4j/dom4j.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/ehcache/ehcache-1.0.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/hibernate/hibernate2.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/j2ee/jta.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-collections.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-dbcp.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-logging.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-pool.jar"/>
-	<classpathentry sourcepath="SPRING_HOME/src" kind="var" path="SPRING_HOME/dist/spring.jar"/>
 	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/pg74.215.jdbc3.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/hibernate/odmg.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-1.1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-1.0.jar"/>
-	<classpathentry sourcepath="LIB_SRC/httpunit-1.6/src" kind="var" path="SIPX_CONFIG/lib/httpunit.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlunit1.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/velocity-1.4/src" kind="var" path="SIPX_CONFIG/lib/velocity-1.4.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.6.jar"/>
-	<classpathentry sourcepath="LIB_SRC/commons-digester-1.6-src/src" kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-digester.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/dom4j-1.5.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-1.1.3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/hibernate-2.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-digester-1.6.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

@@ -6,27 +6,25 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/bsf-2.3.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-1.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
-	<classpathentry sourcepath="LIB_SRC/httpunit-1.6/src" kind="var" path="SIPX_CONFIG/lib/httpunit.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.6.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-1.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-2.5.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.6.3.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/pg74.215.jdbc3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
-	<classpathentry sourcepath="SPRING_HOME/src" kind="var" path="SPRING_HOME/dist/spring.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/aopalliance/aopalliance.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/cglib/cglib-full-2.0.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/Tidy.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-1.1.3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
