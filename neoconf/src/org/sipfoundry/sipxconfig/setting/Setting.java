@@ -12,6 +12,9 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -124,8 +127,11 @@ public class Setting implements Cloneable, AvoidEclipseWarningHack {
         m_defaultValue = defaultValue;
     }
 
+    /**
+     * @return label if set, otherwise return name as label.
+     */
     public String getLabel() {
-        return m_label;
+        return m_label != null ? m_label : m_name;
     }
 
     public void setLabel(String label) {
@@ -232,6 +238,28 @@ public class Setting implements Cloneable, AvoidEclipseWarningHack {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+    
+    public Collection getValues() {
+        return Collections.EMPTY_LIST;
+    }
+    
+    public Collection list(SettingFilter filter) {
+        Collection bucket = new ArrayList();
+        list(filter, bucket);
+        
+        return bucket;
+    }
+    
+    public void list(SettingFilter filter, Collection bucket) {
+        Iterator children = getValues().iterator();
+        while (children.hasNext()) {
+            Setting setting = (Setting) children.next();
+            if (filter.acceptSetting(setting)) {
+                bucket.add(setting);
+            }
+            setting.list(filter, bucket);
+        }
     }
 }
 

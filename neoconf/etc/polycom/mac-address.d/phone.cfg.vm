@@ -3,15 +3,11 @@
 <!-- Revision: 1.59 Date: 2004/05/22 00:50:41 -->
 <phone1>
   <reg 
-#foreach ($line in ${lines})
+#foreach ($line in ${reg})
   #set ($i = $velocityCount)
-  #set ($reg = ${line.getSetting('reg')})
-  #foreach ($setting in $reg.getValues())
+  #foreach ($setting in ${line})
       reg.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
   #end
-	reg.${i}.thirdPartyName="" 
-	reg.${i}.auth.userId="" 
-	reg.${i}.auth.password="" 
 	reg.${i}.server.1.address="" 
 	reg.${i}.server.1.port="" 
 	reg.${i}.server.1.transport="" 

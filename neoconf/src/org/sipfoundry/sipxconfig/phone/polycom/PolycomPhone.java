@@ -27,8 +27,6 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
  */
 public class PolycomPhone extends GenericPhone {
 
-    public static final String REGISTRATION_SETTINGS = "reg";
-
     private Polycom m_model = Polycom.MODEL_300;
     
     private PolycomPhoneConfig m_config;
@@ -126,7 +124,8 @@ public class PolycomPhone extends GenericPhone {
         SettingGroup lineModel = super.getSettingModel(line);
         User u = line.getUser();
         if (u != null) {
-            SettingGroup reg = (SettingGroup) lineModel.getSetting(REGISTRATION_SETTINGS);
+            SettingGroup reg = (SettingGroup) lineModel.getSetting(
+                    ConfigurationTemplate.REGISTRATION_SETTINGS);
             reg.getSetting("displayName").setDefaultValue(u.getDisplayId());
         }
 

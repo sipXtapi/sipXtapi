@@ -21,6 +21,10 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
  * Baseclass for velocity template generators
  */
 public abstract class ConfigurationTemplate {
+    
+    public static final String CALL_SETTINGS = "call";
+
+    public static final String REGISTRATION_SETTINGS = "reg";
 
     private PolycomPhone m_phone;
 

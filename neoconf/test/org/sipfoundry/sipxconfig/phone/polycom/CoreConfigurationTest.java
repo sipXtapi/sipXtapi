@@ -20,6 +20,7 @@ import java.io.Reader;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 
@@ -33,7 +34,9 @@ public class CoreConfigurationTest extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();        
 
         SettingGroup settings = helper.endpoint[0].getSettings(helper.phone[0]);
-        settings.getSetting("call").getSetting("rejectBusyOnDnd").setValue("0");
+        Setting call = settings.getSetting("call"); 
+        Setting rejectDnd = call.getSetting("rejectBusyOnDnd");
+        rejectDnd.setValue("0");
         
         CoreConfiguration cfg = new CoreConfiguration(
             helper.phone[0], helper.endpoint[0]);
@@ -51,7 +54,6 @@ public class CoreConfigurationTest extends XMLTestCase {
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
-        expectedPhoneStream.close();
-        
+        expectedPhoneStream.close();        
     }
 }

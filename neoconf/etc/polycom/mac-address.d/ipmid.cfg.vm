@@ -1678,9 +1678,8 @@
 	<HTTPD httpd.enabled="1">
 		<cfg httpd.cfg.enabled="1" httpd.cfg.port="80"/>
 	</HTTPD>
-#set($call = ${settings.getSetting('call')})
 	<call 
-#foreach ($setting in $call.getValues())
+#foreach ($setting in ${call})
       call.${setting.ProfileName}="$!{setting.ProfileValue}"
 #end
 		call.callWaiting.prompt="0"		
