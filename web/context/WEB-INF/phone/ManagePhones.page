@@ -32,7 +32,7 @@
 	</component>
 	<component id="phoneRows" type="contrib:TableFormRows">
 		<binding name="row" expression="currentRow"/>
-        <binding name="converter" expression="idConverter"/>
+        <binding name="convertor" expression="idConverter"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
 	<component id="phoneValues" type="contrib:TableValues">
