@@ -13,58 +13,150 @@
     </span>
     <form action="dialplans.html">
         <fieldset>
-	    <legend>Custom rules</legend>
+	    <legend>Custom dialing rules</legend>
         <table>
             <tbody>
-                <tr>
-                    <td>
-                        <label for="dialplan:name">Name</label>
-                    </td>
-                    <td>
-                        <input id="dialplan:name" type="text"/>
-                    </td>
-                </tr>
                 <tr>
                     <td>
                         <label for="dialplan:enabled">Enabled</label>
                     </td>
 				   <td><input type="checkbox" id="dialplan:enabled" checked="checked"/></td>                    
-                </tr>
+                </tr>                
                 <tr>
                     <td>
-                        <label for="dialplan:patternsList">Dial patterns</label>
+                        <label for="dialplan:name">Name</label>
                     </td>
                     <td>
-                        <input id="dialplan:patternsList" type="text" value="1900xxxxxxx."/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="dialplan:transformation">Transformation</label>
-                    </td>
-                    <td>
-                        <input id="dialplan:transformation" type="text" value="81900{vdigits}" />
+                        <input id="dialplan:name" type="text" value="custom1"/>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="dialplan:permision">Permission</label>
+                        <label for="gateway:description">Description</label>
                     </td>
                     <td>
-                        <select id="dialplan:permision" size="1">
-                            <option value="3">Local dialing</option>
-                            <option value="4">International dialing</option>
-                            <option value="5">Long distance dialing</option>
-                            <option value="6">Toll-free dialing</option>
-                            <option value="7" selected="selected">Restricted dialing</option>
-                            <option value="8">Voice mail</option>
-                            <option value="9">Authorized users</option>
-                            <option value="10">No access</option>
-                        </select>                        
+                        <textarea id="gateway:description" cols="45" rows="5">custom dialing patterns</textarea>
                     </td>
                 </tr>
+                </tbody>
+            </table>
+        </fieldset>
+        <fieldset>
+	    <legend>Dial pattern</legend>
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    <label for="calls:prefix:0">Prefix</label>
+                </td>
+                <td>
+                    <input id="calls:prefix:0" type="text" size="5" value="91"/>
+                </td>
+                <td>
+                    <select id="dialplan:digits:0" size="1">
+                        <option value="3">3 digits</option>
+                        <option value="4">4 digits</option>
+                        <option value="5">5 digits</option>
+                        <option value="6">6 digits</option>
+                        <option value="7" selected="selected">7 digits</option>
+                        <option value="8">8 digits</option>
+                        <option value="9">9 digits</option>
+                        <option value="10">10 digits</option>
+                        <option value="11">11 digits</option>
+                        <option value="12">12 digits</option>
+                        <option value="13">13 digits</option>
+                    </select>
+                </td>
+                <td></td>
+				<td><a href="#">Delete</a></td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="calls:prefix:2">Prefix</label>
+                </td>
+                <td>
+                    <input id="calls:prefix:2" type="text" size="5" value="9"/>
+                </td>
+                <td>
+                    <select id="dialplan:digits:2" size="1">
+                        <option value="3">3 digits</option>
+                        <option value="4">4 digits</option>
+                        <option value="5">5 digits</option>
+                        <option value="6">6 digits</option>
+                        <option value="7" selected="selected">7 digits</option>
+                        <option value="8">8 digits</option>
+                        <option value="9">9 digits</option>
+                        <option value="10">10 digits</option>
+                        <option value="11">11 digits</option>
+                        <option value="12">12 digits</option>
+                        <option value="13">13 digits</option>
+                    </select>
+                </td>                                                
+                <td></td>
+				<td><a href="#">Delete</a></td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="calls:prefix:1">Prefix</label>
+                </td>
+                <td>
+                    <input id="calls:prefix:1" type="text" size="5" value=""/>
+                </td>
+                <td>
+                    <select id="dialplan:digits:1" size="1">
+                        <option value="3">3 digits</option>
+                        <option value="4">4 digits</option>
+                        <option value="5">5 digits</option>
+                        <option value="6">6 digits</option>
+                        <option value="7" selected="selected">7 digits</option>
+                        <option value="8">8 digits</option>
+                        <option value="9">9 digits</option>
+                        <option value="10">10 digits</option>
+                        <option value="11">11 digits</option>
+                        <option value="12">12 digits</option>
+                        <option value="13">13 digits</option>
+                    </select>
+                </td>
+				<td><a href="#">Add</a></td>
+				<td><a href="#">Delete</a></td>
+            </tr>
             </tbody>
         </table>
+        </fieldset>
+        <fieldset>
+	    <legend>Permissions</legend>
+        <table>
+            <tbody>           
+            <tr><td><input type="checkbox" checked="checked"/>Local dialing</td></tr>
+            <tr><td><input type="checkbox"/>International dialing</td></tr>
+            <tr><td><input type="checkbox"/>Long distance dialing</td></tr>
+            <tr><td><input type="checkbox"/>Toll-free dialing</td></tr>
+            <tr><td><input type="checkbox"/>Restricted dialing</td></tr>
+            <tr><td><input type="checkbox"/>Voice mail</td></tr>
+            <tr><td><input type="checkbox"/>No access</td></tr>
+            <tr><td><input type="checkbox"/>Authenticate users only</td></tr>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+	    <legend>Resulting call</legend>
+        <table>
+            <tbody>           
+            <tr>
+                <td>
+                    <label for="result:prefix:0">Prefix</label>
+                </td>
+                <td>
+                    <input id="result:prefix:0" type="text" value="1900"/>
+                    <select id="result:digits:0" size="1">
+                        <option value="3">use all dialed digits</option>
+                        <option value="4">use variable part of dialed number</option>
+                        <option value="5">discard dialed digits</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+		</table>            
         </fieldset>
         <fieldset>
         <legend>Gateways</legend>
@@ -130,6 +222,7 @@
     <div id="comments">
         <ul>
         <li>Custom rule allows for flexibility of creating dial plan elements that are not directly supported by predefined rule types.</li>
+        <li>Serial forking is used with q values automatically generated</li>
         <li>If people create similar custom rules we can add a special rule type for that to simplify the configuration.</li>
         </ul>            
 	</div>        

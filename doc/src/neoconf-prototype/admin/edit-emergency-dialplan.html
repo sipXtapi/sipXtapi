@@ -13,9 +13,15 @@
     </span>
     <form action="dialplans.html">
         <fieldset>
-	    <legend>Emergency dial plan</legend>
+	    <legend>Emergency dialing</legend>
         <table>
             <tbody>
+                <tr>
+                    <td>
+                        <label for="dialplan:enabled">Enabled</label>
+                    </td>
+				   <td><input type="checkbox" id="dialplan:enabled" checked="checked"/></td>                    
+                </tr>                
                 <tr>
                     <td>
                         <label for="dialplan:name">Name</label>
@@ -26,26 +32,20 @@
                 </tr>
                 <tr>
                     <td>
-                        <label for="dialplan:enabled">Enabled</label>
-                    </td>
-				   <td><input type="checkbox" id="dialplan:enabled" checked="checked"/></td>                    
-                </tr>                
-                <tr>
-                    <td>
-                        <label for="dialplan:emergencyNumber"> Emergency Number</label>
-                    </td>
-                    <td>
-                        <input id="dialplan:emergencyNumber" type="text" value="911" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
                         <label for="gateway:description">Description</label>
                     </td>
                     <td>
                         <textarea id="gateway:description" cols="60" rows="5">List of extension to call 911 service</textarea>
                     </td>
                 </tr>                
+                <tr>
+                    <td>
+                        <label for="dialplan:emergencyNumber">Emergency Number</label>
+                    </td>
+                    <td>
+                        <input id="dialplan:emergencyNumber" type="text" value="911" />
+                    </td>
+                </tr>
             </tbody>
         </table>
         </fieldset>
@@ -112,6 +112,7 @@
 	</div>
     <div id="comments">
         <ul>
+        <li>Emergency numbers do not require any permissions. Optional prefixes and "sos" entry are added automatically.</li>
         <li><em>Add New Gateway</em> allows takes users to the screen where new gateway params can be configured. 
             Newly created gateways are then automatically added to the current dial plan.</li>
 		<li><em>Add Existing Gateway</em> allows user to select the gateways from the pool of already created gateways.</li>

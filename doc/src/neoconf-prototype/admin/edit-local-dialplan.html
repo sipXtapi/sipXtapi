@@ -13,17 +13,9 @@
     </span>
     <form action="dialplans.html">
         <fieldset>
-	    <legend>Local Dial Plan</legend>
+	    <legend>Local Dialing</legend>
         <table>
             <tbody>
-                <tr>
-                    <td>
-                        <label for="dialplan:name"> Name</label>
-                    </td>
-                    <td>
-                        <input id="dialplan:name" type="text"/>
-                    </td>
-                </tr>
                 <tr>
                     <td>
                         <label for="dialplan:enabled">Enabled</label>
@@ -32,52 +24,43 @@
                 </tr>                
                 <tr>
                     <td>
-                        <label for="dialplan:localExtensionLen"> Internal Station Extension 
-                            Length</label>
+                        <label for="dialplan:name">Name</label>
                     </td>
                     <td>
-                        <select id="dialplan:localExtensionLen" size="1">
-                            <option value="3" selected="selected">3 digits</option>
-                            <option value="4">4 digits</option>
-                            <option value="5">5 digits</option>
-                            <option value="6">6 digits</option>
-                        </select>
+                        <input id="dialplan:name" type="text" value="1+7"/>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="dialplan:autoAttendant"> Auto Attendant Extension</label>
+                        <label for="gateway:description">Description</label>
                     </td>
                     <td>
-                        <input id="dialplan:autoAttendant" type="text" 
-                            name="dialplan:autoAttendant" value="100" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="dialplan:voiceMail"> Voice Mail Extension</label>
-                    </td>
-                    <td>
-                        <input id="dialplan:voiceMail" type="text" value="101" />
+                        <textarea id="gateway:description" cols="60" rows="5">No long distance permission required</textarea>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="dialplan:voiceMailPrefix">Voicemail Inbox 
-                            Prefix</label>
+                        <label for="dialplan:pstnPrefix">PSTN Calls Prefix</label>
                     </td>
                     <td>
-                        <input id="dialplan:voiceMailPrefix" type="text" value="8" />
+                        <input id="dialplan:pstnPrefix" type="text" value="9" />
                     </td>
                 </tr>                
                 <tr>
                     <td>
-                        <label for="dialplan:description">Description</label>
+                        <label for="dialplan:externalLen">External Number Length</label>
                     </td>
                     <td>
-                        <textarea id="dialplan:description" cols="45" rows="5">Standard 3 digit for small/medium office</textarea>
-                    </td>
-                </tr>                                
+                        <select id="dialplan:externalLen" size="1">
+                            <option value="3" selected="selected">7 digits</option>
+                            <option value="4">6 digits</option>
+                            <option value="5">7 digits</option>
+                            <option value="6">8 digits</option>
+                            <option value="6">9 digits</option>
+                            <option value="6">10 digits</option>
+                        </select>
+                    </td>                                             
+                </tr>
             </tbody>
         </table>
         </fieldset>

@@ -18,17 +18,25 @@
             <tbody>
                 <tr>
                     <td>
-                        <label for="dialplan:name"> Name</label>
+                        <label for="dialplan:enabled">Enabled</label>
+                    </td>
+				   <td><input type="checkbox" id="dialplan:enabled" checked="checked"/></td>                    
+                </tr>                
+                <tr>
+                    <td>
+                        <label for="dialplan:name">Name</label>
                     </td>
                     <td>
-                        <input id="dialplan:name" type="text"/>
+                        <input id="dialplan:name" type="text" value="e911"/>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="dialplan:enabled">Enabled</label>
+                        <label for="gateway:description">Description</label>
                     </td>
-				   <td><input type="checkbox" id="dialplan:enabled" checked="checked"/></td>                    
+                    <td>
+                        <textarea id="gateway:description" cols="60" rows="5">Remaining area codes</textarea>
+                    </td>
                 </tr>                
                 <tr>
                     <td>

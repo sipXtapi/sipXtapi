@@ -13,7 +13,7 @@
     </span>
     <form action="dialplans.html">
         <fieldset>
-	    <legend>Restricted dialing</legend>
+	    <legend>Internal Dialing</legend>
         <table>
             <tbody>
                 <tr>
@@ -27,7 +27,7 @@
                         <label for="dialplan:name">Name</label>
                     </td>
                     <td>
-                        <input id="dialplan:name" type="text" value="special"/>
+                        <input id="dialplan:name" type="text" value="3 digit"/>
                     </td>
                 </tr>
                 <tr>
@@ -35,61 +35,52 @@
                         <label for="gateway:description">Description</label>
                     </td>
                     <td>
-                        <textarea id="gateway:description" cols="60" rows="5">900 numbers</textarea>
+                        <textarea id="gateway:description" cols="45" rows="5">Default 3 digit extension plan.</textarea>
                     </td>
                 </tr>                
                 <tr>
                     <td>
-                        <label for="dialplan:restrictedAreaCodes">Restricted area codes</label>
+                        <label for="dialplan:localExtensionLen"> Internal Station Extension 
+                            Length</label>
                     </td>
                     <td>
-                        <input id="dialplan:restrictedAreaCodes" type="text" value="900" />
+                        <select id="dialplan:localExtensionLen" size="1">
+                            <option value="3" selected="selected">3 digits</option>
+                            <option value="4">4 digits</option>
+                            <option value="5">5 digits</option>
+                            <option value="6">6 digits</option>
+                        </select>
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:autoAttendant"> Auto Attendant Extension</label>
+                    </td>
+                    <td>
+                        <input id="dialplan:autoAttendant" type="text" 
+                            name="dialplan:autoAttendant" value="100" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:voiceMail"> Voice Mail Extension</label>
+                    </td>
+                    <td>
+                        <input id="dialplan:voiceMail" type="text" value="101" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:voiceMailPrefix">Voicemail Inbox 
+                            Prefix</label>
+                    </td>
+                    <td>
+                        <input id="dialplan:voiceMailPrefix" type="text" value="8" />
+                    </td>
+                </tr>                
             </tbody>
         </table>
         </fieldset>
-        <fieldset>
-        <legend>Gateways</legend>
-		<ul class="component-actions">
-			<li><a href="edit-gateway.html">Add New Gateway</a></li>        
-			<li><a href="select-gateways.html">Add Existing Gateway</a></li>        
-		</ul>        
-        <table class="table-view">
-            <thead>
-                <tr>
-                    <th/>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="odd">
-                    <td>
-                        <input type="checkbox" name="id1"/>
-                    </td>
-                    <td>
-                        <a href="edit-gateway.html">boston</a>
-                    </td>
-                    <td>192.168.1.15</td>
-                    <td>default PSTN connection for Boston calls</td>
-                </tr>
-            </tbody>
-        </table>
-        <ul class="table-actions">
-            <li>
-                <input type="button" name="" value="Remove" 
-                    onclick="confirm('Are you sure you want to remove selected gateways?')"/>
-            </li>
-			<li>
-				<input type="button" name="" value="Move up"/>
-			</li>
-			<li>
-				<input type="button" name="" value="Move down"/>
-			</li>            
-        </ul>
-        </fieldset>        
         <ul class="form-actions">
             <li>
                 <input type="submit" value="Save"/>
