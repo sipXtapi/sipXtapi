@@ -37,10 +37,10 @@
 	#pragma comment(lib, "D:\\Program Files\\Compuware\\BoundsChecker\\ERptApi\\nmapi.lib")
 #endif
 
-#define CONFIG_ETC_DIR SIPX_HOME "/etc/sipxpbx"
+#define CONFIG_ETC_DIR SIPX_CONFDIR
 #define FORWARDING_RULES_FILENAME "forwardingrules.xml"
 #define SIP_PROXY_LOG "sipproxy.log"
-#define CONFIG_LOG_DIR SIPX_HOME "/var/log"
+#define CONFIG_LOG_DIR SIPX_LOGDIR
 #define LOG_FACILITY   FAC_SIP
 
 // Configuration names pulled from config-file
