@@ -228,6 +228,10 @@
 		</property>                
 		<property name="phoneFactoryIds">
 			<map>
+                <!-- Register new phone models here, order is important -->
+				<entry key="kphone">
+					<value>KPhone</value>
+				</entry>
 				<entry key="polycom300">
 					<value>Polycom SoundPoint IP 300</value>
 				</entry>
@@ -237,10 +241,6 @@
 				<entry key="polycom600">
 					<value>Polycom SoundPoint IP 600</value>
 				</entry>
-				<!-- don't put kphone in, it's only an example phone -->
-				<!--entry key="kphone">
-					<value>KPhone 4.1</value>
-				</entry-->
 			</map>
 		</property>
 	</bean>
@@ -261,14 +261,22 @@
 	</bean>
 	<!--
 	  - P H O N E  M O D E L S
-	  - hoping to move this external file for end user modification
 	  -->
+    <!-- Define new phone models here, order is not important -->
 	<bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false">  
+		<property name="webDirectory">
+			<!-- 
+  			  - this is directory for a preferred place for serving 
+			  - phone configuration profiles
+			  -    http://host:8090/phone/profile/docroot/, 
+			  -->
+			<value>${sysdir.phone}/profile/docroot</value>
+		</property>
 		<property name="velocityEngine">
 			<ref bean="velocityEngine"/>
 		</property>
 	</bean>
-	<bean id="kphoneLine" class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" singleton="false"/>  
+	<bean id="kphoneLine" class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" singleton="false"/>
 	<!-- POLYCOM -->
 	<bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false">
 		<property name="velocityEngine">

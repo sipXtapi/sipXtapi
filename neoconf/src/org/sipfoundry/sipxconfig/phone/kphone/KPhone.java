@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.kphone;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 
@@ -34,8 +35,29 @@ public class KPhone extends AbstractPhone {
     private String m_templateFilename = FACTORY_ID + "/kphonerc.vm";
     
     public KPhone() {
-        setLineFactoryId(KPhoneLine.FACTORY_ID);
+        // Where to load model relative to etc/sipxpbx directory
         setModelFilename(FACTORY_ID + "/phone.xml");
+        
+        // Tells superclass what bean to create for lines
+        setLineFactoryId(KPhoneLine.FACTORY_ID);
+    }
+
+    public String getWebDirectory() {
+        return m_webDirectory;
+    }
+    
+    /**
+     * KPhone doesn't have a download mechanism built in so for basic remote configuration
+     * management, user will download profile from website before starting KPhone
+     *  
+     * @param webDirectory file path to directory that makes files available via http
+     */
+    public void setWebDirectory(String webDirectory) {
+        m_webDirectory = webDirectory;
+    }
+    
+    public String getProfileFileName() {
+        return getWebDirectory() + "/" + getPhoneData().getSerialNumber() + ".kphonerc";
     }
 
     public VelocityEngine getVelocityEngine() {
@@ -54,15 +76,16 @@ public class KPhone extends AbstractPhone {
         m_templateFilename = templateFilename;
     }
     
-    public void setDefaults(Setting settings_) {        
-    }
-
     public void generateProfiles() {
         FileWriter output = null;
         try {
-            output = new FileWriter(getProfileFileName());
+            File profileFile = new File(getProfileFileName());
+            profileFile.getParentFile().mkdirs();
+            output = new FileWriter(profileFile);
             generateProfile(output);
         } catch (Exception e) {
+            // Although in general it's not a good practice to catch all Exceptions, 
+            // Velocity API reports throwing this exception type
             throw new RuntimeException("Could not generate kphone profile", e);
         } finally {
             IOUtils.closeQuietly(output);
@@ -72,32 +95,25 @@ public class KPhone extends AbstractPhone {
     void generateProfile(Writer output) throws Exception {
         Template template = getVelocityEngine().getTemplate(getTemplateFilename());
         VelocityContext context = new VelocityContext();
+
         Line line;
         if (getLines().size() > 0) {
             line = getLine(0);
         } else {
+            // Use empty line settings if no lines where added to device 
             line = createLine(new LineData());
         }
+        
+        // names match names used in kphonerc.vm
         context.put("lineSettings", line.getSettings());
         context.put("phoneSettings", getSettings());
+        
         template.merge(context, output);
-    }       
+    }    
+    
+    public void setDefaults(Setting settings_) {        
+    }
 
-    /**
-     * Not supported
-     */
     public void restart() {
-    }
-
-    public String getWebDirectory() {
-        return m_webDirectory;
-    }
-    
-    public void setWebDirectory(String webDirectory) {
-        m_webDirectory = webDirectory;
-    }
-    
-    public String getProfileFileName() {
-        return getWebDirectory() + "/" + getPhoneData().getSerialNumber() + ".kphonerc";
     }
 }
