@@ -6,7 +6,20 @@
  - Licensed to SIPfoundry under a Contributor Agreement.
  --%>
 <%@ page errorPage="/ui/error/error.jsp" %>
-<%@ taglib uri="pgstags" prefix="pgs" %>
+
+<jsp:useBean id="editOrg" class="com.pingtel.pds.pgs.beans.EditOrganizationBean" />
+<%
+	String msg = null;
+    if("Save".equals(request.getParameter("action"))) {
+%>
+        <jsp:setProperty name="editOrg" property="*"/>
+<%
+	    editOrg.submit();
+	    msg = "Organization settings successfully updated.";
+    }    
+%>    
+
+
 <html>
     <head>
 <script language="JavaScript">
@@ -38,19 +51,9 @@ function MM_goToURL() { //v3.0
 		        <td colspan="2"><hr class="dms"></td>
 		    </tr>
 		</table>
-        <jsp:useBean id="editOrg" class="com.pingtel.pds.pgs.beans.EditOrganizationBean" 
-            scope="session"/>
-        <%
-            if("Save".equals(request.getParameter("action"))) {
-        %>
-                <jsp:setProperty name="editOrg" property="*"/>
-        <%
-        	    editOrg.submit();
-        %>
-                <p class="msgtext">Organization settings successfully updated.</p>        
-        <%        
-            }    
-        %>    
+		<% if( null != msg ) { %>
+        <p class="msgtext"><%= msg%></p>
+        <% } %>
         <form action="edit_organization.jsp" method="POST">
             <table width="600" class="bglist" cellspacing="1" cellpadding="4" border="0">
                 <tr>
