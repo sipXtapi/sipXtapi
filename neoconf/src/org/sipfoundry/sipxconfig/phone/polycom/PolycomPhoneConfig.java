@@ -30,7 +30,7 @@ public class PolycomPhoneConfig {
 
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
 
-    private String m_applicationTemplate = "polycom/mac-address-phone.cfg";
+    private String m_applicationTemplate = "polycom/mac-address-phone.cfg.vm";
 
     public VelocityEngine getVelocityEngine() {
         return m_velocityEngine;

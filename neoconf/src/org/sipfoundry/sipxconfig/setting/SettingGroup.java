@@ -113,4 +113,16 @@ public class SettingGroup extends Setting {
     public Set keySet() {
         return m_delegate.keySet();
     }
+
+    public String dump() {
+        StringBuffer dump = new StringBuffer();
+        dump.append(super.dump());
+        Iterator children = getValues().iterator();
+        while (children.hasNext()) {
+            dump.append("\n");
+            dump.append(((Setting) (children.next())).dump());            
+        }
+        
+        return dump.toString();
+    }
 }

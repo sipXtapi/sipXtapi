@@ -35,10 +35,6 @@ public class GenericPhone implements Phone {
     
     private String m_endpointModelFilename;
     
-    private SettingGroup m_endpointModel;
-
-    private SettingGroup m_lineModel;
-
     public String getModelId() {
         return m_id;
     }
@@ -52,21 +48,13 @@ public class GenericPhone implements Phone {
     }
 
     public SettingGroup getSettingModel(Endpoint endpoint_) {
-        if (m_endpointModel == null) {
-            File modelDefsFile = getFile(getSystemDirectory(), getEndpointModelFilename());
-            m_endpointModel = new XmlModelBuilder().buildModel(modelDefsFile);
-        }
-
-        return m_endpointModel;
+        File modelDefsFile = getFile(getSystemDirectory(), getEndpointModelFilename());
+        return new XmlModelBuilder().buildModel(modelDefsFile);
     }
 
     public SettingGroup getSettingModel(Line line_) {
-        if (m_lineModel == null) {
-            File lineDefsFile = getFile(getSystemDirectory(), getLineModelFilename());
-            m_lineModel = new XmlModelBuilder().buildModel(lineDefsFile);
-        }
-
-        return m_lineModel;
+        File lineDefsFile = getFile(getSystemDirectory(), getLineModelFilename());
+        return new XmlModelBuilder().buildModel(lineDefsFile);
     }
 
     /**
@@ -108,6 +96,4 @@ public class GenericPhone implements Phone {
     public void setLineModelFilename(String lineModelFilename) {
         m_lineModelFilename = lineModelFilename;
     }
-
-    
 }

@@ -13,9 +13,11 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -27,23 +29,28 @@ public class PhoneConfiguration extends ConfigurationTemplate {
     }
 
     public void addContext(VelocityContext context) {
-        context.put("phone", this);
+        context.put("lines", getLines());
     }
 
-    public Collection getRegistrations() {
+    public Collection getLines() {
         PolycomPhone phone = getPhone();
-        ArrayList registrations = new ArrayList(phone.getMaxLineCount());
+        ArrayList linesSettings = new ArrayList(phone.getMaxLineCount());
 
-        SettingGroup root = getEndpoint().getSettings(phone);
-        SettingGroup reg = (SettingGroup) root.getSetting(PolycomPhone.REGISTRATION_SETTINGS);
-        registrations.add(reg.getValues());
+        List lines = getEndpoint().getLines();
+        int i = 0;
+        for (; lines != null && i < lines.size(); i++) {
+            Line line = (Line) lines.get(i);
+            SettingGroup settings = line.getSettings(phone); 
+            linesSettings.add(settings);
+        }
 
         // copy in blank registrations of all unused lines
-        for (int i = 1; i < phone.getMaxLineCount(); i++) {
-            SettingGroup regCopy = (SettingGroup) reg.getCopy(new ValueStorage());
-            registrations.add(regCopy.getValues());
+        Line blank = new Line();
+        SettingGroup model = phone.getSettingModel(blank);
+        for (; i < phone.getMaxLineCount(); i++) {
+            linesSettings.add(model.getCopy(new ValueStorage()));
         }
         
-        return registrations;
+        return linesSettings;
     }
 }

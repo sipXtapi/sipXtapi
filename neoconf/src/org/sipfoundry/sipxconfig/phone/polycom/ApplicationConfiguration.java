@@ -22,7 +22,6 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     
     public ApplicationConfiguration(PolycomPhone phone, Endpoint endpoint) {
         super(phone, endpoint);
-        setOutputFilename(getAppFilename());
     }
     
     public void addContext(VelocityContext context) {

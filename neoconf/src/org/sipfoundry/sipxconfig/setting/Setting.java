@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 /**
  * Base class for all items describing and using setting.  
  */    
@@ -189,5 +191,18 @@ public class Setting implements Cloneable {
             throw new UnsupportedOperationException("Immutable copy, you must " 
                     + "call getCopy on root SettingGroup instance");
         }        
+    }
+    
+    public String dump() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(getPath()).append(": ");
+        try {
+            sb.append(BeanUtils.describe(this).toString());
+        } catch (Exception e) {            
+            e.printStackTrace();
+            sb.append(e.toString());
+        }
+        
+        return sb.toString();
     }
 }
