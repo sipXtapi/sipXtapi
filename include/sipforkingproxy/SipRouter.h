@@ -41,9 +41,9 @@ public:
 
    SipRouter(SipUserAgent& sipUserAgent, 
              ForwardRules& forwardingRules,
-             OsBoolean useAuthServer,
+             UtlBoolean useAuthServer,
              const char* authServer,
-             OsBoolean shouldRecordRoute);
+             UtlBoolean shouldRecordRoute);
      //:Default constructor
 
    SipRouter(const SipRouter& rSipRouter);
@@ -58,7 +58,7 @@ public:
    SipRouter& operator=(const SipRouter& rhs);
      //:Assignment operator
 
-   virtual OsBoolean handleMessage(OsMsg& rMsg);
+   virtual UtlBoolean handleMessage(OsMsg& rMsg);
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -70,8 +70,8 @@ protected:
 private:
     SipUserAgent* mpSipUserAgent;
     ForwardRules* mpForwardingRules;
-    OsBoolean mShouldRecordRoute;
-    OsBoolean mAuthEnabled;
+    UtlBoolean mShouldRecordRoute;
+    UtlBoolean mAuthEnabled;
     UtlString mAuthServer;
 };
 

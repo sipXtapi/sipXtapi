@@ -71,7 +71,7 @@ public:
    SipAaa& operator=(const SipAaa& rhs);
      //:Assignment operator
 
-   virtual OsBoolean handleMessage(OsMsg& rMsg);
+   virtual UtlBoolean handleMessage(OsMsg& rMsg);
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -81,12 +81,12 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    OsBoolean isAuthenticated(
+    UtlBoolean isAuthenticated(
         const SipMessage& sipRequest,
         UtlString& authUser,
         SipMessage& authResponse );
 
-    OsBoolean isAuthorized (
+    UtlBoolean isAuthorized (
         const SipMessage& sipRequest,
         const ResultSet& permissions, 
         const char* authUser,

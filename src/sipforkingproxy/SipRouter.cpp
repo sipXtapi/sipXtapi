@@ -33,9 +33,9 @@
 // Constructor
 SipRouter::SipRouter(SipUserAgent& sipUserAgent, 
                      ForwardRules& forwardingRules,
-                     OsBoolean useAuthServer,
+                     UtlBoolean useAuthServer,
                      const char* authServer,
-                     OsBoolean shouldRecordRoute) :
+                     UtlBoolean shouldRecordRoute) :
    OsServerTask("SipRouter-%d", NULL, 2000)
 {
    mpSipUserAgent = &sipUserAgent;
@@ -78,7 +78,7 @@ SipRouter::~SipRouter()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
+UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 {
 	int msgType = eventMessage.getMsgType();
 	// int msgSubType =
@@ -108,7 +108,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
             else
             {
                 UtlString firstRouteUri;
-                OsBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
+                UtlBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
                 // If there is a route header just send it on its way
                 if(routeExists)
                 {
@@ -121,10 +121,10 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                     sipRequest->getRequestUri(&requestUri);
                     Url routeUrlParser(requestUri, TRUE);
                     UtlString dummyValue;
-                    OsBoolean previousHopStrictRoutes = routeUrlParser.getUrlParameter("lr", dummyValue, 0);
-                    OsBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
+                    UtlBoolean previousHopStrictRoutes = routeUrlParser.getUrlParameter("lr", dummyValue, 0);
+                    UtlBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
                     Url firstRouteUriUrl(firstRouteUri);
-                    OsBoolean firstRouteIsMe = mpSipUserAgent->isMyHostAlias(firstRouteUriUrl);
+                    UtlBoolean firstRouteIsMe = mpSipUserAgent->isMyHostAlias(firstRouteUriUrl);
 
                     // If the URI is not this server and the
                     // URI is not marked as a loose route and

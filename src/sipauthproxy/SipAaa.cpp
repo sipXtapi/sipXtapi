@@ -140,7 +140,7 @@ SipAaa::~SipAaa()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsBoolean
+UtlBoolean
 SipAaa::handleMessage( OsMsg& eventMessage )
 {
     int msgType = eventMessage.getMsgType();
@@ -183,10 +183,10 @@ SipAaa::handleMessage( OsMsg& eventMessage )
             {
                 UtlString myRouteUri;
                 UtlString targetUri;
-                OsBoolean isNextHop = FALSE;
+                UtlBoolean isNextHop = FALSE;
                 UtlString nextHopUri;
                 UtlString firstRouteUri;
-                OsBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
+                UtlBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
                 // If there is a route header just send it on its way
                 if ( routeExists )
                 {
@@ -199,11 +199,11 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     sipRequest->getRequestUri(&requestUri);
                     Url routeUrlParser(requestUri, TRUE);
                     UtlString dummyValue;
-                    OsBoolean previousHopStrictRoutes =
+                    UtlBoolean previousHopStrictRoutes =
                         routeUrlParser.getUrlParameter( "lr", dummyValue, 0 );
-                    OsBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
+                    UtlBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
                     Url firstRouteUriUrl(firstRouteUri);
-                    OsBoolean firstRouteIsMe = mpSipUserAgent->isMyHostAlias(firstRouteUriUrl);
+                    UtlBoolean firstRouteIsMe = mpSipUserAgent->isMyHostAlias(firstRouteUriUrl);
 
                     // If the URI is not this server and the
                     // URI is not marked as a loose route and
@@ -359,9 +359,9 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
                 // If there is a route to me and this is not
                 // the inital call setup (e.g. to tag is set)
-                OsBoolean routeSignatureIsValid = FALSE;
-                OsBoolean toMatches = FALSE;
-                OsBoolean fromMatches = FALSE;
+                UtlBoolean routeSignatureIsValid = FALSE;
+                UtlBoolean toMatches = FALSE;
+                UtlBoolean fromMatches = FALSE;
                 UtlString routePermission;
                 UtlString routeTag;
                 UtlString routeSignature;
@@ -411,7 +411,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
                 // Check if we need to authenticate and authorize the originator.
                 ResultSet permissions;
-                OsBoolean isPstnNumber;
+                UtlBoolean isPstnNumber;
                 // We do not authenticate ACKs
                 if (mpAuthorizationRules &&
                     method.compareTo(SIP_ACK_METHOD) != 0)
@@ -488,10 +488,10 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     }
                 }
 
-                OsBoolean needsAuthentication;
+                UtlBoolean needsAuthentication;
                 // We always have to route now so that we can sign
                 // the route
-                OsBoolean needsRecordRouting = TRUE;
+                UtlBoolean needsRecordRouting = TRUE;
                 if(permissions.getSize() > 0)
                 {
                     needsRecordRouting = TRUE;
@@ -593,7 +593,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         // a little smaller to avoid UDP fragmentation which cause
                         // a problem with Cisco phones.
                         UtlString previousRRoute;
-                        OsBoolean newRRouteIsUnique = TRUE;
+                        UtlBoolean newRRouteIsUnique = TRUE;
                         if(sipRequest->getRecordRouteUri(0, &previousRRoute))
                         {
                             // If the host, port and user ID are the same the
@@ -668,12 +668,12 @@ SipAaa::operator=(const SipAaa& rhs)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-OsBoolean SipAaa::isAuthenticated(
+UtlBoolean SipAaa::isAuthenticated(
     const SipMessage& sipRequest,
     UtlString& authUser,
     SipMessage& authResponse)
 {
-    OsBoolean authenticated = FALSE;
+    UtlBoolean authenticated = FALSE;
     UtlString requestUser;
     UtlString requestRealm;
     UtlString requestNonce;
@@ -838,7 +838,7 @@ OsBoolean SipAaa::isAuthenticated(
     return(authenticated);
 }
 
-OsBoolean
+UtlBoolean
 SipAaa::isAuthorized (
     const SipMessage& sipRequest,
     const ResultSet& requiredPermissions,
@@ -846,7 +846,7 @@ SipAaa::isAuthorized (
     SipMessage& authResponse,
     UtlString& matchedPermission)
 {
-    OsBoolean authorized = FALSE;
+    UtlBoolean authorized = FALSE;
     UtlString unMatchedPermissions;
 
     UtlString userUrlString(authUser ? authUser : "");

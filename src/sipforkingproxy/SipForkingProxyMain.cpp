@@ -65,7 +65,7 @@ extern "C" {
 }
 
 // GLOBALS
-OsBoolean gShutdownFlag = FALSE;
+UtlBoolean gShutdownFlag = FALSE;
 
 /**
  * Description:
@@ -300,7 +300,7 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString logLevel;               // Controls Log Verbosity
    UtlString consoleLogging;         // Enable console logging by default?
    UtlString fileTarget;             // Path to store log file.
-   OsBoolean bSpecifiedDirError ;   // Set if the specified log dir does not 
+   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not 
                                     // exist
    struct tagPrioriotyLookupTable
    {
@@ -443,7 +443,7 @@ main(int argc, char* argv[])
 #endif
 
     UtlString argString;
-    OsBoolean interactiveSet = false;
+    UtlBoolean interactiveSet = false;
 
     for(int argIndex = 1; argIndex < argc; argIndex++)
     {
@@ -560,7 +560,7 @@ main(int argc, char* argv[])
     osPrintf("SIP_PROXY_TCP_PORT : %d\n", proxyTcpPort);
 
     configDb.get("SIP_PROXY_RECORD_ROUTE", proxyRecordRoute);
-    OsBoolean recordRouteEnabled = FALSE;
+    UtlBoolean recordRouteEnabled = FALSE;
     proxyRecordRoute.toLower();
     if(proxyRecordRoute.compareTo("enable") == 0)
     {
@@ -581,7 +581,7 @@ main(int argc, char* argv[])
         branchTimeout = 24;
     }
 
-    OsBoolean authEnabled = TRUE;
+    UtlBoolean authEnabled = TRUE;
     UtlString authServerEnabled;
     configDb.get("SIP_PROXY_USE_AUTH_SERVER", authServerEnabled);
     authServerEnabled.toLower();
@@ -690,7 +690,7 @@ main(int argc, char* argv[])
     UtlString recurseOnlyOne300String;
     configDb.get("SIP_PROXY_SPECIAL_300", recurseOnlyOne300String);
     recurseOnlyOne300String.toLower();
-    OsBoolean recurseOnlyOne300 = FALSE;
+    UtlBoolean recurseOnlyOne300 = FALSE;
     if(recurseOnlyOne300String.compareTo("enable") == 0) 
     {
         recurseOnlyOne300 = TRUE;
@@ -727,7 +727,7 @@ main(int argc, char* argv[])
     ForwardRules forwardingRules;
 
     OsFile ruleFile(fileName);
-    OsBoolean useDefaultRules = FALSE;
+    UtlBoolean useDefaultRules = FALSE;
     if(ruleFile.exists())
     {
         if(OS_SUCCESS != forwardingRules.loadMappings(fileName))

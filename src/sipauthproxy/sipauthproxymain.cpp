@@ -53,8 +53,8 @@ extern "C" {
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 OsServerTask* pServerTask   = NULL;
-OsBoolean     gShutdownFlag = FALSE;
-OsBoolean     gClosingIMDB  = FALSE;
+UtlBoolean     gShutdownFlag = FALSE;
+UtlBoolean     gClosingIMDB  = FALSE;
 OsMutex       gLockMutex (OsMutex::Q_FIFO);
 
 /* ============================ FUNCTIONS ================================= */
@@ -134,7 +134,7 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString logLevel;               // Controls Log Verbosity
    UtlString consoleLogging;         // Enable console logging by default?
    UtlString fileTarget;             // Path to store log file.
-   OsBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
+   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
    struct tagPrioriotyLookupTable
    {
@@ -230,7 +230,7 @@ void initSysLog(OsConfigDb* pConfig)
    //
    // Get/Apply console logging
    //
-   OsBoolean bConsoleLoggingEnabled = false ;
+   UtlBoolean bConsoleLoggingEnabled = false ;
    if ((pConfig->get(CONFIG_SETTING_LOG_CONSOLE, consoleLogging) ==
          OS_SUCCESS))
    {
@@ -273,7 +273,7 @@ main( int argc, char* argv[] )
     pt_signal(SIGUSR2,  sigHandler); 
 #endif
 
-   OsBoolean interactiveSet = false;
+   UtlBoolean interactiveSet = false;
    UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
@@ -398,7 +398,7 @@ main( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_AUTHENTICATE_REALM : %s", realm.data());
     osPrintf("SIP_AUTHPROXY_AUTHENTICATE_REALM : %s\n", realm.data());
 
-    OsBoolean authEnabled;
+    UtlBoolean authEnabled;
     UtlString authScheme;
     configDb.get("SIP_AUTHPROXY_AUTHENTICATE_SCHEME", authScheme);
     authScheme.toLower();
@@ -505,7 +505,7 @@ main( int argc, char* argv[] )
     //osPrintf("SIP_AUTHPROXY_DNSSRV_TIMEOUT : %d\n", dnsSrvTimeout);
 
     //configDb.get("SIP_AUTHPROXY_RECORD_ROUTE", proxyRecordRoute);
-    //OsBoolean recordRouteEnabled = FALSE;
+    //UtlBoolean recordRouteEnabled = FALSE;
     //proxyRecordRoute.toLower();
     //if(proxyRecordRoute.compareTo("enable") == 0)
     //{

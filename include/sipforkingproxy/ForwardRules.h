@@ -16,7 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include <os/OsDefs.h>
+#include "utl/UtlString.h"
 #include "os/OsStatus.h"
 #include "xmlparser/tinyxml.h"
 
@@ -32,6 +32,7 @@
 #define XML_TAG_FIELDPATTERN        "fieldPattern"
 #define XML_TAG_ROUTETO             "routeTo"
 
+class UtlString;
 class TiXmlNode;
 class Url;
 class SipMessage;

@@ -269,7 +269,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
       testPort = 0;
    }
    
-   OsBoolean routeMatchFound = false;
+   UtlBoolean routeMatchFound = false;
    OsStatus methodMatchFound = OS_FAILED;
    
   	TiXmlElement* routesElement = routesNode->ToElement();
@@ -362,7 +362,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
 {
  
    OsStatus fieldMatchFound = OS_FAILED;
-   OsBoolean methodMatchFound = false;
+   UtlBoolean methodMatchFound = false;
    UtlString method;
    request.getRequestMethod(&method);
 
@@ -465,7 +465,7 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
 {
   
    OsStatus getRouteFound = OS_FAILED;
-   OsBoolean fieldPatternFound = false;
+   UtlBoolean fieldPatternFound = false;
 
    TiXmlNode* fieldMatchNode = previousFieldMatchNode;
 
@@ -473,8 +473,8 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
       && (getRouteFound != OS_SUCCESS)   ) 
    {
 
-      OsBoolean fieldNameMatches = false;
-      OsBoolean noFieldPatternRequired = false;
+      UtlBoolean fieldNameMatches = false;
+      UtlBoolean noFieldPatternRequired = false;
 
       if(fieldMatchNode && fieldMatchNode->Type() != TiXmlNode::ELEMENT)
       {
@@ -489,7 +489,7 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
 
       TiXmlElement* fieldMatchElement  = fieldMatchNode->ToElement();
       TiXmlNode* fieldPatternNode = NULL;
-      OsBoolean fieldPatternPresent = false;
+      UtlBoolean fieldPatternPresent = false;
       UtlString fieldName;
       const char* fieldValuePtr = NULL;
 
