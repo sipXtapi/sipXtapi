@@ -26,4 +26,6 @@ then
   done
 fi
 
+echo $$ > @localstatedir@/run/sipauthproxy.pid
+
 exec @bindir@/sipauthproxy $@

@@ -25,4 +25,6 @@ then
   done
 fi
 
+echo $$ > @localstatedir@/run/sipproxy.pid
+
 exec @bindir@/sipproxy $@
