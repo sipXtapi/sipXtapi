@@ -32,101 +32,60 @@
 		</table>
                    <textarea name="content" rows="35" cols="75" readonly="readonly">
                     
-&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"? &gt;
-<!--
-  - Fallback Rules
-  -   These rules are invoked _only_ when no other redirection
-  -   mechanism has found a way to complete the call (it does not
-  -   match any locally configured extensions or aliases).
-  - 
-  -   Typically, this means that it is a call to an external
-  -   address, and needs to be routed to either another more 
-  -   knowledgeable call router, or a PSTN gateway.
-  - 
-  -   These examples are based on typical North American dialing
-  -   patterns - 3 digit area codes followed by 7 local digits.
-  -
-  -   They assume that the the phone has not modified the digits
-  -   dialled by the user, and that the gateway will just dial 
-  -   what it is sent.
-  -
-  -   The digit '9' is supported here as a prefix meaning that
-  -   the call is an outside number, although the length of the 
-  -   digit string is also sufficient to determine that.
-  -->
-<mappings>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 
-  <hostMatch>
+&lt;mappings&gt;
+  &lt;hostMatch&gt;
 
-    <!-- match local domains only 
-      -  (non-local domains will be routed via DNS)
-      -->
-    <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
-    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
-    <hostPattern>${MY_HOSTNAME}</hostPattern>
-    <hostPattern>${MY_IP_ADDR}</hostPattern>
+    &lt;hostPattern&gt;${SIPXCHANGE_DOMAIN_NAME}&lt;/hostPattern&gt;
+    &lt;hostPattern&gt;${MY_FULL_HOSTNAME}&lt;/hostPattern&gt;
+    &lt;hostPattern&gt;${MY_HOSTNAME}&lt;/hostPattern&gt;
+    &lt;hostPattern&gt;${MY_IP_ADDR}&lt;/hostPattern&gt;
 
+    &lt;userMatch&gt;
+      &lt;userPattern&gt;operator&lt;/userPattern&gt;
+      &lt;userPattern&gt;100&lt;/userPattern&gt;
+      &lt;userPattern&gt;0&lt;/userPattern&gt;
 
-    <!-- Emergency dialing.  Allow both "911" and "9911". -->
+      &lt;permissionMatch&gt;
+        &lt;transform&gt;
+          &lt;url&gt;&amp;lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant&amp;gt;&lt;/url&gt;
+        &lt;/transform&gt;
+      &lt;/permissionMatch&gt;
 
-    <userMatch>
-      <userPattern>sos</userPattern>
-      <userPattern>911</userPattern>
-      <userPattern>9911</userPattern>
-      <permissionMatch>
-        <transform>
-          <url>sip:911@${GW_EMERGENCY_DIALING_ADDR}</url>
+    &lt;/userMatch&gt;
+    &lt;userMatch&gt;
+      &lt;userPattern&gt;101&lt;/userPattern&gt;
+      &lt;permissionMatch&gt;
+        &lt;transform&gt;
 
-        </transform>
-      </permissionMatch>
-    </userMatch>
+          &lt;url&gt;&amp;lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve%26mailbox%3D{digits}&amp;gt;&lt;/url&gt;
+        &lt;/transform&gt;
+      &lt;/permissionMatch&gt;
+    &lt;/userMatch&gt;
+    &lt;userMatch&gt;
 
+      &lt;userPattern&gt;2xxx&lt;/userPattern&gt;
+      &lt;permissionMatch&gt;
+        &lt;transform&gt;
+          &lt;url&gt;&amp;lt;sip:{vdigits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits}&amp;gt;&lt;/url&gt;
 
-    <!-- 800 number dialing.  Allow optional "1" or "91" prefixes. -->
-    <userMatch>
-      <userPattern>91800xxxxxxx</userPattern>
-      <userPattern>1800xxxxxxx</userPattern>
+        &lt;/transform&gt;
+      &lt;/permissionMatch&gt;
+    &lt;/userMatch&gt;
+    &lt;userMatch&gt;
+      &lt;userPattern&gt;xxx&lt;/userPattern&gt;
 
-      <userPattern>800xxxxxxx</userPattern>
-      <permissionMatch>
-        <transform>
-          <user>1800{vdigits}</user>
-          <host>${GW_800_DIALING_ADDR}</host>
-        </transform>
-      </permissionMatch>
+      &lt;permissionMatch&gt;
+        &lt;permission&gt;Voicemail&lt;/permission&gt;
+        &lt;transform&gt;
+          &lt;url&gt;&amp;lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&amp;gt;;q=0.1&lt;/url&gt;
 
-    </userMatch>
-
-
-    <!-- 877 number dialing.  Allow optional "1" or "91" prefixes. -->
-    <userMatch>
-      <userPattern>91877xxxxxxx</userPattern>
-      <userPattern>1877xxxxxxx</userPattern>
-      <userPattern>877xxxxxxx</userPattern>
-
-      <permissionMatch>
-        <transform>
-          <user>1877{vdigits}</user>
-          <host>${GW_800_DIALING_ADDR}</host>
-        </transform>
-      </permissionMatch>
-    </userMatch>
-
-    <!-- 888 number dialing.  Allow optional "1" or "91" prefixes. -->
-    <userMatch>
-      <userPattern>91888xxxxxxx</userPattern>
-      <userPattern>1888xxxxxxx</userPattern>
-      <userPattern>888xxxxxxx</userPattern>
-      <permissionMatch>
-        <transform>
-
-          <user>1888{vdigits}</user>
-          <host>${GW_800_DIALING_ADDR}</host>
-        </transform>
-      </permissionMatch>
-    </userMatch>
-  </hostMatch>
-</mappings>
+        &lt;/transform&gt;
+      &lt;/permissionMatch&gt;
+    &lt;/userMatch&gt;
+  &lt;/hostMatch&gt;
+&lt;/mappings&gt;
 					</textarea> 
 		<ul class="table-actions">
 			<li>
