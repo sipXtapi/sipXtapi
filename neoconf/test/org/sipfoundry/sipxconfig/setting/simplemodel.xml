@@ -13,6 +13,7 @@
 			<label>Label</label>
 		</meta>
 		<meta name="type">
+			<label>Type</label>
 			<enum>
 				<element>public</element>
 				<element>private</element>

@@ -19,12 +19,31 @@ import org.apache.commons.collections.map.LinkedMap;
 
 /**
  * Meta information about a group of settings, can contain nested
- * SettingModels
+ * SettingModels.  Order is preserved
  */
 public class SettingModel extends SettingMeta {
     
-    private Map m_delegate = new LinkedMap();
+    private LinkedMap m_delegate = new LinkedMap();
+
+    /**
+     * Create the top most model
+     */
+    public SettingModel() {
+        super("root");
+    }
     
+    public SettingModel(String name) {
+        super(name);
+    }
+
+    /**
+     * the nth item that was added to this model
+     */
+    public SettingMeta getMeta(int index) {
+        Object key = m_delegate.get(index);
+        return (SettingMeta) (key != null ? m_delegate.get(key) : null);
+    }
+
     /**
      * M A P  I M P L E M E N T A T I O N
      */

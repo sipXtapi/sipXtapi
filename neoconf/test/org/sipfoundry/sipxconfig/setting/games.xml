@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<model name="chess">
+		<model name="color">
+			<meta name="black"/>
+			<meta name="white"/>
+        </model>
+		<model name="piece">
+			<meta name="pawn"/>
+			<meta name="castle"/>
+			<meta name="horse"/>
+			<meta name="bishop"/>
+			<meta name="queen"/>
+			<meta name="king"/>
+		</model>
+	</model>
+	<model name="cards">
+		<model name="suit">
+			<meta name="spades"/>
+			<meta name="clubs"/>
+			<meta name="diamonds"/>
+			<meta name="hearts"/>
+		</model>
+		<model name="card">
+			<meta name="A"/>
+			<meta name="2"/>
+			<meta name="3"/>
+			<meta name="4"/>
+			<meta name="5"/>
+			<meta name="6"/>
+			<meta name="7"/>
+			<meta name="8"/>
+			<meta name="9"/>
+			<meta name="10"/>
+			<meta name="J"/>
+			<meta name="Q"/>
+			<meta name="K"/>
+		</model>
+	</model>
+</model>

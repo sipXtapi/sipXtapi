@@ -13,9 +13,9 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 /**
  * Meta Information about a Setting.
@@ -32,14 +32,39 @@ public class SettingMeta implements Map {
 
     private String m_defaultValue;
 
-    public void addMeta(SettingMeta meta) {
-        put(meta.getName(), meta);
+    private List m_possibleValues;
+    
+    /**
+     * bean access only, must set name before valid object
+     */
+    public SettingMeta() {        
     }
     
+    public SettingMeta(String name) {
+        setName(name);
+    }
+
+    /**
+     * @return null always
+     */
+    public SettingMeta getMeta(int index_) {
+        return null;
+    }
+
+    /**
+     * @param meta setting or settingmodel to be added to hashmap 
+     * @return object passed in for convienence.  does not pass 
+     *         replaced object if there was one
+     */
+    public SettingMeta addMeta(SettingMeta meta) {
+        put(meta.getName(), meta);
+        return meta;
+    }
+
     public SettingMeta getMeta(String name) {
         return (SettingMeta) get(name);
     }
-
+    
     public String getDefaultValue() {
         return m_defaultValue;
     }
@@ -80,7 +105,15 @@ public class SettingMeta implements Map {
         m_type = type;
     }
 
-    /**
+    public List addPossibleValues() {
+        return m_possibleValues;
+    }
+
+    public void setPossibleValues(List possibleValues) {
+        m_possibleValues = possibleValues;
+    }
+
+    /*
      * M A P  I M P L E M E N T A T I O N
      */
 
@@ -129,4 +162,8 @@ public class SettingMeta implements Map {
     public Object put(Object key_, Object value_) {
         return null;
     }
+
+    /*
+     *  E N D  M A P I M P L E M E N T A T I O N
+     */
 }
