@@ -50,8 +50,8 @@ public class CallSequence extends BeanWithId {
         return ring;
     }
 
-    public void removeRing(Integer ringId) {
-        int index = m_calls.indexOf(new BeanWithId(ringId));
+    public void removeRing(Ring ringToRemove) {
+        int index = m_calls.indexOf(ringToRemove);
         m_calls.remove(index);
         for (int i = index; i < m_calls.size(); i++) {
             Ring ring = (Ring) m_calls.get(i);

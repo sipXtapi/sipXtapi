@@ -12,4 +12,9 @@
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>
     </component>
+    
+    <component id="userCallForwarding" type="ExternalLink">
+        <static-binding name="page" value="UserCallForwarding"/>
+        <static-binding name="parameters" value="4"/>
+    </component>
 </page-specification>

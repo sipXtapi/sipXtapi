@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -28,36 +29,76 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 /**
  * UserCallForwarding
  */
-public abstract class UserCallForwarding extends BasePage  implements PageRenderListener {
-    
+public abstract class UserCallForwarding extends BasePage implements IExternalPage,
+        PageRenderListener {
+    private static final String ACTION_ADD = "add";
+    private static final String ACTION_APPLY = "apply";
+
     public abstract ForwardingContext getForwardingContext();
-    
-    // FIXME: implement for a specific user
-    public CallSequence getCallSequence() {
-        ForwardingContext forwardingContext = getForwardingContext();
-        return forwardingContext.getCallSequenceForUser(null);
-    }
-    
+
+    public abstract CallSequence getCallSequence();
+
+    public abstract void setCallSequence(CallSequence callSequence);
+
     public abstract ListEditMap getRingsMap();
+
     public abstract void setRingsMap(ListEditMap map);
 
     public abstract Ring getRing();
+
     public abstract void setRing(Ring ring);
 
+    public abstract int getUserId();
+
+    public abstract void setUserId(int userId);
+
+    public abstract String getAction();
+
+    public void activateExternalPage(Object[] parameters, IRequestCycle cycle_) {
+        String userIdAsString = (String) parameters[0];
+        int userId = Integer.parseInt(userIdAsString);
+        setUserId(userId);
+    }
 
     public void pageBeginRender(PageEvent event_) {
         CallSequence callSequence = getCallSequence();
-        Collection calls = callSequence.getCalls();
+        if (null == callSequence) {
+            ForwardingContext forwardingContext = getForwardingContext();
+            int userId = getUserId();
+            callSequence = forwardingContext.getCallSequenceForUserId(userId);
+            setCallSequence(callSequence);
+        }
+        ListEditMap map = createListEditMap(callSequence);
+        setRingsMap(map);
+    }
+
+    /**
+     * Creates edit map for a collection of rings
+     * 
+     * @param callSequence
+     * @return newly created map
+     */
+    private ListEditMap createListEditMap(CallSequence callSequence) {
         ListEditMap map = new ListEditMap();
+        Collection calls = callSequence.getCalls();
         for (Iterator i = calls.iterator(); i.hasNext();) {
             BeanWithId bean = (BeanWithId) i.next();
             map.add(bean.getId(), bean);
         }
-        setRingsMap(map);
+        return map;
     }
-    
-    public void apply(IRequestCycle cycle_) {
-        if (TapestryUtils.isValid(this)) {
+
+    public void submit(IRequestCycle cycle_) {
+        if (!TapestryUtils.isValid(this)) {
+            // do nothing on errors
+            return;
+        }
+        if (ACTION_ADD.equals(getAction())) {
+            CallSequence callSequence = getCallSequence();
+            callSequence.insertRing();
+            getForwardingContext().saveCallSequence(getCallSequence());
+        }
+        if (ACTION_APPLY.equals(getAction())) {
             getForwardingContext().saveCallSequence(getCallSequence());
         }
     }
@@ -76,15 +117,11 @@ public abstract class UserCallForwarding extends BasePage  implements PageRender
         }
     }
 
-    public void addRing(IRequestCycle cycle_) {
-        CallSequence callSequence = getCallSequence();
-        callSequence.insertRing();
-    }
-
     public void deleteRing(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
                 .getServiceParameters(), 0);
-        CallSequence callSequence = getCallSequence();
-        callSequence.removeRing(id);
+        Ring ring = getForwardingContext().getRing(id);
+        CallSequence callSequence = ring.getCallSequence();
+        callSequence.removeRing(ring);
     }
 }

@@ -76,7 +76,7 @@ public class ForwardingContextImplTestDb extends TestCase {
         ring2.setNumber("33");
 
         Ring ring1 = (Ring) calls.get(1);
-        callSequence.removeRing(ring1.getId());
+        callSequence.removeRing(ring1);
 
         try {
             m_context.saveCallSequence(callSequence);
@@ -118,4 +118,22 @@ public class ForwardingContextImplTestDb extends TestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
         Assertion.assertEquals(expected, actual);
     }
+
+
+    public void testAddRing() throws Exception {
+        User user = m_coreContext.loadUser(4);
+        CallSequence callSequence = m_context.getCallSequenceForUser(user);
+
+
+        Ring ring = callSequence.insertRing();
+        ring.setNumber("999999");
+
+        m_context.saveCallSequence(callSequence);
+        m_context.flush();
+
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
+        assertEquals( "999999", actual.getValue(0, "Number"));
+        assertEquals( new Integer(3), actual.getValue(0, "Position"));
+    }
+
 }

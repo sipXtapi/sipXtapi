@@ -34,8 +34,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
      * @param user for which CallSequence object is retrieved
      */
     public CallSequence getCallSequenceForUser(User user) {
-        HibernateTemplate hibernate = getHibernateTemplate();
-        return (CallSequence) hibernate.load(CallSequence.class, new Integer(user.getId()));
+        return getCallSequenceForUserId(user.getId());
     }
 
     public void saveCallSequence(CallSequence callSequence) {
@@ -45,4 +44,16 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public void flush() {
         getHibernateTemplate().flush();
     }
+
+    public CallSequence getCallSequenceForUserId(int userId) {
+        HibernateTemplate hibernate = getHibernateTemplate();
+        return (CallSequence) hibernate.load(CallSequence.class, new Integer(userId));
+    }
+
+    public Ring getRing(Integer id) {
+        HibernateTemplate hibernate = getHibernateTemplate();
+        return (Ring) hibernate.load(Ring.class, id);
+    }
+    
+    
 }

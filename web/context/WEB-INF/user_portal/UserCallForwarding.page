@@ -12,7 +12,13 @@
         
     <property-specification name="ringsMap" type="org.apache.tapestry.form.ListEditMap"/>
     
+    <property-specification name="callSequence" type="org.sipfoundry.sipxconfig.admin.forwarding.CallSequence"/>
+    
     <property-specification name="ring" type="org.sipfoundry.sipxconfig.admin.forwarding.Ring"/>
+    
+    <property-specification name="action" type="java.lang.String"/>
+    
+    <property-specification name="userId" type="int" persistent="yes"/>
     
      <!--
      - B E A N S
@@ -24,14 +30,11 @@
      -->
     <component id="form" type="Form">
         <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.submit"/>
     </component>
 
     <component id="errors" type="ErrorMsg"/>
     
-    <component id="addRingLink" type="LinkSubmit">
-        <binding name="listener" expression="listeners.addRing"/>
-    </component>
-        
 	<component id="rings" type="ListEdit">
         <binding name="source" expression="ringsMap.keys"/>
         <binding name="value" expression="ringsMap.key"/>
@@ -43,8 +46,13 @@
         <binding name="ring" expression="ring"/>
     </component>
     
-    <component id="apply" type="Submit">
-        <binding name="listener" expression="listeners.apply"/>
+    <component id="addRingLink" type="LinkSubmit">
+        <binding name="selected" expression="action"/>        
+        <static-binding name="tag" value="add"/>
     </component>
-            
+        
+    <component id="apply" type="Submit">
+        <binding name="selected" expression="action"/>        
+        <static-binding name="tag" value="apply"/>
+    </component>   
 </page-specification>
