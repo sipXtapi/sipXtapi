@@ -62,7 +62,7 @@ dist dist-all: distdir
 	$(am__remove_distdir)
 
 .PHONY : rpm
-rpm: dist
+rpm: clean dist
 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
 	mv -f /usr/src/redhat/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
 	mv -f /usr/src/redhat/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .

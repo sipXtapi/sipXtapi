@@ -74,12 +74,12 @@ rm -rf $RPM_BUILD_ROOT
 @JBOSS_HOME@/jboss/lib/ext/*.jar
 
 # Because of generation of data and profiles
-%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone
-%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/applications
-%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/catalog
-%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}
-%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/docroot
-%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/tftproot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/applications
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/catalog
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/docroot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/tftproot
 
 # Because of generation of config files via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx

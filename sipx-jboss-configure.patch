@@ -67,7 +67,7 @@
  # tomcat.sessionid.randomclass=java.util.Random
 +
 +java.security.manager=java.lang.SecurityManager
-+java.security.policy=/usr/etc/sipxpbx/security.policy
++java.security.policy=../conf/catalina/server.policy
 +pds.debug=false
 --- JBoss-2.4.10_Tomcat-4.0.6/jboss/bin/run.sh.orig	2004-08-31 10:08:46.000000000 -0400
 +++ JBoss-2.4.10_Tomcat-4.0.6/jboss/bin/run.sh	2004-08-31 10:13:43.000000000 -0400
