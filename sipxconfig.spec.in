@@ -3,7 +3,7 @@ Version: @VERSION@
 Release: 1
 
 Summary: Configuration Managment for SIP base Phones
-Copyright: LGPL
+License: LGPL
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
@@ -70,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog
 %attr(755,root,root) %{_bindir}
-%attr(755,root,root) %{_libdir}/lib*.so*
+%attr(755,root,root) %{_libdir}/libXconfig.so*
 %{_libdir}/lib*.la
 @JBOSS_HOME@/jboss/deploy/profilegenerator.ear
 @JBOSS_HOME@/jboss/lib/ext/*.jar
