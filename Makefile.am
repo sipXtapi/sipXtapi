@@ -73,5 +73,3 @@ rpm: dist
 # RPM Spec file
 sipxproxy.spec : sipxproxy.spec.in
 	$(edit) $(srcdir)/sipxproxy.spec.in > sipxproxy.spec
-
-
