@@ -814,9 +814,18 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
             Collection userCSC = mConfigurationSetHome.findByUserID( user.getID () );
             for ( Iterator iCSC = userCSC.iterator(); iCSC.hasNext(); )
+            {
                 cs = (ConfigurationSet) iCSC.next();
-
-            Document doc = mSaxBuilder.build(new InputSource(new StringReader(cs.getContent())));
+            }
+            
+            if( null == cs )
+            {
+                logError("No configuration sets for user: " + displayID);
+                return;
+            }
+            
+            String xmlContent = cs.getContent();
+            Document doc = mSaxBuilder.build(new StringReader(xmlContent));
 
             Element profile = doc.getRootElement();
 
