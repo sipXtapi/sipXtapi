@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  */
 public class FallbackRulesTest extends XMLTestCase {
     public FallbackRulesTest() {
-        TransformTest.setNamespaceAware(false);
+        XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
     }
 
@@ -61,7 +61,11 @@ public class FallbackRulesTest extends XMLTestCase {
         mappingRules.generate(rule);
 
         Document document = mappingRules.getDocument();
-        String domDoc = TransformTest.asString(document);
+
+        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+
+        String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
@@ -85,7 +89,11 @@ public class FallbackRulesTest extends XMLTestCase {
         mappingRules.generate(rule);
 
         Document document = mappingRules.getDocument();
-        String domDoc = TransformTest.asString(document);
+
+        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+
+        String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathNotExists("/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch", domDoc);

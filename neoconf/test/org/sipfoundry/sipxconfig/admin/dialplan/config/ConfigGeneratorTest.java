@@ -72,9 +72,9 @@ public class ConfigGeneratorTest extends XMLTestCase {
         generator.activate(tmpDir);
         
         File[] files = new File[3];
-        files[0] = new File(tmpDir, "mappingrules.xml.in.new");
-        files[1] = new File(tmpDir, "fallbackrules.xml.in.new");
-        files[2] = new File(tmpDir, "authrules.xml.in.new");
+        files[0] = new File(tmpDir, "mappingrules.xml.in");
+        files[1] = new File(tmpDir, "fallbackrules.xml.in");
+        files[2] = new File(tmpDir, "authrules.xml.in");
         
         for (int i = 0; i < files.length; i++) {
             File file = files[i];

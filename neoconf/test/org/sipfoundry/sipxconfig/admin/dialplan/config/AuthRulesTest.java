@@ -11,26 +11,30 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 public class AuthRulesTest extends XMLTestCase {
-
+    public AuthRulesTest() {
+        XmlUnitHelper.setNamespaceAware(false);
+        XMLUnit.setIgnoreWhitespace(true);
+    }
+    
     public void testGetDoc() throws Exception {
         AuthRules rules = new AuthRules();
         Document doc = rules.getDocument();
 
-        StringWriter xml = new StringWriter();
-        doc.write(xml);
-        assertXMLEqual("<mappings/>", xml.toString());
+        String xml = XmlUnitHelper.asString(doc);
+        assertXMLEqual("<mappings/>", xml);
     }
 
     public void testGenerate() throws Exception {
@@ -51,8 +55,8 @@ public class AuthRulesTest extends XMLTestCase {
         AuthRules authRules = new AuthRules();
         authRules.generate(rule);
 
-        Document document = authRules.getDocument();
-        org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
+        Document document = authRules.getDocument();        
+        String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
         assertXpathEvaluatesTo("555", "/mappings/hostMatch/userMatch/userPattern", domDoc);
@@ -62,5 +66,13 @@ public class AuthRulesTest extends XMLTestCase {
                 "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
 
         control.verify();
+    }
+    
+    public void testNamespace() {
+        AuthRules rules = new AuthRules();
+        Document doc = rules.getDocument();
+        
+        Element rootElement = doc.getRootElement();
+        XmlUnitHelper.assertElementInNamespace(rootElement, "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00");        
     }
 }

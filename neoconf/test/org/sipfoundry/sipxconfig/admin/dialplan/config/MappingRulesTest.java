@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
  */
 public class MappingRulesTest extends XMLTestCase {
     public MappingRulesTest() {
-        TransformTest.setNamespaceAware(false);
+        XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
     }
 
@@ -43,7 +43,9 @@ public class MappingRulesTest extends XMLTestCase {
         MappingRules mappingRules = new MappingRules();
         Document document = mappingRules.getDocument();
 
-        String xml = TransformTest.asString(document);
+        String xml = XmlUnitHelper.asString(document);
+        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
         assertXpathExists("/mappings/hostMatch/hostPattern", xml);
         assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}", "/mappings/hostMatch/hostPattern",
@@ -71,7 +73,10 @@ public class MappingRulesTest extends XMLTestCase {
     public void testGetHostMatch() throws Exception {
         MappingRules mappingRules = new MappingRules();
         Element hostMatch = mappingRules.getFirstHostMatch();
-        assertSame(mappingRules.getDocument(), hostMatch.getDocument());
+        Document document = mappingRules.getDocument();
+        assertSame(document, hostMatch.getDocument());
+        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
         assertEquals("/*[name()='mappings']/*[name()='hostMatch']", hostMatch.getPath());
     }
 
@@ -105,7 +110,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         Document document = mappingRules.getDocument();
 
-        String domDoc = TransformTest.asString(document);
+        String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathEvaluatesTo("Voicemail",
@@ -132,7 +137,7 @@ public class MappingRulesTest extends XMLTestCase {
         mappingRules.generate(rule);
 
         Document document = mappingRules.getDocument();
-        String domDoc = TransformTest.asString(document);
+        String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathNotExists("/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch", domDoc);

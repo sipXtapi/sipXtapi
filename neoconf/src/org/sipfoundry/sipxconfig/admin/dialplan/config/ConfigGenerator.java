@@ -25,8 +25,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * ConfigGenerator
  */
 public class ConfigGenerator {
-    // TODO: change to new to generate files directly
-    private static final String SUFFIX = ".in.new";
+    private static final String SUFFIX = ".in";
 
     private MappingRules m_mapping;
     private AuthRules m_auth;

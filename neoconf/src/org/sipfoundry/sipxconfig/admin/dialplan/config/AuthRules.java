@@ -16,15 +16,16 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
  * Authorization rule generator.
  * 
- * One dialing rules corresponds to one hostMatch element. All gateways end up
- * in hostPatterns, all dialing patterns are put in userPatterns. Permissions
- * are added to the resulting permissions match code.
+ * One dialing rules corresponds to one hostMatch element. All gateways end up in hostPatterns,
+ * all dialing patterns are put in userPatterns. Permissions are added to the resulting
+ * permissions match code.
  * 
  * <code>
  * <hostMatch>
@@ -38,11 +39,14 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * 
  */
 public class AuthRules extends XmlFile implements ConfigFile {
+    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00";
+
     private Document m_doc;
 
     public AuthRules() {
         m_doc = FACTORY.createDocument();
-        m_doc.addElement("mappings");
+        QName mappingsName = FACTORY.createQName("mappings", NAMESPACE);
+        m_doc.addElement(mappingsName);
     }
 
     public void generate(IDialingRule rule) {

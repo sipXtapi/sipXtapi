@@ -11,17 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.io.IOException;
 import java.io.StringWriter;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
-import org.dom4j.io.DOMWriter;
 
 /**
  * FullTransformTest
@@ -56,7 +52,7 @@ public class TransformTest extends XMLTestCase {
         String url = "<sip:12343@host.domain>";
         transform.setUrl(url);
         transform.addToParent(m_element);
-        org.w3c.dom.Document domDoc = getDomDoc(m_doc);
+        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(m_doc);
         assertXpathEvaluatesTo(url, "test/transform/url", domDoc);
     }
 
@@ -82,7 +78,7 @@ public class TransformTest extends XMLTestCase {
 
         transform.addToParent(m_element);
 
-        org.w3c.dom.Document domDoc = getDomDoc(m_doc);
+        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(m_doc);
 
         assertXpathEvaluatesTo(host, "test/transform/host", domDoc);
         assertXpathEvaluatesTo(user, "test/transform/user", domDoc);
@@ -91,40 +87,5 @@ public class TransformTest extends XMLTestCase {
         assertXpathEvaluatesTo(urlParams[0], "test/transform/urlparams", domDoc);
         assertXpathEvaluatesTo(urlParams[1], "test/transform/urlparams[2]", domDoc);
         assertXpathEvaluatesTo(urlParams[2], "test/transform/urlparams[3]", domDoc);
-    }
-
-    static org.w3c.dom.Document getDomDoc(Document doc) throws Exception {
-        DOMWriter writer = new DOMWriter();
-        return writer.write(doc);
-    }
-
-    static String asString(Document doc) {
-        try {
-            StringWriter writer = new StringWriter();
-            doc.write(writer);
-            return writer.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    static void dumpXml(Document doc) {
-        System.err.println(asString(doc));
-    }
-
-    /**
-     * In most cases where we use the xpath it's easier to ignore namespace than to construct
-     * proper namespace aware XPatch expression
-     * 
-     * @param namespaceAware
-     */
-    static void setNamespaceAware(boolean namespaceAware) {
-        DocumentBuilderFactory testDocumentBuilderFactory = XMLUnit
-                .getTestDocumentBuilderFactory();
-        testDocumentBuilderFactory.setNamespaceAware(namespaceAware);
-
-        DocumentBuilderFactory controlDocumentBuilderFactory = XMLUnit
-                .getControlDocumentBuilderFactory();
-        controlDocumentBuilderFactory.setNamespaceAware(namespaceAware);
     }
 }
