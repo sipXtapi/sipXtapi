@@ -20,13 +20,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.apache.log4j.Category;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.xml.XMLLayout;
 import org.jdom.CDATA;
 import org.jdom.Element;
-import org.jdom.Content;
 import org.jdom.output.XMLOutputter;
 
 /**
@@ -83,7 +81,7 @@ public class PingtelXMLLayout extends XMLLayout {
         eventElement.setAttribute( "task", "" );
 
         // message
-        String message = (String)event.getMessage();
+        String message = event.getRenderedMessage();
 
         if ( event.priority.equals( Priority.DEBUG ) ) {
             // if we are in debug we probably want at least the filename where
