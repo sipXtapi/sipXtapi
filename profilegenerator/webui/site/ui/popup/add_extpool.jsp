@@ -6,8 +6,8 @@
  - and proprietary information.  Disclosure, use or reproduction without
  - written authorization of Pingtel Corp. is prohibited.
  -
- - $File: $
- - $Revision: # $
+ - 
+ - 
  - Author: 
  --%>
  

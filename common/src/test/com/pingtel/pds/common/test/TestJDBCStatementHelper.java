@@ -6,8 +6,8 @@
  * and proprietary information.  Disclosure, use or reproduction without
  * written authorization of Pingtel Corp. is prohibited.
  *
- * $File: //depot/OPENDEV/sipXconfig/common/src/test/com/pingtel/pds/common/test/TestJDBCStatementHelper.java $
- * $Revision: #1 $
+ * 
+ * 
  * Author: 
  */
 

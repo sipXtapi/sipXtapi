@@ -6,8 +6,8 @@
  - and proprietary information.  Disclosure, use or reproduction without
  - written authorization of Pingtel Corp. is prohibited.
  -
- - $File: //depot/main/tools/IDEA/fileTemplates/includes/JSPFileHeader.java $
- - $Revision: #1 $
+ - 
+ - 
  - Author:
  --%>
 <%@ page errorPage="error/error.jsp" %>

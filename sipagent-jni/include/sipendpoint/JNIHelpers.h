@@ -1,4 +1,4 @@
-// $Id: //depot/OPENDEV/sipXconfig/profilepublisher/sipagent-jni/include/sipendpoint/JNIHelpers.h#5 $
+// 
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.

@@ -1,4 +1,4 @@
-// $Id: //depot/OPENDEV/sipXconfig/profilepublisher/sipagent-jni/src/com_pingtel_pds_sds_SipConfigServerAgent.cpp#4 $
+// 
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
