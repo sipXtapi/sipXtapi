@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>sipXconfig</title>
+		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
+	</head>
+	<body id="phone-groups">
+		<div id="component">
+				<div id="help">Here will be hints.</div>
+				<h2>Global Phone Settings</h2>
+				<p>To provide settings that can be shared across all phones of 
+					a particular model. Values explicitly set on individual 
+					phones will override these values.</p>
+				<form action="#">
+                <dl>
+                    <dt>User Preference / Headset Mode</dt> 
+                    <dd>System Default : Hidden, Unchecked</dd>
+                    <dd>Visibility: <select><option></option><option>Visible</option><option>Hidden</option></select></dd>
+                    <dd>Default: <select><option></option><option>Checked</option><option>Unchecked</option></select></dd>
+                    <dd>Internal Name : up.headsetMode</dd>
+                    <dd><b>Description:</b> If checked, the headset will be selected as the preferred transducer
+                            after it's first use until the headset key is pressed again;
+                            otherwise, handsfree will be selected preferentially over the
+                            headset</dd>
+                </dl>
+					<ul class="form-actions">
+						<li>
+						<input type="button" value="Cancel"
+					           onclick="history.go(-1)"/>
+						</li>
+						<li>
+						<input type="button" value="Apply"/>
+						</li>
+						<li>
+						<input type="button" value="OK"
+					           onclick="history.go(-1)"/>
+						</li>
+					</ul>
+				</form>
+		</div>
+	</body>
+</html>

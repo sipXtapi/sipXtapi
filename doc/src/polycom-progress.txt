@@ -21,7 +21,7 @@ U I
 [line]
   - Add Line         0%      5 (as opposed to adding a user)
   - Edit Line       60%      8
-  - Line Settings    0%     10
+  - Line Settings   50%     10
 
  20%  5   - synchronize ui with Damian for proper page standards
  10%  2   - clean up CSS
