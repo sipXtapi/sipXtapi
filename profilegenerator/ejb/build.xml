@@ -72,6 +72,9 @@
 
         <fileset file="${buildVersion.properties}"/>
 
+        <!-- spring setup to neoconf lib -->
+        <fileset file="${beanRefFactory.xml}"/>
+
          <!-- 
            - WARNING: This must be kept upto sync with classpath and what's 
            - included in ear file. if you include more jars in value attribute

@@ -6,16 +6,16 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
+import junit.framework.TestCase;
+
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 
-import junit.framework.TestCase;
-
 /**
- *
+ * Requires Database access.
  */
-public class CoreDaoImplTest extends TestCase {
+public class CoreDaoImplTestDb extends TestCase {
 
     private CoreDao m_dao;
     
@@ -32,12 +32,12 @@ public class CoreDaoImplTest extends TestCase {
         super.setUp();
         
         BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
-        BeanFactoryReference bf = bfl.useBeanFactory("unittest");
+        BeanFactoryReference bf = bfl.useBeanFactory("unittest-db");
         // now use some bean from factory 
         m_dao = (CoreDao) bf.getFactory().getBean("coreDao");
     }
     
-    protected void _tearDown() throws Exception {
+    protected void tearDown() throws Exception {
         if (m_testOrganization != null) {
             m_dao.deleteOrganization(m_testOrganization);
         }
@@ -47,7 +47,7 @@ public class CoreDaoImplTest extends TestCase {
         assertNotNull(m_dao);
     }
     
-    public void _testStore() {        
+    public void testStore() {        
         Organization org = new Organization();
         org.setDnsDomain("coredao.sipfoundry.org");
         org.setName("CoreDaoImplTest");
@@ -71,14 +71,14 @@ public class CoreDaoImplTest extends TestCase {
         m_testPhone = phone;
         
         Line line = new Line();
-        line.setName("sip:joe@coredao.sipfoundry.org");
+        line.setName("joe");
         line.setUser(user);
     }
     
     public void _testLoad() {
         
         // create test data
-        _testStore();
+        testStore();
         
         LogicalPhone load = (LogicalPhone)m_dao.loadLogicalPhone(m_testPhone.getId());
         assertNotNull(load);

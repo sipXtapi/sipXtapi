@@ -13,9 +13,9 @@ package org.sipfoundry.sipxconfig.vendor;
 
 import java.text.MessageFormat;
 
-import org.sipfoundry.sipxconfig.core.CoreDao;
 import org.sipfoundry.sipxconfig.core.LogicalPhone;
 import org.sipfoundry.sipxconfig.core.Phone;
+import org.sipfoundry.sipxconfig.core.SipxConfig;
 
 /**
  * Support for SIP Soft Phone and legacy xpressa
@@ -37,7 +37,7 @@ public class SipxPhone implements Phone {
 
     private String m_id;
     
-    private CoreDao m_dao;
+    private SipxConfig m_sipx;
         
     /**
      * XML filename that describes a particular model's definitions
@@ -80,19 +80,13 @@ public class SipxPhone implements Phone {
         throw new RuntimeException("getProfileSequenceNumber not implemented yet");
     }
     
-    /**
-     * @return Returns the dao.
-     */
-    public CoreDao getCoreDao() {
-        return m_dao;
+    public SipxConfig getSipxConfig() {
+        return m_sipx;
     }
     
-    /**
-     * @param dao The dao to set.
-     */
-    public void setCoreDao(CoreDao dao) {
-        m_dao = dao;
-    }    
+    public void setSipxConfig(SipxConfig sipx) {
+        m_sipx = sipx;
+    }   
 }
 
 

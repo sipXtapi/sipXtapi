@@ -4,7 +4,7 @@
 
 <beans> 
 
-   <bean id="unittest-db"
+   <bean id="org.sipfoundry.sipxconfig.core"
          class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
        <list>
@@ -14,16 +14,5 @@
        </list>
      </constructor-arg>
    </bean>
-
-   <!-- CoreDao must be mocked in unittest -->   
-   <bean id="unittest"
-        class="org.springframework.context.support.ClassPathXmlApplicationContext">
-     <constructor-arg>
-       <list>
-         <value>org/sipfoundry/sipxconfig/core/applicationContext-core.xml</value>
-         <value>PhoneFactory.xml</value>		 
-       </list>
-     </constructor-arg>
-   </bean>		
-   
+      
 </beans>

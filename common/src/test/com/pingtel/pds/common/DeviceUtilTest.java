@@ -18,8 +18,7 @@ import junit.framework.TestCase;
  */
 public class DeviceUtilTest extends TestCase {
     
-    
-    public void testDeviceProfileName() {
+    public void testDeviceProfileName() {        
         String pingerConfig = DeviceNameUtil.getInstance().getDeviceProfileName(
                 PDSDefinitions.PROF_TYPE_PHONE, 
                 PDSDefinitions.MANU_PINGTEL,

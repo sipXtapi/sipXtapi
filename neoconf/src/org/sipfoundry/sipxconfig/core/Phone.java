@@ -21,12 +21,7 @@ public interface Phone {
      * support incrementing
      */
     public static final int SEQUENCE_NUMBER_NOT_SUPPORTED = -1;
-    
-    /**
-     * Configuration context called shortly after instantation
-     */
-    public void setCoreDao(CoreDao dao);
-    
+        
     /**
      * File linking properties to this device
      * 

@@ -4,20 +4,36 @@
 
 <beans> 
 
-   <!-- Alias to profilepublishers real context -->
-   <bean id="unittest" class="java.lang.String">
+   <!-- 
+	 - don't use database when unittesting stuff in this lib
+	 -->	
+   <bean id="org.sipfoundry.sipxconfig.core" class="java.lang.String">
      <constructor-arg>
-       <value>org.sipfoundry.sipxconfig.core</value>
+       <value>unittest</value>
      </constructor-arg>
    </bean>
-	
-   <bean id="org.sipfoundry.sipxconfig.core"
+
+
+   <bean id="unittest-db"
          class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
        <list>
+         <value>org/sipfoundry/sipxconfig/core/applicationContext-coredao.xml</value>
          <value>org/sipfoundry/sipxconfig/core/applicationContext-core.xml</value>
+         <value>PhoneFactory.xml</value>		 
        </list>
      </constructor-arg>
    </bean>
-   
+
+   <!-- CoreDao must be mocked in unittest -->   
+   <bean id="unittest"
+        class="org.springframework.context.support.ClassPathXmlApplicationContext">
+     <constructor-arg>
+       <list>
+         <value>org/sipfoundry/sipxconfig/core/applicationContext-core.xml</value>
+         <value>PhoneFactory.xml</value>		 
+       </list>
+     </constructor-arg>
+   </bean>		
+      
 </beans>

@@ -15,8 +15,7 @@
     -  P R O P E R T I E S
     -
     - EXTERNAL PROPERTIES DEPENDECIES:
-    -  top.build.dir        = top output for all projects
-    -  build.dir            = output for project
+    -  project.dir          = path relative to ant-targets.xml to project
     -  test.classes         = Patterset of explicit junit tests for quick test
     -  regression.classes   = Patterset of explicit junit tests for full regression test 
     -->
@@ -74,7 +73,6 @@
           - that came w/checkstyle 
           -->
         <pathelement location="${antlr.jar}"/>
-
         <pathelement location="${checkstyle-optional.jar}"/>
      </classpath> 
    </taskdef> 

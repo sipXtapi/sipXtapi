@@ -38,6 +38,7 @@ profilegen-soap.jar=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.
 profilegen-tags.jar=${top.build.dir}/profilegenerator/webui/dist/profilegen-tags.jar
 buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
 neoconf.jar=${top.build.dir}/neoconf/dist/neoconf.jar
+beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
 
 # U T I L
 junit.jar=${top.dir}/lib/junit.jar

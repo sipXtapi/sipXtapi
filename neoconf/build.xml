@@ -62,6 +62,7 @@
   	<copy todir="${dest.dir}${jboss.ext}">
   		<fileset file="${spring.jar}"/>
   		<fileset file="${hibernate2.jar}"/>
+  		<fileset file="${odmg.jar}"/>
   	    <fileset file="${commons-logging.jar}"/> 
   	    <fileset file="${commons-dbcp.jar}"/> 
   	    <fileset file="${commons-pool.jar}"/> 

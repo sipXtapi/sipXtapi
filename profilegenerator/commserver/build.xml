@@ -19,12 +19,14 @@
     <pathelement location="${log4j.jar}"/>
 
     <!-- J2EE -->
-    <fileset dir="${tomcat.common.lib}" includes="**/servlet.jar"/>
+    <fileset file="${tomcat.common.lib}/servlet.jar"/>
   	
-	  <!-- TEST -->
-	  <!-- TODO: we need a separate classpath for tests -->
-	  <pathelement location="${xmlunit.jar}"/>  	
+    <!-- TEST -->
+    <!-- TODO: we need a separate classpath for tests -->
+    <pathelement location="${xmlunit.jar}"/>
+
   </path>
+
   <property name="classpath" refid="base.path" />
 
   <!-- J A R -->

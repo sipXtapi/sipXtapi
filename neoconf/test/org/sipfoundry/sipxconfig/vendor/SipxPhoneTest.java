@@ -38,7 +38,7 @@ public class SipxPhoneTest extends TestCase {
         SipxConfig sipx = (SipxConfig) bf.getFactory().getBean("sipxconfig");
         assertNotNull(sipx);
 
-		m_softphone = (Phone)sipx.getPhoneFactory().getBean(SipxPhone.SOFTPHONE);
+		m_softphone = (Phone)sipx.getPhoneFactory().getPhoneById(SipxPhone.SOFTPHONE);
 		assertTrue(m_softphone != null);
     }
 

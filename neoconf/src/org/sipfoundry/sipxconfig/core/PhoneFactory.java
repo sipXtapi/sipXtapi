@@ -11,15 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
-import org.springframework.beans.factory.BeanFactory;
 
 /**
- * Comments
+ * Contruct abstract Phone objects from concrete implementations
+ * provided by vendors.  Phones can normally register their
+ * phone in PhoneFactory.xml  
  */
-public interface PhoneFactory extends BeanFactory {
+public interface PhoneFactory {
     
     public Phone getPhoneByModel(String model);
 
     public Phone getPhoneByVendor(String model);
     
+    public Phone getPhoneById(String id);
 }

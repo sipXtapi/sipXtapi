@@ -11,10 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.vendor;
 
-import org.sipfoundry.sipxconfig.core.CoreDao;
 import org.sipfoundry.sipxconfig.core.Line;
 import org.sipfoundry.sipxconfig.core.LogicalPhone;
 import org.sipfoundry.sipxconfig.core.Phone;
+import org.sipfoundry.sipxconfig.core.SipxConfig;
 import org.sipfoundry.sipxconfig.core.User;
 
 /**
@@ -36,7 +36,7 @@ public class CiscoPhone implements Phone {
 
     private String m_id;
     
-    private CoreDao m_dao;
+    private SipxConfig m_sipx;
     
     /**
      * XML filename that describes a particular model's definitions
@@ -76,7 +76,7 @@ public class CiscoPhone implements Phone {
         // assumes first line is the 
         User user = logicalPhone.getUser();
         if (user != null) {
-            Line line = m_dao.loadLine(user, 0);
+            Line line = m_sipx.getCoreDao().loadLine(user, 0);
 
             url = new StringBuffer()
                     .append("sip:").append(line.getName()).append('@')
@@ -145,17 +145,11 @@ public class CiscoPhone implements Phone {
         return SEQUENCE_NUMBER_NOT_SUPPORTED;
     }
     
-    /**
-     * @return Returns the dao.
-     */
-    public CoreDao getCoreDao() {
-        return m_dao;
+    public SipxConfig getSipxConfig() {
+        return m_sipx;
     }
     
-    /**
-     * @param dao The dao to set.
-     */
-    public void setCoreDao(CoreDao dao) {
-        m_dao = dao;
+    public void setSipxConfig(SipxConfig sipx) {
+        m_sipx = sipx;
     }
 }
