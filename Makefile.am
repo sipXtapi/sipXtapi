@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = src
+SUBDIRS = src bin
 
 INSTALL=@INSTALL@
 
@@ -16,19 +16,6 @@ edit = sed \
         -e 's,@bindir\@,$(bindir),g' \
         -e 's,@PACKAGE\@,@PACKAGE@,g' \
         -e 's,@VERSION\@,@VERSION@,g'
-
-editscripts_IN = \
-    bin/sipauthproxy.sh.in \
-    bin/sipproxy.sh.in
-
-editscripts :
-	@for f in $(editscripts_IN); \
-	do \
-		target=`basename $$f .in`; \
-		echo ""; echo "Installing $(bindir)/$$target"; \
-		$(edit) $(srcdir)/$$f > $$target; \
-		$(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
-	done
 
 editdata_IN = \
     etc/authproxy-config.in \
@@ -52,15 +39,14 @@ editdata :
 	echo ""
 
 EXTRA_DIST = \
-    $(editscripts_IN) \
     $(editdata_IN) \
     sipXauthproxy.dsp \
     sipXforkingProxy.dsp \
     sipxproxy.spec.in
 
-install-exec-hook : editscripts editdata
+install-exec-hook : editdata
 
-.PHONY : editscripts editdata
+.PHONY : editdata
 
 .PHONY : rpm
 # Where rpmbuild will do its work.
