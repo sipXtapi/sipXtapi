@@ -57,6 +57,10 @@
 	        <li>At any given moment only one dial plan is active.</li>
 	        <li>Activating dial plan generates configuration files used by sipX servers. User should be able to preview and maybe even modify 
                 automatically generated XML configuration files.</li>
+            <li>We need to mark the elements of XML file that we generate with a special mark-up. The idea is that users will be able 
+                to modify the files outside the GUI and we will not overwrite their changes. Semantical analyses of the XML configuration
+                file may be better then introducing special mark-up. However it may be to complicated to be practical.</li>
+                
         </ul>            
 	</div>            
 </body>
