@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 
 /**
  * EditGateway
@@ -45,10 +46,13 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     
     public abstract String getNextPage();
     
-    public abstract void setNextPage(String nextPage);    
-
+    public abstract void setNextPage(String nextPage);
+    
     private boolean isValid() {
         IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
+        // TextArea validators have to be called explicitly
+        StringSizeValidator descriptionValidator = (StringSizeValidator) getBeans().getBean("descriptionValidator");
+        descriptionValidator.validate(delegate);
         return !delegate.getHasErrors();
     }
 

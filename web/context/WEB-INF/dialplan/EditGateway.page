@@ -32,6 +32,10 @@
     	<set-property name="required" expression="true"/>
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
+    
+    <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
+        <set-property name="component" expression="components.gatewayDescription"/>
+    </bean>
 
     <!--
      - C O M P O N E N T S

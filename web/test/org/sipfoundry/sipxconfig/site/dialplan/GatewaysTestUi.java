@@ -11,10 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.Arrays;
+
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.jwebunit.WebTester;
 
+import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import com.meterware.httpunit.WebTable;
@@ -87,6 +90,26 @@ public class GatewaysTestUi extends WebTestCase {
         assertTablePresent("list:gateway");
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(1, gatewaysTable.getRowCount());
+    }
+    
+    public void testValidateDescription() {
+        clickLink("ListGateways");
+        clickLink("addGateway");
+        addGateway("bongo");
+        clickLinkWithText("bongo");
+        int limit = StringSizeValidator.DEFAULT_MAX_LEN;
+        char[] descriptionToLong = new char[limit + 1];
+        Arrays.fill(descriptionToLong, 'x');
+        char[] descriptionOk = new char[limit];
+        Arrays.fill(descriptionOk, 'x');
+        setFormElement("gatewayDescription", new String(descriptionToLong));
+        tester.clickButton("gateway:save");
+        // there should be an error now
+        assertTextPresent("Enter at most");
+        setFormElement("gatewayDescription", new String(descriptionOk));
+        tester.clickButton("gateway:save");
+        // we should get not error this time
+        assertTablePresent("list:gateway");        
     }
 
     /**
