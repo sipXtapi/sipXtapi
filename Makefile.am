@@ -39,12 +39,12 @@ editdata :
 	echo ""
 
 EXTRA_DIST = \
-	 CONTRIBUTORS \
-	 config/sipX-config.in \
+    CONTRIBUTORS \
+    config/sipX-config.in \
     $(editdata_IN) \
     sipXauthproxy.dsp \
     sipXforkingProxy.dsp \
-    sipxproxy.spec.in
+    sipxproxy.spec
 
 install-exec-hook : editdata
 
@@ -53,17 +53,19 @@ install-exec-hook : editdata
 .PHONY : rpm
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-rpm: dist sipxproxy.spec
+rpm : dist sipxproxy.spec
 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
 	cp -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
 	cp -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
 
 # RPM Spec file
+# Extract the options to ./configure from config.log and propagate them into the .spec file.
 sipxproxy.spec : sipxproxy.spec.in
-	$(edit) $(srcdir)/sipxproxy.spec.in > sipxproxy.spec
+	V="$$( sed -e '/^ *\$$ .*\/configure/!d' -e 's/^.*\/configure *//' config.log )" ; \
+	$(edit) -e "s#@CONFIGURE_OPTIONS@#$$V#" \
+		$(srcdir)/sipxproxy.spec.in > sipxproxy.spec
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build
 # RPM from
-dist-hook: sipxproxy.spec
+dist-hook : sipxproxy.spec
 	cp sipxproxy.spec $(distdir)
-

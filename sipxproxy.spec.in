@@ -11,7 +11,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 2.5
+Requires: sipxcommserverlib >= 2.6.1
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -31,7 +31,7 @@ services.
 %setup -q
 
 %build
-%configure
+%configure @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -64,11 +64,10 @@ rm -rf $RPM_BUILD_ROOT
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
 
-%config %{_sysconfdir}/sipxpbx/proxy-config.in
-%config %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
-
-%config %{_sysconfdir}/sipxpbx/authproxy-config.in
-%config %{_sysconfdir}/sipxpbx/authrules.xml.in
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/proxy-config.in
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
 
 %pre
 
