@@ -701,7 +701,7 @@ UtlBoolean SipAaa::isAuthenticated(
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
     long now = time.seconds();
-    long nonceExpires = now - mNonceExpiration;
+    long nonceExpires = mNonceExpiration;
 
     sipRequest.getCallIdField(&callId);
     sipRequest.getFromUrl(fromUrl);
