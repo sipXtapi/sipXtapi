@@ -40,7 +40,7 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         
         Phone phone = m_context.newPhone(PolycomModel.MODEL_300.getModelId());
-        PhoneMetaData e = phone.getPhoneMetaData();
+        PhoneData e = phone.getPhoneData();
         e.setFactoryId(PolycomModel.MODEL_300.getModelId());
         e.setSerialNumber("999123456");
         e.setName("unittest-sample phone1");
@@ -65,7 +65,7 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointLineSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1));
-        PhoneMetaData e = p.getPhoneMetaData();
+        PhoneData e = p.getPhoneData();
         assertEquals("999123456", e.getSerialNumber());
         
         Integer id = e.getId();        

@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.JobManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
+import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 /**
@@ -140,20 +140,20 @@ public abstract class ManagePhones extends BasePage
     static class PhoneDataSqueezer extends PhoneContextDataSqueezer {
         
         PhoneDataSqueezer(PhoneContext context) {
-            super(context, PhoneMetaData.class);
+            super(context, PhoneData.class);
         }
 
         public Object getPrimaryKey(Object objValue) {
             Object pk = null;
             if (objValue != null) {
-                pk = ((Phone) objValue).getPhoneMetaData().getPrimaryKey();
+                pk = ((Phone) objValue).getPhoneData().getPrimaryKey();
             }
             
             return pk;
         }
 
         public Object getValue(Object objPrimaryKey) {           
-            PhoneMetaData phoneMeta = (PhoneMetaData) super.getValue(objPrimaryKey);
+            PhoneData phoneMeta = (PhoneData) super.getValue(objPrimaryKey);
             // reload object due to PhoneContext API (good) restriction
             Phone phone = getPhoneContext().loadPhone(phoneMeta.getId());
             

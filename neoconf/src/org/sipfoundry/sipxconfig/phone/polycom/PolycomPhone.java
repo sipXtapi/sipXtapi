@@ -19,8 +19,8 @@ import java.text.MessageFormat;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.AbstractPhone;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineMetaData;
-import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
+import org.sipfoundry.sipxconfig.phone.LineData;
+import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.SipService;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -58,16 +58,16 @@ public class PolycomPhone extends AbstractPhone {
     public PolycomPhone() {
     }
 
-    public PolycomPhone(PolycomSupport polycom, PhoneMetaData meta) {
+    public PolycomPhone(PolycomSupport polycom, PhoneData meta) {
         super(meta);
         setPolycom(polycom);
     }
 
     public PolycomModel getModel() {
-        return PolycomModel.getModel(getPhoneMetaData().getFactoryId());
+        return PolycomModel.getModel(getPhoneData().getFactoryId());
     }
 
-    public Line createLine(LineMetaData meta) {
+    public Line createLine(LineData meta) {
         return new PolycomLine(this, meta);
     }
 

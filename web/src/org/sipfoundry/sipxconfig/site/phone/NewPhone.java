@@ -17,7 +17,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
+import org.sipfoundry.sipxconfig.phone.PhoneData;
 
 
 /**
@@ -27,17 +27,17 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     
     public static final String PAGE = "NewPhone"; 
 
-    public abstract PhoneMetaData getPhoneMetaData();
+    public abstract PhoneData getPhoneData();
     
-    public abstract void setPhoneMetaData(PhoneMetaData phone);
+    public abstract void setPhoneData(PhoneData phone);
     
     public abstract PhoneContext getPhoneContext();
     
     public abstract boolean isStay();
 
     public void finish(IRequestCycle cycle) {
-        Phone phone = getPhoneContext().newPhone(getPhoneMetaData().getFactoryId());
-        phone.setPhoneMetaData(getPhoneMetaData());
+        Phone phone = getPhoneContext().newPhone(getPhoneData().getFactoryId());
+        phone.setPhoneData(getPhoneData());
         getPhoneContext().storePhone(phone);        
         if (isStay()) {
             // triggers form to clear
@@ -57,8 +57,8 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     
     public void pageBeginRender(PageEvent event_) {
         // always fresh object
-        PhoneMetaData meta = new PhoneMetaData();
+        PhoneData meta = new PhoneData();
         meta.setFolder(getPhoneContext().loadRootPhoneFolder());
-        setPhoneMetaData(meta);
+        setPhoneData(meta);
     }
 }

@@ -10,7 +10,7 @@
 	<!-- 
 	  - E N D P O I N T 
 	  -->
-	<class name="org.sipfoundry.sipxconfig.phone.PhoneMetaData" table="phone">
+	<class name="org.sipfoundry.sipxconfig.phone.PhoneData" table="phone">
 		<id name="id" column="phone_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">phone_seq</param>
@@ -27,15 +27,15 @@
 	<!--
 	  -  L I N E
 	  -->
-	<class name="org.sipfoundry.sipxconfig.phone.LineMetaData" 
+	<class name="org.sipfoundry.sipxconfig.phone.LineData" 
 		table="line">
 		<id name="id" column="line_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">line_seq</param>
 			</generator>
 		</id>
-		<many-to-one name="phoneMetaData" column="phone_id" 
-			class="org.sipfoundry.sipxconfig.phone.PhoneMetaData" not-null="true"/>
+		<many-to-one name="phoneData" column="phone_id" 
+			class="org.sipfoundry.sipxconfig.phone.PhoneData" not-null="true"/>
 		<property name="position" column="position"/>
 		<many-to-one name="user" column="user_id"
 			class="org.sipfoundry.sipxconfig.common.User"/>

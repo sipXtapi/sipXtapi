@@ -65,7 +65,7 @@ public class JobManagerTest extends TestCase {
         phone.restart();
         phone.generateProfiles();
         control.setThrowable(new RuntimeException("MOCK TEST"), 1);
-        control.expectAndReturn(phone.getPhoneMetaData(), new PhoneMetaData());
+        control.expectAndReturn(phone.getPhoneData(), new PhoneData());
         control.replay();
         
         JobManager jmgr = new JobManager();
@@ -78,7 +78,7 @@ public class JobManagerTest extends TestCase {
     public void testCustomJob() throws Exception {
         MockControl control = MockControl.createStrictControl(Phone.class);
         Phone phone = (Phone) control.getMock(); 
-        control.expectAndReturn(phone.getPhoneMetaData(), new PhoneMetaData(), 5);
+        control.expectAndReturn(phone.getPhoneData(), new PhoneData(), 5);
         control.replay();
         
         MockControl jobControl = MockControl.createStrictControl(PhoneJob.class);

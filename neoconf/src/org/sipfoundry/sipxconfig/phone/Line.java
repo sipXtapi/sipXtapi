@@ -23,9 +23,9 @@ public interface Line extends DataCollectionItem {
     
     public void setPhone(Phone phone);
     
-    public void setLineMetaData(LineMetaData meta);
+    public void setLineData(LineData meta);
 
-    public LineMetaData getLineMetaData();
+    public LineData getLineData();
 
     public Setting getSettingModel();
 

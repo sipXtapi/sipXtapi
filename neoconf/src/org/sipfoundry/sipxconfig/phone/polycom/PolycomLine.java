@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.AbstractLine;
-import org.sipfoundry.sipxconfig.phone.LineMetaData;
+import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -45,7 +45,7 @@ public class PolycomLine extends AbstractLine {
     public PolycomLine() {
     }
     
-    public PolycomLine(PolycomPhone phone, LineMetaData meta) {
+    public PolycomLine(PolycomPhone phone, LineData meta) {
         super(phone, meta);
     }
     
@@ -55,7 +55,7 @@ public class PolycomLine extends AbstractLine {
 
         m_root = settings;
 
-        User u = getLineMetaData().getUser();
+        User u = getLineData().getUser();
         if (u != null) {
             setUserId(u.getDisplayId());
             getRegistration().getSetting("auth.userId").setValue(u.getDisplayId());
@@ -67,7 +67,7 @@ public class PolycomLine extends AbstractLine {
         }
 
         // See pg. 125 Admin Guide/16 June 2004
-        if (getLineMetaData().getPosition() == 0) {
+        if (getLineData().getPosition() == 0) {
             settings.getSetting("msg.mwi").getSetting("callBackMode").setValue("registration");
         }
         

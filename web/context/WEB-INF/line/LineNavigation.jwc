@@ -49,7 +49,7 @@
     </component>            
     <component id="lineTab" type="DirectLink">
         <binding name="listener" expression="listeners.editLine"/>
-        <binding name="parameters" expression="line.lineMetaData.id"/>
+        <binding name="parameters" expression="line.lineData.id"/>
         <binding name="class" expression="beans.tabs.getTabClass('EditLine')"/>
     </component>
     <component id="settingsTabs" type="Foreach">

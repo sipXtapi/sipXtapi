@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
  */
 public abstract class AbstractPhone implements Phone, PrimaryKeySource {
 
-    private PhoneMetaData m_meta;
+    private PhoneData m_meta;
     
     private Setting m_settings;
     
@@ -38,11 +38,11 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     public AbstractPhone() {        
     }
     
-    public AbstractPhone(PhoneMetaData meta) {
-        setPhoneMetaData(meta);
+    public AbstractPhone(PhoneData meta) {
+        setPhoneData(meta);
     }
     
-    public void setPhoneMetaData(PhoneMetaData meta) {
+    public void setPhoneData(PhoneData meta) {
         m_meta = meta;
     }
     
@@ -59,7 +59,7 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
         return (Line) m_lines.get(position);
     }
     
-    public PhoneMetaData getPhoneMetaData() {
+    public PhoneData getPhoneData() {
         return m_meta;
     }
 

@@ -53,7 +53,7 @@ public class JobManager extends Thread {
                 exceptions.add(new BatchPhoneException(phone, t));
                 // TODO: XCF-225
                 s_log.error("could not complete job on phone " 
-                        + phone.getPhoneMetaData().getDisplayLabel(), t);
+                        + phone.getPhoneData().getDisplayLabel(), t);
             }
         }
         

@@ -42,13 +42,13 @@ public class ApplicationConfiguration extends ConfigurationFile {
     
     public String getAppFilename() {
         // todo, put in a sequence generator for TFTP
-        return getPhone().getPhoneMetaData().getSerialNumber() + ".cfg";
+        return getPhone().getPhoneData().getSerialNumber() + ".cfg";
     }
     
     String getDirectory() {
         if (m_directory == null) {
             String tftpRoot = getPhone().getTftpRoot();
-            String endpointDir = getPhone().getPhoneMetaData().getSerialNumber();           
+            String endpointDir = getPhone().getPhoneData().getSerialNumber();           
             m_staleDirectories.clear();
             m_directory = getNextDirectorySequence(tftpRoot, endpointDir, m_staleDirectories);
         }

@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 public abstract class AbstractLine implements Line, PrimaryKeySource {
 
-    private LineMetaData m_meta;
+    private LineData m_meta;
 
     private Phone m_phone;
 
@@ -29,17 +29,17 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
     public AbstractLine() {        
     }
     
-    public AbstractLine(Phone phone, LineMetaData meta) {
+    public AbstractLine(Phone phone, LineData meta) {
         setPhone(phone);
-        setLineMetaData(meta);        
+        setLineData(meta);        
     }
 
-    public void setLineMetaData(LineMetaData meta) {
+    public void setLineData(LineData meta) {
         m_meta = meta;
-        m_meta.setPhoneMetaData(getPhone().getPhoneMetaData());
+        m_meta.setPhoneData(getPhone().getPhoneData());
     }
 
-    public LineMetaData getLineMetaData() {
+    public LineData getLineData() {
         return m_meta;
     }
 

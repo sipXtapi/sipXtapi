@@ -17,7 +17,7 @@ import java.util.Iterator;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineMetaData;
+import org.sipfoundry.sipxconfig.phone.LineData;
 
 /**
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
@@ -46,8 +46,8 @@ public class PhoneConfiguration extends ConfigurationFile {
 
         // copy in blank lines of all unused lines
         for (; i < phone.getMaxLineCount(); i++) {
-            PolycomLine line = new PolycomLine(getPhone(), new LineMetaData());
-            line.getLineMetaData().setPosition(i);
+            PolycomLine line = new PolycomLine(getPhone(), new LineData());
+            line.getLineData().setPosition(i);
             linesSettings.add(line.getSettings());
         }
         

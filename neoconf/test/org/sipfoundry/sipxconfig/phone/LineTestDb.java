@@ -49,7 +49,7 @@ public class LineTestDb extends TestCase {
         assertEquals(2, phone.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
-        LineMetaData thirdLine = new LineMetaData();
+        LineData thirdLine = new LineData();
         thirdLine.setUser(user);
         thirdLine.setFolder(m_context.loadRootLineFolder());
         phone.addLine(phone.createLine(thirdLine));
@@ -79,8 +79,8 @@ public class LineTestDb extends TestCase {
         assertEquals(0, phone.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
-        Line line = phone.createLine(new LineMetaData());
-        LineMetaData lineMeta = line.getLineMetaData();
+        Line line = phone.createLine(new LineData());
+        LineData lineMeta = line.getLineData();
         lineMeta.setUser(user);
         lineMeta.setFolder(m_context.loadRootLineFolder());
         phone.addLine(line);

@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 /**
  * Association between Users and their assigned phones.
  */
-public class LineMetaData implements Serializable {
+public class LineData implements Serializable {
 
     public static final String FOLDER_RESOURCE_NAME = "line";
 
@@ -34,7 +34,7 @@ public class LineMetaData implements Serializable {
 
     private Folder m_folder;
 
-    private PhoneMetaData m_endpoint;
+    private PhoneData m_endpoint;
 
     private int m_position;
     
@@ -74,11 +74,11 @@ public class LineMetaData implements Serializable {
         return m_user.getDisplayId();
     }
 
-    public PhoneMetaData getPhoneMetaData() {
+    public PhoneData getPhoneData() {
         return m_endpoint;
     }
 
-    public void setPhoneMetaData(PhoneMetaData endpoint) {
+    public void setPhoneData(PhoneData endpoint) {
         m_endpoint = endpoint;
     }
 

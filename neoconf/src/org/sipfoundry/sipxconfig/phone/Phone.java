@@ -20,9 +20,9 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  */
 public interface Phone {
     
-    public void setPhoneMetaData(PhoneMetaData meta);
+    public void setPhoneData(PhoneData meta);
     
-    public PhoneMetaData getPhoneMetaData();
+    public PhoneData getPhoneData();
     
     public String getDisplayLabel();
     
@@ -43,7 +43,7 @@ public interface Phone {
     public Collection getDeletedLines();
     
     /** you must explicitly call addLine */
-    public Line createLine(LineMetaData lineMeta);
+    public Line createLine(LineData lineMeta);
 
     /** implementation need to declare they implement PrimaryKeySource */
     public Object getPrimaryKey();

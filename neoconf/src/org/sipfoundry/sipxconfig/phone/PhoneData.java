@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 /**
  * Database object representing an actualy physical phone you can touch.
  */
-public class PhoneMetaData implements PrimaryKeySource, Serializable {
+public class PhoneData implements PrimaryKeySource, Serializable {
     
     public static final String FOLDER_RESOURCE_NAME = "endpoint";
 
@@ -39,10 +39,10 @@ public class PhoneMetaData implements PrimaryKeySource, Serializable {
     private Folder m_folder;    
     
     /** BEAN ACCESS ONLY **/
-    public PhoneMetaData() {    
+    public PhoneData() {    
     }
     
-    public PhoneMetaData(String factoryId) {
+    public PhoneData(String factoryId) {
         setFactoryId(factoryId);
     }
     

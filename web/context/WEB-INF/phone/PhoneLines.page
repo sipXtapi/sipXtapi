@@ -50,16 +50,16 @@
     <component id="lineValues" type="contrib:TableValues">
     </component>
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.lineMetaData.id]"/>
+        <binding name="selected" expression="selections.selected[currentRow.lineData.id]"/>
     </component>
     <component id="addUserLink" type="DirectLink">
         <binding name="listener" expression="listeners.addUser"/>
-        <binding name="parameters" expression="phone.phoneMetaData.id"/>
+        <binding name="parameters" expression="phone.phoneData.id"/>
     </component>
     <component id="LineColumnValue" type="Block"/>
     <component id="editLineLink" type="DirectLink">
         <binding name="listener" expression="listeners.editLine"/>
-        <binding name="parameters" expression="currentRow.lineMetaData.id"/>
+        <binding name="parameters" expression="currentRow.lineData.id"/>
     </component>
     <component id="lineLabel" type="Insert"> 
         <binding name="value" expression="currentRow.uri"/>

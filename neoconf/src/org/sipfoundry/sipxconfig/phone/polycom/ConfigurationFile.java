@@ -89,7 +89,7 @@ public class ConfigurationFile {
 
     protected void addContext(VelocityContext context) {
         context.put("phone", getPhone());
-        context.put("endpoint", getPhone().getPhoneMetaData());
+        context.put("endpoint", getPhone().getPhoneData());
         context.put("cfg", this);        
     }
 

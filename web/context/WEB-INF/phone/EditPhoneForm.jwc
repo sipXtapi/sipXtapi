@@ -10,8 +10,8 @@
     <!--
       - P A R A M E T E R S
       -->
-	<parameter name="phoneMetaData" 
-        type="org.sipfoundry.sipxconfig.phone.PhoneMetaData" 
+	<parameter name="phoneData" 
+        type="org.sipfoundry.sipxconfig.phone.PhoneData" 
         required="yes" 
         direction="in">
     </parameter>    
@@ -38,7 +38,7 @@
         <binding name="field" expression="components.phoneName"/>
     </component>
     <component id="phoneName" type="ValidField">
-	    <binding name="value" expression="phoneMetaData.name"/>
+	    <binding name="value" expression="phoneData.name"/>
     	<binding name="validator" expression="beans.nameValidator"/>
 	    <static-binding name="displayName" value="Alternate Label"/>
     </component>
@@ -51,7 +51,7 @@
         <binding name="field" expression="components.serialNumber"/>
     </component>
     <component id="serialNumber" type="ValidField">
-	    <binding name="value" expression="phoneMetaData.serialNumber"/>
+	    <binding name="value" expression="phoneData.serialNumber"/>
     	<binding name="validator" expression="beans.serialNumberValidator"/>
 	    <static-binding name="displayName" value="Serial Number"/>
     </component>
@@ -61,7 +61,7 @@
     </component>
     <component id="phoneModel" type="PropertySelection">
         <binding name="model" expression="phoneSelectionModel"/>
-        <binding name="value" expression="phoneMetaData.factoryId"/>
+        <binding name="value" expression="phoneData.factoryId"/>
     </component>    
     
 </component-specification>

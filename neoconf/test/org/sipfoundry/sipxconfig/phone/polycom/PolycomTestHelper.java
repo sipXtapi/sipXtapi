@@ -16,8 +16,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
-import org.sipfoundry.sipxconfig.phone.LineMetaData;
+import org.sipfoundry.sipxconfig.phone.PhoneData;
+import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -48,7 +48,7 @@ public class PolycomTestHelper {
         helper.polycom.setCoreContext(core);
         helper.polycom.setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
         
-        PhoneMetaData meta = new PhoneMetaData(PolycomModel.MODEL_600.getModelId());
+        PhoneData meta = new PhoneData(PolycomModel.MODEL_600.getModelId());
         meta.setSerialNumber("0004f200e06b");
         helper.phone = new PolycomPhone[] { new PolycomPhone(helper.polycom, meta) };
         
@@ -57,9 +57,9 @@ public class PolycomTestHelper {
         helper.user[0].setFirstName("Joe");
         helper.user[0].setLastName("User");
         
-        helper.line = new PolycomLine[] { new PolycomLine(helper.phone[0], new LineMetaData()) };
+        helper.line = new PolycomLine[] { new PolycomLine(helper.phone[0], new LineData()) };
         
-        LineMetaData lineMeta = helper.line[0].getLineMetaData();
+        LineData lineMeta = helper.line[0].getLineData();
         lineMeta.setUser(helper.user[0]);
         helper.phone[0].addLine(helper.line[0]);
         
