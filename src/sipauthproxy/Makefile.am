@@ -4,7 +4,7 @@ INCLUDES = -I$(top_srcdir)/include
 
 bin_PROGRAMS = sipauthproxy
 
-sipauthproxy_CXXFLAGS = $(GLIB_CFLAGS)
+sipauthproxy_CXXFLAGS = $(GLIB_CFLAGS) -DSIPX_HOME=\"@SIPX_HOME@\"
 sipauthproxy_LDFLAGS = $(GLIB_LIBS)
 sipauthproxy_SOURCES =  \
     sipauthproxymain.cpp \

@@ -22,8 +22,8 @@
 
 // DEFINES
 #define CONFIG_LOG_FILE       "sipauthproxy.log"
-#define CONFIG_LOG_DIR        "../log"
-#define CONFIG_ETC_DIR        "../etc/sipxpbx"
+#define CONFIG_LOG_DIR        SIPX_HOME "var/log"
+#define CONFIG_ETC_DIR        SIPX_HOME "etc/sipxpbx"
 #define CONFIG_SETTINGS_FILE  "authproxy-config"
 #define AUTH_RULES_FILENAME   "authrules.xml"
 
