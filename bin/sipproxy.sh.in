@@ -8,9 +8,10 @@ CONFIG_FILES="\
   @SIPXPBXCONF@/proxy-config \
   @SIPXPBXCONF@/forwardingrules.xml \
   "
+
 # Common environment variables used by the in memory database (IMDB)
-export SIPX_DB_VAR_PATH=@localstatedir@
-export SIPX_DB_ETC_PATH=@SIPXPBXCONF@
+#export SIPX_DB_VAR_PATH=@localstatedir@
+#export SIPX_DB_CFG_PATH=@localstatedir@/sipxdata/sipdb
 
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
