@@ -2478,34 +2478,6 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
-    <tag>
-        <name>getParentGroups</name>
-        <tagclass>com.pingtel.pds.pgs.jsptags.GetParentGroupsTag</tagclass>
-        <teiclass>com.pingtel.pds.pgs.jsptags.GetParentGroupsInfo</teiclass>
-        <bodycontent>empty</bodycontent>
-        <info>
-            Get a list of parent groups
-        </info>
-        <attribute>
-            <name>orgid</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>type</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>mode</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>groupid</name>
-        </attribute>
-    </tag>
-
 
     <tag>
         <name>configurationSetUpdate</name>
