@@ -18,7 +18,7 @@
     
     <property-specification name="action" type="java.lang.String"/>
     
-    <property-specification name="userId" type="int" persistent="yes"/>
+    <property-specification name="userId" type="java.lang.Integer" persistent="yes"/>
     
      <!--
      - B E A N S
