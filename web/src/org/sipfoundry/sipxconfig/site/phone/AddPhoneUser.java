@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.site.user.UserTable;
 
 
 public abstract class AddPhoneUser extends BasePage implements PageRenderListener {
@@ -39,28 +40,24 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public abstract void setPhoneId(int id);
     
-    public abstract SelectMap getSelections();
-
-    public abstract void setSelections(SelectMap selected);
-
     public void select(IRequestCycle cycle) {
-        PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
-        page.setPhoneId(getPhoneId());
-    
         PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
         Endpoint endpoint = context.loadEndpoint(getPhoneId());
         List lines = endpoint.getLines();
         
-        Iterator users = getSelections().getAllSelected().iterator();
+        UserTable table = (UserTable) getComponent(UserTable.COMPONENT);
+        SelectMap selections = table.getSelections();        
+        Iterator users = selections.getAllSelected().iterator();
         while (users.hasNext()) {
             User user = (User) users.next();
             Line line = new Line();
             line.setUser(user);
-            line.setCredential(user.getCredential());
             lines.add(line);
         }
         context.storeEndpoint(endpoint);
 
+        PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
+        page.setPhoneId(getPhoneId());
         cycle.activate(page);
     }
 

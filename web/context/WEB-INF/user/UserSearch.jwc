@@ -19,6 +19,8 @@
       -->
 	<property-specification name="user" 
 		type="org.sipfoundry.sipxconfig.phone.User"/>   
+	<property-specification name="users" 
+		type="java.util.List"/>   
     <!--
       - B E A N S
       -->

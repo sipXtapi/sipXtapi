@@ -116,13 +116,13 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             if (StringUtils.isNotBlank(template.getFirstName())) {
                 ors.add(Expression.like("firstName", template.getFirstName() + LIKE_WILDCARD));
             }
-            if (!StringUtils.isNotBlank(template.getLastName())) {
+            if (StringUtils.isNotBlank(template.getLastName())) {
                 ors.add(Expression.like("lastName", template.getLastName() + LIKE_WILDCARD));
             }
-            if (!StringUtils.isNotBlank(template.getExtension())) {
+            if (StringUtils.isNotBlank(template.getExtension())) {
                 ors.add(Expression.eq("extension", template.getExtension()));
             }
-            if (!StringUtils.isNotBlank(template.getDisplayId())) {
+            if (StringUtils.isNotBlank(template.getDisplayId())) {
                 ors.add(Expression.like("displayId", template.getDisplayId() + LIKE_WILDCARD));
             }
             
@@ -166,16 +166,18 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public List loadPhoneSummaries() {        
-        String endpointQuery = "from Endpoint e left join fetch e.lines line left join line.user";
+        String endpointQuery = "from Endpoint e left join fetch e.lines line left join fetch line.user";
         List endpoints = getHibernateTemplate().find(endpointQuery);
         List summaries = new ArrayList(endpoints.size());
         
-        // TODO: Make this a cursor usable by tapestry
+        // TODO: Make this a cursor usable by tapestry by reconnecting back to
+        // session
         for (int i = 0; i < endpoints.size(); i++) {
             Endpoint endpoint = (Endpoint) endpoints.get(i);
             PhoneSummary summary = new PhoneSummary();
             summary.setPhone(getPhone(endpoint));
             summary.setLines(endpoint.getLines());
+            summaries.add(summary);
         }
         
         return summaries;

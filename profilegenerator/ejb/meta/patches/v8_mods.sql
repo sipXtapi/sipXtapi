@@ -42,24 +42,12 @@ foreign key (storage_id) references storage (storage_id);
 create sequence endpoint_seq;
 create unique index idx_endpoint_sernum on endpoint (serial_number);
 
-/**
- * C R E D E N T I A L
- */
-create table credential(
-  credential_id int4 not null primary key,
-  auth_id varchar(256),
-  password varchar(256),
-  realm varchar(256)
-);
-create sequence credential_seq;
-
 /* 
  * L I N E 
  */
 create table line(
   line_id int4 not null primary key,
   position int4 not null,
-  credential_id int4 not null,
   user_id int4 not null,
   storage_id int4,
   endpoint_id int4 not null
@@ -83,8 +71,4 @@ foreign key (storage_id) references storage (storage_id);
 alter table line
 add constraint fk_line_3
 foreign key (user_id) references users (id);
-
-alter table line
-add constraint fk_line_4
-foreign key (credential_id) references credential (credential_id);
 

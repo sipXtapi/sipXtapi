@@ -1,9 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE dataset SYSTEM "../dataset.dtd">
+<!--
+  - Data here represent the bare min. db. plus one testuser.  
+  - dbunit is not expected to clear all your old data successfully.
+  - you must drop and recreate you db (see sipxdbmgr script)   
+  -->
 <dataset>
-  <table name="endpoint"/>
   <table name="line"/>
-  <table name="credential"/>
+  <table name="endpoint"/>
+  <table name="organizations">
+    <column>id</column>
+    <column>name</column>
+    <column>parent_id</column>
+    <column>dns_domain</column>
+    <column>stereotype</column>
+    <row>
+      <value>1</value>
+      <value>Phantoms Hockey Team</value>
+      <null/>
+      <value>hostname.unittest.com</value>
+      <value>1</value>
+    </row>
+  </table>
+  <table name="ref_config_sets">
+    <column>id</column>
+    <column>name</column>
+    <column>org_id</column>
+    <row>
+      <value>1</value>
+      <value><![CDATA[Complete Device]]></value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>2</value>
+      <value><![CDATA[Complete User]]></value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>3</value>
+      <value><![CDATA[xpressa_strongarm_vxworks Device]]></value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>4</value>
+      <value><![CDATA[ixpressa_x86_win32 Device]]></value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>5</value>
+      <value><![CDATA[7960 Device]]></value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>6</value>
+      <value><![CDATA[7940 Device]]></value>
+      <value>1</value>
+    </row>
+  </table>
+  <table name="user_groups">
+    <column>id</column>
+    <column>rcs_id</column>
+    <column>org_id</column>
+    <column>name</column>
+    <column>parent_ug_id</column>
+    <row>
+      <value>1</value>
+      <value>2</value>
+      <value>1</value>
+      <value>default</value>
+      <null/>
+    </row>
+  </table>
   <table name="users">
     <column>id</column>
     <column>first_name</column>
@@ -74,6 +141,18 @@
     <row>
       <value>4</value>
       <value>END_USER</value>
+    </row>
+  </table>
+  <table name="config_sets">
+    <column>id</column>
+    <column>rcs_id</column>
+    <column>profile_type</column>
+    <column>content</column>
+    <row>
+      <value>1</value>
+      <value>2</value>
+      <value>2</value>
+      <value><![CDATA[<PROFILE></PROFILE>]]></value>
     </row>
   </table>
   <table name="user_cs_assoc">

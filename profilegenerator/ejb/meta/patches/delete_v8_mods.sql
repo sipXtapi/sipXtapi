@@ -1,5 +1,3 @@
-drop table credential cascade;
-drop sequence credential_seq;
 drop table line cascade;
 drop sequence line_seq;
 drop table endpoint cascade;

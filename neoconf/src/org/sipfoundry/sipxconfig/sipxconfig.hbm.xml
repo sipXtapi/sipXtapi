@@ -22,22 +22,11 @@
 		<property name="phoneId" column="phone_id"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-	    <list name="lines" lazy="true" table="line" inverse="true">
+	    <list name="lines" lazy="true" table="line" inverse="true" cascade="all-delete-orphan">
 			<key column="line_id"/>
 			<index column="position"/>
-    		<one-to-many class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-		</list>		
-	</class>
-	<class name="org.sipfoundry.sipxconfig.phone.Credential" table="credential">
-		<jcs-cache usage="read-write"/>
-		<id name="id" column="credential_id" type="int" unsaved-value="-1">
-			<generator class="sequence">
-				<param name="sequence">credential_seq</param>
-			</generator>
-		</id>
-		<property name="authId" column="auth_id"/>
-		<property name="password" column="password"/>
-		<property name="realm" column="realm"/>
+    		<one-to-many class="org.sipfoundry.sipxconfig.phone.Line"/>
+		</list>
 	</class>
 	<!--
 	  -  L I N E
@@ -50,10 +39,11 @@
 				<param name="sequence">line_seq</param>
 			</generator>
 		</id>
+		<many-to-one name="endpoint" column="endpoint_id" 
+			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+		<property name="position" column="position"/>
 		<many-to-one name="user" column="user_id" 
 			class="org.sipfoundry.sipxconfig.phone.User"/>
-		<many-to-one name="credential" column="credential_id" 
-			class="org.sipfoundry.sipxconfig.phone.Credential"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 	</class>

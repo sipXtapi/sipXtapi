@@ -32,7 +32,7 @@ public class LineTestDb extends TestCase {
 
     private Class m_class = EndpointTestDb.class;
 
-    public void setUp() {
+    protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
     }
@@ -55,7 +55,7 @@ public class LineTestDb extends TestCase {
         IDataSet expectedDs = TestHelper.loadDataSetFlat(m_class, "SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[endpoint_id]", new Integer(endpoint.getId()));
-        expectedRds.addReplacementObject("[line_id]", new Integer(line.getId()));
+        expectedRds.addReplacementObject("[line_id]", new Integer(line.getId()));        
         expectedRds.addReplacementObject("[user_id]", new Integer(user.getId()));
         expectedRds.addReplacementObject("[null]", null);
         
@@ -64,5 +64,19 @@ public class LineTestDb extends TestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
         
         Assertion.assertEquals(expected, actual);        
+    }
+    
+    public void testLoadAndDelete() throws Exception {
+        TestHelper.cleanInsert(m_class, "ClearDb.xml");
+        TestHelper.cleanInsertFlat(m_class, "LineSeed.xml");
+        
+        Endpoint endpoint = m_context.loadEndpoint(1);
+        List lines = endpoint.getLines();
+        assertEquals(1, lines.size());        
+        lines.clear();
+        m_context.storeEndpoint(endpoint);
+        
+        Endpoint cleared = m_context.loadEndpoint(1);
+        assertEquals(0, cleared.getLines().size());        
     }
 }

@@ -4,7 +4,6 @@
     <line 
 		line_id="[line_id]" 
 		endpoint_id="[endpoint_id]"
-		credential_id="[credential_id]" 
 		position="0" 
 		user_id="[user_id]"
 		storage_id="[null]"/> 

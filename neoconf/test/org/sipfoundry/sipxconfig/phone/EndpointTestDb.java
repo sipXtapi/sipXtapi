@@ -33,7 +33,7 @@ public class EndpointTestDb extends TestCase {
     
     private Class m_class = EndpointTestDb.class;
         
-    public void setUp() {
+    protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);        
     }

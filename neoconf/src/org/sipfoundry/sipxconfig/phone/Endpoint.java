@@ -93,7 +93,29 @@ public class Endpoint implements Serializable {
         return m_lines;
     }
     
+    /**
+     * automatically set's the endpoint object and position
+     * <pre>
+     * Example: 
+     * 
+     * List lines = new ArrayList();
+     * Line line = new Line();
+     * line.setUser(user);
+     * lines.add(line)
+     * endpoint.setLines(lines);
+     * phoneContext.storeEndpoint(endpoint);
+     * </pre>
+     */
     public void setLines(List lines) {
+        /*
+        if (lines != null) {
+            for (int i = 0; i < lines.size(); i++) {
+                Line l = (Line) lines.get(i);
+                l.setEndpoint(this);
+                l.setPosition(i);
+            }
+        }
+        */
         m_lines = lines;
     }
 }

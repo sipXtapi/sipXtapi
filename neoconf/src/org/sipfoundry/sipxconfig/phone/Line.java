@@ -29,15 +29,9 @@ public class Line implements Serializable {
 
     private ValueStorage m_valueStorage;
 
-    private Credential m_credential;
+    private Endpoint m_endpoint;
 
-    public Credential getCredential() {
-        return m_credential;
-    }
-
-    public void setCredential(Credential credential) {
-        m_credential = credential;
-    }
+    private int m_position;
 
     public int getId() {
         return m_id;
@@ -58,12 +52,28 @@ public class Line implements Serializable {
     public ValueStorage getValueStorage() {
         return m_valueStorage;
     }
-    
+
     public void setValueStorage(ValueStorage valueStorage) {
         m_valueStorage = valueStorage;
     }
-    
+
     public String getDisplayLabel() {
         return m_user.getDisplayId();
+    }
+
+    public Endpoint getEndpoint() {
+        return m_endpoint;
+    }
+
+    public void setEndpoint(Endpoint endpoint) {
+        m_endpoint = endpoint;
+    }
+
+    public int getPosition() {
+        return m_position;
+    }
+
+    public void setPosition(int position) {
+        m_position = position;
     }
 }

@@ -179,4 +179,8 @@ public final class TestHelper {
     public static void cleanInsertFlat(Class c, String resource) throws Exception {
         DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSetFlat(c, resource));
     }
+
+    public static void insertFlat(Class c, String resource) throws Exception {
+        DatabaseOperation.INSERT.execute(getConnection(), loadDataSetFlat(c, resource));
+    }
 }
