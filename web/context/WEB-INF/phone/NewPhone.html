@@ -1,21 +1,24 @@
-<html jwcid="@Shell" title="Edit Phone" stylesheet="ognl:assets.stylesheet">    
-    <head jwcid="$remove$">
-        <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-    </head>
-<body jwcid="@Body">
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<div jwcid="@Border">
+            <a href="#" jwcid="@PageLink" id="ManagePhones" page="ManagePhones">List Phones</a><br/> 
         <form jwcid="@Form" delegate="ognl:beans.validator">
     <fieldset>
         <legend>Device Identification</legend>            
             <span jwcid="editPhoneForm"/>
     </fieldset>
-			<ul class="form-actions">
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
-				</li>
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.finish" value="OK"/>
-				</li>
-			</ul>                        
-		</form>    
+				<ul class="form-actions">
+					<li>
+						<input type="submit" jwcid="cancel" id="phone:cancel" value="Cancel"/>
+					</li>
+					<li>
+						<input type="submit" jwcid="ok" id="phone:ok" value="OK"/>
+					</li>
+				</ul>
+		</form>  
+     </div>  
 </body>
 </html>

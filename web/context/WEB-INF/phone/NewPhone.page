@@ -20,9 +20,10 @@
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="endpoint" expression="endpoint"/>
     </component>    
-	<!--
-	  - A S S E T S
-	  -->	
-	<!-- TODO Find some way to define this globally -->
-	<context-asset name="stylesheet" path="css/sipxconfig.css"/>
+    <component id="ok" type="Submit">
+        <binding name="listener" expression="listeners.finish"/>
+    </component>
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="listeners.cancel"/>
+    </component>
 </page-specification>

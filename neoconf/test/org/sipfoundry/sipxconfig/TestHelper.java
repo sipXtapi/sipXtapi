@@ -11,13 +11,8 @@
  */
 package org.sipfoundry.sipxconfig;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.security.CodeSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
@@ -35,6 +30,7 @@ import org.dbunit.dataset.xml.FlatDtdDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
+import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate.SessionFactoryUtils;
@@ -45,12 +41,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * For unittests that need spring instantiated
  */
 public final class TestHelper {
-    
-    private static final String APPLICATION_CONTEXT_FILE = "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml";
-    
-    private static Properties s_sysProps;
-    
-    private static String s_classpathDir;
+        
+    private static Properties s_sysDirProps;
     
     private static ApplicationContext s_appContext;
 
@@ -63,27 +55,16 @@ public final class TestHelper {
         if (s_appContext == null) {
             getSysDirProperties();
             s_appContext = new ClassPathXmlApplicationContext(
-                TestHelper.APPLICATION_CONTEXT_FILE);
+                TestUtil.APPLICATION_CONTEXT_FILE);
         }
         
         return s_appContext;
     }
     
-    public static String getClasspathDirectory() {
-        if (s_classpathDir == null) {
-	        // create file on classpath
-	        CodeSource code = TestHelper.class.getProtectionDomain().getCodeSource();
-	        URL classpathUrl = code.getLocation();
-	        File classpathDir = new File(classpathUrl.getFile());
-	        s_classpathDir = classpathDir.getAbsolutePath();            
-        }
-        
-        return s_classpathDir;        
+    public static String getClasspathDirectory() {        
+        return TestUtil.getClasspathDirectory(TestHelper.class);
     }
     
-    public static String getTestDirectory() {
-        return getClasspathDirectory() + "/test-output";
-    }
 
     public static VelocityEngine getVelocityEngine() throws Exception {
         Properties sysdir = getSysDirProperties();
@@ -98,46 +79,17 @@ public final class TestHelper {
         return engine;
     }
     
-    /**
-     * Create a sysdir.properties file in the classpath.  Uses a trick that
-     * will only work if unittests are unjar-ed.  This is infavor of doing
-     * in ant because it avoids setup and works in IDE's like eclipse where
-     * bin.eclipse is the classpath
-     */
+    public static String getTestDirectory() {
+        return getClasspathDirectory() + "/test-output";
+    }
+    
     public static Properties getSysDirProperties() {
-        if (s_sysProps == null) {
-            String classpath = getClasspathDirectory();
-	        File sysdirPropsFile = new File(classpath, "sysdir.properties");
-	        FileOutputStream sysdirPropsStream;
-	        try {
-	            sysdirPropsStream = new FileOutputStream(sysdirPropsFile);
-	        } catch (FileNotFoundException e) {
-	            throw new RuntimeException("could not create system dir properties file", e);
-	        }
-	        s_sysProps = new Properties();
-
-	        // eclipse        
-	        String userDir = System.getProperty("user.dir");
-	        
-	        // from ant
-	        String etcDir = System.getProperty("basedir", userDir) + "/etc";    
-	        
-            String testpath = getTestDirectory();
-	        s_sysProps.setProperty("sysdir.etc", etcDir);
-	        s_sysProps.setProperty("sysdir.data", testpath);
-	        s_sysProps.setProperty("sysdir.phone", testpath);
-	        s_sysProps.setProperty("sysdir.log", testpath);	        
-	        
-	        try {
-	            // store them so spring's application context file find it
-	            // in classpath
-	            s_sysProps.store(sysdirPropsStream, null);
-	        } catch (IOException e) {
-	            throw new RuntimeException("could not store system dir properties", e);
-	        }
+        if (s_sysDirProps == null) {
+            String etcDir = TestUtil.getProjectDirectory() + "/etc";
+            String outDir = getTestDirectory();
+            s_sysDirProps = TestUtil.getSysDirProperties(getClasspathDirectory(), etcDir, outDir);
         }
-        
-        return s_sysProps;
+        return s_sysDirProps;
     }    
     
     public static IDatabaseConnection getConnection() throws Exception {
