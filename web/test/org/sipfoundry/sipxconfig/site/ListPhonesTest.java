@@ -11,37 +11,50 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import junit.framework.TestCase;
+
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.test.AbstractInstantiator;
+import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.GenericPhone;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneSummary;
+import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public class ListPhonesTest extends TestCase {
 
     private final static String MAC_ADDRESS = "ffffffffff";
     
-    public void testListPhones() {
-        /*
-        SiteTestHelper.initTapestryUtils();
-        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycleControl.replay();
-        
-        // page w/generated abstract methods implemented
-        AbstractInstantiator pageMaker = new AbstractInstantiator();
-        ManagePhones page = (ManagePhones) pageMaker.getInstance(ManagePhones.class);
-        
-        MockControl daoControl = MockControl.createControl(PhoneDao.class);
-        PhoneDao dao = (PhoneDao) daoControl.getMock();
+    public void testListPhones() {        
+        // page w/generated abstract methods implemented        
+        MockControl daoControl = MockControl.createStrictControl(PhoneContext.class);
+        PhoneContext dao = (PhoneContext) daoControl.getMock();
         List summaries = new ArrayList();
+        Phone phone = new GenericPhone();
         Endpoint endpoint = new Endpoint();
+        phone.setEndpoint(endpoint);
         endpoint.setSerialNumber(MAC_ADDRESS);
-        endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
-        PhoneSummary summary = new PhoneSummary();
-        summary.setPhone(phoneContext.getPhone(endpoint));
+        endpoint.setPhoneId(phone.getModelId());
+        PhoneSummary summary = new PhoneSummary();        
+        summary.setPhone(phone);
         summaries.add(summary);
-        daoControl.expectAndReturn(dao.loadPhoneSummaries(phoneContext), summaries);
+        daoControl.expectAndReturn(dao.loadPhoneSummaries(), summaries);
         daoControl.replay();
         
-        phoneContext.setPhoneContext(dao);
+        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
+        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
+        cycleControl.expectAndReturn(cycle.getAttribute(PhoneContext.CONTEXT_BEAN_NAME), dao);
+        cycleControl.replay();
 
+        AbstractInstantiator pageMaker = new AbstractInstantiator();
+        ManagePhones page = (ManagePhones) pageMaker.getInstance(ManagePhones.class);
         page.pageBeginRender(new PageEvent(page, cycle));
         List phones = page.getPhones(); 
         assertNotNull(phones);
@@ -53,6 +66,5 @@ public class ListPhonesTest extends TestCase {
         
         daoControl.verify();
         cycleControl.verify();
-        */
     }
 }

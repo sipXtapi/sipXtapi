@@ -43,7 +43,6 @@ public class PhoneContextTestDb extends TestCase {
 
     public void testSampleData() {
         assertNotNull(m_testData.createSampleCredential());
-        assertNotNull(m_testData.createSampleSettingSet());
         assertNotNull(m_testData.createSampleEndpoint());
     }
     
@@ -53,7 +52,7 @@ public class PhoneContextTestDb extends TestCase {
     }
 
     public void testLoadPhoneSummaries() {
-        int preSize = m_context.loadPhoneSummaries(m_context).size();
+        int preSize = m_context.loadPhoneSummaries().size();
 
         User user = m_context.loadUser(m_testData.getTestUserId());
         Line line = m_testData.createSampleLine(user);
@@ -61,7 +60,7 @@ public class PhoneContextTestDb extends TestCase {
         
         // just test there's one more in list, not a very 
         // hard test
-        List summaries = m_context.loadPhoneSummaries(m_context);
+        List summaries = m_context.loadPhoneSummaries();
         assertEquals(preSize + 1, summaries.size());
     }
 

@@ -27,8 +27,6 @@ public class GenericPhone implements Phone {
 
     private Endpoint m_endpoint;
 
-    private PhoneContext m_phoneContext;
-
     public String getModelId() {
         return m_id;
     }
@@ -41,20 +39,6 @@ public class GenericPhone implements Phone {
         m_id = id;
     }
 
-    /**
-     * No profiles
-     */
-    public String generateProfile(int profileIndexTemp) {
-        return "";
-    }
-
-    /**
-     * No profiles because there is never any output
-     */
-    public int getProfileCount() {
-        return 0;
-    }
-
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
     }
@@ -63,26 +47,15 @@ public class GenericPhone implements Phone {
         return m_endpoint;
     }
 
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
-    }
-
-    public PhoneContext getPhoneContext() {
-        return m_phoneContext;
-    }
-
-    public void initialize() {        
+    /**
+     * Not applicable
+     */
+    public void generateProfiles(PhoneContext phoneContext) throws IOException {        
     }
     
     /**
      * Not applicable
      */
-    public void generateProfiles() throws IOException {        
-    }
-    
-    /**
-     * Not applicable
-     */
-    public void restart() throws IOException {
+    public void restart(PhoneContext phoneContext) throws IOException {
     }
 }

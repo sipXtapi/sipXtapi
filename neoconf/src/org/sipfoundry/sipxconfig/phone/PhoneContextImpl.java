@@ -40,7 +40,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         Phone phone = (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
         if (phone != null) {
             phone.setEndpoint(endpoint);
-            phone.initialize();
         }
         
         return phone;
@@ -113,7 +112,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return (Line) getHibernateTemplate().load(Line.class, new Integer(id));
     }
 
-    public List loadPhoneSummaries(PhoneContext context) {        
+    public List loadPhoneSummaries() {        
         String endpointQuery = "from Endpoint e order by e.id";
         List endpoints = getHibernateTemplate().find(endpointQuery);
         List summaries = new ArrayList(endpoints.size());
@@ -139,7 +138,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
                 summary.getEndpointLines().add(line);                
                 line = (Line) getn(j++, lines);
             }
-            summary.setPhone(context.getPhone(endpoint));
+            summary.setPhone(getPhone(endpoint));
             summaries.add(summary);
             summary = new PhoneSummary();
             summary.setEndpointLines(new ArrayList());

@@ -11,18 +11,22 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.util.Date;
+
 import junit.framework.TestCase;
+
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.test.AbstractInstantiator;
+import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.GenericPhone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.site.phone.EditPhone;
+import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public class EditPhoneTest extends TestCase {
 
     public void testSave() {
-        /*
-        SiteTestHelper.initTapestryUtils();
-        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycle.activate(ManagePhones.PAGE);
-        cycleControl.replay();
-
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
         GenericPhone phone = new GenericPhone();
@@ -35,13 +39,19 @@ public class EditPhoneTest extends TestCase {
         MockControl daoControl = MockControl.createStrictControl(PhoneContext.class);
         PhoneContext dao = (PhoneContext) daoControl.getMock();
         dao.storeEndpoint(endpoint);
+        dao.flush();
         daoControl.replay();
+
+        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
+        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
+        cycleControl.expectAndReturn(cycle.getAttribute(PhoneContext.CONTEXT_BEAN_NAME), dao);
+        cycle.activate(ManagePhones.PAGE);
+        cycleControl.replay();
 
         page.ok(cycle);
 
-        daoControl.verify();
         cycleControl.verify();
-        */
+        daoControl.verify();
     }
 
     public void textCancel() {

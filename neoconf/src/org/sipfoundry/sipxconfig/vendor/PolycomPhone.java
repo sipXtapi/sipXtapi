@@ -45,7 +45,7 @@ public class PolycomPhone extends GenericPhone {
 
     private String m_id;
 
-    private File m_tftpRoot;
+    private String m_tftpRoot;
     
     private VelocityEngine m_velocityEngine;
 
@@ -58,11 +58,11 @@ public class PolycomPhone extends GenericPhone {
     }
     
     public String getTftpRoot() {
-        return m_tftpRoot.getName();
+        return m_tftpRoot;
     }
 
     public void setTftpRoot(String tftpRoot) {
-        m_tftpRoot = new File(tftpRoot);
+        m_tftpRoot = tftpRoot;
     }
 
     public String getModelId() {
@@ -77,32 +77,29 @@ public class PolycomPhone extends GenericPhone {
         m_id = id;
     }
     
-    public void initialize() {
+    private void initialize(PhoneContext context) {
         SettingSet settings = getEndpoint().getSettings();
-        if (settings == null) {
-            // TODO not sure i want to do this
-            settings = new SettingSet();
-            getEndpoint().setSettings(settings);
-        }
-        PhoneContext context = getPhoneContext();
         Organization org = context.loadRootOrganization();
         
         settings.setDefault("network/tftpServer", org.getDnsDomain());
-        
-        if (!m_tftpRoot.exists()) {
-            if (!m_tftpRoot.mkdirs()) {
-                throw new RuntimeException("Could not create TFTP root directory " + m_tftpRoot.getPath());
+        File tftpRootFile = new File(getTftpRoot());
+        if (!tftpRootFile.exists()) {
+            if (!tftpRootFile.mkdirs()) {
+                throw new RuntimeException("Could not create TFTP root directory " 
+                        + tftpRootFile.getPath());
             }
         }
     }
 
-    public void generateProfiles() throws IOException {
+    public void generateProfiles(PhoneContext context) throws IOException {
+        initialize(context);
         Template template;
         String templateFile = "polycom/phone1.cfg";
         try {
-            template = m_velocityEngine.getTemplate(templateFile);
+            template = getVelocityEngine().getTemplate(templateFile);
         } catch (Exception e) {
-            throw new RuntimeException("Error creating velocity template " + templateFile, e);
+            throw new RuntimeException("Error creating velocity template " 
+                    + templateFile, e);
         }
         
         // PERFORMANCE: depending on how resource intensive the above code is
@@ -113,8 +110,9 @@ public class PolycomPhone extends GenericPhone {
         velocityContext.put("phone", this);
 
         FileWriter wtr = null;
+        File tftpRootFile = new File(getTftpRoot());
         try {
-            wtr = new FileWriter(new File(m_tftpRoot, getPhoneConfigFilename()));
+            wtr = new FileWriter(new File(tftpRootFile, getPhoneConfigFilename()));
             template.merge(velocityContext, wtr);
         } catch (Exception e) {
             throw new RuntimeException("Error processing velocity template " + templateFile, e);

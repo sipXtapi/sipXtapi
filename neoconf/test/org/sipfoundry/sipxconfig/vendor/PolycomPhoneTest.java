@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Credential;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.SettingSet;
 import org.sipfoundry.sipxconfig.phone.User;
@@ -36,6 +37,9 @@ public class PolycomPhoneTest extends XMLTestCase {
     public void testBasicProfile() throws Exception {
         MockControl phoneControl = MockControl.createStrictControl(PhoneContext.class);
         PhoneContext phoneContext = (PhoneContext) phoneControl.getMock();
+        Organization rootOrg = new Organization();
+        rootOrg.setDnsDomain("localhost.localdomain");
+        phoneControl.expectAndReturn(phoneContext.loadRootOrganization(), rootOrg);
         phoneControl.replay();
 
         Endpoint endpoint = new Endpoint();
@@ -43,11 +47,10 @@ public class PolycomPhoneTest extends XMLTestCase {
         endpoint.setSettings(new SettingSet());
         endpoint.setPhoneId(PolycomPhone.MODEL_300);
         PolycomPhone phone = new PolycomPhone();
+        phone.setTftpRoot(TestHelper.getTestDirectory());
         phone.setModelId(PolycomPhone.MODEL_300);
         phone.setEndpoint(endpoint);
         phone.setVelocityEngine(TestHelper.getVelocityEngine());
-
-        phone.setPhoneContext(phoneContext);
 
         // create basic data
         Line line = new Line();
@@ -57,7 +60,7 @@ public class PolycomPhoneTest extends XMLTestCase {
         line.setEndpoint(endpoint);
         line.setUser(user);
         
-        phone.generateProfiles();
+        phone.generateProfiles(phoneContext);
         InputStream expectedPhoneStream = null;
         InputStream actualPhoneStream = null;
         try {            

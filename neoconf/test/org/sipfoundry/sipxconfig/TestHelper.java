@@ -42,7 +42,11 @@ public final class TestHelper {
         }
         
         return s_appContext;
-    }        
+    }
+    
+    public static String getTestDirectory() {
+        return getSysDirProperties().getProperty("sysdir.var");
+    }
 
     public static VelocityEngine getVelocityEngine() throws Exception {
         Properties sysdir = getSysDirProperties();

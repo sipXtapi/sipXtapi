@@ -19,8 +19,10 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.line.NewLine;
 
 
@@ -57,11 +59,13 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     }
     
     public void newLine(IRequestCycle cycle) {
-        Phone phone = PhonePageUtils.getPhoneFromParameter(cycle, 0);
+        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        Object[] params = cycle.getServiceParameters();
+        Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        Phone phone = context.getPhone(endpointId.intValue());
         NewLine page = (NewLine) cycle.getPage(NewLine.PAGE);
         page.setPhone(phone);
         page.setReturnPage(PAGE);
         cycle.activate(page);
     }
-
 }

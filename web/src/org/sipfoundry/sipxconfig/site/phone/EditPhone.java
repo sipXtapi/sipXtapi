@@ -34,14 +34,14 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
     public abstract void setPhoneId(int id);
     
     public void ok(IRequestCycle cycle) {
-        PhoneContext dao = PhonePageUtils.getPhoneContext(cycle); 
-        dao.storeEndpoint(getPhone().getEndpoint());
+        apply(cycle);
         cycle.activate(ManagePhones.PAGE);
     }
 
     public void apply(IRequestCycle cycle) {
         PhoneContext dao = PhonePageUtils.getPhoneContext(cycle); 
         dao.storeEndpoint(getPhone().getEndpoint());
+        dao.flush();
     }
     
     public void cancel(IRequestCycle cycle) {

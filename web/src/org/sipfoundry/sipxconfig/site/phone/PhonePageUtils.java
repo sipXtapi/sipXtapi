@@ -12,9 +12,8 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.site.SipxconfigEngine;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
@@ -22,38 +21,34 @@ import org.springframework.beans.factory.BeanFactory;
  */
 public final class PhonePageUtils {
     
-    private static PhoneContext s_unittestPhoneContext;
-
     /**
      * restrict construction 
      */
     private PhonePageUtils() {
     }
     
-    public static final void setUnittestPhoneContext(PhoneContext phoneContext) {
-        s_unittestPhoneContext = phoneContext;
-    }
-
     /**
      * Get the phone context from tapestry's cycle context
      */
     public static final PhoneContext getPhoneContext(IRequestCycle cycle) {
-        PhoneContext phoneContext = s_unittestPhoneContext;
-        if (phoneContext == null) {
-            BeanFactory bf = TapestryUtils.getBeanFactory(cycle);
-            phoneContext = (PhoneContext) bf.getBean(PhoneContext.CONTEXT_BEAN_NAME); 
+        PhoneContext context = (PhoneContext) cycle.getAttribute(PhoneContext.CONTEXT_BEAN_NAME);
+        if (context == null) {
+            SipxconfigEngine engine = (SipxconfigEngine) cycle.getEngine();
+            BeanFactory bf = engine.getBeanFactory();
+            context = (PhoneContext) bf.getBean(PhoneContext.CONTEXT_BEAN_NAME);
+            cycle.setAttribute(PhoneContext.CONTEXT_BEAN_NAME, context);
         }
-
-        return phoneContext;
-    }
+        
+        return context;
+        
+    }    
     
     /**
      * Get phone if pass as a parameter such as a DirectLink
-     */
     public static final Phone getPhoneFromParameter(IRequestCycle cycle, int index) {
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, index);
         return getPhoneContext(cycle).getPhone(endpointId.intValue());
     }
-
+     */
 }

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 
 /**
@@ -28,7 +29,10 @@ public abstract class NewPhone extends BasePage {
     public abstract void setEndpoint(Endpoint endpoint);
 
     public void finish(IRequestCycle cycle) {
-        PhonePageUtils.getPhoneContext(cycle).storeEndpoint(getEndpoint());
+        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        context.storeSetting(getEndpoint().getSettings());
+        context.storeEndpoint(getEndpoint());
+        context.flush();
         cycle.activate(ManagePhones.PAGE);
     }
 

@@ -188,11 +188,12 @@ public class UnitTestDao extends HibernateDaoSupport {
     /**
      * Create some generic sample data, destroyed verifyDataUnaltered
      */
-    public Endpoint createSampleEndpoint() {
+    public Endpoint createSampleEndpoint() {        
         Endpoint endpoint = new Endpoint();
         // assumption that this is unique
         endpoint.setSerialNumber("f34298760024fcc1"); 
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
+        endpoint.setSettings(createSampleSettingSet());
         m_phoneContext.storeEndpoint(endpoint);
         m_teardownEndpoint = endpoint;
         

@@ -29,6 +29,6 @@ public class SettingSetTest extends TestCase {
             for (int j = 0; j < 10; j++) {
                 sj.addSetting(new Setting("settings-" + i + "-" + j, new Integer(i * j)));                
             }
-        }
+        }        
     }
 }

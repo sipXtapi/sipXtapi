@@ -107,7 +107,7 @@
 	</bean>
 	<!--
 	  - P H O N E  M O D E L S
-	  - hoping to move this external file
+	  - hoping to move this external file for end user modification
 	  -->
 	<bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
 		singleton="false">
@@ -120,14 +120,8 @@
 		<property name="modelId">
 			<value>polycom300</value>
 		</property>
-		<property name="phoneContext">
-			<ref local="phoneContext"/>
-		</property>
 	</bean>
 	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		
-		<property name="phoneContext">
-			<ref local="phoneContext"/>
-		</property>
 	</bean>
     <!-- temporary gateways and dialPlans singletons-->
     <bean id="dialPlanManager" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">

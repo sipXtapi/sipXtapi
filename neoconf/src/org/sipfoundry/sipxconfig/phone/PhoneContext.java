@@ -78,7 +78,7 @@ public interface PhoneContext {
     
     public User loadUserByDisplayId(String displayId);
     
-    public List loadPhoneSummaries(PhoneContext context);      
+    public List loadPhoneSummaries();      
 
     public void storeCredential(Credential credential);
     

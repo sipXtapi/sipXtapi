@@ -30,13 +30,7 @@ public interface Phone {
     
     public Endpoint getEndpoint();
 
-    public void setPhoneContext(PhoneContext phoneContext);
-
-    public PhoneContext getPhoneContext();
+    public void generateProfiles(PhoneContext phoneContext) throws IOException;
     
-    public void initialize();
-    
-    public void generateProfiles() throws IOException;
-    
-    public void restart() throws IOException;
+    public void restart(PhoneContext phoneContext) throws IOException;
 }

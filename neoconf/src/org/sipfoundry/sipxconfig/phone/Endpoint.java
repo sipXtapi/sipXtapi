@@ -29,7 +29,7 @@ public class Endpoint implements Serializable {
 
     private String m_phoneId;
     
-    private SettingSet m_settings;
+    private SettingSet m_settings = new SettingSet();
 
     /**
      * @return ids used in PhoneFactory
