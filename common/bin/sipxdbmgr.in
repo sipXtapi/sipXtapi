@@ -1,26 +1,36 @@
 #!/bin/bash
 
-Action=USAGE
-Service=$POSTGRES_SERVICE
+# Script to perform various Postgres utility functions for sipX.
 
-# Redhat Enterprise is distributing a modified version of postgres
-# so look for that instead
+# Establish the default action to perform, which is USAGE, so the user gets
+# a usage message if we cannot determine what we are supposed to do.
+Action=USAGE
+# $Service will be the name of the Postgres service.  The user can
+# specify it via the POSTGRES_SERVICE environment variable.
+Service=${POSTGRES_SERVICE-}
+
+# This function determines the correct service name for Postgres.
 determineServiceName()
 {
-    if test -z $Service
+    # If the user has already specified $Service, do not modify it.
+    if test -z "$Service"
     then
         if [ -f /etc/init.d/rhdb ]
         then
+	    # Red Hat Enterprise uses the name rhdb.
             Service=rhdb
         else
+	    # Most other distributions use the name postgresql.
             Service=postgresql
         fi
     fi
 }
 
+# First, determine the correct service name.
 determineServiceName
 
-while [ "$#" -ne 0 ]
+# Process the arguments.
+while [ $# -ne 0 ]
 do
     case ${1} in
 
@@ -44,23 +54,43 @@ do
         Action=REVISION
         ;;
 
+        --status)
+        Action=STATUS
+        ;;
+
+        --install)
+        Action=INSTALL
+        ;;
+
+	# Invalid options.
+	-*)
+	Action=USAGE
+	echo "Invalid option: ${1}" >&2
+	break
+	;;
+
+	# Non-option arguments specify the database name, and there
+	# should be only one of them.
         *)
-        if test -z $Database
+        if test -z "$Database"
         then
-            Database=${1}
-            shift
+            Database="${1}"
         else
             echo "Too many arguments: ${1}"
             Action=USAGE
-            break;
+            break
         fi
+        ;;
     esac
 
     shift #always consume 1
 done
 
+# Perform the selected action.
+
 if test "$Action" = "SETUP"
 then
+  # Set up the server.
 
   /etc/init.d/$Service stop >2 /dev/null
 
@@ -135,6 +165,7 @@ then
 
 elif test "$Action" = CREATE && test $Database = PDS
 then
+    # Create a database.
 
     createdb -U @sipxpbx.user@ --encoding=UNICODE $Database
     psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_create.sql $Database
@@ -156,8 +187,11 @@ then
 
 elif test "$Action" = REVISION && ! test -z $Database
 then
+    # Get the revision number of the database.
+    # Currently, the only revision numbers are 1 (meaning the database
+    # exists) and 0 (meaning it doesn't).
 
-    if [ `psql -l -U postgres | grep -c "$Database"` -ne 0 ]
+    if psql -l -U postgres | grep "$Database" >/dev/null
     then
         # until we have a db query to get revision, existance of db
         # means first revision
@@ -171,20 +205,52 @@ then
    
 elif test "$Action" = DROP && ! test -z $Database
 then
+    # Delete a database.
 
     dropdb -U @sipxpbx.user@ $Database
 
     exit 0
 
+elif test "$Action" = STATUS
+then
+    # Test whether Postgres is running, in exactly the same manner as
+    # /etc/init.d/$Service, or "service $Service status" on Red Hat
+    # distributions.
+
+    # Return the same return code as the script does.
+    exec /etc/init.d/$Service status
+
+elif test "$Action" = INSTALL
+then
+    # Arrange for Postgres to be started automatically in runlevels 3
+    # and 5.
+    # Check if we can use chkconfig.
+    if which chkconfig >/dev/null 2>&1
+    then
+        # We have to specify the runlevels because the default set of
+        # runlevels for Postgres is empty.
+        chkconfig --level 35 $Service on
+    else
+        # The user will have to do it manually.
+        echo chkconfig does not exist.
+        echo You need to create /etc/rc?.d/{S85,K15}$Service
+        echo to start $Service for runlevels 3 and 5.
+    fi
+
+    exit 0
 fi
+
+# The only remaining possiblity is outputting the usage message.
 
 cat <<USAGE
 Usage: sipxdbmgr [-s|--setup]
                  [-c|--create] [PDS|SDS]
                  [-d|--drop] [PDS|SDS]
                  [-r|--revision] [PDS|SDS]
+                 [--status]
+                 [--install]
 
-Manages creating, updating of sipxpbx's postgres database
+Performs utility functions on sipxpbx's Postgres database.
 
 Options are:
 
@@ -197,12 +263,21 @@ Options are:
 
       --revision     Return revision of database
 
+      --status       Test whether Postgres is running.
+
+      --install      Arrange for Postgres to be started automatically
+                     in runlevels 3 and 5.
+
 Notable Environment Variables:
 
-    POSTGRES_SERVICE   a guess is made to dermine postgres service.  If guess
-                       incorrect set this to the service in /etc/init.d that
-                       starts stops postgres db
-    
-
+    POSTGRES_SERVICE   a guess is made to determine the name for the
+                       Postgres service.
+                       If the guess incorrect, set this to the name of
+                       the script in /etc/init.d that starts/stops
+                       the Postgres database.  The possibilities that
+                       we are aware of are "postgresql" and "rhdb".
 USAGE
-exit
+
+# Give an error exit, as all erroneous inputs are converted into
+# Action=USAGE and eventually get here.
+exit 1

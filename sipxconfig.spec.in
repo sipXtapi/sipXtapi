@@ -99,10 +99,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 
-# Add user to jboss group
-if test `/usr/bin/groups @SIPXPBXUSER@ | grep -c jboss` -eq 0
+# Add user @SIPXPBXUSER@ to the "jboss" group
+if ! /usr/bin/groups @SIPXPBXUSER@ | grep jboss >/dev/null
 then
-  Groups=`/usr/bin/groups @SIPXPBXUSER@ | sed -e 's/^@SIPXPBXUSER@ : //g' -e 's/ /,/g'`
+  Groups=`/usr/bin/groups @SIPXPBXUSER@ |
+          sed -e 's/^@SIPXPBXUSER@ : //g' -e 's/ /,/g'`
   /usr/sbin/usermod -G $Groups,jboss @SIPXPBXUSER@
 fi
 
@@ -110,12 +111,16 @@ fi
 
 %post
 
-# NOTE: will leave having started the database (or restarted)
+# Start Postgres and create the databases.  Note that we leave Postgres
+# running afterward.
 %{_bindir}/sipxdbmgr --setup >/dev/null
 
 for Database in PDS SDS; do
-  if test `%{_bindir}/sipxdbmgr --revision $Database` -eq 0
+  if test "`%{_bindir}/sipxdbmgr --revision $Database`" -eq 0
   then
        %{_bindir}/sipxdbmgr --create $Database >/dev/null
   fi
 done
+
+# Arrange for Postgres to be started every time the system starts up.
+%{_bindir}/sipxdbmgr --install
