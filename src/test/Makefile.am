@@ -3,23 +3,29 @@ INCLUDES = -I$(top_srcdir)/include
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = sipXproxy-check
+TESTS = testsuite
 
-sipXproxy_check_CXXFLAGS = -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" $(GLIB_CFLAGS)
+check_PROGRAMS = testsuite
 
-check_PROGRAMS = sipXproxy-check
+testsuite_CXXFLAGS = \
+    -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
+    $(GLIB_CFLAGS)
 
-sipXproxy_check_LDFLAGS = -L@prefix@/lib $(GLIB_LIBS)
+## Point to *.a directly so gdb can load source. 
+## -static in LDFLAGS in not working as I thought it should
+testsuite_LDADD = \
+    @SIPXUNIT_LDADD@ \
+    @PCRE_LIBS@ \
+    $(GLIB_LIBS)
 
-sipXproxy_check_LIBS = \
-    libsipXcommserver.la \
-    cppunit
-
-sipXproxy_check_LDADD = ../sipforkingproxy/ForwardRules.o -lcppunit
-
-sipXproxy_check_SOURCES = \
-    unitmain.cpp \
-	ForwardRulesTest.cpp
+## TODO: Find a way to include ForwardingRules.o instead of
+## ForwardingRules.cpp. Initial plan to do this failed because recent
+## versions of libtool name .o file sipproxy-ForwardingRules.o and
+## early versions named it ForwardingRules.o
+testsuite_SOURCES = \
+    @SIPXUNIT_SRCDIR@/sipxunit/unitmain.cpp \
+    $(top_srcdir)/src/sipforkingproxy/ForwardRules.cpp \
+    ForwardRulesTest.cpp
 
 EXTRA_DATA = \
-	rulesdata/simple-forwarding.xml
+    rulesdata/simple-forwarding.xml
