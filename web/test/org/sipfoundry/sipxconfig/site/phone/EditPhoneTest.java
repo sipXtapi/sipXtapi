@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Date;
 

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.vendor;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -24,14 +25,28 @@ import org.sipfoundry.sipxconfig.phone.Credential;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Organization;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.setting.SettingModel;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 public class PolycomPhoneTest extends XMLTestCase {
         
     public void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
+    }
+    
+    public void testSettingModel() throws Exception {
+        PolycomPhone phone = new PolycomPhone();
+        String sysDir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
+        assertNotNull(sysDir);
+        phone.setSystemDirectory(sysDir);
+        SettingModel model = phone.getSettingModel();
+        assertNotNull(model);
+        
+        SettingModel lines = (SettingModel) model.getMeta(Phone.LINE_SETTINGS);
+        assertNotNull(lines);
     }
     
     public void testBasicProfile() throws Exception {
@@ -47,6 +62,7 @@ public class PolycomPhoneTest extends XMLTestCase {
         endpoint.setSettings(new SettingSet());
         endpoint.setPhoneId(PolycomPhone.MODEL_300);
         PolycomPhone phone = new PolycomPhone();
+        phone.setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
         phone.setTftpRoot(TestHelper.getTestDirectory());
         phone.setModelId(PolycomPhone.MODEL_300);
         phone.setEndpoint(endpoint);

@@ -114,6 +114,9 @@
 		<property name="velocityEngine">
 			<ref bean="velocityEngine"/>
 		</property>
+		<property name="systemDirectory">
+			<value>${sysdir.etc}</value>
+		</property>
 		<property name="tftpRoot">
 			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
 		</property>

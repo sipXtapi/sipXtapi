@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model>
-	<model name="registration">
+<set>
+	<set name="registration">
 		<label>Registration</label>
-		<meta name="displayName">
+		<setting name="displayName">
 			<label>Display Name</label>
-		</meta>
-		<meta name="address">
+		</setting>
+		<setting name="address">
 			<label>Address</label>
 			<type>Server</type>
-		</meta>
-		<meta name="label">
+		</setting>
+		<setting name="label">
 			<label>Label</label>
-		</meta>
-		<meta name="type">
-			<enum>
-				<element>public</element>
-				<element>private</element>
-			</enum>
-		</meta>
-	</model>
-</model>
+		</setting>
+		<setting name="type">
+			<defaultValue>public</defaultValue>
+			<possibleValues>
+				<value>public</value>
+				<value>private</value>
+			</possibleValues>
+		</setting>
+	</set>
+	<!-- TODO: think about 'line' element to remove opportunity for user error -->
+	<set name="line">
+		<label>Line Settings</label>
+	</set>
+</set>

@@ -33,8 +33,8 @@ public class Tabs {
     
     private String m_activeTabId;
     
-    public String getCssClass(String tabId) {
-        return tabId.equals(m_activeTabId) ? ACTIVE_CLASS : INACTIVE_CLASS;        
+    public String getTabClass(String tabId) {
+        return tabId != null && tabId.equals(m_activeTabId) ? ACTIVE_CLASS : INACTIVE_CLASS;
     }
     
     public void setActiveTab(String tabId) {

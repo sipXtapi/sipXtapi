@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.IOException;
 
+import org.sipfoundry.sipxconfig.setting.SettingModel;
+
 /**
  * Generic phone does not correlate to any particular phone. It represents any unsupported phones
  * that simply needs to be configured with basic network settings to the commservers so it can
@@ -26,7 +28,9 @@ public class GenericPhone implements Phone {
     private String m_id = GENERIC_PHONE_ID;
 
     private Endpoint m_endpoint;
-
+    
+    private SettingModel m_settingModel = new SettingModel();
+    
     public String getModelId() {
         return m_id;
     }
@@ -45,6 +49,13 @@ public class GenericPhone implements Phone {
     
     public Endpoint getEndpoint() {
         return m_endpoint;
+    }
+
+    /**
+     * Return empty model, no custom settings
+     */
+    public SettingModel getSettingModel() {
+        return m_settingModel;
     }
 
     /**

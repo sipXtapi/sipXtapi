@@ -27,23 +27,22 @@ public class XmlModelBuilder {
         digester.setValidating(false);
         String addMeta = "addMeta";
 
-        digester.addObjectCreate("model", SettingModel.class);
+        digester.addObjectCreate("set", SettingModel.class);
 
-        String modelPattern = "*/model";
-        digester.addObjectCreate(modelPattern, SettingModel.class);
-        digester.addSetNext(modelPattern, addMeta, SettingMeta.class.getName());
-        digester.addSetProperties(modelPattern);
+        String set = "*/set";
+        digester.addObjectCreate(set, SettingModel.class);
+        digester.addSetNext(set, addMeta, SettingMeta.class.getName());
+        digester.addSetProperties(set);
 
-        String metaPattern = "*/meta";
-        digester.addObjectCreate(metaPattern, SettingMeta.class);
-        digester.addSetNext(metaPattern, addMeta, SettingMeta.class.getName());
-        digester.addSetProperties(metaPattern);
+        String setting = "*/setting";
+        digester.addObjectCreate(setting, SettingMeta.class);
+        digester.addSetNext(setting, addMeta, SettingMeta.class.getName());
+        digester.addSetProperties(setting);
 
-//        digester.addObjectCreate("*/enum", ArrayList.class);
-//        digester.addSetNext(metaPattern, "setPossibleValues", List.class.getName());
-//        digester.addObjectCreate("*/element", String.class);
-//        digester.addSetNext(metaPattern, "add", List.class.getName());
-
+        String possibleValues = "*/possibleValues/value";
+        digester.addCallMethod(possibleValues, "addPossibleValue", 1);
+        digester.addCallParam(possibleValues, 0);
+        
         try {
             return (SettingModel) digester.parse(is);
         } catch (SAXException se) {

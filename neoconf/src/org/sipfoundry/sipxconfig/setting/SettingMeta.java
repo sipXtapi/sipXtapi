@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -104,8 +105,15 @@ public class SettingMeta implements Map {
     public void setType(String type) {
         m_type = type;
     }
+    
+    public void addPossibleValue(String value) {
+        if (m_possibleValues == null) {
+            m_possibleValues = new ArrayList();
+        }
+        m_possibleValues.add(value);
+    }
 
-    public List addPossibleValues() {
+    public List getPossibleValues() {
         return m_possibleValues;
     }
 

@@ -22,7 +22,7 @@ public class TabsTest extends TestCase {
         Tabs tabs = new Tabs();
         String activeTab = "active tab"; 
         tabs.setActiveTab(activeTab);
-        assertEquals(Tabs.ACTIVE_CLASS, tabs.getCssClass(activeTab));
-        assertEquals(Tabs.INACTIVE_CLASS, tabs.getCssClass("inactive tab"));
+        assertEquals(Tabs.ACTIVE_CLASS, tabs.getTabClass(activeTab));
+        assertEquals(Tabs.INACTIVE_CLASS, tabs.getTabClass("inactive tab"));
     }
 }

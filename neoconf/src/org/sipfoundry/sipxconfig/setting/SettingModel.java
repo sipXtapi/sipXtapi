@@ -29,13 +29,13 @@ public class SettingModel extends SettingMeta {
      * Create the top most model
      */
     public SettingModel() {
-        super("root");
+        super(null);
     }
     
     public SettingModel(String name) {
         super(name);
     }
-
+    
     /**
      * the nth item that was added to this model
      */

@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
@@ -19,6 +18,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.SettingModel;
 import org.sipfoundry.sipxconfig.site.line.LineSettings;
 
 /**
@@ -34,9 +34,9 @@ public abstract class PhoneNavigation extends BaseComponent {
     
     public abstract Phone getPhone();
     
-    public abstract void setCurrentSetting(String setting);
+    public abstract void setCurrentSetting(SettingModel setting);
 
-    public abstract String getCurrentSetting();
+    public abstract SettingModel getCurrentSetting();
     
     public void editPhone(IRequestCycle cycle) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
@@ -72,17 +72,14 @@ public abstract class PhoneNavigation extends BaseComponent {
     public Object[] getEditSettingListenerParameters() {
         return new Object[] { 
             new Integer(getPhone().getEndpoint().getId()),
-            getCurrentSetting() 
+            getCurrentSetting().getName() 
         };
     }
     
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        // TODO: Build these from Endpoints, SettingsSet heirarchy
-        String[] headings = new String[] {
-            "Outbound Proxy", "Network" 
-        };        
-        setSettingSet(Arrays.asList(headings));
+        SettingModel model = getPhone().getSettingModel();
+        setSettingSet(model.values());
     }        
     
 }
