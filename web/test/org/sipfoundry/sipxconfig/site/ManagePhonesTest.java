@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
-public class ListPhonesTest extends TestCase {
+public class ManagePhonesTest extends TestCase {
 
     private final static String MAC_ADDRESS = "ffffffffff";
     

@@ -36,6 +36,10 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     public abstract Phone getPhone();
     
     public abstract void setPhone(Phone phone);
+    
+    public abstract int getPhoneId();
+    
+    public abstract void setPhoneId(int id);
 
     public abstract List getLines();
     
@@ -49,7 +53,10 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public abstract void setSelections(SelectMap selections);
     
-    public void pageBeginRender(PageEvent eventTemp) {
+    public void pageBeginRender(PageEvent event) {
+        PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
+        setPhone(context.getPhone(getPhoneId()));
+
         setLines(new ArrayList());
         
         // Generate the list of phone items

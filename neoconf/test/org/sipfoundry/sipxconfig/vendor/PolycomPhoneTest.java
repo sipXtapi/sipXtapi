@@ -84,5 +84,107 @@ public class PolycomPhoneTest extends XMLTestCase {
         }
         
         phoneControl.verify();
-    }       
+    }
+    
+    /**
+     * G O A L S
+     * ------------
+     * U I : 
+     *  1.) drill thru skeleton of possible settings
+     *  2.) current setting already populated with values
+     *  3.) populated w/defaults as well
+     *  4.) field level data: labels, fieldnames, validation errors, short descriptions
+     *  5.) group level data: long descriptions, validation errors, heading labels
+     *  6.) model apis condusive to tapestry page syntax 
+     * 
+     * D O M A I N : 
+     *  1.) create domain objects to validate settings
+     *  2.) allow end user to effect available settings
+     *  3.) build validation library of common field types
+     *  4.) model apis condusive to velocity syntax
+     *  5.) unittestability 
+     * 
+     * D A T A B A S E :
+     *  1.) store only what user has entered
+     *  2.) CRUD sections at a time
+     *  3.) migration plan for settings as domain evolves
+     * 
+     * Implementation Persectives
+     * -----------------------------
+     * U I:
+     *  MyPage.java
+     *    render()
+     *      Model m = new Model();
+     *      m.populateData(getSettings());
+     *    save()
+     *      m.save()
+     * 
+     *  MyPage.page
+     *    m.currentRow.label
+     *    m.currentRow.value
+     *    m.currentRow.defaultValue
+     *    
+     * D O M A I N:
+     * o Most phones will have developer manual that major percentage of
+     *   rules can be translated and maintained to this specification file
+     * o End users can edit this file to drive UI and model
+     * o Using programming language in xml reduces maintenance chore and
+     *   avoid extra xml interprettation to java objects (example. cardinality
+     *   would define how many are allowed, etc.
+     * o This method does not have to be adopted by all phone implementation.
+     *     
+     * 
+     * model.xml.template
+     *    <model>
+     *      <name=network>
+     *    #if $model = xyz
+     *         <name=tftpServer default=$property type=serverName>
+     *             <label>This does this and should match $property</label>
+     *    #for i = 1 to $num
+     *         <line default=$property>  
+     *    #end     
+     *    #end
+     * 
+     * profile.dat.template
+     * 
+     *   #for i in model.lines
+     *   lines.$i.server = model[$i].value
+     *   #end
+     * 
+     * 
+     *  MyPhoneModel
+     * 
+     *   validateElement(ModelEvent e)
+     *     if (e.getLabel() == NETWORK)
+     *        ModelElement elem = e.getElement()
+     *        if (elem.getSetting().getValue() == xyz)
+     *           elem.setValidationError('abc')
+     * 
+     *   generateProfiles(Model m)
+     *      template1.getObject("model", model)
+     *      template1.write(file1)
+     *      template2.getObject("model", model)
+     *      template2.write(file2)
+     * 
+     *  MyPhoneModelTest
+     *      MyPhoneModelTest phone
+     *      // polulate phone w/business objects
+     *      settings = loadTestSetting(file)
+     *      model = phone.getModel(settings)
+     *      phone.generateProfile()
+     *      assertFileEquals(DiffCallback)
+     * 
+     *  D A T A B A S E:
+     *     List settings = model.getChildSettings(parentId)
+     *     model.populateSettings(settings);
+     *     
+     * 
+     *     List changed = model.getChangedSettings()
+     *     dao.saveSettings(changed);
+     *     List deleted = model.getDeletedSettings()
+     *     dao.deleteSettings(changed);
+     * 
+     */    
+    public void testSettingsModel() {
+    }
 }

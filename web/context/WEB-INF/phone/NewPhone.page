@@ -6,7 +6,7 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint" persistent="yes"/>
+		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
     <!--
       - B E A N S
       -->

@@ -10,8 +10,9 @@
     - P R O P E R T I E S
     -->
     <property-specification name="phone"
-        type="org.sipfoundry.sipxconfig.phone.Phone"
-        persistent="yes"/>
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
+        type="int" persistent="yes"/>
     <property-specification name="lines" type="java.util.List"/>
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.phone.Line"/>

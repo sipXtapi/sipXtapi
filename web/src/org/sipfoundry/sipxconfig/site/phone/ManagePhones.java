@@ -19,7 +19,6 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 
@@ -48,17 +47,15 @@ public abstract class ManagePhones extends BasePage
      * When user clicks on link to edit a phone/endpoint
      */
     public void editPhone(IRequestCycle cycle) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setPhone(context.getPhone(endpointId.intValue()));
+        page.setPhoneId(endpointId.intValue());
         cycle.activate(page);
     }
     
     public void addPhone(IRequestCycle cycle) {
         NewPhone page = (NewPhone) cycle.getPage(NewPhone.PAGE);
-        page.setEndpoint(new Endpoint());
         cycle.activate(page);
     }
     
