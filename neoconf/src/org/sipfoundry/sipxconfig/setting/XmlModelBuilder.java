@@ -28,9 +28,9 @@ public class XmlModelBuilder {
         digester.setValidating(false);
         String metaSetter = "addMeta";
         String modelPattern = "*/model";
-        digester.addObjectCreate(modelPatten, SettingModel.class);
+        digester.addObjectCreate(modelPattern, SettingModel.class);
         digester.addSetNext(modelPattern, metaSetter, SettingModel.class.getName());
-        digester.addSetProperties(modelPatten);
+        digester.addSetProperties(modelPattern);
 
         String metaPattern = "*/model/meta";
         digester.addSetNext(metaPattern, metaSetter, SettingMeta.class.getName());
