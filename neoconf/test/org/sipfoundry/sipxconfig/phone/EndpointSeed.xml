@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <endpoint serial_number="999123456" 		
+		endpoint_id="1"
+        name="unittest-sample phone1"
+        phone_id="polycom300"/> 
+</dataset>

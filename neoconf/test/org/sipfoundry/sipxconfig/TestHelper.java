@@ -15,22 +15,27 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.security.CodeSource;
-import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Properties;
 import java.util.Stack;
-
-import javax.sql.DataSource;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatDtdDataSet;
+import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.dataset.xml.XmlDataSet;
+import org.dbunit.operation.DatabaseOperation;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -45,8 +50,15 @@ public final class TestHelper {
     
     private static ApplicationContext s_appContext;
     
-    private static Stack m_deleteOnTeardown = new Stack();
+    private static String P6SPY = "com.p6spy.engine.spy.P6SpyDriver";
     
+    private static String POSTGRES = "org.postgresql.Driver";
+    
+    static {
+        // default XML parser (crimson) cannot resolve relative DTDs, google for bug
+        System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
+    }
+
     public static ApplicationContext getApplicationContext() {
         if (s_appContext == null) {
             getSysDirProperties();
@@ -110,47 +122,64 @@ public final class TestHelper {
         }
         
         return s_sysProps;
-    }
+    }    
     
-    public static void deleteOnTearDown(Object o) {
-        m_deleteOnTeardown.push(o);
-    }
-    
-    /**
-     * straight delete, circumvents business DAO
-     */
-    public static void tearDown() throws HibernateException {
-        if (!m_deleteOnTeardown.empty()) {
-            SessionFactory sessionFactory = (SessionFactory) getApplicationContext().getBean("sessionFactory");
-            Session session = sessionFactory.openSession();
-            while (!m_deleteOnTeardown.empty()) {
-                session.delete(m_deleteOnTeardown.pop());
-            }
-            session.flush();
-            session.close();
-        }
-    }
-    
-    public static IDatabaseConnection getDbUnitConnection() throws SQLException {
-        DataSource dataSource = (DataSource) getApplicationContext().getBean("dataSource");
-        return new DatabaseConnection(dataSource.getConnection());
+    public static IDatabaseConnection getConnection() throws Exception {
+        //Class driverClass = Class.forName(P6SPY);  // dumps sql commands to log file
+
+        // Could optionally get this from Spring
+        //    DataSource.getConnection()
+        // may pool connections and be faster.
+        Class driverClass = Class.forName(POSTGRES);
+        Connection jdbcConnection = DriverManager.getConnection(
+                "jdbc:postgresql://localhost/PDS", "postgres", "");
+        DatabaseConnection dbunitConnection = new DatabaseConnection(jdbcConnection);
+        DatabaseConfig config = dbunitConnection.getConfig();
+        config.setFeature("http://www.dbunit.org/features/batchedStatements", true);
+        
+        return dbunitConnection;
     }
     
     public static void main(String[] args) {
         try {
-            generateDbUnitDtd();
+            //generateDbDtd();
+            generateDbXml();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
     
-    private static void generateDbUnitDtd() throws Exception {
-        IDatabaseConnection c = getDbUnitConnection();
+    private static void generateDbDtd() throws Exception {
+        IDatabaseConnection c = getConnection();
         
         FlatDtdDataSet.write(c.createDataSet(),
             new FileOutputStream("test/org/sipfoundry/sipxconfig/sipxconfig-dataset.dtd"));
         
     }
+    
+    private static void generateDbXml() throws Exception {
+        IDatabaseConnection c = getConnection();
+        
+        FlatXmlDataSet.write(c.createDataSet(),
+            new FileOutputStream("test/org/sipfoundry/sipxconfig/sipxconfig-dataset.xml"));
+    }
+    
+    public static IDataSet loadDataSet(Class c, String fileResource) throws Exception {
+        InputStream datasetStream = c.getResourceAsStream(fileResource);
+        return new XmlDataSet(datasetStream);
+    }
+    
+    public static IDataSet loadDataSetFlat(Class c, String resource) throws Exception {
+        InputStream datasetStream = c.getResourceAsStream(resource);
+        return new FlatXmlDataSet(datasetStream);
+    }
+    
+    public static void cleanInsert(Class c, String resource) throws Exception {
+        DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSet(c, resource));
+    }
 
+    public static void cleanInsertFlat(Class c, String resource) throws Exception {
+        DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSetFlat(c, resource));
+    }
 }

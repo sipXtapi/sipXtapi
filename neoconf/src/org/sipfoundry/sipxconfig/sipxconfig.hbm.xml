@@ -22,7 +22,7 @@
 		<property name="phoneId" column="phone_id"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-	    <list name="lines" lazy="true" table="line">
+	    <list name="lines" lazy="true" table="line" inverse="true">
 			<key column="line_id"/>
 			<index column="position"/>
     		<one-to-many class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
