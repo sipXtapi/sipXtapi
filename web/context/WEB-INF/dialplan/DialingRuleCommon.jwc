@@ -8,7 +8,7 @@
 	<parameter name="rule" 
         type="org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule" 
         required="yes" 
-        direction="in">
+        direction="auto">
     </parameter>
     
     
@@ -18,7 +18,11 @@
     <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
     	<set-property name="required" expression="true"/>
 	    <set-property name="minimumLength" expression="1"/>
-	</bean>    
+	</bean>
+    
+    <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
+        <set-property name="component" expression="components.description"/>
+    </bean>    
 
     
     <!-- C O M P O N E N T S -->

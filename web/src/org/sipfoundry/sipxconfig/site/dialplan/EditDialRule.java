@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
 
+import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -24,6 +25,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
+import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 
 /**
  * EditCustomeDialRule
@@ -100,6 +102,10 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     private boolean isValid() {
         IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
+        AbstractComponent component = (AbstractComponent) getComponent("common");
+        StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
+                .getBean("descriptionValidator");
+        descriptionValidator.validate(delegate);
         return !delegate.getHasErrors();
     }
 
