@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mappings>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urle911-00-00'>    
     <defaultMatch>
         <transform>
             <user>919</user>

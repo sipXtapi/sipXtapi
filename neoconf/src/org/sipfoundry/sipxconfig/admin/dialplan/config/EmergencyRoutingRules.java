@@ -29,6 +29,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
  */
 public class EmergencyRoutingRules extends XmlFile {
     private static final String E911RULES_XML = "e911rules.xml";
+    private static final String E911RULES_NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urle911-00-00";
+
     private Document m_document;
 
     public Document getDocument() {
@@ -37,7 +39,7 @@ public class EmergencyRoutingRules extends XmlFile {
 
     public void generate(EmergencyRouting er) {
         m_document = FACTORY.createDocument();
-        Element mappings = m_document.addElement("mappings");
+        Element mappings = m_document.addElement("mappings", E911RULES_NAMESPACE);
         Element defaultMatch = mappings.addElement("defaultMatch");
         String externalNumber = er.getExternalNumber();
         String address = er.getDefaultGateway().getAddress();
