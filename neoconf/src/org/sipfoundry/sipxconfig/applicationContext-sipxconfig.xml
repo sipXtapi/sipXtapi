@@ -167,6 +167,9 @@
         <property name="serviceName">
             <value>ForwardingAliasService</value>
         </property>
+        <property name="registryPort">
+            <value>2001</value>
+        </property>
     </bean>
 	<!--
       - P H O N E  C O N T E X T   I M P L
