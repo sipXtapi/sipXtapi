@@ -12,17 +12,12 @@
 
 package com.pingtel.pds.pgs.sipxchange.datasets;
 
-import com.pingtel.pds.pgs.sipxchange.datasets.DataSetBuilder;
-
 import java.rmi.RemoteException;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBHome;
 
-
-
 public interface DataSetBuilderHome extends EJBHome {
 
-    public DataSetBuilder create()
-             throws CreateException, RemoteException;
+    public DataSetBuilder create() throws CreateException, RemoteException;
 }

@@ -12,8 +12,7 @@
 
 package com.pingtel.pds.pgs.sipxchange.datasets;
 
-
 import javax.ejb.EJBObject;
 
-
-public interface DataSetBuilder extends EJBObject, DataSetBuilderBusiness {}
+public interface DataSetBuilder extends EJBObject, DataSetBuilderBusiness {
+}
