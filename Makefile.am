@@ -77,5 +77,5 @@ sipxproxy.spec : sipxproxy.spec.in
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build
 # RPM from
 dist-hook: sipxproxy.spec
-        cp sipxproxy.spec $(distdir)
+	cp sipxproxy.spec $(distdir)
 
