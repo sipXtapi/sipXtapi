@@ -16,6 +16,7 @@ components is inspect log files by searching of running <code>tail
 -f</code> command while servers are running. Unless specified, all log
 files go into one of these two locations</p>
 
+
 <ul>
   <li>Tarball based installation log file location: <code>/usr/local/sipx/var/log/sipxpbx/</code></li>
   <li>RPM based installations log file:  <code>/var/log/sipxpbx/</code></li>
@@ -41,6 +42,30 @@ ensure infomation has been recieved, run this command:
     </pre>
       You should see your basic user edits in this list.
    </dd>
+
+  <dt>sipXregistry will not authorize my phone</dt>
+  <dd>Assuming you've configured the phone line correctly, it's possible the information
+  did not get sent to appropriate sipX servers.  Check log file for error in communication.
+  Java VM needs to have correct certificate authority imported, see
+  <code>install-cert.sh</code> file.  Lastly, check the timestamp of the
+  <code>credentials.xml</code> file to see if time is after your change.</dd>
+
+  <dt>Check for server's CA </dt>
+
+  <dd>If you've installed a Certificate Authority(CA) into java, you can check the CA
+      by running this command.
+      <pre>
+        cd `sipx-config --jdk`
+        bin/keytool -list -keystore jre/lib/security/cacerts -storepass changeit | grep mykey
+      </pre>
+  </dd>
+
+  <dd>You can run Profile Generator by itself after RMI Registry is started by running
+   <pre>
+   su - sipxchange profilegenerator.sh
+   </pre>
+   </dd>
+      
 </dl>
 
 <h2>Profile Publisher</h2>
@@ -56,16 +81,9 @@ for SIP and SIP stack level messages to phone devices. This log contains SIP mes
       sipviewer sds-siptrace.xml
     </pre>
     </dd>
-      
+
    <dd><code>PDSMessages.log</code> for communication of
 user, permission and credential datasets to other sipX servers.</dd>
-
-  <dt>sipXregistry will not authorize my phone</dt>
-  <dd>Assuming you've configured the phone line correctly, it's possible the information
-  did not get sent to appropriate sipX servers.  Check log file for error in communication.
-  Java VM needs to have correct certificate authority imported, see
-  <code>install-cert.sh</code> file.  Lastly, check the timestamp of the
-  <code>credentials.xml</code> file to see if time is after your change.</dd>
 
   <dt>Change log level</dt>
   <dd>edit file:
@@ -74,7 +92,12 @@ user, permission and credential datasets to other sipX servers.</dd>
     restart processses. 
   </dd>
       
-      
+  <dd>You can run Profile Publisher by itself after RMI Registry is started by running
+   <pre>
+   su - sipxchange profilepublisher.sh
+   </pre>
+   </dd>
+
 </dl>
 
 <h2>Profile Writer</h2>
@@ -89,12 +112,31 @@ user, permission and credential datasets to other sipX servers.</dd>
     the debug flag: <code>PDS_DEBUG=-Dpds.debug=true</code> and
     restart processses
   </dd>
-</dl>      
+
+  <dd>You can run Profile Publisher by itself after RMI Registry is started by running:
+   <pre>
+   su - sipxchange profilewriter.sh
+   </pre>
+   </dd>
+</dl>
+
+<h2>RMI registry</h2>
+
+<dl>
+  <dt>Analyze console</dt>
+  <dd>RMI registry does not have a console, but you analyze what's getting written to stdout or stderr by running rmi from the console:
+  <pre>
+      su - sipxchange startrmireg.sh
+  </pre>
+   Personally, I've never seen an error here, but it's worth noting.
+  </dd>
+      
+</dl>
 
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Tue Oct 19 16:38:28 EDT 2004
+Last modified: Sat Oct 23 22:35:32 EDT 2004
 <!-- hhmts end -->
 </span>
 
