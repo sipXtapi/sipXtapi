@@ -694,136 +694,109 @@ UtlBoolean SipAaa::isAuthenticated(
     UtlString requestRealm;
     UtlString requestNonce;
     UtlString requestUri;
-    int requestAuthIndex = 0;
+    int requestAuthIndex;
     UtlString callId;
     Url fromUrl;
     UtlString fromTag;
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
-    long now = time.seconds();
     long nonceExpires = mNonceExpiration;
 
+    authUser.remove(0);
+    
     sipRequest.getCallIdField(&callId);
     sipRequest.getFromUrl(fromUrl);
     fromUrl.getFieldParameter("tag", fromTag);
 
-    while ( sipRequest.getDigestAuthorizationData(
-                &requestUser,
-                &requestRealm,
-                &requestNonce,
-                NULL,
-                NULL,
-                &requestUri,
-                HttpMessage::PROXY,
-                requestAuthIndex) )
+    // loop through all credentials in the request
+    for ( ( authenticated = FALSE, requestAuthIndex = 0 );
+          (   ! authenticated
+           && sipRequest.getDigestAuthorizationData(&requestUser,
+                                                    &requestRealm,
+                                                    &requestNonce,
+                                                    NULL,
+                                                    NULL,
+                                                    &requestUri,
+                                                    HttpMessage::PROXY,
+                                                    requestAuthIndex)
+           );
+          requestAuthIndex++
+         )
     {
-        syslog(FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthenticated() - "
-               "Message already has authorization, check if it is correct\n");
-        syslog(FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthenticated() - "
-               "reqRealm-%s, reqUser-%s\n", requestRealm.data() , requestUser.data());
-
         if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive
         {
-            syslog(FAC_AUTH, PRI_DEBUG, "SipAaa:isAuthenticated requestUser: %s requestRealm: %s\n",
-                   requestUser.data(), requestRealm.data());
-
-            // osPrintf("SipAaa:isAuthenticated requestUser: %s requestRealm: %s\n",
-            //    requestUser.data(), requestRealm.data());
-
-            UtlString userUrlString(requestUser);
-            int atIndex = userUrlString.index("@");
-            if ( atIndex < 0 )
-            {
-                userUrlString.append("@");
-                userUrlString.append(mRealm);
-            }
-            syslog(FAC_AUTH, PRI_DEBUG, "SipAaa:isAuthenticated credentialUri: %s\n", userUrlString.data());
-            //osPrintf("SipAaa:isAuthenticated credentialUri: %s\n", userUrlString.data());
-
-            Url userUrl( userUrlString );
-
-            // As URIs change and get mapped along the way
-            // we have to trust the one passed in via the
-            // auth field
-            //UtlString reqUri;
-            //sipRequest.getRequestUri(&reqUri);
-            UtlString authTypeDB;
-            UtlString passTokenDB;
+            syslog(FAC_AUTH, PRI_DEBUG, "SipAaa:isAuthenticated: checking user '%s'",
+                   requestUser.data());
 
             // Ignore this credential if it is not a current valid nonce
             if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
                                           requestUri, mRealm, nonceExpires))
             {
-                // then get the credentials for this user and realm
-                if(CredentialDB::getInstance()->getCredentialByUserid(userUrl,
-                                                                      mRealm,
-                                                                      requestUser,
-                                                                      passTokenDB,
-                                                                      authTypeDB))
+               Url userUrl;
+               UtlString authTypeDB;
+               UtlString passTokenDB;
+
+               // then get the credentials for this user and realm
+               if(CredentialDB::getInstance()->getCredential(requestUser,
+                                                             mRealm,
+                                                             userUrl,
+                                                             passTokenDB,
+                                                             authTypeDB)
+                  )
                 {
 #ifdef TEST_PRINT
-                    // THIS SHOULD NOTE BE PRINTED OUT IN PRODUCTION for
-                     // security reasone we do not want to spread pass tokens
-                     // all over the system
+                     // THIS SHOULD NOTE BE LOGGED IN PRODUCTION
+                     // For security reasons we do not want to put passtokens
+                     // into the log.
                     syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated found credential user: \"%s\" passToken: \"%s\"\n",
                            requestUser.data(), passTokenDB.data());
 #endif
-                    //osPrintf("SipAaa::isAuthenticated found credential user: \"%s\" passToken: \"%s\"\n",
-                    //    requestUser.data(), passTokenDB.data());
-
-                    authenticated =
-                    sipRequest.verifyMd5Authorization( requestUser.data(),
-                                                       passTokenDB.data(),
-                                                       requestNonce,
-                                                       requestRealm.data(),
-                                                       requestUri,
-                                                       HttpMessage::PROXY );
-
-                    syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated %s\n",
-                           authenticated ? "succeeded" : "failed");
-                    //osPrintf("SipAaa::isAuthenticated %s\n",
-                    //    authenticated ? "succeeded" : "failed");
+                    authenticated = sipRequest.verifyMd5Authorization(requestUser.data(),
+                                                                      passTokenDB.data(),
+                                                                      requestNonce,
+                                                                      requestRealm.data(),
+                                                                      requestUri,
+                                                                      HttpMessage::PROXY );
 
                     if ( authenticated )
                     {
-                        authUser = userUrlString;
-
-                        syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated() request is AUTHENTICATED\n");
-                    } else
-                    {
-                        syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated() request is NOT AUTHENTICATED\n");
+                        userUrl.toString(authUser);
+                        syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated(): authenticated as '%s'", authUser.data());
                     }
-                    break;
+                    else
+                    {
+                        syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated() authentication failed as '%s'", requestUser.data());
+                    }
                 }
                 // Did not find credentials in DB
                 else
                 {
-                    syslog(FAC_AUTH, PRI_INFO,
-                        "No credentials found for user: \"%s\" realm: \"%s\"",
-                        requestUser.data(), mRealm.data());
+                   syslog(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() No credentials found for user: '%s'",
+                           requestUser.data());
                 }
-            } // end check credentials
-
-            // Is not a valid nonce
-            else
+            }
+            else // Is not a valid nonce
             {
                 syslog(FAC_AUTH, PRI_INFO,
-                    "Invalid NONCE: %s found call-id: %s from tag: %s uri: %s realm: %s expiration: %d",
+                       "SipAaa::isAuthenticated() Invalid NONCE: %s found call-id: %s from tag: %s uri: %s realm: %s expiration: %d",
                      requestNonce.data(), callId.data(), fromTag.data(),
                      requestUri.data(), mRealm.data(), nonceExpires);
             }
         }
-        requestAuthIndex++;
-    }//end while
+        else
+        {
+           // wrong realm - meant for some other proxy on the path, so ignore it
+        }
+    } // looping through credentials
 
     if ( !authenticated )
     {
-        authUser = "";
+        syslog(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() Request not authenticated.",
+              requestUser.data());
+
         UtlString newNonce;
         UtlString challangeRequestUri;
         sipRequest.getRequestUri(&challangeRequestUri);
-        UtlString opaque;
-        UtlString opaqueSeed;
 
         mNonceDb.createNewNonce(callId,
                                 fromTag,
@@ -831,25 +804,13 @@ UtlBoolean SipAaa::isAuthenticated(
                                 mRealm,
                                 newNonce);
 
-        opaqueSeed = newNonce;
-        opaqueSeed.append("abcdefghij");
-        NetMd5Codec::encode(opaqueSeed.data(), opaque);
-
         authResponse.setRequestUnauthorized(&sipRequest,
                                             HTTP_DIGEST_AUTHENTICATION,
                                             mRealm,
                                             newNonce, // nonce
-                                            opaque, // opaque
+                                            NULL, // opaque - not used
                                             HttpMessage::PROXY);
     }
-
-    syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated user: %s %s\n",
-           authUser.isNull() ? "none" : authUser.data(),
-           authenticated ? "authenticated" : "authentication failed");
-
-    /*osPrintf("SipAaa::isAuthenticated user: %s %s\n",
-        authUser.isNull() ? "none" : authUser.data(),
-        authenticated ? "authenticated" : "authentication failed");*/
 
     return(authenticated);
 }
