@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -95,7 +97,7 @@ public class DialPlanManager {
         plan.update(planData);
         return false;
     }
-    
+
     public void clear() {
         m_dialPlans.clear();
         m_gateways.clear();
@@ -103,5 +105,23 @@ public class DialPlanManager {
 
     public boolean deleteGateway(Integer id) {
         return m_gateways.remove(new Gateway(id));
+    }
+
+    public void deleteGateways(Collection selectedRows) {
+        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            deleteGateway(id);
+        }
+    }
+
+    private void deleteDialPlan(Integer id) {
+        m_dialPlans.remove(new DialPlan(id));
+    }
+
+    public void deleteDialPlans(Collection selectedRows) {
+        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            deleteDialPlan(id);
+        }
     }
 }

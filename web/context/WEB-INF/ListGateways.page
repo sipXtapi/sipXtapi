@@ -17,7 +17,12 @@
         type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway">
     </property-specification>
 
-	<property-specification name="selections" type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+	<property-specification name="selections" 
+    	type="org.sipfoundry.sipxconfig.components.SelectMap"
+    	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"
+    	/>    
+
+	<property-specification name="selectedRows" type="java.util.Collection"/>    
     
      <!--
      - B E A N S
@@ -70,7 +75,8 @@
     </component>
     
     <component id="deleteButton" type="Submit">
-        <binding name="listener" expression="listeners.delete"/>
+        <binding name="selected" expression="selectedRows"/>
+        <binding name="tag" expression="selections.allSelected"/>
     </component>
     
     <component id="gatewaysListForm" type="Form">

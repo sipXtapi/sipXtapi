@@ -23,9 +23,6 @@ import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
 
-/**
- * GatewaysTestUi
- */
 public class DialPlansTestUi extends TestCase {
     private WebResponse m_home;
 
@@ -33,15 +30,15 @@ public class DialPlansTestUi extends TestCase {
         m_home = TestUiHelper.getHomePage();
         // reset page
         m_home = TestUiHelper.resetDialPlans(m_home);
-    }    
-    
+    }
+
     public void testAddDialPlans() throws Exception {
         WebLink link = m_home.getLinkWith("List Plans");
         WebResponse listDialPlans = link.click();
 
         WebTable gatewaysTable = listDialPlans.getTableWithID("dialplan:list");
         int lastColumn = gatewaysTable.getColumnCount() - 1;
-        assertEquals(2, lastColumn);
+        assertEquals(3, lastColumn);
 
         WebLink addLink = listDialPlans.getLinkWithID("dialplan:add");
         WebResponse addPage = addLink.click();
@@ -66,21 +63,56 @@ public class DialPlansTestUi extends TestCase {
         assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
     }
 
+    public void testDeleteDialPlans() throws Exception {
+        WebLink link = m_home.getLinkWith("List Plans");
+        WebResponse listDialPlans = link.click();
+
+        for (int i = 0; i < 10; i++) {
+            WebLink addDialPlanLink = listDialPlans.getLinkWithID("dialplan:add");
+            WebResponse addDialPlanPage = addDialPlanLink.click();
+
+            listDialPlans = addDialPlan(addDialPlanPage, "plan" + i);
+        }
+
+        WebTable DialPlansTable = listDialPlans.getTableWithID("dialplan:list");
+        assertEquals(11, DialPlansTable.getRowCount());
+
+        WebForm formDialPlan = listDialPlans.getFormWithID("dialplan:list:form");
+        SubmitButton buttonDelete = formDialPlan.getSubmitButtonWithID("dialplan:delete");
+        formDialPlan.setCheckbox("selectedRow", true);
+        formDialPlan.setCheckbox("selectedRow$0", true);
+        listDialPlans = formDialPlan.submit(buttonDelete);
+
+        DialPlansTable = listDialPlans.getTableWithID("dialplan:list");
+        assertEquals(9, DialPlansTable.getRowCount());
+
+        formDialPlan = listDialPlans.getFormWithID("dialplan:list:form");
+        buttonDelete = formDialPlan.getSubmitButtonWithID("dialplan:delete");
+        formDialPlan.setCheckbox("selectedRow", true);
+        for (int i = 0; i < 7; i++) {
+            formDialPlan.setCheckbox("selectedRow$" + i, true);
+        }
+        listDialPlans = formDialPlan.submit(buttonDelete);
+
+        DialPlansTable = listDialPlans.getTableWithID("dialplan:list");
+        assertEquals(1, DialPlansTable.getRowCount());
+    }
+
     /**
-     * Fills and submits edit gateway form
+     * Fills and submits edit DialPlan form
      * 
-     * @param page edit gateway page
+     * @param page edit DialPlan page
      * @param name response after clicking submit button
      * @return
      */
     private WebResponse addDialPlan(WebResponse page, String name) throws SAXException,
             IOException {
-        WebForm formGateway = page.getFormWithID("dialplan");
+        WebForm formDialPlan = page.getFormWithID("dialplan");
         if (null != name) {
-            formGateway.setParameter("dialPlanName", name + "Name");
-            formGateway.setParameter("dialPlanDescription", name + "Description");
+            formDialPlan.setParameter("dialPlanName", name + "Name");
+            formDialPlan.setParameter("dialPlanDescription", name + "Description");
         }
-        SubmitButton buttonSave = formGateway.getSubmitButtonWithID("dialplan:save");
-        return formGateway.submit(buttonSave);
+        SubmitButton buttonSave = formDialPlan.getSubmitButtonWithID("dialplan:save");
+        return formDialPlan.submit(buttonSave);
     }
 }

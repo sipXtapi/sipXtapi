@@ -8,52 +8,30 @@
 		<li><a jwcid="addLink" id="dialplan:add" href="EditDialPlan.html">Add Dial Plan</a></li>
 		<li><a jwcid="gatewaysLink" href="Gateways.html">Gateways</a></li>
 	</ul>                
-    <form jwcid="form" ListDialPlans.html">
+    <form jwcid="form" id="dialplan:list:form">
     	<table jwcid="tableView" id="dialplan:list" class="table-view">
             <thead>
-        		<span jwcid="tableColumns"/>
-                <tr jwcid="$remove$">
-                   <th/> 
-                   <th>Name</th> 
-                   <th>Status</th>
-                   <th>Description</th> 
-                </tr>
+                <tr>
+	                <td></td>
+					<td jwcid="tableColumns"/>
+				</tr>                    
             </thead>
             <tbody>
 				<span jwcid="NameColumnValue">
 					<span jwcid="editRowLink"><span jwcid="nameText"/></span>
 				</span>
                 <span jwcid="tableRows">
+                    <td><span jwcid="selectedRow"/></td>
 					<span jwcid="tableValues"/>
                 </span>
-                <span jwcid="$remove$">        
-                <tr class="odd">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-dialplan.html">simple</a></td> 
-                   <td></td> 
-                   <td>default 3 digit, one gateway</td>                     
-                </tr>
-                <tr class="even">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-dialplan.html">4digit</a></td> 
-                   <td>Active</td>
-                   <td>4 digit, multiple gateways</td>                     
-                </tr>                
-                <tr class="odd">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-dialplan.html">local_only</a></td> 
-                   <td></td> 
-                   <td>No long distance, no international</td>                     
-                </tr>
-        		</span>
             </tbody>
 		</table>
 		<ul class="table-actions">
 			<li>
-				<input type="submit" name="" value="Activate" onclick="confirm('Are you sure you want to activate selected dial plan?')"/>
+				<input type="submit" id="dialplan:activate" value="Activate" onclick="confirm('Are you sure you want to activate selected dial plan?')"/>
 			</li>
 			<li>
-				<input type="submit" name="" value="Delete" onclick="confirm('Are you sure you want to remove selected dial plans?')"/>
+				<input type="submit" jwcid="deleteDialPlans" id="dialplan:delete" value="Delete" onclick="confirm('Are you sure you want to remove selected dial plans?')"/>
 			</li>
 		</ul>
     </form>

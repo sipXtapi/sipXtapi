@@ -27,7 +27,8 @@ import com.meterware.httpunit.WebResponse;
  */
 class TestUiHelper {
 
-    public static WebResponse resetDialPlans(WebResponse homePage) throws IOException, SAXException {
+    public static WebResponse resetDialPlans(WebResponse homePage) throws IOException,
+            SAXException {
         final WebLink resetLink = homePage.getLinkWithID("resetDialPlans");
         return resetLink.click();
     }
@@ -35,12 +36,12 @@ class TestUiHelper {
     /**
      * @return sipxconfig application home page
      */
-    public static WebResponse getHomePage() throws MalformedURLException, IOException, SAXException {
+    public static WebResponse getHomePage() throws MalformedURLException, IOException,
+            SAXException {
         WebConversation wc = new WebConversation();
         WebRequest req = new GetMethodWebRequest("http://localhost:8080/sipxconfig");
         WebResponse home = wc.getResponse(req);
         return home;
     }
-    
 
 }

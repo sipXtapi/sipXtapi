@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.util.Collection;
+
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
@@ -29,7 +31,9 @@ public abstract class ListDialPlans extends BasePage {
     public abstract DialPlan getCurrentRow();
 
     public abstract void setCurrentRow(DialPlan plan);
-    
+
+    public abstract Collection getSelectedRows();
+
     /**
      * When user clicks on link to edit a gateway
      */
@@ -45,5 +49,13 @@ public abstract class ListDialPlans extends BasePage {
         DialPlan currentRow = getCurrentRow();
         page.setDialPlanId(currentRow.getId());
         cycle.activate(page);
+    }
+
+    public void formSubmit(IRequestCycle cycle_) {
+        Collection selectedRows = getSelectedRows();
+        if (selectedRows != null) {
+            DialPlanManager manager = getDialPlanManager();
+            manager.deleteDialPlans(selectedRows);
+        }
     }
 }

@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.site.ui;
 
 import java.io.IOException;
 
+import junit.framework.TestCase;
+
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.SubmitButton;
@@ -20,8 +22,6 @@ import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
-
-import junit.framework.TestCase;
 
 /**
  * GatewaysTestUi

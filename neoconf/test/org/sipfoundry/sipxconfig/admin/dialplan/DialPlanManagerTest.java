@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Arrays;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 /**
@@ -28,7 +31,7 @@ public class DialPlanManagerTest extends TestCase {
         Gateway g2 = new Gateway();
 
         assertNull(m_manager.getGateway(null));
-        
+
         // add g1
         assertTrue(m_manager.addGateway(g1));
 
@@ -45,6 +48,27 @@ public class DialPlanManagerTest extends TestCase {
 
         // add g1 again
         assertFalse(m_manager.addGateway(g1));
+    }
+
+    public void testDeleteGateway() {
+        Gateway g1 = new Gateway();
+        Gateway g2 = new Gateway();
+        Gateway g3 = new Gateway();
+
+        // add all
+        assertTrue(m_manager.addGateway(g1));
+        assertTrue(m_manager.addGateway(g2));
+        assertTrue(m_manager.addGateway(g3));
+
+        Integer[] toBeRemoved = { g1.getId(), g3.getId() };
+        m_manager.deleteGateways(Arrays.asList(toBeRemoved));
+
+        List gateways = m_manager.getGateways();
+        
+        assertEquals(1, gateways.size());
+        assertFalse(gateways.contains(g1));
+        assertTrue(gateways.contains(g2));
+        assertFalse(gateways.contains(g3));
     }
 
     public void testUpdateGateway() {
@@ -123,4 +147,26 @@ public class DialPlanManagerTest extends TestCase {
         assertEquals(p1.getName(), edited.getName());
         assertEquals(p1.getDescription(), edited.getDescription());
     }
+
+    public void testDeleteDialPlan() {
+        DialPlan p1 = new DialPlan();
+        DialPlan p2 = new DialPlan();
+        DialPlan p3 = new DialPlan();
+
+        // add all
+        assertTrue(m_manager.addDialPlan(p1));
+        assertTrue(m_manager.addDialPlan(p2));
+        assertTrue(m_manager.addDialPlan(p3));
+
+        Integer[] toBeRemoved = { p1.getId(), p3.getId() };
+        m_manager.deleteDialPlans(Arrays.asList(toBeRemoved));
+
+        List plans = m_manager.getDialPlans();
+        
+        assertEquals(1, plans.size());
+        assertFalse(plans.contains(p1));
+        assertTrue(plans.contains(p2));
+        assertFalse(plans.contains(p3));
+    }
+
 }

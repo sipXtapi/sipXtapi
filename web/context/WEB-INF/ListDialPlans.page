@@ -16,7 +16,14 @@
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan">
     </property-specification>
+    
+	<property-specification name="selections" 
+    	type="org.sipfoundry.sipxconfig.components.SelectMap"
+    	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"
+    	/>    
 
+	<property-specification name="selectedRows" type="java.util.Collection"/>    
+    
     <!--
      - B E A N S
      -->
@@ -29,27 +36,27 @@
      -->
     <component id="form" type="Form">
         <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
     </component>
-
     
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="dialPlanManager.dialPlans"/>
         <static-binding name="columns" value="Name:name,Status:status,Description:description"/>
     </component>
     
-    <component id="tableColumns" type="contrib:TableColumns">
+    <component id="tableColumns" type="contrib:TableColumns"/>
         
-    </component>
-    
     <component id="tableRows" type="contrib:TableRows">
 		<binding name="class" expression="beans.rowClass.next"/>
 		<binding name="row" expression="currentRow"/>
     </component>
 
-    <component id="tableValues" type="contrib:TableValues">
+    <component id="tableValues" type="contrib:TableValues"/>
         
+    <component id="selectedRow" type="Checkbox">
+        <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
-    
+     
 	<component id="NameColumnValue" type="Block"/>
     
     <component id="nameText" type="Insert">
@@ -66,6 +73,11 @@
 
     <component id="gatewaysLink" type="PageLink">
         <static-binding name="page" value="ListGateways"/>
+    </component>
+    
+    <component id="deleteDialPlans" type="Submit">
+        <binding name="selected" expression="selectedRows"/>
+        <binding name="tag" expression="selections.allSelected"/>
     </component>
     <!--
 	  - A S S E T S
