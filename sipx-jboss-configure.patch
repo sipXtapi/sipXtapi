@@ -32,7 +32,7 @@
      <attribute name="GCEnabled">false</attribute>
      <attribute name="InvalidateOnError">false</attribute>
      <attribute name="TimestampUsed">false</attribute>
-@@ -115,8 +108,24 @@
+@@ -115,7 +108,23 @@
    </mbean>
  
    <!-- Uncomment to add embedded catalina service -->
@@ -58,6 +58,18 @@
    <!-- Uncomment and set file URL to add Jetty service (you can set config more than once)
    <mbean code="org.jboss.jetty.JettyService" name="DefaultDomain:service=Jetty">
 
+--- JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/auth.conf.orig	2004-09-20 10:14:54.000000000 -0400
++++ JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/auth.conf	2004-09-20 10:15:21.000000000 -0400
+@@ -28,8 +28,7 @@
+     // the case for an unuathenticated web client or MDB. If you want to
+     // allow such users to be authenticated add the property, e.g.,
+     //   unauthenticatedIdentity="nobody"
+-    org.jboss.security.auth.spi.UsersRolesLoginModule required
+-        ;
++    com.pingtel.pds.jbossauth.SIPxchangeLoginModule required dsJndiName="java:/PDSDataSource";
+ 
+ };
+  
 --- JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/jboss.properties.orig	2001-12-29 05:06:24.000000000 -0500
 +++ JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/jboss.properties	2004-09-20 10:28:31.000000000 -0400
 @@ -11,3 +11,6 @@
