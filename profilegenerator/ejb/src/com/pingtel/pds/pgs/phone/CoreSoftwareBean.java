@@ -82,9 +82,6 @@ public class CoreSoftwareBean extends JDBCAwareEJB implements EntityBean, CoreSo
                                 String deviceTypeID ) throws CreateException {
 
         try {
-
-logFatal(" ########  GOT HERE  ##########", new Exception("BOGUS"));
-
             executePreparedUpdate(  "INSERT INTO phone_type_csd_assoc ( CSD_ID, " +
                                     "                                   PT_ID ) " +
                                     "VALUES  ( ?, ? ) ",
