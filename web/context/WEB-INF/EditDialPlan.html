@@ -8,7 +8,7 @@
 	    <!-- TODO: add styling for errors-->
 		<p jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</p>            
     </span>
-    <form jwcid="@Form" delegate="ognl:beans.validator" id="dialplan">
+    <form jwcid="dialPlanEditForm" id="dialplan">
         <fieldset>
 	    <legend>Dial Plan Details</legend>
         <table>
@@ -172,7 +172,7 @@
         </table>
         <ul class="table-actions">
             <li>
-                <input type="button" name="" value="Remove"
+                <input jwcid="removeGateways" type="submit" name="" value="Remove"
                     onclick="confirm('Are you sure you want to remove selected gateways?')"/>
             </li>
         </ul>
@@ -207,7 +207,7 @@
         </table>
         <ul class="table-actions">
             <li>
-                <input type="button" name="" value="Remove"
+                <input jwcid="removeEmergencyGateways" type="submit" name="" value="Remove"
                     onclick="confirm('Are you sure you want to remove selected gateways?')"/>
             </li>
         </ul>

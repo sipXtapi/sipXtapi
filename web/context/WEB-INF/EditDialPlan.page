@@ -10,7 +10,10 @@
 
 	<property-specification name="dialPlan" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan"/>
-	
+
+	<property-specification name="removeGateways" 
+		type="java.lang.String"/>
+    	
     <property-specification name="localExtensionLenSelectionModel" 
 		type="org.apache.tapestry.form.IPropertySelectionModel" 
         persistent="yes">
@@ -147,7 +150,11 @@
         <binding name="listener" expression="listeners.addGateway"/>
         <static-binding name="parameters" value="normal"/>
     </component>
-
+    <component id="removeGateways" type="Submit">
+        <binding name="selected" expression="removeGateways"/>
+        <static-binding name="tag" value="normal"/>
+    </component>
+    
     <component id="emergencyGatewayTable" type="GatewayTable">
         <binding name="gatewayCollection" expression="dialPlan.emergencyGateways"/>
         <binding name="dialPlanId" expression="dialPlan.id"/>
@@ -157,6 +164,16 @@
         <binding name="listener" expression="listeners.addGateway"/>
         <static-binding name="parameters" value="emergency"/>
     </component>
+    <component id="removeEmergencyGateways" type="Submit">
+        <binding name="selected" expression="removeGateways"/>
+        <static-binding name="tag" value="emergency"/>
+    </component>
+    
+    <component id="dialPlanEditForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
+
 	<!--
 	  - A S S E T S
 	  -->	

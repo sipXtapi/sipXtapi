@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.event.PageRenderListener;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.site.EditGateway;
@@ -20,13 +22,24 @@ import org.sipfoundry.sipxconfig.site.EditGateway;
 /**
  * GatewayTable
  */
-public abstract class GatewayTable extends BaseComponent {
+public abstract class GatewayTable extends BaseComponent implements PageRenderListener {
     public abstract Gateway getCurrentRow();
 
     public abstract String getEditPageName();
 
     public abstract Integer getDialPlanId();
-    
+
+    public abstract SelectMap getSelections();
+
+    public abstract void setSelections(SelectMap selected);
+
+    public void pageBeginRender(PageEvent event_) {
+        SelectMap selections = getSelections();
+        if (null == selections) {
+            setSelections(new SelectMap());
+        }
+    }
+
     /**
      * When user clicks on link to edit a gateway
      */

@@ -11,7 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -158,8 +160,15 @@ public class DialPlan {
         return getGatewaySet(emergency).add(gateway);
     }
 
-    public boolean removeGateway(Gateway gateway, boolean emergency) {
-        return getGatewaySet(emergency).remove(gateway);
+    public boolean removeGateway(Integer id, boolean emergency) {
+        return getGatewaySet(emergency).remove(new Gateway(id));
+    }
+
+    public void removeGateways(Collection toBeRemoved, boolean emergency) {
+        for (Iterator i = toBeRemoved.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            removeGateway(id, emergency);
+        }
     }
 
     public String getDescription() {
