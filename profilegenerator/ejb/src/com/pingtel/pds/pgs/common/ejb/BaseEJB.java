@@ -21,7 +21,6 @@ import javax.naming.NamingException;
 import java.util.Properties;
 
 import java.io.IOException;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import org.apache.log4j.Category;
@@ -61,8 +60,9 @@ public class BaseEJB {
         }
 
         try {
+            final PathLocatorUtil plu = PathLocatorUtil.getInstance();
             String path =
-                PathLocatorUtil.getInstance().getPath( PathLocatorUtil.PGS_LOGS_FOLDER, PathLocatorUtil.PGS );
+                plu.getPath( PathLocatorUtil.PGS_LOGS_FOLDER, PathLocatorUtil.PGS );
 
             RollingFileAppender fileAppender = new RollingFileAppender ( );
             fileAppender.setFile( path + "PDSMessages.log", true);
@@ -80,23 +80,16 @@ public class BaseEJB {
                 cat.addAppender( consoleAppender );
             }
 
-        }
-        catch ( IOException ex ) {
-            throw new RuntimeException ( ex.toString() );
-        }
-
-        try {
             String configFolder =
-                PathLocatorUtil.getInstance().getPath(
-                    PathLocatorUtil.CONFIG_FOLDER,
-                    PathLocatorUtil.PGS );
-
-            m_pgsProperties.load( new FileInputStream ( configFolder + PathLocatorUtil.PGS_PROPS )  );
+                plu.getPath( PathLocatorUtil.CONFIG_FOLDER, PathLocatorUtil.PGS );
+            
+            ConfigFileManager configFileManager = ConfigFileManager.getInstance();
+            m_pgsProperties = 
+                configFileManager.getProperties( configFolder + PathLocatorUtil.PGS_PROPS );
         }
         catch ( IOException ex ) {
-            throw new RuntimeException ( ex.toString() );
+            throw new RuntimeException ( ex );
         }
-
     }
 
 
@@ -187,6 +180,10 @@ public class BaseEJB {
         return BaseEJB.m_pgsProperties.getProperty( propertyName, defaultValue );
     }
     
+    protected final Object setPGSProperty ( String propertyName, String value) {
+        return BaseEJB.m_pgsProperties.setProperty( propertyName, value );
+    }
+
     protected String getEnvEntry ( String envEntryName ) {
 
         try {

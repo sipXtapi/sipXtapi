@@ -14,6 +14,7 @@
   <path id="base.path">
       <!-- SIPXCONFIG -->
       <pathelement location="${common.jar}"/>
+      <pathelement location="${commserver.jar}"/>
 
       <!-- UTIL -->
       <pathelement location="${jdom.jar}"/>
@@ -22,10 +23,14 @@
       <pathelement location="${saxpath.jar}"/>
       <pathelement location="${log4j.jar}"/>
       <pathelement location="${regexp.jar}"/>
-
+  	
       <!-- J2EE -->
-      <fileset dir="${jboss.lib}" includes="**/*.jar"/>
-      <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
+      <fileset dir="${jboss.lib}">
+        <include name="jboss-jaas.jar"/>
+        <include name="ext/jboss-j2ee.jar"/>
+        <include name="ext/jboss.jar"/>
+        <include name="ext/activation.jar"/>
+      </fileset>
   	
   	  <!-- TEST -->
   	  <!-- TODO: we need a separate classpath for tests -->
@@ -68,7 +73,7 @@
            - included in ear file. if you include more jars in value attribute
            -->
          <manifest>
-           <attribute name="Class-Path" value="${manifest.classpath} profilegen-patch.jar"/>
+           <attribute name="Class-Path" value="${manifest.classpath} profilegen-patch.jar commserver.jar"/>
          </manifest>
            
       </jar>

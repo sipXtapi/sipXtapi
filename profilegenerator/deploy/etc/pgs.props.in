@@ -4,6 +4,7 @@ profilewriter.rmi.url = rmi://localhost:2001/ProfileWriter
 # of machine which runs the media server
 mediaserver.host = https://${MY_FULL_HOSTNAME}:${MEDIA_SERVER_HTTPS_PORT}
 publishedHttpApplicationsDocRoot=http://${MY_FULL_HOSTNAME}:8090/phone/applications/
-#get the realm definition
+#get the domain name realm definition
+sipxchange.domain.name=${SIPXCHANGE_DOMAIN_NAME}
 sipxchange.realm=${SIPXCHANGE_REALM}
 

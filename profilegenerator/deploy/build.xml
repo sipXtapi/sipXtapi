@@ -24,6 +24,7 @@
       <fileset file="${profilegen-soap.war}"/>
 
       <!-- COMMON LIBRARY -->
+      <fileset file="${commserver.jar}"/>
       <fileset file="${profilegen-patch.jar}"/>
       <fileset file="${common.jar}"/>
       <fileset file="${jdom.jar}"/>

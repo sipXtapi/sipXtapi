@@ -65,8 +65,7 @@ public final class PathLocatorUtil {
     // Properties names constants
     ///////////////////////////////////////////////////////////////////////////
     public static final String PGS_SIPXCHANGE_REALM = "sipxchange.realm";  
-
-
+    public static final String PGS_SIPXCHANGE_DOMAIN_NAME = "sipxchange.domain.name";  
     
     /** Singleton Instance */
     private static PathLocatorUtil g_instance = null;
@@ -78,9 +77,17 @@ public final class PathLocatorUtil {
     private String m_tmpdir;
 
     private String m_logdir;
+    
+    private String m_phonedir;
 
     /** Singleton Private Constructor */
-    private PathLocatorUtil() {}
+    PathLocatorUtil(VersionInfo versionInfo) {
+        m_datadir = versionInfo.getProperty("sipxdata");
+        m_confdir = versionInfo.getProperty("sipxconf");
+        m_tmpdir = versionInfo.getProperty("sipxtmp");
+        m_logdir = versionInfo.getProperty("sipxlog");
+        m_phonedir = versionInfo.getProperty("sipxphone");
+    }
 
     /** Singleton Accessor */
     public static PathLocatorUtil getInstance() 
@@ -92,11 +99,7 @@ public final class PathLocatorUtil {
                 InputStream versionStream = PathLocatorUtil.class.getClassLoader()
                     .getResourceAsStream( "buildVersion.properties" );
                 VersionInfo versionInfo = new VersionInfo(versionStream);
-                g_instance = new PathLocatorUtil();
-                g_instance.m_datadir = versionInfo.getProperty("sipxdata");
-                g_instance.m_confdir = versionInfo.getProperty("sipxconf");
-                g_instance.m_tmpdir = versionInfo.getProperty("sipxtmp");
-                g_instance.m_logdir = versionInfo.getProperty("sipxlog");
+                g_instance = new PathLocatorUtil(versionInfo);
             }
             catch (IOException ex) 
             {
@@ -131,12 +134,42 @@ public final class PathLocatorUtil {
     {
         return new PathBuffer(m_tmpdir);
     }
+    
+    /** path to phone configuration (e.g. /usr/local/var/sipxdata/configserver/phone) */
+    public PathBuffer phone()
+    {
+        return new PathBuffer(m_phonedir);
+    }
+    
 
     /**
      * Gets the path for a given path type
      * @return Fully Qualified Location for the path
      */
     public String getPath( int pathType, int source ) throws FileNotFoundException {
+        String folderLocation = getPathSilent(pathType);
+
+
+        if ( folderLocation != null ) {
+            File folder = new File(folderLocation);
+            if (!folder.isDirectory())
+            {
+                throw new FileNotFoundException("Folder " + folderLocation + " is not a folder");
+            }
+        } else {
+            throw new FileNotFoundException();
+        }
+
+        return folderLocation;
+    }
+
+    /**
+     * Gets the path for a given path type
+     * Does not throw exceptions if path is not a directory
+     * @param pathType
+     * @return
+     */
+    String getPathSilent(int pathType) {
         PathBuffer folderLocation = null;
 
         switch ( pathType ) {
@@ -173,20 +206,10 @@ public final class PathLocatorUtil {
                 break;
 
             case DATA_FOLDER: {
-                folderLocation = tmp().append("data").slash();
+                folderLocation = phone().slash();
                 break;
             }
         }
-
-
-        if ( folderLocation != null ) {
-            File folder = new File(folderLocation.toString());
-            if (!folder.isDirectory())
-                throw new FileNotFoundException("Folder " + folderLocation + " is not a folder");
-        } else {
-            throw new FileNotFoundException();
-        }
-
         return folderLocation.toString();
     }
 }

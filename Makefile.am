@@ -9,7 +9,7 @@ EXTRA_DIST = \
     LICENSE \
     config.properties.in \
     common \
-    sipxconfig.spec.in \
+    sipxconfig.spec \
     profilegenerator \
     profilewriter \
     profilepublisher \
@@ -56,7 +56,7 @@ config.properties : config.properties.in Makefile
 
 # Alternative is to do svn export, but it's very handy to be able to 
 # create a dist tarball from a working svn checkout
-dist-hook: sipxconfig.spec
+dist-hook : sipxconfig.spec
 	rm -rf `find $(distdir) -type d -name .svn`
 	cp sipxconfig.spec $(distdir)
 
@@ -66,19 +66,21 @@ dist-hook: sipxconfig.spec
 # compatible on legacy systems.  See 'man tar' for more info
 # Other dist types will have same problem, but not orerriding yet as we do
 # support them at this time nor do I have time to check/maintain them, yet.
-dist dist-all: distdir
+dist dist-all : distdir
 	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
 	$(am__remove_distdir)
 
 .PHONY : rpm
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-rpm: clean dist
+rpm : clean dist
 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
 	mv -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
 	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
 
 # RPM Spec file
+# Extract the options to ./configure from config.log and propagate them into the .spec file.
 sipxconfig.spec : sipxconfig.spec.in
-	$(edit) $(srcdir)/sipxconfig.spec.in > sipxconfig.spec
-
+	V="$$( sed -e '/^ *\$$ .*\/configure/!d' -e 's/^.*\/configure *//' config.log )" ; \
+	$(edit) -e "s#@CONFIGURE_OPTIONS@#$$V#" \
+		$(srcdir)/sipxconfig.spec.in > sipxconfig.spec

@@ -13,8 +13,8 @@
   <import file="../ant-targets.xml"/>
 
   <filelist id="components" dir="${basedir}" files="
-      ejb/build.xml
       commserver/build.xml
+      ejb/build.xml
       authentication/build.xml
       soap/build.xml
       webui/build.xml

@@ -80,6 +80,7 @@ public class DeleteApplicationTag extends ExTagSupport {
 
                 mApplicationAdvocateEJBObject = applicationAdvocateHome.create();
             }
+            mApplicationAdvocateEJBObject.deleteApplication( mApplicationID );
 
             // see if the Application was a downloaded one, if so we need to
             // delete the Application's jar file.
@@ -87,7 +88,6 @@ public class DeleteApplicationTag extends ExTagSupport {
                     new File ( PathLocatorUtil.getInstance().getPath(
                             PathLocatorUtil.DATA_FOLDER, PathLocatorUtil.PGS ) +
                                 "applications" + FILE_SEPARATOR + "downloaded" );
-
             Application application =
                     mApplicationHome.findByPrimaryKey ( new Integer(mApplicationID) );
 
@@ -104,7 +104,6 @@ public class DeleteApplicationTag extends ExTagSupport {
                 }
             }
 
-            mApplicationAdvocateEJBObject.deleteApplication( mApplicationID );
         }
         catch ( Exception ex ) {
             throw new JspTagException( ex.getMessage() );

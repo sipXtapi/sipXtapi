@@ -12,19 +12,34 @@
 
 package com.pingtel.commserver.utility;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import com.pingtel.pds.common.XMLSupport;
-import com.pingtel.commserver.utility.PathLocatorUtility;
-import com.pingtel.commserver.utility.LogUtility;
-import com.pingtel.commserver.utility.ErrorMessageBuilder;
 
 /**
  * Provides various functions for constructing the UI for global definition file (config.defs)
- * 
+ * TODO: there are couple of things that should be improved here
+ * - upgrade to new collection classes (List, Map)
+ * - co not use mamber fields as to pass parameters between methods
+ * - allow to pass location to read (constructor) and write functions - do not store it in the class
  * @author Harippriya Sivapatham
  */
 public class GlobalConfigUIHelper {
+    /** names of the confi.defs properties */
+    public final static String SIPXCHANGE_DOMAIN_NAME = "SIPXCHANGE_DOMAIN_NAME";
+    public final static String SIPXCHANGE_REALM = "SIPXCHANGE_REALM";
+
+    
 //////////////////////////////////////////////////////////////////////////////
 // Attributes
 ////
@@ -49,16 +64,21 @@ public class GlobalConfigUIHelper {
     
     public GlobalConfigUIHelper()
     {
+        this(PathLocatorUtility.getGlobalConfigFileLocation());
+    }
+
+
+    public GlobalConfigUIHelper(String fileName)
+    {
         logger = new LogUtility();
 
         // Get the location of the config.defs file
-        globalConfigFileLocation =  PathLocatorUtility.getGlobalConfigFileLocation();
+        globalConfigFileLocation =  fileName;
 
         // Parse the definitions file the first time an object is instantiated.
         parseGlobalDefinitionsFile();
     }
-
-
+    
 //////////////////////////////////////////////////////////////////////////////
 // Public Methods
 ////
@@ -277,6 +297,28 @@ public class GlobalConfigUIHelper {
         return errorMessage;
     }
 
+    /**
+     * Replaces current properties (some of them) with the values found in the partial map.
+     * And writes the entire set to the file.
+     * It's different from writeToConfig which only writes the values that are passed in its parameter.
+     * @param partial subset of properties to be replaced 
+     */
+    public String replaceAndWrite( Map partial )
+    {
+        StringBuffer definitionlist = new StringBuffer();
+        for ( Iterator i = configNameVector.iterator(); i.hasNext(); ) {
+            String name = (String) i.next();
+            definitionlist.append( name );
+            if( i.hasNext() )
+            {
+                definitionlist.append( ';' );
+            }
+        }
+        Hashtable newConfig = (Hashtable) configValueHash.clone();
+        newConfig.put( "definitionlist", definitionlist.toString() );
+        newConfig.putAll( partial );
+        return writeToConfigFile( newConfig );
+    }
 
     /** Saves the changes made to the config file using the UI
      *  This method:

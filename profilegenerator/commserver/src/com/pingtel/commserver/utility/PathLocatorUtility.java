@@ -122,7 +122,7 @@ public class PathLocatorUtility {
 
     public static String getGlobalConfigFileLocation()
     {
-        String fileLocation = getPath( GLOBAL_CONFIG_FOLDER ) + "config.defs" ;
+        String fileLocation = getPath( GLOBAL_CONFIG_FOLDER ) + "config.defs";
         return fileLocation;
     }
 

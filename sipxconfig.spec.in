@@ -47,7 +47,7 @@ SOAP, postgresql and other J2EE technologies to get the job done.
 
 %build
 
-%configure
+%configure @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 

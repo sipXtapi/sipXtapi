@@ -12,6 +12,7 @@
 
 package  com.pingtel.pds.pgs.sipxchange.process;
 
+import com.pingtel.pds.pgs.sipxchange.SatelliteComponent;
 import com.pingtel.pds.pgs.sipxchange.SatelliteLocation;
 import com.pingtel.pds.pgs.sipxchange.SatelliteManager;
 import com.pingtel.pds.common.https.HttpsUtil;
@@ -26,7 +27,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -41,7 +41,10 @@ public class ProcessManager
 //////////////////////////////////////////////////////////////////////////////
 // Constants
 ////
-
+    public final String CONFIG_SERVER_GROUP = "ConfigServer";
+    public final String MEDIA_SERVER_GROUP = "MediaServer";
+    public final String COMM_SERVER_GROUP = "CommServer";
+    public final String MISC_GROUP = "Misc";
 
 //////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -374,6 +377,17 @@ public class ProcessManager
             //needs to be more specific.
             e.printStackTrace();
         }
+    }
+    
+    
+    /**
+     * Restarts all comm servers and media servers. 
+     * Does not restart configuration server.
+     * This is called after changes to config.defs
+     */
+    public void restartServers()
+    {
+        // TODO: implement restart servers function
     }
 
     public static void main( String args[] ){

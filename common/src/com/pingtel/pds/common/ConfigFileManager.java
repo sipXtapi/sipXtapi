@@ -32,6 +32,11 @@ import java.io.IOException;
  * create adapter classes (one for properties, one for XML files, etc.).
  *
  * @author ibutcher
+ * 
+ * FIXME: remove singleton, implement cache on JNDI, remove getProperty in favor of 
+ * just returning property object
+ * Longer term: we should not be using property files to exchange information between
+ * sipX components
  *
  */
 public class ConfigFileManager {
@@ -84,7 +89,22 @@ public class ConfigFileManager {
      */
     public String getProperty(String fileName, String key){
         String returnValue = null;
+        Properties savedProps = getProperties(fileName);
 
+        if(savedProps != null){
+            returnValue = savedProps.getProperty(key);
+        }
+
+        return returnValue;
+    }
+
+    /**
+     * Loads and caches property object
+     * Since this is a singleton class all objects will share just once instance of each properties object.
+     * @param fileName property file name
+     * @return property objects
+     */
+    public Properties getProperties(String fileName) {
         synchronized(mFileMap){
             if(!mFileMap.containsKey(fileName)){
                 File inputFile = checkFileIsAvailable(fileName);
@@ -103,18 +123,15 @@ public class ConfigFileManager {
         } //synchronized
 
         Properties savedProps = (Properties) mFileMap.get(fileName);
-
-        if(savedProps != null){
-            returnValue = savedProps.getProperty(key);
-        }
-
-        return returnValue;
+        return savedProps;
     }
 
-
+    
+    
 //////////////////////////////////////////////////////////////////////////
 // Implementation Methods
 ////
+
 
     /**
      * checkFileIsAvailable performs various checks to make sure that

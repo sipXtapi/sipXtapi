@@ -13,11 +13,11 @@
 
 package com.pingtel.pds.jbossauth;
 
-import org.apache.xml.utils.WrappedRuntimeException;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 
+import com.pingtel.pds.common.ConfigFileManager;
 import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PathLocatorUtil;
 
@@ -30,6 +30,7 @@ import javax.security.auth.login.LoginException;
 import javax.sql.DataSource;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
@@ -84,24 +85,20 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
     
     private static Properties getPgsProperties()
     {
-        if( null != PGS_PROPERTIES )
+        if( null == PGS_PROPERTIES )
         {
-            return PGS_PROPERTIES;
-        }
-        try {
-            Properties props = new Properties();
-            String configFolder =
-                PathLocatorUtil.getInstance().getPath(
+            String configFolder;
+            try {
+                configFolder = PathLocatorUtil.getInstance().getPath(
                         PathLocatorUtil.CONFIG_FOLDER,
                         PathLocatorUtil.PGS );
-
-            props.load( new FileInputStream ( configFolder + PathLocatorUtil.PGS_PROPS )  );
-            PGS_PROPERTIES = props;
-        	return props;
+                ConfigFileManager configFileManager = ConfigFileManager.getInstance();
+                PGS_PROPERTIES = configFileManager.getProperties( configFolder + PathLocatorUtil.PGS_PROPS );
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
-        catch ( IOException ex ) {
-            throw new WrappedRuntimeException ( ex );
-        }
+    	return PGS_PROPERTIES;
     }
     
 //////////////////////////////////////////////////////////////////////////

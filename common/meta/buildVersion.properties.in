@@ -6,3 +6,4 @@ sipxconf=@sipxpbx.conf.dir@
 sipxdata=@sipxpbx.data.dir@
 sipxtmp=@sipxpbx.tmp.dir@
 sipxlog=@sipxpbx.log.dir@
+sipxphone=@sipxconfig.phone.dir@

@@ -1,34 +1,13 @@
+<%--
+ - Copyright (C) 2004 SIPfoundry Inc.
+ - Licensed by SIPfoundry under the LGPL license.
+ - 
+ - Copyright (C) 2004 Pingtel Corp.
+ - Licensed to SIPfoundry under a Contributor Agreement.
+ --%>
+<%@ page errorPage="/ui/error/error.jsp" %>
 
-<%@ page import="org.jdom.Document, org.jdom.Element, java.io.File,
-                 org.jdom.JDOMException,
-                 com.pingtel.pds.common.*,
-                 com.pingtel.pds.pgs.common.*"
-                 errorPage="/ui/error/error.jsp"
-%>
-
-
-<%
-    // set introductory text and value to be used for stereotype
-    String introText = null;
-    String stereotype = null;
-
-    String installStereotype = ConfigFileManager.getInstance().getProperty(
-            PathLocatorUtil.getInstance().getPath(
-                PathLocatorUtil.CONFIG_FOLDER, PathLocatorUtil.PGS)+
-                "pgs.props",
-            "installStereotype");
-
-    // default value handling.
-    if(installStereotype == null){
-        installStereotype = PDSDefinitions.ENTERPRISE_ST;
-    }
-
-    if(installStereotype.equalsIgnoreCase(PDSDefinitions.ENTERPRISE_ST)){
-        introText = "Enterprise Edition Installation";
-        stereotype =  String.valueOf(PDSDefinitions.ORG_ENTERPRISE);
-    }
-    // service provider to be added in the future...
-%>
+<jsp:useBean id="installOrg" class="com.pingtel.pds.pgs.beans.InstallOrganizationBean" />
 
 
 <html>
@@ -68,8 +47,6 @@
                document.write(myDate())
                </script>
 </div>
-<div id="Layer5" style="position:absolute; left:3px; top:123px; width:695px; height:28px; z-index:5">
-<h2 CLASS="dms"><%=introText%></h2></div>
 <br><br><br><br><br><br><br><br><br>
    <form action="installorg.jsp" method="post" name="install" onsubmit= 'return validate(this);'>
       <table width="400" border="0" cellspacing="3" cellpadding="6" align="center" class="bglight" >
@@ -96,7 +73,7 @@
                </div>
             </td>
             <td colspan="2">
-               <input type="text" name="orgname">
+               <input type="text" name="orgName">
             </td>
          </tr>
          <tr>
@@ -106,7 +83,17 @@
                </div>
             </td>
             <td colspan="2">
-               <input type="text" name="dnsdomain">
+               <input type="text" name="dnsDomain" value="<%= installOrg.getDnsDomain() %>"/>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2" class="formtext">
+               <div align="right">
+                  Authorization Realm
+               </div>
+            </td>
+            <td colspan="2">
+               <input type="text" name="realm" value="<%= installOrg.getRealm() %>"/>
             </td>
          </tr>
          <tr>
@@ -132,13 +119,13 @@
          <tr>
             <td colspan="2" height="60">&nbsp;</td>
 
-      <td height="60"> <span class="formtitle">*</span>
+      <td height="60">
         <input type="submit" name="Submit" value="Submit">
             </td>
             <td height="60">&nbsp;</td>
          </tr>
       </table>
-      <input type="hidden" name="stereotype" value="<%=stereotype%>">
+      <input type="hidden" name="stereotype" value="<%= installOrg.getStereotype() %>"/>
    </form>
 
 
@@ -150,9 +137,11 @@
   </tr>
   <tr>
     <td></td>
-    <td valign="top">  <p class="notetext">* After submission of this form, you will be taken to a
-    log in screen for the organization you have just created. Please log in as
-    &quot;User&quot; superadmin, along with the new PIN created above.</p>
+    <td valign="top">  
+<p class="notetext">Fill in the fields on this screen and press the Submit button 
+    to access the login screen. At the login screen type <em>superadmin</em> for the username and 
+    enter the PIN/password you created on this screen.<br/> After you login you need to 
+    <strong>restart your services</strong> before you can use the installed system.</p>
 </td>
     <td></td>
   </tr>
