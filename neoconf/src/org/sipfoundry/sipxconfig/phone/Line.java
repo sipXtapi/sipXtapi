@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.Serializable;
 
 import org.sipfoundry.sipxconfig.setting.Folder;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
