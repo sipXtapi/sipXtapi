@@ -1,12 +1,4 @@
 <%@ page errorPage="/ui/error/error.jsp"%>
-<%
-   String multiservers = request.getParameter("multiservers");
-   String helpfileUrl ="help/WebHelp/sipxchange.htm#index.html";
-   
-   if( multiservers != null && "yes".equalsIgnoreCase(multiservers))
-   		helpfileUrl = "config_and_vm.htm" ;
-%>
-
 <html>
 <head>
 <title>Pingtel Configuration Server</title>
@@ -22,7 +14,7 @@
 		<table width="100%" border="0">
     		<tr>
 		      <td class="formtitle" height="30">Welcome</td>
-		      <td height="30" align="right"><a class="greentext" href="javascript:void 0" onclick="top.displayHelpPage('<%= helpfileUrl %>');">Help</a></td>
+		      <td height="30" align="right"><a class="greentext" href="javascript:void 0" onclick="top.displayHelpPage('help/WebHelp/sipxchange.htm#index.html');">Help</a></td>
 		    </tr>
 		<tr>
 			<td colspan="2"><hr class="dms"></td>

@@ -39,5 +39,14 @@ div.menuitem {font: 9pt Arial, Helvetica, Verdana, serif;
 </div>
 <div class="menuitem"><a href="pinmgmnt.jsp?userid=<%=userid%>" target="mainFrame">Change PIN</a></div>
 <div class="menuitem"><a href="user_about.jsp" target="mainFrame">About</a></div>
+<%
+    if( session.getAttribute("mediaserverhost") != null )
+    {
+        String mediaserverHostName = (String) session.getAttribute("mediaserverhost");
+%>
+<div class="menuitem"><a href="<%= mediaserverHostName %>/userui/" target="voicemail">Voicemail</a></div>
+<%
+    }
+%>
 </body>
 </html>
