@@ -2,7 +2,6 @@ SUBDIRS = . bin common profilegenerator profilepublisher profilewriter sipagent-
 
 EXTRA_DIST = \
     config/sipX-config.in \
-    doc/license \
     ant-targets.am \
     ant-targets.xml \
     acsite.m4 \

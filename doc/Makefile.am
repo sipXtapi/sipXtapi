@@ -1,5 +1,7 @@
 EXTRA_DIST = \
-  license
+    build.xml \
+    src \
+    license
 
 include $(top_srcdir)/ant-targets.am
 
