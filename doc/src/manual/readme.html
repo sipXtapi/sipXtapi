@@ -49,6 +49,16 @@ to read the following values:
 </pre>
   </dd>
 
+  <dd>You add configuration to Apache's web server to serve phone profiles.
+      echo "Include /opt/      
+Typical location of Apache's configuration file:
+<code>/etc/httpd/conf/httpd.conf</code>. Add the following line to the
+bottom of the file:
+      <pre>
+      Alias /phone/ "/usr/local/sipx/share/www/doc/phone/"
+      </pre>
+  </dd>
+
   <dt>Starting stopping sipXconfig</dt>
   <dd>To start all the components of sipXconfig, launch the following
 service as root user:
@@ -99,7 +109,7 @@ fully qualified hostname here (e.g myhost.acme.com)</p>
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Sun Oct 10 18:54:48 EDT 2004
+Last modified: Mon Oct 18 19:28:19 EDT 2004
 <!-- hhmts end -->
 </span>
 

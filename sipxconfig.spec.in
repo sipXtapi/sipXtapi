@@ -9,13 +9,14 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXconfig
 
-%define wwwdir /var/www
-%define htmldir /var/www/html
-%define profiledir /var/www/html/phone/profile
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
 %define sipxpbxdata %{_datadir}/sipxpbx
+
+# Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
+%define phonedir %{_localstatedir}/sipxdata/configserver/phone
+
 
 # Unfortunately because of Java's .so's  TODO: Figure out a way to 
 # tell rpm find-requires to find java's so
@@ -46,8 +47,7 @@ SOAP, postgresql and other J2EE technologies to get the job done.
 
 %build
 
-# Where httpd RPM's web root is
-%configure wwwdir=%{wwdir} htmldir=%{htmldir}
+%configure
 cp config.log %name.configlog
 make
 
@@ -79,12 +79,12 @@ rm -rf $RPM_BUILD_ROOT
 @JBOSS_HOME@/jboss/lib/ext/*.jar
 
 # Because of generation of data and profiles
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/applications
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/catalog
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/docroot
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/tftproot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/applications
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/catalog
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/docroot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
 
 # Install configserver config files, directory only is created by pbx
 %config %{sipxpbxconf}/*
@@ -92,10 +92,6 @@ rm -rf $RPM_BUILD_ROOT
 %{sipxpbxdata}
 
 %dir %{_localstatedir}
-
-# Not sure if these are still needed
-#%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxlog}
-#%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxrun}
 
 %pre
 

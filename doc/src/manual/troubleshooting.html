@@ -31,7 +31,16 @@ files go into one of these two locations</p>
   <dt>Change log level</dt>
   <dd>edit file:
 <code>${JBOSS_HOME}/conf/catalina/jboss.properties</code> and change
-the debug flag: <code>pds.debug=true</code></dd>
+the debug flag: <code>pds.debug=true</code> and restart processes.</dd>
+
+  <dt>Replication to Commservers</dt>
+  <dd>User information is sent to services like the sipXproxy.  To
+ensure infomation has been recieved, run this command:
+    <pre>
+      sipdbtest display credential
+    </pre>
+      You should see your basic user edits in this list.
+   </dd>
 </dl>
 
 <h2>Profile Publisher</h2>
@@ -47,6 +56,7 @@ for SIP and SIP stack level messages to phone devices. This log contains SIP mes
       sipviewer sds-siptrace.xml
     </pre>
     </dd>
+      
    <dd><code>PDSMessages.log</code> for communication of
 user, permission and credential datasets to other sipX servers.</dd>
 
@@ -56,6 +66,14 @@ user, permission and credential datasets to other sipX servers.</dd>
   Java VM needs to have correct certificate authority imported, see
   <code>install-cert.sh</code> file.  Lastly, check the timestamp of the
   <code>credentials.xml</code> file to see if time is after your change.</dd>
+
+  <dt>Change log level</dt>
+  <dd>edit file:
+    <code>bin/profilepublisher.sh</code> and change
+    the debug flag: <code>PDS_DEBUG=-Dpds.debug=true</code> and
+    restart processses. 
+  </dd>
+      
       
 </dl>
 
@@ -64,12 +82,19 @@ user, permission and credential datasets to other sipX servers.</dd>
 <dl>
   <dt>Analyze the log</dt>
   <dd><code>profilewriter.log</code></dd>
+
+  <dt>Change log level</dt>
+  <dd>edit file:
+    <code>bin/profilewriter.sh</code> and change
+    the debug flag: <code>PDS_DEBUG=-Dpds.debug=true</code> and
+    restart processses
+  </dd>
 </dl>      
 
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Sun Oct 10 14:35:41 EDT 2004
+Last modified: Tue Oct 19 16:38:28 EDT 2004
 <!-- hhmts end -->
 </span>
 

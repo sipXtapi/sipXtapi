@@ -64,22 +64,12 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 
 SFAC_INIT_FLAGS
 
-## Helpful override, for example http RPM uses /usr/www/html
-AC_ARG_VAR(htmldir, [Web root for apache 2, default is ${prefix}/www/doc. \
-   WARNING: Adjust accordingly when following INSTALL instructions])
-test -z $htmldir && htmldir=${wwwdir}/doc
-
 ## Order from highest to lowest for proper LIB order
 SFAC_LIB_STACK
 SFAC_LIB_PORT
 
 # Jar files to all of sipXconfig. 
 AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
-
-# Where profiles get generated.
-#  http://server[:port]/phone/profile
-AC_SUBST(profiledir, [${htmldir}/phone/profile])
-
 
 CHECK_JNI
 CHECK_ANT

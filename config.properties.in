@@ -17,8 +17,7 @@ dest.dir=
 debuglevel=lines
 
 # S I P X P B X  / S I P X C O N F I G
-html.dir=@htmldir@
-profile.dir=@profiledir@
+sipxconfig.phone.dir=@SIPX_CONFIGPHONEDIR@
 sipxconfig.lib.dir=@SIPXCONFIG_LIBDIR@
 sipxpbx.data.dir=@SIPX_DATADIR@
 sipxpbx.conf.dir=@SIPX_CONFDIR@

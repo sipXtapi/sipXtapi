@@ -62,10 +62,13 @@
 
     <!-- web system -->
     <copy file="${dist.dir}/profilewriter.jar" todir="${dest.dir}${sipxconfig.lib.dir}"/>
-    <mkdir dir="${dest.dir}${html.dir}/phone/applications"/>
-    <mkdir dir="${dest.dir}${html.dir}/phone/catalog"/>
-    <mkdir dir="${dest.dir}${profile.dir}/docroot"/>
-    <mkdir dir="${dest.dir}${profile.dir}/tftproot"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/applications"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/catalog"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"/>
+    <chown owner="${sipxpbx.user}" type="dir">
+      <fileset dir="${dest.dir}${sipxconfig.phone.dir}" includes="**"/>
+    </chown>
 
     <!-- configuration -->
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
@@ -73,7 +76,7 @@
         tofile="${dest.dir}${sipxpbx.conf.dir}/profilewriter.props.in" />
     <replace file="${dest.dir}${sipxpbx.conf.dir}/profilewriter.props.in" 
         propertyfile="${top.build.dir}/config.properties">
-      <replacefilter token="@profile.dir@" property="profile.dir"/>
+      <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
     </replace>
 
   </target>

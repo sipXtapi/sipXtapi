@@ -14,10 +14,10 @@ Received the exception:<br>
 <font color=red>
 
 <%
-    if ( exception != null && exception.getMessage() != null ) {
+    if ( exception != null ) {
         NDC.push((String)session.getAttribute( "user" ));
         NDC.push((String)session.getAttribute( "orgname" ));
-        cat.error( exception.getMessage() );
+        cat.error( "Page Error", exception );	
     }
 
     if ( exception instanceof RedirectServletException ) {
