@@ -166,6 +166,7 @@
        includes="test/**">
       <classpath>
         <pathelement path="${classes.dir}"/>
+        <pathelement location="${junit.jar}"/>
       </classpath>
     </javac>
   </target>

@@ -70,9 +70,19 @@ CHECK_ANT
 CHECK_JBOSS_HOME
 CHECK_TOMCAT_HOME
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([etc/Makefile etc/cert/Makefile])
-AC_CONFIG_FILES([sipagent-jni/Makefile sipagent-jni/src/Makefile sipagent-jni/include/Makefile])
+AC_CONFIG_FILES([
+    Makefile
+    sipxconfig.spec
+    etc/Makefile 
+    etc/cert/Makefile
+    common/Makefile
+    profilewriter/Makefile
+    profilepublisher/Makefile
+    profilegenerator/Makefile
+    sipagent-jni/Makefile
+    sipagent-jni/src/Makefile
+    sipagent-jni/include/Makefile
+])
 
 AC_OUTPUT
 

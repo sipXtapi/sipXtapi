@@ -1,7 +1,5 @@
 
-SUBDIRS = . etc sipagent-jni
-
-include $(top_srcdir)/ant-targets.am
+SUBDIRS = . etc common profilegenerator profilepublisher profilewriter sipagent-jni
 
 EXTRA_DIST = \
     doc/license \
@@ -44,10 +42,10 @@ BUILT_SOURCES = config.properties
 config.properties : config.properties.in Makefile
 	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
 
-rpm: dist
-	rpm -ta $(PACKAGE)-$(VERSION).tar.gz
-	mv -f /usr/src/redhat/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
-	mv -f /usr/src/redhat/RPMS/*/$(PACKAGE)-$(VERSION)-*.rpm .
+# Alternative is to do svn export, but it's very handy to be able to 
+# create a dist tarball from a working svn chewckout
+dist-hook:
+	rm -rf `find $(distdir) -type d -name .svn`
 
 
 # Override default tarball creation, need to support paths > 99 chars

@@ -44,6 +44,7 @@
         <replacefilter token="@JBOSS_HOME@" property="jboss.home"/>
         <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
         <replacefilter token="@bindir@" property="bin.dir"/>
+        <replacefilter token="@localstatedir@" property="localstate.dir"/>
       </replace>
       <chmod file="${bin.dir}/profilegenerator.sh" perm="ugo+x" />
 

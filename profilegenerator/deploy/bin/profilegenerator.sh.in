@@ -29,6 +29,8 @@ export JAVA_HOME=@JAVA_HOME@
 # Needed for ${JBOSS_HOME}/bin/run.sh
 export PATH=$PATH:@JAVA_HOME@/bin
 
+echo $$ > @localstatedir@/run/profilegenerator.pid
+
 # Production command line
 cd @JBOSS_HOME@/bin
 ./run_with_catalina.sh $@

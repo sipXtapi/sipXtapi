@@ -1,3 +1,5 @@
 #!/bin/sh
 
+echo $$ > @localstatedir@/run/rmiregistry.pid
+
 exec @JAVA_HOME@/bin/rmiregistry -J-Dsun.rmi.loader.logLevel=VERBOSE -J-Djava.security.policy=@SIPXPBXCONF@/security.policy 2001

@@ -35,7 +35,7 @@ buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
 
 
 # U T I L
-junit.jar=@junit_jar@
+junit.jar=${top.dir}/lib/junit.jar
 # Jdom is beta10, JBoss 3.2.3 uses beta9
 jdom.jar=${top.dir}/lib/jdom.jar
 jaxen-core.jar=${top.dir}/lib/jaxen-core.jar

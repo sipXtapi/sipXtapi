@@ -62,6 +62,7 @@
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@JAVA_HOME@" property="java.home"/>
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@localstatedir@" property="localstate.dir"/>
     </replace>
     <chmod file="${bin.dir}/startrmireg.sh" perm="ugo+x"/>
 
