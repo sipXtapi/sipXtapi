@@ -65,6 +65,14 @@
     </t>
 
     <t>
+      The process of combining the information in a set of Call State Events 
+      to determine what happened with the call as whole is called Call
+      Resolution; this step uses the events as input and produces a more
+      traditional Call Detail Record - a single record per call.  This
+      process is described in <xref target="RESOLUTION"/>.
+    </t>
+
+    <t>
     Call State Events are encoded as XML according to the the schema
     in <xref target="CSE_SCHEMA"/>.
     </t>
@@ -254,7 +262,16 @@
       </section>
 
       <section title="Call Failure">
+        <t>
+          <spanx style='emph'>
+            At present, the Call Failure event is not implemented in the
+            Observers.  This is not a problem for billing and usage
+            monitoring applications, since these are not typically billable
+            events. 
+          </spanx>
+        </t>
       <t>
+
       <list style="hanging">
 
         <t hangText="XML element name">
@@ -318,6 +335,146 @@
 
     </section>
 
+    <section title='Call State Event Logs'>
+      <t>
+        In the present implementation, Call Request events are logged by
+        the forking proxy in the file configured by the directive
+        SIP_PROXY_CALL_STATE_LOG (by default "sipproxy_callstate.log" in
+        the log directory).  Call Setup and Call End events are logged by
+        the authentication proxy in the file configured by the
+        SIP_AUTHPROXY_CALL_STATE_LOG directive (by default
+        "sipauthproxy_callstate.log" in the log directory).
+      </t>
+
+    </section>
+
+    <section anchor='RESOLUTION' title="Call Resolution">
+      <t>
+        The Call State Events described above are not a convenient form for
+        applications such as billing or usage monitoring.  For these kinds
+        of applications, a more suitable form would be a single record that
+        included the parties to the call, when it occurred, and its
+        duration.  This form is usually called a Call Detail Record (CDR).
+        This section describes the algorithm for constructing CDRs from a
+        set of Call State Events.
+      </t>
+
+      <t>
+        <spanx style="strong">
+          At this writing, we do not have an implementation of a resolver;
+          if you would like to work on one and contribute it, please
+          contact the project coordinator through the tracker or the
+          sipx-dev mailing list.
+        </spanx>
+      </t>
+
+      <t>
+        In the following algorithm, the notation:
+        <figure>
+          <artwork>
+/dest-ns:dest-element/dest-sub &lt;- /src-ns:src-element/src-sub
+          </artwork>
+        </figure>
+        is used to indicate that the contents of element path
+        /dest-element/dest-sub in the namespace dest-ns should be set from
+        the contents of the element /src-element/src-sub from namespace src-ns.
+      </t>
+      <t>
+        The namespaces used are:
+        <list style='hanging'>
+          <t hangText='cdr'>
+            The Call Detail Records namespace:
+            http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00 (see <xref target='CDR_SCHEMA'/>).
+          </t>
+          <t hangText='cse'>
+            The Call State Event namespace: http://www.sipfoundry.org/sipX/schema/xml/cse-01-00 (see <xref target='CSE_SCHEMA'/>).
+          </t>
+        </list>
+      </t>
+      <t>
+        To produce the Call Detail Records for a given set of Call State
+        Events:
+        <list style='numbers'>
+          <t>
+            Select the events that relate to the same call using the
+            information in the &lt;cse:dialog&gt; element.  The &lt;cse:call_id&gt;
+            values must match exactly.  If present, the &lt;cse:from&gt; and
+            &lt;cse:to&gt; values must not be different, but some events in the
+            call may not have one or both of these, and should be considered
+            to be a match so long as the &lt;cse:call_id&gt; value matches. 
+          </t>
+          <t>
+            Order the events within a call by the value of the
+            &lt;obs_time&gt; element.  
+          </t>
+          <t>
+            Find the first &lt;cse:call_request&gt; event (if none is
+            found, then some data is not available, and the data for this
+            call is discarded). 
+            <figure>
+              <artwork>
+/cdr:call/caller/uri &lt;- /cse:call_event/call_request/call/from
+/cdr:call/called/uri &lt;- /cse:call_event/call_request/call/to
+/cdr:call/caller/endpoint &lt;- /cse:call_event/call_request/via
+/cdr:call/caller/contact &lt;- /cse:call_event/call_request/contact
+/cdr:call/start &lt;- /cse:call_event/obs_time
+              </artwork>
+            </figure>
+          </t>
+          <t>
+            If there is at least one &lt;cse:call_setup&gt; event, find the first
+            &lt;cse:call_setup&gt; event 
+            <figure>
+              <artwork>
+/cdr:call/called/endpoint &lt;- /cse:call_event/call_setup/via
+/cdr:call/called/contact &lt;- /cse:call_event/call_setup/contact
+/cdr:call/setup &lt;- /cse:call_event/obs_time
+              </artwork>
+            </figure>
+          </t>
+          <t>
+            Provisionally set
+            <figure>
+              <artwork>
+/cdr:call/completionCode &lt;- CIP
+              </artwork>
+            </figure>
+          </t>
+          <t>
+            Find the last &lt;cse:call_end&gt; event whose
+            &lt;cse:dialog&gt; values exactly match those in the selected
+            &lt;cse:call_setup&gt;.  If none is found, this is a partial
+            record, and it will not have a &lt;cdr:call_end&gt; element.
+            If one is found, set:
+            <figure>
+              <artwork>
+/cdr:call/end &lt;- /cse:call_event/obs_time
+/cdr:call/completionCode &lt;- CC
+              </artwork>
+            </figure>
+            If there was no &lt;cse:call_setup&gt; event, find the last
+            &lt;cse:call_failed&gt; event and set: 
+            <figure>
+              <artwork>
+/cdr:call/caller/endpoint &lt;- /cse:call_event/call_failed/via
+/cdr:call/end &lt;- /cse:call_event/obs_time
+/cdr:call/completionCode &lt;- UC
+              </artwork>
+            </figure>
+            <spanx style='emph'>
+              Since Call Failure Events are not currently logged, the
+              absence of a Call Setup Event will have to be used to infer a
+              failure, and no final reason can be determined.
+            </spanx>
+          </t>
+        </list>
+      </t>
+
+    </section>
+
+  </middle>
+  <back>
+
     <section title="Call State Event XML Schema" anchor="CSE_SCHEMA">
       <figure>
         <artwork>
@@ -326,10 +483,6 @@
       </figure>
     </section>
 
-  </middle>
-
-  <back>
-
     <section anchor="CSE_EXAMPLES" title="Example Call State Events">
       <figure>
         <artwork>
@@ -337,6 +490,15 @@
         </artwork>
       </figure>
     </section>
+
+    <section title="Call Detail Record XML Schema" anchor="CDR_SCHEMA">
+      <figure>
+        <artwork>
+<?rfc include="call_detail_record_schema.esc"?>
+        </artwork>
+      </figure>
+    </section>
+
 
   </back>
 
