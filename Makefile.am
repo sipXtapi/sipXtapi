@@ -20,14 +20,22 @@ editdata :
 	@for cfgfile in $(editdata_IN); \
 	do \
 		target=`basename $$cfgfile`; \
-		$(LocalizeSipXconfig) $(srcdir)/$$cfgfile > $$target; \
+		$(LocalizeSipXconfig) $(srcdir)/$$cfgfile > $$target.tmp; \
 		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		then \
 			echo ""; echo "Installing default $(sysconfdir)/sipxpbx/$$target"; \
-			$(INSTALL) -D -m 644 $$target $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
+			$(INSTALL) -D -m 644 $$target.tmp $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		else \
 	    	 echo ""; echo "Using existing $(sysconfdir)/sipxpbx/$$target"; \
-	    fi; \
+			 case $$target in \
+			   authrules.xml.in) \
+				  echo "        Checking/updating schema for $(sysconfdir)/sipxpbx/$$target"; \
+				  perl -pi \
+				    -e 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' \
+				    $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
+				  ;; \
+		    esac; \
+	   fi; \
 	done; \
 	echo ""
 
