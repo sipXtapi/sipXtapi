@@ -16,6 +16,8 @@
 			</list>
 		</constructor-arg>
 	</bean>
+    <!--
+        TODO: DB beans cannot be referenced here (unit test will fails on a system without a DB)
 	<bean id="unittest-db" 
 		class="org.springframework.context.support.ClassPathXmlApplicationContext">
 		<constructor-arg>
@@ -26,4 +28,5 @@
 			</list>
 		</constructor-arg>
 	</bean>
+    -->
 </beans>
