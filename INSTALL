@@ -299,3 +299,19 @@ A SOAP client perl script is provided as an example and as a useful
 importing utility. See following directory for scripts and examples:
 
   profilegeneration/soap/bin
+
+
+Compiling the Profile Publisher's SIP agent w/ MSVC 6
+=====================================================
+First, see the INSTALL instructions in sipXportLib on adding glib and 
+pcre to the MSVC 6 environment.  Next, you must add Java's JNI include 
+and library paths to your MSVC 6 environment following the same process.
+Assuming that you installed the SDK in 
+C:\Program Files\Java\j2sdk1.4.2_03, you will need to add the following:
+
+Additional Includes:
+   C:\Program Files\Java\j2sdk1.4.2_03\include
+   C:\Program Files\Java\j2sdk1.4.2_03\include\win32
+
+Additional Libs:
+   C:\Program Files\Java\j2sdk1.4.2_03\lib
