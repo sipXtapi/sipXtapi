@@ -63,6 +63,9 @@ easymock.jar=${top.dir}/lib/easymock.jar
 checkstyle.jar=${top.dir}/lib/checkstyle-3.5.jar
 checkstyle-optional.jar=${top.dir}/lib/checkstyle-optional-3.5.jar
 
+clover.home=@CLOVER_HOME@
+clover.jar=${clover.home}/lib/clover.jar
+
 # common jars located at root of ear file that ear applications can share by 
 # including in their manifest
 manifest.classpath=common.jar neoconf.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen-jdom.jar saxpath.jar jakarta-regexp-1.3.jar

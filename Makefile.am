@@ -31,6 +31,7 @@ doc :
 edit = sed \
         -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
         -e 's,@abs_builddir\@,@abs_builddir@,g' \
+        -e 's,@CLOVER_HOME\@,@CLOVER_HOME@,g' \
         -e 's,@JAVA\@,@JAVA@,g' \
         -e 's,@JAVAC_OPTIMIZED\@,@JAVAC_OPTIMIZED@,g' \
         -e 's,@JAVAC_DEBUG\@,@JAVAC_DEBUG@,g' \

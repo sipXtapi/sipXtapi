@@ -60,6 +60,38 @@
      </classpath> 
    </taskdef> 
 
+
+  <!--
+    - C L O V E R
+    - Unit test coverage tasks and definitions 
+  -->
+  <!-- Added for Clover testing -->
+  <property name="clover.excludes" value=""/>
+
+  <target name="with.clover" description="Enables code coverage instrumentation">
+    <taskdef resource="clovertasks"/>
+    <mkdir dir="${build.dir}/clover/db"/>
+    <mkdir dir="${build.dir}/clover/html"/>
+    <clover-setup initString="${build.dir}/clover/db/csdb">
+      <files>
+        <exclude name="**/*Test.java"/> 
+      </files>
+  </clover-setup> 
+    <property name="clover.html.dir" location="${build.dir}/clover/html"/>
+  </target>
+
+  <target name="clover.report" depends="with.clover">
+    <clover-report>
+      <current outfile="${clover.html.dir}">
+        <format type="html"/>
+      </current>
+    </clover-report>
+  </target>
+
+  <target name="clover.viewer" depends="with.clover">
+    <clover-view/>
+  </target> 
+ 
   <!--
     - I N I T 
     - Create output directories. 
@@ -67,7 +99,7 @@
   <target name="init" unless="subdirs"
     description="[internal] create standard output directories">
     
-    <echo>entering ${ant.project.name}</echo>
+    <echo level="verbose">entering ${ant.project.name}</echo>
     <mkdir dir="${build.dir}" />
     <mkdir dir="${classes.dir}" />
     <mkdir dir="${dist.dir}" />
@@ -259,7 +291,8 @@
     - U N I T T E S T 
     -->
   <target name="test" depends="subtest,realtest" 
-       description="run junit tests"/>
+       description="run junit tests">
+  </target> 
 
   <target name="subtest" if="subdirs" 
        description="run junit tests">
@@ -269,12 +302,13 @@
   <target name="realtest" depends="compile.test" unless="subdirs" 
        description="run junit tests">
 
-    <junit fork="yes" haltonfailure="yes" printsummary="on">
+    <junit fork="yes" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
       <classpath>
+        <pathelement location="${clover.jar}"/> 
         <pathelement path="${classpath}"/>
         <pathelement location="${classes.dir}"/>
         <pathelement location="${test.classes.dir}"/>
-        <pathelement location="${src.dir}/test"/>
+        <pathelement location="${src.dir}/test"/> 
 	<!-- resource files -->
         <pathelement location="${src.dir}"/>
         <pathelement location="${test.src.dir}"/>
@@ -288,6 +322,7 @@
         </fileset>
       </batchtest>
     </junit>        
+    <fail if="junit.failed"/>   
   </target>
 
 
@@ -353,8 +388,6 @@
     </junitreport>
   </target>
 
-
-
   <!-- 
     - R E C U R S E  B U I L D S 
     - Analogous to autoconf's SUBDIRS this will recurse directories calling
@@ -365,11 +398,14 @@
     <presetdef name="my.subant"> 
       <subant inheritall="false" inheritrefs="false">
         <property name="top.build.dir" value="${top.build.dir}"/>
-
         <!-- may be tempted to use patternset, but order is not 
              preserved -->
         <filelist refid="${subdirs}"/>
-
+      	<reference refid="clover.files"/>
+      	<propertyset>
+          <propertyref prefix="clover"/>
+          <propertyref prefix="build.compiler"/>
+        </propertyset>
       </subant>
     </presetdef>
     

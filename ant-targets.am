@@ -3,7 +3,7 @@
 #  -e is to remove extraneous logging to console, not required
 #  -Dtop.build.dir is required if you call ./configure from a different dir
 abs_top_builddir=`cd $(top_builddir) && pwd`
-ANT_FLAGS=-e -Dtop.build.dir=$(abs_top_builddir) -lib $(top_srcdir)/lib -f $(srcdir)/build.xml
+ANT_FLAGS=-e -Dtop.build.dir=$(abs_top_builddir) -lib $(top_srcdir)/lib:$(clover.jar) -f $(srcdir)/build.xml
 
 all : all-ant
 
