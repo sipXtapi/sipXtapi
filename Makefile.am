@@ -48,7 +48,7 @@ EXTRA_DIST = \
     $(editdata_IN) \
     sipXauthproxy.dsp \
     sipXforkingProxy.dsp \
-    sipxproxy.spec
+    sipxproxy.spec.in
 
 install-exec-hook : editscripts editdata
 
