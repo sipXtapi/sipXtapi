@@ -140,6 +140,16 @@
 	    <binding name="value" expression="dialPlan.description"/>
     </component>
     
+    
+    <component id="gatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="dialPlan.gateways"/>
+        <static-binding name="editPageName" value="EditGateway"/>
+    </component>
+    
+    <component id="emergencyGatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="dialPlan.emergencyGateways"/>
+        <static-binding name="editPageName" value="EditGateway"/>
+    </component>
 	<!--
 	  - A S S E T S
 	  -->	

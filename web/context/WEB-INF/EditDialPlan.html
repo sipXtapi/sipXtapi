@@ -132,6 +132,80 @@
             </tbody>
         </table>
         </fieldset>
+        <fieldset>
+        <legend>Gateways</legend>
+		<ul class="component-actions">
+			<li><a href="edit-gateway.html">Add New Gateway</a></li>        
+			<li><a href="select-gateways.html">Add Existing Gateway</a></li>        
+		</ul>        
+        <table jwcid="gatewayTable" class="table-view">
+            <thead>
+                <tr>
+                    <th/>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="odd">
+                    <td>
+                        <input type="checkbox" name="id1"/>
+                    </td>
+                    <td>
+                        <a href="edit-gateway.html">boston</a>
+                    </td>
+                    <td>192.168.1.15</td>
+                    <td>default PSTN connection for office calls</td>
+                </tr>
+                <tr class="even">
+                    <td>
+                        <input type="checkbox" name="id1"/>
+                    </td>
+                    <td>
+                        <a href="edit-gateway.html">atlanta</a>
+                    </td>
+                    <td>10.1.3.5</td>
+                    <td>additional</td>
+                </tr>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>        
+        <legend>Emergency gateways</legend>
+		<ul class="component-actions">
+			<li><a href="edit-gateway.html">Add New Gateway</a></li>        
+			<li><a href="select-gateways.html">Add Existing Gateway</a></li>        
+		</ul>        
+        <table jwcid="emergencyGatewayTable" class="table-view">
+            <thead>
+                <tr>
+                    <th/>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="odd">
+                    <td>
+                        <input type="checkbox" name="id1"/>
+                    </td>
+                    <td>
+                        <a href="edit-gateway.html">boston</a>
+                    </td>
+                    <td>192.168.1.15</td>
+                    <td>default PSTN connection for office calls</td>
+                </tr>
+            </tbody>
+        </table>
+        <ul class="table-actions">
+            <li>
+                <input type="button" name="" value="Remove"
+                    onclick="confirm('Are you sure you want to remove selected gateways?')"/>
+            </li>
+        </ul>
+        </fieldset>        
         <ul class="form-actions">
             <li>
                 <input type="submit" jwcid="@Submit" listener="ognl:listeners.save" value="Save"/>
