@@ -62,6 +62,7 @@
                 <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/legacy/configSet.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -136,6 +137,26 @@
 			</list>
 		</property>
 	</bean>
+    
+    <!-- 
+      - L E G A C Y   C O N T E X T
+      -->
+      
+	<bean id="legacyContextImpl" class="org.sipfoundry.sipxconfig.legacy.LegacyContextImpl" 
+        autowire="byType">
+    </bean>
+	<bean id="legacyContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.legacy.LegacyContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>legacyContextImpl</value>
+			</list>
+		</property>        
+    </bean>      
+      
 	<!--
       - F O R W A R D I N G  C O N T E X T
       -->
