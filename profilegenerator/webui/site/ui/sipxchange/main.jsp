@@ -54,10 +54,10 @@ h1.list {
         }
     }
 </script>
-<title>SIPXchange User Interface</title>
+<title>sipXconfig User Interface</title>
 </head>
 
 <body class="bglight" onload="checkBrowser()">
-<h1 class="list">Pingtel SIPxchange<SUP><FONT SIZE="-1">TM</FONT></SUP> User Interface</h1>
+<h1 class="list">sipXconfig<SUP><FONT SIZE="-1">TM</FONT></SUP> User Interface</h1>
 </body>
 </html>
