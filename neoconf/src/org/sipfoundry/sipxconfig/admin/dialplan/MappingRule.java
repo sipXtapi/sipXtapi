@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
@@ -22,16 +24,21 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  * MappingRule
  */
 public class MappingRule extends DialingRule {
-    protected static final String OPERATOR_URL = "<sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant>";
-    protected static final String VOICEMAIL_URL = "<sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve%26mailbox%3D{digits}>";
-    protected static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits}>";
-    protected static final String VOICEMAIL_FALLBACK_URL = "<sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}>;q=0.1";
+    protected static final String URL_PREFIX = "<sip:{digits}@{mediaserver};play={voicemail}";
+    protected static final String OPERATOR_URL = URL_PREFIX
+            + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant>";
+    protected static final String VOICEMAIL_URL = URL_PREFIX
+            + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve%26mailbox%3D{digits}>";
+    protected static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver};play={voicemail}"
+            + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits}>";
+    protected static final String VOICEMAIL_FALLBACK_URL = URL_PREFIX
+            + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}>;q=0.1";
 
     private String[] m_patterns;
     private String m_url;
 
     public MappingRule() {
-        this(new String[] {}, "");
+        this(new String[] {}, StringUtils.EMPTY);
     }
 
     /**
@@ -51,7 +58,7 @@ public class MappingRule extends DialingRule {
     public Transform[] getTransforms() {
         UrlTransform transform = new UrlTransform();
         transform.setUrl(m_url);
-        return new Transform[] { transform };
+        return new Transform[] {transform};
     }
 
     public Type getType() {
@@ -69,15 +76,15 @@ public class MappingRule extends DialingRule {
     // specialized classes
     public static class Operator extends MappingRule {
         public Operator(String operator) {
-            setPatterns(new String[] { "operator", operator, "0" });
+            setPatterns(new String[] {"operator", operator, "0"});
             setUrl(MappingRule.OPERATOR_URL);
         }
     }
 
     public static class VoicemailFallback extends MappingRule {
         public VoicemailFallback(int extensionLen) {
-            DialPattern pattern = new DialPattern("", extensionLen);
-            setPatterns(new String[] { pattern.calculatePattern() });
+            DialPattern pattern = new DialPattern(StringUtils.EMPTY, extensionLen);
+            setPatterns(new String[] {pattern.calculatePattern()});
             setUrl(VOICEMAIL_FALLBACK_URL);
         }
 
@@ -90,7 +97,7 @@ public class MappingRule extends DialingRule {
 
     public static class Voicemail extends MappingRule {
         public Voicemail(String voiceMail) {
-            setPatterns(new String[] { voiceMail });
+            setPatterns(new String[] {voiceMail});
             setUrl(VOICEMAIL_URL);
         }
 
@@ -99,7 +106,7 @@ public class MappingRule extends DialingRule {
     public static class VoicemailTransfer extends MappingRule {
         public VoicemailTransfer(String prefix, int extensionLen) {
             DialPattern pattern = new DialPattern(prefix, extensionLen);
-            setPatterns(new String[] { pattern.calculatePattern() });
+            setPatterns(new String[] {pattern.calculatePattern()});
             setUrl(VOICEMAIL_TRANSFER_URL);
         }
     }

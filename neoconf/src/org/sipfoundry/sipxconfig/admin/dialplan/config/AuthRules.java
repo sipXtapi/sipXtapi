@@ -52,8 +52,7 @@ public class AuthRules implements ConfigFile {
     public void generate(IDialingRule rule) {
         List gateways = rule.getGateways();
         List permissions = rule.getPermissions();
-        if( gateways.size() == 0 || permissions.size() == 0)
-        {
+        if (gateways.size() == 0 || permissions.size() == 0) {
             // nothing to generate
             return;
         }

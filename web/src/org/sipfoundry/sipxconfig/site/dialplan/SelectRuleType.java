@@ -11,17 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule.Type;
-import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 
 /**
  * SelectRuleType
