@@ -21,17 +21,17 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
-import org.sipfoundry.sipxconfig.phone.PhoneTestHelper;
 
-public class EditPhonePageTest extends TestCase {
+public class EditPhoneTest extends TestCase {
     
-    public void testSaveAndCancel() {
-        PhoneContext phoneContext = PhoneTestHelper.getPhoneContext();
+    public void testSave() {
+        PhoneContext phoneContext = SiteTestHelper.getPhoneContext();
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
+        cycle.activate("ListPhones");
         cycleControl.replay();
         
-        EditPhonePage page = new EditPhonePage();
+        EditPhone page = new EditPhone();
         page.setPhoneContext(phoneContext);
         page.getEndpoint().setSerialNumber(Long.toHexString(new Date().getTime()));        
         page.getEndpoint().setPhoneId(GenericPhone.GENERIC_PHONE_ID);
@@ -47,11 +47,22 @@ public class EditPhonePageTest extends TestCase {
         assertEquals(GenericPhone.GENERIC_PHONE_ID, ids.getOption(0));
         
         page.save(cycle);
-        // NOTE: may not be a valid realworld test, but should still act graceful
-        page.cancel(cycle);
         
         daoControl.verify();
         cycleControl.verify();
+    }
+    
+    public void textCancel() {
+        PhoneContext phoneContext = SiteTestHelper.getPhoneContext();
+        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
+        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
+        cycle.activate("ListPhones");
+        cycleControl.replay();
+        
+        EditPhone page = new EditPhone();
+        page.cancel(cycle);
+    
+        cycleControl.verify();    
     }
 
 }

@@ -20,12 +20,13 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 /**
  * Tapestry Page support for editing and creating new phone endpoints
  */
-public class EditPhonePage extends AbstractPhonePage {
+public class EditPhone extends AbstractPhonePage {
     
+    private static final String NEXT_PAGE = "ListPhones";
+
     /** TODO: read from db if edit mode */
     private Endpoint m_endpoint = new Endpoint();
-    
-    
+            
     private IPropertySelectionModel m_phoneModels;
     
     public void setPhoneContext(PhoneContext phoneContext) {
@@ -42,15 +43,13 @@ public class EditPhonePage extends AbstractPhonePage {
         m_endpoint = endpoint;
     }
     
-    public void save(IRequestCycle cycleTemp) {
+    public void save(IRequestCycle cycle) {
         getPhoneContext().getPhoneDao().storeEndpoint(getEndpoint());
-        // no-op avoid eclipse warning
-        cycleTemp.getClass();
+        cycle.activate(NEXT_PAGE);
     }
 
-    public void cancel(IRequestCycle cycleTemp) {
-        // no-op avoid eclipse warning
-        cycleTemp.getClass();
+    public void cancel(IRequestCycle cycle) {
+        cycle.activate(NEXT_PAGE);
     }
 
     /**
