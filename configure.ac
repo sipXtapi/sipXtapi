@@ -3,9 +3,11 @@
 # benign edit
 
 AC_PREREQ(2.59)
-AC_INIT(sipXconfig, 2.5.1, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXconfig, 2.5, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
+AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
+SFAC_AUTOMAKE_VERSION([1.8])
 
 AC_CONFIG_SRCDIR([common/src/com/pingtel/pds/common/PDSException.java])
 AM_CONFIG_HEADER([config.h])
