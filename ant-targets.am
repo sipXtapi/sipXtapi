@@ -6,11 +6,11 @@ abs_top_builddir=`cd $(top_builddir) && pwd`
 # libraries required by ANT tasks only 
 # do not add libraries required by sipXconfig code; they should be defined in build.xml
 
-commons_collections=$(top_srcdir)/lib/commons-collections.jar
-commons_beanutils=$(top_srcdir)/lib/commons-beanutils.jar
-commons_logging=$(top_srcdir)/lib/commons-logging.jar
+commons_collections=$(top_srcdir)/lib/commons-collections-3.1.jar
+commons_beanutils=$(top_srcdir)/lib/commons-beanutils-1.7.0.jar
+commons_logging=$(top_srcdir)/lib/commons-logging-1.0.4.jar
 jakarta_regexp=$(top_srcdir)/lib/jakarta-regexp-1.3.jar
-junit=$(top_srcdir)/lib/junit.jar
+junit=$(top_srcdir)/lib/junit-3.8.1.jar
 
 ANT_LIBS=$(commons_beanutils):$(commons_collections):$(commons_logging):$(jakarta_regexp):$(junit)
 ANT_FLAGS=-e -Dtop.build.dir=$(abs_top_builddir) -lib $(ANT_LIBS) -f $(srcdir)/build.xml
