@@ -4,15 +4,24 @@
     <endpoint serial_number="999123456" 		
 		endpoint_id="1000"
         name="unittest-sample phone1"
+		storage_id="[null]"
         phone_id="polycom300"/> 
     <line 
 		line_id="1000" 
 		endpoint_id="1000"
-		position="0" 
+		position="1" 
+		storage_id="[null]"
 		user_id="4"/> 
     <line 
 		line_id="1001" 
 		endpoint_id="1000"
-		position="1" 
+		position="0" 
+		storage_id="[null]"
+		user_id="4"/> 
+    <line 
+		line_id="1002" 
+		endpoint_id="1000"
+		position="2" 
+		storage_id="[null]"
 		user_id="4"/> 
 </dataset>

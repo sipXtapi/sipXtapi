@@ -5,16 +5,16 @@
 <body jwcid="@Body">
 	<div id="component">
         <form jwcid="@Form" delegate="ognl:beans.validator">
+    <fieldset>
+        <legend>Device Identification</legend>            
             <span jwcid="editPhoneForm"/>
+    </fieldset>
 			<ul class="form-actions">
 				<li>
                     <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
 				</li>
 				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.finish" value="Finish"/>
-				</li>
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.next" value="Next"/>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.finish" value="OK"/>
 				</li>
 			</ul>                        
 		</form>    

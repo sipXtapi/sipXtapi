@@ -18,7 +18,17 @@ import org.springframework.context.ApplicationContext;
 
 public class SettingDaoTestDb extends TestCase {
     
-    public void testSettingGroup() {
+    protected void setUp() throws Exception {
+        TestHelper.setUpHibernateSession();
+    }
+    
+    protected void tearDown() throws Exception {
+        TestHelper.tearDownHibernateSession();
+    }
+
+    public void testSettingGroup() throws Exception {
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+
         SettingGroup root = new SettingGroup();
         root.addSetting(new Setting("setting"));
         

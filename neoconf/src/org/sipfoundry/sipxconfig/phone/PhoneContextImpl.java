@@ -205,4 +205,23 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public Organization loadRootOrganization() {
         return (Organization) getHibernateTemplate().load(Organization.class, new Integer(1));        
     }
+    
+    /**
+     * Violates
+     * @param endpoint
+    public void updateLinesPositions(Endpoint endpoint) {        
+        shiftLinePositions(endpoint, 1000);
+        storeEndpoint(endpoint);
+        shiftLinePositions(endpoint, -1000);
+        storeEndpoint(endpoint);
+    }
+    
+    private void shiftLinePositions(Endpoint endpoint, int shift) {
+        List lines = endpoint.getLines();
+        for (int i = 0; i < lines.size(); i++) {
+            Line line = (Line) lines.get(i);
+            line.setPosition(line.getPosition() + shift);
+        }
+    }
+     */
 }

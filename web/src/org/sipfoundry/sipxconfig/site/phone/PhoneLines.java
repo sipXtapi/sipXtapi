@@ -80,6 +80,34 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         page.setLineId(lineId.intValue());
         cycle.activate(page);                
     }
+    
+    public void deleteLine(IRequestCycle cycle) {
+        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        context.deleteLine(loadLine(cycle));
+    }
+    
+    public void moveLineUp(IRequestCycle cycle) {
+        moveLine(cycle, 1);
+    }
+    
+    public void moveLineDown(IRequestCycle cycle) {
+        moveLine(cycle, -1);
+    }
+    
+    private void moveLine(IRequestCycle cycle, int relativePosition) {
+        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        Line line = loadLine(cycle);
+        Endpoint endpoint = line.getEndpoint();
+        endpoint.moveLine(line.getPosition(), relativePosition);
+        context.storeEndpoint(endpoint);
+    }
+    
+    private Line loadLine(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        return context.loadLine(lineId.intValue());
+    }
 
     public void ok(IRequestCycle cycle) {
         apply(cycle);

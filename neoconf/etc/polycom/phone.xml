@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model>
-	<group name="call">
-		<label>Call Handling Configuration</label>
-		<description>
-			Control how incoming and outgoing calls are handled on all lines.
-		</description>
-		<setting name="rejectBusyOnDnd">
-			<label>Reject Busy On DND</label>
-			<type>boolean</type>
-			<defaultValue>1</defaultValue>			
-			<description>If checked, reject all incoming calls with the reason "busy" if
-                            do-not-disturb is enabled</description>
-		</setting>
-		<setting name="enableOnNotRegistered">
-			<label>Enable On No Registered</label>
-			<type>boolean</type>
-			<defaultValue>1</defaultValue>			
-			<description>If checked, calls will be allowed when the phone is not successfully
-                            registered, otherwise, calls will not be permitted without a valid 
-                            registration</description>
-		</setting>
-		<setting name="offeringTimeOut">
-			<label>Enable On No Registered</label>
-			<type>int</type>
-			<defaultValue>60</defaultValue>			
-			<description>Time in seconds to allow an incomming call to ring before dropping
-				the call, 0=infinite</description>
-		</setting>
-		<setting name="ringBackTimeOut">
-			<label>Ring Back Time Out</label>
-			<type>int</type>
-			<defaultValue>60</defaultValue>			
-			<description>Time in seconds to allow an outgoing call to remain
-				in the ringback state before dropping the call, 0-infinite</description>
-		</setting>
-		<setting name="lastCallReturnString">
-			<label>Last Call Return String</label>
-			<type>string</type>
-			<defaultValue>*69</defaultValue>			
-			<description>The string sent to the server when the user selects the "last call
-				return" action.</description>
-		</setting>
-	</group>
+  <group name="call">
+    <label>Call Handling</label>
+    <description>
+            Control how incoming and outgoing calls are handled on all lines.
+    </description>
+    <setting name="rejectBusyOnDnd">
+            <label>Reject Busy On DND</label>
+            <type>boolean</type>
+            <defaultValue>1</defaultValue>                  
+            <description>If checked, reject all incoming calls with the reason "busy" if
+                do-not-disturb is enabled</description>
+    </setting>
+    <setting name="enableOnNotRegistered">
+            <label>Enable On No Registered</label>
+            <type>boolean</type>
+            <defaultValue>1</defaultValue>                  
+            <description>If checked, calls will be allowed when the phone is not successfully
+                registered, otherwise, calls will not be permitted without a valid 
+                registration</description>
+    </setting>
+    <setting name="offeringTimeOut">
+            <label>Enable On No Registered</label>
+            <type>int</type>
+            <defaultValue>60</defaultValue>                 
+            <description>Time in seconds to allow an incomming call to ring before dropping
+                    the call, 0=infinite</description>
+    </setting>
+    <setting name="ringBackTimeOut">
+            <label>Ring Back Time Out</label>
+            <type>int</type>
+            <defaultValue>60</defaultValue>                 
+            <description>Time in seconds to allow an outgoing call to remain
+                    in the ringback state before dropping the call, 0-infinite</description>
+    </setting>
+    <setting name="lastCallReturnString">
+            <label>Last Call Return String</label>
+            <type>string</type>
+            <defaultValue>*69</defaultValue>                        
+            <description>The string sent to the server when the user selects the "last call
+                    return" action.</description>
+    </setting>
+  </group>
 </model>

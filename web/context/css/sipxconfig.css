@@ -60,6 +60,10 @@ a.tab.active, a.tab.active:hover, a.tab.active:visited {
   color: #000;
 }
 
+.settingDefault {
+    font-style: italic;
+}
+
 #lastmodified {
     align: right;
     font-style: italic;
@@ -113,6 +117,10 @@ a.tab.active, a.tab.active:hover, a.tab.active:visited {
     font-size: 10px; 
     margin-top: 3em;
     font-style: italic;
+}
+
+.pageLabel {
+    font-weight: bold;
 }
 
 .settingLabel {

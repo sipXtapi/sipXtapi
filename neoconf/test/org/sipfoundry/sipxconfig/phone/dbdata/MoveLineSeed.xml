@@ -15,4 +15,9 @@
 		endpoint_id="1000"
 		position="1" 
 		user_id="4"/> 
+    <line 
+		line_id="1002" 
+		endpoint_id="1000"
+		position="2" 
+		user_id="4"/> 
 </dataset>

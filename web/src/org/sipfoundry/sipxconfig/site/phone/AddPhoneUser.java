@@ -53,6 +53,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
             endpoint.addLine(line);
         }
         context.storeEndpoint(endpoint);
+        context.flush();
 
         PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
         page.setEndpointId(getEndpointId());
