@@ -57,6 +57,8 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 
 SFAC_LIB_COMMSERVER
 
+SFAC_FEATURE_SIP_TLS
+
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([bin/Makefile])
