@@ -16,11 +16,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.Criteria;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.expression.Expression;
-import net.sf.hibernate.expression.MatchMode;
-
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -105,28 +100,26 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
     
     public List loadUserByTemplateUser(User template) {
-        try {
-            Criteria criteria = getHibernateTemplate().createCriteria(getSession(), User.class);
-            if (template.getFirstName() != null) {
-                criteria.add(Expression.like("firstName", template.getFirstName(),
-                        MatchMode.START));
+        List args = new ArrayList();
+        StringBuffer query = new StringBuffer("from User");        
+        // not sure why hibernate won't translate my property to columns names
+        String like = "like";
+        queryOr(like, query, args, template.getFirstName(), "first_name");
+        queryOr(like, query, args, template.getLastName(), "last_name");
+        queryOr(like, query, args, template.getDisplayId(), "display_id");
+        queryOr("=", query, args, template.getExtension(), "extension");            
+        return getHibernateTemplate().find(query.toString(), args.toArray());
+    }
+    
+    static void queryOr(String expr, StringBuffer q, List args, String arg, String property) {
+        if (arg != null && arg.trim().length() > 0) {
+            if (args.size() == 0) {
+                q.append(" where ");
+            } else {
+                q.append(" or ");
             }
-            if (template.getLastName() != null) {
-                criteria
-                        .add(Expression.like("lastName", template.getLastName(), MatchMode.START));
-            }
-            if (template.getDisplayId() != null) {
-                criteria.add(Expression.like("displayId", template.getDisplayId(),
-                        MatchMode.START));
-            }
-            if (template.getExtension() != null) {
-                criteria.add(Expression.like("extension", template.getExtension(),
-                        MatchMode.START));
-            }
-
-            return criteria.list();
-        } catch (HibernateException e) {
-            throw convertHibernateAccessException(e);
+            q.append(property).append(' ').append(expr).append(" ?");
+            args.add(arg);
         }
     }
     

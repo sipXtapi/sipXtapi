@@ -32,6 +32,7 @@
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>    
 	<!--
 	  - C O M P O N E N T S
 	  -->
@@ -46,18 +47,20 @@
         <!--binding name="condition" expression="!users.empty"/ -->
         <binding name="condition" expression="true"/>
     </component>
-	<component id="table" type="contrib:TableView">
+    <component id="selectUserForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+	<component id="userTable" type="contrib:TableView">
 		<binding name="source" expression="users"/>
-		<binding name="columns">'* Display ID:displayId,' + 
-			'First Name:firstName,Last Name:lastName,Extension:extension'</binding>
+		<static-binding name="columns" value="* DisplayID:displayId,FirstName:firstName,LastName:lastName,Extension:extension"/>
 	</component>
-	<component id="columns" type="contrib:TableColumns">
+	<component id="userColumns" type="contrib:TableColumns">
 	</component>
-	<component id="rows" type="contrib:TableRows">
+	<component id="userRows" type="contrib:TableRows">
 		<binding name="row" expression="currentUser"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
-	<component id="values" type="contrib:TableValues">
+	<component id="userValues" type="contrib:TableValues">
 	</component>
     <component id="selectedRow" type="Checkbox">
         <binding name="selected" expression="selections.selected[currentUser.id]"/>

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -35,6 +36,26 @@ public class PhoneContextTestDb extends TestCase {
 
     protected void tearDown() throws Exception {
         TestHelper.tearDown();
+    }
+
+    public void testQueryOrSingle() {
+        List args = new ArrayList();
+        StringBuffer q = new StringBuffer("People");
+        PhoneContextImpl.queryOr("like", q, args, "hoover", "president");
+        assertEquals("People where president like ?", q.toString());
+        assertEquals("hoover", args.get(0));
+    }
+    
+    public void testQueryOrMultiple() {
+        List args = new ArrayList();
+        StringBuffer q = new StringBuffer("Bird");
+        PhoneContextImpl.queryOr("like", q, args, "raptor", "class");
+        PhoneContextImpl.queryOr("like", q, args, "", "region");
+        PhoneContextImpl.queryOr("=", q, args, null, "migration");
+        PhoneContextImpl.queryOr("=", q, args, "6", "wingspan");
+        assertEquals("Bird where class like ? or wingspan = ?", q.toString());
+        assertEquals("raptor", args.get(0));
+        assertEquals("6", args.get(1));
     }
 
     public void testSampleData() {
@@ -70,13 +91,23 @@ public class PhoneContextTestDb extends TestCase {
         assertEquals(preSize + 1, summaries.size());
     }
     
-    public void testLoadUsersByTemplateUsers() {
+    public void testLoadUserByTemplateUsersSingleExpression() {
         User user = createSampleUser();
-        List users = m_context.loadUserByTemplateUser(user);
+        User template = new User();
+        // pick unique field
+        template.setExtension(user.getExtension());       
+        List users = m_context.loadUserByTemplateUser(template);
         assertEquals(1, users.size());
         User results = (User) users.get(0);
         assertEquals(user.getId(), results.getId());
     }
+    
+    public void testLoadUserByTemplateUsersMultiExpression() {
+        User template = createSampleUser();
+        List users = m_context.loadUserByTemplateUser(template);
+        assertTrue(users.size() >= 1);
+    }
+    
 
     /**
      * PhoneSummaryFactory implementation

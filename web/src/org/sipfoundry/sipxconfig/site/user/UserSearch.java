@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -39,5 +40,6 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
     
     public void pageBeginRender(PageEvent event_) {        
         setUser(new User());
+        setUsers(Collections.EMPTY_LIST);
     }
 }
