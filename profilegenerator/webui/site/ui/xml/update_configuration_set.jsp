@@ -18,7 +18,7 @@
     // BUG XCF-39: When the following line was at the bottom Tomcat 4.0.1 threw
     // a NullException in Jasper's ClassLoader. Although I could not
     // determine why this was happending, I moved this to the top
-    // of the page, before any output is generated, which proper place to put it according 
+    // of the page, before any output is generated, which is the proper place to put it according 
     // to server API. This gaurontees redirect get's into first HTTP header making it
     // effective.
     response.sendRedirect( request.getParameter( "redir" ) );

@@ -32,6 +32,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 /**
  * SIPxchangeLoginModule is a Pingtel modified version of a JBoss
@@ -104,8 +107,22 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         if( mDataSourceJndiName == null )
             mDataSourceJndiName = "java:/DefaultDS";
 
+        relaxHttps();
     }
 
+    public void relaxHttps()
+    {
+        HostnameVerifier hv = new HostnameVerifier() 
+        {
+            public boolean verify(String urlHostName, SSLSession session) 
+            {
+                log.info("Warning: URL Host: " + urlHostName + " vs. " + session.getPeerHost());
+                return true;
+            }
+        };
+
+        HttpsURLConnection.setDefaultHostnameVerifier(hv);
+    }
 
     /**
      * Looks for javax.security.auth.login.name and
