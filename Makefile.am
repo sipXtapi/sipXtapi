@@ -4,6 +4,7 @@ SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter s
 
 EXTRA_DIST = \
     config/sipX-config.in \
+    config/sipXcommon.mak.in \
     ant-targets.am \
     ant-targets.xml \
     subant-targets.xml \
