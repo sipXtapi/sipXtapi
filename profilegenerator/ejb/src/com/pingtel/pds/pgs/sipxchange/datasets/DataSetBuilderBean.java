@@ -123,7 +123,6 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
     // Misc.
     private XMLOutputter mXMLOutputter = new XMLOutputter();
-    private static final SAXBuilder mSAXBuilder = new SAXBuilder();
 
     private HashMap mOrganizationEJBOBjectsMap = new HashMap();
     private HashMap mUserConfigSetsEJBObjectsMap = new HashMap();
@@ -327,7 +326,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
              * <userid>jcoffey </userid> <passtoken>e456abcefd876347aaa678678 </passtoken>
              * <authtype>DIGEST </authtype> </item> </items>
              */
-
+            final SAXBuilder saxBuilder = new SAXBuilder();
             try {
                 String xchangeRealm = null;
 
@@ -352,7 +351,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                     logDebug("generateCredentials::Looking at configuration set: " + cs.getID());
                     Document doc = null;
                     try {
-                        doc = mSAXBuilder.build(new StringReader(cs.getContent()));
+                        doc = saxBuilder.build(new StringReader(cs.getContent()));
                     } catch (java.io.IOException ex) {
                         throw new PDSException(ex.toString());
                     } catch (JDOMException jde) {
@@ -553,6 +552,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             } // for user
 
             String addInFiles = getPGSProperty("dataset.alias.addins");
+            final SAXBuilder saxBuilder = new SAXBuilder();
 
             if (addInFiles != null && addInFiles.trim().length() > 0) {
                 String addInsPath = PathLocatorUtil.getInstance().getPath(
@@ -573,7 +573,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                         continue;
                     }
 
-                    Document imported = mSAXBuilder.build(fds.getInputStream());
+                    Document imported = saxBuilder.build(fds.getInputStream());
                     Element importedRoot = imported.getRootElement();
 
                     Collection itemC = importedRoot.getChildren("item");
@@ -806,6 +806,8 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
     private Collection generatePermissionsList(UserGroup userGroup) throws RemoteException,
             PDSException, FinderException, JDOMException, java.io.IOException {
 
+        final SAXBuilder saxBuilder = new SAXBuilder();
+
         ArrayList permissionList = new ArrayList();
         HashMap userGroupConfigSetsMap = new HashMap();
         ArrayList configSets = new ArrayList();
@@ -842,7 +844,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             Document userCSDoc = null;
 
             if (userCS != null) {
-                userCSDoc = mSAXBuilder.build(new StringReader(userCS.getContent()));
+                userCSDoc = saxBuilder.build(new StringReader(userCS.getContent()));
                 configSets.add(userCSDoc);
                 logDebug("generatePermissions::got users configuration set");
             }
