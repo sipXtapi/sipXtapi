@@ -3,8 +3,8 @@
 <dataset>
     <line 
 		line_id="[line_id]" 
-		endpoint_id="[endpoint_id]"
+		endpoint_id="1"
 		position="0" 
-		user_id="[user_id]"
+		user_id="4"
 		storage_id="[null]"/> 
 </dataset>

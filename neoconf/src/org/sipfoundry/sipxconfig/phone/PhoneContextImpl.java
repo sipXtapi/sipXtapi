@@ -140,9 +140,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             
             return criteria.list();
         } catch (HibernateException e) {
-            getHibernateTemplate().convertHibernateAccessException(e);
+            throw getHibernateTemplate().convertHibernateAccessException(e);
         }
-        return null;
     }
     
     public void storeEndpoint(Endpoint endpoint) {
@@ -184,7 +183,13 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
     
     public Endpoint loadEndpoint(int id) {
-        return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
+        Endpoint e = (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
+        try {
+            getSession().update(e);
+        } catch (HibernateException he) {
+            throw getHibernateTemplate().convertHibernateAccessException(he);
+        }
+        return e;
     }
     
     /**

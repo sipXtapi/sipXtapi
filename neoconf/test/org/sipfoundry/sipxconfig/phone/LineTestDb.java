@@ -44,23 +44,41 @@ public class LineTestDb extends TestCase {
         Endpoint endpoint = m_context.loadEndpoint(1);
         User user = m_context.loadUserByDisplayId("testuser");
 
-        List lines = new ArrayList();
         Line line = new Line();
-        lines.add(line);
         line.setUser(user);
-
-        endpoint.setLines(lines);
+        endpoint.addLine(line);
         m_context.storeEndpoint(endpoint);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat(m_class, "SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[endpoint_id]", new Integer(endpoint.getId()));
         expectedRds.addReplacementObject("[line_id]", new Integer(line.getId()));        
-        expectedRds.addReplacementObject("[user_id]", new Integer(user.getId()));
         expectedRds.addReplacementObject("[null]", null);
         
         ITable expected = expectedRds.getTable("line");
                 
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
+        
+        Assertion.assertEquals(expected, actual);        
+    }
+    
+    public void testAddingLine() throws Exception {
+        TestHelper.cleanInsert(m_class, "ClearDb.xml");
+        TestHelper.cleanInsertFlat(m_class, "AddLineSeed.xml");
+
+        Endpoint endpoint = m_context.loadEndpoint(1);
+        User user = m_context.loadUserByDisplayId("testuser");
+
+        Line secondLine = new Line();
+        secondLine.setUser(user);
+        endpoint.addLine(secondLine);
+        m_context.storeEndpoint(endpoint);
+        
+        IDataSet expectedDs = TestHelper.loadDataSetFlat(m_class, "AddLineExpected.xml"); 
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[line_id]", new Integer(secondLine.getId()));        
+        expectedRds.addReplacementObject("[null]", null);
+        
+        ITable expected = expectedRds.getTable("line");                
         ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
         
         Assertion.assertEquals(expected, actual);        

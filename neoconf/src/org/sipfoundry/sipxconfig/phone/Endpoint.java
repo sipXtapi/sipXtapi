@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
@@ -94,6 +95,21 @@ public class Endpoint implements Serializable {
     }
     
     /**
+     * Sets endpoint and position values on line. Safer way then
+     * calling getLines().add(line) 
+     */
+    public void addLine(Line line) {
+        List lines = getLines();
+        if (lines == null) {
+            lines = new ArrayList();
+            setLines(lines);
+        }
+        line.setEndpoint(this);
+        line.setPosition(lines.size());
+        lines.add(line);
+    }
+    
+    /**
      * automatically set's the endpoint object and position
      * <pre>
      * Example: 
@@ -107,15 +123,6 @@ public class Endpoint implements Serializable {
      * </pre>
      */
     public void setLines(List lines) {
-        /*
-        if (lines != null) {
-            for (int i = 0; i < lines.size(); i++) {
-                Line l = (Line) lines.get(i);
-                l.setEndpoint(this);
-                l.setPosition(i);
-            }
-        }
-        */
         m_lines = lines;
     }
 }

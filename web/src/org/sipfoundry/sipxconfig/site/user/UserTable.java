@@ -14,14 +14,19 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 public abstract class UserTable extends BaseComponent implements PageRenderListener {
     
     public static final String COMPONENT = "UserTable";
+    
+    private IPrimaryKeyConvertor m_idConverter;
     
     /** REQUIRED PROPERTY */
     public abstract SelectMap getSelections();
@@ -30,34 +35,40 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
     
     public abstract List getUsers();
     
-    public abstract User getCurrentUser();
-    
-    public abstract void setCurrentUser(User user); 
-    
-    public abstract void setCurrentUserId(int currentUserId);
-
     /** 
      * REQUIRED PROPERTY, reference cannot be changed after page rewind. i.e. any
      * query results need to clear list reference then add new user objects 
      * */
     public abstract void setUsers(List users);
     
-    public int getCurrentHiddenUserId() {
-        // called on page render
-        int currentUserId = getCurrentUser().getId();
-        setCurrentUserId(currentUserId);
-        
-        return currentUserId;
-    }
-    
-    public void setCurrentHiddenUserId(int userId) {
-        // called on page rewind
-        setCurrentUserId(userId);
-    }
-
-    public void pageBeginRender(PageEvent event_) {
+    public void pageBeginRender(PageEvent event) {
         if (getSelections() == null) {
             setSelections(new SelectMap());            
         }
-    }    
+        PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
+        m_idConverter = new UserByIdConverter(context);
+    }
+    
+    public IPrimaryKeyConvertor getIdConverter() {
+        return m_idConverter;
+    }
+
+    static class UserByIdConverter implements IPrimaryKeyConvertor  {
+        
+        private PhoneContext m_context;
+        
+        public UserByIdConverter(PhoneContext context) {
+            m_context = context;
+        }
+        
+        public Object getPrimaryKey(Object objValue) {
+            return new Integer(((User) objValue).getId());
+        }
+
+        public Object getValue(Object objPrimaryKey) {
+            Integer id = (Integer) objPrimaryKey;
+            return m_context.loadUser(id.intValue());
+        }            
+    }
 }
+

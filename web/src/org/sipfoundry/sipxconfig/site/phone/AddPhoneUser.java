@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -43,16 +42,16 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     public void select(IRequestCycle cycle) {
         PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
         Endpoint endpoint = context.loadEndpoint(getPhoneId());
-        List lines = endpoint.getLines();
         
-        UserTable table = (UserTable) getComponent(UserTable.COMPONENT);
+        UserTable table = (UserTable) getComponent("searchResults");
         SelectMap selections = table.getSelections();        
-        Iterator users = selections.getAllSelected().iterator();
-        while (users.hasNext()) {
-            User user = (User) users.next();
+        Iterator usersIds = selections.getAllSelected().iterator();
+        while (usersIds.hasNext()) {
+            Integer userId = (Integer) usersIds.next();
+            User user = context.loadUser(userId.intValue());            
             Line line = new Line();
             line.setUser(user);
-            lines.add(line);
+            endpoint.addLine(line);
         }
         context.storeEndpoint(endpoint);
 
