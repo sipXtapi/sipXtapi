@@ -123,13 +123,11 @@
 			args="script=/v7_user-table-mod.sql"
 			description="Adding a new column to the USERS table."/>
 
-               <patch number="72" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
-                       args="script=/v7_rp-mods-blue.sql"
-                       description="New property definitions for QOS, Locale"/>
-	</version>
-	
-	<version number="8"><!-- 2.6.1 to 2.7 -->
-		<patch number="80" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+        <patch number="72" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+            args="script=/v7_rp-mods-blue.sql"
+            description="New property definitions for QOS, Locale"/>
+
+		<patch number="73" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
 			args="script=/v8_mods.sql"
                        description="Object model changes to support phone plugin architecture"/>
 					   
