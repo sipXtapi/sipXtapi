@@ -72,7 +72,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
-%attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
 %{_libdir}/lib*.la
 @JBOSS_HOME@/jboss/deploy/profilegenerator.ear
