@@ -2,25 +2,34 @@
 <!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
 
 <jboss>
-    <!-- temporarily disable security for EJBs 
+    <!-- temporarily disable security for EJBs -->
     <security-domain>java:/jaas/other</security-domain>
-    -->
+    <!-- -->
     
     <enterprise-beans>
         <message-driven>
             <ejb-name>ProjectionFacade</ejb-name>
             <destination-jndi-name>queue/A</destination-jndi-name>
 		    <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
         </message-driven>
         <message-driven>
             <ejb-name>DataSetBuilderFacade</ejb-name>
             <destination-jndi-name>queue/B</destination-jndi-name>
             <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
         </message-driven>
         <message-driven>
             <ejb-name>RestartDevicesFacade</ejb-name>
             <destination-jndi-name>queue/C</destination-jndi-name>
             <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
         </message-driven>
     </enterprise-beans>
 
