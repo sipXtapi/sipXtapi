@@ -88,9 +88,13 @@ case ${Action} in
              sipAlias=`dns_cname ${myDomain}`
              if [ "${myHostname}" != "${sipAlias}" ] 
              then
-                 Status=1
-                 echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}'" 1>&2
-                 echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
+                 myIp=`@SIPX_BINDIR@/get_def_addr`
+                 if [ "${myDomain}" != "${myIp}" ]  
+                 then
+                     Status=1
+                     echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}' at ${myIp}" 1>&2
+                     echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
+                 fi
              fi
          fi
      fi
