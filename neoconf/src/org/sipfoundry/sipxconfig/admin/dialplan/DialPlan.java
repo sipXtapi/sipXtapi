@@ -44,7 +44,17 @@ public class DialPlan {
     private Set m_emergencyGateways = new HashSet();
 
     public DialPlan() {
-        m_id = new Integer(s_id++);
+        // TODO: replace by hibernate id handling
+        setId(new Integer(s_id++));
+    }
+
+    /**
+     * Only to be used by dial plan manager
+     * 
+     * @param id
+     */
+    DialPlan(Integer id) {
+        setId(id);
     }
 
     public DialPlan(String name, int localExtensionLen) {
@@ -184,7 +194,24 @@ public class DialPlan {
         return m_id;
     }
 
-    public void setId(Integer id) {
+    private void setId(Integer id) {
         m_id = id;
+    }
+
+    public void update(DialPlan plan) {
+        m_name = plan.m_name;
+        m_localExtensionLen = plan.m_localExtensionLen;
+        m_autoAttendant = plan.m_autoAttendant;
+        m_voiceMail = plan.m_voiceMail;
+        m_did = plan.m_did;
+        m_pstnPrefix = plan.m_pstnPrefix;
+        m_emergencyNumber = plan.m_emergencyNumber;
+        m_internationalPrefix = plan.m_internationalPrefix;
+        m_voiceMailPrefix = plan.m_voiceMailPrefix;
+        m_longDistancePrefix = plan.m_longDistancePrefix;
+        m_status = plan.m_status;
+        m_description = plan.m_description;
+        m_gateways = plan.m_gateways;
+        m_emergencyGateways = plan.m_emergencyGateways;
     }
 }

@@ -26,29 +26,29 @@ import junit.framework.TestCase;
  */
 public class EditGatewayTest extends TestCase {
     private AbstractInstantiator m_pageMaker = new AbstractInstantiator();
+    private EditGateway m_editGatewayPage;
+    private DialPlanManager m_manager;
+
+    protected void setUp() throws Exception {
+        m_editGatewayPage = (EditGateway) m_pageMaker.getInstance(EditGateway.class);
+        // Tapestry takes care of creating the manager in run-time
+        m_manager = new DialPlanManager();
+        m_editGatewayPage.setDialPlanManager(m_manager);
+    }
 
     public void testAddNewGateway() {
-        // TODO: these should be mocked
-        DialPlanManager manager = new DialPlanManager();
-        Gateway gateway = new Gateway();
-        gateway.setName("testName");
-
-        EditGateway editGatewayPage = (EditGateway) m_pageMaker.getInstance(EditGateway.class);
-        editGatewayPage.setDialPlanManager(manager);
-        editGatewayPage.setGateway(gateway);
-        editGatewayPage.setAddMode(true);
-
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
 
         // return to list gateways page in normal case
         cycle.activate(ListGateways.PAGE);
         cycleControl.replay();
-        editGatewayPage.saveValid(cycle);
+        m_editGatewayPage.saveValid(cycle);
         cycleControl.verify();
 
-        assertEquals(1, manager.getGateways().size());
-        Object addedGateway = manager.getGateways().get(0);
+        assertEquals(1, m_manager.getGateways().size());
+        Object addedGateway = m_manager.getGateways().get(0);
+        Gateway gateway = m_editGatewayPage.getGateway();
         assertEquals(gateway, addedGateway);
     }
 
@@ -56,33 +56,23 @@ public class EditGatewayTest extends TestCase {
         // TODO: these should be mocked
         DialPlan plan = new DialPlan();
         plan.setName("dial plan name");
-        DialPlanManager manager = new DialPlanManager();
-        manager.addDialPlan(plan);
+        m_manager.addDialPlan(plan);
         Gateway gateway = new Gateway();
         gateway.setName("testName");
 
-        EditGateway editGatewayPage = (EditGateway) m_pageMaker.getInstance(EditGateway.class);
-        editGatewayPage.setDialPlanManager(manager);
-        editGatewayPage.setGateway(gateway);
-        editGatewayPage.setCurrentDialPlanId(plan.getId());
-        editGatewayPage.setAddMode(true);
-
-        EditDialPlan editDialPlanPage = (EditDialPlan) m_pageMaker
-                .getInstance(EditDialPlan.class);
+        m_editGatewayPage.setDialPlanManager(m_manager);
+        m_editGatewayPage.setGateway(gateway);
+        m_editGatewayPage.setCurrentDialPlanId(plan.getId());
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycleControl.expectAndReturn(cycle.getPage(EditDialPlan.PAGE), editDialPlanPage);
-        cycle.activate(editDialPlanPage);
+        cycle.activate(EditDialPlan.PAGE);
         cycleControl.replay();
-        editGatewayPage.saveValid(cycle);
+        m_editGatewayPage.saveValid(cycle);
         cycleControl.verify();
 
-        DialPlan editedPlan = editDialPlanPage.getDialPlan();
-        assertEquals(plan, editedPlan);
-
-        assertEquals(1, manager.getGateways().size());
-        Object addedGateway = manager.getGateways().get(0);
+        assertEquals(1, m_manager.getGateways().size());
+        Object addedGateway = m_manager.getGateways().get(0);
         assertEquals(gateway, addedGateway);
 
         assertEquals(0, plan.getEmergencyGateways().size());
@@ -94,31 +84,24 @@ public class EditGatewayTest extends TestCase {
         // TODO: these should be mocked
         DialPlan plan = new DialPlan();
         plan.setName("dial plan name");
-        DialPlanManager manager = new DialPlanManager();
-        manager.addDialPlan(plan);
+        m_manager.addDialPlan(plan);
         Gateway gateway = new Gateway();
         gateway.setName("testName");
 
-        EditGateway editGatewayPage = (EditGateway) m_pageMaker.getInstance(EditGateway.class);
-        editGatewayPage.setDialPlanManager(manager);
-        editGatewayPage.setGateway(gateway);
-        editGatewayPage.setCurrentDialPlanId(plan.getId());
-        editGatewayPage.setAddMode(true);
-        editGatewayPage.setEmergencyGateway(true);
-
-        EditDialPlan editDialPlanPage = (EditDialPlan) m_pageMaker
-                .getInstance(EditDialPlan.class);
+        m_editGatewayPage.setDialPlanManager(m_manager);
+        m_editGatewayPage.setGateway(gateway);
+        m_editGatewayPage.setCurrentDialPlanId(plan.getId());
+        m_editGatewayPage.setEmergencyGateway(true);
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycleControl.expectAndReturn(cycle.getPage(EditDialPlan.PAGE), editDialPlanPage);
-        cycle.activate(editDialPlanPage);
+        cycle.activate(EditDialPlan.PAGE);
         cycleControl.replay();
-        editGatewayPage.saveValid(cycle);
+        m_editGatewayPage.saveValid(cycle);
         cycleControl.verify();
 
-        assertEquals(1, manager.getGateways().size());
-        Object addedGateway = manager.getGateways().get(0);
+        assertEquals(1, m_manager.getGateways().size());
+        Object addedGateway = m_manager.getGateways().get(0);
         assertEquals(gateway, addedGateway);
 
         assertEquals(0, plan.getGateways().size());
@@ -127,24 +110,43 @@ public class EditGatewayTest extends TestCase {
     }
 
     public void testCancel() {
-        EditGateway editGatewayPage = (EditGateway) m_pageMaker.getInstance(EditGateway.class);
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
 
         // return to list gateways page in normal case
         cycle.activate(ListGateways.PAGE);
         cycleControl.replay();
-        editGatewayPage.cancel(cycle);
+        m_editGatewayPage.cancel(cycle);
         cycleControl.verify();
 
         // return to dial plan page when dial plan is set
         DialPlan plan = new DialPlan();
-        editGatewayPage.setCurrentDialPlanId(plan.getId());
+        m_editGatewayPage.setCurrentDialPlanId(plan.getId());
         cycleControl.reset();
         cycle.activate(EditDialPlan.PAGE);
         cycleControl.replay();
-        editGatewayPage.cancel(cycle);
+        m_editGatewayPage.cancel(cycle);
         cycleControl.verify();
     }
 
+    public void testPageBeginRenderAdd() {
+        m_editGatewayPage.pageBeginRender(null);
+
+        assertNotNull(m_editGatewayPage.getGateway());
+        assertNull(m_editGatewayPage.getGatewayId());
+    }
+
+    public void testPageBeginRenderEdit() {
+        DialPlanManager manager = new DialPlanManager();
+        Gateway gateway = new Gateway();
+        Integer id = gateway.getId();
+        manager.addGateway(gateway);
+
+        m_editGatewayPage.setDialPlanManager(manager);
+        m_editGatewayPage.setGatewayId(id);
+        m_editGatewayPage.pageBeginRender(null);
+
+        assertEquals(id, m_editGatewayPage.getGatewayId());
+        assertEquals(gateway, m_editGatewayPage.getGateway());
+    }
 }

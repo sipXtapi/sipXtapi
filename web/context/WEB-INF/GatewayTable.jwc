@@ -10,7 +10,14 @@
         required="yes" 
         direction="in">
     </parameter>
-    
+
+	<parameter name="dialPlanId" 
+        type="java.lang.Integer" 
+        required="no" 
+        default-value="null"
+        direction="in">
+    </parameter>
+        
 	<parameter name="editPageName"
         type="java.lang.String" 
         required="yes" 
@@ -19,7 +26,7 @@
     
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway">
-    </property-specification>
+    </property-specification>    
             
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
     

@@ -7,12 +7,10 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="gateway" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway" 
-    	initial-value="new org.sipfoundry.sipxconfig.admin.dialplan.Gateway()"/>
+		type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway"/>
 
-	<property-specification name="addMode" 
-		type="boolean" 
-    	initial-value="false"
+	<property-specification name="gatewayId" 
+		type="java.lang.Integer"
     	persistent="yes"/>
     
 	<property-specification name="currentDialPlanId"

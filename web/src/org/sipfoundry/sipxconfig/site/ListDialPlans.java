@@ -36,14 +36,12 @@ public abstract class ListDialPlans extends BasePage {
 
     public void add(IRequestCycle cycle) {
         EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
-        page.setAddMode(true);
+        page.setDialPlanId(null);
         cycle.activate(page);
     }
 
     public void edit(IRequestCycle cycle) {
         EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
-
-        page.setAddMode(false);
         DialPlan currentRow = getCurrentRow();
         page.setDialPlanId(currentRow.getId());
         cycle.activate(page);

@@ -29,29 +29,25 @@ public abstract class EditDialPlan extends BasePage implements PageRenderListene
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
 
+    public abstract Integer getDialPlanId();
+
+    public abstract void setDialPlanId(Integer id);
+
     public abstract DialPlan getDialPlan();
 
     public abstract void setDialPlan(DialPlan plan);
 
-    public abstract Integer getDialPlanId();
-
-    public abstract void setDialPlanId(Integer plan);
-
-    public abstract void setAddMode(boolean b);
-
-    public abstract boolean getAddMode();
-
     public void pageBeginRender(PageEvent event_) {
-        DialPlanManager manager = getDialPlanManager();
-        Integer planId = getDialPlanId();
-        DialPlan plan = manager.getDialPlan(planId);
-        if (null == plan) {
+        DialPlan plan = getDialPlan();
+        if (null != plan) {
+            return;
+        }
+        Integer id = getDialPlanId();
+        if (null != id) {
+            DialPlanManager manager = getDialPlanManager();
+            plan = manager.getDialPlan(id);
+        } else {
             plan = new DialPlan();
-            if (null == planId) {
-                setDialPlanId(plan.getId());
-            } else {
-                plan.setId(planId);
-            }
         }
         setDialPlan(plan);
     }
@@ -71,19 +67,22 @@ public abstract class EditDialPlan extends BasePage implements PageRenderListene
         Object[] params = cycle.getServiceParameters();
         boolean emergency = "emergency".equals(params[0]);
         EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
-        editGatewayPage.setCurrentDialPlanId(getDialPlanId());
+        Integer id = getDialPlanId();
+        id.toString();
+        editGatewayPage.setCurrentDialPlanId(id);
         editGatewayPage.setEmergencyGateway(emergency);
-        editGatewayPage.setAddMode(true);
+        editGatewayPage.setGatewayId(null);
         cycle.activate(editGatewayPage);
     }
 
     void saveValid(IRequestCycle cycle) {
         DialPlanManager manager = getDialPlanManager();
         DialPlan dialPlan = getDialPlan();
-        if (getAddMode()) {
+        Integer id = getDialPlanId();
+        if (null == id) {
             manager.addDialPlan(dialPlan);
         } else {
-            manager.updateDialPlan(dialPlan);
+            manager.updateDialPlan(id, dialPlan);
         }
         cycle.activate(ListDialPlans.PAGE);
     }

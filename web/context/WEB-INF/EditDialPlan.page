@@ -17,11 +17,6 @@
         	new org.sipfoundry.sipxconfig.site.LenSelectionModel()
     </property-specification>
 
-    <property-specification name="addMode" 
-		type="boolean" 
-    	initial-value="false"
-    	persistent="yes"/>
-    
 	<property-specification name="dialPlanManager" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
         global.sipXconfigContext.getBean("dialPlanManager")
@@ -145,6 +140,7 @@
     
     <component id="gatewayTable" type="GatewayTable">
         <binding name="gatewayCollection" expression="dialPlan.gateways"/>
+        <binding name="dialPlanId" expression="dialPlan.id"/>
         <static-binding name="editPageName" value="EditGateway"/>
     </component>
     <component id="addGatewayLink" type="DirectLink">
@@ -154,6 +150,7 @@
 
     <component id="emergencyGatewayTable" type="GatewayTable">
         <binding name="gatewayCollection" expression="dialPlan.emergencyGateways"/>
+        <binding name="dialPlanId" expression="dialPlan.id"/>
         <static-binding name="editPageName" value="EditGateway"/>
     </component>
     <component id="addEmergencyGatewayLink" type="DirectLink">

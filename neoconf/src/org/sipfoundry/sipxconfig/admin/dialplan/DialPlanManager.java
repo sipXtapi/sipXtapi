@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -38,16 +37,37 @@ public class DialPlanManager {
         m_gateways = gateways;
     }
 
-    public boolean updateGateway(Gateway gateway) {
-        if (m_gateways.remove(gateway)) {
-            m_gateways.add(gateway);
-            return true;
+    public Gateway getGateway(Integer id) {
+        if (null == id) {
+            return null;
         }
-        return false;
+        Object key = new Gateway(id);
+        int i = m_gateways.indexOf(key);
+        if (i < 0) {
+            return null;
+        }
+        return (Gateway) m_gateways.get(i);
     }
 
-    public boolean deleteGateway(Gateway gateway) {
-        return m_gateways.remove(gateway);
+    public DialPlan getDialPlan(Integer id) {
+        if (null == id) {
+            return null;
+        }
+        Object key = new DialPlan(id);
+        int i = m_dialPlans.indexOf(key);
+        if (i < 0) {
+            return null;
+        }
+        return (DialPlan) m_dialPlans.get(i);
+    }
+
+    public boolean updateGateway(Integer id, Gateway gatewayData) {
+        Gateway gateway = getGateway(id);
+        if (null == gateway) {
+            return false;
+        }
+        gateway.update(gatewayData);
+        return true;
     }
 
     public boolean addGateway(Gateway gateway) {
@@ -67,21 +87,12 @@ public class DialPlanManager {
 
     }
 
-    public boolean updateDialPlan(DialPlan dialPlan) {
-        if (m_dialPlans.remove(dialPlan)) {
-            m_dialPlans.add(dialPlan);
-            return true;
+    public boolean updateDialPlan(Integer id, DialPlan planData) {
+        DialPlan plan = getDialPlan(id);
+        if (plan == null) {
+            return false;
         }
+        plan.update(planData);
         return false;
-    }
-
-    public DialPlan getDialPlan(Integer planId) {
-        for (Iterator i = m_dialPlans.iterator(); i.hasNext();) {
-            DialPlan plan = (DialPlan) i.next();
-            if (plan.getId().equals(planId)) {
-                return plan;
-            }
-        }
-        return null;
     }
 }

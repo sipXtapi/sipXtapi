@@ -37,7 +37,7 @@ public class ListDialPlansTest extends TestCase {
         listPage.add(cycle);
         cycleControl.verify();
 
-        assertTrue(editPage.getAddMode());
+        assertNull(editPage.getDialPlanId());
     }
 
     public void testEdit() {
@@ -54,7 +54,7 @@ public class ListDialPlansTest extends TestCase {
         listPage.edit(cycle);
         cycleControl.verify();
 
-        assertFalse(editPage.getAddMode());
+        assertNotNull(editPage.getDialPlanId());
         assertEquals(plan.getId(), editPage.getDialPlanId());
     }
 }

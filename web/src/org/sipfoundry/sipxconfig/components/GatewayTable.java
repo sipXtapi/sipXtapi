@@ -25,6 +25,8 @@ public abstract class GatewayTable extends BaseComponent {
 
     public abstract String getEditPageName();
 
+    public abstract Integer getDialPlanId();
+    
     /**
      * When user clicks on link to edit a gateway
      */
@@ -33,8 +35,8 @@ public abstract class GatewayTable extends BaseComponent {
         EditGateway page = (EditGateway) cycle.getPage(editPageName);
 
         Gateway currentRow = getCurrentRow();
-        page.setAddMode(false);
-        page.setGateway(currentRow);
+        page.setGatewayId(currentRow.getId());
+        page.setCurrentDialPlanId(getDialPlanId());
         cycle.activate(page);
     }
 }
