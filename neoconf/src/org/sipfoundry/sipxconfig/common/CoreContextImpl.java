@@ -91,6 +91,10 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
         }
     }
 
+    public Object load(Class c, Integer id) {
+        return getHibernateTemplate().load(c, id);
+    }
+
     /**
      * Catch database corruption errors when more than one record exists.
      * In general fields should have unique indexes setup to protect against

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * CoreContext
  */
-public interface CoreContext {
+public interface CoreContext extends DataObjectSource {
     
     public static final String CONTEXT_BEAN_NAME = "coreContext";
     

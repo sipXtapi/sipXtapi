@@ -20,16 +20,21 @@
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>    
     <!--
+      - B E A N S
+      -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>    
+    <!--
       - C O M P O N E N T S
       -->
+    <component id="selectUserForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
     <component id="searchForm" type="UserSearch">
         <binding name="cancelListener" expression="listeners.cancel"/>
         <binding name="coreContext" expression="coreContext"/>
     </component>
     <component id="searchResults" type="UserTable">
         <binding name="users" expression="components.searchForm.users"/>    
-        <binding name="selectListener" expression="listeners.select"/>
-        <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="phoneLabel" type="PhoneLabel">
         <binding name="phone" expression="phone"/>
@@ -38,4 +43,7 @@
     <component id="returnToEditPhone" type="Hidden">
         <binding name="value" expression="returnToEditPhone"/>
     </component>
+    <component id="select" type="Submit">
+        <binding name="listener" expression="listeners.select"/>
+    </component>    
 </page-specification>

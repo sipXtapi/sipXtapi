@@ -9,38 +9,40 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.phone;
+package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
+/**
+ * Read objects by Id for Tapestry pages that need to read individual objects by their primary key. For example
+ * table with select boxes. 
+ */
+public class ObjectSourceDataSqueezer implements IPrimaryKeyConvertor {
 
-public class PhoneContextDataSqueezer implements IPrimaryKeyConvertor  {
-    
-    private PhoneContext m_context;
-    
+    private DataObjectSource m_source;
+
     private Class m_class;
-    
-    public PhoneContextDataSqueezer(PhoneContext context, Class c) {
+
+    public ObjectSourceDataSqueezer(DataObjectSource source, Class c) {
         if (!PrimaryKeySource.class.isAssignableFrom(c)) {
             throw new IllegalArgumentException(
                     "Adapter only accepts classes that implement PrimaryKeySource");
         }
-        m_context = context;
+        m_source = source;
         m_class = c;
     }
-    
+
     public Object getPrimaryKey(Object objValue) {
         return objValue == null ? null : ((PrimaryKeySource) objValue).getPrimaryKey();
     }
 
     public Object getValue(Object objPrimaryKey) {
-        return m_context.load(m_class, (Integer) objPrimaryKey);
+        return m_source.load(m_class, (Integer) objPrimaryKey);
     }
-    
-    public PhoneContext getPhoneContext() {
-        return m_context;
+
+    public DataObjectSource getDataObjectSource() {
+        return m_source;
     }
 }
-

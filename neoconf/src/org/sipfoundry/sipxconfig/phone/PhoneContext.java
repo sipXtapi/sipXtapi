@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.Collection;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
 
@@ -21,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.Folder;
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public interface PhoneContext {
+public interface PhoneContext extends DataObjectSource {
     
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
         

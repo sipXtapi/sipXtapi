@@ -4,10 +4,10 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserTable"
-    allow-body="yes"
+    allow-body="no"
     allow-informal-parameters="no">
-    
     <description>add a description</description>
+    
     <!--
       - P A R A M E T E R S
       -->    
@@ -16,15 +16,6 @@
         required="yes" 
         direction="auto">
     </parameter>
-    <parameter name="selectListener" 
-        type="org.apache.tapestry.IActionListener"
-        required="yes" 
-        direction="auto">
-    </parameter>
-	<parameter name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	required="yes"
-    	direction="auto"/>    
     <!--
       - P R O P E R T I E S
       -->
@@ -32,17 +23,16 @@
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
     <property-specification name="currentUser"
         type="org.sipfoundry.sipxconfig.common.User"/>
+    <property-specification name="coreContext"
+        type="org.sipfoundry.sipxconfig.common.CoreContext"
+        initial-value="page.global.coreContext"/>
 	<!--
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>    
 	<!--
 	  - C O M P O N E N T S
 	  -->
-    <component id="selectUserForm" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-    </component>
 	<component id="userTable" type="contrib:TableView">
 		<binding name="source" expression="users"/>
 		<static-binding name="columns" value="* DisplayID:displayId,FirstName:firstName,LastName:lastName,Extension:extension"/>
@@ -59,8 +49,5 @@
 	</component>
     <component id="selectedRow" type="Checkbox">
         <binding name="selected" expression="selections.selected[currentUser.id]"/>
-    </component>    
-    <component id="select" type="Submit">
-        <binding name="listener" expression="selectListener"/>
     </component>    
 </component-specification>

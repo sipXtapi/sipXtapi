@@ -17,10 +17,10 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.site.phone.PhoneContextDataSqueezer;
 
 public abstract class UserTable extends BaseComponent implements PageRenderListener {
     
@@ -41,14 +41,14 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
      * */
     public abstract void setUsers(List users);
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract CoreContext getCoreContext();
     
     public void pageBeginRender(PageEvent event_) {
         if (getSelections() == null) {
             setSelections(new SelectMap());            
         }
-        PhoneContext context = getPhoneContext();
-        m_idConverter = new PhoneContextDataSqueezer(context, User.class);
+        CoreContext context = getCoreContext();
+        m_idConverter = new ObjectSourceDataSqueezer(context, User.class);
     }
     
     public IPrimaryKeyConvertor getIdConverter() {
