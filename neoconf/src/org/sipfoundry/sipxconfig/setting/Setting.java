@@ -149,22 +149,15 @@ public class Setting implements Cloneable {
 
     public String getValue() {
         checkImmutable();
-        SettingValue value = getSettingValue();
-        return value == null ? null : value.getValue();
+        return (String) m_valueStorage.get(getPath());
     }
 
     public void setValue(String value) {
         checkImmutable();
         if (value != null) {
-            SettingValue settingValue = getSettingValue();
-            if (settingValue == null) {
-                setSettingValue(new SettingValue(getPath(), value));
-                
-            } else {
-                settingValue.setValue(value);
-            }
+            m_valueStorage.put(getPath(), value);
         } else {
-            setSettingValue(null);
+            m_valueStorage.remove(getPath());
         }
     }
 
@@ -191,24 +184,10 @@ public class Setting implements Cloneable {
         m_possibleValues = possibleValues;
     }
 
-    private SettingValue getSettingValue() {
-        checkImmutable();
-        return (SettingValue) m_valueStorage.get(getPath());
-    }
-    
     protected void checkImmutable() {
         if (m_valueStorage == null) {
             throw new UnsupportedOperationException("Immutable copy, you must " 
                     + "call getCopy on root SettingGroup instance");
         }        
-    }
-    
-    private void setSettingValue(SettingValue settingValue) {
-        checkImmutable();
-        if (settingValue == null || settingValue.getValue() == null) {
-            m_valueStorage.remove(getPath());
-        } else {
-            m_valueStorage.put(getPath(), settingValue);
-        }
     }
 }

@@ -75,9 +75,8 @@ public class ValueStorage implements Map, Serializable {
         return m_delegate.keySet();
     }
 
-    public Object put(Object key_, Object value) {
-        SettingValue settingValue = (SettingValue) value;
-        return m_delegate.put(settingValue.getPath(), settingValue);
+    public Object put(Object key, Object value) {
+        return m_delegate.put(key, value);
     }
 
     public void putAll(Map t) {

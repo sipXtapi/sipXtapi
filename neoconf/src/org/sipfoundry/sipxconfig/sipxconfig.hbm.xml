@@ -56,9 +56,6 @@
 	</class>
 	<!--
 	  - S E T T I N G  M A P
-	  - thought about making this just a sequence, but instead I'm
-	  - making this a table w/one column.  It's more straight forward
-	  - from hibernate and foreign key perspective, just feels unnec.
 	  -->
 	<class name="org.sipfoundry.sipxconfig.setting.ValueStorage" table="storage">
 		<jcs-cache usage="read-write"/>
@@ -71,9 +68,7 @@
 		<map name="values" cascade="all" table="setting">
 			<key column="storage_id"/>
 			<index column="path" type="string"/>
-			<composite-element class="org.sipfoundry.sipxconfig.setting.SettingValue">
-				<property name="value" column="value" not-null="true"/>
-			</composite-element>
+			<element type="string" column="value" not-null="true"/>
 	    </map>
 	</class>
 	<!--

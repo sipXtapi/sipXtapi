@@ -39,7 +39,7 @@ public class SettingGroupTest extends TestCase {
         Setting apple = fruit.addSetting(new Setting("apple"));
 
         ValueStorage settingValues = new ValueStorage();
-        settingValues.put(apple.getPath(), new SettingValue(apple.getPath(), "granny smith"));
+        settingValues.put(apple.getPath(), "granny smith");
         
         SettingGroup copy = (SettingGroup) root.getCopy(settingValues);
         Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
@@ -52,7 +52,7 @@ public class SettingGroupTest extends TestCase {
     public void testNullSettings() {
         SettingGroup root = new SettingGroup();
         SettingGroup fruit = (SettingGroup)root.addSetting(new SettingGroup("fruit"));
-        Setting apple = fruit.addSetting(new Setting("apple"));
+        fruit.addSetting(new Setting("apple"));
 
         SettingGroup copy = (SettingGroup) root.getCopy(new ValueStorage());
         Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
