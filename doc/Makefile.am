@@ -35,4 +35,4 @@ clean: clean-doc
 
 .PHONY: clean-doc
 clean-doc:
-	rm -f @PACKAGE@ Doxyfile
+	rm -rf @PACKAGE@ Doxyfile
