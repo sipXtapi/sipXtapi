@@ -15,7 +15,16 @@
     	initial-value="false"
     	persistent="yes"/>
     
-	<property-specification name="dialPlanManager" 
+	<property-specification name="currentDialPlan"
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan"
+    	persistent="yes"/>
+
+	<property-specification name="emergencyGateway"
+		type="boolean"
+    	initial-value="false"
+    	persistent="yes"/>
+        
+    <property-specification name="dialPlanManager" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
         global.sipXconfigContext.getBean("dialPlanManager")
     </property-specification>    

@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
  * Tapestry Page support for editing and creating new phone endpoints
  */
 public abstract class EditDialPlan extends BasePage {
-    private static final String LIST_PAGE = "ListDialPlans";
+    public static final String PAGE = "EditDialPlan";
 
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
@@ -34,6 +34,16 @@ public abstract class EditDialPlan extends BasePage {
 
     public abstract boolean getAddMode();
 
+    public void addGateway(IRequestCycle cycle) {
+        final String gatewayType = cycle.getRequestContext().getParameter("normal");
+        boolean normal = null != gatewayType;
+        EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
+        editGatewayPage.setCurrentDialPlan(getDialPlan());
+        editGatewayPage.setEmergencyGateway(normal);
+        editGatewayPage.setAddMode(true);
+        cycle.activate(editGatewayPage);
+    }
+
     public void save(IRequestCycle cycle) {
         DialPlanManager manager = getDialPlanManager();
         DialPlan dialPlan = getDialPlan();
@@ -42,11 +52,11 @@ public abstract class EditDialPlan extends BasePage {
         } else {
             manager.updateDialPlan(dialPlan);
         }
-        cycle.activate(LIST_PAGE);
+        cycle.activate(ListDialPlans.PAGE);
     }
 
     public void cancel(IRequestCycle cycle) {
-        cycle.activate(LIST_PAGE);
+        cycle.activate(ListDialPlans.PAGE);
     }
 
 }

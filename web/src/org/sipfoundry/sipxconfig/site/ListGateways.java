@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
  * List all the gateways, allow adding and deleting gateways
  */
 public abstract class ListGateways extends BasePage {
-    private static final String EDIT_GATEWAY_PAGE = "EditGateway";
+    public static final String PAGE = "ListGateways";
 
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
@@ -33,13 +33,13 @@ public abstract class ListGateways extends BasePage {
      */
 
     public void addGateway(IRequestCycle cycle) {
-        EditGateway page = (EditGateway) cycle.getPage(EDIT_GATEWAY_PAGE);
+        EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
         page.setAddMode(true);
         cycle.activate(page);
     }
 
     public void editGateway(IRequestCycle cycle) {
-        EditGateway page = (EditGateway) cycle.getPage(EDIT_GATEWAY_PAGE);
+        EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
 
         page.setAddMode(false);
         Gateway currentRow = getCurrentRow();
