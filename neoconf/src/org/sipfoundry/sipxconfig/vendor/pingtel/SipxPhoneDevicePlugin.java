@@ -11,43 +11,42 @@
  */
 package org.sipfoundry.sipxconfig.vendor.pingtel;
 
-import java.io.File;
-
 import org.sipfoundry.sipxconfig.core.DevicePlugin;
 
 /**
  * Support for SIP Soft Phone and legacy xpressa
  */
 public class SipxPhoneDevicePlugin implements DevicePlugin {
-    
-    private String m_id;
-    
+
     public static final String HARDPHONE = "xpressa_strongarm_vxworks";
-    
+
     public static final String SOFTPHONE = "ixpressa_x86_win32";
 
-    private static final int PROF_TYPE_PHONE = 0;
- 
-    private static final int PROF_TYPE_USER = 1;
+    private static final String SEPARATOR = "/";
     
+    private static final String PINGTEL = "pingtel/";
+    
+    private static final int PROF_TYPE_PHONE = 0;
+
+    private static final int PROF_TYPE_USER = 1;
+
     private static final int PROF_TYPE_APPLICATION_REF = 2;
 
     private static final int PROF_TYPE_UPGRADESCRIPT = 3;
-      
+
+    private String m_id;
+
     /**
      * XML filename that describes a particular model's definitions
      * 
      * @param model
      * @return filepath to xml file
      */
-    public String getDefinitions()
-    {
-        return new StringBuffer().append('/').append(m_id)
-        	.append("-definitions.xml").toString();
+    public String getDefinitions() {
+        return new StringBuffer().append('/').append(m_id).append("-definitions.xml").toString();
     }
-    
-    public String getPluginId()
-    {
+
+    public String getPluginId() {
         return m_id;
     }
 
@@ -62,21 +61,22 @@ public class SipxPhoneDevicePlugin implements DevicePlugin {
     public String getProfileFileName(int profileIndex, String macAddress) {
         String profileName = null;
         switch (profileIndex) {
-            case PROF_TYPE_PHONE:
-                profileName = "pingtel/" + m_id + "/" + macAddress + "/pinger-config";
-                break;
-            case PROF_TYPE_USER:
-                profileName = "pingtel/" + m_id + "/" + macAddress + "/user-config";
-                break;
-            case PROF_TYPE_APPLICATION_REF:
-                profileName = "pingtel/" + m_id + "/" + macAddress + "/app-config";
-                break;
-            case PROF_TYPE_UPGRADESCRIPT:
-                profileName = "pingtel/" + m_id + "/" + macAddress + "/install-script";
-                break;
+        case PROF_TYPE_PHONE:
+            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/pinger-config";
+            break;
+        case PROF_TYPE_USER:
+            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/user-config";
+            break;
+        case PROF_TYPE_APPLICATION_REF:
+            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/app-config";
+            break;
+        case PROF_TYPE_UPGRADESCRIPT:
+            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/install-script";
+            break;
+        default:
+        // FIXME: assert false
         }
 
         return profileName.toLowerCase();
     }
 }
-

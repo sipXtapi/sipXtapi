@@ -11,11 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
@@ -30,10 +29,10 @@ public class SipxConfig {
      * @param devicePlugins The devicePlugins to set.
      */
     public void setDevicePlugins(Set plugins) {
-        m_plugins  = new HashMap(plugins.size());
+        m_plugins = new HashMap(plugins.size());
         Iterator i = plugins.iterator();
         while (i.hasNext()) {
-            DevicePlugin plugin = (DevicePlugin)i.next();
+            DevicePlugin plugin = (DevicePlugin) i.next();
             m_plugins.put(plugin.getPluginId(), plugin);
         }
     }
@@ -42,7 +41,7 @@ public class SipxConfig {
      * @return null if no plugin by that id exists
      */
     public DevicePlugin getDevicePlugin(String pluginId) {
-        return (DevicePlugin)m_plugins.get(pluginId);
+        return (DevicePlugin) m_plugins.get(pluginId);
     }
 
     public DeviceDao getDeviceDao() {

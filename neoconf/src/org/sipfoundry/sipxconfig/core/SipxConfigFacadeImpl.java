@@ -37,15 +37,13 @@ public class SipxConfigFacadeImpl implements SipxConfigFacade {
         String device = vendor + " - " + model; 
         
         DevicePlugin plugin = m_sipx.getDevicePlugin(device);
-        if (plugin == null)
-        {
+        if (plugin == null) {
             throw new IllegalArgumentException("No such plugin " + device);        
         }
         
-        if (profileType > plugin.getProfileCount())
-        {
-            throw new IllegalArgumentException("Profile Type: " +
-                    profileType + " not supported for by: " + model);
+        if (profileType > plugin.getProfileCount()) {
+            throw new IllegalArgumentException("Profile Type: "
+                    + profileType + " not supported for by: " + model);
         }
         
         return plugin.getProfileFileName(profileType, macAddress);
