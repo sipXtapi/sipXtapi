@@ -12,8 +12,6 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.setting.Folder;
@@ -38,10 +36,7 @@ public class PhoneMetaData implements PrimaryKeySource, Serializable {
 
     private ValueStorage m_valueStorage;
 
-    private Folder m_folder;
-
-    private List m_lines;
-    
+    private Folder m_folder;    
     
     /** BEAN ACCESS ONLY **/
     public PhoneMetaData() {    
@@ -50,18 +45,6 @@ public class PhoneMetaData implements PrimaryKeySource, Serializable {
     public PhoneMetaData(String factoryId) {
         setFactoryId(factoryId);
     }
-    
-    /*
-    private transient Phone m_phone;
-
-    public Phone getPhone() {
-        return m_phone;
-    }
-    
-    public void setPhone(Phone phone) {
-        m_phone = phone;
-    }
-    */
     
     /**
      * @return ids used in PhoneFactory
@@ -123,44 +106,8 @@ public class PhoneMetaData implements PrimaryKeySource, Serializable {
     public void setFolder(Folder folder) {
         m_folder = folder;
     }
-
-    public List getLines() {
-        return m_lines;
-    }
-
-    /**
-     * Sets endpoint and position values on line. Safer way then
-     * calling getLines().add(line) 
-     */
-    public void addLine(LineMetaData line) {
-        List lines = getLines();
-        if (lines == null) {
-            lines = new ArrayList();
-            setLines(lines);
-        }
-        line.setPhoneMetaData(this);
-        line.setPosition(lines.size());
-        lines.add(line);
-    }
     
-    /**
-     * automatically set's the endpoint object and position
-     * <pre>
-     * Example: 
-     * 
-     * List lines = new ArrayList();
-     * Line line = new Line();
-     * line.setUser(user);
-     * lines.add(line)
-     * endpoint.setLines(lines);
-     * phoneContext.storeEndpoint(endpoint);
-     * </pre>
-     */
-    public void setLines(List lines) {
-        m_lines = lines;
-    }
-
     public Object getPrimaryKey() {
-        return getId();
+        return m_id;
     }
 }

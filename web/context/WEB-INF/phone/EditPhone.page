@@ -29,6 +29,10 @@
         <binding name="phoneMetaData" expression="phone.phoneMetaData"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>    
+    <component id="addLine" type="DirectLink">
+        <binding name="listener" expression="listeners.addLine"/>
+        <binding name="parameters" expression="phone.phoneMetaData.id"/>
+    </component>
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.ok"/>
     </component>

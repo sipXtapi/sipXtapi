@@ -14,4 +14,10 @@
 		folder_id="1"
         name="unittest-sample phone1"
         factory_id="polycom300"/> 
+    <line 
+		line_id="1" 
+		phone_id="1"
+		position="0" 
+		user_id="4"
+		folder_id="2"/> 		
 </dataset>

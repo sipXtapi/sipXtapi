@@ -40,7 +40,7 @@ public class PolycomPhoneTest extends TestCase {
     
     public void testRestartFailureNoLine() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        helper.phone[0].getPhoneMetaData().getLines().clear();
+        helper.phone[0].getLines().clear();
         try {
             helper.phone[0].restart();
             fail();

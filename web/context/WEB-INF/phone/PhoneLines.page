@@ -14,7 +14,7 @@
     <property-specification name="phoneId"
         type="java.lang.Integer" persistent="yes"/>
     <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.phone.LineMetaData"/>
+        type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="selections"
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
 	<property-specification name="phoneContext" 
@@ -50,7 +50,7 @@
     <component id="lineValues" type="contrib:TableValues">
     </component>
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.id]"/>
+        <binding name="selected" expression="selections.selected[currentRow.lineMetaData.id]"/>
     </component>
     <component id="addUserLink" type="DirectLink">
         <binding name="listener" expression="listeners.addUser"/>
@@ -59,10 +59,10 @@
     <component id="LineColumnValue" type="Block"/>
     <component id="editLineLink" type="DirectLink">
         <binding name="listener" expression="listeners.editLine"/>
-        <binding name="parameters" expression="currentRow.id"/>
+        <binding name="parameters" expression="currentRow.lineMetaData.id"/>
     </component>
     <component id="lineLabel" type="Insert"> 
-        <binding name="value" expression="currentRow.displayLabel"/>
+        <binding name="value" expression="currentRow.uri"/>
     </component>
     <component id="deleteLine" type="Submit">
         <binding name="listener" expression="listeners.deleteLine"/>

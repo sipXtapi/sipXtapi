@@ -61,7 +61,8 @@ public class PhoneTestDb extends TestCase {
     }
     
     public void testLoadAndDelete() throws Exception {
-        TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/dbdata/EndpointLineSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1));
         PhoneMetaData e = p.getPhoneMetaData();
@@ -75,5 +76,9 @@ public class PhoneTestDb extends TestCase {
         } catch (HibernateObjectRetrievalFailureException x) {
             assertTrue(true);
         }
+
+        IDataSet actual = TestHelper.getConnection().createDataSet();        
+        assertEquals(0, actual.getTable("phone").getRowCount());
+        assertEquals(0, actual.getTable("line").getRowCount());
     }
 }

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.Folder;
@@ -57,7 +58,7 @@ public interface PhoneContext {
      */
     public void flush();
     
-    public List loadPhones();      
+    public Collection loadPhones();      
 
     public void storeCredential(Credential credential);
     

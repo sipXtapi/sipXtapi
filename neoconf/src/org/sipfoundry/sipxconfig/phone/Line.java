@@ -11,12 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Line on a phone
  */
-public interface Line {
+public interface Line extends DataCollectionItem {
     
     public Phone getPhone();
     
@@ -31,4 +32,7 @@ public interface Line {
     public Setting getSettings();
     
     public String getUri();
+    
+    /** implementation need to declare they implement PrimaryKeySource */
+    public Object getPrimaryKey();
 }

@@ -23,11 +23,6 @@
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 		<many-to-one name="folder" column="folder_id"
 			class="org.sipfoundry.sipxconfig.setting.Folder"/>
-	    <list name="lines" table="line" inverse="true" cascade="all-delete-orphan">
-			<key column="phone_id"/>
-			<index column="position"/>
-    		<one-to-many class="org.sipfoundry.sipxconfig.phone.LineMetaData"/>
-		</list>
 	</class>
 	<!--
 	  -  L I N E

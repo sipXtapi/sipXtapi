@@ -12,8 +12,12 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
@@ -22,13 +26,13 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 /**
  * Implements some of the more menial methods of Phone interface 
  */
-public abstract class AbstractPhone implements Phone {
+public abstract class AbstractPhone implements Phone, PrimaryKeySource {
 
     private PhoneMetaData m_meta;
     
     private Setting m_settings;
     
-    private List m_lines = new ArrayList();
+    private DataCollection m_lines = new DataCollection();
     
     /** BEAN ACCESS ONLY */
     public AbstractPhone() {        
@@ -40,26 +44,19 @@ public abstract class AbstractPhone implements Phone {
     
     public void setPhoneMetaData(PhoneMetaData meta) {
         m_meta = meta;
-        m_lines.clear();
-        List lineMeta = meta.getLines();
-        for (int i = 0; lineMeta != null && i < lineMeta.size(); i++) {
-            Line line = createLine();
-            line.setLineMetaData((LineMetaData) lineMeta.get(i));
-            m_lines.add(line);
-        }
     }
     
-    public int getLineCount() {
-        return m_meta.getLines().size();
-    }
-    
-    public Line getLine(int position) {        
-        return (Line) m_lines.get(position);
+    public Collection getLines() {
+        return m_lines;
     }
     
     public void addLine(Line line) {
-        m_meta.addLine(line.getLineMetaData());
         m_lines.add(line);
+        DataCollectionUtil.updatePositions(m_lines);
+    }
+    
+    public Line getLine(int position) {
+        return (Line) m_lines.get(position);
     }
     
     public PhoneMetaData getPhoneMetaData() {
@@ -85,5 +82,48 @@ public abstract class AbstractPhone implements Phone {
         }
 
         return m_settings;
+    }
+    
+    public Object getPrimaryKey() {
+        return m_meta.getPrimaryKey();
+    }
+    
+    public Collection getDeletedLines() {
+        return m_lines.getDeleted();
+    }
+}
+
+class DataCollection extends ArrayList {
+    
+    private Set m_deleted = new HashSet();
+    
+    /*  may call remove under the covers */
+    public void clear() {
+        m_deleted.addAll(this);
+        super.clear();
+    }
+    
+    public boolean addAll(Collection c) {
+        boolean added = super.addAll(c);
+        m_deleted.removeAll(c);
+        return added;
+    }
+    
+    public boolean remove(Object o) {
+        boolean removed = super.remove(o);
+        if (removed) {
+            m_deleted.add(o);
+        }
+        return removed;
+    }
+    
+    public boolean add(Object o) {
+        boolean added = super.add(o);
+        m_deleted.remove(o);
+        return added;
+    }
+    
+    Collection getDeleted() {
+        return m_deleted;
     }
 }

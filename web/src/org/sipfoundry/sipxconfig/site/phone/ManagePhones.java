@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
@@ -37,9 +37,9 @@ public abstract class ManagePhones extends BasePage
     public static final String PAGE = "ManagePhones";
     
     /** model of the table */
-    public abstract void setPhones(List phones);
+    public abstract void setPhones(Collection phones);
     
-    public abstract List getPhones();
+    public abstract Collection getPhones();
     
     public abstract SelectMap getSelections();
 

@@ -57,7 +57,7 @@ public class PolycomTestHelper {
         helper.user[0].setFirstName("Joe");
         helper.user[0].setLastName("User");
         
-        helper.line = new PolycomLine[] { new PolycomLine(helper.phone[0]) };
+        helper.line = new PolycomLine[] { new PolycomLine(helper.phone[0], new LineMetaData()) };
         
         LineMetaData lineMeta = helper.line[0].getLineMetaData();
         lineMeta.setUser(helper.user[0]);

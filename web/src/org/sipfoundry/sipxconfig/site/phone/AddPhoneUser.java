@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
@@ -53,7 +54,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
         while (usersIds.hasNext()) {
             Integer userId = (Integer) usersIds.next();
             User user = getCoreContext().loadUser(userId.intValue());            
-            Line line = phone.createLine();            
+            Line line = phone.createLine(new LineMetaData());            
             line.getLineMetaData().setUser(user);
             line.getLineMetaData().setFolder(context.loadRootLineFolder());
             phone.addLine(line);

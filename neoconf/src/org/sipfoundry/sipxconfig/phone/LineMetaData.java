@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
 
-import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
@@ -21,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 /**
  * Association between Users and their assigned phones.
  */
-public class LineMetaData implements Serializable, DataCollectionItem {
+public class LineMetaData implements Serializable {
 
     public static final String FOLDER_RESOURCE_NAME = "line";
 
@@ -39,18 +38,6 @@ public class LineMetaData implements Serializable, DataCollectionItem {
 
     private int m_position;
     
-    /*
-    private transient Line m_line;
-
-        public Line getLine() {
-        return m_line;
-    }
-    
-    public void setLine(Line line) {
-        m_line = line;
-    }
-    */
-
     public Integer getId() {
         return m_id;
     }
@@ -94,10 +81,6 @@ public class LineMetaData implements Serializable, DataCollectionItem {
     public void setPhoneMetaData(PhoneMetaData endpoint) {
         m_endpoint = endpoint;
     }
-    
-    public Object getPrimaryKey() {
-        return m_id;
-    }
 
     public int getPosition() {
         return m_position;
@@ -105,5 +88,5 @@ public class LineMetaData implements Serializable, DataCollectionItem {
 
     public void setPosition(int position) {
         m_position = position;
-    }
+    }    
 }

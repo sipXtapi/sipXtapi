@@ -13,8 +13,11 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.velocity.VelocityContext;
+import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
 
 /**
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
@@ -34,15 +37,16 @@ public class PhoneConfiguration extends ConfigurationFile {
         PolycomPhone phone = getPhone();
         ArrayList linesSettings = new ArrayList(phone.getMaxLineCount());
 
-        int n = phone.getLineCount();
+        Collection lines = phone.getLines();
         int i = 0;
-        for (; i < n; i++) {
-            linesSettings.add(phone.getLine(i).getSettings());
+        Iterator ilines = lines.iterator();
+        for (; ilines.hasNext(); i++) {
+            linesSettings.add(((Line) ilines.next()).getSettings());
         }
 
         // copy in blank lines of all unused lines
         for (; i < phone.getMaxLineCount(); i++) {
-            PolycomLine line = new PolycomLine(getPhone());
+            PolycomLine line = new PolycomLine(getPhone(), new LineMetaData());
             line.getLineMetaData().setPosition(i);
             linesSettings.add(line.getSettings());
         }

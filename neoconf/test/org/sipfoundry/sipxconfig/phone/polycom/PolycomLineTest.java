@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 
@@ -36,7 +37,7 @@ public class PolycomLineTest extends TestCase {
 
     public void testDefaultsNoUser() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        PolycomLine line = new PolycomLine(helper.phone[0]);
+        PolycomLine line = new PolycomLine(helper.phone[0], new LineMetaData());
         Setting settings = line.getSettings();        
         assertEquals(Setting.NULL_VALUE, settings.getSetting("reg").getSetting("server")
                 .getSetting("1").getSetting("address").getValue());

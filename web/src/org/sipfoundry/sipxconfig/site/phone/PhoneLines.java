@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -20,7 +20,7 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.phone.LineMetaData;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
@@ -42,13 +42,13 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     /** REQUIRED PROPERTY */
     public abstract void setPhoneId(Integer id);
 
-    public List getLines() {
-        return getPhone().getPhoneMetaData().getLines();
+    public Collection getLines() {
+        return getPhone().getLines();
     }
     
-    public abstract LineMetaData getCurrentRow();
+    public abstract Line getCurrentRow();
 
-    public abstract void setCurrentRow(LineMetaData line);
+    public abstract void setCurrentRow(Line line);
     
     public abstract SelectMap getSelections();
     
@@ -87,7 +87,8 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         PhoneContext context = getPhoneContext();
         Phone phone = getPhone();
         Object[] lineIds = getSelections().getAllSelected().toArray();
-        DataCollectionUtil.removeByPrimaryKey(phone.getPhoneMetaData().getLines(), lineIds);
+        DataCollectionUtil.removeByPrimaryKey(phone.getLines(), lineIds);
+        
         context.storePhone(phone);
     }
     
@@ -103,7 +104,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         PhoneContext context = getPhoneContext();
         Phone phone = getPhone();
         Object[] lineIds = getSelections().getAllSelected().toArray();
-        DataCollectionUtil.moveByPrimaryKey(phone.getPhoneMetaData().getLines(), lineIds, step);        
+        DataCollectionUtil.moveByPrimaryKey(phone.getLines(), lineIds, step);        
         context.storePhone(phone);
     }
 

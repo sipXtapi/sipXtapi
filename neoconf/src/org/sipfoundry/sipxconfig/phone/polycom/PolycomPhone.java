@@ -19,6 +19,7 @@ import java.text.MessageFormat;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.AbstractPhone;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
 import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.SipService;
@@ -66,8 +67,8 @@ public class PolycomPhone extends AbstractPhone {
         return PolycomModel.getModel(getPhoneMetaData().getFactoryId());
     }
 
-    public Line createLine() {
-        return new PolycomLine(this);
+    public Line createLine(LineMetaData meta) {
+        return new PolycomLine(this, meta);
     }
 
     public void setSipService(SipService sip) {
@@ -182,7 +183,7 @@ public class PolycomPhone extends AbstractPhone {
      * @throws RestartException is cannot complete operation
      */
     public void restart() {
-        if (getLineCount() == 0) {
+        if (getLines().size() == 0) {
             throw new RestartException("Restart command is sent to first line and "
                     + "first phone line is not valid");
         }

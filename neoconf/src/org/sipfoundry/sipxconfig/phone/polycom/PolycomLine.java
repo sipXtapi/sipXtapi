@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.AbstractLine;
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -44,8 +45,8 @@ public class PolycomLine extends AbstractLine {
     public PolycomLine() {
     }
     
-    public PolycomLine(PolycomPhone phone) {
-        super(phone);
+    public PolycomLine(PolycomPhone phone, LineMetaData meta) {
+        super(phone, meta);
     }
     
     public Setting getSettingModel() {

@@ -79,7 +79,6 @@ public class PhoneTestHelper {
             line[0] = new LineMetaData();
             line[0].setUser(user[0]);
             line[0].setPhoneMetaData(endpoint[0]);
-            endpoint[0].addLine(line[0]);
             m_tester.clickLink("AddUser");        
             m_tester.clickButton("user:search");
             // first (should be only?) row

@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.List;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -31,18 +31,18 @@ public class PhoneSummaryTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/PhoneSummarySeed.xml");
         
-        List summaries = m_context.loadPhones();
+        Collection summaries = m_context.loadPhones();
         
         assertEquals(3, summaries.size());
         Phone[] summariesArray = (Phone[]) summaries.toArray(new Phone[0]);
 
         assertEquals("unittest-sample phone1", summariesArray[0].getPhoneMetaData().getDisplayLabel());
-        assertEquals(1, summariesArray[0].getLineCount());
+        assertEquals(1, summariesArray[0].getLines().size());
 
         assertEquals("unittest-sample phone2", summariesArray[1].getPhoneMetaData().getDisplayLabel());
-        assertEquals(0, summariesArray[1].getLineCount());
+        assertEquals(0, summariesArray[1].getLines().size());
 
         assertEquals("unittest-sample phone3", summariesArray[2].getPhoneMetaData().getDisplayLabel());
-        assertEquals(2, summariesArray[2].getLineCount());
+        assertEquals(2, summariesArray[2].getLines().size());
     }
 }

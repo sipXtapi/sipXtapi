@@ -16,8 +16,6 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import com.meterware.httpunit.WebTable;
-
 
 public class EditPhoneLinesTestUi extends WebTestCase {
 
@@ -58,11 +56,11 @@ public class EditPhoneLinesTestUi extends WebTestCase {
         clickLinkWithText("Lines");
         
         // checking seed shouldn't be nec. but helpful
-        String[][] preDelete = new String[][] { { m_helper.user[0].getDisplayId() } };
-        assertTableRowsEqual("line:list", 1, preDelete);
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "line:list"));
         
         tester.checkCheckbox("selectedRow");
         clickButton("line:delete");
+        SiteTestHelper.assertNoException(tester);
         assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));
     }
 }

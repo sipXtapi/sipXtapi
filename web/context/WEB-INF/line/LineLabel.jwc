@@ -25,7 +25,7 @@
       - C O M P O N E N T S
       -->
     <component id="lineLabel" type="Insert">
-        <binding name="value" expression="line.lineMetaData.displayLabel"/>
+        <binding name="value" expression="line.uri"/>
     </component>
     <component id="phoneLabel" type="PhoneLabel">
         <binding name="phone" expression="line.phone"/>

@@ -11,12 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
-public abstract class AbstractLine implements Line {
+public abstract class AbstractLine implements Line, PrimaryKeySource {
 
     private LineMetaData m_meta;
 
@@ -28,15 +29,14 @@ public abstract class AbstractLine implements Line {
     public AbstractLine() {        
     }
     
-    public AbstractLine(Phone phone) {
+    public AbstractLine(Phone phone, LineMetaData meta) {
         setPhone(phone);
-        LineMetaData meta = new LineMetaData();
-        //meta.setLine(this);
         setLineMetaData(meta);        
     }
 
     public void setLineMetaData(LineMetaData meta) {
         m_meta = meta;
+        m_meta.setPhoneMetaData(getPhone().getPhoneMetaData());
     }
 
     public LineMetaData getLineMetaData() {
@@ -71,5 +71,16 @@ public abstract class AbstractLine implements Line {
 
         return m_settings;
     }
+    
+    public int getPosition() {
+        return m_meta.getPosition();
+    }
+    
+    public void setPosition(int position) {
+        m_meta.setPosition(position);
+    }
 
+    public Object getPrimaryKey() {
+        return m_meta.getId();
+    }
 }

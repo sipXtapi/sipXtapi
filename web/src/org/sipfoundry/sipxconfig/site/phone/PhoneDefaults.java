@@ -128,7 +128,7 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
         Phone phone = getPhoneContext().newPhone(getPhoneFactoryId());
         phone.getPhoneMetaData().setFolder(getPhoneFolder());
         
-        Line line = phone.createLine();
+        Line line = phone.createLine(new LineMetaData());
         phone.addLine(line);
         line.getLineMetaData().setFolder(getLineFolder());
 

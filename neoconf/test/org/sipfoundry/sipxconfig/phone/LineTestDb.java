@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.List;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -41,16 +41,45 @@ public class LineTestDb extends TestCase {
                 CoreContext.CONTEXT_BEAN_NAME);
     }
 
+    public void testAddingLine() throws Exception {
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
+
+        Phone phone = m_context.loadPhone(new Integer(1));
+        assertEquals(2, phone.getLines().size());
+        User user = m_core.loadUserByDisplayId("testuser");
+
+        LineMetaData thirdLine = new LineMetaData();
+        thirdLine.setUser(user);
+        thirdLine.setFolder(m_context.loadRootLineFolder());
+        phone.addLine(phone.createLine(thirdLine));
+        m_context.storePhone(phone);
+
+        // reload data to get updated ids
+        m_context.flush();
+        Phone reloadedPhone = m_context.loadPhone(new Integer(1));
+        Line reloadedThirdLine = reloadedPhone.getLine(2);
+        
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/AddLineExpected.xml"); 
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[line_id]", reloadedThirdLine.getPrimaryKey());        
+        expectedRds.addReplacementObject("[null]", null);
+        
+        ITable expected = expectedRds.getTable("line");                
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
+        
+        Assertion.assertEquals(expected, actual);        
+    }
+    
     public void testSave() throws Exception {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1));
-        PhoneMetaData endpoint = phone.getPhoneMetaData();
-        assertEquals(0, endpoint.getLines().size());
+        assertEquals(0, phone.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
-        Line line = phone.createLine();
+        Line line = phone.createLine(new LineMetaData());
         LineMetaData lineMeta = line.getLineMetaData();
         lineMeta.setUser(user);
         lineMeta.setFolder(m_context.loadRootLineFolder());
@@ -60,47 +89,14 @@ public class LineTestDb extends TestCase {
         // reload data to get updated ids
         m_context.flush();        
         Phone reloadedPhone = m_context.loadPhone(new Integer(1));
-        PhoneMetaData reloadedEndpoint = reloadedPhone.getPhoneMetaData(); 
-        LineMetaData reloadedLine = (LineMetaData) reloadedEndpoint.getLines().get(0);
+        Line reloadedLine = reloadedPhone.getLine(0);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
-        expectedRds.addReplacementObject("[line_id]", reloadedLine.getId());
+        expectedRds.addReplacementObject("[line_id]", reloadedLine.getPrimaryKey());
         ITable expected = expectedRds.getTable("line");
                 
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-        
-        Assertion.assertEquals(expected, actual);        
-    }
-    
-    public void testAddingLine() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
-
-        Phone phone = m_context.loadPhone(new Integer(1000));
-        PhoneMetaData endpoint = phone.getPhoneMetaData();
-        assertEquals(2, endpoint.getLines().size());
-        User user = m_core.loadUserByDisplayId("testuser");
-
-        LineMetaData thirdLine = new LineMetaData();
-        thirdLine.setUser(user);
-        thirdLine.setFolder(m_context.loadRootLineFolder());
-        endpoint.addLine(thirdLine);
-        m_context.storePhone(phone);
-
-        // reload data to get updated ids
-        m_context.flush();
-        Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
-        PhoneMetaData reloadedEndpoint = reloadedPhone.getPhoneMetaData();
-        LineMetaData reloadedThirdLine = (LineMetaData) reloadedEndpoint.getLines().get(2);
-        
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/AddLineExpected.xml"); 
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[line_id]", reloadedThirdLine.getId());        
-        expectedRds.addReplacementObject("[null]", null);
-        
-        ITable expected = expectedRds.getTable("line");                
         ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
         
         Assertion.assertEquals(expected, actual);        
@@ -111,13 +107,12 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
         
         Phone phone = m_context.loadPhone(new Integer(1));
-        PhoneMetaData endpoint = phone.getPhoneMetaData();
-        List lines = endpoint.getLines();
+        Collection lines = phone.getLines();
         assertEquals(1, lines.size());        
         lines.clear();
         m_context.storePhone(phone);
         
-        PhoneMetaData cleared = m_context.loadPhone(new Integer(1)).getPhoneMetaData();
+        Phone cleared = m_context.loadPhone(new Integer(1));
         assertEquals(0, cleared.getLines().size());        
     }
     
@@ -125,11 +120,10 @@ public class LineTestDb extends TestCase {
          TestHelper.cleanInsert("dbdata/ClearDb.xml");
          TestHelper.cleanInsertFlat("phone/dbdata/MoveLineSeed.xml");
 
-         Phone phone = m_context.loadPhone(new Integer(1000));
-         PhoneMetaData endpoint = phone.getPhoneMetaData();
-         LineMetaData l1 = (LineMetaData) endpoint.getLines().get(0);
-         Object[] ids = new Object[] { l1.getId() };
-         DataCollectionUtil.moveByPrimaryKey(endpoint.getLines(), ids, 1);
+         Phone phone = m_context.loadPhone(new Integer(1));
+         Line l1 = phone.getLine(0);
+         Object[] ids = new Object[] { l1.getPrimaryKey() };
+         DataCollectionUtil.moveByPrimaryKey(phone.getLines(), ids, 1);
          m_context.storePhone(phone);
          m_context.flush();
          
@@ -141,5 +135,28 @@ public class LineTestDb extends TestCase {
          ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
          
          Assertion.assertEquals(expected, actual);        
+    }
+    
+    /**
+     * Makes sure the line's settings get deleted too
+     */
+    public void testDeleteLinesWithSettings() throws Exception {
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/dbdata/DeleteLineWithSettingsSeed.xml");
+        
+        Phone phone = m_context.loadPhone(new Integer(1));
+        Collection lines = phone.getLines();
+        assertEquals(3, lines.size());
+        DataCollectionUtil.removeByPrimaryKey(lines, new Object[] {new Integer(2)});
+        m_context.storePhone(phone);
+
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/DeleteLineWithSettingsExpected.xml");
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[null]", null);
+        
+        ITable expected = expectedRds.getTable("line");                
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
+        
+        Assertion.assertEquals(expected, actual);                
     }
 }

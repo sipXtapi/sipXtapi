@@ -30,6 +30,10 @@ public class EditPhoneTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
         m_helper = new PhoneTestHelper(tester);
         m_helper.reset();
+        m_helper.seedPhone(1);
+        clickLink("ManagePhones");        
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
+        setFormElement("serialNumber", "a00000000000");
     }
 
     protected void tearDown() throws Exception {
@@ -38,15 +42,16 @@ public class EditPhoneTestUi extends WebTestCase {
     }
 
     public void testEditPhone() {
-        m_helper.seedPhone(1);
-        clickLink("ManagePhones");        
-        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
-        setFormElement("serialNumber", "a00000000000");
         setFormElement("phoneModel", "1");
         clickButton("phone:ok");
         String[][] table = new String[][] {
             { "a00000000000", "", "SoundPoint IP 500" },                
         };
         assertTextInTable("phone:list", table[0]);        
+    }
+
+    public void testAddLine() {
+        clickLink("AddLine");
+        assertElementPresent("user:criteria");
     }
 }

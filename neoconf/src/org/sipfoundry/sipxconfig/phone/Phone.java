@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -32,12 +34,17 @@ public interface Phone {
     
     public void restart();
         
-    public Line getLine(int position);
+    public Collection getLines();
     
     public void addLine(Line line);
     
-    public int getLineCount();
+    public Line getLine(int position);
+    
+    public Collection getDeletedLines();
     
     /** you must explicitly call addLine */
-    public Line createLine();
+    public Line createLine(LineMetaData lineMeta);
+
+    /** implementation need to declare they implement PrimaryKeySource */
+    public Object getPrimaryKey();
 }
