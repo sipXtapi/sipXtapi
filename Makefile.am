@@ -47,10 +47,8 @@ EXTRA_DIST = \
     $(editscripts_IN) \
     $(editdata_IN) \
     sipXauthproxy.dsp \
-    sipXforkingProxy.dsp
-
-# Comment out to fix build, there's no spec file yet
-#    sipxproxy.spec.in
+    sipXforkingProxy.dsp \
+    sipxproxy.spec
 
 install-exec-hook : editscripts editdata
 
@@ -64,12 +62,8 @@ rpm: dist
 	cp -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
 	cp -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
 
-
-# FIX BUILD -- this breaks even tarball builds
 # RPM Spec file
-#sipxproxy.spec : sipxproxy.spec.in
-#	$(edit) $(srcdir)/sipxproxy.spec.in > sipxproxy.spec
+sipxproxy.spec : sipxproxy.spec.in
+	$(edit) $(srcdir)/sipxproxy.spec.in > sipxproxy.spec
 
-#dist-hook:
-#	cp sipxproxy.spec $(distdir)
 
