@@ -6,12 +6,12 @@
 	<div jwcid="@Border">
 	<div id="component">            
     <h2>Dial Plan Configuration</h2>        
-	<ul class="component-actions">
+	<ul class="component-links">
 		<li><a jwcid="addLink" id="dialplan:add" href="#">Add Dial Rules</a></li>
 		<li><a jwcid="gatewaysLink" href="#">Gateways</a></li>
 	</ul>                
     <form jwcid="form" id="dialplan:list:form">
-    	<table jwcid="tableView" id="dialplan:list" class="table-view">
+    	<table jwcid="tableView" id="dialplan:list" class="component">
             <thead>
                 <tr>
 	                <td></td>
@@ -28,7 +28,7 @@
                 </span>
             </tbody>
 		</table>
-		<ul class="table-actions">
+		<ul class="component-submit">
 			<li>
 				<input jwcid="duplicate" type="submit" name="" value="Duplicate"/>
 			</li>
@@ -44,7 +44,7 @@
 			</li>
 		</ul>
 	    <h2>Dial Plan Activation</h2>
-		<ul class="table-actions">
+		<ul class="component-submit">
 			<li>
 				<input type="submit" jwcid="activate" id="dialplan:activate" value="Activate"/>
 			</li>

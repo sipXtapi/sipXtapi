@@ -44,7 +44,6 @@ legend {
 div.tabArea {
   padding-top: 10px;
   background: #ffc;
-  width: 40em;
   text-align: justify;
 }
 
@@ -58,7 +57,7 @@ a.tab {
   border-bottom-color : #ffc;
   padding: 2px;
   white-space: nowrap;    
-  line-height: 2.5;
+  line-height: 1.5;
   text-decoration: none;    
 }
 

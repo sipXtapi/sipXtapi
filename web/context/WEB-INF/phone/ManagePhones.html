@@ -6,12 +6,12 @@
 	<div jwcid="@Border">
         <div id="component">
 		<form jwcid="phoneManagement">
-			<ul class="component-actions">
+			<ul class="component-links">
 				<li>
 					<a href="#" jwcid="@DirectLink" listener="ognl:listeners.addPhone">Add Phone</a>
 				</li>
 			</ul>
-			<table jwcid="phoneTableView" class="table-view">
+			<table jwcid="phoneTableView" class="component">
                 <span jwcid="PhoneColumnValue">
                     <a href="#" jwcid="editPhoneLink"><span jwcid="phoneLabel">serial number</span></a>
                 </span>
@@ -20,7 +20,7 @@
                         <a href="#" jwcid="lineLink"><span jwcid="lineLabel">line</span></a>
                     </span>
                 </span>
-				<tr class="table-view-hdr">
+				<tr class="component-hdr">
 					<td width="5"/>
 					<td jwcid="phoneColumns"/>
 				</tr>
@@ -29,7 +29,7 @@
 					<td jwcid="phoneValues"/>                    
 				</tr>
 			</table>
-			<ul class="table-actions">
+			<ul class="component-submit">
 				<li>
 					<input jwcid="sendProfiles" value="Send Profiles"/>
 				</li>

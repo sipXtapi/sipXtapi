@@ -44,7 +44,6 @@ legend {
 div.tabArea {
   padding-top: 10px;
   background: #ffc;
-  width: 40em;
   text-align: justify;
 }
 
@@ -58,7 +57,7 @@ a.tab {
   border-bottom-color : #ffc;
   padding: 2px;
   white-space: nowrap;    
-  line-height: 2.5;
+  line-height: 1.5;
   text-decoration: none;    
 }
 
@@ -156,19 +155,53 @@ li {
   margin-bottom: 5px;
 }
 
-ul.table-actions {
+/**
+ * term 'component' is can be assocciated with ui that needs 
+ * a fixed width for aethetics and/or for alignment to other 
+ * fixed width items. 
+ *
+ * Example:
+ *                      
+ *                                        component-links
+ *  +---------------------------------------------------+
+ *  |                                                   | 
+ *  |                                                   | 
+ *  |     table.component or form.component or ...      |
+ *  |                                                   | 
+ *  |                                                   | 
+ *  +---------------------------------------------------+
+ *  component-submit
+ *
+ *  NOTE: techinally component-submit doesn't need to know the 
+ *  width because it's left aligned, but if it changed 
+ *  alignment (e.g. center) then it would
+ */
+
+ul.component-links {
+  width: 40em;
+  list-style-type : none;
+  text-align: right;
+}
+
+ul.component-links li {
+  display: inline;
+  padding-left: 1em; 
+}
+
+ul.component-submit {
   list-style-type: none;
   margin: 5px;
   padding: 0px
 }
 
-ul.table-actions li {
+ul.component-submit li {
+  white-space: nowrap;        
   display: inline;
   margin: 0 5px;
 }
 
-table.table-view {
-    width: 45em;
+table.component {
+    width: 40em;
     background: #fff;
     border-collapse: collapse;
     border: 1px;
@@ -176,15 +209,15 @@ table.table-view {
     border-color : #ccc;  
 }
 
-table.table-view thead {
+table.component thead {
     background-color: #699;
 }
 
-tr.table-view-hdr {
+tr.component-hdr {
     background-color: #699;
 }
 
-table.table-view th {
+table.component th {
     border: 1px;
     border-style : solid;
     border-color : #ccc;  
@@ -192,7 +225,7 @@ table.table-view th {
     white-space: nowrap;        
 }
 
-table.table-view thead th {
+table.component thead th {
     border: 1px;
     border-style : solid;
     border-color : #ccc;  
@@ -200,30 +233,29 @@ table.table-view thead th {
     white-space: nowrap;        
     color: #ffc;
 }
-
     
-table.table-view th a {
+table.component th a {
     color: #ffc;
 }
 
-table.table-view td {
+table.component td {
     inset: 3px;
     white-space: nowrap;    
     border-collapse: collapse;
 }
 
-ul.table-selection {
+ul.component-selection {
   list-style-type: none;
   margin: 0px 2px 2px 2px;
   padding: 0px
 }
 
-ul.table-selection li {
+ul.component-selection li {
   display: inline;
   margin: 0 5px;
 }
 
-ul.table-selection li a {
+ul.component-selection li a {
   text-decoration: none;
   font-size: .8em;
 }
@@ -236,20 +268,20 @@ tr.odd {
     background: #fff;
 }
 
-.table-action {
+.component-action {
     font-style: italic;
 }
 
-ul.table-pager {
+ul.component-pager {
   list-style-type:none
 }
 
-ul.table-pager li {
+ul.component-pager li {
   display: inline;
   margin: 0 5px;
 }
 
-#help {
+div.help {
   float: right;
   width: 15em;
   margin-left: 20px;
@@ -261,23 +293,18 @@ ul.table-pager li {
   background: #fff;
 }
 
-#component {
-  width: 40em;    
-  background: #ffc;
-}
-
-#component fieldset {
+fieldset {
   border-style: none;
   font-size: 120%;
   width: 40em;
   margin-top: 1em; 
 }
 
-#component legend {
+legend {
   font-size: 120%;
 }
 
-#component label {
+label {
   padding-right: 1em;
 }
 
@@ -300,16 +327,6 @@ form.with-sections legend {
   padding: 2px;
 }
 
-ul.component-actions {
-  list-style-type : none;
-  text-align: right;
-}
-
-ul.component-actions li {
-  display: inline;
-  padding-left: 1em; 
-}
-
 ul.form-actions {
   list-style-type : none;
   text-align: left;  
@@ -322,4 +339,3 @@ ul.form-actions li {
 .hide {
   display: none
 }
-
