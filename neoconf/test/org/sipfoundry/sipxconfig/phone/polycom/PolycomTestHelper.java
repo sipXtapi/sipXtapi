@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 
@@ -39,7 +39,7 @@ public class PolycomTestHelper {
         CoreContext core = (CoreContext) coreControl.getMock();
         Organization rootOrg = new Organization();
         rootOrg.setDnsDomain("sipfoundry.org");
-        coreControl.expectAndReturn(core.loadRootOrganization(), rootOrg);
+        coreControl.expectAndReturn(core.loadRootOrganization(), rootOrg, MockControl.ZERO_OR_MORE);
         coreControl.replay();
         
         PolycomTestHelper helper = new PolycomTestHelper();
@@ -68,11 +68,11 @@ public class PolycomTestHelper {
     }
     
     public void plainSettingsSeed() throws Exception {
-        SettingGroup endpointSettings = endpoint[0].getSettings(phone[0]);
+        Setting endpointSettings = endpoint[0].getSettings(phone[0]);
         endpointSettings.getSetting("call").getSetting("rejectBusyOnDnd").setValue("0");
         endpointSettings.getSetting("voIpProt.SIP").getSetting("local").getSetting("port").setValue("5061");
 
-        SettingGroup lineSettings = line[0].getSettings(phone[0]);
+        Setting lineSettings = line[0].getSettings(phone[0]);
         lineSettings.getSetting("call").getSetting("serverMissedCall").getSetting("enabled").setValue("1");
     }
 }

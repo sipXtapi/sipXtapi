@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
- * Responsible for generating phone.cfg
+ * Responsible for generating MAC_ADDRESS.d/phone.cfg
  */
 public class PhoneConfiguration extends ConfigurationTemplate {
 

@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Wrap another setting object, delegate ALL methods to the Settting class
  */
-public abstract class SettingDecorator implements Setting {
+public abstract class SettingDecorator implements Setting, Cloneable {
     
     private Setting m_delegate;
     
@@ -135,5 +135,17 @@ public abstract class SettingDecorator implements Setting {
 
     public void setHidden(boolean hidden) {
         m_delegate.setHidden(hidden);
+    }
+    
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Cannot clone setting decorator", e);
+        }
+    }
+    
+    public Setting copy() {
+        return (Setting) clone();
     }
 }

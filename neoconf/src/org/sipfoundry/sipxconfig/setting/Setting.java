@@ -75,6 +75,8 @@ public interface Setting {
     public boolean isHidden();
     
     public void setHidden(boolean hidden);
+    
+    public Setting copy();
 }
 
 

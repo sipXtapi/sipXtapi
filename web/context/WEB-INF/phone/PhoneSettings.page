@@ -12,11 +12,11 @@
         persistent="yes"/>
     <property-specification name="endpoint"
         type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-    <property-specification name="parentSettingGroupName"
+    <property-specification name="parentSettingName"
         type="java.lang.String"
         persistent="yes"/>    
-    <property-specification name="parentSettingGroup"
-        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+    <property-specification name="parentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
@@ -25,15 +25,15 @@
     -->
     <component id="editPhoneNavigation" type="PhoneNavigation">
         <binding name="endpoint" expression="endpoint"/>
-        <binding name="tab" expression="parentSettingGroup.name"/>
-        <binding name="heading" expression="parentSettingGroup.label"/>
+        <binding name="tab" expression="parentSetting.name"/>
+        <binding name="heading" expression="parentSetting.label"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="settingDescription" type="Insert">
-        <binding name="value" expression="parentSettingGroup.description"/>
+        <binding name="value" expression="parentSetting.description"/>
     </component>
     <component id="settingsForm" type="SettingsForm">
-        <binding name="settings" expression="parentSettingGroup"/>
+        <binding name="settings" expression="parentSetting"/>
         <binding name="cancelListener" expression="listeners.cancel"/>
         <binding name="okListener" expression="listeners.ok"/>
         <binding name="applyListener" expression="listeners.apply"/>

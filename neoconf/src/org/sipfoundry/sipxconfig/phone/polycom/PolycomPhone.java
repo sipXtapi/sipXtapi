@@ -17,12 +17,11 @@ import java.io.IOException;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
@@ -46,7 +45,15 @@ public class PolycomPhone extends GenericPhone {
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
 
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
+    
+    private Setting m_lineModel;
+    
+    private Setting m_endpointModel;
 
+    private String m_lineModelFilename;
+    
+    private String m_endpointModelFilename;
+    
     public PolycomPhone() {
         setEndpointModelFilename("polycom/phone.xml");
         setLineModelFilename("polycom/line.xml");
@@ -102,6 +109,10 @@ public class PolycomPhone extends GenericPhone {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+    
+    CoreContext getCoreContext() {
+        return m_coreContext;
     }
 
     public String getModelId() {
@@ -175,27 +186,52 @@ public class PolycomPhone extends GenericPhone {
 
         app.deleteStaleDirectories();
     }
-
-    public SettingGroup getSettingModel(Line line) {
-
-        // set default values to current environment settings
-        SettingGroup lineModel = super.getSettingModel(line);
-        User u = line.getUser();
-        if (u != null) {
-            String domainName = m_coreContext.loadRootOrganization().getDnsDomain();
-            Setting reg = lineModel.getSetting("reg");
-            reg.getSetting("displayName").setValue(u.getDisplayId());
-            reg.getSetting("auth.userId").setValue(u.getDisplayId());
-
-            reg.getSetting("server").getSetting("1").getSetting("address").setValue(domainName);
+    
+    Setting getLineModel() {
+        // cache it, but may be helpful to reload model on fly in future
+        if (m_lineModel == null) {
+            File modelDefsFile = getFile(getSystemDirectory(), getLineModelFilename());
+            m_lineModel = new XmlModelBuilder().buildModel(modelDefsFile);
         }
-
-        // See pg. 125 Admin Guide/16 June 2004
-        if (line.getPosition() == 0) {
-            lineModel.getSetting("msg.mwi").getSetting("callBackMode").setValue("registration");
-        }
-
-        return lineModel;
+        return m_lineModel;
     }
+
+    Setting getEndpointModel() {
+        // cache it, but may be helpful to reload model on fly in future
+        if (m_endpointModel == null) {
+            File modelDefsFile = getFile(getSystemDirectory(), getEndpointModelFilename());
+            m_endpointModel = new XmlModelBuilder().buildModel(modelDefsFile);
+        }
+        return m_endpointModel;
+    }
+
+    public Setting getSettingModel(Line line) {
+        return new PolycomLine(this, line).getSettings();
+    }
+
+    public Setting getSettingModel(Endpoint endpoint) {
+        return new PolycomEndpoint(this, endpoint).getSettings();
+    }
+    
+    public String getEndpointModelFilename() {
+        return m_endpointModelFilename;
+    }
+
+    public void setEndpointModelFilename(String endpointModelFilename) {
+        m_endpointModelFilename = endpointModelFilename;
+    }
+
+    protected File getFile(String root, String filename) {
+        return new File(root + '/' + filename);
+    }
+
+    public String getLineModelFilename() {
+        return m_lineModelFilename;
+    }
+
+    public void setLineModelFilename(String lineModelFilename) {
+        m_lineModelFilename = lineModelFilename;
+    }
+
 }
 

@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class SettingImpl implements Setting {
+public class SettingImpl implements Setting, Cloneable {
 
     private String m_label;
 
@@ -45,6 +45,18 @@ public class SettingImpl implements Setting {
     
     public SettingImpl(String name) {
         setName(name);
+    }
+    
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Cannot clone setting", e);
+        }
+    }
+    
+    public Setting copy() {
+        return (Setting) clone();
     }
 
     public SettingGroup getSettingGroup() {

@@ -28,6 +28,11 @@ public class AddPhoneUserTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
         PhoneTestHelper.reset(tester);
     }
+    
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        dumpResponse(System.err);
+    }
 
     /** 
      * does not actually add user

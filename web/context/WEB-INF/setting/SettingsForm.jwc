@@ -10,7 +10,7 @@
     <description>add a description</description>
     
     <parameter name="settings"
-        type="org.sipfoundry.sipxconfig.setting.SettingGroup"
+        type="org.sipfoundry.sipxconfig.setting.Setting"
         required="yes"
         direction="auto">
     </parameter>

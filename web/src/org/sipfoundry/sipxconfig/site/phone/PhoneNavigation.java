@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
@@ -29,13 +29,13 @@ public abstract class PhoneNavigation extends BaseComponent {
     
     public abstract Endpoint getEndpoint();
     
-    public abstract void setSettingGroup(SettingGroup model);
+    public abstract void setSettings(Setting settings);
     
-    public abstract SettingGroup getSettingGroup();
+    public abstract Setting getSettings();
 
-    public abstract void setCurrentSettingGroup(SettingGroup setting);
+    public abstract void setCurrentSetting(Setting setting);
 
-    public abstract SettingGroup getCurrentSettingGroup();
+    public abstract Setting getCurrentSetting();
     
     public abstract PhoneContext getPhoneContext();
 
@@ -67,7 +67,7 @@ public abstract class PhoneNavigation extends BaseComponent {
         page.setEndpointId(endpointId.intValue());
 
         String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
-        page.setParentSettingGroupName(section);
+        page.setParentSettingName(section);
         
         cycle.activate(page);        
     }
@@ -78,7 +78,7 @@ public abstract class PhoneNavigation extends BaseComponent {
     public Object[] getEditSettingListenerParameters() {
         return new Object[] { 
             new Integer(getEndpoint().getId()),
-            getCurrentSettingGroup().getName() 
+            getCurrentSetting().getName() 
         };
     }
     
@@ -87,7 +87,6 @@ public abstract class PhoneNavigation extends BaseComponent {
         
         PhoneContext context = getPhoneContext();
         Phone phone = context.getPhone(getEndpoint());
-        SettingGroup model = getEndpoint().getSettings(phone);
-        setSettingGroup(model);
+        setSettings(getEndpoint().getSettings(phone));
     }        
 }

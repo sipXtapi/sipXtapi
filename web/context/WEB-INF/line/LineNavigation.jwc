@@ -33,10 +33,10 @@
     <!--
       - P R O P E R T I E S
       -->
-    <property-specification name="currentSettingGroup"
-        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
-    <property-specification name="settingGroup"
-        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+    <property-specification name="currentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="settings"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <!--
       - B E A N S
       -->
@@ -55,16 +55,16 @@
         <binding name="class" expression="beans.tabs.getTabClass('EditLine')"/>
     </component>
     <component id="settingsTabs" type="Foreach">
-        <binding name="source" expression="settingGroup.values"/>
-        <binding name="value" expression="currentSettingGroup"/>
+        <binding name="source" expression="settings.values"/>
+        <binding name="value" expression="currentSetting"/>
     </component>
     <component id="settingsTab" type="DirectLink">
         <binding name="listener" expression="listeners.editSettings"/>
         <binding name="parameters" expression="editSettingListenerParameters"/>
-        <binding name="class" expression="beans.tabs.getTabClass(currentSettingGroup.name)"/>
+        <binding name="class" expression="beans.tabs.getTabClass(currentSetting.name)"/>
     </component>
     <component id="settingsTabLabel" type="Insert">
-        <binding name="value" expression="getCurrentSettingGroup().getLabel()"/>
+        <binding name="value" expression="currentSetting.label"/>
     </component>
     <component id="lineLabel" type="LineLabel">
         <binding name="line" expression="line"/>

@@ -18,6 +18,7 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
@@ -43,9 +44,9 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     /** REQUIRED PAGE PARAMETER */
     public abstract void setParentSettingGroupName(String name); 
 
-    public abstract SettingGroup getParentSettingGroup();
+    public abstract Setting getParentSetting();
     
-    public abstract void setParentSettingGroup(SettingGroup parent);
+    public abstract void setParentSetting(Setting parent);
     
     public abstract PhoneContext getPhoneContext();
 
@@ -54,9 +55,9 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
         Line line = context.loadLine(getLineId());
         setLine(line);
         Phone phone = context.getPhone(line.getEndpoint()); 
-        SettingGroup root = line.getSettings(phone);
-        SettingGroup parent = (SettingGroup) root.getSetting(getParentSettingGroupName());
-        setParentSettingGroup(parent);
+        Setting root = line.getSettings(phone);
+        Setting parent = (SettingGroup) root.getSetting(getParentSettingGroupName());
+        setParentSetting(parent);
     }
 
     public void ok(IRequestCycle cycle) {

@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.IOException;
 
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Implement this to add support for new devices to the system
@@ -26,9 +26,9 @@ public interface Phone {
     
     public String getDisplayLabel();
     
-    public SettingGroup getSettingModel(Endpoint endpoint);
+    public Setting getSettingModel(Endpoint endpoint);
 
-    public SettingGroup getSettingModel(Line line);
+    public Setting getSettingModel(Line line);
     
     public void generateProfiles(Endpoint endpoint) throws IOException;
     

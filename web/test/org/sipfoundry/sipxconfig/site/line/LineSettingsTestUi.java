@@ -30,6 +30,11 @@ public class LineSettingsTestUi extends WebTestCase {
         PhoneTestHelper.reset(tester);
     }
 
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        dumpResponse(System.err);
+    }
+
     public void testEditLine() {
         PhoneTestHelper.seedNewPhone(tester);
         clickLink("ManagePhones");        

@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.setting.Folder;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -104,8 +105,8 @@ public class Endpoint implements PrimaryKeySource, Serializable {
         m_folder = folder;
     }
 
-    public SettingGroup getSettings(Phone phone) {
-        SettingGroup settings = phone.getSettingModel(this);
+    public Setting getSettings(Phone phone) {
+        Setting settings = phone.getSettingModel(this);
         if (m_valueStorage == null) {
             m_valueStorage = new ValueStorage();
         }

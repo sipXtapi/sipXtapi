@@ -33,10 +33,10 @@
     <!--
       - P R O P E R T I E S
       -->
-    <property-specification name="currentSettingGroup"
-        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
-    <property-specification name="settingGroup"
-        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+    <property-specification name="currentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="settings"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <!--
       - B E A N S
       -->
@@ -64,18 +64,18 @@
         <binding name="parameters" expression="endpoint.id"/>
     </component>
     <component id="settingsTabs" type="Foreach">
-        <binding name="source" expression="settingGroup.values"/>
-        <binding name="value" expression="currentSettingGroup"/>
+        <binding name="source" expression="settings.values"/>
+        <binding name="value" expression="currentSetting"/>
     </component>
     <component id="settingsTab" type="Any">
-        <binding name="class" expression="beans.tabs.getTabClass(currentSettingGroup.name)"/>
+        <binding name="class" expression="beans.tabs.getTabClass(currentSetting.name)"/>
     </component>
     <component id="settingsLink" type="DirectLink">
         <binding name="listener" expression="listeners.editSettings"/>
         <binding name="parameters" expression="editSettingListenerParameters"/>
     </component>
     <component id="settingsTabLabel" type="Insert">
-        <binding name="value" expression="getCurrentSettingGroup().getLabel()"/>
+        <binding name="value" expression="currentSetting.getLabel()"/>
     </component>
     <component id="phoneLabel" type="PhoneLabel">
         <binding name="endpoint" expression="endpoint"/>

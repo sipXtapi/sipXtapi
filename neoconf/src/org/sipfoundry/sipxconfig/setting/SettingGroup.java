@@ -19,9 +19,9 @@ import org.apache.commons.collections.map.LinkedMap;
  * Meta information about a group of settings, can contain nested
  * SettingModels.  Order is preserved
  */
-public class SettingGroup extends SettingImpl {
+public class SettingGroup extends SettingImpl implements Cloneable {
     
-    private LinkedMap m_delegate = new LinkedMap();
+    private LinkedMap m_children = new LinkedMap();
         
     /** 
      * Root setting group and bean access only
@@ -33,6 +33,20 @@ public class SettingGroup extends SettingImpl {
         super(name);
     }
     
+    /**
+     * includes deep copy of all childen 
+     */
+    public Setting copy() {
+        SettingGroup copy = (SettingGroup) super.copy();
+        copy.m_children = new LinkedMap();
+        for (int i = 0; i < m_children.size(); i++) {
+            Setting child = (Setting) m_children.getValue(i);            
+            copy.addSetting(child.copy());
+        }
+
+        return copy;
+    }
+
     public void acceptVisitor(SettingVisitor visitor) {
         visitor.visitSettingGroup(this);
     }
@@ -43,16 +57,16 @@ public class SettingGroup extends SettingImpl {
      */
     public Setting addSetting(Setting setting) {
         setting.setSettingGroup(this);
-        m_delegate.put(setting.getName(), setting);
+        m_children.put(setting.getName(), setting);
         
         return setting;
     }
 
     public Setting getSetting(String name) {
-        return (Setting) m_delegate.get(name);
+        return (Setting) m_children.get(name);
     }
 
     public Collection getValues() {
-        return m_delegate.values();
+        return m_children.values();
     }
 }

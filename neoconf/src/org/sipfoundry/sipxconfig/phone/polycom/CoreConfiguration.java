@@ -16,7 +16,6 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**
  * Responsible for generating ipmid.cfg
@@ -35,7 +34,7 @@ public class CoreConfiguration extends ConfigurationTemplate {
     
     protected void addContext(VelocityContext context) {
         super.addContext(context);
-        SettingGroup endpointSettings = getEndpoint().getSettings(getPhone());
+        Setting endpointSettings = getEndpoint().getSettings(getPhone());
         Setting call = endpointSettings.getSetting(CALL_SETTINGS);
         context.put("call", FilterRunner.filter(s_callSettings, call));
     }

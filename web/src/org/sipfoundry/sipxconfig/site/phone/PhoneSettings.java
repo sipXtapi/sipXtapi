@@ -18,6 +18,7 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**
@@ -37,14 +38,14 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     
     public abstract void setEndpoint(Endpoint endpoint);
     
-    public abstract String getParentSettingGroupName();
+    public abstract String getParentSettingName();
     
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setParentSettingGroupName(String name); 
+    public abstract void setParentSettingName(String name); 
 
-    public abstract SettingGroup getParentSettingGroup();
+    public abstract SettingGroup getParentSetting();
     
-    public abstract void setParentSettingGroup(SettingGroup parent);
+    public abstract void setParentSetting(Setting parent);
     
     public abstract PhoneContext getPhoneContext();
 
@@ -52,9 +53,9 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
         PhoneContext context = getPhoneContext();
         setEndpoint(context.loadEndpoint(getEndpointId()));
         Phone phone = context.getPhone(getEndpoint()); 
-        SettingGroup root = getEndpoint().getSettings(phone);
-        SettingGroup parent = (SettingGroup) root.getSetting(getParentSettingGroupName());
-        setParentSettingGroup(parent);
+        Setting root = getEndpoint().getSettings(phone);
+        Setting parent = root.getSetting(getParentSettingName());
+        setParentSetting(parent);
     }
 
     public void ok(IRequestCycle cycle) {
