@@ -13,7 +13,6 @@
 package com.pingtel.pds.pgs.beans;
 
 import com.pingtel.pds.common.EJBHomeFactory;
-import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.pgs.phone.DeviceType;
 import com.pingtel.pds.pgs.phone.DeviceTypeHome;
 import com.pingtel.pds.pgs.profile.*;
@@ -45,7 +44,6 @@ public class ScriptletUtilityBean {
 ////
     private RefConfigurationSetHome mRefConfigSetHome;
     private DeviceTypeHome mDeviceTypeHome;
-    private RefDataAdvocate mRefDataAdvocateEJBObject;
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -61,12 +59,6 @@ public class ScriptletUtilityBean {
             mDeviceTypeHome = (DeviceTypeHome)
                     EJBHomeFactory.getInstance().getHomeInterface(
                             DeviceTypeHome.class, "DeviceType");
-
-            RefDataAdvocateHome refDataAdvocateHome = (RefDataAdvocateHome)
-                    EJBHomeFactory.getInstance().getHomeInterface(
-                            RefDataAdvocateHome.class, "RefDataAdvocate");
-
-            mRefDataAdvocateEJBObject = refDataAdvocateHome.create();
         }
         catch(Exception e) {
             throw new JspTagException(e.getMessage());
@@ -140,51 +132,6 @@ public class ScriptletUtilityBean {
         }
 
         return deviceTypeId;
-    }
-
-
-    /**
-     * getXpressaApplicationRefPropId returns the String value of the
-     * PK of the RefProperty which represents 'user' applications for
-     * Pingtel xpressa devices.
-     *
-     * @return
-     * @throws JspTagException
-     */
-    public String getXpressaApplicationRefPropId() throws JspTagException {
-
-        String refpropertyid = null;
-
-        try {
-            Collection sets =
-                    mDeviceTypeHome.findByModel(
-                            PDSDefinitions.MODEL_HARDPHONE_XPRESSA);
-
-            Iterator setsIterator = sets.iterator();
-            DeviceType deviceTypeProp;
-            RefProperty refProperty;
-
-            while( setsIterator.hasNext() ){
-                deviceTypeProp = (DeviceType) setsIterator.next();
-
-                Collection rdaCollection =
-                        mRefDataAdvocateEJBObject.getRefPropertiesForDeviceTypeAndProfile(
-                                deviceTypeProp.getID(),
-                                new Integer(PDSDefinitions.PROF_TYPE_APPLICATION_REF));
-
-                Iterator rdaIterator = rdaCollection.iterator();
-                while(rdaIterator.hasNext()){
-                    refProperty = (RefProperty) rdaIterator.next();
-                    refpropertyid = refProperty.getID().toString();
-                }
-            }
-        }
-        catch (Exception ioe ) {
-            throw new JspTagException(ioe.getMessage());
-        }
-
-        return refpropertyid;
-
     }
 
 //////////////////////////////////////////////////////////////////////////

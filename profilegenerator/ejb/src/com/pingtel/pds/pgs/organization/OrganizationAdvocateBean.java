@@ -344,7 +344,6 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
                 }
                 else if (userOrDevice.equals("user")) {
                     cRP = m_refPropertyHome.findByProfileType( PROF_TYPE_USER);
-                    cRP.addAll(m_refPropertyHome.findByProfileType(  PROF_TYPE_APPLICATION_REF ));
                 }
             }
             catch (FinderException ex) {

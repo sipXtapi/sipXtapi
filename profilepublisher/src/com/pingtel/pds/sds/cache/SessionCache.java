@@ -771,10 +771,7 @@ public class SessionCache {
                     StringTokenizer toker = new StringTokenizer(configRequired, ",");
                     while ( toker.hasMoreElements() ) {
                         String requestedProfileName = toker.nextToken().trim();
-                        if ( requestedProfileName.equalsIgnoreCase("x-xpressa-apps") ) {
-                            requestedProfiles.add(
-                                new Integer( PDSDefinitions.PROF_TYPE_APPLICATION_REF ) );
-                        } else if ( requestedProfileName.equalsIgnoreCase("x-xpressa-device") ) {
+                        if ( requestedProfileName.equalsIgnoreCase("x-xpressa-device") ) {
                             requestedProfiles.add(
                                 new Integer( PDSDefinitions.PROF_TYPE_PHONE ) );
                         } else if ( requestedProfileName.equalsIgnoreCase("x-xpressa-install") ) {

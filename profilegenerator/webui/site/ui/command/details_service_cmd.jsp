@@ -3,7 +3,7 @@
 
 <html>
 <head>
-<title>list_all_applications_cmd</title>
+<title>details_service_cmd</title>
 <script src="../script/jsCommand.js"></script>
 <link rel="stylesheet" href="../../style/dms.css" type="text/css">
 

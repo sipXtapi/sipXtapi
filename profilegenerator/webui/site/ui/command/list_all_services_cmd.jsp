@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>list_all_applications_cmd</title>
+<title>list_all_services_cmd</title>
 
 <script src="../script/jsCommand.js"></script>
 

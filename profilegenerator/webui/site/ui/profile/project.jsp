@@ -10,11 +10,6 @@
    {
        profileTypes = profileTypes + request.getParameter( "ppuser" ) + ",";
    }
-   if ( request.getParameter( "ppapplication" ) != null )
-   {
-       profileTypes = profileTypes + request.getParameter( "ppapplication" ) + ",";
-   }
-
    profileTypes = profileTypes.substring( 0, profileTypes.length() - 1 );
 %>
 

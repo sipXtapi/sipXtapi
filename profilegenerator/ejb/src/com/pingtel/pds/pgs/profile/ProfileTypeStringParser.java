@@ -37,11 +37,6 @@ public class ProfileTypeStringParser implements PDSDefinitions {
                     profTypesToCreate [ PROF_TYPE_PHONE ] = true;
                     break;
                 }
-                case PROF_TYPE_APPLICATION_REF : {
-                    profTypesToCreate [ PROF_TYPE_APPLICATION_REF ] = true;
-
-                    break;
-                }
                 default : {
                     throw new PDSException ( String.valueOf ( profileValue ) );
                 }

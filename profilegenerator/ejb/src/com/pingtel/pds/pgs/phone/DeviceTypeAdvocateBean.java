@@ -12,6 +12,11 @@
  
 package com.pingtel.pds.pgs.phone;
 
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Iterator;
+
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.FinderException;
@@ -19,15 +24,6 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.rmi.RemoteException;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.Collection;
-import java.util.Iterator;
 
 import org.jdom.Attribute;
 import org.jdom.Document;
@@ -39,8 +35,13 @@ import org.jdom.output.XMLOutputter;
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.pgs.common.ejb.JDBCAwareEJB;
-import com.pingtel.pds.pgs.profile.*;
 import com.pingtel.pds.pgs.organization.Organization;
+import com.pingtel.pds.pgs.profile.RefConfigSetAssignment;
+import com.pingtel.pds.pgs.profile.RefConfigurationSet;
+import com.pingtel.pds.pgs.profile.RefConfigurationSetHome;
+import com.pingtel.pds.pgs.profile.RefDataAdvocate;
+import com.pingtel.pds.pgs.profile.RefDataAdvocateHome;
+import com.pingtel.pds.pgs.profile.RefProperty;
 
 
 /**
@@ -207,8 +208,6 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                     profTypeInt = PDSDefinitions.PROF_TYPE_PHONE;
                 } else if (type.equalsIgnoreCase("user")) {
                     profTypeInt = PDSDefinitions.PROF_TYPE_USER;
-                } else if (type.equalsIgnoreCase("application-ref")) {
-                    profTypeInt =PDSDefinitions.PROF_TYPE_APPLICATION_REF;
                 }
 
                 Collection refPropsList = profType.getChildren("ref_property");
@@ -279,8 +278,6 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                         realType = new Integer( PDSDefinitions.PROF_TYPE_PHONE );
                     } else if (type.getValue().equals("user")) {
                         realType = new Integer( PDSDefinitions.PROF_TYPE_USER );
-                    } else if (type.getValue().equals("application-ref")) {
-                        realType = new Integer( PDSDefinitions.PROF_TYPE_APPLICATION_REF );
                     }
 
                     Element profileFileName = prof.getChild("profile_file_name");

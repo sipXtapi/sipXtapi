@@ -13,10 +13,6 @@ function frmSubmit( id )
     {
         sendProfiles( id );
     }
-    else if ( value == "2" )
-    {
-       assignApplication( id );
-    }
     else if ( value == "4" )
     {
       copyUserGroup( id );
@@ -65,10 +61,6 @@ function restartDevices( id ){
     {
         location = "restart_usergroup_devices.jsp?usergroupid=" + id;
     }
-}
-function assignApplication( id ){
-	var targetWindow = "/pds/ui/popup/frame_usergroup_applications.jsp?usergroupid=" + id;
-	window.parent.MM_openBrWindow(targetWindow,'popup','scrollbars=yes,width=400,height=600');
 }
 function sendProfiles( id ){
     var targetWindow = "/pds/ui/popup/form_project_profiles.jsp?entityid=" + id + "&entitytype=usergroup";

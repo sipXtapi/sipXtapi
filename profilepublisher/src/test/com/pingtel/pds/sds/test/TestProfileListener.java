@@ -102,18 +102,6 @@ public class TestProfileListener extends TestCase {
         }
     }
 
-
-    public void testUpdatePingtelApplicationProfile () {
-        try {
-            updatePingtelDevice (   PDSDefinitions.PROF_TYPE_APPLICATION_REF,
-                                    "http://pingtel/xpressa/" + PINGTEL_SERIAL_NUMBER + "/app-config");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-    }
-
     public void testUpdate79xxDeviceProfile () {
         try {
             update79xxDevice ( PDSDefinitions.PROF_TYPE_PHONE );

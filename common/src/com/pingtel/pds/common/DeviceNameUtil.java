@@ -44,9 +44,6 @@ public class DeviceNameUtil {
                 case PDSDefinitions.PROF_TYPE_USER:
                     profileName = vendor + "/" + model + "/" + macAddress + "/" + "user-config";
                     break;
-                case PDSDefinitions.PROF_TYPE_APPLICATION_REF:
-                    profileName = vendor + "/" + model + "/" + macAddress + "/" + "app-config";
-                    break;
                 case PDSDefinitions.PROF_TYPE_UPGRADESCRIPT:
                     profileName = vendor + "/" + model + "/" + macAddress + "/" + "install-script";
                     break;
@@ -65,8 +62,6 @@ public class DeviceNameUtil {
                 return "x-xpressa-device";
             case PDSDefinitions.PROF_TYPE_USER:
                 return "x-xpressa-user";
-            case PDSDefinitions.PROF_TYPE_APPLICATION_REF:
-                return "x-xpressa-apps";
             case PDSDefinitions.PROF_TYPE_UPGRADESCRIPT:
                 return "x-xpressa-install";
             default:

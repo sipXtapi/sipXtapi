@@ -98,8 +98,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
     private OrganizationHome mOrganizationHome;
 
     // Stateless Session Bean references
-    private ApplicationAdvocate mApplicationAdvocateEJBObject;
-    private ApplicationGroupAdvocate mApplicationGroupAdvocateEJBObject;
     private DeviceAdvocate mDeviceAdvocateEJBObject;
     private ProjectionHelper mProjectionHelperEJBObject;
     private JobManager mJobManagerEJBObject;
@@ -170,13 +168,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
             mOrganizationHome =
                 (OrganizationHome) initial.lookup("Organization");
 
-            ApplicationAdvocateHome applicationAdvocateHome =
-                (ApplicationAdvocateHome) initial.lookup("ApplicationAdvocate");
-
-            ApplicationGroupAdvocateHome applicationGroupAdvocateHome =
-                (ApplicationGroupAdvocateHome)
-                    initial.lookup("ApplicationGroupAdvocate");
-
             JobManagerHome jobManagerHome =
                     (JobManagerHome) initial.lookup ("JobManager");
 
@@ -184,9 +175,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
                             (RenderProfileHome) initial.lookup("RenderProfile");
 
             mRenderProfileEJBObject = m_renderProfileHome.create();
-            mApplicationAdvocateEJBObject = applicationAdvocateHome.create();
-            mApplicationGroupAdvocateEJBObject =
-                    applicationGroupAdvocateHome.create();
 
             mDeviceAdvocateEJBObject = deviceAdvocateHome.create();
             mProjectionHelperEJBObject = projectionHelperHome.create();
@@ -417,18 +405,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
             logDebug("deleted user's config sets");
             deleteUserRoles(user);
             logDebug("deleted user's security roles");
-
-            // New stuff to delete user's mini- application sets i.e. ones that
-            // can and do only belong to the user as a holder for a single application
-            // that is assigned to the user.
-            mApplicationAdvocateEJBObject.unassignAllUsersApplications(
-                    user.getID() );
-
-            logDebug("deleted user's application (sets)");
-            mApplicationGroupAdvocateEJBObject.unassignAllUsersApplicationGroups(
-                    user.getID() );
-
-            logDebug("unassigned user's application (sets)");
 
             String externalUserID = user.getExternalID();
 
@@ -1437,14 +1413,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
                         mDeviceHome,
                         Integer.valueOf( deviceID ) );
 
-            if ( device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_XPRESSA ) ||
-                    device.getModel().equals( PDSDefinitions.MODEL_SOFTPHONE_WIN )) {
-
-                mRenderProfileEJBObject.deleteProfile( device,
-                                                        PDSDefinitions.PROF_TYPE_APPLICATION_REF );
-                logDebug ( "Deleted APPLICATION profile for device: " + externalDeviceID );
-            }
-
             mRenderProfileEJBObject.deleteProfile( device, PDSDefinitions.PROF_TYPE_USER );
             logDebug ( "Deleted USER profile for device: " + externalDeviceID );
 
@@ -1621,24 +1589,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
                         PDSDefinitions.PROF_TYPE_USER,
                         projectionInputs);
             }
-
-            if (!device.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7940) &&
-                    !device.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7960) &&
-                    profTypesToCreate[PDSDefinitions.PROF_TYPE_APPLICATION_REF]) {
-
-                projectionInputs.addAll(
-                        getProjectionInputs(user,
-                                PDSDefinitions.PROF_TYPE_APPLICATION_REF) );
-
-                logDebug ( "creating APPLICATION profile for device " +
-                        device.getExternalID() );
-
-                mProjectionHelperEJBObject.projectAndPersist(
-                        projectionAlg,
-                        device,
-                        PDSDefinitions.PROF_TYPE_APPLICATION_REF,
-                        projectionInputs);
-            }
         }
         catch (RemoteException e) {
             logFatal (e.getMessage(), e);
@@ -1674,14 +1624,12 @@ public class UserAdvocateBean extends JDBCAwareEJB
                 jobID = createStartProjectionJobRecord(user, profTypesToCreate);
             }
 
-            if (profTypesToCreate[PDSDefinitions.PROF_TYPE_USER] ||
-                    profTypesToCreate[PDSDefinitions.PROF_TYPE_APPLICATION_REF]) {
+            if (profTypesToCreate[PDSDefinitions.PROF_TYPE_USER] ) {
 
                 generateUserCentricProfiles(
                                     user,
                                     projAlg,
-                                    profTypesToCreate[PDSDefinitions.PROF_TYPE_USER],
-                                    profTypesToCreate[PDSDefinitions.PROF_TYPE_APPLICATION_REF]);
+                                    profTypesToCreate[PDSDefinitions.PROF_TYPE_USER]);
 
             }
             if (profTypesToCreate[PDSDefinitions.PROF_TYPE_PHONE]) {
@@ -1729,9 +1677,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
         }
         if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_PHONE ] ) {
             jobDetails.append ( "device ");
-        }
-        if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_APPLICATION_REF ] ) {
-            jobDetails.append ( "application");
         }
 
         jobID =
@@ -1971,7 +1916,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
 
     private void generateUserCentricProfiles(User user, String projectionAlg,
-            boolean shouldCreateUserProf, boolean shouldCreateAppRefProf) 
+            boolean shouldCreateUserProf) 
     			throws PDSException, RemoteException {
 
         ArrayList projectionInputs = new ArrayList();
@@ -2025,24 +1970,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
         // remove the existing inputs which are USER profile specific
         // /////////////////////////////////////////////////////////////
         projectionInputs.clear();
-
-        if (shouldCreateAppRefProf) {
-
-            for (Iterator iDevice = usersDevices.iterator(); iDevice.hasNext();) {
-                Device lp = (Device) iDevice.next();
-
-                if (!lp.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7940)
-                        && !lp.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7960)) {
-
-                    projectionInputs.clear();
-                    projectionInputs.addAll(getProjectionInputs(user,
-                            PDSDefinitions.PROF_TYPE_APPLICATION_REF));
-
-                    mProjectionHelperEJBObject.projectAndPersist(projectionAlg, lp,
-                            PDSDefinitions.PROF_TYPE_APPLICATION_REF, projectionInputs);
-                } // if
-            }
-        }
     }
 
 

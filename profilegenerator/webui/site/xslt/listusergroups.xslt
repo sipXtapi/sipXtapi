@@ -34,7 +34,6 @@
             <select name="actionSelect{id}" size="1">
                 <option value="0">Pick an Action</option>
                 <option value="1">Send Profiles</option>
-                <option value="2">Assign Applications</option>
                 <option value="5">Delete User Group</option>
                 <option value="6">Restart User Group Device(s)</option>
                 <option value="7">Show Members</option>

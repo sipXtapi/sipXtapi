@@ -28,7 +28,6 @@
             <web-resource-name>Restricted</web-resource-name>
             <description>Secure Servlets</description>
             <url-pattern>/ui/administration/*</url-pattern>
-            <url-pattern>/ui/application/*</url-pattern>
             <url-pattern>/ui/buttons/*</url-pattern>
             <url-pattern>/ui/command/*</url-pattern>
             <url-pattern>/ui/device/*</url-pattern>

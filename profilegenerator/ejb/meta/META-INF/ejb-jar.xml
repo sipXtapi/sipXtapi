@@ -72,42 +72,6 @@
         </message-driven>
 
         <entity>
-            <ejb-name>Application</ejb-name>
-            <home>com.pingtel.pds.pgs.user.ApplicationHome</home>
-            <remote>com.pingtel.pds.pgs.user.Application</remote>
-            <ejb-class>com.pingtel.pds.pgs.user.ApplicationBean</ejb-class>
-            <persistence-type>Container</persistence-type>            
-            <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
-            <cmp-version>1.x</cmp-version>
-            <cmp-field><field-name>id</field-name></cmp-field>
-            <cmp-field><field-name>name</field-name></cmp-field>
-            <cmp-field><field-name>deviceTypeID</field-name></cmp-field>
-            <cmp-field><field-name>url</field-name></cmp-field>
-            <cmp-field><field-name>organizationID</field-name></cmp-field>
-            <cmp-field><field-name>refPropertyID</field-name></cmp-field>
-            <cmp-field><field-name>description</field-name></cmp-field>
-            <primkey-field>id</primkey-field>
-            <!-- links to other EJ Beans -->
-            <ejb-ref>
-                <ejb-ref-name>Organization</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.organization.OrganizationHome</home>
-                <remote>com.pingtel.pds.pgs.organization.Organization</remote>
-                <ejb-link>Organization</ejb-link>
-            </ejb-ref>
-            <query>
-                <query-method>
-                    <method-name>findByApplicationGroupID</method-name>
-                    <method-params>
-                        <method-param>java.lang.Integer</method-param>
-                    </method-params>
-                </query-method>
-                <ejb-ql/>
-            </query>
-        </entity>
-
-        <entity>
             <ejb-name>CoreSoftware</ejb-name>
             <home>com.pingtel.pds.pgs.phone.CoreSoftwareHome</home>
             <remote>com.pingtel.pds.pgs.phone.CoreSoftware</remote>
@@ -531,66 +495,7 @@
             </query>
         </entity>
 
-        <entity>
-            <ejb-name>ApplicationGroup</ejb-name>
-            <home>com.pingtel.pds.pgs.user.ApplicationGroupHome</home>
-            <remote>com.pingtel.pds.pgs.user.ApplicationGroup</remote>
-            <ejb-class>com.pingtel.pds.pgs.user.ApplicationGroupBean</ejb-class>
-            <persistence-type>Container</persistence-type>
-            <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
-            <cmp-version>1.x</cmp-version>
-            <cmp-field><field-name>id</field-name></cmp-field>
-            <cmp-field><field-name>name</field-name></cmp-field>
-            <cmp-field><field-name>organizationID</field-name></cmp-field>
-            <primkey-field>id</primkey-field>
-            <query>
-                <query-method>
-                    <method-name>findByUserID</method-name>
-                    <method-params>
-                        <method-param>java.lang.String</method-param>
-                    </method-params>
-                </query-method>
-                <ejb-ql/>
-            </query>                        
-            <query>
-                <query-method>
-                    <method-name>findByUserGroupID</method-name>
-                    <method-params>
-                        <method-param>java.lang.Integer</method-param>
-                    </method-params>
-                </query-method>
-                <ejb-ql/>
-            </query>            
-            <query>
-                <query-method>
-                    <method-name>findByApplicationID</method-name>
-                    <method-params>
-                        <method-param>java.lang.Integer</method-param>
-                    </method-params>
-                </query-method>
-                <ejb-ql/>
-            </query>
-        </entity>
-
         <!-- Start of Facade Session Beans for external API -->
-
-        <session>
-            <ejb-name>ApplicationAdvocate</ejb-name>
-            <home>com.pingtel.pds.pgs.user.ApplicationAdvocateHome</home>
-            <remote>com.pingtel.pds.pgs.user.ApplicationAdvocate</remote>
-            <ejb-class>com.pingtel.pds.pgs.user.ApplicationAdvocateBean</ejb-class>
-            <session-type>Stateless</session-type>
-            <transaction-type>Container</transaction-type>
-             <!-- links to other EJ Beans -->
-            <ejb-ref>
-                <ejb-ref-name>Application</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.user.ApplicationHome</home>
-                <remote>com.pingtel.pds.pgs.user.Application</remote>
-                <ejb-link>Application</ejb-link>
-            </ejb-ref>
-        </session>
 
         <session>
             <ejb-name>DeviceGroupAdvocate</ejb-name>
@@ -1062,20 +967,6 @@
                 <ejb-link>UserGroup</ejb-link>
             </ejb-ref>
             <ejb-ref>
-                <ejb-ref-name>Application</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.user.ApplicationHome</home>
-                <remote>com.pingtel.pds.pgs.user.Application</remote>
-                <ejb-link>Application</ejb-link>
-            </ejb-ref>
-            <ejb-ref>
-                <ejb-ref-name>ApplicationGroup</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.user.ApplicationGroupHome</home>
-                <remote>com.pingtel.pds.pgs.user.ApplicationGroup</remote>
-                <ejb-link>ApplicationGroup</ejb-link>
-            </ejb-ref>
-            <ejb-ref>
                 <ejb-ref-name>ConfigurationSet</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
                 <home>com.pingtel.pds.pgs.profile.ConfigurationSetHome</home>
@@ -1102,44 +993,6 @@
                 <home>com.pingtel.pds.pgs.profile.RefPropertyHome</home>
                 <remote>com.pingtel.pds.pgs.profile.RefProperty</remote>
                 <ejb-link>RefProperty</ejb-link>
-            </ejb-ref>
-        </session>
-
-        <session>
-            <ejb-name>ApplicationGroupAdvocate</ejb-name>
-            <home>com.pingtel.pds.pgs.user.ApplicationGroupAdvocateHome</home>
-            <remote>com.pingtel.pds.pgs.user.ApplicationGroupAdvocate</remote>
-            <ejb-class>com.pingtel.pds.pgs.user.ApplicationGroupAdvocateBean</ejb-class>
-            <session-type>Stateless</session-type>
-            <transaction-type>Container</transaction-type>
-            <!-- links to other EJ Beans -->
-            <ejb-ref>
-                <ejb-ref-name>ApplicationGroup</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.user.ApplicationGroupHome</home>
-                <remote>com.pingtel.pds.pgs.user.ApplicationGroup</remote>
-                <ejb-link>ApplicationGroup</ejb-link>
-            </ejb-ref>
-            <ejb-ref>
-                <ejb-ref-name>Application</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.user.ApplicationHome</home>
-                <remote>com.pingtel.pds.pgs.user.Application</remote>
-                <ejb-link>Application</ejb-link>
-            </ejb-ref>
-            <ejb-ref>
-                <ejb-ref-name>User</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.user.UserHome</home>
-                <remote>com.pingtel.pds.pgs.user.User</remote>
-                <ejb-link>User</ejb-link>
-            </ejb-ref>
-            <ejb-ref>
-                <ejb-ref-name>UserGroup</ejb-ref-name>
-                <ejb-ref-type>Entity</ejb-ref-type>
-                <home>com.pingtel.pds.pgs.user.UserGroupHome</home>
-                <remote>com.pingtel.pds.pgs.user.UserGroup</remote>
-                <ejb-link>UserGroup</ejb-link>
             </ejb-ref>
         </session>
 
@@ -1313,24 +1166,6 @@
             <role-name>END_USER</role-name> <!-- create, generateCredentials, generatePermissions -->
             <method>
                 <ejb-name>DataSetBuilder</ejb-name>
-                <method-name>*</method-name>
-            </method>
-        </method-permission>
-
-		<method-permission>
-            <role-name>SUPER</role-name>
-            <role-name>END_USER</role-name> <!-- create, assignApplicationToUser -->
-            <method>
-                <ejb-name>ApplicationAdvocate</ejb-name>
-                <method-name>*</method-name>
-            </method>
-        </method-permission>
-
-        <method-permission>
-            <role-name>SUPER</role-name>
-            <role-name>END_USER</role-name> <!-- findByPK -->
-            <method>
-                <ejb-name>Application</ejb-name>
                 <method-name>*</method-name>
             </method>
         </method-permission>
@@ -1527,28 +1362,6 @@
             <role-name>END_USER</role-name> <!-- create, various -->
             <method>
                 <ejb-name>ProjectionHelper</ejb-name>
-                <method-name>*</method-name>
-            </method>
-        </method-permission>
-
-        <method-permission>
-            <role-name>SUPER</role-name>
-            <role-name>END_USER</role-name> <!-- findByUserID -->
-            <method>
-                <ejb-name>ApplicationGroup</ejb-name>
-                <method-name>*</method-name>
-            </method>
-        </method-permission>
-
-        <method-permission>
-            <role-name>SUPER</role-name>
-            <role-name>END_USER</role-name> <!-- create,
-                assignApplicationToApplicationGroup,
-                assignUserAndApplicationGroup,
-                assignUserGroupAndApplicationGroup,
-                deleteApplicationGroup -->
-            <method>
-                <ejb-name>ApplicationGroupAdvocate</ejb-name>
                 <method-name>*</method-name>
             </method>
         </method-permission>
@@ -1788,125 +1601,6 @@
                                     user Package
                 ******************************************************* -->
 
-        <!--    ****************** ApplicationAdvocate methods ******** -->
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationAdvocate</ejb-name>
-              <method-name>*</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <!--    ****************** ApplicationGroupAdvocate methods *** -->
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>createApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>deleteApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>assignUserAndApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>assignUserGroupAndApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>unassignUserAndApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>unassignUserGroupAndApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>assignApplicationToApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>unassignApplicationFromApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>unassignAllUsersApplicationGroups</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>unassignAllUserGroupsApplicationGroups</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationGroupAdvocate</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>evaluateApplicationSetContent</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-
-
-        <container-transaction>
-           <method>
-              <ejb-name>ApplicationGroupAdvocate</ejb-name>
-              <method-name>editApplicationGroup</method-name>
-           </method>
-           <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
 
         <!--    ****************** UserAdvocate methods *************** -->
         <container-transaction>
@@ -2131,13 +1825,6 @@
             <trans-attribute>NotSupported</trans-attribute>
         </container-transaction>
 
-
-        <!--    ****************** Application methods **************** -->
-
-
-        <!--    ****************** ApplicationGroup methods *********** -->
-
-
         <!--    ****************** User methods *********************** -->
 
 
@@ -2155,142 +1842,6 @@
                 <ejb-name>DeviceAdvocate</ejb-name>
                 <method-intf>Remote</method-intf>
                 <method-name>editDevice</method-name>
-            </method>
-            <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getDescription</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getDeviceTypeID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getExternalID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getName</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getOrganizationID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getRefPropertyID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getURL</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>setDescription</method-name>
-            </method>
-            <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>setName</method-name>
-            </method>
-            <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>Application</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>setURL</method-name>
-            </method>
-            <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationAdvocate</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>*</method-name>
-            </method>
-            <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationGroup</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getExternalID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationGroup</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationGroup</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getName</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationGroup</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>getOrganizationID</method-name>
-            </method>
-            <trans-attribute>Supports</trans-attribute>
-        </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationGroup</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>setName</method-name>
             </method>
             <trans-attribute>Required</trans-attribute>
         </container-transaction>
@@ -3668,15 +3219,6 @@
             </method>
             <trans-attribute>Supports</trans-attribute>
         </container-transaction>
-        <container-transaction>
-            <method>
-                <ejb-name>ApplicationGroup</ejb-name>
-                <method-intf>Remote</method-intf>
-                <method-name>remove</method-name>
-            </method>
-            <trans-attribute>Required</trans-attribute>
-        </container-transaction>
-
 
     </assembly-descriptor>
 </ejb-jar>

@@ -80,9 +80,7 @@ public class ConfigurationSetUpdateTag extends ExTagSupport {
         try {
 
             if ( m_entityType.equals( "user") || m_entityType.equals( "usergroup") ) {
-                if (    new Integer ( m_profileType ).intValue() !=
-                            PDSDefinitions.PROF_TYPE_APPLICATION_REF &&
-                        new Integer ( m_profileType ).intValue() !=
+                if (  new Integer ( m_profileType ).intValue() !=
                             PDSDefinitions.PROF_TYPE_USER ) {
 
                     throw new JspException ( "Invalid profile type given " );

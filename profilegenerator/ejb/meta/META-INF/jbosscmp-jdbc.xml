@@ -50,55 +50,6 @@
             </query>
         </entity>
 
-        <entity>
-            <ejb-name>Application</ejb-name>
-            <create-table>false</create-table>
-            <remove-table>false</remove-table>            
-            <read-only>false</read-only>
-            <table-name>APPLICATIONS</table-name>
-            <cmp-field>
-                <field-name>id</field-name>
-                <column-name>ID</column-name>
-            </cmp-field>
-            <cmp-field>
-                <field-name>name</field-name>
-                <column-name>NAME</column-name>
-            </cmp-field>
-            <cmp-field>
-                <field-name>refPropertyID</field-name>
-                <column-name>REF_PROP_ID</column-name>
-            </cmp-field>
-            <cmp-field>
-                <field-name>url</field-name>
-                <column-name>URL</column-name>
-            </cmp-field>
-            <cmp-field>
-                <field-name>organizationID</field-name>
-                <column-name>ORG_ID</column-name>
-            </cmp-field>
-            <cmp-field>
-                <field-name>deviceTypeID</field-name>
-                <column-name>PT_ID</column-name>
-            </cmp-field>
-            <cmp-field>
-                <field-name>description</field-name>
-                <column-name>DESCRIPTION</column-name>
-            </cmp-field>
-            <query>
-                <query-method>
-                    <method-name>findByApplicationGroupID</method-name>
-                    <method-params>
-                        <method-param>java.lang.Integer</method-param>
-                    </method-params>
-                </query-method>
-                <declared-sql>
-                    <from>, APP_AG_ASSOC assoc</from>
-                    <where>assoc.AG_ID = {0} AND id = assoc.APPS_ID</where>
-	                <order></order>
-                </declared-sql>
-            </query>            
-        </entity>
-
 
         <entity>
             <ejb-name>CoreSoftware</ejb-name>
@@ -625,65 +576,6 @@
 	                <order></order>
                 </declared-sql>                
             </query>
-    	</entity>
-
-        <entity>
-            <ejb-name>ApplicationGroup</ejb-name>
-            <create-table>false</create-table>
-            <remove-table>false</remove-table>
-            <read-only>false</read-only>
-            <table-name>APPLICATION_GROUPS</table-name>
-            <cmp-field>
-                    <field-name>id</field-name>
-                    <column-name>ID</column-name>
-            </cmp-field>
-            <cmp-field>
-                    <field-name>name</field-name>
-                    <column-name>NAME</column-name>
-            </cmp-field>
-            <cmp-field>
-                    <field-name>organizationID</field-name>
-                    <column-name>ORG_ID</column-name>
-            </cmp-field>            
-            <query>
-                <query-method>
-                    <method-name>findByUserID</method-name>
-                    <method-params>
-                        <method-param>java.lang.String</method-param>
-                    </method-params>
-                </query-method>
-                <declared-sql>
-                    <from>, USER_AG_ASSOC assoc</from>
-                    <where>assoc.USRS_ID = {0} AND assoc.AG_ID = ID</where>
-	                <order></order>                    
-                </declared-sql>
-            </query>                        
-            <query>
-                <query-method>
-                    <method-name>findByUserGroupID</method-name>
-                    <method-params>
-                        <method-param>java.lang.Integer</method-param>
-                    </method-params>
-                </query-method>
-                <declared-sql>
-                    <from>, USER_GROUP_AG_ASSOC assoc</from>
-                    <where>assoc.UG_ID = {0} AND assoc.AG_ID = ID</where>
-	                <order></order>                    
-                </declared-sql>
-            </query>                        
-            <query>
-                <query-method>
-                    <method-name>findByApplicationID</method-name>
-                    <method-params>
-                        <method-param>java.lang.Integer</method-param>
-                    </method-params>
-                </query-method>
-                <declared-sql>
-                    <from>, APP_AG_ASSOC assoc</from>
-                    <where>assoc.APPS_ID = {0} AND assoc.AG_ID = ID</where>
-	                <order></order>                    
-                </declared-sql>
-            </query>            
     	</entity>
 
     </enterprise-beans>

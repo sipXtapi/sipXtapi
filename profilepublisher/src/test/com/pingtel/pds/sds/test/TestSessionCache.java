@@ -314,10 +314,6 @@ public class TestSessionCache extends TestCase {
                 new SipProfileInfo ( PDSDefinitions.PROF_TYPE_USER,
                         "pingtel/ixpressa_x86_win32/ff000000000d/user-config", 1 ) );
 
-        profileSequence.add(
-                new SipProfileInfo ( PDSDefinitions.PROF_TYPE_APPLICATION_REF,
-                        "pingtel/ixpressa_x86_win32/ff000000000d/app-config", 1 ) );
-
         SipSessionContext context =
                 new SipSessionContext (
                         singleValueHeaders,

@@ -65,8 +65,6 @@ public class UserGroupAdvocateBean extends JDBCAwareEJB
     private ConfigurationSetHome m_configurationSetHome;
 
     // Stateless Session Bean references
-    private ApplicationAdvocate m_applicationAdvocateEJBObject;
-    private ApplicationGroupAdvocate m_applicationGroupAdvocateEJBObject;
     private UserAdvocate m_userAdvocateEJBObject;
     private DeviceAdvocate m_deviceAdvocateEJBObject;
     private ProjectionHelper m_projectionHelperEJBObject;
@@ -426,14 +424,6 @@ public class UserGroupAdvocateBean extends JDBCAwareEJB
             }
             // switch
 
-            // New stuff to delete user's mini- application sets i.e. ones that
-            // can and do only belong to the user as a holder for a single application
-            // that is assigned to the user.
-            m_applicationAdvocateEJBObject.unassignAllUserGroupsApplications( ug.getID().toString() );
-            logDebug (  "deleted user group's application (sets)" );
-            m_applicationGroupAdvocateEJBObject.unassignAllUserGroupsApplicationGroups( ug.getID() );
-            logDebug (  "unassigned user group's application (sets)" );
-
             String externalUserGroupID = ug.getExternalID();
 
             try {
@@ -769,9 +759,6 @@ public class UserGroupAdvocateBean extends JDBCAwareEJB
             if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_PHONE ] ) {
                 jobDetails.append ( "device ");
             }
-            if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_APPLICATION_REF ] ) {
-                jobDetails.append ( "application");
-            }
 
             int numberOfUsersToProject = m_projectionHelperEJBObject.calculateTotalProfiles( ug );
 
@@ -869,7 +856,6 @@ public class UserGroupAdvocateBean extends JDBCAwareEJB
             }
 
             if (    profTypesToCreate[ PDSDefinitions.PROF_TYPE_USER ] ||
-                    profTypesToCreate[ PDSDefinitions.PROF_TYPE_APPLICATION_REF ] ||
                     profTypesToCreate[ PDSDefinitions.PROF_TYPE_PHONE ] ) {
 
                 currentTotal =
@@ -935,12 +921,6 @@ public class UserGroupAdvocateBean extends JDBCAwareEJB
                         m_projectionHelperEJBObject.addParentGroupConfigSets(
                                                             ug,
                                                             PDSDefinitions.PROF_TYPE_USER ) );
-            if ( profileTypes [ PDSDefinitions.PROF_TYPE_APPLICATION_REF] )
-                appProfileInputs.addAll(
-                        m_projectionHelperEJBObject.addParentGroupConfigSets(
-                                                            ug,
-                                                            PDSDefinitions.PROF_TYPE_APPLICATION_REF ) );
-
 
             // Reverse the order
             if (userProfileInputs != null) {
@@ -1042,44 +1022,6 @@ public class UserGroupAdvocateBean extends JDBCAwareEJB
                                                 finalInputs);
                     }
 
-                    // Cisco devices have no concept of an Application profile.
-                    if (!device.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7940) &&
-                        !device.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7960) &&
-                        profileTypes[PDSDefinitions.PROF_TYPE_APPLICATION_REF]) {
-
-                        ProjectionInput userInput = null;
-
-                        partProjectedUserProfile =
-                            getPartialProjection (
-                                    partProjectedProfiles,
-                                    appProfileInputs,
-                                    device,
-                                    PDSDefinitions.PROF_TYPE_APPLICATION_REF );
-
-                        userInput =
-                                m_projectionHelperEJBObject.getProjectionInput(
-                                        user,
-                                        PDSDefinitions.PROF_TYPE_APPLICATION_REF);
-
-                        ArrayList finalInputs = new ArrayList();
-
-                        finalInputs.add( partProjectedUserProfile );
-
-                        if ( userInput != null )
-                            finalInputs.add( userInput );
-
-                        String projectionClass = null;
-
-                        if ( projectionAlg != null )
-                            projectionClass = projectionAlg;
-
-                        m_projectionHelperEJBObject.projectAndPersist(
-                                projectionClass,
-                                device,
-                                PDSDefinitions.PROF_TYPE_APPLICATION_REF,
-                                finalInputs);
-
-                    } // if not Cisco and Application profile required
                 }   // user's Devices loop
 
                 currentTotal++;
@@ -1207,16 +1149,8 @@ public class UserGroupAdvocateBean extends JDBCAwareEJB
                     initial.lookup("ConfigurationSet");
 
             UserAdvocateHome userAdvocateHome = (UserAdvocateHome) initial.lookup("UserAdvocate");
-            ApplicationAdvocateHome applicationAdvocateHome =
-                    (ApplicationAdvocateHome) initial.lookup( "ApplicationAdvocate" );
-
-            ApplicationGroupAdvocateHome applicationGroupAdvocateHome =
-                    (ApplicationGroupAdvocateHome) initial.lookup( "ApplicationGroupAdvocate" );
-
             JobManagerHome jobManagerHome = (JobManagerHome) initial.lookup( "JobManager" );
 
-            m_applicationAdvocateEJBObject = applicationAdvocateHome.create();
-            m_applicationGroupAdvocateEJBObject = applicationGroupAdvocateHome.create();
             m_userAdvocateEJBObject = userAdvocateHome.create();
             m_deviceAdvocateEJBObject = deviceAdvocateHome.create();
             m_projectionHelperEJBObject = projectionHelperHome.create();

@@ -130,7 +130,6 @@ public class Load79xxDefinitions implements Patch {
             m_logger.info ( "found Complete User ref config set");
 
             Collection newUserRefProperties = refPropertyHome.findByProfileType( PDSDefinitions.PROF_TYPE_USER );
-            newUserRefProperties.addAll ( refPropertyHome.findByProfileType( PDSDefinitions.PROF_TYPE_APPLICATION_REF ));
             m_logger.info ( "got new user ref properties collection");
 
             repopulateRefConfigurationSet( refConfigurationSets, newUserRefProperties );

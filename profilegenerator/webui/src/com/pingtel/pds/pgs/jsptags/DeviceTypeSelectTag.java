@@ -19,24 +19,17 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 
 import com.pingtel.pds.common.EJBHomeFactory;
-import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.pgs.jsptags.util.ExTagSupport;
 import com.pingtel.pds.pgs.phone.CoreSoftwareHome;
 import com.pingtel.pds.pgs.phone.DeviceTypeHelper;
 import com.pingtel.pds.pgs.phone.DeviceTypeHome;
 import com.pingtel.pds.pgs.phone.Manufacturer;
 import com.pingtel.pds.pgs.phone.ManufacturerHome;
-import com.pingtel.pds.pgs.profile.RefDataAdvocate;
-import com.pingtel.pds.pgs.profile.RefDataAdvocateHome;
-import com.pingtel.pds.pgs.profile.RefPropertyHome;
-
 
 public class DeviceTypeSelectTag extends ExTagSupport {
 
    private DeviceTypeHome m_deviceTypeHome = null;
-   private RefPropertyHome m_refPropHome = null;
    private CoreSoftwareHome m_coreVersionHome = null;
-   private RefDataAdvocateHome m_rdaHome = null;
    private ManufacturerHome m_mfgHome = null;
    private Manufacturer mfg = null;
 
@@ -69,16 +62,7 @@ public class DeviceTypeSelectTag extends ExTagSupport {
                      EJBHomeFactory.getInstance().getHomeInterface( ManufacturerHome.class,
                                                                 "Manufacturer");
 
-             m_rdaHome = ( RefDataAdvocateHome )
-                EJBHomeFactory.getInstance().getHomeInterface(  RefDataAdvocateHome.class,
-                                                                "RefDataAdvocate" );
-
-            if( m_refProp.equalsIgnoreCase( "true" )  )  {
-                m_refPropHome = ( RefPropertyHome )
-                    EJBHomeFactory.getInstance().getHomeInterface(  RefPropertyHome.class,
-                                                                    "RefProperty" );
-            }
-            else if( m_coreVersion.equalsIgnoreCase( "true" )  ) {
+            if( m_coreVersion.equalsIgnoreCase( "true" )  ) {
                 m_coreVersionHome = ( CoreSoftwareHome )
                     EJBHomeFactory.getInstance().getHomeInterface(  CoreSoftwareHome.class,
                                                                 "CoreSoftware" );
@@ -88,49 +72,7 @@ public class DeviceTypeSelectTag extends ExTagSupport {
          Collection deviceTypes = m_deviceTypeHome.findAll();
          Iterator deviceTypeIterator = deviceTypes.iterator();
          com.pingtel.pds.pgs.phone.DeviceType m_deviceTypeProp;
-         if( m_refProp.equalsIgnoreCase( "true" ) )
-         {
-            com.pingtel.pds.pgs.profile.RefProperty m_refPropertyProp;
-            while( deviceTypeIterator.hasNext() )
-            {
-               m_deviceTypeProp = ( com.pingtel.pds.pgs.phone.DeviceType )
-                  deviceTypeIterator.next();
-
-                RefDataAdvocate advocate = m_rdaHome.create();
-                Collection refPropColl =
-                    advocate.getRefPropertiesForDeviceTypeAndProfile(
-                        m_deviceTypeProp.getID(),
-                        new Integer ( PDSDefinitions.PROF_TYPE_APPLICATION_REF ) );
-
-               Iterator refPropIterator = refPropColl.iterator();
-               if( refPropIterator.hasNext() )
-               {
-                  // only display devicetypes if they have refprops
-                  m_dtBuffer.append( "form.options[" + i + "] = new Option(" +
-                                  "\"" +  m_deviceTypeProp.getModel() +
-                                  "\",\"" +  m_deviceTypeProp.getID() +
-                                  "\");\n");
-
-                  m_rpBuffer.append( "refList.addOptions(\"" +
-                                     m_deviceTypeProp.getID() +
-                                     "\"" );
-
-                  while( refPropIterator.hasNext() )
-                  {
-                     m_refPropertyProp = ( com.pingtel.pds.pgs.profile.RefProperty )
-                        refPropIterator.next();
-                     m_rpBuffer.append( ",\"" + m_refPropertyProp.getName() +
-                                        "\",\"" + m_refPropertyProp.getID() +
-                                        "\"" );
-
-                  }
-                  m_rpBuffer.append( ");\n" );
-               }
-               i++;
-            }
-
-         }
-         else if( m_coreVersion.equalsIgnoreCase( "true" ) )
+         if( m_coreVersion.equalsIgnoreCase( "true" ) )
          {
 
             com.pingtel.pds.pgs.phone.CoreSoftware m_coreVersionProp;

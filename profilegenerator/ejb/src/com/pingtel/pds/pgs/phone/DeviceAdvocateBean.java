@@ -347,9 +347,6 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
             if ( device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_XPRESSA ) ||
                     device.getModel().equals( PDSDefinitions.MODEL_SOFTPHONE_WIN )) {
 
-                m_renderProfileEJBObject.deleteProfile( device,
-                                                        PDSDefinitions.PROF_TYPE_APPLICATION_REF );
-
                 logDebug ( "Deleted APPLICATION profile for device: " + externalID );
             }
 
@@ -631,10 +628,6 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                 // common behaviour for Pingtel and Cisco devices
                 m_renderProfileEJBObject.deleteProfile( device, PDSDefinitions.PROF_TYPE_PHONE );
                 m_renderProfileEJBObject.deleteProfile( device, PDSDefinitions.PROF_TYPE_USER );
-
-                if ( device.getManufaturerName().equalsIgnoreCase( "Pingtel" ) ) {
-                    m_renderProfileEJBObject.deleteProfile( device, PDSDefinitions.PROF_TYPE_APPLICATION_REF );
-                }
 
                 device.setSerialNumber( serialNumber );
                 fixLine = true;
@@ -1076,14 +1069,6 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                 jobDetails.append( device.getExternalID());
                 jobDetails.append ( " profile types: ");
 
-                if ( !device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7940 ) &&
-                    !device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7960 )) {
-
-                    if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_APPLICATION_REF ] ) {
-                        jobDetails.append ( "application ");
-                    }
-                }
-
                 if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_USER ] ) {
                         jobDetails.append ( " user ");
                     }
@@ -1100,14 +1085,12 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
                 m_jobManagerEJBObject.updateJobProgress( jobID, "projected 0 of 1 devices.");
             }
 
-            if (    profTypesToCreate[PROF_TYPE_USER] ||
-                    profTypesToCreate[PROF_TYPE_APPLICATION_REF]) {
+            if (    profTypesToCreate[PROF_TYPE_USER] ) {
 
                 generateUserCentricProfiles(
                         device,
                         projectionAlgorithm,
-                        profTypesToCreate[PROF_TYPE_USER],
-                        profTypesToCreate[PROF_TYPE_APPLICATION_REF]);
+                        profTypesToCreate[PROF_TYPE_USER]);
 
             }
 
@@ -1186,8 +1169,7 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
 
     private void generateUserCentricProfiles(   Device device,
                                                 String projAlg,
-                                                boolean shouldDoUser,
-                                                boolean shouldDoApplication)
+                                                boolean shouldDoUser)
         throws PDSException {
 
         User owner = null;
@@ -1211,18 +1193,6 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
 
                 if (shouldDoUser) {
                     profileTypes.append(PROF_TYPE_USER);
-                }
-
-                if ( !device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7940 ) &&
-                                    !device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7960 )) {
-
-                    if (shouldDoApplication) {
-                        if (profileTypes.length() != 0) {
-                            profileTypes.append(',');
-                        }
-
-                        profileTypes.append(PROF_TYPE_APPLICATION_REF);
-                    }
                 }
 
                 m_userAdvocateEJBObject.generateUserProfiles(   owner,

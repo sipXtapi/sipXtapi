@@ -19,14 +19,6 @@ function MM_goToURL() { //v3.0
   for (i=0; i<(args.length-1); i+=2)
    eval(args[i]+".location='"+args[i+1]+"'");
 }
-function deleteApplication( id ){
-    var msg = "Are you sure you want to delete the application?";
-    var userInput =  confirm ( msg );
-    if ( userInput == true )
-    {
-        location = "delete_application.jsp?applicationid=" + id;
-    }
-}
 function MM_swapImgRestore() { //v3.0
   var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
 }

@@ -78,8 +78,6 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
     private UserGroupHome mUserGroupHome;
     private ConfigurationSetHome mConfigurationSetHome;
     private CSProfileDetailHome mCSProfileDetailHome;
-    private ApplicationHome mApplicationHome;
-    private ApplicationGroupHome mApplicationGroupHome;
     private RefPropertyHome mRefPropertyHome;
     private DeviceTypeHome mDeviceTypeHome;
     private UserHome mUserHome;
@@ -88,7 +86,6 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
     // Stateless Session Bean refs
     private RenderProfile mRenderProfileBean;
     private RefDataAdvocate mRefDataAdvocateEJBObject;
-    private ApplicationGroupAdvocate mApplicationGroupAdvocateEJBObject;
 
     //The Session Context object
     private SessionContext mCtx;
@@ -155,24 +152,14 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
 
             mCSProfileDetailHome = (CSProfileDetailHome)
                     initial.lookup("CSProfileDetail");
-            mApplicationHome = (ApplicationHome) initial.lookup("Application");
-            mApplicationGroupHome =
-                    (ApplicationGroupHome) initial.lookup( "ApplicationGroup" );
-
             mRefPropertyHome = (RefPropertyHome) initial.lookup( "RefProperty" );
             mDeviceTypeHome = (DeviceTypeHome) initial.lookup( "DeviceType" );
-
-            ApplicationGroupAdvocateHome applicationGroupAdvocateHome =
-                (ApplicationGroupAdvocateHome)
-                    initial.lookup( "ApplicationGroupAdvocate" );
 
             mUserHome = (UserHome) initial.lookup ("User");
             mDeviceHome = (DeviceHome) initial.lookup ( "Device" );
 
             mRenderProfileBean = renderProfileHome.create();
             mRefDataAdvocateEJBObject = refDataAdvocateHome.create();
-            mApplicationGroupAdvocateEJBObject =
-                    applicationGroupAdvocateHome.create();
         }
         catch ( CreateException e ) {
             logFatal ( e.toString(), e  );
@@ -574,32 +561,11 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                     projectionRules = getProjectionRules(cs);
                     doc = getDocFromConfigSetContent(cs);
 
-                    if ( profileType == PDSDefinitions.PROF_TYPE_APPLICATION_REF )
-                        this.addApplicationGroupContent( user, doc );
-
                     returnValue = new ProjectionInput(doc, projectionRules);
                 }
             }
             else {
                 Element profile = new Element ( "PROFILE" );
-
-                Collection allUserAGs = mApplicationGroupHome.findByUserID( userID );
-                for ( Iterator iAG = allUserAGs.iterator(); iAG.hasNext(); ) {
-                    ApplicationGroup ag = (ApplicationGroup) iAG.next();
-
-                    Element agContent =
-                        mApplicationGroupAdvocateEJBObject.
-                            evaluateApplicationSetContent( ag.getID() );
-
-                    // the evaluated content has a bogus root element which
-                    // we discard and use the children.
-                    Collection properties = agContent.getChildren();
-                    for ( Iterator iChild = properties.iterator(); iChild.hasNext(); ) {
-                        Element child = (Element) iChild.next();
-                        profile.addContent( (Element)child.clone() );
-                        iChild.remove();
-                    }
-                }
 
                 projectionRules = getProjectionRules( user.getRefConfigSetID() );
                 doc = new Document ( profile );
@@ -922,40 +888,10 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             }
             else { // PROF_TYPE_APPLICATION_REF
                 Element profile = new Element ( "PROFILE" );
+                projectionRules = getProjectionRules( ug.getRefConfigSetID() );
+                doc = new Document ( profile );
 
-                try {
-                    Collection allUserAGs =
-                        mApplicationGroupHome.findByUserGroupID( userGroupID );
-
-                    for ( Iterator iAG = allUserAGs.iterator(); iAG.hasNext(); ) {
-                        ApplicationGroup ag = (ApplicationGroup) iAG.next();
-                        Element agContent =
-                            mApplicationGroupAdvocateEJBObject.evaluateApplicationSetContent( ag.getID() );
-
-                        // the evaluated content has a bogus root element which
-                        // we discard and use the children.
-                        Collection properties = agContent.getChildren();
-                        for ( Iterator iChild = properties.iterator(); iChild.hasNext(); ) {
-                            Element child = (Element) iChild.next();
-                            profile.addContent( (Element)child.clone() );
-                            iChild.remove();
-                        }
-                    }
-
-                    projectionRules = getProjectionRules( ug.getRefConfigSetID() );
-                    doc = new Document ( profile );
-
-                    returnValue = new ProjectionInput(doc, projectionRules);
-                }
-                catch ( FinderException ex ) {
-                    mCtx.setRollbackOnly();
-
-                    throw new PDSException(
-                        collateErrorMessages(   "UC190",
-                                                "E1047",
-                                                new Object[]{ ug.getExternalID() }),
-                        ex);
-                }
+                returnValue = new ProjectionInput(doc, projectionRules);
             } // else
 
 
@@ -971,122 +907,6 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                     ex);
         }
     }
-
-
-
-    private Document addApplicationGroupContent ( User user, Document original )
-        throws RemoteException, FinderException {
-
-        Collection appGroups = mApplicationGroupHome.findByUserID( user.getID() );
-        return substituteApplicationGroupContent ( appGroups, original );
-    }
-
-
-    // FIXME: we seem to ignore too many exceptions in this funtion 
-    private Document substituteApplicationGroupContent (    Collection applicationGroups,
-                                                            Document original )
-        throws RemoteException {
-
-        HashMap cachedRefPropertiesMap = new HashMap();
-        Element root = original.getRootElement();
-
-        for ( Iterator iAG = applicationGroups.iterator(); iAG.hasNext(); ) {
-            ApplicationGroup ag = (ApplicationGroup) iAG.next();
-
-            Collection appsInGroup = null;
-
-            try {
-                appsInGroup =
-                    mApplicationHome.findByApplicationGroupID( ag.getID() );
-            }
-             catch ( FinderException ex ) {
-
-            }
-
-            for ( Iterator iA = appsInGroup.iterator(); iA.hasNext(); ) {
-                Application app = (Application) iA.next();
-
-                // check to see if an app w/ the same ref property ID
-                // exists in the config set doc and IF it has a card.
-                // of 0..1 or 1..1 then  don't put it in the config set
-                // doc.
-                Integer refPropertyID = app.getRefPropertyID();
-                RefProperty rp = null;
-
-                if ( !cachedRefPropertiesMap.containsKey( refPropertyID ) ) {
-
-                    try {
-                        rp = mRefPropertyHome.findByPrimaryKey( refPropertyID );
-                    }
-                    catch ( FinderException ex ) {
-
-                    }
-
-                    cachedRefPropertiesMap.put( refPropertyID, rp );
-                }
-
-                if ( rp == null )
-                    rp = (RefProperty) cachedRefPropertiesMap.get( refPropertyID );
-
-                try {
-                    Document refPropertyContent = mSaxBuilder.build(new StringReader(rp.getContent()));
-
-                    Element definition =
-                        refPropertyContent.getRootElement().getChild( "definition" );
-
-                    String cardinality = definition.getAttributeValue( "cardinality");
-
-                    Collection properties = root.getChildren();
-
-                    for ( Iterator iProp = properties.iterator(); iProp.hasNext(); ) {
-                        Element element = (Element) iProp.next();
-                        // attibute is "ref_property_id"
-                        Integer existingID = new Integer ( element.getAttributeValue( "ref_property_id" ) );
-
-                        if ( refPropertyID.equals( existingID ) ) {
-
-                            if (    !cardinality.equals( PGSDefinitions.CARD_ONE_ONE ) &&
-                                    !cardinality.equals( PGSDefinitions.CARD_ZERO_ONE ) )
-                                root.removeContent( element );
-
-                        }
-                    }
-
-                    root.addContent( buildApplicationElement ( app, cardinality ) );
-                }
-                catch ( JDOMException ex ) {
-
-                }
-                catch ( java.io.IOException e ) {
-                    
-                }
-                
-            }
-        }
-
-        return original;
-    }
-
-
-    private Element buildApplicationElement (   Application application,
-                                                String cardinality )
-        throws RemoteException {
-
-        Element e = new Element ( application.getName() );
-        Integer refPropID = application.getRefPropertyID();
-
-        e.setAttribute( "ref_property_id",  refPropID.toString());
-
-        if (    cardinality.equals( PGSDefinitions.CARD_ONE_MANY ) ||
-                cardinality.equals( PGSDefinitions.CARD_ZERO_MANY ) ) {
-            e.setAttribute( "id", application.getURL() );
-        }
-
-        e.addContent( new Element ( "URL", application.getURL()) );
-
-        return e;
-    }
-
 
     ///////////////////////////////////////////////////////////////////////
     //

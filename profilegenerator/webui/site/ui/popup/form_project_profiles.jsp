@@ -123,8 +123,7 @@
  {
 
       if ( form.ppdevice.checked != true &&
-	  	form.ppuser.checked != true &&
-		form.ppapplication.checked != true ) {
+	  	form.ppuser.checked != true ) {
 			alert( "You must select at least one profile to send" );
 		}
 		else {
@@ -137,7 +136,7 @@
 <body class="bglight">
 <p>&nbsp;</p>
 <p class="tabtext" align="center"><u>Send Profiles to <%=displayText%> device(s)</u></p>
-<p class="notetextdrk" align="left">Generate and deliver updated device settings, user settings, or applications to affected device(s):</p>
+<p class="notetextdrk" align="left">Generate and deliver updated device settings or user settings to affected device(s):</p>
 <form action="../profile/project.jsp" method="get" name="frmProject">
   <table width="300" border="0" cellspacing="3" cellpadding="0" align="center">
     <tr>
@@ -152,13 +151,6 @@
         <input type="checkbox" name="ppuser" value="2" checked>
       </td>
     </tr>
-    <tr>
-      <td class="formtext" nowrap>Send application settings</td>
-      <td>
-        <input type="checkbox" name="ppapplication" value="5" checked>
-      </td>
-    </tr>
-
   </table>
   <br>
   <div align="center">

@@ -842,9 +842,6 @@ public class DeviceGroupAdvocateBean extends JDBCAwareEJB
             if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_PHONE ] ) {
                 jobDetails.append ( "device ");
             }
-            if ( profTypesToCreate[ PDSDefinitions.PROF_TYPE_APPLICATION_REF ] ) {
-                jobDetails.append ( "application");
-            }
 
             int numberOfDevicesToProject = m_projectionHelperEJBObject.calculateTotalProfiles(pg);
 
@@ -910,11 +907,6 @@ public class DeviceGroupAdvocateBean extends JDBCAwareEJB
 
         if ( profTypesToCreate[PDSDefinitions.PROF_TYPE_USER] ) {
             profileTypes.append(PDSDefinitions.PROF_TYPE_USER);
-        }
-
-        if ( profTypesToCreate[PDSDefinitions.PROF_TYPE_APPLICATION_REF] ) {
-            profileTypes.append(',');
-            profileTypes.append(PDSDefinitions.PROF_TYPE_APPLICATION_REF);
         }
 
         try {

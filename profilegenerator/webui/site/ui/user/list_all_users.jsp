@@ -28,10 +28,6 @@ function frmSubmit( id,grpid,displayid )
     {
         sendProfiles( id );
     }
-    else if ( value == "2" )
-    {
-       assignApplication( id );
-    }
     else if ( value == "3" )
     {
        assignDevice( id,displayid );
@@ -89,10 +85,6 @@ function restartDevices( id,grpid ){
         location = "restart_user_devices.jsp?userid=" + id +
             "&grpid=" + grpid;
     }
-}
-function assignApplication( id ){
-	var targetWindow = "/pds/ui/popup/frame_user_applications.jsp?userid=" + id;
-	window.parent.MM_openBrWindow(targetWindow,'popup','scrollbars=yes,width=400,height=600');
 }
 function sendProfiles( id ){
     var targetWindow = "/pds/ui/popup/form_project_profiles.jsp?entityid=" + id + "&entitytype=user";
@@ -154,17 +146,6 @@ function checkSearch() {
     </tr>
 </table>
 
-<!-- <form name="filter">
-    <table>
-        <tr>
-            <td class="formtext">Filter by:</td>
-            <td>
-                <pgs:listUsersGroupsFilter    stylesheet="filterusergroups.xslt"
-                                    outputxml="false" />
-            </td>
-        </tr>
-    </table>
-</form> -->
 <form name="form1">
 <pgs:listUsers  stylesheet="listusers.xslt"
                 outputxml="false"

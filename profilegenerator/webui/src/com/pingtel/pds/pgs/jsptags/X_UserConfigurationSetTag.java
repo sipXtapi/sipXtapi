@@ -20,8 +20,6 @@ import com.pingtel.pds.pgs.profile.ConfigurationSet;
 import com.pingtel.pds.pgs.profile.ConfigurationSetHome;
 import com.pingtel.pds.pgs.profile.RefProperty;
 import com.pingtel.pds.pgs.profile.RefPropertyHome;
-import com.pingtel.pds.pgs.user.User;
-import com.pingtel.pds.pgs.user.UserHome;
 import org.jdom.Element;
 
 import javax.servlet.jsp.JspException;
@@ -37,7 +35,6 @@ public class X_UserConfigurationSetTag extends StyleTagSupport {
     public int m_profileType = -1;
     private ArrayList m_refPropertyCodes;
 
-    private UserHome m_userHome = null;
     private RefPropertyHome m_rpHome = null;
     private ConfigurationSetHome m_csHome = null;
 
@@ -62,17 +59,12 @@ public class X_UserConfigurationSetTag extends StyleTagSupport {
 
     public int doStartTag() throws JspException {
         try {
-            if (    m_profileType != PDSDefinitions.PROF_TYPE_APPLICATION_REF &&
-                    m_profileType != PDSDefinitions.PROF_TYPE_USER ) {
+            if (  m_profileType != PDSDefinitions.PROF_TYPE_USER ) {
                 throw new JspException ( "invalid profile type for" );
             }
 
             // Optimization to look up all home interfaces here
-            if ( m_userHome == null ) {
-                m_userHome = ( UserHome )
-                    EJBHomeFactory.getInstance().getHomeInterface(  UserHome.class,
-                                                                    "User" );
-
+            if ( m_rpHome == null ) {
                 m_rpHome = ( RefPropertyHome )
                     EJBHomeFactory.getInstance().getHomeInterface(  RefPropertyHome.class,
                                                                     "RefProperty" );
@@ -83,9 +75,6 @@ public class X_UserConfigurationSetTag extends StyleTagSupport {
             }
 
             Element documentRootElement = new Element("userdetails");
-
-            User user =
-                m_userHome.findByPrimaryKey( m_userID );
 
             Element csElement = new Element ( "configurationset" );
             documentRootElement.addContent( csElement );

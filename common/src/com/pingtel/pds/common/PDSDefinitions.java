@@ -38,9 +38,7 @@ public interface PDSDefinitions {
     /** The following are values for Profile types */
     public static final int PROF_TYPE_PHONE = 1;
     public static final int PROF_TYPE_USER = 2;
-    public static final int PROF_TYPE_APPLICATION_CONFIG = 3;
     public static final int PROF_TYPE_UPGRADESCRIPT = 4;
-    public static final int PROF_TYPE_APPLICATION_REF = 5;
 
     /** The following are values for Phone models - matches the Model in DB */
 /*
