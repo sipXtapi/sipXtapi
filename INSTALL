@@ -87,6 +87,15 @@ Set up the Postgresql Database
      /usr/local/sipx/bin/sipxdbmgr --create PDS
      /usr/local/sipx/bin/sipxdbmgr --create SDS
 
+Arrange for Postgres to start automatically
+
+   Since sipX needs Postgres to work, it helps if you configure your
+   system to start Postgres automatically (usually in runlevels 3 and
+   5).  In Red Hat distributions, "chkconfig --level 35 postgresql on"
+   will do it.  (In Red Hat Enterprise, the service is called "rhdb"
+   instead of "postgresql".)  In other distributions, you may have to
+   create the /etc/rc?.d/{S85,K15}postgresql links yourself.
+
 SSL Initialization
 
    Set up an SSL key using the instructions in
