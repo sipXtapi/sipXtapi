@@ -45,9 +45,9 @@ public abstract class ProcessDestinationsBean {
             getPath( PathLocatorUtility.XML_FOLDER ) + "destinations.xml";
 
     private static final String MAPPING_RULES2_XLST = PathLocatorUtility.
-            getPath( PathLocatorUtility.XML_FOLDER ) + "forwardingrules.xslt";
+            getPath( PathLocatorUtility.XML_FOLDER ) + "fallbackrules.xslt";
     private static final String MAPPING_RULES2_XML = PathLocatorUtility.
-            getPath( PathLocatorUtility.XML_FOLDER ) + "forwardingrules.xml.in";
+            getPath( PathLocatorUtility.XML_FOLDER ) + "fallbackrules.xml.in";
     private static final String AUTH_RULES_XSLT = PathLocatorUtility.
             getPath( PathLocatorUtility.XML_FOLDER ) + "authrules.xslt";
     private static final String AUTH_RULES_XML = PathLocatorUtility.
@@ -75,6 +75,16 @@ public abstract class ProcessDestinationsBean {
     //////////////////////////////////////////////////////////////////////////
     // Public Methods
     ////
+    public static String getFallBackRulesFilename()
+    {
+        return MAPPING_RULES2_XML;
+    }
+
+    public static String getAuthRulesFilename()
+    {
+        return AUTH_RULES_XML;
+    }
+
     public static void generateMappingRules2 (  )
             throws PDSException {
 

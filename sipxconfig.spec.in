@@ -112,12 +112,12 @@ fi
 %post
 
 # NOTE: will leave having started the database (or restarted)
-%{_bindir}/sipxdbmgr --setup
+%{_bindir}/sipxdbmgr --setup >/dev/null
 
 for Database in PDS SDS; do
   if test `%{_bindir}/sipxdbmgr --revision $Database` -eq 0
   then
-       %{_bindir}/sipxdbmgr --create $Database
+       %{_bindir}/sipxdbmgr --create $Database >/dev/null
   fi
 done
    

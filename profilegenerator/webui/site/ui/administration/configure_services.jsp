@@ -84,12 +84,12 @@
                 <img border="0" height="17" width="23" src="../buttons/sm_btn.gif" name="sm_btn_delstart"/></a></td>
         </tr>
         <tr>
-            <td width="450">Gateways</td>
+            <td width="450">Dial Plan Authorization Rules</td>
             <td align="center"><a onFocus="if(this.blur)this.blur()" onMouseOver="MM_swapImage('sm_btn_delstart','','../buttons/sm_btn_f2.gif',1)" onMouseOut="MM_swapImgRestore()" href="/pds/commserver/gateway_details.jsp">
                 <img border="0" height="17" width="23" src="../buttons/sm_btn.gif" name="sm_btn_delstart"/></a></td>
         </tr>
         <tr>
-            <td width="450">Dial Plans</td>
+            <td width="450">Dial Plans and Gateways</td>
             <td align="center"><a onFocus="if(this.blur)this.blur()" onMouseOver="MM_swapImage('sm_btn_delstart','','../buttons/sm_btn_f2.gif',1)" onMouseOut="MM_swapImgRestore()" href="/pds/commserver/dialplan_details.jsp">
                 <img border="0" height="17" width="23" src="../buttons/sm_btn.gif" name="sm_btn_delstart"/></a></td>
         </tr>

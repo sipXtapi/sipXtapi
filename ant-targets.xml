@@ -32,6 +32,9 @@
   <property name="test.results.dir" value="${build.dir}/test-results" />
   <property name="test.classes.dir" value="${build.dir}/tests"/>
 
+  <target name="classpath">
+    <echo>${classpath}</echo>
+  </target>
 
   <!--
     - I N I T 

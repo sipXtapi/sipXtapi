@@ -24,7 +24,7 @@ function MM_goToURL() { //v3.0
             <h1 class="list">About</h1>
         </td>
         <td width="50%" align="right">
-            <a href="#" onclick="window.parent.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/ConfigSrvr.htm#about_configsrvr.htm','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')" class="formtext">Help</a>
+            <a href="#" onclick="window.parent.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/configsrvr.htm#about_configsrvr.htm','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')" class="formtext">Help</a>
         </td>
     </tr>
     <tr>

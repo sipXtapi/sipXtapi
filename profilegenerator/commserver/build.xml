@@ -2,7 +2,11 @@
 <!--  -->
 
 <project name="commserver" default="jar" basedir=".">
-  <patternset id="test.classes" excludes="**"/>
+
+  <patternset id="test.classes">
+     <include name="**/*Test.class"/>
+  </patternset>
+
   <property name="top.build.dir" value="${basedir}/../.."/>
   <property name="build.dir" value="${top.build.dir}/profilegenerator/commserver"/>
 

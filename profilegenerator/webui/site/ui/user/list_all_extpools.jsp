@@ -86,7 +86,7 @@ function MM_swapImage() { //v3.0
             <h1 class="list">Extension Pools</h1>
         </td>
         <td width="50%" align="right">
-            <a href="#" onclick="window.parent.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/ConfigSrvr.htm#extension_pools.htm','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')" class="formtext">Help</a>
+            <a href="#" onclick="window.parent.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/configsrvr.htm#extension_pools.htm','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')" class="formtext">Help</a>
         </td>
     </tr>
     <tr>

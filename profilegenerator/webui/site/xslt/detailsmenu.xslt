@@ -31,7 +31,7 @@
                             </xsl:apply-templates>
                         </td>
                         <td class="formtext" align="right" valign="top">
-                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/ConfigSrvr.htm#list_users.htm#configure_user_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
+                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/configsrvr.htm#list_users.htm#configure_user_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
                         </td>
                     </tr>
                 </table>
@@ -57,7 +57,7 @@
                             </xsl:apply-templates>
                         </td>
                         <td class="formtext" align="right" valign="top">
-                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/ConfigSrvr.htm#list_user_groups.htm#configure_ugroup_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
+                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/configsrvr.htm#list_user_groups.htm#configure_ugroup_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
                         </td>
                     </tr>
                 </table>
@@ -75,7 +75,7 @@
                             </xsl:if>
                         </td>
                         <td class="formtext" align="right" valign="top">
-                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/ConfigSrvr.htm#list_devices.htm#configure_device_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
+                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/configsrvr.htm#list_devices.htm#configure_device_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
                         </td>
                         <!-- <td class="formtext" width="100" align="right" valign="top">Settings For:</td>
                         <td>
@@ -109,7 +109,7 @@
                             </xsl:apply-templates>
                         </td>
                         <td class="formtext" align="right" valign="top">
-                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/ConfigSrvr.htm#list_device_groups.htm#configure_dgroup_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
+                            <a style="color: #669999;" href="#" onclick="top.MM_openBrWindow('/pds/ui/help/ConfigSrvr/WebHelp/configsrvr.htm#list_device_groups.htm#configure_dgroup_settings','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')">Help</a>
                         </td>
                     </tr>
                 </table>
