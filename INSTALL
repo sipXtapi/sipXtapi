@@ -22,9 +22,6 @@ Jboss 2.4.X with Tomcat (tested with JBoss-2.4.10_Tomcat-4.0.6)
 Ant 1.6 (tested with 1.6.1)
   http://ant.apache.org/
   
-JUnit 3.8 (tested with 3.8.1)
-  http://www.junit.org
-
 
 Optional Software
 ====================
