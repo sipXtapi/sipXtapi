@@ -30,7 +30,8 @@ public class PhoneConfiguration extends ConfigurationTemplate {
         super(phone, endpoint);
     }
 
-    public void addContext(VelocityContext context) {
+    protected void addContext(VelocityContext context) {
+        super.addContext(context);
         context.put("lines", getLines());
     }
 

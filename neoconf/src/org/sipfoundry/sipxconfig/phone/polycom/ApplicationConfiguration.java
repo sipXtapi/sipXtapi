@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 /**
@@ -36,9 +35,6 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     
     public ApplicationConfiguration(PolycomPhone phone, Endpoint endpoint) {
         super(phone, endpoint);
-    }
-    
-    public void addContext(VelocityContext context) {
     }
     
     public String getSipBinaryFilename() {

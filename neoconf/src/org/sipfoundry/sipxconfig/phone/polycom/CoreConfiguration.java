@@ -32,7 +32,8 @@ public class CoreConfiguration extends ConfigurationTemplate {
         super(phone, endpoint);
     }
     
-    public void addContext(VelocityContext context) {
+    protected void addContext(VelocityContext context) {
+        super.addContext(context);
         SettingGroup endpointSettings = getEndpoint().getSettings(getPhone());
         Setting call = endpointSettings.getSetting(CALL_SETTINGS);
         context.put("call", call.list(s_callSettings));

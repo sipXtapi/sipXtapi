@@ -26,11 +26,15 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
  */
 public abstract class ConfigurationTemplate {
     
+    public static final String CALL_SETTINGS = "call";
+
+    public static final String REGISTRATION_SETTINGS = "reg";
+
     /**
      * Shows all settings and groups in a flat collection
      */
     private static final SettingFilter RECURSIVE_SETTINGS = new SettingFilter() {
-        public boolean acceptSetting(Setting root, Setting setting) {
+        public boolean acceptSetting(Setting root_, Setting setting) {
             boolean group = SettingGroup.class.isAssignableFrom(setting.getClass());
             return !group;
         }
@@ -44,10 +48,6 @@ public abstract class ConfigurationTemplate {
             return !group && firstLevel;
         }
     };        
-
-    public static final String CALL_SETTINGS = "call";
-
-    public static final String REGISTRATION_SETTINGS = "reg";
 
     private PolycomPhone m_phone;
 
@@ -94,7 +94,11 @@ public abstract class ConfigurationTemplate {
         return getEndpoint().getSettings(getPhone());
     }
 
-    public abstract void addContext(VelocityContext context);
+    protected void addContext(VelocityContext context) {
+        context.put("phone", getPhone());
+        context.put("endpoint", getEndpoint());
+        context.put("cfg", this);        
+    }
 
     public void generateProfile(Writer out) {
         Template template;
@@ -111,9 +115,6 @@ public abstract class ConfigurationTemplate {
         // generations
 
         VelocityContext velocityContext = new VelocityContext();
-        velocityContext.put("phone", getPhone());
-        velocityContext.put("endpoint", getEndpoint());
-        velocityContext.put("cfg", this);
         addContext(velocityContext);
 
         try {
