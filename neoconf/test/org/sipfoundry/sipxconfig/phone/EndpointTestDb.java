@@ -39,7 +39,7 @@ public class EndpointTestDb extends TestCase {
     }
     
     public void testSave() throws Exception {        
-        TestHelper.cleanInsert(m_class, "ClearDb.xml");
+        TestHelper.cleanInsert("phone/datasets/ClearDb.xml");
         
         Endpoint e = new Endpoint();
         e.setPhoneId(Polycom.MODEL_300.getModelId());
@@ -49,7 +49,7 @@ public class EndpointTestDb extends TestCase {
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("endpoint");
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat(m_class, "SaveEndpointExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/datasets/SaveEndpointExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[endpoint_id_1]", new Integer(e.getId()));
         expectedRds.addReplacementObject("[null]", null);
@@ -60,7 +60,7 @@ public class EndpointTestDb extends TestCase {
     }
     
     public void testLoadAndDelete() throws Exception {
-        TestHelper.cleanInsertFlat(m_class, "EndpointSeed.xml");
+        TestHelper.cleanInsertFlat("phone/datasets/EndpointSeed.xml");
         
         Endpoint e = m_context.loadEndpoint(1);
         assertEquals("999123456", e.getSerialNumber());

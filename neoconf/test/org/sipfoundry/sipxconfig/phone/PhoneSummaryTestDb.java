@@ -30,8 +30,8 @@ public class PhoneSummaryTestDb extends TestCase {
     }
     
     public void testLoad() throws Exception {        
-        TestHelper.cleanInsert(m_class, "ClearDb.xml");
-        TestHelper.cleanInsertFlat(m_class, "PhoneSummarySeed.xml");
+        TestHelper.cleanInsert("phone/datasets/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/datasets/PhoneSummarySeed.xml");
         
         List summaries = m_context.loadPhoneSummaries();
         

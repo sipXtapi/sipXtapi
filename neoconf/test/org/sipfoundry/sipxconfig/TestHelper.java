@@ -162,25 +162,25 @@ public final class TestHelper {
             new FileOutputStream("test/org/sipfoundry/sipxconfig/sipxconfig-dataset.xml"));
     }
     
-    public static IDataSet loadDataSet(Class c, String fileResource) throws Exception {
-        InputStream datasetStream = c.getResourceAsStream(fileResource);
+    public static IDataSet loadDataSet(String fileResource) throws Exception {
+        InputStream datasetStream = TestHelper.class.getResourceAsStream(fileResource);
         return new XmlDataSet(datasetStream);
     }
     
-    public static IDataSet loadDataSetFlat(Class c, String resource) throws Exception {
-        InputStream datasetStream = c.getResourceAsStream(resource);
+    public static IDataSet loadDataSetFlat(String resource) throws Exception {
+        InputStream datasetStream = TestHelper.class.getResourceAsStream(resource);
         return new FlatXmlDataSet(datasetStream);
     }
     
-    public static void cleanInsert(Class c, String resource) throws Exception {
-        DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSet(c, resource));
+    public static void cleanInsert(String resource) throws Exception {
+        DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSet(resource));
     }
 
-    public static void cleanInsertFlat(Class c, String resource) throws Exception {
-        DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSetFlat(c, resource));
+    public static void cleanInsertFlat(String resource) throws Exception {
+        DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSetFlat(resource));
     }
 
-    public static void insertFlat(Class c, String resource) throws Exception {
-        DatabaseOperation.INSERT.execute(getConnection(), loadDataSetFlat(c, resource));
+    public static void insertFlat( String resource) throws Exception {
+        DatabaseOperation.INSERT.execute(getConnection(), loadDataSetFlat(resource));
     }
 }

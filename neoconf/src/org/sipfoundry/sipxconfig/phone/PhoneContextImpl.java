@@ -184,11 +184,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     
     public Endpoint loadEndpoint(int id) {
         Endpoint e = (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
-        try {
-            getSession().update(e);
-        } catch (HibernateException he) {
-            throw getHibernateTemplate().convertHibernateAccessException(he);
-        }
+        // hack: forces lazy loading
+        e.getLines().size();
         return e;
     }
     

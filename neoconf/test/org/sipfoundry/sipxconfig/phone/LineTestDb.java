@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -30,16 +29,14 @@ public class LineTestDb extends TestCase {
 
     private PhoneContext m_context;
 
-    private Class m_class = EndpointTestDb.class;
-
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
     }
 
     public void testSave() throws Exception {
-        TestHelper.cleanInsert(m_class, "ClearDb.xml");
-        TestHelper.cleanInsertFlat(m_class, "EndpointSeed.xml");
+        TestHelper.cleanInsert("phone/datasets/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/datasets/EndpointSeed.xml");
 
         Endpoint endpoint = m_context.loadEndpoint(1);
         User user = m_context.loadUserByDisplayId("testuser");
@@ -49,7 +46,7 @@ public class LineTestDb extends TestCase {
         endpoint.addLine(line);
         m_context.storeEndpoint(endpoint);
         
-        IDataSet expectedDs = TestHelper.loadDataSetFlat(m_class, "SaveLineExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/datasets/SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[line_id]", new Integer(line.getId()));        
         expectedRds.addReplacementObject("[null]", null);
@@ -62,8 +59,8 @@ public class LineTestDb extends TestCase {
     }
     
     public void testAddingLine() throws Exception {
-        TestHelper.cleanInsert(m_class, "ClearDb.xml");
-        TestHelper.cleanInsertFlat(m_class, "AddLineSeed.xml");
+        TestHelper.cleanInsert("phone/datasets/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/datasets/AddLineSeed.xml");
 
         Endpoint endpoint = m_context.loadEndpoint(1);
         User user = m_context.loadUserByDisplayId("testuser");
@@ -73,7 +70,7 @@ public class LineTestDb extends TestCase {
         endpoint.addLine(secondLine);
         m_context.storeEndpoint(endpoint);
         
-        IDataSet expectedDs = TestHelper.loadDataSetFlat(m_class, "AddLineExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/datasets/AddLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[line_id]", new Integer(secondLine.getId()));        
         expectedRds.addReplacementObject("[null]", null);
@@ -85,8 +82,8 @@ public class LineTestDb extends TestCase {
     }
     
     public void testLoadAndDelete() throws Exception {
-        TestHelper.cleanInsert(m_class, "ClearDb.xml");
-        TestHelper.cleanInsertFlat(m_class, "LineSeed.xml");
+        TestHelper.cleanInsert("phone/datasets/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/datasets/LineSeed.xml");
         
         Endpoint endpoint = m_context.loadEndpoint(1);
         List lines = endpoint.getLines();
