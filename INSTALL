@@ -82,7 +82,7 @@ optionally or on other systems, this will also initialize the database
     mkdir -p /var/lib/pgsql/data
     chown postgres /var/lib/pgsql/data
     su postgres
-    initdb --pgdata
+    initdb --pgdata=/var/lib/pgsql/data
 
 2.) Setup security permissions. Edit file: 
 
