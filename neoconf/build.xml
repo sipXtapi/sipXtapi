@@ -54,7 +54,7 @@
 
 	<!-- INSTALL -->
     <target name="install">
-		<copy todir="${sipxpbx.conf.dir}/etc">
+		<copy todir="${dest.dir}${sipxpbx.conf.dir}">
 			<fileset dir="etc">
 				<include name="**/*"/>
 		    </fileset>
