@@ -142,6 +142,7 @@
 
 		<copy todir="${neoconf-prototype.dir}">
 			<fileset dir="${src.dir}/neoconf-prototype">
+				<include name="**/*.gif" />
 				<include name="**/*.png" />
 				<include name="**/*.css" />
 				<include name="**/*.js" />

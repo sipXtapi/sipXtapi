@@ -45,7 +45,7 @@ div.tabArea {
   font-size: 80%;
   font-weight: bold;
   background: #ffc;
-  width: 45em;
+  width: 40em;
   border-bottom: 1px solid #000;
 }
 
@@ -138,7 +138,7 @@ li {
 }
 
 ul.table-actions {
-  width: 40em;
+  width: 35em;
   list-style-type: none;
   margin: 5px;
   padding: 0px
@@ -150,7 +150,7 @@ ul.table-actions li {
 }
 
 table.table-view {
-    width: 43em;
+    width: 38em;
     background: #fff;
     border-collapse: collapse;
     border: 1px;
@@ -243,14 +243,14 @@ ul.table-pager li {
 }
 
 #component {
-  width: 45em;    
+  width: 40em;    
   background: #ffc;
 }
 
 #component fieldset {
   border-style: none;
   font-size: 120%;
-  width: 49em;
+  width: 44em;
 }
 
 #component legend {
@@ -258,7 +258,7 @@ ul.table-pager li {
 }
 
 ul.component-actions {
-  width: 40em;
+  width: 35em;
   list-style-type : none;
   text-align: right; 
 }
