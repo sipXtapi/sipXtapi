@@ -8,7 +8,7 @@
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.0.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/commons-lang/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-lang-2.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/xmlunit/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/velocity/velocity-1.4" kind="var" path="SIPX_CONFIG/lib/velocity-1.4.jar"/>
