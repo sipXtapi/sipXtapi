@@ -17,10 +17,9 @@
 		type="java.lang.Integer"
     	persistent="yes"/>
 
-    <property-specification name="dialPlanManager" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
-        global.sipXconfigContext.getBean("dialPlanManager")
-    </property-specification>    
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager" 
+    	initial-value="global.dialPlanManager"/>
     
     <property-specification name="nextPage" type="java.lang.String"/>    
                 

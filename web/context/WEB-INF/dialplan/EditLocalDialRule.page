@@ -7,9 +7,8 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="dialPlanManager" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
-        global.sipXconfigContext.getBean("dialPlanManager")
-    </property-specification>
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager" 
+    	initial-value="global.dialPlanManager"/>
     
     <property-specification name="ruleId" 
 		type="java.lang.Integer"
@@ -24,10 +23,6 @@
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>
 
-    <property-specification name="phoneValidator">
-        global.sipXconfigContext.getBean("validPhoneRequired")
-    </property-specification>    
-    
     <!--
      - B E A N S
      -->
@@ -66,7 +61,7 @@
     </component>
     <component id="pstnPrefix" type="ValidField">
         <binding name="value" expression="rule.pstnPrefix"/>
-        <binding name="validator" expression="phoneValidator"/>
+        <binding name="validator" expression="global.validPhoneRequired"/>
         <static-binding name="displayName" value="PSTN prefix"/>
     </component>
 

@@ -23,8 +23,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * Hook Spring into Tapestry's global application context
  */
 public class SipxconfigEngine extends BaseEngine {
-    public static final String BEANFACTORY_CONTEXT_KEY = "sipXconfigContext";
-
     private static final long serialVersionUID;
 
     static {

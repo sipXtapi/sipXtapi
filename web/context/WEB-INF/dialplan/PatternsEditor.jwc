@@ -15,10 +15,6 @@
     <!-- P R O P E R T I E S -->
     <property-specification name="pattern" type="org.sipfoundry.sipxconfig.admin.dialplan.DialPattern"/>
     
-    <property-specification name="phoneValidator">
-        page.global.sipXconfigContext.getBean("validPhoneRequired")
-    </property-specification>    
-    
     <!-- B E A N S -->
     <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel" lifecycle="page">
     	<set-property name="min" expression="4"/>
@@ -36,7 +32,7 @@
     </component>
     <component id="prefix" type="ValidField">
         <binding name="value" expression="pattern.prefix"/>
-        <binding name="validator" expression="phoneValidator"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
         <static-binding name="displayName" value="Prefix"/>
     </component>
     

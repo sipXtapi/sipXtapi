@@ -13,9 +13,6 @@
     </parameter>
     
     <!-- P R O P E R T I E S -->
-    <property-specification name="phoneValidator">
-        page.global.sipXconfigContext.getBean("validPhoneRequired")
-    </property-specification>    
     
     <!-- B E A N S -->
     <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
@@ -29,7 +26,7 @@
     </component>
     <component id="prefix" type="ValidField">
         <binding name="value" expression="pattern.prefix"/>
-        <binding name="validator" expression="phoneValidator"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
         <static-binding name="displayName" value="Prefix"/>
     </component>
     

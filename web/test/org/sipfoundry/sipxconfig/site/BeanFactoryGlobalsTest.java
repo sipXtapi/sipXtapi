@@ -38,13 +38,13 @@ public class BeanFactoryGlobalsTest extends TestCase {
 
         // test direct access to application context
         globals.setApplicationContext(wac);
-        assertSame(wac, globals.get(SipxconfigEngine.BEANFACTORY_CONTEXT_KEY));
+        assertSame(wac, globals.getApplicationContext());
 
         Map ognlRoot = new HashMap();
         ognlRoot.put("global", globals);
 
         // test OGNL access direct access to application context
-        Object value = Ognl.getValue("global.sipXconfigContext", ognlRoot);
+        Object value = Ognl.getValue("global.getApplicationContext()", ognlRoot);
         assertSame(wac, value);
 
         // test OGNL access to Spring beans

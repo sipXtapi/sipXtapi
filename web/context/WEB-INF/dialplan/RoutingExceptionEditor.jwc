@@ -25,9 +25,6 @@
     />
     
     <!-- P R O P E R T I E S -->
-    <property-specification name="phoneValidator">
-        page.global.sipXconfigContext.getBean("validPhoneRequired")
-    </property-specification>
     
     <!-- B E A N S -->
     <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.dialplan.GatewaySelectionModel">
@@ -53,7 +50,7 @@
     </component>
     <component id="externalNumber" type="ValidField">
         <binding name="value" expression="exception.externalNumber"/>
-        <binding name="validator" expression="phoneValidator"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
         <static-binding name="displayName" value="External emergency number"/>
     </component>
 
