@@ -6,7 +6,6 @@
 	  - Gateway
 	  -->
 	<class name="org.sipfoundry.sipxconfig.admin.dialplan.Gateway" table="gateway">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="gateway_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">gateway_seq</param>

@@ -6,7 +6,6 @@
 	  - Ring
 	  -->
 	<class name="org.sipfoundry.sipxconfig.admin.forwarding.Ring" table="ring">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="ring_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">ring_seq</param>
@@ -23,7 +22,6 @@
       - Call sequence
       -->  
 	<class name="org.sipfoundry.sipxconfig.admin.forwarding.CallSequence" table="users">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
 			<generator class="foreign">
 				<param name="property">user</param>

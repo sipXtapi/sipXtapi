@@ -3,7 +3,6 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan">
     <class name="DialPlan" table="dial_plan">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="dial_plan_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">dial_plan_seq</param>
@@ -17,7 +16,6 @@
     </class>
     
 	<class name="DialingRule" table="dialing_rule">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="dialing_rule_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">dialing_rule_seq</param>

@@ -11,7 +11,6 @@
 	  - E N D P O I N T 
 	  -->
 	<class name="org.sipfoundry.sipxconfig.phone.PhoneMetaData" table="phone">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="phone_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">phone_seq</param>
@@ -35,7 +34,6 @@
 	  -->
 	<class name="org.sipfoundry.sipxconfig.phone.LineMetaData" 
 		table="line">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="line_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">line_seq</param>
@@ -55,7 +53,6 @@
 	  - V A L U E  S T O R A G E
 	  -->
 	<class name="org.sipfoundry.sipxconfig.setting.ValueStorage" table="storage">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="storage_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">storage_seq</param>
@@ -72,7 +69,6 @@
 	  - F O L D E R
 	  -->
 	<class name="org.sipfoundry.sipxconfig.setting.Folder" table="folder">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="folder_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">folder_seq</param>
@@ -102,7 +98,6 @@
 	-->
 	<class name="org.sipfoundry.sipxconfig.common.Organization" 
 		table="organizations">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">org_seq</param>
@@ -116,7 +111,6 @@
 	- U S E R
 	-->
 	<class name="org.sipfoundry.sipxconfig.common.User" table="users">
-		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">user_seq</param>
@@ -127,10 +121,6 @@
 			class="org.sipfoundry.sipxconfig.common.Organization"/>
 		<property name="password" column="password"/>
 		<property name="userGroupId" column="ug_id"/>
-		<!-- 
-		  - PLACEHOLDER 
-			<property name="folder" column="folder_id"/>
-		 -->
 		<property name="rcsId" column="rcs_id"/>
 		<property name="lastName" column="last_name"/>
 		<property name="displayId" column="display_id"/>
