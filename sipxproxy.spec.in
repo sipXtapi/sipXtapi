@@ -32,6 +32,7 @@ services.
 
 %build
 %configure
+cp config.log %name.configlog
 make
 
 %install
@@ -51,6 +52,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 
+%doc CONTRIBUTORS ChangeLog %name.configlog
 #%docdir doc
 %attr(755,root,root) %{_bindir}/sipproxy.sh
 %attr(755,root,root) %{_bindir}/sipproxy

@@ -66,6 +66,3 @@ sipxproxy.spec : sipxproxy.spec.in
 dist-hook: sipxproxy.spec
 	cp sipxproxy.spec $(distdir)
 
-# record the configuration for the rpm doc directory
-install-data-hook:
-	cp config.log doc/${PACKAGE}.config
