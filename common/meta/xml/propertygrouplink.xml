@@ -144,9 +144,12 @@
                <ref_property code="xp_2031" level="both" visible-for="user" /> <!-- ADDITIONAL_USER_PARAMETERS-->
            </ref_property_group>
 
+		   <!--
+            Application support has been removed
            <ref_property_group name="Application" usertype="application">
-               <ref_property code="xp_3000" level="both" visible-for="user" /> <!-- USER-->
+               <ref_property code="xp_3000" level="both" visible-for="user" /> 
            </ref_property_group>
+           -->
        </device_type>
        <device_type model="xpressa_strongarm_vxworks"/>
        <device_type model="ixpressa_x86_win32"/>
