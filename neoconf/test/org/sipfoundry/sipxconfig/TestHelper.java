@@ -21,11 +21,6 @@ import java.security.CodeSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
-import java.util.Stack;
-
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
@@ -125,14 +120,16 @@ public final class TestHelper {
     }    
     
     public static IDatabaseConnection getConnection() throws Exception {
-        //Class driverClass = Class.forName(P6SPY);  // dumps sql commands to log file
-
         // Could optionally get this from Spring
         //    DataSource.getConnection()
         // may pool connections and be faster.
-        Class driverClass = Class.forName(POSTGRES);
+        // Class driverClass = Class.forName(POSTGRES);
+        
+        //  dumps sql commands to log file spy.log in working directory
+        Class driverClass = Class.forName(P6SPY);  
+        
         Connection jdbcConnection = DriverManager.getConnection(
-                "jdbc:postgresql://localhost/PDS", "postgres", "");
+                "jdbc:postgresql://localhost/PDS", "postgres", "");        
         DatabaseConnection dbunitConnection = new DatabaseConnection(jdbcConnection);
         DatabaseConfig config = dbunitConnection.getConfig();
         config.setFeature("http://www.dbunit.org/features/batchedStatements", true);
@@ -161,7 +158,7 @@ public final class TestHelper {
     private static void generateDbXml() throws Exception {
         IDatabaseConnection c = getConnection();
         
-        FlatXmlDataSet.write(c.createDataSet(),
+        XmlDataSet.write(c.createDataSet(),
             new FileOutputStream("test/org/sipfoundry/sipxconfig/sipxconfig-dataset.xml"));
     }
     

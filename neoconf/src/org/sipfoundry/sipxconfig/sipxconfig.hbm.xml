@@ -8,8 +8,8 @@
 	  -   o primary key should be tablename_id (unless you have a good reason not too)
       -->
 	<!-- 
-	- E N D P O I N T 
-	-->
+	  - E N D P O I N T 
+	  -->
 	<class name="org.sipfoundry.sipxconfig.phone.Endpoint" table="endpoint">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="endpoint_id" type="int" unsaved-value="-1">

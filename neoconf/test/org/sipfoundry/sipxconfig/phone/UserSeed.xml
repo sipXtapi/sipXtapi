@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE dataset SYSTEM "../dataset.dtd">
 <dataset>
-  <table name="endpoint"/>
-  <table name="line"/>
-  <table name="credential"/>
   <table name="users">
     <column>id</column>
     <column>first_name</column>
