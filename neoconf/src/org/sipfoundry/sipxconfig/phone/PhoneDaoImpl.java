@@ -27,6 +27,26 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
         getHibernateTemplate().flush();
     }
     
+    public void storeCredential(Credential credential) {
+        getHibernateTemplate().saveOrUpdate(credential);                
+    }
+    
+    public void deleteCredential(Credential credential) {
+        getHibernateTemplate().delete(credential);        
+    }
+
+    public Credential loadCredential(int id) {
+        return (Credential) getHibernateTemplate().load(Credential.class, new Integer(id));                
+    }
+
+    public void saveUser(User user) {
+        getHibernateTemplate().saveOrUpdate(user);        
+    }
+    
+    public void deleteUser(User user) {
+        getHibernateTemplate().delete(user);        
+    }
+
     public User loadUser(int id) {
         return (User) getHibernateTemplate().load(User.class, new Integer(id));        
     }
@@ -67,22 +87,22 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
         // load lines at same time, only ineffiec. for lines that
         // are on many phones, they get sent many times in db search
         // results.
-        String elineQuery = "from EndpointLine el left join fetch el.line order by el.endpoint";
-        List elines = getHibernateTemplate().find(elineQuery);
+        String lineQuery = "from Line l left join fetch l.user order by l.endpoint";
+        List lines = getHibernateTemplate().find(lineQuery);
         
-        EndpointLine eline = null;
+        Line line = null;
         Endpoint endpoint = null;
         PhoneSummary summary = new PhoneSummary();
         summary.setEndpointLines(new ArrayList());
         int nEndpoints = endpoints.size();
-        int nElines = elines.size();
+        int nlines = lines.size();
         int j = 0;
         for (int i = 0; i < nEndpoints; i++) {
             endpoint = (Endpoint) endpoints.get(i);
-            eline = (EndpointLine) getn(j, elines);
-            while (j < nElines && eline.getEndpoint().getId() == endpoint.getId()) {
-                summary.getEndpointLines().add(eline);                
-                eline = (EndpointLine) getn(j++, elines);
+            line = (Line) getn(j, lines);
+            while (j < nlines && line.getEndpoint().getId() == endpoint.getId()) {
+                summary.getEndpointLines().add(line);                
+                line = (Line) getn(j++, lines);
             }
             summary.setPhone(context.getPhone(endpoint));
             summaries.add(summary);
@@ -104,19 +124,6 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
         return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
     }
     
-    public void storeEndpointLine(EndpointLine eline) {
-        getHibernateTemplate().saveOrUpdate(eline);        
-    }
-    
-    public EndpointLine loadEndpointLine(int elineId) {    
-        return (EndpointLine) getHibernateTemplate().load(EndpointLine.class, 
-                new Integer(elineId));            
-    }
-    
-    public void deleteEndpointLine(EndpointLine eline) {
-        getHibernateTemplate().delete(eline);        
-    }
-
     public void storeSetting(Setting setting, int depth) {        
         getHibernateTemplate().saveOrUpdate(setting);
         if (depth > 0 || depth == CASCADE && setting.getSettings().size() > 0) {

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneSettings">
+  <!--
+    - P R O P E R T I E S
+    -->
+  <!--
+    - B E A N S
+    -->
+  <!--
+    - C O M P O N E N T S
+    -->
+  <!--
+    - A S S E T S
+    -->   
+  <context-asset name="stylesheet" path="css/sipxconfig.css"/>
+</page-specification>

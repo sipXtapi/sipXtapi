@@ -12,9 +12,9 @@
     <property-specification name="phone"
         type="org.sipfoundry.sipxconfig.phone.Phone"
         persistent="yes"/>
-    <property-specification name="endpointLines" type="java.util.List"/>
+    <property-specification name="lines" type="java.util.List"/>
     <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.phone.EndpointLine"/>
+        type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="selections"
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
     <!--
@@ -22,13 +22,13 @@
     -->
     <component id="editPhoneNavigation" type="PhoneNavigation">
         <binding name="phone" expression="phone"/>
-        <static-binding name="tab" value="EditPhoneLines"/>
+        <static-binding name="tab" value="PhoneLines"/>
         <static-binding name="heading" value="Lines"/>
         <binding name="phoneContext" expression="global.phoneContext"/>
     </component>
     <component id="editLinesForm" type="Form"/>
     <component id="lineTableView" type="contrib:TableView">
-        <binding name="source" expression="endpointLines"/>
+        <binding name="source" expression="lines"/>
         <binding name="columns">
             '* Line:line.displayLabel'
         </binding>

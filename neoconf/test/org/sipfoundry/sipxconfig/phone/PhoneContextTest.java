@@ -25,11 +25,17 @@ public class PhoneContextTest extends TestCase {
     public void testInstantiation() {        
         BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
         BeanFactoryReference bf = bfl.useBeanFactory("unittest");
+                
         // now use some bean from factory
         PhoneContext phoneContext = (PhoneContext) bf.getFactory().getBean("phoneContext");
         assertNotNull(phoneContext);
         
         // stub implementation
         assertNotNull(phoneContext.getPhoneDao());
+   }
+    
+   public void testPhoneTestHelper() {
+       PhoneTestHelper helper = PhoneTestHelper.createHelper();
+       assertNotNull(helper.getPhoneContext());
    }
 }

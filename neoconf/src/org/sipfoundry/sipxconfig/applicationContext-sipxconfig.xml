@@ -3,9 +3,26 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<!--
+      -  S Y S T E M  D I R E C T O R I E S
+	  -  evaluates system directory variables e.g. ${sysdir.*} in this file
+	  --> 
+	<bean id="sysdir.properties" class="org.springframework.core.io.ClassPathResource">
+		<constructor-arg index="0"><value>sysdir.properties</value></constructor-arg>
+	</bean>
+	<bean id="sysdir" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<ref bean="sysdir.properties"></ref>			
+		</property>
+	</bean>
+	<!--
+	  - V E L O C I T Y
+	  -->
+	<bean id="velocityEngine" 
+	  class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+	  <property name="resourceLoaderPath"><value>file:${sysdir.etc}</value></property>          
+	</bean>
+	<!--
       -  P H O N E  C O N T E X T
-      -
-      -  Single object holding access to all other service layer objects
       -->
 	<bean id="phoneContext" 
 		class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
@@ -21,6 +38,12 @@
 	</bean>
 	<bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
 		singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
+		</property>
 		<property name="modelId">
 			<value>polycom300</value>
 		</property>

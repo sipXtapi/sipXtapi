@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.IOException;
+
 
 
 /**
@@ -24,10 +26,6 @@ public interface Phone {
     
     public String getDisplayLabel();
 
-    public String generateProfile(int profileIndex);
-
-    public int getProfileCount();
-    
     public void setEndpoint(Endpoint endpoint);
     
     public Endpoint getEndpoint();
@@ -36,5 +34,9 @@ public interface Phone {
 
     public PhoneContext getPhoneContext();
     
-    public AbstractSettings getSettings(SettingSet settings);
+    public void initialize();
+    
+    public void generateProfiles() throws IOException;
+    
+    public void restart() throws IOException;
 }

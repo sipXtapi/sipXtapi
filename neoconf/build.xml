@@ -14,9 +14,10 @@
 	    - all spring jars at this point
 	    -->
 	<path id="compile.dependencies">
-		<pathelement path="${spring.jar}" />
-		<pathelement path="${hibernate2.jar}" />
-		<pathelement path="${servlet.jar}" />
+		<pathelement location="${spring.jar}" />
+		<pathelement location="${hibernate2.jar}" />
+		<pathelement location="${servlet.jar}" />
+		<pathelement location="${velocity.jar}" />
 	</path>
 
 	<!-- 
@@ -24,17 +25,17 @@
 	    - all spring jars at this point
 	    -->
 	<path id="runtime.dependencies">
-		<pathelement path="${commons-logging.jar}" />
-		<pathelement path="${commons-dbcp.jar}" />
-		<pathelement path="${commons-pool.jar}" />
-		<pathelement path="${aopalliance.jar}" />
-		<pathelement path="${dom4j.jar}" />
-		<pathelement path="${commons-collections.jar}" />
-		<pathelement path="${ehcache.jar}" />
-		<pathelement path="${cglib-full.jar}" />
-		<pathelement path="${jta.jar}" />
-		<pathelement path="${jdbc-driver.jar}" />
-		<pathelement path="${odmg.jar}" />
+		<pathelement location="${commons-logging.jar}" />
+		<pathelement location="${commons-dbcp.jar}" />
+		<pathelement location="${commons-pool.jar}" />
+		<pathelement location="${aopalliance.jar}" />
+		<pathelement location="${dom4j.jar}" />
+		<pathelement location="${commons-collections.jar}" />
+		<pathelement location="${ehcache.jar}" />
+		<pathelement location="${cglib-full.jar}" />
+		<pathelement location="${jta.jar}" />
+		<pathelement location="${jdbc-driver.jar}" />
+		<pathelement location="${odmg.jar}" />
 	</path>
 
 	<path id="base.path">
@@ -46,10 +47,24 @@
 		<path refid="runtime.dependencies" />
 
 		<!-- TEST -->
-		<pathelement path="${easymock.jar}" />
+		<pathelement location="${easymock.jar}" />
+        <pathelement location="${xmlunit.jar}"/>
 	</path>
 	<property name="classpath" refid="base.path" />
 
+    <!-- I N I T -->
+	<target name="init" depends="ant-targets.init,unittest.sysdir.properties"/>
+		
+	<!-- INSTALL -->
+    <target name="install">
+		<copy todir="${sipxpbx.conf.dir}/etc">
+			<fileset dir="etc">
+				<include name="**/*"/>
+		    </fileset>
+	    </copy>    	
+	</target>
+	
+	
 	<!-- D E F A U L T -->
 	<target name="default" depends="jar"/>
 	
@@ -67,10 +82,20 @@
 	<!-- D E V E L O P E R   T A S K S -->
 	<target name="reset-db-patch" 
 		description="apply patches to database for new components, clears all data for the new components">
-		<!-- may fail if never run so ignore failed output -->
+		<!-- may fail if never run so ignre failed output -->
+		<echo>
+********************************
+*   Any errors now may be benign, it depends on what state your schema's in
+********************************
+		</echo>
 		<exec executable="psql" failonerror="false">
 			<arg line=" -U postgres PDS -f ${top.dir}/profilegenerator/ejb/meta/patches/delete_v8_mods.sql"/>
 		</exec>
+		<echo>
+********************************
+* Any errors now are fatal.
+********************************
+		</echo>
 		<exec executable="psql" failonerror="true">
 			<arg line=" -U postgres PDS -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods.sql"/>
 		</exec>

@@ -27,7 +27,7 @@ public class PhoneTestHelper {
     private final static String FACTORY_CONFIG = "beanRefFactory.xml";
 
     private PhoneTestHelper(String factory) {
-        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance(factory);
+        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance(factory);        
         m_factory = bfl.useBeanFactory("unittest").getFactory();
     }
     

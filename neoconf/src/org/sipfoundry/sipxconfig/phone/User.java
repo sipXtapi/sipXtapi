@@ -12,26 +12,25 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
-import java.util.Set;
 
 /**
- * Database object
+ * User that logs in, and base info for most lines
  */
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private int m_id = -1;
+    private int m_id = PhoneDao.UNSAVED_ID;
 
     private String m_firstName;
 
-    private Organization m_org;
+    private Organization m_organization;
 
     private String m_password;
 
-    private int m_ugId;
+    private int m_ugId = 1; //default group
 
-    private int m_rcsId;
+    private int m_rcsId = 2; // 2='Complete User'
 
     private String m_lastName;
 
@@ -41,23 +40,7 @@ public class User implements Serializable {
 
     private String m_profileEncryptionKey;
 
-    private Set m_lines;
-
-    private Set m_assignedEndpoints;
-
-    /**
-     * @return Returns the assignedEndpoints.
-     */
-    public Set getAssignedEndpoints() {
-        return m_assignedEndpoints;
-    }
-
-    /**
-     * @param assignedEndpoints The assignedEndpoints to set.
-     */
-    public void setAssignedEndpoints(Set assignedEndpoints) {
-        m_assignedEndpoints = assignedEndpoints;
-    }
+    private Credential m_credential;
 
     public int getId() {
         return m_id;
@@ -73,14 +56,6 @@ public class User implements Serializable {
 
     public void setFirstName(String firstName) {
         m_firstName = firstName;
-    }
-
-    public Organization getOrganization() {
-        return m_org;
-    }
-
-    public void setOrganization(Organization org) {
-        m_org = org;
     }
 
     public String getPassword() {
@@ -139,11 +114,34 @@ public class User implements Serializable {
         m_profileEncryptionKey = profileEncryptionKey;
     }
 
-    public Set getLines() {
-        return m_lines;
+    public Organization getOrganization() {
+        return m_organization;
     }
 
-    public void setLines(Set lines) {
-        m_lines = lines;
+    public void setOrganization(Organization organization) {
+        m_organization = organization;
+    }
+
+    public int getUgId() {
+        return m_ugId;
+    }
+
+    public void setUgId(int ugId) {
+        m_ugId = ugId;
+    }
+
+    public Credential getCredential() {
+        if (m_credential == null) {
+            m_credential = new Credential();
+            m_credential.setAuthId(getDisplayId());
+            m_credential.setPassword(getPassword());
+            m_credential.setRealm(m_organization.getDnsDomain());            
+        }
+        
+        return m_credential;
+    }
+
+    public void setCredential(Credential credential) {
+        m_credential = credential;
     }
 }

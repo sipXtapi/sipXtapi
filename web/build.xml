@@ -33,6 +33,7 @@
 		<pathelement path="${jta.jar}" />
 		<pathelement path="${jdbc-driver.jar}" />
 		<pathelement path="${odmg.jar}" />
+		<pathelement path="${velocity.jar}" />
 		<!-- TAPESTRY -->
 		<pathelement path="${tapestry.jar}" />
 		<pathelement path="${tapestry-contrib.jar}" />
@@ -54,15 +55,26 @@
 	</path>
 	<property name="classpath" refid="base.path" />
 
-	<target name="init" depends="ant-targets.init">
+	<target name="init" depends="ant-targets.init,unittest.sysdir.properties">
 		<mkdir dir="${dist.dir}/war-root" />
 	</target>
 
 	<!-- D E F A U L T -->
 	<target name="default" depends="war"/>
 	
+	  <!-- For generating sysdir for applications -->
+    <target name="sysdir.properties"
+	     description="internal, for generating sysdir.properties for web application">
+      <echo file="${classes.dir}/sysdir.properties">
+# used in applicationContext-sipxconfig.xml to set system properies
+sysdir.etc=${sipxpbx.conf.dir}
+sysdir.log=${sipxpbx.log.dir}
+sysdir.var=${sipxpbx.data.dir}
+      </echo>
+    </target>
+
 	<!-- W A R -->
-	<target name="war" depends="compile" description="assemble sipxconfig for tapestry war">
+	<target name="war" depends="compile,sysdir.properties" description="assemble sipxconfig for tapestry war">
 
 		<war warfile="${sipxconfig.war}" webxml="context/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
 
@@ -91,6 +103,7 @@
 			<lib file="${hibernate2.jar}" />
 			<lib file="${jdbc-driver.jar}" />
 			<lib file="${odmg.jar}" />
+			<lib file="${velocity.jar}" />
 			<lib file="${commons-logging.jar}" />
 			<lib file="${commons-dbcp.jar}" />
 			<lib file="${commons-pool.jar}" />

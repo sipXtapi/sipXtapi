@@ -46,9 +46,19 @@ public class SettingSet extends Setting {
     public void setSetting(String settingName, Object value) {
         Setting setting = getSetting(settingName);
         if (setting == null) {
-            throw new IllegalArgumentException("setting does not exist " + settingName);
+            setting = new Setting(settingName);
+            m_settings.put(settingName, setting);
         }
         setting.setValue(value);
+    }
+    
+    public void setDefault(String settingName, Object def) {
+        Setting setting = getSetting(settingName);        
+        if (setting == null) {
+            setting = new Setting(settingName);
+            m_settings.put(settingName, setting);
+        }
+        setting.setDefault(def);        
     }
     
     /**
@@ -63,8 +73,6 @@ public class SettingSet extends Setting {
     }
     
     public void setSettings(Map settings) {
-        // copy into new map, to keep order
-        m_settings = new TreeMap();
-        m_settings.putAll(settings);
+        m_settings = settings;
     }
 }

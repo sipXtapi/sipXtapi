@@ -14,91 +14,60 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.Serializable;
 
 /**
- * A SIP address represents a line.  Phones have mulitple lines
- * lines can registered on multiple phones.
+ * Association between Users and their assigned phones.
  */
 public class Line implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private int m_id = PhoneDao.UNSAVED_ID;
 
-    private String m_authId;
-    
-    private String m_extension;
-    
-    private String m_password;
-    
-    private String m_userId;
-    
-    private String m_server;
+    /** null ok */
+    private User m_user;
 
-    /**
-     * @return Returns the authId.
-     */
-    public String getAuthId() {
-        return m_authId;
+    private Endpoint m_endpoint;
+
+    private SettingSet m_settings;
+
+    private Credential m_credential;
+
+    public Credential getCredential() {
+        return m_credential;
     }
-    /**
-     * @param authId The authId to set.
-     */
-    public void setAuthId(String authId) {
-        m_authId = authId;
+
+    public void setCredential(Credential credential) {
+        m_credential = credential;
     }
-    /**
-     * @return Returns the extension.
-     */
-    public String getExtension() {
-        return m_extension;
+
+    public Endpoint getEndpoint() {
+        return m_endpoint;
     }
-    /**
-     * @param extension The extension to set.
-     */
-    public void setExtension(String extension) {
-        m_extension = extension;
+
+    public void setEndpoint(Endpoint endpoint) {
+        m_endpoint = endpoint;
     }
-    /**
-     * @return Returns the password.
-     */
-    public String getPassword() {
-        return m_password;
-    }
-    /**
-     * @param password The password to set.
-     */
-    public void setPassword(String password) {
-        m_password = password;
-    }
-    /**
-     * @return Returns the server.
-     */
-    public String getServer() {
-        return m_server;
-    }
-    /**
-     * @param server The server to set.
-     */
-    public void setServer(String server) {
-        m_server = server;
-    }
-    /**
-     * @return Returns the userId.
-     */
-    public String getUserId() {
-        return m_userId;
-    }
-    /**
-     * @param userId The userId to set.
-     */
-    public void setUserId(String userId) {
-        m_userId = userId;
-    }
-    
+
     public int getId() {
         return m_id;
     }
-    
+
     public void setId(int id) {
         m_id = id;
+    }
+
+    public User getUser() {
+        return m_user;
+    }
+
+    public void setUser(User user) {
+        m_user = user;
+    }
+
+    public SettingSet getSettings() {
+        return m_settings;
+    }
+
+    public void setSettings(SettingSet settings) {
+        m_settings = settings;
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
 public interface PhoneContext {
     
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
-
+    
     public PhoneDao getPhoneDao();
 
     public void setPhoneDao(PhoneDao dao);
@@ -33,5 +33,4 @@ public interface PhoneContext {
     public List getPhoneIds();
 
     public void setPhoneIds(List phoneIds);
-
 }

@@ -23,7 +23,7 @@
 
 	<!-- M A I N  T A R G E T -->
 	<target name="doc" depends="manual,neoconf-prototype,api-avoid-rebuilding,api" />
-
+	
 	<!-- I N I T -->
 	<target name="init">
 		<mkdir dir="${manual.dir}" />

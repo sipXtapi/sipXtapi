@@ -43,20 +43,22 @@ public class PhoneDaoImplTestDb extends TestCase {
     }
 
     public void testSampleData() {
-        assertNotNull(m_testData.createSampleLine());
+        assertNotNull(m_testData.createSampleCredential());
         assertNotNull(m_testData.createSampleSettingSet());
         assertNotNull(m_testData.createSampleEndpoint());
     }
     
     public void testSampleEndpointLine() {
-        assertNotNull(m_testData.createSampleEndpointLine());        
+        User user = m_dao.loadUser(m_testData.getTestUserId());
+        assertNotNull(m_testData.createSampleLine(user));        
     }
 
     public void testLoadPhoneSummaries() {
         int preSize = m_dao.loadPhoneSummaries(m_context).size();
 
-        EndpointLine eline = m_testData.createSampleEndpointLine();
-        assertNotNull(eline);
+        User user = m_dao.loadUser(m_testData.getTestUserId());
+        Line line = m_testData.createSampleLine(user);
+        assertNotNull(line);
         
         // just test there's one more in list, not a very 
         // hard test

@@ -6,7 +6,9 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="phone" 
-		type="org.sipfoundry.sipxconfig.phone.Phone" persistent="yes"/>
+		type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
+        type="int" persistent="yes"/>
     <!--
       - B E A N S
       -->

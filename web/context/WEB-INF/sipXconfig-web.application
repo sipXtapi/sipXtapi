@@ -18,7 +18,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="EditDialPlan" specification-path="EditDialPlan.page"/>
+    <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>    <page name="EditDialPlan" specification-path="EditDialPlan.page"/>
     <page name="EditGateway" specification-path="EditGateway.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="Home" specification-path="Home.page"/>

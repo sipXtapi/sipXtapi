@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import org.sipfoundry.sipxconfig.settings.PhoneSettings;
+import java.io.IOException;
 
 /**
  * Generic phone does not correlate to any particular phone. It represents any unsupported phones
@@ -71,7 +71,18 @@ public class GenericPhone implements Phone {
         return m_phoneContext;
     }
 
-    public AbstractSettings getSettings(SettingSet settings) {
-        return new PhoneSettings(settings);
+    public void initialize() {        
+    }
+    
+    /**
+     * Not applicable
+     */
+    public void generateProfiles() throws IOException {        
+    }
+    
+    /**
+     * Not applicable
+     */
+    public void restart() throws IOException {
     }
 }

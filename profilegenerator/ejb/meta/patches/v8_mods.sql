@@ -27,40 +27,52 @@ create table endpoint(
  * but setting_id can be null and I don't think thats
  * possible w/postgres
  */
+/** may relax if settings null ok */
+alter table endpoint
+add constraint fk_endpoint_1
+foreign key (setting_id) references setting (setting_id);
+ 
 create sequence endpoint_seq;
 create unique index idx_endpoint_sernum on endpoint (serial_number);
+
+/**
+ * C R E D E N T I A L
+ */
+create table credential(
+  credential_id int4 not null primary key,
+  auth_id varchar(256),
+  password varchar(256),
+  realm varchar(256)
+);
+create sequence credential_seq;
 
 /* 
  * L I N E 
  */
 create table line(
   line_id int4 not null primary key,
-  auth_id varchar(256),
-  user_id varchar(256) not null,
-  server varchar(256),
-  extension varchar(256) not null
-);
-create sequence line_seq;
-create unique index idx_line_extension on line (extension);
-
-/**
- * E N D P O I N T  A S S I G N M E N T
- */
-create table endpoint_line(
-  endpoint_line_id int4 not null primary key, 
+  credential_id int4 not null,
+  user_id int4 not null,
   setting_id int4,
-  line_id int4 not null,
   endpoint_id int4 not null
 );
+create sequence line_seq;
 
-alter table endpoint_line
-add constraint fk_endpoint_line_1 
-foreign key (endpoint_id) references endpoint (endpoint_id)
-;
+alter table line
+add constraint fk_line_1 
+foreign key (endpoint_id) references endpoint (endpoint_id);
 
-alter table endpoint_line
-add constraint fk_endpoint_line_2 
-foreign key (line_id) references line (line_id)
-;
+/** may relax if settings null ok */
+alter table line
+add constraint fk_line_2
+foreign key (setting_id) references setting (setting_id);
 
-create sequence endpoint_line_seq;
+/** may relax if user null ok */
+alter table line
+add constraint fk_line_3
+foreign key (user_id) references users (id);
+
+alter table line
+add constraint fk_line_4
+foreign key (credential_id) references credential (credential_id);
+

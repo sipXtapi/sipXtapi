@@ -27,7 +27,7 @@ public class PhoneContextImpl implements BeanFactoryAware, PhoneContext {
     private BeanFactory m_beanFactory;
     
     private List m_phoneIds;
-
+    
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
@@ -39,6 +39,7 @@ public class PhoneContextImpl implements BeanFactoryAware, PhoneContext {
         Phone phone = (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
         if (phone != null) {
             phone.setEndpoint(endpoint);
+            phone.initialize();
         }
         
         return phone;

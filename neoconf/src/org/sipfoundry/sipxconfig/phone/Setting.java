@@ -27,6 +27,8 @@ public class Setting implements Serializable {
 
     private Object m_value;
     
+    private Object m_default;
+    
     private int m_id = PhoneDao.UNSAVED_ID;
     
     private SettingSet m_parent;
@@ -43,6 +45,14 @@ public class Setting implements Serializable {
         m_value = value;
     }
 
+    public Object getDefault() {
+        return m_default;
+    }
+    
+    public void setDefault(Object default1) {
+        m_default = default1;
+    }
+    
     /**
      * @return null only if subclass is SettingSet and it's the root setting
      */
@@ -76,8 +86,7 @@ public class Setting implements Serializable {
     public Object getValue() {
         return m_value;
     }
-    
-    
+        
     /**
      * @return string representation of value
      */

@@ -13,9 +13,6 @@ package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.settings.NetworkSettings;
-import org.sipfoundry.sipxconfig.settings.PhoneSettings;
-
 /**
  * Comments
  */
@@ -28,12 +25,5 @@ public class GenericPhoneTest extends TestCase {
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
         Phone phone = phoneContext.getPhone(endpoint);
         assertNotNull(phone);
-    }
-    
-    public void testSettings() {
-        GenericPhone phone = new GenericPhone();
-        PhoneSettings settings = (PhoneSettings) phone.getSettings(new SettingSet());
-        NetworkSettings network = settings.getNetworkSettings();
-        network.defaultSetting("proxy", "localhost");
     }
 }

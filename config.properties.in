@@ -46,6 +46,7 @@ sipxconfig.jar=${top.build.dir}/neoconf/dist/sipxconfig.jar
 beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
 # very optional
 sipfoundry.org.dir=@SIPFOUNDRY_ORG@
+neoconf.etc.dir=${top.dir}/neoconf/etc
 
 # U T I L
 jdom.jar=${top.dir}/lib/jdom.jar
@@ -58,6 +59,7 @@ commons-pool.jar=${top.dir}/lib/commons-pool.jar
 commons-dbcp.jar=${top.dir}/lib/commons-dbcp.jar
 jdbc-driver.jar=${top.dir}/lib/pg74.215.jdbc3.jar
 antlr.jar=${top.dir}/lib/antlr.jar
+velocity.jar=${top.dir}/lib/velocity-1.4.jar
 
 # A N T  U T I L  J A R S
 # these jars are required by ANT tasks; they are used when starting ANT from make system

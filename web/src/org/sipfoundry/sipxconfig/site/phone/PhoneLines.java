@@ -19,7 +19,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.phone.EndpointLine;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.site.line.NewLine;
 
@@ -35,20 +35,20 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public abstract void setPhone(Phone phone);
 
-    public abstract List getEndpointLines();
+    public abstract List getLines();
     
-    public abstract void setEndpointLines(List endpointLines);
+    public abstract void setLines(List lines);
     
-    public abstract EndpointLine getCurrentRow();
+    public abstract Line getCurrentRow();
 
-    public abstract void setCurrentRow(EndpointLine line);
+    public abstract void setCurrentRow(Line line);
     
     public abstract SelectMap getSelections();
     
     public abstract void setSelections(SelectMap selections);
     
     public void pageBeginRender(PageEvent eventTemp) {
-        setEndpointLines(new ArrayList());
+        setLines(new ArrayList());
         
         // Generate the list of phone items
         if (getSelections() == null) {

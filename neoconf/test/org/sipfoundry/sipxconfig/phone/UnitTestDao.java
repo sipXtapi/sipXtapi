@@ -39,9 +39,9 @@ public class UnitTestDao extends HibernateDaoSupport {
     
     private Endpoint m_teardownEndpoint;
     
-    private EndpointLine m_teardownEndpointLine;
-    
     private SettingSet m_teardownSettings;
+    
+    private Credential m_teardownCredential;
 
     private Line m_teardownLine;    
 
@@ -86,14 +86,6 @@ public class UnitTestDao extends HibernateDaoSupport {
         //   may fail due to duplicate data errors
         // Order is important here to comply with foriegn key
         //   relationships
-        if (m_teardownEndpointLine != null) {
-            m_phoneDao.deleteEndpointLine(m_teardownEndpointLine);
-            m_teardownEndpointLine = null;
-        }
-        if (m_teardownSettings != null) {
-            m_phoneDao.deleteSetting(m_teardownSettings);
-            m_teardownSettings = null;
-        }
         if (m_teardownLine != null) {
             m_phoneDao.deleteLine(m_teardownLine);
             m_teardownLine = null;
@@ -101,6 +93,14 @@ public class UnitTestDao extends HibernateDaoSupport {
         if (m_teardownEndpoint != null) {
             m_phoneDao.deleteEndpoint(m_teardownEndpoint);
             m_teardownEndpoint = null;
+        }
+        if (m_teardownSettings != null) {
+            m_phoneDao.deleteSetting(m_teardownSettings);
+            m_teardownSettings = null;
+        }
+        if (m_teardownCredential != null) {
+            m_phoneDao.deleteCredential(m_teardownCredential);
+            m_teardownCredential = null;
         }
         m_phoneDao.flush();
         
@@ -149,25 +149,12 @@ public class UnitTestDao extends HibernateDaoSupport {
             testUser.setFirstName("Test");
             testUser.setLastName("User");
             testUser.setDisplayId("testuser");
-            saveUser(testUser);
+            m_phoneDao.saveUser(testUser);
             m_testUserId = testUser.getId();
             setRecordId(testLabel, connection, testUser.getId());
         }
     }
     
-    public void saveUser(User user) {
-        Organization org = new Organization();
-        org.setId(1);
-        user.setOrganization(org);
-        user.setUserGroupId(1);  //default group
-        user.setRcsId(2); // 2='Complete User'
-        getHibernateTemplate().saveOrUpdate(user);        
-    }
-    
-    public void deleteUser(User user) {
-        getHibernateTemplate().delete(user);        
-    }
-
     private int getRecordId(String testLabel, Connection connection) throws SQLException {
         int recordId = -1;
         Statement statement = connection.createStatement();
@@ -211,16 +198,13 @@ public class UnitTestDao extends HibernateDaoSupport {
     
     /**
      * Create some generic sample data, destroyed verifyDataUnaltered
-     */
-    public Line createSampleLine() {
-        Line line = new Line();
-        line.setPassword("anypassword");
-        line.setUserId("joeuser");
-        line.setExtension("233212121"); // assumption, unique
-        m_phoneDao.storeLine(line);
-        m_teardownLine = line;
+     */    
+    public Credential createSampleCredential() {
+        Credential cred = new Credential();
+        m_phoneDao.storeCredential(cred);
+        m_teardownCredential = cred;
         
-        return line;
+        return cred;
     }
     
     /**
@@ -242,14 +226,15 @@ public class UnitTestDao extends HibernateDaoSupport {
     /**
      * Create some generic sample data, destroyed verifyDataUnaltered
      */
-    public EndpointLine createSampleEndpointLine() {
-        EndpointLine eline = new EndpointLine();        
-        eline.setLine(createSampleLine());
-        eline.setEndpoint(createSampleEndpoint());
-        eline.setSettings(createSampleSettingSet());
-        m_phoneDao.storeEndpointLine(eline);                
-        m_teardownEndpointLine = eline;
+    public Line createSampleLine(User user) {
+        Line line = new Line();        
+        line.setCredential(createSampleCredential());
+        line.setEndpoint(createSampleEndpoint());
+        line.setSettings(createSampleSettingSet());
+        line.setUser(user);
+        m_phoneDao.storeLine(line);                
+        m_teardownLine = line;
         
-        return eline;
+        return line;
     }
 }

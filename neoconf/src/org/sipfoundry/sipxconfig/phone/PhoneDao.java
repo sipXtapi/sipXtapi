@@ -31,7 +31,7 @@ public interface PhoneDao {
      *   Example:
      *      public class MyObject {
      * 
-     *          prviate int id = UNSAVED_ID
+     *          prviate int id = PhoneDao.UNSAVED_ID
      *         
      *           ...
      * </pre>
@@ -60,11 +60,21 @@ public interface PhoneDao {
 
     public Organization loadRootOrganization();
     
+    public void saveUser(User user);
+    
+    public void deleteUser(User user);
+
     public User loadUser(int id);
     
     public User loadUserByDisplayId(String displayId);
     
     public List loadPhoneSummaries(PhoneContext context);      
+
+    public void storeCredential(Credential credential);
+    
+    public void deleteCredential(Credential credential);
+
+    public Credential loadCredential(int id);
 
     public void storeLine(Line line);
     
@@ -76,11 +86,5 @@ public interface PhoneDao {
         
     public void storeEndpoint(Endpoint endpoint);
 
-    public void deleteEndpoint(Endpoint endpoint);
-    
-    public void storeEndpointLine(EndpointLine eline);
-    
-    public EndpointLine loadEndpointLine(int elineId);
-
-    public void deleteEndpointLine(EndpointLine eline);
+    public void deleteEndpoint(Endpoint endpoint);    
 }
