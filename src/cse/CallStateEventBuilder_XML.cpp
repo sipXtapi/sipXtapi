@@ -10,10 +10,12 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 
+#include "os/OsFS.h"
+#include "os/OsSysLog.h"
+#include "utl/XmlContent.h"
+
 // APPLICATION INCLUDES
 #include "CallStateEventBuilder_XML.h"
-
-#include "os/OsSysLog.h"
 
 // DEFINES
 // MACROS
@@ -21,7 +23,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-#define PRETTYPRINT_EVENTS 
+// Note: the unit test will fail if this is defined, since it compares against expected results without it.
+#undef PRETTYPRINT_EVENTS 
 #ifdef PRETTYPRINT_EVENTS
 #  define PP_LF "\n"
 #  define PP_IN "  "
@@ -30,22 +33,38 @@
 #  define PP_IN ""
 #endif
 
-const char* CallEventElementStartFormat =
+const char* CallEvent_Observer_Start =
 "<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>" PP_LF
-PP_IN "<observer>%s</observer>" PP_LF
-PP_IN "<obs_seq>%ld</obs_seq>" PP_LF
+PP_IN "<observer>"
 ;
-const char* ObsTimeElementFormat =
-PP_IN "<obs_time>TBD</obs_time>" PP_LF
+
+const char* ObserverEnd_ObsSeqStart =
+"</observer>" PP_LF
+PP_IN "<obs_seq>";
+
+const char* ObsSeqEnd_ObsTimeStart =
+"</obs_seq>" PP_LF
+PP_IN "<obs_time>"
 ;
+
+const char* ObsTimeEnd =
+"</obs_time>" PP_LF
+;
+
 const char* CallEventElementEnd =
 "</call_event>" PP_LF
 ;
 
-const char* ObsMsgFormat =
+const char* ObsMsgStart =
 PP_IN "<obs_msg>" PP_LF
-PP_IN PP_IN "<obs_status>%ld</obs_status>" PP_LF
-PP_IN PP_IN "<obs_text>%s</obs_text>" PP_LF
+PP_IN PP_IN "<obs_status>"
+;
+const char* ObsMsgMiddle =
+"</obs_status>" PP_LF
+PP_IN PP_IN "<obs_text>"
+;
+const char* ObsMsgEnd =
+"</obs_text>" PP_LF
 PP_IN "</obs_msg>" PP_LF
 ;
 
@@ -56,27 +75,100 @@ const char* CallRequestElementEnd =
 PP_IN "</call_request>" PP_LF
 ;
 
-const char* CallElementFormat =
+const char* CallSetupElementStart =
+PP_IN "<call_setup>" PP_LF
+;
+const char* CallSetupElementEnd =
+PP_IN "</call_setup>" PP_LF
+;
+
+const char* CallFailureElementStart =
+PP_IN "<call_failure>" PP_LF
+;
+const char* CallFailureElementEnd =
+PP_IN "</call_failure>" PP_LF
+;
+
+const char* CallEndElementStart =
+PP_IN "<call_end>" PP_LF
+;
+const char* CallEndElementEnd =
+PP_IN "</call_end>" PP_LF
+;
+
+const char* Call_Dialog_CallId_Start =
 PP_IN PP_IN "<call>" PP_LF
 PP_IN PP_IN PP_IN "<dialog>" PP_LF
-PP_IN PP_IN PP_IN PP_IN "<call_id>%s</call_id>" PP_LF
-PP_IN PP_IN PP_IN PP_IN "<from_tag>%s</from_tag>" PP_LF
-PP_IN PP_IN PP_IN PP_IN "<to_tag>%s</to_tag>" PP_LF
+PP_IN PP_IN PP_IN PP_IN "<call_id>"
+;
+const char* CallIdEnd =
+"</call_id>" PP_LF
+;
+const char* FromTagStart =
+PP_IN PP_IN PP_IN PP_IN "<from_tag>"
+;
+const char* FromTagEnd =
+"</from_tag>" PP_LF
+;
+const char* ToTagStart =
+PP_IN PP_IN PP_IN PP_IN "<to_tag>"
+;
+const char* ToTagEnd =
+"</to_tag>" PP_LF
+;
+const char* DialogEnd_FromFieldStart =
 PP_IN PP_IN PP_IN "</dialog>" PP_LF
-PP_IN PP_IN PP_IN "<from>%s</from>" PP_LF
-PP_IN PP_IN PP_IN "<to>%s</to>" PP_LF
+PP_IN PP_IN PP_IN "<from>"
+;
+const char* FromFieldEnd_ToFieldStart =
+"</from>" PP_LF
+PP_IN PP_IN PP_IN "<to>"
+;
+const char* ToField_CallEnd =
+"</to>" PP_LF
 PP_IN PP_IN "</call>" PP_LF
 ;
 
-const char* ContactElementFormat =
-PP_IN PP_IN "<contact>%s</contact>" PP_LF
+const char* ContactElementStart =
+PP_IN PP_IN "<contact>"
+;
+const char* ContactElementEnd =
+"</contact>" PP_LF
 ;
 
-const char* ViaElementFormat =
-PP_IN PP_IN "<via>%s</via>" PP_LF
+const char* Response_Status_Start =
+PP_IN PP_IN "<response>" PP_LF
+PP_IN PP_IN PP_IN"<status>"
+;
+
+const char* StatusEnd_ReasonStart =
+"</status>" PP_LF
+PP_IN PP_IN PP_IN"<reason>"
+;
+const char* Reason_Response_End =
+"</reason>" PP_LF
+PP_IN PP_IN "</response>" PP_LF
+;
+const char* ViaStart =
+PP_IN PP_IN "<via>"
+;
+const char* ViaEnd =
+"</via>" PP_LF
 ;
 
 #define CONTENT_BUF_MAX 2048 
+
+const char* EventText[] =
+{
+   "BuilderReset",
+   "CallRequestEvent",
+   "CallSetupEvent",
+   "CallFailureEvent",
+   "CallEndEvent",
+   "AddCallData",
+   "AddVia",
+   "CompleteCallEvent"
+};
 
 // STRUCTS
 // TYPEDEFS
@@ -105,37 +197,43 @@ CallStateEventBuilder_XML::~CallStateEventBuilder_XML()
  * This method generates a complete event - it does not require that the callEventComplete method be called.
  */
 void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
-                                              int timestamp,      ///< UTC in seconds since the unix epoch
+                                              const UtlString& timestamp,      ///< UTC in seconds since the unix epoch
                                               ObserverEvent eventCode,
                                               const char* eventMsg ///< for human consumption
                                               )
 {
-   BuilderMethod specialEvent;
+   BuilderMethod eventMethod;
    switch (eventCode)
    {
    case ObserverReset:
-      specialEvent = BuilderStart;
-      break;
-   case ObserverError:
-      specialEvent = BuilderReset;
+      reset(); // because this event is ok any time, clear out any partial event.
+      eventMethod = BuilderReset;
       break;
    default:
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, "observerEvent: invalid eventCode %d", eventCode);
+      eventMethod = InvalidEvent;
       break;
    }
 
-   if (builderStateIsOk(specialEvent))
+   if (builderStateIsOk(eventMethod))
    {
-      
+      newEvent(sequenceNumber, timestamp, ObsMsgStart);
+      char ec[11];
+      sprintf(ec, "%d", eventCode);
+      mCurrentEvent.append(ec);
+      mCurrentEvent.append(ObsMsgMiddle);
+      XmlEscape(mCurrentEvent, eventMsg);
+      mCurrentEvent.append(ObsMsgEnd);
+      mCurrentEvent.append(CallEventElementEnd);
+      mEventComplete = true;
    }
    else
    {
-      reset();
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "observerEvent: %d not allowed.", eventCode);
    }
 }
-
-
 
 /// Begin a Call Request Event - an INVITE without a to tag has been observed
 /**
@@ -146,10 +244,25 @@ void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for Obser
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
-                                                 int timestamp,
+                                                 const UtlString& timestamp,
                                                  const UtlString& contact
                                                  )
 {
+   if (builderStateIsOk(CallRequestEvent))
+   {
+      newEvent(sequenceNumber, timestamp, CallRequestElementStart);
+
+      mLaterElement.append(ContactElementStart);
+      XmlEscape(mLaterElement, contact);
+      mLaterElement.append(ContactElementEnd);
+
+      mEndElement = CallRequestElementEnd;
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callRequestEvent not allowed.");
+   }
 }
 
 
@@ -162,10 +275,25 @@ void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callSetupEvent(int sequenceNumber,
-                                               int timestamp,
+                                               const UtlString& timestamp,
                                                const UtlString& contact
                                                )
 {
+   if (builderStateIsOk(CallSetupEvent))
+   {
+      newEvent(sequenceNumber, timestamp, CallSetupElementStart);
+
+      mLaterElement.append(ContactElementStart);
+      XmlEscape(mLaterElement, contact);
+      mLaterElement.append(ContactElementEnd);
+
+      mEndElement = CallSetupElementEnd;
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callSetupEvent not allowed.");
+   }
 }
 
 
@@ -178,11 +306,30 @@ void CallStateEventBuilder_XML::callSetupEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callFailureEvent(int sequenceNumber,
-                                                 int timestamp,
+                                                 const UtlString& timestamp,
                                                  int statusCode,
                                                  const UtlString& statusMsg
                                                  )
 {
+   if (builderStateIsOk(CallFailureEvent))
+   {
+      newEvent(sequenceNumber, timestamp, CallFailureElementStart);
+
+      mLaterElement.append(Response_Status_Start);
+      char sc[11];
+      sprintf(sc, "%d", statusCode);
+      mLaterElement.append(sc);
+      mLaterElement.append(StatusEnd_ReasonStart);
+      XmlEscape(mLaterElement, statusMsg);
+      mLaterElement.append(Reason_Response_End);
+
+      mEndElement = CallFailureElementEnd;
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callFailureEvent not allowed.");
+   }
 }
 
 
@@ -195,9 +342,20 @@ void CallStateEventBuilder_XML::callFailureEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callEndEvent(const int sequenceNumber,
-                                             const int timestamp
+                                             const UtlString& timestamp
                                              )
 {
+   if (builderStateIsOk(CallEndEvent))
+   {
+      newEvent(sequenceNumber, timestamp, CallEndElementStart);
+
+      mEndElement = CallEndElementEnd;
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
+   }
 }
 
 
@@ -209,6 +367,34 @@ void CallStateEventBuilder_XML::addCallData(const UtlString& callId,
                                             const UtlString& toField
                                             )
 {
+   if (builderStateIsOk(AddCallData))
+   {
+      mCallInfo.append(Call_Dialog_CallId_Start);
+      XmlEscape(mCallInfo, callId);
+      mCallInfo.append(CallIdEnd);
+      if (!fromTag.isNull())
+      {
+         mCallInfo.append(FromTagStart);
+         XmlEscape(mCallInfo, fromTag);
+         mCallInfo.append(FromTagEnd);
+      }
+      if (!toTag.isNull())
+      {
+         mCallInfo.append(ToTagStart);
+         XmlEscape(mCallInfo, toTag);
+         mCallInfo.append(ToTagEnd);
+      }
+      mCallInfo.append(DialogEnd_FromFieldStart);
+      XmlEscape(mCallInfo, fromField);
+      mCallInfo.append(FromFieldEnd_ToFieldStart);
+      XmlEscape(mCallInfo, toField);
+      mCallInfo.append(ToField_CallEnd);
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
+   }
 }
 
    
@@ -222,21 +408,93 @@ void CallStateEventBuilder_XML::addEventVia(int index,
                                             const UtlString& via
                                             )
 {
+   if (builderStateIsOk(AddVia))
+   {
+      // If, in the future, we decide that more than the originating via
+      // is important, we'll have to change this to a list and order it
+      // by the index value; for now, we ignore all but 0.
+      if (0 == index)
+      {
+         mViaHeader.append(ViaStart);
+         XmlEscape(mViaHeader, via);
+         mViaHeader.append(ViaEnd);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallStateEventBuilder_XML::addEventVia for %d dropped.", index);
+      }
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
+   }
 }
 
 
 /// Indicates that all information for the current call event has been added.
 void CallStateEventBuilder_XML::completeCallEvent()
 {
+   if (builderStateIsOk(CompleteCallEvent))
+   {
+      mEventComplete = true;
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::completeCallEvent not allowed.");
+   }
 }
 
 /// Indicates that all information for the current call event has been added.
 void CallStateEventBuilder_XML::reset()
 {
    mCurrentEvent.remove(0);
-   mViaList.destroyAll();
+   mCallInfo.remove(0);
+   mViaHeader.remove(0);
    mLaterElement.remove(0);
+   mEndElement.remove(0);
+   mEventComplete = false;
 }
 
+void CallStateEventBuilder_XML::newEvent(int sequenceNumber, const UtlString& timestamp, const char* elementStart)
+{
+   mCurrentEvent = CallEvent_Observer_Start;
+   XmlEscape(mCurrentEvent, observerName);
+   mCurrentEvent.append(ObserverEnd_ObsSeqStart);
+   char sn[11];
+   sprintf(sn, "%d", sequenceNumber);
+   mCurrentEvent.append(sn);
+   mCurrentEvent.append(ObsSeqEnd_ObsTimeStart);
+   XmlEscape(mCurrentEvent, timestamp);
+   mCurrentEvent.append(ObsTimeEnd);
+   mCurrentEvent.append(elementStart);
+}
 
+/// Copies the element into the provided UtlString
+bool  CallStateEventBuilder_XML::xmlElement(UtlString& event)
+/**<
+ * @returns
+ * - true if the returned element is validly constructed
+ * - false if not (a caller error)
+ */
+{
+   bool isComplete = mEventComplete;
+   event.remove(0);
+
+   if (isComplete)
+   {
+      event.append(mCurrentEvent);
+      event.append(mCallInfo);
+      event.append(mLaterElement);
+      event.append(mViaHeader);
+      event.append(mEndElement);
+      event.append(CallEventElementEnd);
+      event.append('\n');
+
+      reset();
+   }
+
+   return isComplete;
+}
 
