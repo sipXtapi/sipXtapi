@@ -16,12 +16,10 @@
     -  P R O P E R T I E S
     -
     - EXTERNAL PROPERTIES DEPENDECIES:
-    -  top.build.dir        = top output for all projects
-    -  build.dir            = output for project
-    -  test.classes         = Patterset of explicit junit tests for quick test
-    -  regression.classes   = Patterset of explicit junit tests for full regression test 
+    -  project.dir          = path relative to ant-targets.xml to project
     -->
-  <property file="top.build.dir"/>
+  <dirname property="ant-targets.basedir" file="${ant.file.ant-targets}"/>
+  <property file="${ant-targets.basedir}/top.build.dir"/>
   <property file="${top.build.dir}/config.properties"/>
 
   <!--
