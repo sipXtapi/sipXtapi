@@ -178,7 +178,7 @@ sysdir.log=${test.results.dir}
 sysdir.data=${test.results.dir}
 sysdir.phone=${test.results.dir}
 	      </echo>
-         <copy todir="${test.war}/WEB-INF/classes/org/sipfoundry/sipxconfig" file="etc/jms-sipxconfig.xml"/>         
+         <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml"/>         
 	</target>
 
   <!-- 
