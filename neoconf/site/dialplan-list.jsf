@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<jsp:root version="1.2" 
+    xmlns:jsp="http://java.sun.com/JSP/Page" 
+    xmlns:f="http://java.sun.com/jsf/core" 
+    xmlns:h="http://java.sun.com/jsf/html"
+    >
+
+<jsp:directive.page contentType="text/html"/>
+
+<f:view>    
+    <f:loadBundle basename="org.sipfoundry.sipxconfig.admin.dialplan.messages" var="msgs"/>
+    
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title><h:outputText value="#{msgs.dialPlanList_title}"/></title>
+	<link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
+</head>
+<body>
+    <h:form id="dialplans">
+        <h:dataTable value="#{dialPlans.dialPlans}" var="plan" 
+			styleClass="table-view" rowClasses="odd,even">
+            <h:column>
+                <f:facet name="header">
+	                <h:outputText value="#{msgs.name}"/>                    
+                </f:facet>
+                <h:outputText value="#{plan.name}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">
+	                <h:outputText value="#{msgs.localExtensionLen}"/>                    
+                </f:facet>
+                <h:outputText value="#{plan.localExtensionLen}"/>
+            </h:column>
+        </h:dataTable>
+    </h:form>
+</body>
+</html>
+</f:view>
+</jsp:root>

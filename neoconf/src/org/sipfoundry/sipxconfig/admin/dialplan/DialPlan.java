@@ -18,45 +18,33 @@ import javax.faces.model.SelectItem;
  */
 public class DialPlan {
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
-
-    private static final int DEFAULT_PSTN_PREFIX = 9;
-
-    private static final int DEFAULT_VMAIL_PREFIX = 3;
-
-    private static final int MIN_DIGIT = 1;
-
-    private static final int MAX_DIGIT = 9;
-
-    private static final int MIN_EXT_LEN = 9;
-
+    private static final String DEFAULT_PSTN_PREFIX = "9";
+    private static final String DEFAULT_VMAIL_PREFIX = "8";
+    private static final int MIN_EXT_LEN = 3;
     private static final int MAX_EXT_LEN = 9;
 
     // dial plan attributes
-
     private String m_name;
-
     private Integer m_localExtensionLen = new Integer(DEFAULT_LOCAL_EXT_LEN);
-
     private String m_autoAttendant = "100";
-
     private String m_voiceMail = "101";
-
-    private String m_did;
-
-    private Integer m_pstnPrefix = new Integer(DEFAULT_PSTN_PREFIX);
-
+    private String m_did = "";
+    private String m_pstnPrefix = DEFAULT_PSTN_PREFIX;
     private String m_emergencyNumber = "911";
-
-    private String m_internationalPrefix;
-
-    private Integer m_voiceMailPrefix = new Integer(DEFAULT_VMAIL_PREFIX);
-
+    private String m_internationalPrefix = "011";
+    private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private String m_longDistancePrefix = "1";
 
-    // helpers
-    private SelectItem[] m_oneDigitRange = getMapForRange(MIN_DIGIT, MAX_DIGIT);
-
     private SelectItem[] m_localExtensionLenRange = getMapForRange(MIN_EXT_LEN, MAX_EXT_LEN);
+
+    public DialPlan() {
+        // empty
+    }
+
+    DialPlan(String name, int localExtensionLen) {
+        m_name = name;
+        m_localExtensionLen = new Integer(localExtensionLen);
+    }
 
     public String getAutoAttendant() {
         return m_autoAttendant;
@@ -69,7 +57,7 @@ public class DialPlan {
         SelectItem[] items = new SelectItem[max - min + 1];
         for (int i = min; i <= max; i++) {
             Object value = new Integer(i);
-            String label = value.toString() + " kuku";
+            String label = value + " digits";
             items[i - min] = new SelectItem(value, label);
         }
         return items;
@@ -111,11 +99,11 @@ public class DialPlan {
         m_longDistancePrefix = longDistancePrefix;
     }
 
-    public Integer getPstnPrefix() {
+    public String getPstnPrefix() {
         return m_pstnPrefix;
     }
 
-    public void setPstnPrefix(Integer pstnPrefix) {
+    public void setPstnPrefix(String pstnPrefix) {
         m_pstnPrefix = pstnPrefix;
     }
 
@@ -127,11 +115,11 @@ public class DialPlan {
         m_voiceMail = voiceMail;
     }
 
-    public Integer getVoiceMailPrefix() {
+    public String getVoiceMailPrefix() {
         return m_voiceMailPrefix;
     }
 
-    public void setVoiceMailPrefix(Integer voiceMailPrefix) {
+    public void setVoiceMailPrefix(String voiceMailPrefix) {
         m_voiceMailPrefix = voiceMailPrefix;
     }
 
@@ -158,9 +146,5 @@ public class DialPlan {
 
     public SelectItem[] getLocalExtensionLenRange() {
         return m_localExtensionLenRange;
-    }
-
-    public SelectItem[] getOneDigitRange() {
-        return m_oneDigitRange;
     }
 }

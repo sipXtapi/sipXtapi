@@ -43,5 +43,16 @@
 		<managed-bean-class>org.sipfoundry.sipxconfig.admin.dialplan.DialPlan</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
+    
+	<managed-bean>
+		<managed-bean-name>dialPlans</managed-bean-name>
+		<managed-bean-class>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanList</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+    <validator>
+        <validator-id>org.sipfoundry.PhoneNumber</validator-id>
+        <validator-class>org.sipfoundry.sipxconfig.admin.dialplan.PhoneNumberValidator</validator-class>
+    </validator>
 
 </faces-config>
