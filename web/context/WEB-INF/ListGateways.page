@@ -17,11 +17,6 @@
         type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway">
     </property-specification>
 
-	<property-specification name="selections" 
-    	type="org.sipfoundry.sipxconfig.components.SelectMap"
-    	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"
-    	/>    
-
 	<property-specification name="selectedRows" type="java.util.Collection"/>    
     
      <!--
@@ -34,34 +29,11 @@
     <!--
      - C O M P O N E N T S
      -->
-    <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="dialPlanManager.gateways"/>
-        <static-binding name="columns" value="* Name:name,Address:address,Description:description"/>
+    <component id="gatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="dialPlanManager.gateways"/>
+        <static-binding name="editPageName" value="EditGateway"/>
     </component>
-    
-    <component id="tableColumns" type="contrib:TableColumns">
-        
-    </component>
-    
-    <component id="tableRows" type="contrib:TableRows">
-		<binding name="class" expression="beans.rowClass.next"/>
-		<binding name="row" expression="currentRow"/>
-    </component>
-
-    <component id="tableValues" type="contrib:TableValues">
-        
-    </component>
-    
-	<component id="NameColumnValue" type="Block"/>
-    
-    <component id="nameText" type="Insert">
-        <binding name="value" expression="currentRow.name"/>
-    </component>
-    
-    <component id="editRowLink" type="ActionLink">
-        <binding name="listener" expression="listeners.editGateway"/>
-    </component>
-            
+                
     <component id="addGatewayLink" type="DirectLink">
         <binding name="listener" expression="listeners.addGateway"/>
     </component>
@@ -70,13 +42,9 @@
         <static-binding name="page" value="ListDialPlans"/>
     </component>
     
-    <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.id]"/>
-    </component>
-    
     <component id="deleteButton" type="Submit">
         <binding name="selected" expression="selectedRows"/>
-        <binding name="tag" expression="selections.allSelected"/>
+        <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
     </component>
     
     <component id="gatewaysListForm" type="Form">

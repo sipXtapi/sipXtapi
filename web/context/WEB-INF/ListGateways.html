@@ -9,49 +9,7 @@
 		<li><a jwcid="dialPlansLink" id="dialPlans	" href="ListDialplans.html">Dial Plans</a></li>
 	</ul>        
     <form jwcid="gatewaysListForm" id="list:gateway:form">
-	<table id="list:gateway" jwcid="tableView" class="table-view">
-            <thead>
-                <tr>
-	                <td></td>
-					<td jwcid="tableColumns"/>
-				</tr>                    
-                <tr jwcid="$remove$">
-                   <th/> 
-                   <th>Name</th> 
-                   <th>Address</th> 
-                   <th>Description</th> 
-                </tr>
-            </thead>
-            <tbody>
-				<span jwcid="NameColumnValue">
-					<span jwcid="editRowLink"><span jwcid="nameText"/></span>
-				</span>
-                <span jwcid="tableRows">
-                    <td><span jwcid="selectedRow"/></td>
-					<span jwcid="tableValues"/>
-                </span>
-                <span jwcid="$remove$">
-                <tr class="odd">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">boston</a></td> 
-                   <td>192.168.1.15</td> 
-                   <td>default PSTN connection for office calls</td>                     
-                </tr>
-                <tr class="even">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">atlanta</a></td> 
-                   <td>10.1.3.5</td>
-                   <td>additional</td>                     
-                </tr>                
-                <tr class="odd">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">chicago</a></td> 
-                   <td>192.168.1.15</td> 
-                   <td></td>                     
-                </tr>
-                </span>
-            </tbody>
-		</table>
+		<span jwcid="gatewayTable"></span>
 		<ul class="table-actions">
 			<li><input jwcid="deleteButton" type="submit" id="list:gateway:delete" 
             	value="Delete" onclick="confirm('Are you sure you want to remove selected gateways?')"/></li>
