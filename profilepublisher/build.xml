@@ -77,19 +77,5 @@
     <copy file="${dist.dir}/profilepublisher.jar" todir="${sipxconfig.lib.dir}"/>
 
   </target>
-
-  <target name="regression" depends="compile.test" description="Full regression, assumes machine is setup to run sipXconfig">
-    <junit printsummary="yes" showoutput="true">
-      <formatter type="plain"/>
-      <sysproperty key="basedir" value="${basedir}"/>
-      <classpath>
-        <pathelement path="${classpath}"/>
-        <pathelement location="${classes.dir}"/>
-        <pathelement location="${jdbc-driver.jar}"/>
-      </classpath>
-      
-      <test name="DbConnectionTest" />
-    </junit>
-  </target>
  
 </project>
