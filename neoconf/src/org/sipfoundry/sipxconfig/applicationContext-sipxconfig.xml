@@ -31,6 +31,8 @@
 			<value>postgres</value>
 		</property>
 	</bean>
+    
+    
 	<!--
        - T R A N S A C T I O N  S U P P O R T
        -->
@@ -205,6 +207,8 @@
 	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		
 	</bean>
 
+	<bean id="forwardingContext" class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl">
+    </bean>
 	<!--
 	  - D I A L   P L A N S
 	  - TODO: move to separate file

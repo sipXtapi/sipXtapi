@@ -59,6 +59,7 @@ public abstract class UserCallForwarding extends BasePage  implements PageRender
     public void apply(IRequestCycle cycle_) {
         if (TapestryUtils.isValid(this)) {
             //TODO: implement
+            return;
         }
     }
 

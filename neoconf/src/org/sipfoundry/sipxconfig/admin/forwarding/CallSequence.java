@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.BeanWithId;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 
 /**
  * CallSequence
  */
-public class CallSequence {
+public class CallSequence extends BeanWithId {
     private List m_calls = new ArrayList();
     private String m_user;
     private String m_domain;
@@ -39,6 +40,31 @@ public class CallSequence {
         m_calls = calls;
         m_user = user;
         m_withVoicemail = withVoicemail;
+    }
+
+    public void addRing(Ring ring) {
+        m_calls.add(ring);
+    }
+
+    public void removeRing(Integer ringId) {
+        m_calls.remove(new BeanWithId(ringId));
+    }
+
+    private Ring getRingOrg(Integer ringId) {
+        int i = m_calls.indexOf(new BeanWithId(ringId));
+        if (i < 0) {
+            return null;
+        }
+        return (Ring) m_calls.get(i);
+    }
+
+    public Ring getRing(Integer ringId) {
+        return (Ring) getRingOrg(ringId).detach();
+    }
+
+    public void updateRing(Integer ringId, Ring ring) {
+        Ring ringOrg = getRingOrg(ringId);
+        ringOrg.update(ring);
     }
 
     public List generateAliases() {

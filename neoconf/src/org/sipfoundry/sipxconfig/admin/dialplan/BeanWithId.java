@@ -31,7 +31,7 @@ public class BeanWithId {
         this(new Integer(s_id++));
     }
 
-    BeanWithId(Integer id) {
+    public BeanWithId(Integer id) {
         setId(id);
     }
 
