@@ -1,9 +1,14 @@
 include $(top_builddir)/config/sipXcommon.mak
 
-SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni doc
+include $(srcdir)/config/sipXprojtop.mak
+
+SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni $(doc_SUBDIRS)
 
 EXTRA_DIST = \
     config/sipX-config.in \
+    config/sipX-buildstamp.cpp.in \
+    config/sipX-buildstamp.h.in \
+    config/sipXprojtop.mak \
     config/sipXcommon.mak.in \
     ant-targets.am \
     ant-targets.xml \
