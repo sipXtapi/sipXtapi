@@ -42,6 +42,12 @@ message.
 	</ol>
     </li>
 
+    <li><a href="#optional">Optional Setup</a>
+	<ol>
+            <li><a href="#tftp">TFTP Setup for Cisco 79xx</a></li>
+	 </ol>
+    </li>
+
     <li><a href="#security">Security</a></li>
     <li><a href="#run">Running</a>
       <ol>
@@ -291,6 +297,58 @@ sipXcommserverLib/doc/INSTALL.ssl or
 /usr/share/doc/sipxcommserverlib-<em>version</em>/INSTALL.ssl.</p>
 
 
+<h2><a name="optional">Optional Setup</a></h2>
+
+<h3><a name="tftp">TFTP Setup for Cisco 79xx phones</a></h3>
+
+<p>Most Cisco phones in the 79xx series use a tftp server to serve
+phone configuration information and firmware upgrades.  You must
+install a tftp server and map the tftp root directory to:
+<code>var/sipxdata/configserver/phone/profile/tftproot</code>.
+Consult phone vendor documenation for recommended TFTP servers but
+below is a set of known tftp server setups that work.</p>
+
+<h4>On Fedora or Red Hat Enterprise</h4>
+<p>Run the following commands
+<pre>
+  up2date tftp-server
+  ${EDITOR} /etc/xinetd.d/tftp
+</pre>
+make the following <strong>edits</strong>, if you've installed via
+RPM, then <code>{where you installed sipXconfig}</code> is empty:
+<pre>
+   disable  = no
+   server_args  = -s <em>{where you installed sipXconfig}</em>/var/sipxdata/configserver/phone/profile/tftproot
+</pre>
+Run the following commands for your edits to take affect
+<pre>
+  # ensure tftp server is not already running
+  ps aux | grep tftp
+ 
+  # if so, stop it
+  kill -15 {tftp pid}
+
+  # restart xinit.d that in turn will start tftp on demand
+  service xinet.d restart
+</pre>
+</p>
+
+<h4>On Gentoo</h4>
+<p>Run the following commands
+<pre>
+  emerge net-misc/tftp-hpa
+  ${EDITOR} /etc/conf.d/in.tftpd
+</pre>
+make the following edits
+<pre>
+  INTFTPD_PATH="<em>{where you installed sipXconfig}</em>/var/sipxdata/configserver/phone/profile/tftproot"
+</pre>
+then run the following command
+<pre>
+  /etc/init.d/in.tftp start
+</pre>
+</p>
+
 <h2><a name="run">Running</a></h2>
 
 <h3><a name="run-sipx">Running with other sipX servers</a></h3>
@@ -396,7 +454,7 @@ following:</p>
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Mon Nov  1 18:02:34 EST 2004
+Last modified: Mon Nov  8 10:12:31 EST 2004
 <!-- hhmts end -->
 </span>
 

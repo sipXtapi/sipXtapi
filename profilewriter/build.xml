@@ -65,7 +65,16 @@
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/applications"/>
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/catalog"/>
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
-    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"/>
+
+    <!-- Cisco 79XX support -->
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot">
+      <fileset dir="etc">
+        <include name="SIPDefault.cnf"/>
+        <include name="syncinfo.xml"/>
+      </fileset>
+    </copy>
+
+    <!-- So running config server can create files here -->
     <chown owner="${sipxpbx.user}" type="dir">
       <fileset dir="${dest.dir}${sipxconfig.phone.dir}" includes="**"/>
     </chown>
