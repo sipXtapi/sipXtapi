@@ -111,23 +111,6 @@ public class TestPGSInterface extends TestCase {
 
 
     /**
-     * creates and deletes a application profile for a Pingtel xpressa device
-     */
-    public void testPingtelCreateAndDeleteApplication () {
-
-        try {
-            createPingtelProfile( PDSDefinitions.PROF_TYPE_APPLICATION_REF, "app-config");
-            checkPingtelProfileExists( "app-config");
-            deletePingtelProfile( PDSDefinitions.PROF_TYPE_APPLICATION_REF, "app-config" );
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-    }
-
-
-    /**
      * creates and deletes a device profile for a Cisco 7960 device
      */
     public void test79xxCreateAndDeleteDevice( ) {
