@@ -66,6 +66,11 @@
 	  <!-- For generating sysdir for applications -->
     <target name="sysdir.properties"
 	     description="internal, for generating sysdir.properties for web application">
+<!-- 
+  - NOTE: 
+  - a duplicate copy is maintained test/org/sipfoundry/sipxconfig/TestHelper.java
+  - but point to unittest directories
+  -->
       <echo file="${classes.dir}/sysdir.properties">
 # used in applicationContext-sipxconfig.xml to set system properies
 sysdir.etc=${sipxpbx.conf.dir}
@@ -137,7 +142,7 @@ sysdir.var=${sipxpbx.data.dir}
 	<target name="install" depends="war"
 	   description="Copy war file into Jboss deploy directory">
 
-		<copy todir="${jboss.container.deploy}" file="${sipxconfig.war}"/>
+		<copy todir="${jboss.container.deploy}" file="${dest.dir}${sipxconfig.war}"/>
 
 	</target>
 	
