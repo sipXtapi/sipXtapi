@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,14 +27,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
  */
 public class DialPlanManager {
     private List m_gateways = new ArrayList();
+    private String m_configDirectory;
 
     // TODO: inject those through Spring
     private FlexibleDialPlan m_flexDialPlan = new FlexibleDialPlan();
-    
+
     private transient ConfigGenerator m_generator;
 
     private DialingRuleFactory m_ruleFactory;
-    
+
     public List getGateways() {
         return m_gateways;
     }
@@ -118,24 +120,38 @@ public class DialPlanManager {
         m_flexDialPlan = flexDialPlan;
     }
 
-    public ConfigGenerator activateDialPlan() {
+    public ConfigGenerator generateDialPlan() {
         ConfigGenerator generator = new ConfigGenerator();
         generator.generate(m_flexDialPlan);
         m_generator = generator;
         return m_generator;
     }
 
+    public void activateDialPlan() {
+        ConfigGenerator generator = getGenerator();
+        try {
+            generator.activate(m_configDirectory);
+        } catch (IOException e) {
+            throw new RuntimeException("Activation of Dial Plan incomplete.", e);
+        }
+    }
+
     public ConfigGenerator getGenerator() {
         if (null == m_generator) {
-            return activateDialPlan();
+            return generateDialPlan();
         }
         return m_generator;
     }
-    
+
     public DialingRuleFactory getRuleFactory() {
         return m_ruleFactory;
     }
+
     public void setRuleFactory(DialingRuleFactory ruleFactory) {
         m_ruleFactory = ruleFactory;
+    }
+
+    public void setConfigDirectory(String configDirectory) {
+        m_configDirectory = configDirectory;
     }
 }

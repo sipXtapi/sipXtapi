@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.StringWriter;
 
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -48,5 +51,29 @@ public class ConfigGeneratorTest extends XMLTestCase {
         document.write(writer);
         String xml = generator.getFileContent(type);
         assertXMLEqual("Comparing: " + type, writer.getBuffer().toString(), xml);
+    }
+    
+    public void testActivate() throws Exception {
+        FlexibleDialPlan empty = new FlexibleDialPlan();
+        ConfigGenerator generator = new ConfigGenerator();
+        generator.generate(empty);
+        File x = File.createTempFile("test", "in");
+        String tmpDir = x.getParent();
+        x.deleteOnExit();
+        generator.activate(tmpDir);
+        
+        File[] files = new File[3];
+        files[0] = new File(tmpDir, "mappingrules.xml.in.new");
+        files[1] = new File(tmpDir, "fallbackrules.xml.in.new");
+        files[2] = new File(tmpDir, "authrules.xml.in.new");
+        
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
+            assertTrue( file.canRead() );
+            FileInputStream stream = new FileInputStream(file);
+            assertEquals( '<', stream.read() );
+            stream.close();
+            file.deleteOnExit();
+        }
     }
 }

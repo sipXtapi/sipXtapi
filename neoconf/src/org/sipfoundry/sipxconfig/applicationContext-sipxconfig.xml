@@ -224,5 +224,8 @@
     	<property name="ruleFactory">
             <ref bean="dialRuleFactory"></ref>
         </property>
+        <property name="configDirectory">
+			<value>${sysdir.etc}</value>            
+        </property>
     </bean>
 </beans>

@@ -142,7 +142,7 @@ public class DialPlanManagerTest extends TestCase {
     public void testActivateDialPlan() throws Exception {
         DialPlanManager manager = new DialPlanManager();
         final ConfigGenerator g1 = manager.getGenerator();
-        final ConfigGenerator g2 = manager.activateDialPlan();
+        final ConfigGenerator g2 = manager.generateDialPlan();
         final ConfigGenerator g3 = manager.getGenerator();
         assertNotNull(g1);
         assertNotNull(g2);

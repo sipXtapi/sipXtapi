@@ -39,6 +39,7 @@ public abstract class ActivateDialPlan extends BasePage {
     }
 
     public void activate(IRequestCycle cycle_) {
-        // activate dial plan
+        DialPlanManager manager = getDialPlanManager();
+        manager.activateDialPlan();
     }
 }

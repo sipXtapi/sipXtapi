@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.util.List;
+
 import org.apache.commons.lang.enum.Enum;
 
 /**
@@ -23,5 +25,9 @@ public final class ConfigFileType extends Enum {
     
     private ConfigFileType(String name) {
         super(name);
+    }
+    
+    public static List getEnumList() {
+        return getEnumList(ConfigFileType.class);
     }
 }

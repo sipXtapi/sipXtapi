@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -30,6 +32,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * ConfigGenerator
  */
 public class ConfigGenerator {
+    // TODO: change to new to generate files directly
+    private static final String SUFFIX = ".in.new";
+
     private MappingRules m_mapping;
     private AuthRules m_auth;
     private FallbackRules m_fallback;
@@ -89,6 +94,18 @@ public class ConfigGenerator {
             // ignore when writing to string
             // TODO: log
             return "";
+        }
+    }
+
+    public void activate(String directory) throws IOException {
+        List types = ConfigFileType.getEnumList();
+        File configDir = new File(directory);
+        for (Iterator i = types.iterator(); i.hasNext();) {
+            ConfigFileType type = (ConfigFileType) i.next();
+            File configFile = new File(configDir, type.getName() + SUFFIX);
+            FileWriter writer = new FileWriter(configFile);
+            write(type, writer);
+            writer.close();
         }
     }
 }
