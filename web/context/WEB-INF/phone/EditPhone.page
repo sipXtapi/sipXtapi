@@ -22,7 +22,7 @@
     <component id="editPhoneNavigation" type="PhoneNavigation">        
         <binding name="endpoint" expression="endpoint"/>
         <static-binding name="tab" value="EditPhone"/>
-        <static-binding name="heading" value="Device Identification"/>
+        <static-binding name="heading" value="Identification"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">

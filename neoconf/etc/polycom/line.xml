@@ -381,7 +381,7 @@
 				invokes message retrieval. If set to 'registration', a call 
 				will be placed using this registration to the contact 
 				registered (the phone will call itself). If set to 'disabled', 
-				mes-sage retrieval is disabled. </description>
+				message retrieval is disabled. </description>
 		</setting>
 		<setting name="callBack">
 			<type>ASCII encoded string containing digits (the user part of a 

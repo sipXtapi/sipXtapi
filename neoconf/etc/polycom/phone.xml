@@ -89,7 +89,7 @@
 		<setting name="level">
 			<type>-33 to -3</type>
 			<value>-15</value>
-			<description>Level of the high frequency compo-nent of the DTMF 
+			<description>Level of the high frequency component of the DTMF 
 				digit measured in dBm0; the low frequency tone will be two dB 
 				lower.</description>
 		</setting>
@@ -113,10 +113,10 @@
 		<setting name="chassis.masking">
 			<type>0, 1</type>
 			<value>0</value>
-			<description>If set to 1, DTMF tones will be sub-stituted with a 
+			<description>If set to 1, DTMF tones will be substituted with a 
 				non-DTMF pacifier tone when dialing in hands-free mode. This 
 				prevents DTMF digits being broadcast to other surrounding 
-				telephony devices or being inadvert-ently transmitted in-band 
+				telephony devices or being inadvertently transmitted in-band 
 				due to local acoustic echo. Note: tone.dtmf.chassis.masking 
 				should only be enabled when tone.dtmf.viaRtp is disabled. 
 				</description>
@@ -222,12 +222,12 @@
 					<type>40, 50, 60, ... (multiple of 10)</type>
 					<value>40</value>
 					<description>The smallest jitter buffer depth (in 
-						milli-seconds) that must be achieved before play out 
+						milliseconds) that must be achieved before play out 
 						begins for the first time. Once this depth has been 
 						achieved initially, the depth may fall below this point 
 						and play out will still continue. This parameter should 
 						be set to the smallest possible value which is at least 
-						two packet pay-loads, and larger than the expected 
+						two packet payloads, and larger than the expected 
 						short term average jitter.</description>
 				</setting>
 				<setting name="jitterBufferShrink">
@@ -241,12 +241,12 @@
 						with large jitter (3000 ms).</description>
 				</setting>
 				<setting name="jitterBufferMax">
-					<type> greater than jitterBuf-ferMin, multiple of 10, less 
+					<type> greater than jitterBufferMin, multiple of 10, less 
 						than or =500 for IP 500 and IP 600, less than or = 160 
 						for IP 300</type>
 					<value>160</value>
 					<description>The largest jitter buffer depth to be 
-						sup-ported (in milliseconds). Jitter above this size 
+						supported (in milliseconds). Jitter above this size 
 						will always cause lost packets. This parameter should 
 						be set to the smallest possible value that will support 
 						the expected network jitter</description>
@@ -266,12 +266,12 @@
 					<type>40, 50, 60, ... (multiple of 10)</type>
 					<value>40</value>
 					<description>The smallest jitter buffer depth (in 
-						milli-seconds) that must be achieved before play out 
+						milliseconds) that must be achieved before play out 
 						begins for the first time. Once this depth has been 
 						achieved initially, the depth may fall below this point 
 						and play out will still continue. This parameter should 
 						be set to the smallest possible value which is at least 
-						two packet pay-loads, and larger than the expected 
+						two packet payloads, and larger than the expected 
 						short term average jitter.</description>
 				</setting>
 				<setting name="jitterBufferShrink">
@@ -285,12 +285,12 @@
 						with large jitter (3000 ms).</description>
 				</setting>
 				<setting name="jitterBufferMax">
-					<type> greater than jitterBuf-ferMin, multiple of 10, less 
+					<type> greater than jitterBufferMin, multiple of 10, less 
 						than or =500 for IP 500 and IP 600, less than or = 160 
 						for IP 300</type>
 					<value>160</value>
 					<description>The largest jitter buffer depth to be 
-						sup-ported (in milliseconds). Jitter above this size 
+						supported (in milliseconds). Jitter above this size 
 						will always cause lost packets. This parameter should 
 						be set to the smallest possible value that will support 
 						the expected network jitter</description>
@@ -310,12 +310,12 @@
 					<type>40, 50, 60, ... (multiple of 10)</type>
 					<value>40</value>
 					<description>The smallest jitter buffer depth (in 
-						milli-seconds) that must be achieved before play out 
+						milliseconds) that must be achieved before play out 
 						begins for the first time. Once this depth has been 
 						achieved initially, the depth may fall below this point 
 						and play out will still continue. This parameter should 
 						be set to the smallest possible value which is at least 
-						two packet pay-loads, and larger than the expected 
+						two packet payloads, and larger than the expected 
 						short term average jitter.</description>
 				</setting>
 				<setting name="jitterBufferShrink">
@@ -329,12 +329,12 @@
 						with large jitter (3000 ms).</description>
 				</setting>
 				<setting name="jitterBufferMax">
-					<type> greater than jitterBuf-ferMin, multiple of 10, less 
+					<type> greater than jitterBufferMin, multiple of 10, less 
 						than or =500 for IP 500 and IP 600, less than or = 160 
 						for IP 300</type>
 					<value>160</value>
 					<description>The largest jitter buffer depth to be 
-						sup-ported (in milliseconds). Jitter above this size 
+						supported (in milliseconds). Jitter above this size 
 						will always cause lost packets. This parameter should 
 						be set to the smallest possible value that will support 
 						the expected network jitter</description>
@@ -374,7 +374,7 @@
 		<group name="vad">
 			<label>Voice Activity Detection</label>
 			<description>These settings control the performance of the voice 
-				activity detection (silence suppres-sion) feature</description>
+				activity detection (silence suppression) feature</description>
 			<setting name="vadEnable">
 				<type>0, 1</type>
 				<value>0</value>
@@ -481,7 +481,7 @@
 		</group>
 	</group>
 	<group name="tcpIpApp.sntp">
-		<label>Time Synchronization</label>
+		<label>SNTP</label>
 		<description>The following table describes the parameters used to set 
 			up time synchronization and daylight savings time. The defaults 
 			shown will enable daylight savings time for North America. Daylight 
@@ -505,7 +505,7 @@
 		<setting name="daylightSavings.enable">
 			<type>0, 1</type>
 			<value>1</value>
-			<description>If set to 1, apply day-light savings rules to 
+			<description>If set to 1, apply daylight savings rules to 
 				displayed time.</description>
 		</setting>
 		<setting name="daylightSavings.fixedDayEnable">
@@ -541,7 +541,7 @@
 			<type>0, 10</type>
 			<value>0</value>
 			<description>If set to 1 and fixedDayEnable=0, start DST on the 
-				last day of the week (specified by dayOf- Week) in the month, 
+				last day of the week (specified by dayOfWeek) in the month, 
 				rather than the first in the month.</description>
 		</setting>
 		<setting name="daylightSavings.stop.month">
@@ -570,8 +570,8 @@
 		<setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
 			<type>0, 1</type>
 			<value>1</value>
-			<description>If set to 1 and fixedDay- Enable=0, stop DST on the 
-				last day of the week (specified by dayOf- Week) in the month, 
+			<description>If set to 1 and fixedDayEnable=0, stop DST on the 
+				last day of the week (specified by dayOfWeek) in the month, 
 				rather than the first in the month.</description>
 		</setting>
 	</group>
@@ -580,13 +580,13 @@
 		<setting name="filterByIp">
 			<type>0, 1</type>
 			<value>1</value>
-			<description>If set to 1, reject RTP pack-ets arriving from (sent 
+			<description>If set to 1, reject RTP packets arriving from (sent 
 				from) a non-negotiated (via SDP) IP address.</description>
 		</setting>
 		<setting name="filterByPort">
 			<type>0, 1</type>
 			<value>0</value>
-			<description>If set to 1, reject RTP pack-ets arriving from (sent 
+			<description>If set to 1, reject RTP packets arriving from (sent 
 				from) a non-negotiated (via SDP) port.</description>
 		</setting>
 		<setting name="forceSend">
@@ -594,15 +594,15 @@
 			<value></value>
 			<description>When non-Null, send all RTP packets to, and expect all 
 				RTP packets to arrive on, the specified port. Note: both 
-				tcpIpApp.port.rtp.filter- ByIp and 
-				tcpI-pApp.port.rtp.filterByPort must be enabled for this to 
+				tcpIpApp.port.rtp.filterByIp and 
+				tcpIpApp.port.rtp.filterByPort must be enabled for this to 
 				work.</description>
 		</setting>
 		<setting name="mediaPortRangeStart">
 			<type>Null, even integer from 1024-65534</type>
 			<value></value>
 			<description>If set to Null, the value 2222 will be used for the 
-				first allo-cated RTP port, otherwise, the specified port will 
+				first allocated RTP port, otherwise, the specified port will 
 				be used. Subsequent ports will be allocated from a pool 
 				starting with the specified port plus two up to a value of 
 				(start-port + 46), after which the port number will wrap back 
@@ -654,7 +654,7 @@
 			<type>0, 1</type>
 			<value>1</value>
 			<description>If set to 1, calls will be allowed when the phone is 
-				not successfully registered, other-wise, calls will not be 
+				not successfully registered, otherwise, calls will not be 
 				permitted without a valid registration.</description>
 		</setting>
 		<setting name="offeringTimeOut">
@@ -687,7 +687,7 @@
 			<setting name="seizeFailReorder">
 				<type>0, 1</type>
 				<value>1</value>
-				<description>If set to 1, play re-order tone locally on shared 
+				<description>If set to 1, play reorder tone locally on shared 
 					line seize failure.</description>
 			</setting>
 			<setting name="oneTouchResume">
@@ -736,7 +736,7 @@
 				scrolling will go into scrolling mode until the key is 
 				released. Keys enabled for scrolling are menu navigation keys 
 				(left, right, up, down arrows), volume keys, and some 
-				context-spe-cific soft keys. The value is an integer multiple 
+				context-specific soft keys. The value is an integer multiple 
 				of 500 milliseconds (1=500ms). </description>
 		</setting>
 	</group>
@@ -830,7 +830,7 @@
 			<type>0, 1</type>
 			<value>0</value>
 			<description>If set to 1, the phone may advertise its serial 
-				num-ber (Ethernet address) via protocol signaling. 
+				number (Ethernet address) via protocol signaling. 
 				</description>
 		</setting>
 		<group name="pwd.length">
@@ -1075,14 +1075,14 @@
 					<type>0, 1</type>
 					<value>1</value>
 					<description>If set to 0, calls can be routed to an 
-						outbound proxy without reg-istration. </description>
+						outbound proxy without registration. </description>
 				</setting>
 				<setting name="retryTimeOut">
 					<profileName>server.2.retryTimeOut</profileName>
 					<type>Null or non-negative integer</type>
 					<value>0</value>
 					<description>If set to 0 or Null, use standard RFC 3261 
-						signaling retry behavior. Otherwise retryTim-eOut 
+						signaling retry behavior. Otherwise retryTimeOut 
 						determines how often retries will be sent. Units = 
 						milliSeconds. (Finest resolution = 100ms). 
 						</description>
@@ -1385,7 +1385,7 @@
 		<setting name="ip">
 			<type>dotted-decimal IP address</type>
 			<value></value>
-			<description>IP address to advertise within SIP signaling - should 
+			<description>IP address to advertise within SIP signaling, should 
 				match the external IP address used by the NAT 
 				device.</description>
 		</setting>
