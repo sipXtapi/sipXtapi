@@ -11,15 +11,19 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.PageRedirectException;
-import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.valid.ValidationDelegate;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 
 /**
  * Utility method for tapestry pages and components
  */
 public final class TapestryUtils {
+    /**
+     * Standard name for form validation delegate
+     */
+    public static final String VALIDATOR = "validator";
 
     /**
      * restrict construction
@@ -57,11 +61,37 @@ public final class TapestryUtils {
      * @param page page on which stale link is discovered
      * @param validatorName name of the validator delegate bean used to record validation errors
      */
-    public static void staleLinkDetected(BasePage page, String validatorName) {
-        ValidationDelegate validator = (ValidationDelegate) page.getBeans()
-                .getBean(validatorName);
+    public static void staleLinkDetected(AbstractPage page, String validatorName) {
+        IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(
+                validatorName);
         validator.setFormComponent(null);
         validator.record(new ValidatorException("The page is out of date. Please refresh."));
         throw new PageRedirectException(page);
+    }
+
+    /**
+     * Helper method to display standard "nice" stale link message. Use only if standard
+     * "validator" name has been used.
+     * 
+     * @param page page on which stale link is discovered
+     */
+    public static void staleLinkDetected(AbstractPage page) {
+        staleLinkDetected(page, VALIDATOR);
+    }
+
+    /**
+     * Check if there are any validation errors on the page. Use only if standard "validator" name
+     * has been used.
+     * 
+     * Please note: this will only work properly if called after all components had a chance to
+     * append register validation errors. Do not use in submit listeners other than form submit
+     * listener.
+     * 
+     * @param page
+     * @return true if no errors found
+     */
+    public static boolean isValid(AbstractPage page) {
+        IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(VALIDATOR);
+        return !validator.getHasErrors();
     }
 }

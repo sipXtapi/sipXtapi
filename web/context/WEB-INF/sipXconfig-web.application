@@ -23,6 +23,7 @@
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
     <page name="EditEmergencyDialRule" specification-path="dialplan/EditEmergencyDialRule.page"/>
+    <page name="EditEmergencyRouting" specification-path="dialplan/EditEmergencyRouting.page"/>
     <page name="EditInternalDialRule" specification-path="dialplan/EditInternalDialRule.page"/>
     <page name="EditInternationalDialRule" specification-path="dialplan/EditInternationalDialRule.page"/>
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
@@ -64,6 +65,7 @@
     <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
+    <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>
     <component-type type="UserTable" specification-path="user/UserTable.jwc"/>

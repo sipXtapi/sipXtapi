@@ -1,0 +1,79 @@
+<html title="Caller Sensitive E911 Routing">
+    <head>
+        <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+    </head>
+    <body jwcid="$content$">
+        <div jwcid="@Border">
+            <div id="help">
+                <p>Please configure your phones to forward emergency goal to 
+                    PSTN gateway directly. You should use this feature, only if 
+                    your phone does not support direct forwarding.<br/> If this 
+                    feature is enabled all emergency calls will be forwarded to 
+                    default gateway. Optionally you can configure a set of 
+                    phone numbers that will be forwarded to the alternative 
+                    gateway.<br/> 
+                    Click <a jwcid="gatewaysLink" href="" title="Edit Gateways">here</a> 
+                    to edit a list of available gateways.</p>
+            </div>
+            <div id="component">
+                <form jwcid="form" class="with-sections">
+                    <ul class="component-actions">
+                        <li>
+                            <a jwcid="addExceptionLink" id="erouting:addException" href="#">Add Exceptions</a>
+                        </li>
+                    </ul>
+                    <span jwcid="errors"/>
+                    <fieldset>
+                        <legend>Default settings</legend>
+                        <input jwcid="enabled" id="enable" type="checkbox"></input>
+                        <label for="enable">Enable Caller Sensitive E911 Routing</label>
+                        <p class="message">Use this feature only if phones do 
+                            not support direct routing of emergency calls to 
+                            PSTN gateways.</p>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label for="erouting:emergencyNumber">
+                                            <span jwcid="externalNumberLabel">External Emergency Number:</span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input jwcid="externalNumber" 
+                                            id="erouting:emergencyNumber" 
+                                            type="text" size="13" value="911"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="erouting:gateway">
+                                            <span jwcid="gatewaysLabel">Gateway:</span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <select jwcid="gateways" id="erouting:gateway" size="1"> 
+                                            <option value="1">10.2.3.4</option>
+                                            <option value="2">10.45.6.3</option>
+                                            <option value="2">128.12.23.4</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </fieldset>
+                    <fieldset jwcid="exceptions">
+                        <span jwcid="exception"/>
+                    </fieldset>
+                    <ul class="table-actions">
+                        <li>
+                            <input jwcid="apply" type="button" value="Apply"/>
+                        </li>
+                        <li>
+                            <input type="button" value="Cancel"/>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

@@ -29,7 +29,8 @@ public class DialPlanManager {
     private List m_gateways = new ArrayList();
     private String m_configDirectory;
 
-    // TODO: inject those through Spring
+    private EmergencyRouting m_emergencyRouting = new EmergencyRouting(); 
+
     private FlexibleDialPlan m_flexDialPlan = new FlexibleDialPlan();
 
     private transient ConfigGenerator m_generator;
@@ -162,5 +163,13 @@ public class DialPlanManager {
             gateways.add(getOrgGateway(id));
         }
         return gateways;
+    }
+    
+    public EmergencyRouting getEmergencyRouting() {
+        return m_emergencyRouting;
+    }
+    
+    public void setEmergencyRouting(EmergencyRouting emergencyRouting) {
+        m_emergencyRouting = emergencyRouting;
     }
 }

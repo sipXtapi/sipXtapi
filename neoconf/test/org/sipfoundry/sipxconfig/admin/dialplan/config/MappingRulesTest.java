@@ -23,6 +23,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.VisitorSupport;
 import org.easymock.MockControl;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
@@ -48,6 +49,21 @@ public class MappingRulesTest extends XMLTestCase {
         assertXpathEvaluatesTo("${MY_IP_ADDR}", "/mappings/hostMatch/hostPattern[4]", domDoc);
     }
 
+    /**
+     * This is mostly to demonstrate how complicated the XPatch expression becomes for a document
+     * with a namespace
+     * 
+     * @param document
+     */
+    static void dumpXPaths(Document document) {
+        VisitorSupport support = new VisitorSupport() {
+            public void visit(Element node) {
+                System.err.println(node.getPath());
+            }
+        };
+        document.accept(support);
+    }
+
     public void testGetHostMatch() throws Exception {
         MappingRules mappingRules = new MappingRules();
         Element hostMatch = mappingRules.getFirstHostMatch();
@@ -68,11 +84,16 @@ public class MappingRulesTest extends XMLTestCase {
 
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.getPatterns(), new String[] { "x." });
-        control.expectAndReturn(rule.getPermissions(), Arrays
-                .asList(new Permission[] { Permission.VOICEMAIL }));
+        control.expectAndReturn(rule.getPatterns(), new String[] {
+            "x."
+        });
+        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
+            Permission.VOICEMAIL
+        }));
         control.expectAndReturn(rule.getGateways(), Collections.EMPTY_LIST, 2);
-        control.expectAndReturn(rule.getTransforms(), new Transform[] { voicemail, voicemail2 });
+        control.expectAndReturn(rule.getTransforms(), new Transform[] {
+            voicemail, voicemail2
+        });
         control.replay();
 
         MappingRules mappingRules = new MappingRules();
@@ -94,7 +115,9 @@ public class MappingRulesTest extends XMLTestCase {
     }
 
     public void testGenerateRuleWithGateways() throws Exception {
-        List gateways = Arrays.asList(new Gateway[] { new Gateway() });
+        List gateways = Arrays.asList(new Gateway[] {
+            new Gateway()
+        });
 
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
@@ -132,7 +155,7 @@ public class MappingRulesTest extends XMLTestCase {
         InputStream referenceXmlStream = MappingRulesTest.class
                 .getResourceAsStream("mappingrules.test.xml");
         XMLUnit.setIgnoreWhitespace(true);
-        
+
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }
 
