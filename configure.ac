@@ -31,6 +31,9 @@ AC_PROG_CXX
 AC_PROG_CC
 
 SFAC_INIT_FLAGS
+
+SFAC_FEATURE_SIP_TLS
+
 if test x$enable_sipagent = xyes
 then
 AM_CONFIG_HEADER([config.h])
