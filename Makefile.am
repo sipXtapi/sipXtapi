@@ -2,10 +2,10 @@
 
 SUBDIRS = src include
 
-pkgconfdir = @SIPXPBXCONF@
+pkgconfdir = @SIPX_CONFDIR@
 
 edit = sed \
-        -e 's,@SIPXPBXCONF\@,$(pkgconfdir),g' \
+        -e 's,@SIPX_CONFDIR\@,$(pkgconfdir),g' \
         -e 's,@bindir\@,$(bindir),g' \
         -e 's,@localstatedir\@,$(localstatedir),g'
 

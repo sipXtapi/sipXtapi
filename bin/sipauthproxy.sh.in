@@ -2,11 +2,11 @@
 
 # Copyright (c) 2002 Pingtel Corp.
 
-CONFIG_DEFS="@SIPXPBXCONF@/config.defs"
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPXPBXCONF@/authproxy-config \
-  @SIPXPBXCONF@/authrules.xml \
+  @SIPX_CONFDIR@/authproxy-config \
+  @SIPX_CONFDIR@/authrules.xml \
   "
 
 # Common environment variables used by the in memory database (IMDB)
