@@ -75,13 +75,25 @@ public abstract class EditDialPlan extends BasePage implements PageRenderListene
         boolean emergency = EMERGENCY.equals(params[0]);
         EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
         Integer id = getDialPlanId();
-        id.toString();
         editGatewayPage.setCurrentDialPlanId(id);
         editGatewayPage.setEmergencyGateway(emergency);
         editGatewayPage.setGatewayId(null);
         cycle.activate(editGatewayPage);
     }
 
+    public void selectGateway(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        boolean emergency = EMERGENCY.equals(params[0]);
+        
+        SelectGateways selectGatewayPage = (SelectGateways) cycle.getPage(SelectGateways.PAGE);
+        
+        Integer id = getDialPlanId();
+        selectGatewayPage.setDialPlanId(id);
+        selectGatewayPage.setEmergencyGateway(emergency);
+               
+        cycle.activate(selectGatewayPage);
+    }
+    
     void saveValid(IRequestCycle cycle) {
         DialPlanManager manager = getDialPlanManager();
         DialPlan dialPlan = getDialPlan();

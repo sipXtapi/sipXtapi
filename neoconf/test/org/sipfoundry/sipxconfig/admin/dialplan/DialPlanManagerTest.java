@@ -12,7 +12,10 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+
+import sun.net.www.content.text.plain;
 
 import junit.framework.TestCase;
 
@@ -64,7 +67,7 @@ public class DialPlanManagerTest extends TestCase {
         m_manager.deleteGateways(Arrays.asList(toBeRemoved));
 
         List gateways = m_manager.getGateways();
-        
+
         assertEquals(1, gateways.size());
         assertFalse(gateways.contains(g1));
         assertTrue(gateways.contains(g2));
@@ -162,11 +165,45 @@ public class DialPlanManagerTest extends TestCase {
         m_manager.deleteDialPlans(Arrays.asList(toBeRemoved));
 
         List plans = m_manager.getDialPlans();
-        
+
         assertEquals(1, plans.size());
         assertFalse(plans.contains(p1));
         assertTrue(plans.contains(p2));
         assertFalse(plans.contains(p3));
     }
 
+    public void testGetAvailableGateways() {
+        Collection availableGateways = m_manager.getAvailableGateways(new Integer(-1), false);
+        assertEquals(0, availableGateways.size());
+
+        DialPlan p1 = new DialPlan();
+        m_manager.addDialPlan(p1);
+        availableGateways = m_manager.getAvailableGateways(p1.getId(), false);
+        assertEquals(0, availableGateways.size());
+        availableGateways = m_manager.getAvailableGateways(p1.getId(), true);
+        assertEquals(0, availableGateways.size());
+
+        Gateway g1 = new Gateway();
+        Gateway g2 = new Gateway();
+        Gateway g3 = new Gateway();
+        m_manager.addGateway(g1);
+        m_manager.addGateway(g2);
+        m_manager.addGateway(g3);
+
+        p1.addGateway(g1, true);
+        p1.addGateway(g2, false);
+        p1.addGateway(g3, true);
+
+        availableGateways = m_manager.getAvailableGateways(p1.getId(), false);
+        assertEquals(2, availableGateways.size());
+        assertTrue(availableGateways.contains(g1));
+        assertFalse(availableGateways.contains(g2));
+        assertTrue(availableGateways.contains(g3));
+
+        availableGateways = m_manager.getAvailableGateways(p1.getId(), true);
+        assertEquals(1, availableGateways.size());
+        assertFalse(availableGateways.contains(g1));
+        assertTrue(availableGateways.contains(g2));
+        assertFalse(availableGateways.contains(g3));
+    }
 }

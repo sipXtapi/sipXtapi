@@ -150,6 +150,10 @@
         <binding name="listener" expression="listeners.addGateway"/>
         <static-binding name="parameters" value="normal"/>
     </component>
+    <component id="selectGatewayLink" type="DirectLink">
+        <binding name="listener" expression="listeners.selectGateway"/>
+        <static-binding name="parameters" value="normal"/>
+    </component>
     <component id="removeGateways" type="Submit">
         <binding name="selected" expression="removeGateways"/>
         <static-binding name="tag" value="normal"/>
@@ -162,6 +166,10 @@
     </component>
     <component id="addEmergencyGatewayLink" type="DirectLink">
         <binding name="listener" expression="listeners.addGateway"/>
+        <static-binding name="parameters" value="emergency"/>
+    </component>
+    <component id="selectEmergencyGatewayLink" type="DirectLink">
+        <binding name="listener" expression="listeners.selectGateway"/>
         <static-binding name="parameters" value="emergency"/>
     </component>
     <component id="removeEmergencyGateways" type="Submit">

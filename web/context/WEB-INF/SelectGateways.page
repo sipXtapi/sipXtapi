@@ -3,7 +3,7 @@
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<page-specification class="org.sipfoundry.sipxconfig.site.ListGateways">
+<page-specification class="org.sipfoundry.sipxconfig.site.SelectGateways">
 	<!--
 	  - P R O P E R T I E S
 	  -->
@@ -12,20 +12,30 @@
         global.sipXconfigContext.getBean("dialPlanManager")
     </property-specification>
     
-	<property-specification name="selectedRows" type="java.util.Collection"/>    
+	<property-specification name="dialPlanId"
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>
     
+	<property-specification name="emergencyGateway" 
+		type="boolean"
+        persistent="yes">
+    </property-specification>
+
+    <property-specification name="selectedRows" type="java.util.Collection"/>    
+
+    <property-specification name="gateways" type="java.util.Collection"/>    
+        
      <!--
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
-
     
     <!--
      - C O M P O N E N T S
      -->
     <component id="gatewayTable" type="GatewayTable">
-        <binding name="gatewayCollection" expression="dialPlanManager.gateways"/>
+        <binding name="gatewayCollection" expression="gateways"/>
         <static-binding name="editPageName" value="EditGateway"/>
     </component>
                 
@@ -37,16 +47,17 @@
         <static-binding name="page" value="ListDialPlans"/>
     </component>
     
-    <component id="deleteButton" type="Submit">
+    <component id="selectButton" type="Submit">
         <binding name="selected" expression="selectedRows"/>
         <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
     </component>
-    
-    <component id="gatewaysListForm" type="Form">
+
+    <component id="cancelButton" type="Submit"/>
+        
+    <component id="gatewaysSelectForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
         <binding name="listener" expression="listeners.formSubmit"/>
     </component>
-
     <!--
 	  - A S S E T S
 	  -->	

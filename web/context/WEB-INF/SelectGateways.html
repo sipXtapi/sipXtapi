@@ -1,0 +1,19 @@
+<html jwcid="@Shell" title="Select Gateways" stylesheet="ognl:assets.stylesheet">
+<head  jwcid="$remove$">
+    <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
+</head>
+<body jwcid="@Body">
+	<div id="component">    
+    <form jwcid="gatewaysSelectForm" id="select:gateway:form">
+        <fieldset>
+            <legend>Select Gateways</legend>
+			<span jwcid="gatewayTable"></span>
+        </fieldset>
+		<ul class="table-actions">
+			<li><input jwcid="selectButton" type="submit" id="select:gateway:delete" value="Save"/></li>
+			<li><input jwcid="cancelButton" type="submit" id="select:gateway:cancel" value="Cancel""/></li>
+		</ul>
+    </form>
+	</div>
+</body>
+</html>

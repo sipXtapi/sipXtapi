@@ -13,8 +13,11 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * DialPlanManager TODO: need interface and hibernate persistence implementation
@@ -123,5 +126,24 @@ public class DialPlanManager {
             Integer id = (Integer) i.next();
             deleteDialPlan(id);
         }
+    }
+
+    /**
+     * Returns the list of gateways available for a specific dial plan
+     * 
+     * @param dialPlanId
+     * @param emergency if true check emergency gateways, otherwise normal
+     *        gateways
+     * @return collection of available gateways
+     */
+    public Collection getAvailableGateways(Integer dialPlanId, boolean emergency) {
+        DialPlan plan = getDialPlan(dialPlanId);
+        if (null == plan) {
+            return Collections.EMPTY_LIST;
+        }
+        Set gateways = new HashSet(getGateways());
+        Set planGateways = emergency ? plan.getEmergencyGateways() : plan.getGateways();
+        gateways.removeAll(planGateways);
+        return gateways;
     }
 }
