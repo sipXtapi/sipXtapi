@@ -11,28 +11,36 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule.Type;
+import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 
 /**
  * SelectRuleType
  */
 public abstract class SelectRuleType extends BasePage {
     public static final String PAGE = "SelectRuleType";
-
+    
     public static final Map TYPE_2_PAGE = new HashMap();
+    public static final Type[] TYPES;
+    
 
     static {
         TYPE_2_PAGE.put(Type.CUSTOM, EditCustomDialRule.PAGE);
         TYPE_2_PAGE.put(Type.INTERNAL, EditInternalDialRule.PAGE);
+        
+        TYPES = (Type[]) TYPE_2_PAGE.keySet().toArray(new Type[TYPE_2_PAGE.size()]);
     }
 
+    
     public abstract DialingRule.Type getRuleType();
 
     public abstract void setRuleType(DialingRule.Type type);

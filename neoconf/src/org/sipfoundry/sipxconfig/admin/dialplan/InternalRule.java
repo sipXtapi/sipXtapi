@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**
@@ -21,11 +23,10 @@ public class InternalRule extends DialingRule {
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
 
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
-    private Integer m_localExtensionLen = new Integer(DEFAULT_LOCAL_EXT_LEN);
+    private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
     private String m_autoAttendant = "100";
     private String m_voiceMail = "101";
 
-    
     public String[] getPatterns() {
         return null;
     }
@@ -33,33 +34,49 @@ public class InternalRule extends DialingRule {
     public Transform[] getTransforms() {
         return null;
     }
-    
+
     public Type getType() {
         return Type.INTERNAL;
     }
-    
+
     public String getAutoAttendant() {
         return m_autoAttendant;
     }
+
     public void setAutoAttendant(String autoAttendant) {
         m_autoAttendant = autoAttendant;
     }
-    public Integer getLocalExtensionLen() {
+
+    public int getLocalExtensionLen() {
         return m_localExtensionLen;
     }
-    public void setLocalExtensionLen(Integer localExtensionLen) {
+
+    public void setLocalExtensionLen(int localExtensionLen) {
         m_localExtensionLen = localExtensionLen;
     }
+
     public String getVoiceMail() {
         return m_voiceMail;
     }
+
     public void setVoiceMail(String voiceMail) {
         m_voiceMail = voiceMail;
     }
+
     public String getVoiceMailPrefix() {
         return m_voiceMailPrefix;
     }
+
     public void setVoiceMailPrefix(String voiceMailPrefix) {
         m_voiceMailPrefix = voiceMailPrefix;
+    }
+
+    public void appendToGenerationRules(List rules) {
+        if (isEnabled()) {
+            rules.add(new MappingRule.Operator(m_autoAttendant));
+            rules.add(new MappingRule.Voicemail(m_voiceMail));
+            rules.add(new MappingRule.VoicemailTransfer(m_voiceMailPrefix, m_localExtensionLen));
+            rules.add(new MappingRule.VoicemailFallback(m_localExtensionLen));
+        }
     }
 }

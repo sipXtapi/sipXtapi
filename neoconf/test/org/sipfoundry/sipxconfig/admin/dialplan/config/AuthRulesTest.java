@@ -55,8 +55,6 @@ public class AuthRulesTest extends XMLTestCase {
         Document document = authRules.getDocument();
         org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
 
-        TransformTest.dumpXml(document);
-
         assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
         assertXpathEvaluatesTo("555", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathEvaluatesTo("666", "/mappings/hostMatch/userMatch/userPattern[2]", domDoc);

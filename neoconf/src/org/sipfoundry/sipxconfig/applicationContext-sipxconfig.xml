@@ -191,7 +191,36 @@
     <!-- temporary gateways and dialPlans singletons-->
     <bean id="dialRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory"/>
     
+    <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule">
+        <property name="name">
+            <value>Default</value>
+        </property>
+        <property name="enabled">
+        	<value>true</value>
+        </property>
+        <property name="autoAttendant">
+            <value>100</value>
+        </property>
+        <property name="voiceMail">
+            <value>101</value>
+        </property>
+        <property name="voiceMailPrefix">
+            <value>8</value>
+        </property>
+    </bean>
+    
+    <bean id="flexDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
+    	<property name="rules">
+        	<list>
+                <ref bean="defaultInternalRule"></ref>
+            </list>
+        </property>
+    </bean>
+    
     <bean id="dialPlanManager" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+    	<property name="flexDialPlan">
+            <ref bean="flexDialPlan"></ref>
+        </property>
     	<property name="ruleFactory">
             <ref bean="dialRuleFactory"></ref>
         </property>

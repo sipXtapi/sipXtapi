@@ -22,6 +22,15 @@ public class DialPattern {
     private String m_prefix;
     private int m_digits;
 
+    public DialPattern(String prefix, int digits) {
+        m_prefix = prefix;
+        m_digits = digits;
+    }
+
+    public DialPattern() {
+        this("", 0);
+    }
+
     public int getDigits() {
         return m_digits;
     }

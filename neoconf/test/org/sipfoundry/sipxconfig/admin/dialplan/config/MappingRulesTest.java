@@ -11,17 +11,24 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.easymock.MockControl;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 
 /**
  * MappingRulesTest
@@ -62,7 +69,8 @@ public class MappingRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getPatterns(), new String[] { "x." });
-        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] { Permission.VOICEMAIL }));
+        control.expectAndReturn(rule.getPermissions(), Arrays
+                .asList(new Permission[] { Permission.VOICEMAIL }));
         control.expectAndReturn(rule.getGateways(), Collections.EMPTY_LIST);
         control.expectAndReturn(rule.getTransforms(), new Transform[] { voicemail, voicemail2 });
         control.replay();
@@ -71,6 +79,7 @@ public class MappingRulesTest extends XMLTestCase {
         mappingRules.generate(rule);
 
         Document document = mappingRules.getDocument();
+
         org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
 
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
@@ -103,6 +112,28 @@ public class MappingRulesTest extends XMLTestCase {
         assertXpathExists("/mappings/hostMatch/hostPattern", domDoc);
 
         control.verify();
+    }
+
+    public void testInternalRules() throws Exception {
+        int extension = 3;
+        List rules = new ArrayList();
+        rules.add(new MappingRule.Operator("100"));
+        rules.add(new MappingRule.Voicemail("101"));
+        rules.add(new MappingRule.VoicemailTransfer("2", extension));
+        rules.add(new MappingRule.VoicemailFallback(extension));
+
+        FlexibleDialPlan plan = new FlexibleDialPlan();
+        plan.setRules(rules);
+        ConfigGenerator generator = new ConfigGenerator();
+        generator.generate(plan);
+
+        String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
+
+        InputStream referenceXmlStream = MappingRulesTest.class
+                .getResourceAsStream("mappingrules.test.xml");
+        XMLUnit.setIgnoreWhitespace(true);
+        
+        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }
 
 }

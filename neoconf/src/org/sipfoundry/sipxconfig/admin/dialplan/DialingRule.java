@@ -30,7 +30,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     private String m_description;
     private List m_gateways = new ArrayList();
     private List m_permissions = new ArrayList();
-    
+
     // TODO: extract to interface?
     public abstract String[] getPatterns();
 
@@ -101,9 +101,25 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     }
 
     /**
+     * Called to give a dialing rules a chance to append itself to the list of
+     * rules used for generating XML
+     * 
+     * Default implementation appends the rule if it is enabled. Rule can append
+     * some other rules.
+     * 
+     * @param rules
+     */
+    public void appendToGenerationRules(List rules) {
+        if (isEnabled()) {
+            rules.add(this);
+        }
+    }
+
+    /**
      * Dialing rules type.
      */
     public static final class Type extends Enum {
+        public static final Type MAPPING_RULE = new Type("VoiceMailFallBack");
         public static final Type CUSTOM = new Type("Custom");
         public static final Type LOCAL = new Type("Local");
         public static final Type INTERNAL = new Type("Internal");

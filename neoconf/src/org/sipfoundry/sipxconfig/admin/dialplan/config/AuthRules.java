@@ -50,10 +50,16 @@ public class AuthRules implements ConfigFile {
     }
 
     public void generate(IDialingRule rule) {
+        List gateways = rule.getGateways();
+        List permissions = rule.getPermissions();
+        if( gateways.size() == 0 || permissions.size() == 0)
+        {
+            // nothing to generate
+            return;
+        }
         Element mappings = m_doc.getRootElement();
         Element hostMatch = mappings.addElement("hostMatch");
         hostMatch.addComment(rule.getName());
-        List gateways = rule.getGateways();
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Gateway gateway = (Gateway) i.next();
             Element hostPattern = hostMatch.addElement("hostPattern");
@@ -66,7 +72,6 @@ public class AuthRules implements ConfigFile {
             Element userPattern = userMatch.addElement("userPattern");
             userPattern.setText(pattern);
         }
-        List permissions = rule.getPermissions();
         Element permissionMatch = userMatch.addElement("permissionMatch");
         for (Iterator i = permissions.iterator(); i.hasNext();) {
             Permission permission = (Permission) i.next();

@@ -17,6 +17,7 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.dom4j.QName;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
@@ -38,7 +39,11 @@ public class MappingRules implements ConfigFile {
 
     public MappingRules() {
         m_doc = FACTORY.createDocument();
+        // FIXME: enable namespace generation 
+        //QName mappingsName = FACTORY.createQName("mappings", "", "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+        //Element mappings = m_doc.addElement(mappingsName);
         Element mappings = m_doc.addElement("mappings");
+        
         m_hostMatch = createFirstHostMatch(mappings);
     }
 

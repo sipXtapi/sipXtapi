@@ -28,8 +28,8 @@
     <bean name="ruleTypeModel" 
         class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
         lifecycle="page">
-        <set-property name="enumClass" 
-        	expression="@org.sipfoundry.sipxconfig.admin.dialplan.DialingRule$Type@class"/>
+        <set-property name="options" 
+        	expression="@org.sipfoundry.sipxconfig.site.dialplan.SelectRuleType@TYPES"/>
     </bean>
     
     <!--

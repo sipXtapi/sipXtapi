@@ -38,6 +38,9 @@ public class FlexibleDialPlan {
         return m_rules;
     }
 
+    public void setRules(List rules) {
+        m_rules = rules;
+    }
     private DialingRule getOrgRule(Integer id) {
         int i = m_rules.indexOf(new BeanWithId(id));
         if (i < 0) {
@@ -74,5 +77,14 @@ public class FlexibleDialPlan {
             IDialingRule newRule = (IDialingRule) getOrgRule(id).duplicate();
             addRule(newRule);
         }
+    }
+
+    public List getGenerationRules() {
+        ArrayList generationRules = new ArrayList();
+        for (Iterator i = m_rules.iterator(); i.hasNext();) {
+            DialingRule rule = (DialingRule) i.next();
+            rule.appendToGenerationRules(generationRules);
+        }
+        return generationRules;
     }
 }
