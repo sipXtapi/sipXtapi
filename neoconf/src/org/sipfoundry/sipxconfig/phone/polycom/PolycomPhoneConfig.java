@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.vendor;
+package org.sipfoundry.sipxconfig.phone.polycom;
 
 import org.apache.velocity.app.VelocityEngine;
 

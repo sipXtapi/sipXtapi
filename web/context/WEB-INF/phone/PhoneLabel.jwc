@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneLabel"
+    allow-body="yes"
+    allow-informal-parameters="yes">
+    
+    <description>add a description</description>
+    <!--
+      - P A R A M E T E R S
+      -->
+	<parameter name="endpoint" 
+        type="org.sipfoundry.sipxconfig.phone.Endpoint" 
+        required="yes" 
+        direction="in">
+    </parameter>    
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <!--
+      - C O M P O N E N T S
+      -->
+    <component id="endpointLabel" type="Insert">
+        <binding name="value" expression="endpoint.displayLabel"/>
+    </component>
+    <component id="phoneLabel" type="Insert">
+        <binding name="value" expression="phone.displayLabel"/>
+    </component>    
+</component-specification>

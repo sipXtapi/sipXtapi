@@ -32,6 +32,9 @@ public class LineTestDb extends TestCase {
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
+        
+        // unittests leave objects in cache using same pkeys, force clear
+        m_context.flush();
     }
 
     public void testSave() throws Exception {

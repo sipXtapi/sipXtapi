@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.vendor;
+package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.Collection;
 import java.util.Iterator;
