@@ -47,4 +47,21 @@ public class NewPhoneTestUi extends WebTestCase {
         };
         assertTextInTable("phone:list", table[0]);
     }
+    
+    public void testSaveAndStay() {
+        clickLink("NewPhone");  
+        setFormElement("serialNumber", "000000000000");
+        setFormElement("phoneModel", "1");
+        checkCheckbox("stay");
+        clickButton("phone:ok");
+        assertCheckboxSelected("stay");
+        // should clear the form
+        assertEquals("", getDialog().getFormParameterValue("serialNumber"));        
+
+        clickButton("phone:cancel");
+        String[][] table = new String[][] {
+            { "000000000000", "", "SoundPoint IP 500" },                
+        };
+        assertTextInTable("phone:list", table[0]);
+    }
 }

@@ -18,8 +18,6 @@ import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.common.TestUtil;
 
-import com.meterware.httpunit.WebTable;
-
 public class SiteTestHelper {
     private static String s_buildDir;
 

@@ -10,6 +10,8 @@
     	initial-value="global.phoneContext"/>    
 	<property-specification name="phoneMetaData" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneMetaData"/>
+	<property-specification name="stay" 
+		type="boolean"/>
     <!--
       - B E A N S
       -->
@@ -26,5 +28,8 @@
     </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
+    </component>
+    <component id="stay" type="Checkbox">
+        <binding name="selected" expression="stay"/>
     </component>
 </page-specification>

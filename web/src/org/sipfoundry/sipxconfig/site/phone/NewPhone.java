@@ -32,14 +32,21 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     public abstract void setPhoneMetaData(PhoneMetaData phone);
     
     public abstract PhoneContext getPhoneContext();
+    
+    public abstract boolean isStay();
 
     public void finish(IRequestCycle cycle) {
         Phone phone = getPhoneContext().newPhone(getPhoneMetaData().getFactoryId());
         phone.setPhoneMetaData(getPhoneMetaData());
-        getPhoneContext().storePhone(phone);
-        cycle.activate(ManagePhones.PAGE);
+        getPhoneContext().storePhone(phone);        
+        if (isStay()) {
+            // triggers form to clear
+            cycle.activate(PAGE);                    
+        } else {
+            cycle.activate(ManagePhones.PAGE);
+        }
     }
-
+    
     public void next(IRequestCycle cycle) {
         cycle.activate(ManagePhones.PAGE);
     }
