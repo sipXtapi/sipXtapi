@@ -31,9 +31,9 @@ public class User implements PrimaryKeySource, Serializable {
 
     private String m_password;
 
-    private int m_ugId = 1; //default group
+    private Integer m_ugId = new Integer(1); //default group
 
-    private int m_rcsId = 2; // 2='Complete User'
+    private Integer m_rcsId = new Integer(2); // 2='Complete User'
 
     private String m_lastName;
 
@@ -69,19 +69,19 @@ public class User implements PrimaryKeySource, Serializable {
         m_password = password;
     }
 
-    public int getUserGroupId() {
+    public Integer getUserGroupId() {
         return m_ugId;
     }
 
-    public void setUserGroupId(int ugId) {
+    public void setUserGroupId(Integer ugId) {
         m_ugId = ugId;
     }
 
-    public int getRcsId() {
+    public Integer getRcsId() {
         return m_rcsId;
     }
 
-    public void setRcsId(int rcsId) {
+    public void setRcsId(Integer rcsId) {
         m_rcsId = rcsId;
     }
 
@@ -123,14 +123,6 @@ public class User implements PrimaryKeySource, Serializable {
 
     public void setOrganization(Organization organization) {
         m_organization = organization;
-    }
-
-    public int getUgId() {
-        return m_ugId;
-    }
-
-    public void setUgId(int ugId) {
-        m_ugId = ugId;
     }
 
     public Credential getCredential() {
