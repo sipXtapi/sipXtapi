@@ -47,6 +47,7 @@
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
     <component-type type="DialingRuleCommon" specification-path="dialplan/DialingRuleCommon.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
+    <component-type type="ErrorMsg" specification-path="common/ErrorMsg.jwc"/>
     <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>

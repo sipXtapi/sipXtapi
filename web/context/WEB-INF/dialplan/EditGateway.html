@@ -4,10 +4,7 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border" id="component">    
-    <span jwcid="@Conditional" condition="ognl:beans.validator.hasErrors">
-	    <!-- TODO: add styling for errors-->
-		<span jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</span>
-    </span>
+    <span jwcid="@ErrorMsg"/>
     <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
         <fieldset>
 		<legend>Gateway Details</legend>            

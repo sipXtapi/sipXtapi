@@ -4,11 +4,8 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border" id="component">    
-    <span jwcid="@Conditional" condition="ognl:beans.validator.hasErrors">
-	    <!-- TODO: add styling for errors-->
-		<span jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</span>
-    </span>
-    <form jwcid="form" id="custom:rule:edit">
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="custom:rule:edit">
         <fieldset>
 		<legend>Custom Dialing Rule</legend>            
         <table>
