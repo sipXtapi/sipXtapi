@@ -16,7 +16,7 @@ Java SDK 1.4.2 (tested w/1.4.2.03)
 postgres 7.3.X (tested with 7.3.4)
   http://www.postgresql.org/
 
-Jboss 2.4.X with Tomcat (tested with JBoss-2.4.10_Tomcat-4.0.6)
+JBoss 2.4.4 with Tomcat 4.0.1 (exactly this version)
   http://www.jboss.org
 
 Ant 1.6 (tested with 1.6.1)
