@@ -39,6 +39,7 @@
         <binding name="columns">
             '* Line:displayLabel'
         </binding>
+        <static-binding name="pageSize" value="-1"/>
     </component>
     <component id="lineColumns" type="contrib:TableColumns">
     </component>

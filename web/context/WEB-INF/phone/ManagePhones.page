@@ -30,6 +30,7 @@
 		<binding name="source" expression="phones"/>
 		<binding name="columns">'* Phone,' + 
 			'Lines,Model:displayLabel'</binding>
+        <static-binding name="pageSize" value="-1"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
