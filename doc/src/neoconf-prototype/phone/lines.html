@@ -6,7 +6,30 @@
 		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
 	</head>
 	<body id="registration-edit">
-		<div id="component">
+		<div class="help">
+			<div class="helpbox">
+				<b>Quick Links</b>
+				<ul>
+					<li>
+						<a href="../line/new-line.html">Create new line?</a>
+					</li>
+				</ul>
+				<p>Proin metus lorem, euismod id, porta eget, aliquet quis, 
+					lacus. Quisque eros. Ut pretium, quam sed venenatis 
+					accumsan, nibh massa vestibulum urna, at vulputate felis 
+					nisl ac velit. Donec est mi, molestie sed, aliquet at, 
+					laoreet eget, libero. Morbi luctus erat at wisi. Ut iaculis 
+					ipsum eu orci. Vivamus rutrum. Vivamus dolor mi, interdum 
+					ac, egestas vel, aliquam nec, risus. Etiam iaculis purus 
+					non orci. Duis eget elit in justo fermentum hendrerit. 
+					Nullam velit ante, scelerisque sed, imperdiet id, laoreet 
+					in, nibh. Duis enim. Maecenas sit amet sem eu urna 
+					malesuada ultricies. Nullam ligula. Fusce facilisis dapibus 
+					leo. Proin pharetra tempor nibh. Cras rutrum, ante at 
+					ullamcorper aliquam, dui velit laoreet ipsum, vel tempus 
+					nunc velit dictum sapien.</p>
+			</div>
+		</div>
 			<div class="tabArea">
  				<a class="tab" href="edit-phone.html">Device Identification</a>
 				<a class="tab active" href="lines.html">Lines</a>
@@ -14,10 +37,6 @@
 			</div>
 			<p><span class="page-label">Phone:</span> Joe's work phone/Polycom 
 				Soundpoint&reg; IP 300</p>
-			<div id="help">Here will be hints on what fields to set if you want 
-				to get started right away and what fields you can ignore unless 
-				you know what you are doing. This text will be specific to the 
-				phone model and can even be specific to other settings.</div>
 			<h2>Lines</h2>
 			<p>Phones can register with multiple identities with different 
 				registration servers or even same registration server. For 
@@ -27,7 +46,7 @@
 				snowboarder113@fwd.com, you would enter all that information 
 				here.</p>
 			<form action="#">
-				<ul class="component-actions">
+				<ul class="component-links">
 					<li>
 						<a href="../line/new-line.html">Create New Line</a>
 					</li>
@@ -35,8 +54,8 @@
 						<a href="../user/search.html">Add User</a>
 					</li>
 				</ul>
-				<table class="table-view">
-					<tr class="table-view-hdr">
+				<table class="component">
+					<tr class="component-hdr">
 						<th></th>
 						<th>
 							<a href="#">Address</a>
@@ -71,7 +90,7 @@
 						<td>shared</td>
 					</tr>
 				</table>
-				<ul class="table-actions">
+				<ul class="component-submit">
 					<li>
 						<input type="button" name="" value="Remove"/>
 					</li>
@@ -90,7 +109,6 @@
 					</li>
 				</ul>
 			</form>
-		</div>
 		<hr/>
 	</body>
 </html>
