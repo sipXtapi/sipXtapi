@@ -43,6 +43,9 @@ public class GatewaysTestUi extends TestCase {
     public void testAddGateways() throws Exception {
         WebResponse home = getHomePage();
 
+        // reset page
+        home = resetDialPlans(home);
+        
         WebLink link = home.getLinkWith("List Gateways");
         WebResponse listGateways = link.click();
 
@@ -99,5 +102,10 @@ public class GatewaysTestUi extends TestCase {
         WebRequest req = new GetMethodWebRequest("http://localhost:8080/sipxconfig");
         WebResponse home = wc.getResponse(req);
         return home;
+    }
+    
+    private WebResponse resetDialPlans(WebResponse homePage) throws IOException, SAXException {
+        final WebLink resetLink = homePage.getLinkWithID("resetDialPlans");
+        return resetLink.click();
     }
 }

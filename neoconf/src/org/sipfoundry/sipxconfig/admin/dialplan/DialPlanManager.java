@@ -95,4 +95,9 @@ public class DialPlanManager {
         plan.update(planData);
         return false;
     }
+    
+    public void clear() {
+        m_dialPlans.clear();
+        m_gateways.clear();
+    }
 }
