@@ -11,7 +11,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 2.6.1
+Requires: sipxcommserverlib >= 2.7.0
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
