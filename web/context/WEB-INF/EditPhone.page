@@ -19,6 +19,9 @@
       -->
     <component id="editPhoneNavigation" type="EditPhoneNavigation">        
         <binding name="phone" expression="phone"/>
+        <static-binding name="tab" value="EditPhone"/>
+        <static-binding name="heading" value="Device Identification"/>
+        <binding name="phoneContext" expression="global.phoneContext"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="phone" expression="phone"/>

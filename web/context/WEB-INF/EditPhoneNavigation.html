@@ -5,10 +5,11 @@
 <body>
 <span jwcid="$content$">
  		<div class="tabArea">
-			<a class="tab active" href="edit-phone.html">Device Identification</a>
-			<a class="tab" href="lines.html">Lines</a>			
-			<a class="tab" href="proxy.html">Outbound Proxy</a>
-			<a class="tab" href="network.html">Network</a>
+            <a href="#" jwcid="deviceIdTab" class="tab active">Device Identification</a>
+            <a href="#" jwcid="linesTab" class="tab">Lines</a>
+            <span jwcid="settingsTabs">
+                <a href="#" jwcid="settingsTab" class="tab"><span jwcid="settingsTabLabel">Settings</span></a>
+            </span>
 		</div>
      	<p><span class="pagelabel">Phone:</span> <span jwcid="@Insert" value="ognl:phone.endpoint.displayLabel">Serial Number</span>
             /<span jwcid="@Insert" value="ognl:phone.displayLabel">Phone Model</span></p>
@@ -18,7 +19,7 @@
 					<li><a href="../line/new-line.html">Create new line?</a></li>
 			    </ul>
 				</div>
-			<h2>Device Identification</h2>
+			<h2><span jwcid="heading">Page Heading</span></h2>
 			<p>Serial number is a unique id for this device. Generally it's the 
 				phone's MAC address and </p>
         </span>

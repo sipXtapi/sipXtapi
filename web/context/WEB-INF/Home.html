@@ -1,10 +1,8 @@
-
-<html>
-    <head>
-        <link jwcid="$remove$" rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+<html jwcid="@Shell" title="Edit Phone" stylesheet="ognl:assets.stylesheet">    
+    <head jwcid="$remove$">
+        <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
     </head>
 <body jwcid="@Body">
-<span jwcid="$content$">
 
     <a href="#" jwcid="@PageLink" page="ListPhones">List Phones</a><br/> 
     <a href="#" jwcid="@PageLink" id="ListGateways" page="ListGateways">List Gateways</a><br/> 
@@ -14,6 +12,6 @@
     
     Testing only:
     <a jwcid="resetDialPlans" id="resetDialPlans" href="#">Reset Dial Plans</a>     
-</span>
+    <span jwcid="@contrib:InspectorButton"/>
 </body>
 </html>
