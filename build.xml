@@ -2,6 +2,7 @@
  
   <filelist id="components" dir="${basedir}" files="
       neoconf/build.xml
+      web/build.xml
       common/build.xml
       profilegenerator/build.xml
       profilewriter/build.xml

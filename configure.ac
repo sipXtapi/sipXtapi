@@ -94,6 +94,7 @@ AC_CONFIG_FILES([
     profilepublisher/Makefile
     profilegenerator/Makefile
     neoconf/Makefile
+    web/Makefile
     sipagent-jni/Makefile
     sipagent-jni/src/Makefile
     sipagent-jni/include/Makefile
