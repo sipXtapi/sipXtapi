@@ -11,22 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import javax.faces.model.SelectItem;
-
 import junit.framework.TestCase;
 
 /**
  * DialPlanTest
  */
 public class DialPlanTest extends TestCase {
-
-    public void testGetMapForRange() {
-        DialPlan plan = new DialPlan();
-        SelectItem[] range = plan.getMapForRange(0,3);
-        assertEquals(4,range.length);
-        assertEquals(new Integer(1),range[1].getValue());
-        SelectItem[] empty = plan.getMapForRange(3,0);
-        assertEquals(0,empty.length);
+    public void testSomething() {
+        //TODO: write test - JSF related tests were removed - keeping the file for now 
     }
-
 }

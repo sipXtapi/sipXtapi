@@ -35,16 +35,6 @@
 		<pathelement path="${jta.jar}" />
 		<pathelement path="${jdbc-driver.jar}" />
 		<pathelement path="${odmg.jar}" />
-		<!-- TAPESTRY -->
-		<pathelement path="${tapestry.jar}" />
-		<pathelement path="${tapestry-contrib.jar}" />
-		<pathelement path="${ognl.jar}" />
-		<pathelement path="${javassist.jar}" />
-		<pathelement path="${bsf.jar}" />
-		<pathelement path="${jakarta-oro.jar}" />
-		<pathelement path="${commons-lang.jar}" />
-		<!-- JSF -->
-		<pathelement path="${jsf-api.jar}"/>
 	</path>
 
 	<path id="base.path">

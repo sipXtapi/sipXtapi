@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import javax.faces.model.SelectItem;
 
 /**
  * DialPlan - settings for configuring dial plan
@@ -20,8 +19,6 @@ public class DialPlan {
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
     private static final String DEFAULT_PSTN_PREFIX = "9";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
-    private static final int MIN_EXT_LEN = 3;
-    private static final int MAX_EXT_LEN = 9;
 
     // dial plan attributes
     private String m_name;
@@ -35,32 +32,17 @@ public class DialPlan {
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private String m_longDistancePrefix = "1";
 
-    private SelectItem[] m_localExtensionLenRange = getMapForRange(MIN_EXT_LEN, MAX_EXT_LEN);
-
     public DialPlan() {
         // empty
     }
 
-    DialPlan(String name, int localExtensionLen) {
+    public DialPlan(String name, int localExtensionLen) {
         m_name = name;
         m_localExtensionLen = new Integer(localExtensionLen);
     }
 
     public String getAutoAttendant() {
         return m_autoAttendant;
-    }
-
-    SelectItem[] getMapForRange(int min, int max) {
-        if (min >= max) {
-            return new SelectItem[0];
-        }
-        SelectItem[] items = new SelectItem[max - min + 1];
-        for (int i = min; i <= max; i++) {
-            Object value = new Integer(i);
-            String label = value + " digits";
-            items[i - min] = new SelectItem(value, label);
-        }
-        return items;
     }
 
     public void setAutoAttendant(String autoAttendant) {
@@ -142,9 +124,5 @@ public class DialPlan {
     public String onSave() {
         // Save something
         return null;
-    }
-
-    public SelectItem[] getLocalExtensionLenRange() {
-        return m_localExtensionLenRange;
     }
 }
