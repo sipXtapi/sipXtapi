@@ -1699,8 +1699,9 @@ public class UserAdvocateBean extends JDBCAwareEJB
                         null );
             }
         }
-        catch (Exception e) {
+        catch (RemoteException e) {
             logFatal(e.toString(), e);
+            // TODO - updating status should not be handled
             try {
                 mJobManagerEJBObject.updateJobStatus(
                         jobID,
@@ -1709,16 +1710,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
             } catch ( Exception e1) {e1.printStackTrace();}
 
-            if ( e instanceof RemoteException ) {
-                throw new EJBException ( e.toString() );
-            }
-            else if ( e instanceof PDSException ){
-                throw new PDSException ( e.getMessage() );
-            }
-            else {
-                // add assert here some time.
-                e.printStackTrace();
-            }
+            throw new EJBException ( e.toString() );
         }
     }
 
@@ -1978,117 +1970,78 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
 
 
-    private void generateUserCentricProfiles(   User user,
-                                                String projectionAlg,
-                                                boolean shouldCreateUserProf,
-                                                boolean shouldCreateAppRefProf)
-            throws PDSException {
-
+    private void generateUserCentricProfiles(User user, String projectionAlg,
+            boolean shouldCreateUserProf, boolean shouldCreateAppRefProf) 
+    			throws PDSException, RemoteException {
 
         ArrayList projectionInputs = new ArrayList();
 
+        // //////////////////////////////////////////////////////////////
+        // Note: a user may have > logical phone assigned to them
+        // //////////////////////////////////////////////////////////////
+        Collection usersDevices = null;
+
         try {
+            usersDevices = mDeviceHome.findByUserID(user.getID());
+            logDebug("found devices for user: " + user.getExternalID());
+        } catch (FinderException ex) {
+            mCTX.setRollbackOnly();
 
-            ////////////////////////////////////////////////////////////////
-            // Note: a user may have > logical phone assigned to them
-            ////////////////////////////////////////////////////////////////
-            Collection usersDevices = null;
-
-            try {
-                usersDevices = mDeviceHome.findByUserID(user.getID());
-                logDebug ("found devices for user: " + user.getExternalID());
-            }
-            catch (FinderException ex){
-                mCTX.setRollbackOnly();
-
-                throw new PDSException(
-                    collateErrorMessages(   "UC670",
-                                            "E1025",
-                                            new Object[]{user.getExternalID()}),
-                    ex);
-            }
-
-            /////////////////////////////////////////////////////////////////
-            //
-            // If a user has no devices then there is no way to write
-            // profiles.
-            //
-            ////////////////////////////////////////////////////////////////
-            if ( !usersDevices.isEmpty() ) {
-
-                try {
-                    if (shouldCreateUserProf) {
-
-                        logDebug ( "creating USER profile for user: " +
-                                user.getExternalID() );
-
-                        logDebug ( "got projectiong inputs for user" );
-
-                        for (Iterator iDevice = usersDevices.iterator(); iDevice.hasNext(); ) {
-                            Device device = (Device) iDevice.next();
-
-                            projectionInputs.clear();
-                            projectionInputs.addAll( getProjectionInputs(
-                                    user,
-                                    PDSDefinitions.PROF_TYPE_USER) );
-
-                            logDebug ( "creating USER profile for device " +
-                                    device.getExternalID() );
-
-                            mProjectionHelperEJBObject.projectAndPersist(
-                                    projectionAlg,
-                                    device,
-                                    PDSDefinitions.PROF_TYPE_USER,
-                                    projectionInputs);
-
-                        }
-                    }
-
-                    ///////////////////////////////////////////////////////////////
-                    // remove the existing inputs which are USER profile specific
-                    ///////////////////////////////////////////////////////////////
-                    projectionInputs.clear();
-
-                    if (shouldCreateAppRefProf) {
-
-                        for (Iterator iDevice = usersDevices.iterator(); iDevice.hasNext(); ) {
-                            Device lp = (Device) iDevice.next();
-
-                            if ( !lp.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7940) &&
-                                    !lp.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7960)){
-
-                                projectionInputs.clear();
-                                projectionInputs.addAll( getProjectionInputs(
-                                        user,
-                                        PDSDefinitions.PROF_TYPE_APPLICATION_REF) );
-
-                                mProjectionHelperEJBObject.projectAndPersist(
-                                        projectionAlg,
-                                        lp,
-                                        PDSDefinitions.PROF_TYPE_APPLICATION_REF,
-                                        projectionInputs);
-                            } //if
-                        }
-                    }
-                }
-                catch (PDSException ex) {
-                    mCTX.setRollbackOnly();
-
-                    throw new PDSException( collateErrorMessages( "UC670" ), ex);
-                }
-            } // if
+            throw new PDSException(collateErrorMessages("UC670", "E1025", new Object[] { user
+                    .getExternalID() }), ex);
         }
-        catch (RemoteException ex) {
-            logFatal( ex.toString(), ex );
 
-            String userExternal = null;
+        // ///////////////////////////////////////////////////////////////
+        //
+        // If a user has no devices then there is no way to write
+        // profiles.
+        //
+        // //////////////////////////////////////////////////////////////
+        if (usersDevices.isEmpty()) {
+            return;
+        }
 
-            try { userExternal = user.getExternalID();} catch ( RemoteException rex ) {}
+        if (shouldCreateUserProf) {
 
-            throw new EJBException(
-                collateErrorMessages(   "UC670",
-                                        "E4035",
-                                        new Object[]{ userExternal }));
+            logDebug("creating USER profile for user: " + user.getExternalID());
+
+            logDebug("got projectiong inputs for user");
+
+            for (Iterator iDevice = usersDevices.iterator(); iDevice.hasNext();) {
+                Device device = (Device) iDevice.next();
+
+                projectionInputs.clear();
+                projectionInputs.addAll(getProjectionInputs(user, PDSDefinitions.PROF_TYPE_USER));
+
+                logDebug("creating USER profile for device " + device.getExternalID());
+
+                mProjectionHelperEJBObject.projectAndPersist(projectionAlg, device,
+                        PDSDefinitions.PROF_TYPE_USER, projectionInputs);
+
+            }
+        }
+
+        // /////////////////////////////////////////////////////////////
+        // remove the existing inputs which are USER profile specific
+        // /////////////////////////////////////////////////////////////
+        projectionInputs.clear();
+
+        if (shouldCreateAppRefProf) {
+
+            for (Iterator iDevice = usersDevices.iterator(); iDevice.hasNext();) {
+                Device lp = (Device) iDevice.next();
+
+                if (!lp.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7940)
+                        && !lp.getModel().equals(PDSDefinitions.MODEL_HARDPHONE_CISCO_7960)) {
+
+                    projectionInputs.clear();
+                    projectionInputs.addAll(getProjectionInputs(user,
+                            PDSDefinitions.PROF_TYPE_APPLICATION_REF));
+
+                    mProjectionHelperEJBObject.projectAndPersist(projectionAlg, lp,
+                            PDSDefinitions.PROF_TYPE_APPLICATION_REF, projectionInputs);
+                } // if
+            }
         }
     }
 

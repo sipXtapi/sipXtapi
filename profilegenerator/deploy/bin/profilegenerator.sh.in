@@ -96,6 +96,11 @@ fi
 # append profilegenerator opts
 JAVA_OPTS="-server $JAVA_OPTS $PROFILEGENERATOR_OPTS"
 
+
+# setup security manager
+PF=../server/@jboss.server.conf@/conf/server.policy
+JAVA_OPTS="$JAVA_OPTS -Djava.security.manager -Djava.security.policy=$PF"
+
 # Setup the java endorsed dirs
 JBOSS_ENDORSED_DIRS="$JBOSS_HOME/lib/endorsed"
 

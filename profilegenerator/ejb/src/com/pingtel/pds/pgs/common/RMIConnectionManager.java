@@ -17,8 +17,6 @@ import java.rmi.Naming;
 import java.rmi.RMISecurityManager;
 import java.util.Hashtable;
 
-import com.pingtel.pds.sds.ProfileListener;
-
 /**
  * SDSWriterConnection is a singleton which controls access to the RMI
  * mInstance to the SDS process.   It is called by the PGS to
@@ -48,7 +46,12 @@ public class RMIConnectionManager {
 // Construction
 ////
     private RMIConnectionManager () {
-        System.setSecurityManager(new RMISecurityManager());
+        SecurityManager sm = System.getSecurityManager();
+        // do not change security manager if it is already set
+        if( sm == null )
+        {
+            System.setSecurityManager(new RMISecurityManager());                        
+        }
     }
 
 
