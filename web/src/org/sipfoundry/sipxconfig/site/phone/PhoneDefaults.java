@@ -22,11 +22,14 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.MetaStorage;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 
 public abstract class PhoneDefaults extends BasePage implements PageRenderListener  {
+    
+    public static final String PAGE = "PhoneDefaults";
     
     private Endpoint m_blankEndpoint;
     
@@ -37,30 +40,31 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     public abstract Phone getPhone();
     
     public abstract int getPhoneId();
+
+    public abstract void setPhoneId();
     
-    /** REQUIRED PAGE PROPERTY */
+    /** REQUIRED PROPERTY */
     public abstract void setPhoneId(int id);
     
-    /** REQUIRED PAGE PROPERTY */
-    public abstract void setMetaStorageId(int id);
+    public abstract MetaStorage getPhoneFolder();
     
-    public abstract int getMetaStorageId();
-    
-    public abstract MetaStorage getMetaStorage();
-    
-    public abstract void setMetaStorage(MetaStorage metaStorage);
-    
+    public abstract void setPhoneFolder(MetaStorage metaStorage);
+
+    public abstract MetaStorage getLineFolder();
+
+    public abstract void setLineFolder(MetaStorage metaStorage);
+
     public abstract SettingDao getSettingDao();
     
     public abstract PhoneContext getPhoneContext();
 
     public abstract SettingGroup getCurrentSetting();
     
-    public abstract void setCurrentSetting(SettingGroup group);
+    public abstract void setCurrentSetting(Setting setting);
     
-    public abstract void setEditSetting(SettingGroup group);
+    public abstract void setEditSetting(Setting setting);
     
-    public abstract SettingGroup getEditSetting();
+    public abstract Setting getEditSetting();
     
     public Collection getPhoneSettings() {
         return getPhone().getSettingModel(m_blankEndpoint).getValues();
@@ -70,7 +74,7 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
         return getPhone().getSettingModel(m_blankLine).getValues();        
     }
     
-    public void editSettings(IRequestCycle cycle_) {        
+    public void edit(IRequestCycle cycle_) {        
         setEditSetting(getCurrentSetting());
     }
     
@@ -80,7 +84,8 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     }
     
     public void apply(IRequestCycle cycle_) {
-        getSettingDao().storeMetaStorage(getMetaStorage());
+        getSettingDao().storeMetaStorage(getPhoneFolder());
+        getSettingDao().storeMetaStorage(getLineFolder());
     }
 
     public void cancel(IRequestCycle cycle) {
@@ -91,19 +96,15 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
         m_blankEndpoint = new Endpoint();
         m_blankEndpoint.addLine(m_blankLine);
         m_blankLine = new Line();
-        
-        MetaStorage metaStorage;
-        if (getMetaStorageId() == 0) {
-            metaStorage = new MetaStorage();
-        } else {
-            metaStorage = getSettingDao().loadMetaStorage(getMetaStorageId());
-        }
-        setMetaStorage(metaStorage);
-        
+
         setPhone(getPhoneContext().getPhone(getPhoneId()));
         
+        // future, edit other meta storages, not just root's
+        setPhoneFolder(getPhoneContext().getRootPhoneFolder());
+        setLineFolder(getPhoneContext().getRootLineFolder());        
+        
         if (getEditSetting() == null) {
-            setEditSetting((SettingGroup) getPhoneSettings().iterator().next());
+            setEditSetting((Setting) getPhoneSettings().iterator().next());
         }
     }
 }

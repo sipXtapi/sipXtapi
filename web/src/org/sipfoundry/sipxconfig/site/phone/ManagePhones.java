@@ -82,6 +82,11 @@ public abstract class ManagePhones extends BasePage
         cycle.activate(page);
     }
     
+    public void defaults(IRequestCycle cycle) {
+        PhoneDefaults page = (PhoneDefaults) cycle.getPage(PhoneDefaults.PAGE);
+        cycle.activate(page);
+    }
+    
     public void generateProfiles(IRequestCycle cycle) {
         // TODO: Should execute asychronously
         PhoneContext phoneContext = PhonePageUtils.getPhoneContext(cycle);

@@ -2,6 +2,8 @@
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
     <meta_storage 
+		resource="unittest"
+		label="food"
 		meta_storage_id="[meta_storage_id]"/> 
     <setting_meta
 		meta_storage_id="[meta_storage_id]"

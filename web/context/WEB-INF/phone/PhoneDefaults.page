@@ -13,6 +13,19 @@
 	<property-specification name="settingDao" 
 		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
     	initial-value="global.settingDao"/>    
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+    <property-specification name="phone" 
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId" 
+        type="java.lang.String"/>
+    <property-specification name="phoneMetaStorage"
+        type="org.sipfoundry.sipxconfig.setting.MetaStorage"/>
+    <property-specification name="lineMetaStorage"
+        type="org.sipfoundry.sipxconfig.setting.MetaStorage"/>
+    <property-specification name="editSetting" 
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>    
     <!--
      - C O M P O N E N T S
      -->    
@@ -28,10 +41,19 @@
         <binding name="value" expression="currentSetting.label"/>
     </component>    
     <component id="phoneSettingsLink" type="DirectLink">
-        <binding name="listener" expression="editSetting"/>
+        <binding name="listener" expression="listeners.edit"/>
     </component>    
     <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
     </component>    
     <component id="lineSettingsLink" copy-of="phoneSettingsLink">
     </component>        
+    <component id="ok" type="Submit">
+        <binding name="listener" expression="listeners.ok"/>
+    </component>
+    <component id="apply" type="Submit">
+        <binding name="listener" expression="listeners.apply"/>
+    </component>
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="listeners.cancel"/>
+    </component>
 </page-specification>

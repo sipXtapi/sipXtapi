@@ -25,7 +25,7 @@ public interface Phone {
     public void setModelId(String id);
     
     public String getDisplayLabel();
-
+    
     public SettingGroup getSettingModel(Endpoint endpoint);
 
     public SettingGroup getSettingModel(Line line);

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.setting.MetaStorage;
 
 
 
@@ -21,6 +22,10 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public interface PhoneContext extends CoreContext {
+    
+    public static final int ROOT_PHONE_META_ID = 1000;
+    
+    public static final int ROOT_LINE_META_ID = 2000;
     
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
     
@@ -82,5 +87,9 @@ public interface PhoneContext extends CoreContext {
         
     public void storeEndpoint(Endpoint endpoint);
 
-    public void deleteEndpoint(Endpoint endpoint);    
+    public void deleteEndpoint(Endpoint endpoint);
+    
+    public MetaStorage getRootPhoneFolder();
+
+    public MetaStorage getRootLineFolder();
 }

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.setting.MetaStorage;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -142,5 +143,13 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     public Organization loadRootOrganization() {
         return m_coreContext.loadRootOrganization();
+    }
+
+    public MetaStorage getRootPhoneFolder() {
+        throw new UnsupportedOperationException("getRootPhoneFolder not implemented");
+    }
+
+    public MetaStorage getRootLineFolder() {
+        throw new UnsupportedOperationException("getRootLineFolder not implemented");
     }
 }

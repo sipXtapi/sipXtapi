@@ -74,6 +74,8 @@
 				<param name="sequence">meta_storage_seq</param>
 			</generator>
 		</id>		
+		<property name="label" column="label"/>
+		<property name="resource" column="resource"/>
         <!-- S E T T I N G   M E T A -->
 		<map name="meta" cascade="all" table="setting_meta">
 			<key column="meta_storage_id"/>

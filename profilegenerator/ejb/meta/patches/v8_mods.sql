@@ -7,7 +7,9 @@
  * S E T T I N G   M E T A   S T O R A G E
  */
 create table meta_storage(
-  meta_storage_id int4 not null primary key
+  meta_storage_id int4 not null primary key,
+  resource varchar(256) not null,
+  label varchar(256) not null
 );
 
 create sequence meta_storage_seq;

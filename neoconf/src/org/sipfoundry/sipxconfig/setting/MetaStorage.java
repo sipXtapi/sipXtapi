@@ -14,24 +14,27 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Iterator;
 import java.util.Map;
 
-
 /**
  * Settings meta information user overrides is stored in this collection
  */
 public class MetaStorage extends AbstractStorage implements SettingVisitor {
-    
-    private static final long serialVersionUID = 1L;      
+
+    private static final long serialVersionUID = 1L;
+
+    private String m_label;
+
+    private String m_resource;
 
     public Map getMeta() {
         return getDelegate();
     }
-    
+
     public void setMeta(Map delegate) {
         setDelegate(delegate);
     }
 
     public Setting decorate(Setting setting) {
-        setting.acceptVisitor(this);        
+        setting.acceptVisitor(this);
         return setting;
     }
 
@@ -42,15 +45,31 @@ public class MetaStorage extends AbstractStorage implements SettingVisitor {
         } else {
             meta.setDelegate(setting);
         }
-        
+
         setting.getSettingGroup().addSetting(meta);
     }
 
-    public void visitSettingGroup(SettingGroup group) {        
+    public void visitSettingGroup(SettingGroup group) {
         Iterator i = group.getValues().iterator();
         while (i.hasNext()) {
             ((Setting) i.next()).acceptVisitor(this);
-        }        
+        }
+    }
+
+    public String getLabel() {
+        return m_label;
+    }
+
+    public void setLabel(String label) {
+        m_label = label;
+    }
+
+    public String getResource() {
+        return m_resource;
+    }
+
+    public void setResource(String resource) {
+        m_resource = resource;
     }
 }
 
