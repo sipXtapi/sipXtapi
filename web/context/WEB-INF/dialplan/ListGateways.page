@@ -50,6 +50,4 @@
     <!--
 	  - A S S E T S
 	  -->	
-	<!-- TODO Find some way to define this globally -->
-	<context-asset name="stylesheet" path="css/sipxconfig.css"/>
 </page-specification>
