@@ -50,6 +50,16 @@ variables:
                Example: 
                    export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
 
+Special Software Installion Instructions
+========================================
+1.) After unzipping JBoss
+
+ a.) run this patch on it
+
+  patch -d ${JBOSS_HOME} -p1 < sipx-jboss-configure.patch
+
+ b.) be sure user running sipxpbx (most cases sipxchange) has full r/w
+     access to all files and directories in ${JBOSS_HOME}
 
 
 Installation

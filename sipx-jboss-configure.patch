@@ -1,0 +1,80 @@
+--- JBoss-2.4.10_Tomcat-4.0.6/jboss/conf/catalina/auth.conf.orig	2004-08-31 10:09:02.000000000 -0400
++++ JBoss-2.4.10_Tomcat-4.0.6/jboss/conf/catalina/auth.conf	2004-08-31 10:13:43.000000000 -0400
+@@ -28,8 +28,7 @@
+     // the case for an unuathenticated web client or MDB. If you want to
+     // allow such users to be authenticated add the property, e.g.,
+     //   unauthenticatedIdentity="nobody"
+-    org.jboss.security.auth.spi.UsersRolesLoginModule required
+-        ;
++    com.pingtel.pds.jbossauth.SIPxchangeLoginModule required dsJndiName="java:/PDSDataSource";
+ 
+ };
+  
+--- JBoss-2.4.10_Tomcat-4.0.6/jboss/conf/catalina/jboss.jcml.orig	2004-08-31 10:09:25.000000000 -0400
++++ JBoss-2.4.10_Tomcat-4.0.6/jboss/conf/catalina/jboss.jcml	2004-08-31 10:13:43.000000000 -0400
+@@ -68,25 +68,18 @@
+   <!-- ==================================================================== -->
+ 
+   <mbean code="org.jboss.jdbc.JdbcProvider" name="DefaultDomain:service=JdbcProvider">
+-     <attribute name="Drivers">org.hsqldb.jdbcDriver</attribute>
++     <attribute name="Drivers">org.postgresql.Driver</attribute>
+   </mbean>
+ 
+-  <mbean code="org.jboss.jdbc.HypersonicDatabase" name="DefaultDomain:service=Hypersonic">
+-    <attribute name="Port">1476</attribute>
+-    <attribute name="Silent">true</attribute>
+-    <attribute name="Database">default</attribute>
+-    <attribute name="Trace">false</attribute>
+-  </mbean>
+-
+-  <mbean code="org.jboss.jdbc.XADataSourceLoader" name="DefaultDomain:service=XADataSource,name=DefaultDS">
+-    <attribute name="PoolName">DefaultDS</attribute>
++  <mbean code="org.jboss.jdbc.XADataSourceLoader" name="DefaultDomain:service=XADataSource,name=PDSDataSource">
++    <attribute name="PoolName">PDSDataSource</attribute>
+     <attribute name="DataSourceClass">org.jboss.pool.jdbc.xa.wrapper.XADataSourceImpl</attribute>
+     <attribute name="Properties"></attribute>
+-    <attribute name="URL">jdbc:hsqldb:hsql://localhost:1476</attribute>
++    <attribute name="URL">jdbc:postgresql://localhost/PDS</attribute>
+     <attribute name="GCMinIdleTime">1200000</attribute>
+-    <attribute name="JDBCUser">sa</attribute>
++    <attribute name="JDBCUser">postgres</attribute>
+     <attribute name="MaxSize">10</attribute>
+-    <attribute name="Password" />
++    <attribute name="Password"></attribute>
+     <attribute name="GCEnabled">false</attribute>
+     <attribute name="InvalidateOnError">false</attribute>
+     <attribute name="TimestampUsed">false</attribute>
+@@ -97,14 +90,6 @@
+     <attribute name="LoggingEnabled">false</attribute>
+     <attribute name="MaxIdleTimeoutPercent">1.0</attribute>
+     <attribute name="MinSize">0</attribute>
+-    <!-- release on commit will release connections created within a transaction
+-         whenever the transaction is committed or rolledback -->
+-    <attribute name="ReleaseOnCommit">false</attribute>
+-    <!-- save stack trace will remember the point where a connection was created.
+-	 Only use with ReleaseOnCommit!!  If a release on commmit happens, 
+-	 you will get a stack trace of where the connection was created AND
+-	 NOT released. -->
+-    <attribute name="SaveStackTrace">false</attribute>
+   </mbean>
+ 
+   <!-- ==================================================================== -->
+--- JBoss-2.4.10_Tomcat-4.0.6/jboss/conf/catalina/jboss.properties.orig	2004-08-31 10:09:45.000000000 -0400
++++ JBoss-2.4.10_Tomcat-4.0.6/jboss/conf/catalina/jboss.properties	2004-08-31 10:13:43.000000000 -0400
+@@ -11,3 +11,7 @@
+ 
+ # Tomcat session Id generation. Uncomment to make Tomcat initial request faster
+ # tomcat.sessionid.randomclass=java.util.Random
++
++java.security.manager=java.lang.SecurityManager
++java.security.policy=/usr/etc/sipxpbx/security.policy
++pds.debug=false
+--- JBoss-2.4.10_Tomcat-4.0.6/jboss/bin/run.sh.orig	2004-08-31 10:08:46.000000000 -0400
++++ JBoss-2.4.10_Tomcat-4.0.6/jboss/bin/run.sh	2004-08-31 10:13:43.000000000 -0400
+@@ -35,5 +35,5 @@
+ fi
+ 
+ echo JBOSS_CLASSPATH=$JBOSS_CLASSPATH
+-java $HOTSPOT $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main $@
++java $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main $@
+ 
