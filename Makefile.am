@@ -2,10 +2,10 @@
 
 SUBDIRS = src include
 
-pkgconfdir = @SIPX_CONFDIR@
+INSTALL=@INSTALL@
 
 edit = sed \
-        -e 's,@SIPX_CONFDIR\@,$(pkgconfdir),g' \
+        -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
         -e 's,@bindir\@,$(bindir),g' \
         -e 's,@localstatedir\@,$(localstatedir),g'
 
@@ -18,8 +18,8 @@ editscripts :
 	do \
 		target=`basename $$f .in`; \
 		echo ""; echo "Installing $(bindir)/$$target"; \
-		$(edit) $(srcdir)/$$f > $(bindir)/$$target; \
-		chmod +x $(bindir)/$$target; \
+		$(edit) $(srcdir)/$$f > $$target; \
+		$(INSTALL) -d -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
 	done
 
 editdata_IN = \
@@ -32,12 +32,13 @@ editdata :
 	@for cfgfile in $(editdata_IN); \
 	do \
 		target=`basename $$cfgfile`; \
-		if ! test -f $(pkgconfdir)/$$target; \
+		$(edit) $(srcdir)/$$cfgfile > $$target; \
+		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		then \
-			echo ""; echo "Installing default $(pkgconfdir)/$$target"; \
-			$(edit) $(srcdir)/$$cfgfile > $(pkgconfdir)/$$target; \
+			echo ""; echo "Installing default $(sysconfdir)/sipxpbx/$$target"; \
+			$(INSTALL) -d -m 644 $$target $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		else \
-	    	 echo ""; echo "Using existing $(pkgconfdir)/$$target"; \
+	    	 echo ""; echo "Using existing $(sysconfdir)/sipxpbx/$$target"; \
 	    fi; \
 	done; \
 	echo ""
