@@ -15,6 +15,8 @@ EXTRA_DIST = \
     subant-targets.xml \
     acsite.m4 \
     CONTRIBUTORS \
+    BUILDSTAMP \
+    SVN-VERSION \
     LICENSE \
     config.properties.in \
     common \
