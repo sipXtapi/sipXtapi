@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<!--
+  - project file all build.xml's should import
+  -
+  - NOTES:
+  -
+  -  Works for projects that is a composite of subprojects. Limitation, that
+  -    composite project can not have it's own src as well
+  -
+  -->
+<project name="ant-targets" default="default" basedir="." >
+
+  <!-- 
+    -  P R O P E R T I E S
+    -
+    - EXTERNAL PROPERTIES DEPENDECIES:
+    -  top.build.dir        = top output for all projects
+    -  build.dir            = output for project
+    -  test.classes         = Patterset of explicit junit tests for quick test
+    -  regression.classes   = Patterset of explicit junit tests for full regression test 
+    -->
+  <property file="top.build.dir"/>
+  <property file="${top.build.dir}/config.properties"/>
+
+  <!--
+    -  D E F A U L T
+    -->
+  <target name="default"
+      description="recurse w/default target">
+    <my.subant/>
+  </target>
+
+
+  <!-- C L E A N -->
+  <target name="clean" if="subdirs"
+        description="[internal] recurse w/clean target">
+    <my.subant target="clean"/>
+  </target>
+
+
+  <!-- I N S T A L L -->
+  <target name="install" if="subdirs">
+    <my.subant target="install"/>
+  </target>
+
+  <!-- U N I N S T A L L -->
+  <target name="uninstall" if="subdirs">
+    <my.subant target="install"/>
+  </target>
+  
+  <!-- C H E C K S T Y L E -->
+  <target name="style" if="subdirs" 
+       description="run checkstyle">
+    <my.subant target="style"/>
+  </target>
+
+  <!-- J A V A D O C -->
+  <target name="doc" if="subdirs"
+      description="[internal] recurse w/given target">
+    <my.subant target="doc"/>
+  </target>
+
+  <!--
+    - U N I T T E S T 
+    -->
+  <target name="test" if="subdirs" 
+       description="run junit tests">
+    <my.subant target="test"/>
+  </target>
+
+  <!--
+    - R E G R E S S I O N  U N I T T E S T 
+    - This is unittests that generallly take a while to run or
+    - require that your machine is setup, for example database, 
+    - webserver, etc
+    -->
+  <target name="regression" if="subdirs" 
+       description="run regression junit tests">
+    <my.subant target="regression"/>
+  </target>
+
+  <!--
+    - U N I T T E S T   R E P O R T
+    -->
+  <target name="test-report" if="subdirs"
+      description="[internal] recurse">
+    <my.subant target="test-report"/>
+  </target>
+
+  <!-- 
+    - R E C U R S E  B U I L D S 
+    - Analogous to autoconf's SUBDIRS this will recurse directories calling
+    - build files ANT passing target name
+    - This is our own subant definition - it passes only top.build.dir property to subant and 
+    - it operated on a fileset defined by ${subdirs} is set.
+    --> 
+    <presetdef name="my.subant"> 
+      <subant inheritall="false" inheritrefs="false">
+        <property name="top.build.dir" value="${top.build.dir}"/>
+        <!-- may be tempted to use patternset, but order is not 
+             preserved -->
+        <filelist refid="${subdirs}"/>
+      	<reference refid="clover.files"/>
+      	<propertyset>
+          <propertyref prefix="clover"/>
+          <propertyref prefix="build.compiler"/>
+        </propertyset>
+      </subant>
+    </presetdef>
+
+</project>

@@ -3,9 +3,8 @@
 <project name="documentation" default="doc" basedir="." >
 
   <patternset id="test.classes" excludes="**"/>
-  <property name="top.build.dir" value="${basedir}/.."/>
-  <property name="build.dir" value="${top.build.dir}/doc"/>
 
+  <property name="project.dir" value="doc"/>
   <import file="../ant-targets.xml"/>
 
   <property name="manual.dir" value="${build.dir}/manual"/>

@@ -71,6 +71,9 @@ SFAC_LIB_PORT
 # Jar files to all of sipXconfig. 
 AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
 
+# Expand build dir into absolute path
+AC_SUBST(BUILDDIR_EXPAND, [`cd $builddir && pwd`])
+
 CHECK_JNI
 CHECK_ANT
 CHECK_CLOVER

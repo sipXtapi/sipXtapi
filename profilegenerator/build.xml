@@ -1,17 +1,5 @@
 <project name="sipxconfig" default="default" basedir="." >
  
-  <!-- Note: 
-    There are some tests that are broken in this project: a pattern for them is **/Test*.class
-    All new tests (**/*Test.class) have to be functional at all times.
-  -->
-  <patternset id="test.classes">
-      <include name="**/*Test.class"/>
-  </patternset>
-  <property name="top.build.dir" value="${basedir}/.."/>
-  <property name="build.dir" value="${top.build.dir}/profilegenerator"/>
-
-  <import file="../ant-targets.xml"/>
-
   <filelist id="components" dir="${basedir}" files="
       commserver/build.xml
       ejb/build.xml
@@ -21,6 +9,7 @@
       deploy/build.xml"/>
   <property name="subdirs" value="components"/>
 
-  <import file="../ant-targets.xml"/>
+  <property name="project.dir" value="profilegenerator"/>
+  <import file="../subant-targets.xml"/>
 
 </project>

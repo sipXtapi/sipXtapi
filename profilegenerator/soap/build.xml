@@ -4,9 +4,8 @@
 <project name="soap" default="war" basedir=".">
 
   <patternset id="test.classes" excludes="**"/>
-  <property name="top.build.dir" value="${basedir}/../.."/>
-  <property name="build.dir" value="${top.build.dir}/profilegenerator/soap"/>
 
+  <property name="project.dir" value="profilegenerator/soap"/>
   <import file="../../ant-targets.xml"/>
 
   <path id="base.path">

@@ -6,9 +6,7 @@
   	includes="**/*Test.class" 
   	excludes="**/SIPxchangeLoginModuleTest.class"/>
 
-  <property name="top.build.dir" value="${basedir}/../.."/>
-  <property name="build.dir" value="${top.build.dir}/profilegenerator/authentication"/>
-
+  <property name="project.dir" value="profilegenerator/authentication"/>
   <import file="../../ant-targets.xml"/>
 
   <path id="base.path">

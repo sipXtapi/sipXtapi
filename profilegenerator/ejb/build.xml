@@ -6,9 +6,7 @@
     <include name="**/*Test.class"/>
   </patternset>
 
-  <property name="top.build.dir" value="${basedir}/../.."/>
-  <property name="build.dir" value="${top.build.dir}/profilegenerator/ejb"/>
-
+  <property name="project.dir" value="profilegenerator/ejb"/>
   <import file="../../ant-targets.xml"/>
 
   <path id="base.path">

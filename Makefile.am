@@ -55,8 +55,13 @@ edit = sed \
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
-config.properties : config.properties.in Makefile
+config.properties : config.properties.in Makefile $(top_srcdir)/top.build.dir
 	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
+
+# This sets the default build dir to the last directory that called
+# configure shell script.  This allows 'ant' to be called from any directory
+$(top_srcdir)/top.build.dir :
+	echo "top.build.dir="`pwd` > $(top_srcdir)/top.build.dir
 
 # Alternative is to do svn export, but it's very handy to be able to 
 # create a dist tarball from a working svn checkout

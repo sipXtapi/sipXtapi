@@ -8,9 +8,7 @@
     <include name="DbConnectionTest.class"/>
   </patternset>
 
-  <property name="top.build.dir" value="${basedir}/.."/>
-  <property name="build.dir" value="${top.build.dir}/profilepublisher"/>
-
+  <property name="project.dir" value="profilepublisher"/>
   <import file="../ant-targets.xml"/>
 
   <path id="base.path" >

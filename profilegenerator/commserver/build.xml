@@ -7,9 +7,7 @@
      <include name="**/*Test.class"/>
   </patternset>
 
-  <property name="top.build.dir" value="${basedir}/../.."/>
-  <property name="build.dir" value="${top.build.dir}/profilegenerator/commserver"/>
-
+  <property name="project.dir" value="profilegenerator/commserver"/>
   <import file="../../ant-targets.xml"/>
 
   <path id="base.path">

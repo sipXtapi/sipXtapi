@@ -10,9 +10,7 @@
   	<include name="**/*Test.class"/>
   </patternset>
   	
-  <property name="top.build.dir" value="${basedir}/.."/>
-  <property name="build.dir" value="${top.build.dir}/common"/>
-
+  <property name="project.dir" value="common"/>
   <import file="../ant-targets.xml"/>
 
   <path id="base.path" >

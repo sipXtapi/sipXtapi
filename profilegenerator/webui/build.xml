@@ -4,9 +4,8 @@
 <project name="webui" default="war" basedir=".">
 
   <patternset id="test.classes" excludes="**"/>
-  <property name="top.build.dir" value="${basedir}/../.."/>
-  <property name="build.dir" value="${top.build.dir}/profilegenerator/webui"/>
 
+  <property name="project.dir" value="profilegenerator/webui"/>
   <import file="../../ant-targets.xml"/>
 
   <path id="base.path">

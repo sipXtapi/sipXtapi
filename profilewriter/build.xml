@@ -4,9 +4,8 @@
 <project name="profilewriter" default="jar" basedir="." >
 
   <patternset id="test.classes" excludes="**"/>
-  <property name="top.build.dir" value="${basedir}/.."/>
-  <property name="build.dir" value="${top.build.dir}/profilewriter"/>
 
+  <property name="project.dir" value="profilewriter"/>
   <import file="../ant-targets.xml"/>
 
   <path id="base.path" >

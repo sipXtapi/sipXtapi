@@ -8,10 +8,6 @@
   -
   -  Attempts to define targets w/standard target names, but not authorative
   -    standard was used.
-  -   
-  -  Works for projects that is a composite of subprojects. Limitation, that
-  -    composite project can not have it's own src as well
-  -
   -->
 <project name="ant-targets" default="default" basedir="." >
 
@@ -24,7 +20,10 @@
     -  test.classes         = Patterset of explicit junit tests for quick test
     -  regression.classes   = Patterset of explicit junit tests for full regression test 
     -->
+  <dirname property="ant-targets.basedir" file="${ant.file.ant-targets}"/>
+  <property file="${ant-targets.basedir}/top.build.dir"/>
   <property file="${top.build.dir}/config.properties"/>
+  <property name="build.dir" value="${top.build.dir}/${project.dir}"/>  
   <property name="src.dir" value="src" />
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="dist.dir" value="${build.dir}/dist" />
@@ -114,7 +113,7 @@
     - I N I T 
     - Create output directories. 
     -->
-  <target name="init" unless="subdirs"
+  <target name="init"
     description="[internal] create standard output directories">
     
     <echo level="verbose">entering ${ant.project.name}</echo>
@@ -163,16 +162,12 @@
   <!--
     -  D E F A U L T
     -->
-  <target name="default" if="subdirs"
-      description="recurse w/default target">
-    <my.subant/>
-  </target>
 
 
   <!-- 
    - C O M P I L E 
    -->
-  <target name="compile" depends="init" unless="subdirs"
+  <target name="compile" depends="init"
       description="[internal] Compile all files in src directory">
 
     <javac srcdir="${src.dir}"
@@ -187,15 +182,8 @@
 
 
   <!-- C L E A N -->
-  <target name="clean" depends="subclean,realclean"/>
-
-  <target name="subclean" if="subdirs"
-        description="[internal] recurse w/clean target">
-    <my.subant target="clean"/>
-  </target>
-
-  <target name="realclean" unless="subdirs"
-      description="[internal] remove class, distribution and test directories">
+  <target name="clean"
+      description="remove class, distribution and test directories">
 
     <delete dir="${classes.dir}"/>
     <delete dir="${test.classes.dir}"/>
@@ -205,27 +193,12 @@
 
 
   <!-- I N S T A L L -->
-  <target name="install" depends="subinstall,realinstall"
+  <target name="install"
        description="Install java components" />
-
-  <target name="subinstall" if="subdirs">
-    <my.subant target="install"/>
-  </target>
-
-  <target name="realinstall" unless="subdirs"
-       description="Install java components" />
-
 
   <!-- U N I N S T A L L -->
-  <target name="uninstall" depends="subuninstall,realuninstall"
-       description="Uninstall java components"/>
-
-  <target name="subuninstall" if="subdirs">
-    <my.subant target="install"/>
-  </target>
-
-  <target name="realuninstall" unless="subdirs"
-       description="Install java components">
+  <target name="uninstall"
+       description="Un-Install java components">
     <echo>NOTE: not necessarily a perfect inverse opperation to 'install'</echo>
   </target>
 
@@ -235,7 +208,7 @@
     <available file="${test.src.dir}" type="dir" property="tests.present"/>
   </target>
 
-  <target name="compile.test" depends="check.compile.test,compile,init" if="tests.present" unless="subdirs"
+  <target name="compile.test" depends="check.compile.test,compile,init" if="tests.present"
         description="[internal] compile tests">
 
     <javac srcdir="${test.src.dir}"
@@ -255,19 +228,11 @@
   <!-- C H E C K S T Y L E -->
   <!-- set checkstyle.severity property to error|warning|info --> 
   <!-- we are only failing on errors --> 
-  <target name="style" depends="substyle,realstyle" 
-       description="run checkstyle"/>
-
-  <target name="substyle" if="subdirs" 
-       description="run checkstyle">
-    <my.subant target="style"/>
-  </target>
-
   <target name="check.src.present">
     <available file="${src.dir}" type="dir" property="src.present"/>
   </target>
 
-  <target name="realstyle" depends="check.src.present" if="src.present" unless="subdirs"
+  <target name="style" depends="check.src.present" if="src.present"
       description="checks code convention violations"> 
     <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false" 
         failureproperty="checkstyle.failed"> 
@@ -290,15 +255,7 @@
 	
 
   <!-- J A V A D O C -->
-  <target name="doc" depends="subdoc,realdoc"
-      description="generate javadocs for src and test code"/>
-
-  <target name="subdoc" if="subdirs"
-      description="[internal] recurse w/given target">
-    <my.subant target="doc"/>
-  </target>
-
-  <target name="realdoc" depends="init" unless="subdirs"
+  <target name="doc" depends="init"
       description="generate javadocs for src and test code">
 
     <javadoc sourcepath="${src.dir}" destdir="${api.dir}">
@@ -314,16 +271,7 @@
   <!--
     - U N I T T E S T 
     -->
-  <target name="test" depends="subtest,realtest" 
-       description="run junit tests">
-  </target> 
-
-  <target name="subtest" if="subdirs" 
-       description="run junit tests">
-    <my.subant target="test"/>
-  </target>
-
-  <target name="realtest" depends="compile.test" unless="subdirs" 
+  <target name="test" depends="compile.test"
        description="run junit tests">
 
     <junit fork="yes" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
@@ -356,15 +304,7 @@
     - require that your machine is setup, for example database, 
     - webserver, etc
     -->
-  <target name="regression" depends="subregression,realregression" 
-       description="run regression junit tests"/>
-
-  <target name="subregression" if="subdirs" 
-       description="run regression junit tests">
-    <my.subant target="regression"/>
-  </target>
-
-  <target name="realregression" depends="compile.test" unless="subdirs" 
+  <target name="regression" depends="compile.test"
        description="run regression junit tests">
 
     <junit fork="yes" haltonfailure="yes" printsummary="on">
@@ -388,15 +328,7 @@
   <!--
     - U N I T T E S T   R E P O R T
     -->
-  <target name="test-report" depends="subtest-report,realtest-report"
-   description="Generate test results to test-results/junit-noframe.html"/>
-
-  <target name="subtest-report" if="subdirs"
-      description="[internal] recurse">
-    <my.subant target="test-report"/>
-  </target>
-
-  <target name="realtest-report" depends="init" unless="subdirs"  
+  <target name="test-report" depends="init"
      description="Generate test results to test-results/junit-noframe.html">
 
     <junitreport todir="${test.results.dir}">
@@ -411,27 +343,5 @@
 
     </junitreport>
   </target>
-
-  <!-- 
-    - R E C U R S E  B U I L D S 
-    - Analogous to autoconf's SUBDIRS this will recurse directories calling
-    - build files ANT passing target name
-    - This is our own subant definition - it passes only top.build.dir property to subant and 
-    - it operated on a fileset defined by ${subdirs} is set.
-    --> 
-    <presetdef name="my.subant"> 
-      <subant inheritall="false" inheritrefs="false">
-        <property name="top.build.dir" value="${top.build.dir}"/>
-        <!-- may be tempted to use patternset, but order is not 
-             preserved -->
-        <filelist refid="${subdirs}"/>
-      	<reference refid="clover.files"/>
-      	<propertyset>
-          <propertyref prefix="clover"/>
-          <propertyref prefix="build.compiler"/>
-        </propertyset>
-      </subant>
-    </presetdef>
-    
 
 </project>

@@ -4,9 +4,8 @@
 <project name="deploy" default="ear" basedir=".">
 
   <patternset id="test.classes" excludes="**"/>
-  <property name="top.build.dir" value="${basedir}/../.."/>
-  <property name="build.dir" value="${top.build.dir}/profilegenerator/deploy"/>
 
+  <property name="project.dir" value="profilegenerator/deploy"/>
   <import file="../../ant-targets.xml"/>
 
   <target name="init">
