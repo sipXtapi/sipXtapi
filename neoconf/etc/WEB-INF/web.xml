@@ -2,23 +2,54 @@
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
   "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
+	<display-name>sipxconfig</display-name>
+    <!-- JSF -->
 	<context-param>
 		<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
 		<param-value>.jsf</param-value>
 	</context-param>
+	<!-- Tapestry -->
+	<filter>
+		<filter-name>redirect</filter-name>
+		<filter-class>org.apache.tapestry.RedirectFilter</filter-class>
+	</filter>
+	<!-- Tapestry -->
+	<filter-mapping>
+		<filter-name>redirect</filter-name>
+		<url-pattern>/phone/</url-pattern>
+	</filter-mapping>
+	<!-- Tapestry -->
+	<servlet>
+		<servlet-name>sipxconfig</servlet-name>
+		<servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
+		<load-on-startup>0</load-on-startup>
+	</servlet>
+    <!-- JSF -->
 	<servlet>
 		<servlet-name>FacesServlet</servlet-name>
 		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	<!-- Tapestry -->
+	<servlet-mapping>
+		<servlet-name>sipxconfig</servlet-name>
+		<url-pattern>/phone/app</url-pattern>
+	</servlet-mapping>
+    <!-- JSF -->
 	<servlet-mapping>
 		<servlet-name>FacesServlet</servlet-name>
 		<url-pattern>*.faces</url-pattern>
 	</servlet-mapping>
+    <!-- JSF -->
 	<servlet-mapping>
 		<servlet-name>jsp</servlet-name>
 		<url-pattern>*.jsf</url-pattern>
 	</servlet-mapping>
+	<!-- Common -->
+	<session-config>
+		<session-timeout>15</session-timeout>
+	</session-config>
+    <!-- JSF -->
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

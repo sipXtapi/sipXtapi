@@ -19,5 +19,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/pg74.215.jdbc3.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/hibernate/odmg.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

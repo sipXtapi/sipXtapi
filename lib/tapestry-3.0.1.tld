@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: taglib.tld,v 1.1 2003/06/22 02:56:14 hlship Exp $ -->
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+	"http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_2.dtd">
+<taglib>
+	<tlib-version>1.0</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>tapestry</short-name>
+	<uri>http://jakarta.apache.org/tapestry/tld/tapestry_1_0.tld</uri>
+	<display-name>Tapestry</display-name>
+	<description>Tapestry JSP taglibrary for providing rudimentary access to a Tapestry application.</description>
+	<tag>
+		<name>page</name>
+		<tag-class>org.apache.tapestry.jsp.PageTag</tag-class>
+		<body-content>JSP</body-content>
+		<display-name>Page</display-name>
+		<description>Creates a link to a named page within a Tapestry
+			application.</description>
+		<attribute>
+			<name>servlet</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The relative path to the servlet for the application.  The default value is "/app".</description>
+		</attribute>
+		<attribute>
+			<name>page</name>
+			<required>yes</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The name of the page within the application.</description>
+		</attribute>
+		<attribute>
+			<name>styleClass</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The CSS style class for the rendered tag.</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>page-url</name>
+		<tag-class>org.apache.tapestry.jsp.PageURLTag</tag-class>
+		<body-content>empty</body-content>
+		<display-name>Page URL</display-name>
+		<description>Inserts a URL to a named page within a Tapestry
+			application.</description>
+		<attribute>
+			<name>servlet</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The relative path to the servlet for the application.  The default value is "/app".</description>
+		</attribute>
+		<attribute>
+			<name>page</name>
+			<required>yes</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The name of the page within the application.</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>external</name>
+		<tag-class>org.apache.tapestry.jsp.ExternalTag</tag-class>
+		<body-content>JSP</body-content>
+		<display-name>External</display-name>
+		<description>Creates a link, with parameters, to an external page within a Tapestry application.</description>
+		<attribute>
+			<name>servlet</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The relative path to the servlet for the application.  The default value is "/app".</description>
+		</attribute>
+		<attribute>
+			<name>page</name>
+			<required>yes</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The name of the page within the application, which must be an external page.</description>
+		</attribute>
+		<attribute>
+			<name>styleClass</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The CSS style class for the rendered tag.</description>
+		</attribute>
+		<attribute>
+			<name>parameters</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>Either a single string to pass as a parameter, or (if prefixed with "ognl:") an OGNL expression evaluated against the pageContext.</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>external-url</name>
+		<tag-class>org.apache.tapestry.jsp.ExternalURLTag</tag-class>
+		<body-content>empty</body-content>
+		<display-name>External URL</display-name>
+		<description>Inserts a URL to an external page within a Tapestry application, including service parameters.</description>
+		<attribute>
+			<name>servlet</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The relative path to the servlet for the application.  The default value is "/app".</description>
+		</attribute>
+		<attribute>
+			<name>page</name>
+			<required>yes</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>The name of the page within the application, which must be an external page.</description>
+		</attribute>
+		<attribute>
+			<name>parameters</name>
+			<required>no</required>
+			<rtexprvalue>yes</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>Either a single string to pass as a parameter, or (if prefixed with "ognl:") an OGNL expression evaluated against the pageContext.</description>
+		</attribute>
+	</tag>
+</taglib>

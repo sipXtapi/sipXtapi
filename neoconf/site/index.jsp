@@ -12,7 +12,7 @@
 <dl>
   <dt>Things you can do<dt>
 
-   <dd><a href="controller/endpoint?action=add">Add Polycom phone</a></dd>
+   <dd><a href="/sipxconfig/phone/app?service=page/edit-phone">Add Polycom phone</a></dd>
 
 </dl>
 

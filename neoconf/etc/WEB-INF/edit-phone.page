@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.EditPhonePage">
+
+<property-specification name="endpoint" type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+	
+<component id="insertPhoneName" type="Insert"> 
+  <binding name="value" expression="visit.foobar"/> 
+</component>
+
+</page-specification>

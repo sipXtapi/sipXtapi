@@ -10,7 +10,7 @@
 	<import file="../ant-targets.xml" />
 
 	<!-- 
-	    - common path unittests will need that interfaces w/neoconf lib 
+	    - common path unittests will need that interfaces w/sipxconfig lib 
 	    - all spring jars at this point
 	    -->
 	<path id="compile.dependencies">
@@ -20,7 +20,7 @@
 	</path>
 
 	<!-- 
-	    - common path unittests will need that interfaces w/neoconf lib 
+	    - common path unittests will need that interfaces w/sipxconfig lib 
 	    - all spring jars at this point
 	    -->
 	<path id="runtime.dependencies">
@@ -35,6 +35,14 @@
 		<pathelement path="${jta.jar}" />
 		<pathelement path="${jdbc-driver.jar}" />
 		<pathelement path="${odmg.jar}" />
+		<!-- TAPESTRY -->
+		<pathelement path="${tapestry.jar}" />
+		<pathelement path="${tapestry-contrib.jar}" />
+		<pathelement path="${ognl.jar}" />
+		<pathelement path="${javassist.jar}" />
+		<pathelement path="${bsf.jar}" />
+		<pathelement path="${jakarta-oro.jar}" />
+		<pathelement path="${commons-lang.jar}" />
 	</path>
 
 	<path id="base.path">
@@ -54,18 +62,18 @@
 		<mkdir dir="${dist.dir}/war-root" />
 	</target>
 
-        <!-- D E F A U L T -->
-        <target name="default" depends="war"/>
+	<!-- D E F A U L T -->
+	<target name="default" depends="war"/>
 
 	<!-- J A R -->
-	<target name="war" depends="compile" description="assemble neoconf war">
-		
+	<target name="war" depends="compile" description="assemble sipxconfig war">
+
 		<!-- dependset>
 			<srcfileset dir="site" includes="**/*"/>
-			<targetfileset file="${neoconf.war}" />
+			<targetfileset file="${sipxconfig.war}" />
 		</dependset -->
 
-		<war warfile="${neoconf.war}" webxml="etc/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
+		<war warfile="${sipxconfig.war}" webxml="etc/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
 
 			<fileset dir="site" />
 
@@ -78,6 +86,10 @@
 			<classes dir="${src.dir}">
 				<include name="**/*.xml" />
 			</classes>
+			<classes dir="etc">
+				<include name="*.xml" />
+				<include name="*.properties" />
+			</classes>
 
 			<lib file="${spring.jar}" />
 			<lib file="${hibernate2.jar}" />
@@ -85,22 +97,30 @@
 			<lib file="${commons-logging.jar}" />
 			<lib file="${commons-dbcp.jar}" />
 			<lib file="${commons-pool.jar}" />
-<!-- JSF -->
+			<!-- JSF -->
 			<lib file="${commons-digester.jar}" />
 			<lib file="${commons-beanutils.jar}" />
 			<lib file="${jsf-api.jar}" />
 			<lib file="${jsf-impl.jar}" />
 			<lib file="${jstl.jar}" />
-			<!-- TEMP DISABLED UNTIL DETERMINED NEEDED
-			  lib file="${jsf-spring.jar}" / -->
-
-			
 			<lib file="${aopalliance.jar}" />
 			<lib file="${dom4j.jar}" />
 			<lib file="${commons-collections.jar}" />
 			<lib file="${ehcache.jar}" />
 			<lib file="${cglib-full.jar}" />
 			<lib file="${jta.jar}" />
+			<!-- TAPESTRY -->
+			<lib file="${tapestry.jar}" />
+			<lib file="${tapestry-contrib.jar}" />
+			<lib file="${ognl.jar}" />
+			<lib file="${javassist.jar}" />
+			<lib file="${bsf.jar}" />
+			<lib file="${jakarta-oro.jar}" />
+			<lib file="${commons-lang.jar}" />			
+			<lib file="${commons-codec.jar}" />			
+			<lib file="${commons-fileupload.jar}" />
+			<lib file="${log4j.jar}" />			
+			<lib file="${tapestry.tld}" />
 
 		</war>
 	</target>
@@ -108,14 +128,14 @@
 	<target name="install" depends="war"
 	   description="Copy war file into Jboss deploy directory">
 
-		<copy todir="${jboss.container.deploy}" file="${neoconf.war}"/>
+		<copy todir="${jboss.container.deploy}" file="${sipxconfig.war}"/>
 
 	</target>
 
 	<target name="install-tomcat" depends="war"
 	   description="Copy war file into Tomcat 5 webapp directory">
 
-		<copy todir="/opt/tomcat5/webapps" file="${neoconf.war}"/>
+		<copy todir="/opt/tomcat5/webapps" file="${sipxconfig.war}"/>
 
 	</target>
 

@@ -66,7 +66,7 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
     }
     
     public void deleteSetting(Setting setting) {
-        // PERFORMANCE: concerned about performce, cascade at database better
+        // PERFORMANCE: concerned about performance, cascade at database better
         // or custom script acceptable too 
         Iterator children = setting.getSettings().values().iterator();
         while (children.hasNext()) {

@@ -37,7 +37,7 @@ profilegen-soap.war=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.
 profilegen-soap.jar=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.jar
 profilegen-tags.jar=${top.build.dir}/profilegenerator/webui/dist/profilegen-tags.jar
 buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
-neoconf.war=${top.build.dir}/neoconf/dist/neoconf.war
+sipxconfig.war=${top.build.dir}/neoconf/dist/sipxconfig.war
 beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
 # very optional
 sipfoundry.org.dir=@SIPFOUNDRY_ORG@
@@ -111,6 +111,20 @@ commons-digester.jar=${spring.home}/lib/jakarta-commons/commons-digester.jar
 jsf-api.jar=${spring.home}/lib/jsf/jsf-api.jar
 jsf-impl.jar=${top.dir}/lib/jsf-impl.jar
 jstl.jar=${top.dir}/lib/jstl.jar
+
+
+# T A P E S T R Y
+tapestry.jar=${top.dir}/lib/tapestry-3.0.1.jar
+tapestry-contrib.jar=${top.dir}/lib/tapestry-contrib-3.0.1.jar
+tapestry.tld=${top.dir}/lib/tapestry-3.0.1.tld
+ognl.jar=${top.dir}/lib/ognl-2.6.3.jar
+javassist.jar=${top.dir}/lib/javassist-2.5.1.jar
+bsf.jar=${top.dir}/lib/bsf-2.3.0.jar
+jakarta-oro.jar=${top.dir}/lib/jakarta-oro-2.0.6.jar
+commons-lang.jar=${top.dir}/lib/commons-lang-1.0.jar
+commons-codec.jar=${top.dir}/lib/commons-codec-1.2.jar
+# log4j.jar=${top.dir}/lib/log4j.jar
+commons-fileupload.jar=${top.dir}/lib/commons-fileupload-1.0.jar
 
 
 # Use local copy in ./lib for the time being
