@@ -109,7 +109,9 @@ cglib-full.jar=${spring.home}/lib/cglib/cglib-full-2.0.2.jar
 jta.jar=${spring.home}/lib/j2ee/jta.jar
 commons-beanutils.jar=${spring.home}/lib/jakarta-commons/commons-beanutils.jar
 commons-digester.jar=${spring.home}/lib/jakarta-commons/commons-digester.jar
-jsf-api.jar=${spring.home}/lib/jsf/jsf-api.jar
+
+# J S P / J S F
+jsf-api.jar=${top.dir}/lib/jsf-api.jar
 jsf-impl.jar=${top.dir}/lib/jsf-impl.jar
 jstl.jar=${top.dir}/lib/jstl.jar
 
