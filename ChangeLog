@@ -1,4 +1,13 @@
 
+Release Notes - sipXconfig - Version 2.5.2
+
+** Bug
+    * [XCF-6] - 'make dist' failing
+    * [XCF-12] - have to click on logout.jsp before logging in first time
+
+** Improvement
+    * [XCF-5] - Clean up code to remove all warnings.
+
 Release Notes - sipXconfig - Version 2.5.1
 
 ** Bug
