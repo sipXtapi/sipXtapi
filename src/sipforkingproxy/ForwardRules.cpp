@@ -14,11 +14,12 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "sipforkingproxy/ForwardRules.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlRegex.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
+
+#include "ForwardRules.h"
 
 #ifdef WIN32
 #  define strcasecmp stricmp

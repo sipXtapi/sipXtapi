@@ -18,16 +18,17 @@
 #include <unistd.h>
 #endif
 
-#include <sipauthproxy/version.h>
 #include <os/OsFS.h>
 #include <os/OsConfigDb.h>
 #include <os/OsSocket.h>
 #include <os/OsTask.h>
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
-#include <sipforkingproxy/SipRouter.h>
-#include <sipforkingproxy/ForwardRules.h>
 #include <xmlparser/tinyxml.h>
+
+#include <SipRouter.h>
+#include <ForwardRules.h>
+#include <version.h>
 
 //uncomment next line to enable bound checker checking with 'b' key
 //#define BOUNDS_CHECKER

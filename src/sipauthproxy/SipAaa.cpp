@@ -27,7 +27,7 @@
 #include "sipdb/PermissionDB.h"
 #include "sipdb/AuthexceptionDB.h"
 #include "digitmaps/UrlMapping.h"
-#include "sipauthproxy/SipAaa.h"
+#include "SipAaa.h"
 
 // DEFINES
 //#define TEST_PRINT 1

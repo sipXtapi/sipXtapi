@@ -13,8 +13,8 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include <sipforkingproxy/SipRouter.h>
-#include <sipforkingproxy/ForwardRules.h>
+#include <SipRouter.h>
+#include <ForwardRules.h>
 #include <net/SipUserAgent.h>
 #include <os/OsConfigDb.h>
 #include <os/OsSysLog.h>
