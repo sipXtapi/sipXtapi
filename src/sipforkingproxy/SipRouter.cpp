@@ -132,19 +132,38 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                     // this server was not in the routes and we
                     // really do not know if the route set is
                     // set up as loose or strict routing.  We
-                    // have to assume that it is strict routing.
-                    if(!previousHopStrictRoutes &&
-                       !uriIsMe &&
-                       !firstRouteIsMe)
-                    {
-                        previousHopStrictRoutes = TRUE;
-                    }
+                    // used to assume that it is strict routing
+                    // I think due to some busted RFC2543 UAs
+                    // that strict routed and dropped the lr
+                    // parameter.  That is why the following
+                    // code remains, but is commented out:
+                    //if(!previousHopStrictRoutes &&
+                    //   !uriIsMe &&
+                    //   !firstRouteIsMe)
+                    //{
+                    //    previousHopStrictRoutes = TRUE;
+                    //}
 
                     // If the URI does not have the loose route
                     // tag and the URI is pointed to this server
-                    // we assume the previous hop strict routed
-                    else if(!previousHopStrictRoutes &&
-                       uriIsMe)
+                    // we assume the previous hop strict routed.
+                    // Originally this did not check if !firstRouteIsMe
+                    // I believe this was intensional to work around
+                    // some UAs that strict routed and dropped the
+                    // lr parameter making it falsely look like a
+                    // loose route.  I put the check for the route
+                    // not me back in as it causes problems with
+                    // pre-set routes.  What happens is a request
+                    // comes in with an AOR for this domain in the URI 
+                    // and a preset route to this proxy as it is also
+                    // the prior hop's (UA) outbound proxy.  This shows
+                    // up as uriIsMe == TRUE and firstRouteIsMe == TRUE.
+                    // In that case we should not assume that it is a 
+                    // strict route It is now tough luck for 
+                    // UA's that strict route and drop the lr parameter.
+                    if(!previousHopStrictRoutes &&
+                       uriIsMe &&
+                       !firstRouteIsMe)
                     {
                         previousHopStrictRoutes = TRUE;
                     }
