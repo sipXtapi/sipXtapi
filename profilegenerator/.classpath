@@ -12,17 +12,17 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/dom4j-full.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/server/sipXconfig/lib/javax.servlet.jsp.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jsp.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-j2ee.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jdom.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-regexp-1.3.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/server/sipXconfig/lib/activation.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/activation.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlunit1.0.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/server/sipXconfig/lib/javax.servlet.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/server/sipXconfig/lib/jbosssx.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/jbosssx.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-common-client.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/server/sipXconfig/lib/jboss.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/jboss.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-system-client.jar"/>
 	<classpathentry kind="src" path="/sipXconfig-common"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
