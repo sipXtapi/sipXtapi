@@ -37,6 +37,5 @@ public class NewPhoneTestUi extends WebTestCase {
             { "000000000000", "", "SoundPoint IP 500" },                
         };
         assertTextInTable("phone:list", table[0]);
-        dumpResponse(System.err);
     }
 }

@@ -135,7 +135,7 @@ Only</strong></dd>
 
 <p>Download and install the following RPMs from <a href="http://www.sipfoundry.org/pub/sipX/FC/2/">http://www.sipfoundry.org/pub/sipX/FC/2/</a></p>
 <ul>
-  <li>sipx-jboss-4.0.0-1.noarch.rpm <em>this rpm is not available yet - please install JBoss 4.0 from source</em></li>
+  <li>sipx-jboss-4.0.1-1.noarch.rpm <em>this rpm is not available yet - please install JBoss 4.0.1 from source</em></li>
   <li>sipxportlib</li>
   <li>sipxtacklib</li>
   <li>sipxcommserverlib</li>
@@ -176,8 +176,8 @@ instructions, they will be noted.</p>
   <dt>postgres 7.3 (tested with 7.3.4)</dt>
   <dd><a href="http://www.postgresql.org/">http://www.postgresql.org/</a></dd>
 
-  <dt>JBoss 4.0 (includes Tomcat 5.0)</dt>
-  <dd><a href="http://prdownloads.sourceforge.net/jboss/jboss-4.0.0.tar.gz">http://prdownloads.sourceforge.net/jboss/jboss-4.0.0.tar.gz</a></dd>
+  <dt>JBoss 4.0.1 (includes Tomcat 5.0)</dt>
+  <dd><a href="http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz">http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz</a></dd>
 
   <dt>Ant 1.6 (tested with 1.6.1)</dt>
   <dd><a href="http://ant.apache.org/">http://ant.apache.org/</a></dd>
@@ -214,7 +214,7 @@ and not break your installation
  <dd>where you unzipped JBoss
  <pre>
        Example: 
-          export JBOSS_HOME=/opt/jboss-4.0.0
+          export JBOSS_HOME=/opt/jboss-4.0.1
   </pre>
   </dd>
 
@@ -253,12 +253,12 @@ file, run this command:</p>
 <ul>
     <li>make a copy of a default configuration
     <pre>
-        cp -rp $JBOSS_HOME/server/default $JBOSS_HOME/server/my_conf
+        cp -rp $JBOSS_HOME/server/default $JBOSS_HOME/server/sipx
     </pre>
     </li>
     <li>set environment variable to point to your new server configuration
     <pre>
-        export env JBOSS_SERVER_CONF=my_conf
+        export env JBOSS_SERVER_CONF=sipx
     </pre>        
     </li>
     <li>run (or re-run) configure script</li>
@@ -271,7 +271,7 @@ file, run this command:</p>
 <ol>
   <li>Run the following patch after installing JBoss 
 <pre>
-      patch -d ${JBOSS_HOME}/server/default/conf -p1 &lt; meta/sipx-jboss4-configure.patch
+      patch -d ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/conf -p1 &lt; meta/sipx-jboss4-configure.patch
 </pre>
 	If you use custom JBoss server configuration use its name instead of <q>default</q>. Every configuration has
     to be patched separately.
@@ -509,7 +509,7 @@ following:</p>
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Wed Jan 19 18:33:55 EST 2005
+Last modified: Mon Feb 21 14:53:32 EST 2005
 <!-- hhmts end -->
 </span>
 

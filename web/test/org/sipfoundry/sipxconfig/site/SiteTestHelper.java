@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.springframework.context.ApplicationContext;
