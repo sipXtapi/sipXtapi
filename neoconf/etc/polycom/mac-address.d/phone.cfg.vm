@@ -5,17 +5,9 @@
   <reg 
 #foreach ($line in ${reg})
   #set ($i = $velocityCount)
-  #foreach ($setting in ${line})
+  #foreach ($setting in ${line.Values})
       reg.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
   #end
-	reg.${i}.server.1.address="" 
-	reg.${i}.server.1.port="" 
-	reg.${i}.server.1.transport="" 
-	reg.${i}.server.1.expires="" 
-	reg.${i}.server.1.register="" 
-	reg.${i}.server.1.retryTimeOut="" 
-	reg.${i}.server.1.retryMaxCount="" 
-	reg.${i}.server.1.expires.lineSeize="" 
 	reg.${i}.acd-login-logout="0" 
 	reg.${i}.acd-agent-available="0" 
 #end	

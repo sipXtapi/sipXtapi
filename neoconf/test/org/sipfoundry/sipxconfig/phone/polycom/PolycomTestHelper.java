@@ -15,6 +15,9 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 
 public class PolycomTestHelper {
@@ -24,6 +27,8 @@ public class PolycomTestHelper {
     PolycomPhone[] phone;
     
     User[] user;
+    
+    ValueStorage[] valueStorage;
     
     public static PolycomTestHelper plainEndpointSeed() throws Exception {
         PolycomTestHelper helper = new PolycomTestHelper();
@@ -51,5 +56,10 @@ public class PolycomTestHelper {
         
         return helper;
     }
-
+    
+    public void plainSettingsSeed() throws Exception {
+        SettingGroup settings = endpoint[0].getSettings(phone[0]);
+        settings.getSetting("call").getSetting("rejectBusyOnDnd").setValue("0");
+        settings.getSetting("voIpProt").getSetting("local.port").setValue("5061");
+    }
 }

@@ -28,5 +28,6 @@ public class SipConfiguration  extends ConfigurationTemplate {
     
     public void addContext(VelocityContext context) {
         context.put("sip", this);
+        context.put("settings", getEndpoint().getSettings(getPhone()));        
     }
 }

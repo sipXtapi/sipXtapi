@@ -18,7 +18,6 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -27,11 +26,6 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
  */
 public class PhoneConfiguration extends ConfigurationTemplate {
 
-    private static PatternSettingFilter s_regFilter = new PatternSettingFilter();
-    static {
-        s_regFilter.addExcludes("/reg/server.*$");
-    }
-    
     public PhoneConfiguration(PolycomPhone phone, Endpoint endpoint) {
         super(phone, endpoint);
     }
@@ -49,7 +43,7 @@ public class PhoneConfiguration extends ConfigurationTemplate {
         for (; lines != null && i < lines.size(); i++) {
             Line line = (Line) lines.get(i);
             Setting reg = line.getSettings(phone).getSetting(REGISTRATION_SETTINGS); 
-            linesSettings.add(reg.list(s_regFilter));
+            linesSettings.add(reg);
         }
 
         // copy in blank registrations of all unused lines
@@ -57,7 +51,7 @@ public class PhoneConfiguration extends ConfigurationTemplate {
         Setting model = phone.getSettingModel(blank).getSetting(REGISTRATION_SETTINGS);
         for (; i < phone.getMaxLineCount(); i++) {
             Setting reg = model.getCopy(new ValueStorage());
-            linesSettings.add(reg.list(s_regFilter));
+            linesSettings.add(reg);
         }
         
         return linesSettings;

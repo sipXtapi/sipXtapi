@@ -127,7 +127,6 @@
 <defaultValue>1</defaultValue>
 <description>If set to 1, local user interface sound effects such as confirmation/error tones, will be enabled. </description>
    </setting>
-
 </group>
 
 <group name="voice">
@@ -411,13 +410,13 @@
 
 	<setting name="rtp.forceSend">
 <type>Null, 1024- 65534</type>
-<defaultValue>Null</defaultValue>
+<defaultValue></defaultValue>
 <description>When non-Null, send all RTP packets to, and expect all RTP packets to arrive on, the specified port. Note: both tcpIpApp.port.rtp.filter- ByIp and tcpI-pApp.port.rtp.filterByPort must be enabled for this to work.</description>
 </setting>
 
 	<setting name="rtp.mediaPortRangeStart">
 <type>Null, even integer from 1024-65534</type>
-<defaultValue>Null</defaultValue>
+<defaultValue></defaultValue>
 <description>If set to Null, the value 2222 will be used for the first allo-cated RTP port, otherwise, the specified port will be used. Subsequent ports will be allocated from a pool starting with the specified port plus two up to a value of (start-port + 46), after which the port number will wrap back to the starting value.</description>
 </setting>
 </group>
@@ -655,7 +654,7 @@
 
 	<setting name="idleDisplay.home">
 <type>Null, or any fully formed valid HTTP URL. Length up to 255 characters.</type>
-<defaultValue>Null</defaultValue>
+<defaultValue></defaultValue>
 <description>URL used for MicroBrowser idle display home-page. Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. If empty, there will be no microbrowser idle display feature. Note that the MicroBrowser idle display will displace the idle display indicator. See Indicators settings.</description>
 </setting>
 
@@ -667,7 +666,7 @@
 
 	<setting name="main.home">
 <type>Any fully formed valid HTTP URL. Length up to 255 characters.</type>
-<defaultValue>Null</defaultValue>
+<defaultValue></defaultValue>
 <description>URL used for MicroBrowser home-page. If blank, the browser will notify the user that a blank home-page was used. Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. </description>
 </setting>
 
@@ -685,37 +684,100 @@
 </group>
 
 <group name="voIpProt">
+	<label>Servers</label>
 
 	<setting name="local.port">
+<label>Local Port</label>		
 <type>0 to 65535</type>
 <defaultValue>5060</defaultValue>
-<description>Local port for sending and receiving SIP signaling packets. If set to 0 or Null, 5060 is used for the local port but it is not advertised in the SIP signaling. If set to some other value, that value is used for the local port and it is advertised in the SIP signaling.</description>
+<description>Local port for sending and receiving SIP signaling packets. If set to 0 or Null,
+	 5060 is used for the local port but it is not advertised in the SIP signaling. 
+	 If set to some other value, that value is used for the local port and it is advertised 
+	 in the SIP signaling.</description>
 </setting>
 
-  <group name="server">
-    <label>SIP Registrations</label>
-
+    <group name="server">
+		<group name="1">
 	<setting name="address">
-<type>dotted-decimal IP address or host name</type>
-<defaultValue>Null</defaultValue>
-<description>IP address or host name and port of a SIP server that accepts registrations. Multiple servers can be listed starting with for fault tolerance. If port is 0 or Null: If Address is a hostname and Transport is set to DNSnaptr, do NAPTR then SRV lookups. If Transport is set to TCPpreferred or UDPonly then use 5060 and don't advertise the port number in signalling. If Address is an IP address, there is no DNS lookup and 5060 is used for the port but it is not advertised in signaling. If port is 1 to 65535: This value is used and it is advertised in signaling.</description>
+<label>Primary Registration Server</label>		
+	<type>dotted-decimal IP address or host name</type>
+<defaultValue></defaultValue>
+<description>IP address or host name and port of a SIP server that accepts 
+	registrations. Multiple servers can be listed starting with for fault tolerance. 
+	If port is 0 or Null: If Address is a hostname and Transport is set to DNSnaptr, 
+	do NAPTR then SRV lookups. If Transport is set to TCPpreferred or UDPonly then use 
+	5060 and don't advertise the port number in signalling. If Address is an IP address,
+	 there is no DNS lookup and 5060 is used for the port but it is not advertised 
+	 in signaling. If port is 1 to 65535: This value is used and it is advertised 
+	 in signaling.</description>
 </setting>
 
 	<setting name="port">
 <type>0, Null, 1 to 65535</type>
-<defaultValue>Null</defaultValue>
+<defaultValue>5060</defaultValue>
 <description></description>
 </setting>
 
 	<setting name="transport">
 <type>DNSnaptr or TCPpreferred or UDPonly</type>
-<defaultValue>DNSnaptr</defaultValue>
+<defaultValue></defaultValue>
 <description>If set to Null or DNSnaptr: If Address is a hostname and Port is 0 or Null, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per RFC 3263. If Address is an IP address, or a port is given, then UDP is used. If set to TCPpreferred: TCP is the preferred transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be used. </description>
 </setting>
 
 	<setting name="expires">
 <type>positive integer, minimum 300</type>
-<defaultValue>3600</defaultValue>
+<defaultValue></defaultValue>
+<description>Requested registration period in seconds. This is SoundPoint(R) IP's requested registration period. The period negotiated with the server may be different. SoundPoint(R) IP will attempt to re-register when half the negotiated period has expired.</description>
+</setting>
+
+	<setting name="register">
+<type>0, 1</type>
+<defaultValue>1</defaultValue>
+<description>If set to 0, calls can be routed to an outbound proxy without registration. </description>
+</setting>
+
+	<setting name="retryTimeOut">
+<type>Null or non-negative integer</type>
+<defaultValue>0</defaultValue>
+<description>If set to 0 or Null, use standard RFC 3261 signaling retry behavior. Otherwise retryTimeOut determines how often retries will be sent. Units = milliSeconds. (Finest resolution = 100ms). </description>
+</setting>
+
+	<setting name="retryMaxCount">
+<type>Null or non-negative integer</type>
+<defaultValue>0</defaultValue>
+<description>If set to 0 or Null, 3 is used. retryMaxCount retries will be attempted before moving on to the next available server. </description>
+</setting>
+
+	<setting name="expires.lineSeize">
+<type>"positive integer, minimum 10 "	</type>
+<defaultValue>30</defaultValue>
+<description>Requested line-seize subscription period. </description>
+</setting>
+   </group>
+      
+    <group name="2">
+	<setting name="address">
+<label>Secondary Registration Server</label>		
+	<type>dotted-decimal IP address or host name</type>
+<defaultValue></defaultValue>
+<description>Backup IP address or host name and port of a SIP server that accepts registrations. Multiple servers can be listed starting with for fault tolerance. If port is 0 or Null: If Address is a hostname and Transport is set to DNSnaptr, do NAPTR then SRV lookups. If Transport is set to TCPpreferred or UDPonly then use 5060 and don't advertise the port number in signalling. If Address is an IP address, there is no DNS lookup and 5060 is used for the port but it is not advertised in signaling. If port is 1 to 65535: This value is used and it is advertised in signaling.</description>
+</setting>
+
+	<setting name="port">
+<type>0, Null, 1 to 65535</type>
+<defaultValue>5060</defaultValue>
+<description></description>
+</setting>
+
+	<setting name="transport">
+<type>DNSnaptr or TCPpreferred or UDPonly</type>
+<defaultValue></defaultValue>
+<description>If set to Null or DNSnaptr: If Address is a hostname and Port is 0 or Null, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per RFC 3263. If Address is an IP address, or a port is given, then UDP is used. If set to TCPpreferred: TCP is the preferred transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be used. </description>
+</setting>
+
+	<setting name="expires">
+<type>positive integer, minimum 300</type>
+<defaultValue></defaultValue>
 <description>Requested registration period in seconds. This is SoundPoint(R) IP's requested registration period. The period negotiated with the server may be different. SoundPoint(R) IP will attempt to re-register when half the negotiated period has expired.</description>
 </setting>
 
@@ -733,7 +795,7 @@
 
 	<setting name="retryMaxCount">
 <type>Null or non-negative integer</type>
-<defaultValue>3</defaultValue>
+<defaultValue>0</defaultValue>
 <description>If set to 0 or Null, 3 is used. retryMaxCount retries will be attempted before moving on to the next available server. </description>
 </setting>
 
@@ -742,66 +804,87 @@
 <defaultValue>30</defaultValue>
 <description>Requested line-seize subscription period. </description>
 </setting>
- </group>
+</group>
+</group>
 
 	<setting name="SIP.useRFC2543hold">
 <type>0, 1</type>
 <defaultValue>1</defaultValue>
-<description>If set to 1, use the obsolete c=0.0.0.0 RFC2543 technique, otherwise, use SDP media direction attributes (such as a=sendonly) per RFC 3264 when initiating hold. In either case, the phone processes incoming hold signaling in either format. </description>
+<description>If set to 1, use the obsolete c=0.0.0.0 RFC2543 technique, otherwise, use 
+	SDP media direction attributes (such as a=sendonly) per RFC 3264 when 
+	initiating hold. In either case, the phone processes incoming hold signaling 
+	in either format. </description>
 </setting>
 
 	<setting name="SIP.lcs">
 <type>0, 1</type>
 <defaultValue>0</defaultValue>
-<description>If set to 1, the proprietary 'epid' parameter is added to the From field of all requests to support Windows Live Communications Server. </description>
+<description>
+	If set to 1, the proprietary 'epid' parameter is added to the From field 
+	of all requests to support Windows Live Communications Server. </description>
 </setting>
 
 	<setting name="SIP.sendCompactHdrs">
 <type>0, 1</type>
 <defaultValue>0</defaultValue>
-<description>If set to 0, SIP header names generated by the phone use the long form, for example 'From'. If set to 1, SIP header names generated by the phone use the short form, for example 'f'. Attribute Permitted Values Default Interpretation</description>
+<description>If set to 0, SIP header names generated by the phone use 
+	the long form, for example 'From'. If set to 1, SIP header names 
+	generated by the phone use the short form, for example 'f'. 
+</description>
 </setting>
 
-	<setting name="SIP.outboundProxy.address">
-<type>dotted-decimal IP address or host name</type>
-<defaultValue>Null </defaultValue>
-<description>IP address or host name and port of a SIP server to which the phone shall send all requests. </description>
+<group name="SIP.outboundProxy">
+	<setting name="address">
+<label>Outbound SIP Proxy</label>		
+	<type>dotted-decimal IP address or host name</type>
+<defaultValue></defaultValue>
+<description>IP address or host name and port of a SIP server to which the phone shall 
+	send all requests for making calls. </description>
 </setting>
 
-	<setting name="SIP.outboundProxy.port">
+	<setting name="port">
 <type>1 to 65535</type>
 <defaultValue>5060</defaultValue>
 <description></description>
 </setting>
+</group>
 
 	<setting name="SIP.alertInfo.x.value">
 <type>string to compare against the value of Alert-Info headers in INVITE requests</type>
-<defaultValue>Null</defaultValue>
-<description>Alert-Info fields from INVITE requests will be compared against as many of these parameters as are spec-ified (x=1, 2, ..., N) and if a match is found, the behavior described in the correspond-ing ring class (see 4.6.1.5.2 Ring type <ringType/> on page 73) will be applied. </description>
+<defaultValue></defaultValue>
+<description>Alert-Info fields from INVITE requests will be compared against as many 
+	of these parameters as are spec-ified (x=1, 2, ..., N) and if a match is found,
+	 the behavior described in the corresponding ring class will be applied.</description>
 </setting>
 
 	<setting name="SIP.alertInfo.x.class">
 <type>positive integer</type>
-<defaultValue>Null</defaultValue>
+<defaultValue></defaultValue>
 <description></description>
 </setting>
 
 	<setting name="SIP.requestValidation.x.request">
 <type>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 'OPTIONS', 'INFO', 'MESSAGE', 'SUB-SCRIBE', 'NOTIFY', 'REFER', 'PRACK', or 'UPDATE'</type>
-<defaultValue>Null </defaultValue>
+<defaultValue></defaultValue>
 <description>Sets the name of the method for which validation will be applied. WARNING: Intensive request validation may have a negative performance impact due to the additional signaling required in some cases, therefore, use it judiciously.</description>
 </setting>
 
 	<setting name="SIP.requestValidation.x.method">
 <type>Null or one of: 'source', 'digest' or 'both'/'all'</type>
-<defaultValue>Null</defaultValue>
-<description>If Null, no validation is done. Otherwise this sets the type of validation performed for the request: source: ensure request is received from an IP address of a server belonging to the set of target registration serv-ers; digest: challenge requests with digest authentication using the local credentials for the associated registration (line); both or all: apply both of the above methods </description>
+<defaultValue></defaultValue>
+<description>If Null, no validation is done. Otherwise this sets the type of validation performed 
+	for the request: source: ensure request is received from an IP address of a 
+	server belonging to the set of target registration servers; digest: challenge 
+	requests with digest authentication using the local credentials for the associated 
+	registration (line); both or all: apply both of the above methods </description>
 </setting>
 
 	<setting name="SIP.requestValidation.x.request.y.event">
 <type>A valid string</type>
-<defaultValue>Null </defaultValue>
-<description>Determines which events specified with the Event header should be validated; only applicable when voIp- Prot.SIP.requestValida-tion.x.request is set to 'SUBSCRIBE' or 'NOTIFY'. If set to Null, all events will be validated. </description>
+<defaultValue></defaultValue>
+<description>Determines which events specified with the Event header should be validated; 
+	only applicable when voIp- Prot.SIP.requestValida-tion.x.request is set to 
+	'SUBSCRIBE' or 'NOTIFY'. If set to Null, all events will be validated. </description>
 </setting>
 
 	<setting name="SIP.requestValidation.digest.realm">
@@ -813,19 +896,27 @@
 	<setting name="SIP.specialEvent.lineSeize.nonStandard">
 <type>0, 1</type>
 <defaultValue>1</defaultValue>
-<description>If set to 1, process a 200 OK response for a line-seize event SUBSCRIBE as though a line-seize NOTIFY with Subscription State: active header had been received, this speeds up processing. </description>
+<description>If set to 1, process a 200 OK response for a line-seize event SUBSCRIBE as 
+	though a line-seize NOTIFY with Subscription State: active header had been
+	 received, this speeds up processing. </description>
 </setting>
 
 	<setting name="SIP.specialEvent.checkSync.alwaysReboot">
 <type>0, 1</type>
 <defaultValue>0</defaultValue>
-<description>If set to 1, always reboot when a NOTIFY message is received from the server with event equal to check-sync. If set to 0, only reboot if any of the files listed in [mac].cfg have changed on the FTP server when a NOTIFY message is received from the server with event equal to check-sync. </description>
+<description>If set to 1, always reboot when a NOTIFY message is received from the 
+	server with event equal to check-sync. If set to 0, only reboot if any of the 
+	files listed in [mac].cfg have changed on the FTP server when a NOTIFY 
+	message is received from the server with event equal to check-sync. </description>
 </setting>
 
 	<setting name="SIP.conference.address">
 <type>ASCII string up to 128 characters long</type>
-<defaultValue>Null </defaultValue>
-<description>If Null, conferences are set up on the phone locally. If set to some value, conferences are set up by the server using the conferencing agent specified by this address. The acceptable values depend on the conferencing server implementation policy. </description>
+<defaultValue></defaultValue>
+<description>If Null, conferences are set up on the phone locally. If set 
+	to some value, conferences are set up by the server using the conferencing 
+	agent specified by this address. The acceptable values depend on the 
+	conferencing server implementation policy. </description>
 </setting>
 </group>
 
@@ -835,7 +926,10 @@
 	<setting name="impossibleMatchHandling">
 <type>0, 1 or 2</type>
 <defaultValue>0</defaultValue>
-<description>If set to 0, the digits entered up to and including the point where an impossible match occurred are sent to the server immediately. If set to 1, give reorder tone. If set to 2, allow user to accumulate digits and dispatch call manually with the Send soft key. </description>
+<description>If set to 0, the digits entered up to and including the point where 
+	an impossible match occurred are sent to the server immediately. If set to 1, 
+	give reorder tone. If set to 2, allow user to accumulate digits and dispatch 
+	call manually with the Send soft key. </description>
 </setting>
 
 	<setting name="removeEndOfDial">
@@ -847,7 +941,10 @@
 	<setting name="digitmap">
 <type>string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String is limited to 512 bytes and 20 seg-ments; a comma is also allowed; when reached in the digit map, a comma will turn dial tone back on.</type>
 <defaultValue>[2-9]11|0T| 011xxx.T| [0-1][2- 9]xxxxxxxxx| [2-9]xxxxxxxxx| [2-9]xxxT</defaultValue>
-<description>When this attribute is present, number-only dialing during the setup phase of new calls will be compared against the patterns therein and if a match is found, the call will be initiated automat-ically eliminating the need to press Send. </description>
+<description>When this attribute is present, number-only dialing during the setup 
+	phase of new calls will be compared against the patterns therein and if 
+	a match is found, the call will be initiated automatically eliminating 
+	the need to press Send. </description>
 </setting>
 
 	<setting name="digitmap.timeOut">
@@ -858,8 +955,10 @@
 
 	<setting name="routing.server.x.address">
 <type>dotted-decimal IP address or host name</type>
-<defaultValue>Null</defaultValue>
-<description>IP address or host name and port of a SIP server that will be used for routing calls. Multiple servers can be listed start-ing with x=1, 2, ... for fault tolerance. </description>
+<defaultValue></defaultValue>
+<description>IP address or host name and port of a SIP server that will be used for 
+	routing calls. Multiple servers can be listed start-ing with x=1, 2, ... 
+	for fault tolerance. </description>
 </setting>
 
 	<setting name="routing.server.x.port">
@@ -870,18 +969,24 @@
 
  <group name="routing.emergency">
 <label>Emergency</label>
-<description>In the following attributes, x is the index of the emergency entry description and y is the index of the server associated with emergency entry x. For each emergency entry (index x), one or more server entries (indexes (x,y)) can be configured. x and y must both use sequential numbering starting at 1. </description>
+<description>In the following attributes, x is the index of the emergency entry 
+	description and y is the index of the server associated with emergency entry x. 
+	For each emergency entry (index x), one or more server entries (indexes (x,y)) 
+	can be configured. x and y must both use sequential numbering starting at 1. </description>
 
 	<setting name="x.value">
 <type>Comma separated list of entries or single entry representing a SIP URL or a combination of SIP URLs.</type>
 <defaultValue>Null Example: '15,17,18', '911', 'sos'.</defaultValue>
-<description>This determines the URLs that should be watched for. When one of these defined URLs is detected as having been dialed by the user, the call will automatically be directed to the defined emergency server. </description>
+<description>This determines the URLs that should be watched for. When one of these defined 
+	URLs is detected as having been dialed by the user, the call will automatically be 
+	directed to the defined emergency server. </description>
 </setting>
 
 	<setting name="x.server.y">
 <type>positive integer</type>
-<defaultValue>Null </defaultValue>
-<description>Index representing the server defined in Servers that will be used for emergency routing.</description>
+<defaultValue></defaultValue>
+<description>Index representing the server defined in Servers that will be used for 
+	emergency routing.</description>
 </setting>
 </group>
 </group>
@@ -904,19 +1009,19 @@
 
 	<setting name="ip">
 <type>dotted-decimal IP address</type>
-<defaultValue>Null</defaultValue>
+<defaultValue></defaultValue>
 <description>IP address to advertise within SIP signaling - should match the external IP address used by the NAT device.</description>
 </setting>
 
 	<setting name="signalPort">
 <type>1024 to 65536</type>
-<defaultValue>Null </defaultValue>
+<defaultValue></defaultValue>
 <description>If non-Null, this port will be used by the phone for SIP signaling, overriding the value set for RTP Settings</description>
 </setting>
 
 	<setting name="mediaPortStart">
 <type>1024 to 65536</type>
-<defaultValue>Null </defaultValue>
+<defaultValue></defaultValue>
 <description>If non-Null, this attribute will be used to set the initially allocated RTP port, overriding the value set in RTP Settings.</description>
 </setting>
 

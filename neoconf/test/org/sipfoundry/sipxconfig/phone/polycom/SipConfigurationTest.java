@@ -22,7 +22,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 
 
-public class CoreConfigurationTest extends XMLTestCase {
+public class SipConfigurationTest  extends XMLTestCase {
     
     public void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
@@ -32,14 +32,14 @@ public class CoreConfigurationTest extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         helper.plainSettingsSeed();
         
-        CoreConfiguration cfg = new CoreConfiguration(
+        SipConfiguration cfg = new SipConfiguration(
             helper.phone[0], helper.endpoint[0]);
         
-        cfg.setTemplate(helper.phone[0].getConfig().getCoreTemplate());
+        cfg.setTemplate(helper.phone[0].getConfig().getSipTemplate());
         CharArrayWriter out = new CharArrayWriter();
         cfg.generateProfile(out);       
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-ipmid.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-sip.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 

@@ -3,7 +3,7 @@
   "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<component-specification class="org.sipfoundry.sipxconfig.setting.SettingsForm"
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsForm"
     allow-body="no"
     allow-informal-parameters="no">
     
@@ -36,7 +36,7 @@
     <component id="settingsForm" type="Form">
     </component>
     <component id="settings" type="Foreach">
-        <binding name="source" expression="settings.values"/>
+        <binding name="source" expression="flattenedSettings"/>
         <binding name="value" expression="currentSetting"/>
     </component>
     <component id="settingLabel" type="Insert">

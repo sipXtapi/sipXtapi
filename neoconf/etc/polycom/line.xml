@@ -45,53 +45,107 @@
 <description>Password to be used for authentication challenges for this registration. If non-Null, will override the 'Reg Password x' parameter entered into the Authentication submenu off of the Settings menu on the phone. </description>
 </setting>
 
-	<setting name="server.y.address">
+	<setting name="server.1.address">
 <type>dotted-decimal IP address or host name</type>
 <defaultValue></defaultValue>
-<description>Optional IP address or host name, port, transport, registration period, fail-over parameters and lineseize subscription period of a SIP server that accepts registrations. Multiple servers can be listed starting with y=1, 2, ... for fault tolerance. If specified, these servers will over-ride the servers specified Server settings</description>
+<description>IP address or host name, port, transport, registration period, 
+	fail-over parameters and lineseize subscription period of a SIP server that 
+	accepts registrations. Multiple servers can be listed starting with 
+	y=1, 2, ... for fault tolerance. If specified, these 
+	servers will over-ride the servers specified on the phone in 
+	'Server' configuration</description>
 </setting>
 
-	<setting name="server.y.port">
+	<setting name="server.1.port">
 <type>"0, Null, 1 to 65535 "	</type>
 <defaultValue></defaultValue>
 <description></description>
 </setting>
 
-	<setting name="server.y.transport">
+	<setting name="server.1.transport">
 <type>DNSnaptr or TCPpreferred or UDPonly</type>
 <defaultValue></defaultValue>
 <description></description>
 </setting>
 
-	<setting name="server.y.expires">
+	<setting name="server.1.expires">
 <type>positive integer</type>
 <defaultValue></defaultValue>
 <description></description>
 </setting>
 
-	<setting name="server.y.register">
+	<setting name="server.1.register">
 <type>0, 1</type>
 <defaultValue></defaultValue>
 <description></description>
 </setting>
 
-	<setting name="server.y.retryTimeOut">
+	<setting name="server.1.retryTimeOut">
 <type>Null or non-negative integer</type>
 <defaultValue></defaultValue>
 <description></description>
 </setting>
 
-	<setting name="server.y.retryMaxCount">
+	<setting name="server.1.retryMaxCount">
 <type>Null or non-negative integer</type>
 <defaultValue></defaultValue>
 <description></description>
 </setting>
 
-	<setting name="server.y.expires.lineSeize">
+	<setting name="server.1.expires.lineSeize">
 <type>positive integer</type>
 <defaultValue></defaultValue>
 <description></description>
 </setting>
+
+	<setting name="server.2.address">
+<type>dotted-decimal IP address or host name</type>
+<defaultValue></defaultValue>
+<description>Backup IP address or host name, port, transport, registration period, fail-over parameters and lineseize subscription period of a SIP server that accepts registrations. Multiple servers can be listed starting with y=1, 2, ... for fault tolerance. If specified, these servers will over-ride the servers specified Server settings</description>
+</setting>
+
+	<setting name="server.2.port">
+<type>"0, Null, 1 to 65535 "	</type>
+<defaultValue></defaultValue>
+<description></description>
+</setting>
+
+	<setting name="server.2.transport">
+<type>DNSnaptr or TCPpreferred or UDPonly</type>
+<defaultValue></defaultValue>
+<description></description>
+</setting>
+
+	<setting name="server.2.expires">
+<type>positive integer</type>
+<defaultValue></defaultValue>
+<description></description>
+</setting>
+
+	<setting name="server.2.register">
+<type>0, 1</type>
+<defaultValue></defaultValue>
+<description></description>
+</setting>
+
+	<setting name="server.2.retryTimeOut">
+<type>Null or non-negative integer</type>
+<defaultValue></defaultValue>
+<description></description>
+</setting>
+
+	<setting name="server.2.retryMaxCount">
+<type>Null or non-negative integer</type>
+<defaultValue></defaultValue>
+<description></description>
+</setting>
+
+	<setting name="server.2.expires.lineSeize">
+<type>positive integer</type>
+<defaultValue></defaultValue>
+<description></description>
+</setting>
+
 </group>
 
 <group name="call">
@@ -236,7 +290,7 @@
 	<setting name="routing.emergency.y.server.z">
 <type>positive integer</type>
 <defaultValue></defaultValue>
-<description>Index representing the server defined in 4.6.3.4.2.2 Emergency <emergency/> on page 123 that will be used for emergency rout-ing. </description>
+<description>Index representing the server defined in Emergency Settings that will be used for emergency routing.</description>
 </setting>
 </group>
 
