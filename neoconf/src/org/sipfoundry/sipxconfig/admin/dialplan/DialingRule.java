@@ -31,7 +31,6 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     private List m_gateways = new ArrayList();
     private List m_permissions = new ArrayList();
 
-    // TODO: extract to interface?
     public abstract String[] getPatterns();
 
     public abstract Transform[] getTransforms();
@@ -119,6 +118,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
      * Dialing rules type.
      */
     public static final class Type extends Enum {
+        public static final Type INTERNATIONAL = new Type("International");
         public static final Type EMERGENCY = new Type("Emergency");
         public static final Type MAPPING_RULE = new Type("Mapping Rule");
         public static final Type CUSTOM = new Type("Custom");

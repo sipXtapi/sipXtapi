@@ -1,0 +1,56 @@
+<html title="International Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border" id="component">    
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="long:rule:edit">
+        <fieldset>
+		<legend>International Dialing Rule</legend>            
+        <table>
+            <tbody>
+                <span jwcid="common"/>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+	    <legend>Details</legend>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label jwcid="internationalPrefixLabel" for="dialplan:pstnPrefix">International Calls Prefix</label>
+                    </td>
+                    <td>
+                        <input jwcid="internationalPrefix" id="dialplan:pstnPrefix" type="text" value="9" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+        <legend>Gateways</legend>
+		<ul class="component-actions">
+			<li><a jwcid="addGatewayLink" href="#">Add New Gateway</a></li>        
+			<li><a jwcid="selectGatewayLink" href="#">Add Existing Gateway</a></li>        
+		</ul>        
+        <table jwcid="gatewayTable" class="table-view"/>
+        <ul class="table-actions">
+            <li>
+                <input jwcid="removeGateways" type="submit" name="" value="Remove"/>
+            </li>
+        </ul>
+        </fieldset>
+        <ul class="form-actions">
+            <li>
+                <input id="rule:save" jwcid="onSave" type="submit" value="Save"/>
+            </li>
+            <li>
+                <input id="rule:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</body>
+</html>

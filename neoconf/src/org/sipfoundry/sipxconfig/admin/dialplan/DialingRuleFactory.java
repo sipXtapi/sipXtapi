@@ -25,8 +25,8 @@ public class DialingRuleFactory {
         PROTOTYPES.put(DialingRule.Type.INTERNAL, new InternalRule());
         PROTOTYPES.put(DialingRule.Type.LONG_DISTANCE, new LongDistanceRule());
         PROTOTYPES.put(DialingRule.Type.LOCAL, new LocalRule());
-        PROTOTYPES.put(DialingRule.Type.RESTRICTED, new RestrictedRule());
         PROTOTYPES.put(DialingRule.Type.EMERGENCY, new EmergencyRule());
+        PROTOTYPES.put(DialingRule.Type.INTERNATIONAL, new InternationalRule());
     }
 
     /**

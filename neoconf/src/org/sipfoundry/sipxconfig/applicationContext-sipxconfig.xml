@@ -280,6 +280,18 @@
         </property>
     </bean>
 
+    <bean id="defaultInternationalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule">
+        <property name="name">
+			<value>International</value>            
+        </property>
+        <property name="description">
+            <value>International dialing</value>
+        </property>
+        <property name="internationalPrefix">
+            <value>011</value>
+        </property>
+    </bean>
+
     <bean id="defaultLocalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LocalRule">
         <property name="name">
 			<value>Local</value>            
@@ -302,6 +314,7 @@
     	<property name="rules">
         	<list>
                 <ref bean="defaultEmergencyRule"></ref>
+                <ref bean="defaultInternationalRule"></ref>
                 <ref bean="defaultInternalRule"></ref>
                 <ref bean="defaultLocalRule"></ref>
                 <ref bean="defaultLongDistanceRule"></ref>
