@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Activate dialplan</title>
+    <link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
+</head>
+<body>
+	<div id="component">
+    <h2>Dial Plan Activation</h2>        
+	<p>You are about to activate the following dial plan. Please review configuration files and press OK to proceed 
+        or press Cancel to return to Dial Plan editing.</p>
+	<p>Copies of currently active configuration files will be saved on the system.</p>
+    <form action="dialplans.html">
+    	<table>
+            <tbody>
+                <tr>
+                    <td><label for="activate:files">Configuration file</label></td>                        
+                    <td>
+                        <select id="activate:files" size="1">
+                            <option value="3">mappingrules.xml</option>
+                            <option value="4">falbackrules.xml</option>
+                            <option value="5">authrules.xml</option>
+                        </select>                        
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                    </td>
+                </tr>
+            </tbody>
+		</table>
+                   <textarea name="content" rows="35" cols="75" readonly="readonly">
+                    
+&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"? &gt;
+<!--
+  - Fallback Rules
+  -   These rules are invoked _only_ when no other redirection
+  -   mechanism has found a way to complete the call (it does not
+  -   match any locally configured extensions or aliases).
+  - 
+  -   Typically, this means that it is a call to an external
+  -   address, and needs to be routed to either another more 
+  -   knowledgeable call router, or a PSTN gateway.
+  - 
+  -   These examples are based on typical North American dialing
+  -   patterns - 3 digit area codes followed by 7 local digits.
+  -
+  -   They assume that the the phone has not modified the digits
+  -   dialled by the user, and that the gateway will just dial 
+  -   what it is sent.
+  -
+  -   The digit '9' is supported here as a prefix meaning that
+  -   the call is an outside number, although the length of the 
+  -   digit string is also sufficient to determine that.
+  -->
+<mappings>
+
+  <hostMatch>
+
+    <!-- match local domains only 
+      -  (non-local domains will be routed via DNS)
+      -->
+    <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_IP_ADDR}</hostPattern>
+
+
+    <!-- Emergency dialing.  Allow both "911" and "9911". -->
+
+    <userMatch>
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <userPattern>9911</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:911@${GW_EMERGENCY_DIALING_ADDR}</url>
+
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- 800 number dialing.  Allow optional "1" or "91" prefixes. -->
+    <userMatch>
+      <userPattern>91800xxxxxxx</userPattern>
+      <userPattern>1800xxxxxxx</userPattern>
+
+      <userPattern>800xxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1800{vdigits}</user>
+          <host>${GW_800_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+
+    </userMatch>
+
+
+    <!-- 877 number dialing.  Allow optional "1" or "91" prefixes. -->
+    <userMatch>
+      <userPattern>91877xxxxxxx</userPattern>
+      <userPattern>1877xxxxxxx</userPattern>
+      <userPattern>877xxxxxxx</userPattern>
+
+      <permissionMatch>
+        <transform>
+          <user>1877{vdigits}</user>
+          <host>${GW_800_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- 888 number dialing.  Allow optional "1" or "91" prefixes. -->
+    <userMatch>
+      <userPattern>91888xxxxxxx</userPattern>
+      <userPattern>1888xxxxxxx</userPattern>
+      <userPattern>888xxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+
+          <user>1888{vdigits}</user>
+          <host>${GW_800_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>
+					</textarea> 
+		<ul class="table-actions">
+			<li>
+				<input type="submit" name="" value="OK"/>
+			</li>
+			<li>
+				<input type="submit" name="" value="Cancel"/>
+			</li>
+		</ul>
+    </form>
+	</div>
+    <div id="comments">
+	</div>            
+</body>
+</html>
