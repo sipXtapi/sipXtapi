@@ -6,8 +6,16 @@ INSTALL=@INSTALL@
 
 edit = sed \
         -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
+        -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
+        -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
+        -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \
+        -e 's,@SIPX_RUNDIR\@,@SIPX_RUNDIR@,g' \
+        -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
+        -e 's,@SIPX_DBDIR\@,@SIPX_DBDIR@,g' \
+        -e 's,@localstatedir\@,$(localstatedir),g' \
         -e 's,@bindir\@,$(bindir),g' \
-        -e 's,@localstatedir\@,$(localstatedir),g'
+        -e 's,@PACKAGE\@,@PACKAGE@,g' \
+        -e 's,@VERSION\@,@VERSION@,g'
 
 editscripts_IN = \
     bin/sipauthproxy.sh.in \
