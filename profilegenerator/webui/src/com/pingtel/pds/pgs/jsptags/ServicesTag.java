@@ -13,28 +13,25 @@
 package com.pingtel.pds.pgs.jsptags;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
-import java.net.URLEncoder;
 
 import javax.servlet.jsp.JspException;
+import javax.xml.transform.TransformerException;
 
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.CDATA;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import com.pingtel.pds.common.XMLSupport;
-import com.pingtel.pds.common.ElementUtilException;
 import com.pingtel.pds.common.PostProcessingException;
+import com.pingtel.pds.common.XMLSupport;
 import com.pingtel.pds.pgs.jsptags.util.StyleTagSupport;
-
-
-import com.pingtel.pds.pgs.sipxchange.*;
-import com.pingtel.pds.pgs.sipxchange.process.*;
-import java.io.InputStream;
+import com.pingtel.pds.pgs.sipxchange.SatelliteLocation;
+import com.pingtel.pds.pgs.sipxchange.SatelliteManager;
+import com.pingtel.pds.pgs.sipxchange.process.ProcessDefinition;
+import com.pingtel.pds.pgs.sipxchange.process.ProcessManager;
 /**
  * <p>Title: ServicesTag</p>
  * <p>Description: Tag Library for the DMS JSP Pages</p>
@@ -197,7 +194,7 @@ public class ServicesTag extends StyleTagSupport {
                     }
                     outputTextToBrowser ( processElement );
                 }
-            } catch( ElementUtilException ex ) {
+            } catch( TransformerException ex ) {
                throw new JspException( ex.getMessage());
             }catch( IOException ex ){
                throw new JspException( ex.getMessage());
@@ -288,7 +285,7 @@ public class ServicesTag extends StyleTagSupport {
 
         } catch ( JDOMException ex ) {
             ex.printStackTrace();
-        } catch( ElementUtilException ex ) {
+        } catch( TransformerException ex ) {
              throw new JspException( ex.getMessage());
         } catch( IOException ex ){
              throw new JspException( ex.getMessage());

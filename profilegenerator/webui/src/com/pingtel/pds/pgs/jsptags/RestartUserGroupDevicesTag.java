@@ -52,7 +52,7 @@ public class RestartUserGroupDevicesTag extends ExTagSupport {
 
                 // Get the connection factory
                 QueueConnectionFactory queueFactory =
-                    (QueueConnectionFactory)context.lookup("QueueConnectionFactory");
+                    (QueueConnectionFactory)context.lookup("ConnectionFactory");
 
 
                 // Create the connection

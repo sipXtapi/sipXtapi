@@ -67,7 +67,7 @@ public interface TagHandlerHelperBusiness {
      * @throws RemoteException for RMI remoting errors
      */
     public Element listDevices ( Integer deviceGroupID )
-            throws PDSException, RemoteException;
+            throws RemoteException;
 
     /**
      * this tag handler implementation is called prior to allocating extensions
@@ -124,7 +124,7 @@ public interface TagHandlerHelperBusiness {
      * @throws PDSException is thrown for all application errors.
      * @throws RemoteException for RMI remoting errors
      */
-    Element getDeviceGroupTabs (String deviceGroupId) throws PDSException, RemoteException;
+    Element getDeviceGroupTabs (String deviceGroupId) throws RemoteException;
 
     /**
     * getDeviceTabs creates the XML for the tabs for the Device
@@ -136,7 +136,7 @@ public interface TagHandlerHelperBusiness {
     * @throws PDSException is thrown for all application errors.
     * @throws RemoteException for RMI remoting errors
     */
-    Element getDeviceTabs (String deviceId) throws PDSException, RemoteException;
+    Element getDeviceTabs (String deviceId) throws RemoteException;
 
     /**
     * getDeviceTabs creates the XML for the tabs for the User Group
@@ -159,7 +159,7 @@ public interface TagHandlerHelperBusiness {
      * @throws PDSException is thrown for all application errors.
      * @throws RemoteException for RMI remoting errors
      */
-    Element getUserTabs (String userID) throws PDSException, RemoteException;
+    Element getUserTabs (String userID) throws RemoteException;
 
     Element getUserGroupTree (Integer userGroupId) throws PDSException, RemoteException;
 

@@ -37,11 +37,13 @@
 
   <!-- I N S T A L L -->
   <target name="install" depends="ear" description="Deploy into JBoss container!!!">
-      <copy file="${jdbc-driver.jar}" todir="${dest.dir}${jboss.ext}"/>
+      <copy file="${jdbc-driver.jar}" todir="${dest.dir}${jboss.server.lib}"/>
+      <copy file="meta/postgres-ds.xml" todir="${dest.dir}${jboss.container.deploy}"/>
       <copy file="bin/profilegenerator.sh.in" tofile="${dest.dir}${bin.dir}/profilegenerator.sh"/>
       <replace file="${dest.dir}${bin.dir}/profilegenerator.sh"
           propertyfile="${top.build.dir}/config.properties">
         <replacefilter token="@jboss.home@" property="jboss.home"/>
+        <replacefilter token="@jboss.server.conf@" property="jboss.server.conf"/>
         <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
         <replacefilter token="@bin.dir@" property="bin.dir"/>
         <replacefilter token="@localstate.dir@" property="localstate.dir"/>

@@ -31,10 +31,10 @@ public class CreateApplicationBean {
 ////
 
     // JavaBean attributes
-    private String name;
-    private String url;
-    private String description;
-    private String errorMessage;
+    private String name = "";
+    private String url = "";
+    private String description = "";
+    private String errorMessage = "";
 
 //////////////////////////////////////////////////////////////////////////
 // Construction

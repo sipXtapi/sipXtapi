@@ -12,7 +12,7 @@
 
 package com.pingtel.pds.common;
 
-import org.apache.log4j.Priority;
+import org.apache.log4j.Level;
 
 /**
  * TXPriority is a log4j priority class.   It is basically used to differentiate
@@ -22,7 +22,7 @@ import org.apache.log4j.Priority;
  * @see
  * @since
  */
-public class TXPriority extends Priority {
+public class TXPriority extends Level {
 
     public final static int TX_INT  = 35000;
 

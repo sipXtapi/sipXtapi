@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
@@ -515,89 +516,51 @@ public class RefDataAdvocateBean extends JDBCAwareEJB
      *@exception  PDSException  is thrown for application level exceptions.
      *@see                          com.pingtel.pds.pgs.profile.PDSPropertyMetaData
      */
-    public Collection getRefConfigSetsProperties(String refConfigSetID )
-             throws PDSException {
-
-        RefConfigurationSet rcs = null;
-        ArrayList properties = new ArrayList();
-        RefProperty rp = null;
+    public Collection getRefConfigSetsProperties(String refConfigSetID) throws PDSException {
 
         try {
+            Collection properties = new ArrayList();
 
-            ArrayList results = null;
+            List results = executePreparedQuery(
+                    "SELECT CS.REF_PROP_ID, "
+                    + "       CS.IS_FINAL,  "
+                    + "       CS.IS_READ_ONLY  "
+                    + "FROM   CS_PROPERTY_PERMISSIONS CS "
+                    + "WHERE  CS.RCS_ID = ? ", new Object[] { refConfigSetID }, 3, 1000000);
 
-            try {
-                results =   executePreparedQuery(   "SELECT CS.REF_PROP_ID, " +
-                                                    "       CS.IS_FINAL,  " +
-                                                    "       CS.IS_READ_ONLY  " +
-                                                    "FROM   CS_PROPERTY_PERMISSIONS CS " +
-                                                    "WHERE  CS.RCS_ID = ? ",
-                                                    new Object[]{refConfigSetID},
-                                                    3,
-                                                    1000000);
-            }
-            catch (SQLException ex) {
-                this.m_ctx.setRollbackOnly();
-
-                throw new PDSException(
-                        collateErrorMessages("UC180",
-                        "E1030",
-                        new Object[]{ rcs.getExternalID()}),
-                        ex);
-            }
-
-            ArrayList row = null;
-
-            Integer refPropertyID = null;
 
             for (int i = 0; i < results.size(); ++i) {
-                row = (ArrayList) results.get(i);
+                List row = (List) results.get(i);
 
-                boolean isFinal = false;
-                boolean isReadOnly = false;
-                refPropertyID =  Integer.valueOf( ( String ) row.get( 0 ) );
+                Integer refPropertyID = Integer.valueOf((String) row.get(0));
+                boolean isFinal = PGSDefinitions.PR_FINAL.equals(row.get(1));
+                boolean isReadOnly = PGSDefinitions.PR_READ_ONLY.equals(row.get(2));
 
+                String cardinality = getCardiniality(refPropertyID);
 
-                if (row.get(1).equals(this.PR_FINAL)) {
-                    isFinal = true;
-                }
-
-                if (row.get(2).equals(this.PR_READ_ONLY)) {
-                    isFinal = true;
-                }
-
-                String cardinality = getCardiniality ( refPropertyID );
-
-                ProjectionRule pr = new ProjectionRule( refPropertyID,
-                                                        isFinal,
-                                                        isReadOnly,
-                                                        cardinality );
+                ProjectionRule pr = new ProjectionRule(refPropertyID, isFinal, isReadOnly,
+                        cardinality);
 
                 properties.add(pr);
             }
+
+            return properties;
+        } catch (SQLException ex) {
+            this.m_ctx.setRollbackOnly();
+
+            throw new PDSException(collateErrorMessages("UC180", "E1030", new Object[] { refConfigSetID }), ex);
         }
-        catch ( RemoteException ex ) {
-            logFatal( ex.toString(), ex  );
-
-            throw new EJBException(
-                collateErrorMessages(   "UC180",
-                                        "E4036",
-                                        new Object[]{ refConfigSetID } ) );
-        }
-
-
-        return properties;
     }
 
 
     /**
-     *  Gets the refConfigSetsProperty attribute of the
-     *  ReferenceDataAdvocateBean object
-     *
-     *@param  refConfigSetID        Description of the Parameter
-     *@param  refPropertyID         Description of the Parameter
-     *@return                       The refConfigSetsProperty value
-     *@exception  PDSException  Description of the Exception
+     * Gets the refConfigSetsProperty attribute of the ReferenceDataAdvocateBean
+     * object
+     * 
+     * @param refConfigSetID Description of the Parameter
+     * @param refPropertyID Description of the Parameter
+     * @return The refConfigSetsProperty value
+     * @exception PDSException Description of the Exception
      */
     public ProjectionRule getRefConfigSetsProperty(String refConfigSetID,
             String refPropertyID)

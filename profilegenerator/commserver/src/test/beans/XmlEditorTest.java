@@ -1,8 +1,10 @@
 package beans;
 
-import junit.framework.TestCase;
-import com.pingtel.commserver.beans.XmlEditor;
 import java.io.IOException;
+
+import junit.framework.TestCase;
+
+import com.pingtel.commserver.beans.XmlEditor;
 
 public class XmlEditorTest extends TestCase
 {

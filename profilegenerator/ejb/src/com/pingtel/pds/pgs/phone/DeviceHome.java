@@ -119,11 +119,6 @@ public interface DeviceHome extends EJBHome {
              throws FinderException, RemoteException;
 
 
-//
-//    public Collection findByPhoneID(Integer phonePK)
-//             throws FinderException, RemoteException;
-
-
     /**
      * locates a Device which has the given short name.
      * At most one Device will be returned by this method.

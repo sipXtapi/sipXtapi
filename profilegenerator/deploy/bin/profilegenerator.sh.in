@@ -26,21 +26,81 @@ fi
 # Needed for Jasper page compiler (possibly for other components as well)
 export JAVA_HOME=`@bin.dir@/sipx-config --jdk`
 
-# Needed for @jboss.home@/bin/run.sh
-export PATH=${JAVA_HOME}/bin:$PATH
-
 echo $$ > @sipxpbx.run.dir@/profilegenerator.pid
 
+if [ "x${JBOSS_HOME}" = "x" ]; then
+	JBOSS_HOME=@jboss.home@
+fi
+
 # Production command line
-cd @jboss.home@/bin
+cd ${JBOSS_HOME}/bin
 
 # portions extracted from jboss's run.sh, stopped trying to 
 # run jboss's startup script because too hard to kill by
 # pid
-export JBOSS_CLASSPATH=${JAVA_HOME}/lib/tools.jar:run.jar:../lib/crimson.jar
-# assume modern jdk
-HOTSPOT="-server"
-JAXP=-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.crimson.jaxp.DocumentBuilderFactoryImpl
-JAXP="$JAXP -Djavax.xml.parsers.SAXParserFactory=org.apache.crimson.jaxp.SAXParserFactoryImpl"
 
-exec java $HOTSPOT -mx256m $PROFILEGENERATOR_OPTS $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main catalina $@
+DIRNAME=`dirname $0`
+PROGNAME=`basename $0`
+
+#
+# Helper to complain.
+#
+warn() {
+    echo "${PROGNAME}: $*"
+}
+
+# Use the maximum available, or set MAX_FD != -1 to use that
+MAX_FD="maximum"
+
+# Increase the maximum file descriptors if we can
+MAX_FD_LIMIT=`ulimit -H -n`
+if [ $? -eq 0 ]; then
+if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ]; then
+    # use the system max
+    MAX_FD="$MAX_FD_LIMIT"
+fi
+
+ulimit -n $MAX_FD
+if [ $? -ne 0 ]; then
+    warn "Could not set maximum file descriptor limit: $MAX_FD"
+fi
+else
+	warn "Could not query system maximum file descriptor limit: $MAX_FD_LIMIT"
+fi
+
+# Setup the JVM
+if [ "x$JAVA" = "x" ]; then
+	JAVA="$JAVA_HOME/bin/java"
+fi
+
+# Setup the classpath
+runjar="$JBOSS_HOME/bin/run.jar"
+if [ ! -f $runjar ]; then
+    warn "Missing required file: $runjar"
+    exit 1
+fi
+JBOSS_BOOT_CLASSPATH="$runjar"
+
+# Include the JDK javac compiler for JSP pages. The default is for a Sun JDK
+# compatible distribution which JAVA_HOME points to
+if [ "x$JAVAC_JAR" = "x" ]; then
+    JAVAC_JAR="$JAVA_HOME/lib/tools.jar"
+fi
+
+if [ "x$JBOSS_CLASSPATH" = "x" ]; then
+    JBOSS_CLASSPATH="$JBOSS_BOOT_CLASSPATH:$JAVAC_JAR"
+else
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$JBOSS_BOOT_CLASSPATH:$JAVAC_JAR"
+fi
+
+# append profilegenerator opts
+JAVA_OPTS="-server $JAVA_OPTS $PROFILEGENERATOR_OPTS"
+
+# Setup the java endorsed dirs
+JBOSS_ENDORSED_DIRS="$JBOSS_HOME/lib/endorsed"
+
+exec "$JAVA" $JAVA_OPTS \
+	-Dprogram.name="$PROGNAME" \
+	-Djava.endorsed.dirs="$JBOSS_ENDORSED_DIRS" \
+      -classpath "$JBOSS_CLASSPATH" \
+      org.jboss.Main -c @jboss.server.conf@

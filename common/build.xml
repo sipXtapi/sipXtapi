@@ -21,8 +21,8 @@
     <pathelement location="${log4j.jar}"/>
 
     <!-- J2EE -->
-    <pathelement location="${jboss.lib}/ext/jboss-j2ee.jar"/>
-    <pathelement location="${tomcat.lib}/servlet.jar"/>
+    <pathelement location="${j2ee.jar}"/>
+    <pathelement location="${servlet.jsp.jar}"/>
 
     <!-- SPRING -->
     <!-- pathelement path="${spring.jar}" / -->

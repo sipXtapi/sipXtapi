@@ -366,7 +366,7 @@ public class EntityDetailsModifierBean extends JDBCAwareEJB
 
                 QueueConnectionFactory queueFactory =
                     (QueueConnectionFactory)context.lookup(
-                            "QueueConnectionFactory");
+                            "ConnectionFactory");
 
                 QueueConnection queueConnection =
                         queueFactory.createQueueConnection();

@@ -771,7 +771,7 @@ ex.printStackTrace();
 
     private Collection getUserGroupsConfigurationSets(
             HashMap userGroupConfigSetsMap,
-            UserGroup userGroup) throws RemoteException {
+            UserGroup userGroup) throws RemoteException, PDSException {
 
         Collection groupConfigSets;
         if ( !userGroupConfigSetsMap.containsKey( userGroup.getID() ) ) {
@@ -792,7 +792,7 @@ ex.printStackTrace();
 
 
     private ArrayList getUserGroupTreeConfigSets(UserGroup userGroup)
-            throws RemoteException {
+            throws RemoteException, PDSException {
 
         Collection groupConfigSets;
         ArrayList configSetList = new ArrayList();
@@ -1066,7 +1066,7 @@ ex.printStackTrace();
                     mDeviceHome.findByOrganizationID( organization.getID() );
             }
             catch ( FinderException ex ) {
-ex.printStackTrace();
+                logFatal("", ex);
                 mCTX.setRollbackOnly();
 
                 throw new PDSException (
@@ -1087,7 +1087,7 @@ ex.printStackTrace();
                     }
                 }
                 catch ( FinderException ex ) {
-ex.printStackTrace();
+                    logFatal("", ex);
                     mCTX.setRollbackOnly();
 
                     throw new PDSException (

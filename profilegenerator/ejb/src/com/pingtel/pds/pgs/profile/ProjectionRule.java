@@ -12,14 +12,22 @@
 
 package com.pingtel.pds.pgs.profile;
 
+import java.io.Serializable;
+
 /**
  *  Description of the Class
  *
  *@author     ibutcher
  *@created    December 19, 2001
  */
-public class ProjectionRule extends RefConfigSetAssignment {
+public class ProjectionRule extends RefConfigSetAssignment implements Serializable {
 
+    /**
+     * Empty constructor for serialization
+     */
+    public ProjectionRule() {
+    }
+    
     /**
      *  Constructor for the ProjectionRule object
      *

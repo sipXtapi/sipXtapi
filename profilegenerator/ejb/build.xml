@@ -19,11 +19,11 @@
       <pathelement location="${regexp.jar}"/>
 
       <!-- J2EE -->
-      <fileset dir="${jboss.lib}">
-        <include name="jboss-jaas.jar"/>
-        <include name="ext/jboss-j2ee.jar"/>
-        <include name="ext/jboss.jar"/>
-        <include name="ext/activation.jar"/>
+      <pathelement location="${j2ee.jar}"/>
+      <pathelement location="${jboss.client.lib}/jboss-system-client.jar"/>
+      <fileset dir="${jboss.server.lib}">
+        <include name="jboss.jar"/>
+        <include name="activation.jar"/>
       </fileset>
   	
       <!-- TEST -->
@@ -61,6 +61,7 @@
            <include name="META-INF/ejb-jar.xml"/>
            <include name="META-INF/jboss.xml"/>
            <include name="META-INF/jaws.xml"/>
+           <include name="META-INF/jbosscmp-jdbc.xml"/>
            <include name="pgs-strings.properties"/>
         </fileset>
 

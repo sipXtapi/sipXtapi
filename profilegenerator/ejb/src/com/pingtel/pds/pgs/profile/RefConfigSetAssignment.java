@@ -12,6 +12,8 @@
 
 package com.pingtel.pds.pgs.profile;
 
+import java.io.Serializable;
+
 
 /**
  *  Description of the Class
@@ -19,7 +21,13 @@ package com.pingtel.pds.pgs.profile;
  *@author     ibutcher
  *@created    December 19, 2001
  */
-public class RefConfigSetAssignment  {
+public class RefConfigSetAssignment  implements Serializable {
+
+    /**
+     * Default constructor for serialization
+     */
+    public RefConfigSetAssignment() {
+    }
 
     public RefConfigSetAssignment ( Integer refPropertyID,
                                     boolean isFinal,

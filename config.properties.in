@@ -49,14 +49,14 @@ jdom.jar=${top.dir}/lib/jdom.jar
 jaxen-core.jar=${top.dir}/lib/jaxen-core.jar
 jaxen-jdom.jar=${top.dir}/lib/jaxen-jdom.jar
 saxpath.jar=${top.dir}/lib/saxpath.jar
-log4j.jar=${top.dir}/lib/log4j.jar
+#log4j.jar=${top.dir}/lib/log4j.jar
 netcomponents.jar=${top.dir}/lib/NetComponents.jar
 commons-discovery.jar=${top.dir}/lib/commons-discovery.jar
 commons-logging.jar=${top.dir}/lib/commons-logging.jar
 commons-pool.jar=${top.dir}/lib/commons-pool.jar
 commons-dbcp.jar=${top.dir}/lib/commons-dbcp.jar
 commons-collections.jar=${top.dir}/lib/commons-collections.jar
-jdbc-driver.jar=${top.dir}/lib/pgjdbc2.jar
+jdbc-driver.jar=${top.dir}/lib/pg74.215.jdbc3.jar
 antlr.jar=${top.dir}/lib/antlr.jar
 
 # T E S T 
@@ -75,20 +75,22 @@ manifest.classpath=common.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen
 
 
 # J 2 E E
-jboss.home=@JBOSS_HOME@/jboss
+jboss.home=@JBOSS_HOME@
+jboss.server.conf=@JBOSS_SERVER_CONF@
 jboss.client.lib=${jboss.home}/client
-jboss.lib=${jboss.home}/lib
-jboss.ext=${jboss.home}/lib/ext
-jboss.container.deploy=${jboss.home}/deploy
-jboss.container.lib=${jboss.container.deploy}/lib
-tomcat.home=@JBOSS_HOME@/catalina
-tomcat.common.lib=${tomcat.home}/common/lib
-tomcat.lib=${tomcat.home}/common/lib
+jboss.server=${jboss.home}/server/${jboss.server.conf}
+jboss.server.lib=${jboss.server}/lib
+jboss.container.deploy=${jboss.server}/deploy
+j2ee.jar=${jboss.client.lib}/jboss-j2ee.jar
+servlet.jar=${jboss.server.lib}/javax.servlet.jar
+servlet.jsp.jar=${jboss.server.lib}/javax.servlet.jsp.jar
+
 wsdl4j.jar=${top.dir}/lib/wsdl4j.jar
 axis.jar=${top.dir}/lib/axis.jar
 jaxrpc.jar=${top.dir}/lib/jaxrpc.jar
 saaj.jar=${top.dir}/lib/saaj.jar
-servlet.jar=${tomcat.common.lib}/servlet.jar
+
+log4j.jar=${jboss.server.lib}/log4j.jar
 
 # S P R I N G
 spring.home=@SPRING_HOME@

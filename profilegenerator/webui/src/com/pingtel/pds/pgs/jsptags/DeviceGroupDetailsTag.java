@@ -308,7 +308,7 @@ public class DeviceGroupDetailsTag extends StyleTagSupport {
             outputTextToBrowser ( documentRootElement, stylesheetParameters );
         }
         catch(Exception ex ) {
-             throw new JspException( ex.getMessage());
+             throw new JspException( ex );
         }
 
         return SKIP_BODY;

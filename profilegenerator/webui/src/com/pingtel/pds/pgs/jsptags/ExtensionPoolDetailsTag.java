@@ -14,22 +14,24 @@
 package com.pingtel.pds.pgs.jsptags;
 
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.servlet.jsp.JspException;
-import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.jsp.JspException;
+import javax.sql.DataSource;
+import javax.xml.transform.TransformerException;
 
 import org.jdom.Element;
 
-import com.pingtel.pds.common.ElementUtilException;
 import com.pingtel.pds.pgs.jsptags.util.StyleTagSupport;
 
 
@@ -87,10 +89,9 @@ public class ExtensionPoolDetailsTag extends StyleTagSupport {
 
             outputTextToBrowser ( root );
         }
-        catch( ElementUtilException ex ) {
+        catch( TransformerException ex ) {
              throw new JspException( ex.getMessage());
         }
-
         catch( RemoteException ex ) {
             throw new JspException( ex.getMessage());
         }

@@ -12,19 +12,27 @@
 
 package  com.pingtel.pds.pgs.sipxchange.replication;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
+
 import com.pingtel.pds.common.PathLocatorUtil;
 import com.pingtel.pds.common.https.HttpsUtil;
 import com.pingtel.pds.pgs.sipxchange.SatelliteComponent;
 import com.pingtel.pds.pgs.sipxchange.SatelliteLocation;
 import com.pingtel.pds.pgs.sipxchange.SatelliteManager;
-import org.apache.log4j.Category;
-import org.apache.log4j.Priority;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  *
@@ -80,8 +88,8 @@ public class ReplicationManager
                                                  location );
 
         //if debug is turned on, write the data you are going to post to a file.
-        Category cat = Category.getInstance( "pgs" );
-        if( cat.getPriority() == Priority.DEBUG ){
+        Logger cat = Logger.getLogger( "pgs" );
+        if( cat.isDebugEnabled() ){
             try{
                 PrintWriter out
                     = new PrintWriter(new BufferedWriter(new FileWriter
@@ -126,8 +134,8 @@ public class ReplicationManager
                 System.out.println ( "*it took " + (d2-d1) + " to do generateXMLDataToPost(  ");
 
                 //if debug is turned on, write the data you are going to post to a file.
-                 Category cat = Category.getInstance( "pgs" );
-                 if( cat.getPriority() == Priority.DEBUG ){
+                 Logger cat = Logger.getLogger( "pgs" );
+                 if( cat.isDebugEnabled() ){
                     try{
                         long d3 = new java.util.Date().getTime();
                         String path =
@@ -288,15 +296,15 @@ public class ReplicationManager
             }
 
 
-        }catch( IOException e ){
-            //needs to be more specific.
-            e.printStackTrace();
+        }
+        catch( IOException e ) {
+            Logger log = Logger.getLogger( "pgs" );
+            log.fatal("ReplicationError.COMMUNICATION_ERROR", e);
             error = new ReplicationError( ReplicationError.COMMUNICATION_ERROR,
                                                            getStackTraceAsString(e),
                                                            location, null );
         }
         return error;
-
     }
 
     /**

@@ -114,7 +114,7 @@
 	<target name="install" depends="war"
 	   description="Copy war file into Jboss deploy directory">
 
-		<copy todir="${dest.dir}${jboss.container.deploy}" file="${neoconf.war}"/>
+		<copy todir="${jboss.container.deploy}" file="${neoconf.war}"/>
 
 	</target>
 

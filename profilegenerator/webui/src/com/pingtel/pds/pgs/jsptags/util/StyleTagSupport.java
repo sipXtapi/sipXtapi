@@ -18,16 +18,15 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.Source;
 
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-import org.jdom.transform.JDOMSource;
 
 import com.pingtel.pds.common.TemplatesCache;
 import com.pingtel.pds.common.ElementUtilException;
@@ -105,7 +104,7 @@ public abstract class StyleTagSupport extends ExTagSupport {
      * @param rootElement
      */
     protected void outputTextToBrowser (Element documentRootElement )
-        throws ElementUtilException, IOException {
+        throws TransformerException, IOException {
 
         outputTextToBrowser ( documentRootElement, null );
     }
@@ -113,7 +112,7 @@ public abstract class StyleTagSupport extends ExTagSupport {
 
     protected void outputTextToBrowser (    Element documentRootElement,
                                             Map xformerParameters )
-        throws ElementUtilException, IOException {
+        throws TransformerException, IOException {
 
         String outputText = convertToString(    documentRootElement,
                                                 xformerParameters );
@@ -134,13 +133,13 @@ public abstract class StyleTagSupport extends ExTagSupport {
      */
 
     private String convertToString ( Element rootElement )
-        throws ElementUtilException {
+        throws IOException, TransformerException  {
 
         return convertToString ( rootElement, null );
     }
 
     private String convertToString ( Element rootElement, Map xformerParameters )
-        throws ElementUtilException {
+        throws IOException, TransformerException {
         // Make an xml document from the root element
         Document xmlDocument = new Document(rootElement);
         // If we need to see the pre translated XML uncomment this code
@@ -169,8 +168,11 @@ public abstract class StyleTagSupport extends ExTagSupport {
 
                     for ( Iterator i = s.iterator(); i.hasNext(); ) {
                         Map.Entry entry = (Map.Entry) i.next();
-                        transformer.setParameter(   (String) entry.getKey(),
-                                                    entry.getValue() );
+                        if( entry.getValue() != null )
+                        {
+                            transformer.setParameter( (String) entry.getKey(),
+                                    entry.getValue() );                            
+                        }
                     }
                 }
 
@@ -183,8 +185,6 @@ public abstract class StyleTagSupport extends ExTagSupport {
                 outputter.output( xmlDocument, resultStream );
             }
             return resultStream.toString();
-        } catch (Exception ex) {
-            throw new ElementUtilException(ex.getMessage());
         } finally {
             if (resultStream != null)
                 try { resultStream.close(); } catch (Exception ex){}

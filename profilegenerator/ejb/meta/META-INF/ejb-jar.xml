@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" "http://java.sun.com/dtd/ejb-jar_2_0.dtd">
 
 <ejb-jar>
     <enterprise-beans>
-
         <session>
             <ejb-name>JobManager</ejb-name>
             <home>com.pingtel.pds.pgs.jobs.JobManagerHome</home>
@@ -78,9 +76,10 @@
             <home>com.pingtel.pds.pgs.user.ApplicationHome</home>
             <remote>com.pingtel.pds.pgs.user.Application</remote>
             <ejb-class>com.pingtel.pds.pgs.user.ApplicationBean</ejb-class>
-            <persistence-type>Container</persistence-type>
+            <persistence-type>Container</persistence-type>            
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <cmp-field><field-name>deviceTypeID</field-name></cmp-field>
@@ -97,6 +96,15 @@
                 <remote>com.pingtel.pds.pgs.organization.Organization</remote>
                 <ejb-link>Organization</ejb-link>
             </ejb-ref>
+            <query>
+                <query-method>
+                    <method-name>findByApplicationGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
         </entity>
 
         <entity>
@@ -107,12 +115,22 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>installedDate</field-name></cmp-field>
             <cmp-field><field-name>description</field-name></cmp-field>
             <cmp-field><field-name>version</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findByDeviceType</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
         </entity>
 
         <entity>
@@ -123,6 +141,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>profileType</field-name></cmp-field>
             <cmp-field><field-name>fileName</field-name></cmp-field>
@@ -131,6 +150,16 @@
             <cmp-field><field-name>coreSoftwareDetailsID</field-name></cmp-field>
             <cmp-field><field-name>xsltURL</field-name></cmp-field>
             <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findByCoreSoftwareAndProfileType</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                        <method-param>java.lang.Integer</method-param>                        
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>            
         </entity>
 
         <entity>
@@ -141,6 +170,8 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.String</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
+            <abstract-schema-name>User</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>displayID</field-name></cmp-field>
             <cmp-field><field-name>organizationID</field-name></cmp-field>
@@ -160,6 +191,34 @@
                 <remote>com.pingtel.pds.pgs.organization.Organization</remote>
                 <ejb-link>Organization</ejb-link>
             </ejb-ref>
+            <query>
+                <description>Custom Finder Method to find users with ADMIN or SUPER roles (Users table is implied in the FROM section of the query)</description>
+                <query-method>
+					<method-name>findAdministratorsByOrganizationID</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
+            <query>
+                <query-method>
+					<method-name>findByAlias</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
+            <query>
+                <query-method>
+					<method-name>findByDisplayIDOrExtension</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
         </entity>
 
         <entity>
@@ -170,6 +229,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>shortName</field-name></cmp-field>
             <cmp-field><field-name>organizationID</field-name></cmp-field>
@@ -206,6 +266,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <cmp-field><field-name>parentID</field-name></cmp-field>
@@ -222,6 +283,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>manufacturerID</field-name></cmp-field>
             <cmp-field><field-name>model</field-name></cmp-field>
@@ -236,6 +298,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>refConfigSetID</field-name></cmp-field>
             <cmp-field><field-name>profileType</field-name></cmp-field>
@@ -255,6 +318,68 @@
                  <remote>com.pingtel.pds.pgs.phone.RefProperty</remote>
                  <ejb-link>RefProperty</ejb-link>
             </ejb-ref>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for user</description>
+                <query-method>
+                    <method-name>findByUserIDAndProfileType</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                        <method-param>int</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for LogicalPhone</description>
+                <query-method>
+                    <method-name>findByLogicalPhoneID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+				<ejb-ql/>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for DeviceGroup</description>
+                <query-method>
+                    <method-name>findByDeviceGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+				<ejb-ql/>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for UserGroup</description>
+                <query-method>
+                    <method-name>findByUserGroupIDAndProfileType</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                        <method-param>int</method-param>
+                    </method-params>
+                </query-method>
+				<ejb-ql/>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for user</description>
+                <query-method>
+                    <method-name>findByUserID</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+				<ejb-ql/>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for UserGroup</description>
+                <query-method>
+                    <method-name>findByUserGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+				<ejb-ql/>
+            </query>
         </entity>
 
         <entity>
@@ -265,6 +390,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <cmp-field><field-name>organizationID</field-name></cmp-field>
@@ -277,6 +403,16 @@
                 <remote>com.pingtel.pds.pgs.organization.Organization</remote>
                 <ejb-link>Organization</ejb-link>
             </ejb-ref>
+            <query>
+                <query-method>
+                    <method-name>findByNameAndOrganization</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
         </entity>
 
         <entity>
@@ -287,12 +423,22 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <cmp-field><field-name>profileType</field-name></cmp-field>
             <cmp-field><field-name>code</field-name></cmp-field>
             <cmp-field><field-name>content</field-name></cmp-field>
             <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findByRefConfigurationSetID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
         </entity>
 
         <entity>
@@ -303,6 +449,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>parentID</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
@@ -317,6 +464,14 @@
                 <remote>com.pingtel.pds.pgs.organization.Organization</remote>
                 <ejb-link>Organization</ejb-link>
             </ejb-ref>
+            <query>
+                <description>finds all of the 'top' level groups in the config server's database</description>
+                <query-method>
+                    <method-name>findTopGroups</method-name>
+                    <method-params/>                    
+                </query-method>
+                <ejb-ql/>
+            </query>            
         </entity>
 
         <entity>
@@ -327,6 +482,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <primkey-field>id</primkey-field>
@@ -340,6 +496,7 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <cmp-field><field-name>parentID</field-name></cmp-field>
@@ -354,6 +511,24 @@
                 <remote>com.pingtel.pds.pgs.organization.Organization</remote>
                 <ejb-link>Organization</ejb-link>
             </ejb-ref>
+            <query>
+                <query-method>
+                    <method-name>findByOrganizationIDAndName</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>            
+            <query>
+                <description>finds all of the 'top' level groups in the config server's database</description>
+                <query-method>
+                    <method-name>findTopGroups</method-name>
+                    <method-params/>                    
+                </query-method>
+                <ejb-ql/>
+            </query>
         </entity>
 
         <entity>
@@ -364,10 +539,38 @@
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <cmp-version>1.x</cmp-version>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>name</field-name></cmp-field>
             <cmp-field><field-name>organizationID</field-name></cmp-field>
             <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findByUserID</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>                        
+            <query>
+                <query-method>
+                    <method-name>findByUserGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>            
+            <query>
+                <query-method>
+                    <method-name>findByApplicationID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql/>
+            </query>
         </entity>
 
         <!-- Start of Facade Session Beans for external API -->

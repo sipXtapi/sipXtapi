@@ -16,7 +16,6 @@ import com.pingtel.pds.common.PathLocatorUtil;
 import com.pingtel.pds.common.PingtelXMLLayout;
 import com.pingtel.pds.common.VersionInfo;
 import com.pingtel.pds.profilewriter.protocol.tftp.TFTPStreamHandlerFactory;
-import org.apache.log4j.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +24,13 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.rmi.RMISecurityManager;
 import java.util.Properties;
+
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.NDC;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.RollingFileAppender;
 
 
 /**
@@ -53,7 +59,7 @@ public class ProfileWriterServer {
     private static final String PROPERTIES_MYIPADDR = "myIpAddress";
 
 
-    private static Category m_logger;
+    private static Logger m_logger;
 
 
     /**
@@ -74,13 +80,13 @@ public class ProfileWriterServer {
 
         /******************************************************/
 
-        m_logger = Category.getInstance( "pds" );
+        m_logger = Logger.getLogger( "pds" );
         String debugValue = System.getProperty( "pds.debug");
         if ( debugValue != null && debugValue.equalsIgnoreCase( "true" ) ) {
-            m_logger.setPriority( Priority.DEBUG );
+            m_logger.setLevel( Level.DEBUG );
         }
         else {
-            m_logger.setPriority( Priority.ERROR );
+            m_logger.setLevel( Level.ERROR );
         }
 
         try {
@@ -88,7 +94,8 @@ public class ProfileWriterServer {
                 PathLocatorUtil.getInstance().getPath( PathLocatorUtil.LOGS_FOLDER, PathLocatorUtil.NOT_PGS );
 
             RollingFileAppender fileAppender = new RollingFileAppender ( );
-            fileAppender.setFile( path + "profilewriter.log", true);
+            fileAppender.setFile( path + "profilewriter.log" );
+            fileAppender.setAppend( true );
 
             fileAppender.setMaxFileSize( "1MB" );
             fileAppender.setMaxBackupIndex( 20 );

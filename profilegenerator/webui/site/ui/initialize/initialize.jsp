@@ -23,8 +23,6 @@
                     PathLocatorUtil.XSLT_FOLDER, PathLocatorUtil.PGS ));
 
     // find out what organization the user belongs to.
-    try {
-        boolean inSIPxchangeMode = false;
 
         UserHome userHome = (UserHome)
                 EJBHomeFactory.getInstance().getHomeInterface(
@@ -39,28 +37,7 @@
                         DeviceHome.class, "Device");
 
         // find the stereotype of the organization
-        Organization org = null;
-        Collection allOrgs = organizationHome.findAll();
-
-        if (allOrgs.size() == 1){
-            inSIPxchangeMode = true;
-        }
-
-        //This is a SIPxchange specific thing.  We need to find the organization
-        //before we can do a lookup for the aliases as we may need to append the
-        //org's DNS Domain value to the entered alias.
-        if (inSIPxchangeMode) {
-            org = organizationHome.findByPrimaryKey(new Integer(1));
-        }
-        else {
-            // If there is > 1 organiation (SP mode) then user must log in with
-            // fully qualified userid (includes realm).
-            if (session.getAttribute("user").toString().indexOf('@') != -1){
-                // redirect back to login
-                response.sendRedirect( "../../login/login.html" );
-            }
-        }
-
+        Organization org = organizationHome.findByPrimaryKey(new Integer(1));
 
         // we tollerate users loggin in with a prefix of 'sip:' and/or
         // their organization's domain as a suffix.  e.g.
@@ -76,8 +53,7 @@
         }
 
         if (trimmedUserName.indexOf('@') != -1){
-            if (inSIPxchangeMode) {
-                String enteredDnsDomain =
+           String enteredDnsDomain = 
                         trimmedUserName.substring(
                                 trimmedUserName.indexOf('@') +1);
 
@@ -92,18 +68,9 @@
                 trimmedUserName =
                         trimmedUserName.substring(0,
                                 trimmedUserName.indexOf('@'));
-            }
         }
 
-        Collection users = null;
-
-        if (inSIPxchangeMode) {
-            users = userHome.findByDisplayIDOrExtension(trimmedUserName);
-        }
-        else {
-            // TODO - SP mode authentication.
-            response.sendRedirect( "../../login/login.html" );
-        }
+        Collection users = userHome.findByDisplayIDOrExtension(trimmedUserName);
 
         // This will only return one user
         for (Iterator iter = users.iterator(); iter.hasNext(); ) {
@@ -150,9 +117,5 @@
             //redirect to frameset.html
             response.sendRedirect( "../frameset.html" );
         }
-    }
-    catch(Exception ne ) {
-        out.println( "Execption: " + ne );
-    }
 
 %>

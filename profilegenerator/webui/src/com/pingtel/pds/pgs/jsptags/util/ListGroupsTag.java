@@ -21,6 +21,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 import javax.servlet.jsp.JspException;
+import javax.xml.transform.TransformerException;
 
 import org.jdom.Element;
 
@@ -92,6 +93,9 @@ public class ListGroupsTag extends StyleTagSupport {
             // Sends the text to the browser in either xml or html format
             // depending on an optional debug tag attribute
             outputTextToBrowser ( documentRootNode );
+        } catch( TransformerException ex ) {
+            throw new JspException(
+               "ElementUtilException: " + ex.getMessage());
         } catch( ElementUtilException ex ) {
              throw new JspException(
                 "ElementUtilException: " + ex.getMessage());

@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.apache.log4j.Priority;
+import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.xml.XMLLayout;
 import org.jdom.CDATA;
@@ -61,7 +61,7 @@ public class PingtelXMLLayout extends XMLLayout {
         eventElement.setAttribute ( "facility", m_facility );
 
         // priority
-        eventElement.setAttribute( "priority", convertPriority ( event.priority.toString() ) );
+        eventElement.setAttribute( "priority", convertPriority ( event.getLevel().toString() ) );
 
 
         // hostname
@@ -83,7 +83,7 @@ public class PingtelXMLLayout extends XMLLayout {
         // message
         String message = event.getRenderedMessage();
 
-        if ( event.priority.equals( Priority.DEBUG ) ) {
+        if ( event.getLevel().isGreaterOrEqual( Level.DEBUG ) ) {
             // if we are in debug we probably want at least the filename where
             // it happened.
             String location = event.getLocationInformation().getClassName() +

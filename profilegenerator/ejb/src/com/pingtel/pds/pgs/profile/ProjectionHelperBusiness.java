@@ -118,8 +118,9 @@ public interface ProjectionHelperBusiness {
      * you want.
      * @param profileType Not Used really!!  Refactor.
      * @return Collection of ProjectionInputs.
+     * @throws PDSException
      */
-    Collection addParentGroupConfigSets( UserGroup userGroup, int profileType) throws RemoteException;
+    Collection addParentGroupConfigSets( UserGroup userGroup, int profileType) throws RemoteException, PDSException;
 
     /**
      * addParentGroupConfigSets returns a Collection the ProjectionInput
@@ -128,8 +129,9 @@ public interface ProjectionHelperBusiness {
      * @param deviceGroup EJBObject of the DeviceGroup whose ProjectionInputs
      * you want.
      * @return Collection of ProjectionInputs.
+     * @throws PDSException
      */
-    Collection addParentGroupConfigSets(DeviceGroup deviceGroup) throws RemoteException;
+    Collection addParentGroupConfigSets(DeviceGroup deviceGroup) throws RemoteException, PDSException;
 
     /**
      * getProjectionInput returns the ProjectionInput object for the
@@ -140,8 +142,9 @@ public interface ProjectionHelperBusiness {
      * stored in the User's ConfigurationSet, the Application assignments are
      * calculated at run-time.
      * @return ProjectionInput for the User.
+     * @throws PDSException
      */
-    ProjectionInput getProjectionInput(User user, int profileType) throws RemoteException;
+    ProjectionInput getProjectionInput(User user, int profileType) throws RemoteException, PDSException;
 
     /**
      * getProjectionInput returns the ProjectionInput object for the
@@ -149,8 +152,9 @@ public interface ProjectionHelperBusiness {
      * @param device EJBObject of the Device whose ProjectionInput
      * you want.
      * @return ProjectionInput for the Device.
+     * @throws PDSException
      */
-    ProjectionInput getProjectionInput(Device device) throws RemoteException;
+    ProjectionInput getProjectionInput(Device device) throws RemoteException, PDSException;
 
 
 }

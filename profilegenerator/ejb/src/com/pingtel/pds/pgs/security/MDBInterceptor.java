@@ -13,12 +13,12 @@
 package com.pingtel.pds.pgs.security;
 
 import org.jboss.ejb.Container;
-import org.jboss.ejb.MethodInvocation;
-import org.jboss.ejb.plugins.AbstractInterceptor;
+import org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor;
+import org.jboss.invocation.Invocation;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
 
-public class MDBInterceptor extends AbstractInterceptor {
+public class MDBInterceptor extends MessageDrivenInstanceInterceptor {
 
     protected Container container;
 
@@ -37,12 +37,8 @@ public class MDBInterceptor extends AbstractInterceptor {
     public Container getContainer() {
         return container;
     }
-
-    public void start() throws Exception {
-        super.start();
-    }
-
-    public Object invokeHome(MethodInvocation mi) throws Exception {
+    
+    public Object invokeHome(Invocation mi) throws Exception {
         mi.setPrincipal(principal);
         mi.setCredential(credential);
         SecurityAssociation.setPrincipal(principal);
@@ -55,7 +51,7 @@ public class MDBInterceptor extends AbstractInterceptor {
         }
     }
 
-    public Object invoke(MethodInvocation mi) throws Exception {
+    public Object invoke(Invocation mi) throws Exception {
         mi.setPrincipal(principal);
         mi.setCredential(credential);
         SecurityAssociation.setPrincipal(principal);

@@ -12,24 +12,30 @@
 
 package com.pingtel.pds.pgs.common.ejb;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import java.util.Properties;
-
-import java.io.IOException;
-import java.io.FileNotFoundException;
-
-import org.apache.log4j.Category;
-import org.apache.log4j.Priority;
-import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.RollingFileAppender;
 
-import com.pingtel.pds.common.*;
+import com.pingtel.pds.common.ConfigFileManager;
+import com.pingtel.pds.common.EJBHomeFactory;
+import com.pingtel.pds.common.ErrorMessageBuilder;
+import com.pingtel.pds.common.PDSDefinitions;
+import com.pingtel.pds.common.PathLocatorUtil;
+import com.pingtel.pds.common.PingtelXMLLayout;
+import com.pingtel.pds.common.TXPriority;
+import com.pingtel.pds.common.TemplatesCache;
 
 
 public class BaseEJB {
@@ -50,13 +56,14 @@ public class BaseEJB {
     }
 
     static {
-        Category cat = Category.getInstance( "pgs" );
+        // TODO: we need to move setting logging property to configuration files
+        Logger cat = Logger.getLogger( "pgs" );
         String debugValue = System.getProperty( "pds.debug");
         if ( debugValue != null && debugValue.equalsIgnoreCase( "true" ) ) {
-            cat.setPriority( Priority.DEBUG );
+            cat.setLevel( Level.DEBUG );
         }
         else {
-            cat.setPriority( TXPriority.INFO );
+            cat.setLevel( Level.INFO );
         }
 
         try {
@@ -65,7 +72,8 @@ public class BaseEJB {
                 plu.getPath( PathLocatorUtil.PGS_LOGS_FOLDER, PathLocatorUtil.PGS );
 
             RollingFileAppender fileAppender = new RollingFileAppender ( );
-            fileAppender.setFile( path + "PDSMessages.log", true);
+            fileAppender.setFile( path + "PDSMessages.log" );
+            fileAppender.setAppend( true );
 
             fileAppender.setMaxFileSize( "1MB" );
             fileAppender.setMaxBackupIndex( 20 );
@@ -103,7 +111,7 @@ public class BaseEJB {
      * @param message String message you want to log.
      */
     protected void logInfo (  String message ) {
-        Category.getInstance( "pgs" ).info( message );
+        Logger.getLogger( "pgs" ).info( message );
     }
 
     /**
@@ -116,7 +124,7 @@ public class BaseEJB {
      */
 
     protected void logFatal ( String message, Throwable t ) {
-        Category.getInstance( "pgs" ).fatal( message, t );
+        Logger.getLogger( "pgs" ).fatal( message, t );
     }
 
     /**
@@ -125,7 +133,7 @@ public class BaseEJB {
      */
     protected void logWarning ( String message ) {
         //LogManager.getCategory( "pgs" ).warn( message );
-        Category.getInstance( "pgs" ).warn( message );
+        Logger.getLogger( "pgs" ).warn( message );
     }
 
     /**
@@ -134,19 +142,19 @@ public class BaseEJB {
      * @param message String message you want to log.
      */
     protected void logError ( String message ) {
-        Category.getInstance( "pgs" ).error( message );
+        Logger.getLogger( "pgs" ).error( message );
     }
 
     protected void logError ( String message, Throwable t ) {
-        Category.getInstance( "pgs" ).error( message, t );
+        Logger.getLogger( "pgs" ).error( message, t );
     }
 
     protected void logDebug ( String message ) {
-        Category.getInstance( "pgs" ).debug( message );
+        Logger.getLogger( "pgs" ).debug( message );
     }
 
     protected void logTransaction ( EJBContext context, String message ) {
-        Category.getInstance( "pgs" ).log(  TXPriority.TX_MESSAGE,
+        Logger.getLogger( "pgs" ).log(  TXPriority.TX_MESSAGE,
                                             "User: " + context.getCallerPrincipal().getName() +
                                             " " + message );
     }

@@ -19,9 +19,9 @@
     <pathelement location="${regexp.jar}"/>
 
     <!-- J2EE -->
-    <pathelement location="${jboss.lib}/jmxri.jar"/>
-    <pathelement location="${tomcat.lib}/servlet.jar"/>
-    <pathelement location="${jboss.ext}/jboss-j2ee.jar"/>
+    <pathelement location="${servlet.jar}"/>
+    <pathelement location="${servlet.jsp.jar}"/>
+    <pathelement location="${j2ee.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

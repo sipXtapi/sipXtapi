@@ -37,6 +37,7 @@ edit = sed \
         -e 's,@VERSION\@,@VERSION@,g' \
         -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
         -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
+        -e 's,@JBOSS_SERVER_CONF\@,@JBOSS_SERVER_CONF@,g' \
         -e 's,@SPRING_HOME\@,@SPRING_HOME@,g' \
         -e 's,@SIPXCONFIG_LIBDIR\@,@SIPXCONFIG_LIBDIR@,g' \
         -e 's,@SIPX_CONFIGPHONEDIR\@,@SIPX_CONFIGPHONEDIR@,g' \

@@ -17,8 +17,7 @@
     <pathelement location="${log4j.jar}"/>
 
     <!-- J2EE -->
-    <fileset dir="${jboss.lib}" includes="**/*.jar"/>
-    <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
+    <pathelement location="${j2ee.jar}"/>
     <pathelement location="${wsdl4j.jar}"/>
     <pathelement location="${axis.jar}"/>
     <pathelement location="${jaxrpc.jar}"/>

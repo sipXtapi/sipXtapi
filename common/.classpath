@@ -3,12 +3,13 @@
 	<classpathentry excluding="**/.svn/**|test/" kind="src" path="src"/>
 	<classpathentry excluding="**/.svn/**" kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jdom.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/ext/jboss-j2ee.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/pgjdbc2.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/catalina/common/lib/servlet.jar"/>
+	<classpathentry kind="var" path="JBOSS4_HOME/client/jboss-j2ee.jar"/>
+	<classpathentry kind="var" path="JBOSS4_HOME/server/default/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j.jar"/>
+	<classpathentry kind="var" path="JBOSS4_HOME/server/default/lib/javax.servlet.jsp.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/pg74.215.jdbc3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

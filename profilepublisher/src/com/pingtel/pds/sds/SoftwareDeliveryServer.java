@@ -28,8 +28,9 @@ import com.pingtel.pds.common.VersionInfo;
 import com.pingtel.pds.sds.cache.SessionCache;
 import com.pingtel.pds.sds.cache.SessionCacheException;
 
-import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.Priority;
@@ -41,7 +42,7 @@ import org.apache.log4j.RollingFileAppender;
  */
 public class SoftwareDeliveryServer extends Object {
 
-    private static Category m_logger;
+    private static Logger m_logger;
 
     /** property definition */
     private static final String PROPERTIES_FILE  = "sds.props";
@@ -69,13 +70,13 @@ public class SoftwareDeliveryServer extends Object {
         // Ensure we can use RMI correctly
         System.setSecurityManager( new RMISecurityManager() );
 
-        m_logger = Category.getInstance( "pds" );
+        m_logger = Logger.getLogger( "pds" );
         String debugValue = System.getProperty( "pds.debug");
         if ( debugValue != null && debugValue.equalsIgnoreCase( "true" ) ) {
-            m_logger.setPriority( Priority.DEBUG );
+            m_logger.setLevel( Level.DEBUG );
         }
         else {
-            m_logger.setPriority( Priority.INFO );
+            m_logger.setLevel( Level.INFO );
         }
 
         try {
@@ -83,7 +84,8 @@ public class SoftwareDeliveryServer extends Object {
                 PathLocatorUtil.getInstance().getPath( PathLocatorUtil.LOGS_FOLDER, PathLocatorUtil.NOT_PGS );
 
             RollingFileAppender fileAppender = new RollingFileAppender ( );
-            fileAppender.setFile( path + "PDSMessages.log", true);
+            fileAppender.setFile( path + "PDSMessages.log" );
+            fileAppender.setAppend( true );
 
             fileAppender.setMaxFileSize( "1MB" );
             fileAppender.setMaxBackupIndex( 20 );

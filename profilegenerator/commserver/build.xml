@@ -15,7 +15,7 @@
     <pathelement location="${log4j.jar}"/>
 
     <!-- J2EE -->
-    <fileset file="${tomcat.common.lib}/servlet.jar"/>
+    <pathelement location="${servlet.jsp.jar}"/> 
   	
     <!-- TEST -->
     <!-- TODO: we need a separate classpath for tests -->

@@ -11,23 +11,21 @@
  */
 package com.pingtel.pds.pgs.jsptags;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
+import javax.xml.transform.TransformerException;
 
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import com.pingtel.pds.pgs.jsptags.util.StyleTagSupport;
-import com.pingtel.pds.common.ElementUtilException;
-
 import com.pingtel.pds.common.PathLocatorUtil;
+import com.pingtel.pds.pgs.jsptags.util.StyleTagSupport;
 
 
 public class ReadLogFileTag extends StyleTagSupport {
@@ -89,7 +87,7 @@ public class ReadLogFileTag extends StyleTagSupport {
         catch ( IOException ex ) {
             throw new JspException ( ex.toString() );
         }
-        catch ( ElementUtilException ex ) {
+        catch ( TransformerException ex ) {
             throw new JspException ( ex.toString() );
         }
 

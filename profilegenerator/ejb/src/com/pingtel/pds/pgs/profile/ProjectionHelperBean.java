@@ -35,20 +35,24 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.transform.JDOMSource;
 
+import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.FinderException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.StringReader;
 import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 /**
@@ -170,9 +174,15 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             mApplicationGroupAdvocateEJBObject =
                     applicationGroupAdvocateHome.create();
         }
-        catch (Exception ne) {
-            logFatal( ne.toString(), ne );
-            throw new EJBException(ne);
+        catch ( CreateException e ) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
+        } catch (NamingException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
+        } catch (RemoteException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
     }
 
@@ -206,7 +216,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                                     Device device,
                                     int profileType,
                                     Collection propertySets)
-             throws PDSException {
+             throws RemoteException, PDSException {
 
         try {
             ProjectionInput input = project(projectionClassName,
@@ -269,9 +279,13 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                                                     profileType);
             }
         }
-        catch (Exception e) {
-            logFatal (e.toString(), e);
-            throw new EJBException(e.toString());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
+        }
+        catch (GeneralSecurityException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
     }
 
@@ -298,7 +312,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
     public ProjectionInput project( String projectionClassName,
                                     Collection propertySets,
                                     Integer deviceTypeID,
-                                    int profileType ) throws PDSException {
+                                    int profileType ) throws RemoteException, PDSException {
 
         Collection validRPIDs = null;
         Projection projAlg = null;
@@ -332,10 +346,9 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
 
             logDebug ( "instantiated projection object" );
         }
-        catch (Exception e) {
-            logFatal(e.getMessage(), e);
-
-            throw new EJBException(e.getMessage());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
 
         return projAlg.project(propertySets, validRPIDs );
@@ -349,7 +362,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      * @return the total number of Users contained in the given group and all
      * of its child groups.
      */
-    public int calculateTotalProfiles (UserGroup userGroup) {
+    public int calculateTotalProfiles (UserGroup userGroup) throws RemoteException {
 
         int total = 0;
 
@@ -363,9 +376,9 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                 total += calculateTotalProfiles (child);
             }
         }
-        catch (Exception e) {
-            logFatal(e.toString(), e);
-            throw new EJBException (e.toString());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
 
         return total;
@@ -379,7 +392,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      * @return the total number of Devices contained in the given group and all
      * of its child groups.
      */
-    public int calculateTotalProfiles (DeviceGroup deviceGroup) {
+    public int calculateTotalProfiles (DeviceGroup deviceGroup) throws RemoteException {
 
         int total = 0;
 
@@ -397,10 +410,11 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                 total += calculateTotalProfiles ( child );
             }
         }
-        catch (Exception e) {
-            logFatal(e.toString(), e);
-            throw new EJBException (e.toString());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
+
 
         return total;
     }
@@ -415,7 +429,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      * DeviceType * profile type level.
      * @return fully-qualified class name.
      */
-    public String getProjectionClassName(Device device, int profileType) {
+    public String getProjectionClassName(Device device, int profileType) throws RemoteException {
 
         String projectionClassName = null;
         Integer wrappedProfType = new Integer(profileType);
@@ -440,10 +454,11 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             projectionClassName = cspd.getProjectionClassName();
             logDebug ( "projection class name is: " +  projectionClassName );
         }
-        catch(Exception e){
-            logFatal(e.getMessage(), e);
-            throw new EJBException(e.getMessage());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
+
 
         return projectionClassName;
     }
@@ -459,7 +474,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      * @return Collection of ProjectionInputs.
      */
     public Collection addParentGroupConfigSets( UserGroup userGroup,
-                                                int profileType) {
+            	int profileType) throws RemoteException, PDSException {
 
         ArrayList configSets = new ArrayList();
         Integer parentGroupID = null;
@@ -479,10 +494,11 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                 configSets.addAll(addParentGroupConfigSets(parent, profileType));
             }
         }
-        catch (Exception ex) {
-            logFatal(ex.toString(), ex);
-            throw new EJBException(ex.getMessage());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
+
 
         return configSets;
     }
@@ -496,7 +512,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      * you want.
      * @return Collection of ProjectionInputs.
      */
-    public Collection addParentGroupConfigSets(DeviceGroup deviceGroup) {
+    public Collection addParentGroupConfigSets(DeviceGroup deviceGroup) throws RemoteException, PDSException{
 
         ArrayList configSets = new ArrayList();
         Integer parentGroupID = null;
@@ -516,9 +532,9 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                 configSets.addAll(addParentGroupConfigSets(parent));
             }
         }
-        catch (Exception ex) {
-            logFatal(ex.toString(), ex);
-            throw new EJBException(ex.getMessage());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
 
         return configSets;
@@ -534,7 +550,8 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      * calculated at run-time.
      * @return ProjectionInput for the User.
      */
-    public ProjectionInput getProjectionInput(User user, int profileType) {
+    public ProjectionInput getProjectionInput(User user, int profileType) 
+    	throws RemoteException, PDSException {
 
         ConfigurationSet cs = null;
         Document doc = null;
@@ -591,9 +608,9 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
 
             } // else
         }
-        catch (Exception ex) {
-            logFatal( ex.toString(), ex );
-            throw new EJBException(ex.getMessage());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
 
         return returnValue;
@@ -606,7 +623,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      * you want.
      * @return ProjectionInput for the Device.
      */
-    public ProjectionInput getProjectionInput(Device device) {
+    public ProjectionInput getProjectionInput(Device device) throws RemoteException, PDSException {
 
         ConfigurationSet cs = null;
         Document doc = null;
@@ -630,10 +647,9 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                 returnValue = new ProjectionInput(doc, projectionRules);
             }
         }
-        catch (Exception ex) {
-            logFatal( ex.toString(), ex );
-
-            throw new EJBException(ex.getMessage());
+        catch (FinderException e) {
+            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
         }
 
         return returnValue;
@@ -694,7 +710,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                                     Device device,
                                     int profileType,
                                     String includedContent )
-        throws PDSException {
+        throws PDSException, RemoteException {
 
         Integer deviceID = null;
         String styleSheetFileName = null;
@@ -760,15 +776,6 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                                             "E7006",
                                             new Object [] { styleSheetFileName } ),
                     ex );
-        }
-        catch (RemoteException ex) {
-            logFatal( ex.toString(), ex );
-
-            throw new EJBException(
-                collateErrorMessages(   "UC120",
-                                        "E4037",
-                                        new Object [] { new Integer (profileType),
-                                                        deviceID } ) );
         }
     }
 
@@ -851,14 +858,30 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
       try {
         return (Projection) Class.forName(projectionName).newInstance();
       }
-      catch (Exception ce) {
+      catch (ClassNotFoundException ce) {
         logFatal( ce.toString(), ce);
 
         throw new EJBException(
             collateErrorMessages("UC190",
             "E4033",
-            null));
+            null), ce);
       }
+      catch (IllegalAccessException ce) {
+          logFatal( ce.toString(), ce);
+
+          throw new EJBException(
+              collateErrorMessages("UC190",
+              "E4033",
+              null), ce);
+        }
+      catch (InstantiationException ce) {
+          logFatal( ce.toString(), ce);
+
+          throw new EJBException(
+              collateErrorMessages("UC190",
+              "E4033",
+              null), ce);
+        }
     }
 
 
@@ -874,7 +897,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
     ///////////////////////////////////////////////////////////////////////
 
     private ProjectionInput getProjectionInput(UserGroup ug, int profileType)
-             throws PDSException {
+             throws RemoteException, PDSException {
 
         ConfigurationSet cs = null;
         Document doc = null;
@@ -946,35 +969,20 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                     "E1031",
                     new Object[]{userGroupID}),
                     ex);
-        } catch (RemoteException ex) {
-            logFatal( ex.toString(), ex );
-
-            throw new EJBException(
-                    collateErrorMessages("UC190",
-                    "E4033",
-                    null));
         }
     }
 
 
 
     private Document addApplicationGroupContent ( User user, Document original )
-        throws RemoteException {
+        throws RemoteException, FinderException {
 
-        Collection appGroups = null;
-
-        try {
-            appGroups = mApplicationGroupHome.findByUserID( user.getID() );
-        }
-        catch ( FinderException ex ) {
-
-        }
-
+        Collection appGroups = mApplicationGroupHome.findByUserID( user.getID() );
         return substituteApplicationGroupContent ( appGroups, original );
     }
 
 
-
+    // FIXME: we seem to ignore too many exceptions in this funtion 
     private Document substituteApplicationGroupContent (    Collection applicationGroups,
                                                             Document original )
         throws RemoteException {
@@ -1062,7 +1070,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
 
     private Element buildApplicationElement (   Application application,
                                                 String cardinality )
-        throws RemoteException{
+        throws RemoteException {
 
         Element e = new Element ( application.getName() );
         Integer refPropID = application.getRefPropertyID();
@@ -1096,7 +1104,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
      *@exception  PDSException  Description of the Exception
      */
     private ProjectionInput getProjectionInput(DeviceGroup pg)
-             throws PDSException {
+             throws PDSException, RemoteException {
 
         ConfigurationSet cs = null;
         Document doc = null;
@@ -1124,13 +1132,6 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
                     "E1010",
                     new Object[]{pgID}),
                     ex);
-        } catch (RemoteException ex) {
-            logFatal( ex.toString(), ex );
-
-            throw new EJBException(
-                    collateErrorMessages("UC190",
-                    "E4033",
-                    null));
         }
 
         return returnValue;
@@ -1143,7 +1144,19 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
         try {
             return mSaxBuilder.build(new StringReader(cs.getContent()));
         }
-        catch ( Exception ex) {
+        catch ( JDOMException ex) {
+            mCtx.setRollbackOnly();
+
+            Integer csID = null;
+            csID = cs.getID();
+
+            throw new PDSException(
+                    collateErrorMessages("UC190",
+                    "E3004",
+                    new Object[]{csID}),
+                    ex);
+        }
+        catch ( IOException ex) {
             mCtx.setRollbackOnly();
 
             Integer csID = null;
@@ -1167,49 +1180,28 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
     //
     ///////////////////////////////////////////////////////////////////////
     private Collection getProjectionRules( ConfigurationSet cs)
-             throws PDSException {
+             throws RemoteException, PDSException {
 
         Collection projectionRules = null;
 
-        try {
-            if (cs != null) {
-                projectionRules =
-                        mRefDataAdvocateEJBObject.getRefConfigSetsProperties(
-                            cs.getRefConfigSetID().toString() );
-            }
-        }
-        catch (RemoteException ex) {
-            logFatal( ex.toString(), ex );
-
-            throw new EJBException(
-                    collateErrorMessages("UC190",
-                    "E4033",
-                    null));
+        if (cs != null) {
+            Integer refCsId = cs.getRefConfigSetID();
+            projectionRules = mRefDataAdvocateEJBObject.getRefConfigSetsProperties(
+                refCsId.toString() );
         }
 
         return projectionRules;
     }
 
 
-    private Collection getProjectionRules( Integer rcsID)
-             throws PDSException {
+    private Collection getProjectionRules( Integer rcsID )
+             throws RemoteException, PDSException {
 
         Collection projectionRules = null;
 
-        try {
-            if (rcsID != null) {
-                projectionRules =  mRefDataAdvocateEJBObject.getRefConfigSetsProperties(rcsID.toString());
-            }
+        if (rcsID != null) {
+            projectionRules =  mRefDataAdvocateEJBObject.getRefConfigSetsProperties(rcsID.toString());
         }
-        catch (RemoteException ex) {
-            logFatal( ex.toString(), ex );
-
-            throw new EJBException(
-                    collateErrorMessages("UC190",
-                    "E4033",
-                    null));
-        }
-
         return projectionRules;
     }
 

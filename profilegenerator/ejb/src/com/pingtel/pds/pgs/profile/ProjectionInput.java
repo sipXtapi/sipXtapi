@@ -11,11 +11,17 @@
  */
 package com.pingtel.pds.pgs.profile;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.jdom.Document;
 
-public class ProjectionInput {
+public class ProjectionInput implements Serializable {
+    /** 
+     * Default constructor for serialization 
+     */
+    public ProjectionInput() {
+    }
 
     public ProjectionInput ( Document properties, Collection finalRules ) {
         this.m_properties = properties;

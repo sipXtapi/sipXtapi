@@ -13,25 +13,7 @@
 
 package com.pingtel.pds.jbossauth;
 
-import org.jboss.security.SimpleGroup;
-import org.jboss.security.SimplePrincipal;
-import org.jboss.security.auth.spi.AbstractServerLoginModule;
-
-import com.pingtel.pds.common.ConfigFileManager;
-import com.pingtel.pds.common.MD5Encoder;
-import com.pingtel.pds.common.PathLocatorUtil;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.*;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginException;
-import javax.sql.DataSource;
-
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.Connection;
@@ -42,9 +24,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
+import javax.sql.DataSource;
+
+import org.jboss.security.SimpleGroup;
+import org.jboss.security.SimplePrincipal;
+import org.jboss.security.auth.spi.AbstractServerLoginModule;
+
+import com.pingtel.pds.common.ConfigFileManager;
+import com.pingtel.pds.common.MD5Encoder;
+import com.pingtel.pds.common.PathLocatorUtil;
+
 
 /**
  * SIPxchangeLoginModule is a Pingtel modified version of a JBoss
@@ -108,7 +110,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
     private Principal mIdentity;
 
     private String mDataSourceJndiName;
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // Construction
@@ -176,6 +178,53 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         HttpsURLConnection.setDefaultHostnameVerifier(hv);
         com.sun.net.ssl.internal.www.protocol.https.HttpsURLConnectionOldImpl.setDefaultHostnameVerifier(oldhv);
     }
+    
+    /** Called by login() to acquire the username and password strings for
+    authentication. This method does no validation of either.
+    @return String[], [0] = username, [1] = password
+    @exception LoginException thrown if CallbackHandler is not set or fails.
+    */
+   private String[] getUsernameAndPassword() throws LoginException
+   {
+      String[] info = {null, null};
+      // prompt for a username and password
+      if( callbackHandler == null )
+      {
+         throw new LoginException("Error: no CallbackHandler available " +
+         "to collect authentication information");
+      }
+      NameCallback nc = new NameCallback("User name: ", "guest");
+      PasswordCallback pc = new PasswordCallback("Password: ", false);
+      Callback[] callbacks = {nc, pc};
+      String username = null;
+      String password = null;
+      try
+      {
+         callbackHandler.handle(callbacks);
+         username = nc.getName();
+         char[] tmpPassword = pc.getPassword();
+         if( tmpPassword != null )
+         {
+            char[] credential = new char[tmpPassword.length];
+            System.arraycopy(tmpPassword, 0, credential, 0, tmpPassword.length);
+            pc.clearPassword();
+            password = new String(credential);
+         }
+      }
+      catch(java.io.IOException ioe)
+      {
+         throw new LoginException(ioe.toString());
+      }
+      catch(UnsupportedCallbackException uce)
+      {
+         throw new LoginException("CallbackHandler does not support: " + uce.getCallback());
+      }
+      info[0] = username;
+      info[1] = password;
+      return info;
+   }
+
+    
 
     /**
      * Looks for javax.security.auth.login.name and
@@ -188,52 +237,54 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
      */
     public boolean login() throws LoginException {
 
-        if( callbackHandler == null ){
-             throw new LoginException(  "Error: no CallbackHandler available " +
-                                        "to collect authentication information");
+        if( super.login() )
+        {
+            // it's already logged in - make sure we work as this identity
+           // Setup our view of the user
+           Object username = sharedState.get("javax.security.auth.login.name");
+           if( username instanceof Principal )
+              mIdentity = (Principal) username;
+           else
+           {
+              String name = username.toString();
+              try
+              {
+                 mIdentity = createIdentity(name);
+              }
+              catch(Exception e)
+              {
+                 log.debug("Failed to create principal", e);
+                 throw new LoginException("Failed to create principal: "+ e.getMessage());
+              }
+           }
+           return true;
         }
-
-        NameCallback nc = new NameCallback("User name: ", "guest");
-        PasswordCallback pc = new PasswordCallback("Password: ", false);
-        Callback[] callbacks = {nc, pc};
-        String username = null;
-        String password = null;
-
-        try  {
-             callbackHandler.handle(callbacks);
-             username = nc.getName();
-             char[] tmpPassword = pc.getPassword();
-             if(tmpPassword != null){
-                char[] credential = new char[tmpPassword.length];
-                System.arraycopy(   tmpPassword,
-                                    0,
-                                    credential,
-                                    0,
-                                    tmpPassword.length);
-
-                pc.clearPassword();
-                password = new String(credential);
-             }
-        }
-        catch(java.io.IOException ioe) {
-            throw new LoginException(ioe.toString());
-        }
-        catch(UnsupportedCallbackException uce) {
-            throw new LoginException("CallbackHandler does not support: " +
-                                        uce.getCallback());
-        }
-
-        username = normalizeUserName( username );
-
-        this.mIdentity = new SimplePrincipal ( username );
         
-        String digestedPassword = null;
+        String[] info = getUsernameAndPassword();
+        String username = info[0];
+        String password = info[1];
         
-        String [] arr;
-        arr = getUserPasswordFromDB(username);
+        String realUserID;
+        String expectedPassword;
+
         
-        String realUserID = arr [0];
-        String expectedPassword = arr [1];
+        if( username == null && password == null )
+        {
+           realUserID = "SDS";
+           expectedPassword = "SDS"; 
+           super.log.trace("Authenticating as unauthenticatedIdentity=SDS");
+        }
+        else
+        {
+	        username = normalizeUserName( username );
+	
+	        String[] arr = getUserPasswordFromDB(username);
+	        
+	        realUserID = arr [0];
+	        expectedPassword = arr [1];
+        }
+
+        mIdentity = new SimplePrincipal ( realUserID );
         
         if ( !username.equals( "installer" ) ) {
             // a new feature that we added for IBM is the ability to use
@@ -268,7 +319,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         
                         // refresh the expected password value now we have
                         // updated it.
-                        arr = getUserPasswordFromDB(username);
+                        String[] arr = getUserPasswordFromDB(username);
                         realUserID = arr [0];
                         expectedPassword = arr [1];
                     }
@@ -278,35 +329,36 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
                             " plugin security source.");
                 }
             }
-        
-        
-            // try both with and without DNS domain
-            String realm = getRealm().trim();
-            String dnsDomain = getDnsDomain().trim();
-            digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);
-        
-            if ( !digestedPassword.equals( expectedPassword ) ) {
-                digestedPassword =
-                    MD5Encoder.digestPassword(realUserID, realm, password);
-            }
+        }
+        // try both with and without DNS domain
+        String realm = getRealm().trim();
+        String dnsDomain = getDnsDomain().trim();
+        String digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);
+    
+        if ( !expectedPassword.equals( digestedPassword ) ) {
+            digestedPassword =
+                MD5Encoder.digestPassword(realUserID, realm, password);
         }
         
-        mIdentity = new SimplePrincipal ( realUserID );
-        
-        if ( expectedPassword.length() == 32 ) {
-            if ( digestedPassword.equals( expectedPassword ) ) {
-                return true;
-            }
+        // login is OK if digested password is matched or
+        // (and this is for backward compatibility)
+        // if password length is different than 32 and clear passwords match
+        // (among other things it allows us to clean admin user password)
+        if( !expectedPassword.equals( digestedPassword ) && 
+                !(expectedPassword.length() != 32 && expectedPassword.equals( password ) ) )
+        {
+            super.log.debug("Bad password for username="+username);
+            throw new FailedLoginException("Password Incorrect/Password Required");
         }
-        else {
-            // this is an remnant of when during very early development we
-            // didn't encrypt passwords!
-            if ( password.equals( expectedPassword ) ) {
-                return true;
-            }
+
+        // Add the username and password to the shared state map
+        if( getUseFirstPass() )
+        {
+            sharedState.put("javax.security.auth.login.name", mIdentity);
+            sharedState.put("javax.security.auth.login.password", expectedPassword);
         }
-        
-        return false;
+        loginOk = true;
+        return true;
     }
 
 

@@ -12,6 +12,9 @@
 
 package com.pingtel.pds.pgs.soap;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Queue;
@@ -23,8 +26,6 @@ import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * JMSHelper holds common methods and constants used by the Services to
@@ -76,7 +77,7 @@ class JMSHelper {
 
             // Get the connection factory
             QueueConnectionFactory queueFactory =
-                (QueueConnectionFactory)context.lookup("QueueConnectionFactory");
+                (QueueConnectionFactory)context.lookup("ConnectionFactory");
 
 
             // Create the connection

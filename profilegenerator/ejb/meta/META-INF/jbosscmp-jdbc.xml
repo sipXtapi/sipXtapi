@@ -1,28 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jaws debug="true">
-    <datasource>PDSDataSource</datasource>
-    <type-mapping>Oracle8</type-mapping>
-
-    <default-entity>
-       <create-table>false</create-table>
-       <remove-table>false</remove-table>
-       <tuned-updates>true</tuned-updates>
-       <read-only>false</read-only>
-       <time-out>300</time-out>
-       <select-for-update>false</select-for-update>
-    </default-entity>
-
+<!DOCTYPE jbosscmp-jdbc PUBLIC "-//JBoss//DTD JBOSSCMP-JDBC 4.0//EN" "http://www.jboss.org/j2ee/dtd/jbosscmp-jdbc_4_0.dtd">
+<jbosscmp-jdbc>
+    <defaults>
+        <datasource>java:/PDSDataSource</datasource>
+        <datasource-mapping>Oracle8</datasource-mapping>
+    </defaults>
+        
     <!-- This section provides optional object-to-relational mapping descriptions -->
 
     <enterprise-beans>
         <entity>
             <ejb-name>RefProperty</ejb-name>
-            <table-name>REF_PROPERTIES</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>REF_PROPERTIES</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -43,38 +35,27 @@
                 <field-name>content</field-name>
                 <column-name>CONTENT</column-name>
             </cmp-field>
-            <finder>
-                <name>findByDeviceType</name>
-                <query>, PHONE_TYPE_RP_ASSOC assoc
-                WHERE ID=assoc.REF_PROP_ID
-                AND assoc.PT_ID= {0}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByDeviceTypeAndProfileType</name>
-                <query>, PHONE_TYPE_RP_ASSOC assoc
-                WHERE ID=assoc.REF_PROP_ID
-                AND assoc.PT_ID= {0}
-                AND PROFILE_TYPE ={1}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByRefConfigurationSetID</name>
-                <query>, CS_PROPERTY_PERMISSIONS csrp
-                WHERE ID=csrp.REF_PROP_ID
-                AND csrp.RCS_ID={0}</query>
-                <order></order>
-            </finder>
+            <query>
+                <query-method>
+                    <method-name>findByRefConfigurationSetID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, CS_PROPERTY_PERMISSIONS csrp</from>
+                    <where>ID=csrp.REF_PROP_ID AND csrp.RCS_ID={0}</where>
+                    <order></order>
+                </declared-sql>
+            </query>
         </entity>
 
         <entity>
             <ejb-name>Application</ejb-name>
-            <table-name>APPLICATIONS</table-name>
             <create-table>false</create-table>
-            <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
+            <remove-table>false</remove-table>            
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>APPLICATIONS</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -103,29 +84,28 @@
                 <field-name>description</field-name>
                 <column-name>DESCRIPTION</column-name>
             </cmp-field>
-            <finder>
-                <name>findByApplicationGroupID</name>
-                <query>, APP_AG_ASSOC
-                WHERE APP_AG_ASSOC.ag_id = {0}
-                AND id = APP_AG_ASSOC.apps_id</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByUrl</name>
-                <query>URL = {0}</query>
-                <order></order>
-            </finder>
+            <query>
+                <query-method>
+                    <method-name>findByApplicationGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, APP_AG_ASSOC assoc</from>
+                    <where>assoc.AG_ID = {0} AND id = assoc.APPS_ID</where>
+	                <order></order>
+                </declared-sql>
+            </query>            
         </entity>
 
 
         <entity>
             <ejb-name>CoreSoftware</ejb-name>
-            <table-name>CORE_SOFTWARE_DETAILS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>CORE_SOFTWARE_DETAILS</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -146,23 +126,27 @@
                 <field-name>name</field-name>
                 <column-name>NAME</column-name>
             </cmp-field>
-            <finder>
-                <name>findByDeviceType</name>
-                <query>, PHONE_TYPE_CSD_ASSOC
-                WHERE   CORE_SOFTWARE_DETAILS.id = PHONE_TYPE_CSD_ASSOC.csd_id
-                AND     PHONE_TYPE_CSD_ASSOC.pt_id = {0}</query>
-                <order></order>
-            </finder>
+            <query>
+                <query-method>
+                    <method-name>findByDeviceType</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, PHONE_TYPE_CSD_ASSOC assoc</from>
+                    <where>id = assoc.CSD_ID AND assoc.PT_ID = {0}</where>
+                    <order/>
+                </declared-sql>
+            </query>
         </entity>
 
         <entity>
             <ejb-name>CSProfileDetail</ejb-name>
-            <table-name>CS_PROFILE_DETAILS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>CS_PROFILE_DETAILS</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -191,28 +175,28 @@
                 <field-name>xsltURL</field-name>
                 <column-name>XSLT_URL</column-name>
             </cmp-field>
-            <finder>
-                <name>findByCoreSoftwareAndProfileType</name>
-                <query>CSD_ID={0} AND PROFILE_TYPE ={1}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByDeviceType</name>
-                <query>, PHONE_TYPE_CSD_ASSOC WHERE
-                PHONE_TYPE_CSD_ASSOC.CSD_ID = CSD_ID AND
-                PHONE_TYPE_CSD_ASSOC.pt_id = {0}</query>
-                <order></order>
-            </finder>
+            <query>
+                <query-method>
+                    <method-name>findByCoreSoftwareAndProfileType</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                        <method-param>java.lang.Integer</method-param>                        
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <where>CSD_ID={0} AND PROFILE_TYPE ={1}</where>
+                    <order></order>
+                </declared-sql>
+            </query>                        
         </entity>
 
         <entity>
             <ejb-name>User</ejb-name>
-            <table-name>USERS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <read-time-out>300</read-time-out>
+            <table-name>USERS</table-name>
             <cmp-field>
                 <field-name>refConfigSetID</field-name>
                 <column-name>RCS_ID</column-name>
@@ -253,33 +237,53 @@
                 <field-name>profileEncryptionKey</field-name>
                 <column-name>PROFILE_ENCRYPTION_KEY</column-name>
             </cmp-field>
-            <finder>
-                <name>findAdministratorsByOrganizationID</name>
-                <!-- Custom Finder Method to find users with ADMIN or SUPER roles (Users table is implied in the FROM section of the query) -->
-                <query>, USER_ROLES WHERE USER_ROLES.USRS_ID = USERS.ID AND USERS.ORG_ID={0} AND ( (USER_ROLES.ROLES_NAME = 'ADMIN') OR (USER_ROLES.ROLES_NAME = 'SUPER') )</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByAlias</name>
-                <!-- Custom Finder Method -->
-                <query>, ALIASES WHERE ALIASES.USER_ID = USERS.ID AND ALIASES.ALIAS={0}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByDisplayIDOrExtension</name>
-                <query>DISPLAY_ID = {0} OR EXTENSION = {0}</query>
-                <order></order>
-            </finder>
+            <query>
+                <description>Custom Finder Method to find users with ADMIN or SUPER roles (Users table is implied in the FROM section of the query)</description>
+                <query-method>
+					<method-name>findAdministratorsByOrganizationID</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, USER_ROLES role</from>
+                    <where>role.USRS_ID = ID AND ORG_ID={0} AND ( (role.ROLES_NAME = 'ADMIN') OR (role.ROLES_NAME = 'SUPER') )</where>
+                    <order></order>
+                </declared-sql>
+            </query>
+            <query>
+                <query-method>
+					<method-name>findByAlias</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, ALIASES alias</from>
+                    <where>alias.USER_ID = ID AND alias.ALIAS={0}</where>
+                    <order></order>
+                </declared-sql>
+            </query>
+            <query>
+                <query-method>
+					<method-name>findByDisplayIDOrExtension</method-name>                    
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <where>DISPLAY_ID = {0} OR EXTENSION = {0}</where>
+                    <order></order>
+                </declared-sql>
+            </query>
         </entity>
 
         <entity>
             <ejb-name>Device</ejb-name>
-            <table-name>LOGICAL_PHONES</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>LOGICAL_PHONES</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -320,21 +324,14 @@
                 <field-name>serialNumber</field-name>
                 <column-name>SERIAL_NUMBER</column-name>
             </cmp-field>
-            <finder>
-                <name>findByPhoneID</name>
-                <query>, PHONE_LOG_PHONE_ASSOC P WHERE ID=P.LOG_PN_ID AND P.PHN_ID={0}</query>
-                <order></order>
-            </finder>
         </entity>
 
         <entity>
             <ejb-name>Organization</ejb-name>
-            <table-name>ORGANIZATIONS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>ORGANIZATIONS</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -359,12 +356,10 @@
 
         <entity>
             <ejb-name>DeviceType</ejb-name>
-            <table-name>PHONE_TYPES</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>PHONE_TYPES</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -381,12 +376,10 @@
 
         <entity>
             <ejb-name>ConfigurationSet</ejb-name>
-            <table-name>CONFIG_SETS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>CONFIG_SETS</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -403,52 +396,103 @@
                 <field-name>content</field-name>
                 <column-name>CONTENT</column-name>
             </cmp-field>
-            <finder>
-                <name>findByUserIDAndProfileType</name>
-                <!-- Custom Finder Method to find ConfigSets for user -->
-                <query>, USER_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.USRS_ID={0} AND PROFILE_TYPE = {1}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByLogicalPhoneID</name>
-                <!-- Custom Finder Method to find ConfigSets for LogicalPhone -->
-                <query>, LOG_PHONE_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.LOG_PN_ID={0}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByDeviceGroupID</name>
-                <!-- Custom Finder Method to find ConfigSets for DeviceGroup -->
-                <query>, PNG_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.PG_ID={0}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByUserGroupIDAndProfileType</name>
-                <!-- Custom Finder Method to find ConfigSets for UserGroup -->
-                <query>, UG_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.UG_ID={0} AND PROFILE_TYPE = {1}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByUserID</name>
-                <!-- Custom Finder Method to find ConfigSets for user -->
-                <query>, USER_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.USRS_ID={0}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByUserGroupID</name>
-                <!-- Custom Finder Method to find ConfigSets for UserGroup -->
-                <query>, UG_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.UG_ID={0}</query>
-                <order></order>
-            </finder>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for user</description>
+                <query-method>
+                    <method-name>findByUserIDAndProfileType</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                        <method-param>int</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, USER_CS_ASSOC assoc</from>
+                    <where>ID=assoc.CS_ID AND assoc.USRS_ID={0} AND PROFILE_TYPE = {1}</where>
+                    <order/>
+                </declared-sql>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for LogicalPhone</description>
+                <query-method>
+                    <method-name>findByLogicalPhoneID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, LOG_PHONE_CS_ASSOC assoc</from>
+                    <where>ID=assoc.CS_ID AND assoc.LOG_PN_ID={0}</where>
+                    <order/>
+                </declared-sql>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for DeviceGroup</description>
+                <query-method>
+                    <method-name>findByDeviceGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <select>
+                        <distinct/>                        
+                    </select>
+                    <from>, PNG_CS_ASSOC assoc </from>
+                    <where>ID=assoc.CS_ID AND assoc.PG_ID={0}</where>
+                    <order/>
+                </declared-sql>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for UserGroup</description>
+                <query-method>
+                    <method-name>findByUserGroupIDAndProfileType</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                        <method-param>int</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, UG_CS_ASSOC assoc</from>
+                    <where>ID=assoc.CS_ID AND assoc.UG_ID={0} AND PROFILE_TYPE = {1}</where>
+                    <order/>
+                </declared-sql>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for user</description>
+                <query-method>
+                    <method-name>findByUserID</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, USER_CS_ASSOC assoc</from>
+                    <where>ID=assoc.CS_ID AND assoc.USRS_ID={0}</where>
+                    <order/>
+                </declared-sql>
+            </query>
+            <query>
+                <description>Custom Finder Method to find ConfigSets for UserGroup</description>
+                <query-method>
+                    <method-name>findByUserGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, UG_CS_ASSOC assoc</from>
+                    <where>ID=assoc.CS_ID AND assoc.UG_ID={0}</where>
+                    <order/>
+                </declared-sql>
+            </query>
         </entity>
 
         <entity>
             <ejb-name>RefConfigurationSet</ejb-name>
-            <table-name>REF_CONFIG_SETS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>REF_CONFIG_SETS</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -461,21 +505,27 @@
                 <field-name>organizationID</field-name>
                 <column-name>ORG_ID</column-name>
             </cmp-field>
-            <finder>
-                <name>findByNameAndOrganization</name>
-                <query>NAME={0} AND ORG_ID={1}</query>
-                <order></order>
-            </finder>
+            <query>
+                <query-method>
+                    <method-name>findByNameAndOrganization</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <where>NAME={0} AND ORG_ID={1}</where>
+                    <order/>
+                </declared-sql>
+            </query>
         </entity>
 
         <entity>
             <ejb-name>DeviceGroup</ejb-name>
-            <table-name>PHONE_GROUPS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>PHONE_GROUPS</table-name>
             <cmp-field>
                 <field-name>id</field-name>
                 <column-name>ID</column-name>
@@ -496,21 +546,25 @@
                 <field-name>parentID</field-name>
                 <column-name>PARENT_PG_ID</column-name>
             </cmp-field>
-            <finder>
-                <name>findTopGroups</name>
-                <query>PARENT_PG_ID IS NULL</query>
-                <order></order>
-            </finder>
+            <query>
+                <description>finds all of the 'top' level groups in the config server's database</description>
+                <query-method>
+                    <method-name>findTopGroups</method-name>
+                    <method-params/>                    
+                </query-method>
+                <declared-sql>
+                    <where>PARENT_UG_ID IS NULL</where>
+	                <order></order>
+                </declared-sql>                
+            </query>            
         </entity>
 
 	    <entity>
     		<ejb-name>Manufacturer</ejb-name>
-    		<table-name>MANUFACTURERS</table-name>
     		<create-table>false</create-table>
     		<remove-table>false</remove-table>
-    		<tuned-updates>true</tuned-updates>
     		<read-only>false</read-only>
-    		<time-out>300</time-out>
+    		<table-name>MANUFACTURERS</table-name>
             <cmp-field>
     			<field-name>id</field-name>
     			<column-name>ID</column-name>
@@ -523,12 +577,10 @@
 
     	<entity>
     		<ejb-name>UserGroup</ejb-name>
-    		<table-name>USER_GROUPS</table-name>
     		<create-table>false</create-table>
     		<remove-table>false</remove-table>
-    		<tuned-updates>true</tuned-updates>
     		<read-only>false</read-only>
-    		<time-out>300</time-out>
+    		<table-name>USER_GROUPS</table-name>            
             <cmp-field>
     			<field-name>id</field-name>
     			<column-name>ID</column-name>
@@ -549,26 +601,38 @@
                 <field-name>refConfigSetID</field-name>
                 <column-name>RCS_ID</column-name>
             </cmp-field>
-            <finder>
-                <name>findByOrganizationIDAndName</name>
-                <query>ORG_ID={0} AND NAME={1}</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findTopGroups</name>
-                <query>PARENT_UG_ID IS NULL</query>
-                <order></order>
-            </finder>
+            <query>
+                <query-method>
+                    <method-name>findByOrganizationIDAndName</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <where>ORG_ID={0} AND NAME={1}</where>
+                    <order/>
+                </declared-sql>
+            </query>
+            <query>
+                <description>finds all of the 'top' level groups in the config server's database</description>
+                <query-method>
+                    <method-name>findTopGroups</method-name>
+                    <method-params/>                    
+                </query-method>
+                <declared-sql>
+                    <where>PARENT_UG_ID IS NULL</where>
+	                <order></order>
+                </declared-sql>                
+            </query>
     	</entity>
 
         <entity>
             <ejb-name>ApplicationGroup</ejb-name>
-            <table-name>APPLICATION_GROUPS</table-name>
             <create-table>false</create-table>
             <remove-table>false</remove-table>
-            <tuned-updates>true</tuned-updates>
             <read-only>false</read-only>
-            <time-out>300</time-out>
+            <table-name>APPLICATION_GROUPS</table-name>
             <cmp-field>
                     <field-name>id</field-name>
                     <column-name>ID</column-name>
@@ -580,29 +644,48 @@
             <cmp-field>
                     <field-name>organizationID</field-name>
                     <column-name>ORG_ID</column-name>
-            </cmp-field>
-            <finder>
-                <name>findByUserID</name>
-                <query>, USER_AG_ASSOC
-                WHERE USER_AG_ASSOC.USRS_ID = {0}
-                AND USER_AG_ASSOC.AG_ID = ID</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByUserGroupID</name>
-                <query>, USER_GROUP_AG_ASSOC
-                WHERE USER_GROUP_AG_ASSOC.UG_ID = {0}
-                AND USER_GROUP_AG_ASSOC.AG_ID = ID</query>
-                <order></order>
-            </finder>
-            <finder>
-                <name>findByApplicationID</name>
-                <query>, APP_AG_ASSOC
-                WHERE APP_AG_ASSOC.APPS_ID = {0}
-                AND APP_AG_ASSOC.AG_ID = ID</query>
-                <order></order>
-            </finder>
+            </cmp-field>            
+            <query>
+                <query-method>
+                    <method-name>findByUserID</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, USER_AG_ASSOC assoc</from>
+                    <where>assoc.USRS_ID = {0} AND assoc.AG_ID = ID</where>
+	                <order></order>                    
+                </declared-sql>
+            </query>                        
+            <query>
+                <query-method>
+                    <method-name>findByUserGroupID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, USER_GROUP_AG_ASSOC assoc</from>
+                    <where>assoc.UG_ID = {0} AND assoc.AG_ID = ID</where>
+	                <order></order>                    
+                </declared-sql>
+            </query>                        
+            <query>
+                <query-method>
+                    <method-name>findByApplicationID</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <declared-sql>
+                    <from>, APP_AG_ASSOC assoc</from>
+                    <where>assoc.APPS_ID = {0} AND assoc.AG_ID = ID</where>
+	                <order></order>                    
+                </declared-sql>
+            </query>            
     	</entity>
 
     </enterprise-beans>
-</jaws>
+    
+</jbosscmp-jdbc>

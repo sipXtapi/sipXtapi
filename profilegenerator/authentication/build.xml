@@ -11,9 +11,9 @@
 
   <path id="base.path">
   	  <!-- J2EE -->
-      <fileset dir="${jboss.lib}">
-      	<include name="jboss-jaas.jar" />
-      </fileset>
+      <pathelement location="${jboss.server.lib}/jbosssx.jar"/> 
+      <pathelement location="${jboss.client.lib}/jboss-common-client.jar"/> 
+
       <pathelement location="${top.build.dir}/common/dist"/> 
   </path>
   <property name="classpath" refid="base.path" />
@@ -47,7 +47,7 @@
 
   <!-- I N S T A L L -->
   <target name="install" depends="jar">
-    <copy file="${dist.dir}/profilegen-auth.jar" todir="${dest.dir}${jboss.ext}"/>
+    <copy file="${dist.dir}/profilegen-auth.jar" todir="${dest.dir}${jboss.server.lib}"/>
   </target>
 
 </project>
