@@ -1,6 +1,7 @@
 /*  Legacy colors
  *    #699  - faded green
  *    #ffc  - faded yellow
+ *    #F0E68C - slightly darker, ugly yellow used as background in tables and forms
  */
 
 body {
@@ -245,10 +246,29 @@ ul.table-pager li {
   background: #ffc;
 }
 
+
 #component fieldset {
   border-style: none;
   font-size: 120%;
-  width: 44em;
+  width: 40em;
+  margin-top: 1em; 
+}
+
+#component label {
+  padding-right: 1em;
+}
+
+/* enlarged border allows to have uniform background for fieldset and legend 
+   however it does not work well if fieldsets do not have a legend */
+form.with-sections fieldset {
+  border-style: solid !important;
+  border-top-width: 2em;
+  border-color: #F0E68C;
+  background: #F0E68C;
+}
+
+form.with-sections legend {
+  background: #F0E68C;
 }
 
 #component legend {
@@ -258,12 +278,12 @@ ul.table-pager li {
 ul.component-actions {
   width: 35em;
   list-style-type : none;
-  text-align: right; 
+  text-align: right;
 }
 
 ul.component-actions li {
   display: inline;
-  margin: 0 5px;
+  padding-left: 1em; 
 }
 
 ul.form-actions {

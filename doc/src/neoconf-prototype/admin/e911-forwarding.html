@@ -2,7 +2,7 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Emergency call fowarding</title>
+    <title>Caller Sensitive E911 Routing</title>
     <link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
 </head>
 <body>
@@ -13,24 +13,21 @@
            Optionally you can configure a set of phone numbers that will be forwarded to the alternative gateway.</p>
     </div>
 	<div id="component">    
-    <form action="e911-forwarding.html">
+    <form class="with-sections" action="e911-forwarding.html">
         <ul class="component-actions">
-            <li>
-                <a href="#">Add Exceptions</a>
-                <a href="gateways.html">Add Gateway</a>
-            </li>
+            <li><a href="#">Add Exceptions</a></li>
+            <li><a href="gateways.html">Add Gateway</a></li>
         </ul>
         <fieldset>
-            <input id="enable" type="checkbox"></input>
-            <label for="enable">Enable E911 forwarding</label>
-        </fieldset>
-        <fieldset>
             <legend>Default settings</legend>
+            <input id="enable" type="checkbox"></input>
+            <label for="enable">Enable Caller Sensitive E911 Routing</label>
+            <p class="message">Use this feature only if phones do not support direct routing of emergency calls to PSTN gateways.</p>
             <table>
                 <tbody>
                     <tr>
                         <td>
-                            <label>Emergency number</label>
+                            <label>External Emergency Number:</label>
                         </td>
                         <td>
                             <input type="text" size="13" value="911"/>
@@ -38,7 +35,7 @@
                     </tr>
                     <tr>                                                    
                         <td>
-                            <label>Gateway</label>
+                            <label>Gateway:</label>
                         </td>
                         <td>
                             <select id="gateway" size="1">
@@ -72,7 +69,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label>Emergency number</label>
+                            <label>External Emergency Number:</label>
                         </td>
                         <td>
                             <input type="text" size="13" value="911"/>
@@ -80,7 +77,7 @@
                     </tr>
                     <tr>                            
                         <td>
-                            <label>Gateway</label>
+                            <label>Gateway:</label>
                         </td>
                         <td>
                             <select id="gateway_ex1" size="1">
@@ -114,7 +111,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label>Emergency number</label>
+                            <label>External Emergency Number:</label>
                         </td>
                         <td>
                             <input type="text" size="13" value="911"/>
@@ -122,7 +119,7 @@
                     </tr>
                     <tr>                                                    
                         <td>
-                            <label>Gateway</label>
+                            <label>Gateway:</label>
                         </td>
                         <td>
                             <select id="gateway_ex2" size="1">

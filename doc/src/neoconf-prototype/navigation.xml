@@ -28,7 +28,7 @@
 		<item name="dialplans" href="admin/dialplans.html" title="Dial Plans">Dial Plans</item>
 		<item name="gateways" href="admin/gateways.html" title="Gateways">Gateways</item>
 		<item name="call-forwarding" href="admin/call-forwarding.html" title="Call Forwarding">Call Forwarding</item>
-		<item name="e911forwarding" href="admin/e911-forwarding.html" title="E911 Forwarding">E911 Forwarding</item>
+		<item name="e911forwarding" href="admin/e911-forwarding.html" title="Caller Sensitive E911 Routing">E911 Routing</item>
 		<item name="settings" href="#" title="Settings">Settings</item>
 		<item name="extentionPools" href="#" title="Extension Pools">Extension Pools</item>
 		<item name="jobStatus" href="#" title="Job Status">Job Status</item>

@@ -15,11 +15,19 @@
 			<form action="user-call-forwarding.html">
 				<table>
                     <tbody>                        
+                    <tr>
+                        <td colspan="5">Your number - 154 - will ring first.</td>
+                    </tr>
 					<tr>
-		                <td></td>
+                        <td>
+                        <select id="parallel0" size="1">
+                            <option value="1">At the same time</option>
+                            <option value="2" selected="selected">If no response</option>
+                        </select>
+                        </td>
 						<td><label for="forward">Forward to:</label></td>
 						<td>
-							<input type="text" id="forward" value="915083443344"/>
+							<input type="text" id="forward" value="915083443344" size="13"/>
 						</td>
 						<td><label for="delay">Ring for:</label></td>
 						<td>
@@ -37,7 +45,7 @@
 		                </td>
 						<td><label for="forward0">Forward to:</label></td>
 						<td>
-							<input type="text" id="forward0" value="9345346"/>
+							<input type="text" id="forward0" value="9345346" size="13"/>
 						</td>
 						<td><label for="delay1">Ring for:</label></td>
 						<td>
@@ -50,12 +58,12 @@
 		                <td>
                         <select id="parallel2" size="1">
                             <option value="1">At the same time</option>
-                            <option value="2">If no response</option>
+                            <option value="2" selected="selected">If no response</option>
                         </select>
 		                </td>
 						<td><label for="forward1">Forward to:</label></td>
 						<td>
-							<input type="text" id="forward1" value="abc@sipfoundry.org"/>
+							<input type="text" id="forward1" value="abc@sipfoundry.org" size="13"/>
 						</td>
 						<td><label for="delay2">Ring for:</label></td>
 						<td>
@@ -68,12 +76,12 @@
 		                <td>
                         <select id="parallel3" size="1">
                             <option value="1">At the same time</option>
-                            <option value="2">If no response</option>
+                            <option value="2" selected="selected">If no response</option>
                         </select>
 		                </td>
 						<td><label for="forward2">Forward to:</label></td>
 						<td>
-							<input type="text" id="forward2"/>
+							<input type="text" id="forward2" size="13"/>
 						</td>
 						<td><label for="delay3">Ring for:</label></td>
 						<td>
