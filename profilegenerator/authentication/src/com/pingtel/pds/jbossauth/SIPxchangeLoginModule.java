@@ -327,12 +327,17 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         }
         // try both with and without DNS domain
         String realm = getRealm().trim();
-        String dnsDomain = getDnsDomain().trim();
-        String digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);
-    
-        if ( !expectedPassword.equals( digestedPassword ) ) {
-            digestedPassword =
-                MD5Encoder.digestPassword(realUserID, realm, password);
+        String digestedPassword = "";
+        try {
+            String dnsDomain = getDnsDomain().trim();
+            digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);
+            
+                if ( !expectedPassword.equals( digestedPassword ) ) {
+                    digestedPassword =
+                        MD5Encoder.digestPassword(realUserID, realm, password);
+                }
+        } catch (FailedLoginException fle) {
+            // fail thru ok, could be initial database
         }
         
         // login is OK if digested password is matched or
