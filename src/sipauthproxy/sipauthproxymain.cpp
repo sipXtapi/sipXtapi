@@ -26,7 +26,7 @@
 #include "net/SipUserAgent.h"
 #include "net/NameValueTokenizer.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipauthproxy/SipAaa.h"
+#include "SipAaa.h"
 
 // DEFINES
 // MACROS
