@@ -39,13 +39,12 @@
       <copy file="${jdbc-driver.jar}" todir="${dest.dir}${jboss.ext}"/>
       <copy file="bin/profilegenerator.sh.in" tofile="${dest.dir}${bin.dir}/profilegenerator.sh"/>
       <replace file="${dest.dir}${bin.dir}/profilegenerator.sh"
-        propertyfile="${top.build.dir}/config.properties">
-        <replacefilter token="@JAVA_HOME@" property="java.home"/>
-        <replacefilter token="@JBOSS_HOME@" property="jboss.home"/>
-        <replacefilter token="@SIPX_CONFDIR@" property="sipxpbx.conf.dir"/>
-        <replacefilter token="@bindir@" property="bin.dir"/>
-        <replacefilter token="@localstatedir@" property="localstate.dir"/>
-        <replacefilter token="@SIPX_RUNDIR@" property="sipxpbx.run.dir"/>
+          propertyfile="${top.build.dir}/config.properties">
+        <replacefilter token="@jboss.home@" property="jboss.home"/>
+        <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+        <replacefilter token="@bin.dir@" property="bin.dir"/>
+        <replacefilter token="@localstate.dir@" property="localstate.dir"/>
+        <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
       </replace>
       <chmod file="${dest.dir}${bin.dir}/profilegenerator.sh" perm="ugo+x" />
 

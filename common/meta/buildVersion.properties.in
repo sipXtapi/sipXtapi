@@ -1,8 +1,8 @@
 #Thu Feb 05 01:00:14 EST 2004
-version=@VERSION@
+version=@version@
 build_number=0000
 comment=opendev
-sipxconf=@SIPXPBXCONF@
-sipxdata=@SIPXPBXDATA@
-sipxtmp=@SIPXPBXTMP@
-sipxlog=@SIPXPBXLOG@
+sipxconf=@sipxpbx.conf.dir@
+sipxdata=@sipxpbx.data.dir@
+sipxtmp=@sipxpbx.tmp.dir@
+sipxlog=@sipxpbx.log.dir@

@@ -128,7 +128,7 @@ then
          "select 'yes' from pg_user where usename='sipxchange';" \
          -d template1 | grep -c yes` -eq 0
   then
-    createuser -U postgres --no-adduser --createdb @SIPXPBXUSER@
+    createuser -U postgres --no-adduser --createdb @sipxpbx.user@
   fi
 
   exit 0
@@ -136,21 +136,21 @@ then
 elif test "$Action" = CREATE && test $Database = PDS
 then
 
-    createdb -U @SIPXPBXUSER@ --encoding=UNICODE $Database
-    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_create.sql $Database
-    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_alter.sql $Database
-    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_seq.sql $Database
-    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilegen_initvalues.sql $Database
+    createdb -U @sipxpbx.user@ --encoding=UNICODE $Database
+    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_create.sql $Database
+    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_alter.sql $Database
+    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_seq.sql $Database
+    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_initvalues.sql $Database
 
     exit 0
 
 elif test "$Action" = CREATE && test $Database = SDS
 then
 
-    createdb -U @SIPXPBXUSER@ --encoding=UNICODE $Database
-    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilepub_create.sql $Database
-    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilepub_alter.sql $Database
-    psql -U @SIPXPBXUSER@ -f @SIPXPBXDATA@/sql/profilepub_seq.sql $Database
+    createdb -U @sipxpbx.user@ --encoding=UNICODE $Database
+    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilepub_create.sql $Database
+    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilepub_alter.sql $Database
+    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilepub_seq.sql $Database
 
     exit 0
 
@@ -172,7 +172,7 @@ then
 elif test "$Action" = DROP && ! test -z $Database
 then
 
-    dropdb -U @SIPXPBXUSER@ $Database
+    dropdb -U @sipxpbx.user@ $Database
 
     exit 0
 

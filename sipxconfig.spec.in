@@ -66,7 +66,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 
-# WARNING: Do use @SIPX_CONFDIR@ because prefix used and 'make dist'
+# WARNING: Do use @ SIPX_CONFDIR @ because prefix used and 'make dist'
 # typically does not RPM's prefix
 
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog
@@ -84,10 +84,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/docroot
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/tftproot
 
-# Because of generation of config files via config.defs
-# These files are created in sipXpbx...
-#%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}
-#%config %{sipxpbxconf}/*
+# Install configserver config files, directory only is created by pbx
+%config %{sipxpbxconf}/*
 
 %{_datadir}/sipxpbx
 

@@ -74,7 +74,7 @@ SFAC_LIB_STACK
 SFAC_LIB_PORT
 
 # Jar files to all of sipXconfig. 
-AC_SUBST(SIPXCONFIGLIB, [$SIPX_DATADIR/lib])
+AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
 
 # Where profiles get generated.
 #  http://server[:port]/phone/profile

@@ -59,7 +59,7 @@
 
     <replace file="${dest.dir}${sipxpbx.conf.dir}/sds-config.in"
         propertyfile="${top.build.dir}/config.properties">
-      <replacefilter token="@SIPX_LOGDIR@" property="sipxpbx.log.dir"/>
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
     </replace>
 
     <mkdir dir="${dest.dir}${sipxpbx.data.dir}/sql"/>
@@ -70,14 +70,13 @@
     <copy file="bin/profilepublisher.sh.in" tofile="${dest.dir}${bin.dir}/profilepublisher.sh"/>
     <replace file="${dest.dir}${bin.dir}/profilepublisher.sh" 
         propertyfile="${top.build.dir}/config.properties">
-      <replacefilter token="@JAVA@" property="java"/>
-      <replacefilter token="@SIPX_CONFDIR@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@SIPXCONFIGLIB@" property="sipxconfig.lib.dir"/>
-      <replacefilter token="@SIPX_DATADIR@" property="sipxpbx.data.dir"/>
-      <replacefilter token="@localstatedir@" property="localstate.dir"/>
-      <replacefilter token="@SIPX_RUNDIR@" property="sipxpbx.run.dir"/>
-      <replacefilter token="@libdir@" property="lib.dir"/>
-      <replacefilter token="@bindir@" property="bin.dir"/>
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@sippbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@localstate.dir@" property="localstate.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@lib.dir@" property="lib.dir"/>
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/profilepublisher.sh" perm="ugo+x"/>
 

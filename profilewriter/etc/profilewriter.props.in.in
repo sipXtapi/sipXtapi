@@ -3,7 +3,7 @@
 # If the httpservername is "localhost" then the profilewriter can 
 # optimize it writing operations.
 httpservername=localhost
-httpbaseurl=file:@profiledir@/docroot
+httpbaseurl=file:@profile.dir@/docroot
 
 # The publishedHttpDocRoot is the fully qualified URL which is sent
 # to the SDS.   This should use either http or https (future).
@@ -18,7 +18,7 @@ pingtelcatalog=http://localhost:80/phone/catalog/catalog.txt
 # note for this to work the tftpservername must also be localhost
 
 tftpservername=localhost
-tftpbaseurl=file:@profiledir@/tftproot
+tftpbaseurl=file:@profile.dir@/tftproot
 
 # SDS Hostname or IP Address
 sdshostname=localhost
