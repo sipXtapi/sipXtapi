@@ -28,6 +28,8 @@ public abstract class ListDialPlans extends BasePage {
 
     public abstract DialPlan getCurrentRow();
 
+    public abstract void setCurrentRow(DialPlan plan);
+    
     /**
      * When user clicks on link to edit a gateway
      */
@@ -43,7 +45,7 @@ public abstract class ListDialPlans extends BasePage {
 
         page.setAddMode(false);
         DialPlan currentRow = getCurrentRow();
-        page.setDialPlan(currentRow);
+        page.setDialPlanId(currentRow.getId());
         cycle.activate(page);
     }
 }

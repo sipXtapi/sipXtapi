@@ -15,8 +15,8 @@
     	initial-value="false"
     	persistent="yes"/>
     
-	<property-specification name="currentDialPlan"
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan"
+	<property-specification name="currentDialPlanId"
+		type="java.lang.Integer"
     	persistent="yes"/>
 
 	<property-specification name="emergencyGateway"

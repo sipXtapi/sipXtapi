@@ -20,12 +20,14 @@ import java.util.Set;
 public class DialPlan {
     public static final String ACTIVE = "Active";
     public static final String INACTIVE = "Inactive";
+    private static int s_id = 1;
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
     private static final String DEFAULT_PSTN_PREFIX = "9";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
     private static final String DEFAULT_DID = "";
 
     // dial plan attributes
+    private Integer m_id;
     private String m_name;
     private Integer m_localExtensionLen = new Integer(DEFAULT_LOCAL_EXT_LEN);
     private String m_autoAttendant = "100";
@@ -42,7 +44,7 @@ public class DialPlan {
     private Set m_emergencyGateways = new HashSet();
 
     public DialPlan() {
-        // empty
+        m_id = new Integer(s_id++);
     }
 
     public DialPlan(String name, int localExtensionLen) {
@@ -171,10 +173,18 @@ public class DialPlan {
         if (other == null) {
             return false;
         }
-        return m_name.equals(other.m_name);
+        return m_id.equals(other.m_id);
     }
 
     public int hashCode() {
-        return m_name.hashCode();
+        return m_id.hashCode();
+    }
+
+    public Integer getId() {
+        return m_id;
+    }
+
+    public void setId(Integer id) {
+        m_id = id;
     }
 }

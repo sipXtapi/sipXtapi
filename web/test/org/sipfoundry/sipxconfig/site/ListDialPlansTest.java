@@ -15,6 +15,8 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
+
 import junit.framework.TestCase;
 
 /**
@@ -41,6 +43,8 @@ public class ListDialPlansTest extends TestCase {
     public void testEdit() {
         EditDialPlan editPage = (EditDialPlan) m_pageMaker.getInstance(EditDialPlan.class);
         ListDialPlans listPage = (ListDialPlans) m_pageMaker.getInstance(ListDialPlans.class);
+        DialPlan plan = new DialPlan();
+        listPage.setCurrentRow(plan);
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
@@ -51,5 +55,6 @@ public class ListDialPlansTest extends TestCase {
         cycleControl.verify();
 
         assertFalse(editPage.getAddMode());
+        assertEquals(plan.getId(), editPage.getDialPlanId());
     }
 }

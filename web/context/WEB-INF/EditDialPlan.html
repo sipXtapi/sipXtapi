@@ -4,11 +4,11 @@
 </head>
 <body jwcid="@Body">
     <div id="component">
-    <span jwcid="@Conditional" condition="ognl:beans.dialPlanValidator.hasErrors">
+    <span jwcid="@Conditional" condition="ognl:beans.validator.hasErrors">
 	    <!-- TODO: add styling for errors-->
-		<p jwcid="@Delegator" delegate="ognl:beans.dialPlanValidator.firstError">Error Message</p>            
+		<p jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</p>            
     </span>
-    <form jwcid="@Form" delegate="ognl:beans.dialPlanValidator" id="dialplan">
+    <form jwcid="@Form" delegate="ognl:beans.validator" id="dialplan">
         <fieldset>
 	    <legend>Dial Plan Details</legend>
         <table>

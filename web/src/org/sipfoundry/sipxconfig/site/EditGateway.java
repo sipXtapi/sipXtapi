@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.IValidationDelegate;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
@@ -28,9 +29,9 @@ public abstract class EditGateway extends BasePage {
 
     public abstract Gateway getGateway();
 
-    public abstract void setCurrentDialPlan(DialPlan dialPlan);
+    public abstract void setCurrentDialPlanId(Integer dialPlanId);
 
-    public abstract DialPlan getCurrentDialPlan();
+    public abstract Integer getCurrentDialPlanId();
 
     public abstract void setAddMode(boolean addMode);
 
@@ -44,7 +45,18 @@ public abstract class EditGateway extends BasePage {
 
     public abstract boolean getEmergencyGateway();
 
+    private boolean isValid() {
+        IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
+        return !delegate.getHasErrors();
+    }
+
     public void save(IRequestCycle cycle) {
+        if (isValid()) {
+            saveValid(cycle);
+        }
+    }
+
+    void saveValid(IRequestCycle cycle) {
         DialPlanManager manager = getDialPlanManager();
         Gateway gateway = getGateway();
         if (getAddMode()) {
@@ -53,11 +65,16 @@ public abstract class EditGateway extends BasePage {
             manager.updateGateway(gateway);
         }
         // also attach gateway to the plan if plan is present
-        DialPlan plan = getCurrentDialPlan();
+        Integer planId = getCurrentDialPlanId();
+        DialPlan plan = manager.getDialPlan(planId);
         if (plan != null) {
             plan.addGateway(gateway, getEmergencyGateway());
+            EditDialPlan editDialPlanPage = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
+            editDialPlanPage.setDialPlan(plan);
+            cycle.activate(editDialPlanPage);
+        } else {
+            cycle.activate(ListGateways.PAGE);
         }
-        cycle.activate(getNextPageName());
     }
 
     public void cancel(IRequestCycle cycle) {
@@ -69,9 +86,9 @@ public abstract class EditGateway extends BasePage {
      * if we are editing gateways for dial plan And ListGateways page if we just
      * editing the gateway
      * 
-     * @return
+     * @return name of the page that should be activated
      */
     private String getNextPageName() {
-        return null != getCurrentDialPlan() ? EditDialPlan.PAGE : ListGateways.PAGE;
+        return null != getCurrentDialPlanId() ? EditDialPlan.PAGE : ListGateways.PAGE;
     }
 }

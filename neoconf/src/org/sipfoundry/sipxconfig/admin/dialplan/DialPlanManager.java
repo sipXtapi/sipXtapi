@@ -12,11 +12,11 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
- * DialPlanManager
- * TODO: need interface and hibernate persistence implementation
+ * DialPlanManager TODO: need interface and hibernate persistence implementation
  */
 public class DialPlanManager {
     private List m_dialPlans = new ArrayList();
@@ -64,7 +64,7 @@ public class DialPlanManager {
             return true;
         }
         return false;
-        
+
     }
 
     public boolean updateDialPlan(DialPlan dialPlan) {
@@ -73,5 +73,15 @@ public class DialPlanManager {
             return true;
         }
         return false;
+    }
+
+    public DialPlan getDialPlan(Integer planId) {
+        for (Iterator i = m_dialPlans.iterator(); i.hasNext();) {
+            DialPlan plan = (DialPlan) i.next();
+            if (plan.getId().equals(planId)) {
+                return plan;
+            }
+        }
+        return null;
     }
 }
