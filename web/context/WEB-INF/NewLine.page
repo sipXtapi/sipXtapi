@@ -18,5 +18,11 @@
     <!--
     - C O M P O N E N T S
     -->
-    
+    <component id="editLineForm" type="EditLineForm">
+        
+    </component>    
+    <!--
+	  - A S S E T S
+	  -->	
+	<context-asset name="stylesheet" path="css/sipxconfig.css"/>    
 </page-specification>

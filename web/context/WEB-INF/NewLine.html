@@ -3,8 +3,19 @@
         <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
     </head>
 <body jwcid="@Body">
-
-   New Line Page
-    
+	<div id="component">
+   <form jwcid="@Form">       
+        <form jwcid="@Form" delegate="ognl:beans.validator">
+       <span jwcid="editLineForm"/>
+			<ul class="form-actions">
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.finish" value="Finish"/>
+				</li>
+			</ul>                        
+		</form>    
+   </div>
 </body>
 </html>
