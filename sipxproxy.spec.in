@@ -56,14 +56,6 @@ make
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
-# add the namespace to an existing 2.6.x authrules file
-if test -r @SIPX_DBDIR@/authrules.xml.in
-then
-  cp @SIPX_DBDIR@/authrules.xml.in @SIPX_DBDIR@/authrules.xml.in.OLD
-  sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' @SIPX_DBDIR@/authrules.xml.in.OLD > @SIPX_DBDIR@/authrules.xml.in
-fi
-
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -94,6 +86,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %post
+# add the namespace to an existing 2.6.x authrules file
+if test -r %{_localstatedir}/sipxdata/sipdb/authrules.xml.in
+then
+  cp %{_localstatedir}/sipxdata/sipdb/authrules.xml.in %{_localstatedir}/sipxdata/sipdb/authrules.xml.in.OLD
+  sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' %{_localstatedir}/sipxdata/sipdb/authrules.xml.in.OLD > %{_localstatedir}/sipxdata/sipdb/authrules.xml.in
+fi
 
 
 
