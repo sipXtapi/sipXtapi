@@ -1,4 +1,4 @@
-// $Id: //depot/OPENDEV/sipXproxy/src/sipforkingproxy/SipForkingProxyMain.cpp#7 $
+// 
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.

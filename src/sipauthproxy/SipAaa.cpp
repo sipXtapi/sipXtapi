@@ -1,4 +1,4 @@
-// $Id: //depot/OPENDEV/sipXproxy/src/sipauthproxy/SipAaa.cpp#8 $
+// 
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
