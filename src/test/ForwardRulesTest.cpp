@@ -65,7 +65,6 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
             
-         KNOWN_BUG("Unknown failure", "XPR-4");
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
@@ -90,7 +89,6 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
-         KNOWN_BUG("Unknown failure", "XPR-4");
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
@@ -116,7 +114,6 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
-         KNOWN_BUG("Unknown failure", "XPR-4");
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
@@ -142,7 +139,6 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
-         KNOWN_BUG("Unknown failure", "XPR-4");
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
@@ -168,7 +164,6 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
-         KNOWN_BUG("Unknown failure", "XPR-4");
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
