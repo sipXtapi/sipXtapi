@@ -23,35 +23,34 @@ public class CallPattern {
     public Digits getDigits() {
         return m_digits;
     }
-    
+
     public void setDigits(Digits digits) {
         m_digits = digits;
     }
-    
+
     public String getPrefix() {
         return m_prefix;
     }
-    
+
     public void setPrefix(String prefix) {
         m_prefix = prefix;
     }
-    
+
     public String calculatePattern() {
         String digits = "{" + m_digits.getName() + "}";
-        if( m_digits.equals(Digits.NO_DIGITS))
-        {
+        if (m_digits.equals(Digits.NO_DIGITS)) {
             digits = "";
         }
         return m_prefix + digits;
     }
-    
+
     public static class Digits extends Enum {
         public static final Digits NO_DIGITS = new Digits("nodigits");
         public static final Digits VARIABLE_DIGITS = new Digits("vdigits");
         public static final Digits FIXED_DIGITS = new Digits("digits");
-        
+
         public Digits(String name) {
             super(name);
-        }        
+        }
     }
 }
