@@ -340,6 +340,7 @@ main( int argc, char* argv[] )
 
     int proxyTcpPort;
     int proxyUdpPort;
+    int proxyTlsPort;
     UtlString routeName;
     //UtlString proxyRecordRoute;
     //int maxForwards;
@@ -357,8 +358,9 @@ main( int argc, char* argv[] )
         configDb.set("SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM", "");
         configDb.set("SIP_AUTHPROXY_AUTHENTICATE_QOP", "");
         configDb.set("SIP_AUTHPROXY_AUTHENTICATE_REALM", "");
-        configDb.set("SIP_AUTHPROXY_UDP_PORT", "");
-        configDb.set("SIP_AUTHPROXY_TCP_PORT", "");
+        configDb.set("SIP_AUTHPROXY_UDP_PORT", "5080");
+        configDb.set("SIP_AUTHPROXY_TCP_PORT", "5080");
+        configDb.set("SIP_AUTHPROXY_TLS_PORT", "5081");
         configDb.set("SIP_AUTHPROXY_ROUTE_NAME", "");
         configDb.set("SIP_AUTHPROXY_HOST_ALIASES", "");
         //configDb.set("SIP_AUTHPROXY_RECORD_ROUTE", "DISABLE");
@@ -434,15 +436,12 @@ main( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_ROUTE_NAME : %s", routeName.data());
     osPrintf("SIP_AUTHPROXY_ROUTE_NAME : %s\n", routeName.data());
 
-    configDb.get("SIP_AUTHPROXY_UDP_PORT", proxyUdpPort);
-    if(proxyUdpPort <=0) proxyUdpPort = 5080;
+    proxyUdpPort = configDb.getPort("SIP_AUTHPROXY_UDP_PORT");
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_UDP_PORT : %d", proxyUdpPort);
-    osPrintf("SIP_AUTHPROXY_UDP_PORT : %d\n", proxyUdpPort);
-
-    configDb.get("SIP_AUTHPROXY_TCP_PORT", proxyTcpPort);
-    if(proxyTcpPort <=0) proxyTcpPort = 5080;
+    proxyTcpPort = configDb.getPort("SIP_AUTHPROXY_TCP_PORT") ;
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_TCP_PORT : %d", proxyTcpPort);
-    osPrintf("SIP_AUTHPROXY_TCP_PORT : %d\n", proxyTcpPort);
+    proxyTlsPort = configDb.getPort("SIP_AUTHPROXY_TLS_PORT") ;
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_TLS_PORT : %d", proxyTlsPort);
 
     UtlString hostAliases;
     configDb.get("SIP_AUTHPROXY_HOST_ALIASES", hostAliases);
@@ -573,6 +572,7 @@ main( int argc, char* argv[] )
     // Start the sip stack
     SipUserAgent sipUserAgent(proxyTcpPort,
         proxyUdpPort,
+        proxyTlsPort,
         NULL, // public IP address (nopt used in proxy)
         NULL, // default user (not used in proxy)
         NULL, // default SIP address (not used in proxy)

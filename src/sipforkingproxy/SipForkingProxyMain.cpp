@@ -485,6 +485,7 @@ main(int argc, char* argv[])
 
     int proxyTcpPort;
     int proxyUdpPort;
+    int proxyTlsPort;
     UtlString domainName;
     UtlString proxyRecordRoute;
     int maxForwards;
@@ -528,8 +529,9 @@ main(int argc, char* argv[])
     }
     else
     {
-        configDb.set("SIP_PROXY_UDP_PORT", "");
-        configDb.set("SIP_PROXY_TCP_PORT", "");
+        configDb.set("SIP_PROXY_UDP_PORT", "5060");
+        configDb.set("SIP_PROXY_TCP_PORT", "5060");
+        configDb.set("SIP_PROXY_TLS_PORT", "5061");
         //configDb.set("SIP_PROXY_DOMAIN_NAME", "");
         //configDb.set("SIP_PROXY_RECORD_ROUTE", "DISABLE");
         configDb.set("SIP_PROXY_MAX_FORWARDS", "");
@@ -567,16 +569,12 @@ main(int argc, char* argv[])
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DOMAIN_NAME : %s", domainName.data());
     osPrintf("SIP_PROXY_DOMAIN_NAME : %s\n", domainName.data());
 
-    configDb.get("SIP_PROXY_UDP_PORT", proxyUdpPort);
-    if(proxyUdpPort <=0) proxyUdpPort = 5060;
+    proxyUdpPort = configDb.getPort("SIP_PROXY_UDP_PORT") ;
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_UDP_PORT : %d", proxyUdpPort);
-    osPrintf("SIP_PROXY_UDP_PORT : %d\n", proxyUdpPort);
-
-
-    configDb.get("SIP_PROXY_TCP_PORT", proxyTcpPort);
-    if(proxyTcpPort <=0) proxyTcpPort = 5060;
+    proxyTcpPort = configDb.getPort("SIP_PROXY_TCP_PORT") ;
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_TCP_PORT : %d", proxyTcpPort);
-    osPrintf("SIP_PROXY_TCP_PORT : %d\n", proxyTcpPort);
+    proxyTlsPort = configDb.getPort("SIP_PROXY_TLS_PORT") ;
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_TLS_PORT : %d", proxyTlsPort);
 
     configDb.get("SIP_PROXY_RECORD_ROUTE", proxyRecordRoute);
     UtlBoolean recordRouteEnabled = FALSE;
@@ -867,6 +865,7 @@ main(int argc, char* argv[])
     // Start the sip stack
     SipUserAgent sipUserAgent(proxyTcpPort, 
         proxyUdpPort,
+        proxyTlsPort,
         NULL, // public IP address (nopt used in proxy)
         NULL, // default user (not used in proxy)
         NULL, // default SIP address (not used in proxy)
