@@ -48,7 +48,7 @@ public class EditPhoneTest extends TestCase {
         dao.storeEndpoint(endpoint);
         daoControl.replay();
 
-        page.save(cycle);
+        page.ok(cycle);
 
         daoControl.verify();
         cycleControl.verify();

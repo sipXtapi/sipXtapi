@@ -1,0 +1,27 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+</head>
+<body>
+<span jwcid="$content$">
+ 		<div class="tabArea">
+			<a class="tab active" href="edit-phone.html">Device Identification</a>
+			<a class="tab" href="lines.html">Lines</a>			
+			<a class="tab" href="proxy.html">Outbound Proxy</a>
+			<a class="tab" href="network.html">Network</a>
+		</div>
+     	<p><span class="pagelabel">Phone:</span> <span jwcid="@Insert" value="ognl:phone.endpoint.displayLabel">Serial Number</span>
+            /<span jwcid="@Insert" value="ognl:phone.displayLabel">Phone Model</span></p>
+			<div id="help">
+				<b>Quick Links</b>
+				<ul>
+					<li><a href="../line/new-line.html">Create new line?</a></li>
+			    </ul>
+				</div>
+			<h2>Device Identification</h2>
+			<p>Serial number is a unique id for this device. Generally it's the 
+				phone's MAC address and </p>
+        </span>
+</span>
+</body>
+</html>

@@ -24,8 +24,8 @@
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="source" expression="phones"/>
-		<binding name="columns">'* Phone:label,' + 
-			'Lines:lines,Model:phone.modelId'</binding>
+		<binding name="columns">'* Phone:endpoint.displayLabel,' + 
+			'Lines:lines,Model:phone.displayLabel'</binding>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
@@ -43,7 +43,7 @@
         <binding name="listener" expression="listeners.editPhone"/>
     </component>
     <component id="phoneLabel" type="Insert"> 
-        <binding name="value" expression="currentRow.label"/>
+        <binding name="value" expression="currentRow.endpoint.displayLabel"/>
     </component>
     
 	<!--

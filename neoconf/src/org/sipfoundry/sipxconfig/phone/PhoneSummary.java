@@ -56,9 +56,4 @@ public class PhoneSummary implements Serializable {
     public void setEndpointLines(List endpointLines) {
         m_endpointLines = endpointLines;
     }
-
-    public String getLabel() {
-        String name = getEndpoint().getName();
-        return name != null ? name : getEndpoint().getSerialNumber();
-    }
 }

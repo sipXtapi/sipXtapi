@@ -21,6 +21,8 @@ public interface Phone {
     public String getModelId();
     
     public void setModelId(String id);
+    
+    public String getDisplayLabel();
 
     public String generateProfile(int profileIndex);
 

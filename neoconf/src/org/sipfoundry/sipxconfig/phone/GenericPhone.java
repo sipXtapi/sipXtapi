@@ -33,6 +33,10 @@ public class GenericPhone implements Phone {
         return m_id;
     }
 
+    public String getDisplayLabel() {
+        return "Generic SIP Device";
+    }
+
     public void setModelId(String id) {
         m_id = id;
     }

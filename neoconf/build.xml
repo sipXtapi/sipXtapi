@@ -65,7 +65,7 @@
 	</target>
 
 	<!-- D E V E L O P E R   T A S K S -->
-	<target name="patch-db" 
+	<target name="reset-db-patch" 
 		description="apply patches to database for new components, clears all data for the new components">
 		<!-- may fail if never run so ignore failed output -->
 		<exec executable="psql" failonerror="false">

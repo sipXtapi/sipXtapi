@@ -36,6 +36,33 @@ pre, tt, code, kbd, samp {
   color: #ff6600;
 }
 
+div.tabArea {
+  padding-top: 10px;
+  font-size: 80%;
+  font-weight: bold;
+  background: #ffc;
+  width: 40em;
+  border-bottom: 1px solid #000;
+}
+
+a.tab {
+  background-color: #ccc;
+  border: 1px solid #000;
+  padding: 2px 1em 0px 1em;
+  text-decoration: none;
+  white-space: nowrap;        
+}
+
+a.tab, a.tab:visited {
+  color: #000;
+}
+
+a.tab.active, a.tab.active:hover, a.tab.active:visited {
+  background-color: #ffc;
+  border-bottom-color: #ffc;
+  color: #000;
+}
+
 #lastmodified {
     align: right;
     font-style: italic;
@@ -205,6 +232,23 @@ ul.table-pager li {
   font-size: 120%;
 }
 
+.page-label {
+  font-weight: bold;
+  margin: 2px;
+  padding: 2px;
+}
+
+#help {
+  float: right;
+  width: 15em;
+  margin-left: 20px;
+  border-collapse: collapse;
+  border: 1px;
+  border-style : solid;
+  border-color : #ccc;  
+  padding: 5px;
+  background: #fff;
+}
 ul.component-actions {
   list-style-type : none;
   text-align: right; 

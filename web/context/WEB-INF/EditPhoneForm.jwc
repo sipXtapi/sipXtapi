@@ -32,12 +32,15 @@
 	<property-specification name="phoneSelectionModel" 
 		type="org.apache.tapestry.form.IPropertySelectionModel"/>   
     <!--
-      - C O M P O N E N T S
+      - B E A N S 
       -->
     <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
     	<set-property name="required" expression="false"/>
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
+    <!--
+      - C O M P O N E N T S
+      -->
     <component id="endpointNameLabel" type="FieldLabel">
         <binding name="field" expression="components.endpointName"/>
     </component>
@@ -46,5 +49,26 @@
     	<binding name="validator" expression="beans.nameValidator"/>
 	    <static-binding name="displayName" value="Alternate Label"/>
     </component>
+    <!-- TODO: consult phone object for validation -->
+    <bean name="serialNumberValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    <component id="serialNumberLabel" type="FieldLabel">
+        <binding name="field" expression="components.serialNumber"/>
+    </component>
+    <component id="serialNumber" type="ValidField">
+	    <binding name="value" expression="endpoint.serialNumber"/>
+    	<binding name="validator" expression="beans.serialNumberValidator"/>
+	    <static-binding name="displayName" value="Serial Number"/>
+    </component>
+    <component id="phoneModelLabel" type="FieldLabel">
+        <binding name="field" expression="components.phoneModel"/>
+        <static-binding name="displayName" value="Phone Model"/>
+    </component>
+    <component id="phoneModel" type="PropertySelection">
+        <binding name="model" expression="phoneSelectionModel"/>
+        <binding name="value" expression="endpoint.phoneId"/>
+    </component>    
     
 </component-specification>

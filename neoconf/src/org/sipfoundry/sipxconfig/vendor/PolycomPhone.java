@@ -41,6 +41,10 @@ public class PolycomPhone extends GenericPhone {
         return m_id;
     }
     
+    public String getDisplayLabel() {
+        return "Polycom SoundPoint IP " + m_id.substring(7);
+    }
+    
     public void setModelId(String id) {
         m_id = id;
     }

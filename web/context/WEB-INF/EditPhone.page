@@ -17,6 +17,9 @@
     <!--
       - C O M P O N E N T S
       -->
+    <component id="editPhoneNavigation" type="EditPhoneNavigation">        
+        <binding name="phone" expression="phone"/>
+    </component>
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="phone" expression="phone"/>
         <binding name="endpoint" expression="phone.endpoint"/>

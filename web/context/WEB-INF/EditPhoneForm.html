@@ -1,15 +1,27 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+</head>
+<body>
 <span jwcid="$content$">
-	<table>
+    
+    <fieldset>
+        <legend>Device Identification</legend>            
+    <table>
 		<tr>
-			<td>Serial Number:</td>
 			<td>
-				<input jwcid="@TextField" value="ognl:endpoint.serialNumber"/>
+                <label for="endpoint:serialNumber">
+                    <span jwcid="serialNumberLabel">Serial Number:</span>
+                </label>
+            </td>
+			<td>
+				<input jwcid="serialNumber"/>
 			</td>
 		</tr>
 		<tr>
 			<td>
 				<label for="endpoint:name">
-					<span jwcid="endpointNameLabel">Alternate Label</span>
+					<span jwcid="endpointNameLabel">Alternate Label:</span>
 				</label>
 			</td>
 			<td>
@@ -17,12 +29,19 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Model</td>
 			<td>
-				<span jwcid="@PropertySelection" 
-					model="ognl:phoneSelectionModel" 
-					value="ognl:endpoint.phoneId"/>
+                <label for="endpoint:phoneModel">
+                    <span jwcid="phoneModelLabel">Phone Model:</span>
+                </label>
+            </td>
+			<td>
+				<select jwcid="phoneModel" id="endpoint:phoneModel" size="1">
+                    <option>--- select one ---</option>
+                </select>
 			</td>
 		</tr>
 	</table>
+    </fieldset>
 </span>
+</body>
+</html>

@@ -76,4 +76,12 @@ public class Endpoint implements Serializable {
     public void setSettings(SettingSet settings) {
         m_settings = settings;
     }
+
+    /**
+     * @return name if set otherwise serial number, convienent for display purposes
+     */
+    public String getDisplayLabel() {
+        return m_name != null ? m_name : m_serialNumber;
+    }
+
 }

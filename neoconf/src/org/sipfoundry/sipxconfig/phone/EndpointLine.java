@@ -20,8 +20,6 @@ public class EndpointLine implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private String m_label;
-    
     private int m_id = PhoneDao.UNSAVED_ID;
     
     private Line m_line;
@@ -44,14 +42,6 @@ public class EndpointLine implements Serializable {
 
     public void setId(int id) {
         m_id = id;
-    }
-
-    public String getLabel() {
-        return m_label;
-    }
-
-    public void setLabel(String label) {
-        m_label = label;
     }
 
     public Line getLine() {

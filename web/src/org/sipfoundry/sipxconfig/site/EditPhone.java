@@ -25,12 +25,17 @@ public abstract class EditPhone extends AbstractPhonePage {
     
     public abstract void setPhone(Phone phone);
     
-    public void save(IRequestCycle cycle) {
+    public void ok(IRequestCycle cycle) {
         getPhoneContext().getPhoneDao().storeEndpoint(getPhone().getEndpoint());
         cycle.activate(ListPhones.PAGE);
     }
 
+    public void apply(IRequestCycle cycle) {
+        getPhoneContext().getPhoneDao().storeEndpoint(getPhone().getEndpoint());
+    }
+    
     public void cancel(IRequestCycle cycle) {
+        setPhone(null);
         cycle.activate(ListPhones.PAGE);
     }
 }
