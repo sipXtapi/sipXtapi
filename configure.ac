@@ -60,10 +60,14 @@ SFAC_LIB_COMMSERVER
 SFAC_LIB_STACK
 SFAC_LIB_PORT
 
+ENABLE_DOXYGEN
+
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([src/sipforkingproxy/Makefile])
 AC_CONFIG_FILES([src/sipauthproxy/Makefile])
+AC_CONFIG_FILES([src/cse/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
+AC_CONFIG_FILES([doc/Makefile doc/Doxyfile])
 AC_OUTPUT
 

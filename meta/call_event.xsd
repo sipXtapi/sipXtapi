@@ -3,21 +3,20 @@
 <!ENTITY % sip_word "([&lt;&gt;&quot;a-zA-Z0-9.!&#x25;*_+`'~():\/[&#x5d;?{}-]+)">
 <!ENTITY % sip_token "([a-zA-Z0-9.!&#x25;*_+`'~-]+)">
 <!ENTITY % dns_token "[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?">
-<!ENTITY % doc_src "http://kathmandu.pingtel.com/commserver-cse-fs.html">
 ]>
 <!--
-    XML Schema for Pingtel Call State Events
+    XML Schema for sipX Call State Events
   -->
 <schema
-    xmlns:cse='http://pingtel.com/xml/schema/cse-00-03'
-    targetNamespace='http://pingtel.com/xml/schema/cse-00-03'
+    xmlns:cse='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
     xmlns='http://www.w3.org/2001/XMLSchema'
     >
   <annotation>
     <documentation>
-      Pingtel SIPxchange Call State Events
+      sipX Call State Events
     </documentation>
-    <documentation source='http://kathmandu.pingtel.com/commserver-cse-fs.html'/>
+    <documentation source='http://scm.sipfoundry.org/rep/sipXproxy/main/doc/call-state-events.html'/>
   </annotation>
 
 <!-- Types -->
@@ -157,6 +156,7 @@
       <sequence>
           <element ref='cse:call'/>
           <element ref='cse:contact'/>
+          <element ref='cse:via' maxOccurs='unbounded'/>
       </sequence>
     </complexType>
   </element>
@@ -172,6 +172,7 @@
       <sequence>
           <element ref='cse:call'/>
           <element ref='cse:contact'/>
+          <element ref='cse:via' maxOccurs='unbounded'/>
       </sequence>
     </complexType>
   </element>
@@ -185,6 +186,7 @@
     <complexType>
       <sequence>
           <element ref='cse:call'/>
+          <element ref='cse:via' maxOccurs='unbounded'/>
       </sequence>
     </complexType>
   </element>
@@ -198,7 +200,8 @@
     <complexType>
       <sequence>
           <element ref='cse:call'/>
-          <element ref='cse:reason'/>
+          <element ref='cse:response'/>
+          <element ref='cse:via' maxOccurs='unbounded'/>
       </sequence>
     </complexType>
   </element>
@@ -262,5 +265,7 @@
   <element name='status' type='cse:sip_status'/>
 
   <element name='reason' type='normalizedString'/>
+
+  <element name='via' type='normalizedString'/>
 
 </schema>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXproxy: sipXproxy Call State Events Specification</title>
-<meta http-equiv="Expires" content="Tue, 07 Dec 2004 22:25:48 +0000">
+<meta http-equiv="Expires" content="Fri, 10 Dec 2004 22:28:05 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXproxy Call State Events Specification">
 <meta name="generator" content="xml2rfc v1.25 (http://xml.resource.org/)">
@@ -460,21 +460,20 @@ Example Call State Events<br />
 &lt;!ENTITY % sip_word &quot;([&amp;lt;&amp;gt;&amp;quot;a-zA-Z0-9.!&amp;#x25;*_+`'~():\/[&amp;#x5d;?{}-]+)&quot;&gt;
 &lt;!ENTITY % sip_token &quot;([a-zA-Z0-9.!&amp;#x25;*_+`'~-]+)&quot;&gt;
 &lt;!ENTITY % dns_token &quot;[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?&quot;&gt;
-&lt;!ENTITY % doc_src &quot;http://kathmandu.pingtel.com/commserver-cse-fs.html&quot;&gt;
 ]&gt;
 &lt;!--
-    XML Schema for Pingtel Call State Events
+    XML Schema for sipX Call State Events
   --&gt;
 &lt;schema
-    xmlns:cse='http://pingtel.com/xml/schema/cse-00-03'
-    targetNamespace='http://pingtel.com/xml/schema/cse-00-03'
+    xmlns:cse='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
     xmlns='http://www.w3.org/2001/XMLSchema'
     &gt;
   &lt;annotation&gt;
     &lt;documentation&gt;
-      Pingtel SIPxchange Call State Events
+      sipX Call State Events
     &lt;/documentation&gt;
-    &lt;documentation source='http://kathmandu.pingtel.com/commserver-cse-fs.html'/&gt;
+    &lt;documentation source='http://scm.sipfoundry.org/rep/sipXproxy/main/doc/call-state-events.html'/&gt;
   &lt;/annotation&gt;
 
 &lt;!-- Types --&gt;
@@ -614,6 +613,7 @@ Example Call State Events<br />
       &lt;sequence&gt;
           &lt;element ref='cse:call'/&gt;
           &lt;element ref='cse:contact'/&gt;
+          &lt;element ref='cse:via' maxOccurs='unbounded'/&gt;
       &lt;/sequence&gt;
     &lt;/complexType&gt;
   &lt;/element&gt;
@@ -629,6 +629,7 @@ Example Call State Events<br />
       &lt;sequence&gt;
           &lt;element ref='cse:call'/&gt;
           &lt;element ref='cse:contact'/&gt;
+          &lt;element ref='cse:via' maxOccurs='unbounded'/&gt;
       &lt;/sequence&gt;
     &lt;/complexType&gt;
   &lt;/element&gt;
@@ -642,6 +643,7 @@ Example Call State Events<br />
     &lt;complexType&gt;
       &lt;sequence&gt;
           &lt;element ref='cse:call'/&gt;
+          &lt;element ref='cse:via' maxOccurs='unbounded'/&gt;
       &lt;/sequence&gt;
     &lt;/complexType&gt;
   &lt;/element&gt;
@@ -655,7 +657,8 @@ Example Call State Events<br />
     &lt;complexType&gt;
       &lt;sequence&gt;
           &lt;element ref='cse:call'/&gt;
-          &lt;element ref='cse:reason'/&gt;
+          &lt;element ref='cse:response'/&gt;
+          &lt;element ref='cse:via' maxOccurs='unbounded'/&gt;
       &lt;/sequence&gt;
     &lt;/complexType&gt;
   &lt;/element&gt;
@@ -720,6 +723,8 @@ Example Call State Events<br />
 
   &lt;element name='reason' type='normalizedString'/&gt;
 
+  &lt;element name='via' type='normalizedString'/&gt;
+
 &lt;/schema&gt;
 
         </pre>
@@ -741,8 +746,8 @@ Example Call State Events<br />
 <a name="rfc.section.A"></a><h3>Appendix A.&nbsp;Example Call State Events</h3>
 <pre>
 
-&lt;call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'&gt;
-  &lt;observer&gt;out1.sipxchange.pingtel.com&lt;/observer&gt;
+&lt;call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'&gt;
+  &lt;observer&gt;out1.sipxchange.example.com&lt;/observer&gt;
   &lt;obs_seq&gt;0&lt;/obs_seq&gt;
   &lt;obs_time&gt;2003-08-15T17:22.090Z&lt;/obs_time&gt;
   &lt;obs_msg&gt;
@@ -751,8 +756,8 @@ Example Call State Events<br />
   &lt;/obs_msg&gt;
 &lt;/call_event&gt;
 
-&lt;call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'&gt;
-  &lt;observer&gt;out1.sipxchange.pingtel.com&lt;/observer&gt;
+&lt;call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'&gt;
+  &lt;observer&gt;out1.sipxchange.example.com&lt;/observer&gt;
   &lt;obs_seq&gt;288&lt;/obs_seq&gt;
   &lt;obs_time&gt;2003-08-15T17:24.085Z&lt;/obs_time&gt;
   &lt;call_request&gt;
@@ -760,16 +765,18 @@ Example Call State Events<br />
       &lt;dialog&gt;
         &lt;call_id&gt;call-1063657885-12@10.1.1.252&lt;/call_id&gt;
         &lt;from_tag&gt;1c954235820&lt;/from_tag&gt;
+        &lt;to_tag&gt;&lt;/to_tag&gt;
       &lt;/dialog&gt;
-      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.pingtel.com&amp;gt;;tag=1c954235820&lt;/from&gt;
-      &lt;to&gt;Some Phone&amp;lt;sip:162@pingtel.com&amp;gt;;transport=tcp&lt;/to&gt;
+      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.example.com&amp;gt;;tag=1c954235820&lt;/from&gt;
+      &lt;to&gt;Some Phone&amp;lt;sip:162@example.com&amp;gt;;transport=tcp&lt;/to&gt;
     &lt;/call&gt;
     &lt;contact&gt;&amp;lt;sip:scott-ix@10.1.1.252:9999&amp;gt;&lt;/contact&gt;
+    &lt;via&gt;SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac23258891f6502534a4&lt;/via&gt;
   &lt;/call_start&gt;
 &lt;/call_event&gt;
 
-&lt;call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'&gt;
-  &lt;observer&gt;out1.sipxchange.pingtel.com&lt;/observer&gt;
+&lt;call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'&gt;
+  &lt;observer&gt;out1.sipxchange.example.com&lt;/observer&gt;
   &lt;obs_seq&gt;288&lt;/obs_seq&gt;
   &lt;obs_time&gt;2003-08-15T17:25.023Z&lt;/obs_time&gt;
   &lt;call_setup&gt;
@@ -779,15 +786,16 @@ Example Call State Events<br />
         &lt;from_tag&gt;1c954235820&lt;/from_tag&gt;
         &lt;to_tag&gt;c1592453082&lt;/to_tag&gt;
       &lt;/dialog&gt;
-      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.pingtel.com&amp;gt;;tag=1c954235820&lt;/from&gt;
-      &lt;to&gt;Some Phone&amp;lt;sip:162@pingtel.com&amp;gt;;tag=c1592453082,transport=tcp&lt;/to&gt;
+      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.example.com&amp;gt;;tag=1c954235820&lt;/from&gt;
+      &lt;to&gt;Some Phone&amp;lt;sip:162@example.com&amp;gt;;tag=c1592453082,transport=tcp&lt;/to&gt;
     &lt;/call&gt;
     &lt;contact&gt;&amp;lt;sip:scott-ix@10.1.1.166:5060&amp;gt;&lt;/contact&gt;
+    &lt;via&gt;SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f6502534a4&lt;/via&gt;
   &lt;/call_setup&gt;
 &lt;/call_event&gt;
 
-&lt;call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'&gt;
-  &lt;observer&gt;out1.sipxchange.pingtel.com&lt;/observer&gt;
+&lt;call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'&gt;
+  &lt;observer&gt;out1.sipxchange.example.com&lt;/observer&gt;
   &lt;obs_seq&gt;290&lt;/obs_seq&gt;
   &lt;obs_time&gt;2003-08-15T17:27.023Z&lt;/obs_time&gt;
   &lt;call_failure&gt;
@@ -796,18 +804,19 @@ Example Call State Events<br />
         &lt;call_id&gt;call-1036576858-13@10.1.1.252&lt;/call_id&gt;
         &lt;from_tag&gt;1c954235820&lt;/from_tag&gt;
       &lt;/dialog&gt;
-      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.pingtel.com&amp;gt;;tag=1c954235820&lt;/from&gt;
-      &lt;to&gt;Some Phone&amp;lt;sip:162@pingtel.com&amp;gt;transport=tcp&lt;/to&gt;
+      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.example.com&amp;gt;;tag=1c954235820&lt;/from&gt;
+      &lt;to&gt;Some Phone&amp;lt;sip:162@example.com&amp;gt;transport=tcp&lt;/to&gt;
     &lt;/call&gt;
     &lt;response&gt;
       &lt;status&gt;403&lt;/status&gt;
       &lt;reason&gt;Permission Denied&lt;/reason&gt;
     &lt;/response&gt;
+    &lt;via&gt;SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f654444444&lt;/via&gt;
   &lt;/call_failure&gt;
 &lt;/call_event&gt;
 
-&lt;call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'&gt;
-  &lt;observer&gt;out1.sipxchange.pingtel.com&lt;/observer&gt;
+&lt;call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'&gt;
+  &lt;observer&gt;out1.sipxchange.example.com&lt;/observer&gt;
   &lt;obs_seq&gt;312&lt;/obs_seq&gt;
   &lt;obs_time&gt;2003-08-15T17:45.023Z&lt;/obs_time&gt;
   &lt;call_end&gt;
@@ -817,9 +826,10 @@ Example Call State Events<br />
         &lt;from_tag&gt;1c954235820&lt;/from_tag&gt;
         &lt;to_tag&gt;c1592453082&lt;/to_tag&gt;
       &lt;/dialog&gt;
-      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.pingtel.com&amp;gt;;tag=1c954235820&lt;/from&gt;
-      &lt;to&gt;Some Phone&amp;lt;sip:162@pingtel.com&amp;gt;;tag=c1592453082,transport=tcp&lt;/to&gt;
+      &lt;from&gt;&quot;Scott&quot;&amp;lt;sip:scott-ix@kathmandu.example.com&amp;gt;;tag=1c954235820&lt;/from&gt;
+      &lt;to&gt;Some Phone&amp;lt;sip:162@example.com&amp;gt;;tag=c1592453082,transport=tcp&lt;/to&gt;
     &lt;/call&gt;
+    &lt;via&gt;SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f659999999&lt;/via&gt;
   &lt;/call_end&gt;
 &lt;/call_event&gt;
 

@@ -1,4 +1,4 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = sipauthproxy sipforkingproxy test
+SUBDIRS = cse sipauthproxy sipforkingproxy test
 

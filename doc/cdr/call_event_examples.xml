@@ -1,6 +1,6 @@
 
-<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
-  <observer>out1.sipxchange.pingtel.com</observer>
+<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>
+  <observer>out1.sipxchange.example.com</observer>
   <obs_seq>0</obs_seq>
   <obs_time>2003-08-15T17:22.090Z</obs_time>
   <obs_msg>
@@ -9,8 +9,8 @@
   </obs_msg>
 </call_event>
 
-<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
-  <observer>out1.sipxchange.pingtel.com</observer>
+<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>
+  <observer>out1.sipxchange.example.com</observer>
   <obs_seq>288</obs_seq>
   <obs_time>2003-08-15T17:24.085Z</obs_time>
   <call_request>
@@ -18,16 +18,18 @@
       <dialog>
         <call_id>call-1063657885-12@10.1.1.252</call_id>
         <from_tag>1c954235820</from_tag>
+        <to_tag></to_tag>
       </dialog>
-      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
-      <to>Some Phone&lt;sip:162@pingtel.com&gt;;transport=tcp</to>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.example.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@example.com&gt;;transport=tcp</to>
     </call>
     <contact>&lt;sip:scott-ix@10.1.1.252:9999&gt;</contact>
+    <via>SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac23258891f6502534a4</via>
   </call_start>
 </call_event>
 
-<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
-  <observer>out1.sipxchange.pingtel.com</observer>
+<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>
+  <observer>out1.sipxchange.example.com</observer>
   <obs_seq>288</obs_seq>
   <obs_time>2003-08-15T17:25.023Z</obs_time>
   <call_setup>
@@ -37,15 +39,16 @@
         <from_tag>1c954235820</from_tag>
         <to_tag>c1592453082</to_tag>
       </dialog>
-      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
-      <to>Some Phone&lt;sip:162@pingtel.com&gt;;tag=c1592453082,transport=tcp</to>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.example.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@example.com&gt;;tag=c1592453082,transport=tcp</to>
     </call>
     <contact>&lt;sip:scott-ix@10.1.1.166:5060&gt;</contact>
+    <via>SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f6502534a4</via>
   </call_setup>
 </call_event>
 
-<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
-  <observer>out1.sipxchange.pingtel.com</observer>
+<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>
+  <observer>out1.sipxchange.example.com</observer>
   <obs_seq>290</obs_seq>
   <obs_time>2003-08-15T17:27.023Z</obs_time>
   <call_failure>
@@ -54,18 +57,19 @@
         <call_id>call-1036576858-13@10.1.1.252</call_id>
         <from_tag>1c954235820</from_tag>
       </dialog>
-      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
-      <to>Some Phone&lt;sip:162@pingtel.com&gt;transport=tcp</to>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.example.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@example.com&gt;transport=tcp</to>
     </call>
     <response>
       <status>403</status>
       <reason>Permission Denied</reason>
     </response>
+    <via>SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f654444444</via>
   </call_failure>
 </call_event>
 
-<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
-  <observer>out1.sipxchange.pingtel.com</observer>
+<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>
+  <observer>out1.sipxchange.example.com</observer>
   <obs_seq>312</obs_seq>
   <obs_time>2003-08-15T17:45.023Z</obs_time>
   <call_end>
@@ -75,8 +79,9 @@
         <from_tag>1c954235820</from_tag>
         <to_tag>c1592453082</to_tag>
       </dialog>
-      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
-      <to>Some Phone&lt;sip:162@pingtel.com&gt;;tag=c1592453082,transport=tcp</to>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.example.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@example.com&gt;;tag=c1592453082,transport=tcp</to>
     </call>
+    <via>SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f659999999</via>
   </call_end>
 </call_event>
