@@ -289,7 +289,7 @@ and modify <code>servlet.lib</code> property in a newly created file to point to
       servlet.lib=${JBOSS_HOME}/catalina/common/lib
 </pre></li>
 
-<p>Verify that you have set the path correctly:
+<li>Verify that you have set the path correctly:
 <pre>
       cd /path/to/tomcat
       ant detect | grep servlet.jar
@@ -297,7 +297,7 @@ and modify <code>servlet.lib</code> property in a newly created file to point to
 You should see:
 <pre>
       [echo] servlet.jar.present=true
-</pre></p>
+</pre></li>
 
 <li>Compile Jasper
 <pre>
@@ -325,6 +325,13 @@ installed sipXconfig from RPM, you shouldn't have to do this.</p>
   <pre>
       service rhdb start 
   </pre>
+  
+<p>To start Postgres on Debian, and perhaps other linux distributions, if you 
+	don't already have a /etc/init.d/postgresql you may need to get the example 
+	from the contrib directory in the postgres distibution: </p>
+<pre>
+	cp contrib/start-scripts/linux /etc/init.d/postgresql
+</pre>
 
 <p>It's recommended you should have Postgres start automatically when your machine
 restarts (usually in runlevels 3 and 5).</p>

@@ -202,12 +202,12 @@ Installing From Source and Non-Redhat Users
        and modify servlet.lib property in a newly created file to point
        to your Tomcat lib directory
       servlet.lib=${JBOSS_HOME}/catalina/common/lib
-       Verify that you have set the path correctly:
+    4. Verify that you have set the path correctly:
       cd /path/to/tomcat
       ant detect | grep servlet.jar
        You should see:
       [echo] servlet.jar.present=true
-    4. Compile Jasper
+    5. Compile Jasper
       cd /path/to/tomcat/jasper
       ant
        Build creates 2 jar file. Only jasper-compiler.jar has to be
@@ -227,6 +227,11 @@ ib/jasper-compiler.jar
    To start Postgres on Enterprise 3 systems run this command.
       service rhdb start
 
+
+   To start Postgres on Debian, and perhaps other linux distributions, if
+   you don't already have a /etc/init.d/postgresql you may need to get
+   the example from the contrib directory in the postgres distibution:
+        cp contrib/start-scripts/linux /etc/init.d/postgresql
 
    It's recommended you should have Postgres start automatically when
    your machine restarts (usually in runlevels 3 and 5).
