@@ -18,7 +18,7 @@ message.
          1. [7]Dependencies
          2. [8]Environment Variables
          3. [9]Compile and Installation
-         4. [10]JBOSS Setup
+         4. [10]JBoss Setup
          5. [11]Postgres Database Setup
     3. [12]Optional Setup
          1. [13]TFTP Setup for Cisco 79xx
@@ -82,7 +82,8 @@ For Redhat Users
 
    Download and install the following RPMs from
    [22]http://www.sipfoundry.org/pub/sipX/FC/2/
-     * sipx-jboss-2.4.10-2.noarch.rpm
+     * sipx-jboss-4.0.0-1.noarch.rpm this rpm is not available yet -
+       please install JBoss 4.0 from source
      * sipxportlib
      * sipxtacklib
      * sipxcommserverlib
@@ -119,9 +120,8 @@ Installing From Source and Non-Redhat Users
    postgres 7.3 (tested with 7.3.4)
           [28]http://www.postgresql.org/
 
-   JBoss 2.4.4 with Tomcat 4.0.1 (exactly this version!)
-          [29]http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat
-          -4.0.1.zip
+   JBoss 4.0 (includes Tomcat 5.0)
+          [29]http://prdownloads.sourceforge.net/jboss/jboss-4.0.0.tar.gz
 
    Spring Framework 1.1.2 with dependencies
           [30]http://www.springframework.org/download.html
@@ -154,7 +154,7 @@ Installing From Source and Non-Redhat Users
           where you unzipped JBoss
 
        Example:
-          export JBOSS_HOME=/opt/JBoss-2.4.10_Tomcat-4.0.6
+          export JBOSS_HOME=/opt/jboss-4.0.0
 
 
    SPRING_HOME
@@ -175,50 +175,38 @@ Installing From Source and Non-Redhat Users
      make
      make install
 
-  JBOSS Setup
+  JBoss Setup
 
    If you've installed JBoss from [32]the RPM found on sipfoundry website
    then add user 'sipxchange' (or user defined SIPXPBXUSER) to the jboss
-   user group and skip the next few steps about patching JBoss and Tomcat
-   and skip to setting up your database
+   user group and skip the next few steps about patching JBoss and skip
+   to setting up your database
 
-   After unzipping JBoss
-    1. run this patch on it
-      patch -d ${JBOSS_HOME} -p1 < sipx-jboss-configure.patch
+   JBoss 4.0 is distributed with several server configurations. They are
+   located under $JBOSS_HOME/server directory. By default sipXconfig
+   components will run under "default" configuration. One can change it
+   by creating a custom configuration:
+     * make a copy of a default configuration
+        cp -rp $JBOSS_HOME/server/default $JBOSS_HOME/server/my_conf
+
+     * set environment variable to point to your new server configuration
+        export env JBOSS_SERVER_CONF=my_conf
+
+     * run (or re-run) configure script
+
+   Standard JBoss installation needs to be patched to use Postgres
+   database and to enable sipX provided authentication modules.
+    1. Run the following patch after installing JBoss
+      patch -d ${JBOSS_HOME}/server/default/conf -p1 < meta/sipx-jboss4-configu
+re.patch
+       If you use custom JBoss server configuration use its name instead
+       of "default". Every configuration has to be patched separately.
     2. be sure user running sipxpbx (most cases sipxchange) has full r/w
        access to all files and directories in ${JBOSS_HOME}
 
-   You also need to patch Jasper class loader in Tomcat servlet container
-   that is bundled with this version of JBoss
-    1. Checkout Tomcat 4.0.1 source
-      export CVSROOT=:pserver:anoncvs@cvs.apache.org:/home/cvspublic
-      cvs login [anoncvs]
-      cvs co -r tomcat_401 jakarta-tomcat-4.0
-    2. Patch sources
-      patch -d /path/to/tomcat -p0 < meta/tomcat_401.diff
-    3. Prepare Tomcat build environment.
-       BUILDING.txt file contains detailed description of the entire
-       building process. Since we just need to build jasper module we can
-       use simplified approach.
-       Create a build.properties file by copying a sample properties
-       file:
-      cd /path/to/tomcat
-      cp build.properties.sample build.properties
-       and modify servlet.lib property in a newly created file to point
-       to your Tomcat lib directory
-      servlet.lib=${JBOSS_HOME}/catalina/common/lib
-    4. Verify that you have set the path correctly:
-      cd /path/to/tomcat
-      ant detect | grep servlet.jar
-       You should see:
-      [echo] servlet.jar.present=true
-    5. Compile Jasper
-      cd /path/to/tomcat/jasper
-      ant
-       Build creates 2 jar file. Only jasper-compiler.jar has to be
-       copied to Tomcat installation.
-      cp /path/to/tomcat/build/lib/jasper-compiler.jar ${JBOSS_HOME}/catalina/l
-ib/jasper-compiler.jar
+   If you are runnning sipXconfig 2.6.x (or older) on the same machine as
+   version 2.7 you have to reconfigure your JBOSS_HOME every time you
+   switch between 2.6 and 2.7.
 
   Postgresql Database Setup
 
@@ -419,7 +407,7 @@ References
   26. http://www.sipfoundry.org/sipXpbx
   27. http://java.sun.com/
   28. http://www.postgresql.org/
-  29. http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip
+  29. http://prdownloads.sourceforge.net/jboss/jboss-4.0.0.tar.gz
   30. http://www.springframework.org/download.html
   31. http://ant.apache.org/
   32. http://www.sipfoundry.org/pub/sipX/depends/
