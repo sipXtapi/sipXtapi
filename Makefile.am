@@ -1,6 +1,6 @@
 include $(top_builddir)/config/sipXcommon.mak
 
-SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni
+SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni doc
 
 EXTRA_DIST = \
     config/sipX-config.in \
