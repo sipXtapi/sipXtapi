@@ -13,15 +13,10 @@
 		type="java.lang.Integer"
     	persistent="yes"/>
     
-	<property-specification name="currentDialPlanId"
+	<property-specification name="ruleId" 
 		type="java.lang.Integer"
     	persistent="yes"/>
 
-	<property-specification name="emergencyGateway"
-		type="boolean"
-    	initial-value="false"
-    	persistent="yes"/>
-        
     <property-specification name="dialPlanManager" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
         global.sipXconfigContext.getBean("dialPlanManager")

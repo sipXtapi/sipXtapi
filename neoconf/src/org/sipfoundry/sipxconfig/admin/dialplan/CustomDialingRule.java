@@ -18,10 +18,10 @@ import java.util.List;
  * CustomDialingRule
  */
 public class CustomDialingRule extends DialingRule {
-    private List m_dialPatterns;
+    private List m_dialPatterns = new ArrayList();
+    private CallPattern m_callPattern = new CallPattern();
 
     public CustomDialingRule() {
-        m_dialPatterns = new ArrayList();
         m_dialPatterns.add(new DialPattern());
     }
 
@@ -31,5 +31,13 @@ public class CustomDialingRule extends DialingRule {
 
     public void setDialPatterns(List dialPaterns) {
         m_dialPatterns = dialPaterns;
+    }
+
+    public CallPattern getCallPattern() {
+        return m_callPattern;
+    }
+
+    public void setCallPattern(CallPattern callPattern) {
+        m_callPattern = callPattern;
     }
 }

@@ -11,20 +11,19 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import org.apache.commons.lang.enum.Enum;
 
 /**
  * CallPattern
  */
 public class CallPattern {
-    private Digits m_digits;
+    private CallDigits m_digits;
     private String m_prefix;
 
-    public Digits getDigits() {
+    public CallDigits getDigits() {
         return m_digits;
     }
 
-    public void setDigits(Digits digits) {
+    public void setDigits(CallDigits digits) {
         m_digits = digits;
     }
 
@@ -38,19 +37,9 @@ public class CallPattern {
 
     public String calculatePattern() {
         String digits = "{" + m_digits.getName() + "}";
-        if (m_digits.equals(Digits.NO_DIGITS)) {
+        if (m_digits.equals(CallDigits.NO_DIGITS)) {
             digits = "";
         }
         return m_prefix + digits;
-    }
-
-    public static class Digits extends Enum {
-        public static final Digits NO_DIGITS = new Digits("nodigits");
-        public static final Digits VARIABLE_DIGITS = new Digits("vdigits");
-        public static final Digits FIXED_DIGITS = new Digits("digits");
-
-        public Digits(String name) {
-            super(name);
-        }
     }
 }

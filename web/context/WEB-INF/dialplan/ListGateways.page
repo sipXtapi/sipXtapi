@@ -34,7 +34,7 @@
     </component>
 
     <component id="dialPlansLink" type="PageLink">
-        <static-binding name="page" value="ListDialPlans"/>
+        <static-binding name="page" value="EditFlexibleDialPlan"/>
     </component>
     
     <component id="deleteButton" type="Submit">

@@ -23,16 +23,8 @@ import java.util.Set;
  * DialPlanManager TODO: need interface and hibernate persistence implementation
  */
 public class DialPlanManager {
-    private List m_dialPlans = new ArrayList();
     private List m_gateways = new ArrayList();
-
-    public List getDialPlans() {
-        return m_dialPlans;
-    }
-
-    public void setDialPlans(List dialPlans) {
-        m_dialPlans = dialPlans;
-    }
+    private FlexibleDialPlan m_flexDialPlan = new FlexibleDialPlan();
 
     public List getGateways() {
         return m_gateways;
@@ -54,18 +46,6 @@ public class DialPlanManager {
         return (Gateway) m_gateways.get(i);
     }
 
-    public DialPlan getDialPlan(Integer id) {
-        if (null == id) {
-            return null;
-        }
-        Object key = new DialPlan(id);
-        int i = m_dialPlans.indexOf(key);
-        if (i < 0) {
-            return null;
-        }
-        return (DialPlan) m_dialPlans.get(i);
-    }
-
     public boolean updateGateway(Integer id, Gateway gatewayData) {
         Gateway gateway = getGateway(id);
         if (null == gateway) {
@@ -83,26 +63,7 @@ public class DialPlanManager {
         return false;
     }
 
-    public boolean addDialPlan(DialPlan dialPlan) {
-        if (!m_dialPlans.remove(dialPlan)) {
-            m_dialPlans.add(dialPlan);
-            return true;
-        }
-        return false;
-
-    }
-
-    public boolean updateDialPlan(Integer id, DialPlan planData) {
-        DialPlan plan = getDialPlan(id);
-        if (plan == null) {
-            return false;
-        }
-        plan.update(planData);
-        return false;
-    }
-
     public void clear() {
-        m_dialPlans.clear();
         m_gateways.clear();
     }
 
@@ -117,33 +78,28 @@ public class DialPlanManager {
         }
     }
 
-    private void deleteDialPlan(Integer id) {
-        m_dialPlans.remove(new DialPlan(id));
-    }
-
-    public void deleteDialPlans(Collection selectedRows) {
-        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            deleteDialPlan(id);
-        }
-    }
-
     /**
-     * Returns the list of gateways available for a specific dial plan
+     * Returns the list of gateways available for a specific rule
      * 
-     * @param dialPlanId
-     * @param emergency if true check emergency gateways, otherwise normal
-     *        gateways
+     * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */
-    public Collection getAvailableGateways(Integer dialPlanId, boolean emergency) {
-        DialPlan plan = getDialPlan(dialPlanId);
-        if (null == plan) {
+    public Collection getAvailableGateways(Integer ruleId) {
+        DialingRule rule = m_flexDialPlan.getRule(ruleId);
+        if (null == rule) {
             return Collections.EMPTY_LIST;
         }
         Set gateways = new HashSet(getGateways());
-        Set planGateways = emergency ? plan.getEmergencyGateways() : plan.getGateways();
-        gateways.removeAll(planGateways);
+        Collection ruleGateways = rule.getGateways();
+        gateways.removeAll(ruleGateways);
         return gateways;
+    }
+
+    public FlexibleDialPlan getFlexDialPlan() {
+        return m_flexDialPlan;
+    }
+
+    public void setFlexDialPlan(FlexibleDialPlan flexDialPlan) {
+        m_flexDialPlan = flexDialPlan;
     }
 }

@@ -12,16 +12,11 @@
         global.sipXconfigContext.getBean("dialPlanManager")
     </property-specification>
     
-	<property-specification name="dialPlanId"
+	<property-specification name="ruleId"
 		type="java.lang.Integer"
         persistent="yes">
     </property-specification>
     
-	<property-specification name="emergencyGateway" 
-		type="boolean"
-        persistent="yes">
-    </property-specification>
-
     <property-specification name="selectedRows" type="java.util.Collection"/>    
 
     <property-specification name="gateways" type="java.util.Collection"/>    
@@ -44,7 +39,7 @@
     </component>
 
     <component id="dialPlansLink" type="PageLink">
-        <static-binding name="page" value="ListDialPlans"/>
+        <static-binding name="page" value="EditFlexibleDialPlan"/>
     </component>
     
     <component id="selectButton" type="Submit">

@@ -26,7 +26,7 @@ public abstract class GatewayTable extends BaseComponent implements PageRenderLi
 
     public abstract String getEditPageName();
 
-    public abstract Integer getDialPlanId();
+    public abstract Integer getRuleId();
 
     public abstract SelectMap getSelections();
 
@@ -48,7 +48,7 @@ public abstract class GatewayTable extends BaseComponent implements PageRenderLi
 
         Gateway currentRow = getCurrentRow();
         page.setGatewayId(currentRow.getId());
-        page.setCurrentDialPlanId(getDialPlanId());
+        page.setRuleId(getRuleId());
         cycle.activate(page);
     }
 }

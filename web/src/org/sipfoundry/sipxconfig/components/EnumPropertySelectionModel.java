@@ -22,7 +22,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
  * name, but can be used in as a bean. Does not support bundles. Use either
  * setOptions or setEnumClass but not both
  * 
- * @see org.apache.tapestry.form.EnumPropertySelectionModel;
+ * @see org.apache.tapestry.form.EnumPropertySelectionModel
  */
 public class EnumPropertySelectionModel implements IPropertySelectionModel {
 

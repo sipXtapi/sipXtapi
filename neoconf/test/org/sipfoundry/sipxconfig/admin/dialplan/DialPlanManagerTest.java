@@ -100,85 +100,18 @@ public class DialPlanManagerTest extends TestCase {
         assertEquals(g1.getDescription(), edited.getDescription());
     }
 
-    public void testDialPlans() {
-        DialPlan p1 = new DialPlan();
-        DialPlan p2 = new DialPlan();
-
-        assertNull(m_manager.getDialPlan(null));
-
-        // add p1
-        assertTrue(m_manager.addDialPlan(p1));
-
-        assertEquals(1, m_manager.getDialPlans().size());
-        assertTrue(m_manager.getDialPlans().contains(p1));
-        assertFalse(m_manager.getDialPlans().contains(p2));
-
-        // add p2
-        assertTrue(m_manager.addDialPlan(p2));
-
-        assertEquals(2, m_manager.getDialPlans().size());
-        assertTrue(m_manager.getDialPlans().contains(p1));
-        assertTrue(m_manager.getDialPlans().contains(p2));
-
-        // add p1 again
-        assertFalse(m_manager.addDialPlan(p1));
-    }
-
-    public void testUpdateDialPlan() {
-        DialPlan p1 = new DialPlan();
-        DialPlan p2 = new DialPlan();
-        m_manager.addDialPlan(p1);
-        m_manager.addDialPlan(p2);
-
-        Integer id = p1.getId();
-        DialPlan edited = new DialPlan();
-        edited.setName("sd");
-        edited.setDescription("ff");
-
-        assertFalse(m_manager.updateDialPlan(edited.getId(), edited));
-
-        // TODO: use beanutils ?
-        // diferent before update
-        assertFalse(edited.getName().equals(p1.getName()));
-        assertFalse(edited.getDescription().equals(p1.getDescription()));
-
-        m_manager.updateDialPlan(id, edited);
-
-        // the same after update
-        assertEquals(p1.getName(), edited.getName());
-        assertEquals(p1.getDescription(), edited.getDescription());
-    }
-
-    public void testDeleteDialPlan() {
-        DialPlan p1 = new DialPlan();
-        DialPlan p2 = new DialPlan();
-        DialPlan p3 = new DialPlan();
-
-        // add all
-        assertTrue(m_manager.addDialPlan(p1));
-        assertTrue(m_manager.addDialPlan(p2));
-        assertTrue(m_manager.addDialPlan(p3));
-
-        Integer[] toBeRemoved = { p1.getId(), p3.getId() };
-        m_manager.deleteDialPlans(Arrays.asList(toBeRemoved));
-
-        List plans = m_manager.getDialPlans();
-
-        assertEquals(1, plans.size());
-        assertFalse(plans.contains(p1));
-        assertTrue(plans.contains(p2));
-        assertFalse(plans.contains(p3));
-    }
 
     public void testGetAvailableGateways() {
-        Collection availableGateways = m_manager.getAvailableGateways(new Integer(-1), false);
+        Collection availableGateways = m_manager.getAvailableGateways(new Integer(-1));
         assertEquals(0, availableGateways.size());
 
-        DialPlan p1 = new DialPlan();
-        m_manager.addDialPlan(p1);
-        availableGateways = m_manager.getAvailableGateways(p1.getId(), false);
+        DialingRule rule1 = new DialingRule();
+        DialingRule rule2 = new DialingRule();
+        m_manager.getFlexDialPlan().addRule(rule1);
+        m_manager.getFlexDialPlan().addRule(rule2);
+        availableGateways = m_manager.getAvailableGateways(rule1.getId());
         assertEquals(0, availableGateways.size());
-        availableGateways = m_manager.getAvailableGateways(p1.getId(), true);
+        availableGateways = m_manager.getAvailableGateways(rule1.getId());
         assertEquals(0, availableGateways.size());
 
         Gateway g1 = new Gateway();
@@ -188,17 +121,17 @@ public class DialPlanManagerTest extends TestCase {
         m_manager.addGateway(g2);
         m_manager.addGateway(g3);
 
-        p1.addGateway(g1, true);
-        p1.addGateway(g2, false);
-        p1.addGateway(g3, true);
+        rule1.addGateway(g2);
+        rule2.addGateway(g1);
+        rule2.addGateway(g3);
 
-        availableGateways = m_manager.getAvailableGateways(p1.getId(), false);
+        availableGateways = m_manager.getAvailableGateways(rule1.getId());
         assertEquals(2, availableGateways.size());
         assertTrue(availableGateways.contains(g1));
         assertFalse(availableGateways.contains(g2));
         assertTrue(availableGateways.contains(g3));
 
-        availableGateways = m_manager.getAvailableGateways(p1.getId(), true);
+        availableGateways = m_manager.getAvailableGateways(rule2.getId());
         assertEquals(1, availableGateways.size());
         assertFalse(availableGateways.contains(g1));
         assertTrue(availableGateways.contains(g2));

@@ -16,9 +16,12 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.site.dialplan.EditCustomDialRule;
 
 /**
  * EditGateway
@@ -34,17 +37,13 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
 
     public abstract void setGateway(Gateway gateway);
 
-    public abstract void setCurrentDialPlanId(Integer dialPlanId);
+    public abstract Integer getRuleId();
 
-    public abstract Integer getCurrentDialPlanId();
+    public abstract void setRuleId(Integer id);
 
     public abstract void setDialPlanManager(DialPlanManager dialPlanManager);
 
     public abstract DialPlanManager getDialPlanManager();
-
-    public abstract void setEmergencyGateway(boolean emergencyGateway);
-
-    public abstract boolean getEmergencyGateway();
 
     private boolean isValid() {
         IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
@@ -81,13 +80,12 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         } else {
             manager.updateGateway(id, gateway);
         }
-        // also attach gateway to the plan if plan is present
-        Integer planId = getCurrentDialPlanId();
-        if (planId != null) {
-            DialPlan plan = manager.getDialPlan(planId);
-            if (null != plan) {
-                plan.addGateway(gateway, getEmergencyGateway());
-            }
+        // attach gateway to current rule
+        Integer ruleId = getRuleId();
+        if (null != ruleId) {
+            FlexibleDialPlan flexDialPlan = manager.getFlexDialPlan();
+            DialingRule rule = flexDialPlan.getRule(ruleId);
+            rule.addGateway(gateway);
         }
         cycle.activate(getNextPageName());
     }
@@ -103,8 +101,8 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
      * 
      * @return name of the page that should be activated
      */
-    private String getNextPageName() {        
-        final Integer id = getCurrentDialPlanId();
-        return null != id ? EditDialPlan.PAGE : ListGateways.PAGE;
+    private String getNextPageName() {
+        Integer id = getRuleId();
+        return null != id ? EditCustomDialRule.PAGE : ListGateways.PAGE;
     }
 }

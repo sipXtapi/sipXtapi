@@ -9,19 +9,20 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 
 /**
  * List all the gateways, allow adding and deleting gateways
  */
-public abstract class ListDialPlans extends BasePage {
+public abstract class EditFlexibleDialPlan extends BasePage {
     public static final String PAGE = "ListDialPlans";
 
     // virtual properties
@@ -37,24 +38,26 @@ public abstract class ListDialPlans extends BasePage {
      * When user clicks on link to edit a gateway
      */
 
-    public void add(IRequestCycle cycle) {
-        EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
-        page.setDialPlanId(null);
-        cycle.activate(page);
+    public void add(IRequestCycle cycle_) {
+        /*
+         * EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
+         * page.setDialPlanId(null); cycle.activate(page);
+         */
     }
 
-    public void edit(IRequestCycle cycle) {
-        EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
-        DialPlan currentRow = getCurrentRow();
-        page.setDialPlanId(currentRow.getId());
-        cycle.activate(page);
+    public void edit(IRequestCycle cycle_) {
+        /*
+         * EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
+         * DialPlan currentRow = getCurrentRow();
+         * page.setDialPlanId(currentRow.getId()); cycle.activate(page);
+         */
     }
 
     public void formSubmit(IRequestCycle cycle_) {
-        Collection selectedRows = getSelectedRows();
-        if (selectedRows != null) {
-            DialPlanManager manager = getDialPlanManager();
-            manager.deleteDialPlans(selectedRows);
-        }
+        /*
+         * Collection selectedRows = getSelectedRows(); if (selectedRows !=
+         * null) { DialPlanManager manager = getDialPlanManager();
+         * manager.deleteDialPlans(selectedRows); }
+         */
     }
 }

@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
@@ -87,5 +89,20 @@ public class DialingRule extends BeanWithId implements IDialingRule {
      */
     public List getHosts() {
         return null;
+    }
+
+    public boolean addGateway(Gateway gateway) {
+        if (!m_gateways.remove(gateway)) {
+            m_gateways.add(gateway);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeGateways(Collection selectedGateways) {
+        for (Iterator i = selectedGateways.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            m_gateways.remove(new Gateway(id));
+        }
     }
 }

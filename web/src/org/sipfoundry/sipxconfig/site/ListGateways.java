@@ -34,7 +34,7 @@ public abstract class ListGateways extends BasePage {
     public void addGateway(IRequestCycle cycle) {
         EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
         page.setGatewayId(null);
-        page.setCurrentDialPlanId(null);
+        page.setRuleId(null);
         cycle.activate(page);
     }
 

@@ -16,9 +16,12 @@ import junit.framework.TestCase;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.site.dialplan.EditCustomDialRule;
 
 /**
  * EditGatewayTest
@@ -53,19 +56,20 @@ public class EditGatewayTest extends TestCase {
 
     public void testSaveAndAssign() {
         // TODO: these should be mocked
-        DialPlan plan = new DialPlan();
-        plan.setName("dial plan name");
-        m_manager.addDialPlan(plan);
+        DialingRule rule = new DialingRule();
+        rule.setName("my rule name");
+        FlexibleDialPlan flexDialPlan = m_manager.getFlexDialPlan();
+        flexDialPlan.addRule(rule);
         Gateway gateway = new Gateway();
         gateway.setName("testName");
 
         m_editGatewayPage.setDialPlanManager(m_manager);
         m_editGatewayPage.setGateway(gateway);
-        m_editGatewayPage.setCurrentDialPlanId(plan.getId());
+        m_editGatewayPage.setRuleId(rule.getId());
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycle.activate(EditDialPlan.PAGE);
+        cycle.activate(EditCustomDialRule.PAGE);
         cycleControl.replay();
         m_editGatewayPage.saveValid(cycle);
         cycleControl.verify();
@@ -74,38 +78,8 @@ public class EditGatewayTest extends TestCase {
         Object addedGateway = m_manager.getGateways().get(0);
         assertEquals(gateway, addedGateway);
 
-        assertEquals(0, plan.getEmergencyGateways().size());
-        assertEquals(1, plan.getGateways().size());
-        assertTrue(plan.getGateways().contains(gateway));
-    }
-
-    public void testSaveAndAssignEmergencyGateway() {
-        // TODO: these should be mocked
-        DialPlan plan = new DialPlan();
-        plan.setName("dial plan name");
-        m_manager.addDialPlan(plan);
-        Gateway gateway = new Gateway();
-        gateway.setName("testName");
-
-        m_editGatewayPage.setDialPlanManager(m_manager);
-        m_editGatewayPage.setGateway(gateway);
-        m_editGatewayPage.setCurrentDialPlanId(plan.getId());
-        m_editGatewayPage.setEmergencyGateway(true);
-
-        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycle.activate(EditDialPlan.PAGE);
-        cycleControl.replay();
-        m_editGatewayPage.saveValid(cycle);
-        cycleControl.verify();
-
-        assertEquals(1, m_manager.getGateways().size());
-        Object addedGateway = m_manager.getGateways().get(0);
-        assertEquals(gateway, addedGateway);
-
-        assertEquals(0, plan.getGateways().size());
-        assertEquals(1, plan.getEmergencyGateways().size());
-        assertTrue(plan.getEmergencyGateways().contains(gateway));
+        assertEquals(1, rule.getGateways().size());
+        assertTrue(rule.getGateways().contains(gateway));
     }
 
     public void testCancel() {
@@ -119,10 +93,12 @@ public class EditGatewayTest extends TestCase {
         cycleControl.verify();
 
         // return to dial plan page when dial plan is set
-        DialPlan plan = new DialPlan();
-        m_editGatewayPage.setCurrentDialPlanId(plan.getId());
+        DialingRule rule = new DialingRule();
+        FlexibleDialPlan flexDialPlan = m_manager.getFlexDialPlan();
+        flexDialPlan.addRule(rule);
+        m_editGatewayPage.setRuleId(rule.getId());
         cycleControl.reset();
-        cycle.activate(EditDialPlan.PAGE);
+        cycle.activate(EditCustomDialRule.PAGE);
         cycleControl.replay();
         m_editGatewayPage.cancel(cycle);
         cycleControl.verify();

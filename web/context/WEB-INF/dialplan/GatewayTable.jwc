@@ -12,7 +12,7 @@
         direction="in">
     </parameter>
 
-    <parameter name="dialPlanId" 
+    <parameter name="ruleId" 
         type="java.lang.Integer" 
         required="no" 
         default-value="null"

@@ -4,7 +4,7 @@
 	    <!-- TODO: add styling for errors-->
 		<span jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</span>
     </span>
-    <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
+    <form jwcid="form" id="custom:rule:edit">
         <fieldset>
 		<legend>Custom Dialing Rule</legend>            
         <table>
@@ -24,6 +24,25 @@
         <fieldset>
         <legend>Required Permissions</legend>
         	<span jwcid="permissions"></span>
+        </fieldset>
+        <fieldset>
+        <legend>Resulting Call</legend>
+        <table>
+            <tbody><span jwcid="call_pattern"></span></tbody>
+        </table>	
+        </fieldset>
+        <fieldset>
+        <legend>Gateways</legend>
+		<ul class="component-actions">
+			<li><a jwcid="addGatewayLink" href="#">Add New Gateway</a></li>        
+			<li><a jwcid="selectGatewayLink" href="#">Add Existing Gateway</a></li>        
+		</ul>        
+        <table jwcid="gatewayTable" class="table-view"/>
+        <ul class="table-actions">
+            <li>
+                <input jwcid="removeGateways" type="submit" name="" value="Remove"/>
+            </li>
+        </ul>
         </fieldset>
         <ul class="form-actions">
             <li>

@@ -6,12 +6,19 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-    <property-specification name="customRule" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule">
-        global.sipXconfigContext.getBean("customRule")
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+        global.sipXconfigContext.getBean("dialPlanManager")
     </property-specification>
     
+    <property-specification name="ruleId" 
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>    
     
+    <!-- used by removeGateways submit button-->
+	<property-specification name="removeGateways" 
+		type="java.lang.String"/>    
     
     <!--
      - B E A N S
@@ -29,9 +36,14 @@
         <set-property name="enumClass" 
         	expression="@org.sipfoundry.sipxconfig.admin.dialplan.config.Permission@class"/>
     </bean>
+    
     <!--
      - C O M P O N E N T S
      -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
     
 	<component id="common" type="DialingRuleCommon">
         <binding name="rule" expression="customRule"/>
@@ -46,6 +58,10 @@
         <binding name="patterns" expression="customRule.dialPatterns"/>
     </component>
     
+    <component id="call_pattern" type="CallPatternEditor">
+        <binding name="pattern" expression="customRule.callPattern"/>
+    </component>
+
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
     </component>
@@ -53,9 +69,27 @@
         <binding name="listener" expression="listeners.cancel"/>
     </component>
     
+    <!-- gateways configuration -->
     
-    
+    <component id="gatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="customRule.gateways"/>
+        <binding name="dialPlanId" expression="customRule.id"/>
+        <static-binding name="editPageName" value="EditGateway"/>
+    </component>
+    <component id="addGatewayLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.addGateway"/>
+        <static-binding name="parameters" value="normal"/>
+    </component>
+    <component id="selectGatewayLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.selectGateway"/>
+        <static-binding name="parameters" value="normal"/>
+    </component>
+    <component id="removeGateways" type="Submit">
+        <binding name="selected" expression="removeGateways"/>
+        <static-binding name="tag" value="normal"/>
+    </component>    
+
     <!--
-	  - A S S E T S
-	  -->	
+	 - A S S E T S
+	 -->	
 </page-specification>

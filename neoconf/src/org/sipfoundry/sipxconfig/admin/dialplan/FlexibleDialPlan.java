@@ -20,7 +20,7 @@ import java.util.List;
 public class FlexibleDialPlan {
     private List m_rules = new ArrayList();
 
-    boolean addRule(IDialingRule rule) {
+    public boolean addRule(IDialingRule rule) {
         if (m_rules.contains(rule)) {
             return false;
         }
@@ -34,5 +34,13 @@ public class FlexibleDialPlan {
 
     public List getRules() {
         return m_rules;
+    }
+
+    public DialingRule getRule(Integer id) {
+        int i = m_rules.indexOf(new DialingRule(id));
+        if (i < 0) {
+            return null;
+        }
+        return (DialingRule) m_rules.get(i);
     }
 }
