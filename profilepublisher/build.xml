@@ -15,7 +15,6 @@
     <!-- SIPXCONFIG -->
     <pathelement location="${log4j.jar}"/>
     <pathelement location="${common.jar}"/>
-    <pathelement location="${neoconf.jar}"/>
 
     <!-- IDEALLY: pathelement location="${profilegen-client.jar}"/ -->
     <pathelement location="${profilegen-ejb.jar}"/>
@@ -28,16 +27,8 @@
     <!-- J2EE -->
     <fileset dir="${jboss.client.lib}" includes="**/*.jar"/>
 
-    <!-- SPRING -->
-    <pathelement path="${spring.jar}"/>
-
     <!-- for style target -->
     <pathelement location="${jdom.jar}"/>
-
-    <!-- TEST -->
-    <!-- TODO separate into run path -->
-    <path refid="neoconf.runtime.dependencies"/>
-
   </path>
   <property name="classpath" refid="base.path" />
 

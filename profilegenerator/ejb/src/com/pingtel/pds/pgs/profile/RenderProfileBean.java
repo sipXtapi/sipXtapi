@@ -12,34 +12,6 @@
 
 package com.pingtel.pds.pgs.profile;
 
-import java.io.ByteArrayInputStream;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Properties;
-
-import javax.ejb.EJBException;
-import javax.ejb.FinderException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.sipfoundry.sipxconfig.core.CoreDao;
-import org.sipfoundry.sipxconfig.core.Phone;
-import org.sipfoundry.sipxconfig.core.PhoneFactory;
-import org.sipfoundry.sipxconfig.core.SipxConfig;
-import org.sipfoundry.sipxconfig.core.LogicalPhone;
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.BeanFactoryReference;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
-
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.pgs.common.MasterDetailsMap;
@@ -49,6 +21,24 @@ import com.pingtel.pds.pgs.phone.CSProfileDetail;
 import com.pingtel.pds.pgs.phone.CSProfileDetailHome;
 import com.pingtel.pds.pgs.phone.Device;
 import com.pingtel.pds.profilewriter.ProfileWriter;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+
+import javax.ejb.EJBException;
+import javax.ejb.FinderException;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import java.io.ByteArrayInputStream;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Properties;
 
 /**
  *  RenderProfileBean is the EJ Bean implementation of the RenderProile
@@ -187,17 +177,17 @@ public class RenderProfileBean extends JDBCAwareEJB
 
                 logDebug ( "opened profilewriter" );
 
-                BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
-                BeanFactoryReference bf = bfl.useBeanFactory("org.sipfoundry.sipxconfig.core");
-                SipxConfig sipx = (SipxConfig) bf.getFactory().getBean("sipxconfig");        
-                PhoneFactory phones = sipx.getPhoneFactory();    
-                Phone phone = phones.getPhoneByModel(device.getModel());
+                String notifyURL = null;
+                int profileSequenceNumber = -1;
 
-                CoreDao dao = sipx.getCoreDao();
-                LogicalPhone logicalPhone = (LogicalPhone) dao.loadLogicalPhone(deviceID.intValue());
-                String notifyURL = phone.getProfileNotifyUrl(logicalPhone, profileType);
-                int profileSequenceNumber = phone.getProfileSequenceNumber(logicalPhone,
-                        profileType);
+                if ( device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7940 ) ||
+                        device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7960 ) ) {
+
+                    notifyURL = getDeviceNotifyURL ( device );
+                } else {
+                    // sequence number have no meaning for Cisco phones, only Pingtel.
+                    profileSequenceNumber = getLogicalPhonesSeq(deviceID, profileType);
+                }
 
                 // Render the Profile Object via the profile writer, the profile
                 // writer will attempt to notify the SDS which in turn will

@@ -37,7 +37,7 @@ profilegen-soap.war=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.
 profilegen-soap.jar=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.jar
 profilegen-tags.jar=${top.build.dir}/profilegenerator/webui/dist/profilegen-tags.jar
 buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
-neoconf.jar=${top.build.dir}/neoconf/dist/neoconf.jar
+neoconf.war=${top.build.dir}/neoconf/dist/neoconf.war
 beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
 
 # U T I L
@@ -69,7 +69,7 @@ clover.jar=${clover.home}/lib/clover.jar
 
 # common jars located at root of ear file that ear applications can share by 
 # including in their manifest
-manifest.classpath=common.jar neoconf.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen-jdom.jar saxpath.jar jakarta-regexp-1.3.jar
+manifest.classpath=common.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen-jdom.jar saxpath.jar jakarta-regexp-1.3.jar
 
 
 # J 2 E E
@@ -86,6 +86,7 @@ wsdl4j.jar=${top.dir}/lib/wsdl4j.jar
 axis.jar=${top.dir}/lib/axis.jar
 jaxrpc.jar=${top.dir}/lib/jaxrpc.jar
 saaj.jar=${top.dir}/lib/saaj.jar
+servlet.jar=${tomcat.common.lib}/servlet.jar
 
 # S P R I N G
 spring.home=@SPRING_HOME@

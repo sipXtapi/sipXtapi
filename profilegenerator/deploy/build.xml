@@ -21,7 +21,7 @@
       <fileset file="${profilegenerator.war}"/>
       <fileset file="${profilegen-ejb.jar}"/>
       <fileset file="${profilegen-soap.war}"/>
-
+      	
       <!-- COMMON LIBRARY -->
       <fileset file="${commserver.jar}"/>
       <fileset file="${profilegen-patch.jar}"/>
@@ -31,7 +31,6 @@
       <fileset file="${jaxen-core.jar}"/>
       <fileset file="${saxpath.jar}"/>
       <fileset file="${regexp.jar}"/>
-      <fileset file="${neoconf.jar}"/>
     </ear>
   </target>
 

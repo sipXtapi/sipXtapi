@@ -1,5 +1,5 @@
 
-SUBDIRS = . bin neoconf common profilegenerator profilepublisher profilewriter sipagent-jni doc
+SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni doc
 
 EXTRA_DIST = \
     config/sipX-config.in \

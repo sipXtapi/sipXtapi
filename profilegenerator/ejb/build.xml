@@ -13,7 +13,6 @@
       <!-- SIPXCONFIG -->
       <pathelement location="${common.jar}"/>
       <pathelement location="${commserver.jar}"/>
-      <pathelement path="${neoconf.jar}" />
 
       <!-- UTIL -->
       <pathelement location="${jdom.jar}"/>
@@ -22,9 +21,6 @@
       <pathelement location="${saxpath.jar}"/>
       <pathelement location="${log4j.jar}"/>
       <pathelement location="${regexp.jar}"/>
-
-      <!-- SPRING -->  	
-      <pathelement path="${spring.jar}" />
 
       <!-- J2EE -->
       <fileset dir="${jboss.lib}">
@@ -38,7 +34,6 @@
       <!-- TODO: we need a separate classpath for tests -->
       <pathelement location="${easymock.jar}"/>
       <pathelement location="${xmlunit.jar}"/>
-      <path refid="neoconf.runtime.dependencies"/>
 
   </path>
   <property name="classpath" refid="base.path" />

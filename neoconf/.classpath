@@ -18,5 +18,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/pgjdbc2.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/hibernate/odmg.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/catalina/common/lib/servlet.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

@@ -27,11 +27,11 @@
     <pathelement location="${tomcat.lib}/servlet.jar"/>
 
     <!-- SPRING -->
-    <pathelement path="${spring.jar}" />
+    <!-- pathelement path="${spring.jar}" / -->
 
     <!-- TEST -->
     <!-- TODO separate into run path -->
-    <path refid="neoconf.runtime.dependencies"/>
+    <!-- path refid="neoconf.runtime.dependencies"/ -->
   </path>
   <property name="classpath" refid="base.path" />
 
