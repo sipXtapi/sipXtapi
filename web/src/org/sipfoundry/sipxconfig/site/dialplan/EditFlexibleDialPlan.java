@@ -16,48 +16,51 @@ import java.util.Collection;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
  * List all the gateways, allow adding and deleting gateways
  */
 public abstract class EditFlexibleDialPlan extends BasePage {
-    public static final String PAGE = "ListDialPlans";
+    public static final String PAGE = "EditFlexibleDialPlan";
 
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
 
-    public abstract DialPlan getCurrentRow();
+    public abstract IDialingRule getCurrentRow();
 
-    public abstract void setCurrentRow(DialPlan plan);
+    public abstract void setCurrentRow(IDialingRule plan);
 
     public abstract Collection getSelectedRows();
 
-    /**
-     * When user clicks on link to edit a gateway
-     */
-
-    public void add(IRequestCycle cycle_) {
-        /*
-         * EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
-         * page.setDialPlanId(null); cycle.activate(page);
-         */
+    public void add(IRequestCycle cycle) {
+        EditCustomDialRule page = EditCustomDialRule.getPage(cycle);
+        page.setRuleId(null);
+        cycle.activate(page);
     }
 
-    public void edit(IRequestCycle cycle_) {
-        /*
-         * EditDialPlan page = (EditDialPlan) cycle.getPage(EditDialPlan.PAGE);
-         * DialPlan currentRow = getCurrentRow();
-         * page.setDialPlanId(currentRow.getId()); cycle.activate(page);
-         */
+    public void edit(IRequestCycle cycle) {
+        EditCustomDialRule page = EditCustomDialRule.getPage(cycle);
+        IDialingRule currentRow = getCurrentRow();
+        page.setRuleId(currentRow.getId());
+        cycle.activate(page);
     }
 
     public void formSubmit(IRequestCycle cycle_) {
-        /*
-         * Collection selectedRows = getSelectedRows(); if (selectedRows !=
-         * null) { DialPlanManager manager = getDialPlanManager();
-         * manager.deleteDialPlans(selectedRows); }
-         */
+        delete();
+    }
+
+    /**
+     * Deletes all selected rows (on this screen deletes rules from flexible
+     * dial plan).
+     */
+    private void delete() {
+        Collection selectedRows = getSelectedRows();
+        if (null != selectedRows) {
+            FlexibleDialPlan manager = getDialPlanManager().getFlexDialPlan();
+            manager.deleteRules(selectedRows);
+        }
     }
 }

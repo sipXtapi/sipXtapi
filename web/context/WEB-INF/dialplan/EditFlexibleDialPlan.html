@@ -5,8 +5,8 @@
 <body jwcid="$content$">
 	<div jwcid="@Border" id="component">    
 	<ul class="component-actions">
-		<li><a jwcid="addLink" id="dialplan:add" href="EditDialPlan.html">Add Dial Rules</a></li>
-		<li><a jwcid="gatewaysLink" href="Gateways.html">Gateways</a></li>
+		<li><a jwcid="addLink" id="dialplan:add" href="#">Add Dial Rules</a></li>
+		<li><a jwcid="gatewaysLink" href="#">Gateways</a></li>
 	</ul>                
     <form jwcid="form" id="dialplan:list:form">
     	<table jwcid="tableView" id="dialplan:list" class="table-view">
@@ -31,7 +31,7 @@
 				<input type="submit" id="dialplan:activate" value="Activate" onclick="confirm('Are you sure you want to activate selected dial plan?')"/>
 			</li>
 			<li>
-				<input type="submit" jwcid="deleteDialPlans" id="dialplan:delete" value="Delete" onclick="confirm('Are you sure you want to remove selected dial plans?')"/>
+				<input type="submit" jwcid="delete" id="dialplan:delete" value="Delete" onclick="confirm('Are you sure you want to delete selected rules?')"/>
 			</li>
 		</ul>
     </form>

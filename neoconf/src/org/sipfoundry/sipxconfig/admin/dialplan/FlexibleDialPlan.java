@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -42,5 +44,18 @@ public class FlexibleDialPlan {
             return null;
         }
         return (DialingRule) m_rules.get(i);
+    }
+
+    public void deleteRules(Collection selectedRows) {
+        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            m_rules.remove(getRule(id));
+        }
+    }
+
+    public void updateRule(DialingRule rule) {
+        // TODO: this is naive implementation - review after adding hibernate
+        m_rules.remove(rule);
+        m_rules.add(rule);
     }
 }

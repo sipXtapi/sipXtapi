@@ -34,14 +34,6 @@
         <static-binding name="editPageName" value="EditGateway"/>
     </component>
                 
-    <component id="addGatewayLink" type="DirectLink">
-        <binding name="listener" expression="listeners.addGateway"/>
-    </component>
-
-    <component id="dialPlansLink" type="PageLink">
-        <static-binding name="page" value="EditFlexibleDialPlan"/>
-    </component>
-    
     <component id="selectButton" type="Submit">
         <binding name="selected" expression="selectedRows"/>
         <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>

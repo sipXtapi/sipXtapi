@@ -14,7 +14,7 @@
     </property-specification>
     
     <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan">
+        type="org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule">
     </property-specification>
     
 	<property-specification name="selections" 
@@ -40,8 +40,8 @@
     </component>
     
     <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="dialPlanManager.dialPlans"/>
-        <static-binding name="columns" value="Name:name,Status:status,Description:description"/>
+        <binding name="source" expression="dialPlanManager.flexDialPlan.rules"/>
+        <static-binding name="columns" value="Name:name,Enabled:enabled,Description:description"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns"/>
@@ -75,7 +75,7 @@
         <static-binding name="page" value="ListGateways"/>
     </component>
     
-    <component id="deleteDialPlans" type="Submit">
+    <component id="delete" type="Submit">
         <binding name="selected" expression="selectedRows"/>
         <binding name="tag" expression="selections.allSelected"/>
     </component>

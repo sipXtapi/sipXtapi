@@ -14,18 +14,20 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.IValidationDelegate;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
 
 /**
  * EditCustomeDialRule
  */
-public abstract class EditCustomDialRule extends BasePage {
+public abstract class EditCustomDialRule extends BasePage implements PageRenderListener {
     public static final String PAGE = "EditCustomDialRule";
 
     public abstract DialPlanManager getDialPlanManager();
@@ -36,17 +38,23 @@ public abstract class EditCustomDialRule extends BasePage {
 
     public abstract String getRemoveGateways();
 
-    public DialingRule getCustomRule() {
-        DialPlanManager manager = getDialPlanManager();
-        FlexibleDialPlan flexDialPlan = manager.getFlexDialPlan();
-        Integer ruleId = getRuleId();
-        if (null != ruleId) {
-            return flexDialPlan.getRule(ruleId);
+    public abstract CustomDialingRule getCustomRule();
+
+    public abstract void setCustomRule(CustomDialingRule rule);
+
+    public void pageBeginRender(PageEvent event_) {
+        CustomDialingRule rule = getCustomRule();
+        if (null != rule) {
+            return;
         }
-        CustomDialingRule rule = new CustomDialingRule();
-        flexDialPlan.addRule(rule);
-        setRuleId(rule.getId());
-        return rule;
+        Integer id = getRuleId();
+        if (null != id) {
+            DialPlanManager manager = getDialPlanManager();
+            rule = (CustomDialingRule) manager.getFlexDialPlan().getRule(id);
+        } else {
+            rule = new CustomDialingRule();
+        }
+        setCustomRule(rule);
     }
 
     public void addGateway(IRequestCycle cycle) {
@@ -85,11 +93,41 @@ public abstract class EditCustomDialRule extends BasePage {
         removeGateways();
     }
 
-    public void save(IRequestCycle cycle_) {
-        // TODO: implement
+    private boolean isValid() {
+        IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
+        return !delegate.getHasErrors();
     }
 
-    public void cancel(IRequestCycle cycle_) {
-        // TODO: implement
+    public void save(IRequestCycle cycle) {
+        if (isValid()) {
+            saveValid(cycle);
+            cycle.activate(EditFlexibleDialPlan.PAGE);
+        }
+    }
+
+    private void saveValid(IRequestCycle cycle_) {
+        FlexibleDialPlan plan = getDialPlanManager().getFlexDialPlan();
+        CustomDialingRule rule = getCustomRule();
+        Integer ruleId = getRuleId();
+        if (null == ruleId) {
+            plan.addRule(rule);
+        } else {
+            plan.updateRule(rule);
+        }
+    }
+
+    public void cancel(IRequestCycle cycle) {
+        cycle.activate(EditFlexibleDialPlan.PAGE);
+    }
+
+    /**
+     * Creates the pages instance for current request cycle
+     * 
+     * @param cycle
+     * @return page
+     */
+    public static EditCustomDialRule getPage(IRequestCycle cycle) {
+        EditCustomDialRule page = (EditCustomDialRule) cycle.getPage(PAGE);
+        return page;
     }
 }

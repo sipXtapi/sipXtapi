@@ -40,4 +40,6 @@ public interface IDialingRule {
     public abstract List getPermissions();
 
     public abstract void setPermissions(List permissions);
+
+    public abstract Integer getId();
 }

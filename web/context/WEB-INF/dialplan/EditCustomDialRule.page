@@ -16,6 +16,10 @@
         persistent="yes">
     </property-specification>    
     
+    <property-specification name="customRule" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule">
+    </property-specification>    
+
     <!-- used by removeGateways submit button-->
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>    
