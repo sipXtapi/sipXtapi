@@ -19,34 +19,74 @@
     <property-specification name="phone" 
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
     <property-specification name="phoneId" 
+        persistent="yes"
         type="java.lang.String"/>
-    <property-specification name="phoneMetaStorage"
+    <property-specification name="endpointFolder"
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
-    <property-specification name="lineMetaStorage"
+    <property-specification name="lineFolder"
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
     <property-specification name="editSetting" 
+        persistent="yes"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>    
     <!--
      - C O M P O N E N T S
      -->    
-    <component id="phoneSettings" type="Foreach">
-        <binding name="source" expression="phoneSettings"/>
+    <component id="form" type="Form">
+    </component>
+    <component id="endpointSettings" type="Foreach">
+        <binding name="source" expression="endpointSettings"/>
         <binding name="value" expression="currentSetting"/>
     </component>
     <component id="lineSettings" type="Foreach">
         <binding name="source" expression="lineSettings"/>
         <binding name="value" expression="currentSetting"/>
     </component>
-    <component id="phoneSettingsLabel" type="Insert">
+    <component id="endpointSettingsLabel" type="Insert">
         <binding name="value" expression="currentSetting.label"/>
     </component>    
-    <component id="phoneSettingsLink" type="DirectLink">
-        <binding name="listener" expression="listeners.edit"/>
+    <component id="endpointSettingsLink" type="ActionLink">
+        <binding name="listener" expression="listeners.editEndpointSettings"/>
     </component>    
-    <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
+    <component id="lineSettingsLabel" copy-of="endpointSettingsLabel">
     </component>    
-    <component id="lineSettingsLink" copy-of="phoneSettingsLink">
-    </component>        
+    <component id="lineSettingsLink" type="ActionLink">
+        <binding name="listener" expression="listeners.editLineSettings"/>
+    </component>    
+    <component id="IfGroup" type="Conditional">
+        <binding name="condition" expression="currentSetting.getValues().size() > 0"/>
+    </component>
+    <component id="hideGroup" type="DirectLink">
+        <binding name="listener" expression="hideGroup"/>
+    </component>
+    <component id="showGroup" type="DirectLink">
+        <binding name="listener" expression="showGroup"/>
+    </component>
+    <component id="IfSetting" type="Conditional">
+        <binding name="condition" expression="currentSetting.getValues().size() == 0"/>
+    </component>
+    <component id="settingsForm" type="Form">
+    </component>
+    <component id="settings" type="Foreach">
+        <binding name="source" expression="flattenedSettings"/>
+        <binding name="value" expression="currentSetting"/>
+    </component>
+    <component id="settingLabel" type="Insert">
+        <binding name="value" expression="currentSetting.label"/>
+    </component>
+    <component id="groupLabel" copy-of="settingLabel"/>
+    <component id="settingDefault" type="Insert">
+        <binding name="value" expression="currentSetting.defaultValue"/>
+    </component>    
+    <component id="setting" type="TextField">
+        <binding name="value" expression="currentSetting.value"/>
+    </component>
+    <component id="settingHidden" type="Checkbox">
+        <binding name="selected" expression="currentSetting.hidden"/>
+    </component>
+    <component id="settingDescription" type="Insert">
+        <binding name="value" expression="currentSetting.description"/>
+    </component>
+    <component id="groupDescription" copy-of="settingDescription"/>    
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.ok"/>
     </component>

@@ -23,11 +23,11 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
 public abstract class SettingsForm extends BaseComponent {
     
     /**
-     * Shows all settings and groups in a flat collection
+     * Shows all settings not hidden and groups in a flat collection
      */
     private static final SettingFilter FLATTEN_SETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root_, Setting setting_) {
-            return true;
+            return !setting_.isHidden();
         }
     };
     

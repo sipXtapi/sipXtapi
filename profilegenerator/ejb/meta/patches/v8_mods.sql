@@ -73,7 +73,7 @@ foreign key (storage_id) references storage (storage_id);
 create sequence endpoint_seq;
 create unique index idx_endpoint_sernum on endpoint (serial_number);
 
-alter table line
+alter table endpoint
 add constraint fk_endpoint_2
 foreign key (folder_id) references folder (folder_id);
 

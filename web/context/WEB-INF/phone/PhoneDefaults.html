@@ -1,74 +1,102 @@
 <html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-	<div jwcid="@Border">
-		<div class="help">Here will be hints.</div>
-		<h2>Global Phone Settings</h2>
-		<p>To provide settings that can be shared across all phones of a 
-			particular model. Values explicitly set on individual phones will 
-			override these values.</p>
-		<form action="#">
-			<div id="settings-nav">
-				<ul>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<div jwcid="@Border">
+			<div class="help">
+                <b>Quick Links:</b>
+                <ul>
+                    <li><a jwcid="hideGroup">Hide group</a></li>
+                    <li><a jwcid="showGroup">Show group</a></li>
+                </ul>
+            </div>
+			<h2>Global Phone Settings</h2>
+			<p>To provide settings that can be shared across all phones of a 
+				particular model. Values explicitly set on individual phones 
+				will override these values.</p>
+			<form jwcid="settingsForm">
+				<div id="settings-nav">
+					<ul>
+						<li>
+							<b>Phones</b>
+						</li>
+						<span jwcid="endpointSettings">
+							<li>
+								<a href="#" jwcid="endpointSettingsLink">
+									<span jwcid="endpointSettingsLabel"/>
+								</a>
+							</li>
+						</span>
+						<li>
+							<b>Lines</b>
+						</li>
+						<span jwcid="lineSettings">
+							<li>
+								<a href="#" jwcid="lineSettingsLink">
+									<span jwcid="lineSettingsLabel"/>
+								</a>
+							</li>
+						</span>
+					</ul>
+				</div>
+				<div id="settings-content">
+					<table>
+						<span jwcid="settings">
+							<span jwcid="IfGroup">
+								<tr>
+									<td colspan="2">
+										<h3>
+											<label jwcid="groupLabel"/>
+										</h3>
+										<span jwcid="groupDescription"/>
+									</td>
+								</tr>
+							</span>
+							<span jwcid="IfSetting">
+								<tr>
+									<td>
+										<label class="settingLabel"> <span 
+											jwcid="settingLabel"/> : </label>
+									</td>
+									<td>
+										<span jwcid="setting"/>
+										<span class="settingDefault">(Default: 
+											<span 
+											jwcid="settingDefault"/>)</span>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label>Hidden:</label>
+									</td>
+									<td>
+										<input type="checkbox" 
+											jwcid="settingHidden"/>
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>
+										<span jwcid="settingDescription"/>
+									</td>
+								</tr>
+							</span>
+						</span>
+					</table>
+				</div>
+				<ul class="form-actions">
 					<li>
-						<b>Phones</b>
+						<input type="submit" jwcid="cancel" value="Cancel"/>
 					</li>
-                    <span jwcid="phoneSettings">
 					<li>
-						<a href="#" jwcid="phoneSettingsLink"><span jwcid="phoneSettingsLabel"/></a>
+						<input type="submit" jwcid="apply" value="Apply"/>
 					</li>
-                    </span>
 					<li>
-						<b>Lines</b>
+						<input type="submit" jwcid="ok" value="OK"/>
 					</li>
-                    <span jwcid="lineSettings">
-					<li>
-						<a href="#" jwcid="lineSettingsLink"><span jwcid="lineSettingsLabel"/></a>
-					</li>
-                    </span>
 				</ul>
-			</div>
-			<div id="settings-content">
-				<table>
-					<tr>
-						<td>
-							<b>Value:</b>
-						</td>
-						<td>
-							<input type="checkbox"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Visible :</td>
-						<td>
-							<input type="checkbox"/>
-						</td>
-					</tr>
-					<tr>
-						<td valign="top">Description:</td>
-						<td>If Enabled, reject all incoming calls with the 
-							reason "busy" if do-not-disturb is Enabled. If 
-							Enabled, reject all incoming calls with the reason 
-							"busy" if do-not-disturb is Enabled .If Enabled, 
-							reject all incoming calls with the reason "busy" if 
-							do-not-disturb is Enabled</td>
-					</tr>
-				</table>
-			</div>
-			<ul class="form-actions">
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
-				</li>
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.apply" value="Apply"/>
-				</li>
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.ok" value="OK"/>
-				</li>
-			</ul>                        
-		</form>
-        </div>
+			</form>
+		</div>
 	</body>
 </html>
