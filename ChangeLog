@@ -1,7 +1,28 @@
 The most current information on the status of any release is in the
 SIPfoundry Issue Tracker at:
 
-	http://track.sipfoundry.org/browse?XCF
+        http://track.sipfoundry.org/browse?XCF
+
+
+Release Notes - sipXconfig - Version 2.6.2
+
+** Bug
+    * [XCF-36] - config server will not run on an isolated Network
+    * [XCF-52] - incorect DTD referenced in profilegenerator/ejb/meta/MET-INF/ejb-jar.xml
+    * [XCF-61] - if JBOSS_HOME defined, use it or fail
+    * [XCF-72] - Permission of various .in files in $SIPX_HOME to be
+                 changed to allow write access to sipxchange
+    * [XCF-73] - Null Error when trying to project profiles for a device
+    * [XCF-90] - Configserver takes a very very long time, when you send
+                 profiles for a user who has a Cisco7940 device assigned to
+                 him.
+    * [XCF-102] - mappingrules.xml not accessible from UI
+    * [XCF-103] - sipXconfig 2.6.1 rpm should require JBoss 2.4.4
+    * [XCF-128] - After upgrade to 2.6 FCS, config server wont let me log in as superadmin
+    * [XCF-129] - Unable to add new device
+
+** New Feature
+    * [XCF-54] - Separate voicemail ui from end user phone config ui
 
 
 Release Notes - sipXconfig - Version 2.6.1
