@@ -16,6 +16,7 @@
 #elif defined(__pingtel_on_posix__)
 #include <unistd.h>
 #endif
+#include <iostream.h>
 
 // APPLICATION INCLUDES
 #include "sipauthproxy/version.h"
@@ -35,6 +36,8 @@
 // STRUCTS
 // TYPEDEFS
 typedef void (*sighandler_t)(int);
+
+using namespace std ;
 
 // FUNCTIONS
 extern "C" {
@@ -126,9 +129,9 @@ sigHandler( int sig_num )
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
 {
-   OsString logLevel;               // Controls Log Verbosity
-   OsString consoleLogging;         // Enable console logging by default?
-   OsString fileTarget;             // Path to store log file.
+   UtlString logLevel;               // Controls Log Verbosity
+   UtlString consoleLogging;         // Enable console logging by default?
+   UtlString fileTarget;             // Path to store log file.
    OsBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
    struct tagPrioriotyLookupTable
@@ -269,7 +272,7 @@ main( int argc, char* argv[] )
 #endif
 
    OsBoolean interactiveSet = false;
-   OsString argString;
+   UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
        osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
@@ -316,17 +319,17 @@ main( int argc, char* argv[] )
       path.getNativePath(workingDirectory);
    }
 
-   OsString ConfigfileName =  workingDirectory +
+   UtlString ConfigfileName =  workingDirectory +
       OsPathBase::separator +
       "authproxy-config"  ;
 
     int proxyTcpPort;
     int proxyUdpPort;
-    OsString routeName;
-    //OsString proxyRecordRoute;
+    UtlString routeName;
+    //UtlString proxyRecordRoute;
     //int maxForwards;
     OsConfigDb configDb;
-    OsString ipAddress;
+    UtlString ipAddress;
 
     OsSocket::getHostIp(&ipAddress);
 
@@ -358,7 +361,7 @@ main( int argc, char* argv[] )
 
     initSysLog(&configDb) ;
 
-    OsString algorithm;
+    UtlString algorithm;
     configDb.get("SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM", algorithm);
     algorithm.toUpper();
     if( TRUE )
@@ -370,7 +373,7 @@ main( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM : %s", algorithm.data());
     osPrintf("SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM : %s\n", algorithm.data());
 
-    OsString qop;
+    UtlString qop;
     configDb.get("SIP_AUTHPROXY_AUTHENTICATE_QOP", qop);
     qop.toUpper();
 
@@ -384,7 +387,7 @@ main( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_AUTHENTICATE_QOP : %s", qop.data());
     osPrintf("SIP_AUTHPROXY_AUTHENTICATE_QOP : %s\n", qop.data());
 
-    OsString realm;
+    UtlString realm;
     configDb.get("SIP_AUTHPROXY_AUTHENTICATE_REALM", realm);
     if(realm.isNull())
     {
@@ -394,7 +397,7 @@ main( int argc, char* argv[] )
     osPrintf("SIP_AUTHPROXY_AUTHENTICATE_REALM : %s\n", realm.data());
 
     OsBoolean authEnabled;
-    OsString authScheme;
+    UtlString authScheme;
     configDb.get("SIP_AUTHPROXY_AUTHENTICATE_SCHEME", authScheme);
     authScheme.toLower();
     if(authScheme.compareTo("none") == 0)
@@ -424,7 +427,7 @@ main( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_TCP_PORT : %d", proxyTcpPort);
     osPrintf("SIP_AUTHPROXY_TCP_PORT : %d\n", proxyTcpPort);
 
-    OsString hostAliases;
+    UtlString hostAliases;
     configDb.get("SIP_AUTHPROXY_HOST_ALIASES", hostAliases);
     if(hostAliases.isNull())
     {
@@ -449,7 +452,7 @@ main( int argc, char* argv[] )
     // Set the maximum amount of time that TCP connections can
     // stay around when they are not used.
     int      staleTcpTimeout = 3600;
-    OsString staleTcpTimeoutStr;
+    UtlString staleTcpTimeoutStr;
 
     // Check for missing parameter or empty value
     configDb.get("SIP_AUTHPROXY_STALE_TCP_TIMEOUT", staleTcpTimeoutStr);
@@ -547,7 +550,7 @@ main( int argc, char* argv[] )
     sipUserAgent.setHostAliases(hostAliases);
     sipUserAgent.start();
 
-    OsString buffer;
+    UtlString buffer;
 
     // Create a router to route stuff either
     // to a local server or on out to the real world

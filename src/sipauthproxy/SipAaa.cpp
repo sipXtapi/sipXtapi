@@ -11,7 +11,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-#include <rw/hashdict.h>
+
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
@@ -39,12 +39,12 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-extern RWCollectableString gUriKey;
-extern RWCollectableString gCallidKey;
-extern RWCollectableString gContactKey;
-extern RWCollectableString gQvalueKey;
-extern RWCollectableString gCseqKey;
-extern RWCollectableString gExpiresKey;
+extern UtlString gUriKey;
+extern UtlString gCallidKey;
+extern UtlString gContactKey;
+extern UtlString gQvalueKey;
+extern UtlString gCseqKey;
+extern UtlString gExpiresKey;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -64,7 +64,7 @@ SipAaa::SipAaa( SipUserAgent& sipUserAgent,
     char signBuf[100];
     //int ranNum = rand();
     //long epochTime = OsDateTime::getSecsSinceEpoch();
-    OsString viaHost;
+    UtlString viaHost;
     int viaPort;
     mpSipUserAgent->getViaInfo(OsSocket::UDP, viaHost, viaPort);
     // The signature should be the same after a restart or any calls
@@ -98,7 +98,7 @@ SipAaa::SipAaa( SipUserAgent& sipUserAgent,
         path.getNativePath(workingDirectory);
     }
 
-    OsString fileName =
+    UtlString fileName =
     workingDirectory +
     OsPathBase::separator +
     AUTH_RULES_FILENAME;
@@ -167,7 +167,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
     {
         SipMessage* sipRequest = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
         int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
-        OsString callId;
+        UtlString callId;
 
         if ( messageType == SipMessageEvent::TRANSPORT_ERROR )
         {
@@ -181,11 +181,11 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 //osPrintf("ERROR: SipAaa::handleMessage received response\n");
             } else
             {
-                OsString myRouteUri;
-                OsString targetUri;
+                UtlString myRouteUri;
+                UtlString targetUri;
                 OsBoolean isNextHop;
-                OsString nextHopUri;
-                OsString firstRouteUri;
+                UtlString nextHopUri;
+                UtlString firstRouteUri;
                 OsBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
                 // If there is a route header just send it on its way
                 if ( routeExists )
@@ -195,10 +195,10 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 #endif
                     // Check the URI.  If the URI has lr the
                     // previous proxy was a strict router
-                    OsString requestUri;
+                    UtlString requestUri;
                     sipRequest->getRequestUri(&requestUri);
                     Url routeUrlParser(requestUri, TRUE);
-                    OsString dummyValue;
+                    UtlString dummyValue;
                     OsBoolean previousHopStrictRoutes =
                         routeUrlParser.getUrlParameter( "lr", dummyValue, 0 );
                     OsBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
@@ -251,7 +251,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
                         // We have to pop the last route and
                         // put it in the URI
-                        OsString contactUri;
+                        UtlString contactUri;
                         int lastRouteIndex;
                         sipRequest->getLastRouteUri(contactUri, lastRouteIndex);
 #ifdef TEST_PRINT
@@ -269,7 +269,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         newUri.getUri(contactUri);
                         sipRequest->changeRequestUri(contactUri);
 #ifdef TEST_PRINT
-                        OsString bytes;
+                        UtlString bytes;
                         int len;
                         sipRequest->getBytes(&bytes, &len);
                         osPrintf("SipAaa: \nStrict\n%s\nNow Loose\n",
@@ -290,7 +290,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         if(firstRouteIsMe)
                         {
                             // THis is a loose router pop my route off
-                            OsString dummyUri;
+                            UtlString dummyUri;
                             sipRequest->removeRouteUri(0, &dummyUri);
                             myRouteUri = firstRouteUri;
                         }
@@ -315,10 +315,10 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     syslog(FAC_SIP, PRI_WARNING, "SipAaa::handleMessage no route found\n") ;
                     //osPrintf("WARNING: SipAaa::handleMessage no route found\n");
 //#endif
-                    OsString uri;
+                    UtlString uri;
                     sipRequest->getRequestUri(&uri);
                     //Url originalUri(uri);
-                    //OsString domain;
+                    //UtlString domain;
                     //originalUri.getHostAddress(domain);
                     //int port = originalUri.getHostPort();
                     //if(port <= 0) port = SIP_PORT;
@@ -346,14 +346,14 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
                 // Get some info about the request
                 // (method, to, from & tags)
-                OsString method;
+                UtlString method;
                 sipRequest->getRequestMethod(&method);
                 Url fromUrl;
                 Url toUrl;
                 sipRequest->getFromUrl(fromUrl);
                 sipRequest->getToUrl(toUrl);
-                OsString fromTag;
-                OsString toTag;
+                UtlString fromTag;
+                UtlString toTag;
                 fromUrl.getFieldParameter("tag", fromTag);
                 toUrl.getFieldParameter("tag", toTag);
 
@@ -362,9 +362,9 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 OsBoolean routeSignatureIsValid = FALSE;
                 OsBoolean toMatches = FALSE;
                 OsBoolean fromMatches = FALSE;
-                OsString routePermission;
-                OsString routeTag;
-                OsString routeSignature;
+                UtlString routePermission;
+                UtlString routeTag;
+                UtlString routeSignature;
                 if(!myRouteUri.isNull() &&
                     !toTag.isNull())
                 {
@@ -377,7 +377,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
                     // The authentication and authorization only applies
                     // to one direction.
-                    OsString validRouteSignature;
+                    UtlString validRouteSignature;
                     if(toTag.compareTo(routeTag) == 0)
                     {
                         toMatches = TRUE;
@@ -427,11 +427,11 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         if(fromMatches && !routePermission.isNull())
                         {
                             // Need to authenticate
-                            RWHashDictionary record;
-                            RWCollectableString* permissionKey =
-                                new RWCollectableString("permission");
-                            RWCollectableString* permissionValue =
-                                new RWCollectableString(routePermission);
+                            UtlHashMap record;
+                            UtlString* permissionKey =
+                                new UtlString("permission");
+                            UtlString* permissionValue =
+                                new UtlString(routePermission);
 
                             record.insertKeyAndValue(
                                 permissionKey,permissionValue);
@@ -495,18 +495,18 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 if(permissions.getSize() > 0)
                 {
                     needsRecordRouting = TRUE;
-                    OsString rulePermission;
+                    UtlString rulePermission;
                     if(permissions.getSize() == 1)
                     {
-                        RWCollectableString permissionKey("permission");
-                        RWHashDictionary record;
+                        UtlString permissionKey("permission");
+                        UtlHashMap record;
                         permissions.getIndex(0, record);
-                        rulePermission = *((RWCollectableString*)record.findValue(&permissionKey));
+                        rulePermission = *((UtlString*)record.findValue(&permissionKey));
                     }
 
                     // If exactly one permission is required and it is
                     // RecordRoute, there is no need to authenticate.
-                    if(rulePermission.compareTo("RecordRoute", OsString::ignoreCase) == 0)
+                    if(rulePermission.compareTo("RecordRoute", UtlString::ignoreCase) == 0)
                     {
                         needsAuthentication = FALSE;
                     }
@@ -515,10 +515,10 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         // @JC Forwarding calls to the PSTN gateway workaround
                         // if incoming calls (fromUrl) match a an entry in the
                         // AuthexceptionDB then we do not require authentication
-                        OsString requestUri;
+                        UtlString requestUri;
                         sipRequest->getRequestUri( &requestUri );
                         Url requestUrl ( requestUri, TRUE );
-                        OsString userid;
+                        UtlString userid;
                         requestUrl.getUserId(userid);
                         if ( AuthexceptionDB::getInstance()->isException( userid ) )
                         {
@@ -537,8 +537,8 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
                 // Authenticate if we need to
                 SipMessage authResponse;
-                OsString authUser;
-                OsString matchedPermission;
+                UtlString authUser;
+                UtlString matchedPermission;
 
                 if (needsAuthentication &&
                      (!isAuthenticated(*sipRequest, authUser, authResponse) ||
@@ -552,7 +552,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     if ( needsRecordRouting )
                     {
 
-                        OsString uriString;
+                        UtlString uriString;
                         int port;
                         //sipRequest->getRequestUri(&uriString);
                         mpSipUserAgent->getViaInfo(
@@ -565,7 +565,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         routeUrl.setHostAddress(uriString.data());
                         routeUrl.setHostPort(port);
                         routeUrl.setUrlParameter("lr", "");
-                        OsString signature;
+                        UtlString signature;
 
                         // Preserve the signature if it is valid
                         if(routeSignatureIsValid)
@@ -592,7 +592,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         // on the mid-dialog transactions and keeps the message
                         // a little smaller to avoid UDP fragmentation which cause
                         // a problem with Cisco phones.
-                        OsString previousRRoute;
+                        UtlString previousRRoute;
                         OsBoolean newRRouteIsUnique = TRUE;
                         if(sipRequest->getRecordRouteUri(0, &previousRRoute))
                         {
@@ -602,9 +602,9 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                             Url prevRRouteUrl(previousRRoute);
                             if(prevRRouteUrl.isUserHostPortEqual(routeUrl)) 
                             {
-                                OsString prevPermission;
-                                OsString prevFromTag;
-                                OsString prevSignature;
+                                UtlString prevPermission;
+                                UtlString prevFromTag;
+                                UtlString prevSignature;
                                 // If the permission, from tag and signature
                                 // of the exist record-route matches the one
                                 // to be added, mark it as not unique so that
@@ -624,7 +624,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         if(newRRouteIsUnique)
                         {
                             //routeUrl.setAngleBrackets();
-                            OsString recordRoute = routeUrl.toString();
+                            UtlString recordRoute = routeUrl.toString();
                             sipRequest->addRecordRouteUri(recordRoute);
                         }
                     }
@@ -670,18 +670,18 @@ SipAaa::operator=(const SipAaa& rhs)
 
 OsBoolean SipAaa::isAuthenticated(
     const SipMessage& sipRequest,
-    OsString& authUser,
+    UtlString& authUser,
     SipMessage& authResponse)
 {
     OsBoolean authenticated = FALSE;
-    OsString requestUser;
-    OsString requestRealm;
-    OsString requestNonce;
-    OsString requestUri;
+    UtlString requestUser;
+    UtlString requestRealm;
+    UtlString requestNonce;
+    UtlString requestUri;
     int requestAuthIndex = 0;
-    OsString callId;
+    UtlString callId;
     Url fromUrl;
-    OsString fromTag;
+    UtlString fromTag;
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
     long now = time.seconds();
@@ -714,7 +714,7 @@ OsBoolean SipAaa::isAuthenticated(
             // osPrintf("SipAaa:isAuthenticated requestUser: %s requestRealm: %s\n",
             //    requestUser.data(), requestRealm.data());
 
-            OsString userUrlString(requestUser);
+            UtlString userUrlString(requestUser);
             int atIndex = userUrlString.index("@");
             if ( atIndex < 0 )
             {
@@ -729,10 +729,10 @@ OsBoolean SipAaa::isAuthenticated(
             // As URIs change and get mapped along the way
             // we have to trust the one passed in via the
             // auth field
-            //OsString reqUri;
+            //UtlString reqUri;
             //sipRequest.getRequestUri(&reqUri);
-            OsString authTypeDB;
-            OsString passTokenDB;
+            UtlString authTypeDB;
+            UtlString passTokenDB;
 
             // Ignore this credential if it is not a current valid nonce
             if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
@@ -803,11 +803,11 @@ OsBoolean SipAaa::isAuthenticated(
     if ( !authenticated )
     {
         authUser = "";
-        OsString newNonce;
-        OsString challangeRequestUri;
+        UtlString newNonce;
+        UtlString challangeRequestUri;
         sipRequest.getRequestUri(&challangeRequestUri);
-        OsString opaque;
-        OsString opaqueSeed;
+        UtlString opaque;
+        UtlString opaqueSeed;
 
         mNonceDb.createNewNonce(callId,
                                 fromTag,
@@ -844,12 +844,12 @@ SipAaa::isAuthorized (
     const ResultSet& requiredPermissions,
     const char* authUser,
     SipMessage& authResponse,
-    OsString& matchedPermission)
+    UtlString& matchedPermission)
 {
     OsBoolean authorized = FALSE;
-    OsString unMatchedPermissions;
+    UtlString unMatchedPermissions;
 
-    OsString userUrlString(authUser ? authUser : "");
+    UtlString userUrlString(authUser ? authUser : "");
     if ( userUrlString.index("@") < 0 )
     {
         userUrlString.append("@");
@@ -865,18 +865,18 @@ SipAaa::isAuthorized (
     // this is verifying that the user has at least one of the
     // required permissions.  I think that what is is SUPPOSED to
     // do is verify that the user has ALL of the required permissions.
-    RWCollectableString identityKey ("identity");
-    RWCollectableString permissionKey ("permission");
+    UtlString identityKey ("identity");
+    UtlString permissionKey ("permission");
 
     int numGrantedPermissions = grantedPermissions.getSize();
     for (int i = 0; i< numGrantedPermissions; i++ )
     {
 
-        RWHashDictionary record;
+        UtlHashMap record;
         grantedPermissions.getIndex( i, record );
 
-        OsString rowUri        = *((RWCollectableString*)record.findValue(&identityKey));
-        OsString grantedRowPermission = *((RWCollectableString*)record.findValue(&permissionKey));
+        UtlString rowUri        = *((UtlString*)record.findValue(&identityKey));
+        UtlString grantedRowPermission = *((UtlString*)record.findValue(&permissionKey));
 
         syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized found uri: %s permission: %s\n",
                rowUri.data(), grantedRowPermission.data());
@@ -887,7 +887,7 @@ SipAaa::isAuthorized (
         int numRequiredPermissions = requiredPermissions.getSize();
         if ( numRequiredPermissions > 0 )
         {
-            OsString permDB;
+            UtlString permDB;
             for (int j=0; j<numRequiredPermissions; j++ )
             {
                 // WARNING: I think that the following reuse
@@ -899,12 +899,12 @@ SipAaa::isAuthorized (
 
                 // I do not know why rowUri even exists as a variable in
                 // this method dpetrie
-                //rowUri = *((RWCollectableString*)record.findValue( &identityKey ));
+                //rowUri = *((UtlString*)record.findValue( &identityKey ));
 
-                permDB = *((RWCollectableString*)record.findValue( &permissionKey ));
-                if ( permDB.compareTo( grantedRowPermission, OsString::ignoreCase ) == 0 ||
-                    permDB.compareTo("ValidUser", OsString::ignoreCase ) == 0 ||
-                    permDB.compareTo("RecordRoute", OsString::ignoreCase ) == 0)
+                permDB = *((UtlString*)record.findValue( &permissionKey ));
+                if ( permDB.compareTo( grantedRowPermission, UtlString::ignoreCase ) == 0 ||
+                    permDB.compareTo("ValidUser", UtlString::ignoreCase ) == 0 ||
+                    permDB.compareTo("RecordRoute", UtlString::ignoreCase ) == 0)
                 {
                     matchedPermission.append( permDB );
                     authorized = TRUE;
@@ -933,13 +933,13 @@ SipAaa::isAuthorized (
     // required
     if (!authorized)
     {
-        RWHashDictionary requiredPermRecord;
+        UtlHashMap requiredPermRecord;
         int numRequiredPermissions = requiredPermissions.getSize();
         for(int i = 0; i < numRequiredPermissions; i++)
         {
             requiredPermissions.getIndex( i, requiredPermRecord );
-            RWCollectableString* requirePermPtr =
-                ((RWCollectableString*)requiredPermRecord.findValue( &permissionKey ));
+            UtlString* requirePermPtr =
+                ((UtlString*)requiredPermRecord.findValue( &permissionKey ));
             if(requirePermPtr)
             {
                 if ( !unMatchedPermissions.isNull() )
@@ -963,7 +963,7 @@ SipAaa::isAuthorized (
 
     if ( !authorized )
     {
-        OsString errorText("Not authorized for ");
+        UtlString errorText("Not authorized for ");
         errorText += unMatchedPermissions;
 
         authResponse.setResponseData(&sipRequest,
@@ -974,12 +974,12 @@ SipAaa::isAuthorized (
 }
 
 
-void SipAaa::calcRouteSignature(OsString& matchedPermission,
-                               OsString& callId,
-                               OsString& fromTag,
-                               OsString& signature)
+void SipAaa::calcRouteSignature(UtlString& matchedPermission,
+                               UtlString& callId,
+                               UtlString& fromTag,
+                               UtlString& signature)
 {
-    OsString signatureData(mSignatureSecret);
+    UtlString signatureData(mSignatureSecret);
     signatureData.append(":");
     signatureData.append(matchedPermission);
     signatureData.append(":");

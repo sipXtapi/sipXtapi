@@ -5,11 +5,11 @@ INCLUDES = -I$(top_srcdir)/include
 ## and of course require no setup
 TESTS = sipXproxy-check
 
-sipXproxy_check_CXXFLAGS = -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\"
+sipXproxy_check_CXXFLAGS = -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" $(GLIB_CFLAGS)
 
 check_PROGRAMS = sipXproxy-check
 
-sipXproxy_check_LDFLAGS = -L@prefix@/lib
+sipXproxy_check_LDFLAGS = -L@prefix@/lib $(GLIB_LIBS)
 
 sipXproxy_check_LIBS = \
     libsipXcommserver.la \

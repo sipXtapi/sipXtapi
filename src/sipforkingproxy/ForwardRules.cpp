@@ -43,10 +43,10 @@ ForwardRules::~ForwardRules()
  
 }
 /* ============================ MANIPULATORS ============================== */
-OsStatus ForwardRules::loadMappings(const OsString configFileName,
-                                  const OsString mediaserver,
-                                  const OsString& voicemail,
-                                  const OsString& localhost)
+OsStatus ForwardRules::loadMappings(const UtlString configFileName,
+                                  const UtlString mediaserver,
+                                  const UtlString& voicemail,
+                                  const UtlString& localhost)
 {
    OsStatus currentStatus = OS_SUCCESS;
 
@@ -55,7 +55,7 @@ OsStatus ForwardRules::loadMappings(const OsString configFileName,
  	mDoc = new TiXmlDocument( configFileName.data() );
    if( !mDoc->LoadFile() )
    {
-      OsString parseError = mDoc->ErrorDesc();
+      UtlString parseError = mDoc->ErrorDesc();
 
       OsSysLog::add( FAC_SIP, PRI_ERR, "ERROR parsing forwardingrules '%s': %s"
                     ,configFileName.data(), parseError.data());
@@ -104,10 +104,10 @@ void ForwardRules::buildDefaultRules(const char* domain,
 
 
 
-    OsString hostnamePort(hostname ? hostname : "localhost");
-    OsString domainPort(domain ? domain : "");
-    OsString ipAddressPort(ipAddress ? ipAddress : "127.0.0.1");
-    OsString fqhnPort(fqhn ? fqhn : "localhost");
+    UtlString hostnamePort(hostname ? hostname : "localhost");
+    UtlString domainPort(domain ? domain : "");
+    UtlString ipAddressPort(ipAddress ? ipAddress : "127.0.0.1");
+    UtlString fqhnPort(fqhn ? fqhn : "localhost");
 
     if(localPort == 5060) localPort = 0;
     if(localPort > 0)
@@ -120,14 +120,14 @@ void ForwardRules::buildDefaultRules(const char* domain,
         fqhnPort.append(portString);
     }
 
-    OsString sdsAddress(fqhn);
+    UtlString sdsAddress(fqhn);
     sdsAddress.append(":5090");
-    OsString statusAddress(fqhn);
+    UtlString statusAddress(fqhn);
     statusAddress.append(":5110");
-    OsString regAddress(fqhn);
+    UtlString regAddress(fqhn);
     regAddress.append(":5070");
-    OsString configAddress("sipuaconfig");
-    OsString configFqhnAddress(configAddress);
+    UtlString configAddress("sipuaconfig");
+    UtlString configFqhnAddress(configAddress);
     configFqhnAddress.append(".");
     configFqhnAddress.append(domain);
 
@@ -231,8 +231,8 @@ void ForwardRules::buildDefaultRules(const char* domain,
 /* ============================ CREATORS ================================== */
 OsStatus ForwardRules::getRoute(const Url& requestUri,
                                 const SipMessage& request,
-                                OsString& routeToString,
-                                OsString& mappingType)
+                                UtlString& routeToString,
+                                UtlString& mappingType)
 
 {
     OsStatus currentStatus = OS_FAILED;
@@ -256,12 +256,12 @@ OsStatus ForwardRules::getRoute(const Url& requestUri,
 }
 OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
                                               const SipMessage& request,
-                                              OsString& routeToString,
-                                              OsString& mappingType,
+                                              UtlString& routeToString,
+                                              UtlString& mappingType,
                                               TiXmlNode* routesNode,
                                               TiXmlNode* previousRouteMatchNode)
 {
-   OsString testHost;
+   UtlString testHost;
    requestUri.getHostAddress(testHost);
    int testPort = requestUri.getHostPort();
    if(testPort == SIP_PORT)
@@ -290,7 +290,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
 
       // Skip non-route elements
       TiXmlElement* routeMatchElement = routeMatchNode->ToElement();
-      OsString tagValue =  routeMatchElement->Value();
+      UtlString tagValue =  routeMatchElement->Value();
       if(tagValue.compareTo(XML_TAG_ROUTEMATCH) != 0 )
       {
          continue;
@@ -324,15 +324,15 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
             TiXmlText* Xmlhost = routeFromPatternText->ToText();
             if (Xmlhost)
             {
-               OsString host = Xmlhost->Value();
+               UtlString host = Xmlhost->Value();
                Url xmlUrl(host.data());
-               OsString xmlHost;
+               UtlString xmlHost;
                xmlUrl.getHostAddress(xmlHost);
                int xmlPort = xmlUrl.getHostPort();
 
                // See if the host and port of the routeFrom elelment
                // match that of the URI
-               if( (xmlHost.compareTo(testHost, RWString::ignoreCase) == 0) &&
+               if( (xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0) &&
                   ((xmlPort == SIP_PORT && testPort == 0) ||
                    xmlPort == testPort) )
                {
@@ -356,7 +356,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
 }
 
 OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
-                                                 OsString& routeToString,
+                                                 UtlString& routeToString,
                                                  TiXmlNode* routeMatchNode,
                                                  TiXmlNode* previousMethodMatchNode)
 {
@@ -364,7 +364,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
    OsStatus fieldMatchFound = OS_FAILED;
    OsStatus currentStatus = OS_FAILED;
    OsBoolean methodMatchFound = false;
-   OsString method;
+   UtlString method;
    request.getRequestMethod(&method);
 
    TiXmlNode* methodMatchNode = previousMethodMatchNode;
@@ -382,7 +382,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
       }
 
       // Skip non-methodMatch elements
-      OsString tagValue = methodMatchNode->Value();
+      UtlString tagValue = methodMatchNode->Value();
       if(tagValue.compareTo(XML_TAG_METHODMATCH) != 0 )
       {
          continue;
@@ -414,8 +414,8 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
             {
                 // If the method of the request matches the method in
                 // the methodMatch element
-               OsString methodString = XmlMethod->Value();
-               if (methodString.compareTo(method, RWString::ignoreCase) == 0 )
+               UtlString methodString = XmlMethod->Value();
+               if (methodString.compareTo(method, UtlString::ignoreCase) == 0 )
                {
                   // Found a matching method, see if there is a fieldMatch
                   // with a fieldName attribute that matches the fields
@@ -460,7 +460,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
 }
 
 OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
-                                                OsString& routeToString,
+                                                UtlString& routeToString,
                                                 TiXmlNode* methodMatchNode,
                                                 TiXmlNode* previousFieldMatchNode)
 {
@@ -484,7 +484,7 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
          continue;
       }
 
-      OsString tagValue = fieldMatchNode->Value();
+      UtlString tagValue = fieldMatchNode->Value();
       if(tagValue.compareTo(XML_TAG_FIELDMATCH) != 0 )
       {
          continue;
@@ -493,13 +493,13 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
       TiXmlElement* fieldMatchElement  = fieldMatchNode->ToElement();
       TiXmlNode* fieldPatternNode = NULL;
       OsBoolean fieldPatternPresent = false;
-      OsString fieldName;
+      UtlString fieldName;
       const char* fieldValuePtr = NULL;
 
       //check for fieldName parameter , if present check if it matches
       if(fieldMatchElement->Attribute(XML_ATT_FIELDNAME))
       {
-         OsString fieldNameXml = fieldMatchElement->Attribute(XML_ATT_FIELDNAME);
+         UtlString fieldNameXml = fieldMatchElement->Attribute(XML_ATT_FIELDNAME);
          // If field name is specified, 
          // check if it exists in the message
          if(!fieldNameXml.isNull())
@@ -562,7 +562,7 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
    }
    return getRouteFound;
 }
-OsStatus ForwardRules::getRouteTo(OsString& RouteToString,
+OsStatus ForwardRules::getRouteTo(UtlString& RouteToString,
                                   TiXmlNode* nodeWithRouteToChild)
 {
    

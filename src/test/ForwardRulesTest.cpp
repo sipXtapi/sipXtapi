@@ -40,9 +40,9 @@ class ForwardRulesTest : public CppUnit::TestCase
       void testSimpleMapDefault()
       {
          ForwardRules theRules;
-         OsString     theRoute;
-         OsString     mappingType;
-         OsString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     theRoute;
+         UtlString     mappingType;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -64,9 +64,9 @@ class ForwardRulesTest : public CppUnit::TestCase
       void testSimpleMapMatchMethod()
       {
          ForwardRules theRules;
-         OsString     theRoute;
-         OsString     mappingType;
-         OsString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     theRoute;
+         UtlString     mappingType;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -88,9 +88,9 @@ class ForwardRulesTest : public CppUnit::TestCase
       void testSimpleMapMatchFieldExact()
       {
          ForwardRules theRules;
-         OsString     theRoute;
-         OsString     mappingType;
-         OsString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     theRoute;
+         UtlString     mappingType;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -113,9 +113,9 @@ class ForwardRulesTest : public CppUnit::TestCase
       void testSimpleMapMatchFieldLong()
       {
          ForwardRules theRules;
-         OsString     theRoute;
-         OsString     mappingType;
-         OsString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     theRoute;
+         UtlString     mappingType;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -138,9 +138,9 @@ class ForwardRulesTest : public CppUnit::TestCase
       void testSimpleMapNonMatchFieldPrefix()
       {
          ForwardRules theRules;
-         OsString     theRoute;
-         OsString     mappingType;
-         OsString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     theRoute;
+         UtlString     mappingType;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -163,9 +163,9 @@ class ForwardRulesTest : public CppUnit::TestCase
       void testSimpleMapNoField()
       {
          ForwardRules theRules;
-         OsString     theRoute;
-         OsString     mappingType;
-         OsString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     theRoute;
+         UtlString     mappingType;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS

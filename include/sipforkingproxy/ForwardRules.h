@@ -59,10 +59,10 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
-   OsStatus loadMappings(const OsString configFileName,
-                         const OsString mediaserver = "",
-                         const OsString& voicemail = "",
-                         const OsString& localhost = "");
+   OsStatus loadMappings(const UtlString configFileName,
+                         const UtlString mediaserver = "",
+                         const UtlString& voicemail = "",
+                         const UtlString& localhost = "");
    
    void buildDefaultRules(const char* domain,
                          const char* hostname,
@@ -79,35 +79,35 @@ public:
 
    OsStatus getRoute(const Url& requestUri,
       const SipMessage& request,
-      OsString& RouteToString,
-      OsString& mappingType);
+      UtlString& RouteToString,
+      UtlString& mappingType);
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
    TiXmlDocument *mDoc;
-   OsString mVoicemail;
-   OsString mLocalhost;
-   OsString mMediaServer;
+   UtlString mVoicemail;
+   UtlString mLocalhost;
+   UtlString mMediaServer;
 
    OsStatus parseRouteMatchContainer(const Url& requestUri,
       const SipMessage& request,
-      OsString& RouteToString,
-      OsString& mappingType,
+      UtlString& RouteToString,
+      UtlString& mappingType,
       TiXmlNode* routesNode,
       TiXmlNode* previousRouteMatchNode = NULL);
    
    OsStatus parseMethodMatchContainer(const SipMessage& request,
-      OsString& RouteToString,
+      UtlString& RouteToString,
       TiXmlNode* routeMatchNode,
       TiXmlNode* previousMethodMatchNode = NULL);
 
    OsStatus parseFieldMatchContainer(const SipMessage& request,
-      OsString& RouteToString,
+      UtlString& RouteToString,
       TiXmlNode* methodMatchNode,
       TiXmlNode* previousFieldMatchNode = NULL);
 
-   OsStatus getRouteTo(OsString& RouteToString,
+   OsStatus getRouteTo(UtlString& RouteToString,
       TiXmlNode* fieldMatchNode);
 
 

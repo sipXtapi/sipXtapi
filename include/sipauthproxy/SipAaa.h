@@ -83,7 +83,7 @@ protected:
 private:
     OsBoolean isAuthenticated(
         const SipMessage& sipRequest,
-        OsString& authUser,
+        UtlString& authUser,
         SipMessage& authResponse );
 
     OsBoolean isAuthorized (
@@ -91,17 +91,17 @@ private:
         const ResultSet& permissions, 
         const char* authUser,
         SipMessage& authResponse,
-        OsString& matchedPermission );
+        UtlString& matchedPermission );
 
-    void calcRouteSignature(OsString& matchedPermission,
-                           OsString& callId, 
-                           OsString& fromTag,
-                           OsString& signature);
+    void calcRouteSignature(UtlString& matchedPermission,
+                           UtlString& callId, 
+                           UtlString& fromTag,
+                           UtlString& signature);
 
     SipUserAgent* mpSipUserAgent;
     UrlMapping* mpAuthorizationRules;
-    OsString mRealm;
-    OsString mSignatureSecret;
+    UtlString mRealm;
+    UtlString mSignatureSecret;
     SipNonceDb mNonceDb;
     long mNonceExpiration;
 

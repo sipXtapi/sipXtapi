@@ -88,7 +88,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 	{
 		SipMessage* sipRequest = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
         int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
-		OsString callId;
+		UtlString callId;
 
         if(messageType == SipMessageEvent::TRANSPORT_ERROR)
         {
@@ -106,7 +106,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 
             else
             {
-                OsString firstRouteUri;
+                UtlString firstRouteUri;
                 OsBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
                 // If there is a route header just send it on its way
                 if(routeExists)
@@ -116,10 +116,10 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 #endif
                     // CHeck the URI.  If the URI has lw the
                     // previous proxy was a strict router
-                    OsString requestUri;
+                    UtlString requestUri;
                     sipRequest->getRequestUri(&requestUri);
                     Url routeUrlParser(requestUri, TRUE);
-                    OsString dummyValue;
+                    UtlString dummyValue;
                     OsBoolean previousHopStrictRoutes = routeUrlParser.getUrlParameter("lr", dummyValue, 0);
                     OsBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
                     Url firstRouteUriUrl(firstRouteUri);
@@ -165,7 +165,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 
                         // We have to pop the last route and
                         // put it in the URI
-                        OsString contactUri;
+                        UtlString contactUri;
                         int lastRouteIndex;
                         sipRequest->getLastRouteUri(contactUri, lastRouteIndex);
 #ifdef TEST_PRINT
@@ -183,7 +183,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         newUri.getUri(contactUri);
                         sipRequest->changeRequestUri(contactUri);
 #ifdef TEST_PRINT
-                        OsString bytes;
+                        UtlString bytes;
                         int len;
                         sipRequest->getBytes(&bytes, &len);
                         osPrintf("SipRouter: \nStricttttttttttttttttttttttt\n%s\nNowLLLLLLLLLLLLLLLLLLLLLoooooose\n",
@@ -199,7 +199,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         if(firstRouteIsMe)
                         {
                             // THis is a loose router pop my route off
-                            OsString dummyUri;
+                            UtlString dummyUri;
                             sipRequest->removeRouteUri(0, &dummyUri);
                         }
                         else
@@ -215,17 +215,17 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                 // popped off a route if it was to this server.
                 // If there is no routes left check if the URI
                 // is mapped to something local
-                OsString dummyRoute;
+                UtlString dummyRoute;
                 if(!routeExists ||
 	               !sipRequest->getRouteUri(0, &dummyRoute))
                 {
 #ifdef TEST_PRINT
                     osPrintf("SipRoute::handleMessage no found a route\n");
 #endif
-                    OsString uri;
+                    UtlString uri;
                     sipRequest->getRequestUri(&uri);
                     Url originalUri(uri);
-                    //OsString domain;
+                    //UtlString domain;
                     //originalUri.getHostAddress(domain);
                     //int port = originalUri.getHostPort();
                     //if(port <= 0) port = SIP_PORT;
@@ -238,8 +238,8 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                     //    domain.data());
 #endif
 
-                    OsString mappedTo;
-                    OsString routeType;
+                    UtlString mappedTo;
+                    UtlString routeType;
                     if(mpForwardingRules &&
                        mpForwardingRules->getRoute(originalUri, *sipRequest, 
                           mappedTo, routeType) == OS_SUCCESS)
@@ -251,7 +251,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         Url nextHopUrl(mappedTo);
                         // Add a loose route to the mapped server
                         nextHopUrl.setUrlParameter("lr", "");
-                        OsString routeString = nextHopUrl.toString();
+                        UtlString routeString = nextHopUrl.toString();
 
                         sipRequest->addRouteUri(routeString.data());
 #ifdef TEST_PRINT
@@ -270,7 +270,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         Url nextHopUrl(mAuthServer);
                         // Add a loose route to the mapped server
                         nextHopUrl.setUrlParameter("lr", "");
-                        OsString routeString = nextHopUrl.toString();
+                        UtlString routeString = nextHopUrl.toString();
 
                         sipRequest->addRouteUri(routeString.data());
                     }
@@ -287,7 +287,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                 if(mShouldRecordRoute)
                 {
                     
-                    OsString uriString;
+                    UtlString uriString;
                     int port;
                     //sipRequest->getRequestUri(&uriString);
                     mpSipUserAgent->getViaInfo(OsSocket::UDP,
@@ -302,7 +302,7 @@ OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                     routeUrl.setHostPort(port);
                     routeUrl.setUrlParameter("lr", "");
                     //routeUrl.setAngleBrackets();
-                    OsString recordRoute = routeUrl.toString();
+                    UtlString recordRoute = routeUrl.toString();
                     sipRequest->addRecordRouteUri(recordRoute);
                 }
 

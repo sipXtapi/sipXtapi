@@ -72,7 +72,7 @@ private:
     ForwardRules* mpForwardingRules;
     OsBoolean mShouldRecordRoute;
     OsBoolean mAuthEnabled;
-    OsString mAuthServer;
+    UtlString mAuthServer;
 };
 
 /* ============================ INLINE METHODS ============================ */

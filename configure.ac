@@ -20,6 +20,11 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h malloc.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
+AM_PATH_GLIB_2_0
+if ! test x"$no_glib" = x
+then
+  AC_MSG_ERROR(GLib2 required)
+fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -49,11 +54,8 @@ SFAC_INIT_FLAGS
 
 ## Order from highest to lowest for proper LIB order
 SFAC_LIB_COMMSERVER
-## SFAC_LIB_CALL
-## SFAC_LIB_MEDIA
 SFAC_LIB_STACK
 SFAC_LIB_PORT
-SFAC_LIB_RW
 
 AC_CONFIG_FILES([Makefile include/Makefile src/Makefile])
 AC_CONFIG_FILES([src/sipforkingproxy/Makefile])

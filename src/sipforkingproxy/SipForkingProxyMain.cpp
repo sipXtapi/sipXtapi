@@ -125,41 +125,41 @@ void initRoutes(const char* routeRuleFileName,
    // There is no routing rules file. Create the defaults
    if(!xmlDoc.LoadFile())
    {
-       OsString defaultXml("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<routes>\n");
+       UtlString defaultXml("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<routes>\n");
 
-       OsString ipAddress;
+       UtlString ipAddress;
        OsSocket::getHostIp(&ipAddress);
 
        // Default registry/redirect server address
-       OsString rrServer(ipAddress);
+       UtlString rrServer(ipAddress);
        rrServer.append(":5070");
 
        // Map Explicit IP address
        char thisPort[64];
        sprintf(thisPort, ":%d", udpPort);
-       OsString explicitIp(ipAddress);
+       UtlString explicitIp(ipAddress);
        explicitIp.append(thisPort);
        PRINT_ROUTE_RULE(defaultXml, explicitIp, rrServer);
        routeMaps.set(explicitIp, rrServer);
 
        // Map non-Fully qualified host name
-       OsString hostName;
+       UtlString hostName;
        OsSocket::getHostName(&hostName);
-       OsString hostNamePort(hostName);
+       UtlString hostNamePort(hostName);
        hostNamePort.append(thisPort);
        PRINT_ROUTE_RULE(defaultXml, hostNamePort, rrServer);
        routeMaps.set(hostNamePort, rrServer);
 
        // Map The local domain (e.g. assumes DNS SRV mapping
-       OsString localDomain;
+       UtlString localDomain;
        OsSocket::getDomainName(localDomain);
-       OsString localDomainPort(localDomain);
+       UtlString localDomainPort(localDomain);
        localDomainPort.append(thisPort);
        PRINT_ROUTE_RULE(defaultXml, localDomainPort, rrServer);
        routeMaps.set(localDomainPort, rrServer);
 
        // Map Fully qualified host name (FQHN)
-       OsString fqhn(hostName);
+       UtlString fqhn(hostName);
        fqhn.append('.');
        fqhn.append(localDomain);
        fqhn.append(thisPort);
@@ -167,7 +167,7 @@ void initRoutes(const char* routeRuleFileName,
        routeMaps.set(fqhn, rrServer);
 
        // Default config server address
-       OsString configServer(ipAddress);
+       UtlString configServer(ipAddress);
        configServer.append(":5090");
 
        // Map Non-fully qualified config server name
@@ -175,14 +175,14 @@ void initRoutes(const char* routeRuleFileName,
        routeMaps.set("sipuaconfig", configServer);
 
        // Map Fully qualified (FQHN) config server name
-       OsString fqhnConfig("sipuaconfig.");
+       UtlString fqhnConfig("sipuaconfig.");
        fqhnConfig.append(localDomain);
        fqhnConfig.append(thisPort);
        PRINT_ROUTE_RULE(defaultXml, fqhnConfig, configServer);
        routeMaps.set(fqhnConfig, configServer);
        defaultXml.append("</routes>\n");
 
-       OsString parseError = xmlDoc.ErrorDesc();
+       UtlString parseError = xmlDoc.ErrorDesc();
        osPrintf("%s: %s\nSetting defaults:\n", 
            parseError.data(),
            routeRuleFileName);
@@ -201,8 +201,8 @@ void initRoutes(const char* routeRuleFileName,
        if(routesContainer)
        {
            TiXmlNode* routeNode = NULL;
-           OsString fromHost;
-           OsString toHost;
+           UtlString fromHost;
+           UtlString toHost;
            int routeCount = 0;
            // Loop through all the route elements
            while ((routeNode = routesContainer->IterateChildren(routeNode)))
@@ -215,8 +215,8 @@ void initRoutes(const char* routeRuleFileName,
 
                // Skip over non-route elements
                TiXmlElement* routeElement = routeNode->ToElement();
-               OsString tagValue = routeElement->Value();
-               if(tagValue.compareTo("route", RWCString::ignoreCase) != 0 )
+               UtlString tagValue = routeElement->Value();
+               if(tagValue.compareTo("route", UtlString::ignoreCase) != 0 )
                {
                   continue;
                }
@@ -297,9 +297,9 @@ void initRoutes(const char* routeRuleFileName,
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
 {
-   OsString logLevel;               // Controls Log Verbosity
-   OsString consoleLogging;         // Enable console logging by default?
-   OsString fileTarget;             // Path to store log file.
+   UtlString logLevel;               // Controls Log Verbosity
+   UtlString consoleLogging;         // Enable console logging by default?
+   UtlString fileTarget;             // Path to store log file.
    OsBoolean bSpecifiedDirError ;   // Set if the specified log dir does not 
                                     // exist
    struct tagPrioriotyLookupTable
@@ -442,7 +442,7 @@ main(int argc, char* argv[])
     pt_signal(SIGUSR2,  sigHandler); 
 #endif
 
-    OsString argString;
+    UtlString argString;
     OsBoolean interactiveSet = false;
 
     for(int argIndex = 1; argIndex < argc; argIndex++)
@@ -472,11 +472,11 @@ main(int argc, char* argv[])
 
     int proxyTcpPort;
     int proxyUdpPort;
-    OsString domainName;
-    OsString proxyRecordRoute;
+    UtlString domainName;
+    UtlString proxyRecordRoute;
     int maxForwards;
     OsConfigDb configDb;
-    OsString ipAddress;
+    UtlString ipAddress;
 
     OsSocket::getHostIp(&ipAddress);
  /*Config files which are specific to a component 
@@ -505,7 +505,7 @@ main(int argc, char* argv[])
       path.getNativePath(workingDirectory);
    }
 
-    OsString ConfigfileName =  workingDirectory + 
+    UtlString ConfigfileName =  workingDirectory + 
       OsPathBase::separator +
       "proxy-config";
 
@@ -582,7 +582,7 @@ main(int argc, char* argv[])
     }
 
     OsBoolean authEnabled = TRUE;
-    OsString authServerEnabled;
+    UtlString authServerEnabled;
     configDb.get("SIP_PROXY_USE_AUTH_SERVER", authServerEnabled);
     authServerEnabled.toLower();
     if(authServerEnabled.compareTo("disable") == 0)
@@ -592,7 +592,7 @@ main(int argc, char* argv[])
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_USE_AUTH_SERVER : %s", authEnabled ? "ENABLE" : "DISABLE");
     osPrintf("SIP_PROXY_USE_AUTH_SERVER : %s\n", authEnabled ? "ENABLE" : "DISABLE");
 
-    OsString authServer;
+    UtlString authServer;
     configDb.get("SIP_PROXY_AUTH_SERVER", authServer);
     if(authEnabled &&
        authServer.isNull())
@@ -619,7 +619,7 @@ main(int argc, char* argv[])
     // Set the maximum amount of time that TCP connections can
     // stay around when they are not used.
     int      staleTcpTimeout = 3600;
-    OsString staleTcpTimeoutStr;
+    UtlString staleTcpTimeoutStr;
 
     // Check for missing parameter or empty value
     configDb.get("SIP_PROXY_STALE_TCP_TIMEOUT", staleTcpTimeoutStr);
@@ -667,7 +667,7 @@ main(int argc, char* argv[])
         dnsSrvTimeout = 4;
     }
 
-    OsString hostAliases;
+    UtlString hostAliases;
     configDb.get("SIP_PROXY_HOST_ALIASES", hostAliases);
     if(hostAliases.isNull())
     {
@@ -687,7 +687,7 @@ main(int argc, char* argv[])
     // gets the impression that it should fork them all in parallel.
     // When this option is enabled we recurse only the one with the
     // highest Q value.
-    OsString recurseOnlyOne300String;
+    UtlString recurseOnlyOne300String;
     configDb.get("SIP_PROXY_SPECIAL_300", recurseOnlyOne300String);
     recurseOnlyOne300String.toLower();
     OsBoolean recurseOnlyOne300 = FALSE;
@@ -703,9 +703,9 @@ main(int argc, char* argv[])
     configDb.getSubHash("SIP_DOMAINS.", mappedDomains);
     if(mappedDomains.isEmpty())
     {
-        //OsString proxydomain(ipAddress);
+        //UtlString proxydomain(ipAddress);
         //proxydomain.append(":5060");
-        //OsString registryDomain(ipAddress);
+        //UtlString registryDomain(ipAddress);
         //registryDomain.append(":4000");
         //mappedDomains.set(proxydomain, registryDomain.data());
     }
@@ -719,7 +719,7 @@ main(int argc, char* argv[])
     //OsConfigDb mapRulesDb;
    
 
-    OsString fileName ;
+    UtlString fileName ;
     fileName =  workingDirectory + 
       OsPathBase::separator +
       FORWARDING_RULES_FILENAME  ;
@@ -752,13 +752,13 @@ main(int argc, char* argv[])
         OsSysLog::add(FAC_SIP, PRI_INFO, "using default forwarding rules");
         osPrintf("using default forwarding rules\n");
 
-        OsString localDomain;
+        UtlString localDomain;
         OsSocket::getDomainName(localDomain);
-        OsString hostName;
+        UtlString hostName;
         OsSocket::getHostName(&hostName);
-        OsString ipAddress;
+        UtlString ipAddress;
         OsSocket::getHostIp(&ipAddress);
-        OsString fqhn(hostName);
+        UtlString fqhn(hostName);
         fqhn.append('.');
         fqhn.append(localDomain);
 
@@ -789,8 +789,8 @@ main(int argc, char* argv[])
                             0);
 
         Url msgUrl(uri);
-        OsString routeTo;
-        OsString routeType;
+        UtlString routeTo;
+        UtlString routeType;
         OsStatus routeStatus = forwardingRules.getRoute(msgUrl, 
                                                         foo, 
                                                         routeTo, 
@@ -846,7 +846,7 @@ main(int argc, char* argv[])
     sipUserAgent.setRecurseOnlyOne300Contact(recurseOnlyOne300);
     sipUserAgent.start();
 
-    OsString buffer;
+    UtlString buffer;
 
     // Create and start a router to route stuff either
     // to a local server or on out to the real world
