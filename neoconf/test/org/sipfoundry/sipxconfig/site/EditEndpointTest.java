@@ -20,8 +20,6 @@ public class EditEndpointTest extends TestCase {
     
     public void testSave() {
         EditEndpoint editEndpoint = new EditEndpoint();
-        editEndpoint.setSerialNumber("000000000000");
-        editEndpoint.setPhoneId("MockPhone");
         assertEquals("success", editEndpoint.save());
     }
 }
