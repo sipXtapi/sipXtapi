@@ -41,6 +41,7 @@ editdata :
 
 EXTRA_DIST = \
     CONTRIBUTORS \
+    config/sipXcommon.mak.in \
     config/sipX-config.in \
     $(editdata_IN) \
     sipXauthproxy.dsp \
