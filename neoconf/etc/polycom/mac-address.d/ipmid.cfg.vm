@@ -97,10 +97,21 @@
 					lcl.ml.lang.IP_600.list="All"/>
 			</language>
 		</multilingual>
+		
 		<datetime>
-			<time lcl.datetime.time.24HourClock="0"/>
-			<date lcl.datetime.date.format="D,Md" 
-				lcl.datetime.date.longFormat="1" lcl.datetime.date.dateTop="1"/>
+			<time 
+#set ($group = $cfg.EndpointSettings.getSetting('lcl').getSetting('time'))
+#foreach ($setting in $cfg.getSettings($group))
+        lcl.datetime.time.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+			   />
+			<date 
+#set ($group = $cfg.EndpointSettings.getSetting('lcl').getSetting('datetime'))
+#foreach ($setting in $cfg.getSettings($group))
+        lcl.datetime.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+				/>
+
 		</datetime>
 		<callProgTones lcl.cpt="">
 			<menu lcl.cpt.menu.1="China" lcl.cpt.menu.2="Denmark" 
@@ -472,14 +483,19 @@
 			</chord_sets>
 		</callProgTones>
 	</localization>
-	<user_preferences up.headsetMode="0" up.useDirectoryNames="0" 
-		up.oneTouchVoiceMail="0" up.welcomeSoundEnabled="1" 
-		up.welcomeSoundOnWarmBootEnabled="0" up.localClockEnabled="1"/>
+	<user_preferences 
+#set ($group = $cfg.EndpointSettings.getSetting('up'))
+#foreach ($setting in $cfg.getSettings($group))
+        up.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+		/>
 	<tones>
-		<DTMF tone.dtmf.level="-15" tone.dtmf.onTime="50" 
-			tone.dtmf.offTime="50" tone.dtmf.chassis.masking="0" 
-			tone.dtmf.stim.pac.offHookOnly="0" tone.dtmf.viaRtp="1" 
-			tone.dtmf.rfc2833Control="1" tone.dtmf.rfc2833Payload="101"/>
+		<DTMF 
+#set ($group = $cfg.EndpointSettings.getSetting('tone.dtmf'))
+#foreach ($setting in $cfg.getSettings($group))
+        tone.dtmf.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+			/>
 		<chord_sets>
 			<CALLPROGRESS>
 				<DIAL_TONE tone.chord.callProg.1.freq.1="350" 
@@ -1018,7 +1034,12 @@
 		saf.5="" saf.6="" saf.7="" saf.8="" saf.9="" saf.10="" saf.11="" 
 		saf.12="" saf.13="" saf.14="" saf.15="" saf.16="" saf.17="" saf.18="" 
 		saf.19="" saf.20="" saf.21="" saf.22="" saf.23="" saf.24=""/>
-	<sound_effects se.stutterOnVoiceMail="1" se.appLocalEnabled="1">
+	<sound_effects 
+#set ($group = $cfg.EndpointSettings.getSetting('se'))
+#foreach ($setting in $cfg.getSettings($group))
+        se.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+	>
 		<patterns>
 			<CALLPROGRESS>
 				<DIAL_TONE se.pat.callProg.1.name="dial" 
@@ -1502,26 +1523,29 @@
 	</sound_effects>
 	<voice>
 		<codecs>
-			<preferences voice.codecPref.G711Mu="1" voice.codecPref.G711A="2" 
-				voice.codecPref.G729AB="3"/>
-			<profiles voice.audioProfile.G711Mu.payloadSize="20" 
-				voice.audioProfile.G711Mu.jitterBufferMin="40" 
-				voice.audioProfile.G711Mu.jitterBufferShrink="500" 
-				voice.audioProfile.G711Mu.jitterBufferMax="160" 
-				voice.audioProfile.G711A.payloadSize="20" 
-				voice.audioProfile.G711A.jitterBufferMin="40" 
-				voice.audioProfile.G711A.jitterBufferShrink="500" 
-				voice.audioProfile.G711A.jitterBufferMax="160" 
-				voice.audioProfile.G729AB.payloadSize="20" 
-				voice.audioProfile.G729AB.jitterBufferMin="40" 
-				voice.audioProfile.G729AB.jitterBufferShrink="500" 
-				voice.audioProfile.G729AB.jitterBufferMax="160"/>
+			<preferences 
+#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('codecPref'))
+#foreach ($setting in $cfg.getSettings($group))
+        voice.codecPref.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+				/>
+			<profiles 
+#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('audioProfile'))
+#foreach ($setting in $cfg.getRecursiveSettings($group))
+        voice.audioProfile.${setting.SettingGroup.ProfileName}.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+            />
 		</codecs>
-		<volume voice.volume.persist.handset="0" 
-			voice.volume.persist.headset="0" 
-			voice.volume.persist.handsfree="1"/>
-		<gains voice.gain.rx.analog.handset="0" 
-			voice.gain.rx.analog.headset="0" voice.gain.rx.analog.chassis="3" 
+		<volume 
+#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('volume'))
+#foreach ($setting in $cfg.getSettings($group))
+        voice.volume.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+			/>
+		<gains 
+		    voice.gain.rx.analog.handset="0" 
+			voice.gain.rx.analog.headset="0" 
+			voice.gain.rx.analog.chassis="3" 
 			voice.gain.rx.analog.chassis.obs="-12" 
 			voice.gain.rx.analog.chassis.IP300="-6" 
 			voice.gain.rx.analog.ringer="3" 
@@ -1533,10 +1557,12 @@
 			voice.gain.rx.digital.ringer="-21" 
 			voice.gain.rx.analog.handset.sidetone="-24" 
 			voice.gain.rx.analog.headset.sidetone="-24" 
-			voice.gain.tx.analog.handset="3" voice.gain.tx.analog.headset="3" 
+			voice.gain.tx.analog.handset="3" 
+			voice.gain.tx.analog.headset="3" 
 			voice.gain.tx.analog.chassis="3" 
 			voice.gain.tx.analog.chassis.obs="6" 
-			voice.gain.tx.digital.handset="0" voice.gain.tx.digital.headset="0" 
+			voice.gain.tx.digital.handset="0" 
+			voice.gain.tx.digital.headset="0" 
 			voice.gain.tx.digital.chassis="6" 
 			voice.gain.tx.digital.chassis.obs="4" 
 			voice.gain.tx.analog.preamp.handset="23" 
@@ -1633,50 +1659,68 @@
 			voice.txEq.hf.coef.15="3" voice.txEq.hf.coef.16="2" 
 			voice.txEq.hf.coef.17="0" voice.txEq.hf.coef.18="-15" 
 			voice.txEq.hf.coef.19="-30" voice.txEq.hf.coef.20="-30"/>
-		<VAD voice.vadEnable="0" voice.vadThresh="15"/>
+		<VAD 
+#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('vad'))
+#foreach ($setting in $cfg.getSettings($group))
+        voice.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+		  />
 	</voice>
 	<QOS>
 		<Ethernet>
-			<RTP qos.ethernet.rtp.user_priority="5"/>
-			<CallControl qos.ethernet.callControl.user_priority="5"/>
-			<Other qos.ethernet.other.user_priority="2"/>
+#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet'))
+#set ($setting = $group.getSetting('rtp.user_priority'))
+          <RTP qos.ethernet.${setting.ProfileName}="$!{setting.ProfileValue}" />
+#set ($setting = $group.getSetting('callControl.user_priority'))
+          <CallControl qos.ethernet.${setting.ProfileName}="$!{setting.ProfileValue}" />
+#set ($setting = $group.getSetting('other.user_priority'))
+          <Other qos.ethernet.${setting.ProfileName}="$!{setting.ProfileValue}" />
 		</Ethernet>
 		<IP>
-			<RTP qos.ip.rtp.min_delay="1" qos.ip.rtp.max_throughput="1" 
-				qos.ip.rtp.max_reliability="0" qos.ip.rtp.min_cost="0" 
-				qos.ip.rtp.precedence="5"/>
-			<CallControl qos.ip.callControl.min_delay="1" 
-				qos.ip.callControl.max_throughput="0" 
-				qos.ip.callControl.max_reliability="0" 
-				qos.ip.callControl.min_cost="0" 
-				qos.ip.callControl.precedence="5"/>
+			<RTP 
+#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ip.rtp'))
+#foreach ($setting in $cfg.getSettings($group))
+        qos.ip.rtp.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+				/>
+			<CallControl 
+#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ip.callControl'))
+#foreach ($setting in $cfg.getSettings($group))
+        qos.ip.callControl.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+
+             />
 		</IP>
 	</QOS>
 	<TCP_IP>
 		<netMon tcpIpApp.netMon.enabled="1" tcpIpApp.netMon.period="30"/>
-		<SNTP tcpIpApp.sntp.resyncPeriod="86400" tcpIpApp.sntp.address="clock" 
-			tcpIpApp.sntp.gmtOffset="-28800" 
-			tcpIpApp.sntp.daylightSavings.enable="1" 
-			tcpIpApp.sntp.daylightSavings.fixedDayEnable="0" 
-			tcpIpApp.sntp.daylightSavings.start.month="4" 
-			tcpIpApp.sntp.daylightSavings.start.date="1" 
-			tcpIpApp.sntp.daylightSavings.start.time="2" 
-			tcpIpApp.sntp.daylightSavings.start.dayOfWeek="1" 
-			tcpIpApp.sntp.daylightSavings.start.dayOfWeek.lastInMonth="0" 
-			tcpIpApp.sntp.daylightSavings.stop.month="10" 
-			tcpIpApp.sntp.daylightSavings.stop.date="1" 
-			tcpIpApp.sntp.daylightSavings.stop.time="2" 
-			tcpIpApp.sntp.daylightSavings.stop.dayOfWeek="1" 
-			tcpIpApp.sntp.daylightSavings.stop.dayOfWeek.lastInMonth="1"/>
+		<SNTP 
+#set ($group = $cfg.EndpointSettings.getSetting('tcpIpApp.sntp'))
+#foreach ($setting in $cfg.getSettings($group))
+        tcpIpApp.sntp.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+        />
 		<port>
-			<RTP tcpIpApp.port.rtp.filterByIp="1" 
-				tcpIpApp.port.rtp.filterByPort="0" 
-				tcpIpApp.port.rtp.forceSend="" 
-				tcpIpApp.port.rtp.mediaPortRangeStart=""/>
+			<RTP 
+#set ($group = $cfg.EndpointSettings.getSetting('tcpIpApp.port.rtp'))
+#foreach ($setting in $cfg.getSettings($group))
+        tcpIpApp.port.rtp.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+             />
 		</port>
 	</TCP_IP>
-	<HTTPD httpd.enabled="1">
-		<cfg httpd.cfg.enabled="1" httpd.cfg.port="80"/>
+	<HTTPD 
+#set ($group = $cfg.EndpointSettings.getSetting('httpd'))
+#foreach ($setting in $cfg.getSettings($group))
+        httpd.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+	   >
+		<cfg 
+#set ($group = $cfg.EndpointSettings.getSetting('httpd').getSetting('cfg'))
+#foreach ($setting in $cfg.getSettings($group))
+        httpd.cfg.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+         />
 	</HTTPD>
 	<call 
 #foreach ($setting in ${call})
@@ -1684,12 +1728,19 @@
 #end
 		call.callWaiting.prompt="0"		
 		>
-		<shared call.shared.disableDivert="1" call.shared.seizeFailReorder="1" 
-			call.shared.oneTouchResume="0"/>
+		<shared 
+#set ($group = $cfg.EndpointSettings.getSetting('call').getSetting('shared'))
+#foreach ($setting in $cfg.getSettings($group))
+        call.shared.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+        />
 		<hold>
-			<localReminder call.hold.localReminder.enabled="0" 
-				call.hold.localReminder.period="60" 
-				call.hold.localReminder.startDelay="90"/>
+			<localReminder 
+#set ($group = $cfg.EndpointSettings.getSetting('call.hold.localReminder'))
+#foreach ($setting in $cfg.getSettings($group))
+        call.hold.localReminder.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+             />
 		</hold>
 	</call>
 	<directory dir.local.volatile.2meg="0" 
@@ -1700,7 +1751,12 @@
 		<IP_500 font.IP_500.1.name=""/>
 		<IP_600 font.IP_600.1.name=""/>
 	</font>
-	<keys key.scrolling.timeout="1"/>
+	<keys 
+#set ($group = $cfg.EndpointSettings.getSetting('key'))
+#foreach ($setting in $cfg.getSettings($group))
+        key.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+    />
 	<bitmaps>
 		<IP_300 bitmap.IP_300.1.name="Blank" bitmap.IP_300.2.name="DndStep1" 
 			bitmap.IP_300.3.name="DndStep2" bitmap.IP_300.4.name="MuteStep1" 
@@ -2586,12 +2642,21 @@
 	</indicators>
 	<logging>
 		<level>
-			<change log.level.change.so="4" log.level.change.so.obs="5" 
-				log.level.change.app1="4" log.level.change.app1.obs="5" 
-				log.level.change.sspsc="4" log.level.change.sspsc.obs="5" 
-				log.level.change.ssps="4" log.level.change.ssps.obs="5" 
-				log.level.change.pps="4" log.level.change.pps.obs="5" 
-				log.level.change.net="4" log.level.change.net.obs="5" 
+			<change 
+			    log.level.change.so="4" 
+			    log.level.change.so.obs="5" 
+				log.level.change.app1="4" 
+				log.level.change.app1.obs="5" 
+				log.level.change.sspsc="4" 
+				log.level.change.sspsc.obs="5" 
+				log.level.change.ssps="4" 
+				log.level.change.ssps.obs="5" 
+				log.level.change.pps="4" 
+				log.level.change.pps.obs="5" 
+				
+				log.level.change.net="4" 
+				log.level.change.net.obs="5" 
+				
 				log.level.change.cfg="4" log.level.change.cfg.obs="5" 
 				log.level.change.cdp="4" log.level.change.cdp.obs="5" 
 				log.level.change.pmt="4" log.level.change.pmt.obs="5" 
@@ -2610,22 +2675,35 @@
 				log.level.change.mb="4" log.level.change.mb.obs="5" 
 				log.level.change.ib="4" log.level.change.ib.obs="5"/>
 		</level>
-		<render log.render.level="1" log.render.type="2" 
-			log.render.realtime="1" log.render.stdout="1" log.render.file="1" 
-			log.render.file.size="16" log.render.file.upload.period="172800" 
-			log.render.file.upload.append="1" 
-			log.render.file.upload.append.sizeLimit="512" 
-			log.render.file.upload.append.limitMode="delete"/>
-		<scheduled log.sched.1.name="showCpuLoad" log.sched.1.level="3" 
+		<render 
+#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('render'))
+#foreach ($setting in $cfg.getSettings($group))
+        log.render.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+			/>
+		<scheduled 
+		   log.sched.1.name="showCpuLoad" log.sched.1.level="3" 
 			log.sched.1.period="15" log.sched.1.startMode="rel" 
 			log.sched.1.startTime="0" log.sched.1.startDay="0" 
-			log.sched.2.name="" log.sched.2.level="" log.sched.2.period="" 
+			log.sched.2.name="" 
+			
+			log.sched.2.level="" log.sched.2.period="" 
 			log.sched.2.startMode="" log.sched.2.startTime="" 
 			log.sched.2.startDay=""/>
 	</logging>
-	<security sec.tagSerialNo="0">
+	<security 
+#set ($group = $cfg.EndpointSettings.getSetting('sec'))
+#foreach ($setting in $cfg.getSettings($group))
+        sec.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+	  >
 		<pwd>
-			<length sec.pwd.length.admin="1" sec.pwd.length.user="2"/>
+			<length 
+#set ($group = $cfg.EndpointSettings.getSetting('sec').getSetting('pwd.length'))
+#foreach ($setting in $cfg.getSettings($group))
+        sec.pwd.length.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end        
+             />
 		</pwd>
 	</security>
 	<provisioning prov.fileSystem.rfs0.minFreeSpace="5" 
@@ -2635,7 +2713,12 @@
 		ramdisk.blocksPerTrack="0" ramdisk.nBlocks="4096" ramdisk.minsize="50" 
 		ramdisk.minfree="3072"/>
 	<request>
-		<delay request.delay.type="call"/>
+		<delay 
+#set ($group = $cfg.EndpointSettings.getSetting('request.delay'))
+#foreach ($setting in $cfg.getSettings($group))
+        request.delay.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end        
+		/>
 	</request>
 	<feature feature.1.name="presence" feature.1.enabled="1" 
 		feature.2.name="messaging" feature.2.enabled="1" 
@@ -2660,9 +2743,29 @@
 			res.quotas.3.name="font" res.quotas.3.value="10" 
 			res.quotas.4.name="xmlui" res.quotas.4.value="10"/>
 	</resource>
-	<microbrowser mb.proxy="">
-		<idleDisplay mb.idleDisplay.home="" mb.idleDisplay.refresh="0"/>
-		<main mb.main.home=""/>
-		<limits mb.limits.nodes="" mb.limits.cache=""/>
+	<microbrowser 	
+#set ($group = $cfg.EndpointSettings.getSetting('mb'))
+#foreach ($setting in $cfg.getSettings($group))
+        mb.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end        	    
+	    >
+		<idleDisplay  
+#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('idleDisplay'))
+#foreach ($setting in $cfg.getSettings($group))
+        mb.idleDisplay.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end        	    
+		   />
+		<main 
+#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('main'))
+#foreach ($setting in $cfg.getSettings($group))
+        mb.main.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end        	    
+		  />
+		<limits 
+#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('limits'))
+#foreach ($setting in $cfg.getSettings($group))
+        mb.limits.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end        	    
+		  />
 	</microbrowser>
 </ipmid>

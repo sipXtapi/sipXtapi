@@ -1,31 +1,43 @@
 <?xml version="1.0"?>
 <model>
-	<group name="lcl.datetime">
-		<label>Date and Time</label>
-		<setting name="date.format">
-			<label>24 Hour Time</label>
-			<type>"string which includes 'D', 'd' and 'M' and two optional 
-				comma's "</type>
-			<defaultValue></defaultValue>
-			<description>Controls format of date string. D = day of week d = 
-				day M = month Up to two comma's may be included. e.g. D,dM = 
-				Thursday, 3 July Md,D = July 3, Thursday The field may contain 
-				0, 1 or 2 comma's which can occur only between characters and 
-				only one at a time i.e. 'D,,dM' is illegal.</description>
-		</setting>
-		<setting name="date.longFormat">
-			<type>0,1</type>
-			<defaultValue></defaultValue>
-			<description>If 1, display the day and month in long format 
-				(Friday/November), otherwise, use abbreviations (Fri/Nov). 
-				</description>
-		</setting>
-		<setting name="date.dateTop">
-			<type>0,1</type>
-			<defaultValue></defaultValue>
-			<description>If 1, display date above time else display time above 
-				date.</description>
-		</setting>
+	<group name="lcl">
+		<group name="time">
+			<label>Time Format</label>
+			<setting name="24HourClock">
+				<label>24 Hour format</label>
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If 1, time is display using hour range 0-24, 
+					otherwise 1-12 AM/PM.</description>
+			</setting>
+		</group>
+		<group name="datetime">
+			<label>Date Format</label>
+			<setting name="date.format">
+				<label>Format</label>
+				<type>string</type>
+				<defaultValue>D,Md</defaultValue>
+				<description>Controls format of date string. D = day of week d 
+					= day M = month Up to two comma's may be included. e.g. 
+					D,dM = Thursday, 3 July Md,D = July 3, Thursday The field 
+					may contain 0, 1 or 2 comma's which can occur only between 
+					characters and only one at a time i.e. 'D,,dM' is 
+					illegal.</description>
+			</setting>
+			<setting name="date.longFormat">
+				<type>0,1</type>
+				<defaultValue>1</defaultValue>
+				<description>If 1, display the day and month in long format 
+					(Friday/November), otherwise, use abbreviations (Fri/Nov). 
+					</description>
+			</setting>
+			<setting name="date.dateTop">
+				<type>0,1</type>
+				<defaultValue>1</defaultValue>
+				<description>If 1, display date above time else display time 
+					above date.</description>
+			</setting>
+		</group>
 	</group>
 	<group name="up">
 		<label>User Preferences</label>
@@ -160,73 +172,174 @@
 		</setting>
 	</group>
 	<group name="voice">
-		<label>Codec Preferences</label>
-		<setting name="codecPref.G711Mu">
-			<type>Null, 1-3</type>
-			<defaultValue>1</defaultValue>
-			<description>Specifies the codec preference. 1=highest 3=lowest 
-				Null=do not use Give each codec a unique priority, this will 
-				dictate the order used in SDP negotiations. Note: If less than 
-				two codecs are specified, SoundPoint(R) IP will automatically 
-				use G711Mu and G711A with default parameters.</description>
-		</setting>
-		<setting name="codecPref.G711A">
-			<type>Null, 1-3</type>
-			<defaultValue>2</defaultValue>
-			<description>Specifies the codec preference. 1=highest 3=lowest 
-				Null=do not use Give each codec a unique priority, this will 
-				dictate the order used in SDP negotiations. Note: If less than 
-				two codecs are specified, SoundPoint(R) IP will automatically 
-				use G711Mu and G711A with default parameters.</description>
-		</setting>
-		<setting name="codecPref.G729AB">
-			<type>Null, 1-3</type>
-			<defaultValue>3</defaultValue>
-			<description>Specifies the codec preference. 1=highest 3=lowest 
-				Null=do not use Give each codec a unique priority, this will 
-				dictate the order used in SDP negotiations. Note: If less than 
-				two codecs are specified, SoundPoint(R) IP will automatically 
-				use G711Mu and G711A with default parameters.</description>
-		</setting>
-		<setting name="audioProfile.x.payloadSize">
-			<type>10, 20, 30, ...80</type>
-			<defaultValue></defaultValue>
-			<description>Preferred Tx payload size in milliseconds to be 
-				provided in SDP offers and used in the absence of ptime 
-				negotiations. This is also the range of supported Rx payload 
-				sizes.</description>
-		</setting>
-		<setting name="audioProfile.x.jitterBufferMin">
-			<type>40, 50, 60, ... (multiple of 10)</type>
-			<defaultValue></defaultValue>
-			<description>The smallest jitter buffer depth (in milli-seconds) 
-				that must be achieved before play out begins for the first 
-				time. Once this depth has been achieved initially, the depth 
-				may fall below this point and play out will still continue. 
-				This parameter should be set to the smallest possible value 
-				which is at least two packet pay-loads, and larger than the 
-				expected short term average jitter.</description>
-		</setting>
-		<setting name="audioProfile.x.jitterBufferShrink">
-			<type>10, 20, 30, ... (multiple of 10)</type>
-			<defaultValue></defaultValue>
-			<description>The absolute minimum duration time (in milliseconds) 
-				of RTP packet Rx with no packet loss between jitter buffer size 
-				shrinks. Use smaller values (1000 ms) to minimize the delay on 
-				known good networks. Use larger values to minimize packet loss 
-				on networks with large jitter (3000 ms).</description>
-		</setting>
-		<setting name="audioProfile.x.jitterBufferMax">
-			<type> greater than jitterBuf-ferMin, multiple of 10, less than or 
-				=500 for IP 500 and IP 600, less than or = 160 for IP 300</type>
-			<defaultValue>
-			</defaultValue>
-			<description>The largest jitter buffer depth to be sup-ported (in 
-				milliseconds). Jitter above this size will always cause lost 
-				packets. This parameter should be set to the smallest possible 
-				value that will support the expected network 
-				jitter</description>
-		</setting>
+		<label>Voice/Codecs</label>
+		<group name="codecPref">
+			<label>Codec Preference Order</label>
+			<setting name="G711Mu">
+				<type>Null, 1-3</type>
+				<defaultValue>1</defaultValue>
+				<description>Specifies the codec preference. 1=highest 3=lowest 
+					Null=do not use Give each codec a unique priority, this 
+					will dictate the order used in SDP negotiations. Note: If 
+					less than two codecs are specified, SoundPoint(R) IP will 
+					automatically use G711Mu and G711A with default 
+					parameters.</description>
+			</setting>
+			<setting name="G711A">
+				<type>Null, 1-3</type>
+				<defaultValue>2</defaultValue>
+				<description>Specifies the codec preference. 1=highest 3=lowest 
+					Null=do not use Give each codec a unique priority, this 
+					will dictate the order used in SDP negotiations. Note: If 
+					less than two codecs are specified, SoundPoint(R) IP will 
+					automatically use G711Mu and G711A with default 
+					parameters.</description>
+			</setting>
+			<setting name="G729AB">
+				<type>Null, 1-3</type>
+				<defaultValue>3</defaultValue>
+				<description>Specifies the codec preference. 1=highest 3=lowest 
+					Null=do not use Give each codec a unique priority, this 
+					will dictate the order used in SDP negotiations. Note: If 
+					less than two codecs are specified, SoundPoint(R) IP will 
+					automatically use G711Mu and G711A with default 
+					parameters.</description>
+			</setting>
+		</group>
+		<group name="audioProfile">
+			<group name="G711Mu">
+				<label>G711Mu</label>
+				<setting name="payloadSize">
+					<type>10, 20, 30, ...80</type>
+					<defaultValue>20</defaultValue>
+					<description>Preferred Tx payload size in milliseconds to 
+						be provided in SDP offers and used in the absence of 
+						ptime negotiations. This is also the range of supported 
+						Rx payload sizes.</description>
+				</setting>
+				<setting name="jitterBufferMin">
+					<type>40, 50, 60, ... (multiple of 10)</type>
+					<defaultValue>40</defaultValue>
+					<description>The smallest jitter buffer depth (in 
+						milli-seconds) that must be achieved before play out 
+						begins for the first time. Once this depth has been 
+						achieved initially, the depth may fall below this point 
+						and play out will still continue. This parameter should 
+						be set to the smallest possible value which is at least 
+						two packet pay-loads, and larger than the expected 
+						short term average jitter.</description>
+				</setting>
+				<setting name="jitterBufferShrink">
+					<type>10, 20, 30, ... (multiple of 10)</type>
+					<defaultValue>500</defaultValue>
+					<description>The absolute minimum duration time (in 
+						milliseconds) of RTP packet Rx with no packet loss 
+						between jitter buffer size shrinks. Use smaller values 
+						(1000 ms) to minimize the delay on known good networks. 
+						Use larger values to minimize packet loss on networks 
+						with large jitter (3000 ms).</description>
+				</setting>
+				<setting name="jitterBufferMax">
+					<type> greater than jitterBuf-ferMin, multiple of 10, less 
+						than or =500 for IP 500 and IP 600, less than or = 160 
+						for IP 300</type>
+					<defaultValue>160</defaultValue>
+					<description>The largest jitter buffer depth to be 
+						sup-ported (in milliseconds). Jitter above this size 
+						will always cause lost packets. This parameter should 
+						be set to the smallest possible value that will support 
+						the expected network jitter</description>
+				</setting>
+			</group>
+			<group name="G711A">
+				<label>G711A</label>
+				<setting name="payloadSize">
+					<type>10, 20, 30, ...80</type>
+					<defaultValue>20</defaultValue>
+					<description>Preferred Tx payload size in milliseconds to 
+						be provided in SDP offers and used in the absence of 
+						ptime negotiations. This is also the range of supported 
+						Rx payload sizes.</description>
+				</setting>
+				<setting name="jitterBufferMin">
+					<type>40, 50, 60, ... (multiple of 10)</type>
+					<defaultValue>40</defaultValue>
+					<description>The smallest jitter buffer depth (in 
+						milli-seconds) that must be achieved before play out 
+						begins for the first time. Once this depth has been 
+						achieved initially, the depth may fall below this point 
+						and play out will still continue. This parameter should 
+						be set to the smallest possible value which is at least 
+						two packet pay-loads, and larger than the expected 
+						short term average jitter.</description>
+				</setting>
+				<setting name="jitterBufferShrink">
+					<type>10, 20, 30, ... (multiple of 10)</type>
+					<defaultValue>500</defaultValue>
+					<description>The absolute minimum duration time (in 
+						milliseconds) of RTP packet Rx with no packet loss 
+						between jitter buffer size shrinks. Use smaller values 
+						(1000 ms) to minimize the delay on known good networks. 
+						Use larger values to minimize packet loss on networks 
+						with large jitter (3000 ms).</description>
+				</setting>
+				<setting name="jitterBufferMax">
+					<type> greater than jitterBuf-ferMin, multiple of 10, less 
+						than or =500 for IP 500 and IP 600, less than or = 160 
+						for IP 300</type>
+					<defaultValue>160</defaultValue>
+					<description>The largest jitter buffer depth to be 
+						sup-ported (in milliseconds). Jitter above this size 
+						will always cause lost packets. This parameter should 
+						be set to the smallest possible value that will support 
+						the expected network jitter</description>
+				</setting>
+			</group>
+			<group name="G729AB">
+				<label>G729AB</label>
+				<setting name="payloadSize">
+					<type>10, 20, 30, ...80</type>
+					<defaultValue>20</defaultValue>
+					<description>Preferred Tx payload size in milliseconds to 
+						be provided in SDP offers and used in the absence of 
+						ptime negotiations. This is also the range of supported 
+						Rx payload sizes.</description>
+				</setting>
+				<setting name="jitterBufferMin">
+					<type>40, 50, 60, ... (multiple of 10)</type>
+					<defaultValue>40</defaultValue>
+					<description>The smallest jitter buffer depth (in 
+						milli-seconds) that must be achieved before play out 
+						begins for the first time. Once this depth has been 
+						achieved initially, the depth may fall below this point 
+						and play out will still continue. This parameter should 
+						be set to the smallest possible value which is at least 
+						two packet pay-loads, and larger than the expected 
+						short term average jitter.</description>
+				</setting>
+				<setting name="jitterBufferShrink">
+					<type>10, 20, 30, ... (multiple of 10)</type>
+					<defaultValue>500</defaultValue>
+					<description>The absolute minimum duration time (in 
+						milliseconds) of RTP packet Rx with no packet loss 
+						between jitter buffer size shrinks. Use smaller values 
+						(1000 ms) to minimize the delay on known good networks. 
+						Use larger values to minimize packet loss on networks 
+						with large jitter (3000 ms).</description>
+				</setting>
+				<setting name="jitterBufferMax">
+					<type> greater than jitterBuf-ferMin, multiple of 10, less 
+						than or =500 for IP 500 and IP 600, less than or = 160 
+						for IP 300</type>
+					<defaultValue>160</defaultValue>
+					<description>The largest jitter buffer depth to be 
+						sup-ported (in milliseconds). Jitter above this size 
+						will always cause lost packets. This parameter should 
+						be set to the smallest possible value that will support 
+						the expected network jitter</description>
+				</setting>
+			</group>
+		</group>
 		<group name="volume">
 			<label>Volume Persistence</label>
 			<description>The user's selection of the receive volume during a 
@@ -278,83 +391,93 @@
 	</group>
 	<group name="qos">
 		<label>Quality of Service</label>
-		<setting name="ethernet.rtp.user_priority">
-			<type>0-7</type>
-			<defaultValue>5</defaultValue>
-			<description>User-priority used for RTP packets.</description>
-		</setting>
-		<setting name="ethernet.callControl.user_priority">
-			<type>0-7</type>
-			<defaultValue>5</defaultValue>
-			<description>User-priority used for call control 
-				packets.</description>
-		</setting>
-		<setting name="ethernet.other.user_priority">
-			<type>0-7</type>
-			<defaultValue>2</defaultValue>
-			<description>User-priority used for packets that do not have a 
-				per-protocol setting.</description>
-		</setting>
-		<setting name="ip.rtp.min_delay">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, set min-delay bit in the IP TOS field of 
-				the IP header, or else don't set it.</description>
-		</setting>
-		<setting name="ip.rtp.max_throughput">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, set max-throughput bit in the IP TOS 
-				field of the IP header, or else don't set it.</description>
-		</setting>
-		<setting name="ip.rtp.max_reliability">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 1, set max-reliability bit in the IP TOS 
-				field of the IP header, or else don't set it.</description>
-		</setting>
-		<setting name="ip.rtp.min_cost">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 1, set min-cost bit in the IP TOS field of 
-				the IP header, or else don't set it.</description>
-		</setting>
-		<setting name="ip.rtp.precedence">
-			<type>0-7</type>
-			<defaultValue>5</defaultValue>
-			<description>If set to 1, set precedence bits in the IP TOS field 
-				of the IP header, or else don't set them.</description>
-		</setting>
-		<setting name="ip.callControl.min_delay">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, set min-delay bit in the IP TOS field of 
-				the IP header, or else don't set it.</description>
-		</setting>
-		<setting name="ip.callControl.max_throughput">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 1, set max-throughput bit in the IP TOS 
-				field of the IP header, or else don't set it.</description>
-		</setting>
-		<setting name="ip.callControl.max_reliability">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 1, set max-reliability bit in the IP TOS 
-				field of the IP header, or else don't set it.</description>
-		</setting>
-		<setting name="ip.callControl.min_cost">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 1, set min-cost bit in the IP TOS field of 
-				the IP header, or else don't set it. </description>
-		</setting>
-		<setting name="ip.callControl.precedence">
-			<type>0-7</type>
-			<defaultValue>5</defaultValue>
-			<description>If set to 1, set precedence bits in the IP TOS field 
-				of the IP header, or else don't set them.</description>
-		</setting>
+		<group name="ethernet">
+			<setting name="rtp.user_priority">
+				<type>0-7</type>
+				<defaultValue>5</defaultValue>
+				<description>User-priority used for RTP packets.</description>
+			</setting>
+			<setting name="callControl.user_priority">
+				<type>0-7</type>
+				<defaultValue>5</defaultValue>
+				<description>User-priority used for call control 
+					packets.</description>
+			</setting>
+			<setting name="other.user_priority">
+				<type>0-7</type>
+				<defaultValue>2</defaultValue>
+				<description>User-priority used for packets that do not have a 
+					per-protocol setting.</description>
+			</setting>
+		</group>
+		<group name="ip.rtp">
+			<label>RTP</label>
+			<setting name="min_delay">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, set min-delay bit in the IP TOS field 
+					of the IP header, or else don't set it.</description>
+			</setting>
+			<setting name="max_throughput">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, set max-throughput bit in the IP TOS 
+					field of the IP header, or else don't set it.</description>
+			</setting>
+			<setting name="max_reliability">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, set max-reliability bit in the IP TOS 
+					field of the IP header, or else don't set it.</description>
+			</setting>
+			<setting name="min_cost">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, set min-cost bit in the IP TOS field 
+					of the IP header, or else don't set it.</description>
+			</setting>
+			<setting name="precedence">
+				<type>0-7</type>
+				<defaultValue>5</defaultValue>
+				<description>If set to 1, set precedence bits in the IP TOS 
+					field of the IP header, or else don't set 
+					them.</description>
+			</setting>
+		</group>
+		<group name="ip.callControl">
+			<label>Call Control</label>
+			<setting name="min_delay">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, set min-delay bit in the IP TOS field 
+					of the IP header, or else don't set it.</description>
+			</setting>
+			<setting name="max_throughput">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, set max-throughput bit in the IP TOS 
+					field of the IP header, or else don't set it.</description>
+			</setting>
+			<setting name="max_reliability">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, set max-reliability bit in the IP TOS 
+					field of the IP header, or else don't set it.</description>
+			</setting>
+			<setting name="min_cost">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, set min-cost bit in the IP TOS field 
+					of the IP header, or else don't set it. </description>
+			</setting>
+			<setting name="precedence">
+				<type>0-7</type>
+				<defaultValue>5</defaultValue>
+				<description>If set to 1, set precedence bits in the IP TOS 
+					field of the IP header, or else don't set 
+					them.</description>
+			</setting>
+		</group>
 	</group>
 	<group name="tcpIpApp.sntp">
 		<label>Time Synchronization</label>
@@ -364,7 +487,7 @@
 			savings defaults</description>
 		<setting name="resyncPeriod">
 			<type>positive integer</type>
-			<defaultValue>86400 (24 hours) </defaultValue>
+			<defaultValue>86400</defaultValue>
 			<description>Time in seconds between SNTP re-syncs.</description>
 		</setting>
 		<setting name="address">
@@ -374,7 +497,7 @@
 		</setting>
 		<setting name="gmtOffset">
 			<type>positive or negative integer</type>
-			<defaultValue>-28800 (Pacific time)</defaultValue>
+			<defaultValue>-28800</defaultValue>
 			<description>Offset in seconds of the local time zone from GMT. 
 				Note: 3600 seconds per hour</description>
 		</setting>
@@ -392,7 +515,7 @@
 		</setting>
 		<setting name="daylightSavings.start.month">
 			<type>12-Jan</type>
-			<defaultValue>4 (April)</defaultValue>
+			<defaultValue>4</defaultValue>
 			<description>Month to start DST. 1=Jan, 2=Feb, ..., 
 				12=Dec</description>
 		</setting>
@@ -451,21 +574,21 @@
 				rather than the first in the month.</description>
 		</setting>
 	</group>
-	<group name="tcpIpApp.port">
+	<group name="tcpIpApp.port.rtp">
 		<label>RTP</label>
-		<setting name="port.rtp.filterByIp">
+		<setting name="filterByIp">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>If set to 1, reject RTP pack-ets arriving from (sent 
 				from) a non-negotiated (via SDP) IP address.</description>
 		</setting>
-		<setting name="rtp.filterByPort">
+		<setting name="filterByPort">
 			<type>0, 1</type>
 			<defaultValue>0</defaultValue>
 			<description>If set to 1, reject RTP pack-ets arriving from (sent 
 				from) a non-negotiated (via SDP) port.</description>
 		</setting>
-		<setting name="rtp.forceSend">
+		<setting name="forceSend">
 			<type>Null, 1024- 65534</type>
 			<defaultValue></defaultValue>
 			<description>When non-Null, send all RTP packets to, and expect all 
@@ -474,7 +597,7 @@
 				tcpI-pApp.port.rtp.filterByPort must be enabled for this to 
 				work.</description>
 		</setting>
-		<setting name="rtp.mediaPortRangeStart">
+		<setting name="mediaPortRangeStart">
 			<type>Null, even integer from 1024-65534</type>
 			<defaultValue></defaultValue>
 			<description>If set to Null, the value 2222 will be used for the 
@@ -493,18 +616,21 @@
 			<description>If set to 1, the HTTP server will be 
 				enabled.</description>
 		</setting>
-		<setting name="cfg.enabled">
+		<group name="cfg">
+			<label>Configuration</label>
+		<setting name="enabled">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>If set to 1, the HTTP server configuration interface 
 				will be enabled.</description>
 		</setting>
-		<setting name="cfg.port">
+		<setting name="port">
 			<type>1-65535</type>
 			<defaultValue>80</defaultValue>
 			<description>Port is 80 for HTTP servers. Care should be taken when 
 				choosing an alternate port.</description>
 		</setting>
+		</group>
 	</group>
 	<group name="call">
 		<label>Call Handling</label>
@@ -549,19 +675,21 @@
 			<description>The string sent to the server when the user selects 
 				the 'last call return' action.</description>
 		</setting>
-		<setting name="shared.disableDivert">
+		<group name="shared">
+			<label>Shared</label>
+		<setting name="disableDivert">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>If set to 1, disable diversion feature for shared 
 				lines.</description>
 		</setting>
-		<setting name="shared.seizeFailReorder">
+		<setting name="seizeFailReorder">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>If set to 1, play re-order tone locally on shared line 
 				seize failure.</description>
 		</setting>
-		<setting name="shared.oneTouchResume">
+		<setting name="oneTouchResume">
 			<type>0, 1</type>
 			<defaultValue>0</defaultValue>
 			<description>If set to 1, when a shared line has a call on hold the 
@@ -573,23 +701,24 @@
 				applied to. The call diversion, no answer feature will take 
 				precedence over this feature if enabled.</description>
 		</setting>
+		</group>
 	</group>
-	<group name="call.hold">
+	<group name="call.hold.localReminder">
 		<label>Hold Reminder</label>
-		<setting name="localReminder.enabled">
+		<setting name="enabled">
 			<type>0, 1</type>
 			<defaultValue>0</defaultValue>
 			<description>If set to 1, periodically notify the local user that 
 				calls have been on hold for an extended period of time. 
 				</description>
 		</setting>
-		<setting name="localReminder.period">
+		<setting name="period">
 			<type>non-negative integer</type>
 			<defaultValue>60</defaultValue>
 			<description>Time in seconds between subsequent 
 				reminders.</description>
 		</setting>
-		<setting name="localReminder.startDelay">
+		<setting name="startDelay">
 			<type>non-negative integer</type>
 			<defaultValue>90</defaultValue>
 			<description>Time in seconds to wait before the initial 
@@ -613,81 +742,82 @@
 		<label>Basic Logging</label>
 		<group name="sip">
 			<label>SIP Logging</label>
-		<setting name="level.change.sip">
-			<type>0-5</type>
-			<defaultValue>4</defaultValue>
-			<description>This attribute controls the logging detail level for 
-				the SIP component. These are the input filters for the internal 
-				memory-based log system.</description>
-		</setting>
-		<setting name="level.change.sip.obs">
-			<type>0-5</type>
-			<defaultValue>5</defaultValue>
-			<description></description>
-		</setting>
+			<setting name="level.change.sip">
+				<type>0-5</type>
+				<defaultValue>4</defaultValue>
+				<description>This attribute controls the logging detail level 
+					for the SIP component. These are the input filters for the 
+					internal memory-based log system.</description>
+			</setting>
+			<setting name="level.change.sip.obs">
+				<type>0-5</type>
+				<defaultValue>5</defaultValue>
+				<description></description>
+			</setting>
 		</group>
 		<group name="render">
 			<label>Log Rendering</label>
-		<setting name="level">
-			<type>0-6</type>
-			<defaultValue>1</defaultValue>
-			<description>Specifies the lowest class of event that will be 
-				rendered to the log files. This is the output filter from the 
-				internal mem-ory-based log system. </description>
-		</setting>
-		<setting name="type">
-			<type>0-2</type>
-			<defaultValue>2</defaultValue>
-			<description>See above table for timestamp type.</description>
-		</setting>
-		<setting name="realtime">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>Set to 1. Do not change. </description>
-		</setting>
-		<setting name="stdout">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>Set to 1. Do not change. </description>
-		</setting>
-		<setting name="file">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>Set to 1. Do not change. </description>
-		</setting>
-		<setting name="file.size">
-			<type>positive integer</type>
-			<defaultValue>16</defaultValue>
-			<description>Maximum local application log file size in Kbytes. 
-				When this size is exceeded, the file is uploaded to the boot 
-				server and the local copy is erased. </description>
-		</setting>
-		<setting name="file.upload.period">
-			<type>positive integer</type>
-			<defaultValue>172800</defaultValue>
-			<description>Time in seconds between log file uploads to the boot 
-				server. Note: The log file will not be uploaded if no new 
-				events have been logged since the last upload.</description>
-		</setting>
-		<setting name="file.upload.append">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, use append mode when uploading log files 
-				to server. </description>
-		</setting>
-		<setting name="file.upload.append.sizeLimit">
-			<type>positive integer</type>
-			<defaultValue>512</defaultValue>
-			<description>Maximum log file size on boot server in Kbytes. 
-				</description>
-		</setting>
-		<setting name="file.upload.append.limitMode">
-			<type>"delete, stop " </type>
-			<defaultValue>delete </defaultValue>
-			<description>Behavior when server log file has reached its limit. 
-				delete=delete file and start over, stop=stop appending to file. 
-				</description>
-		</setting>
+			<setting name="level">
+				<type>0-6</type>
+				<defaultValue>1</defaultValue>
+				<description>Specifies the lowest class of event that will be 
+					rendered to the log files. This is the output filter from 
+					the internal memory-based log system. </description>
+			</setting>
+			<setting name="type">
+				<type>0-2</type>
+				<defaultValue>2</defaultValue>
+				<description>See above table for timestamp type.</description>
+			</setting>
+			<setting name="realtime">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>Set to 1. Do not change. </description>
+			</setting>
+			<setting name="stdout">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>Set to 1. Do not change. </description>
+			</setting>
+			<setting name="file">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>Set to 1. Do not change. </description>
+			</setting>
+			<setting name="file.size">
+				<type>positive integer</type>
+				<defaultValue>16</defaultValue>
+				<description>Maximum local application log file size in Kbytes. 
+					When this size is exceeded, the file is uploaded to the 
+					boot server and the local copy is erased. </description>
+			</setting>
+			<setting name="file.upload.period">
+				<type>positive integer</type>
+				<defaultValue>172800</defaultValue>
+				<description>Time in seconds between log file uploads to the 
+					boot server. Note: The log file will not be uploaded if no 
+					new events have been logged since the last 
+					upload.</description>
+			</setting>
+			<setting name="file.upload.append">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, use append mode when uploading log 
+					files to server. </description>
+			</setting>
+			<setting name="file.upload.append.sizeLimit">
+				<type>positive integer</type>
+				<defaultValue>512</defaultValue>
+				<description>Maximum log file size on boot server in Kbytes. 
+					</description>
+			</setting>
+			<setting name="file.upload.append.limitMode">
+				<type>"delete, stop " </type>
+				<defaultValue>delete </defaultValue>
+				<description>Behavior when server log file has reached its 
+					limit. delete=delete file and start over, stop=stop 
+					appending to file. </description>
+			</setting>
 		</group>
 	</group>
 	<group name="sec">
@@ -701,22 +831,25 @@
 				num-ber (Ethernet address) via protocol signaling. 
 				</description>
 		</setting>
-		<setting name="pwd.length.admin">
+		<group name="pwd.length">
+			<label>Password Length</label>
+		<setting name="admin">
 			<type>0-32</type>
 			<defaultValue>1</defaultValue>
 			<description>Password changes will need to be at least this long. 
 				Use 0 to allow null passwords. </description>
 		</setting>
-		<setting name="pwd.length.user">
+		<setting name="user">
 			<type>0-32</type>
 			<defaultValue>2</defaultValue>
 			<description>Password changes will need to be at least this long. 
 				Use 0 to allow null passwords. </description>
 		</setting>
+		</group>
 	</group>
-	<group name="request">
+	<group name="request.delay">
 		<label>Request</label>
-		<setting name="delay.type">
+		<setting name="type">
 			<type>Null, 'audio', or 'call'</type>
 			<defaultValue>call</defaultValue>
 			<description>Defines the strategy to adopt before a request gets 
@@ -735,12 +868,13 @@
 		<setting name="proxy">
 			<type>Null or domain name or IP address in the format 
 				address:port</type>
-			<defaultValue>Null. Default port = 8080. </defaultValue>
+			<defaultValue></defaultValue>
 			<description>Address of the desired HTTP proxy to be used by the 
 				MicroBrowser. If blank, nor-mal unproxied HTTP is used by the 
 				MicroBrowser. </description>
 		</setting>
-		<setting name="idleDisplay.home">
+		<group name="idleDisplay">
+		<setting name="home">
 			<type>Null, or any fully formed valid HTTP URL. Length up to 255 
 				characters.</type>
 			<defaultValue></defaultValue>
@@ -750,7 +884,7 @@
 				Note that the MicroBrowser idle display will displace the idle 
 				display indicator. See Indicators settings.</description>
 		</setting>
-		<setting name="idleDisplay.refresh">
+		<setting name="refresh">
 			<type>0 or an integer greater than 5</type>
 			<defaultValue>0</defaultValue>
 			<description>The period in seconds between refreshes of the idle 
@@ -763,7 +897,9 @@
 				cause the idle display to refresh at unexpected 
 				times.</description>
 		</setting>
-		<setting name="main.home">
+		</group>
+		<group name="main">
+		<setting name="home">
 			<type>Any fully formed valid HTTP URL. Length up to 255 
 				characters.</type>
 			<defaultValue></defaultValue>
@@ -772,9 +908,11 @@
 				Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. 
 				</description>
 		</setting>
-		<setting name="limits.nodes">
+		</group>
+		<group name="limits">
+		<setting name="nodes">
 			<type>Null or positive integer</type>
-			<defaultValue>256</defaultValue>
+			<defaultValue></defaultValue>
 			<description>Limits the number of tags which the XML parser will 
 				handle. This limits the amount of memory used by complicated 
 				pages. The Services browser and the Idle Display each use 
@@ -782,7 +920,7 @@
 				is recommended. Increasing this value may have a detrimental 
 				effect on perfor-mance of the phone. </description>
 		</setting>
-		<setting name="limits.cache">
+		<setting name="cache">
 			<type>Null or positive integer 200</type>
 			<defaultValue></defaultValue>
 			<description>Limits the total size of objects down-loaded for each 
@@ -791,6 +929,7 @@
 				Units = kBytes. Increasing this value may have a detri-mental 
 				effect on performance of the phone.</description>
 		</setting>
+		</group>
 	</group>
 	<group name="voIpProt">
 		<label>SIP Servers</label>
@@ -1149,8 +1288,8 @@
 					bytes and 20 segments; a comma is also allowed; when 
 					reached in the digit map, a comma will turn dial tone back 
 					on.</type>
-				<defaultValue>
-					<![CDATA[[2-9]11|0T|011xxx.T|[0-1][2-9]xxxxxxxxx|[2-9]xxxxxxxxx|[2-9]xxxT]]></defaultValue>
+				<defaultValue> <![CDATA[[2-9]11|0T|011xxx.T|[0-1][2-9]xxxxxxxxx|[2-9]xxxxxxxxx|[2-9]xxxT]]>
+					 </defaultValue>
 				<description>When this attribute is present, number-only 
 					dialing during the setup phase of new calls will be 
 					compared against the patterns therein and if a match is 
