@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.sipfoundry.sipxconfig.site.JettyTestSetup;
-import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.line.EditLineTestUi;
 import org.sipfoundry.sipxconfig.site.line.LineSettingsTestUi;
 import org.sipfoundry.sipxconfig.site.phone.AddPhoneUserTestUi;

@@ -13,10 +13,12 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.dbunit.Assertion;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
@@ -67,10 +69,44 @@ public class FlexibleDialPlanTestDb extends TestCase {
 
         IDataSet set = new FilteredDataSet(filter, TestHelper.getConnection().createDataSet());
         ITable table = set.getTable("dialing_rule");
-        assertEquals(7,table.getRowCount());
-        //FIXME: test agains the real data - need to remove ids...
-        //IDataSet reference = new FilteredDataSet(filter, TestHelper
-        //        .loadDataSet("admin/dialplan/dbdata/defaultFlexibleDialPlan.xml"));
+        assertEquals(7, table.getRowCount());
+        // FIXME: test agains the real data - need to remove ids...
+        // IDataSet reference = new FilteredDataSet(filter, TestHelper
+        // .loadDataSet("admin/dialplan/dbdata/defaultFlexibleDialPlan.xml"));
         // Assertion.assertEquals(set, reference);
     }
+
+    public void testDuplicateRules() throws Exception {
+        IDialingRule r1 = new CustomDialingRule();
+        r1.setName("a1");
+        assertTrue(m_plan.addRule(r1));
+        assertFalse(BeanWithId.UNSAVED_ID.equals(r1.getId()));
+
+        m_plan.duplicateRules(Collections.singletonList(r1.getId()));
+
+        assertEquals(2, m_plan.getRules().size());
+
+        IDataSet set = TestHelper.getConnection().createDataSet();
+        ITable table = set.getTable("dialing_rule");
+        assertEquals(2, table.getRowCount());
+    }
+
+    public void testDuplicateDefaultRules() throws Exception {
+        m_plan.resetToFactoryDefault();
+        
+        List rules = m_plan.getRules();
+        
+        Transformer bean2id = new BeanWithId.BeanToId();
+        
+        Collection ruleIds = CollectionUtils.collect(rules, bean2id);
+        
+        m_plan.duplicateRules(ruleIds);
+
+        assertEquals(ruleIds.size() * 2, m_plan.getRules().size());
+
+        IDataSet set = TestHelper.getConnection().createDataSet();
+        ITable table = set.getTable("dialing_rule");
+        assertEquals(ruleIds.size() * 2, table.getRowCount());
+    }
+
 }

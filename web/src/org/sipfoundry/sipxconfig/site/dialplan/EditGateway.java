@@ -66,7 +66,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         Integer id = getGatewayId();
         if (null != id) {
             DialPlanContext manager = getDialPlanManager();
-            gateway = (Gateway) manager.getGateway(id).detach();
+            gateway = manager.getGateway(id);
         } else {
             gateway = new Gateway();
         }

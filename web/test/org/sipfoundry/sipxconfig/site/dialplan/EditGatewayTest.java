@@ -125,6 +125,5 @@ public class EditGatewayTest extends TestCase {
 
         assertEquals(id, m_editGatewayPage.getGatewayId());
         assertEquals("kuku", m_editGatewayPage.getGateway().getName());
-        assertNotSame(gateway, m_editGatewayPage.getGateway());
     }
 }

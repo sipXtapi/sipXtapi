@@ -23,20 +23,26 @@ import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**
- * DialingRule At some point it's be replaced by the IDialingRule interface or
- * made abstract.
+ * DialingRule At some point it's be replaced by the IDialingRule interface or made abstract.
  */
 public abstract class DialingRule extends BeanWithId implements IDialingRule {
     private boolean m_enabled;
     private String m_name;
     private String m_description;
     private List m_gateways = new ArrayList();
+
     public abstract String[] getPatterns();
 
     public abstract Transform[] getTransforms();
 
     public abstract Type getType();
-    
+
+    protected Object clone() throws CloneNotSupportedException {
+        DialingRule clone = (DialingRule) super.clone();
+        clone.m_gateways = new ArrayList(m_gateways);
+        return clone;        
+    }
+
     public String getDescription() {
         return m_description;
     }
@@ -68,7 +74,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     public void setGateways(List gateways) {
         m_gateways = gateways;
     }
-    
+
     public List getPermissions() {
         return Collections.EMPTY_LIST;
     }
@@ -96,11 +102,10 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     }
 
     /**
-     * Called to give a dialing rules a chance to append itself to the list of
-     * rules used for generating XML
+     * Called to give a dialing rules a chance to append itself to the list of rules used for
+     * generating XML
      * 
-     * Default implementation appends the rule if it is enabled. Rule can append
-     * some other rules.
+     * Default implementation appends the rule if it is enabled. Rule can append some other rules.
      * 
      * @param rules
      */
@@ -112,6 +117,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
 
     /**
      * Returns the lis of gateways that can be added to this rule.
+     * 
      * @param allGateways pool of all possible gateways
      * @return list of gateways that still can be assigned to this rule
      */

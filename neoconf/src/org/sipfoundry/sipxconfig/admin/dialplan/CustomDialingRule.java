@@ -24,9 +24,16 @@ public class CustomDialingRule extends DialingRule {
     private List m_dialPatterns = new ArrayList();
     private CallPattern m_callPattern = new CallPattern();
     private List m_permissions = new ArrayList();
-
+    
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
+    }
+
+    protected Object clone() throws CloneNotSupportedException {        
+        CustomDialingRule clone = (CustomDialingRule) super.clone();
+        clone.m_permissions = new ArrayList(m_permissions);
+        clone.m_dialPatterns = new ArrayList(m_dialPatterns);
+        return clone;        
     }
 
     public List getDialPatterns() {

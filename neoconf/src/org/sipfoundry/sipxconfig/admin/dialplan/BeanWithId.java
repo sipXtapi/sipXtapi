@@ -14,13 +14,14 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.Transformer;
 
 /**
  * ObjectIdentity - this is temporary class to simplify implementation of model layer
  * 
  * Hibernate advises against using object identifiers in equals and hashCode methods
  */
-public class BeanWithId {
+public class BeanWithId implements Cloneable {
     protected static final Integer UNSAVED_ID = new Integer(-1);
 
     private static int s_id = 1;
@@ -55,22 +56,6 @@ public class BeanWithId {
         return m_id.hashCode();
     }
 
-    public BeanWithId detach() {
-        try {
-            BeanWithId clone = (BeanWithId) BeanUtils.cloneBean(this);
-            clone.setId(m_id);
-            return clone;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void update(BeanWithId object) {
         try {
             Integer saveId = getId();
@@ -84,9 +69,13 @@ public class BeanWithId {
     }
 
     public BeanWithId duplicate() {
-        BeanWithId clone = detach();
-        clone.setId(UNSAVED_ID);
-        return clone;
+        try {
+            BeanWithId clone = (BeanWithId) clone();
+            clone.setId(UNSAVED_ID);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -100,5 +89,12 @@ public class BeanWithId {
     public BeanWithId setUniqueId() {
         setId(new Integer(s_id++));
         return this;
+    }
+
+    static final class BeanToId implements Transformer {
+        public Object transform(Object item) {
+            BeanWithId bean = (BeanWithId) item;
+            return bean.getId();
+        }
     }
 }

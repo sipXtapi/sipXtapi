@@ -24,11 +24,11 @@ import junit.framework.TestCase;
  * DialingRuleTest
  */
 public class DialingRuleTest extends TestCase {
-    public void testDetach() {
+    public void testDetach() throws Exception {
         CustomDialingRule orgRule = new CustomDialingRule();
         orgRule.setName("name");
         orgRule.setDescription("description");
-        DialingRule detachedRule = (DialingRule) orgRule.detach();
+        DialingRule detachedRule = (DialingRule) orgRule.duplicate();
         assertTrue(orgRule.equals(detachedRule));
         assertNotSame(orgRule, detachedRule);
         assertEquals(orgRule.getDescription(), detachedRule.getDescription());

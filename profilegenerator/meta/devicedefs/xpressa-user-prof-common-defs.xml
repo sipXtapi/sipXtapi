@@ -403,6 +403,12 @@
                  <enum_value>DISABLE</enum_value>
                  <enum_value>ENABLE</enum_value>
              </value>
+
+             <value name="MySpecialProperty" type="enumeration" cardinality="1" visibility="write" description="User can record system prompts">
+                 <default_value>DISABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
          </value>
      </definition>
  </ref_property>

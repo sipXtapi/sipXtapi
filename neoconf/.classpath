@@ -13,11 +13,11 @@
 	<classpathentry sourcepath="/LIB_SRC/xmlunit/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/velocity/velocity-1.4" kind="var" path="SIPX_CONFIG/lib/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
-	<classpathentry sourcepath="LIB_SRC/commons-beanutils/commons-beanutils-1.7.0-src" kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/commons-beanutils/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/dom4j/dom4j-1.5.2/src/java" kind="var" path="SIPX_CONFIG/lib/dom4j-1.5.2.jar"/>
 	<classpathentry sourcepath="LIB_SRC/spring/src.zip" kind="var" path="SIPX_CONFIG/lib/spring-1.1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/hibernate-2.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/commons-collections/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-collections-3.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/commons-digester/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-digester-1.6.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-dbcp-1.2.1.jar"/>
