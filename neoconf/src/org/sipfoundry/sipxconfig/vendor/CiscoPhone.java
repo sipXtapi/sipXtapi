@@ -11,8 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.vendor;
 
+import org.sipfoundry.sipxconfig.core.CoreDao;
+import org.sipfoundry.sipxconfig.core.Line;
 import org.sipfoundry.sipxconfig.core.LogicalPhone;
 import org.sipfoundry.sipxconfig.core.Phone;
+import org.sipfoundry.sipxconfig.core.User;
 
 /**
  * Support for Cisco 7960, 7940, 7905 and 7912 SIP phones.
@@ -32,6 +35,8 @@ public class CiscoPhone implements Phone {
     public static final String MODEL_7912 = "cisco7912";
 
     private String m_id;
+    
+    private CoreDao m_dao;
     
     /**
      * XML filename that describes a particular model's definitions
@@ -54,6 +59,7 @@ public class CiscoPhone implements Phone {
     public int getProfileCount() {
         return 1;
     }
+    
 
     public String getProfileFileName(int profileIndexTemp, String macAddress) {
         // Goes into TFTP Root dir, no vendor prefix
@@ -65,11 +71,22 @@ public class CiscoPhone implements Phone {
         return null;
     }
 
-    public String getProfileNotifyUrl(LogicalPhone logicalPhoneTemp, int profileIndexTemp) {
-        throw new RuntimeException("getDeviceNotifyUrl not implemented yet");
-        /*
-        StringBuffer returnURL = new StringBuffer();
-        returnURL.append ("sip:");
+    public String getProfileNotifyUrl(LogicalPhone logicalPhone, int profileIndexTemp) {
+        String url = null;
+        // assumes first line is the 
+        User user = logicalPhone.getUser();
+        if (user != null) {
+            Line line = m_dao.loadLine(user, 0);
+
+            url = new StringBuffer()
+                    .append("sip:").append(line.getName()).append('@')
+                    .append(user.getOrganization().getDnsDomain())
+                    .toString();
+        }
+        
+        return url;
+        
+        /*        
 
         try {
             if (device.getUserId() != 0) {
@@ -126,5 +143,19 @@ public class CiscoPhone implements Phone {
     
     public int getProfileSequenceNumber(LogicalPhone logicalPhoneTemp, int profileIndexTemp) {
         return SEQUENCE_NUMBER_NOT_SUPPORTED;
+    }
+    
+    /**
+     * @return Returns the dao.
+     */
+    public CoreDao getCoreDao() {
+        return m_dao;
+    }
+    
+    /**
+     * @param dao The dao to set.
+     */
+    public void setCoreDao(CoreDao dao) {
+        m_dao = dao;
     }
 }

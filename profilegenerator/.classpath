@@ -23,5 +23,7 @@
 	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/jmxri.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlunit1.0.jar"/>
+	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry sourcepath="SPRING_HOME/src" kind="var" path="SPRING_HOME/dist/spring.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

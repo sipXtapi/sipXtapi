@@ -28,5 +28,5 @@ public class SipxConfigTest extends TestCase {
         // now use some bean from factory 
         SipxConfig sipx = (SipxConfig) bf.getFactory().getBean("sipxconfig");
         assertNotNull(sipx);
-    }
+   }
 }

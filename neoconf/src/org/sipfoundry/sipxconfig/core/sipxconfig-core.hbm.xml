@@ -4,24 +4,86 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
 <hibernate-mapping>
+	<!--
+	- O R G A N I Z A T I O N
+	-->
+	<class name="org.sipfoundry.sipxconfig.core.Organization" 
+		table="organizations">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">org_seq</param>
+			</generator>
+		</id>
+		<property name="name" column="name"/>
+		<!-- organization hierarchy not supported at this time -->
+		<!-- property name="parentId" column="parent_id"/ -->
+		<property name="dnsDomain" column="dns_domain"/>
+		<property name="stereotype" column="stereotype"/>
+	</class>
+	<!-- 
+	- U S E R
+	-->
+	<class name="org.sipfoundry.sipxconfig.core.User" table="users">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">user_seq</param>
+			</generator>
+		</id>
+		<property name="firstName" column="first_name"/>
+		<many-to-one name="organization" column="org_id" 
+			class="org.sipfoundry.sipxconfig.core.Organization"/>
+		<property name="password" column="password"/>
+		<property name="userGroupId" column="ug_id"/>
+		<property name="rcsId" column="rcs_id"/>
+		<property name="lastName" column="last_name"/>
+		<property name="displayId" column="display_id"/>
+		<property name="extension" column="extension"/>
+		<property name="profileEncryptionKey" column="profile_encryption_key"/>
+		<!-- set name="lines" inverse="true">
+			<key column="user_id"/>
+			<one-to-many class="org.sipfoundry.sipxconfig.core.Lines"/>
+		</set -->
+	</class>
+	<!-- 
+	- L O G I C A L  P H O N E
+	-->
+	<class name="org.sipfoundry.sipxconfig.core.LogicalPhone" 
+		table="logical_phones">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">log_phn_seq</param>
+			</generator>
+		</id>
+		<property name="shortName" column="short_name"/>
 
-  <class name="org.sipfoundry.sipxconfig.core.LogicalPhone" table="logical_phones">
+                <!-- no business objects defined yet -->
+		<!-- property name="m_csdId" column="csd_id" access="field"/ -->
+		<!-- property name="m_rcsId" column="rcs_id" access="field"/ -->
+		<!-- property name="m_pgId" column="pg_id" access="field"/ -->
+		<!-- property name="m_ptId" column="pt_id" access="field"/ -->
 
-    <jcs-cache usage="read-write"/>
-
-    <id name="id" column="id" type="int" unsaved-value="-1">
-      <generator class="native"/>
-    </id>
-
-    <property name="shortName" column="short_name"/>
-    <property name="csdId" column="csd_id"/>
-    <property name="orgId" column="org_id"/>
-    <property name="rcsId" column="rcs_id"/>
-    <property name="pgId" column="pg_id"/>
-    <property name="usrsId" column="usrs_id"/>
-    <property name="description" column="description"/>
-    <property name="ptId" column="pt_id"/>
-    <property name="serialNumber" column="serial_number"/>    
-  </class>
-
+		<property name="description" column="description"/>
+		<property name="serialNumber" column="serial_number"/>
+		<many-to-one name="user" column="usrs_id" 
+			class="org.sipfoundry.sipxconfig.core.User"/>
+		<many-to-one name="organization" column="org_id" 
+			class="org.sipfoundry.sipxconfig.core.Organization"/>
+	</class>
+	<!-- 
+	- L I N E
+	-->
+	<class name="org.sipfoundry.sipxconfig.core.Line" table="line">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">line_seq</param>
+			</generator>
+		</id>
+		<property name="name" column="name"/>
+		<many-to-one name="user" column="user_id" 
+			class="org.sipfoundry.sipxconfig.core.User"/>
+	</class>
 </hibernate-mapping>

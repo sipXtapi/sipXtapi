@@ -26,6 +26,8 @@ public class PhoneFactoryImpl extends XmlBeanFactory
         implements PhoneFactory {
     
     private Map m_models;
+    
+    private CoreDao m_dao;
 
     public PhoneFactoryImpl(Resource phoneFactoryDefinitions) {
         super(phoneFactoryDefinitions);
@@ -38,6 +40,19 @@ public class PhoneFactoryImpl extends XmlBeanFactory
         m_models.put("Pingtel", SipxPhone.SOFTPHONE);        
     }
     
+    /**
+     * @return Returns the sipx.
+     */
+    public CoreDao getCoreDao() {
+        return m_dao;
+    }
+    /**
+     * @param sipx The sipx to set.
+     */
+    public void setCoreDao(CoreDao dao) {
+        m_dao = dao;
+    }
+    
     public Phone getPhoneByModel(String model) {
         String map = (String) m_models.get(model);
         return (Phone) getBean(map != null ? map : model);
@@ -46,5 +61,14 @@ public class PhoneFactoryImpl extends XmlBeanFactory
     public Phone getPhoneByVendor(String vendor) {        
         // intentionally the same as by model
         return getPhoneByModel(vendor);
+    }
+    
+    public Object getBean(String name) {
+        Object o = super.getBean(name);
+        if (o != null) {
+            ((Phone) o).setCoreDao(m_dao);
+        }
+        
+        return o;
     }
 }

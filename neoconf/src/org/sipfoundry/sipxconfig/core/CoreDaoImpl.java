@@ -11,60 +11,80 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-
-import org.springframework.orm.hibernate.SessionFactoryUtils;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Use Hibernate to r/w object to database for device related items
  */
 public class CoreDaoImpl extends HibernateDaoSupport implements CoreDao {
-
-    /**
-     * Find a single instance of an object by id
-     */
-    public Object findById(Class c, int id) {
-        String objectTable = stripPackage(c.getName());
-        Session session = SessionFactoryUtils.getSession(getSessionFactory(), false);
-        try {
-            return single(session.find("from " + objectTable + " where id = "
-                + id));
-        } catch (HibernateException ex) {
-            throw SessionFactoryUtils.convertHibernateAccessException(ex);
-        }
+    
+    public void storeUser(User user) {
+        getHibernateTemplate().saveOrUpdate(user);        
     }
 
-    /**
-     * Find a single instance of an object by id
-     */
-    public Object requireById(Class c, int id) {
-        Object o = findById(c, id);
-        if (o == null) {
-            HibernateException e = new HibernateException("Required object of type " 
-                    + c.getName() + " and id = " + id + " cannot be found");
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
-        }
-
-        return o;
+    public void storeLogicalPhone(LogicalPhone logicalPhone) {
+        getHibernateTemplate().saveOrUpdate(logicalPhone);        
     }
+    
+    public void storeOrganization(Organization org) {
+        getHibernateTemplate().saveOrUpdate(org);        
+    }
+
+    public void storeLine(Line line) {
+        getHibernateTemplate().saveOrUpdate(line);        
+    }
+
+    public LogicalPhone loadLogicalPhone(int id) {
+        return (LogicalPhone) getHibernateTemplate().load(LogicalPhone.class, new Integer(id));
+    }
+    
+    public Line loadLine(User user, int position) {
+        String query = "from Line where user_id = " + user.getId()
+                + " and position = " + position;
+        Collection line = getHibernateTemplate().find(query);
         
-    String stripPackage(String className) {
-        int dot = className.lastIndexOf('.');
-
-        return dot == -1 ? className : className.substring(dot);
+        return (Line) requireOneOrZero(line, query);
     }
-
-    Object single(List l) {
-        if (l.size() > 1) {
-            HibernateException e = new HibernateException(l.size() 
-                + " duplicate objects when expecting only one");
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+    
+    /**
+     * @throws IllegalStateException if more than one item in collection 
+     * @param c
+     * @param query
+     * @return
+     */
+    Object requireOneOrZero(Collection c, String query) {
+        if (c.size() > 2) {
+            // DatabaseCorruptionExection ?
+            StringBuffer error = new StringBuffer().append("read ").append(c.size())
+                    .append(" and expected zero or one. query=").append(query);
+            throw new IllegalStateException(error.toString());
+        }        
+        Iterator i = c.iterator();
+        
+        return (i.hasNext() ? c.iterator().next() : null);
+    }
+    
+    public Organization loadOrganization(int id) {
+        return (Organization) getHibernateTemplate().load(Organization.class, new Integer(id));        
+    }
+    
+    public User loadUser(int id) {
+        return (User) getHibernateTemplate().load(User.class, new Integer(id));        
+    }
+    
+    public void deleteOrganization(Organization org) {
+        Collection phones = getHibernateTemplate().find("from LogicalPhone where Organization = ?", 
+                new Integer(org.getId()));
+        Iterator iphones = phones.iterator();
+        while (iphones.hasNext()) {
+            LogicalPhone phone = (LogicalPhone) iphones.next();
+            getHibernateTemplate().delete(phone);
         }
-
-        return (l.size() == 1 ? l.get(0) : null);
+        
+        
+        getHibernateTemplate().delete(org);
     }
 }

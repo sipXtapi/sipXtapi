@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.vendor;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.core.Phone;
-import org.sipfoundry.sipxconfig.core.LogicalPhone;
 import org.sipfoundry.sipxconfig.core.SipxConfig;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;

@@ -11,16 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
+import java.util.Set;
+
 /**
  * Database object
  */
 public class User {
 
-    private int m_id;
+    private int m_id = -1;
 
     private String m_firstName;
 
-    private int m_orgId;
+    private Organization m_org;
 
     private String m_password;
 
@@ -35,6 +37,8 @@ public class User {
     private String m_extension;
 
     private String m_profileEncryptionKey;
+    
+    private Set m_lines;
 
     public int getId() {
         return m_id;
@@ -52,12 +56,12 @@ public class User {
         m_firstName = firstName;
     }
 
-    public int getOrgId() {
-        return m_orgId;
+    public Organization getOrganization() {
+        return m_org;
     }
 
-    public void setOrgId(int orgId) {
-        m_orgId = orgId;
+    public void setOrganization(Organization org) {
+        m_org = org;
     }
 
     public String getPassword() {
@@ -68,11 +72,11 @@ public class User {
         m_password = password;
     }
 
-    public int getUgId() {
+    public int getUserGroupId() {
         return m_ugId;
     }
 
-    public void setUgId(int ugId) {
+    public void setUserGroupId(int ugId) {
         m_ugId = ugId;
     }
 
@@ -115,5 +119,12 @@ public class User {
     public void setProfileEncryptionKey(String profileEncryptionKey) {
         m_profileEncryptionKey = profileEncryptionKey;
     }
-
+    
+    public Set getLines() {
+        return m_lines;
+    }
+    
+    public void setLines(Set lines) {
+        m_lines = lines;
+    }
 }

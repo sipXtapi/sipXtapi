@@ -16,25 +16,29 @@ package org.sipfoundry.sipxconfig.core;
  */
 public class LogicalPhone {
 
-    private int m_id;
+    // TODO: Core Software Details, see if this is still used
+    //protected int m_csdId = 1;
+
+    // TODO: Ref Config Set, see if this is still used
+    //protected int m_rcsId = 1;
+
+    // TODO: Phone Group, see if this is still used
+    //protected int m_pgId = 1;
+
+    // TODO: Phone Type, see if this is still used
+    //protected int m_ptId = 1;
+
+    private int m_id = -1;
 
     private String m_shortName;
 
-    private int m_csdId;
-
-    private int m_orgId;
-
-    private int m_rcsId;
-
-    private int m_pgId;
-
-    private String m_usrsId;
-
     private String m_description;
 
-    private int m_ptId;
-
     private String m_serialNumber;
+
+    private User m_user;
+    
+    private Organization m_org;
 
     public int getId() {
         return m_id;
@@ -52,44 +56,12 @@ public class LogicalPhone {
         m_shortName = shortName;
     }
 
-    public int getCsdId() {
-        return m_csdId;
+    public Organization getOrganization() {
+        return m_org;
     }
 
-    public void setCsdId(int csdId) {
-        m_csdId = csdId;
-    }
-
-    public int getOrgId() {
-        return m_orgId;
-    }
-
-    public void setOrgId(int orgId) {
-        m_orgId = orgId;
-    }
-
-    public int getRcsId() {
-        return m_rcsId;
-    }
-
-    public void setRcsId(int rcsId) {
-        m_rcsId = rcsId;
-    }
-
-    public int getPgId() {
-        return m_pgId;
-    }
-
-    public void setPgId(int pgId) {
-        m_pgId = pgId;
-    }
-
-    public String getUsrsId() {
-        return m_usrsId;
-    }
-
-    public void setUsrsId(String usrsId) {
-        m_usrsId = usrsId;
+    public void setOrganization(Organization org) {
+        m_org = org;
     }
 
     public String getDescription() {
@@ -100,14 +72,6 @@ public class LogicalPhone {
         m_description = description;
     }
 
-    public int getPtId() {
-        return m_ptId;
-    }
-
-    public void setPtId(int ptId) {
-        m_ptId = ptId;
-    }
-
     public String getSerialNumber() {
         return m_serialNumber;
     }
@@ -115,5 +79,17 @@ public class LogicalPhone {
     public void setSerialNumber(String serialNumber) {
         m_serialNumber = serialNumber;
     }
-
+    
+    /**
+     * @return null if unassigned
+     */
+    public User getUser() {
+        return m_user;
+    }
+    /**
+     * @param user The user to set.
+     */
+    public void setUser(User user) {
+        m_user = user;
+    }
 }

@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.vendor;
 
 import java.text.MessageFormat;
 
+import org.sipfoundry.sipxconfig.core.CoreDao;
 import org.sipfoundry.sipxconfig.core.LogicalPhone;
 import org.sipfoundry.sipxconfig.core.Phone;
 
@@ -35,6 +36,8 @@ public class SipxPhone implements Phone {
     };
 
     private String m_id;
+    
+    private CoreDao m_dao;
         
     /**
      * XML filename that describes a particular model's definitions
@@ -76,6 +79,20 @@ public class SipxPhone implements Phone {
     public int getProfileSequenceNumber(LogicalPhone logicalPhoneTemp, int profileIndexTemp) {
         throw new RuntimeException("getProfileSequenceNumber not implemented yet");
     }
+    
+    /**
+     * @return Returns the dao.
+     */
+    public CoreDao getCoreDao() {
+        return m_dao;
+    }
+    
+    /**
+     * @param dao The dao to set.
+     */
+    public void setCoreDao(CoreDao dao) {
+        m_dao = dao;
+    }    
 }
 
 

@@ -47,6 +47,7 @@
       <pathelement path="${cglib-full.jar}" />
       <pathelement path="${jta.jar}" />
       <pathelement path="${jdbc-driver.jar}" />
+      <pathelement path="${odmg.jar}" />
   </path>
 
   <!-- 

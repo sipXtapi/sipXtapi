@@ -16,19 +16,21 @@ package org.sipfoundry.sipxconfig.core;
  */
 public interface CoreDao {
 
-    /**
-     * Load a logical phone record from the databae and build a logical phone object
-     * 
-     * @return
-     */
-    public Object findById(Class c, int id);
+    public LogicalPhone loadLogicalPhone(int id);
+    
+    public Organization loadOrganization(int id);
+    
+    public User loadUser(int id);
+    
+    public Line loadLine(User user, int position);
+    
+    public void storeUser(User user);
 
-    /**
-     * Load a logical phone record from the databae and build a logical phone object
-     * 
-     * @return
-     * throws ObjectNotFoundException
-     */
-    public Object requireById(Class c, int id);
+    public void storeLogicalPhone(LogicalPhone logicalPhone);
+    
+    public void storeOrganization(Organization org);
 
+    public void storeLine(Line line);
+    
+    public void deleteOrganization(Organization org);
 }
