@@ -12,10 +12,11 @@
 package org.sipfoundry.sipxconfig.site.ui;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import com.meterware.httpunit.WebTable;
 
 /**
  * DialPlanEditTestUi
@@ -66,7 +67,8 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
         clickButton("dialplan:delete");
         // should be empty now
-        assertTableRowsEqual("dialplan:list", 1, new String[0][0]);
+        WebTable rulesTable = getDialog().getWebTableBySummaryOrId("dialplan:list");
+        assertEquals(1, rulesTable.getRowCount()); 
     }
 
     public void testViewRules() {
