@@ -6,7 +6,7 @@ AC_INIT(sipXproxy, 2.5, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
-SFAC_AUTOMAKE_VERSION([1.8])
+SFAC_AUTOMAKE_VERSION([1.6])
 
 AC_CONFIG_SRCDIR([src/sipauthproxy/sipauthproxymain.cpp])
 AM_CONFIG_HEADER([config.h])
