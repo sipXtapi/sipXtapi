@@ -28,7 +28,7 @@ public class CustomDialingRule extends DialingRule {
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
     }
-
+    
     public List getDialPatterns() {
         return m_dialPatterns;
     }

@@ -16,19 +16,19 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.beanutils.BeanUtils;
 
 /**
- * ObjectIdentity - this is temporary class to simplify implementation of model
- * layer
+ * ObjectIdentity - this is temporary class to simplify implementation of model layer
  * 
- * Hibernate advises against using object identifiers in equals and hashCode
- * methods
+ * Hibernate advises against using object identifiers in equals and hashCode methods
  */
 public class BeanWithId {
+    protected static final Integer UNSAVED_ID = new Integer(-1);
+
     private static int s_id = 1;
 
     private Integer m_id;
 
     public BeanWithId() {
-        this(new Integer(s_id++));
+        this(UNSAVED_ID);
     }
 
     public BeanWithId(Integer id) {
@@ -82,10 +82,23 @@ public class BeanWithId {
             throw new RuntimeException(e);
         }
     }
-    
+
     public BeanWithId duplicate() {
         BeanWithId clone = detach();
-        clone.setId(new Integer(s_id++));
+        clone.setId(UNSAVED_ID);
         return clone;
-    }    
+    }
+
+    /**
+     * Assigns unique id to a newly created object.
+     * 
+     * For test only. Most objects are create with id -1 and hibernate sets proper id. We want to
+     * be able to set the id to unique value in tests.
+     * 
+     * @return the same object - to allow for chaining calls
+     */
+    public BeanWithId setUniqueId() {
+        setId(new Integer(s_id++));
+        return this;
+    }
 }

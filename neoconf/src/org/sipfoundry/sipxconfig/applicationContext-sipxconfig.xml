@@ -366,8 +366,11 @@
         </property>        
     </bean>
 
-    <bean id="flexDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
-    	<property name="rules">
+    <bean id="defaultFlexibleDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+    	<!--property name="rules">
         	<list>
                 <ref bean="defaultEmergencyRule"></ref>
                 <ref bean="defaultInternationalRule"></ref>
@@ -377,7 +380,26 @@
                 <ref bean="defaultRestrictedRule"></ref>
                 <ref bean="defaultTollFreeRule"></ref>
             </list>
-        </property>
+        </property-->
+    </bean>
+
+    <bean id="flexDialPlanImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+    </bean>
+    
+	<bean id="flexDialPlan" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>flexDialPlanImpl</value>
+			</list>
+		</property>
     </bean>
     
     <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">

@@ -34,7 +34,8 @@ public class EditGatewayTest extends TestCase {
     }
 
     public void testAddNewGateway() {
-        Gateway g = new Gateway(new Integer(5));
+        Gateway g = new Gateway();
+        g.setUniqueId();
 
         MockControl contextControl = MockControl.createStrictControl(DialPlanContext.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
@@ -67,7 +68,8 @@ public class EditGatewayTest extends TestCase {
         controlPlan.setReturnValue(rule);
         controlPlan.replay();
 
-        Gateway g = new Gateway(new Integer(5));
+        Gateway g = new Gateway();
+        g.setUniqueId();
 
         MockControl contextControl = MockControl.createStrictControl(DialPlanContext.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
@@ -104,10 +106,10 @@ public class EditGatewayTest extends TestCase {
     }
 
     public void testPageBeginRenderEdit() {
-
-        Integer id = new Integer(5);
-        Gateway gateway = new Gateway(id);
+        Gateway gateway = new Gateway();
+        gateway.setUniqueId();
         gateway.setName("kuku");
+        Integer id = gateway.getId();
 
         MockControl contextControl = MockControl.createStrictControl(DialPlanContext.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);

@@ -17,7 +17,6 @@ import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.BeanWithId;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * Ring - represents one stage in a call forwaring sequence
@@ -35,7 +34,7 @@ public class Ring extends BeanWithId {
      * Default "bean" constructor
      */
     public Ring() {
-        super(new Integer(PhoneContext.UNSAVED_ID));
+        // empty
     }
 
     /**

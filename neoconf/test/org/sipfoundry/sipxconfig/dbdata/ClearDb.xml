@@ -12,14 +12,31 @@
   - if you create new users, set rcs_id=2, ug=1, id=5... 
   -->
 <dataset>  
+  <!-- new phone support -->  
   <table name="line"/>
   <table name="endpoint"/>
   <table name="setting"/>
   <table name="storage"/>
   <table name="folder_setting"/>
   <table name="folder"/>
+  
+  <!-- forwarding -->
   <table name="ring"/>
+  
+  <!-- dial plans related -->  
+  <table name="dialing_rule"/>
+  <table name="dial_pattern"/>
+  <table name="international_dialing_rule"/>
+  <table name="local_dialing_rule"/>
+  <table name="custom_dialing_rule"/>
+  <table name="custom_dialing_rule_permission"/>
+  <table name="dialing_rule_gateway"/>
+  <table name="emergency_dialing_rule"/>
+  <table name="internal_dialing_rule"/>
+  <table name="long_distance_dialing_rule"/>
   <table name="gateway"/>
+  
+  <!-- legacy -->
   <table name="organizations">
     <column>id</column>
     <column>name</column>

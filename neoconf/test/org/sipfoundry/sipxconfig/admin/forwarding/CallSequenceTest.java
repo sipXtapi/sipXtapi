@@ -34,18 +34,17 @@ public class CallSequenceTest extends TestCase {
         m_user.setDisplayId("abc");
     }
 
-    public void testGenerateAliases() {        
+    public void testGenerateAliases() {
         final int N = 7;
-        List rings = new ArrayList(N);        
-        for(int i = 0; i < N; i++) {
+        List rings = new ArrayList(N);
+        for (int i = 0; i < N; i++) {
             Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED);
             rings.add(ring);
         }
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
         sequence.setCalls(rings);
-        
-        
+
         List aliases = sequence.generateAliases();
         assertEquals(N, aliases.size());
         for (Iterator i = aliases.iterator(); i.hasNext();) {
@@ -65,18 +64,17 @@ public class CallSequenceTest extends TestCase {
 
     public void testMove() {
         CallSequence callSequence = new CallSequence();
-                
+
         List calls = new ArrayList();
-        
-        
-        Ring ring0 = new Ring("000",40,Ring.Type.IMMEDIATE);
-        Ring ring1 = new Ring("111",40,Ring.Type.IMMEDIATE);
-        Ring ring2 = new Ring("222",40,Ring.Type.IMMEDIATE);
-        
-        calls.add(ring0);
-        calls.add(ring1);
-        calls.add(ring2);
-        
+
+        Ring ring0 = new Ring("000", 40, Ring.Type.IMMEDIATE);
+        Ring ring1 = new Ring("111", 40, Ring.Type.IMMEDIATE);
+        Ring ring2 = new Ring("222", 40, Ring.Type.IMMEDIATE);
+
+        calls.add(ring0.setUniqueId());
+        calls.add(ring1.setUniqueId());
+        calls.add(ring2.setUniqueId());
+
         callSequence.setCalls(calls);
         assertTrue(callSequence.moveRingDown(ring0));
         assertTrue(callSequence.moveRingDown(ring0));

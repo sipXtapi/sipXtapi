@@ -15,12 +15,11 @@ import java.util.Collection;
 import java.util.List;
 
 public interface FlexibleDialPlanContext {
+    public static final String CONTEXT_BEAN_NAME = "flexDialPlan";
 
     public boolean addRule(IDialingRule rule);
 
     public List getRules();
-
-    public void setRules(List rules);
 
     public DialingRule getRule(Integer id);
 
@@ -31,4 +30,6 @@ public interface FlexibleDialPlanContext {
     public void duplicateRules(Collection selectedRows);
 
     public List getGenerationRules();
+    
+    public void resetToFactoryDefault();    
 }

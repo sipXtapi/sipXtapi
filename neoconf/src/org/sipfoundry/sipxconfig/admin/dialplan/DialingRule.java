@@ -36,7 +36,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     public abstract Transform[] getTransforms();
 
     public abstract Type getType();
-
+    
     public String getDescription() {
         return m_description;
     }
@@ -91,7 +91,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
     public void removeGateways(Collection selectedGateways) {
         for (Iterator i = selectedGateways.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            m_gateways.remove(new Gateway(id));
+            m_gateways.remove(new BeanWithId(id));
         }
     }
 

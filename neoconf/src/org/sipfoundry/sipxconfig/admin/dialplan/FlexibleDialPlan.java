@@ -16,75 +16,107 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.orm.hibernate.HibernateTemplate;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+
 /**
  * FlexibleDialPlan - dial plan consisting of list of dialing rules
  */
-class FlexibleDialPlan implements FlexibleDialPlanContext {
-    private List m_rules = new ArrayList();
+class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
+        FlexibleDialPlanContext {
+
+    private static final String[] DEFAULT_RULE_NAMES = {
+        "defaultEmergencyRule", "defaultInternationalRule", "defaultInternalRule",
+        "defaultLocalRule", "defaultLongDistanceRule", "defaultRestrictedRule",
+        "defaultTollFreeRule"
+    };
+
+    private BeanFactory m_beanFactory;
 
     public boolean addRule(IDialingRule rule) {
-        if (m_rules.contains(rule)) {
+        if (PhoneContext.UNSAVED_ID != rule.getId().intValue()) {
             return false;
         }
-        m_rules.add(rule);
+        getHibernateTemplate().save(rule);
         return true;
     }
 
     boolean removeRule(Integer id) {
-        return m_rules.remove(new BeanWithId(id));
+        Object rule = getHibernateTemplate().load(DialingRule.class, id);
+        getHibernateTemplate().delete(rule);
+        return true;
     }
 
     public List getRules() {
-        return m_rules;
-    }
-
-    public void setRules(List rules) {
-        m_rules = rules;
-    }
-    private DialingRule getOrgRule(Integer id) {
-        int i = m_rules.indexOf(new BeanWithId(id));
-        if (i < 0) {
-            return null;
-        }
-        return (DialingRule) m_rules.get(i);
+        return getHibernateTemplate().loadAll(DialingRule.class);
     }
 
     public DialingRule getRule(Integer id) {
-        final DialingRule rule = getOrgRule(id);
-        return null != rule ? (DialingRule) rule.detach() : null;
+        return (DialingRule) getHibernateTemplate().load(DialingRule.class, id);
     }
 
     public void deleteRules(Collection selectedRows) {
+        Collection rules = new ArrayList();
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            m_rules.remove(new BeanWithId(id));
+            DialingRule rule = getRule(id);
+            rules.add(rule);
         }
+        getHibernateTemplate().deleteAll(rules);
     }
 
     public boolean updateRule(Integer id, DialingRule rule) {
-        // TODO: this is naive implementation - review after adding hibernate
-        final DialingRule orgRule = getOrgRule(id);
-        if (null == orgRule) {
+        DialingRule existingRule = getRule(id);
+        if (null == existingRule) {
             return false;
         }
-        orgRule.update(rule);
+        existingRule.update(rule);
+        getHibernateTemplate().update(existingRule);
         return true;
     }
 
     public void duplicateRules(Collection selectedRows) {
+        HibernateTemplate hibernate = getHibernateTemplate();
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            IDialingRule newRule = (IDialingRule) getOrgRule(id).duplicate();
-            addRule(newRule);
+            DialingRule rule = getRule(id);
+            BeanWithId ruleDup = rule.duplicate();
+            hibernate.save(ruleDup);
         }
     }
 
     public List getGenerationRules() {
         ArrayList generationRules = new ArrayList();
-        for (Iterator i = m_rules.iterator(); i.hasNext();) {
+        List rules = getRules();
+        for (Iterator i = rules.iterator(); i.hasNext();) {
             DialingRule rule = (DialingRule) i.next();
             rule.appendToGenerationRules(generationRules);
         }
         return generationRules;
+    }
+
+    /**
+     * Resets the flexible dial plan to factory defaults.
+     * 
+     * Loads default rules definition from bean factory file.
+     */
+    public void resetToFactoryDefault() {
+        // unload all rules
+        HibernateTemplate hibernate = getHibernateTemplate();
+        List allRules = hibernate.loadAll(DialingRule.class);
+        hibernate.deleteAll(allRules);
+
+        for (int i = 0; i < DEFAULT_RULE_NAMES.length; i++) {
+            String beanName = DEFAULT_RULE_NAMES[i];
+            DialingRule rule = (DialingRule) m_beanFactory.getBean(beanName);
+            addRule(rule);
+        }
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
     }
 }

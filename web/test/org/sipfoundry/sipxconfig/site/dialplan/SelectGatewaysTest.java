@@ -40,7 +40,8 @@ public class SelectGatewaysTest extends TestCase {
         List gatewaysToAdd = new ArrayList();
         List gateways = new ArrayList(); 
         for(int i = 0; i< 3; i++) {
-            Gateway gateway = new Gateway(new Integer(i));
+            Gateway gateway = new Gateway();
+            gateway.setUniqueId();
             gatewaysToAdd.add(gateway.getId());
             gateways.add(gateway);
         }
