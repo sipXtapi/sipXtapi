@@ -1,4 +1,8 @@
-SUBDIRS = . bin common profilegenerator profilepublisher profilewriter sipagent-jni doc
+if NEOCONF
+NEOCONF_OPT = neoconf
+endif
+
+SUBDIRS = . bin common $(NEOCONF_OPT) profilegenerator profilepublisher profilewriter sipagent-jni doc
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -9,6 +13,7 @@ EXTRA_DIST = \
     LICENSE \
     config.properties.in \
     common \
+    neoconf \
     sipxconfig.spec \
     profilegenerator \
     profilewriter \
@@ -33,6 +38,7 @@ edit = sed \
         -e 's,@VERSION\@,@VERSION@,g' \
         -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
         -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
+        -e 's,@SPRING_HOME\@,@SPRING_HOME@,g' \
         -e 's,@SIPXCONFIG_LIBDIR\@,@SIPXCONFIG_LIBDIR@,g' \
         -e 's,@SIPX_CONFIGPHONEDIR\@,@SIPX_CONFIGPHONEDIR@,g' \
         -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \

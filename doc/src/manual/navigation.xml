@@ -8,6 +8,8 @@
   <item name="development" href="development.html" title="Development" >Development</item>
   <item name="soap" href="soap.html" title="SOAP" >SOAP</item>
   <item name="architecture" href="architecture.html" title="Architecture" >Architecture</item>
-  <item name="implementation" href="implementation.html" title="Implementation" >Implementation</item>
+  <item name="todo" href="todo.html" title="TODOs" >TODOs</item>
+  <item name="neoconf" href="neoconf.html" title="Neoconf" >Neoconf</item>
+  <item name="new-device" href="new-device.html" title="New Device" >Adding New Devices</item>
   <item name="about-manual" href="about-manual.html" title="About Manual" >About Manual</item>
 </menu>

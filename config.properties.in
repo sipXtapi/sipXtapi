@@ -37,7 +37,7 @@ profilegen-soap.war=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.
 profilegen-soap.jar=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.jar
 profilegen-tags.jar=${top.build.dir}/profilegenerator/webui/dist/profilegen-tags.jar
 buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
-
+neoconf.jar=${top.build.dir}/neoconf/dist/neoconf.jar
 
 # U T I L
 junit.jar=${top.dir}/lib/junit.jar
@@ -63,7 +63,7 @@ checkstyle.jar==${top.dir}/lib/checkstyle-all-3.5.jar
 
 # common jars located at root of ear file that ear applications can share by 
 # including in their manifest
-manifest.classpath=common.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen-jdom.jar saxpath.jar jakarta-regexp-1.3.jar
+manifest.classpath=common.jar neoconf.jar profilegen-patch.jar jdom.jar jaxen-core.jar jaxen-jdom.jar saxpath.jar jakarta-regexp-1.3.jar
 
 
 # J 2 E E
@@ -80,6 +80,24 @@ wsdl4j.jar=${top.dir}/lib/wsdl4j.jar
 axis.jar=${top.dir}/lib/axis.jar
 jaxrpc.jar=${top.dir}/lib/jaxrpc.jar
 saaj.jar=${top.dir}/lib/saaj.jar
+
+# S P R I N G
+spring.home=@SPRING_HOME@
+spring.jar=${spring.home}/dist/spring.jar
+spring-dao.jar=${spring.home}/dist/spring-dao.jar
+hibernate2.jar=${spring.home}/lib/hibernate/hibernate2.jar
+# spring-core.jar=${spring.home}/dist/spring-core.jar
+commons-dbcp.jar=${spring.home}/lib/jakarta-commons/commons-dbcp.jar
+commons-pool.jar=${spring.home}/lib/jakarta-commons/commons-pool.jar
+aopalliance.jar=${spring.home}/lib/aopalliance/aopalliance.jar
+dom4j.jar=${spring.home}/lib/dom4j/dom4j.jar
+commons-collections.jar=${spring.home}/lib/jakarta-commons/commons-collections.jar
+ehcache.jar=${spring.home}/lib/ehcache/ehcache-1.0.jar
+cglib-full.jar=${spring.home}/lib/cglib/cglib-full-2.0.2.jar
+jta.jar=${spring.home}/lib/j2ee/jta.jar
+
+# Use local copy in ./lib for the time being
+# commons-logging.jar=${spring.home}/lib/jakarta-commons/commons-logging.jar
 
 # J S P
 regexp.jar=${top.dir}/lib/jakarta-regexp-1.3.jar

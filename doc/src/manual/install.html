@@ -218,19 +218,19 @@ and not break your installation
 <h3><a name="src-compile">Compiling and Installation</a></h3>
 
 <p>If you've obtained your source from subversion, and not from a tar
-file, run this command:
+file, run this command:</p>
 <pre>
   autoreconf -if
 </pre>
-</p>
 
-<p>Now compile and install sipXconfig by running this command:
+
+<p>Now compile and install sipXconfig by running this command:</p>
 <pre>
      ./configure
      make
      make install
 </pre>
-</p>
+
 
 <h3><a name="src-jboss">JBOSS Setup</a></h3>
 
@@ -252,34 +252,34 @@ file, run this command:
 <p>Postgres needs to always be running on your system. If you've
 installed sipXconfig from RPM, you shouldn't have to do this.</p>
 
-<p>To start postgres on Redhat 9 or Fedora systems run this command.
+<p>To start postgres on Redhat 9 or Fedora systems run this command.</p>
   <pre>
       service postgresql start 
   </pre>
-</p>
 
-<p>To start postgres on Enterprise 3 systems run this command.
+
+<p>To start postgres on Enterprise 3 systems run this command.</p>
   <pre>
       service rhdb start 
   </pre>
-</p>
+
 
 <p>It's recommended you should have postgres start automatically when your machine
 restarts (usually in runlevels 3 and 5).</p>
 
-<p>Fedora and Redhat 9 users should run this command:
+<p>Fedora and Redhat 9 users should run this command:</p>
 
 <pre>
       chkconfig postgresql on
 </pre>
-</p>
 
-<p>Redhat Enterprise 3 users should run this command:
+
+<p>Redhat Enterprise 3 users should run this command:</p>
 
 <pre>
       chkconfig rhdb on
 </pre>
-</p>
+
 
 <p>Edit postgres config files to work. This will open up TCP connections and
 allow localhost to connect to posgres</p>
@@ -309,18 +309,19 @@ Consult phone vendor documenation for recommended TFTP servers but
 below is a set of known tftp server setups that work.</p>
 
 <h4>On Fedora or Red Hat Enterprise</h4>
-<p>Run the following commands
+<p>Run the following commands</p>
 <pre>
   up2date tftp-server
   ${EDITOR} /etc/xinetd.d/tftp
 </pre>
-make the following <strong>edits</strong>, if you've installed via
-RPM, then <code>{where you installed sipXconfig}</code> is empty:
+<p>make the following <strong>edits</strong>, if you've installed via
+RPM, then <code>{where you installed sipXconfig}</code> is empty:</p>
 <pre>
    disable  = no
    server_args  = -s <em>{where you installed sipXconfig}</em>/var/sipxdata/configserver/phone/profile/tftproot
 </pre>
-Run the following commands for your edits to take affect
+
+<p>Run the following commands for your edits to take affect</p>
 <pre>
   # ensure tftp server is not already running
   ps aux | grep tftp
@@ -331,23 +332,25 @@ Run the following commands for your edits to take affect
   # restart xinit.d that in turn will start tftp on demand
   service xinet.d restart
 </pre>
-</p>
+
 
 <h4>On Gentoo</h4>
-<p>Run the following commands
+<p>Run the following commands</p>
 <pre>
   emerge net-misc/tftp-hpa
   ${EDITOR} /etc/conf.d/in.tftpd
 </pre>
-make the following edits
+
+<p>make the following edits</p>
 <pre>
   INTFTPD_PATH="<em>{where you installed sipXconfig}</em>/var/sipxdata/configserver/phone/profile/tftproot"
 </pre>
-then run the following command
+
+<p>then run the following command</p>
 <pre>
   /etc/init.d/in.tftp start
 </pre>
-</p>
+
 
 <h2><a name="run">Running</a></h2>
 

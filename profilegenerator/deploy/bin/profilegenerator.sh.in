@@ -43,4 +43,4 @@ HOTSPOT="-server"
 JAXP=-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.crimson.jaxp.DocumentBuilderFactoryImpl
 JAXP="$JAXP -Djavax.xml.parsers.SAXParserFactory=org.apache.crimson.jaxp.SAXParserFactoryImpl"
 
-exec java $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main catalina $@
+exec java $HOTSPOT -mx256m $PROFILEGENERATOR_OPTS $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main catalina $@

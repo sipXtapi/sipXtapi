@@ -2,7 +2,9 @@
 
 <project name="authentication" default="jar" basedir="." >
 
-  <patternset id="test.classes" includes="**/*Test.class"/>
+  <patternset id="test.classes" 
+  	includes="**/*Test.class" 
+  	excludes="**/SIPxchangeLoginModuleTest.class"/>
 
   <property name="top.build.dir" value="${basedir}/../.."/>
   <property name="build.dir" value="${top.build.dir}/profilegenerator/authentication"/>

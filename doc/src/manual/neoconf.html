@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>Neoconf</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="neoconf">
+
+<h1>Neoconf</h1>
+
+<p>Neoconf is the codename for a new module created
+	to change the system's architecture over time. It
+	uses more modern J2EE technologies, namely the 
+	Spring Framework in an interesting way to stage the
+	evolution across various 6 month releases.  
+	</p>
+
+<p>In the very short term, it's not enbabled by default.
+	To turn it on:</p>
+<pre>
+  ./configure --enable-neoconf
+  export PROFILEGENERATOR_OPTS=-Dsipxconfig.facade=org.sipfoundry.sipxconfig.core.SipxConfigFacadeImpl	
+</pre>
+	
+<p>There will be more to say here shortly</p>
+
+<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Nov 18, 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

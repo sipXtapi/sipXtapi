@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.IOException;
 
 import com.pingtel.pds.common.VersionInfo;
+import com.pingtel.pds.sipxfacade.SipxConfigFacadeFactory;
 
 /**
  * PGSVersionInfo returns the version and build details for the PGS.   These
@@ -55,7 +56,8 @@ public class PGSVersionInfo {
 
         try {
             VersionInfo versionInfo = new VersionInfo ( versionStream );
-            return versionInfo.getVersion();
+            String facade = SipxConfigFacadeFactory.getFacade().getClass().getName();
+            return versionInfo.getVersion() + "-" + facade;
         }
         catch ( IOException ex ) {
             throw new RuntimeException ( ex.toString() );

@@ -12,6 +12,8 @@
 
 package com.pingtel.pds.common;
 
+import com.pingtel.pds.sipxfacade.SipxConfigFacadeFactory;
+
 public class DeviceNameUtil {
     private static DeviceNameUtil g_instance;
     private DeviceNameUtil() {}
@@ -26,6 +28,11 @@ public class DeviceNameUtil {
                                          String vendor,
                                          String model,
                                          String macAddress ) {
+        
+        return SipxConfigFacadeFactory.getFacade().getDeviceProfleName(
+                profileType, vendor, model, macAddress);
+
+        /*
         if ( model.equalsIgnoreCase(PDSDefinitions.MODEL_HARDPHONE_CISCO_7960 ) ) {
             switch ( profileType ) {
             case PDSDefinitions.PROF_TYPE_PHONE:
@@ -56,6 +63,7 @@ public class DeviceNameUtil {
             }
             return profileName.toLowerCase();
         }
+        */
     }
 
     public String getDeviceProfileToken(int profileType, String vendor) {

@@ -65,6 +65,14 @@ ensure infomation has been recieved, run this command:
    su - sipxchange profilegenerator.sh
    </pre>
    </dd>
+   
+   <dt>Resetting superadmin password</dt>
+   <dd>Run this command from the console, superadmin password will be 
+	blank until you reset it from the web ui.
+	<pre>
+		psql -U postgres PDS -c "update users set password='' where display_id = 'superadmin';"
+	</pre>
+	</dd>
       
 </dl>
 

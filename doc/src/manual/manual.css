@@ -24,6 +24,10 @@ pre, tt, code, kbd, samp {
     font-family: monospace; 
 }
 
+.hack {
+  color: #ff6600;
+}
+
 #lastmodified {
     align: right;
     font-style: italic;

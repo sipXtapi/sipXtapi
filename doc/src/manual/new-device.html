@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>Adding a new device</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="new-device">
+
+<h1>Adding a new device</h1>
+
+<p>This is a list of the steps required for adding support for new phones.  
+	It also provides insight into steps toward plugin architecture.</p>
+
+<h2>ProfileGenerator</h2>
+
+<dl>
+	<dt>Add a new patch</dt>
+	<dd>Edit <code>profilegenerator/ejb/meta/patches.xml</code> with at minimum addtions to 
+		<code>MANUFACTURERS</code> and <code>PHONE_TYPES</code>		
+	</dd>
+	
+	<dt>Definitions XML</dt>
+	<dd>Create new GUI definitions file e.g. 
+		<code>profilegenerator/ejb/meta/devicedefs/<em>vendor</em>-definition.xml</code>
+		one for each model phone. You can use xml entity strategies to import common
+		phone definitions
+		</dd>
+		
+	<dt>Profile transformation</dt>
+	<dd><code>profilegenerator/ejb/meta/devicededs/internal2<em>vendor</em>.xsl</code>
+		to transform configsets into vendor's config files.</dd>
+		
+    <dt>Control GUI tabs</dt>
+	<dd><code>common/meta/xml/propertygrouplink.xml</code> to associate cs properties
+		with phone vendor and divide tabs into logical grouping rellevant to phone</dd>
+		
+    <dt>Constants</dt>
+	<dd>Add constants to <code>common/src/com/pingtel/pds/common/PDSDefinitions.java</code></dd>
+	
+	<dt>Filenames</dt>
+	<dd>Report filenames in <code>common/src/com/pingtel/pds/common/DeviceNameUtil.java</code>
+		<br/><span class="hack">if (vendor)/else loop</span></dd>
+	
+	<dt>Notify phone of new profile support</dt>
+	<dd><code>profilegenerator/ejb/src/com/pingtel/pds/pgs/profile/RenderProfileBean.java</code>
+		<br/><span class="hack">if (vendor)/else loop</span></dd>
+		
+	<dt>Adjust Serial number manipulation</dt>
+	<dd><code>profilegenerator/ejb/src/com/pingtel/pds/pgs/phone/DeviceHome.java</code>
+		<br/><span class="hack">if (vendor)/else loop</span></dd>
+		
+    <dt>Adjust Edit Device/Profiles Logic</dt>
+    <dd><code>profilegenerator/ejb/src/com/pingtel/pds/pgs/phone/DeviceAdvocateBean.java</code>, 
+		<code>profilegenerator/ejb/src/com/pingtel/pds/pgs/user/UserGroupAdvocateBean.java</code>,
+		<code>profilegenerator/ejb/src/com/pingtel/pds/pgs/user/UserAdvocateBean.java</code>
+		<br/><span class="hack">if (vendor)/else loop</span></dd>	
+		
+    <dt>SOAP device constant translation</dt>
+	<dd><code>profilegenerator/soap/src/com/pingtel/pds/pgs/soap/DeviceService.java</code>
+		<br/><span class="hack">if (vendor)/else loop</span>
+		</dd>		
+
+    <dt>SIP Registrar support</dt>
+	<dd><code>profilegenerator/commserver/etc/registrar-config-defs.xml</code></dd>
+	
+	
+	<dt>GUI device support</dt>
+	<dd><code>profilegenerator/webui/site/xslt/details.xslt</code>, 
+	    <code>profilegenerator/webui/site/ui/sipxchange/navigation.jsp</code>,
+		<code>profilegenerator/webui/site/ui/sipxchange/index.jsp</code>
+		<br/><span class="hack">if (vendor)/else loop</span></dd>
+</dl>
+
+<h2>ProfilePublisher</h2>
+<dl>		
+	<dt>Profile Update/Upgrade/Restart/Reciever support</dt>
+	<dd>Create a set of new java files:
+		<code>profilepublisher/src/com/pingtel/pds/sds/cmd/<em>ActionVendor</em>Command.java</code>
+	</dd>
+	
+	<dt>Adjust Command Management</dt>
+	<dd><code>profilepublisher/src/com/pingtel/pds/sds/ProfileListenerImpl.java</code>, 
+		<br/><span class="hack">if (vendor)/else loop</span></dd>
+		
+</dl>
+
+<h2>ProfileWriter</h2>
+<dl>		
+    <dt>HTTP/TFTP Server Location/Deletion/Creation/SDS notification</dt>
+	<dd><code>profilewriter/src/com/pingtel/pds/profilewriter/ProfileWriterServer.java</code>,
+		<code>profilewriter/src/com/pingtel/pds/profilewriter/ProfileWriterWorker.java</code>		
+		<br/><span class="hack">if (vendor)/else loop</span>
+	</dd>
+		
+</dl>
+
+	<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Wed Oct  6 10:25:15 EDT 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

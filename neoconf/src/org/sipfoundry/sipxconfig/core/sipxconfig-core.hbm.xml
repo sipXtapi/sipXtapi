@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+  <class name="org.sipfoundry.sipxconfig.core.Device" table="logical_phones">
+
+    <jcs-cache usage="read-write"/>
+
+    <id name="id" column="id" type="int" unsaved-value="-1">
+      <generator class="native"/>
+    </id>
+
+    <property name="shortName" column="short_name"/>
+    <property name="csdId" column="csd_id"/>
+    <property name="orgId" column="org_id"/>
+    <property name="rcsId" column="rcs_id"/>
+    <property name="pgId" column="pg_id"/>
+    <property name="usrsId" column="usrs_id"/>
+    <property name="description" column="description"/>
+    <property name="ptId" column="pt_id"/>
+    <property name="serialNumber" column="serial_number"/>    
+  </class>
+
+</hibernate-mapping>

@@ -32,6 +32,12 @@
   <property name="test.results.dir" value="${build.dir}/test-results" />
   <property name="test.classes.dir" value="${build.dir}/tests"/>
 
+  <!-- 
+    - going forward this default will change to just 'test'
+    - until then, projects like neoconf will override this
+    -->
+  <property name="test.src.dir" value="${src.dir}/test"/>
+
   <target name="classpath">
     <echo>${classpath}</echo>
   </target>
@@ -166,13 +172,13 @@
   
   <!-- C O M P I L E  T E S T S -->
   <target name="check.compile.test">
-    <available file="${src.dir}/test" type="dir" property="tests.present"/>
+    <available file="${test.src.dir}" type="dir" property="tests.present"/>
   </target>
 
   <target name="compile.test" depends="check.compile.test,compile,init" if="tests.present" unless="subdirs"
         description="[internal] compile tests">
 
-    <javac srcdir="${src.dir}/test"
+    <javac srcdir="${test.src.dir}"
        destdir="${test.classes.dir}"
        classpathref="base.path"
        debug="${debug}"
@@ -243,8 +249,9 @@
         <pathelement location="${classes.dir}"/>
         <pathelement location="${test.classes.dir}"/>
         <pathelement location="${src.dir}/test"/>
-		<!-- resource files -->
+	<!-- resource files -->
         <pathelement location="${src.dir}"/>
+        <pathelement location="${test.src.dir}"/>
       </classpath>
       <formatter type="plain"/>
       <formatter type="xml"/>

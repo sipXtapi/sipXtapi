@@ -70,7 +70,7 @@
       <lib file="${taglibs.jar}"/>
       <lib file="${taglibs.tld}"/><!-- YES, this goes in the lib -->
       <lib file="${dom4j.jar}"/>
-
+    	
       <!-- 
         - WARNING: This must be kept upto sync with what's included in
         -   ear file. You can append more jars in value attribute

@@ -32,6 +32,16 @@
       <fileset file="${jaxen-core.jar}"/>
       <fileset file="${saxpath.jar}"/>
       <fileset file="${regexp.jar}"/>
+
+      <!-- 
+        - TEMP: Use pattern set because jar non-existant when neoconf
+        - is turned off
+        -->
+    	<fileset dir="/">
+      	<patternset>
+      		<include name="${neoconf.jar}"/>
+      	</patternset>
+      </fileset>
     </ear>
   </target>
 
