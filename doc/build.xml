@@ -146,5 +146,6 @@
 
   <!-- S T U B S -->
   <target name="test"/>
+  <target name="style"/>
  
 </project>
