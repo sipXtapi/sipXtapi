@@ -29,12 +29,11 @@ public abstract class AssignUser extends AbstractPhonePage implements PageRender
             // unsure this is appropriate exception to throw 
             throw new IllegalArgumentException(
                     "internal error, endpoint or endpoint-assignment objects required");
-        } else {
-            User user = getAssignment().getUser();
-            if (user != null && getUserId() == null) {
-                setUserId(user.getDisplayId());
-            }
-            setEndpoint(getAssignment().getEndpoint());
+        }
+        
+        User user = getAssignment().getUser();
+        if (user != null && getUserId() == null) {
+            setUserId(user.getDisplayId());
         }
     }
 

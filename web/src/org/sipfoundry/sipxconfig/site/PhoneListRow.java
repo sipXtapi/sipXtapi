@@ -29,8 +29,4 @@ public class PhoneListRow extends PhoneSummary {
     public void setSelected(boolean selected) {
         m_selected = selected;
     }
-        
-    public String getAssignedUser() {
-        return isAssigned() ? getAssignment().getUser().getDisplayId() : "{unassigned}";
-    }    
 }

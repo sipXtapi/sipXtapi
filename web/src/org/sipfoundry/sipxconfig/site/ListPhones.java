@@ -11,11 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 import org.sipfoundry.sipxconfig.phone.PhoneSummaryFactory;
@@ -49,6 +51,12 @@ public abstract class ListPhones extends AbstractPhonePage
         cycle.activate(page);
     }
     
+    public void addPhone(IRequestCycle cycle) {
+        EditPhone page = (EditPhone) cycle.getPage(PAGE_EDIT_PHONE);
+        page.setEndpoint(new Endpoint());
+        cycle.activate(page);
+    }
+    
     public void assignUser(IRequestCycle cycle) {
         PhoneListRow phone = getCurrentPhone();
         AssignUser page = (AssignUser) cycle.getPage(PAGE_ASSIGN_USER);
@@ -58,6 +66,20 @@ public abstract class ListPhones extends AbstractPhonePage
             page.setEndpoint(phone.getEndpoint());
         }
         cycle.activate(page);
+    }
+    
+    public void unassignUsers(IRequestCycle cycleTemp) {
+        Iterator i = getPhones().iterator();
+        PhoneDao dao = getPhoneContext().getPhoneDao();
+        while (i.hasNext()) {
+            PhoneListRow row = (PhoneListRow) i.next();
+            if (row.getSelected()) {
+                dao.deleteEndpointAssignment(row.getAssignment());
+            }
+        }
+
+        // TODO: remove, just avoids eclipse error
+        cycleTemp.getClass();
     }
     
     /**

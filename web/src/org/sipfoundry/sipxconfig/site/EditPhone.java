@@ -17,6 +17,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.PhoneDao;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
@@ -44,12 +45,11 @@ public abstract class EditPhone extends AbstractPhonePage implements PageRenderL
     public void pageBeginRender(PageEvent eventTemp) {
         String[] phoneIds = (String[]) getPhoneContext().getPhoneIds().toArray(new String[0]);
         setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
-        
-        setEditMode(getEndpoint() != null);
 
-        if (!getEditMode()) {
-            setEndpoint(new Endpoint());
+        if (getEndpoint() == null) {
+            throw new IllegalArgumentException("page error: endpoint object required");
         }
+        setEditMode(getEndpoint().getId() != PhoneDao.UNSAVED_ID);
     }
 
     public void save(IRequestCycle cycle) {

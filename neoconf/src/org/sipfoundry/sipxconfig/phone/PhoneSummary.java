@@ -61,11 +61,24 @@ public class PhoneSummary implements Serializable {
     }
 
     public String getAssignedUser() {
-        return isAssigned() ? m_assignment.getUser().getDisplayId() : "{unassigned}";
+        String label;
+        if (isAssigned()) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(m_assignment.getUser().getDisplayId());
+            if (m_assignment.getLabel() != null) {
+                sb.append(" (").append(m_assignment.getLabel()).append(')');
+            }
+            
+            label = sb.toString();
+            
+        } else {
+            label = "{unassigned}";
+        }
+        
+        return label;
     }
 
     public String getExtension() {
         return isAssigned() ? m_assignment.getUser().getExtension() : "";
     }
-
 }

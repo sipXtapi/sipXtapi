@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.springframework.beans.factory.access.BeanFactoryLocator;
@@ -71,10 +73,14 @@ public class PhoneDaoImplTestDb extends TestCase implements PhoneSummaryFactory 
         User user = m_dao.loadUser(m_testData.getTestUserId());
         EndpointAssignment assignment = m_testData.createSampleEndpointAssignment(endpoint, user);
         assertNotNull(assignment);
-
+        
         // just test there's one more in list, not a very 
         // hard test
-        assertEquals(preSize + 1, m_dao.loadPhoneSummaries(this).size());
+        List summaries = m_dao.loadPhoneSummaries(this);
+        assertEquals(preSize + 1, summaries.size());
+        
+        //PhoneSummary summary = (PhoneSummary) summaries.get(0); 
+        //assertNotNull(summary.getAssignment().getLabel());
     }
 
     /**

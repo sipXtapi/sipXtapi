@@ -7,24 +7,13 @@
 		<form jwcid="phoneManagement">
 			<ul class="component-actions">
 				<li>
-					<a href="phone-search.html">Find Phone</a>
+					<a href="#">Find Phone</a>
 				</li>
 				<li>
-					<a href="#" jwcid="@PageLink" page="EditPhone">Add Phone</a>
+					<a href="#" jwcid="@DirectLink" listener="ognl:listeners.addPhone">Add Phone</a>
 				</li>
 				<li>
-					<a href="phone-groups.html">Default Phone Settings</a>
-				</li>
-			</ul>
-			<ul class="table-actions">
-				<li>
-					<input type="submit" name="" value="Send Profiles"/>
-				</li>
-				<li>
-					<input type="submit" name="" value="Restart"/>
-				</li>
-				<li>
-					<input type="submit" name="" value="Delete"/>
+					<a href="#">Default Phone Settings</a>
 				</li>
 			</ul>
 			<table jwcid="phoneTableView" class="table-view">
@@ -119,6 +108,20 @@
 					<a href="#" 
 						onclick="javascript:selectAll(forms['phones'],0);"> 
 						Select all pages</a>
+				</li>
+			</ul>
+			<ul class="table-actions">
+				<li>
+					<input type="submit" name="" value="Send Profiles"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.unassignUsers" value="Unassign Users"/>
+				</li>
+				<li>
+					<input type="submit" name="" value="Restart"/>
+				</li>
+				<li>
+					<input type="submit" name="" value="Delete"/>
 				</li>
 			</ul>
 		</form>

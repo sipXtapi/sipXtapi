@@ -20,6 +20,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
@@ -36,6 +37,7 @@ public class EditPhoneTest extends TestCase {
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
         page.setPhoneContext(phoneContext);
+        page.setEndpoint(new Endpoint());
         page.pageBeginRender(new PageEvent(page, cycle));
         page.getEndpoint().setSerialNumber(Long.toHexString(new Date().getTime()));        
         page.getEndpoint().setPhoneId(GenericPhone.GENERIC_PHONE_ID);
@@ -65,6 +67,7 @@ public class EditPhoneTest extends TestCase {
         
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
+        page.setEndpoint(new Endpoint());
         page.setPhoneContext(phoneContext);
         page.pageBeginRender(new PageEvent(page, cycle));
         page.cancel(cycle);
