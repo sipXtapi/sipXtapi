@@ -60,8 +60,8 @@ create table dial_pattern (
 
 create table dialing_rule (
    dialing_rule_id int4 not null,
-   name varchar(255) not null,
-   description varchar(255),
+   name varchar(256) not null,
+   description varchar(256),
    enabled bool,
    position int4,
    dial_plan_id int4,
@@ -86,7 +86,7 @@ create table custom_dialing_rule (
 
 create table custom_dialing_rule_permission (
    custom_dialing_rule_id int4 not null,
-   permission varchar(255)
+   permission varchar(256)
 );
 
 create table international_dialing_rule (
@@ -122,10 +122,10 @@ create table internal_dialing_rule (
 
 create table long_distance_dialing_rule (
    international_dialing_rule_id int4 not null,
-   areaCodes varchar(255),
+   areaCodes varchar(256),
    externalLen int4,
    longDistancePrefix varchar(40),
-   permission varchar(255),
+   permission varchar(256),
    pstnPrefix varchar(40),
    primary key (international_dialing_rule_id)
 );
