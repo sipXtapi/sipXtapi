@@ -11,15 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import org.dom4j.Document;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
  * ConfigFile
  */
 public interface ConfigFile {
-    public abstract Document getDocument();
-
     public abstract void generate(IDialingRule rule);
 }

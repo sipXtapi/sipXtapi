@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+    <defaultMatch>
+        <transform>
+            <user>919</user>
+            <host>10.2.3.4</host>
+        </transform>
+    </defaultMatch>
+    <userMatch>
+        <userPattern>823124234</userPattern>
+        <userPattern>723124234</userPattern>
+        <userPattern>422344234</userPattern>
+        <transform>
+            <user>9911</user>
+            <host>47.1.2.22</host>
+        </transform>
+    </userMatch>
+    <userMatch>
+        <userPattern>623124234</userPattern>
+        <userPattern>723125344</userPattern>
+        <userPattern>8354234</userPattern>
+        <userPattern>422344234</userPattern>
+        <transform>
+            <user>911</user>
+            <host>10.1.2.1</host>
+        </transform>
+    </userMatch>
+    <userMatch>
+        <userPattern>523124234</userPattern>
+        <transform>
+            <user>922</user>
+            <host>xxx.yyy.com</host>
+        </transform>
+    </userMatch>
+</mappings>

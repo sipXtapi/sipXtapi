@@ -12,18 +12,11 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.dom4j.Document;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
@@ -61,24 +54,6 @@ public class ConfigGenerator {
     }
 
     /**
-     * Writes the content of the file using supplied writer.
-     * 
-     * @param type type of the configuration file
-     * @param writer standard Java IO writer (user StringWriter to write to
-     *        string)
-     * @throws IOException
-     */
-    public void write(ConfigFileType type, Writer writer) throws IOException {
-        ConfigFile file = (ConfigFile) m_files.get(type);
-        Document document = file.getDocument();
-        OutputFormat format = new OutputFormat();
-        format.setNewlines(true);
-        format.setIndent(true);
-        XMLWriter xmlWriter = new XMLWriter(writer, format);
-        xmlWriter.write(document);
-    }
-
-    /**
      * Retrieves configuration file content as stream.
      * 
      * Use only for preview, use write function to dump it to the file.
@@ -86,15 +61,8 @@ public class ConfigGenerator {
      * @param type type of the configuration file
      */
     public String getFileContent(ConfigFileType type) {
-        try {
-            StringWriter writer = new StringWriter();
-            write(type, writer);
-            return writer.toString();
-        } catch (IOException e) {
-            // ignore when writing to string
-            // TODO: log
-            return "";
-        }
+        XmlFile file = (XmlFile) m_files.get(type);
+        return file.getFileContent();
     }
 
     public void activate(String directory) throws IOException {
@@ -102,10 +70,9 @@ public class ConfigGenerator {
         File configDir = new File(directory);
         for (Iterator i = types.iterator(); i.hasNext();) {
             ConfigFileType type = (ConfigFileType) i.next();
-            File configFile = new File(configDir, type.getName() + SUFFIX);
-            FileWriter writer = new FileWriter(configFile);
-            write(type, writer);
-            writer.close();
+            String filename = type.getName() + SUFFIX;
+            XmlFile file = (XmlFile) m_files.get(type);
+            file.writeToFile(configDir, filename);
         }
     }
 }

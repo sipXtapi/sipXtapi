@@ -11,8 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+
+import org.apache.commons.collections.set.ListOrderedSet;
 
 /**
  * EmergencyRouting
@@ -22,7 +23,7 @@ public class EmergencyRouting {
     private Gateway m_defaultGateway;
     private String m_externalNumber;
 
-    private Set m_exceptions = new HashSet();
+    private Collection m_exceptions = new ListOrderedSet();
 
     public void addException(RoutingException exception) {
         m_exceptions.add(exception);
@@ -34,10 +35,6 @@ public class EmergencyRouting {
 
     public void removeException(Integer exceptionId) {
         m_exceptions.remove(new BeanWithId(exceptionId));
-    }
-
-    public void apply() {
-        // TODO: this is when you do something
     }
 
     // getters and setters
@@ -57,11 +54,11 @@ public class EmergencyRouting {
         m_enabled = enabled;
     }
 
-    public Set getExceptions() {
+    public Collection getExceptions() {
         return m_exceptions;
     }
 
-    public void setExceptions(Set exceptions) {
+    public void setExceptions(Collection exceptions) {
         m_exceptions = exceptions;
     }
 

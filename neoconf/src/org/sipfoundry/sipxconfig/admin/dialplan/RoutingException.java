@@ -19,6 +19,26 @@ public class RoutingException extends BeanWithId {
     private String m_callers;
     private String m_externalNumber;
 
+    /**
+     * Default constructor used for bean creation
+     */
+    public RoutingException() {
+        // intentionally empty
+    }
+
+    /**
+     * Ancillary constructor - mostly for testing
+     * 
+     * @param callers comma separated list of numbers
+     * @param externalNumber number to which calls will be transferred
+     * @param gateway PSTN or SIP gateway
+     */
+    public RoutingException(String callers, String externalNumber, Gateway gateway) {
+        m_callers = callers;
+        m_externalNumber = externalNumber;
+        m_gateway = gateway;
+    }
+
     public String getCallers() {
         return m_callers;
     }
@@ -41,5 +61,9 @@ public class RoutingException extends BeanWithId {
 
     public void setGateway(Gateway gateway) {
         m_gateway = gateway;
+    }
+
+    public String[] getPatterns() {
+        return DialPattern.getPatternsFromList(m_callers);
     }
 }

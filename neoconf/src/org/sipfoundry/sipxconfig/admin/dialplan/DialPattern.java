@@ -12,13 +12,18 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Arrays;
+import java.util.StringTokenizer;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
- * Represents a regular expression corresponding to what users dialed. This
- * concrete class allows for building such expression using constant prefix and
- * number of digits in a suffic
+ * Represents a regular expression corresponding to what users dialed. This concrete class allows
+ * for building such expression using constant prefix and number of digits in a suffic
  */
 public class DialPattern {
+    private static final String SEPARATORS = " ,";
+
     private String m_prefix;
     private int m_digits;
 
@@ -53,5 +58,21 @@ public class DialPattern {
         StringBuffer buf = new StringBuffer(m_prefix);
         buf.append(fixedDigits);
         return buf.toString();
+    }
+
+    /**
+     * Helper function to tokenize list of numbers into array of strings
+     * 
+     */
+    public static String[] getPatternsFromList(String patternsList) {
+        if (StringUtils.isBlank(patternsList)) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(patternsList, SEPARATORS);
+        String[] patterns = new String[tokenizer.countTokens()];
+        for (int i = 0; i < patterns.length; i++) {
+            patterns[i] = tokenizer.nextToken();
+        }
+        return patterns;
     }
 }

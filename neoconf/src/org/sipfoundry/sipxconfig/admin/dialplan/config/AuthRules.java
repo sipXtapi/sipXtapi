@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
@@ -39,9 +38,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * </code>
  * 
  */
-public class AuthRules implements ConfigFile {
-    private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
-
+public class AuthRules extends XmlFile implements ConfigFile {
     private Document m_doc;
 
     public AuthRules() {

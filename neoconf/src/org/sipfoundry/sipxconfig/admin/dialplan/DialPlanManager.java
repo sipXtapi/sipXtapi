@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 
 /**
  * DialPlanManager TODO: need interface and hibernate persistence implementation
@@ -134,6 +135,16 @@ public class DialPlanManager {
             generator.activate(m_configDirectory);
         } catch (IOException e) {
             throw new RuntimeException("Activation of Dial Plan incomplete.", e);
+        }
+    }
+    
+    public void applyEmergencyRouting() {
+        try {
+            EmergencyRoutingRules rules = new EmergencyRoutingRules();
+            rules.generate(m_emergencyRouting);
+            rules.writeToFile(m_configDirectory);
+        } catch (IOException e) {
+            throw new RuntimeException("Application of emergency routing rules failed.", e);
         }
     }
 

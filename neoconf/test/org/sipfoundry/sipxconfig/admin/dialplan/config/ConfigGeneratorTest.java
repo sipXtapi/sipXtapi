@@ -42,7 +42,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
      * Execute test for a single configuration type. Tries to generate it
      * directly and generate pretty formatted text through generator.
      */
-    private void checkConfigFileGeneration(ConfigGenerator generator, ConfigFile configFile,
+    private void checkConfigFileGeneration(ConfigGenerator generator, XmlFile configFile,
             ConfigFileType type) throws Exception {
         Document document = configFile.getDocument();
         StringWriter writer = new StringWriter();

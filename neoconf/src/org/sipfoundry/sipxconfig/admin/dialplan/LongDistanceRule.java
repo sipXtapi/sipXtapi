@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -25,8 +24,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
  * LongDistanceRule
  */
 public class LongDistanceRule extends DialingRule {
-    private static final String SEPARATORS = " ,";
-
     private String m_pstnPrefix = StringUtils.EMPTY;
     private String m_longDistancePrefix = StringUtils.EMPTY;
     private String m_areaCodes = StringUtils.EMPTY;
@@ -38,11 +35,11 @@ public class LongDistanceRule extends DialingRule {
     }
 
     /**
-     * Calculates list of dial patterns for a specified PSTN prefix, long
-     * distance prefix and area code.
+     * Calculates list of dial patterns for a specified PSTN prefix, long distance prefix and area
+     * code.
      * 
-     * Each dial pattern describes the digit sequence that user dials in order
-     * to trigger this rule.
+     * Each dial pattern describes the digit sequence that user dials in order to trigger this
+     * rule.
      * 
      * @param areaCode single are code for which patterns will be generated
      * @return list of dial patterns objects
@@ -86,13 +83,13 @@ public class LongDistanceRule extends DialingRule {
         if (!isEnabled()) {
             return;
         }
-        if (StringUtils.isBlank(m_areaCodes)) {
+        String[] areaPatterns = DialPattern.getPatternsFromList(m_areaCodes);
+        if (0 == areaPatterns.length) {
             CustomDialingRule rule = createCustomRule(StringUtils.EMPTY);
             rules.add(rule);
         } else {
-            StringTokenizer tokenizer = new StringTokenizer(m_areaCodes, SEPARATORS);
-            while (tokenizer.hasMoreTokens()) {
-                String areaCode = tokenizer.nextToken();
+            for (int i = 0; i < areaPatterns.length; i++) {
+                String areaCode = areaPatterns[i];
                 CustomDialingRule rule = createCustomRule(areaCode);
                 rules.add(rule);
             }
@@ -100,8 +97,8 @@ public class LongDistanceRule extends DialingRule {
     }
 
     /**
-     * Creates a single custom rule that will be used to generate dial and call
-     * patterns for a specified areaCode
+     * Creates a single custom rule that will be used to generate dial and call patterns for a
+     * specified areaCode
      * 
      * @param areaCode area code inserted in dial and call patterns
      * @return newly created custom rule

@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
@@ -24,8 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * Special type of mappingrules document with a single host match matching
  * standard SIPx hosts
  */
-public class MappingRules implements ConfigFile {
-    private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
+public class MappingRules extends XmlFile implements ConfigFile {
     private static final String[] HOSTS = {
         "${SIPXCHANGE_DOMAIN_NAME}", "${MY_FULL_HOSTNAME}", "${MY_HOSTNAME}", "${MY_IP_ADDR}"
     };
