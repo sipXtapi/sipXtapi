@@ -1,5 +1,6 @@
+include $(top_builddir)/config/sipXcommon.mak
 
-SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni doc
+SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -19,47 +20,22 @@ EXTRA_DIST = \
     profilepub_sipagent.dsp \
     lib
 
-# See doc/Makefile.am why user has to explicitly type
-# 'make doc'
+# 
+# If Doxygen is enabled
+if DOC
+SUBDIRS += doc
+endif
+
 .PHONY : doc
 doc :
-	cd doc && $(MAKE) $(AM_MAKEFLAGS)
-
-## Search and replace helpful make/conf variables
-edit = sed \
-        -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
-        -e 's,@abs_builddir\@,@abs_builddir@,g' \
-        -e 's,@CLOVER_HOME\@,@CLOVER_HOME@,g' \
-        -e 's,@JAVA\@,@JAVA@,g' \
-        -e 's,@JAVAC_OPTIMIZED\@,@JAVAC_OPTIMIZED@,g' \
-        -e 's,@JAVAC_DEBUG\@,@JAVAC_DEBUG@,g' \
-        -e 's,@PACKAGE\@,@PACKAGE@,g' \
-        -e 's,@VERSION\@,@VERSION@,g' \
-        -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
-        -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
-        -e 's,@JBOSS_SERVER_CONF\@,@JBOSS_SERVER_CONF@,g' \
-        -e 's,@SPRING_HOME\@,@SPRING_HOME@,g' \
-        -e 's,@SIPXCONFIG_LIBDIR\@,@SIPXCONFIG_LIBDIR@,g' \
-        -e 's,@SIPX_CONFIGPHONEDIR\@,@SIPX_CONFIGPHONEDIR@,g' \
-        -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
-        -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
-        -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
-        -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
-        -e 's,@profiledir\@,@profiledir@,g' \
-        -e 's,@htmldir\@,@htmldir@,g' \
-        -e 's,@localstatedir\@,$(localstatedir),g' \
-        -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \
-        -e 's,@SIPX_RUNDIR\@,@SIPX_RUNDIR@,g' \
-        -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
-        -e 's,@libdir\@,$(libdir),g' \
-        -e 's,@bindir\@,$(bindir),g'
+	cd doc && $(MAKE) $(AM_MAKEFLAGS) all
 
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
 config.properties : config.properties.in Makefile $(top_srcdir)/top.build.dir
-	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
+	$(LocalizeSipXconfig) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
 
 # This sets the default build dir to the last directory that called
 # configure shell script.  This allows 'ant' to be called from any directory
@@ -94,5 +70,5 @@ rpm : clean dist
 # Extract the options to ./configure from config.log and propagate them into the .spec file.
 sipxconfig.spec : sipxconfig.spec.in
 	V="$$( sed -e '/^ *\$$ .*\/configure/!d' -e 's/^.*\/configure *//' config.log )" ; \
-	$(edit) -e "s#@CONFIGURE_OPTIONS@#$$V#" \
+	$(LocalizeSipXconfig) -e "s#@CONFIGURE_OPTIONS@#$$V#" \
 		$(srcdir)/sipxconfig.spec.in > sipxconfig.spec

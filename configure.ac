@@ -27,6 +27,9 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 AC_PROG_CC
 
+ENABLE_DOXYGEN
+AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -84,6 +87,7 @@ CHECK_SPRING
 
 AC_CONFIG_FILES([
     Makefile
+    config/sipXcommon.mak
     common/Makefile
     bin/Makefile
     profilewriter/Makefile
@@ -94,6 +98,7 @@ AC_CONFIG_FILES([
     sipagent-jni/src/Makefile
     sipagent-jni/include/Makefile
     doc/Makefile
+    doc/Doxyfile
 ])
 
 AC_OUTPUT

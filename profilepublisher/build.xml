@@ -34,7 +34,7 @@
 
   <!-- C O M P I L E -->
   <target name="compile" depends="ant-targets.compile" >
-     <rmic base="${classes.dir}" includes="**/*Impl.class" 
+     <rmic base="${classes.dir}" includes="**/*Impl.class"
          verify="yes" stubversion="1.2" classpathref="base.path" />
   </target>
 
@@ -70,11 +70,11 @@
     </copy>
 
     <copy file="bin/profilepublisher.sh.in" tofile="${dest.dir}${bin.dir}/profilepublisher.sh"/>
-    <replace file="${dest.dir}${bin.dir}/profilepublisher.sh" 
+    <replace file="${dest.dir}${bin.dir}/profilepublisher.sh"
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
-      <replacefilter token="@sippbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
       <replacefilter token="@localstate.dir@" property="localstate.dir"/>
       <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
       <replacefilter token="@lib.dir@" property="lib.dir"/>
@@ -85,7 +85,7 @@
     <copy file="${dist.dir}/profilepublisher.jar" todir="${dest.dir}${sipxconfig.lib.dir}"/>
 
   </target>
- 
+
   <!-- STUBS -->
   <target name="style"/>
 
