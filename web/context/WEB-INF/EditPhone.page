@@ -8,11 +8,17 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
 		global.phoneContext </property-specification>
+	<property-specification name="phone" 
+		type="org.sipfoundry.sipxconfig.phone.Phone" persistent="yes"/>
 	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint" persistent="yes"/>
-	<property-specification name="phoneSelectionModel" 
-		type="org.apache.tapestry.form.IPropertySelectionModel"/>
-	<property-specification name="editMode" type="boolean"/>
+		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+    <!--
+      - C O M P O N E N T S
+      -->
+    <component id="editPhoneForm" type="EditPhoneForm">
+        <binding name="phone" expression="phone"/>
+        <binding name="phoneContext" expression="global.phoneContext"/>
+    </component>    
 	<!--
 	  - A S S E T S
 	  -->	

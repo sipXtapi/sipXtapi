@@ -20,6 +20,8 @@ import java.util.TreeMap;
  */
 public class SettingSet extends Setting {
 
+    private static final long serialVersionUID = -2495309201272644336L;
+    
     private Map m_settings;
 
     public SettingSet() {

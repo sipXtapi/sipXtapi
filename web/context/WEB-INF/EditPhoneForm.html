@@ -1,0 +1,17 @@
+<span jwcid="$content$">
+<table>
+			<tr>
+					<td>Serial Number:</td>
+					<td>
+						<input jwcid="@TextField" value="ognl:endpoint.serialNumber"/>
+					</td>
+				</tr>
+                <tr>
+                    <td>Model</td>
+                    <td>
+                        <span jwcid="@PropertySelection" model="ognl:phoneSelectionModel" 
+                            value="ognl:endpoint.phoneId"/>
+                     </td>
+                 </tr>
+</table>   
+</span>

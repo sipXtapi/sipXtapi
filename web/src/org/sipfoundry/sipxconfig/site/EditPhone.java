@@ -14,51 +14,36 @@ package org.sipfoundry.sipxconfig.site;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
  */
 public abstract class EditPhone extends AbstractPhonePage implements PageRenderListener {
     
+    public static final String PAGE = "EditPhone"; 
+
     public abstract Endpoint getEndpoint();
     
-    public abstract void setEndpoint(Endpoint endpoint);
-    
-    public abstract boolean getEditMode();
-    
-    public abstract void setEditMode(boolean editMode);
-    
-    /**
-     * @return Returns all the phoneModels available to the system ready for UI selection 
-     */
-    public abstract IPropertySelectionModel getPhoneSelectionModel();
+    public abstract void setEndpoint(Endpoint endpoint);    
 
-    public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
-
+    public abstract Phone getPhone();
+    
+    public abstract void setPhone(Phone phone);
+    
     /**
      * called before page is drawn
      */
     public void pageBeginRender(PageEvent eventTemp) {
-        String[] phoneIds = (String[]) getPhoneContext().getPhoneIds().toArray(new String[0]);
-        setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
-
-        if (getEndpoint() == null) {
-            throw new IllegalArgumentException("page error: endpoint object required");
-        }
-        setEditMode(getEndpoint().getId() != PhoneDao.UNSAVED_ID);
     }
 
     public void save(IRequestCycle cycle) {
-        getPhoneContext().getPhoneDao().storeEndpoint(getEndpoint());
-        cycle.activate(PAGE_LIST_PHONES);
+        getPhoneContext().getPhoneDao().storeEndpoint(getPhone().getEndpoint());
+        cycle.activate(ListPhones.PAGE);
     }
 
     public void cancel(IRequestCycle cycle) {
-        cycle.activate(PAGE_LIST_PHONES);
+        cycle.activate(ListPhones.PAGE);
     }
-
 }

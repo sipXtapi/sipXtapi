@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
@@ -28,6 +27,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneSummaryFactory;
 public abstract class ListPhones extends AbstractPhonePage 
         implements PageRenderListener, PhoneSummaryFactory {
     
+    public static final String PAGE = "ListPhones";
+
     public PhoneSummary createPhoneSummary() {
         return new PhoneListRow();
     }
@@ -46,40 +47,15 @@ public abstract class ListPhones extends AbstractPhonePage
      */
     public void editPhone(IRequestCycle cycle) {
         PhoneListRow phone = getCurrentPhone();
-        EditPhone page = (EditPhone) cycle.getPage(PAGE_EDIT_PHONE);
-        page.setEndpoint(phone.getEndpoint());
+        EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
+        page.setPhone(phone.getPhone());
         cycle.activate(page);
     }
     
     public void addPhone(IRequestCycle cycle) {
-        EditPhone page = (EditPhone) cycle.getPage(PAGE_EDIT_PHONE);
+        NewPhone page = (NewPhone) cycle.getPage(NewPhone.PAGE);
         page.setEndpoint(new Endpoint());
         cycle.activate(page);
-    }
-    
-    public void assignUser(IRequestCycle cycle) {
-        PhoneListRow phone = getCurrentPhone();
-        AssignUser page = (AssignUser) cycle.getPage(PAGE_ASSIGN_USER);
-        if (phone.isAssigned()) {
-            page.setAssignment(phone.getAssignment());
-        } else {
-            page.setEndpoint(phone.getEndpoint());
-        }
-        cycle.activate(page);
-    }
-    
-    public void unassignUsers(IRequestCycle cycleTemp) {
-        Iterator i = getPhones().iterator();
-        PhoneDao dao = getPhoneContext().getPhoneDao();
-        while (i.hasNext()) {
-            PhoneListRow row = (PhoneListRow) i.next();
-            if (row.getSelected()) {
-                dao.deleteEndpointAssignment(row.getAssignment());
-            }
-        }
-
-        // TODO: remove, just avoids eclipse error
-        cycleTemp.getClass();
     }
     
     /**

@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.phone.SettingSet;
  */
 public class NetworkSettings extends AbstractSettings {
 
+    private static final long serialVersionUID = -471291557281640758L;
+
     public NetworkSettings(SettingSet settings) {
         super(settings);
     }

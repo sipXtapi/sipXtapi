@@ -21,6 +21,8 @@ public class PhoneSettings extends AbstractSettings {
     
     public static final String NETWORK_SETTINGS = "networkSettings";
     
+    private static final long serialVersionUID = 1799017176005059841L;
+
     private NetworkSettings m_network;
 
     public PhoneSettings(SettingSet settings) {

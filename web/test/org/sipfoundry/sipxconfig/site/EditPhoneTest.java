@@ -17,11 +17,11 @@ import junit.framework.TestCase;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 
@@ -37,20 +37,18 @@ public class EditPhoneTest extends TestCase {
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
         page.setPhoneContext(phoneContext);
-        page.setEndpoint(new Endpoint());
+        Endpoint endpoint = new Endpoint();
+        endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
+        Phone phone = phoneContext.getPhone(endpoint);
+        assertNotNull(phone);
+        page.setPhone(phone);
         page.pageBeginRender(new PageEvent(page, cycle));
-        page.getEndpoint().setSerialNumber(Long.toHexString(new Date().getTime()));
-        page.getEndpoint().setPhoneId(GenericPhone.GENERIC_PHONE_ID);
-
+        endpoint.setSerialNumber(Long.toHexString(new Date().getTime()));
         MockControl daoControl = MockControl.createStrictControl(PhoneDao.class);
         PhoneDao dao = (PhoneDao) daoControl.getMock();
         phoneContext.setPhoneDao(dao);
-        dao.storeEndpoint(page.getEndpoint());
+        dao.storeEndpoint(endpoint);
         daoControl.replay();
-
-        IPropertySelectionModel ids = page.getPhoneSelectionModel();
-        assertTrue(0 < ids.getOptionCount());
-        assertEquals(GenericPhone.GENERIC_PHONE_ID, ids.getOption(0));
 
         page.save(cycle);
 

@@ -5,25 +5,23 @@
     </head>
 <body jwcid="@Body">
         <form jwcid="@Form">
-			<table>
+            <span jwcid="editPhoneForm"/>
+			<table jwcid="$remove$">
 				<tr>
 					<td>Serial Number:</td>
 					<td>
-						<input jwcid="@TextField" value="ognl:endpoint.serialNumber"/>
+						<input type="text"/>
 					</td>
 				</tr>
                 <tr>
                     <td>Model</td>
                     <td>
-                        <span jwcid="@PropertySelection" model="ognl:phoneSelectionModel" 
-                            value="ognl:endpoint.phoneId" disabled="ognl:editMode"/>
+                        <select>
+                            <option>-- select  one ---</option>
+                        </select>
                      </td>
                  </tr>
 			</table>
-            <span jwcid="@Conditional" condition="ognl:editMode">
-                <hr/>    
-				
-            </span>    
 			<ul class="form-actions">
 				<li>
                     <input type="submit" jwcid="@Submit" listener="ognl:listeners.save" value="Save"/>
