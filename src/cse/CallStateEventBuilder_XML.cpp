@@ -12,6 +12,7 @@
 
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
+#include "os/OsDateTime.h"
 #include "utl/XmlContent.h"
 
 // APPLICATION INCLUDES
@@ -34,7 +35,7 @@
 #endif
 
 const char* CallEvent_Observer_Start =
-"<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>" PP_LF
+"<call_event>" PP_LF
 PP_IN "<observer>"
 ;
 
@@ -63,8 +64,9 @@ const char* ObsMsgMiddle =
 "</obs_status>" PP_LF
 PP_IN PP_IN "<obs_text>"
 ;
-const char* ObsMsgEnd =
+const char* ObsText_Schema_ObsMsg_End =
 "</obs_text>" PP_LF
+PP_IN PP_IN "<uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri>" PP_LF
 PP_IN "</obs_msg>" PP_LF
 ;
 
@@ -197,7 +199,7 @@ CallStateEventBuilder_XML::~CallStateEventBuilder_XML()
  * This method generates a complete event - it does not require that the callEventComplete method be called.
  */
 void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
-                                              const UtlString& timestamp,      ///< UTC in seconds since the unix epoch
+                                              const OsTime& timestamp,      ///< obtained using getCurTime(OsTime)
                                               ObserverEvent eventCode,
                                               const char* eventMsg ///< for human consumption
                                               )
@@ -224,8 +226,7 @@ void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for Obser
       mCurrentEvent.append(ec);
       mCurrentEvent.append(ObsMsgMiddle);
       XmlEscape(mCurrentEvent, eventMsg);
-      mCurrentEvent.append(ObsMsgEnd);
-      mCurrentEvent.append(CallEventElementEnd);
+      mCurrentEvent.append(ObsText_Schema_ObsMsg_End);
       mEventComplete = true;
    }
    else
@@ -244,7 +245,7 @@ void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for Obser
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
-                                                 const UtlString& timestamp,
+                                                 const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                                  const UtlString& contact
                                                  )
 {
@@ -275,7 +276,7 @@ void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callSetupEvent(int sequenceNumber,
-                                               const UtlString& timestamp,
+                                               const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                                const UtlString& contact
                                                )
 {
@@ -306,7 +307,7 @@ void CallStateEventBuilder_XML::callSetupEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callFailureEvent(int sequenceNumber,
-                                                 const UtlString& timestamp,
+                                                 const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                                  int statusCode,
                                                  const UtlString& statusMsg
                                                  )
@@ -342,7 +343,7 @@ void CallStateEventBuilder_XML::callFailureEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder_XML::callEndEvent(const int sequenceNumber,
-                                             const UtlString& timestamp
+                                             const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
                                              )
 {
    if (builderStateIsOk(CallEndEvent))
@@ -400,29 +401,23 @@ void CallStateEventBuilder_XML::addCallData(const UtlString& callId,
    
 /// Add a via element for the event
 /**
- * Record the specified Via from the message for this event, where 0
- * indicates the Via inserted by the message originator.  At least that
- * via should be added for any event.
+ * Record a Via from the message for this event 
+ * Calls to this routine are in reverse cronological order - the last
+ * call for an event should be the via added by the message originator
  */
-void CallStateEventBuilder_XML::addEventVia(int index,
-                                            const UtlString& via
+void CallStateEventBuilder_XML::addEventVia(const UtlString& via
                                             )
 {
    if (builderStateIsOk(AddVia))
    {
-      // If, in the future, we decide that more than the originating via
-      // is important, we'll have to change this to a list and order it
-      // by the index value; for now, we ignore all but 0.
-      if (0 == index)
-      {
-         mViaHeader.append(ViaStart);
-         XmlEscape(mViaHeader, via);
-         mViaHeader.append(ViaEnd);
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallStateEventBuilder_XML::addEventVia for %d dropped.", index);
-      }
+      // construct the element locally
+      UtlString viaElement;
+      viaElement.append(ViaStart);
+      XmlEscape(viaElement, via);
+      viaElement.append(ViaEnd);
+
+      // prepend it to the recorded vias so that the first one is first
+      mViaHeader.prepend(viaElement);
    }
    else
    {
@@ -446,7 +441,7 @@ void CallStateEventBuilder_XML::completeCallEvent()
    }
 }
 
-/// Indicates that all information for the current call event has been added.
+/// Clears all the object state
 void CallStateEventBuilder_XML::reset()
 {
    mCurrentEvent.remove(0);
@@ -457,8 +452,12 @@ void CallStateEventBuilder_XML::reset()
    mEventComplete = false;
 }
 
-void CallStateEventBuilder_XML::newEvent(int sequenceNumber, const UtlString& timestamp, const char* elementStart)
+void CallStateEventBuilder_XML::newEvent(int sequenceNumber,
+                                         const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                         const char* elementStart
+                                         )
 {
+   // assemble the parts common to all events
    mCurrentEvent = CallEvent_Observer_Start;
    XmlEscape(mCurrentEvent, observerName);
    mCurrentEvent.append(ObserverEnd_ObsSeqStart);
@@ -466,8 +465,13 @@ void CallStateEventBuilder_XML::newEvent(int sequenceNumber, const UtlString& ti
    sprintf(sn, "%d", sequenceNumber);
    mCurrentEvent.append(sn);
    mCurrentEvent.append(ObsSeqEnd_ObsTimeStart);
-   XmlEscape(mCurrentEvent, timestamp);
+   OsDateTime timeValue(timestamp);
+   UtlString timeString;
+   timeValue.getIsoTimeStringZ(timeString);
+   mCurrentEvent.append(timeString); // this format has nothing to escape
    mCurrentEvent.append(ObsTimeEnd);
+
+   // add the start tag for the new element
    mCurrentEvent.append(elementStart);
 }
 

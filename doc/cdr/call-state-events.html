@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXproxy: sipXproxy Call State Events Specification</title>
-<meta http-equiv="Expires" content="Fri, 10 Dec 2004 22:28:05 +0000">
+<meta http-equiv="Expires" content="Fri, 17 Dec 2004 02:29:32 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXproxy Call State Events Specification">
 <meta name="generator" content="xml2rfc v1.25 (http://xml.resource.org/)">
@@ -173,7 +173,7 @@ Example Call State Events<br />
     
 </p>
 <p>
-    The UCT time of events as recorded by each Observer is used to
+    The UTC time of events as recorded by each Observer is used to
     order the events, which is in some cases important to determining
     the semantics of the event.  As a result, it is important that all
     Observer clocks are as closely syncronized with each other as
@@ -207,7 +207,7 @@ Example Call State Events<br />
 </dd>
 <dt>&lt;obs_time&gt;</dt>
 <dd>
-          The (UCT) time at the observer when this event occured; this
+          The (UTC) time at the observer when this event occured; this
           should be expressed to the millisecond, or as near to that
           as the Observer can measure.
           
@@ -235,7 +235,10 @@ Example Call State Events<br />
 </dd>
 <dt>&lt;from_tag&gt;</dt>
 <dd>
-              The value from the tag attribute of the SIP From header.
+              The value from the tag attribute of the SIP From
+              header.  In dialogs begun by a UA that only comforms to
+              RFC 2543 this will be absent, so it may not appear in all
+              events.
               
 </dd>
 <dt>&lt;to_tag&gt;</dt>
@@ -299,6 +302,14 @@ Example Call State Events<br />
       State Events.  At this writing, only one event is defined: the
       Restart (obs_status = 0) event is sent when the Observer starts
       up.  It is always sent with observer sequence number 0 (zero).
+      
+</p>
+<p>
+        An Observer Message may contain an  is the schema URI that the observer is using in generating
+        events.  Observers will typically log call events individually, without the
+        call_event_sequence container (which would be the natural place for this
+        URI).  This allows a post-processor to correctly construct an XML document
+        without having the observer having to put the namespace on every element.
       
 </p>
 <a name="CSE_DESCR"></a><br /><hr />
@@ -549,7 +560,7 @@ Example Call State Events<br />
     &lt;restriction base=&quot;positiveInteger&quot;&gt;
       &lt;enumeration value='101'&gt; 
         &lt;annotation&gt;
-          &lt;documentation&gt;Observer Startup&lt;/documentation&gt;
+          &lt;documentation&gt;Observer Reset&lt;/documentation&gt;
         &lt;/annotation&gt;
       &lt;/enumeration&gt;
     &lt;/restriction&gt;
@@ -557,6 +568,19 @@ Example Call State Events<br />
 
 
 &lt;!-- Elements --&gt;
+
+  &lt;element name='call_event_sequence'&gt;
+    &lt;annotation&gt;
+      &lt;documentation&gt;
+        A container for a set of call_event elements
+      &lt;/documentation&gt;
+    &lt;/annotation&gt;
+    &lt;complexType&gt;
+      &lt;sequence&gt;
+        &lt;element ref='call_event' minOccurs='0' /&gt;
+      &lt;/sequence&gt;
+    &lt;/complexType&gt;
+  &lt;/element&gt;
 
   &lt;element name='call_event'&gt;
     &lt;annotation&gt;
@@ -594,6 +618,17 @@ Example Call State Events<br />
       &lt;sequence&gt;
           &lt;element ref='cse:obs_status'/&gt;
           &lt;element ref='cse:obs_text' minOccurs='0'/&gt;
+          &lt;element name='schema' type='uri' minOccurs='0'&gt;
+            &lt;annotation&gt;
+              &lt;documentation&gt;
+                If present, this is the schema URI that the observer is using in generating 
+                events.  Observers will typically log call events individually, without the
+                call_event_sequence container (which would be the natural place for this
+                URI).  This allows a post-processor to correctly construct an XML document
+                without having the observer having to put the namespace on every element.
+              &lt;/documentation&gt;
+            &lt;/annotation&gt;
+          &lt;/element&gt;
       &lt;/sequence&gt;
     &lt;/complexType&gt;
   &lt;/element&gt;

@@ -57,7 +57,7 @@
     </t>
 
     <t>
-    The UCT time of events as recorded by each Observer is used to
+    The UTC time of events as recorded by each Observer is used to
     order the events, which is in some cases important to determining
     the semantics of the event.  As a result, it is important that all
     Observer clocks are as closely syncronized with each other as
@@ -86,7 +86,7 @@
           </t>
 
           <t hangText="&lt;obs_time&gt;">
-          The (UCT) time at the observer when this event occured; this
+          The (UTC) time at the observer when this event occured; this
           should be expressed to the millisecond, or as near to that
           as the Observer can measure.
           </t>
@@ -108,7 +108,10 @@
               </t>
 
               <t hangText="&lt;from_tag&gt;">
-              The value from the tag attribute of the SIP From header.
+              The value from the tag attribute of the SIP From
+              header.  In dialogs begun by a UA that only comforms to
+              RFC 2543 this will be absent, so it may not appear in all
+              events.
               </t>
 
               <t hangText="&lt;to_tag&gt;">
@@ -169,6 +172,13 @@
       up.  It is always sent with observer sequence number 0 (zero).
       </t>
 
+      <t>
+        An Observer Message may contain an  is the schema URI that the observer is using in generating
+        events.  Observers will typically log call events individually, without the
+        call_event_sequence container (which would be the natural place for this
+        URI).  This allows a post-processor to correctly construct an XML document
+        without having the observer having to put the namespace on every element.
+      </t>
     </section>
 
     <section anchor="CSE_DESCR" title="Call State Events">

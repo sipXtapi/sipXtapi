@@ -92,7 +92,7 @@
     <restriction base="positiveInteger">
       <enumeration value='101'> 
         <annotation>
-          <documentation>Observer Startup</documentation>
+          <documentation>Observer Reset</documentation>
         </annotation>
       </enumeration>
     </restriction>
@@ -100,6 +100,19 @@
 
 
 <!-- Elements -->
+
+  <element name='call_event_sequence'>
+    <annotation>
+      <documentation>
+        A container for a set of call_event elements
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='call_event' minOccurs='0' />
+      </sequence>
+    </complexType>
+  </element>
 
   <element name='call_event'>
     <annotation>
@@ -137,6 +150,17 @@
       <sequence>
           <element ref='cse:obs_status'/>
           <element ref='cse:obs_text' minOccurs='0'/>
+          <element name='schema' type='uri' minOccurs='0'>
+            <annotation>
+              <documentation>
+                If present, this is the schema URI that the observer is using in generating 
+                events.  Observers will typically log call events individually, without the
+                call_event_sequence container (which would be the natural place for this
+                URI).  This allows a post-processor to correctly construct an XML document
+                without having the observer having to put the namespace on every element.
+              </documentation>
+            </annotation>
+          </element>
       </sequence>
     </complexType>
   </element>

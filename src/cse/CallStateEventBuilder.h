@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 class UtlString;
+class OsTime;
 
 // APPLICATION INCLUDES
 // DEFINES
@@ -57,7 +58,7 @@ class CallStateEventBuilder
    /// Meta-events about the observer itself
    typedef enum
       {
-         ObserverReset = 0 ///< starts a new sequence number stream
+         ObserverReset = 101 ///< starts a new sequence number stream
       } ObserverEvent;
 
    /**
@@ -65,7 +66,7 @@ class CallStateEventBuilder
     * This method generates a complete event - it does not require that the callEventComplete method be called.
     */
    void observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
-                      const UtlString& timestamp,      ///< UTC in seconds since the unix epoch
+                      const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                       ObserverEvent eventCode,
                       const char* eventMsg ///< for human consumption
                       );
@@ -79,7 +80,7 @@ class CallStateEventBuilder
     *   - completeCallEvent
     */
    void callRequestEvent(int sequenceNumber,
-                         const UtlString& timestamp,
+                         const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                          const UtlString& contact
                          );
 
@@ -92,7 +93,7 @@ class CallStateEventBuilder
     *   - completeCallEvent
     */
    void callSetupEvent(int sequenceNumber,
-                       const UtlString& timestamp,
+                       const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                        const UtlString& contact
                        );
 
@@ -105,7 +106,7 @@ class CallStateEventBuilder
     *   - completeCallEvent
     */
    void callFailureEvent(int sequenceNumber,
-                         const UtlString& timestamp,
+                         const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                          int statusCode,
                          const UtlString& statusMsg
                          );
@@ -119,7 +120,7 @@ class CallStateEventBuilder
     *   - completeCallEvent
     */
    void callEndEvent(const int sequenceNumber,
-                     const UtlString& timestamp
+                     const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
                      );
 
    /// Add the dialog and call information for the event being built.
@@ -132,12 +133,11 @@ class CallStateEventBuilder
    
    /// Add a via element for the event
    /**
-    * Record the specified Via from the message for this event, where 0
-    * indicates the Via inserted by the message originator.  At least that
-    * via should be added for any event.
+    * Record a Via from the message for this event 
+    * Calls to this routine are in reverse cronological order - the last
+    * call for an event should be the via added by the message originator
     */
-   void addEventVia(int index,
-                    const UtlString& via
+   void addEventVia(const UtlString& via
                     );
 
    /// Indicates that all information for the current call event has been added.

@@ -159,7 +159,7 @@ CallStateEventBuilder::~CallStateEventBuilder()
  * This method generates a complete event - it does not require that the callEventComplete method be called.
  */
 void CallStateEventBuilder::observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
-                                          const UtlString& timestamp,      ///< UTC in seconds since the unix epoch
+                                          const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                           ObserverEvent eventCode,
                                           const char* eventMsg ///< for human consumption
                                           )
@@ -178,7 +178,7 @@ void CallStateEventBuilder::observerEvent(int sequenceNumber, ///< for ObserverR
  *   - completeCallEvent
  */
 void CallStateEventBuilder::callRequestEvent(int sequenceNumber,
-                                             const UtlString& timestamp,
+                                             const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                              const UtlString& contact
                                              )
 {
@@ -196,7 +196,7 @@ void CallStateEventBuilder::callRequestEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder::callSetupEvent(int sequenceNumber,
-                                           const UtlString& timestamp,
+                                           const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                            const UtlString& contact
                                            )
 {
@@ -214,7 +214,7 @@ void CallStateEventBuilder::callSetupEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder::callFailureEvent(int sequenceNumber,
-                                             const UtlString& timestamp,
+                                             const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                              int statusCode,
                                              const UtlString& statusMsg
                                              )
@@ -233,7 +233,7 @@ void CallStateEventBuilder::callFailureEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder::callEndEvent(const int sequenceNumber,
-                                         const UtlString& timestamp
+                                         const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
                                          )
 {
    bool CalledBaseClassMethod_callEndEvent = false;
@@ -256,12 +256,11 @@ void CallStateEventBuilder::addCallData(const UtlString& callId,
    
 /// Add a via element for the event
 /**
- * Record the specified Via from the message for this event, where 0
- * indicates the Via inserted by the message originator.  At least that
- * via should be added for any event.
+ * Record a Via from the message for this event 
+ * Calls to this routine are in reverse cronological order - the last
+ * call for an event should be the via added by the message originator
  */
-void CallStateEventBuilder::addEventVia(int index,
-                                        const UtlString& via
+void CallStateEventBuilder::addEventVia(const UtlString& via
                                         )
 {
    bool CalledBaseClassMethod_addEventVia = false;

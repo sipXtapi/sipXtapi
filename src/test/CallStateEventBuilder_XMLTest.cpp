@@ -11,9 +11,20 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
+#include "os/OsTime.h"
+#include "os/OsDateTime.h"
 #include "CallStateEventBuilder_XML.h"
 
 // Note: these tests will fail if PRETTYPRINT_EVENTS is defined in CallStateEventBuilder_XML.cpp
+
+const OsDateTime testBaseTime(2004, // year
+                              11,   // month (zero based)
+                              15,   // day
+                              11,   // hour
+                              42,   // minute
+                              41,   // second
+                              10000 // microsecond
+                              );
 
 class CallStateEventBuilder_XMLTest : public CppUnit::TestCase
 {
@@ -27,15 +38,43 @@ class CallStateEventBuilder_XMLTest : public CppUnit::TestCase
 
 
 public:
+   OsTime testTime;
+
+   void setUp()
+      {
+         testBaseTime.cvtToTimeSinceEpoch(testTime);
+      }
+
+   void incrementTime(int milliseconds)
+      {
+         OsTime timeStep(0,1000*milliseconds);
+         testTime += timeStep;
+      }
+   
+   bool expect(const UtlString& actual, const char* expected)
+      {
+         bool matches = 0==actual.compareTo(expected);
+
+         if (!matches)
+         {
+            printf("\n"
+                   "Expected: %s"
+                   "Actual  : %s",
+                   expected, actual.data()
+                   );
+         }
+         return matches;
+      }
+   
    void testInitial()
       {
          UtlString event;
-         
+
          CallStateEventBuilder_XML builder("observer.example.com");
-         builder.observerEvent(0, "2004-12-15T11:42:41.010+0000", CallStateEventBuilder::ObserverReset, "testInitial");
+         builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testInitial");
          
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.010+0000</obs_time><obs_msg><obs_status>0</obs_status><obs_text>testInitial</obs_text></obs_msg></call_event></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.010Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testInitial</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
          builder.xmlElement(event);
          CPPUNIT_ASSERT(event.isNull());
@@ -44,14 +83,18 @@ public:
    void testRequest()
       {
          UtlString event;
+
+         incrementTime(1);
          
          CallStateEventBuilder_XML builder("observer.example.com");
-         builder.observerEvent(0, "2004-12-15T11:42:41.011+0000", CallStateEventBuilder::ObserverReset, "testRequest");
+         builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testRequest");
          
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.011+0000</obs_time><obs_msg><obs_status>0</obs_status><obs_text>testRequest</obs_text></obs_msg></call_event></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.011Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testRequest</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
-         builder.callRequestEvent(1, "2004-12-15T11:42:41.012+0000", "Contact <sip:requestor@sip.net>");
+         incrementTime(1);
+         
+         builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>");
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          UtlString callId("08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98");
@@ -63,12 +106,12 @@ public:
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7003");
-         builder.addEventVia(0, viaField);
+         builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.012+0000</obs_time><call_request><call><dialog><call_id>08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98</call_id><from_tag>8633744</from_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=8633744</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;</to></call><contact>Contact &lt;sip:requestor@sip.net&gt;</contact><via>SIP/2.0/UDP 10.1.30.248:7003</via></call_request></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.012Z</obs_time><call_request><call><dialog><call_id>08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98</call_id><from_tag>8633744</from_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=8633744</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;</to></call><contact>Contact &lt;sip:requestor@sip.net&gt;</contact><via>SIP/2.0/UDP 10.1.30.248:7003</via></call_request></call_event>\n"));
 
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -78,13 +121,17 @@ public:
       {
          UtlString event;
          
+         incrementTime(3);
+
          CallStateEventBuilder_XML builder("observer.example.com");
-         builder.observerEvent(0, "2004-12-15T11:42:41.013+0000", CallStateEventBuilder::ObserverReset, "testSetup");
+         builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testSetup");
          
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.013+0000</obs_time><obs_msg><obs_status>0</obs_status><obs_text>testSetup</obs_text></obs_msg></call_event></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.013Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testSetup</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
-         builder.callSetupEvent(1, "2004-12-15T11:42:41.014+0000", "Contact <sip:responder@sip.net>");
+         incrementTime(1);
+
+         builder.callSetupEvent(1, testTime, "Contact <sip:responder@sip.net>");
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          UtlString callId("08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98");
@@ -96,12 +143,12 @@ public:
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7004");
-         builder.addEventVia(0, viaField);
+         builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.014+0000</obs_time><call_setup><call><dialog><call_id>08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98</call_id><from_tag>3744863</from_tag><to_tag>19b8e5bK3a</to_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=3744863</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;;tag=19b8e5bK3a</to></call><contact>Contact &lt;sip:responder@sip.net&gt;</contact><via>SIP/2.0/UDP 10.1.30.248:7004</via></call_setup></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.014Z</obs_time><call_setup><call><dialog><call_id>08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98</call_id><from_tag>3744863</from_tag><to_tag>19b8e5bK3a</to_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=3744863</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;;tag=19b8e5bK3a</to></call><contact>Contact &lt;sip:responder@sip.net&gt;</contact><via>SIP/2.0/UDP 10.1.30.248:7004</via></call_setup></call_event>\n"));
 
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -111,13 +158,17 @@ public:
       {
          UtlString event;
          
+         incrementTime(5);
+         
          CallStateEventBuilder_XML builder("observer.example.com");
-         builder.observerEvent(0, "2004-12-15T11:42:41.015+0000", CallStateEventBuilder::ObserverReset, "testFailure");
+         builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testFailure");
          
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.015+0000</obs_time><obs_msg><obs_status>0</obs_status><obs_text>testFailure</obs_text></obs_msg></call_event></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.015Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testFailure</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
-         builder.callFailureEvent(1, "2004-12-15T11:42:41.016+0000", 403, "Forbidden <dummy>");
+         incrementTime(1);
+         
+         builder.callFailureEvent(1, testTime, 403, "Forbidden <dummy>");
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          UtlString callId("9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98");
@@ -129,12 +180,12 @@ public:
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7005");
-         builder.addEventVia(0, viaField);
+         builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.016+0000</obs_time><call_failure><call><dialog><call_id>9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98</call_id><from_tag>7448633</from_tag><to_tag>b8e5bK3a19</to_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=7448633</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;;tag=b8e5bK3a19</to></call><response><status>403</status><reason>Forbidden &lt;dummy&gt;</reason></response><via>SIP/2.0/UDP 10.1.30.248:7005</via></call_failure></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.016Z</obs_time><call_failure><call><dialog><call_id>9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98</call_id><from_tag>7448633</from_tag><to_tag>b8e5bK3a19</to_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=7448633</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;;tag=b8e5bK3a19</to></call><response><status>403</status><reason>Forbidden &lt;dummy&gt;</reason></response><via>SIP/2.0/UDP 10.1.30.248:7005</via></call_failure></call_event>\n"));
 
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -144,13 +195,17 @@ public:
       {
          UtlString event;
          
+         incrementTime(7);
+         
          CallStateEventBuilder_XML builder("observer.example.com");
-         builder.observerEvent(0, "2004-12-15T11:42:41.017+0000", CallStateEventBuilder::ObserverReset, "testEnd");
+         builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testEnd");
          
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.017+0000</obs_time><obs_msg><obs_status>0</obs_status><obs_text>testEnd</obs_text></obs_msg></call_event></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.017Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testEnd</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
-         builder.callEndEvent(1, "2004-12-15T11:42:41.018+0000");
+         incrementTime(1);
+
+         builder.callEndEvent(1, testTime);
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          UtlString callId("9147-A28D-08799710-486B-FFDEB031106B@10.90.10.98");
@@ -162,12 +217,12 @@ public:
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7006");
-         builder.addEventVia(0, viaField);
+         builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.xmlElement(event));
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.xmlElement(event));
-         CPPUNIT_ASSERT(0==event.compareTo("<call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.018+0000</obs_time><call_end><call><dialog><call_id>9147-A28D-08799710-486B-FFDEB031106B@10.90.10.98</call_id><from_tag>3374486</from_tag><to_tag>a19b8e5bK3</to_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=3374486</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;;tag=a19b8e5bK3</to></call><via>SIP/2.0/UDP 10.1.30.248:7006</via></call_end></call_event>\n"));
+         CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>1</obs_seq><obs_time>2004-12-15T11:42:41.018Z</obs_time><call_end><call><dialog><call_id>9147-A28D-08799710-486B-FFDEB031106B@10.90.10.98</call_id><from_tag>3374486</from_tag><to_tag>a19b8e5bK3</to_tag></dialog><from>&quot;Éê½­ÌÎ&quot;&lt;sip:1002@sip.net&gt;;tag=3374486</from><to>&quot;Joe Caller&quot;&lt;sip:jcaller@rhe-sipx.example.com&gt;;tag=a19b8e5bK3</to></call><via>SIP/2.0/UDP 10.1.30.248:7006</via></call_end></call_event>\n"));
 
          CPPUNIT_ASSERT(!builder.xmlElement(event));
          CPPUNIT_ASSERT(event.isNull());

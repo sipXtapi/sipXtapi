@@ -46,7 +46,7 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
 
    /// Generate a metadata event.
    void observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
-                      const UtlString& timestamp,      ///< UTC in seconds since the unix epoch
+                      const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                       ObserverEvent eventCode,
                       const char* eventMsg ///< for human consumption
                       );
@@ -56,7 +56,7 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
 
    /// Begin a Call Request Event - an INVITE without a to tag has been observed
    void callRequestEvent(int sequenceNumber,
-                         const UtlString& timestamp,
+                         const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                          const UtlString& contact
                          );
    /**<
@@ -69,7 +69,7 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
 
    /// Begin a Call Setup Event - a 2xx response to an INVITE has been observed
    void callSetupEvent(int sequenceNumber,
-                       const UtlString& timestamp,
+                       const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                        const UtlString& contact
                        );
    /**<
@@ -82,7 +82,7 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
 
    /// Begin a Call Failure Event - an error response to an INVITE has been observed
    void callFailureEvent(int sequenceNumber,
-                         const UtlString& timestamp,
+                         const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                          int statusCode,
                          const UtlString& statusMsg
                          );
@@ -96,7 +96,7 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
 
    /// Begin a Call End Event - a BYE request has been observed
    void callEndEvent(int sequenceNumber,
-                     const UtlString& timestamp
+                     const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
                      );
    /**<
     * Requires:
@@ -115,13 +115,12 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
                     );
    
    /// Add a via element for the event
-   void addEventVia(int index,
-                    const UtlString& via
+   void addEventVia(const UtlString& via
                     );
    /**<
-    * Record the specified Via from the message for this event, where 0
-    * indicates the Via inserted by the message originator.  At least that
-    * via should be added for any event.
+    * Record a Via from the message for this event 
+    * Calls to this routine are in reverse cronological order - the last
+    * call for an event should be the via added by the message originator
     */
 
    /// Indicates that all information for the current call event has been added.
@@ -148,7 +147,10 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
    UtlString mEndElement;
    bool      mEventComplete;
    
-   void newEvent(int sequenceNumber, const UtlString& timestamp, const char* elementStart);
+   void newEvent(int sequenceNumber,
+                 const OsTime& timestamp,
+                 const char* elementStart
+                 );
 
    void reset();
 };

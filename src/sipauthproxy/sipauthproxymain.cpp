@@ -26,8 +26,14 @@
 #include "net/NameValueTokenizer.h"
 #include "sipdb/SIPDBManager.h"
 #include "SipAaa.h"
+#include "AuthProxyCseObserver.h"
 
 // DEFINES
+
+#define CONFIG_SETTING_CALL_STATE     "SIP_AUTHPROXY_CALL_STATE"
+#define CONFIG_SETTING_CALL_STATE_LOG "SIP_AUTHPROXY_CALL_STATE_LOG"
+#define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipauthproxy_callstate.log"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -353,6 +359,8 @@ main( int argc, char* argv[] )
         configDb.set(CONFIG_SETTING_LOG_DIR, "");
         configDb.set(CONFIG_SETTING_LOG_LEVEL, "");
         configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
+        configDb.set(CONFIG_SETTING_CALL_STATE, "DISABLE");
+        configDb.set(CONFIG_SETTING_CALL_STATE_LOG, "");
 
         if (configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
         {
@@ -449,6 +457,44 @@ main( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_AUTHHOST_ALIASES : %s",
                   hostAliases.data());
     osPrintf("SIP_AUTHPROXY_HOST_ALIASES : %s\n", hostAliases.data());
+
+    UtlString enableCallStateObserverSetting;
+    configDb.get(CONFIG_SETTING_CALL_STATE, enableCallStateObserverSetting);
+
+    bool enableCallStateObserver;
+    if (   (enableCallStateObserverSetting.isNull())
+        || (0== enableCallStateObserverSetting.compareTo("disable", UtlString::ignoreCase))
+        )
+    {
+       enableCallStateObserver = false;
+    }
+    else if (0 == enableCallStateObserverSetting.compareTo("enable", UtlString::ignoreCase))
+    {
+       enableCallStateObserver = true;
+    }
+    else
+    {
+       enableCallStateObserver = false;
+       OsSysLog::add(FAC_SIP, PRI_ERR, "SipAuthProxyMain:: invalid configuration value for "
+                     CONFIG_SETTING_CALL_STATE " '%s' - should be 'enable' or 'disable'",
+                     enableCallStateObserverSetting.data()
+                     );
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE " : %s",
+                  enableCallStateObserver ? "ENABLE" : "DISABLE" );
+
+    UtlString callStateLogFileName;
+    OsFile* callStateLog = NULL;
+    if (enableCallStateObserver)
+    {
+       configDb.get(CONFIG_SETTING_CALL_STATE_LOG, callStateLogFileName);
+       if (callStateLogFileName.isNull())
+       {
+          callStateLogFileName = CALL_STATE_LOG_FILE_DEFAULT;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_LOG " : %s",
+                     callStateLogFileName.data());
+    }
 
     // Set the maximum amount of time that TCP connections can
     // stay around when they are not used.
@@ -560,6 +606,41 @@ main( int argc, char* argv[] )
     // Start the router running
     pServerTask->start();
 
+    AuthProxyCseObserver* cseObserver = NULL;
+    if (enableCallStateObserver)
+    {
+       // Set up the call state event log file
+       OsPath callStateLogPath(callStateLogFileName);
+       callStateLog = new OsFile(callStateLogPath);
+
+       OsStatus callStateLogStatus = callStateLog->open(OsFile::CREATE|OsFile::APPEND);
+       if (OS_SUCCESS == callStateLogStatus)
+       {
+          // get the identifier for this observer
+          int protocol = OsSocket::UDP;
+          UtlString domainName;
+          int port;
+          sipUserAgent.getViaInfo(protocol, domainName, port);
+
+          char portString[12];
+          sprintf(portString,":%d", port);
+          domainName.append(portString);
+          
+          // and start the observer
+          cseObserver = new AuthProxyCseObserver(sipUserAgent, domainName, callStateLog);
+          cseObserver->start();
+       }
+       else
+       {
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipAuthProxyMain:: failed (%d) to open Call State Event Log '%s'",
+                        callStateLogStatus, callStateLogFileName.data()
+                        );
+          enableCallStateObserver = false;
+       }
+       
+    }
+
     // Do not exit, let the proxy do its stuff
     while( !gShutdownFlag )
     {
@@ -609,6 +690,13 @@ main( int argc, char* argv[] )
     // now deregister this process's database references from the IMDB
     closeIMDBConnections();
 
+    // flush and close the call state event log
+    if (enableCallStateObserver)
+    {
+       delete cseObserver;
+       callStateLog->close();
+    }
+    
     // Flush the log file
     OsSysLog::flush();
 

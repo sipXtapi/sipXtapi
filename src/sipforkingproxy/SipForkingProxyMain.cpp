@@ -29,6 +29,8 @@
 #include <SipRouter.h>
 #include <ForwardRules.h>
 
+#include <ForkingProxyCseObserver.h>
+
 //uncomment next line to enable bound checker checking with 'b' key
 //#define BOUNDS_CHECKER
 
@@ -42,11 +44,14 @@
 #define SIP_PROXY_LOG "sipproxy.log"
 #define CONFIG_LOG_DIR SIPX_LOGDIR
 #define LOG_FACILITY   FAC_SIP
+#define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipproxy_callstate.log"
 
 // Configuration names pulled from config-file
 #define CONFIG_SETTING_LOG_LEVEL      "SIP_PROXY_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_PROXY_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_PROXY_LOG_DIR"
+#define CONFIG_SETTING_CALL_STATE     "SIP_PROXY_CALL_STATE"
+#define CONFIG_SETTING_CALL_STATE_LOG "SIP_PROXY_CALL_STATE_LOG"
 
 #define PRINT_ROUTE_RULE(APPEND_STRING, FROM_HOST, TO_HOST) \
     APPEND_STRING.append("\t<route mappingType=\"local\">\n\t\t<routeFrom>"); \
@@ -530,6 +535,8 @@ main(int argc, char* argv[])
         configDb.set(CONFIG_SETTING_LOG_DIR, "");
         configDb.set(CONFIG_SETTING_LOG_LEVEL, "");
         configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
+        configDb.set(CONFIG_SETTING_CALL_STATE, "DISABLE");
+        configDb.set(CONFIG_SETTING_CALL_STATE_LOG, "");
 
         if(configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
         {
@@ -680,6 +687,43 @@ main(int argc, char* argv[])
                   hostAliases.data());
     osPrintf("SIP_PROXY_HOST_ALIASES : %s\n", hostAliases.data());
 
+    UtlString enableCallStateObserverSetting;
+    configDb.get(CONFIG_SETTING_CALL_STATE, enableCallStateObserverSetting);
+
+    bool enableCallStateObserver;
+    if (   (enableCallStateObserverSetting.isNull())
+        || (0== enableCallStateObserverSetting.compareTo("disable", UtlString::ignoreCase))
+        )
+    {
+       enableCallStateObserver = false;
+    }
+    else if (0 == enableCallStateObserverSetting.compareTo("enable", UtlString::ignoreCase))
+    {
+       enableCallStateObserver = true;
+    }
+    else
+    {
+       enableCallStateObserver = false;
+       OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain invalid configuration value for "
+                     CONFIG_SETTING_CALL_STATE " '%s' - should be 'enable' or 'disable'",
+                     enableCallStateObserverSetting.data()
+                     );
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE " : %s",
+                  enableCallStateObserver ? "ENABLE" : "DISABLE" );
+
+    UtlString callStateLogFileName;
+    OsFile* callStateLog = NULL;
+    if (enableCallStateObserver)
+    {
+       configDb.get(CONFIG_SETTING_CALL_STATE_LOG, callStateLogFileName);
+       if (callStateLogFileName.isNull())
+       {
+          callStateLogFileName = CALL_STATE_LOG_FILE_DEFAULT;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_LOG " : %s",
+                     callStateLogFileName.data());
+    }
     // This is an obnoxious special option to work around a 
     // problem with Sonus gateways.  The Sonus proxy or  redirect
     // server gives a list of possible gateways to recurse in a
@@ -836,9 +880,6 @@ main(int argc, char* argv[])
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
 
-    // No need for this log as it goes in the syslog as well
-    //sipUserAgent.startMessageLog(100000);
-
     sipUserAgent.setDefaultExpiresSeconds(defaultExpires);
     sipUserAgent.setDefaultSerialExpiresSeconds(defaultSerialExpires);
     sipUserAgent.setMaxTcpSocketIdleTime(staleTcpTimeout);
@@ -857,6 +898,37 @@ main(int argc, char* argv[])
                     recordRouteEnabled);
     router.start();
 
+    ForkingProxyCseObserver* cseObserver = NULL;
+    if (enableCallStateObserver)
+    {
+       // Set up the call state event log file
+       OsPath callStateLogPath(callStateLogFileName);
+       callStateLog = new OsFile(callStateLogPath);
+
+       OsStatus callStateLogStatus = callStateLog->open(OsFile::CREATE|OsFile::APPEND);
+       if (OS_SUCCESS == callStateLogStatus)
+       {
+          UtlString observerId(domainName);
+          
+          char portString[12];
+          sprintf(portString,":%d", proxyUdpPort);
+          observerId.append(portString);
+          
+          // and start the observer
+          cseObserver = new ForkingProxyCseObserver(sipUserAgent, observerId, callStateLog);
+          cseObserver->start();
+       }
+       else
+       {
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipForkingProxyMain() failed (%d) to open Call State Event Log '%s'",
+                        callStateLogStatus, callStateLogFileName.data()
+                        );
+          enableCallStateObserver = false;
+       }
+       
+    }
+    
     // Do not exit, let the proxy do its stuff
     while( !gShutdownFlag )
     {
@@ -892,6 +964,13 @@ main(int argc, char* argv[])
          OsTask::delay(2000);
     }
 
+    // flush and close the call state event log
+    if (enableCallStateObserver)
+    {
+       delete cseObserver;
+       callStateLog->close();
+    }
+    
     // Flush the log file
     OsSysLog::flush();
 

@@ -21,12 +21,12 @@ Table of Contents
    2.  Observer Message . . . . . . . . . . . . . . . . . . . . . . .  3
    3.  Call State Events  . . . . . . . . . . . . . . . . . . . . . .  3
      3.1   Call Request . . . . . . . . . . . . . . . . . . . . . . .  3
-     3.2   Call Setup . . . . . . . . . . . . . . . . . . . . . . . .  3
+     3.2   Call Setup . . . . . . . . . . . . . . . . . . . . . . . .  4
      3.3   Call Failure . . . . . . . . . . . . . . . . . . . . . . .  4
      3.4   Call End . . . . . . . . . . . . . . . . . . . . . . . . .  4
-   4.  Call State Event XML Schema  . . . . . . . . . . . . . . . . .  4
-       Author's Address . . . . . . . . . . . . . . . . . . . . . . . 10
-   A.  Example Call State Events  . . . . . . . . . . . . . . . . . . 10
+   4.  Call State Event XML Schema  . . . . . . . . . . . . . . . . .  5
+       Author's Address . . . . . . . . . . . . . . . . . . . . . . . 11
+   A.  Example Call State Events  . . . . . . . . . . . . . . . . . . 11
 
 
 
@@ -73,7 +73,7 @@ Lawrence                                                        [Page 1]
    response from which its information is derived, and the information
    it contains.
 
-   The UCT time of events as recorded by each Observer is used to order
+   The UTC time of events as recorded by each Observer is used to order
    the events, which is in some cases important to determining the
    semantics of the event.  As a result, it is important that all
    Observer clocks are as closely syncronized with each other as
@@ -92,7 +92,7 @@ Lawrence                                                        [Page 1]
       used by a collector to detect that events from an observer are
       missing; in a complete record, there are no gaps in the sequence
       numbers.
-   <obs_time> The (UCT) time at the observer when this event occured;
+   <obs_time> The (UTC) time at the observer when this event occured;
       this should be expressed to the millisecond, or as near to that as
       the Observer can measure.
    <call> The call element is a compound element that describes the call
@@ -115,7 +115,9 @@ Lawrence                                                        [Page 2]
 
          <call_id> The value from the SIP Call-Id header.
          <from_tag> The value from the tag attribute of the SIP From
-            header.
+            header.  In dialogs begun by a UA that only comforms to RFC
+            2543 this will be absent, so it may not appear in all
+            events.
          <to_tag> The value from the tag attribute of the SIP To header.
             This element of a dialog is optional, and will not appear in
             all events.
@@ -139,6 +141,13 @@ Lawrence                                                        [Page 2]
    0) event is sent when the Observer starts up.  It is always sent with
    observer sequence number 0 (zero).
 
+   An Observer Message may contain an  is the schema URI that the
+   observer is using in generating events.  Observers will typically log
+   call events individually, without the call_event_sequence container
+   (which would be the natural place for this URI).  This allows a
+   post-processor to correctly construct an XML document without having
+   the observer having to put the namespace on every element.
+
 3.  Call State Events
 
 3.1  Call Request
@@ -152,15 +161,6 @@ Lawrence                                                        [Page 2]
       header field value.
 
    Note that in the case of a spiral, where aliases and/or redirections
-   cause new INVITE messages to be created, the same call generates
-   multiple Call Request events.  Since it is possible for these
-   different events to be recorded by different observers, the observer
-   timestamp (not the observer sequence number) is used to determine the
-   original event.
-
-3.2  Call Setup
-
-
 
 
 
@@ -168,6 +168,14 @@ Lawrence                                                        [Page 3]
 
                            Call State Events               December 2004
 
+
+   cause new INVITE messages to be created, the same call generates
+   multiple Call Request events.  Since it is possible for these
+   different events to be recorded by different observers, the observer
+   timestamp (not the observer sequence number) is used to determine the
+   original event.
+
+3.2  Call Setup
 
    XML element name call_setup
    Description Indicates acceptance of a call, or acceptance of a
@@ -208,14 +216,6 @@ Lawrence                                                        [Page 3]
 
 3.4  Call End
 
-   XML element name cse_end
-   Description Termination of a successful call.
-   Triggered by Any BYE request.
-
-   The Call End event is correlated with a Call Setup event using the
-   dialog id.
-
-4.  Call State Event XML Schema
 
 
 
@@ -224,6 +224,15 @@ Lawrence                                                        [Page 4]
 
                            Call State Events               December 2004
 
+
+   XML element name cse_end
+   Description Termination of a successful call.
+   Triggered by Any BYE request.
+
+   The Call End event is correlated with a Call Setup event using the
+   dialog id.
+
+4.  Call State Event XML Schema
 
    <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
    <!DOCTYPE schema [
@@ -264,6 +273,14 @@ Lawrence                                                        [Page 4]
        <annotation>
          <documentation>
            This type corresponds to the token 'tag' in RFC 3261 section
+
+
+
+Lawrence                                                        [Page 5]
+
+                           Call State Events               December 2004
+
+
            25.1.
          </documentation>
          <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
@@ -272,14 +289,6 @@ Lawrence                                                        [Page 4]
          <pattern value="%sip_token;" />
        </restriction>
      </simpleType>
-
-
-
-
-Lawrence                                                        [Page 5]
-
-                           Call State Events               December 2004
-
 
      <simpleType name="sip_call_id">
        <annotation>
@@ -320,15 +329,6 @@ Lawrence                                                        [Page 5]
 
      <simpleType name="obs_status_code">
        <annotation>
-         <documentation>
-           CSE Observer status
-         </documentation>
-       </annotation>
-       <restriction base="positiveInteger">
-         <enumeration value='101'>
-           <annotation>
-             <documentation>Observer Startup</documentation>
-           </annotation>
 
 
 
@@ -337,12 +337,34 @@ Lawrence                                                        [Page 6]
                            Call State Events               December 2004
 
 
+         <documentation>
+           CSE Observer status
+         </documentation>
+       </annotation>
+       <restriction base="positiveInteger">
+         <enumeration value='101'>
+           <annotation>
+             <documentation>Observer Reset</documentation>
+           </annotation>
          </enumeration>
        </restriction>
      </simpleType>
 
 
    <!-- Elements -->
+
+     <element name='call_event_sequence'>
+       <annotation>
+         <documentation>
+           A container for a set of call_event elements
+         </documentation>
+       </annotation>
+       <complexType>
+         <sequence>
+           <element ref='call_event' minOccurs='0' />
+         </sequence>
+       </complexType>
+     </element>
 
      <element name='call_event'>
        <annotation>
@@ -363,6 +385,14 @@ Lawrence                                                        [Page 6]
                <element ref='cse:call_request'/>
                <element ref='cse:call_setup'/>
                <element ref='cse:call_failure'/>
+
+
+
+Lawrence                                                        [Page 7]
+
+                           Call State Events               December 2004
+
+
                <element ref='cse:call_end'/>
              </choice>
          </sequence>
@@ -380,18 +410,22 @@ Lawrence                                                        [Page 6]
          <sequence>
              <element ref='cse:obs_status'/>
              <element ref='cse:obs_text' minOccurs='0'/>
+             <element name='schema' type='uri' minOccurs='0'>
+               <annotation>
+                 <documentation>
+                   If present, this is the schema URI that the observer is using in generating
+                   events.  Observers will typically log call events individually, without the
+                   call_event_sequence container (which would be the natural place for this
+                   URI).  This allows a post-processor to correctly construct an XML document
+                   without having the observer having to put the namespace on every element.
+                 </documentation>
+               </annotation>
+             </element>
          </sequence>
        </complexType>
      </element>
 
      <element name='obs_status' type='cse:obs_status_code'/>
-
-
-
-Lawrence                                                        [Page 7]
-
-                           Call State Events               December 2004
-
 
      <element name='obs_text' type='normalizedString'/>
 
@@ -407,6 +441,14 @@ Lawrence                                                        [Page 7]
              <element ref='cse:call'/>
              <element ref='cse:contact'/>
              <element ref='cse:via' maxOccurs='unbounded'/>
+
+
+
+Lawrence                                                        [Page 8]
+
+                           Call State Events               December 2004
+
+
          </sequence>
        </complexType>
      </element>
@@ -441,14 +483,6 @@ Lawrence                                                        [Page 7]
        </complexType>
      </element>
 
-
-
-
-Lawrence                                                        [Page 8]
-
-                           Call State Events               December 2004
-
-
      <element name='call_failure'>
        <annotation>
          <documentation>
@@ -463,6 +497,13 @@ Lawrence                                                        [Page 8]
          </sequence>
        </complexType>
      </element>
+
+
+
+Lawrence                                                        [Page 9]
+
+                           Call State Events               December 2004
+
 
      <element name='call'>
        <complexType>
@@ -497,14 +538,6 @@ Lawrence                                                        [Page 8]
        </annotation>
      </element>
 
-
-
-
-Lawrence                                                        [Page 9]
-
-                           Call State Events               December 2004
-
-
      <element name='obs_seq' type='unsignedLong'/>
 
      <element name='obs_time' type='dateTime'/>
@@ -520,6 +553,14 @@ Lawrence                                                        [Page 9]
      <element name='to' type='cse:sip_tofrom_value' />
 
      <element name='response'>
+
+
+
+Lawrence                                                       [Page 10]
+
+                           Call State Events               December 2004
+
+
        <complexType>
          <sequence>
              <element ref='cse:status'/>
@@ -553,14 +594,6 @@ Appendix A.  Example Call State Events
      <observer>out1.sipxchange.example.com</observer>
      <obs_seq>0</obs_seq>
      <obs_time>2003-08-15T17:22.090Z</obs_time>
-
-
-
-Lawrence                                                       [Page 10]
-
-                           Call State Events               December 2004
-
-
      <obs_msg>
        <obs_status>0</obs_status>
        <obs_text>Observer Restart</obs_text>
@@ -576,6 +609,14 @@ Lawrence                                                       [Page 10]
          <dialog>
            <call_id>call-1063657885-12@10.1.1.252</call_id>
            <from_tag>1c954235820</from_tag>
+
+
+
+Lawrence                                                       [Page 11]
+
+                           Call State Events               December 2004
+
+
            <to_tag></to_tag>
          </dialog>
          <from>"Scott"&lt;sip:scott-ix@kathmandu.example.com&gt;;tag=1c954235820</from>
@@ -609,14 +650,6 @@ Lawrence                                                       [Page 10]
      <observer>out1.sipxchange.example.com</observer>
      <obs_seq>290</obs_seq>
      <obs_time>2003-08-15T17:27.023Z</obs_time>
-
-
-
-Lawrence                                                       [Page 11]
-
-                           Call State Events               December 2004
-
-
      <call_failure>
        <call>
          <dialog>
@@ -632,6 +665,14 @@ Lawrence                                                       [Page 11]
        </response>
        <via>SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f654444444</via>
      </call_failure>
+
+
+
+Lawrence                                                       [Page 12]
+
+                           Call State Events               December 2004
+
+
    </call_event>
 
    <call_event xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'>
@@ -668,5 +709,20 @@ Lawrence                                                       [Page 11]
 
 
 
-Lawrence                                                       [Page 12]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lawrence                                                       [Page 13]
 
