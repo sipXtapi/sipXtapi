@@ -4,37 +4,29 @@
 
  <head>
   <title>sipXconfig</title>
-  <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
+  <link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
   <script language="JavaScript1.2" src="functions.js" type="text/javascript"></script>
 </head>
-<body id="phones">
+<body id="phones">    
 	<div id="component">
+        <h2>Line Management</h2>
+        <p>In order for a phone to make or recieve calls, it must have one or more lines
+         assigned to it.  Lines can be listed with multiple phones. 
+        </p>
 		<form name="phones" action="phones.html">
 			<ul class="component-actions">
 				<li>
-					<a href="phone-search.html">Find Phone</a>
-				</li>
-				<li>
-					<a href="phone.html">Add Phone</a>
-				</li>
-				<li>
-					<a href="phone-groups.html">Default Phone Settings</a>
+					<a href="new-line.html">New Line</a>
 				</li>
 			</ul>
 			<table class="table-view">
 				<tr class="table-view-hdr">
 					<th></th>
 					<th>
-						<a href="#">Serial Number</a>
+						<a href="#">Line</a>
 					</th>
 					<th>
-						<a href="#">Assigned User</a>
-					</th>
-					<th>
-						<a href="#">Model</a>
-					</th>
-					<th>
-						<a href="#">Ext.</a>
+						<a href="#">Phones</a>
 					</th>
 				</tr>
 				<tr class="odd">
@@ -42,91 +34,163 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="edit-phone.html">0042402f2f221</a>
+						<a href="edit-line.html">160</a>
 					</td>
 					<td>
-						<a href="assign-user.html">{unassigned}</a>
+						<a href="../phone/edit-phone.html">joe's work phone</a>, ...
 					</td>
-					<td>Polycom 300</td>
-					<td></td>
 				</tr>
 				<tr class="even">
 					<td>
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="edit-phone.html">0042402f212b3</a>
+						<a href="edit-line.html">145</a>
 					</td>
 					<td>
-						<a href="assign-user.html">jdoe (work)</a>
+						<a href="../phone/edit-phone.html">0042402f2f423</a>
 					</td>
-					<td>Polycom 600</td>
-					<td>134</td>
 				</tr>
 				<tr class="odd">
 					<td>
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="edit-phone.html">0042402f44522</a>
+						<a href="edit-line.html">support</a>
 					</td>
 					<td>
-						<a href="assign-user.html">jdoe (home)</a>
 					</td>
-					<td>Polycom 600</td>
-					<td>134</td>
 				</tr>
 				<tr class="even">
 					<td>
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="edit-phone.html">0042402f40421</a>
+						<a href="edit-line.html">sales</a>
 					</td>
 					<td>
-						<a href="assign-user.html">{unassigned}</a>
+						<a href="../phone/edit-phone.html">joe's work phone</a>, ...
 					</td>
-					<td>Polycom 600</td>
-					<td></td>
 				</tr>
 				<tr class="odd">
 					<td>
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="edit-phone.html">0042402f44528</a>
+						<a href="edit-line.html">200</a>
 					</td>
 					<td>
-						<a href="assign-user.html">{unassigned}</a>
 					</td>
-					<td>Polycom 600</td>
-					<td></td>
 				</tr>
 				<tr class="even">
 					<td>
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="edit-phone.html">0042402f48fca</a>
+						<a href="edit-line.html">201</a>
 					</td>
 					<td>
-						<a href="assign-user.html">{unassigned}</a>
 					</td>
-					<td>Polycom 600</td>
-					<td></td>
 				</tr>
 				<tr class="odd">
 					<td>
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="edit-phone.html">0042402f48292</a>
+						<a href="edit-line.html">202</a>
 					</td>
 					<td>
-						<a href="assign-user.html">{unassigned}</a>
 					</td>
-					<td>Polycom 600</td>
-					<td></td>
+				</tr>
+				<tr class="even">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">203</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="odd">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">204</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="even">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">205</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="odd">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">206</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="even">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">207</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="odd">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">208</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="even">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">209</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="odd">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">210</a>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr class="even">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="edit-line.html">211</a>
+					</td>
+					<td>
+					</td>
 				</tr>
 			</table>
 			<ul class="table-selection">
@@ -177,13 +241,13 @@
 			</ul>
 			<ul class="table-actions">
 				<li>
-					<input type="submit" name="" value="Send Profiles" onclick="confirm('are you sure you want to send new profiles to selected phones. Phone will restart.')"/>
+					<input type="submit" name="" value="Send Profiles" onclick="confirm('Are you sure you want to send new profiles to selected phones. Phone will restart.')"/>
 				</li>
 				<li>
-					<input type="submit" name="" value="Restart"  onclick="confirm('are you sure you want to restart selected phones.')"/>
+					<input type="submit" name="" value="Restart"  onclick="confirm('Are you sure you want to restart selected phones.')"/>
 				</li>
 				<li>
-					<input type="submit" name="" value="Delete" onclick="confirm('are you sure you want to delete selected phone configurations.')"/>
+					<input type="submit" name="" value="Delete" onclick="confirm('Are you sure you want to delete selected phone configurations.')"/>
 				</li>
 			</ul>
 		</form>
@@ -216,6 +280,6 @@
 			I have to make at least 3 times N clicks not to mention waiting for
 			all the pages to draw.</li>
 	</ol>
-    <img src="page-flow.png"/>
+    <img alt="page flow diagram" src="page-flow.png"/>
 </body>
 </html>

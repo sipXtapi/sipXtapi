@@ -2,16 +2,15 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Gateways Configuration</title>
-    <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
+    <title>Select Gateways</title>
+    <link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
 </head>
 <body>
 	<div id="component">    
+    <form action="edit-dialplan.html">
 	<ul class="component-actions">
 		<li><a href="edit-gateway.html">Add Gateway</a></li>        
-		<li><a href="dialplans.html">Dial Plans</a></li>
 	</ul>        
-    <form action="gateways.html">
 	<table class="table-view">
             <thead>
                 <tr>
@@ -62,25 +61,25 @@
 				   <td><input type="checkbox" name="id1"/></td>
                    <td><a href="edit-gateway.html">bejing</a></td> 
                    <td>192.166.12.15</td>
-                   <td>some comment</td>
+                   <td>some comment</td>    
                 </tr>
                 <tr class="even">
 				   <td><input type="checkbox" name="id1"/></td>
                    <td><a href="edit-gateway.html">portland</a></td> 
                    <td>10.5.3.5</td>
-                   <td>additional</td>               
+                   <td>additional</td>                     
                 </tr>                
             </tbody>
 		</table>
 		<ul class="table-actions">
-			<li><input type="submit" name="" value="Delete" onclick="confirm('Are you sure you want to remove selected gateways?')"/></li>
+			<li>
+				<input type="submit" name="" value="Save"/>
+			</li>
+			<li>
+				<input type="submit" name="" value="Cancel"/>
+			</li>
 		</ul>
     </form>
-	</div>
-    <div id="comments">
-        <ul>
-	        <li>Gateways configured on this page can be used in any dial plan.</li>
-        </ul>            
 	</div>    
 </body>
 </html>

@@ -20,15 +20,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
   <head>
-      <title><xsl:apply-templates select="x:head/x:title/text()"/></title>
-      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
-	  <script language="Javascript" src="functions.js" type="text/javascript">
-		<![CDATA[ /* DLH:hack for IE, needs some body */]]>
-	  </script>
-      <link type="text/css" rel="stylesheet">
-          <xsl:attribute name="href"><xsl:value-of select="$wwwroot"/>sipxconfig.css</xsl:attribute>
-      </link> 
-      <xsl:apply-templates select="x:head/x:style"/>
+      <xsl:apply-templates select="x:head" mode="content"/>
   </head>
 
   <body>

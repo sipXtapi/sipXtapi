@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>sipXconfig</title>
+		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
+	</head>
+	<body id="registration-edit">
+		<div id="component">
+			<div id="help">Here will be hints on what fields...</div>
+			<h2>Select Phones</h2>
+			<p>Search for phones by any of the following criteria.</p>
+			<form action="select-phone-results.html">
+				<table>
+					<tr>
+						<td>Serial Number:</td>
+						<td>
+							<input type="text"/>
+						</td>
+					</tr>
+					<tr>
+						<td>Alternate Label:</td>
+						<td>
+							<input type="text"/>
+						</td>
+					</tr>
+				</table>
+				<ul class="table-actions">
+					<li>
+						<input type="submit" name="" value="Search"/>
+					</li>
+					<li>
+						<input type="button" name="" value="Cancel" 
+							onclick="javascript:location.href='phones.html';"/>
+					</li>
+				</ul>
+			</form>
+			<form action="phones.html">
+				<table class="table-view">
+					<tr class="table-view-hdr">
+						<th></th>
+						<th>
+							<a href="#">Phone</a>
+						</th>
+						<th>
+							<a href="#">Lines</a>
+						</th>
+						<th>
+							<a href="#">Model</a>
+						</th>
+					</tr>
+					<tr class="odd">
+						<td>
+							<input type="checkbox" name="id1"/>
+						</td>
+						<td>
+							joe's work phone
+						</td>
+						<td>160, sales</td>
+						<td>Polycom 600</td>
+					</tr>
+					<tr class="even">
+						<td>
+							<input type="checkbox" name="id1"/>
+						</td>
+						<td>
+							joe's home phone
+						</td>
+						<td>
+							160
+						</td>
+						<td>Polycom 600</td>
+					</tr>
+				</table>
+				<ul class="table-actions">
+					<li>
+						<input type="submit" name="" value="Select"/>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<hr/>
+	</body>
+</html>

@@ -11,7 +11,11 @@
 	<menu>
 		<item name="listAllDevices" href="#" title="List All Users">List All Devices</item>
 		<item name="listAllDeviceGroups" href="#" title="List All Groups">List All Groups</item>
-        <item name="additionalDevices" href="phones.html" title="Additional Devices Types">Additional Devices</item>
+	</menu>
+	<item name="polycom" href="#" title="Polycom">Polycom</item>
+	<menu>
+        <item name="additionalDevices" href="phone/phones.html" title="Additional Devices Types">Phones</item>
+        <item name="additionalDevices" href="line/lines.html" title="Additional Devices Types">Lines</item>		
 	</menu>
 	<item name="applications" href="#" title="Applications">Applications</item>
 	<menu>
@@ -21,8 +25,8 @@
     <item name="administration" href="#" title="Administration">Administration</item>
 	<menu>
 		<item name="listAdministration" href="#" title="List Administration">List All Administrators</item>
-		<item name="dialplans" href="dialplans.html" title="Dial Plans">Dial Plans</item>
-		<item name="gateways" href="gateways.html" title="Gateways">Gateways</item>
+		<item name="dialplans" href="admin/dialplans.html" title="Dial Plans">Dial Plans</item>
+		<item name="gateways" href="admin/gateways.html" title="Gateways">Gateways</item>
 		<item name="settings" href="#" title="Settings">Settings</item>
 		<item name="extentionPools" href="#" title="Extension Pools">Extension Pools</item>
 		<item name="jobStatus" href="#" title="Job Status">Job Status</item>

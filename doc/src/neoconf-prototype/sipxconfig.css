@@ -32,8 +32,38 @@ pre, tt, code, kbd, samp {
     font-family: monospace; 
 }
 
+legend {
+  font: bold 80%;
+}
+
 .hack {
   color: #ff6600;
+}
+
+div.tabArea {
+  padding-top: 10px;
+  font-size: 80%;
+  font-weight: bold;
+  background: #ffc;
+  width: 45em;
+  border-bottom: 1px solid #000;
+}
+
+a.tab {
+  background-color: #ccc;
+  border: 1px solid #000;
+  padding: 2px 1em 0px 1em;
+  text-decoration: none;
+}
+
+a.tab, a.tab:visited {
+  color: #000;
+}
+
+a.tab.active, a.tab.active:hover, a.tab.active:visited {
+  background-color: #ffc;
+  border-bottom-color: #ffc;
+  color: #000;
 }
 
 #lastmodified {
@@ -97,12 +127,18 @@ pre, tt, code, kbd, samp {
 	color: #08f
 }
 
+p.message {
+    font-weight: bold;
+    color: #f00;
+}
+
 li {
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
 ul.table-actions {
+  width: 40em;
   list-style-type: none;
   margin: 5px;
   padding: 0px
@@ -114,8 +150,8 @@ ul.table-actions li {
 }
 
 table.table-view {
+    width: 43em;
     background: #fff;
-    width: 45em;
     border-collapse: collapse;
     border: 1px;
     border-style : solid;
@@ -142,7 +178,7 @@ table.table-view thead th {
     border: 1px;
     border-style : solid;
     border-color : #ccc;  
-    padding: 3px;
+    padding: 3px 5px 3px 5px;
     white-space: nowrap;        
     color: #ffc;
 }
@@ -154,7 +190,6 @@ table.table-view th a {
 
 table.table-view td {
     inset: 3px;
-    white-space: nowrap;    
     border-collapse: collapse;
 }
 
@@ -186,8 +221,6 @@ tr.odd {
     font-style: italic;
 }
 
-
-
 ul.table-pager {
   list-style-type:none
 }
@@ -197,14 +230,27 @@ ul.table-pager li {
   margin: 0 5px;
 }
 
+#help {
+  float: right;
+  width: 15em;
+  margin-left: 20px;
+  border-collapse: collapse;
+  border: 1px;
+  border-style : solid;
+  border-color : #ccc;  
+  padding: 5px;
+  background: #fff;
+}
+
 #component {
-    width: 45em;
+  width: 45em;    
+  background: #ffc;
 }
 
 #component fieldset {
   border-style: none;
   font-size: 120%;
-  
+  width: 49em;
 }
 
 #component legend {
@@ -212,6 +258,7 @@ ul.table-pager li {
 }
 
 ul.component-actions {
+  width: 40em;
   list-style-type : none;
   text-align: right; 
 }
@@ -230,7 +277,31 @@ ul.form-actions li {
   display: inline;
 }
 
+.page-label {
+  font-weight: bold;
+  margin: 2px;
+  padding: 2px;
+}
 
+#settings-navigation {
+  padding: 2px;
+}
+
+#settings-navigation ul {
+  list-style-type:none;
+  margin: 2px;
+  padding: 2px 2px 2px 2px;
+}
+
+#settings-navigation li {
+  display: inline;
+  margin: 0 5px;
+}
+
+#settings-navigation li a {
+  text-decoration: none;
+  white-space: nowrap;        
+}
 
 .hide {
   display: none
