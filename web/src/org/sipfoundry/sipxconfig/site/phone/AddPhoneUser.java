@@ -20,8 +20,8 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
 
@@ -30,14 +30,14 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public static final String PAGE = "AddPhoneUser"; 
 
-    public abstract Endpoint getEndpoint();
+    public abstract Phone getPhone();
     
-    public abstract void setEndpoint(Endpoint endpoint);
+    public abstract void setPhone(Phone phone);
     
     /** REQUIRED PROPERTY */
-    public abstract Integer getEndpointId();
+    public abstract Integer getPhoneId();
     
-    public abstract void setEndpointId(Integer id);
+    public abstract void setPhoneId(Integer id);
     
     public abstract PhoneContext getPhoneContext();
     
@@ -45,7 +45,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public void select(IRequestCycle cycle) {
         PhoneContext context = getPhoneContext();
-        Endpoint endpoint = context.loadEndpoint(getEndpointId());
+        Phone phone = context.loadPhone(getPhoneId());
         
         UserTable table = (UserTable) getComponent("searchResults");
         SelectMap selections = table.getSelections();        
@@ -53,26 +53,26 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
         while (usersIds.hasNext()) {
             Integer userId = (Integer) usersIds.next();
             User user = getCoreContext().loadUser(userId.intValue());            
-            Line line = new Line();            
-            line.setUser(user);
-            line.setFolder(context.loadRootLineFolder());
-            endpoint.addLine(line);
+            Line line = phone.createLine();            
+            line.getLineMetaData().setUser(user);
+            line.getLineMetaData().setFolder(context.loadRootLineFolder());
+            phone.addLine(line);
         }
-        context.storeEndpoint(endpoint);
+        context.storePhone(phone);
         context.flush();
 
         PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
-        page.setEndpointId(getEndpointId());
+        page.setPhoneId(getPhoneId());
         cycle.activate(page);
     }
     
     public void cancel(IRequestCycle cycle) {
         PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
-        page.setEndpointId(getEndpointId());
+        page.setPhoneId(getPhoneId());
         cycle.activate(page);
     }
     
     public void pageBeginRender(PageEvent event_) {
-        setEndpoint(getPhoneContext().loadEndpoint(getEndpointId()));
+        setPhone(getPhoneContext().loadPhone(getPhoneId()));
     }           
 }

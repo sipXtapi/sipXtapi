@@ -10,8 +10,8 @@
     <!--
       - P A R A M E T E R S
       -->
-	<parameter name="endpoint" 
-        type="org.sipfoundry.sipxconfig.phone.Endpoint" 
+	<parameter name="phoneMetaData" 
+        type="org.sipfoundry.sipxconfig.phone.PhoneMetaData" 
         required="yes" 
         direction="in">
     </parameter>    
@@ -34,11 +34,11 @@
     <!--
       - C O M P O N E N T S
       -->
-    <component id="endpointNameLabel" type="FieldLabel">
-        <binding name="field" expression="components.endpointName"/>
+    <component id="phoneNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.phoneName"/>
     </component>
-    <component id="endpointName" type="ValidField">
-	    <binding name="value" expression="endpoint.name"/>
+    <component id="phoneName" type="ValidField">
+	    <binding name="value" expression="phoneMetaData.name"/>
     	<binding name="validator" expression="beans.nameValidator"/>
 	    <static-binding name="displayName" value="Alternate Label"/>
     </component>
@@ -51,7 +51,7 @@
         <binding name="field" expression="components.serialNumber"/>
     </component>
     <component id="serialNumber" type="ValidField">
-	    <binding name="value" expression="endpoint.serialNumber"/>
+	    <binding name="value" expression="phoneMetaData.serialNumber"/>
     	<binding name="validator" expression="beans.serialNumberValidator"/>
 	    <static-binding name="displayName" value="Serial Number"/>
     </component>
@@ -61,7 +61,7 @@
     </component>
     <component id="phoneModel" type="PropertySelection">
         <binding name="model" expression="phoneSelectionModel"/>
-        <binding name="value" expression="endpoint.phoneId"/>
+        <binding name="value" expression="phoneMetaData.factoryId"/>
     </component>    
     
 </component-specification>

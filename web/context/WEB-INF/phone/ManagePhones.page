@@ -7,9 +7,9 @@
 	  -->
 	<property-specification name="phones" type="java.util.List"/>
 	<property-specification name="currentRow" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneSummary"/>
+		type="org.sipfoundry.sipxconfig.phone.Phone"/>
 	<property-specification name="currentLine" 
-		type="org.sipfoundry.sipxconfig.phone.Line"/>
+		type="org.sipfoundry.sipxconfig.phone.LineMetaData"/>
    	<property-specification name="selections" 
        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
    	<property-specification name="idConverter" 
@@ -28,8 +28,8 @@
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="source" expression="phones"/>
-		<binding name="columns">'* Phone:endpoint.displayLabel,' + 
-			'Lines:lines,Model:phone.displayLabel'</binding>
+		<binding name="columns">'* Phone,' + 
+			'Lines,Model:displayLabel'</binding>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
@@ -48,21 +48,21 @@
     </component>
     <!-- Column 1: select phone -->
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.id]"/>
+        <binding name="selected" expression="selections.selected[currentRow.phoneMetaData.id]"/>
     </component>
     <!-- Column 2: edit phone -->
     <component id="PhoneColumnValue" type="Block"/>
     <component id="editPhoneLink" type="DirectLink">
         <binding name="listener" expression="listeners.editPhone"/>
-        <binding name="parameters" expression="currentRow.id"/>
+        <binding name="parameters" expression="currentRow.phoneMetaData.id"/>
     </component>
     <component id="phoneLabel" type="Insert"> 
-        <binding name="value" expression="currentRow.endpoint.displayLabel"/>
+        <binding name="value" expression="currentRow.phoneMetaData.displayLabel"/>
     </component>
     <!-- Column 2: edit lines -->
     <component id="LinesColumnValue" type="Block"/>
     <component id="editLines" type="Foreach">
-        <binding name="source" expression="currentRow.lines"/>
+        <binding name="source" expression="currentRow.phoneMetaData.lines"/>
         <binding name="value" expression="currentLine"/>
     </component>
     <component id="lineLink" type="DirectLink">

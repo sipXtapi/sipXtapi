@@ -4,17 +4,17 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneLines">
     <description>
-        Manage an endpoint lines for a phone
+        Manage an phone lines for a phone
     </description>
     <!--
     - P R O P E R T I E S
     -->
-    <property-specification name="endpoint"
-        type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-    <property-specification name="endpointId"
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
         type="java.lang.Integer" persistent="yes"/>
     <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.phone.Line"/>
+        type="org.sipfoundry.sipxconfig.phone.LineMetaData"/>
     <property-specification name="selections"
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
 	<property-specification name="phoneContext" 
@@ -28,7 +28,7 @@
     - C O M P O N E N T S
     -->
     <component id="editPhoneNavigation" type="PhoneNavigation">
-        <binding name="endpoint" expression="endpoint"/>
+        <binding name="phone" expression="phone"/>
         <static-binding name="tab" value="PhoneLines"/>
         <static-binding name="heading" value="Lines"/>
         <binding name="phoneContext" expression="phoneContext"/>
@@ -53,7 +53,7 @@
     </component>
     <component id="addUserLink" type="DirectLink">
         <binding name="listener" expression="listeners.addUser"/>
-        <binding name="parameters" expression="endpoint.id"/>
+        <binding name="parameters" expression="phone.phoneMetaData.id"/>
     </component>
     <component id="LineColumnValue" type="Block"/>
     <component id="editLineLink" type="DirectLink">

@@ -37,13 +37,13 @@ public interface PhoneContext {
      */
     public static final Integer UNSAVED_ID = new Integer(-1);
     
-    public Phone getPhone(Endpoint endpoint);
+    //public Phone getPhone(PhoneMetaData endpoint);
     
-    public Phone getPhone(Integer endpointId);
+    //public Phone getPhone(Integer endpointId);
     
-    public List getPhoneIds();
+    public List getPhoneFactoryIds();
 
-    public void setPhoneIds(List phoneIds);
+    public void setPhoneFactoryIds(List phoneIds);
 
     /**
      * Commits the transaction and performs a batch of SQL commands
@@ -57,7 +57,7 @@ public interface PhoneContext {
      */
     public void flush();
     
-    public List loadPhoneSummaries();      
+    public List loadPhones();      
 
     public void storeCredential(Credential credential);
     
@@ -70,16 +70,18 @@ public interface PhoneContext {
     public void deleteLine(Line line);
 
     public Line loadLine(Integer id);
+    
+    public Phone newPhone(String factoryId);
 
-    public Endpoint loadEndpoint(Integer id);
+    public Phone loadPhone(Integer id);
     
     public Object load(Class c, Integer id);
         
-    public void storeEndpoint(Endpoint endpoint);
+    public void storePhone(Phone phone);
 
-    public void deleteEndpoint(Endpoint endpoint);
+    public void deletePhone(Phone phone);
     
-    public Folder loadRootEndpointFolder();
+    public Folder loadRootPhoneFolder();
     
     public Folder loadRootLineFolder();
     

@@ -16,7 +16,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
@@ -53,8 +52,7 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
         PhoneContext context = getPhoneContext();
         Line line = context.loadLine(getLineId());
         setLine(line);
-        Phone phone = context.getPhone(line.getEndpoint()); 
-        Setting root = line.getSettings(phone);
+        Setting root = line.getSettings();
         Setting parent = root.getSetting(getParentSettingName());
         setParentSetting(parent);
     }

@@ -15,7 +15,6 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
@@ -23,15 +22,9 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
  */
 public abstract class EditPhoneForm extends BaseComponent {
 
-    public abstract Endpoint getEndpoint();
-    
-    public abstract void setEndpoint(Endpoint endpoint);    
-
     /**
-     * @return Returns all the phoneModels available to the system ready for UI selection 
+     * all the phoneModels available to the system ready for UI selection 
      */
-    public abstract IPropertySelectionModel getPhoneSelectionModel();
-
     public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
      
     public abstract PhoneContext getPhoneContext();
@@ -42,7 +35,7 @@ public abstract class EditPhoneForm extends BaseComponent {
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         PhoneContext phoneContext = getPhoneContext();
-        String[] phoneIds = (String[]) phoneContext.getPhoneIds().toArray(new String[0]);
+        String[] phoneIds = (String[]) phoneContext.getPhoneFactoryIds().toArray(new String[0]);
         setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
     }        
 }

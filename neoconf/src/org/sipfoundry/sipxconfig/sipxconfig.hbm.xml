@@ -10,30 +10,30 @@
 	<!-- 
 	  - E N D P O I N T 
 	  -->
-	<class name="org.sipfoundry.sipxconfig.phone.Endpoint" table="endpoint">
+	<class name="org.sipfoundry.sipxconfig.phone.PhoneMetaData" table="phone">
 		<jcs-cache usage="read-write"/>
-		<id name="id" column="endpoint_id" type="int" unsaved-value="-1">
+		<id name="id" column="phone_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
-				<param name="sequence">endpoint_seq</param>
+				<param name="sequence">phone_seq</param>
 			</generator>
 		</id>
 		<property name="name" column="name"/>
 		<property name="serialNumber" column="serial_number"/>
-		<property name="phoneId" column="phone_id"/>
+		<property name="factoryId" column="factory_id"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 		<many-to-one name="folder" column="folder_id"
 			class="org.sipfoundry.sipxconfig.setting.Folder"/>
 	    <list name="lines" table="line" inverse="true" cascade="all-delete-orphan">
-			<key column="endpoint_id"/>
+			<key column="phone_id"/>
 			<index column="position"/>
-    		<one-to-many class="org.sipfoundry.sipxconfig.phone.Line"/>
+    		<one-to-many class="org.sipfoundry.sipxconfig.phone.LineMetaData"/>
 		</list>
 	</class>
 	<!--
 	  -  L I N E
 	  -->
-	<class name="org.sipfoundry.sipxconfig.phone.Line" 
+	<class name="org.sipfoundry.sipxconfig.phone.LineMetaData" 
 		table="line">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="line_id" type="int" unsaved-value="-1">
@@ -41,8 +41,8 @@
 				<param name="sequence">line_seq</param>
 			</generator>
 		</id>
-		<many-to-one name="endpoint" column="endpoint_id" 
-			class="org.sipfoundry.sipxconfig.phone.Endpoint" not-null="true"/>
+		<many-to-one name="phoneMetaData" column="phone_id" 
+			class="org.sipfoundry.sipxconfig.phone.PhoneMetaData" not-null="true"/>
 		<property name="position" column="position"/>
 		<many-to-one name="user" column="user_id"
 			class="org.sipfoundry.sipxconfig.common.User"/>

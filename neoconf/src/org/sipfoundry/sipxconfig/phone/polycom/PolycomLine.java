@@ -13,13 +13,15 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.AbstractLine;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Polycom business functions for line meta setting
  */
-public class PolycomLine {
+public class PolycomLine extends AbstractLine {
+
+    public static final String FACTORY_ID = "polycom";
 
     public static final String REGISTRATION = "reg";
 
@@ -35,57 +37,60 @@ public class PolycomLine {
 
     private static final int DEFAULT_SIP_PORT = 5060;
 
-    private PolycomPhone m_phone;
-
-    private Line m_line;
-
-    private Setting m_settings;
-
-    public PolycomLine(PolycomPhone phone, Line line) {
-        m_phone = phone;
-        m_line = line;
-        m_settings = m_phone.getLineModel().copy();
-        setDefaults();
+    /** BEAN ACCESS ONLY */
+    public PolycomLine() {
     }
+    
+    public PolycomLine(PolycomPhone phone) {
+        super(phone);
+    }
+    
+    public Setting getSettingModel() {
+        PolycomPhone polyPhone = (PolycomPhone) getPhone();
+        Setting settings = polyPhone.getPolycom().getLineSettingModel().copy();
 
-    private void setDefaults() {
-        User u = m_line.getUser();
+        User u = getLineMetaData().getUser();
         if (u != null) {
-            String domainName = m_phone.getCoreContext().loadRootOrganization().getDnsDomain();
-            Setting reg = m_settings.getSetting(REGISTRATION);
+            Setting reg = settings.getSetting(REGISTRATION);
             reg.getSetting(DISPLAY_NAME).setValue(u.getDisplayId());
             reg.getSetting("auth.userId").setValue(u.getDisplayId());
-            setPrimaryRegistrationServerAddress(domainName);
+
+            // only when there's a user to register do you set the registration server
+            // although probably harmless
+            String domainName = polyPhone.getPolycom().getDnsDomain();
+            reg.getSetting(SERVER).getSetting(FIRST).getSetting(ADDRESS).setValue(domainName);            
         }
 
         // See pg. 125 Admin Guide/16 June 2004
-        if (m_line.getPosition() == 0) {
-            m_settings.getSetting("msg.mwi").getSetting("callBackMode").setValue("registration");
+        if (getLineMetaData().getPosition() == 0) {
+            settings.getSetting("msg.mwi").getSetting("callBackMode").setValue("registration");
         }
+        
+        return settings;
     }
 
     public String getPrimaryRegistrationServerAddress() {
-        return m_settings.getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST)
+        // FIXME: ugly
+        return getSettings().getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST)
                 .getSetting(ADDRESS).getValue();
     }
 
     public void setPrimaryRegistrationServerAddress(String address) {
-        m_settings.getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST).getSetting(
+        // FIXME: ugly
+        getSettings().getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST).getSetting(
                 ADDRESS).setValue(address);
     }
 
     public String getPrimaryRegistrationServerPort() {
-        return m_settings.getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST)
+        // FIXME: ugly
+        return getSettings().getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST)
                 .getSetting(PORT).getValue();
     }
 
     public void setPrimaryRegistrationServerPort(String address) {
-        m_settings.getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST).getSetting(PORT)
+        // FIXME: ugly
+        getSettings().getSetting(REGISTRATION).getSetting(SERVER).getSetting(FIRST).getSetting(PORT)
                 .setValue(address);
-    }
-
-    public Setting getSettings() {
-        return m_settings;
     }
 
     public static int getSipPort(String portString) {
@@ -103,7 +108,7 @@ public class PolycomLine {
 
     public String getUri() {
         StringBuffer sb = new StringBuffer();
-        sb.append(m_line.getDisplayLabel());
+        sb.append(getLineMetaData().getDisplayLabel());
         sb.append('@').append(getPrimaryRegistrationServerAddress());
         String port = getPrimaryRegistrationServerPort();
         if (StringUtils.isNotBlank(port)) {

@@ -18,37 +18,39 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.polycom.Polycom;
+import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
+import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 
-
+/**
+ * Future Redesign Notes:
+ * This page should be redesigned as a generic EditFolder page.  Right now this manages
+ * root folders for phones and line and probably shouldn't from a user and architecture
+ * position.  Also, it assumes root folder and should edit any level folder.
+ */
 public abstract class PhoneDefaults extends BasePage implements PageRenderListener  {
     
     public static final String PAGE = "PhoneDefaults";
-    
-    private Endpoint m_blankEndpoint;
-    
-    private Line m_blankLine;
     
     public abstract void setPhone(Phone phone);
     
     public abstract Phone getPhone();
     
-    public abstract String getPhoneId();
+    public abstract String getPhoneFactoryId();
     
-    public abstract void setPhoneId(String phoneId);
+    public abstract void setPhoneFactoryId(String factoryId);
     
-    public abstract Folder getEndpointFolder();
+    public abstract Folder getPhoneFolder();
     
-    public abstract void setEndpointFolder(Folder folder);
+    public abstract void setPhoneFolder(Folder folder);
 
     public abstract Folder getLineFolder();
 
@@ -62,8 +64,6 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     
     public abstract Setting getCurrentEditFormSetting();
     
-    public abstract Collection getEditFormSettings();
-    
     public abstract void setEditFormSettings(Collection settings);
     
     public abstract String getEditFormSettingName();
@@ -74,22 +74,22 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     
     public abstract String getEditFormFolderResource();
     
-    public Collection getEndpointNavigationSettings() {
-        return getPhone().getSettingModel(m_blankEndpoint).getValues();
+    public Collection getPhoneNavigationSettings() {
+        return getPhone().getSettings().getValues();
     }
     
     public Collection getLineNavigationSettings() {
-        return getPhone().getSettingModel(m_blankLine).getValues();        
+        return getPhone().getLine(0).getSettings().getValues();        
     }
     
-    public void editEndpointSettings(IRequestCycle cycle_) {
-        setEditFormFolderResource(Endpoint.FOLDER_RESOURCE_NAME);
+    public void editPhoneSettings(IRequestCycle cycle_) {
+        setEditFormFolderResource(PhoneMetaData.FOLDER_RESOURCE_NAME);
         setEditFormSettingName(getCurrentNavigationSetting().getName());
         editSettings();        
     }
         
     public void editLineSettings(IRequestCycle cycle_) {
-        setEditFormFolderResource(Line.FOLDER_RESOURCE_NAME);
+        setEditFormFolderResource(LineMetaData.FOLDER_RESOURCE_NAME);
         setEditFormSettingName(getCurrentNavigationSetting().getName());
         editSettings();        
     }
@@ -108,7 +108,7 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     }
     
     public void apply(IRequestCycle cycle_) {
-        getSettingDao().storeFolder(getEndpointFolder());
+        getSettingDao().storeFolder(getPhoneFolder());
         getSettingDao().storeFolder(getLineFolder());
     }
 
@@ -117,28 +117,27 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     }
 
     public void pageBeginRender(PageEvent event_) {
-        if (getPhoneId() == null) {
+        if (getPhoneFactoryId() == null) {
             // all models the same
-            setPhoneId(Polycom.MODEL_600.getModelId());
+            setPhoneFactoryId(PolycomModel.MODEL_600.getModelId());
         }
         // future, edit other meta storages, not just root's
-        setEndpointFolder(getPhoneContext().loadRootEndpointFolder());
+        setPhoneFolder(getPhoneContext().loadRootPhoneFolder());
         setLineFolder(getPhoneContext().loadRootLineFolder());
         
-        m_blankEndpoint = new Endpoint();
-        m_blankEndpoint.setPhoneId(getPhoneId());
-        m_blankEndpoint.setFolder(getEndpointFolder());
+        Phone phone = getPhoneContext().newPhone(getPhoneFactoryId());
+        phone.getPhoneMetaData().setFolder(getPhoneFolder());
         
-        m_blankLine = new Line();
-        m_blankEndpoint.addLine(m_blankLine);
-        m_blankLine.setFolder(getLineFolder());
+        Line line = phone.createLine();
+        phone.addLine(line);
+        line.getLineMetaData().setFolder(getLineFolder());
 
-        setPhone(getPhoneContext().getPhone(m_blankEndpoint));
+        setPhone(phone);
         
         String editSettingsName = getEditFormSettingName(); 
         if (editSettingsName == null) {
-            setEditFormFolderResource(Endpoint.FOLDER_RESOURCE_NAME);
-            Iterator nav = getEndpointNavigationSettings().iterator();
+            setEditFormFolderResource(PhoneMetaData.FOLDER_RESOURCE_NAME);
+            Iterator nav = getPhoneNavigationSettings().iterator();
             setEditFormSettingName(((Setting) nav.next()).getName());
         }        
         
@@ -152,12 +151,12 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     private void editSettings() {
         Folder folder;
         Setting rootSettings;
-        if (getEditFormFolderResource().equals(Endpoint.FOLDER_RESOURCE_NAME)) {
-            folder = getEndpointFolder();
-            rootSettings = getPhone().getSettingModel(m_blankEndpoint);
+        if (getEditFormFolderResource().equals(PhoneMetaData.FOLDER_RESOURCE_NAME)) {
+            folder = getPhoneFolder();
+            rootSettings = getPhone().getSettingModel().copy();
         } else {
             folder = getLineFolder();
-            rootSettings = getPhone().getSettingModel(m_blankLine);
+            rootSettings = getPhone().getLine(0).getSettingModel().copy();
         }
 
         Setting subset = rootSettings.getSetting(getEditFormSettingName());

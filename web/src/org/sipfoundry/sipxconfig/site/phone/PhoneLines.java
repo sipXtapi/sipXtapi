@@ -20,35 +20,35 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 
 /**
- * Comments
+ * Manage a phone's lines
  */
 public abstract class PhoneLines extends BasePage implements PageRenderListener {
 
     public static final String PAGE = "PhoneLines";
 
-    public abstract Endpoint getEndpoint();
+    public abstract Phone getPhone();
     
-    public abstract void setEndpoint(Endpoint endpoint);
+    public abstract void setPhone(Phone phone);
     
-    public abstract Integer getEndpointId();
+    public abstract Integer getPhoneId();
     
     /** REQUIRED PROPERTY */
-    public abstract void setEndpointId(Integer id);
+    public abstract void setPhoneId(Integer id);
 
     public List getLines() {
-        return getEndpoint().getLines();
+        return getPhone().getPhoneMetaData().getLines();
     }
     
-    public abstract Line getCurrentRow();
+    public abstract LineMetaData getCurrentRow();
 
-    public abstract void setCurrentRow(Line line);
+    public abstract void setCurrentRow(LineMetaData line);
     
     public abstract SelectMap getSelections();
     
@@ -58,8 +58,8 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
 
     public void pageBeginRender(PageEvent event_) {
         PhoneContext context = getPhoneContext();
-        Endpoint endpoint = context.loadEndpoint(getEndpointId()); 
-        setEndpoint(endpoint);
+        Phone phone = context.loadPhone(getPhoneId()); 
+        setPhone(phone);
         
         // Generate the list of phone items
         if (getSelections() == null) {
@@ -69,9 +69,9 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public void addUser(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
-        Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
-        page.setEndpointId(endpointId);
+        page.setPhoneId(phoneId);
         cycle.activate(page);        
     }
     
@@ -85,10 +85,10 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public void deleteLine(IRequestCycle cycle_) {
         PhoneContext context = getPhoneContext();
-        Endpoint endpoint = getEndpoint();
+        Phone phone = getPhone();
         Object[] lineIds = getSelections().getAllSelected().toArray();
-        DataCollectionUtil.removeByPrimaryKey(endpoint.getLines(), lineIds);
-        context.storeEndpoint(endpoint);
+        DataCollectionUtil.removeByPrimaryKey(phone.getPhoneMetaData().getLines(), lineIds);
+        context.storePhone(phone);
     }
     
     public void moveLineUp(IRequestCycle cycle_) {
@@ -101,10 +101,10 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     private void moveLines(int step) {
         PhoneContext context = getPhoneContext();
-        Endpoint endpoint = getEndpoint();
+        Phone phone = getPhone();
         Object[] lineIds = getSelections().getAllSelected().toArray();
-        DataCollectionUtil.moveByPrimaryKey(endpoint.getLines(), lineIds, step);        
-        context.storeEndpoint(endpoint);
+        DataCollectionUtil.moveByPrimaryKey(phone.getPhoneMetaData().getLines(), lineIds, step);        
+        context.storePhone(phone);
     }
 
     public void ok(IRequestCycle cycle) {
@@ -114,7 +114,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
 
     public void apply(IRequestCycle cycle_) {
         PhoneContext dao = getPhoneContext();
-        dao.storeEndpoint(getEndpoint());
+        dao.storePhone(getPhone());
         dao.flush();
     }
     

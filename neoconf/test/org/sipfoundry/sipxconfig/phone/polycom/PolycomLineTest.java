@@ -29,9 +29,16 @@ public class PolycomLineTest extends TestCase {
     
     public void testDefaults() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        PolycomLine line = new PolycomLine(helper.phone[0], helper.line[0]);
-        Setting settings = line.getSettings();
+        Setting settings = helper.line[0].getSettings();        
         assertEquals("sipfoundry.org", settings.getSetting("reg").getSetting("server")
+                .getSetting("1").getSetting("address").getValue());
+    }
+
+    public void testDefaultsNoUser() throws Exception {
+        PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
+        PolycomLine line = new PolycomLine(helper.phone[0]);
+        Setting settings = line.getSettings();        
+        assertEquals(Setting.NULL_VALUE, settings.getSetting("reg").getSetting("server")
                 .getSetting("1").getSetting("address").getValue());
     }
 }

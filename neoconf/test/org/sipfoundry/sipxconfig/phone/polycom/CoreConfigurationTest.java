@@ -32,8 +32,7 @@ public class CoreConfigurationTest extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         helper.plainSettingsSeed();
         
-        CoreConfiguration cfg = new CoreConfiguration(
-            helper.phone[0], helper.endpoint[0]);
+        CoreConfiguration cfg = new CoreConfiguration(helper.phone[0]);
         
         cfg.setTemplate(helper.phone[0].getCoreTemplate());
         CharArrayWriter out = new CharArrayWriter();

@@ -43,19 +43,11 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         m_beanFactory = beanFactory;
     }
 
-    public Phone getPhone(Endpoint endpoint) {
-        return (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
-    }
-
-    public Phone getPhone(Integer endpointId) {
-        return getPhone(loadEndpoint(endpointId));
-    }
-
-    public List getPhoneIds() {
+    public List getPhoneFactoryIds() {
         return m_phoneIds;
     }
 
-    public void setPhoneIds(List phoneIds) {
+    public void setPhoneFactoryIds(List phoneIds) {
         m_phoneIds = phoneIds;
     }
 
@@ -75,63 +67,89 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return (Credential) getHibernateTemplate().load(Credential.class, id);
     }
 
-    public void storeEndpoint(Endpoint endpoint) {
-        getHibernateTemplate().saveOrUpdate(endpoint);
+    public void storePhone(Phone phone) {
+        getHibernateTemplate().saveOrUpdate(phone.getPhoneMetaData());
     }
 
-    public void deleteEndpoint(Endpoint endpoint) {
-        getHibernateTemplate().delete(endpoint);
+    public void deletePhone(Phone phone) {
+        getHibernateTemplate().delete(phone.getPhoneMetaData());
     }
 
     public void storeLine(Line line) {
-        getHibernateTemplate().saveOrUpdate(line);
+        getHibernateTemplate().saveOrUpdate(line.getLineMetaData());
     }
 
     public void deleteLine(Line line) {
-        getHibernateTemplate().delete(line);
+        getHibernateTemplate().delete(line.getLineMetaData());
     }
 
     public Line loadLine(Integer id) {
-        return (Line) getHibernateTemplate().load(Line.class, id);
+        return loadLineFromFactory((LineMetaData) getHibernateTemplate().load(LineMetaData.class, id));
     }
 
-    public List loadPhoneSummaries() {
-        String endpointQuery = "from Endpoint e";
-        List endpoints = getHibernateTemplate().find(endpointQuery);
-        List summaries = new ArrayList(endpoints.size());
+    public List loadPhones() {
+        String endpointQuery = "from PhoneMetaData p";
+        List metas = getHibernateTemplate().find(endpointQuery);
+        List phones = new ArrayList(metas.size());
 
         // TODO: Make this a cursor usable by tapestry by reconnecting back to
         // session
-        for (int i = 0; i < endpoints.size(); i++) {
-            Endpoint endpoint = (Endpoint) endpoints.get(i);
-            PhoneSummary summary = new PhoneSummary();
-            summary.setEndpoint(endpoint);
-            summary.setPhone(getPhone(endpoint));
-            summaries.add(summary);
+        for (int i = 0; i < metas.size(); i++) {
+            PhoneMetaData meta = (PhoneMetaData) metas.get(i);
+            phones.add(loadPhoneFromFactory(meta));
         }
 
-        return summaries;
+        return phones;
     }
 
-    public Endpoint loadEndpoint(Integer id) {
-        return (Endpoint) getHibernateTemplate().load(Endpoint.class, id);
+    public Phone loadPhone(Integer id) {
+        return loadPhoneFromFactory((PhoneMetaData) getHibernateTemplate().load(PhoneMetaData.class, id));
+    }
+    
+    public Phone newPhone(String factoryId) {
+        Phone phone = (Phone) m_beanFactory.getBean(factoryId);
+        phone.setPhoneMetaData(new PhoneMetaData(factoryId));
+        
+        return phone;
+    }
+    
+    private Phone loadPhoneFromFactory(PhoneMetaData meta) {
+        Phone phone = meta.getPhone();
+        if (phone == null) {
+            phone = (Phone) m_beanFactory.getBean(meta.getFactoryId());
+            phone.setPhoneMetaData(meta);
+            meta.setPhone(phone);
+        }
+        
+        return phone;        
+    }
+
+    private Line loadLineFromFactory(LineMetaData meta) {
+        Line line = meta.getLine();
+        if (line == null) {
+            line = loadPhoneFromFactory(meta.getPhoneMetaData()).createLine();
+            line.setLineMetaData(meta);
+            meta.setLine(line);
+        }
+        
+        return line;        
     }
 
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
     }
     
-    public Folder loadRootEndpointFolder() {
-       return m_settingDao.loadRootFolder(Endpoint.FOLDER_RESOURCE_NAME);
+    public Folder loadRootPhoneFolder() {
+       return m_settingDao.loadRootFolder(PhoneMetaData.FOLDER_RESOURCE_NAME);
     }
     
     public Folder loadRootLineFolder() {
-        return m_settingDao.loadRootFolder(Line.FOLDER_RESOURCE_NAME);
+        return m_settingDao.loadRootFolder(LineMetaData.FOLDER_RESOURCE_NAME);
     }    
 
     /** unittesting only */
     public void clear() {
-        getHibernateTemplate().delete("from Endpoint");
+        getHibernateTemplate().delete("from PhoneMetaData");
         getHibernateTemplate().delete("from Folder");
         getHibernateTemplate().delete("from ValueStorage");
     }

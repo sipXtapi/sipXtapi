@@ -21,20 +21,19 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 /**
  * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other 
  * config files.  See page 11 of Administration guide for more information
  */
-public class ApplicationConfiguration extends ConfigurationTemplate {
+public class ApplicationConfiguration extends ConfigurationFile {
     
     private List m_staleDirectories = new ArrayList();
     
     private String m_directory;
     
-    public ApplicationConfiguration(PolycomPhone phone, Endpoint endpoint) {
-        super(phone, endpoint);
+    public ApplicationConfiguration(PolycomPhone phone) {
+        super(phone);
     }
     
     public String getSipBinaryFilename() {
@@ -43,13 +42,13 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     
     public String getAppFilename() {
         // todo, put in a sequence generator for TFTP
-        return getEndpoint().getSerialNumber() + ".cfg";
+        return getPhone().getPhoneMetaData().getSerialNumber() + ".cfg";
     }
     
     String getDirectory() {
         if (m_directory == null) {
             String tftpRoot = getPhone().getTftpRoot();
-            String endpointDir = getEndpoint().getSerialNumber();           
+            String endpointDir = getPhone().getPhoneMetaData().getSerialNumber();           
             m_staleDirectories.clear();
             m_directory = getNextDirectorySequence(tftpRoot, endpointDir, m_staleDirectories);
         }

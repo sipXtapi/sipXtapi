@@ -32,8 +32,7 @@ public class SipConfigurationTest  extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         helper.plainSettingsSeed();
         
-        SipConfiguration cfg = new SipConfiguration(
-            helper.phone[0], helper.endpoint[0]);
+        ConfigurationFile cfg = new ConfigurationFile(helper.phone[0]);
         
         cfg.setTemplate(helper.phone[0].getSipTemplate());
         CharArrayWriter out = new CharArrayWriter();

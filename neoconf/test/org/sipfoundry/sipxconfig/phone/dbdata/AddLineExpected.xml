@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 <dataset>
-    <endpoint 
+    <phone 
 		serial_number="999123456" 		
-		endpoint_id="1000"
+		phone_id="1000"
         name="unittest-sample phone1"
-        phone_id="polycom300"
+        factory_id="polycom300"
 		folder_id="1"
 		storage_id="[null]"/> 
     <line 
 		line_id="[line_id]" 
-		endpoint_id="1000"
+		phone_id="1000"
 		position="2" 
 		user_id="4"
 		folder_id="2"
 		storage_id="[null]"/> 
     <line 
 		line_id="1000" 
-		endpoint_id="1000"
+		phone_id="1000"
 		position="0" 
 		user_id="4"
 		folder_id="2"
 		storage_id="[null]"/> 
     <line 
 		line_id="1001" 
-		endpoint_id="1000"
+		phone_id="1000"
 		position="1" 
 		user_id="4"
 		folder_id="2"

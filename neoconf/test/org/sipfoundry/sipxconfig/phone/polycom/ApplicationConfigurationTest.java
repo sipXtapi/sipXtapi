@@ -38,8 +38,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         helper.phone[0].setTftpRoot(root);
         
-        ApplicationConfiguration app = new ApplicationConfiguration(
-            helper.phone[0], helper.endpoint[0]);
+        ApplicationConfiguration app = new ApplicationConfiguration(helper.phone[0]);
         
         app.setTemplate(helper.phone[0].getApplicationTemplate());
         CharArrayWriter out = new CharArrayWriter();
@@ -92,14 +91,12 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         helper.phone[0].setTftpRoot(root);
         
-        ApplicationConfiguration app0001 = new ApplicationConfiguration(
-            helper.phone[0], helper.endpoint[0]);
+        ApplicationConfiguration app0001 = new ApplicationConfiguration(helper.phone[0]);
         assertEquals("0004f200e06b.0001", app0001.getDirectory());
         File f = new File(rootDir, app0001.getDirectory());
         f.mkdirs();
         
-        ApplicationConfiguration app0002 = new ApplicationConfiguration(
-                helper.phone[0], helper.endpoint[0]);
+        ApplicationConfiguration app0002 = new ApplicationConfiguration(helper.phone[0]);
         assertEquals("0004f200e06b.0002", app0002.getDirectory());
 
         assertEquals(1, rootDir.list().length);

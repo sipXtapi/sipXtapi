@@ -20,17 +20,26 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  */
 public interface Phone {
     
-    public String getModelId();
+    public void setPhoneMetaData(PhoneMetaData meta);
     
-    public void setModelId(String id);
+    public PhoneMetaData getPhoneMetaData();
     
     public String getDisplayLabel();
     
-    public Setting getSettingModel(Endpoint endpoint);
+    public Setting getSettingModel();
 
-    public Setting getSettingModel(Line line);
+    public Setting getSettings();
+
+    public void generateProfiles() throws IOException;
     
-    public void generateProfiles(Endpoint endpoint) throws IOException;
+    public void restart() throws IOException;
+        
+    public Line getLine(int position);
     
-    public void restart(Endpoint endpoint) throws IOException;
+    public void addLine(Line line);
+    
+    public int getLineCount();
+    
+    /** you must explicitly call addLine */
+    public Line createLine();
 }

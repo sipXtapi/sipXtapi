@@ -158,11 +158,16 @@ sysdir.phone=${sipxconfig.phone.dir}
 
 	</target>
 	
-	<target name="install-tomcat" depends="war"
-	   description="Copy war file into Tomcat 5 webapp directory, not genenic, gentoo developement purpose only">
-
-		<copy todir="/opt/tomcat5/webapps" file="${sipxconfig.war}"/>
-
+	<target name="run" depends="test-war,compile.test"
+	   description="Runs Jetty on current code, developement purpose only">
+           <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
+               <classpath refid="base.path"/>
+               <classpath refid="test.path"/>
+               <classpath location="${junit.jar}"/>
+               <classpath location="${xerces.jar}"/>
+               <sysproperty key="basedir" value="${basedir}"/>
+           </java>
+           <input>Press Enter/Return key to shutdown web server...</input>
 	</target>
 
         <target name="test-all" depends="ant-targets.test-all,test-ui"/>
@@ -179,7 +184,7 @@ sysdir.data=${test.results.dir}
 sysdir.phone=${test.results.dir}
 dataSource.url=jdbc:postgresql://localhost/${sipxconfig.db.pds}
 	      </echo>
-         <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml"/>         
+         <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml" overwrite="true"/>
 	</target>
 
   <!-- 

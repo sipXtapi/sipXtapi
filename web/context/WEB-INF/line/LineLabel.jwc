@@ -25,10 +25,10 @@
       - C O M P O N E N T S
       -->
     <component id="lineLabel" type="Insert">
-        <binding name="value" expression="line.displayLabel"/>
+        <binding name="value" expression="line.lineMetaData.displayLabel"/>
     </component>
     <component id="phoneLabel" type="PhoneLabel">
-        <binding name="endpoint" expression="line.endpoint"/>
+        <binding name="phone" expression="line.phone"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>      
 </component-specification>

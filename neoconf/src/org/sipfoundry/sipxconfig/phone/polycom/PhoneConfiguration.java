@@ -13,21 +13,16 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
  */
-public class PhoneConfiguration extends ConfigurationTemplate {
+public class PhoneConfiguration extends ConfigurationFile {
 
-    public PhoneConfiguration(PolycomPhone phone, Endpoint endpoint) {
-        super(phone, endpoint);
+    public PhoneConfiguration(PolycomPhone phone) {
+        super(phone);
     }
 
     protected void addContext(VelocityContext context) {
@@ -39,19 +34,17 @@ public class PhoneConfiguration extends ConfigurationTemplate {
         PolycomPhone phone = getPhone();
         ArrayList linesSettings = new ArrayList(phone.getMaxLineCount());
 
-        List lines = getEndpoint().getLines();
+        int n = phone.getLineCount();
         int i = 0;
-        for (; lines != null && i < lines.size(); i++) {
-            Line line = (Line) lines.get(i);
-            linesSettings.add(line.getSettings(phone));
+        for (; i < n; i++) {
+            linesSettings.add(phone.getLine(i).getSettings());
         }
 
-        // copy in blank registrations of all unused lines
+        // copy in blank lines of all unused lines
         for (; i < phone.getMaxLineCount(); i++) {
-            Line blank = new Line();
-            blank.setPosition(i);
-            Setting model = phone.getSettingModel(blank);
-            linesSettings.add(new ValueStorage().decorate(model));
+            PolycomLine line = new PolycomLine(getPhone());
+            line.getLineMetaData().setPosition(i);
+            linesSettings.add(line.getSettings());
         }
         
         return linesSettings;

@@ -45,20 +45,23 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
 
-        Endpoint endpoint = m_context.loadEndpoint(new Integer(1));
+        Phone phone = m_context.loadPhone(new Integer(1));
+        PhoneMetaData endpoint = phone.getPhoneMetaData();
         assertEquals(0, endpoint.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
-        Line line = new Line();
-        line.setUser(user);
-        line.setFolder(m_context.loadRootLineFolder());
-        endpoint.addLine(line);
-        m_context.storeEndpoint(endpoint);
+        Line line = phone.createLine();
+        LineMetaData lineMeta = line.getLineMetaData();
+        lineMeta.setUser(user);
+        lineMeta.setFolder(m_context.loadRootLineFolder());
+        phone.addLine(line);
+        m_context.storePhone(phone);
         
         // reload data to get updated ids
         m_context.flush();        
-        Endpoint reloadedEndpoint = m_context.loadEndpoint(new Integer(1));
-        Line reloadedLine = (Line) reloadedEndpoint.getLines().get(0);
+        Phone reloadedPhone = m_context.loadPhone(new Integer(1));
+        PhoneMetaData reloadedEndpoint = reloadedPhone.getPhoneMetaData(); 
+        LineMetaData reloadedLine = (LineMetaData) reloadedEndpoint.getLines().get(0);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
@@ -75,20 +78,22 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
 
-        Endpoint endpoint = m_context.loadEndpoint(new Integer(1000));
+        Phone phone = m_context.loadPhone(new Integer(1000));
+        PhoneMetaData endpoint = phone.getPhoneMetaData();
         assertEquals(2, endpoint.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
-        Line thirdLine = new Line();
+        LineMetaData thirdLine = new LineMetaData();
         thirdLine.setUser(user);
         thirdLine.setFolder(m_context.loadRootLineFolder());
         endpoint.addLine(thirdLine);
-        m_context.storeEndpoint(endpoint);
+        m_context.storePhone(phone);
 
         // reload data to get updated ids
         m_context.flush();
-        Endpoint reloadedEndpoint = m_context.loadEndpoint(new Integer(1000));
-        Line reloadedThirdLine = (Line) reloadedEndpoint.getLines().get(2);
+        Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
+        PhoneMetaData reloadedEndpoint = reloadedPhone.getPhoneMetaData();
+        LineMetaData reloadedThirdLine = (LineMetaData) reloadedEndpoint.getLines().get(2);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/AddLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
@@ -105,13 +110,14 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
         
-        Endpoint endpoint = m_context.loadEndpoint(new Integer(1));
+        Phone phone = m_context.loadPhone(new Integer(1));
+        PhoneMetaData endpoint = phone.getPhoneMetaData();
         List lines = endpoint.getLines();
         assertEquals(1, lines.size());        
         lines.clear();
-        m_context.storeEndpoint(endpoint);
+        m_context.storePhone(phone);
         
-        Endpoint cleared = m_context.loadEndpoint(new Integer(1));
+        PhoneMetaData cleared = m_context.loadPhone(new Integer(1)).getPhoneMetaData();
         assertEquals(0, cleared.getLines().size());        
     }
     
@@ -119,11 +125,12 @@ public class LineTestDb extends TestCase {
          TestHelper.cleanInsert("dbdata/ClearDb.xml");
          TestHelper.cleanInsertFlat("phone/dbdata/MoveLineSeed.xml");
 
-         Endpoint endpoint = m_context.loadEndpoint(new Integer(1000));
-         Line l1 = (Line) endpoint.getLines().get(0);
+         Phone phone = m_context.loadPhone(new Integer(1000));
+         PhoneMetaData endpoint = phone.getPhoneMetaData();
+         LineMetaData l1 = (LineMetaData) endpoint.getLines().get(0);
          Object[] ids = new Object[] { l1.getId() };
          DataCollectionUtil.moveByPrimaryKey(endpoint.getLines(), ids, 1);
-         m_context.storeEndpoint(endpoint);
+         m_context.storePhone(phone);
          m_context.flush();
          
          IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/MoveLineExpected.xml");

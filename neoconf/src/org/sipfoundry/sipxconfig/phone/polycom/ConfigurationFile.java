@@ -16,7 +16,6 @@ import java.util.Collection;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
@@ -25,7 +24,7 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
 /**
  * Baseclass for velocity template generators
  */
-public abstract class ConfigurationTemplate {
+public class ConfigurationFile {
     
     public static final String CALL_SETTINGS = "call";
 
@@ -52,13 +51,10 @@ public abstract class ConfigurationTemplate {
 
     private PolycomPhone m_phone;
 
-    private Endpoint m_endpoint;
-
     private String m_template;
 
-    public ConfigurationTemplate(PolycomPhone phone, Endpoint endpoint) {
+    public ConfigurationFile(PolycomPhone phone) {
         m_phone = phone;
-        m_endpoint = endpoint;
     }
 
     public String getTemplate() {
@@ -67,10 +63,6 @@ public abstract class ConfigurationTemplate {
 
     public void setTemplate(String template) {
         m_template = template;
-    }
-
-    public Endpoint getEndpoint() {
-        return m_endpoint;
     }
 
     public PolycomPhone getPhone() {
@@ -92,12 +84,12 @@ public abstract class ConfigurationTemplate {
      * Velocity macro convienence method for accessing endpoint settings
      */
     public Setting getEndpointSettings() {
-        return getEndpoint().getSettings(getPhone());
+        return getPhone().getSettings();
     }
 
     protected void addContext(VelocityContext context) {
         context.put("phone", getPhone());
-        context.put("endpoint", getEndpoint());
+        context.put("endpoint", getPhone().getPhoneMetaData());
         context.put("cfg", this);        
     }
 

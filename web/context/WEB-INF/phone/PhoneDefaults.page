@@ -9,7 +9,7 @@
 	  - P R O P E R T I E S
 	  -->    
     <!-- Persistent -->
-    <property-specification name="phoneId" 
+    <property-specification name="phoneFactoryId" 
         persistent="yes"
         type="java.lang.String"/>
     <property-specification name="editFormSettingName" 
@@ -31,7 +31,7 @@
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="phone" 
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="endpointFolder"
+    <property-specification name="phoneFolder"
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
     <property-specification name="lineFolder"
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
@@ -41,21 +41,21 @@
      - C O M P O N E N T S
      -->    
     <!--Navigation-->  
-    <component id="endpointSettings" type="Foreach">
-        <binding name="source" expression="endpointNavigationSettings"/>
+    <component id="phoneSettings" type="Foreach">
+        <binding name="source" expression="phoneNavigationSettings"/>
         <binding name="value" expression="currentNavigationSetting"/>
     </component>
     <component id="lineSettings" type="Foreach">
         <binding name="source" expression="lineNavigationSettings"/>
         <binding name="value" expression="currentNavigationSetting"/>
     </component>
-    <component id="endpointSettingsLabel" type="Insert">
+    <component id="phoneSettingsLabel" type="Insert">
         <binding name="value" expression="currentNavigationSetting.label"/>
     </component>    
-    <component id="endpointSettingsLink" type="ActionLink">
-        <binding name="listener" expression="listeners.editEndpointSettings"/>
+    <component id="phoneSettingsLink" type="ActionLink">
+        <binding name="listener" expression="listeners.editPhoneSettings"/>
     </component>    
-    <component id="lineSettingsLabel" copy-of="endpointSettingsLabel">
+    <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
     </component>    
     <component id="lineSettingsLink" type="ActionLink">
         <binding name="listener" expression="listeners.editLineSettings"/>

@@ -8,8 +8,8 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
-	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+	<property-specification name="phoneMetaData" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneMetaData"/>
     <!--
       - B E A N S
       -->
@@ -18,7 +18,7 @@
       - C O M P O N E N T S
       -->
     <component id="editPhoneForm" type="EditPhoneForm">
-        <binding name="endpoint" expression="endpoint"/>
+        <binding name="phoneMetaData" expression="phoneMetaData"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>    
     <component id="ok" type="Submit">

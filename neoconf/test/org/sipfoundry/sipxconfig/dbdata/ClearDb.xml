@@ -14,7 +14,7 @@
 <dataset>  
   <!-- new phone support -->  
   <table name="line"/>
-  <table name="endpoint"/>
+  <table name="phone"/>
   <table name="setting"/>
   <table name="storage"/>
   <table name="folder_setting"/>

@@ -22,52 +22,38 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneSummary;
+import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 /**
- * List all the phones/endpoints for management and details drill-down
+ * List all the phones/phones for management and details drill-down
  */
 public abstract class ManagePhones extends BasePage 
         implements PageRenderListener {
     
     public static final String PAGE = "ManagePhones";
     
-    // Return the model of the table
-    public abstract List getPhones();
-    
+    /** model of the table */
     public abstract void setPhones(List phones);
-    
-    public abstract PhoneSummary getCurrentRow();
-
-    public abstract void setCurrentRow(PhoneSummary currentPhone);
-    
-    public abstract void setCurrentLine(Line line);
-    
-    public abstract Line getCurrentLine();
     
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selected);
-    
-    public abstract IPrimaryKeyConvertor getIdConverter();
     
     public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
     public abstract PhoneContext getPhoneContext();
 
     /**
-     * When user clicks on link to edit a phone/endpoint
+     * When user clicks on link to edit a phone/phone
      */
     public void editPhone(IRequestCycle cycle) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
         Object[] params = cycle.getServiceParameters();
-        Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setEndpointId(endpointId);
+        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        page.setPhoneId(phoneId);
         cycle.activate(page);
     }
     
@@ -95,13 +81,12 @@ public abstract class ManagePhones extends BasePage
         PhoneContext phoneContext = getPhoneContext();
         
         SelectMap selections = getSelections();        
-        Iterator endpointIds = selections.getAllSelected().iterator();
-        while (endpointIds.hasNext()) {
-            Integer endpointId = (Integer) endpointIds.next();
-            Endpoint endpoint = phoneContext.loadEndpoint(endpointId);
-            Phone phone = phoneContext.getPhone(endpoint);
+        Iterator phoneIds = selections.getAllSelected().iterator();
+        while (phoneIds.hasNext()) {
+            Integer phoneId = (Integer) phoneIds.next();
+            Phone phone = phoneContext.loadPhone(phoneId);
             try {
-                phone.generateProfiles(endpoint);
+                phone.generateProfiles();
             } catch (IOException ioe) {
                 throw new RuntimeException("Error generating profiles", ioe);
             }
@@ -114,41 +99,40 @@ public abstract class ManagePhones extends BasePage
     public void pageBeginRender(PageEvent event_) {
         PhoneContext phoneContext = getPhoneContext();
         
-        setIdConverter(new PhoneSummaryDataSqueezer(phoneContext));
+        setIdConverter(new PhoneDataSqueezer(phoneContext));
 
         // Generate the list of phone items
-        setPhones(phoneContext.loadPhoneSummaries());
+        setPhones(phoneContext.loadPhones());
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }
     }
     
     /**
-     * PhoneSummary is not a make up object contructed of and endpoint and a phone
-     * object.  reconstruct it here from endpoint and phonecontext
+     * PhoneSummary is not a make up object contructed of and phone and a phone
+     * object.  reconstruct it here from phone and phonecontext
      */
-    static class PhoneSummaryDataSqueezer extends PhoneContextDataSqueezer {
+    static class PhoneDataSqueezer extends PhoneContextDataSqueezer {
         
-        PhoneSummaryDataSqueezer(PhoneContext context) {
-            super(context, Endpoint.class);
+        PhoneDataSqueezer(PhoneContext context) {
+            super(context, PhoneMetaData.class);
         }
 
         public Object getPrimaryKey(Object objValue) {
             Object pk = null;
             if (objValue != null) {
-                pk = ((PhoneSummary) objValue).getEndpoint().getPrimaryKey();
+                pk = ((Phone) objValue).getPhoneMetaData().getPrimaryKey();
             }
             
             return pk;
         }
 
         public Object getValue(Object objPrimaryKey) {           
-            Endpoint endpoint = (Endpoint) super.getValue(objPrimaryKey);
-            PhoneSummary summary = new PhoneSummary();
-            summary.setEndpoint(endpoint);
-            summary.setPhone(getPhoneContext().getPhone(endpoint));
+            PhoneMetaData phoneMeta = (PhoneMetaData) super.getValue(objPrimaryKey);
+            // reload object due to PhoneContext API (good) restriction
+            Phone phone = getPhoneContext().loadPhone(phoneMeta.getId());
             
-            return summary;
+            return phone;
         }
     }
 }

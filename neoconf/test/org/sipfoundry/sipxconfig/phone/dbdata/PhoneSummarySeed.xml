@@ -4,45 +4,45 @@
 	<folder
 		folder_id="1"
 		label="default"
-		resource="endpoint"/>
+		resource="phone"/>
 	<folder
 		folder_id="2"
 		label="default"
 		resource="line"/>
-	<endpoint 
+	<phone 
 		folder_id="1"
 		serial_number="999123456" 
-		endpoint_id="1" 
+		phone_id="1" 
 		name="unittest-sample phone1" 
-		phone_id="polycom300"/>
+		factory_id="polycom300"/>
 	<line 
 		line_id="1" 
 		folder_id="2"
-		endpoint_id="1" 
+		phone_id="1" 
 		position="0" 
 		user_id="4"/>
-	<endpoint 
+	<phone 
 		serial_number="999123457" 
 		folder_id="1"
-		endpoint_id="2" 
+		phone_id="2" 
 		name="unittest-sample phone2" 
-		phone_id="polycom300"/>		
-	<endpoint 
+		factory_id="polycom300"/>		
+	<phone 
 		serial_number="999123458" 
 		folder_id="1"
-		endpoint_id="3" 
+		phone_id="3" 
 		name="unittest-sample phone3" 
-		phone_id="polycom300"/>
+		factory_id="polycom300"/>
 	<line 
 		line_id="2" 
 		folder_id="2"
-		endpoint_id="3" 
+		phone_id="3" 
 		position="0" 
 		user_id="4"/>	
 	<line 
 		line_id="3" 
 		folder_id="2"
-		endpoint_id="3" 
+		phone_id="3" 
 		position="1" 
 		user_id="4"/>			
 </dataset>

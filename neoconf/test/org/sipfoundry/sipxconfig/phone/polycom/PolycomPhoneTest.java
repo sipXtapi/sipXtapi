@@ -17,24 +17,32 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.SipService;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PolycomPhoneTest extends TestCase {
             
+    public void testDefaults() throws Exception {
+        PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
+        Setting settings = helper.phone[0].getSettings();
+        assertEquals("sipfoundry.org", settings.getSetting("voIpProt")
+                .getSetting("server").getSetting("1").getSetting("address").getValue());
+    }
+
     public void testGenerateProfiles() throws Exception {
         Organization rootOrg = new Organization();
         rootOrg.setDnsDomain("localhost.localdomain");
 
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        helper.phone[0].generateProfiles(helper.endpoint[0]);
+        helper.phone[0].generateProfiles();
         
         // content of profiles is tested in individual base classes of ConfigurationTemplate
     }
     
     public void testRestartFailureNoLine() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        helper.endpoint[0].getLines().clear();
+        helper.phone[0].getPhoneMetaData().getLines().clear();
         try {
-            helper.phone[0].restart(helper.endpoint[0]);
+            helper.phone[0].restart();
             fail();
         } catch (RestartException re) {
             assertTrue(true);
@@ -73,7 +81,7 @@ public class PolycomPhoneTest extends TestCase {
 //        assertEquals(helper.line[0], helper.endpoint[0].getLines().get(0));
 
         helper.phone[0].setSipService(sip);
-        helper.phone[0].restart(helper.endpoint[0]);
+        helper.phone[0].restart();
         
         
         control.verify();

@@ -9,9 +9,7 @@
 	  -->
 	<property-specification name="phone" 
 		type="org.sipfoundry.sipxconfig.phone.Phone"/>
-	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-    <property-specification name="endpointId"
+    <property-specification name="phoneId"
         type="java.lang.Integer" persistent="yes"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
@@ -32,7 +30,7 @@
         <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="phoneLabel" type="PhoneLabel">
-        <binding name="endpoint" expression="endpoint"/>
+        <binding name="phone" expression="phone"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>
 </page-specification>

@@ -15,24 +15,24 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
- * Tapestry Page support for editing and creating new phone endpoints
+ * Tapestry Page support for editing and creating new phone phones
  */
 public abstract class EditPhone extends BasePage implements PageRenderListener {
     
     public static final String PAGE = "EditPhone"; 
 
-    public abstract Endpoint getEndpoint();
+    public abstract Phone getPhone();
     
-    public abstract void setEndpoint(Endpoint endpoint);
+    public abstract void setPhone(Phone phone);
     
     /** REQUIRED PROPERTY */
-    public abstract Integer getEndpointId();
+    public abstract Integer getPhoneId();
     
-    public abstract void setEndpointId(Integer id);
+    public abstract void setPhoneId(Integer id);
     
     public abstract PhoneContext getPhoneContext();
     
@@ -43,7 +43,7 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
 
     public void apply(IRequestCycle cycle_) {
         PhoneContext dao = getPhoneContext();
-        dao.storeEndpoint(getEndpoint());
+        dao.storePhone(getPhone());
     }
     
     public void cancel(IRequestCycle cycle) {
@@ -52,6 +52,6 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
     
     public void pageBeginRender(PageEvent event_) {
         PhoneContext context = getPhoneContext();
-        setEndpoint(context.loadEndpoint(getEndpointId()));
+        setPhone(context.loadPhone(getPhoneId()));
     }       
 }

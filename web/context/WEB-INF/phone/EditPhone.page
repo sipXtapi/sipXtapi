@@ -5,9 +5,9 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-    <property-specification name="endpointId"
+	<property-specification name="phone" 
+		type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
         type="java.lang.Integer" persistent="yes"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
@@ -20,13 +20,13 @@
       - C O M P O N E N T S
       -->
     <component id="editPhoneNavigation" type="PhoneNavigation">        
-        <binding name="endpoint" expression="endpoint"/>
+        <binding name="phone" expression="phone"/>
         <static-binding name="tab" value="EditPhone"/>
         <static-binding name="heading" value="Identification"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">
-        <binding name="endpoint" expression="endpoint"/>
+        <binding name="phoneMetaData" expression="phone.phoneMetaData"/>
         <binding name="phoneContext" expression="phoneContext"/>
     </component>    
     <component id="ok" type="Submit">

@@ -33,8 +33,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
     public void testGenerateProfile() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();        
         
-        PhoneConfiguration cfg = new PhoneConfiguration(
-            helper.phone[0], helper.endpoint[0]);
+        PhoneConfiguration cfg = new PhoneConfiguration(helper.phone[0]);
         
         cfg.setTemplate(helper.phone[0].getPhoneTemplate());
         CharArrayWriter out = new CharArrayWriter();

@@ -31,12 +31,12 @@ public class PhoneSummaryTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/PhoneSummarySeed.xml");
         
-        List summaries = m_context.loadPhoneSummaries();
+        List summaries = m_context.loadPhones();
         
         assertEquals(3, summaries.size());
-        PhoneSummary[] summariesArray = (PhoneSummary[]) summaries.toArray(new PhoneSummary[0]);
-        assertEquals(1, summariesArray[0].getLines().size());
-        assertEquals(0, summariesArray[1].getLines().size());
-        assertEquals(2, summariesArray[2].getLines().size());
+        Phone[] summariesArray = (Phone[]) summaries.toArray(new Phone[0]);
+        assertEquals(1, summariesArray[0].getLineCount());
+        assertEquals(0, summariesArray[1].getLineCount());
+        assertEquals(2, summariesArray[2].getLineCount());
     }
 }

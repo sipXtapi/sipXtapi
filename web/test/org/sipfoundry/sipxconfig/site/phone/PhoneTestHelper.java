@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.site.phone;
 import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
+import org.sipfoundry.sipxconfig.phone.LineMetaData;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 /**
@@ -26,9 +26,9 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
  */
 public class PhoneTestHelper {
     
-    public Endpoint[] endpoint;
+    public PhoneMetaData[] endpoint;
     
-    public Line[] line;
+    public LineMetaData[] line;
     
     public User[] user;
     
@@ -54,9 +54,9 @@ public class PhoneTestHelper {
 
     public void seedPhone(int count) {
         SiteTestHelper.home(m_tester);
-        endpoint = new Endpoint[count];
+        endpoint = new PhoneMetaData[count];
         for (int i = 0; i < endpoint.length; i++) {
-            endpoint[i] = new Endpoint();
+            endpoint[i] = new PhoneMetaData();
             String serNum = "000000000000" + i;
             endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
             m_tester.clickLink("NewPhone");
@@ -74,11 +74,11 @@ public class PhoneTestHelper {
         m_tester.clickLink("ManagePhones");        
         m_tester.clickLinkWithText(endpoint[0].getSerialNumber());
         m_tester.clickLinkWithText("Lines");
-        line = new Line[count];
+        line = new LineMetaData[count];
         for (int i = 0; i < line.length; i++) {
-            line[0] = new Line();
+            line[0] = new LineMetaData();
             line[0].setUser(user[0]);
-            line[0].setEndpoint(endpoint[0]);
+            line[0].setPhoneMetaData(endpoint[0]);
             endpoint[0].addLine(line[0]);
             m_tester.clickLink("AddUser");        
             m_tester.clickButton("user:search");

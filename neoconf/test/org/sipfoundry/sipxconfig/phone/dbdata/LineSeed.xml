@@ -4,21 +4,21 @@
 	<folder
 		folder_id="1"
 		label="default"
-		resource="endpoint"/>
+		resource="phone"/>
 	<folder
 		folder_id="2"
 		label="default"
 		resource="line"/>
-	<endpoint 
+	<phone 
 		serial_number="999123456" 
 		folder_id="1"
-		endpoint_id="1" 
+		phone_id="1" 
 		name="unittest-sample phone1" 
-		phone_id="polycom300"/>
+		factory_id="polycom300"/>
 	<line 
 		line_id="1" 
 		folder_id="2"
-		endpoint_id="1" 
+		phone_id="1" 
 		position="0" 
 		user_id="4"/>
 </dataset>

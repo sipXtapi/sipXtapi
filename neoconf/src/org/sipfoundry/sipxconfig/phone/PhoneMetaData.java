@@ -17,14 +17,12 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.setting.Folder;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
  * Database object representing an actualy physical phone you can touch.
  */
-public class Endpoint implements PrimaryKeySource, Serializable {
+public class PhoneMetaData implements PrimaryKeySource, Serializable {
     
     public static final String FOLDER_RESOURCE_NAME = "endpoint";
 
@@ -36,26 +34,44 @@ public class Endpoint implements PrimaryKeySource, Serializable {
 
     private String m_serialNumber;
 
-    private String m_phoneId;
+    private String m_factoryId;
 
     private ValueStorage m_valueStorage;
 
     private Folder m_folder;
 
     private List m_lines;
-
+    
+    private transient Phone m_phone;
+    
+    /** BEAN ACCESS ONLY **/
+    public PhoneMetaData() {    
+    }
+    
+    public PhoneMetaData(String factoryId) {
+        setFactoryId(factoryId);
+    }
+    
+    public Phone getPhone() {
+        return m_phone;
+    }
+    
+    public void setPhone(Phone phone) {
+        m_phone = phone;
+    }
+    
     /**
      * @return ids used in PhoneFactory
      */
-    public String getPhoneId() {
-        return m_phoneId;
+    public String getFactoryId() {
+        return m_factoryId;
     }
 
     /**
      * @param phoneId used in PhoneFactory
      */
-    public void setPhoneId(String phoneId) {
-        m_phoneId = phoneId;
+    public void setFactoryId(String phoneId) {
+        m_factoryId = phoneId;
     }
 
     public Integer getId() {
@@ -105,19 +121,6 @@ public class Endpoint implements PrimaryKeySource, Serializable {
         m_folder = folder;
     }
 
-    public Setting getSettings(Phone phone) {
-        Setting settings = phone.getSettingModel(this);
-        if (m_valueStorage == null) {
-            m_valueStorage = new ValueStorage();
-        }
-        
-        if (m_folder != null) {
-            settings = (SettingGroup) m_folder.decorate(settings);
-        }
-        
-        return (SettingGroup) m_valueStorage.decorate(settings);
-    }
-
     public List getLines() {
         return m_lines;
     }
@@ -126,13 +129,13 @@ public class Endpoint implements PrimaryKeySource, Serializable {
      * Sets endpoint and position values on line. Safer way then
      * calling getLines().add(line) 
      */
-    public void addLine(Line line) {
+    public void addLine(LineMetaData line) {
         List lines = getLines();
         if (lines == null) {
             lines = new ArrayList();
             setLines(lines);
         }
-        line.setEndpoint(this);
+        line.setPhoneMetaData(this);
         line.setPosition(lines.size());
         lines.add(line);
     }

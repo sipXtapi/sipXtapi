@@ -9,9 +9,9 @@
     <!--
     - P R O P E R T I E S
     -->
-    <property-specification name="endpoint"
-        type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-    <property-specification name="endpointId"
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
         type="java.lang.Integer" persistent="yes"/>    
     <property-specification name="returnPage"
         type="java.lang.String" persistent="yes"/>    

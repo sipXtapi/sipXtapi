@@ -15,7 +15,6 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -28,14 +27,14 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     
     public static final String PAGE = "PhoneSettings"; 
 
-    public abstract Integer getEndpointId();
+    public abstract Integer getPhoneId();
     
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setEndpointId(Integer id);
+    public abstract void setPhoneId(Integer id);
     
-    public abstract Endpoint getEndpoint();
+    public abstract Phone getPhone();
     
-    public abstract void setEndpoint(Endpoint endpoint);
+    public abstract void setPhone(Phone phone);
     
     public abstract String getParentSettingName();
     
@@ -49,10 +48,9 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
-        PhoneContext context = getPhoneContext();
-        setEndpoint(context.loadEndpoint(getEndpointId()));
-        Phone phone = context.getPhone(getEndpoint()); 
-        Setting root = getEndpoint().getSettings(phone);
+        Phone phone = getPhoneContext().loadPhone(getPhoneId()); 
+        setPhone(phone);
+        Setting root = getPhone().getSettings();
         Setting parent = root.getSetting(getParentSettingName());
         setParentSetting(parent);
     }
@@ -64,7 +62,7 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
 
     public void apply(IRequestCycle cycle_) {
         PhoneContext dao = getPhoneContext();
-        dao.storeEndpoint(getEndpoint());
+        dao.storePhone(getPhone());
     }
     
     public void cancel(IRequestCycle cycle) {

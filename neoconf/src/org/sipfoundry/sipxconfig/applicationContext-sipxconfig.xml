@@ -172,7 +172,7 @@
         <property name="settingDao">
             <ref bean="settingDaoImpl"/>            
         </property>
-		<property name="phoneIds">
+		<property name="phoneFactoryIds">
 			<list>
 				<value>polycom300</value>
 				<value>polycom500</value>
@@ -199,15 +199,18 @@
 	  - P H O N E  M O D E L S
 	  - hoping to move this external file for end user modification
 	  -->
-	<bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone">
+	<!-- POLYCOM -->
+	<bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomSupport">
 		<property name="coreContext">
 			<ref local="coreContext"/>
 		</property>
 		<property name="systemDirectory">
 			<value>${sysdir.etc}</value>
 		</property>                
-		<property name="modelId">
-			<value>polycom300</value>
+    </bean>		
+	<bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false">
+		<property name="polycom">
+			<ref bean="polycom"/>
 		</property>
 		<property name="velocityEngine">
 			<ref bean="velocityEngine"/>
@@ -216,19 +219,9 @@
 			<value>${sysdir.phone}/profile/tftproot</value>
 		</property>
 	</bean>
-	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300">
-		<property name="modelId">
-			<value>polycom500</value>
-		</property>
-	</bean>
-	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300">
-		<property name="modelId">
-			<value>polycom600</value>
-		</property>
-	</bean>
-	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		
-	</bean>
-
+	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300"/>
+	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300"/>
+	
 	<!--
 	  - D I A L   P L A N S
 	  - TODO: move to separate file

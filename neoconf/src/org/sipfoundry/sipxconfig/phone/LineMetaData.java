@@ -16,14 +16,12 @@ import java.io.Serializable;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
  * Association between Users and their assigned phones.
  */
-public class Line implements Serializable, DataCollectionItem {
+public class LineMetaData implements Serializable, DataCollectionItem {
 
     public static final String FOLDER_RESOURCE_NAME = "line";
 
@@ -37,9 +35,19 @@ public class Line implements Serializable, DataCollectionItem {
 
     private Folder m_folder;
 
-    private Endpoint m_endpoint;
+    private PhoneMetaData m_endpoint;
 
     private int m_position;
+    
+    private transient Line m_line;
+
+    public Line getLine() {
+        return m_line;
+    }
+    
+    public void setLine(Line line) {
+        m_line = line;
+    }
 
     public Integer getId() {
         return m_id;
@@ -77,11 +85,11 @@ public class Line implements Serializable, DataCollectionItem {
         return m_user.getDisplayId();
     }
 
-    public Endpoint getEndpoint() {
+    public PhoneMetaData getPhoneMetaData() {
         return m_endpoint;
     }
 
-    public void setEndpoint(Endpoint endpoint) {
+    public void setPhoneMetaData(PhoneMetaData endpoint) {
         m_endpoint = endpoint;
     }
     
@@ -96,17 +104,4 @@ public class Line implements Serializable, DataCollectionItem {
     public void setPosition(int position) {
         m_position = position;
     }
-
-    public Setting getSettings(Phone phone) {
-        Setting settings = phone.getSettingModel(this).copy();
-        if (m_valueStorage == null) {
-            m_valueStorage = new ValueStorage();
-        }
-        
-        if (m_folder != null) {
-            settings = (SettingGroup) m_folder.decorate(settings);
-        }
-        
-        return (SettingGroup) m_valueStorage.decorate(settings);
-    }    
 }

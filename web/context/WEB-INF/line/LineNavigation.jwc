@@ -35,8 +35,6 @@
       -->
     <property-specification name="currentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
-    <property-specification name="settings"
-        type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <!--
       - B E A N S
       -->
@@ -51,7 +49,7 @@
     </component>            
     <component id="lineTab" type="DirectLink">
         <binding name="listener" expression="listeners.editLine"/>
-        <binding name="parameters" expression="line.id"/>
+        <binding name="parameters" expression="line.lineMetaData.id"/>
         <binding name="class" expression="beans.tabs.getTabClass('EditLine')"/>
     </component>
     <component id="settingsTabs" type="Foreach">

@@ -4,32 +4,32 @@
 	<folder
 		folder_id="1"
 		label="default"
-		resource="endpoint"/>
+		resource="phone"/>
 	<folder
 		folder_id="2"
 		label="default"
 		resource="line"/>
-    <endpoint serial_number="999123456" 		
+    <phone serial_number="999123456" 		
 		folder_id="1"
-		endpoint_id="1000"
+		phone_id="1000"
         name="unittest-sample phone1"
-        phone_id="polycom300"/> 
+        factory_id="polycom300"/> 
     <line 
 		line_id="1000" 
 		folder_id="2"
-		endpoint_id="1000"
+		phone_id="1000"
 		position="0" 
 		user_id="4"/> 
     <line 
 		line_id="1001" 
 		folder_id="2"
-		endpoint_id="1000"
+		phone_id="1000"
 		position="1" 
 		user_id="4"/> 
     <line 
 		line_id="1002" 
 		folder_id="2"
-		endpoint_id="1000"
+		phone_id="1000"
 		position="2" 
 		user_id="4"/> 
 </dataset>
