@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configs>
+		<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
+	</configs>
+	<configSets>
+		<configSet>
+			<name>neoconf</name>
+			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
+			<configs>
+				<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
+			</configs>
+		</configSet>
+	</configSets>
+</beansProjectDescription>
