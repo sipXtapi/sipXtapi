@@ -53,7 +53,4 @@
         <binding name="delegate" expression="beans.validator"/>
         <binding name="listener" expression="listeners.formSubmit"/>
     </component>
-    <!--
-	  - A S S E T S
-	  -->	
 </page-specification>

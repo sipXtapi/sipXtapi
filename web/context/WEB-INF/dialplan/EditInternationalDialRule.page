@@ -23,19 +23,16 @@
     <!-- used by removeGateways submit button-->
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>    
-    
+
+    <property-specification name="phoneValidator">
+        global.sipXconfigContext.getBean("validPhoneRequired")
+    </property-specification>
+
     <!--
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
-    
-    <!-- phone validator - only digits, at least one -->
-    <bean name="phoneValidator" class="org.apache.tapestry.valid.PatternValidator" lifecycle="page">
-        <set-property name="patternString">"^\\d+$"</set-property>
-        <set-property name="patternNotMatchedMessage">"Please enter digits only, for example: 123"</set-property>
-        <set-property name="required">true</set-property>
-    </bean>
-                
+                    
     <!--
      - C O M P O N E N T S
      -->
@@ -62,8 +59,8 @@
     </component>
     <component id="internationalPrefix" type="ValidField">
         <binding name="value" expression="rule.internationalPrefix"/>
-        <binding name="validator" expression="beans.phoneValidator"/>
-        <static-binding name="displayName" value="PSTN Prefix"/>
+        <binding name="validator" expression="phoneValidator"/>
+        <static-binding name="displayName" value="International calls prefix"/>
     </component>
     
     <!-- gateways configuration -->

@@ -22,17 +22,16 @@
     
     <!-- not used on this page -->
 	<property-specification name="removeGateways" 
-		type="java.lang.String"/>    
-
+		type="java.lang.String"/>
+    
+    <property-specification name="phoneValidator">
+        global.sipXconfigContext.getBean("validPhone")
+    </property-specification>    
+        
     <!--
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
-    
-    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>
     
     <bean name="extensionLenModel" 
         class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
@@ -55,7 +54,7 @@
     
     <component id="extensionLenLabel" type="FieldLabel">
         <binding name="field" expression="components.extensionLen"/>
-        <static-binding name="displayName" value="Internal Station Extension Length"/>
+        <static-binding name="displayName" value="Internal station extension length"/>
     </component>
     <component id="extensionLen" type="PropertySelection">
         <binding name="value" expression="rule.localExtensionLen"/>
@@ -67,8 +66,8 @@
     </component>
     <component id="autoAttendant" type="ValidField">
         <binding name="value" expression="rule.autoAttendant"/>
-        <binding name="validator" expression="beans.nameValidator"/>
-        <static-binding name="displayName" value="Auto Attendant Extension"/>
+        <binding name="validator" expression="phoneValidator"/>
+        <static-binding name="displayName" value="Auto attendant extension"/>
     </component>
 
     <component id="voiceMailLabel" type="FieldLabel">
@@ -76,8 +75,8 @@
     </component>
     <component id="voiceMail" type="ValidField">
         <binding name="value" expression="rule.voiceMail"/>
-        <binding name="validator" expression="beans.nameValidator"/>
-        <static-binding name="displayName" value="Voice Mail Extension"/>
+        <binding name="validator" expression="phoneValidator"/>
+        <static-binding name="displayName" value="Voice mail extension"/>
     </component>
         
     <component id="voiceMailPrefixLabel" type="FieldLabel">
@@ -85,8 +84,8 @@
     </component>
     <component id="voiceMailPrefix" type="ValidField">
         <binding name="value" expression="rule.voiceMailPrefix"/>
-        <binding name="validator" expression="beans.nameValidator"/>
-        <static-binding name="displayName" value="Voicemail Inbox Prefix"/>
+        <binding name="validator" expression="phoneValidator"/>
+        <static-binding name="displayName" value="Voicemail inbox prefix"/>
     </component>
 
     <component id="onSave" type="Submit">

@@ -23,16 +23,11 @@
     <!-- used by removeGateways submit button-->
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>    
-    
+
     <!--
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
-    
-    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>
     
     <bean name="permissionsModel" 
         class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"

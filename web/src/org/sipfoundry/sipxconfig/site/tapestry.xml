@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- global beans used by tapestry pages -->
+<beans>
+    
+    <!-- V A L I D A T O R S -->
+    <!-- phone validator - only digits, at least one -->
+    <bean name="validPhone" class="org.apache.tapestry.valid.PatternValidator">
+        <property name="patternString">
+            <value>^\d+$</value>
+        </property>
+        <property name="patternNotMatchedMessage"><value>Please enter digits only, for example: 123</value></property>
+    </bean>
+
+    <bean name="validPhoneRequired" parent="validPhone">
+        <property name="required"><value>true</value></property>
+    </bean>
+    
+    <!-- phone sequence validator - comma separated list of area codes, can be empty -->
+    <bean name="validPhoneSequence" class="org.apache.tapestry.valid.PatternValidator">
+        <property name="patternString">
+            <value>^(\d+(\s*,?\s*))*$</value>
+        </property>
+        <property name="patternNotMatchedMessage">
+            <value>Please enter comma separated list of numbers, for example: 508, 212, 333</value>
+        </property>
+    </bean>
+
+    <bean name="validPhoneSequenceRequired" parent="validPhoneSequence">
+        <property name="required"><value>true</value></property>
+    </bean>
+</beans>

@@ -20,11 +20,6 @@
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
     
-    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>
-    
     <bean name="ruleTypeModel" 
         class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
         lifecycle="page">
@@ -46,12 +41,5 @@
     
     <component id="next" type="Submit">
         <binding name="listener" expression="listeners.next"/>
-    </component>
-    
-    <!-- gateways configuration -->
-    
-
-    <!--
-	 - A S S E T S
-	 -->	
+    </component>    
 </page-specification>

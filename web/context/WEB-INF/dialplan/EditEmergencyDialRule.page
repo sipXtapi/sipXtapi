@@ -24,15 +24,14 @@
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>    
     
+    <property-specification name="phoneValidator">
+        page.global.sipXconfigContext.getBean("validPhoneRequired")
+    </property-specification>    
+    
     <!--
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
-    
-    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>
     
     <!--
      - C O M P O N E N T S
@@ -60,8 +59,8 @@
     </component>
     <component id="emergencyNumber" type="ValidField">
         <binding name="value" expression="rule.emergencyNumber"/>
-        <binding name="validator" expression="beans.nameValidator"/>
-        <static-binding name="displayName" value="Emergency Number"/>
+        <binding name="validator" expression="phoneValidator"/>
+        <static-binding name="displayName" value="Emergency number"/>
     </component>
     
     <!-- gateways configuration -->

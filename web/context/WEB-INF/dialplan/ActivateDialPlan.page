@@ -18,7 +18,6 @@
         @org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES
     </property-specification>
 
-        
     <!--
      - B E A N S
      -->
@@ -30,8 +29,6 @@
         <set-property name="enumClass" 
         	expression="@org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@class"/>
     </bean>
-        
-    
     <!--
      - C O M P O N E N T S
      -->
@@ -48,14 +45,10 @@
         <binding name="value" expression="xml"/>
     </component>
     
-    
-    
     <component id="activate" type="Submit">
         <binding name="listener" expression="listeners.activate"/>
     </component>
     <component id="cancel" type="CancelButton">
         <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
     </component>
-    
-    
 </page-specification>

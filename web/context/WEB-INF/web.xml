@@ -5,7 +5,10 @@
 	<display-name>sipXconfig-web</display-name>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</param-value>
+		<param-value>
+            classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml
+			classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml
+        </param-value>
 	</context-param>
 	<filter>
 		<filter-name>hibernateFilter</filter-name>
