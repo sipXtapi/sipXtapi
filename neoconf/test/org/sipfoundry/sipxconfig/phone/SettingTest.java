@@ -24,23 +24,5 @@ public class SettingTest extends TestCase {
         Object value = new Object();
         Setting s = new Setting("setting", value);
         assertEquals(value, s.getValue());
-        
-        /*
-        try {
-            s.addSetting(new Setting());
-            fail("Should not be able to set setting on leaf node");
-        }
-        catch (IllegalArgumentException expected) {
-            assertEquals(0, s.getSettings().size());
-        }
-
-        try {
-            s.getSetting("foobar");
-            fail("Settings should not be gettable on leaf node");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        */        
     }
 }

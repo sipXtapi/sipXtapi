@@ -9,35 +9,30 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.vendor;
+package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneTestHelper;
-import org.sipfoundry.sipxconfig.phone.SettingSet;
 import org.sipfoundry.sipxconfig.settings.NetworkSettings;
 import org.sipfoundry.sipxconfig.settings.PhoneSettings;
 
 /**
  * Comments
  */
-public class PolycomPhoneTest extends TestCase {
-        
+public class GenericPhoneTest extends TestCase {
+    
     public void testFactoryCreation() {
         PhoneContext phoneContext = PhoneTestHelper.getPhoneContext();
         Endpoint endpoint = new Endpoint();
-        endpoint.setPhoneId(PolycomPhone.MODEL_300);
+        endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
         Phone phone = phoneContext.getPhone(endpoint);
         assertNotNull(phone);
     }
     
     public void testSettings() {
-        PolycomPhone phone = new PolycomPhone();
+        GenericPhone phone = new GenericPhone();
         PhoneSettings settings = (PhoneSettings) phone.getSettings(new SettingSet());
         NetworkSettings network = settings.getNetworkSettings();
-        network.getSetting("tftpServer").setValue("hey there");
+        network.defaultSetting("proxy", "localhost");
     }
 }

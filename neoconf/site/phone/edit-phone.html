@@ -16,17 +16,12 @@
 						<input jwcid="@TextField" value="ognl:endpoint.serialNumber"/>
 					</td>
 				</tr>
-			</table>
-			<hr/>
-			<h3>Polycom Soundpoint IP 300</h3>
-			<table>
-				<tr>
-					<td>Boot (TFTP) Server:</td>
-					<td>
-						<input type="text" name="bootServer"/>
-					</td>
-					<td>(default value: shrike.pingtel.com)</td>
-				</tr>
+                <tr>
+                    <td>Model</td>
+                    <td>
+                        <span jwcid="@PropertySelection" model="ognl:phoneContext.model" value="ognl:endpoint.phoneId"/>
+                     </td>
+                 </tr>
 			</table>
 			<ul class="form-actions">
 				<li>
@@ -38,17 +33,5 @@
 			</ul>
 		</form>
 	</div>
-	<hr/>
-	<h3>NOTES:</h3>
-	<ol>
-		<li>Polycom has hundreds of settings. The point of this prototype is 
-			not to delve into each of them but to show how one would access 
-			them.</li>
-		<li>Goals for adding items to this page are the following: <ul> <li>Do 
-			not overwhelm user with too many settings</li> <li>Allow all 
-			settings to be configured thru some mechanism.</li> <li>Make it 
-			obvisous which settings are vital for phone operation</li> </ul> 
-			</li>
-	</ol>
 </body>
 </html>

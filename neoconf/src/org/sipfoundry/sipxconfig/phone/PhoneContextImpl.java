@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.List;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
@@ -23,6 +25,8 @@ public class PhoneContextImpl implements BeanFactoryAware, PhoneContext {
     private PhoneDao m_dao;
 
     private BeanFactory m_beanFactory;
+    
+    private List m_phoneIds;
 
     /**
      * Callback that supplies the owning factory to a bean instance.
@@ -46,5 +50,13 @@ public class PhoneContextImpl implements BeanFactoryAware, PhoneContext {
 
     public void setPhoneDao(PhoneDao dao) {
         m_dao = dao;
-    }    
+    }
+    
+    public List getPhoneIds() {
+        return m_phoneIds;
+    }
+
+    public void setPhoneIds(List phoneIds) {
+        m_phoneIds = phoneIds;
+    }
 }

@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.List;
+
 
 
 /**
@@ -23,4 +25,9 @@ public interface PhoneContext {
     public void setPhoneDao(PhoneDao dao);
         
     public Phone getPhone(Endpoint endpoint);
+    
+    public List getPhoneIds();
+
+    public void setPhoneIds(List phoneIds);
+
 }

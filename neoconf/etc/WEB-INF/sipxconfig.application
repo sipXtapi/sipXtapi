@@ -4,13 +4,7 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 	
 <application name="sipxconfig"
-      engine-class="org.sipfoundry.sipxconfig.site.SipxconfigEngine">
-      
-  <property name="org.apache.tapestry.visit-class" value="org.sipfoundry.sipxconfig.site.Visit"/>
-  <property name="org.apache.tapestry.template-encoding" value="ISO-8859-1"/>
-  
-  <service name="home" class="org.sipfoundry.sipxconfig.site.SipxconfigHomeService"/>
-         
-  <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
-  
+      engine-class="org.sipfoundry.sipxconfig.site.SipxconfigEngine">      
+  <property name="org.apache.tapestry.template-encoding" value="ISO-8859-1"/>         
+  <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>  
 </application>

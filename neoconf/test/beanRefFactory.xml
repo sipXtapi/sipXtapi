@@ -17,7 +17,7 @@
         class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
        <list>
-         <!-- Daos must be mocked in unittest, see PhoneDaoImplTestDb.java -->   
+         <!-- Daos must be mocked in unittest -->   
          <value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
        </list>
      </constructor-arg>

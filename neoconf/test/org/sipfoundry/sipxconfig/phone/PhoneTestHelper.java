@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import junit.framework.TestCase;
-
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
@@ -20,13 +18,20 @@ import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 /**
  * Comments
  */
-public class PhoneContextTest extends TestCase {
+public class PhoneTestHelper {
+
+    public static PhoneContext getPhoneContext() {
+        return getPhoneContext("unittest");
+    }
+
+    public static PhoneContext getPhoneContextWithDb() {
+        return getPhoneContext("unittest-db");
+    }
     
-    public void testInstantiation() {
+    private static PhoneContext getPhoneContext(String factory) {
         BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
-        BeanFactoryReference bf = bfl.useBeanFactory("unittest");
+        BeanFactoryReference bf = bfl.useBeanFactory(factory);
         // now use some bean from factory
-        PhoneContext phoneContext = (PhoneContext) bf.getFactory().getBean("phoneContext");
-        assertNotNull(phoneContext);
-   }
+        return (PhoneContext) bf.getFactory().getBean("phoneContext");        
+    }
 }
