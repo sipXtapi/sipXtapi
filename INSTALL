@@ -82,6 +82,11 @@ Set up Postgresql Database
   /usr/local/sipx/bin/sipxdbmgr --create SDS
 
 
+SSL Initialization
+==================
+
+See the instructions in doc/ssl/INSTALL.ssl
+
 Optional SOAP Access
 ====================
 
