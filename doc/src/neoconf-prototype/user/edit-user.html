@@ -6,19 +6,36 @@
 		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
 	</head>
 	<body id="registration">
+        	<div class="tabArea">
+				<a class="tab active" href="edit-user.html">User</a>
+				<a class="tab" href="phones.html">Phones</a>
+			</div>
+			<p><span class="page-label">Line:</span> 160@wallyco.com</p>
 		<div id="component">
 			<div id="help">Here will be hints on what fields to set if you want 
 				to get started right away and what fields you can ignore unless 
 				you know what you are doing. This text will be specific to the 
 				phone model and can even be specific to other settings.</div>
-			<h2>Edit User</h2>
+			<h2>User</h2>
 			<p>If you are configuring the phone itself from
                 outside this system, be sure to enter the same information
                 in this form as you do on the phone, including the password,
                 inorder for the PBX to authorize that user to make and recieve
                 calls</p>
-			<form action="lines.html">
+			<form action="#">
 				<table>
+					<tr>
+						<td>First Name:</td>
+						<td>
+							<input type="text" name="userId"/>
+						</td>
+					</tr>
+					<tr>
+						<td>Last Name:</td>
+						<td>
+							<input type="text" name="userId"/>
+						</td>
+					</tr>
 					<tr>
 						<td>User ID:</td>
 						<td>
@@ -46,10 +63,15 @@
 				</table>
 				<ul class="form-actions">
 					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
+						<input type="button" value="Cancel"
+					            onclick="location.href='users.html'"/>
 					</li>
 					<li>
-						<input type="submit" name="save" value="OK"/>
+						<input type="button" value="Apply"/>
+					</li>
+					<li>
+						<input type="button" value="OK"
+					            onclick="location.href='users.html'"/>
 					</li>
 				</ul>
 			</form>

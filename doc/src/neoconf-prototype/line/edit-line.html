@@ -9,35 +9,31 @@
 		<div id="component">
  		<div class="tabArea">
 			<a class="tab active" href="edit-line.html">Line</a>
-			<a class="tab" href="phones.html">Phones</a>			
+			<a class="tab" href="#">Call Handling</a>			
+			<a class="tab" href="#">Secondary Server</a>
 		</div>
-			<p><span class="page-label">Line:</span> 160@wallyco.com</p>
-			<div id="help">
-				<b>Quick Links</b>
-				<ul>
-					<li><a href="select-phones.html">Add another phone to this line?</a></li>
-			    </ul>
-			</div>
+			<p><span class="page-label">Line:</span>160@wallyco.com<br/>
+			<span class="page-label">Phone:</span> Joe's work phone/Polycom Soundpoint&reg; IP 300</p>
+			<div id="help">Here will be hints on what fields to set if you want 
+				to get started right away and what fields you can ignore unless 
+				you know what you are doing. This text will be specific to the 
+				phone model and can even be specific to other settings.</div>
 			<h2>Line</h2>
-			<p>Phones can register with multiple identities with different 
-				registration servers or even same registration server. For 
-				example if you want to recieve calls for both 
-				jsmith@mycompany.com, and sales@mycompany.com with the same 
-				registration server and you wanted to recieve calls from 
-				snowboarder113@fwd.com, you would enter all that information 
-				here.</p>
-			<form action="lines.html">
+			<p>You may not have to edit any information regarding your
+                        Polycom 300 Line. This text will be specific to the 
+				phone model and can even be specific to other settings.</p>
+			<form action="#">
 				<table>
 					<tr>
 						<td>Registration Server:</td>
 						<td>
-							<input type="text" name="server" value="sipxpbx.wallyco.com"/>
+							<input type="text" name="server" value=""/>
 						</td>
 					</tr>
 					<tr>
 						<td>Authorization User ID:</td>
 						<td>
-							<input type="text" name="userId" value="jsmith"/>
+							<input type="text" name="userId" value=""/>
 						</td>
 					</tr>
 					<tr>
@@ -53,12 +49,6 @@
 						</td>
 					</tr>
 					<tr>
-						<td>Extension:</td>
-						<td>
-							<input type="text" name="extension"/>
-						</td>
-					</tr>
-					<tr>
 						<td>Type of registration:</td>
 						<td>
 							<select name="type">
@@ -70,14 +60,15 @@
 				</table>
 				<ul class="form-actions">
 					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
+						<input type="button" name="cancel" value="Cancel"
+					                onclick="history.go(-1)"/>
 					</li>
 					<li>
-						<input type="button" name="apply" value="Apply"
-							onclick="javascript:location.href='#';"/>
+						<input type="button" name="apply" value="Apply"/>
 					</li>
 					<li>
-						<input type="submit" name="save" value="OK"/>
+						<input type="button" name="save" value="OK"
+					                onclick="history.go(-1)"/>
 					</li>
 				</ul>
 			</form>

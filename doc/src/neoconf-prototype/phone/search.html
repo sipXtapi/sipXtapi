@@ -8,9 +8,9 @@
 	<body id="registration-edit">
 		<div id="component">
 			<div id="help">Here will be hints on what fields...</div>
-			<h2>Select Phones</h2>
-			<p>Search for phones by any of the following criteria.</p>
-			<form action="select-phones-results.html">
+			<h2>Add Phone</h2>
+			<p>Search for phones by <b>any</b> of the following criteria.</p>
+			<form action="#">
 				<table>
 					<tr>
 						<td>Serial Number:</td>
@@ -27,11 +27,12 @@
 				</table>
 				<ul class="table-actions">
 					<li>
-						<input type="submit" name="" value="Search"/>
+						<input type="button" name="" value="Cancel" 
+							onclick="history.go(-1)"/>
 					</li>
 					<li>
-						<input type="button" name="" value="Cancel" 
-							onclick="javascript:location.href='phones.html';"/>
+						<input type="button" name="" value="Search" 
+							onclick="location.href='search-results.html'"/>
 					</li>
 				</ul>
 			</form>

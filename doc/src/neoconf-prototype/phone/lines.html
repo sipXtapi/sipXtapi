@@ -8,10 +8,10 @@
 	<body id="registration-edit">
 		<div id="component">
 			<div class="tabArea">
-				<a class="tab" href="edit-phone.html">Device Identification</a>
+ 				<a class="tab" href="edit-phone.html">Device Identification</a>
 				<a class="tab active" href="lines.html">Lines</a>
-				<a class="tab" href="proxy.html">Outbound Proxy</a>
-				<a class="tab" href="network.html">Network</a>
+				<a class="tab" href="#">Outbound Proxy</a>
+				<a class="tab" href="#">Network</a>
 			</div>
 			<p><span class="page-label">Phone:</span> Joe's work phone/Polycom 
 				Soundpoint&reg; IP 300</p>
@@ -27,13 +27,13 @@
 				registration server and you wanted to recieve calls from 
 				snowboarder113@fwd.com, you would enter all that information 
 				here.</p>
-			<form action="phones.html">
+			<form action="#">
 				<ul class="component-actions">
 					<li>
 						<a href="../line/new-line.html">Create New Line</a>
 					</li>
 					<li>
-						<a href="select-lines.html">Add Line</a>
+						<a href="../user/search.html">Add User</a>
 					</li>
 				</ul>
 				<table class="table-view">
@@ -54,7 +54,7 @@
 							<input type="checkbox" name="id1"/>
 						</td>
 						<td>
-							<a href="../line/phones.html">"Joe 
+							<a href="../line/edit-line.html">"Joe 
 								Smith"&lt;sip:jsmith@wallyco.com&gt;</a>
 						</td>
 						<td>sipxpbx01.wallyco.com</td>
@@ -65,7 +65,7 @@
 							<input type="checkbox" name="id1"/>
 						</td>
 						<td>
-							<a href="../line/phones.html">"Wally Co. 
+							<a href="../line/edit-line.html">"Wally Co. 
 								Sales"&lt;sip:sales@wallyco.com&gt;</a>
 						</td>
 						<td>sipxpbx01.wallyco.com</td>
@@ -79,14 +79,15 @@
 				</ul>
 				<ul class="form-actions">
 					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
+						<input type="button" name="cancel" value="Cancel"
+					            onclick="location.href='phones.html'"/>
 					</li>
 					<li>
-						<input type="button" name="apply" value="Apply" 
-							onclick="javascript:location.href='#';"/>
+						<input type="button" name="apply" value="Apply"/>
 					</li>
 					<li>
-						<input type="submit" name="save" value="OK"/>
+						<input type="button" name="save" value="OK"
+    					                onclick="location.href='phones.html'"/>
 					</li>
 				</ul>
 			</form>

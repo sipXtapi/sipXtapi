@@ -7,19 +7,16 @@
 	</head>
 	<body id="registration">
 		<div id="component">
+         		<p><span class="page-label">Phone:</span> Joe's work phone/Polycom Soundpoint&reg; IP 300</p>
 			<div id="help">Here will be hints on what fields to set if you want 
 				to get started right away and what fields you can ignore unless 
 				you know what you are doing. This text will be specific to the 
 				phone model and can even be specific to other settings.</div>
 			<h2>Create Line</h2>
-			<p>Phones can register with multiple identities with different 
-				registration servers or even same registration server. For 
-				example if you want to recieve calls for both 
-				jsmith@mycompany.com, and sales@mycompany.com with the same 
-				registration server and you wanted to recieve calls from 
-				snowboarder113@fwd.com, you would enter all that information 
-				here.</p>
-			<form action="lines.html">
+			<p>You may not have to edit any information regarding your
+                        Polycom 300 Line. This text will be specific to the 
+				phone model and can even be specific to other settings.</p>
+			<form action="#">
 				<table>
 					<tr>
 						<td>Registration Server:</td>
@@ -46,12 +43,6 @@
 						</td>
 					</tr>
 					<tr>
-						<td>Extension:</td>
-						<td>
-							<input type="text" name="extension"/>
-						</td>
-					</tr>
-					<tr>
 						<td>Type of registration:</td>
 						<td>
 							<select name="type">
@@ -67,37 +58,23 @@
 				</table>
 				<ul class="form-actions">
 					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
-					</li>
-					<li>
-						<input type="submit" name="save" value="OK"/>
-					</li>
-				</ul>
-    			<code>------- visible buttons when editing a phone ---------</code>
-         		<p><span class="page-label">Phone:</span> Joe's work phone/Polycom Soundpoint&reg; IP 300</p>
-				...
-				<ul class="form-actions">
-					<li>
-						<input type="button" name="cancel" value="Cancel" 
-							onclick="javascript:location.href='../phone/lines.html';"/>
+						<input type="button" name="cancel" value="Cancel"
+					           onclick="history.go(-1)"/>
 					</li>
 					<li>
 						<input type="button" name="save" value="OK"
-							onclick="javascript:location.href='../phone/lines.html';"/>
+            					    onclick="history.go(-1)"/>
 					</li>
 				</ul>
-
-				<code>------- visible buttons when creating a new phone ---------</code>
-         		<p><span class="page-label">Phone:</span> Joe's work phone/Polycom Soundpoint&reg; IP 300</p>
-				...
+			<code>------- visible buttons when creating a new phone ---------</code>
 				<ul class="form-actions">
 					<li>
-						<input type="button" name="cancel" value="Cancel" 
-							onclick="javascript:location.href='../phone/phones.html';"/>
+						<input type="button" name="cancel" value="Cancel"
+					           onclick="history.go(-1)"/>
 					</li>
 					<li>
 						<input type="button" name="save" value="Finish"
-							onclick="javascript:location.href='../phone/phones.html';"/>
+					           onclick="history.go(-2)"/>
 					</li>
 				</ul>
 			</form>

@@ -8,38 +8,49 @@
 	<body id="registration-edit">
 		<div id="component">
 			<div id="help">Here will be hints on what fields...</div>
-			<h2>Select Lines</h2>
-			<p>Search for lines by any of the following criteria.</p>
-			<form action="select-lines-results.html">
+			<h2>Add User</h2>
+			<p>Search for lines by <b>any</b> of the following criteria.</p>
+			<form action="#">
 				<table>
 					<tr>
-						<td>User Id:</td>
-						<td><input type="text" name="userId" value="joe"/></td>
+						<td>First Name:</td>
+						<td><input type="text"/></td>
+					</tr>
+					<tr>
+						<td>Last Name:</td>
+						<td><input type="text"/></td>
 					</tr>
 					<tr>
 						<td>Extension:</td>
-						<td><input type="text" name="extension"/></td>
+						<td><input type="text"/></td>
+					</tr>
+					<tr>
+						<td>User Id:</td>
+						<td><input type="text"/></td>
 					</tr>
 				</table>
 				<ul class="table-actions">
 					<li>
-						<input type="submit" name="" value="Search"/>
+						<input type="button" name="" value="Search"/>
 					</li>
 					<li>
-						<input type="button" name="" value="Cancel" 
-							onclick="javascript:location.href='lines.html';"/>
+						<input type="button" name="" value="Cancel"
+					             onclick="history.go(-2)"/>
 					</li>
 				</ul>
 			</form>
 			<form action="lines.html">
-							<table class="table-view">
+			<table class="table-view">
 				<tr class="table-view-hdr">
 					<th></th>
 					<th>
-						<a href="#">Line</a>
+						<a href="#">User ID</a>
 					</th>
 					<th>
 						<a href="#">Phones</a>
+					</th>
+					<th>
+						<a href="#">Ext.</a>
 					</th>
 				</tr>
 				<tr class="odd">
@@ -47,10 +58,13 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						160
+						joe
 					</td>
 					<td>
 						joe's work phone, ...
+					</td>
+					<td>
+						160
 					</td>
 				</tr>
 				<tr class="even">
@@ -58,18 +72,22 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						145
+						mfalco
 					</td>
 					<td>
-						joe's home phone
+						0042402f2f423
+					</td>
+					<td>
+					       145
 					</td>
 				</tr>
 				</table>
-			<ul class="table-actions">
-				<li>
-					<input type="submit" name="" value="Select"/>
-				</li>
-			</ul>
+				<ul class="table-actions">
+					<li>
+						<input type="button" name="" value="Select" 
+							onclick="javascript:history.go(-2);"/>
+					</li>
+				</ul>
 			</form>
 		</div>
 		<hr/>

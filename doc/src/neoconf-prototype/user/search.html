@@ -8,10 +8,22 @@
 	<body id="registration-edit">
 		<div id="component">
 			<div id="help">Here will be hints on what fields...</div>
-			<h2>Select Lines</h2>
-			<p>Search for lines by any of the following criteria.</p>
-			<form action="select-lines-results.html">
+			<h2>Add User</h2>
+			<p>Search for lines by <b>any</b> of the following criteria.</p>
+			<form action="#">
 				<table>
+					<tr>
+						<td>First Name:</td>
+						<td><input type="text"/></td>
+					</tr>
+					<tr>
+						<td>Last Name:</td>
+						<td><input type="text"/></td>
+					</tr>
+					<tr>
+						<td>Extension:</td>
+						<td><input type="text"/></td>
+					</tr>
 					<tr>
 						<td>User Id:</td>
 						<td><input type="text"/></td>
@@ -19,11 +31,12 @@
 				</table>
 				<ul class="table-actions">
 					<li>
-						<input type="submit" name="" value="Search"/>
+						<input type="button" name="" value="Search"
+					              onclick="location.href='search-results.html'"/>
 					</li>
 					<li>
 						<input type="button" name="" value="Cancel" 
-							onclick="javascript:location.href='lines.html';"/>
+							onclick="history.go(-1)"/>
 					</li>
 				</ul>
 			</form>

@@ -21,6 +21,18 @@
 			<form action="lines.html">
 				<table>
 					<tr>
+						<td>First Name:</td>
+						<td>
+							<input type="text" name="userId"/>
+						</td>
+					</tr>
+					<tr>
+						<td>Last Name:</td>
+						<td>
+							<input type="text" name="userId"/>
+						</td>
+					</tr>
+					<tr>
 						<td>User ID:</td>
 						<td>
 							<input type="text" name="userId"/>
@@ -44,44 +56,26 @@
 							<input type="text" name="extension"/>
 						</td>
 					</tr>
-					<tr>
-						<td colspan="2"><input type="checkbox" name="more"/> 
-							create another user after this one?</td>
-					</tr>
 				</table>
 				<ul class="form-actions">
 					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
-					</li>
-					<li>
-						<input type="submit" name="save" value="OK"/>
-					</li>
-				</ul>
-    			<code>------- visible buttons when editing a phone ---------</code>
-         		<p><span class="page-label">Phone:</span> Joe's work phone/Polycom Soundpoint&reg; IP 300</p>
-				...
-				<ul class="form-actions">
-					<li>
 						<input type="button" name="cancel" value="Cancel" 
-							onclick="javascript:location.href='../phone/lines.html';"/>
-					</li>
-					<li>
-						<input type="button" name="save" value="OK"
-							onclick="javascript:location.href='../phone/lines.html';"/>
-					</li>
-				</ul>
-
-				<code>------- visible buttons when creating a new phone ---------</code>
-         		<p><span class="page-label">Phone:</span> Joe's work phone/Polycom Soundpoint&reg; IP 300</p>
-				...
-				<ul class="form-actions">
-					<li>
-						<input type="button" name="cancel" value="Cancel" 
-							onclick="javascript:location.href='../phone/phones.html';"/>
+							onclick="history.go(-1)"/>
 					</li>
 					<li>
 						<input type="button" name="save" value="Finish"
-							onclick="javascript:location.href='../phone/phones.html';"/>
+							onclick="history.go(-1)"/>
+					</li>
+				</ul>
+				<code> .... from <b>New Phone</b> page</code>
+				<ul class="form-actions">
+					<li>
+						<input type="button" name="cancel" value="Cancel" 
+							onclick="history.go(-2)"/>
+					</li>
+					<li>
+						<input type="button" name="save" value="Finish"
+							onclick="history.go(-2)"/>
 					</li>
 				</ul>
 			</form>

@@ -8,7 +8,7 @@
 	<body id="registration-edit">
 		<div id="component">
 			<div class="tabArea">
-				<a class="tab" href="edit-line.html">Line</a>
+				<a class="tab" href="edit-user.html">Line</a>
 				<a class="tab active" href="phones.html">Phones</a>
 			</div>
 			<p><span class="page-label">Line:</span> 160@wallyco.com</p>
@@ -24,10 +24,10 @@
 				registration server and you wanted to recieve calls from 
 				snowboarder113@fwd.com, you would enter all that information 
 				here.</p>
-			<form action="lines.html">
+			<form action="#">
 				<ul class="component-actions">
 					<li>
-						<a href="select-phones.html">Add Phone</a>
+						<a href="../phone/search.html">Add Phone</a>
 					</li>
 				</ul>
 				<table class="table-view">
@@ -61,19 +61,20 @@
 				</table>
 				<ul class="table-actions">
 					<li>
-						<input type="submit" name="" value="Remove"/>
+						<input type="button" name="" value="Remove"/>
 					</li>
 				</ul>
 				<ul class="form-actions">
 					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
+						<input type="button" value="Cancel"
+					            onclick="location.href='users.html'"/>
 					</li>
 					<li>
-						<input type="button" name="apply" value="Apply" 
-							onclick="javascript:location.href='#';"/>
+						<input type="button" value="Apply"/>
 					</li>
 					<li>
-						<input type="submit" name="save" value="OK"/>
+						<input type="button" value="OK"
+					            onclick="location.href='users.html'"/>
 					</li>
 				</ul>
 			</form>

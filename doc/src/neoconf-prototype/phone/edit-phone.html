@@ -9,9 +9,9 @@
 		<div id="component">
  		<div class="tabArea">
 			<a class="tab active" href="edit-phone.html">Device Identification</a>
-			<a class="tab" href="lines.html">Lines</a>			
-			<a class="tab" href="proxy.html">Outbound Proxy</a>
-			<a class="tab" href="network.html">Network</a>
+			<a class="tab" href="lines.html">Lines</a>
+			<a class="tab" href="#">Outbound Proxy</a>
+			<a class="tab" href="#">Network</a>
 		</div>
 			<p><span class="page-label">Phone:</span> Joe's work phone/Polycom Soundpoint&reg; IP 300</p>
 			<div id="help">
@@ -23,7 +23,7 @@
 			<h2>Device Identification</h2>
 			<p>Serial number is a unique id for this device. Generally it's the 
 				phone's MAC address and </p>
-			<form action="phones.html">
+			<form action="#">
 				<table>
 					<tr>
 						<td>Serial #:</td>
@@ -40,14 +40,15 @@
 				</table>
 				<ul class="form-actions">
 					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
+						<input type="button" name="cancel" value="Cancel"
+					           onclick="location.href='phones.html'"/>
 					</li>
 					<li>
-						<input type="button" name="apply" value="Apply"
-							onclick="javascript:location.href='#';"/>
+						<input type="button" name="apply" value="Apply"/>
 					</li>
 					<li>
-						<input type="submit" name="save" value="OK"/>
+						<input type="button" name="save" value="OK"
+					           onclick="location.href='phones.html'"/>
 					</li>
 				</ul>
 			</form>

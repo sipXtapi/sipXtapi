@@ -14,7 +14,7 @@
 			<h2>Create Phone</h2>
 			<p>Serial number is a unique id for this device. Generally it's the 
 				phone's MAC address and </p>
-			<form action="phones.html">
+			<form action="#">
 				<table>
 					<tr>
 						<td>Serial #:</td>
@@ -33,7 +33,6 @@
 						<td>
 							<select name="model">
 								<option>-- select one --</option>
-								<option>Generic SIP device</option>
 								<option>Polycom Soundpoint IP 300</option>
 								<option>Polycom Soundpoint IP 500</option>
 								<option>Polycom Soundpoint IP 600</option>
@@ -47,20 +46,18 @@
 				</table>
 				<ul class="form-actions">
 					<li>
-						<input type="button" name="cancel" value="Cancel" 
-							onclick="javascript:location.href='phones.html';"/>
+						<input type="button" name="cancel" value="Cancel"
+					           onclick="history.go(-1)"/>
 					</li>
 					<li>
-						<input type="submit" name="next" value="Finish"/>
+						<input type="button" name="save" value="Finish"
+            					    onclick="location.href='history.go(-1)'"/>
 					</li>
 					<li>
-						<input type="button" name="next" value="Next"
-							onclick="javascript:location.href='../line/new-line.html';"/>
+						<input type="button" name="save" value="Next"
+            					    onclick="location.href='../user/new-user.html'"/>
 					</li>
 				</ul>
-				<a href="../line/phones.html">
-					<code>[back to editing line]</code>
-				</a>
 			</form>
 		</div>
 	</body>

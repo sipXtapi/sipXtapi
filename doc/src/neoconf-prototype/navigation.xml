@@ -14,8 +14,8 @@
 	</menu>
 	<item name="polycom" href="#" title="Polycom">Polycom</item>
 	<menu>
-        <item name="additionalDevices" href="phone/phones.html" title="Additional Devices Types">Phones</item>
-        <item name="additionalDevices" href="line/lines.html" title="Additional Devices Types">Lines</item>		
+        <item name="additionalDevices" href="phone/phones.html" title="Polycom Phones">Phones</item>
+        <item name="additionalDevices" href="user/users.html" title="Polycom Users">Users</item>		
 	</menu>
 	<item name="applications" href="#" title="Applications">Applications</item>
 	<menu>
