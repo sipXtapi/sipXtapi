@@ -1,9 +1,9 @@
 
 This file was generated using the following command.  If you are
-already looking at this from web browser, then please ignore this
+already looking at this from a web browser, then please ignore this
 message.
 
-  lynx -dump doc/src/manual/todo.html > TODO
+  cd doc;ant text-doc
 
 ----------------------------------------------------------
 
@@ -91,7 +91,7 @@ Replace ProfilePulisher with sipXpublisher Plugin
    config. sipXpublisher does the same this for MWI (voicemail) and
    already has plugin architecture. Challenge, is one's in java and
    postgres, other is in C++ and IMDB so port won't be clear-cut.
-   Last modified: Wed Oct 6 10:25:15 EDT 2004
+   Last modified: Mon Nov 29 14:14:05 EST 2004
 
 References
 

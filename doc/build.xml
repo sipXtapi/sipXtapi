@@ -118,6 +118,24 @@
 
   </target>
 
+  <!-- Doesn't depend on manual because used pre-xslt'ed form -->
+  <target name="text-doc"
+          description="Generate INSTALL, TODO and README from manual. This target is NOT called automatically and must be run each time install.html, todo.html or readme.html is edited">
+
+    <exec executable="lynx" output="${top.dir}/INSTALL">
+      <arg line="-dump ${src.dir}/manual/install.html"/>
+    </exec>
+
+    <exec executable="lynx" output="${top.dir}/TODO">
+      <arg line="-dump ${src.dir}/manual/todo.html"/>
+    </exec>
+
+    <exec executable="lynx" output="${top.dir}/README">
+      <arg line="-dump ${src.dir}/manual/readme.html"/>
+    </exec>
+
+  </target>
+
   <!-- C L E A N -->
   <target name="clean">
     <delete failonerror="false">
