@@ -54,6 +54,7 @@ commons-pool.jar=${top.dir}/lib/commons-pool.jar
 commons-dbcp.jar=${top.dir}/lib/commons-dbcp.jar
 commons-collections.jar=${top.dir}/lib/commons-collections.jar
 jdbc-driver.jar=${top.dir}/lib/pgjdbc2.jar
+antlr.jar=${top.dir}/lib/antlr.jar
 
 # T E S T 
 # libraries used in unit tests only

@@ -49,6 +49,13 @@
   <taskdef resource="checkstyletask.properties"> 
      <classpath>
         <pathelement location="${checkstyle.jar}"/>
+
+        <!-- 
+          - antlr that comes w/ant 1.6 is too old, use local 
+          - that came w/checkstyle 
+          -->
+        <pathelement location="${antlr.jar}"/>
+
         <pathelement location="${checkstyle-optional.jar}"/>
      </classpath> 
    </taskdef> 
