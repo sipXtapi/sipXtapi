@@ -16,7 +16,7 @@ localstate.dir=@localstatedir@
 debuglevel=lines
 
 # S I P X P B X  / S I P X C O N F I G
-www.dir=@wwwdir@
+html.dir=@htmldir@
 profile.dir=@profiledir@
 sipxconfig.lib.dir=@SIPXCONFIGLIB@
 sipxpbx.data.dir=@SIPXPBXDATA@

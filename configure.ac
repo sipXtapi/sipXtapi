@@ -64,6 +64,11 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 
 SFAC_INIT_FLAGS
 
+## Helpful override, for example http RPM uses /usr/www/html
+AC_ARG_VAR(htmldir, [Web root for apache 2, default is ${prefix}/www/doc. \
+   WARNING: Adjust accordingly when following INSTALL instructions])
+test -z $htmldir && htmldir=${wwwdir}/doc
+
 ## Order from highest to lowest for proper LIB order
 SFAC_LIB_STACK
 SFAC_LIB_PORT
@@ -73,7 +78,7 @@ AC_SUBST(SIPXCONFIGLIB, [$SIPXPBXDATA/lib])
 
 # Where profiles get generated.
 #  http://server:8090/phone/profiles
-AC_SUBST(profiledir, [${wwwdir}/doc/phone/profile])
+AC_SUBST(profiledir, [${htmldir}/phone/profile])
 
 
 CHECK_JNI
@@ -82,8 +87,6 @@ CHECK_JBOSS_HOME
 
 AC_CONFIG_FILES([
     Makefile
-    etc/Makefile 
-    etc/cert/Makefile
     common/Makefile
     profilewriter/Makefile
     profilepublisher/Makefile

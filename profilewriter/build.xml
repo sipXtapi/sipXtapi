@@ -62,9 +62,8 @@
 
     <!-- web system -->
     <copy file="${dist.dir}/profilewriter.jar" todir="${dest.dir}${sipxconfig.lib.dir}"/>
-    <mkdir dir="${dest.dir}${www.dir}/doc/phone/applications"/>
-    <mkdir dir="${dest.dir}${www.dir}/doc/phone/catalog"/>
-    <mkdir dir="${dest.dir}${www.dir}/conf"/>
+    <mkdir dir="${dest.dir}${html.dir}/phone/applications"/>
+    <mkdir dir="${dest.dir}${html.dir}/phone/catalog"/>
     <mkdir dir="${dest.dir}${profile.dir}/docroot"/>
     <mkdir dir="${dest.dir}${profile.dir}/tftproot"/>
 
@@ -75,23 +74,6 @@
     <replace file="${dest.dir}${sipxpbx.conf.dir}/profilewriter.props.in" 
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@profiledir@" property="profile.dir"/>
-    </replace>
-
-    <mkdir dir="${dest.dir}${www.dir}/conf"/>
-    <copy todir="${dest.dir}${www.dir}/conf">
-      <mapper type="glob" from="*.in" to="*" />
-      <fileset dir="etc">
-        <include name="httpd-sipxchange-configserver-pw.conf.in.in" />
-        <include name="httpd-sipxchange-configserver-pw-ssl.conf.in.in" />
-      </fileset>      
-    </copy>
-
-    <replace dir="${dest.dir}${www.dir}/conf" 
-        propertyfile="${top.build.dir}/config.properties">
-      <include name="httpd-sipxchange-configserver-pw.conf.in"/>
-      <include name="httpd-sipxchange-configserver-pw-ssl.conf.in"/>
-      <replacefilter token="@profiledir@" property="profile.dir"/>
-      <replacefilter token="@wwwdir@" property="www.dir"/>
     </replace>
 
   </target>

@@ -9,6 +9,10 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXconfig
 
+%define wwwdir /var/www
+%define htmldir /var/www/html
+%define profiledir /var/www/html/phone/profile
+
 # Unfortunately because of Java's .so's  TODO: Figure out a way to 
 # tell rpm find-requires to find java's so
 AutoReqProv: no
@@ -19,6 +23,11 @@ Requires: sipxtacklib >= 2.5
 Requires: sipxcommserverlib >= 2.5
 Requires: sipx-jboss >= 2.4
 Requires: rh-postgresql-server >= 7.3
+
+# to serve profile/catalog/apps.  These can be served from
+# tomcat eventually to improve scalability by reducing server
+# depenedency.
+Requires: httpd >= 2.0
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -32,7 +41,9 @@ SOAP, postgresql and other J2EE technologies to get the job done.
 %setup -q
 
 %build
-%configure
+
+# Where httpd RPM's web root is
+%configure wwwdir=%{wwdir} htmldir=%{htmldir}
 make
 
 %install
@@ -62,9 +73,13 @@ rm -rf $RPM_BUILD_ROOT
 @JBOSS_HOME@/jboss/deploy/profilegenerator.ear
 @JBOSS_HOME@/jboss/lib/ext/*.jar
 
-# Because of generation of config files via config.defs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_prefix}/www/conf
-%config %{_prefix}/www/conf/*
+# Because of generation of data and profiles
+%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone
+%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/applications
+%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{htmldir}/phone/catalog
+%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}
+%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/docroot
+%attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/tftproot
 
 # Because of generation of config files via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx

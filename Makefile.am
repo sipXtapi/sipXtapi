@@ -1,5 +1,5 @@
 
-SUBDIRS = . etc common profilegenerator profilepublisher profilewriter sipagent-jni
+SUBDIRS = . common profilegenerator profilepublisher profilewriter sipagent-jni
 
 EXTRA_DIST = \
     doc/license \
@@ -33,7 +33,7 @@ edit = sed \
         -e 's,@SIPXPBXDATA\@,@SIPXPBXDATA@,g' \
         -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
         -e 's,@profiledir\@,@profiledir@,g' \
-        -e 's,@wwwdir\@,@wwwdir@,g' \
+        -e 's,@htmldir\@,@htmldir@,g' \
         -e 's,@localstatedir\@,$(localstatedir),g' \
         -e 's,@libdir\@,$(libdir),g' \
         -e 's,@bindir\@,$(bindir),g'
