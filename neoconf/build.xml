@@ -14,6 +14,7 @@
 	    - all spring jars at this point
 	    -->
 	<path id="compile.dependencies">
+		<pathelement location="${commons-lang.jar}" />
 		<pathelement location="${spring.jar}" />
 		<pathelement location="${hibernate2.jar}" />
 		<pathelement location="${servlet.jar}" />
