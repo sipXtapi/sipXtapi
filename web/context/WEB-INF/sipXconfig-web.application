@@ -43,6 +43,7 @@
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
     <page name="SelectRuleType" specification-path="dialplan/SelectRuleType.page"/>
+    <page name="UserCallForwarding" specification-path="user_portal/UserCallForwarding.page"/>
 
     <!--
       -  C O M P O N E N T S
@@ -67,6 +68,7 @@
     <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
+    <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>

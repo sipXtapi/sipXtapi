@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="forwardingContext" 
+		type="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext" 
+    	initial-value="global.forwardingContext"/>
+        
+    <property-specification name="ringsMap" type="org.apache.tapestry.form.ListEditMap"/>
+    
+    <property-specification name="ring" type="org.sipfoundry.sipxconfig.admin.forwarding.Ring"/>
+    
+     <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+        
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+
+    <component id="errors" type="ErrorMsg"/>
+    
+    <component id="addRingLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.addRing"/>
+    </component>
+        
+	<component id="rings" type="ListEdit">
+        <binding name="source" expression="ringsMap.keys"/>
+        <binding name="value" expression="ringsMap.key"/>
+        <binding name="listener" expression="listeners.synchronizeRing"/>
+    </component>
+    
+	<component id="ringEditor" type="RingEditor">
+        <binding name="deleteListener" expression="listeners.deleteRing"/>
+        <binding name="ring" expression="ring"/>
+    </component>
+    
+    <component id="apply" type="Submit">
+        <binding name="listener" expression="listeners.apply"/>
+    </component>
+            
+</page-specification>
