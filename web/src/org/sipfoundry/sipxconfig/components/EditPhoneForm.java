@@ -48,7 +48,7 @@ public abstract class EditPhoneForm extends BaseComponent implements PageRenderL
      * called before page is drawn
      */
     public void pageBeginRender(PageEvent eventTemp) {
-/*        
+        /*        
         String[] phoneIds = (String[]) getPhoneContext().getPhoneIds().toArray(new String[0]);
         setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
         if (getEndpoint() == null && getPhone() != null) {

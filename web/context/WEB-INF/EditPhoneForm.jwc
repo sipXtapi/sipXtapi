@@ -7,7 +7,6 @@
 <component-specification class="org.sipfoundry.sipxconfig.components.EditPhoneForm"
     allow-body="no"
     allow-informal-parameters="yes">    
-    <description>Form to edit Phone Endpoint object</description>
     <!--
       - P A R A M E T E R S
       -->

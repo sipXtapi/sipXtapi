@@ -10,8 +10,6 @@
 		global.phoneContext </property-specification>
 	<property-specification name="phone" 
 		type="org.sipfoundry.sipxconfig.phone.Phone" persistent="yes"/>
-	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
     <!--
       - C O M P O N E N T S
       -->

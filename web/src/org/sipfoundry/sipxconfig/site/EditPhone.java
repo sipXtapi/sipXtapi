@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.site;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
@@ -24,10 +23,6 @@ public abstract class EditPhone extends AbstractPhonePage implements PageRenderL
     
     public static final String PAGE = "EditPhone"; 
 
-    public abstract Endpoint getEndpoint();
-    
-    public abstract void setEndpoint(Endpoint endpoint);    
-
     public abstract Phone getPhone();
     
     public abstract void setPhone(Phone phone);
@@ -36,6 +31,7 @@ public abstract class EditPhone extends AbstractPhonePage implements PageRenderL
      * called before page is drawn
      */
     public void pageBeginRender(PageEvent eventTemp) {
+        System.out.println("EditPhone.pageBeginRender");
     }
 
     public void save(IRequestCycle cycle) {

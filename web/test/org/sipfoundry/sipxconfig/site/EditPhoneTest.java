@@ -65,7 +65,6 @@ public class EditPhoneTest extends TestCase {
 
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
-        page.setEndpoint(new Endpoint());
         page.setPhoneContext(phoneContext);
         page.pageBeginRender(new PageEvent(page, cycle));
         page.cancel(cycle);
