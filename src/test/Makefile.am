@@ -27,6 +27,6 @@ testsuite_SOURCES = \
     ForwardRulesTest.cpp
 
 EXTRA_DATA = \
-    rulesdata/simple-forwarding.xml
+    rulesdata/simple.xml
 
 EXTRA_DIST = $(EXTRA_DATA)
