@@ -26,6 +26,6 @@ then
   done
 fi
 
-echo $$ > @localstatedir@/run/sipauthproxy.pid
+echo $$ > @SIPX_RUNDIR@/sipauthproxy.pid
 
 exec @bindir@/sipauthproxy $@
