@@ -49,6 +49,7 @@ public abstract class GatewayTable extends BaseComponent implements PageRenderLi
         Gateway currentRow = getCurrentRow();
         page.setGatewayId(currentRow.getId());
         page.setRuleId(getRuleId());
+        page.setNextPage(cycle.getPage().getPageName());        
         cycle.activate(page);
     }
 }

@@ -35,6 +35,7 @@ public abstract class ListGateways extends BasePage {
         EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
         page.setGatewayId(null);
         page.setRuleId(null);
+        page.setNextPage(cycle.getPage().getPageName());
         cycle.activate(page);
     }
 

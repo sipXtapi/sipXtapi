@@ -22,6 +22,8 @@
         global.sipXconfigContext.getBean("dialPlanManager")
     </property-specification>    
     
+    <property-specification name="nextPage" type="java.lang.String"/>    
+                
     <!--
      - B E A N S
      -->
@@ -35,6 +37,10 @@
     <!--
      - C O M P O N E N T S
      -->
+    <component id="nextPageHolder" type="Hidden">
+        <binding name="value" expression="nextPage"/>
+    </component>
+        
     <component id="gatewayNameLabel" type="FieldLabel">
         <binding name="field" expression="components.gatewayName"/>
     </component>
@@ -65,7 +71,7 @@
         <binding name="listener" expression="listeners.save"/>
     </component>
     <component id="onCancel" type="CancelButton">
-        <binding name="returnPageName" expression="nextPageName"/>
+        <binding name="returnPageName" expression="nextPage"/>
     </component>
 
     <!--

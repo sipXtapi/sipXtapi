@@ -43,6 +43,10 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     public abstract void setDialPlanManager(DialPlanManager dialPlanManager);
 
     public abstract DialPlanManager getDialPlanManager();
+    
+    public abstract String getNextPage();
+    
+    public abstract void setNextPage(String nextPage);    
 
     private boolean isValid() {
         IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
@@ -86,18 +90,6 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
             DialingRule rule = flexDialPlan.getRule(ruleId);
             rule.addGateway(gateway);
         }
-        cycle.activate(getNextPageName());
-    }
-
-    /**
-     * Determines which page we need to get back to It should be DialPlan page
-     * if we are editing gateways for dial plan And ListGateways page if we just
-     * editing the gateway
-     * 
-     * @return name of the page that should be activated
-     */
-    public String getNextPageName() {
-        Integer id = getRuleId();
-        return null != id ? EditCustomDialRule.PAGE : ListGateways.PAGE;
+        cycle.activate(getNextPage());
     }
 }

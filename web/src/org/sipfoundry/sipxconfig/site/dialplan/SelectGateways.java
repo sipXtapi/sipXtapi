@@ -41,6 +41,10 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     public abstract void setGateways(Collection gateways);
 
     public abstract Collection getGateways();
+    
+    public abstract String getNextPage();
+    
+    public abstract void setNextPage(String nextPage);
 
     public void pageBeginRender(PageEvent event_) {
         Collection gateways = getGateways();
@@ -55,7 +59,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
         if (selectedRows != null) {
             selectGateways(selectedRows);
         }
-        EditCustomDialRule editPage = (EditCustomDialRule) cycle.getPage(EditCustomDialRule.PAGE);
+        EditDialRule editPage = (EditDialRule) cycle.getPage(getNextPage());
         editPage.setRuleId(getRuleId());
         cycle.activate(editPage);
     }
@@ -67,6 +71,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
      * @param emergency true for emergency gateways
      */
     private void selectGateways(Collection gateways) {
+        //FIXME: selecting gateways does not work here: rules and gateways are detached by now
         DialPlanManager manager = getDialPlanManager();
         DialingRule rule = manager.getFlexDialPlan().getRule(getRuleId());
         if (null != rule) {

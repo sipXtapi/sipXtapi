@@ -63,6 +63,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         Integer id = getRuleId();
         editGatewayPage.setRuleId(id);
         editGatewayPage.setGatewayId(null);
+        editGatewayPage.setNextPage(cycle.getPage().getPageName());
         cycle.activate(editGatewayPage);
     }
 
@@ -70,6 +71,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         SelectGateways selectGatewayPage = (SelectGateways) cycle.getPage(SelectGateways.PAGE);
         Integer id = getRuleId();
         selectGatewayPage.setRuleId(id);
+        selectGatewayPage.setNextPage(cycle.getPage().getPageName());
         cycle.activate(selectGatewayPage);
     }
 

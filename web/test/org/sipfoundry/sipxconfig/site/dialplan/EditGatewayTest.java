@@ -40,8 +40,8 @@ public class EditGatewayTest extends TestCase {
 
     public void testAddNewGateway() {
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
+        m_editGatewayPage.setNextPage(ListGateways.PAGE);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-
         // return to list gateways page in normal case
         cycle.activate(ListGateways.PAGE);
         cycleControl.replay();
@@ -60,13 +60,12 @@ public class EditGatewayTest extends TestCase {
         rule.setName("my rule name");
         FlexibleDialPlan flexDialPlan = m_manager.getFlexDialPlan();
         flexDialPlan.addRule(rule);
-        Gateway gateway = new Gateway();
-        gateway.setName("testName");
 
         m_editGatewayPage.setDialPlanManager(m_manager);
-        m_editGatewayPage.setGateway(gateway);
         m_editGatewayPage.setRuleId(rule.getId());
+        m_editGatewayPage.setNextPage(EditCustomDialRule.PAGE);
 
+        m_editGatewayPage.pageBeginRender(null);
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
         cycle.activate(EditCustomDialRule.PAGE);
@@ -75,11 +74,12 @@ public class EditGatewayTest extends TestCase {
         cycleControl.verify();
 
         assertEquals(1, m_manager.getGateways().size());
-        Object addedGateway = m_manager.getGateways().get(0);
-        assertEquals(gateway, addedGateway);
+        Gateway addedGateway = (Gateway) m_manager.getGateways().get(0);
+        assertNotNull(addedGateway);
 
         assertEquals(1, rule.getGateways().size());
-        assertTrue(rule.getGateways().contains(gateway));
+        assertTrue(rule.getGateways().contains(addedGateway));
+        assertFalse(-1 == addedGateway.getId().intValue());
     }
 
     public void testPageBeginRenderAdd() {

@@ -20,7 +20,9 @@
     <property-specification name="selectedRows" type="java.util.Collection"/>    
 
     <property-specification name="gateways" type="java.util.Collection"/>    
-        
+
+    <property-specification name="nextPage" type="java.lang.String"/>    
+            
      <!--
      - B E A N S
      -->
@@ -29,6 +31,10 @@
     <!--
      - C O M P O N E N T S
      -->
+    <component id="nextPageHolder" type="Hidden">
+        <binding name="value" expression="nextPage"/>
+    </component>
+    
     <component id="gatewayTable" type="GatewayTable">
         <binding name="gatewayCollection" expression="gateways"/>
         <static-binding name="editPageName" value="EditGateway"/>
@@ -39,7 +45,9 @@
         <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
     </component>
 
-    <component id="cancelButton" type="Submit"/>
+    <component id="cancelButton" type="CancelButton">
+        <binding name="returnPageName" expression="nextPage"/>
+    </component>
         
     <component id="gatewaysSelectForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
