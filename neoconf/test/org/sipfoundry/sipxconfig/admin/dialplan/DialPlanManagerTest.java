@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
+
 import junit.framework.TestCase;
 
 /**
@@ -100,7 +102,6 @@ public class DialPlanManagerTest extends TestCase {
         assertEquals(g1.getDescription(), edited.getDescription());
     }
 
-
     public void testGetAvailableGateways() {
         Collection availableGateways = m_manager.getAvailableGateways(new Integer(-1));
         assertEquals(0, availableGateways.size());
@@ -136,5 +137,16 @@ public class DialPlanManagerTest extends TestCase {
         assertFalse(availableGateways.contains(g1));
         assertTrue(availableGateways.contains(g2));
         assertFalse(availableGateways.contains(g3));
+    }
+
+    public void testActivateDialPlan() throws Exception {
+        DialPlanManager manager = new DialPlanManager();
+        final ConfigGenerator g1 = manager.getGenerator();
+        final ConfigGenerator g2 = manager.activateDialPlan();
+        final ConfigGenerator g3 = manager.getGenerator();
+        assertNotNull(g1);
+        assertNotNull(g2);
+        assertNotSame(g1,g2);
+        assertSame(g2,g3);
     }
 }

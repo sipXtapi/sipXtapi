@@ -26,10 +26,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
  */
 public class DialPlanManager {
     private List m_gateways = new ArrayList();
-    
+
     // TODO: inject those through Spring
     private FlexibleDialPlan m_flexDialPlan = new FlexibleDialPlan();
-    private ConfigGenerator m_generator = new ConfigGenerator();
+    private transient ConfigGenerator m_generator;
 
     public List getGateways() {
         return m_gateways;
@@ -116,11 +116,16 @@ public class DialPlanManager {
     }
 
     public ConfigGenerator activateDialPlan() {
-        m_generator.generate(m_flexDialPlan);
+        ConfigGenerator generator = new ConfigGenerator();
+        generator.generate(m_flexDialPlan);
+        m_generator = generator;
         return m_generator;
     }
-    
+
     public ConfigGenerator getGenerator() {
+        if (null == m_generator) {
+            return activateDialPlan();
+        }
         return m_generator;
-    }    
+    }
 }
