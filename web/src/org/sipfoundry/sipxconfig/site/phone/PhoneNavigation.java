@@ -9,23 +9,22 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.components;
+package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.site.EditPhone;
-import org.sipfoundry.sipxconfig.site.EditPhoneLines;
-import org.sipfoundry.sipxconfig.site.EditSettings;
+import org.sipfoundry.sipxconfig.site.line.LineSettings;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
  */
-public abstract class EditPhoneNavigation extends BaseComponent {
+public abstract class PhoneNavigation extends BaseComponent {
     
     public abstract Collection getSettingSet();
 
@@ -46,13 +45,13 @@ public abstract class EditPhoneNavigation extends BaseComponent {
     }
     
     public void editLines(IRequestCycle cycle) {
-        EditPhoneLines page = (EditPhoneLines) cycle.getPage(EditPhoneLines.PAGE);
+        PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
         page.setPhone(getPhone(cycle));
         cycle.activate(page);
     }
     
     public void editSettings(IRequestCycle cycle) {
-        EditSettings page = (EditSettings) cycle.getPage(EditSettings.PAGE);
+        LineSettings page = (LineSettings) cycle.getPage(LineSettings.PAGE);
         page.setPhone(getPhone(cycle));
         Object[] params = cycle.getServiceParameters();
         String setting = (String) TapestryUtils.assertParameter(String.class, params, 1);

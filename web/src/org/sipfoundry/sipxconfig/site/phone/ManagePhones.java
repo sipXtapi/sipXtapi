@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.List;
 
@@ -17,7 +17,6 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.PhonePageUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -27,10 +26,10 @@ import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 /**
  * List all the phones/endpoints for management and details drill-down
  */
-public abstract class ListPhones extends BasePage 
+public abstract class ManagePhones extends BasePage 
         implements PageRenderListener {
     
-    public static final String PAGE = "ListPhones";
+    public static final String PAGE = "ManagePhones";
     
     // Return the model of the table
     public abstract List getPhones();

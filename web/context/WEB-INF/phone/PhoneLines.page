@@ -2,7 +2,7 @@
 <!DOCTYPE page-specification PUBLIC
   "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.EditPhoneLines">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneLines">
     <description>
         Manage an endpoint lines for a phone
     </description>
@@ -20,7 +20,7 @@
     <!--
     - C O M P O N E N T S
     -->
-    <component id="editPhoneNavigation" type="EditPhoneNavigation">
+    <component id="editPhoneNavigation" type="PhoneNavigation">
         <binding name="phone" expression="phone"/>
         <static-binding name="tab" value="EditPhoneLines"/>
         <static-binding name="heading" value="Lines"/>

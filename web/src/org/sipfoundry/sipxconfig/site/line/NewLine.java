@@ -9,15 +9,16 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.PhonePageUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
+import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
+import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 /**
  * Create a new line
@@ -66,6 +67,6 @@ public abstract class NewLine extends BasePage {
     }
 
     public void cancel(IRequestCycle cycle) {
-        cycle.activate(ListPhones.PAGE);
+        cycle.activate(ManagePhones.PAGE);
     }
 }

@@ -9,11 +9,10 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.PhonePageUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 
@@ -31,7 +30,7 @@ public abstract class EditPhone extends BasePage {
     public void ok(IRequestCycle cycle) {
         PhoneDao dao = PhonePageUtils.getPhoneContext(cycle).getPhoneDao(); 
         dao.storeEndpoint(getPhone().getEndpoint());
-        cycle.activate(ListPhones.PAGE);
+        cycle.activate(ManagePhones.PAGE);
     }
 
     public void apply(IRequestCycle cycle) {
@@ -41,6 +40,6 @@ public abstract class EditPhone extends BasePage {
     
     public void cancel(IRequestCycle cycle) {
         setPhone(null);
-        cycle.activate(ListPhones.PAGE);
+        cycle.activate(ManagePhones.PAGE);
     }
 }

@@ -4,9 +4,7 @@
     </head>
 <body jwcid="@Body">
 	<div id="component">
-   <form jwcid="@Form">       
         <form jwcid="@Form" delegate="ognl:beans.validator">
-       <span jwcid="editLineForm"/>
 			<ul class="form-actions">
 				<li>
                     <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>

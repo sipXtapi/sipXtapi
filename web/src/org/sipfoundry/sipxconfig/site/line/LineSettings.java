@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -18,9 +18,9 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 /**
  * Comments
  */
-public abstract class EditSettings extends BasePage {
+public abstract class LineSettings extends BasePage {
     
-    public static final String PAGE = "EditSettings";
+    public static final String PAGE = "LineSettings";
 
     public abstract Phone getPhone();
     

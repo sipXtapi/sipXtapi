@@ -2,7 +2,7 @@
 <!DOCTYPE page-specification PUBLIC
   "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.EditSettings">
+<page-specification class="org.sipfoundry.sipxconfig.site.line.LineSettings">
     <description>
         add a description
     </description>
@@ -13,7 +13,7 @@
         type="org.sipfoundry.sipxconfig.phone.Phone"
         persistent="yes"/>
     <property-specification name="setting" type="java.lang.String"/>
-    <component id="editPhoneNavigation" type="EditPhoneNavigation">
+    <component id="editPhoneNavigation" type="PhoneNavigation">
         <binding name="phone" expression="phone"/>
         <binding name="tab" expression="setting"/>
         <binding name="heading" expression="setting"/>

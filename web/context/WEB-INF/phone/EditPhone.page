@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
 	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.EditPhone">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.EditPhone">
 	<!--
 	  - P R O P E R T I E S
 	  -->
@@ -14,7 +14,7 @@
     <!--
       - C O M P O N E N T S
       -->
-    <component id="editPhoneNavigation" type="EditPhoneNavigation">        
+    <component id="editPhoneNavigation" type="PhoneNavigation">        
         <binding name="phone" expression="phone"/>
         <static-binding name="tab" value="EditPhone"/>
         <static-binding name="heading" value="Device Identification"/>

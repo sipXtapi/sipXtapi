@@ -2,7 +2,7 @@
 <!DOCTYPE component-specification PUBLIC
   "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.components.EditPhoneNavigation"
+<component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneNavigation"
     allow-body="yes"
     allow-informal-parameters="yes">
     <description>
@@ -53,7 +53,7 @@
     <component id="linesTab" type="DirectLink">
         <binding name="listener" expression="listeners.editLines"/>
         <binding name="parameters" expression="phone.endpoint.id"/>
-        <binding name="class" expression="beans.tabs.getCssClass('EditPhoneLines')"/>
+        <binding name="class" expression="beans.tabs.getCssClass('PhoneLines')"/>
     </component>
     <component id="settingsTabs" type="Foreach">
         <binding name="source" expression="settingSet"/>

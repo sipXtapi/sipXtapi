@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +18,18 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.PhonePageUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.EndpointLine;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.site.line.NewLine;
 
 
 /**
  * Comments
  */
-public abstract class EditPhoneLines extends BasePage implements PageRenderListener {
+public abstract class PhoneLines extends BasePage implements PageRenderListener {
 
-    public static final String PAGE = "EditPhoneLines";
+    public static final String PAGE = "PhoneLines";
 
     public abstract Phone getPhone();
     
