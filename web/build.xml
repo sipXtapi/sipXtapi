@@ -177,6 +177,7 @@ sysdir.etc=${top.dir}/neoconf/etc
 sysdir.log=${test.results.dir}
 sysdir.data=${test.results.dir}
 sysdir.phone=${test.results.dir}
+dataSource.url=jdbc:postgresql://localhost/${sipxconfig.db.pds}
 	      </echo>
          <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml"/>         
 	</target>

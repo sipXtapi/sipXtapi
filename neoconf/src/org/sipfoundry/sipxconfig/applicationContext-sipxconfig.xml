@@ -14,6 +14,12 @@
 			<ref bean="sysdir.properties"></ref>			
 		</property>
 	</bean>
+    <!-- This is used in unit test environment only: we change dataSource.url using this mechanism -->
+    <bean id="overrider" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+		<property name="location">
+			<ref bean="sysdir.properties"></ref>			
+		</property>        
+    </bean>
 	<!--
        - P O S T G R E S
        -->

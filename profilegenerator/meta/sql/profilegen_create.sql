@@ -350,11 +350,11 @@ create table endpoint(
 /* 
  * would like to add FK contraint to setting table
  * but setting_id can be null and I don't think thats
- * possible w/postgres
-alter table endpoint
-add constraint fk_endpoint_1
-foreign key (storage_id) references storage (storage_id);
+ * possible w/postgres 
  */
+--		alter table endpoint
+--		add constraint fk_endpoint_1
+--		foreign key (storage_id) references storage (storage_id);
  
 create sequence endpoint_seq;
 create unique index idx_endpoint_sernum on endpoint (serial_number);
@@ -375,10 +375,11 @@ create table line(
   endpoint_id int4 not null
 );
 create sequence line_seq;
+
 /*
- * relax this, otherwise adjusting positions gets messy
-create unique index idx_line_pos_endpt on line (endpoint_id, position);
+ * relax this, otherwise adjusting positions gets messy 
  */
+-- create unique index idx_line_pos_endpt on line (endpoint_id, position);
 
 alter table line
 add constraint fk_line_1 
@@ -388,19 +389,21 @@ alter table line
 add constraint fk_line_2
 foreign key (folder_id) references folder (folder_id);
 
-/* 
+/*
  * would like to add FK contraint to setting table
  * but setting_id can be null and I don't think thats
- * possible w/postgres
-alter table line
-add constraint fk_line_2
-foreign key (storage_id) references storage (storage_id);
-*/
+ * possible w/postgres 
+ */
+-- alter table line
+-- add constraint fk_line_2
+-- foreign key (storage_id) references storage (storage_id);
 
-/** may relax if user null ok */
-alter table line
-add constraint fk_line_3
-foreign key (user_id) references users (id);
+/* 
+ * may relax if user null ok
+ */
+-- alter table line
+-- add constraint fk_line_3
+-- foreign key (user_id) references users (id);
 
 
 /** 

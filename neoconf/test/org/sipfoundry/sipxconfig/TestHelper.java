@@ -14,8 +14,9 @@ package org.sipfoundry.sipxconfig;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.Properties;
+
+import javax.sql.DataSource;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
@@ -38,6 +39,8 @@ public final class TestHelper {
     private static Properties s_sysDirProps;
     
     private static ApplicationContext s_appContext;
+
+    private static DatabaseConnection s_dbunitConnection;
 
     static {
         // default XML parser (crimson) cannot resolve relative DTDs, google for bug
@@ -86,21 +89,18 @@ public final class TestHelper {
     }    
     
     public static IDatabaseConnection getConnection() throws Exception {
-        // Could optionally get this from Spring
-        //    DataSource.getConnection()
-        // may pool connections and be faster.
-        // Class driverClass = Class.forName("org.postgresql.Driver");
-        
-        //  dumps sql commands to log file spy.log in working directory
+        if( null != s_dbunitConnection ) {
+            return s_dbunitConnection;
+        }
         Class.forName("com.p6spy.engine.spy.P6SpyDriver");  
         
-        Connection jdbcConnection = DriverManager.getConnection(
-                "jdbc:postgresql://localhost/PDS", "postgres", "");        
-        DatabaseConnection dbunitConnection = new DatabaseConnection(jdbcConnection);
-        DatabaseConfig config = dbunitConnection.getConfig();
+        DataSource ds = (DataSource) getApplicationContext().getBean("dataSource");
+        Connection jdbcConnection = ds.getConnection();  
+        s_dbunitConnection = new DatabaseConnection(jdbcConnection);
+        DatabaseConfig config = s_dbunitConnection.getConfig();
         config.setFeature("http://www.dbunit.org/features/batchedStatements", true);
         
-        return dbunitConnection;
+        return s_dbunitConnection;
     }
     
     public static void main(String[] args) {

@@ -95,27 +95,27 @@
 	    </jar>
 	</target>
 
-        <target name="test-all" depends="ant-targets.test-all,test-db"/>
+    <target name="test-all" depends="ant-targets.test-all,test-db"/>
 
   <!--
     - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
     -->
-  <target name="test-db" depends="compile.test"
+    <target name="test-db" depends="compile.test, reset-db"
        description="run junit tests that interact with database">
 
-    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
-      <classpath refid="test.path"/>
-      <formatter type="plain"/>
-      <formatter type="xml"/>
-      <sysproperty key="basedir" value="${basedir}"/>
-      <batchtest todir="${test.results.dir}">
-        <fileset dir="${test.classes.dir}"> 
-          <patternset refid="test-db.classes"/>
-        </fileset>
-      </batchtest>
-    </junit>        
-    <fail if="junit.failed"/>   
-  </target>
+    	<junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+	      <classpath refid="test.path"/>
+    	  <formatter type="plain"/>
+	      <formatter type="xml"/>
+	      <sysproperty key="basedir" value="${basedir}"/>
+	      <batchtest todir="${test.results.dir}">
+	        <fileset dir="${test.classes.dir}"> 
+	          <patternset refid="test-db.classes"/>
+	        </fileset>
+	      </batchtest>
+    	</junit>
+     	<fail if="junit.failed"/>   
+	</target>
   
 
 	<!-- D E V E L O P E R   T A S K S -->
@@ -128,7 +128,7 @@
 ********************************
 		</echo>
 		<exec executable="psql" failonerror="false">
-			<arg line=" -U postgres PDS -f ${top.dir}/profilegenerator/ejb/meta/patches/delete_v8_mods.sql"/>
+			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds} -f ${top.dir}/profilegenerator/ejb/meta/patches/delete_v8_mods.sql"/>
 		</exec>
 		<echo>
 ********************************
@@ -136,12 +136,31 @@
 ********************************
 		</echo>
 		<exec executable="psql" failonerror="true">
-			<arg line=" -U postgres PDS -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods.sql"/>
+			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds} -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods.sql"/>
 		</exec>
 		<exec executable="psql" failonerror="true">
-			<arg line=" -U postgres PDS -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods_2.sql"/>
+			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds} -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods_2.sql"/>
 		</exec>
     </target>
+    
+    <target name="reset-db"
+        description="Resets the test database. Needs to be called before UI and WEB tests.">
+        <property name="sql.dir" location="${top.dir}/profilegenerator/meta/sql"/>
+        <property name="sipxconfig.db.pds.url" value="jdbc:postgresql://localhost/${sipxconfig.db.pds}"/>
+		<exec executable="dropdb" failonerror="false">
+			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds}"/>
+		</exec>
+		<exec executable="createdb" failonerror="true">
+			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds}"/>
+		</exec>        
+        <sql driver="org.postgresql.Driver" url="${sipxconfig.db.pds.url}" userid="${sipxconfig.db.user}" password="" classpathref="base.path">
+            <transaction src="${sql.dir}/profilegen_create.sql"/>
+            <transaction src="${sql.dir}/profilegen_alter.sql"/>
+            <transaction src="${sql.dir}/profilegen_seq.sql"/>
+            <transaction src="${sql.dir}/profilegen_initvalues.sql"/>
+        </sql>        
+    </target>
+    
 
     <!-- HBM 2 DDL -->
     <!-- generate SQL from java files and hibernate mappings -->
@@ -151,8 +170,8 @@
     </path>
 
     <taskdef name="schemaexport"
-        classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
-	classpathref="full.classpath"/>
+        classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask" 
+        classpathref="full.classpath"/>
 
     <target name="hbm2ddl">
         <schemaexport properties="${top.dir}/meta/hibernate.properties" quiet="no"

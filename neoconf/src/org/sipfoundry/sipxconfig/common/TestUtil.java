@@ -85,6 +85,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.data", outputDirectory);
         sysProps.setProperty("sysdir.phone", outputDirectory);
         sysProps.setProperty("sysdir.log", outputDirectory);
+        sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
 
         File sysdirPropsFile = new File(classpathDirectory, "sysdir.properties");
         FileOutputStream sysdirPropsStream;
