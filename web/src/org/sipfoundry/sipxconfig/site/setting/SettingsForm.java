@@ -17,7 +17,6 @@ import org.apache.tapestry.BaseComponent;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 
 public abstract class SettingsForm extends BaseComponent {
@@ -31,7 +30,7 @@ public abstract class SettingsForm extends BaseComponent {
         }
     };
     
-    public abstract SettingGroup getSettings(); 
+    public abstract Setting getSettings(); 
     
     public Collection getFlattenedSettings() {
         return FilterRunner.filter(FLATTEN_SETTINGS, getSettings());

@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 
@@ -39,10 +38,10 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     
     public abstract void setLine(Line line);
     
-    public abstract String getParentSettingGroupName();
+    public abstract String getParentSettingName();
     
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setParentSettingGroupName(String name); 
+    public abstract void setParentSettingName(String name); 
 
     public abstract Setting getParentSetting();
     
@@ -56,7 +55,7 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
         setLine(line);
         Phone phone = context.getPhone(line.getEndpoint()); 
         Setting root = line.getSettings(phone);
-        Setting parent = (SettingGroup) root.getSetting(getParentSettingGroupName());
+        Setting parent = root.getSetting(getParentSettingName());
         setParentSetting(parent);
     }
 

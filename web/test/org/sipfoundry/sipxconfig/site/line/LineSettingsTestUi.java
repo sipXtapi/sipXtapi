@@ -36,10 +36,14 @@ public class LineSettingsTestUi extends WebTestCase {
     }
 
     public void testEditLine() {
-        PhoneTestHelper.seedNewPhone(tester);
+        PhoneTestHelper.seedPhone(tester);
+        PhoneTestHelper.seedUser(tester);
+        PhoneTestHelper.seedLine(tester);
+        
         clickLink("ManagePhones");        
-        clickLinkWithText("000000000000");
+        clickLinkWithText("testuser");
         // NOTE: Polycom only setting 
-        clickLinkWithText("SIP");        
+        clickLinkWithText("Registration");
+        SiteTestHelper.assertNoException(tester);
     }
 }

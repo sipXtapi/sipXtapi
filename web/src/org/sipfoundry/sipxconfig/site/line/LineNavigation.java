@@ -54,7 +54,7 @@ public abstract class LineNavigation extends BaseComponent {
         page.setLineId(lineId.intValue());
 
         String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
-        page.setParentSettingGroupName(section);
+        page.setParentSettingName(section);
         
         cycle.activate(page);        
     }

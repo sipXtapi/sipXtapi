@@ -9,19 +9,18 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.line;
+package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 
 
-public class EditLineTestUi extends WebTestCase {
-
+public class EditPhoneSettingsTestUi extends WebTestCase {
+    
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditLineTestUi.class);
+        return SiteTestHelper.webTestSuite(EditPhoneSettingsTestUi.class);
     }
     
     protected void setUp() throws Exception {
@@ -37,10 +36,10 @@ public class EditLineTestUi extends WebTestCase {
 
     public void testEditLine() {
         PhoneTestHelper.seedPhone(tester);
-        PhoneTestHelper.seedUser(tester);
-        PhoneTestHelper.seedLine(tester);
         clickLink("ManagePhones");        
-        clickLinkWithText("testuser");
+        clickLinkWithText("000000000000");
+        // NOTE: Polycom only setting 
+        clickLinkWithText("SIP");        
         SiteTestHelper.assertNoException(tester);
     }
 }

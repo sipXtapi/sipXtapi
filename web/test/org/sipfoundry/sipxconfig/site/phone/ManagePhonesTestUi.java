@@ -34,7 +34,7 @@ public class ManagePhonesTestUi extends WebTestCase {
     }
 
     public void testGenerateProfiles() {
-        PhoneTestHelper.seedNewPhone(tester);
+        PhoneTestHelper.seedPhone(tester);
 
         clickLink("ManagePhones");          
         checkCheckbox("selectedRow");

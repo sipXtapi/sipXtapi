@@ -34,7 +34,7 @@ public class PhoneTestHelper {
         // to call Add User in JSP web interface
     }
 
-    public static void seedNewPhone(WebTester tester) {
+    public static void seedPhone(WebTester tester) {
         SiteTestHelper.home(tester);
         tester.clickLink("NewPhone");
         tester.setFormElement("serialNumber", "000000000000");
@@ -44,6 +44,19 @@ public class PhoneTestHelper {
             { "000000000000", "", "SoundPoint IP 500" },                
         };
         tester.assertTextInTable("phone:list", table[0]);
+        SiteTestHelper.home(tester);
+    }
+    
+    public static void seedLine(WebTester tester) {
+        SiteTestHelper.home(tester);
+        tester.clickLink("ManagePhones");        
+        tester.clickLinkWithText("000000000000");
+        tester.clickLinkWithText("Lines");        
+        tester.clickLink("AddUser");        
+        tester.clickButton("user:search");
+        // first (should be only?) row
+        tester.checkCheckbox("selectedRow");
+        tester.clickButton("user:select");
         SiteTestHelper.home(tester);
     }
 }

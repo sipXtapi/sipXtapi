@@ -39,7 +39,7 @@ public class AddPhoneUserTestUi extends WebTestCase {
      */
     public void testUserSearch() {
         PhoneTestHelper.seedUser(tester);
-        PhoneTestHelper.seedNewPhone(tester);
+        PhoneTestHelper.seedPhone(tester);
         clickLink("ManagePhones");        
         clickLinkWithText("000000000000");
         clickLinkWithText("Lines");        

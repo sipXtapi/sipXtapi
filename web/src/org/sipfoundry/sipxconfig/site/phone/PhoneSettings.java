@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**
  * Edit vendor specific phone setttings in abstract manor using setting model of meta
@@ -43,7 +42,7 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     /** REQUIRED PAGE PARAMETER */
     public abstract void setParentSettingName(String name); 
 
-    public abstract SettingGroup getParentSetting();
+    public abstract Setting getParentSetting();
     
     public abstract void setParentSetting(Setting parent);
     

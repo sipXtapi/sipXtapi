@@ -35,7 +35,7 @@ public class EditPhoneTestUi extends WebTestCase {
     }
 
     public void testEditPhone() {
-        PhoneTestHelper.seedNewPhone(tester);
+        PhoneTestHelper.seedPhone(tester);
         clickLink("ManagePhones");        
         clickLinkWithText("000000000000");
         setFormElement("serialNumber", "000000000001");

@@ -23,7 +23,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/jwebunit/jwebunit-1.2/src" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar"/>
+	<classpathentry sourcepath="LIB_SRC/jwebunit/src.zip" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-1.1.3.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/tapestry/Tapestry-3.0.1/framework/src" kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.1.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/tapestry/Tapestry-3.0.1/contrib/src" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.1.jar"/>
