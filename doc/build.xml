@@ -96,11 +96,11 @@
 	<target name="neoconf-prototype" depends="resources">
 
 		<dependset>
-
-			<srcfilelist dir="${src.dir}/neoconf-prototype" files="navigation.xml" />
-
+			<srcfilelist dir="${src.dir}/neoconf-prototype">
+				<file name="navigation.xml"/>
+				<file name="user-navigation.xml"/>
+			</srcfilelist>
 			<targetfileset dir="${neoconf-prototype.dir}" includes="**/*.html" />
-
 		</dependset>
 
 		<!-- 
@@ -122,12 +122,20 @@
 		
 		<style basedir="${src.dir}/neoconf-prototype" destdir="${neoconf-prototype.dir}" extension=".html" style="neoconf.xsl">
 			<include name="*/*.html" />
+			<exclude name="user-portal/*.html"/>
 			<xmlcatalog refid="xhtml-dtd" />
 			<param name="navigation" expression="navigation.xml" />
 			<param name="top.dir" expression="${top.dir}" />
 			<param name="wwwroot" expression="../"/>
 		</style>
 
+		<style basedir="${src.dir}/neoconf-prototype" destdir="${neoconf-prototype.dir}" extension=".html" style="neoconf.xsl">
+			<include name="user-portal/*.html"/>
+			<xmlcatalog refid="xhtml-dtd" />
+			<param name="navigation" expression="user-navigation.xml" />
+			<param name="top.dir" expression="${top.dir}" />
+			<param name="wwwroot" expression="../"/>
+		</style>
 	</target>
 
 	<target name="resources" depends="init">
