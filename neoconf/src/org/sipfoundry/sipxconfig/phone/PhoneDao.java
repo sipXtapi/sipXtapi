@@ -43,7 +43,9 @@ public interface PhoneDao {
 
     public Organization loadRootOrganization();
     
-    public User loadUser(int id);    
+    public User loadUser(int id);
+    
+    public User loadUserByDisplayId(String displayId);
     
     public Endpoint loadEndpoint(int id);
     

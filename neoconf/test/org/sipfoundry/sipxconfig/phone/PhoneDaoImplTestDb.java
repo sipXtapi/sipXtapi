@@ -125,4 +125,10 @@ public class PhoneDaoImplTestDb extends TestCase {
         List endpoints = m_dao.loadEndpoints();
         assertTrue(endpoints.size() > 0);        
     }
+    
+    public void testLoadUserByDisplayId() {
+        User testUser = m_dao.loadUser(m_testData.getTestUserId());
+        User byDisplayId = m_dao.loadUserByDisplayId(testUser.getDisplayId());
+        assertNotNull(byDisplayId);
+    }
 }

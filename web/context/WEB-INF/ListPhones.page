@@ -23,7 +23,7 @@
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="source" expression="phones"/>
 		<binding name="columns">'* SerialNumber:Serial Number:endpoint.serialNumber, ' + 
-			'Assigned User:assignedUser, Model:phone.modelId, ' + 
+			'AssignedUser:Assigned User:assignedUser, Model:phone.modelId, ' + 
 			'Ext.:extension'</binding>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">

@@ -9,9 +9,10 @@
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
 		global.phoneContext </property-specification>
 	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+		type="org.sipfoundry.sipxconfig.phone.Endpoint" persistent="yes"/>
 	<property-specification name="phoneSelectionModel" 
 		type="org.apache.tapestry.form.IPropertySelectionModel"/>
+	<property-specification name="editMode" type="boolean"/>
 	<!--
 	  - A S S E T S
 	  -->	

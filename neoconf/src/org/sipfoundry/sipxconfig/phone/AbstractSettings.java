@@ -11,11 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.Serializable;
+
 
 /**
  * Base class for vendor specific setting management
  */
-public abstract class AbstractSettings {
+public abstract class AbstractSettings implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private SettingSet m_settings;
     

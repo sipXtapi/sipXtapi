@@ -18,6 +18,12 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
  * Comments
  */
 public abstract class AbstractPhonePage extends BasePage {
+    
+    public static final String PAGE_EDIT_PHONE = "EditPhone";
+
+    public static final String PAGE_ASSIGN_USER = "AssignUser";
+    
+    public static final String PAGE_LIST_PHONES = "ListPhones";
 
     public abstract PhoneContext getPhoneContext();
 

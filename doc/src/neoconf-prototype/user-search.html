@@ -13,28 +13,28 @@
 
 <p></p>
 
-<form action="phones.html">
+<form action="user-search-results.html">
 	<table>		
-		<tr>
-			<td>Device:</td>
-			<td>2932f42c96fa</td>
-		</tr>
-		<tr>
-			<td>Label</td>
-			<td><input type="text" value="Work Phone"/></td>				
-		</tr>
 	    <tr>
 			<td>User ID:</td>
-			<td><input type="text" value="msmith"/> <a href="user-search.html">search for user</a></td>
+			<td><input type="text" value="m*"/></td>
+		</tr>
+	    <tr>
+			<td>First Name:</td>
+			<td><input type="text"/></td>
+		</tr>
+	    <tr>
+			<td>Last Name:</td>
+			<td><input type="text"/></td>
 		</tr>
 	</table>
 
 	<ul class="form-actions">
 		<li>
-			<input type="submit" name="save" value="Save"/>
+			<input type="submit" name="search" value="Search"/>
 		</li>
 		<li>
-			<input type="submit" name="cancel" value="Cancel"/>
+			<input type="button" name="cancel" value="Cancel" onclick="location.href='assign-user.html'"/>
 		</li>
 	</ul>
 

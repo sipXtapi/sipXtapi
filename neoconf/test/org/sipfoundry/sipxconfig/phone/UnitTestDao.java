@@ -107,22 +107,29 @@ public class UnitTestDao extends HibernateDaoSupport {
         String testLabel = "createTestUser";
         m_testUserId = getRecordId(testLabel, connection);
         if (m_testUserId == -1) {
-            Organization org = new Organization();
-            org.setId(1);
             User testUser = new User();
-            testUser.setOrganization(org);
-            testUser.setUserGroupId(1);  //default group
             testUser.setExtension("233212121"); // assumption, unique
             testUser.setPassword("any-password");
             testUser.setFirstName("Test");
             testUser.setLastName("User");
             testUser.setDisplayId("testuser");
-            testUser.setRcsId(2); // 2='Complete User'
-
-            getHibernateTemplate().saveOrUpdate(testUser);
+            saveUser(testUser);
             m_testUserId = testUser.getId();
             setRecordId(testLabel, connection, testUser.getId());
         }
+    }
+    
+    public void saveUser(User user) {
+        Organization org = new Organization();
+        org.setId(1);
+        user.setOrganization(org);
+        user.setUserGroupId(1);  //default group
+        user.setRcsId(2); // 2='Complete User'
+        getHibernateTemplate().saveOrUpdate(user);        
+    }
+    
+    public void deleteUser(User user) {
+        getHibernateTemplate().delete(user);        
     }
 
     private int getRecordId(String testLabel, Connection connection) throws SQLException {

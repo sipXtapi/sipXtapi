@@ -11,10 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.Serializable;
+
 /**
  * Association between Users and their assigned phones.
  */
-public class EndpointAssignment {
+public class EndpointAssignment implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     
     private String m_label;
     

@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site;
 
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.User;
 
 /**
  * Represent 1 row in the list of phones UI pulling information from endpoint and phone objects
@@ -48,16 +47,18 @@ public class PhoneItem  {
     }
     
     public boolean isAssigned() {
-        User user = getEndpoint().getUser(); 
-        return user != null; 
+        // todo
+        return false;
     }
     
     public String getAssignedUser() {
-        return isAssigned() ? getEndpoint().getUser().getDisplayId() : "{unassigned}";
+        //todo
+        return "{unassigned}";
     }
     
     public String getExtension() {
-        return isAssigned() ? getEndpoint().getUser().getExtension() : " ";
+        // todo
+        return " ";
     }
     
 }

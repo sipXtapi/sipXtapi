@@ -11,11 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.Serializable;
+
 /**
  * Ultimate parent for all objects. Represent the entire configuration for a particular company or
  * organization
  */
-public class Organization {
+public class Organization implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int m_id = -1;
     

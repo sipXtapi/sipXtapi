@@ -23,8 +23,21 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
  */
 public abstract class EditPhone extends AbstractPhonePage implements PageRenderListener {
     
-    private static final String NEXT_PAGE = "ListPhones";
-            
+    public abstract Endpoint getEndpoint();
+    
+    public abstract void setEndpoint(Endpoint endpoint);
+    
+    public abstract boolean getEditMode();
+    
+    public abstract void setEditMode(boolean editMode);
+    
+    /**
+     * @return Returns all the phoneModels available to the system ready for UI selection 
+     */
+    public abstract IPropertySelectionModel getPhoneSelectionModel();
+
+    public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
+
     /**
      * called before page is drawn
      */
@@ -32,30 +45,20 @@ public abstract class EditPhone extends AbstractPhonePage implements PageRenderL
         String[] phoneIds = (String[]) getPhoneContext().getPhoneIds().toArray(new String[0]);
         setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
         
-        // editing endpoint or...
-        if (getEndpoint() == null) {
-            // ...new endpoint
+        setEditMode(getEndpoint() != null);
+
+        if (!getEditMode()) {
             setEndpoint(new Endpoint());
         }
-    }    
+    }
 
-    public abstract Endpoint getEndpoint();
-    
-    public abstract void setEndpoint(Endpoint endpoint);
-    
     public void save(IRequestCycle cycle) {
         getPhoneContext().getPhoneDao().storeEndpoint(getEndpoint());
-        cycle.activate(NEXT_PAGE);
+        cycle.activate(PAGE_LIST_PHONES);
     }
 
     public void cancel(IRequestCycle cycle) {
-        cycle.activate(NEXT_PAGE);
+        cycle.activate(PAGE_LIST_PHONES);
     }
 
-    /**
-     * @return Returns all the phoneModels available to the system ready for UI selection 
-     */
-    public abstract IPropertySelectionModel getPhoneSelectionModel();
-
-    public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
 }

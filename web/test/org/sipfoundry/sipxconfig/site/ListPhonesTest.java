@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneDao;
 public class ListPhonesTest extends TestCase {
 
     private final static String MAC_ADDRESS = "ffffffffff";
+    
     public void testListPhones() {
         PhoneContext phoneContext = SiteTestHelper.getPhoneContext();
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);

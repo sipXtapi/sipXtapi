@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,7 +28,14 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
     
     public User loadUser(int id) {
         return (User) getHibernateTemplate().load(User.class, new Integer(id));        
-    }    
+    }
+    
+    public User loadUserByDisplayId(String displayId) {
+        String query = "from User u where u.displayId = '" + displayId + "'";
+        List users = getHibernateTemplate().find(query);
+        
+        return (User) requireOneOrZero(users, query);
+    }
     
     public void storeEndpoint(Endpoint endpoint) {
         getHibernateTemplate().saveOrUpdate(endpoint);        
@@ -70,6 +78,31 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
         }
     }
     
+    /**
+     * Catch database curruption errors when more than one record exists.
+     * In general fields should have unique indexes setup to protect against
+     * this.  This method is created as a safe check only, there has been not
+     * been any experiences of courupt data to date.
+     * 
+     * @throws IllegalStateException if more than one item in collection. In general
+     * 
+     * @param c
+     * @param query
+     * @return
+     */
+    private Object requireOneOrZero(Collection c, String query) {
+        if (c.size() > 2) {
+            // DatabaseCorruptionExection ?
+            StringBuffer error = new StringBuffer().append("read ").append(c.size())
+                    .append(" and expected zero or one. query=").append(query);
+            throw new IllegalStateException(error.toString());
+        }        
+        Iterator i = c.iterator();
+        
+        return (i.hasNext() ? c.iterator().next() : null);
+    }    
+    
+    
     public void deleteSetting(Setting setting) {
         // PERFORMANCE: concerned about performance, cascade at database better
         // or custom script acceptable too 
@@ -87,35 +120,7 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
 
     public SettingSet loadSettings(int id) {
         return (SettingSet) getHibernateTemplate().load(SettingSet.class, new Integer(id));
-    }
-    
-    /*
-    public Line loadLine(User user, int position) {
-        String query = "from Line where user_id = " + user.getId()
-                + " and position = " + position;
-        Collection line = getHibernateTemplate().find(query);
-        
-        return (Line) requireOneOrZero(line, query);
-    }
-    */
-
-    /**
-     * @throws IllegalStateException if more than one item in collection 
-     * @param c
-     * @param query
-     * @return
-    Object requireOneOrZero(Collection c, String query) {
-        if (c.size() > 2) {
-            // DatabaseCorruptionExection ?
-            StringBuffer error = new StringBuffer().append("read ").append(c.size())
-                    .append(" and expected zero or one. query=").append(query);
-            throw new IllegalStateException(error.toString());
-        }        
-        Iterator i = c.iterator();
-        
-        return (i.hasNext() ? c.iterator().next() : null);
     }    
-     */
     
     public Organization loadRootOrganization() {
         return (Organization) getHibernateTemplate().load(Organization.class, new Integer(1));        

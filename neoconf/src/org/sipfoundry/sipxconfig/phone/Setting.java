@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -18,7 +19,9 @@ import java.util.Map;
 /**
  * Represent one setting in a set of settings. Composite base class to SettingSet
  */
-public class Setting {
+public class Setting implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String m_name;
 

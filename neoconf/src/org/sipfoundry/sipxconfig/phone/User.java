@@ -11,12 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * Database object
  */
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int m_id = -1;
 

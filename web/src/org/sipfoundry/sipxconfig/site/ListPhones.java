@@ -28,9 +28,6 @@ import org.sipfoundry.sipxconfig.phone.PhoneDao;
 public abstract class ListPhones extends AbstractPhonePage 
         implements PageRenderListener {
 
-    /** Serial number column */
-    public static final String SERIAL_NUMBER = "Serial Number";
-    
     // Return the model of the table
     public abstract List getPhones();
     
@@ -44,14 +41,25 @@ public abstract class ListPhones extends AbstractPhonePage
      * When user clicks on link to edit a phone/endpoint
      */
     public void editPhone(IRequestCycle cycle) {
+        EditPhone page = (EditPhone) cycle.getPage(PAGE_EDIT_PHONE);
+        page.setEndpoint(getEndpoint(cycle));
+        cycle.activate(page);
+    }
+    
+    public void assignUser(IRequestCycle cycle) {
+        AssignUser page = (AssignUser) cycle.getPage(PAGE_ASSIGN_USER);
+        page.setEndpoint(getEndpoint(cycle));
+        cycle.activate(page);
+    }
+    
+    /**
+     * load from dao, but optionally could find it in list
+     */
+    private Endpoint getEndpoint(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) params[0];
-        EditPhone page = (EditPhone) cycle.getPage("EditPhone");
-        // load from dao, but optionally could find it in list
         PhoneDao dao = getPhoneContext().getPhoneDao();
-        Endpoint endpoint = dao.loadEndpoint(endpointId.intValue());
-        page.setEndpoint(endpoint);
-        cycle.activate(page);
+        return dao.loadEndpoint(endpointId.intValue());        
     }
     
     /**

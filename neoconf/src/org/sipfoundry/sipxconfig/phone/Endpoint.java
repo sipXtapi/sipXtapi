@@ -11,12 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.Set;
+import java.io.Serializable;
+
 
 /**
  * Database object representing an actualy physical phone you can touch.
  */
-public class Endpoint {
+public class Endpoint implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int m_id = -1;
 
@@ -24,11 +27,7 @@ public class Endpoint {
 
     private String m_serialNumber;
 
-    private User m_user;
-
     private String m_phoneId;
-
-    private Set m_assignedEnpoints;
     
     private SettingSet m_settings;
 
@@ -68,34 +67,6 @@ public class Endpoint {
 
     public void setSerialNumber(String serialNumber) {
         m_serialNumber = serialNumber;
-    }
-
-    /**
-     * @return null if unassigned
-     */
-    public User getUser() {
-        return m_user;
-    }
-
-    /**
-     * @param user The user to set.
-     */
-    public void setUser(User user) {
-        m_user = user;
-    }
-
-    /**
-     * @return Returns the assignedEnpoints.
-     */
-    public Set getAssignedEnpoints() {
-        return m_assignedEnpoints;
-    }
-
-    /**
-     * @param assignedEnpoints The assignedEnpoints to set.
-     */
-    public void setAssignedEnpoints(Set assignedEnpoints) {
-        m_assignedEnpoints = assignedEnpoints;
     }
     
     public SettingSet getSettings() {
