@@ -50,14 +50,8 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
         
     }
 
-    public void updateGateway(Integer id, Gateway gatewayData) {
-        Gateway gateway = getGateway(id);
-        gateway.update(gatewayData);        
-        getHibernateTemplate().update(gateway);
-    }
-
-    public void addGateway(Gateway gateway) {
-        getHibernateTemplate().save(gateway);
+    public void storeGateway(Gateway gateway) {
+        getHibernateTemplate().saveOrUpdate(gateway);
     }
 
     /**

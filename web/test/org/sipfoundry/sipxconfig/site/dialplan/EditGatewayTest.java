@@ -41,7 +41,7 @@ public class EditGatewayTest extends TestCase {
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
         DialPlanContext context = (DialPlanContext) contextControl.getMock();
 
-        context.addGateway(g);
+        context.storeGateway(g);
 
         contextControl.replay();
         m_editGatewayPage.setDialPlanManager(context);
@@ -74,7 +74,7 @@ public class EditGatewayTest extends TestCase {
         MockControl contextControl = MockControl.createStrictControl(DialPlanContext.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
         DialPlanContext context = (DialPlanContext) contextControl.getMock();
-        context.addGateway(g);
+        context.storeGateway(g);
         contextControl.expectAndReturn(context.getFlexDialPlan(), flexDialPlan);
         contextControl.replay();
 

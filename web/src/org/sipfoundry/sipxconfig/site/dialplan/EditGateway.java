@@ -76,12 +76,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     void saveValid(IRequestCycle cycle) {
         DialPlanContext manager = getDialPlanManager();
         Gateway gateway = getGateway();
-        Integer id = getGatewayId();
-        if (id == null) {
-            manager.addGateway(gateway);
-        } else {
-            manager.updateGateway(id, gateway);
-        }
+        manager.storeGateway(gateway);
         // attach gateway to current rule
         Integer ruleId = getRuleId();
         if (null != ruleId) {

@@ -26,9 +26,7 @@ public interface DialPlanContext {
 
     public abstract Gateway getGateway(Integer id);
 
-    public abstract void updateGateway(Integer id, Gateway gatewayData);
-
-    public abstract void addGateway(Gateway gateway);
+    public abstract void storeGateway(Gateway gateway);
 
     public abstract void clear();
 

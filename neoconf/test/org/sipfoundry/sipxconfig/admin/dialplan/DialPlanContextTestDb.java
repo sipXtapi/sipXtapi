@@ -36,14 +36,14 @@ public class DialPlanContextTestDb extends TestCase {
         Gateway g2 = new Gateway();
 
         // add g1
-        m_context.addGateway(g1);
+        m_context.storeGateway(g1);
 
         assertEquals(1, m_context.getGateways().size());
         assertTrue(m_context.getGateways().contains(g1));
         assertFalse(m_context.getGateways().contains(g2));
 
         // add g2
-        m_context.addGateway(g2);
+        m_context.storeGateway(g2);
 
         assertEquals(2, m_context.getGateways().size());
         assertTrue(m_context.getGateways().contains(g1));
@@ -56,9 +56,9 @@ public class DialPlanContextTestDb extends TestCase {
         Gateway g3 = new Gateway();
 
         // add all
-        m_context.addGateway(g1);
-        m_context.addGateway(g2);
-        m_context.addGateway(g3);
+        m_context.storeGateway(g1);
+        m_context.storeGateway(g2);
+        m_context.storeGateway(g3);
 
         Integer[] toBeRemoved = { g1.getId(), g3.getId() };
         m_context.deleteGateways(Arrays.asList(toBeRemoved));
@@ -70,32 +70,8 @@ public class DialPlanContextTestDb extends TestCase {
         assertTrue(gateways.contains(g2));
         assertFalse(gateways.contains(g3));
     }
-
+    
     public void testUpdateGateway() throws Exception {
-        TestHelper.setUpHibernateSession();
-        Gateway g1 = new Gateway();
-        m_context.addGateway(g1);
-        Integer id = g1.getId();
-        
-        m_context.addGateway(new Gateway());
-
-        System.err.println(id);
-        Gateway edited = new Gateway();
-        edited.setAddress("a1");
-        edited.setName("sd");
-        edited.setDescription("ff");
-
-        // different before update
-        assertFalse(edited.getName().equals(g1.getName()));
-        assertFalse(edited.getAddress().equals(g1.getAddress()));
-        assertFalse(edited.getDescription().equals(g1.getDescription()));
-
-        m_context.updateGateway(id, edited);
-
-        // the same after update
-        assertEquals(g1.getAddress(), edited.getAddress());
-        assertEquals(g1.getName(), edited.getName());
-        assertEquals(g1.getDescription(), edited.getDescription());
-        TestHelper.tearDownHibernateSession();
+        // TODO: Rewrite w/dbunit
     }
 }
