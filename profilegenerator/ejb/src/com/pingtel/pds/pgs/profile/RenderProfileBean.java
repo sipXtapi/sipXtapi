@@ -31,6 +31,14 @@ import javax.naming.NamingException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.sipfoundry.sipxconfig.core.CoreDao;
+import org.sipfoundry.sipxconfig.core.Phone;
+import org.sipfoundry.sipxconfig.core.PhoneFactory;
+import org.sipfoundry.sipxconfig.core.SipxConfig;
+import org.sipfoundry.sipxconfig.core.LogicalPhone;
+import org.springframework.beans.factory.access.BeanFactoryLocator;
+import org.springframework.beans.factory.access.BeanFactoryReference;
+import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
@@ -41,14 +49,6 @@ import com.pingtel.pds.pgs.phone.CSProfileDetail;
 import com.pingtel.pds.pgs.phone.CSProfileDetailHome;
 import com.pingtel.pds.pgs.phone.Device;
 import com.pingtel.pds.profilewriter.ProfileWriter;
-import org.sipfoundry.sipxconfig.core.Phone;
-import org.sipfoundry.sipxconfig.core.LogicalPhone;
-import org.sipfoundry.sipxconfig.core.PhoneFactory;
-import org.sipfoundry.sipxconfig.core.SipxConfig;
-import org.sipfoundry.sipxconfig.core.CoreDao;
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.BeanFactoryReference;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 
 /**
  *  RenderProfileBean is the EJ Bean implementation of the RenderProile
@@ -194,8 +194,7 @@ public class RenderProfileBean extends JDBCAwareEJB
                 Phone phone = phones.getPhoneByModel(device.getModel());
 
                 CoreDao dao = sipx.getCoreDao();
-                LogicalPhone logicalPhone = (LogicalPhone) dao.requireById(LogicalPhone.class,
-                        deviceID.intValue());
+                LogicalPhone logicalPhone = (LogicalPhone) dao.loadLogicalPhone(deviceID.intValue());
                 String notifyURL = phone.getProfileNotifyUrl(logicalPhone, profileType);
                 int profileSequenceNumber = phone.getProfileSequenceNumber(logicalPhone,
                         profileType);
