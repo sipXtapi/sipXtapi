@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
-import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public class ManagePhonesTest extends TestCase {
 

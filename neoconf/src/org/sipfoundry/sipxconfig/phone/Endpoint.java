@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -32,6 +33,8 @@ public class Endpoint implements Serializable {
     private String m_phoneId;
     
     private ValueStorage m_valueStorage;
+    
+    private List m_lines;
 
     /**
      * @return ids used in PhoneFactory
@@ -84,5 +87,13 @@ public class Endpoint implements Serializable {
     
     public void setValueStorage(ValueStorage valueStorage) {
         m_valueStorage = valueStorage;
+    }
+    
+    public List getLines() {
+        return m_lines;
+    }
+    
+    public void setLines(List lines) {
+        m_lines = lines;
     }
 }

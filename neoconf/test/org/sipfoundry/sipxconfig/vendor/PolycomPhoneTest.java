@@ -21,13 +21,10 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.phone.Credential;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.User;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 public class PolycomPhoneTest extends XMLTestCase {
@@ -53,14 +50,6 @@ public class PolycomPhoneTest extends XMLTestCase {
         phone.setModelId(Polycom.MODEL_600.getModelId());
         phone.setEndpoint(endpoint);
         phone.setVelocityEngine(TestHelper.getVelocityEngine());
-        
-        // create basic data
-        Line line = new Line();
-        User user = new User();
-        Credential credential = new Credential();
-        user.setCredential(credential);
-        line.setEndpoint(endpoint);
-        line.setUser(user);
         
         // sample settings
         SettingGroup root = phone.getSettingGroup();

@@ -58,6 +58,7 @@ create sequence credential_seq;
  */
 create table line(
   line_id int4 not null primary key,
+  position int4 not null,
   credential_id int4 not null,
   user_id int4 not null,
   storage_id int4,

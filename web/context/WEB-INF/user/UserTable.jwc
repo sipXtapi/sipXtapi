@@ -14,13 +14,19 @@
     <parameter name="users" 
         type="java.util.List"
         required="yes" 
-        direction="in">
+        direction="auto">
     </parameter>
-    <parameter name="emptyMessage"
+    <parameter name="selectListener" 
+        type="org.apache.tapestry.IActionListener"
+        required="yes" 
+        direction="auto">
+    </parameter>
+    <!-- parameter name="emptyMessage"
         type="java.lang.String"
         required="no"
-        direction="in">
-    </parameter>
+        default-value="blank"
+        direction="auto">
+    </parameter -->
     <!--
       - P R O P E R T I E S
       -->
@@ -40,9 +46,9 @@
         <!-- binding name="condition" expression="users.empty"/ -->
         <binding name="condition" expression="true"/>
     </component>
-    <component id="emptyMessage" type="Insert">
+    <!-- component id="emptyMessage" type="Insert">
         <binding name="value" expression="emptyMessage"/>
-    </component>
+    </component -->
     <component id="showTable" type="Conditional">
         <!--binding name="condition" expression="!users.empty"/ -->
         <binding name="condition" expression="true"/>
@@ -64,5 +70,8 @@
 	</component>
     <component id="selectedRow" type="Checkbox">
         <binding name="selected" expression="selections.selected[currentUser.id]"/>
+    </component>    
+    <component id="select" type="Submit">
+        <binding name="listener" expression="selectListener"/>
     </component>    
 </component-specification>

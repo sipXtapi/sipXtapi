@@ -19,13 +19,13 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class UserTable extends BaseComponent implements PageRenderListener {
-
+    
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selected);
-
+    
     public abstract List getUsers();
-
+    
     public abstract void setUsers(List users);
 
     public void pageBeginRender(PageEvent event_) {

@@ -27,8 +27,6 @@ public class Line implements Serializable {
     /** null ok */
     private User m_user;
 
-    private Endpoint m_endpoint;
-
     private ValueStorage m_valueStorage;
 
     private Credential m_credential;
@@ -39,14 +37,6 @@ public class Line implements Serializable {
 
     public void setCredential(Credential credential) {
         m_credential = credential;
-    }
-
-    public Endpoint getEndpoint() {
-        return m_endpoint;
-    }
-
-    public void setEndpoint(Endpoint endpoint) {
-        m_endpoint = endpoint;
     }
 
     public int getId() {

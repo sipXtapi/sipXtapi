@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -38,34 +37,9 @@ public class PhoneContextTestDb extends TestCase {
         TestHelper.tearDown();
     }
 
-    public void testQueryOrSingle() {
-        List args = new ArrayList();
-        StringBuffer q = new StringBuffer("People");
-        PhoneContextImpl.queryOr("like", q, args, "hoover", "president");
-        assertEquals("People where president like ?", q.toString());
-        assertEquals("hoover", args.get(0));
-    }
-    
-    public void testQueryOrMultiple() {
-        List args = new ArrayList();
-        StringBuffer q = new StringBuffer("Bird");
-        PhoneContextImpl.queryOr("like", q, args, "raptor", "class");
-        PhoneContextImpl.queryOr("like", q, args, "", "region");
-        PhoneContextImpl.queryOr("=", q, args, null, "migration");
-        PhoneContextImpl.queryOr("=", q, args, "6", "wingspan");
-        assertEquals("Bird where class like ? or wingspan = ?", q.toString());
-        assertEquals("raptor", args.get(0));
-        assertEquals("6", args.get(1));
-    }
-
     public void testSampleData() {
         assertNotNull(createSampleCredential());
         assertNotNull(createSampleEndpoint());
-    }
-    
-    public void testSampleEndpointLine() {
-        User user = createSampleUser();
-        assertNotNull(createSampleLine(user));        
     }
     
     public void testSampleEndpointSettings() {
@@ -81,9 +55,7 @@ public class PhoneContextTestDb extends TestCase {
     public void testLoadPhoneSummaries() {
         int preSize = m_context.loadPhoneSummaries().size();
 
-        User user = createSampleUser();
-        Line line = createSampleLine(user);
-        assertNotNull(line);
+        assertNotNull(createSampleEndpoint());
         
         // just test there's one more in list, not a very 
         // hard test
@@ -155,21 +127,7 @@ public class PhoneContextTestDb extends TestCase {
         
         return cred;
     }
-    
-    /**
-     * Create some generic sample data, destroyed verifyDataUnaltered
-     */
-    public Line createSampleLine(User user) {
-        Line line = new Line();        
-        line.setCredential(createSampleCredential());
-        line.setEndpoint(createSampleEndpoint());
-        line.setUser(user);
-        m_context.storeLine(line);                
-        TestHelper.deleteOnTearDown(line);
         
-        return line;
-    }
-    
     /** 
      * Most data can be cleared by running patch, run this test as application to clear
      * test data that exists in other tables from misbehaved unittests

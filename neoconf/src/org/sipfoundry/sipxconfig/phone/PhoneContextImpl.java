@@ -16,6 +16,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.hibernate.Criteria;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.expression.Criterion;
+import net.sf.hibernate.expression.Expression;
+
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -25,6 +31,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware, PhoneContext {
+
+    private static final char LIKE_WILDCARD = '%';
 
     private BeanFactory m_beanFactory;
     
@@ -98,29 +106,43 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         
         return (User) requireOneOrZero(users, query);
     }
-    
+        
     public List loadUserByTemplateUser(User template) {
-        List args = new ArrayList();
-        StringBuffer query = new StringBuffer("from User");        
-        // not sure why hibernate won't translate my property to columns names
-        String like = "like";
-        queryOr(like, query, args, template.getFirstName(), "first_name");
-        queryOr(like, query, args, template.getLastName(), "last_name");
-        queryOr(like, query, args, template.getDisplayId(), "display_id");
-        queryOr("=", query, args, template.getExtension(), "extension");            
-        return getHibernateTemplate().find(query.toString(), args.toArray());
-    }
-    
-    static void queryOr(String expr, StringBuffer q, List args, String arg, String property) {
-        if (arg != null && arg.trim().length() > 0) {
-            if (args.size() == 0) {
-                q.append(" where ");
-            } else {
-                q.append(" or ");
+        try {
+            // See a query building facade here, lot's of redundancy and areas for error. 
+            // wait for more cases before refactoring...
+            Criteria criteria = getHibernateTemplate().createCriteria(getSession(), User.class);            
+            ArrayList ors = new ArrayList();
+            if (StringUtils.isNotBlank(template.getFirstName())) {
+                ors.add(Expression.like("firstName", template.getFirstName() + LIKE_WILDCARD));
             }
-            q.append(property).append(' ').append(expr).append(" ?");
-            args.add(arg);
+            if (!StringUtils.isNotBlank(template.getLastName())) {
+                ors.add(Expression.like("lastName", template.getLastName() + LIKE_WILDCARD));
+            }
+            if (!StringUtils.isNotBlank(template.getExtension())) {
+                ors.add(Expression.eq("extension", template.getExtension()));
+            }
+            if (!StringUtils.isNotBlank(template.getDisplayId())) {
+                ors.add(Expression.like("displayId", template.getDisplayId() + LIKE_WILDCARD));
+            }
+            
+            Criterion normalUsers = Expression.isNotNull("userGroupId");
+            if (ors.isEmpty()) {
+                criteria.add(normalUsers);
+            } else {
+                Criterion templateExpression = (Criterion) ors.get(0);
+                for (int i = 1; i < ors.size(); i++) {
+                    Criterion next = (Criterion) ors.get(i);
+                    templateExpression = Expression.or(templateExpression, next);
+                }
+                criteria.add(Expression.and(normalUsers, templateExpression));                
+            }
+            
+            return criteria.list();
+        } catch (HibernateException e) {
+            getHibernateTemplate().convertHibernateAccessException(e);
         }
+        return null;
     }
     
     public void storeEndpoint(Endpoint endpoint) {
@@ -144,45 +166,19 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public List loadPhoneSummaries() {        
-        String endpointQuery = "from Endpoint e order by e.id";
+        String endpointQuery = "from Endpoint e left join fetch e.lines line left join line.user";
         List endpoints = getHibernateTemplate().find(endpointQuery);
         List summaries = new ArrayList(endpoints.size());
         
-        // order by same as endpoint to help juxtapositioning
-        // load lines at same time, only ineffiec. for lines that
-        // are on many phones, they get sent many times in db search
-        // results.
-        String lineQuery = "from Line l left join fetch l.user order by l.endpoint";
-        List lines = getHibernateTemplate().find(lineQuery);
-        
-        Line line = null;
-        Endpoint endpoint = null;
-        PhoneSummary summary = new PhoneSummary();
-        summary.setLines(new ArrayList());
-        int nEndpoints = endpoints.size();
-        int nlines = lines.size();
-        int j = 0;
-        for (int i = 0; i < nEndpoints; i++) {
-            endpoint = (Endpoint) endpoints.get(i);
-            line = (Line) getn(j, lines);
-            while (j < nlines && line.getEndpoint().getId() == endpoint.getId()) {
-                summary.getLines().add(line);                
-                line = (Line) getn(j++, lines);
-            }
+        // TODO: Make this a cursor usable by tapestry
+        for (int i = 0; i < endpoints.size(); i++) {
+            Endpoint endpoint = (Endpoint) endpoints.get(i);
+            PhoneSummary summary = new PhoneSummary();
             summary.setPhone(getPhone(endpoint));
-            summaries.add(summary);
-            summary = new PhoneSummary();
-            summary.setLines(new ArrayList());
+            summary.setLines(endpoint.getLines());
         }
         
         return summaries;
-    }
-    
-    /**
-     * helper routine to avoid end of list exception
-     */
-    private static final Object getn(int ndx, List l) {
-        return (ndx < l.size() ? l.get(ndx) : null);
     }
     
     public Endpoint loadEndpoint(int id) {

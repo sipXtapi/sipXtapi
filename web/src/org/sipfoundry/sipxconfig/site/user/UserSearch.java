@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -25,21 +25,39 @@ import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 public abstract class UserSearch extends BaseComponent implements PageRenderListener {
     
+    private List m_users = new ArrayList();
+    
     public abstract User getUser();
 
     public abstract void setUser(User user);
+        
+    public List getUsers() {
+        return m_users;
+    }
     
-    public abstract void setUsers(List users);
-    
-    public abstract List getUsers();
+    public void setUsers(List users) {
+        // keep original collection, reference has already been given to other
+        // components.  
+        m_users.clear();
+        m_users.addAll(users);
+    }
     
     public void search(IRequestCycle cycle) {
         PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
         setUsers(context.loadUserByTemplateUser(getUser()));
     }
     
-    public void pageBeginRender(PageEvent event_) {        
-        setUser(new User());
-        setUsers(Collections.EMPTY_LIST);
+    public void pageBeginRender(PageEvent event_) {
+        User user = getUser();
+        if (user == null) {        
+            setUser(new User());
+        }
+    }
+    
+    protected void cleanupAfterRender(IRequestCycle cycle) {
+        super.cleanupAfterRender(cycle);
+
+        // reset my own variables
+        m_users.clear();
     }
 }

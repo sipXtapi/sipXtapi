@@ -59,8 +59,9 @@ public abstract class NewLine extends BasePage {
         phoneContext.storeLine(getLine());
     }
     
-    void saveEndpoint(PhoneContext phoneContext) {
-        phoneContext.storeEndpoint(getLine().getEndpoint());
+    void saveEndpoint(PhoneContext phoneContext_) {
+        // TODO: may not have line interface in 2.8
+        throw new RuntimeException("not implemented");
     }
 
     public void cancel(IRequestCycle cycle) {

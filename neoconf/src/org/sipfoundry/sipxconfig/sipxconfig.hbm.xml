@@ -22,6 +22,11 @@
 		<property name="phoneId" column="phone_id"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+	    <list name="lines" lazy="true" table="line">
+			<key column="line_id"/>
+			<index column="position"/>
+    		<one-to-many class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+		</list>		
 	</class>
 	<class name="org.sipfoundry.sipxconfig.phone.Credential" table="credential">
 		<jcs-cache usage="read-write"/>
@@ -49,8 +54,6 @@
 			class="org.sipfoundry.sipxconfig.phone.User"/>
 		<many-to-one name="credential" column="credential_id" 
 			class="org.sipfoundry.sipxconfig.phone.Credential"/>
-		<many-to-one name="endpoint" column="endpoint_id" 
-			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 	</class>

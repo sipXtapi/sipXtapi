@@ -21,8 +21,6 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.site.phone.EditPhone;
-import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public class EditPhoneTest extends TestCase {
 
