@@ -316,8 +316,8 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 {
                     // There is no route check if it is mapped to something local
 //#ifdef TEST_PRINT
-                    syslog(FAC_SIP, PRI_WARNING, "SipAaa::handleMessage no route found\n") ;
-                    //osPrintf("WARNING: SipAaa::handleMessage no route found\n");
+                    syslog(FAC_SIP, PRI_DEBUG, "SipAaa::handleMessage no route found\n") ;
+                    //osPrintf("DEBUG: SipAaa::handleMessage no route found\n");
 //#endif
                     UtlString uri;
                     sipRequest->getRequestUri(&uri);
