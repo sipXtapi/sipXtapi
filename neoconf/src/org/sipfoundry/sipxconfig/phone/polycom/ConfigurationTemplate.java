@@ -104,9 +104,8 @@ public abstract class ConfigurationTemplate {
     public void generateProfile(Writer out) {
         Template template;
         // has to be relative to system directory
-        PolycomPhoneConfig config = getPhone().getConfig();
         try {
-            template = config.getVelocityEngine().getTemplate(getTemplate());
+            template = getPhone().getVelocityEngine().getTemplate(getTemplate());
         } catch (Exception e) {
             throw new RuntimeException("Error creating velocity template " + getTemplate(), e);
         }

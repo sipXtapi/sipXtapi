@@ -35,7 +35,7 @@ public class CoreConfigurationTest extends XMLTestCase {
         CoreConfiguration cfg = new CoreConfiguration(
             helper.phone[0], helper.endpoint[0]);
         
-        cfg.setTemplate(helper.phone[0].getConfig().getCoreTemplate());
+        cfg.setTemplate(helper.phone[0].getCoreTemplate());
         CharArrayWriter out = new CharArrayWriter();
         cfg.generateProfile(out);       
         

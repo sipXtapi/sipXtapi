@@ -36,12 +36,12 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         // no files get created here, but must be empty
         String root = TestHelper.getTestDirectory() + "/testGenerateProfile";
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        helper.phone[0].getConfig().setTftpRoot(root);
+        helper.phone[0].setTftpRoot(root);
         
         ApplicationConfiguration app = new ApplicationConfiguration(
             helper.phone[0], helper.endpoint[0]);
         
-        app.setTemplate(helper.phone[0].getConfig().getApplicationTemplate());
+        app.setTemplate(helper.phone[0].getApplicationTemplate());
         CharArrayWriter out = new CharArrayWriter();
         app.generateProfile(out);
         
@@ -90,7 +90,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         String root = TestHelper.getTestDirectory() + "/testDeleteStale";
         File rootDir = new File(root);
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        helper.phone[0].getConfig().setTftpRoot(root);
+        helper.phone[0].setTftpRoot(root);
         
         ApplicationConfiguration app0001 = new ApplicationConfiguration(
             helper.phone[0], helper.endpoint[0]);

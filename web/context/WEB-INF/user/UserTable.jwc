@@ -4,8 +4,8 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserTable"
-    allow-body="yes"
-    allow-informal-parameters="yes">
+    allow-body="no"
+    allow-informal-parameters="no">
     
     <description>add a description</description>
     <!--
@@ -25,12 +25,6 @@
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	required="yes"
     	direction="auto"/>    
-    <!-- parameter name="emptyMessage"
-        type="java.lang.String"
-        required="no"
-        default-value="blank"
-        direction="auto">
-    </parameter -->
     <!--
       - P R O P E R T I E S
       -->
@@ -46,17 +40,6 @@
 	<!--
 	  - C O M P O N E N T S
 	  -->
-    <component id="showEmptyMessage" type="Conditional">
-        <!-- binding name="condition" expression="users.empty"/ -->
-        <binding name="condition" expression="true"/>
-    </component>
-    <!-- component id="emptyMessage" type="Insert">
-        <binding name="value" expression="emptyMessage"/>
-    </component -->
-    <component id="showTable" type="Conditional">
-        <!--binding name="condition" expression="!users.empty"/ -->
-        <binding name="condition" expression="true"/>
-    </component>
     <component id="selectUserForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>

@@ -48,7 +48,7 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     
     String getDirectory() {
         if (m_directory == null) {
-            String tftpRoot = getPhone().getConfig().getTftpRoot();
+            String tftpRoot = getPhone().getTftpRoot();
             String endpointDir = getEndpoint().getSerialNumber();           
             m_staleDirectories.clear();
             m_directory = getNextDirectorySequence(tftpRoot, endpointDir, m_staleDirectories);
@@ -120,7 +120,7 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     }
     
     public void deleteStaleDirectories() throws IOException {
-        File tftpRoot = new File(getPhone().getConfig().getTftpRoot());
+        File tftpRoot = new File(getPhone().getTftpRoot());
         Iterator i = m_staleDirectories.iterator();
         while (i.hasNext()) {
             File stale = new File(tftpRoot, (String) i.next());

@@ -21,7 +21,9 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 
-
+/**
+ * Tests file [MAC_ADDRESS.d]/phone.cfg
+ */
 public class PhoneConfigurationTest extends XMLTestCase {
     
     public void setUp() {
@@ -34,7 +36,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         PhoneConfiguration cfg = new PhoneConfiguration(
             helper.phone[0], helper.endpoint[0]);
         
-        cfg.setTemplate(helper.phone[0].getConfig().getPhoneTemplate());
+        cfg.setTemplate(helper.phone[0].getPhoneTemplate());
         CharArrayWriter out = new CharArrayWriter();
         cfg.generateProfile(out);
         

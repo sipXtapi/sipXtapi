@@ -15,11 +15,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**
@@ -29,19 +31,77 @@ public class PolycomPhone extends GenericPhone {
 
     private Polycom m_model = Polycom.MODEL_300;
 
-    private PolycomPhoneConfig m_config;
+    private CoreContext m_coreContext;
+
+    private String m_tftpRoot;
+
+    private VelocityEngine m_velocityEngine;
+
+    private String m_phoneConfigDir = "polycom/mac-address.d";
+
+    private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
+
+    private String m_sipTemplate = m_phoneConfigDir + "/sip.cfg.vm";
+
+    private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
+
+    private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
 
     public PolycomPhone() {
         setEndpointModelFilename("polycom/phone.xml");
         setLineModelFilename("polycom/line.xml");
     }
 
-    public void setConfig(PolycomPhoneConfig config) {
-        m_config = config;
+    public VelocityEngine getVelocityEngine() {
+        return m_velocityEngine;
     }
 
-    public PolycomPhoneConfig getConfig() {
-        return m_config;
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
+    }
+
+    public String getTftpRoot() {
+        return m_tftpRoot;
+    }
+
+    public void setTftpRoot(String tftpRoot) {
+        m_tftpRoot = tftpRoot;
+    }
+
+    public String getPhoneTemplate() {
+        return m_phoneTemplate;
+    }
+
+    public void setPhoneTemplate(String phoneTemplate) {
+        m_phoneTemplate = phoneTemplate;
+    }
+
+    public String getCoreTemplate() {
+        return m_coreTemplate;
+    }
+
+    public void setCoreTemplate(String coreTemplate) {
+        m_coreTemplate = coreTemplate;
+    }
+
+    public String getApplicationTemplate() {
+        return m_applicationTemplate;
+    }
+
+    public void setApplicationTemplate(String applicationTemplate) {
+        m_applicationTemplate = applicationTemplate;
+    }
+
+    public String getSipTemplate() {
+        return m_sipTemplate;
+    }
+
+    public void setSipTemplate(String sipTemplate) {
+        m_sipTemplate = sipTemplate;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     public String getModelId() {
@@ -61,7 +121,7 @@ public class PolycomPhone extends GenericPhone {
     }
 
     private void initialize() {
-        File tftpRootFile = new File(getConfig().getTftpRoot());
+        File tftpRootFile = new File(getTftpRoot());
         if (!tftpRootFile.exists()) {
             if (!tftpRootFile.mkdirs()) {
                 throw new RuntimeException("Could not create TFTP root directory "
@@ -71,11 +131,11 @@ public class PolycomPhone extends GenericPhone {
     }
 
     /**
-     * TODO: should be private, avoiding checkstyle error
+     * HACK: should be private, avoiding checkstyle error
      */
     void generateProfile(ConfigurationTemplate cfg, String outputFile) throws IOException {
         FileWriter out = null;
-        String tftpRoot = getConfig().getTftpRoot() + '/';
+        String tftpRoot = getTftpRoot() + '/';
         try {
             File f = new File(tftpRoot + outputFile);
             File d = f.getParentFile();
@@ -94,25 +154,23 @@ public class PolycomPhone extends GenericPhone {
         }
     }
 
-    public void generateProfiles(PhoneContext context_, Endpoint endpoint) throws IOException {
+    public void generateProfiles(Endpoint endpoint) throws IOException {
         initialize();
 
-        PolycomPhoneConfig config = getConfig();
-
         ApplicationConfiguration app = new ApplicationConfiguration(this, endpoint);
-        app.setTemplate(config.getApplicationTemplate());
+        app.setTemplate(getApplicationTemplate());
         generateProfile(app, app.getAppFilename());
 
         CoreConfiguration core = new CoreConfiguration(this, endpoint);
-        core.setTemplate(config.getCoreTemplate());
+        core.setTemplate(getCoreTemplate());
         generateProfile(core, app.getCoreFilename());
 
         PhoneConfiguration phone = new PhoneConfiguration(this, endpoint);
-        phone.setTemplate(config.getPhoneTemplate());
+        phone.setTemplate(getPhoneTemplate());
         generateProfile(phone, app.getPhoneFilename());
 
         SipConfiguration sip = new SipConfiguration(this, endpoint);
-        sip.setTemplate(config.getSipTemplate());
+        sip.setTemplate(getSipTemplate());
         generateProfile(sip, app.getSipFilename());
 
         app.deleteStaleDirectories();
@@ -124,9 +182,12 @@ public class PolycomPhone extends GenericPhone {
         SettingGroup lineModel = super.getSettingModel(line);
         User u = line.getUser();
         if (u != null) {
-            SettingGroup reg = (SettingGroup) lineModel
-                    .getSetting(ConfigurationTemplate.REGISTRATION_SETTINGS);
+            String domainName = m_coreContext.loadRootOrganization().getDnsDomain();
+            Setting reg = lineModel.getSetting("reg");
             reg.getSetting("displayName").setValue(u.getDisplayId());
+            reg.getSetting("auth.userId").setValue(u.getDisplayId());
+
+            reg.getSetting("server").getSetting("1").getSetting("address").setValue(domainName);
         }
 
         // See pg. 125 Admin Guide/16 June 2004

@@ -30,7 +30,7 @@ public interface Phone {
 
     public SettingGroup getSettingModel(Line line);
     
-    public void generateProfiles(PhoneContext phoneContext, Endpoint endpoint) throws IOException;
+    public void generateProfiles(Endpoint endpoint) throws IOException;
     
-    public void restart(PhoneContext phoneContext, Endpoint endpoint) throws IOException;
+    public void restart(Endpoint endpoint) throws IOException;
 }

@@ -13,12 +13,6 @@ package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
-/**
- * @author dhubler
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class LineTest extends TestCase {
 
     public void testMoveLine() {

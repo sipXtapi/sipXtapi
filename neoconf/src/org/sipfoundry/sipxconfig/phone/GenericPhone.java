@@ -60,13 +60,13 @@ public class GenericPhone implements Phone {
     /**
      * Not applicable
      */
-    public void generateProfiles(PhoneContext phoneContext_, Endpoint endpoint_) throws IOException {        
+    public void generateProfiles(Endpoint endpoint_) throws IOException {        
     }
     
     /**
      * Not applicable
      */
-    public void restart(PhoneContext phoneContext_, Endpoint endpoint_) throws IOException {
+    public void restart(Endpoint endpoint_) throws IOException {
     }
     
     public String getEndpointModelFilename() {

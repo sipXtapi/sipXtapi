@@ -11,7 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -32,8 +35,16 @@ public class PolycomTestHelper {
     ValueStorage[] valueStorage;
     
     public static PolycomTestHelper plainEndpointSeed() throws Exception {
+        MockControl coreControl = MockControl.createNiceControl(CoreContext.class);
+        CoreContext core = (CoreContext) coreControl.getMock();
+        Organization rootOrg = new Organization();
+        rootOrg.setDnsDomain("sipfoundry.org");
+        coreControl.expectAndReturn(core.loadRootOrganization(), rootOrg);
+        coreControl.replay();
+        
         PolycomTestHelper helper = new PolycomTestHelper();
         helper.phone = new PolycomPhone[] { new PolycomPhone() };
+        helper.phone[0].setCoreContext(core);
         helper.phone[0].setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
         helper.phone[0].setModelId(Polycom.MODEL_600.getModelId());
 
@@ -42,7 +53,7 @@ public class PolycomTestHelper {
         helper.endpoint[0].setPhoneId(helper.phone[0].getModelId());
         
         helper.user = new User[] { new User() };
-        helper.user[0].setDisplayId("Joe User");
+        helper.user[0].setDisplayId("juser");
         helper.user[0].setFirstName("Joe");
         helper.user[0].setLastName("User");
         
@@ -50,10 +61,8 @@ public class PolycomTestHelper {
         helper.line[0].setUser(helper.user[0]);
         helper.endpoint[0].addLine(helper.line[0]);
         
-        PolycomPhoneConfig config = new PolycomPhoneConfig();
-        config.setTftpRoot(TestHelper.getTestDirectory());
-        config.setVelocityEngine(TestHelper.getVelocityEngine());
-        helper.phone[0].setConfig(config);
+        helper.phone[0].setTftpRoot(TestHelper.getTestDirectory());
+        helper.phone[0].setVelocityEngine(TestHelper.getVelocityEngine());
         
         return helper;
     }

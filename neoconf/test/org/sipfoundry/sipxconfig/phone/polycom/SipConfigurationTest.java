@@ -35,7 +35,7 @@ public class SipConfigurationTest  extends XMLTestCase {
         SipConfiguration cfg = new SipConfiguration(
             helper.phone[0], helper.endpoint[0]);
         
-        cfg.setTemplate(helper.phone[0].getConfig().getSipTemplate());
+        cfg.setTemplate(helper.phone[0].getSipTemplate());
         CharArrayWriter out = new CharArrayWriter();
         cfg.generateProfile(out);       
         

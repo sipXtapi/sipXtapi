@@ -90,7 +90,8 @@ public abstract class ManagePhones extends BasePage
     }
     
     public void generateProfiles(IRequestCycle cycle_) {
-        // TODO: Should execute asychronously
+        // TODO: Should execute asychronously and submit job
+        // to job database table 
         PhoneContext phoneContext = getPhoneContext();
         
         SelectMap selections = getSelections();        
@@ -100,7 +101,7 @@ public abstract class ManagePhones extends BasePage
             Endpoint endpoint = phoneContext.loadEndpoint(endpointId.intValue());
             Phone phone = phoneContext.getPhone(endpoint);
             try {
-                phone.generateProfiles(phoneContext, endpoint);
+                phone.generateProfiles(endpoint);
             } catch (IOException ioe) {
                 throw new RuntimeException("Error generating profiles", ioe);
             }

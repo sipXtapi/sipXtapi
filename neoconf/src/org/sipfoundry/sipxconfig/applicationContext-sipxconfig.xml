@@ -189,19 +189,10 @@
 	<!--
 	  - P H O N E  M O D E L S
 	  - hoping to move this external file for end user modification
-	  - TODO: Normalize common settings into Config Bean(s)
 	  -->
-	<bean id="polycomConfig" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhoneConfig">
-		<property name="velocityEngine">
-			<ref bean="velocityEngine"/>
-		</property>
-		<property name="tftpRoot">
-			<value>${sysdir.phone}/profile/tftproot</value>
-		</property>
-    </bean>
 	<bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone">
-		<property name="config">
-			<ref local="polycomConfig"/>
+		<property name="coreContext">
+			<ref local="coreContext"/>
 		</property>
 		<property name="systemDirectory">
 			<value>${sysdir.etc}</value>
@@ -209,25 +200,19 @@
 		<property name="modelId">
 			<value>polycom300</value>
 		</property>
-	</bean>
-	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone">
-		<property name="config">
-			<ref local="polycomConfig"/>
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
 		</property>
-		<property name="systemDirectory">
-			<value>${sysdir.etc}</value>
-		</property>                
+		<property name="tftpRoot">
+			<value>${sysdir.phone}/profile/tftproot</value>
+		</property>
+	</bean>
+	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300">
 		<property name="modelId">
 			<value>polycom500</value>
 		</property>
 	</bean>
-	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone">
-		<property name="config">
-			<ref local="polycomConfig"/>
-		</property>
-		<property name="systemDirectory">
-			<value>${sysdir.etc}</value>
-		</property>                
+	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300">
 		<property name="modelId">
 			<value>polycom600</value>
 		</property>
