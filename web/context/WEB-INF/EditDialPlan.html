@@ -1,0 +1,118 @@
+<html jwcid="@Shell" title="Dial Plan Configuration" stylesheet="ognl:assets.stylesheet">
+    <body jwcid="@Body">
+        <form jwcid="@Form" id="dialplan">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="dialplan:name"> Name:</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:name" type="text" name="dialplan:name" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:localExtensionLen"> Internal Station Extension 
+                                Length</label>
+                        </td>
+                        <td>
+                            <select id="dialplan:localExtensionLen" 
+                                name="dialplan:localExtensionLen" size="1">
+                                <option value="3" selected>3 digits</option>
+                                <option value="4">4 digits</option>
+                                <option value="5">5 digits</option>
+                                <option value="6">6 digits</option>
+                                <option value="7">7 digits</option>
+                                <option value="8">8 digits</option>
+                                <option value="9">9 digits</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:autoAttendant"> Auto Attendant Extension</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:autoAttendant" type="text" 
+                                name="dialplan:autoAttendant" value="100" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:voiceMail"> Voice Mail Extension</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:voiceMail" type="text" name="dialplan:voiceMail" 
+                                value="101" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:did"> Direct Inward Dialing (DID) Prefix</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:did" type="text" name="dialplan:did" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:pstnPrefix"> PSTN Calls Prefix</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:pstnPrefix" type="text" 
+                                name="dialplan:pstnPrefix" value="9" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:emergencyNumber"> Emergency Number</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:emergencyNumber" type="text" 
+                                name="dialplan:emergencyNumber" value="911" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:internationalPrefix"> International Calls 
+                                Prefix</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:internationalPrefix" type="text" 
+                                name="dialplan:internationalPrefix" value="011" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:voiceMailPrefix"> Extension's Voicemail Inbox 
+                                Prefix</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:voiceMailPrefix" type="text" 
+                                name="dialplan:voiceMailPrefix" value="8" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:longDistancePrefix"> Long Distance Calls 
+                                Prefix</label>
+                        </td>
+                        <td>
+                            <input id="dialplan:longDistancePrefix" type="text" 
+                                name="dialplan:longDistancePrefix" value="1" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul class="form-actions">
+                <li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.save" value="Save"/>
+				</li>
+				<li>
+                    <input type="reset" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+				</li>
+			</ul>
+        </form>
+    </body>
+</html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
+	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.EditDialPlan">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<!--
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
+		global.phoneContext </property-specification>
+	<property-specification name="endpoint" 
+		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+	<property-specification name="phoneSelectionModel" 
+		type="org.apache.tapestry.form.IPropertySelectionModel"/>
+	  -->
+	<!--
+	  - A S S E T S
+	  -->	
+	<!-- TODO Find some way to define this globally -->
+	<context-asset name="stylesheet" path="css/sipxconfig.css"/>
+</page-specification>
