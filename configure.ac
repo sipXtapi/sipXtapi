@@ -88,6 +88,7 @@ CHECK_JBOSS_HOME
 AC_CONFIG_FILES([
     Makefile
     common/Makefile
+    bin/Makefile
     profilewriter/Makefile
     profilepublisher/Makefile
     profilegenerator/Makefile

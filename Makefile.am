@@ -1,5 +1,5 @@
 
-SUBDIRS = . common profilegenerator profilepublisher profilewriter sipagent-jni
+SUBDIRS = . bin common profilegenerator profilepublisher profilewriter sipagent-jni
 
 EXTRA_DIST = \
     doc/license \

@@ -20,7 +20,7 @@ Url: http://www.sipfoundry.org/sipXconfig
 # tell rpm find-requires to find java's so
 AutoReqProv: no
 
-Source: http://www.sipfoundry.org/pub/sipXconfig/%name-%version.tar.gz
+Source: %name-%version.tar.gz
 
 Requires: sipxtacklib >= 2.5
 Requires: sipxcommserverlib >= 2.5
@@ -71,6 +71,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog
 %attr(755,root,root) %{_bindir}
+%attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
 %{_libdir}/lib*.la
 @JBOSS_HOME@/jboss/deploy/profilegenerator.ear
