@@ -55,7 +55,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         getHibernateTemplate().update(callSequence);
         // notify profilegenerator if jms has been configured
         if (null != m_jms) {
-            m_jms.send(new GenerateAliasesMessage());
+            m_jms.send(new GenerateMessage(GenerateMessage.TYPE_ALIAS));
+            m_jms.send(new GenerateMessage(GenerateMessage.TYPE_AUTH_EXCEPTIONS));
         }
     }
 
@@ -75,10 +76,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public List getForwardingAliases() {
         List aliases = new ArrayList();
-        Organization organization = m_coreContext.loadRootOrganization();
-        String ringsForUser = "from CallSequence cs where cs.user.organization = :organization";
-        List sequences = getHibernateTemplate().findByNamedParam(ringsForUser, "organization", organization);
-        //List sequences = getHibernateTemplate().loadAll(CallSequence.class);
+        List sequences = loadAllCallSequences();
         for (Iterator i = sequences.iterator(); i.hasNext();) {
             CallSequence sequence = (CallSequence) i.next();
             aliases.addAll(sequence.generateAliases());
@@ -86,9 +84,42 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return aliases;
     }
 
-    private static class GenerateAliasesMessage implements MessageCreator {
+    public List getForwardingAuthExceptions() {
+        List aliases = new ArrayList();
+        List sequences = loadAllCallSequences();
+        for (Iterator i = sequences.iterator(); i.hasNext();) {
+            CallSequence sequence = (CallSequence) i.next();
+            aliases.addAll(sequence.generateAuthExceptions());
+        }
+        return aliases;
+    }    
+
+    /**
+     * Loads call sequences for all uses in current root organization
+     * @return list of CallSequence objects
+     */
+    private List loadAllCallSequences() {
+        Organization organization = m_coreContext.loadRootOrganization();
+        String ringsForUser = "from CallSequence cs where cs.user.organization = :organization";
+        List sequences = getHibernateTemplate().findByNamedParam(ringsForUser, "organization", organization);
+        return sequences;
+    }
+
+    private static class GenerateMessage implements MessageCreator {
         private static final String PARAM_NAME = "datasettype"; 
-        private static final String TYPE_ALIAS = "aliases"; 
+        private static final String TYPE_ALIAS = "aliases";
+        private static final String TYPE_AUTH_EXCEPTIONS = "authexceptions";
+        
+        private String m_type;
+        
+        /**
+         * @param type types of the data set to be generated as a result of sending of this message
+         */
+        public GenerateMessage(String type) {
+            // TODO Auto-generated constructor stub
+            m_type = type;
+        }
+
         /**
          * Sends generateAliases message
          * 
@@ -98,7 +129,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
          */
         public Message createMessage(Session session) throws JMSException {
             MapMessage message = session.createMapMessage();
-            message.setString(PARAM_NAME, TYPE_ALIAS);
+            message.setString(PARAM_NAME, m_type);
             return message;
         }
     }
@@ -109,5 +140,5 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }    
+    }
 }

@@ -54,6 +54,25 @@ public class CallSequenceTest extends TestCase {
             assertTrue(contact.matches("<sip:\\d+@sipfoundry.org\\?expires=\\d+>;;q=[01]\\.\\d+"));
         }
     }
+    
+    public void testGenerateAuthExceptions() {
+        final int N = 7;
+        List rings = new ArrayList(N);
+        for (int i = 0; i < N; i++) {
+            Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED);
+            rings.add(ring);
+        }
+        CallSequence sequence = new CallSequence();
+        sequence.setUser(m_user);
+        sequence.setCalls(rings);
+
+        List authExceptions = sequence.generateAuthExceptions();
+        assertEquals(N, authExceptions.size());        
+        for (int i = 0; i < authExceptions.size(); i++) {
+            String number = (String) authExceptions.get(i);
+            assertEquals("2" + i, number);
+        }
+    }
 
     public void testGenerateAliasesEmpty() {
         CallSequence sequence = new CallSequence();

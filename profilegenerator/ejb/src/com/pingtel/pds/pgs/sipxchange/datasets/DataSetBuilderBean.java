@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -228,13 +229,16 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
      * @param changePoints are the location(s) in the User/UserGroup hierarchy. If the forwarding
      *        settings or permission change occurred for just one user then just pass in that
      *        User. If an entire UserGroup (and their subgroups) need changing then pass that in.
-     *        Any number or combination of the above can be passed in.
+     *        Any number or combination of the above can be passed in. At the moment all top
+     *        groups are passed in most cases.
+     * 
+     * 
      */
-    public void generateAuthExceptions(Collection changePoints) {
-
+    public void generateAuthExceptions(Collection changePoints) throws PDSException {
+        String errorMsg = collateErrorMessages("UC1110", "E4083", null);
         try {
             java.util.Date d1 = new java.util.Date();
-            HashMap forwardingRefPropertyIds = new HashMap();
+            Map forwardingRefPropertyIds = new HashMap();
             forwardingRefPropertyIds.put(mSIPForwardOnBusyEJBObject.getID().toString(), null);
             forwardingRefPropertyIds.put(mSIPForwardOnNoAnswerEJBObject.getID().toString(), null);
             forwardingRefPropertyIds.put(mSIPForwardUnconditionalEJBObject.getID().toString(),
@@ -242,11 +246,6 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
             RE integerOnlyRegExp = new RE("^[0-9]{" + MIN_EXTERNAL_FORWARDING_LENGTH + ",}$");
 
-            // HACK: why do we even pretend we can support more than one org?
-            // this code looks like its unsafe however there should only be one organization
-            // in the database in the sipxchange/enterprise mode. If this requirement
-            // changes we can get the individual organizations for each user and rebuild
-            // the RE each time.
             Collection allOrganizations = mOrganizationHome.findAll();
             Organization enterpriseOrg = (Organization) allOrganizations.iterator().next();
 
@@ -258,27 +257,19 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             Element authExceptionsRoot = new Element("items").setAttribute("type",
                     "authexception");
 
-            ArrayList authExceptions = new ArrayList();
-
-            for (Iterator iChangePoints = changePoints.iterator(); iChangePoints.hasNext();) {
-                Object o = iChangePoints.next();
-
+            for (Iterator i = changePoints.iterator(); i.hasNext();) {
+                Object o = i.next();
                 if (o instanceof UserGroup) {
                     UserGroup userGroup = (UserGroup) o;
 
-                    authExceptions.addAll(getAuthExceptions(userGroup, forwardingRefPropertyIds,
-                            integerOnlyRegExp, localSIPDestinationRegExp));
-
-                } else {
-                    // @todo
+                    Collection exceptions = getAuthExceptions(userGroup,
+                            forwardingRefPropertyIds, integerOnlyRegExp,
+                            localSIPDestinationRegExp);
+                    authExceptionsRoot.addContent(exceptions);
                 }
             }
-
-            for (Iterator iAuthExceptions = authExceptions.iterator(); iAuthExceptions.hasNext();) {
-                Element authException = (Element) iAuthExceptions.next();
-
-                authExceptionsRoot.addContent(authException);
-            }
+            
+            appendForwardingItems(AliasService.TYPE_AUTHEXCEPTION, authExceptionsRoot);
 
             java.util.Date d2 = new java.util.Date();
             logInfo("IT TOOK " + (d2.getTime() - d1.getTime())
@@ -290,10 +281,12 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                     SatelliteComponent.TYPE_COMM_SERVER,
                     ReplicationResource.DATABASE_AUTH_EXCEPTIONS);
 
-        } catch (Exception ex) {
-            logFatal(ex.toString(), ex);
-
-            throw new EJBException(collateErrorMessages("UC1110", "E4083", null));
+        } catch (FinderException e) {
+            logFatalAndRethrow(errorMsg, e);
+        } catch (JDOMException e) {
+            logFatalAndRethrow(errorMsg, e);
+        } catch (IOException e) {
+            logFatalAndRethrow(errorMsg, e);
         }
     }
 
@@ -588,7 +581,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                 }
             }
 
-            appendForwardingAliases(items, saxBuilder);
+            appendForwardingItems(AliasService.TYPE_ALIAS, items);
 
             java.util.Date d2 = new java.util.Date();
 
@@ -608,20 +601,29 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
     }
 
     /**
-     * Appends additional aliases to the list of aliases created from database entries and external aliases files
+     * Appends additional aliases to the list of aliases created from database entries and
+     * external aliases files
      * 
      * @param items JDOM elements representing root element of aliases.xml - i.e. items
-     * @param saxBuilder sax builder used to parse external aliases
-     * @throws Exception getConnection strangely throws Exception, besides IO errors in XML parsing are possible 
      */
-    private void appendForwardingAliases(Element items, final SAXBuilder saxBuilder)
-            throws Exception {
-        String serviceUrl = getPGSProperty("forwardingaliasservice.rmi.url");
+    private void appendForwardingItems(String type, Element items)
+            throws IOException, RemoteException, JDOMException {
+        String serviceUrl = getPGSProperty("forwardingaliasservice.rmi.url");        
         AliasService aliasService = (AliasService) RMIConnectionManager.getInstance()
                 .getConnection(serviceUrl);
-        String aliasesXml = aliasService.getForwardingAliases();
-        Reader reader = new StringReader(aliasesXml);
-        Document forwardingAliasesDocument = saxBuilder.build(reader);
+        String xml;
+        if( AliasService.TYPE_ALIAS.equals(type)) {
+            xml = aliasService.getForwardingAliases();
+        }
+        else if (AliasService.TYPE_AUTHEXCEPTION.equals(type)) {
+            xml = aliasService.getForwardingAuthExceptions();
+        } else {
+            // nothing to do
+            return;
+        }
+        SAXBuilder builder = new SAXBuilder();
+        Reader reader = new StringReader(xml);
+        Document forwardingAliasesDocument = builder.build(reader);
         Element itemsForwarding = forwardingAliasesDocument.getRootElement();
         Collection aliases = itemsForwarding.getChildren("item");
         for (Iterator i = XMLSupport.detachableIterator(aliases.iterator()); i.hasNext();) {
@@ -749,7 +751,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
     // Implementation Methods
     // //
 
-    private Collection getUserGroupsConfigurationSets(HashMap userGroupConfigSetsMap,
+    private Collection getUserGroupsConfigurationSets(Map userGroupConfigSetsMap,
             UserGroup userGroup) throws RemoteException, PDSException {
 
         Collection groupConfigSets;
@@ -1270,27 +1272,23 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
      * @param localSIPDestinationRegExp another Regular Expression to detect one version of a
      *        valid external forwarding number.
      * @return Collection of JDOM Elements with individual Auth Exception elements.
-     * @throws RemoteException
      * @throws FinderException
      * @throws PDSException
      * @throws JDOMException
+     * @throws IOException
      */
     private Collection getAuthExceptions(UserGroup userGroup, Map forwardingRefPropertyIds,
-            RE integerOnlyRegExp, RE localSIPDestinationRegExp) throws RemoteException,
-            FinderException, PDSException, JDOMException {
+            RE integerOnlyRegExp, RE localSIPDestinationRegExp) throws FinderException,
+            PDSException, JDOMException, IOException {
         SAXBuilder saxbuilder = new SAXBuilder();
 
-        ArrayList exceptionList = new ArrayList();
-        ArrayList configSets = new ArrayList();
-        HashMap userGroupConfigSetsMap = new HashMap();
-        HashMap userGroupProjectionInputsMap = new HashMap();
-        ArrayList projectionInputs = new ArrayList();
-
-        boolean userCanForwardExternal = false;
+        List exceptionList = new ArrayList();
+        Map userGroupConfigSetsMap = new HashMap();
+        Map userGroupProjectionInputsMap = new HashMap();
 
         // project the UserGroup ancestry of config sets for permissions first,
         // we can then use this cached Map with the permissions for each User.
-        ArrayList userGroupConfigSets = new ArrayList();
+        List userGroupConfigSets = new ArrayList();
         userGroupConfigSets.addAll(getUserGroupsConfigurationSets(userGroupConfigSetsMap,
                 userGroup));
 
@@ -1301,25 +1299,18 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
         for (Iterator iUser = users.iterator(); iUser.hasNext();) {
             User user = (User) iUser.next();
 
-            configSets.clear();
-            projectionInputs.clear();
+            List configSets = new ArrayList();
 
             ConfigurationSet userCS = getUserCSEJBObject(user.getID());
             if (userCS != null) {
-                Document userCSDoc = null;
-                try {
-                    userCSDoc = saxbuilder.build(new StringReader(userCS.getContent()));
-                } catch (java.io.IOException e) {
-                    throw new PDSException(e.toString());
-                }
-
+                Document userCSDoc = saxbuilder.build(new StringReader(userCS.getContent()));
                 configSets.add(userCSDoc);
                 logDebug("generateAuthExceptions::got users configuration set");
             }
 
-            HashMap propertySettings = projectPermissions(configSets,
-                    projectedUserGroupsProperties);
+            Map propertySettings = projectPermissions(configSets, projectedUserGroupsProperties);
 
+            boolean userCanForwardExternal = false;
             if (propertySettings.containsKey("ForwardCallsExternal")) {
                 String forwardExternalValue = (String) propertySettings
                         .get("ForwardCallsExternal");
@@ -1327,34 +1318,35 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                     userCanForwardExternal = true;
                 }
             }
-
-            if (userCanForwardExternal) {
-                if (!userGroupProjectionInputsMap.containsKey(userGroup.getID())) {
-                    logDebug("getting projectionInputs for user group: " + userGroup.getID());
-                    ProjectionInput projectionResult = getProjectedUserGroupPI(userGroup);
-
-                    userGroupProjectionInputsMap.put(userGroup.getID(), projectionResult);
-                }
-
-                projectionInputs.add(userGroupProjectionInputsMap.get(userGroup.getID()));
-
-                ProjectionInput usersProjectionInput = mProjectionHelperEJBObject
-                        .getProjectionInput(user, PDSDefinitions.PROF_TYPE_USER);
-
-                if (usersProjectionInput != null) {
-                    projectionInputs.add(usersProjectionInput);
-                    logDebug("generateAuthExceptions::got users configuration set");
-                }
-
-                ProjectionInput projectionResult = mProjectionHelperEJBObject.project(
-                        "com.pingtel.pds.pgs.plugins.projection.StandardTopDown",
-                        projectionInputs, mXpressaDeviceTypeID, PDSDefinitions.PROF_TYPE_USER);
-
-                Element projectionRootElement = projectionResult.getDocument().getRootElement();
-
-                exceptionList.addAll(getUsersAuthExceptions(projectionRootElement,
-                        forwardingRefPropertyIds, integerOnlyRegExp, localSIPDestinationRegExp));
+            if (!userCanForwardExternal) {
+                continue;
             }
+            if (!userGroupProjectionInputsMap.containsKey(userGroup.getID())) {
+                logDebug("getting projectionInputs for user group: " + userGroup.getID());
+                ProjectionInput projectionResult = getProjectedUserGroupPI(userGroup);
+
+                userGroupProjectionInputsMap.put(userGroup.getID(), projectionResult);
+            }
+
+            List projectionInputs = new ArrayList();
+            projectionInputs.add(userGroupProjectionInputsMap.get(userGroup.getID()));
+
+            ProjectionInput usersProjectionInput = mProjectionHelperEJBObject.getProjectionInput(
+                    user, PDSDefinitions.PROF_TYPE_USER);
+
+            if (usersProjectionInput != null) {
+                projectionInputs.add(usersProjectionInput);
+                logDebug("generateAuthExceptions::got users configuration set");
+            }
+
+            ProjectionInput projectionResult = mProjectionHelperEJBObject.project(
+                    "com.pingtel.pds.pgs.plugins.projection.StandardTopDown", projectionInputs,
+                    mXpressaDeviceTypeID, PDSDefinitions.PROF_TYPE_USER);
+
+            Element projectionRootElement = projectionResult.getDocument().getRootElement();
+
+            exceptionList.addAll(getUsersAuthExceptions(projectionRootElement,
+                    forwardingRefPropertyIds, integerOnlyRegExp, localSIPDestinationRegExp));
         } // for all users
 
         // process all the child groups of this UserGroup
@@ -1384,7 +1376,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
      */
     private Collection getUsersAuthExceptions(Element projectedInputRoot,
             Map forwardingRefPropertyIds, RE integerOnlyRegExp, RE localSIPDestinationRegExp) {
-        ArrayList authExceptions = new ArrayList();
+        List authExceptions = new ArrayList();
 
         for (Iterator contentI = projectedInputRoot.getChildren().iterator(); contentI.hasNext();) {
 
@@ -1472,13 +1464,4 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
         return result;
     }
-
-    // ////////////////////////////////////////////////////////////////////////
-    // Nested / Inner classes
-    // //
-
-    // ////////////////////////////////////////////////////////////////////////
-    // Native Method Declarations
-    // //
-
 }

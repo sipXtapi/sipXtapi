@@ -21,30 +21,58 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 
 public class AliasServiceImpl implements AliasService {
+    private static final String ITEM = "item";
+    private static final String ITEMS = "items";
+    private static final String TYPE = "type";
     private ForwardingContext m_context;
-    
+
     /**
      * Transforms list of alias mappings into standard alias XML.
+     * 
      * @return String containg XML document
      */
     public String getForwardingAliases() {
         DocumentFactory docFactory = DocumentFactory.getInstance();
         Document docAliases = docFactory.createDocument();
-        Element items = docAliases.addElement("items");
-        items.addAttribute("type", "alias");
+        Element items = docAliases.addElement(ITEMS);
+        items.addAttribute(TYPE, TYPE_ALIAS);
         List forwardingAliases = m_context.getForwardingAliases();
         for (Iterator i = forwardingAliases.iterator(); i.hasNext();) {
             AliasMapping alias = (AliasMapping) i.next();
-            Element item = items.addElement("item");
+            Element item = items.addElement(ITEM);
             Element identity = item.addElement("identity");
             identity.setText(alias.getIdentity());
             Element contact = item.addElement("contact");
             contact.setText(alias.getContact());
         }
-        
+        return docToString(docAliases);
+    }
+
+    public String getForwardingAuthExceptions() {
+        DocumentFactory docFactory = DocumentFactory.getInstance();
+        Document docAliases = docFactory.createDocument();
+        Element items = docAliases.addElement(ITEMS);
+        items.addAttribute(TYPE, TYPE_AUTHEXCEPTION);
+        List forwardingAliases = m_context.getForwardingAuthExceptions();
+        for (Iterator i = forwardingAliases.iterator(); i.hasNext();) {
+            String exception = (String) i.next();
+            Element item = items.addElement(ITEM);
+            Element user = item.addElement("user");
+            user.setText(exception);
+        }
+        return docToString(docAliases);
+    }
+
+    /**
+     * Dumps XML document to string
+     * 
+     * @param document
+     * @return string representation of XML document
+     */
+    private String docToString(Document document) {
         try {
             StringWriter writer = new StringWriter();
-            docAliases.write(writer);
+            document.write(writer);
             return writer.toString();
         } catch (IOException e) {
             // should not happen - string writer
@@ -55,7 +83,7 @@ public class AliasServiceImpl implements AliasService {
     public ForwardingContext getContext() {
         return m_context;
     }
-    
+
     public void setContext(ForwardingContext context) {
         m_context = context;
     }

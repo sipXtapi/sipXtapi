@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.text.MessageFormat;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.BeanWithId;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
@@ -24,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 public class Ring extends BeanWithId {
     private static final String FORMAT = "<sip:{0}@{1}?expires={2}>;;{3}";
 
-    private String m_number;
+    private String m_number = StringUtils.EMPTY;
     private int m_expiration;
     private Type m_type = Type.DELAYED;
     private CallSequence m_callSequence;

@@ -136,11 +136,14 @@ public class ForwardingContextImplTestDb extends TestCase {
         assertEquals( new Integer(3), actual.getValue(0, "Position"));
     }
     
-    public void testGetForwardingAliases() {
-        // there are 5 Ring entries in dbdata/RingSeed.xml
+    public void testGetForwardingAliasesAndAuthExceptions() {
+        // this just tests that all aliases and excpetions are processed by the context
+        // there are separate test that take care of the content testing
         int seedRings = 5;
         List forwardingAliases = m_context.getForwardingAliases();
         assertEquals(seedRings,forwardingAliases.size());
+        List authExceptions = m_context.getForwardingAuthExceptions();
+        assertEquals(seedRings,authExceptions.size());
         
         User user = m_coreContext.loadUser(4);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
@@ -152,5 +155,7 @@ public class ForwardingContextImplTestDb extends TestCase {
 
         forwardingAliases = m_context.getForwardingAliases();
         assertEquals(seedRings + 1,forwardingAliases.size());        
+        authExceptions = m_context.getForwardingAuthExceptions();
+        assertEquals(seedRings + 1,authExceptions.size());
     }
 }

@@ -13,8 +13,11 @@
 
 package com.pingtel.pds.pgs.common;
 
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RMISecurityManager;
+import java.rmi.RemoteException;
 import java.util.Hashtable;
 
 /**
@@ -75,7 +78,7 @@ public class RMIConnectionManager {
      * RMI URL
      * @throws Exception for all errors
      */
-    public Object getConnection (String URL) throws Exception {
+    public Object getConnection (String URL) throws RemoteException {
         if (!mConnectionMap.containsKey(URL)){
             Object o = makeConnection(URL);
             mConnectionMap.put(URL, o);
@@ -84,7 +87,7 @@ public class RMIConnectionManager {
     }
 
 
-    public Object reestablishConnection(String URL) throws Exception {
+    public Object reestablishConnection(String URL) throws RemoteException {
         if (mConnectionMap.containsKey(URL)){
              mConnectionMap.remove(URL);
         }
@@ -96,13 +99,15 @@ public class RMIConnectionManager {
 //////////////////////////////////////////////////////////////////////////
 // Implementation Methods
 ////
-    private Object makeConnection ( String URL) throws Exception {
+    private Object makeConnection ( String URL) throws RemoteException {
         try {
             Object o =  Naming.lookup( URL );
             return o;
         }
-        catch ( Exception ex ) {
-            throw new Exception  ( CONNECT_ERROR_MESSAGE + ex.toString() );
+        catch ( NotBoundException e ) {
+            throw new RuntimeException  ( CONNECT_ERROR_MESSAGE + e.toString(), e );
+        } catch (MalformedURLException e) {
+            throw new RuntimeException  ( CONNECT_ERROR_MESSAGE + e.toString(), e );
         }
     }
 

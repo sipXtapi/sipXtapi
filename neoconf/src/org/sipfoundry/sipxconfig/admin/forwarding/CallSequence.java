@@ -94,6 +94,15 @@ public class CallSequence extends BeanWithId {
         }
         return aliases;
     }
+    
+    public List generateAuthExceptions() {
+        List authExceptions = new ArrayList();
+        for (Iterator i = m_calls.iterator(); i.hasNext();) {
+            Ring r = (Ring) i.next();
+            authExceptions.add(r.getNumber());
+        }
+        return authExceptions;
+    }
 
     public synchronized List getCalls() {
         return m_calls;

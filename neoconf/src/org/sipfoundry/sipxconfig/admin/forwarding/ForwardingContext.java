@@ -31,5 +31,7 @@ public interface ForwardingContext {
 
     public List getForwardingAliases();
 
+    public List getForwardingAuthExceptions();
+
     public void flush();
 }
