@@ -6,6 +6,15 @@
     <enterprise-beans>
 
         <session>
+            <ejb-name>SystemInfoAdvocate</ejb-name>
+            <home>com.pingtel.pds.pgs.organization.SystemInfoAdvocateHome</home>
+            <remote>com.pingtel.pds.pgs.organization.SystemInfoAdvocateBusiness</remote>
+            <ejb-class>com.pingtel.pds.pgs.organization.SystemInfoAdvocateBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+
+        <session>
             <ejb-name>JobManager</ejb-name>
             <home>com.pingtel.pds.pgs.jobs.JobManagerHome</home>
             <remote>com.pingtel.pds.pgs.jobs.JobManager</remote>

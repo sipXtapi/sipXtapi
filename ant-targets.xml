@@ -28,7 +28,7 @@
   <property name="src.dir" value="src" />
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="dist.dir" value="${build.dir}/dist" />
-  <property name="api.dir" value="${dist.dir}/api" />
+  <property name="api.dir" value="${top.build.dir}/doc/api/${ant.project.name}" />
   <property name="test.results.dir" value="${build.dir}/test-results" />
   <property name="test.classes.dir" value="${build.dir}/tests"/>
 

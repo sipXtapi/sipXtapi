@@ -22,9 +22,103 @@ message.
 
 <h1>Installation</h1>
 
-<h2>Required Software</h2>
+
+<h2>Redhat Only</h2>
+
+<p>RPMs are still in the process of being officially built and made
+available on sipfoundry, but here's the instructions for getting your
+system running once RPMs become available. These instructions apply to
+Enterprise and Fedora systems unless explicitly noted</p>
+
+<h3>System Installation</h3>
+<ol>
+  <li>Install Redhat from CDs.  You can select any set of packages
+  including the minimum set of packages labled "router configuration"
+  in the redhat installer process</li>
+
+  <li>When prompted for firewall support, select "no firewall support" or
+  open up the following ports in your iptables: 80, 8080, 8090, 8091,
+  5060 and 5090</li>
+      
+</ol>
+
+<h3>Installing dependencies with up2date</h3>
+
+<p>Fedora users may experience periodic connection errors using using
+<code>up2date</code> but usually if you're persistent you can get thru
+executing <code>up2date</code> repeatedly. If you do not use
+<code>up2date</code>, I recommend installing postgres and apache while
+installing your system, or use the redhat package manager to install
+those RPMs for you.</p>
+
+<ul>
+  
+  <li>Run <code>up2date</code> for the first time and follow
+instructions to setup propery <code>up2date</code> operation.</li>
+
+  <li>Run <code>up2date -u</code> to make your system is up to date.</li>
+
+  <li>Run <code>up2date</code> on the following packages:
 
 <dl>
+   <dt>Postgres</dt>
+
+   <dd><code>up2date rh-postgresql-server</code> <strong>*Enterprise
+Users Only</strong></dd>
+       
+   <dd><code>up2date postgresql-server</code> <strong>*Fedora Users
+Only</strong></dd>
+
+   <dt>Apache 2 webserver</dt>
+   <dd><code>up2date httpd</code></dd>
+
+</dl>
+      </li>
+</ul>
+
+
+<h3>Installing Java RPM</h3>
+
+<ul>
+  <li>j2sdk 1.4 or greater available by opening your webbrowser to this URL:<br/>
+    <a href="http://java.sun.com/j2se/1.4.2/download.html">http://java.sun.com/j2se/1.4.2/download.html</a>
+  </li>
+</ul>
+
+<h3>Installing RPMs from SIPfoundry</h3>
+
+<p>Sipfoundry will make the following rpms available. After
+downloading, you can install these by typing the command <code>rpm -iv
+<em>packagename</em>.rpm</code>. It's often helpful to list more than
+one rpm at a time to fullfil rpm interpackage dependencies. RPMs
+listed here are in proper order to install individually.</p>
+
+
+<p>Available from sipfoundry.org</p>
+<ul>
+  <li>sipx-jboss-2.4.10-1.noarch.rpm</li>
+  <li>sipxportlib</li>
+  <li>sipxtacklib</li>
+  <li>sipxcommserverlib</li>
+  <li>sipxconfig</li>
+  <li>sipxproxy</li>
+  <li>sipxregistry</li>
+  <li>sipxpublisher</li>
+  <li>sipxvxml</li>
+  <li>sipxpbx</li>
+</ul>
+
+
+<h2>Installing From Source and Non-Redhat Users</h2>
+
+<p>Install the following software packages. Follow the installation
+instructions for your OS.  If there is any special installation
+instructions, they will be noted.</p>
+
+<h3>Dependencies</h3>
+
+<dl>
+
   <dt>sipXportLib (same version sipXconfig)</dt>
   <dd><a href="http://www.sipfoundry.org/sipXportLib">http://www.sipfoundry.org/sipXportLib</a></dd>
 
@@ -47,12 +141,10 @@ message.
   <dd><a href="http://ant.apache.org/">http://ant.apache.org/</a></dd>
       
 </dl>
-      
 
-<h2>Environment Variables</h2>
+<h3>Environment Variables</h3>
 
-<p>After installing these packages, set the following environment
-variables:</p>
+<p>Set the following environment variables:</p>
 
 <dl>
   <dt>JAVA_HOME</dt>
@@ -85,9 +177,9 @@ and not break your installation
   </dd>
 </dl>
 
-<h2>Special Software Installion Instructions</h2>
+<h3>Special Software Installion Instructions</h3>
 
-<h3>JBoss</h3>
+<h4>JBoss</h4>
 
 <p>After unzipping JBoss</p>
 
@@ -103,7 +195,7 @@ and not break your installation
 </ol>
 
 
-<h2>Installation</h2>
+<h3>Installation</h3>
 
 <p>After building the prerequisite components, build sipXconfig by:
 <pre>
@@ -125,23 +217,12 @@ allow localhost to connect to posgres</p>
 </pre>
 
 
-<h2>SSL Initialization</h2>
+<h3>SSL Initialization</h3>
 
 <p>Set up an SSL key using the instructions in sipXcommserverLib/doc/INSTALL.ssl.</p>
 
 
-<h2>Optional SOAP Access</h2>
-
-<p>A SOAP API is available to automate adding/deleting and limited
-editing of phone configuration information.  In particular user lines,
-devices and credentials.  </p>
-
-<p>A SOAP client perl script is provided as an example and as a useful
-importing utility. See following directory for scripts and
-examples: <code>profilegeneration/soap/bin</code></p>
-
-
-<h2>Compiling the Profile Publisher's SIP agent w/ MSVC 6</h2>
+<h3>Compiling the Profile Publisher's SIP agent w/ MSVC 6</h3>
 
 <p>Support for windows is experimental, here's the latest know instructions
 that were known to work, you may have to play around with it, please submit
@@ -166,7 +247,7 @@ following:</p>
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Sun Oct 10 15:15:13 EDT 2004
+Last modified: Sun Oct 10 19:02:28 EDT 2004
 <!-- hhmts end -->
 </span>
 

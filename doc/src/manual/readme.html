@@ -21,18 +21,25 @@ message.
 
 <h1>README</h1>
 
-<p>This is initial instructions to setup sipXconfig post installation</p>
+<p>This is initial instructions to setup sipXconfig post installation.
+If you've installed from source, you should add
+<code>/usr/local/sipx/bin</code> to your <code>PATH</code> environment
+variable.</p>
 
-<h2>Running with sipXpbx and sipXproxy</h2>
+<h2>Running</h2>
 
 <p>Install the sipXpbx project and follow instructions for starting
 the <code>sipxpbx</code> service.  This will start and stop the
 necessary components of the configuration system.  The sipXproxy will
-direct SIP messages to the Profile Publisher's automatically.</p>
+direct SIP messages to the Profile Publisher's automatically.  If you
+are using another SIP proxy other that sipXproxy, or running the
+sipXproxy on another machine, follow next section.</p>
 
 <h2>Running without sipXproxy</h2>
 
-<p>SIP messages to the ProfilePublisher are proxies by
+<dl>
+  <dt>Directing SIP message directly to sipXconfig's Profile Publisher.</dt>
+   <dd>SIP messages to the ProfilePublisher are proxied by
 the sipXproxy project to the corrent SIP port.  If you wish to run the
 configserver w/o the sipXpbx or sipXproxy servers installed, then edit
 file: <code>/etc/sipxpbx/config.defs</code> and set following setting
@@ -40,20 +47,24 @@ to read the following values:
 <pre>
     CONFIG_SERVER_SIP_PORT=5060
 </pre>
-</p>
+  </dd>
 
-<h2>Running without sipXppbx</h2>
-
-<p>To start all the components of sipXconfig, launch the services
-manually by running the following commands:
+  <dt>Starting stopping sipXconfig</dt>
+  <dd>To start all the components of sipXconfig, launch the following
+service as root user:
 
 <pre>
-  sudo -u sipxchange startrmireg.sh &amp;
-  sudo -u sipxchange profilepublisher.sh &amp;
-  sudo -u sipxchange profilewriter.sh &amp;
-  sudo -u sipxchange profilegenerator.sh &amp;
+  sipxconfig start
 </pre>
-</p>
+
+<p>Conversely to stop:</p>
+
+<pre>
+  sipxconfig stop
+</pre>
+
+      </dd>
+</dl>
 
 <h2>Accessing web GUI</h2>
 
@@ -82,9 +93,13 @@ fully qualified hostname here (e.g myhost.acme.com)</p>
  PIN          : ****
 </pre>
 
+<h2>sipXconfig Manual</h2>
+
+<p>For more information, see the sipXconfig manual</p>
+
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Sun Oct 10 14:52:41 EDT 2004
+Last modified: Sun Oct 10 18:54:48 EDT 2004
 <!-- hhmts end -->
 </span>
 

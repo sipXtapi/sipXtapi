@@ -5,7 +5,6 @@
   <item name="readme" href="readme.html" title="README" >README</item>
   <item name="troubleshooting" href="troubleshooting.html" title="Troubleshooting" >Troubleshooting</item>
   <item name="migration" href="migration.html" title="2.4 Migration" >Migration from 2.4</item>
-  <item name="redhat" href="redhat.html" title="Redhat" >Running on Redhat</item>
   <item name="development" href="development.html" title="Development" >Development</item>
   <item name="soap" href="soap.html" title="SOAP" >SOAP</item>
   <item name="architecture" href="architecture.html" title="Architecture" >Architecture</item>
