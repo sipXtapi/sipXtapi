@@ -11,7 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site.ui;
 
+import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
+
+import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import com.meterware.httpunit.WebTable;
 
@@ -19,6 +22,10 @@ import com.meterware.httpunit.WebTable;
  * GatewaysTestUi
  */
 public class GatewaysTestUi extends WebTestCase {
+    public static Test suite() throws Exception {
+        return SiteTestHelper.webTestSuite(GatewaysTestUi.class);
+    }
+
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(TestUiHelper.SIPXCONFIG_URL);
         beginAt("/");
@@ -28,7 +35,7 @@ public class GatewaysTestUi extends WebTestCase {
     public void testAddGateways() throws Exception {
         clickLink("ListGateways");
 
-        assertTablePresent("list:gateway");        
+        assertTablePresent("list:gateway");
         WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         int lastColumn = gatewaysTable.getColumnCount() - 1;
         assertEquals(3, lastColumn);
@@ -40,7 +47,7 @@ public class GatewaysTestUi extends WebTestCase {
         assertTableNotPresent("list:gateway");
 
         addGateway("bongo");
-        assertTablePresent("list:gateway");        
+        assertTablePresent("list:gateway");
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
@@ -63,7 +70,7 @@ public class GatewaysTestUi extends WebTestCase {
             addGateway("gateway" + i);
         }
 
-        assertTablePresent("list:gateway");        
+        assertTablePresent("list:gateway");
         WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(11, gatewaysTable.getRowCount());
 
@@ -71,7 +78,7 @@ public class GatewaysTestUi extends WebTestCase {
         checkCheckbox("selectedRow$0");
         clickButton("list:gateway:delete");
 
-        assertTablePresent("list:gateway");        
+        assertTablePresent("list:gateway");
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(9, gatewaysTable.getRowCount());
 
@@ -81,7 +88,7 @@ public class GatewaysTestUi extends WebTestCase {
         }
         clickButton("list:gateway:delete");
 
-        assertTablePresent("list:gateway");        
+        assertTablePresent("list:gateway");
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(1, gatewaysTable.getRowCount());
     }

@@ -60,8 +60,14 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
         getHibernateTemplate().save(gateway);
     }
 
+    /**
+     * This is for testing only.
+     * TODO: need to find a better way of cleaning database between tests
+     */
     public void clear() {
-        m_flexDialPlan.getRules().clear();
+        m_flexDialPlan.getRules().clear();       
+        List gateways = getHibernateTemplate().loadAll(Gateway.class);        
+        getHibernateTemplate().deleteAll(gateways);
     }
 
     public boolean deleteGateway(Integer id) {
