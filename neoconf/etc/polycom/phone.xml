@@ -1,27 +1,3 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model>
-	<group name="registrations">
-		<label>Registration</label>
-		<setting name="displayName">
-			<label>Display Name</label>
-		</setting>
-		<setting name="address">
-			<label>Address</label>
-			<type>Server</type>
-		</setting>
-		<setting name="label">
-			<label>Label</label>
-		</setting>
-		<setting name="type">
-			<label>Type</label>
-			<defaultValue>private</defaultValue>
-			<possibleValues>
-				<value>private</value>
-				<value>public</value>
-			</possibleValues>
-		</setting>
-	</group>
-	<group name="line">
-		<label>Lines</label>
-	</group>
 </model>

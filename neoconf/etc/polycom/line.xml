@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model>
-	<group name="registrations">
+	<group name="reg">
 		<label>Registration</label>
 		<setting name="displayName">
 			<label>Display Name</label>
@@ -20,8 +20,5 @@
 				<value>public</value>
 			</possibleValues>
 		</setting>
-	</group>
-	<group name="line">
-		<label>Lines</label>
 	</group>
 </model>

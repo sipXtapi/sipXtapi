@@ -29,13 +29,13 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
  */
 public class PolycomPhone extends GenericPhone {
 
-    public static final String REGISTRATION_SETTINGS = "registrations";
+    public static final String REGISTRATION_SETTINGS = "reg";
 
     private Polycom m_model = Polycom.MODEL_300;
 
     private String m_tftpRoot;
 
-    private String m_phoneConfigTemplate = "polycom/phone1.cfg.vm";
+    private String m_phoneConfigTemplate = "polycom/mac-address.d/phone1.cfg.vm";
 
     private VelocityEngine m_velocityEngine;
 
