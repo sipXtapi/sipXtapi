@@ -45,7 +45,7 @@ public class ValueStorageTestDb extends TestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/dbdata/SaveValueStorageExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[storage_id]", new Integer(vs.getId()));        
+        expectedRds.addReplacementObject("[storage_id]", vs.getId());        
         
         ITable expected = expectedRds.getTable("setting");
                 

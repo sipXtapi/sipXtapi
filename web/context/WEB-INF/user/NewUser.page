@@ -12,7 +12,7 @@
     <property-specification name="endpoint"
         type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
     <property-specification name="endpointId"
-        type="int" persistent="yes"/>    
+        type="java.lang.Integer" persistent="yes"/>    
     <property-specification name="returnPage"
         type="java.lang.String" persistent="yes"/>    
 	<property-specification name="phoneContext" 

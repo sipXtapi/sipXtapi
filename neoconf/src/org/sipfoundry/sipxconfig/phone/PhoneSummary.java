@@ -52,7 +52,7 @@ public class PhoneSummary implements PrimaryKeySource, Serializable {
         return m_phone;
     }
     
-    public int getId() {
+    public Integer getId() {
         return getEndpoint().getId();
     }
 
@@ -65,6 +65,6 @@ public class PhoneSummary implements PrimaryKeySource, Serializable {
     }
     
     public Object getPrimaryKey() {
-        return new Integer(getId());
+        return getId();
     }
 }

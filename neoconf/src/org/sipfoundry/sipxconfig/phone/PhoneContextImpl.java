@@ -47,7 +47,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
     }
 
-    public Phone getPhone(int endpointId) {
+    public Phone getPhone(Integer endpointId) {
         return getPhone(loadEndpoint(endpointId));
     }
 
@@ -71,8 +71,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         getHibernateTemplate().delete(credential);
     }
 
-    public Credential loadCredential(int id) {
-        return (Credential) getHibernateTemplate().load(Credential.class, new Integer(id));
+    public Credential loadCredential(Integer id) {
+        return (Credential) getHibernateTemplate().load(Credential.class, id);
     }
 
     public void storeEndpoint(Endpoint endpoint) {
@@ -91,8 +91,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         getHibernateTemplate().delete(line);
     }
 
-    public Line loadLine(int id) {
-        return (Line) getHibernateTemplate().load(Line.class, new Integer(id));
+    public Line loadLine(Integer id) {
+        return (Line) getHibernateTemplate().load(Line.class, id);
     }
 
     public List loadPhoneSummaries() {
@@ -113,12 +113,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return summaries;
     }
 
-    public Endpoint loadEndpoint(int id) {
-        return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
+    public Endpoint loadEndpoint(Integer id) {
+        return (Endpoint) getHibernateTemplate().load(Endpoint.class, id);
     }
 
-    public Object load(Class c, int id) {
-        return getHibernateTemplate().load(c, new Integer(id));
+    public Object load(Class c, Integer id) {
+        return getHibernateTemplate().load(c, id);
     }
     
     public Folder loadRootEndpointFolder() {

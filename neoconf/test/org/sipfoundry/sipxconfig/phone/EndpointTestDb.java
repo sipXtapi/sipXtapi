@@ -50,8 +50,8 @@ public class EndpointTestDb extends TestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveEndpointExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[endpoint_id_1]", new Integer(e.getId()));
-        expectedRds.addReplacementObject("[folder_id]", new Integer(e.getFolder().getId()));
+        expectedRds.addReplacementObject("[endpoint_id_1]", e.getId());
+        expectedRds.addReplacementObject("[folder_id]", e.getFolder().getId());
         expectedRds.addReplacementObject("[null]", null);
         
         ITable expected = expectedRds.getTable("endpoint");
@@ -62,10 +62,10 @@ public class EndpointTestDb extends TestCase {
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
         
-        Endpoint e = m_context.loadEndpoint(1);
+        Endpoint e = m_context.loadEndpoint(new Integer(1));
         assertEquals("999123456", e.getSerialNumber());
         
-        int id = e.getId();        
+        Integer id = e.getId();        
         m_context.deleteEndpoint(e);
         try {
             m_context.loadEndpoint(id);

@@ -45,9 +45,9 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         getHibernateTemplate().flush();
     }
 
-    public CallSequence getCallSequenceForUserId(int userId) {
+    public CallSequence getCallSequenceForUserId(Integer userId) {
         HibernateTemplate hibernate = getHibernateTemplate();
-        return (CallSequence) hibernate.load(CallSequence.class, new Integer(userId));
+        return (CallSequence) hibernate.load(CallSequence.class, userId);
     }
 
     public Ring getRing(Integer id) {

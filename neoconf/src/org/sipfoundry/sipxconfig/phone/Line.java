@@ -29,7 +29,7 @@ public class Line implements Serializable, DataCollectionItem {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer m_id = new Integer(PhoneContext.UNSAVED_ID);
+    private Integer m_id = PhoneContext.UNSAVED_ID;
 
     private User m_user;
 
@@ -41,12 +41,12 @@ public class Line implements Serializable, DataCollectionItem {
 
     private int m_position;
 
-    public int getId() {
-        return m_id.intValue();
+    public Integer getId() {
+        return m_id;
     }
 
-    public void setId(int id) {
-        m_id = new Integer(id);
+    public void setId(Integer id) {
+        m_id = id;
     }
 
     public User getUser() {

@@ -12,7 +12,7 @@
 	<property-specification name="line" 
 		type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="lineId"
-        type="int" persistent="yes"/>
+        type="java.lang.Integer" persistent="yes"/>
     <property-specification name="registrationServer"
         type="java.lang.String"/>
 	<property-specification name="phoneContext" 

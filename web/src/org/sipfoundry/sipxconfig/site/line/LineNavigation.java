@@ -41,7 +41,7 @@ public abstract class LineNavigation extends BaseComponent {
 
         Object[] params = cycle.getServiceParameters();
         Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setLineId(lineId.intValue());
+        page.setLineId(lineId);
 
         cycle.activate(page);
     }
@@ -51,7 +51,7 @@ public abstract class LineNavigation extends BaseComponent {
 
         Object[] params = cycle.getServiceParameters();
         Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setLineId(lineId.intValue());
+        page.setLineId(lineId);
 
         String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
         page.setParentSettingName(section);
@@ -64,7 +64,7 @@ public abstract class LineNavigation extends BaseComponent {
      */
     public Object[] getEditSettingListenerParameters() {
         return new Object[] { 
-            new Integer(getLine().getId()),
+            getLine().getId(),
             getCurrentSetting().getName() 
         };
     }

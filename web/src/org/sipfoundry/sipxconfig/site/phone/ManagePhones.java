@@ -67,7 +67,7 @@ public abstract class ManagePhones extends BasePage
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setEndpointId(endpointId.intValue());
+        page.setEndpointId(endpointId);
         cycle.activate(page);
     }
     
@@ -75,7 +75,7 @@ public abstract class ManagePhones extends BasePage
         Object[] params = cycle.getServiceParameters();
         Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
-        page.setLineId(lineId.intValue());
+        page.setLineId(lineId);
         cycle.activate(page);                
     }
 
@@ -98,7 +98,7 @@ public abstract class ManagePhones extends BasePage
         Iterator endpointIds = selections.getAllSelected().iterator();
         while (endpointIds.hasNext()) {
             Integer endpointId = (Integer) endpointIds.next();
-            Endpoint endpoint = phoneContext.loadEndpoint(endpointId.intValue());
+            Endpoint endpoint = phoneContext.loadEndpoint(endpointId);
             Phone phone = phoneContext.getPhone(endpoint);
             try {
                 phone.generateProfiles(endpoint);

@@ -37,10 +37,10 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public abstract void setEndpoint(Endpoint endpoint);
     
-    public abstract int getEndpointId();
+    public abstract Integer getEndpointId();
     
     /** REQUIRED PROPERTY */
-    public abstract void setEndpointId(int id);
+    public abstract void setEndpointId(Integer id);
 
     public List getLines() {
         return getEndpoint().getLines();
@@ -71,7 +71,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
-        page.setEndpointId(endpointId.intValue());
+        page.setEndpointId(endpointId);
         cycle.activate(page);        
     }
     
@@ -79,7 +79,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         Object[] params = cycle.getServiceParameters();
         Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
-        page.setLineId(lineId.intValue());
+        page.setLineId(lineId);
         cycle.activate(page);                
     }
     

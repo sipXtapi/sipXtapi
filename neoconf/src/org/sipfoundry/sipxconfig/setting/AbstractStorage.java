@@ -24,15 +24,15 @@ public abstract class AbstractStorage implements Map, Serializable {
     
     private static final long serialVersionUID = 1L;      
 
-    private int m_id = PhoneContext.UNSAVED_ID;
+    private Integer m_id = PhoneContext.UNSAVED_ID;
     
     private Map m_delegate = new HashMap();
     
-    public int getId() {
+    public Integer getId() {
         return m_id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         m_id = id;
     }
  

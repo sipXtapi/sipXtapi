@@ -48,15 +48,15 @@ public abstract class UserCallForwarding extends BasePage implements IExternalPa
 
     public abstract void setRing(Ring ring);
 
-    public abstract int getUserId();
+    public abstract Integer getUserId();
 
-    public abstract void setUserId(int userId);
+    public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
 
     public void activateExternalPage(Object[] parameters, IRequestCycle cycle_) {
         String userIdAsString = (String) parameters[0];
-        int userId = Integer.parseInt(userIdAsString);
+        Integer userId = new Integer(userIdAsString);
         setUserId(userId);
     }
 
@@ -64,7 +64,7 @@ public abstract class UserCallForwarding extends BasePage implements IExternalPa
         CallSequence callSequence = getCallSequence();
         if (null == callSequence) {
             ForwardingContext forwardingContext = getForwardingContext();
-            int userId = getUserId();
+            Integer userId = getUserId();
             callSequence = forwardingContext.getCallSequenceForUserId(userId);
             setCallSequence(callSequence);
         }

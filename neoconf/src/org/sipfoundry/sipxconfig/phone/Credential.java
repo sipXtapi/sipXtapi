@@ -16,7 +16,7 @@ package org.sipfoundry.sipxconfig.phone;
  */
 public class Credential {
 
-    private int m_id = PhoneContext.UNSAVED_ID;
+    private Integer m_id = PhoneContext.UNSAVED_ID;
 
     private String m_authId;
 
@@ -24,11 +24,11 @@ public class Credential {
 
     private String m_realm;
 
-    public int getId() {
+    public Integer getId() {
         return m_id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         m_id = id;
     }
 

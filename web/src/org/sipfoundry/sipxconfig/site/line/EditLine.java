@@ -29,9 +29,9 @@ public abstract class EditLine extends BasePage implements PageRenderListener {
     public abstract void setLine(Line line);
     
     /** REQUIRED PROPERTY */
-    public abstract int getLineId();
+    public abstract Integer getLineId();
     
-    public abstract void setLineId(int id);
+    public abstract void setLineId(Integer id);
     
     public abstract PhoneContext getPhoneContext();
 

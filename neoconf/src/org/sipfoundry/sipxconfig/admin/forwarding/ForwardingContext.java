@@ -23,7 +23,7 @@ public interface ForwardingContext {
     
     public CallSequence getCallSequenceForUser(User user);
 
-    public CallSequence getCallSequenceForUserId(int userId);
+    public CallSequence getCallSequenceForUserId(Integer userId);
     
     public void saveCallSequence(CallSequence callSequence);
     

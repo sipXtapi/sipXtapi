@@ -50,7 +50,7 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
 
-        Endpoint endpoint = m_context.loadEndpoint(1);
+        Endpoint endpoint = m_context.loadEndpoint(new Integer(1));
         assertEquals(0, endpoint.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
@@ -62,13 +62,13 @@ public class LineTestDb extends TestCase {
         
         // reload data to get updated ids
         m_context.flush();        
-        Endpoint reloadedEndpoint = m_context.loadEndpoint(1);
+        Endpoint reloadedEndpoint = m_context.loadEndpoint(new Integer(1));
         Line reloadedLine = (Line) reloadedEndpoint.getLines().get(0);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
-        expectedRds.addReplacementObject("[line_id]", new Integer(reloadedLine.getId()));
+        expectedRds.addReplacementObject("[line_id]", reloadedLine.getId());
         ITable expected = expectedRds.getTable("line");
                 
         ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
@@ -80,7 +80,7 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
 
-        Endpoint endpoint = m_context.loadEndpoint(1000);
+        Endpoint endpoint = m_context.loadEndpoint(new Integer(1000));
         assertEquals(2, endpoint.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
@@ -92,12 +92,12 @@ public class LineTestDb extends TestCase {
 
         // reload data to get updated ids
         m_context.flush();
-        Endpoint reloadedEndpoint = m_context.loadEndpoint(1000);
+        Endpoint reloadedEndpoint = m_context.loadEndpoint(new Integer(1000));
         Line reloadedThirdLine = (Line) reloadedEndpoint.getLines().get(2);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/AddLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[line_id]", new Integer(reloadedThirdLine.getId()));        
+        expectedRds.addReplacementObject("[line_id]", reloadedThirdLine.getId());        
         expectedRds.addReplacementObject("[null]", null);
         
         ITable expected = expectedRds.getTable("line");                
@@ -110,13 +110,13 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
         
-        Endpoint endpoint = m_context.loadEndpoint(1);
+        Endpoint endpoint = m_context.loadEndpoint(new Integer(1));
         List lines = endpoint.getLines();
         assertEquals(1, lines.size());        
         lines.clear();
         m_context.storeEndpoint(endpoint);
         
-        Endpoint cleared = m_context.loadEndpoint(1);
+        Endpoint cleared = m_context.loadEndpoint(new Integer(1));
         assertEquals(0, cleared.getLines().size());        
     }
     
@@ -124,9 +124,9 @@ public class LineTestDb extends TestCase {
          TestHelper.cleanInsert("dbdata/ClearDb.xml");
          TestHelper.cleanInsertFlat("phone/dbdata/MoveLineSeed.xml");
 
-         Endpoint endpoint = m_context.loadEndpoint(1000);
+         Endpoint endpoint = m_context.loadEndpoint(new Integer(1000));
          Line l1 = (Line) endpoint.getLines().get(0);
-         Object[] ids = new Object[] { new Integer(l1.getId()) };
+         Object[] ids = new Object[] { l1.getId() };
          DataCollectionUtil.moveByPrimaryKey(endpoint.getLines(), ids, 1);
          m_context.storeEndpoint(endpoint);
          m_context.flush();

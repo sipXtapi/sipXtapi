@@ -29,10 +29,10 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     
     public static final String PAGE = "LineSettings";
 
-    public abstract int getLineId();
+    public abstract Integer getLineId();
     
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setLineId(int id);
+    public abstract void setLineId(Integer id);
     
     public abstract Line getLine();
     

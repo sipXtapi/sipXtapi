@@ -12,7 +12,7 @@
     <property-specification name="endpoint"
         type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
     <property-specification name="endpointId"
-        type="int" persistent="yes"/>
+        type="java.lang.Integer" persistent="yes"/>
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="selections"

@@ -38,7 +38,7 @@ public class FolderTestDb extends TestCase {
         IDataSet expectedDs = TestHelper
                 .loadDataSetFlat("setting/dbdata/GetRootFolderExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[folder_id]", new Integer(root.getId()));
+        expectedRds.addReplacementObject("[folder_id]", root.getId());
         expectedRds.addReplacementObject("[null]", null);
 
         ITable expected = expectedRds.getTable("folder");
@@ -66,7 +66,7 @@ public class FolderTestDb extends TestCase {
             IDataSet expectedDs = TestHelper
                     .loadDataSetFlat("setting/dbdata/SaveFolderExpected.xml");
             ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-            expectedRds.addReplacementObject("[folder_id]", new Integer(ms.getId()));
+            expectedRds.addReplacementObject("[folder_id]", ms.getId());
 
             ITable expected = expectedRds.getTable("folder_setting");
 

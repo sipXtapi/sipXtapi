@@ -30,9 +30,9 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
     public abstract void setEndpoint(Endpoint endpoint);
     
     /** REQUIRED PROPERTY */
-    public abstract int getEndpointId();
+    public abstract Integer getEndpointId();
     
-    public abstract void setEndpointId(int id);
+    public abstract void setEndpointId(Integer id);
     
     public abstract PhoneContext getPhoneContext();
     

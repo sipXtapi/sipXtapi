@@ -22,17 +22,8 @@ import org.sipfoundry.sipxconfig.setting.Folder;
  */
 public interface PhoneContext {
     
-    public static final int ROOT_PHONE_META_ID = 1000;
-    
-    public static final int ROOT_LINE_META_ID = 2000;
-    
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
-    
-    /**
-     * infinite value when specifing depth parameter to some functions 
-     */
-    public static final int CASCADE = -1;
-    
+        
     /** 
      * int value for objects that haven't been saved to database yet
      * <pre>
@@ -44,11 +35,11 @@ public interface PhoneContext {
      *           ...
      * </pre>
      */
-    public static final int UNSAVED_ID = -1;
+    public static final Integer UNSAVED_ID = new Integer(-1);
     
     public Phone getPhone(Endpoint endpoint);
     
-    public Phone getPhone(int endpointId);
+    public Phone getPhone(Integer endpointId);
     
     public List getPhoneIds();
 
@@ -72,17 +63,17 @@ public interface PhoneContext {
     
     public void deleteCredential(Credential credential);
 
-    public Credential loadCredential(int id);
+    public Credential loadCredential(Integer id);
 
     public void storeLine(Line line);
     
     public void deleteLine(Line line);
 
-    public Line loadLine(int id);
+    public Line loadLine(Integer id);
 
-    public Endpoint loadEndpoint(int id);
+    public Endpoint loadEndpoint(Integer id);
     
-    public Object load(Class c, int id);
+    public Object load(Class c, Integer id);
         
     public void storeEndpoint(Endpoint endpoint);
 

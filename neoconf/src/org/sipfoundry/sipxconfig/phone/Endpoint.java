@@ -30,7 +30,7 @@ public class Endpoint implements PrimaryKeySource, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private int m_id = PhoneContext.UNSAVED_ID;
+    private Integer m_id = PhoneContext.UNSAVED_ID;
 
     private String m_name;
 
@@ -58,11 +58,11 @@ public class Endpoint implements PrimaryKeySource, Serializable {
         m_phoneId = phoneId;
     }
 
-    public int getId() {
+    public Integer getId() {
         return m_id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         m_id = id;
     }
 
@@ -155,6 +155,6 @@ public class Endpoint implements PrimaryKeySource, Serializable {
     }
 
     public Object getPrimaryKey() {
-        return new Integer(getId());
+        return getId();
     }
 }

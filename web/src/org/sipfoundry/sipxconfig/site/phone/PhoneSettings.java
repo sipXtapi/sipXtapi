@@ -28,10 +28,10 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     
     public static final String PAGE = "PhoneSettings"; 
 
-    public abstract int getEndpointId();
+    public abstract Integer getEndpointId();
     
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setEndpointId(int id);
+    public abstract void setEndpointId(Integer id);
     
     public abstract Endpoint getEndpoint();
     
