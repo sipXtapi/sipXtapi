@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
  * List all the phones/endpoints for management and details drill-down
  */
 public abstract class ListPhones extends AbstractPhonePage 
-		implements PageRenderListener {
+        implements PageRenderListener {
 
     /** Serial number column */
     public static final String SERIAL_NUMBER = "Serial Number";
@@ -36,12 +36,12 @@ public abstract class ListPhones extends AbstractPhonePage
     
     public abstract PhoneItem getCurrentPhone();
 
-    public abstract void setCurrentPhone(PhoneItem currentPhone);  
+    public abstract void setCurrentPhone(PhoneItem currentPhone);
     
     /**
      * called before page is drawn
      */
-    public void pageBeginRender(PageEvent event) {
+    public void pageBeginRender(PageEvent eventTemp) {
         // Generate the list of phone items
         List endpointList = getPhoneContext().getPhoneDao().loadEndpoints();
         List phones = new ArrayList(endpointList.size());

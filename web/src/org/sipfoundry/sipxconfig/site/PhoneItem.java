@@ -53,11 +53,11 @@ public class PhoneItem  {
     }
     
     public String getAssignedUser() {
-        return isAssigned() ? "{unassigned}" : getEndpoint().getUser().getDisplayId();
+        return isAssigned() ? getEndpoint().getUser().getDisplayId() : "{unassigned}";
     }
     
     public String getExtension() {
-        return isAssigned() ? " " : getEndpoint().getUser().getExtension();
+        return isAssigned() ? getEndpoint().getUser().getExtension() : " ";
     }
     
 }
