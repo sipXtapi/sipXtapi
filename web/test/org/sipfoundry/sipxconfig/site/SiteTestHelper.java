@@ -15,6 +15,7 @@ import java.util.Properties;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.springframework.context.ApplicationContext;
@@ -38,6 +39,27 @@ public class SiteTestHelper {
         s_baseUrl = jetty.getUrl();
         
         return jetty;        
+    }
+    
+    /**
+     * Go to Home.html, includes hack for slow machines.
+     */
+    public static void home(WebTester tester) {
+        tester.beginAt("/");
+
+        // HACK! Webunit doesn't appear to fully load page, especialy 
+        // when the machine you're running it on is slow and you're
+        // running a batch of tests, calling beginAt("/") twice seems
+        // to get webunit to catch up.
+        tester.beginAt("/");       
+        assertNoException(tester);
+    }
+    
+    /**
+     * Looks for exception stack on tapestry error page
+     */
+    public static void assertNoException(WebTester tester) {
+        tester.assertTextNotPresent("An exception has occurred");
     }
     
     public static String getBaseUrl() {

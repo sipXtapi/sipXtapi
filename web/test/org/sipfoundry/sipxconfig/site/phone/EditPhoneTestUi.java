@@ -12,18 +12,25 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 
-public class EditPhoneTestUi extends PhoneTestUiBase {
+public class EditPhoneTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditPhoneTestUi.class);
     }
     
+    protected void setUp() throws Exception {
+        super.setUp();
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        PhoneTestHelper.reset(tester);
+    }
+
     public void testEditPhone() {
-        seedNewPhone();
+        PhoneTestHelper.seedNewPhone(tester);
         clickLink("ManagePhones");        
         clickLinkWithText("000000000000");
         setFormElement("serialNumber", "000000000001");

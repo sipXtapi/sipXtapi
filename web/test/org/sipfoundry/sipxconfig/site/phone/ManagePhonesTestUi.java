@@ -12,17 +12,24 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class ManagePhonesTestUi extends PhoneTestUiBase {
+public class ManagePhonesTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ManagePhonesTestUi.class);
     }
 
+    protected void setUp() throws Exception {
+        super.setUp();
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        PhoneTestHelper.reset(tester);
+    }
+
     public void testGenerateProfiles() {
-        seedNewPhone();
+        PhoneTestHelper.seedNewPhone(tester);
 
         clickLink("ManagePhones");          
         checkCheckbox("selectedRow");

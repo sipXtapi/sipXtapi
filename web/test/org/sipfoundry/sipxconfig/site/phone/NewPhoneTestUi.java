@@ -12,16 +12,23 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 
-public class NewPhoneTestUi extends PhoneTestUiBase {
+public class NewPhoneTestUi extends WebTestCase {
     
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(NewPhoneTestUi.class);
     }
     
+    protected void setUp() throws Exception {
+        super.setUp();
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        PhoneTestHelper.reset(tester);
+    }
+
     public void testAddPhone() {
         clickLink("NewPhone");  
         setFormElement("serialNumber", "000000000000");
