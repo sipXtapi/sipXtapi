@@ -2,13 +2,15 @@
 
 include $(top_builddir)/config/sipXcommon.mak
 
-SUBDIRS = src bin
+unconditional_SUBDIRS = src bin
 
 # 
 # If Doxygen is enabled
 if DOC
-SUBDIRS += doc
+doc_SUBDIRS = doc
 endif
+
+SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
 .PHONY : doc
 doc :
