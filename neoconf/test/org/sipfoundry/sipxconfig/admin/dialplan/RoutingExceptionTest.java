@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import org.apache.commons.lang.StringUtils;
-
 import junit.framework.TestCase;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * RoutingExceptionTest

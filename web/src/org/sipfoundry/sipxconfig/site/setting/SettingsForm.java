@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
+import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
@@ -33,6 +34,6 @@ public abstract class SettingsForm extends BaseComponent {
     public abstract SettingGroup getSettings(); 
     
     public Collection getFlattenedSettings() {
-        return getSettings().list(FLATTEN_SETTINGS);
+        return FilterRunner.filter(FLATTEN_SETTINGS, getSettings());
     }
 }

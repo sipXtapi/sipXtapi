@@ -27,7 +27,7 @@ public class SipConfigurationTest  extends XMLTestCase {
     public void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
     }
-
+    
     public void testGenerateProfile() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         helper.plainSettingsSeed();

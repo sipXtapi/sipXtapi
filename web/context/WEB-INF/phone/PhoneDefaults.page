@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneDefaults">
+
+    <description>add a description</description>
+    
+    <property-specification name="currentSetting" type="org.sipfoundry.sipxconfig.setting.Setting">
+    </property-specification>
+    
+    <component id="phoneSettings" type="Foreach">
+        <binding name="source" expression="phoneSettings"/>
+        <binding name="value" expression="currentSetting"/>
+    </component>
+    <component id="lineSettings" type="Foreach">
+        <binding name="source" expression="lineSettings"/>
+        <binding name="value" expression="currentSetting"/>
+    </component>
+    <component id="phoneSettingsLabel" type="Insert">
+        <binding name="value" expression="currentSetting.label"/>
+    </component>    
+    <component id="phoneSettingsLink" type="DirectLink">
+        <binding name="listener" expression="editSetting"/>
+    </component>    
+    <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
+    </component>    
+    <component id="lineSettingsLink" copy-of="phoneSettingsLink">
+    </component>    
+    
+</page-specification>

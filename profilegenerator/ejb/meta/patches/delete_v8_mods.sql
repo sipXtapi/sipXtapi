@@ -7,6 +7,8 @@ drop table setting cascade;
 drop sequence setting_seq;
 drop table storage;
 drop sequence storage_seq;
+drop table meta_storage;
+drop table setting_meta;
 
 /* v8_mods-2 */
 drop table ring;

@@ -15,9 +15,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 
 /**
  * DialPlanManagerTest

@@ -19,74 +19,19 @@ public class SettingGroupTest extends TestCase {
     
     private Setting m_apple;
 
-    public void testImmutableModel() {
+    public void testModel() {
         seedSimpleSettingGroup();
 
-        assertEquals("/fruit/apple", m_apple.getPath());
-        assertNull(m_root.getValueStorage());
-        
-        try {
-            m_apple.setValue("granny smith");
-            fail();
-        }
-        catch (UnsupportedOperationException e) {
-            assertTrue(true);
-        }
-    }
-    
-    public void testValueStorage() {
-        seedSimpleSettingGroup();
-
-        ValueStorage settingValues = new ValueStorage();
-        settingValues.put(m_apple.getPath(), "granny smith");
-        
-        SettingGroup copy = (SettingGroup) m_root.getCopy(settingValues);
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
-
-        assertEquals("granny smith", appleCopy.getValue());
-        assertFalse(m_apple == appleCopy);
-        assertEquals("/fruit/apple", appleCopy.getPath());
-    }
-    
-    public void testNullSettings() {
-        seedSimpleSettingGroup();
-
-        SettingGroup copy = (SettingGroup) m_root.getCopy(new ValueStorage());
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
-        
-        assertNull(appleCopy.getValue());
-        
-        appleCopy.setValue("granny smith");
-        assertEquals("granny smith", appleCopy.getValue());
-
-        appleCopy.setValue(null);
-        assertNull(appleCopy.getValue());
-    }
-    
-    public void testSetValue() {
-        seedSimpleSettingGroup();
-        m_apple.setDefaultValue("granny smith");
-        
-        ValueStorage storage = new ValueStorage();
-        SettingGroup copy = (SettingGroup) m_root.getCopy(storage);
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
-        
-        assertEquals("granny smith", appleCopy.getValue());        
-        assertNull(storage.get(appleCopy.getPath())); // white box
-        
-        appleCopy.setValue("macintosh");
-        assertEquals("macintosh", appleCopy.getValue());
-        assertNotNull(storage.get(appleCopy.getPath())); // white box
-
-        appleCopy.setValue(null);
-        assertEquals(appleCopy.getValue(), Setting.NULL_VALUE);
-        assertNotNull(storage.get(appleCopy.getPath())); // white box
+        assertEquals("/fruit/apple", m_apple.getPath());        
+        m_apple.setValue("granny smith");
+        assertEquals("granny smith", m_apple.getValue());
+        assertEquals("granny smith", m_apple.getDefaultValue());
     }
     
     private void seedSimpleSettingGroup() {
         m_root = new SettingGroup();
         SettingGroup fruit = (SettingGroup)m_root.addSetting(new SettingGroup("fruit"));
-        m_apple = fruit.addSetting(new Setting("apple"));
+        m_apple = fruit.addSetting(new SettingImpl("apple"));
         m_root.addSetting(new SettingGroup("vegatables"));
     }
 
@@ -95,10 +40,10 @@ public class SettingGroupTest extends TestCase {
         for (int i = 0; i < 100; i++) {
             SettingGroup model = (SettingGroup) root.addSetting(new SettingGroup(String.valueOf(i)));
             for (int j = 0; j < 100; j++) {
-                model.addSetting(new Setting(String.valueOf(j)));                
+                model.addSetting(new SettingImpl(String.valueOf(j)));                
             }
-            assertEquals(100, model.size());
+            assertEquals(100, model.getValues().size());
         }
-        assertEquals(100, root.size());
+        assertEquals(100, root.getValues().size());
     }
 }

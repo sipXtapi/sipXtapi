@@ -7,7 +7,7 @@
   #set ($i = $velocityCount)
   #set ($reg = $line.getSetting('reg'))  
   #foreach ($setting in $cfg.getRecursiveSettings($reg))
-      reg.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+      reg.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 	reg.${i}.acd-login-logout="0" 
 	reg.${i}.acd-agent-available="0" 
@@ -20,7 +20,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('call').getSetting('autoOffHook'))  
   #foreach ($setting in $cfg.getSettings($group))
-        call.autoOffHook.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        call.autoOffHook.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
 />
@@ -29,7 +29,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('call').getSetting('serverMissedCall'))  
   #foreach ($setting in $cfg.getSettings($group))
-        call.serverMissedCall.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        call.serverMissedCall.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
 />
@@ -40,7 +40,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('divert'))  
   #foreach ($setting in $cfg.getSettings($group))
-        divert.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        divert.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
      >
@@ -49,7 +49,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('divert').getSetting('fwd'))  
   #foreach ($setting in $cfg.getSettings($group))
-        divert.fwd.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        divert.fwd.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
 		/>
@@ -58,7 +58,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('divert').getSetting('busy'))  
   #foreach ($setting in $cfg.getSettings($group))
-        divert.busy.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        divert.busy.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
          />
@@ -67,7 +67,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('divert').getSetting('noanswer'))  
   #foreach ($setting in $cfg.getSettings($group))
-        divert.noanswer.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        divert.noanswer.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
         />
@@ -76,7 +76,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('divert').getSetting('dnd'))  
   #foreach ($setting in $cfg.getSettings($group))
-        divert.dnd.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        divert.dnd.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
         />
@@ -90,7 +90,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('dialplan'))  
   #foreach ($setting in $cfg.getSettings($group))
-        dialplan.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
 	>
@@ -99,7 +99,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('dialplan').getSetting('digitmap'))  
   #foreach ($setting in $cfg.getSettings($group))
-        dialplan.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
         />
@@ -108,15 +108,15 @@
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
-     dialplan.${i}.routing.server.1.address="$!{group.getSetting('address').ProfileValue}"
-     dialplan.${i}.routing.server.1.port="$!{group.getSetting('port').ProfileValue}"
+     dialplan.${i}.routing.server.1.address="$!{group.getSetting('address').Value}"
+     dialplan.${i}.routing.server.1.port="$!{group.getSetting('port').Value}"
 #end	
 />
 			<emergency 
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
-     dialplan.${i}.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').ProfileValue}"
+     dialplan.${i}.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').Value}"
      dialplan.${i}.routing.emergency.1.server.1="1"
 #end
             />
@@ -125,7 +125,7 @@
 	<msg 
   #set ($group = $cfg.EndpointSettings.getSetting('msg')) 
   #foreach ($setting in $cfg.getSettings($group))
-        msg.${setting.ProfileName}="$!{setting.ProfileValue}"
+        msg.${setting.ProfileName}="$!{setting.Value}"
   #end
 	>
 		<mwi 
@@ -133,7 +133,7 @@
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('msg.mwi'))  
   #foreach ($setting in $cfg.getSettings($group))
-        msg.mwi.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+        msg.mwi.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
 #end	
         />
@@ -141,7 +141,7 @@
 	<nat 
   #set ($group = $cfg.EndpointSettings.getSetting('nat')) 
   #foreach ($setting in $cfg.getSettings($group))
-        nat.${setting.ProfileName}="$!{setting.ProfileValue}"
+        nat.${setting.ProfileName}="$!{setting.Value}"
   #end
     />
 </phone1>

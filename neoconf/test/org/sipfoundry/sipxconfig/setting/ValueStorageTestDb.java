@@ -20,12 +20,6 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-/**
- * @author dhubler
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class ValueStorageTestDb extends TestCase {
 
     private SettingDao m_dao;
@@ -35,19 +29,18 @@ public class ValueStorageTestDb extends TestCase {
         m_dao = (SettingDao) context.getBean("settingDao");
     }
 
-    public void _testSave() throws Exception {
+    public void testSave() throws Exception {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
 
         SettingGroup root = new SettingGroup();
-        root.addSetting(new SettingGroup("fruit")).addSetting(new Setting("apple"));
-        root.addSetting(new SettingGroup("vegetable")).addSetting(new Setting("pea")); 
+        root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
+        root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea")); 
         
-        SettingGroup copy = (SettingGroup) root.getCopy(new ValueStorage());
+        ValueStorage vs = new ValueStorage();
+        SettingGroup copy = (SettingGroup) vs.decorate(root);
         copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
         copy.getSetting("vegetable").getSetting("pea").setValue(null);
         
-
-        ValueStorage vs = copy.getValueStorage();
         m_dao.storeValueStorage(vs);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/dbdata/SaveValueStorageExpected.xml"); 
@@ -66,11 +59,11 @@ public class ValueStorageTestDb extends TestCase {
         TestHelper.cleanInsertFlat("setting/dbdata/UpdateValueStorageSeed.xml");        
 
         SettingGroup root = new SettingGroup();
-        root.addSetting(new SettingGroup("fruit")).addSetting(new Setting("apple"));
-        root.addSetting(new SettingGroup("vegetable")).addSetting(new Setting("pea")); 
+        root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
+        root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea")); 
         
         ValueStorage vs = m_dao.loadValueStorage(1);
-        SettingGroup copy = (SettingGroup) root.getCopy(vs);
+        Setting copy = vs.decorate(root);
         copy.getSetting("fruit").getSetting("apple").setValue(null);
         copy.getSetting("vegetable").getSetting("pea").setValue("snow pea");
         

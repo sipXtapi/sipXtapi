@@ -6,56 +6,56 @@
 		<local 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local'))
 #foreach ($setting in $cfg.getSettings($group))
-        voIpProt.local.${setting.ProfileName}="$!{setting.ProfileValue}"
+        voIpProt.local.${setting.ProfileName}="$!{setting.Value}"
 #end        
         />
 		<server 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt').getSetting('server'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))
-    voIpProt.${setting.ProfileName}="$!{setting.ProfileValue}"
+    voIpProt.${setting.ProfileName}="$!{setting.Value}"
 #end
           />
 		<SIP 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))  
 #foreach ($setting in $cfg.getSettings($group))
-        voIpProt.SIP.${setting.ProfileName}="$!{setting.ProfileValue}"
+        voIpProt.SIP.${setting.ProfileName}="$!{setting.Value}"
 #end	
 			>
 			<outboundProxy 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt').getSetting('SIP.outboundProxy'))
 #foreach ($setting in $cfg.getSettings($group))
-    voIpProt.SIP.outboundProxy.${setting.ProfileName}="$!{setting.ProfileValue}"
+    voIpProt.SIP.outboundProxy.${setting.ProfileName}="$!{setting.Value}"
 #end			
 				/>
 			<alertInfo 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('alertInfo'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))
-    voIpProt.SIP.alertInfo.${setting.SettingGroup.ProfileName}.${setting.ProfileName}="$!{setting.ProfileValue}"
+    voIpProt.SIP.alertInfo.${setting.SettingGroup.ProfileName}.${setting.ProfileName}="$!{setting.Value}"
 #end
             />
 			<requestValidation 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('requestValidation'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))
-    voIpProt.SIP.requestValidation.${setting.SettingGroup.ProfileName}.${setting.ProfileName}="$!{setting.ProfileValue}"
+    voIpProt.SIP.requestValidation.${setting.SettingGroup.ProfileName}.${setting.ProfileName}="$!{setting.Value}"
 #end			
 				>
 				<digest 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('digest'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))
-    voIpProt.SIP.requestValidation.digest.${setting.ProfileName}="$!{setting.ProfileValue}"
+    voIpProt.SIP.requestValidation.digest.${setting.ProfileName}="$!{setting.Value}"
 #end			
 					/>
 			</requestValidation>
 			<specialEvent 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('specialEvent'))
 #foreach ($setting in $cfg.getSettings($group))
-    voIpProt.SIP.specialEvent.${setting.ProfileName}="$!{setting.ProfileValue}"
+    voIpProt.SIP.specialEvent.${setting.ProfileName}="$!{setting.Value}"
 #end			
 			/>
 			<conference
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('conference'))
 #foreach ($setting in $cfg.getSettings($group))
-    voIpProt.SIP.conference.${setting.ProfileName}="$!{setting.ProfileValue}"
+    voIpProt.SIP.conference.${setting.ProfileName}="$!{setting.Value}"
 #end						
 			/>
 		</SIP>
@@ -67,25 +67,25 @@
 	<dialplan 
 #set ($group = $cfg.EndpointSettings.getSetting('dialplan'))
 #foreach ($setting in $cfg.getSettings($group))
-    dialplan.${setting.ProfileName}="$!{setting.ProfileValue}"
+    dialplan.${setting.ProfileName}="$!{setting.Value}"
 #end
     >
 
 		<digitmap 
 #set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap'))
 #foreach ($setting in $cfg.getSettings($group))
-    dialplan.${setting.ProfileName}="$!{setting.ProfileValue}"
+    dialplan.${setting.ProfileName}="$!{setting.Value}"
 #end
         />
 		<routing>
 			<server 
-#set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))
-     dialplan.routing.server.1.address="$!{group.getSetting('address').ProfileValue}"
-     dialplan.routing.server.1.port="$!{group.getSetting('port').ProfileValue}"
+#set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting('routing.1'))
+     dialplan.routing.server.1.address="$!{group.getSetting('address').Value}"
+     dialplan.routing.server.1.port="$!{group.getSetting('port').Value}"
 />
 			<emergency 
-#set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
-     dialplan.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').ProfileValue}"
+#set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting('routing.1'))  
+     dialplan.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').Value}"
      dialplan.routing.emergency.1.server.1="1"
             />
 		</routing>

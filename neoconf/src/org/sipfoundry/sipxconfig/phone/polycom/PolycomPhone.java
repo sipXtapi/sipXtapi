@@ -28,18 +28,18 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
 public class PolycomPhone extends GenericPhone {
 
     private Polycom m_model = Polycom.MODEL_300;
-    
+
     private PolycomPhoneConfig m_config;
-    
+
     public PolycomPhone() {
         setEndpointModelFilename("polycom/phone.xml");
-        setLineModelFilename("polycom/line.xml");        
+        setLineModelFilename("polycom/line.xml");
     }
-    
+
     public void setConfig(PolycomPhoneConfig config) {
         m_config = config;
     }
-    
+
     public PolycomPhoneConfig getConfig() {
         return m_config;
     }
@@ -74,7 +74,7 @@ public class PolycomPhone extends GenericPhone {
      * TODO: should be private, avoiding checkstyle error
      */
     void generateProfile(ConfigurationTemplate cfg, String outputFile) throws IOException {
-        FileWriter out = null;                
+        FileWriter out = null;
         String tftpRoot = getConfig().getTftpRoot() + '/';
         try {
             File f = new File(tftpRoot + outputFile);
@@ -82,61 +82,59 @@ public class PolycomPhone extends GenericPhone {
             if (!d.exists()) {
                 if (!d.mkdirs()) {
                     throw new RuntimeException("Could not create profile directory "
-                            + d.getPath());                    
+                            + d.getPath());
                 }
             }
             out = new FileWriter(f);
-            cfg.generateProfile(out);     
+            cfg.generateProfile(out);
         } finally {
             if (out != null) {
                 out.close();
             }
-        }       
+        }
     }
 
     public void generateProfiles(PhoneContext context_, Endpoint endpoint) throws IOException {
         initialize();
-        
+
         PolycomPhoneConfig config = getConfig();
-        
+
         ApplicationConfiguration app = new ApplicationConfiguration(this, endpoint);
         app.setTemplate(config.getApplicationTemplate());
         generateProfile(app, app.getAppFilename());
-        
+
         CoreConfiguration core = new CoreConfiguration(this, endpoint);
         core.setTemplate(config.getCoreTemplate());
         generateProfile(core, app.getCoreFilename());
-        
+
         PhoneConfiguration phone = new PhoneConfiguration(this, endpoint);
         phone.setTemplate(config.getPhoneTemplate());
         generateProfile(phone, app.getPhoneFilename());
-        
+
         SipConfiguration sip = new SipConfiguration(this, endpoint);
         sip.setTemplate(config.getSipTemplate());
         generateProfile(sip, app.getSipFilename());
-        
+
         app.deleteStaleDirectories();
     }
-        
+
     public SettingGroup getSettingModel(Line line) {
 
         // set default values to current environment settings
         SettingGroup lineModel = super.getSettingModel(line);
         User u = line.getUser();
         if (u != null) {
-            SettingGroup reg = (SettingGroup) lineModel.getSetting(
-                    ConfigurationTemplate.REGISTRATION_SETTINGS);
-            reg.getSetting("displayName").setDefaultValue(u.getDisplayId());
+            SettingGroup reg = (SettingGroup) lineModel
+                    .getSetting(ConfigurationTemplate.REGISTRATION_SETTINGS);
+            reg.getSetting("displayName").setValue(u.getDisplayId());
         }
-        
+
         // See pg. 125 Admin Guide/16 June 2004
         if (line.getPosition() == 0) {
-            lineModel.getSetting("msg.mwi").getSetting("callBackMode")
-                    .setDefaultValue("registration");
+            lineModel.getSetting("msg.mwi").getSetting("callBackMode").setValue("registration");
         }
 
         return lineModel;
     }
 }
-
 

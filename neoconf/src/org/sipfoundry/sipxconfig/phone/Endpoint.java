@@ -97,7 +97,7 @@ public class Endpoint implements PrimaryKeySource, Serializable {
             m_valueStorage = new ValueStorage();
         }
         
-        return (SettingGroup) model.getCopy(getValueStorage());
+        return (SettingGroup) m_valueStorage.decorate(model);
     }
     
     public List getLines() {

@@ -18,7 +18,6 @@ import java.util.List;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.easymock.MockControl;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 

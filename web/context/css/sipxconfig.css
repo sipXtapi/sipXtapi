@@ -41,38 +41,25 @@ legend {
   color: #ff6600;
 }
 
-div.tabArea {
-  padding-top: 10px;
-  background: #ffc;
-  text-align: justify;
-}
-
-a.tab {
-  background: #ccc;
-  border: 1px;
-  border-style : solid;
-  border-top-color : #ddd;
-  border-right-color : #000;
-  border-left-color : #ddd;
-  border-bottom-color : #ffc;
+ul.tabArea {
+  list-style: none;
   padding: 2px;
+}
+
+ul.tabArea li {
   white-space: nowrap;    
-  line-height: 1.5;
-  text-decoration: none;    
+  display: inline;
+  padding: 0 .3em 0 0;  
+  margin: 0;
 }
 
-a.tab, a.tab:visited {
-   color: #000;
-}
-
-a.tab.active, a.tab.active:hover, a.tab.active:visited {
+li.tab a:link, li.tab a:hover, li.tab a:visited {   
    color: #00f;
-   background-color: #ffc;
-   border-bottom-color : #ffc;
 }
 
-a.tab.active:hover, a.tab:hover {
-  text-decoration: underline;    
+li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
+   text-decoration: none;
+   color: #000;
 }
 
 .settingDefault {
@@ -127,7 +114,7 @@ a.tab.active:hover, a.tab:hover {
 }
 
 #settings-nav {
-  width: 10em;
+  width: 15em;
   float:left;
 }
 
@@ -357,3 +344,4 @@ ul.form-actions li {
 .hide {
   display: none
 }
+

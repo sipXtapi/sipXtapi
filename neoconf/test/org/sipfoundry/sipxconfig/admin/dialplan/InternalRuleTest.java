@@ -14,10 +14,10 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-
-import junit.framework.TestCase;
 
 /**
  * InternalRuleTest

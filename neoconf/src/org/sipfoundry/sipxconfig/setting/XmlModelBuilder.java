@@ -75,16 +75,16 @@ public class XmlModelBuilder {
         digester.addSetProperties(set);
         addAllBeanPropertySetter(digester, set, setIgnore, SettingGroup.class);
         digester.addBeanPropertySetter(set + "/label");
-        digester.addSetNext(set, addSetting, Setting.class.getName());
+        digester.addSetNext(set, addSetting, SettingImpl.class.getName());
 
         String setting = "*/setting";
         // because setting in baseclass to set, this should be a subset of same ignore
         // list
         String[] settingIgnore = setIgnore;
-        digester.addObjectCreate(setting, Setting.class);
+        digester.addObjectCreate(setting, SettingImpl.class);
         digester.addSetProperties(setting);
-        addAllBeanPropertySetter(digester, setting, settingIgnore, Setting.class);
-        digester.addSetNext(setting, addSetting, Setting.class.getName());
+        addAllBeanPropertySetter(digester, setting, settingIgnore, SettingImpl.class);
+        digester.addSetNext(setting, addSetting, SettingImpl.class.getName());
 
         String possibleValues = "*/possibleValues/value";
         digester.addCallMethod(possibleValues, "addPossibleValue", 1);

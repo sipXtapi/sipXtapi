@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
@@ -36,7 +37,7 @@ public class CoreConfiguration extends ConfigurationTemplate {
         super.addContext(context);
         SettingGroup endpointSettings = getEndpoint().getSettings(getPhone());
         Setting call = endpointSettings.getSetting(CALL_SETTINGS);
-        context.put("call", call.list(s_callSettings));
+        context.put("call", FilterRunner.filter(s_callSettings, call));
     }
 }
 

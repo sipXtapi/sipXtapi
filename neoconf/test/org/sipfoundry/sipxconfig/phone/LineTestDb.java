@@ -55,7 +55,7 @@ public class LineTestDb extends TestCase {
         // reload data to get updated ids
         m_context.flush();        
         Endpoint reloadedEndpoint = m_context.loadEndpoint(1);
-        Line reloadedLine = (Line) endpoint.getLines().get(0);
+        Line reloadedLine = (Line) reloadedEndpoint.getLines().get(0);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);

@@ -4,28 +4,28 @@
 		<label>Registration</label>
 		<setting name="displayName">
 			<type>UTF-8 encoded string</type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>Display name used for local user interface as well as 
 				SIP signaling.</description>
 		</setting>
 		<setting name="address">
 			<label>User Address</label>
 			<type>string in the format user or user@domain</type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>user or user@domain. If only user is entered (e.g. 
 				'1002'), the implied domain will be the registration 
 				server.</description>
 		</setting>
 		<setting name="label">
 			<type>UTF-8 encoded string</type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>Text label to appear on the display adjacent to the 
 				associated line key. If omitted, the label will be derived from 
 				the user part of 'Registration Server'</description>
 		</setting>
 		<setting name="type">
 			<type>private OR shared</type>
-			<defaultValue>private</defaultValue>
+			<value>private</value>
 			<description>If set to private, use standard call signaling. If set 
 				to shared, augment call signaling with call state subscriptions 
 				and notifications and use access control for outgoing calls. 
@@ -33,13 +33,13 @@
 		</setting>
 		<setting name="thirdPartyName">
 			<type>string in the same format as reg.x.address</type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>This field must match the Address value of the other 
 				registration which makes up the bridged line. </description>
 		</setting>
 		<setting name="auth.userId">
 			<type>string</type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>User ID to be used for authentication challenges for 
 				this registration. If non-Null, will override the 'Reg User' 
 				parameter entered into the Authentication submenu off of the 
@@ -47,7 +47,7 @@
 		</setting>
 		<setting name="auth.password">
 			<type>string</type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>Password to be used for authentication challenges for 
 				this registration. If non-Null, will override the 'Reg 
 				Password' parameter entered into the Authentication submenu off 
@@ -60,7 +60,7 @@
 				<setting name="address">
 					<profileName>server.1.address</profileName>
 					<type>dotted-decimal IP address or host name</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description>Primary Registration Server. IP address or 
 						host name of a SIP server that accepts 
 						registrations.</description>
@@ -68,43 +68,43 @@
 				<setting name="port">
 					<profileName>server.1.port</profileName>
 					<type>"0, Null, 1 to 65535 " </type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="transport">
 					<profileName>server.1.transport</profileName>
 					<type>DNSnaptr or TCPpreferred or UDPonly</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="expires">
 					<profileName>server.1.expires</profileName>
 					<type>positive integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="register">
 					<profileName>server.1.register</profileName>
 					<type>0, 1</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="retryTimeOut">
 					<profileName>server.1.retryTimeOut</profileName>
 					<type>Null or non-negative integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="retryMaxCount">
 					<profileName>server.1.retryMaxCount</profileName>
 					<type>Null or non-negative integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="expires.lineSeize">
 					<profileName>server.1.expires.lineSeize</profileName>
 					<type>positive integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 			</group>
@@ -113,7 +113,7 @@
 				<setting name="address">
 					<profileName>server.2.address</profileName>
 					<type>dotted-decimal IP address or host name</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description>Primary Registration Server. IP address or 
 						host name of a SIP server that accepts 
 						registrations.</description>
@@ -121,43 +121,43 @@
 				<setting name="port">
 					<profileName>server.2.port</profileName>
 					<type>"0, Null, 1 to 65535 " </type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="transport">
 					<profileName>server.2.transport</profileName>
 					<type>DNSnaptr or TCPpreferred or UDPonly</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="expires">
 					<profileName>server.2.expires</profileName>
 					<type>positive integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="register">
 					<profileName>server.2.register</profileName>
 					<type>0, 1</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="retryTimeOut">
 					<profileName>server.2.retryTimeOut</profileName>
 					<type>Null or non-negative integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="retryMaxCount">
 					<profileName>server.2.retryMaxCount</profileName>
 					<type>Null or non-negative integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 				<setting name="expires.lineSeize">
 					<profileName>server.2.expires.lineSeize</profileName>
 					<type>positive integer</type>
-					<defaultValue></defaultValue>
+					<value></value>
 					<description></description>
 				</setting>
 			</group>
@@ -174,7 +174,7 @@
 				manage call state.</description>
 			<setting name="enabled">
 				<type>0, 1</type>
-				<defaultValue>0</defaultValue>
+				<value>0</value>
 				<description>If set to 1, a call will be automatically placed 
 					to the contact specified upon going off hook on this 
 					registration. </description>
@@ -183,7 +183,7 @@
 				<type>ASCII encoded string containing digits (the user part of 
 					a SIP URL) or a string that constitutes a valid SIP URL 
 					(6416 or 6416@domain.com) </type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description></description>
 			</setting>
 		</group>
@@ -191,7 +191,7 @@
 			<label>Missed Calls</label>
 			<setting name="enabled">
 				<type>0, 1</type>
-				<defaultValue>0</defaultValue>
+				<value>0</value>
 				<description>If set to 0, all missed-call events will increment 
 					the counter If set to 1, only missed-call events sent by 
 					the server will increment the counter.</description>
@@ -208,21 +208,21 @@
 			<type>ASCII encoded string containing digits (the user part of a 
 				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
 				6416@domain.com)</type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>The forward-to contact used for all automatic call 
 				diversion features unless overridden by a specific contact of a 
 				per-call diversion feature. </description>
 		</setting>
 		<setting name="autoOnSpecificCaller">
 			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
+			<value>1</value>
 			<description>If set to 1, calls may be diverted using the Auto 
 				Divert feature of the directory. This is a global flag. 
 				</description>
 		</setting>
 		<setting name="sharedDisabled">
 			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
+			<value>1</value>
 			<description>If set to 1, all diversion features on this line will 
 				be disabled if the line is configured as shared. </description>
 		</setting>
@@ -230,7 +230,7 @@
 			<label>Forwarding</label>
 			<setting name="enabled">
 				<type>0, 1</type>
-				<defaultValue>1</defaultValue>
+				<value>1</value>
 				<description>If set to 1, the user will be able to enable 
 					universal call forwarding via the soft key menu. 
 					</description>
@@ -240,7 +240,7 @@
 			<label>On Busy</label>
 			<setting name="enabled">
 				<type>0, 1</type>
-				<defaultValue>1</defaultValue>
+				<value>1</value>
 				<description>If set to 1, calls will be forwarded on busy to 
 					the contact specified below.</description>
 			</setting>
@@ -248,7 +248,7 @@
 				<type>ASCII encoded string containing digits (the user part of 
 					a SIP URL) or a string that constitutes a valid SIP URL 
 					(6416 or 6416@domain.com)</type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description>Forward-to contact for calls forwarded due to busy 
 					status, if Null, Contact will be used. </description>
 			</setting>
@@ -257,13 +257,13 @@
 			<label>On No Answer</label>
 			<setting name="enabled">
 				<type>0, 1</type>
-				<defaultValue>1</defaultValue>
+				<value>1</value>
 				<description>If set to 1, calls will be forwarded on no answer 
 					to the contact specified. </description>
 			</setting>
 			<setting name="timeout">
 				<type>positive integer</type>
-				<defaultValue>60</defaultValue>
+				<value>60</value>
 				<description>Time in seconds to allow altering before 
 					initiating the diversion.</description>
 			</setting>
@@ -271,7 +271,7 @@
 				<type>ASCII encoded string containing digits (the user part of 
 					a SIP URL) or a string that constitutes a valid SIP URL 
 					(6416 or 6416@domain.com) </type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description>Forward-to contact used for calls forwarded due to 
 					no answer, if Null, Contact will be used. </description>
 			</setting>
@@ -280,7 +280,7 @@
 			<label>On Do No Disturb</label>
 			<setting name="enabled">
 				<type>0, 1</type>
-				<defaultValue>0</defaultValue>
+				<value>0</value>
 				<description>If set to 1, calls will be forwarded on DND to the 
 					contact specified below. </description>
 			</setting>
@@ -288,7 +288,7 @@
 				<type>ASCII encoded string containing digits (the user part of 
 					a SIP URL) or a string that constitutes a valid SIP URL 
 					(6416 or 6416@domain.com)</type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description>Forward-to contact used for calls forwarded due to 
 					DND status, if Null Contact will be used. </description>
 			</setting>
@@ -299,14 +299,14 @@
 		<label>Dial Plan</label>
 		<setting name="impossibleMatchHandling">
 			<type>0, 1 or 2</type>
-			<defaultValue>0</defaultValue>
+			<value>0</value>
 			<description>When present, and if no digitmap setting are set, this 
 				attribute overrides the global dial plan in Dial Plan 
 				settings.</description>
 		</setting>
 		<setting name="removeEndOfDial">
 			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
+			<value>1</value>
 			<description>When present, and if no digitmap setting are set, this 
 				attribute overrides the global dial plan in Dial Plan 
 				settings.</description>
@@ -319,14 +319,14 @@
 					bytes and 20 segments; a comma is also allowed; when 
 					reached in the digit map, a comma will turn dial tone back 
 					on.</type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description>When present, this attribute overrides the global 
 					dial plan defined Phone's Dial Plan settings</description>
 			</setting>
 			<setting name="digitmap.timeOut">
 				<label>Time out</label>
 				<type>positive integer</type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description>When present, this attribute overrides the global 
 					dial plan defined Phone's Dial Plan settings</description>
 			</setting>
@@ -334,20 +334,20 @@
 			<label>Emergency Gateway</label>
 			<setting name="address">
 				<type>dotted-decimal IP address or host name</type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description>IP address or host name and port of a SIP server 
 					that will be used for routing calls.</description>
 			</setting>
 			<setting name="port">
 				<type>1 to 65535</type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description></description>
 			</setting>
 			<setting name="emergency.1.value">
 				<label>Emergency Numbers</label>
 				<type>Comma separated list of entries or single entry 
 					representing a or a combination of SIP URL.</type>
-				<defaultValue></defaultValue>
+				<value></value>
 				<description>This represents the URLs that should be watched 
 					for emergency routing. When one of these defined URL is 
 					detected as being dialed by the user, the call will be 
@@ -365,13 +365,13 @@
 			<type>ASCII encoded string containing digits (the user part of a 
 				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
 				6416@domain.com) </type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>If non-Null, the phone will send a SUBSCRIBE request 
 				to this contact after boot-up. </description>
 		</setting>
 		<setting name="callBackMode">
 			<type>contact or registration or disabled</type>
-			<defaultValue>disabled</defaultValue>
+			<value>disabled</value>
 			<possibleValues>
 				<value>registration</value>
 				<value>disabled</value>
@@ -387,7 +387,7 @@
 			<type>ASCII encoded string containing digits (the user part of a 
 				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
 				6416@domain.com) </type>
-			<defaultValue></defaultValue>
+			<value></value>
 			<description>Contact to call when retrieving messages for this 
 				registration. </description>
 		</setting>

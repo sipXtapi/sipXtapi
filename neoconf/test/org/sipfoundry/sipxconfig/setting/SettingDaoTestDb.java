@@ -30,13 +30,14 @@ public class SettingDaoTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
 
         SettingGroup root = new SettingGroup();
-        root.addSetting(new Setting("setting"));
+        root.addSetting(new SettingImpl("setting"));
         
-        SettingGroup copy = (SettingGroup) root.getCopy(new ValueStorage());
+        ValueStorage vs = new ValueStorage();
+        SettingGroup copy = (SettingGroup) vs.decorate(root);
         copy.getSetting("setting").setValue("some value");
 
         ApplicationContext context = TestHelper.getApplicationContext();
         SettingDao dao = (SettingDao) context.getBean("settingDao");
-        dao.storeValueStorage(copy.getValueStorage());
+        dao.storeValueStorage(vs);
     }
 }

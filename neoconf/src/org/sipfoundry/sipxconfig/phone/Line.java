@@ -82,7 +82,7 @@ public class Line implements Serializable {
         if (m_valueStorage == null) {
             m_valueStorage = new ValueStorage();
         }
-        
-        return (SettingGroup) model.getCopy(getValueStorage());
+
+        return (SettingGroup) m_valueStorage.decorate(model);
     }
 }

@@ -14,11 +14,11 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Collections;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
-
-import junit.framework.TestCase;
 
 /**
  * LocalRuleTest

@@ -118,26 +118,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public Object load(Class c, int id) {
         return getHibernateTemplate().load(c, new Integer(id));
     }
-
-    /**
-     * Violates
-     * @param endpoint
-    public void updateLinesPositions(Endpoint endpoint) {        
-        shiftLinePositions(endpoint, 1000);
-        storeEndpoint(endpoint);
-        shiftLinePositions(endpoint, -1000);
-        storeEndpoint(endpoint);
-    }
     
-    private void shiftLinePositions(Endpoint endpoint, int shift) {
-        List lines = endpoint.getLines();
-        for (int i = 0; i < lines.size(); i++) {
-            Line line = (Line) lines.get(i);
-            line.setPosition(line.getPosition() + shift);
-        }
-    }
-     */
-
     // FIXME: the following functions are deprecated, use CoreContextDirectly
     public void saveUser(User user) {
         m_coreContext.saveUser(user);

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
+<dataset>
+    <meta_storage 
+		meta_storage_id="[meta_storage_id]"/> 
+    <setting_meta
+		meta_storage_id="[meta_storage_id]"
+		value="granny smith" 
+		hidden="0" 
+		path="/fruit/apple"/> 
+</dataset>

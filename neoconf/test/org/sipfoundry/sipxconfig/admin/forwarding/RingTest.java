@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 
 /**
  * RingTest

@@ -51,7 +51,7 @@ public class PhoneConfiguration extends ConfigurationTemplate {
             Line blank = new Line();
             blank.setPosition(i);
             Setting model = phone.getSettingModel(blank);
-            linesSettings.add(model.getCopy(new ValueStorage()));
+            linesSettings.add(new ValueStorage().decorate(model));
         }
         
         return linesSettings;

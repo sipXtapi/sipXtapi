@@ -12,8 +12,10 @@
 package org.sipfoundry.sipxconfig.setting;
 
 
+public interface SettingVisitor {
+    
+    public void visitSetting(Setting setting);
+    
+    public void visitSettingGroup(SettingGroup group);
 
-public interface SettingFilter {
-
-    public boolean acceptSetting(Setting root, Setting setting);
 }

@@ -25,16 +25,20 @@ public class PatternSettingFilter implements SettingFilter {
         m_exclude.add(pattern);
     }
     
-    public boolean acceptSetting(Setting root_, Setting setting) {        
+    public boolean acceptSetting(Setting root_, Setting setting) {
         boolean accept = true;
-        
+
         for (int i = 0; accept && i < m_exclude.size(); i++) {
             Pattern p = (Pattern) m_exclude.get(i);
             String path = setting.getPath();
             boolean match = p.matcher(path).matches();
             accept = !match;
         }
-        
+
         return accept;
     }
 }
+
+
+
+

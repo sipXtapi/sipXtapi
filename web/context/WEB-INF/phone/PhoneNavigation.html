@@ -4,13 +4,15 @@
 </head>
 <body>
 <span jwcid="$content$">
- 		<div class="tabArea">
-            <a href="#" jwcid="deviceIdTab" class="tab active">Device Identification</a>
-            <a href="#" jwcid="linesTab" class="tab">Lines</a>
+ 		<ul class="tabArea">
+            <li jwcid="deviceIdTab"><a jwcid="deviceIdLink">Device Identification</a></li>
+            <li class="gap">|</li>
+            <li jwcid="linesTab"><a href="#" jwcid="linesLink">Lines</a></li>
             <span jwcid="settingsTabs">
-                <a href="#" jwcid="settingsTab" class="tab"><span jwcid="settingsTabLabel">Settings</span></a>
+                <li class="gap">|</li>
+                <li jwcid="settingsTab" class="tab"><a href="#" jwcid="settingsLink"><span jwcid="settingsTabLabel">Settings</span></a></li>
             </span>
-		</div>
+		</ul>
      	<span jwcid="phoneLabel"/>
 			<div class="help">
 				<b>Quick Links</b>

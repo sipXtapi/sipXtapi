@@ -1,0 +1,75 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+		<div class="help">Here will be hints.</div>
+		<h2>Global Phone Settings</h2>
+		<p>To provide settings that can be shared across all phones of a 
+			particular model. Values explicitly set on individual phones will 
+			override these values.</p>
+		<form action="#">
+			<div id="settings-nav">
+				<ul>
+					<li>
+						<b>Phones</b>
+					</li>
+                    <span jwcid="phoneSettings">
+					<li>
+						<a href="#" jwcid="phoneSettingsLink"><span jwcid="phoneSettingsLabel"/></a>
+					</li>
+                    </span>
+					<li>
+						<b>Lines</b>
+					</li>
+                    <span jwcid="lineSettings">
+					<li>
+						<a href="#" jwcid="lineSettingsLink"><span jwcid="lineSettingsLabel"/></a>
+					</li>
+                    </span>
+				</ul>
+			</div>
+			<div id="settings-content">
+				<table>
+					<tr>
+						<td>
+							<b>Value:</b>
+						</td>
+						<td>
+							<input type="checkbox"/>
+						</td>
+					</tr>
+					<tr>
+						<td>Visible :</td>
+						<td>
+							<input type="checkbox"/>
+						</td>
+					</tr>
+					<tr>
+						<td valign="top">Description:</td>
+						<td>If Enabled, reject all incoming calls with the 
+							reason "busy" if do-not-disturb is Enabled. If 
+							Enabled, reject all incoming calls with the reason 
+							"busy" if do-not-disturb is Enabled .If Enabled, 
+							reject all incoming calls with the reason "busy" if 
+							do-not-disturb is Enabled</td>
+					</tr>
+				</table>
+			</div>
+			<ul class="form-actions">
+				<li>
+					<input type="button" value="Cancel" 
+						onclick="history.go(-1)"/>
+				</li>
+				<li>
+					<input type="button" value="Apply"/>
+				</li>
+				<li>
+					<input type="button" value="OK" onclick="history.go(-1)"/>
+				</li>
+			</ul>
+		</form>
+        </div>
+	</body>
+</html>

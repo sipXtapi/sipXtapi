@@ -26,28 +26,31 @@ public class XmlModelBuilderTest extends TestCase {
         InputStream in = getClass().getResourceAsStream("games.xml");
         SettingGroup games = builder.buildModel(in);
         assertNull(games.getName());
-        assertEquals(2, games.size());
+        assertEquals(2, games.getValues().size());
 
-        SettingGroup chess = (SettingGroup) games.getSetting(0);
+        SettingGroup chess = (SettingGroup) games.getSetting("chess");
         assertEquals(chess.getName(), "chess");
         assertEquals("The game of chess", chess.getLabel());
-        assertEquals(2, chess.size());
-        SettingGroup colors = (SettingGroup) chess.getSetting(0);       
-        assertEquals(2, colors.size());
-        SettingGroup pieces = (SettingGroup) chess.getSetting(1);       
-        assertEquals(6, pieces.size());
-        Setting pawn = pieces.getSetting(0);
+        assertEquals(2, chess.getValues().size());
+        Iterator orderPreserved = chess.getValues().iterator(); 
+        SettingGroup colors = (SettingGroup) orderPreserved.next();       
+        assertEquals(2, colors.getValues().size());
+        SettingGroup pieces = (SettingGroup) orderPreserved.next();       
+        assertEquals(6, pieces.getValues().size());
+        
+        Setting pawn = pieces.getSetting("pawn");
         List moves = pawn.getPossibleValues();
         assertNotNull(moves);
         assertEquals(3, moves.size());
         assertTrue(moves.contains("diagonal one to take another piece"));
         
-        SettingGroup cards = (SettingGroup) games.getSetting(1);       
-        assertEquals(2, cards.size());
-        SettingGroup suits = (SettingGroup) cards.getSetting(0);       
-        assertEquals(4, suits.size());
-        SettingGroup card = (SettingGroup) cards.getSetting(1);       
-        assertEquals(13, card.size());
+        SettingGroup cards = (SettingGroup) games.getSetting("cards");       
+        assertEquals(2, cards.getValues().size());
+        
+        SettingGroup suits = (SettingGroup) cards.getSetting("suit");       
+        assertEquals(4, suits.getValues().size());
+        SettingGroup card = (SettingGroup) cards.getSetting("card");       
+        assertEquals(13, card.getValues().size());
     }
     
     /**

@@ -28,7 +28,7 @@ public class PatternSettingFilterTest extends TestCase {
         PatternSettingFilter filter = new PatternSettingFilter();
         filter.addExcludes("/cards.*$");
         filter.addExcludes("/chess/piece.*$");
-        Collection settings = games.list(filter);
+        Collection settings = FilterRunner.filter(filter, games);
         assertEquals(4, settings.size());        
     }
 }

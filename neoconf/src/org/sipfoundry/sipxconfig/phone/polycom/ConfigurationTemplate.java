@@ -17,6 +17,7 @@ import java.util.Collection;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
@@ -80,11 +81,11 @@ public abstract class ConfigurationTemplate {
      * Velocity macro convienence method. Recursive list of all settings, ignoring groups
      */
     public Collection getRecursiveSettings(Setting group) {
-        return group.list(RECURSIVE_SETTINGS);        
+        return FilterRunner.filter(RECURSIVE_SETTINGS, group);        
     }
 
     public Collection getSettings(Setting group) {
-        return group.list(SETTINGS);        
+        return FilterRunner.filter(SETTINGS, group);        
     }
     
     /**

@@ -15,6 +15,10 @@ package org.sipfoundry.sipxconfig.setting;
  * Database services for setting business objects
  */
 public interface SettingDao {
+       
+    public void storeMetaStorage(MetaStorage meta);
+
+    public MetaStorage loadRootMetaStorage();
     
     public void storeValueStorage(ValueStorage storage);
 

@@ -1,8 +1,9 @@
-<html jwcid="@Shell" title="Edit Phone" stylesheet="ognl:assets.stylesheet">    
-    <head jwcid="$remove$">
-        <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-    </head>
-<body jwcid="@Body">
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
         <span jwcid="editPhoneNavigation">Serial number is a unique id for this device. 
             Generally it's the phone's MAC address.
         </span>
@@ -20,5 +21,6 @@
 				</li>
 			</ul>                        
 		</form>    
+        </div>
 </body>
 </html>

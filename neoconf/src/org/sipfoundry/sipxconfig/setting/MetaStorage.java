@@ -14,40 +14,36 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Iterator;
 import java.util.Map;
 
+
 /**
- * This represents a link table between several business objects and SettingValues
- * It serves no business purpose but gets around a hibernate and RDBMS mismatch
+ * Settings meta information user overrides is stored in this collection
  */
-public class ValueStorage extends AbstractStorage implements SettingVisitor {
+public class MetaStorage extends AbstractStorage implements SettingVisitor {
     
-    private static final long serialVersionUID = 1L;
-    
-    private MetaStorage m_metaStorage;
-    
-    public Map getValues() {
+    private static final long serialVersionUID = 1L;      
+
+    public Map getMeta() {
         return getDelegate();
     }
     
-    public void setValues(Map delegate) {
+    public void setMeta(Map delegate) {
         setDelegate(delegate);
     }
-    
-    public MetaStorage getMetaStorage() {
-        return m_metaStorage;
-    }
-    
-    public void setMetaStorage(MetaStorage metaStorage) {
-        m_metaStorage = metaStorage;
-    }
-    
+
     public Setting decorate(Setting setting) {
         setting.acceptVisitor(this);        
         return setting;
     }
 
     public void visitSetting(Setting setting) {
-        Setting decorated = new SettingValue(this, setting);
-        setting.getSettingGroup().addSetting(decorated);
+        SettingMeta meta = (SettingMeta) get(setting.getPath());
+        if (meta == null) {
+            meta = new SettingMeta(this, setting);
+        } else {
+            meta.setDelegate(setting);
+        }
+        
+        setting.getSettingGroup().addSetting(meta);
     }
 
     public void visitSettingGroup(SettingGroup group) {        

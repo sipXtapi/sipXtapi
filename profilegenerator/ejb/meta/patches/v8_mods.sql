@@ -3,6 +3,26 @@
  *   exact copy maintained in profilegen_create.sql
  */
 
+/**
+ * S E T T I N G   M E T A   S T O R A G E
+ */
+create table meta_storage(
+  meta_storage_id int4 not null primary key
+);
+
+create sequence meta_storage_seq;
+
+/**
+ * S E T T I N G   M E T A 
+ */
+create table setting_meta(
+  meta_storage_id int4 not null,
+  path varchar(256) not null,
+  value varchar(256) not null,
+  hidden bool,
+  primary key (meta_storage_id, path)
+);
+
 /** 
  * S E T T I N G   S T O R A G E
  */

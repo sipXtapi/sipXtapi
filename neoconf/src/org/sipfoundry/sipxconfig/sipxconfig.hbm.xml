@@ -46,9 +46,9 @@
 			class="org.sipfoundry.sipxconfig.phone.User"/>
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-	</class>
+	</class>	
 	<!--
-	  - S E T T I N G  M A P
+	  - V A L U E  S T O R A G E
 	  -->
 	<class name="org.sipfoundry.sipxconfig.setting.ValueStorage" table="storage">
 		<jcs-cache usage="read-write"/>
@@ -62,6 +62,27 @@
 			<key column="storage_id"/>
 			<index column="path" type="string"/>
 			<element type="string" column="value" not-null="true"/>
+	    </map>
+	</class>
+	<!--
+	  - M E T A   S T O R A G E
+	  -->
+	<class name="org.sipfoundry.sipxconfig.setting.MetaStorage" table="meta_storage">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="meta_storage_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">meta_storage_seq</param>
+			</generator>
+		</id>		
+        <!-- S E T T I N G   M E T A -->
+		<map name="meta" cascade="all" table="setting_meta">
+			<key column="meta_storage_id"/>
+			<index column="path" type="string"/>
+			<composite-element class="org.sipfoundry.sipxconfig.setting.SettingMeta">
+				<parent name="metaStorage"/>
+				<property name="value" column="value"/>
+				<property name="hidden" column="hidden"/>
+		    </composite-element>
 	    </map>
 	</class>
 	<!--

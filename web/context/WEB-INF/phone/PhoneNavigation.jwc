@@ -45,24 +45,30 @@
     <component id="heading" type="Insert">
         <binding name="value" expression="heading"/>
     </component>            
-    <component id="deviceIdTab" type="DirectLink">
-        <binding name="listener" expression="listeners.editPhone"/>
-        <binding name="parameters" expression="endpoint.id"/>
+    <component id="deviceIdTab" type="Any">
         <binding name="class" expression="beans.tabs.getTabClass('EditPhone')"/>
     </component>
-    <component id="linesTab" type="DirectLink">
+    <component id="deviceIdLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editPhone"/>
+        <binding name="parameters" expression="endpoint.id"/>
+    </component>
+    <component id="linesTab" type="Any">
+        <binding name="class" expression="beans.tabs.getTabClass('PhoneLines')"/>
+    </component>
+    <component id="linesLink" type="DirectLink">
         <binding name="listener" expression="listeners.editLines"/>
         <binding name="parameters" expression="endpoint.id"/>
-        <binding name="class" expression="beans.tabs.getTabClass('PhoneLines')"/>
     </component>
     <component id="settingsTabs" type="Foreach">
         <binding name="source" expression="settingGroup.values"/>
         <binding name="value" expression="currentSettingGroup"/>
     </component>
-    <component id="settingsTab" type="DirectLink">
+    <component id="settingsTab" type="Any">
+        <binding name="class" expression="beans.tabs.getTabClass(currentSettingGroup.name)"/>
+    </component>
+    <component id="settingsLink" type="DirectLink">
         <binding name="listener" expression="listeners.editSettings"/>
         <binding name="parameters" expression="editSettingListenerParameters"/>
-        <binding name="class" expression="beans.tabs.getTabClass(currentSettingGroup.name)"/>
     </component>
     <component id="settingsTabLabel" type="Insert">
         <binding name="value" expression="getCurrentSettingGroup().getLabel()"/>

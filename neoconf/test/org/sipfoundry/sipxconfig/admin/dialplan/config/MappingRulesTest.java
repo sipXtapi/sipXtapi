@@ -25,7 +25,6 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.MockControl;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
