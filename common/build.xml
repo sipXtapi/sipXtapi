@@ -2,8 +2,14 @@
 <!--  -->
 
 <project name="common" default="jar" basedir="." >
-
-  <patternset id="test.classes" excludes="**"/>
+  <!-- Note: 
+  	There are some tests that are broken in this project: a pattern for them is **/Test*.class
+  	All new tests (**/*Test.class) have to be functional at all times.
+  -->
+  <patternset id="test.classes">
+  	<include name="**/*Test.class"/>
+  </patternset>
+  	
   <property name="top.build.dir" value="${basedir}/.."/>
   <property name="build.dir" value="${top.build.dir}/common"/>
 
@@ -119,7 +125,4 @@
 
   </target>
 
-  <!-- Unittest do not work -->
-  <target name="compile.test"/>
- 
 </project>

@@ -28,9 +28,9 @@ public class VersionInfo {
         m_props = new Properties();
         m_props.load( versionStream );
 
-        String version = m_props.getProperty( "sipxchange_version" );
-        String buildNumber = m_props.getProperty( "sipxchange_build_number" );
-        String comment = m_props.getProperty( "sipxchange_comment" );
+        String version = m_props.getProperty( "version" );
+        String buildNumber = m_props.getProperty( "build_number" );
+        String comment = m_props.getProperty( "comment" );
 
         StringBuffer versionString = new StringBuffer();
 
