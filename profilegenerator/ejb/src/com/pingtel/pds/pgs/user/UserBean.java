@@ -798,7 +798,7 @@ public class UserBean extends JDBCAwareEJB implements EntityBean, UserBusiness {
                 }
             }
             catch (SQLException e) {
-                logFatal(e.getMessage());
+                logFatal(e.getMessage(), e);
                 throw new EJBException(e.getMessage() );
             }
         }

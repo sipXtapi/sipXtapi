@@ -15,6 +15,7 @@ Url: http://www.sipfoundry.org/sipXconfig
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
+%define sipxpbxdata %{_datadir}/sipxpbx
 
 # Unfortunately because of Java's .so's  TODO: Figure out a way to 
 # tell rpm find-requires to find java's so
@@ -88,7 +89,7 @@ rm -rf $RPM_BUILD_ROOT
 # Install configserver config files, directory only is created by pbx
 %config %{sipxpbxconf}/*
 
-%{_datadir}/sipxpbx
+%{sipxpbxdata}
 
 %dir %{_localstatedir}
 

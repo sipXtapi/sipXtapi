@@ -237,48 +237,55 @@ public class ReplicationManager
         try{
             long d1 = new java.util.Date().getTime();
             String param = xmlData;
-            URL replicateURL = new URL(location.getReplicationURL());
-            HttpURLConnection urlConn = (HttpURLConnection)replicateURL.openConnection();
-            urlConn.setDoOutput(true);
-            urlConn.setRequestMethod("POST");
-            urlConn.setRequestProperty("Content-length",String.valueOf(param.length()));
-            urlConn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-            urlConn.connect();
-            DataOutputStream postWriter=new DataOutputStream(urlConn.getOutputStream());
-            postWriter.writeBytes(param);
-            postWriter.flush();
-            postWriter.close();
-
-            long d2 = new java.util.Date().getTime();
-            System.out.println ( "*it took " + (d2-d1) + " to send data over URL");
-            //System.out.println("finished posting data " );
-            long d3 = new java.util.Date().getTime();
-            String strResponseMessage = urlConn.getResponseMessage();
-            long d4 = new java.util.Date().getTime();
-            System.out.println ( "*it took " + (d4-d3) + " to send data over URL");
-
-            long d5 = new java.util.Date().getTime();
-            //System.out.println(" response message is " + strResponseMessage );
-            //System.out.println(" error response if any is  " + urlConn.getHeaderField("ErrorInReplication") );
-            String strResponseBody = "";
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-            String line = null;
-            while( (line = reader.readLine()) != null ){
-                  strResponseBody += line;
+            if (location.getReplicationURL() == null)
+            {
+                System.out.println ( "no replication url specified, skipping replication");
+            } 
+            else
+            {
+                URL replicateURL = new URL(location.getReplicationURL());
+                HttpURLConnection urlConn = (HttpURLConnection)replicateURL.openConnection();
+                urlConn.setDoOutput(true);
+                urlConn.setRequestMethod("POST");
+                urlConn.setRequestProperty("Content-length",String.valueOf(param.length()));
+                urlConn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+                urlConn.connect();
+                DataOutputStream postWriter=new DataOutputStream(urlConn.getOutputStream());
+                postWriter.writeBytes(param);
+                postWriter.flush();
+                postWriter.close();
+    
+                long d2 = new java.util.Date().getTime();
+                System.out.println ( "*it took " + (d2-d1) + " to send data over URL");
+                //System.out.println("finished posting data " );
+                long d3 = new java.util.Date().getTime();
+                String strResponseMessage = urlConn.getResponseMessage();
+                long d4 = new java.util.Date().getTime();
+                System.out.println ( "*it took " + (d4-d3) + " to send data over URL");
+    
+                long d5 = new java.util.Date().getTime();
+                //System.out.println(" response message is " + strResponseMessage );
+                //System.out.println(" error response if any is  " + urlConn.getHeaderField("ErrorInReplication") );
+                String strResponseBody = "";
+    
+                BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+                String line = null;
+                while( (line = reader.readLine()) != null ){
+                      strResponseBody += line;
+                }
+                if( ! strResponseBody.startsWith("replication was successful") ){
+                    //String  strHeaderReplicationError = urlConn.getHeaderField("ErrorInReplication");
+                    //if( strHeaderReplicationError != null ){
+                    error = new ReplicationError( ReplicationError.COMPONENT_ERROR,
+                                                                   strResponseBody,
+                                                                   location, null );
+                    //}
+                }
+    
+                long d6 = new java.util.Date().getTime();
+                System.out.println ( "*it took " + (d6-d5) + " to process response from URL");
+                System.out.println(" response body is: " + strResponseBody );
             }
-            if( ! strResponseBody.startsWith("replication was successful") ){
-                //String  strHeaderReplicationError = urlConn.getHeaderField("ErrorInReplication");
-                //if( strHeaderReplicationError != null ){
-                error = new ReplicationError( ReplicationError.COMPONENT_ERROR,
-                                                               strResponseBody,
-                                                               location, null );
-                //}
-            }
-
-            long d6 = new java.util.Date().getTime();
-            System.out.println ( "*it took " + (d6-d5) + " to process response from URL");
-            System.out.println(" response body is: " + strResponseBody );
 
 
         }catch( IOException e ){

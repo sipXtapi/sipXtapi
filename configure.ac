@@ -95,6 +95,7 @@ AC_CONFIG_FILES([
     sipagent-jni/Makefile
     sipagent-jni/src/Makefile
     sipagent-jni/include/Makefile
+    doc/Makefile
 ])
 
 AC_OUTPUT

@@ -1129,7 +1129,7 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
             } catch ( Exception e1) { e1.printStackTrace(); }
 
             if ( e instanceof RemoteException ) {
-                logFatal ( e.toString() );
+                logFatal ( e.toString(), e );
                 throw new EJBException ( e.toString() );
             }
             else if ( e instanceof PDSException ){
@@ -1137,6 +1137,7 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
             }
             else {
                 // add assert here some time.
+                logFatal ( e.toString(), e );
             }
         }
     }

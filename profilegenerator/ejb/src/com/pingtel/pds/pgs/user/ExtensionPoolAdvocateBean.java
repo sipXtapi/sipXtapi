@@ -152,7 +152,7 @@ public class ExtensionPoolAdvocateBean extends JDBCAwareEJB
             throw new PDSException ( collateErrorMessages ("UC621"), e);
         }
         catch (Exception e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
 
             throw new EJBException(
                 collateErrorMessages(   "UC621",
@@ -204,7 +204,7 @@ public class ExtensionPoolAdvocateBean extends JDBCAwareEJB
                                     new Object [] { Integer.valueOf ( extensionPoolID )  } );
         }
         catch ( RemoteException e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
 
             throw new EJBException(
                 collateErrorMessages(   "UC622",
@@ -418,7 +418,7 @@ public class ExtensionPoolAdvocateBean extends JDBCAwareEJB
                 e );
             }
             catch (RemoteException e) {
-                logFatal ( e.toString() );
+                logFatal ( e.toString(), e );
 
                 throw new EJBException(
                     collateErrorMessages(   "UC623",
@@ -512,7 +512,7 @@ public class ExtensionPoolAdvocateBean extends JDBCAwareEJB
 
         }
         catch ( FinderException e) {
-            logFatal( e.toString() );
+            logFatal( e.toString(), e );
 
             throw new EJBException(
                     collateErrorMessages(   "UC624",

@@ -874,7 +874,7 @@ public class DeviceGroupAdvocateBean extends JDBCAwareEJB
             throw new PDSException("UC470", e);
         }
         catch (RemoteException e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
 
             if ( jobID != -1 ) {
                 try {

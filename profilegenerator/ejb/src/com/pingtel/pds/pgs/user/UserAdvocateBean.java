@@ -1634,6 +1634,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
             }
             else {
                 // add assert here some time.
+                e.printStackTrace();
             }
         }
     }

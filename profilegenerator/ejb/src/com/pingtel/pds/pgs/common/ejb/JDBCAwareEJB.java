@@ -140,7 +140,7 @@ abstract public class JDBCAwareEJB extends BaseEJB {
             int newID = rsSeq.getInt (1);
             return newID;
         } catch (SQLException se) {
-            logFatal( se.toString() );
+            logFatal( se.toString(), se );
             throw new EJBException (se.getMessage());
         } finally {
             closeJDBCObjects ( con,
@@ -226,8 +226,9 @@ abstract public class JDBCAwareEJB extends BaseEJB {
         }
 
         if ( problemMessage != null ) {
-            logFatal( problemMessage );
-            throw new EJBException ( problemMessage );
+            EJBException ejbe = new EJBException ( problemMessage );
+            logFatal( problemMessage, ejbe );
+            throw ejbe;
         }
     }
 
@@ -261,7 +262,7 @@ abstract public class JDBCAwareEJB extends BaseEJB {
             }
             return m_dataSource.getConnection();
         } catch ( Exception e) {
-            logFatal( e.toString() );
+            logFatal( e.toString(), e );
             throw new EJBException ( e.toString() );
         }
     }

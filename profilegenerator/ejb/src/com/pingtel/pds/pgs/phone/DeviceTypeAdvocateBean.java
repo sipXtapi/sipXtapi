@@ -358,7 +358,7 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
 
         }
         catch ( Exception e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
             throw new EJBException ( e.getMessage() );
         }
     }

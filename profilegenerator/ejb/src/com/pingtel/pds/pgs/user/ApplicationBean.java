@@ -274,7 +274,7 @@ public class ApplicationBean extends JDBCAwareEJB
             existing = ((ApplicationHome)mCTX.getEJBHome()).findByUrl(url);
         }
         catch (Exception e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
             throw new EJBException(e.getMessage());
         }
 

@@ -343,7 +343,7 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
             existing = ((DeviceHome)mCTX.getEJBHome()).findByShortName( shortName );
         }
         catch (Exception e) {
-            logFatal (e.getMessage());
+            logFatal (e.getMessage(), e);
             throw new EJBException (e.getMessage());
         }
 
@@ -537,7 +537,7 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
             existing = ((DeviceHome) mCTX.getEJBHome()).findBySerialNumber(serialNumber);
         }
         catch (Exception e) {
-            logFatal (e.getMessage());
+            logFatal (e.getMessage(), e);
             throw new EJBException (e.getMessage());
         }
 
@@ -614,7 +614,7 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
             return getDeviceTypeEJBObject().getModel();
         }
         catch (RemoteException e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
             throw new EJBException ( e.toString() );
         }
     }
@@ -630,7 +630,7 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
             return getManufacturerEJBObject().getName();
         }
         catch (RemoteException e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
             throw new EJBException  ( e.toString() );
         }
     }
@@ -704,7 +704,7 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
 
             }
             catch ( Exception e) {
-                logFatal ( e.toString() );
+                logFatal ( e.toString(), e );
                 throw new EJBException  ( e.toString() );
             }
         }
@@ -721,7 +721,7 @@ public class DeviceBean extends JDBCAwareEJB implements EntityBean, DeviceBusine
                                 getDeviceTypeEJBObject().getManufacturerID() );
             }
             catch ( Exception e) {
-                logFatal ( e.toString() );
+                logFatal ( e.toString(), e );
                 throw new EJBException  ( e.toString() );
             }
         }

@@ -240,7 +240,7 @@ public class ConfigurationSetBean extends JDBCAwareEJB
             sortedString = stringWriter.toString();
         }
         catch (Exception ex) {
-            logFatal(ex.getMessage());
+            logFatal(ex.getMessage(), ex);
             throw new EJBException (ex.getMessage());
         }
 

@@ -1,55 +1,57 @@
 
+This file was generated using the following command.  If you are
+already looking at this from web browser, then please ignore this
+message.
 
-Accessing web GUI
-==========================
+  lynx -dump doc/src/manual/readme.html > README
+----------------------------------------------------------
 
-Normally, this is run under sipXpbx script, but if you want to launch
-the services manually, you can run the following:
+                                    README
 
-  # start postgres if it's not already started
+   This is initial instructions to setup sipXconfig post installation
+
+Running with sipXpbx and sipXproxy
+
+   Install the sipXpbx project and follow instructions for starting the
+   sipxpbx service. This will start and stop the necessary components of
+   the configuration system. The sipXproxy will direct SIP messages to
+   the Profile Publisher's automatically.
+
+Running without sipXproxy
+
+   SIP messages to the ProfilePublisher are proxies by the sipXproxy
+   project to the corrent SIP port. If you wish to run the configserver
+   w/o the sipXpbx or sipXproxy servers installed, then edit file:
+   /etc/sipxpbx/config.defs and set following setting to read the
+   following values:
+    CONFIG_SERVER_SIP_PORT=5060
+
+Running without sipXppbx
+
+   To start all the components of sipXconfig, launch the services
+   manually by running the following commands:
   sudo -u sipxchange startrmireg.sh &
   sudo -u sipxchange profilepublisher.sh &
   sudo -u sipxchange profilewriter.sh &
   sudo -u sipxchange profilegenerator.sh &
 
-Then you can access the web gui from this url
+Accessing web GUI
 
-  http://localhost:8080/pds
+   Then you can access the web gui from url: http://localhost:8080/pds
 
 Initial Setup of Domain
-==============================
 
-First this you'll want to do is setup your domain, at login prompt,
-type the following user name and password
-
+   First thing you'll want to do is setup your system with a domain, at
+   login prompt, type the following user name and password
   user name: installer
   password : password
 
-Here's a sample of information on next screen, see manual for 
-details
-
+   Here's a sample of information on next screen
  Organization : Acme Corp.
- DNS Domain   : acme.com       ## for testing, you may want to prepend 
-                               ## your hostname (e.g myhost.acme.com)
+
+   Unless your machine's hostname is 'sipxchange' I suggest using fully
+   qualified hostname here (e.g myhost.acme.com)
+ DNS Domain   : myhostname.acme.com
  PIN          : ****
-  
 
-Troubleshooting
-=============================
-
-To turn debugging on for EJB code, edit this file
-
-  ${JBOSS_HOME}/conf/catalina/jboss.properties
-
-and change the debug flag to true :
-
-  pds.debug=true
-
-then monitor this log file
-
-  ${JBOSS_HOME}/log/server.log
-
-
-
-
-
+   Last modified: Sun Oct 10 14:52:41 EDT 2004

@@ -167,7 +167,7 @@ public class ApplicationAdvocateBean extends JDBCAwareEJB
         }
 
         catch ( RemoteException ex ) {
-            logFatal ( ex.toString() );
+            logFatal ( ex.toString(), ex );
             throw new EJBException (
                 collateErrorMessages (  "UC355",
                                         "E4058",

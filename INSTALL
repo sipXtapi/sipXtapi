@@ -1,119 +1,136 @@
+
+This file was generated using the following command.  If you are
+already looking at this from web browser, then please ignore this
+message.
+
+  lynx -dump doc/src/manual/install.html > INSTALL
+
+----------------------------------------------------------
+
+                                 Installation
+
 Required Software
-====================
 
-sipXportLib 2.5.0
-  http://www.sipfoundry.org/sipXportLib
+   sipXportLib (same version sipXconfig)
+          [1]http://www.sipfoundry.org/sipXportLib
 
-sipXtackLib 2.5.0
-  http://www.sipfoundry.org/sipXtack
+   sipXtackLib (same version sipXconfig)
+          [2]http://www.sipfoundry.org/sipXtack
 
-sipXcommserverLib 2.5.0
-  http://www.sipfoundry.org/sipXcommserverLib
+   sipXcommserverLib (same version sipXconfig)
+          [3]http://www.sipfoundry.org/sipXcommserverLib
 
-Java SDK 1.4.2 (tested w/1.4.2.03)
-  http://java.sun.com
+   Java SDK 1.4 (tested w/1.4.2.03)
+          [4]http://java.sun.com
 
-postgres 7.3.X (tested with 7.3.4)
-  http://www.postgresql.org/
+   postgres 7.3 (tested with 7.3.4)
+          [5]http://www.postgresql.org/
 
-JBoss 2.4.4 with Tomcat 4.0.1 (exactly this version)
-  http://www.jboss.org
+   JBoss 2.4.4 with Tomcat 4.0.1 (exactly this version!)
+          [6]http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-
+          4.0.1.zip
 
-Ant 1.6 (tested with 1.6.1)
-  http://ant.apache.org/
-  
-
-Optional Software
-====================
-
-SOAP Lite Perl (tested with 0.55)
-  http://search.cpan.org
-  NOTE: When installing, warnings about MIME::Lite and MIME::Parser do
-        not have any impact when running the example scripts
-
+   Ant 1.6 (tested with 1.6.1)
+          [7]http://ant.apache.org/
 
 Environment Variables
-============================
 
-After installing these packages, set the following environment
-variables:
+   After installing these packages, set the following environment
+   variables:
 
- JAVA_HOME   - where you installed java
-               Example: 
-                   export JAVA_HOME=/usr/java/j2sdk1.4.2_03
+   JAVA_HOME
+          to where you installed java. This setting is just used to
+          compile. After installation the sipx-config --jdk is used to
+          find java dynamically. That means you can upgrade your java and
+          not break your installation
 
- ANT_HOME    - where you unzipped (e.g. installed) ant
-               Example: 
-                   export ANT_HOME=~/apache-ant-1.6.2
+       Example:
+           export JAVA_HOME=/usr/java/j2sdk1.4.2_03
 
- JBOSS_HOME  - where you unzipped JBoss
-               Example: 
-                   export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
+
+   ANT_HOME
+          where you unzipped (e.g. installed) ant
+
+       Example:
+            export ANT_HOME=~/apache-ant-1.6.2
+
+
+   JBOSS_HOME
+          where you unzipped JBoss
+
+       Example:
+          export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
+
 
 Special Software Installion Instructions
-========================================
-1.) After unzipping JBoss
 
- a.) run this patch on it
+  JBoss
 
-  patch -d ${JBOSS_HOME} -p1 < sipx-jboss-configure.patch
-
- b.) be sure user running sipxpbx (most cases sipxchange) has full r/w
-     access to all files and directories in ${JBOSS_HOME}
-
+   After unzipping JBoss
+    1. run this patch on it
+      patch -d ${JBOSS_HOME} -p1 < sipx-jboss-configure.patch
+    2. be sure user running sipxpbx (most cases sipxchange) has full r/w
+       access to all files and directories in ${JBOSS_HOME}
 
 Installation
-=====================
 
-After building the prerequisite components, build sipXconfig by:
-
-  ./configure
-  make
-  make install 
-
+   After building the prerequisite components, build sipXconfig by:
+     ./configure
+     make
+     make install
 
 Set up the Postgresql Database
-==============================
 
-  # to edit postgres config files to work
-  # Note: this will open up TCP connections and
-  # allow localhost to connect to posgres
-  /usr/local/sipx/bin/sipxdbmgr --setup
-
-  /usr/local/sipx/bin/sipxdbmgr --create PDS
-  /usr/local/sipx/bin/sipxdbmgr --create SDS
-
+   Edit postgres config files to work. This will open up TCP connections
+   and allow localhost to connect to posgres
+     /usr/local/sipx/bin/sipxdbmgr --setup
+     /usr/local/sipx/bin/sipxdbmgr --create PDS
+     /usr/local/sipx/bin/sipxdbmgr --create SDS
 
 SSL Initialization
-==================
 
-Set up an SSL key using the instructions in sipXcommserverLib/doc/INSTALL.ssl.
-
+   Set up an SSL key using the instructions in
+   sipXcommserverLib/doc/INSTALL.ssl.
 
 Optional SOAP Access
-====================
 
-A SOAP API is available to automate adding/deleting and limited editing of
-phone configuration information.  In particular user lines, devices
-and credentials.  
+   A SOAP API is available to automate adding/deleting and limited
+   editing of phone configuration information. In particular user lines,
+   devices and credentials.
 
-A SOAP client perl script is provided as an example and as a useful
-importing utility. See following directory for scripts and examples:
-
-  profilegeneration/soap/bin
-
+   A SOAP client perl script is provided as an example and as a useful
+   importing utility. See following directory for scripts and examples:
+   profilegeneration/soap/bin
 
 Compiling the Profile Publisher's SIP agent w/ MSVC 6
-=====================================================
-First, see the INSTALL instructions in sipXportLib on adding glib and 
-pcre to the MSVC 6 environment.  Next, you must add Java's JNI include 
-and library paths to your MSVC 6 environment following the same process.
-Assuming that you installed the SDK in 
-C:\Program Files\Java\j2sdk1.4.2_03, you will need to add the following:
 
-Additional Includes:
-   C:\Program Files\Java\j2sdk1.4.2_03\include
-   C:\Program Files\Java\j2sdk1.4.2_03\include\win32
+   Support for windows is experimental, here's the latest know
+   instructions that were known to work, you may have to play around with
+   it, please submit your findings and patches back to mailing list
 
-Additional Libs:
-   C:\Program Files\Java\j2sdk1.4.2_03\lib
+   First, see the INSTALL instructions in sipXportLib on adding glib and
+   pcre to the MSVC 6 environment. Next, you must add Java's JNI include
+   and library paths to your MSVC 6 environment following the same
+   process.
+
+   Assuming that you installed the SDK in C:\Program
+   Files\Java\j2sdk1.4.2_03 you will need to add the following:
+
+   Additional Includes:
+          C:\Program Files\Java\j2sdk1.4.2_03\include
+          C:\Program Files\Java\j2sdk1.4.2_03\include\win32
+
+   Additional Libs:
+          C:\Program Files\Java\j2sdk1.4.2_03\lib
+
+   Last modified: Sun Oct 10 15:15:13 EDT 2004
+
+References
+
+   1. http://www.sipfoundry.org/sipXportLib
+   2. http://www.sipfoundry.org/sipXtack
+   3. http://www.sipfoundry.org/sipXcommserverLib
+   4. http://java.sun.com/
+   5. http://www.postgresql.org/
+   6. http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip
+   7. http://ant.apache.org/

@@ -1,8 +1,7 @@
-
-SUBDIRS = . bin common profilegenerator profilepublisher profilewriter sipagent-jni
+SUBDIRS = . bin common profilegenerator profilepublisher profilewriter sipagent-jni doc
 
 EXTRA_DIST = \
-	 config/sipX-config.in \
+    config/sipX-config.in \
     doc/license \
     ant-targets.am \
     ant-targets.xml \
@@ -17,6 +16,12 @@ EXTRA_DIST = \
     profilepublisher \
     profilepub_sipagent.dsp \
     lib
+
+# See doc/Makefile.am why user has to explicitly type
+# 'make doc'
+.PHONY : doc
+doc :
+	cd doc && $(MAKE) $(AM_MAKEFLAGS)
 
 ## Search and replace helpful make/conf variables
 edit = sed \

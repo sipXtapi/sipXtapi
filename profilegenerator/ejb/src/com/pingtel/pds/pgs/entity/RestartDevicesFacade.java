@@ -89,7 +89,7 @@ public class RestartDevicesFacade extends BaseEJB
             mDeviceGroupAdvocate = deviceGroupAdvocateHome.create();
         }
         catch ( Exception e ) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
             throw new EJBException ( "Error in RestaredDevicesFacade:setMessageDrivenContext " + e.toString() );
         }
     }
@@ -138,13 +138,13 @@ public class RestartDevicesFacade extends BaseEJB
             }
         }
         catch (RemoteException e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
         }
         catch (JMSException e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
         }
         catch (PDSException e) {
-            logError ( e.getMessage() );
+            logError ( e.getMessage(), e );
         }
     }
 

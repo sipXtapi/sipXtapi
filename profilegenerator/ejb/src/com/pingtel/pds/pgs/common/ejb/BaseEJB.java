@@ -116,11 +116,11 @@ public class BaseEJB {
     /**
      * logFatal logs a message to the PDS message log.
      * @param message String message you want to log.
-     */
     protected void logFatal (  String message ) {
 
         Category.getInstance( "pgs" ).fatal( message );
     }
+     */
 
     protected void logFatal ( String message, Throwable t ) {
         Category.getInstance( "pgs" ).fatal( message, t );

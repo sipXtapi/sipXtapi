@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>sipXconfig on Redhat</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="redhat">
+
+<h1>Running on Redhat</h1>
+
+<p>RPMs are still in the process of being officially built and made
+available on sipfoundry, but here's the instructions for getting your
+system running once RPMs become available. These instructions apply to
+Enterprise and Fedora systems unless explicitly noted</p>
+
+<h2>System Installation</h2>
+<ol>
+  <li>Install Redhat from CDs.  You can select any set of packages
+  including the minimum set of packages labled "router configuration"
+  in the redhat installer process</li>
+
+  <li>When prompted for firewall support, select "no firewall support" or
+  open up the following ports in your iptables: 80, 8080, 8090, 8091,
+  5060 and 5090</li>
+      
+</ol>
+
+<h2>Installing dependencies with up2date</h2>
+
+<p>Fedora users may experience periodic connection using using
+<code>up2date</code> but usually if you're persistent you can get thru
+executing <code>up2date</code> repeatedly. If you do not use
+<code>up2date</code>, I recommend installing postgres and apache while
+installing your system, or use the redhat package manager to install
+those RPMs for you.</p>
+
+<ul>
+  
+  <li>Run <code>up2date</code> for the first time and follow instructions to setup propery <code>up2date</code> operation.</li>
+
+  <li>Run <code>up2date -u</code> to make your system is up to date.</li>
+
+  <li>Run <code>up2date</code> on the following packages:
+
+<dl>
+   <dt>Postgres</dt>
+   <dd><code>up2date rh-postgresql-server</code> <strong>*Enterprise Users Only</strong></dd>
+   <dd><code>up2date postgresql-server</code> <strong>*Fedora Users Only</strong></dd>
+
+   <dt>Apache 2 webserver</dt>
+   <dd><code>up2date httpd</code></dd>
+
+</dl>
+      </li>
+</ul>
+
+
+<h2>Installing RPMs not avaliable from Redhat</h2>
+
+<p>Sipfoundry will make the following rpms available. You can install
+these by typing the command <code>rpm -iv
+<em>packagename</em>.rpm</code>. It's often helpful to list more than
+one rpm at a time to fullfil rpm interpackage dependencies. RPMs
+listed here are in proper order to install individually.</p>
+<ul>
+  <li>j2sdk-1_4_2_03-linux-i586.rpm</li>
+  <li>sipx-jboss-2.4.10-1.noarch.rpm</li>
+</ul>
+
+<p>Next download and install these required RPMs from sipfoundry</p>
+<ul>
+  <li>sipxportlib</li>
+  <li>sipxtacklib</li>
+  <li>sipxcommserverlib</li>
+  <li>sipxconfig</li>
+</ul>      
+
+<p>Next download and install these optional RPMS but recommended for
+normal operation.  Details for running with or without these RPMs are
+listed in <a href="readme.html">README</a></p>
+
+<ul>
+  <li>sipxproxy</li>
+  <li>sipxregistry</li>
+  <li>sipxpublisher</li>
+  <li>sipxvxml</li>
+  <li>sipxpbx</li>
+</ul>
+
+<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Fri Oct  8 14:58:38 EDT 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

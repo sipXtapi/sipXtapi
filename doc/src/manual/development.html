@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>sipXconfig Development</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="development">
+
+<h1>Development</h1>
+
+<h1>Sourcecode Layout JavaDocs</h1>
+<ul>
+
+  <!--
+    - These links are only valid after manual is generated
+    - (unless top.build.dir=top.dir)
+    -->
+  <li>common (<a href="../../common/dist/api/index.html">API</a>) -
+Common code between all configuration modules</li>
+
+   <li>profilewriter (<a href="../../profilewriter/dist/api/index.html">API</a>) - Profile Writer Java Source</li>
+
+   <li>profilepublisher (<a href="../../profilepublisher/dist/api/index.html">API</a>) - Profile Publisher Java Source</li>
+
+   <li>profilegenerator - Profile Generator is broken into a few components
+
+       <ul>
+
+   <li>ejb (<a href="../../profilegenerator/ejb/dist/api/index.html">API</a>) - EJB Java Source most of the business logic of the configuration system</li>
+
+   <li>commserver (<a href="../../profilegenerator/commserver/dist/api/index.html">API</a>) - Java source to edit configuration files for the sipXproxy, sipXregistry and sipXpublisher</li>
+
+   <li>authentication (<a href="../../profilegenerator/authentication/dist/api/index.html">API</a>) - EJB plugin for JBoss handle user authention into the website and SOAP</li>
+
+   <li>soap (<a href="../../profilegenerator/soap/dist/api/index.html">API</a>) - Java source for WAR service that allows SOAP based acess to user line, device, and credential adding, deleting and editing</li>
+
+   <li>webui (<a href="../../profilegenerator/webui/dist/api/index.html">API</a>) - JSP Pages, custom tags, web page logic for web based admin and web user admin WAR file.</li>
+       
+   <li>deploy - Assembles pieces of Profile Generator to create one EAR file that gets installed into JBoss.</li>	 
+
+       </ul>
+       </li>
+	      
+</ul>
+
+<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Fri Oct  8 22:55:15 EDT 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>sipXconfig - README</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="readme">
+
+<pre class="hide">
+<!-- lynx ignores CSS and shows this -->
+This file was generated using the following command.  If you are
+already looking at this from web browser, then please ignore this
+message.
+
+  lynx -dump doc/src/manual/readme.html > README
+----------------------------------------------------------
+</pre>
+
+<h1>README</h1>
+
+<p>This is initial instructions to setup sipXconfig post installation</p>
+
+<h2>Running with sipXpbx and sipXproxy</h2>
+
+<p>Install the sipXpbx project and follow instructions for starting
+the <code>sipxpbx</code> service.  This will start and stop the
+necessary components of the configuration system.  The sipXproxy will
+direct SIP messages to the Profile Publisher's automatically.</p>
+
+<h2>Running without sipXproxy</h2>
+
+<p>SIP messages to the ProfilePublisher are proxies by
+the sipXproxy project to the corrent SIP port.  If you wish to run the
+configserver w/o the sipXpbx or sipXproxy servers installed, then edit
+file: <code>/etc/sipxpbx/config.defs</code> and set following setting
+to read the following values:
+<pre>
+    CONFIG_SERVER_SIP_PORT=5060
+</pre>
+</p>
+
+<h2>Running without sipXppbx</h2>
+
+<p>To start all the components of sipXconfig, launch the services
+manually by running the following commands:
+
+<pre>
+  sudo -u sipxchange startrmireg.sh &amp;
+  sudo -u sipxchange profilepublisher.sh &amp;
+  sudo -u sipxchange profilewriter.sh &amp;
+  sudo -u sipxchange profilegenerator.sh &amp;
+</pre>
+</p>
+
+<h2>Accessing web GUI</h2>
+
+<p>Then you can access the web gui from url:
+<code>http://localhost:8080/pds</code></p>
+
+<h2>Initial Setup of Domain</h2>
+
+<p>First thing you'll want to do is setup your system with a domain,
+at login prompt, type the following user name and password</p>
+
+<pre>
+  user name: installer
+  password : password
+</pre>
+
+<p>Here's a sample of information on next screen</p>
+
+<pre>
+ Organization : Acme Corp.
+</pre>
+<p>Unless your machine's hostname is 'sipxchange' I suggest using
+fully qualified hostname here (e.g myhost.acme.com)</p>
+<pre>
+ DNS Domain   : myhostname.acme.com  
+ PIN          : ****
+</pre>
+
+<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Sun Oct 10 14:52:41 EDT 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

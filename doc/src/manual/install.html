@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>sipXconfig Installation</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="installation">
+
+<pre class="hide">
+<!-- lynx ignores CSS and shows this -->
+This file was generated using the following command.  If you are
+already looking at this from web browser, then please ignore this
+message.
+
+  lynx -dump doc/src/manual/install.html > INSTALL
+
+----------------------------------------------------------
+</pre>
+
+<h1>Installation</h1>
+
+<h2>Required Software</h2>
+
+<dl>
+  <dt>sipXportLib (same version sipXconfig)</dt>
+  <dd><a href="http://www.sipfoundry.org/sipXportLib">http://www.sipfoundry.org/sipXportLib</a></dd>
+
+  <dt>sipXtackLib (same version sipXconfig)</dt>
+  <dd><a href="http://www.sipfoundry.org/sipXtack">http://www.sipfoundry.org/sipXtack</a></dd>
+
+  <dt>sipXcommserverLib (same version sipXconfig)</dt>
+  <dd><a href="http://www.sipfoundry.org/sipXcommserverLib">http://www.sipfoundry.org/sipXcommserverLib</a></dd>
+
+  <dt>Java SDK 1.4 (tested w/1.4.2.03)</dt>
+  <dd><a href="http://java.sun.com">http://java.sun.com</a></dd>
+
+  <dt>postgres 7.3 (tested with 7.3.4)</dt>
+  <dd><a href="http://www.postgresql.org/">http://www.postgresql.org/</a></dd>
+
+  <dt>JBoss 2.4.4 with Tomcat 4.0.1 (exactly this version!)</dt>
+  <dd><a href="http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip">http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip</a></dd>
+
+  <dt>Ant 1.6 (tested with 1.6.1)</dt>
+  <dd><a href="http://ant.apache.org/">http://ant.apache.org/</a></dd>
+      
+</dl>
+      
+
+<h2>Environment Variables</h2>
+
+<p>After installing these packages, set the following environment
+variables:</p>
+
+<dl>
+  <dt>JAVA_HOME</dt>
+
+  <dd>to where you installed java. This setting is just used to
+compile.  After installation the <code>sipx-config --jdk</code> is used
+      to find java dynamically.  That means you can upgrade your java
+and not break your installation
+      
+  <pre>
+       Example: 
+           export JAVA_HOME=/usr/java/j2sdk1.4.2_03
+   </pre>
+  </dd>
+
+  <dt>ANT_HOME</dt>
+  <dd>where you unzipped (e.g. installed) ant
+  <pre>
+       Example: 
+            export ANT_HOME=~/apache-ant-1.6.2
+   </pre>
+   </dd>
+
+ <dt>JBOSS_HOME</dt>
+ <dd>where you unzipped JBoss
+ <pre>
+       Example: 
+          export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
+  </pre>
+  </dd>
+</dl>
+
+<h2>Special Software Installion Instructions</h2>
+
+<h3>JBoss</h3>
+
+<p>After unzipping JBoss</p>
+
+<ol>
+  <li>run this patch on it
+<pre>
+      patch -d ${JBOSS_HOME} -p1 &lt; sipx-jboss-configure.patch
+</pre>
+  </li>
+
+  <li>be sure user running sipxpbx (most cases sipxchange) has full r/w
+     access to all files and directories in <code>${JBOSS_HOME}</code></li>
+</ol>
+
+
+<h2>Installation</h2>
+
+<p>After building the prerequisite components, build sipXconfig by:
+<pre>
+     ./configure
+     make
+     make install
+</pre>
+</p>
+
+<h2>Set up the Postgresql Database</h2>
+
+<p>Edit postgres config files to work. This will open up TCP connections and
+allow localhost to connect to posgres</p>
+
+<pre>
+     /usr/local/sipx/bin/sipxdbmgr --setup
+     /usr/local/sipx/bin/sipxdbmgr --create PDS
+     /usr/local/sipx/bin/sipxdbmgr --create SDS
+</pre>
+
+
+<h2>SSL Initialization</h2>
+
+<p>Set up an SSL key using the instructions in sipXcommserverLib/doc/INSTALL.ssl.</p>
+
+
+<h2>Optional SOAP Access</h2>
+
+<p>A SOAP API is available to automate adding/deleting and limited
+editing of phone configuration information.  In particular user lines,
+devices and credentials.  </p>
+
+<p>A SOAP client perl script is provided as an example and as a useful
+importing utility. See following directory for scripts and
+examples: <code>profilegeneration/soap/bin</code></p>
+
+
+<h2>Compiling the Profile Publisher's SIP agent w/ MSVC 6</h2>
+
+<p>Support for windows is experimental, here's the latest know instructions
+that were known to work, you may have to play around with it, please submit
+your findings and patches back to mailing list</p>
+
+<p>First, see the INSTALL instructions in sipXportLib on adding glib and 
+pcre to the MSVC 6 environment.  Next, you must add Java's JNI include 
+and library paths to your MSVC 6 environment following the same process.</p>
+
+<p>Assuming that you installed the SDK in <code>C:\Program
+Files\Java\j2sdk1.4.2_03</code> you will need to add the
+following:</p>
+
+<dl>
+  <dt>Additional Includes:</dt>
+   <dd>C:\Program Files\Java\j2sdk1.4.2_03\include</dd>
+   <dd>C:\Program Files\Java\j2sdk1.4.2_03\include\win32</dd>
+
+  <dt>Additional Libs:</dt>
+  <dd>C:\Program Files\Java\j2sdk1.4.2_03\lib</dd>
+</dl>
+
+<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Sun Oct 10 15:15:13 EDT 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

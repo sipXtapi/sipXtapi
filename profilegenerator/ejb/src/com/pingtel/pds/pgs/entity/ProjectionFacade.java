@@ -83,7 +83,7 @@ public class ProjectionFacade extends BaseEJB
             mDeviceGroupAdvocate = deviceGroupAdvocateHome.create();
         }
         catch ( Exception e ) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
             throw new EJBException ( "Error in ProjectionFacade:setMessageDrivenContext " + e.toString() );
         }
     }
@@ -136,13 +136,13 @@ public class ProjectionFacade extends BaseEJB
             }
         }
         catch (RemoteException e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
         }
         catch (JMSException e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
         }
         catch (PDSException e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
         }
     }
 

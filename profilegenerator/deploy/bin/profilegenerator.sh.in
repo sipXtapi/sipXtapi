@@ -33,4 +33,14 @@ echo $$ > @sipxpbx.run.dir@/profilegenerator.pid
 
 # Production command line
 cd @jboss.home@/bin
-./run_with_catalina.sh $@
+
+# portions extracted from jboss's run.sh, stopped trying to 
+# run jboss's startup script because too hard to kill by
+# pid
+export JBOSS_CLASSPATH=${JAVA_HOME}/lib/tools.jar:run.jar:../lib/crimson.jar
+# assume modern jdk
+HOTSPOT="-server"
+JAXP=-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.crimson.jaxp.DocumentBuilderFactoryImpl
+JAXP="$JAXP -Djavax.xml.parsers.SAXParserFactory=org.apache.crimson.jaxp.SAXParserFactoryImpl"
+
+exec java $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main catalina $@

@@ -358,7 +358,7 @@ public class RenderProfileBean extends JDBCAwareEJB
             returnURL.append(device.getOrganization().getDNSDomain());
         }
         catch (RemoteException e) {
-            logFatal (e.getMessage());
+            logFatal (e.getMessage(), e);
             throw new EJBException (e.getMessage());
         }
         catch (Exception e) {

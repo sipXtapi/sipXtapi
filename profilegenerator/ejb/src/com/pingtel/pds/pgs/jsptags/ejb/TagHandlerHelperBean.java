@@ -587,7 +587,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
             throw new EJBException ( e.getMessage() );
         }
         catch ( Exception e) {
@@ -653,7 +653,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException (e.getMessage());
         }
@@ -709,7 +709,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             return htmlString.toString();
         }
         catch (SQLException e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
             throw new EJBException ( e.getMessage() );
         }
     }
@@ -740,7 +740,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (Exception e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
             throw new EJBException ( e.getMessage() );
         }
 
@@ -769,7 +769,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (Exception e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
             throw new EJBException ( e.getMessage() );
         }
 
@@ -797,7 +797,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (Exception e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
             throw new EJBException ( e.getMessage() );
         }
 
@@ -872,7 +872,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
         }
 
         catch ( Exception e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
 
             throw new EJBException(
                 collateErrorMessages(   "UC623",
@@ -1036,7 +1036,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal ( e.getMessage() );
+            logFatal ( e.getMessage(), e );
             throw new EJBException ( e.getMessage() );
         }
         catch ( Exception e) {
@@ -1071,7 +1071,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException(e.getMessage());
         }
@@ -1121,7 +1121,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException(e.getMessage());
         }
@@ -1159,7 +1159,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException(e.getMessage());
         }
@@ -1208,7 +1208,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException(e.getMessage());
         }
@@ -1241,7 +1241,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException(e.getMessage());
         }
@@ -1283,7 +1283,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch (RemoteException e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException(e.getMessage());
         }

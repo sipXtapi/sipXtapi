@@ -81,7 +81,7 @@ public class DataSetBuilderFacade extends BaseEJB
             mUserGroupHome = (UserGroupHome) initial.lookup ( "UserGroup" );
         }
         catch ( Exception e ) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
             throw new EJBException ( "Error in DataSetBuilderFacade:setMessageDrivenContext " + e.toString() );
         }
 
@@ -143,7 +143,7 @@ public class DataSetBuilderFacade extends BaseEJB
             }
         }
         catch ( Exception e) {
-            logFatal ( e.toString() );
+            logFatal ( e.toString(), e );
         }
     }
 

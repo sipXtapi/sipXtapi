@@ -65,5 +65,18 @@
     </war>
   </target>
 
+  <target name="install">
+    <property name="data.bin.dir" value="${dest.dir}${sipxpbx.data.dir}/bin"/>
+    <mkdir dir="${data.bin.dir}"/>
+    <copy todir="${data.bin.dir}">
+      <fileset dir="bin">
+        <include name="sipx_import.pl"/>
+        <include name="sipx_import.dat"/>
+      </fileset>
+    </copy>
+    <chmod file="${data.bin.dir}/sipx_import.pl" perm="ugo+x"/>
+    
+  </target>
+
 </project>
 

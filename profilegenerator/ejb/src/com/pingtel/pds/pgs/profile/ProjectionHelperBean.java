@@ -270,7 +270,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             }
         }
         catch (Exception e) {
-            logFatal (e.toString());
+            logFatal (e.toString(), e);
             throw new EJBException(e.toString());
         }
     }
@@ -333,7 +333,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             logDebug ( "instantiated projection object" );
         }
         catch (Exception e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
 
             throw new EJBException(e.getMessage());
         }
@@ -364,7 +364,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             }
         }
         catch (Exception e) {
-            logFatal(e.toString());
+            logFatal(e.toString(), e);
             throw new EJBException (e.toString());
         }
 
@@ -398,7 +398,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             }
         }
         catch (Exception e) {
-            logFatal(e.toString());
+            logFatal(e.toString(), e);
             throw new EJBException (e.toString());
         }
 
@@ -441,7 +441,7 @@ public class ProjectionHelperBean extends JDBCAwareEJB implements SessionBean, P
             logDebug ( "projection class name is: " +  projectionClassName );
         }
         catch(Exception e){
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
             throw new EJBException(e.getMessage());
         }
 

@@ -172,7 +172,7 @@ public class ApplicationGroupBean extends JDBCAwareEJB
             existing = ((ApplicationGroupHome)mCTX.getEJBHome()).findByName(name);
         }
         catch (Exception e) {
-            logFatal(e.getMessage());
+            logFatal(e.getMessage(), e);
             throw new EJBException(e.getMessage());
         }
 
