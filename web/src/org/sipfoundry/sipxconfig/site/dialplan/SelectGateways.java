@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -21,6 +22,7 @@ import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 
 /**
@@ -32,6 +34,8 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
 
+    public abstract void setDialPlanManager(DialPlanManager manager);
+
     public abstract Integer getRuleId();
 
     public abstract void setRuleId(Integer id);
@@ -41,9 +45,9 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     public abstract void setGateways(Collection gateways);
 
     public abstract Collection getGateways();
-    
+
     public abstract String getNextPage();
-    
+
     public abstract void setNextPage(String nextPage);
 
     public void pageBeginRender(PageEvent event_) {
@@ -67,21 +71,21 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     /**
      * Adds/removes gateways from dial plan
      * 
-     * @param gateways list of gateway ids to be added to the dial plan
-     * @param emergency true for emergency gateways
+     * @param gatewayIds list of gateway ids to be added to the dial plan
      */
-    private void selectGateways(Collection gateways) {
-        //FIXME: selecting gateways does not work here: rules and gateways are detached by now
+    void selectGateways(Collection gatewayIds) {
         DialPlanManager manager = getDialPlanManager();
-        DialingRule rule = manager.getFlexDialPlan().getRule(getRuleId());
-        if (null != rule) {
-            for (Iterator i = gateways.iterator(); i.hasNext();) {
-                Integer id = (Integer) i.next();
-                Gateway gateway = manager.getGateway(id);
-                if (null != gateway) {
-                    rule.addGateway(gateway);
-                }
-            }
+        FlexibleDialPlan flexDialPlan = manager.getFlexDialPlan();
+        Integer ruleId = getRuleId();
+        DialingRule rule = flexDialPlan.getRule(ruleId);
+        if (null == rule) {
+            return;
         }
+        List gateways = manager.getGatewayByIds(gatewayIds);
+        for (Iterator i = gateways.iterator(); i.hasNext();) {
+            Gateway gateway = (Gateway) i.next();
+            rule.addGateway(gateway);
+        }
+        flexDialPlan.updateRule(ruleId, rule);
     }
 }

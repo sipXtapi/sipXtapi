@@ -154,4 +154,13 @@ public class DialPlanManager {
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
     }
+
+    public List getGatewayByIds(Collection gatewayIds) {
+        List gateways = new ArrayList(gatewayIds.size());
+        for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            gateways.add(getOrgGateway(id));
+        }
+        return gateways;
+    }
 }
