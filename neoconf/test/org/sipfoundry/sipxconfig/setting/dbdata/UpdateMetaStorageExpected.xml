@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
-    <storage 
-		storage_id="1"/> 
-    <setting 
-		storage_id="1"
-		value="snow pea" 
+    <meta_storage 
+		meta_storage_id="1"/> 
+    <setting_meta 
+		meta_storage_id="1"
+		value="[null]" 		
+		hidden="true"
+		path="/dairy/milk"/> 
+    <setting_meta 
+		meta_storage_id="1"
+		value="snap pea" 		
+		hidden="false"
 		path="/vegetable/pea"/> 
 </dataset>

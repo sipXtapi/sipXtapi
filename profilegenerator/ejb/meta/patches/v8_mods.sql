@@ -18,7 +18,7 @@ create sequence meta_storage_seq;
 create table setting_meta(
   meta_storage_id int4 not null,
   path varchar(256) not null,
-  value varchar(256) not null,
+  value varchar(256),
   hidden bool,
   primary key (meta_storage_id, path)
 );

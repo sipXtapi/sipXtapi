@@ -11,14 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.sql.BatchUpdateException;
+
+import junit.framework.TestCase;
+
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
-
-import junit.framework.TestCase;
+import org.springframework.dao.DataIntegrityViolationException;
 
 
 public class MetaStorageTestDb extends TestCase {
@@ -55,6 +58,7 @@ public class MetaStorageTestDb extends TestCase {
     }
 
     public void testUpdate() throws Exception {
+        try {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("setting/dbdata/UpdateMetaStorageSeed.xml");        
 
@@ -74,14 +78,25 @@ public class MetaStorageTestDb extends TestCase {
         // should make it new
         copy.getSetting("dairy").getSetting("milk").setHidden(true);
         
+        assertEquals(2, ms.getMeta().size());
         m_dao.storeMetaStorage(ms);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/dbdata/UpdateMetaStorageExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[null]", null);        
         ITable expected = expectedRds.getTable("setting_meta");
                 
         ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_meta");
         
-        Assertion.assertEquals(expected, actual);        
+        Assertion.assertEquals(expected, actual);
+        }
+        catch (DataIntegrityViolationException e) {
+            Throwable t = e.getCause();
+            if (t instanceof BatchUpdateException) {
+                BatchUpdateException bue = (BatchUpdateException) t;
+                bue.getNextException().printStackTrace();
+            }
+            throw e;
+        }
     }   
 }
