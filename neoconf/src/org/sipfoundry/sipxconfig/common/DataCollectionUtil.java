@@ -89,7 +89,7 @@ public final class DataCollectionUtil {
         Iterator imove = move.iterator();
         for (int i = 0; imove.hasNext(); i++) {
             DataCollectionItem item = (DataCollectionItem) imove.next();
-            int newPosition = Math.max(0, Math.min(item.getPosition() + step, c.size() - 1));            
+            int newPosition = Math.max(i, Math.min(item.getPosition() + step, c.size() - 1));            
             clist.remove(item);
             clist.add(newPosition, item);
         }
