@@ -13,12 +13,14 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
+
 
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public interface PhoneContext {
+public interface PhoneContext extends CoreContext {
     
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
     
@@ -59,18 +61,6 @@ public interface PhoneContext {
      * a lot in unittests. 
      */
     public void flush();
-    
-    public Organization loadRootOrganization();
-    
-    public void saveUser(User user);
-    
-    public void deleteUser(User user);
-
-    public User loadUser(int id);
-    
-    public List loadUserByTemplateUser(User template);
-
-    public User loadUserByDisplayId(String displayId);
     
     public List loadPhoneSummaries();      
 
