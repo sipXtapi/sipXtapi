@@ -72,9 +72,3 @@ rpm: clean dist
 # RPM Spec file
 sipxconfig.spec : sipxconfig.spec.in
 	$(edit) $(srcdir)/sipxconfig.spec.in > sipxconfig.spec
-
-## Think about this....
-install-data-hook :
-	$(INSTALL) -d $(localstatedir)
-	$(INSTALL) -d -o @SIPXPBXUSER@ $(SIPXPBXLOG)
-	$(INSTALL) -d -o @SIPXPBXUSER@ $(SIPXPBXRUN)

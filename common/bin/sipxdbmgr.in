@@ -77,8 +77,12 @@ then
       fi
   fi
 
-  # harmless is executed more than once
-  su postgres -c "initdb --pgdata=$PGDATA"
+  # Postgres db is initialized on startup on Redhat, but not on other
+  # distros so unless we put a "if distro=rh"  we need to init here
+  if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
+  then
+      su - postgres -c "initdb --pgdata=$PGDATA"
+  fi
 
   # Create back up file (possibly) requiring update
   if [ ! -f $PGDATA/pg_hba.conf-sipx.bak ]
@@ -86,18 +90,24 @@ then
      cp $PGDATA/pg_hba.conf $PGDATA/pg_hba.conf.sipx.bak
   fi
 
-  # Will allow this script to add user
+  # Will allow this script to add user. Need to be listed before
+  # other permission or it will not take affect
   if test `grep -c '^local *all *all *trust\b*$' \
           $PGDATA/pg_hba.conf` -eq 0
   then
-     echo "local all all trust" >> $PGDATA/pg_hba.conf
+     echo "local all all trust" > $PGDATA/pg_hba.conf.tmp
+     cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
+     mv $PGDATA/pg_hba.conf.tmp $PGDATA/pg_hba.conf
   fi
 
-  # Will allow jboss to connect
+  # Will allow jboss to connect. Need to be listed before
+  # other permission or it will not take affect
   if test `grep -c '^host *all *all *127.0.0.1 *255.255.255.255 *trust\b*$' \
           $PGDATA/pg_hba.conf` -eq 0
   then
-     echo "host all all 127.0.0.1 255.255.255.255 trust" >> $PGDATA/pg_hba.conf
+     echo "host all all 127.0.0.1 255.255.255.255 trust" > $PGDATA/pg_hba.conf.tmp
+     cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
+     mv $PGDATA/pg_hba.conf.tmp $PGDATA/pg_hba.conf
   fi
 
   # Open up tcpid connections

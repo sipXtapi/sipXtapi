@@ -104,7 +104,7 @@ rm -rf $RPM_BUILD_ROOT
 if test `/usr/bin/groups @SIPXPBXUSER@ | grep -c jboss` -eq 0
 then
   Groups=`/usr/bin/groups @SIPXPBXUSER@ | sed -e 's/^@SIPXPBXUSER@ : //g' -e 's/ /,/g'`
-  /usr/sbin/usermod @SIPXPBXUSER@ -G $Groups,jboss
+  /usr/sbin/usermod -G $Groups,jboss @SIPXPBXUSER@
 fi
 
 #TODO: Verify sipxchange user can r/w to jboss's log and deploy scratch dirs

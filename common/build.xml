@@ -70,6 +70,10 @@
     </replace>
     <chmod file="${dest.dir}${bin.dir}/startrmireg.sh" perm="ugo+x"/>
 
+    <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>
+    <mkdir dir="${dest.dir}${sipxpbx.run.dir}"/>
+
+
     <copy file="bin/sipxdbmgr.in" tofile="${dest.dir}${bin.dir}/sipxdbmgr"/>
     <replace file="${dest.dir}${bin.dir}/sipxdbmgr"
         propertyfile="${top.build.dir}/config.properties">
