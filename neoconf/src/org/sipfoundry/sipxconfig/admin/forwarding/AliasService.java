@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
-public interface AliasService {
-    public String getForwardingAliases();
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface AliasService extends Remote {
+    public String getForwardingAliases() throws RemoteException;
 }

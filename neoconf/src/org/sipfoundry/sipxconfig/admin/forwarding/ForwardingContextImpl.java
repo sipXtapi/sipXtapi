@@ -15,7 +15,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.jms.core.JmsOperations;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -24,12 +32,14 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * 
  */
 public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext {
+    private JmsOperations m_jms;
+    private CoreContext m_coreContext;
+
     /**
      * Looks for a call sequence associated with a given user.
      * 
-     * This version just assumes that CallSequence id is the same as user id. 
-     * More general implementation would run a query.
-     * <code>
+     * This version just assumes that CallSequence id is the same as user id. More general
+     * implementation would run a query. <code>
      *      String ringsForUser = "from CallSequence cs where cs.user = :user";
      *      hibernate.findByNamedParam(ringsForUser, "user", user);
      * </code>
@@ -42,6 +52,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void saveCallSequence(CallSequence callSequence) {
         getHibernateTemplate().update(callSequence);
+        // notify profilegenerator if jms has been configured
+        if (null != m_jms) {
+            m_jms.send(new GenerateAliasesMessage());
+        }
     }
 
     public void flush() {
@@ -57,14 +71,38 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         HibernateTemplate hibernate = getHibernateTemplate();
         return (Ring) hibernate.load(Ring.class, id);
     }
-    
+
     public List getForwardingAliases() {
         List aliases = new ArrayList();
-        List sequences = getHibernateTemplate().loadAll(CallSequence.class);
+        Organization organization = m_coreContext.loadRootOrganization();
+        String ringsForUser = "from CallSequence cs where cs.user.organization = :organization";
+        List sequences = getHibernateTemplate().findByNamedParam(ringsForUser, "organization", organization);
+        //List sequences = getHibernateTemplate().loadAll(CallSequence.class);
         for (Iterator i = sequences.iterator(); i.hasNext();) {
             CallSequence sequence = (CallSequence) i.next();
             aliases.addAll(sequence.generateAliases());
         }
         return aliases;
     }
+
+    private static class GenerateAliasesMessage implements MessageCreator {
+        /**
+         * Sends generateAliases message
+         * 
+         * @param session the JMS session
+         * @return the message to be sentt
+         * @throws javax.jms.JMSException if thrown by JMS API methods
+         */
+        public Message createMessage(Session session) throws JMSException {
+            return session.createTextMessage("aliases");
+        }
+    }
+
+    public void setJms(JmsOperations jms) {
+        m_jms = jms;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }    
 }

@@ -14,6 +14,7 @@ package com.pingtel.pds.pgs.sipxchange.datasets;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -39,11 +40,13 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasService;
 
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.common.PathLocatorUtil;
 import com.pingtel.pds.common.XMLSupport;
+import com.pingtel.pds.pgs.common.RMIConnectionManager;
 import com.pingtel.pds.pgs.common.ejb.JDBCAwareEJB;
 import com.pingtel.pds.pgs.organization.Organization;
 import com.pingtel.pds.pgs.organization.OrganizationHome;
@@ -226,9 +229,8 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
      *        settings or permission change occurred for just one user then just pass in that
      *        User. If an entire UserGroup (and their subgroups) need changing then pass that in.
      *        Any number or combination of the above can be passed in.
-     * @throws com.pingtel.pds.common.PDSException is thrown for applcation errors.
      */
-    public void generateAuthExceptions(Collection changePoints) throws PDSException {
+    public void generateAuthExceptions(Collection changePoints) {
 
         try {
             java.util.Date d1 = new java.util.Date();
@@ -586,6 +588,8 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                 }
             }
 
+            appendForwardingAliases(items, saxBuilder);
+
             java.util.Date d2 = new java.util.Date();
 
             logInfo("IT TOOK " + (d2.getTime() - d1.getTime()) + " ms TO GENERATE ALIASES");
@@ -600,6 +604,29 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             logFatal(ex.toString(), ex);
 
             throw new EJBException(collateErrorMessages("UC1080", "E4066", null));
+        }
+    }
+
+    /**
+     * Appends additional aliases to the list of aliases created from database entries and external aliases files
+     * 
+     * @param items JDOM elements representing root element of aliases.xml - i.e. items
+     * @param saxBuilder sax builder used to parse external aliases
+     * @throws Exception getConnection strangely throws Exception, besides IO errors in XML parsing are possible 
+     */
+    private void appendForwardingAliases(Element items, final SAXBuilder saxBuilder)
+            throws Exception {
+        String serviceUrl = getPGSProperty("forwardingaliasservice.rmi.url");
+        AliasService aliasService = (AliasService) RMIConnectionManager.getInstance()
+                .getConnection(serviceUrl);
+        String aliasesXml = aliasService.getForwardingAliases();
+        Reader reader = new StringReader(aliasesXml);
+        Document forwardingAliasesDocument = saxBuilder.build(reader);
+        Element itemsForwarding = forwardingAliasesDocument.getRootElement();
+        Collection aliases = itemsForwarding.getChildren("item");
+        for (Iterator i = XMLSupport.detachableIterator(aliases.iterator()); i.hasNext();) {
+            Element alias = (Element) i.next();
+            items.addContent(alias.detach());
         }
     }
 
@@ -679,9 +706,6 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                 String extension = user.getExtension();
 
                 if (extension != null) {
-                    Organization usersOrganization = getOrganizationEJBObject(user
-                            .getOrganizationID());
-
                     String uriText = user.calculatePrimaryLineURL();
 
                     Element item = new Element("item");

@@ -8,6 +8,7 @@
   <path id="base.path">
       <!-- SIPXCONFIG -->
       <pathelement location="${common.jar}"/>
+      <pathelement location="${sipxconfig.jar}"/>   
       <pathelement location="${commserver.jar}"/>
 
       <!-- UTIL -->
@@ -71,7 +72,7 @@
            - included in ear file. if you include more jars in value attribute
            -->
          <manifest>
-           <attribute name="Class-Path" value="${manifest.classpath} profilegen-patch.jar commserver.jar"/>
+           <attribute name="Class-Path" value="${manifest.classpath} profilegen-patch.jar commserver.jar sipxconfig.jar"/>
          </manifest>
            
       </jar>

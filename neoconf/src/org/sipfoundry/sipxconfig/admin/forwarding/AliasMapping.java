@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * AliasMapping
  */
@@ -45,5 +47,12 @@ public class AliasMapping {
 
     public synchronized void setIdentity(String identity) {
         this.m_identity = identity;
+    }
+
+    public String toString() {
+        ToStringBuilder builder = new ToStringBuilder(this);
+        builder.append("identity", m_identity);
+        builder.append("contact", m_contact);
+        return builder.toString();
     }
 }

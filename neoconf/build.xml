@@ -15,6 +15,7 @@
 	    -->
 	<path id="compile.dependencies">
 		<pathelement location="${jaxen.jar}" />
+		<pathelement location="${j2ee.jar}" />
 		<pathelement location="${commons-lang.jar}" />
 		<pathelement location="${spring.jar}" />
 		<pathelement location="${hibernate.jar}" />
@@ -74,9 +75,14 @@
 	
 	<!-- D E F A U L T -->
 	<target name="default" depends="jar"/>
+    
+    <target name="compile.rmi" depends="compile">
+    	<rmic base="${classes.dir}" includes="**/AliasServiceImpl.class" 
+            verify="yes" stubversion="1.2" classpathref="base.path" />
+    </target>
 	
 	<!-- J A R -->
-	<target name="jar" depends="compile" description="assemble sipxconfig jar library">
+	<target name="jar" depends="compile.rmi" description="assemble sipxconfig jar library">
 		<jar file="${sipxconfig.jar}">
 			<fileset dir="${classes.dir}"/>
 			<fileset dir="${src.dir}">

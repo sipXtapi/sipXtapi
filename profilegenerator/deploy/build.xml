@@ -27,6 +27,7 @@
       <fileset file="${commserver.jar}"/>
       <fileset file="${profilegen-patch.jar}"/>
       <fileset file="${common.jar}"/>
+      <fileset file="${sipxconfig.jar}"/>
       <fileset file="${jdom.jar}"/>
       <fileset file="${jaxen.jar}"/>
       <fileset file="${saxpath.jar}"/>
