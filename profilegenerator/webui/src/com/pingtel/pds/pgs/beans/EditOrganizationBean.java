@@ -31,9 +31,10 @@ import com.pingtel.pds.pgs.organization.OrganizationHome;
  * Used as a session scope bean.
  */
 public class EditOrganizationBean {
-    // TODO: need to internalize - however message builder is not easily accessible here 
+    // TODO: need to externalize - however message builder is not easily accessible here 
     private static final String ERROR_EDIT_MSG = "Error editing organization settings.";
     private static final String ERROR_ACCESS_MSG = "Error accessing organization settings.";
+    private static final String ERROR_MANY_ORG = "Error: multiple organizations defined. Cannot change organization settings";
     
     private String m_name;
 
@@ -48,7 +49,7 @@ public class EditOrganizationBean {
                     OrganizationHome.class, "Organization");
             Collection orgs = orgHome.findAll();
             if (orgs.size() != 1) {
-                throw new PDSException("Cannot edit more than 1 organization");
+                throw new PDSException(ERROR_MANY_ORG);
             }
 
             Iterator i = orgs.iterator();
@@ -56,7 +57,7 @@ public class EditOrganizationBean {
             m_name = org.getName();
             m_dnsDomain = org.getDNSDomain();
 
-            m_orgID = org.getID().toString();
+            m_orgID = org.getID().toString();            
         } catch (NamingException e) {
             throw new PDSException(ERROR_ACCESS_MSG, e);
         } catch (RemoteException e) {
