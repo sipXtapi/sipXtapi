@@ -43,26 +43,37 @@ legend {
 
 div.tabArea {
   padding-top: 10px;
-  font-size: 80%;
-  font-weight: bold;
   background: #ffc;
   width: 40em;
+  text-align: justify;
 }
 
 a.tab {
-  background-color: #ccc;
-  padding: 2px 1em 0px 1em;
-  text-decoration: none;
-  white-space: nowrap;        
+  background: #ccc;
+  border: 1px;
+  border-style : solid;
+  border-top-color : #ddd;
+  border-right-color : #000;
+  border-left-color : #ddd;
+  border-bottom-color : #ffc;
+  padding: 2px;
+  white-space: nowrap;    
+  line-height: 2.5;
+  text-decoration: none;    
 }
 
 a.tab, a.tab:visited {
-  color: #000;
+   color: #000;
 }
 
 a.tab.active, a.tab.active:hover, a.tab.active:visited {
-  background-color: #ffc;
-  color: #000;
+   color: #00f;
+   background-color: #ffc;
+   border-bottom-color : #ffc;
+}
+
+a.tab.active:hover, a.tab:hover {
+  text-decoration: underline;    
 }
 
 .settingDefault {
