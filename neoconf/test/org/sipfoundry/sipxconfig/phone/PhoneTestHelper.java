@@ -11,27 +11,36 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 
 /**
  * Comments
  */
 public class PhoneTestHelper {
-
+    
+    private final static String PHONE_CONTEXT = "phoneContext";
+    
+    private final static String DB_FACTORY_CONFIG = "beanRefFactory-db.xml";
+    
+    private final static String FACTORY_CONFIG = "beanRefFactory.xml";
+    
+    
     public static PhoneContext getPhoneContext() {
-        return getPhoneContext("unittest");
+        return (PhoneContext) getFactory(FACTORY_CONFIG).getBean(PHONE_CONTEXT);
     }
 
     public static PhoneContext getPhoneContextWithDb() {
-        return getPhoneContext("unittest-db");
+        return (PhoneContext) getFactory(DB_FACTORY_CONFIG).getBean(PHONE_CONTEXT);
     }
     
-    private static PhoneContext getPhoneContext(String factory) {
-        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
-        BeanFactoryReference bf = bfl.useBeanFactory(factory);
-        // now use some bean from factory
-        return (PhoneContext) bf.getFactory().getBean("phoneContext");        
+    public static UnitTestDao getUnitTestDao() {
+        return (UnitTestDao) getFactory(DB_FACTORY_CONFIG).getBean("testData");
+    }
+    
+    private static BeanFactory getFactory(String factory) {
+        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance(factory);
+        return  bfl.useBeanFactory("unittest").getFactory();
     }
 }

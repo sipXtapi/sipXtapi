@@ -39,9 +39,11 @@ public class UnitTestDao extends HibernateDaoSupport {
     
     private Endpoint m_teardownEndpoint;
     
-    private EndpointAssignment m_teardownAssignment;
+    private EndpointLine m_teardownEndpointLine;
     
-    private SettingSet m_teardownSettings;    
+    private SettingSet m_teardownSettings;
+
+    private Line m_teardownLine;    
 
     /**
      * test that data in database is setup correctly if not, initialize it's values here. should
@@ -80,15 +82,21 @@ public class UnitTestDao extends HibernateDaoSupport {
      */
     public boolean verifyDataUnaltered() {
 
-        // NOTE: If unittest fails to tear down, next unittest run
-        // may fail due to duplicate data errors
+        // If unittest fails to tear down, next unittest run
+        //   may fail due to duplicate data errors
+        // Order is important here to comply with foriegn key
+        //   relationships
+        if (m_teardownEndpointLine != null) {
+            m_phoneDao.deleteEndpointLine(m_teardownEndpointLine);
+            m_teardownEndpointLine = null;
+        }
         if (m_teardownSettings != null) {
             m_phoneDao.deleteSetting(m_teardownSettings);
             m_teardownSettings = null;
         }
-        if (m_teardownAssignment != null) {
-            m_phoneDao.deleteEndpointAssignment(m_teardownAssignment);
-            m_teardownAssignment = null;
+        if (m_teardownLine != null) {
+            m_phoneDao.deleteLine(m_teardownLine);
+            m_teardownLine = null;
         }
         if (m_teardownEndpoint != null) {
             m_phoneDao.deleteEndpoint(m_teardownEndpoint);
@@ -204,6 +212,20 @@ public class UnitTestDao extends HibernateDaoSupport {
     /**
      * Create some generic sample data, destroyed verifyDataUnaltered
      */
+    public Line createSampleLine() {
+        Line line = new Line();
+        line.setPassword("anypassword");
+        line.setUserId("joeuser");
+        line.setExtension("233212121"); // assumption, unique
+        m_phoneDao.storeLine(line);
+        m_teardownLine = line;
+        
+        return line;
+    }
+    
+    /**
+     * Create some generic sample data, destroyed verifyDataUnaltered
+     */
     public SettingSet createSampleSettingSet() {
         SettingSet root = new SettingSet("root");       
         SettingSet subset = new SettingSet("subset");
@@ -220,14 +242,14 @@ public class UnitTestDao extends HibernateDaoSupport {
     /**
      * Create some generic sample data, destroyed verifyDataUnaltered
      */
-    public EndpointAssignment createSampleEndpointAssignment(Endpoint endpoint, User user) {
-        EndpointAssignment assignment = new EndpointAssignment();
-        assignment.setUser(user);
-        assignment.setEndpoint(endpoint);
-        assignment.setLabel("work phone");
-        m_phoneDao.storeEndpointAssignment(assignment);                
-        m_teardownAssignment = assignment;
+    public EndpointLine createSampleEndpointLine() {
+        EndpointLine eline = new EndpointLine();        
+        eline.setLine(createSampleLine());
+        eline.setEndpoint(createSampleEndpoint());
+        eline.setSettings(createSampleSettingSet());
+        m_phoneDao.storeEndpointLine(eline);                
+        m_teardownEndpointLine = eline;
         
-        return assignment;
+        return eline;
     }
 }

@@ -9,8 +9,10 @@
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
 		global.phoneContext </property-specification>
 	<property-specification name="phones" type="java.util.List"/>
-	<property-specification name="currentPhone" 
-		type="org.sipfoundry.sipxconfig.site.PhoneListRow"/>
+	<property-specification name="currentRow" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneSummary"/>
+   	<property-specification name="selections" 
+       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
 	<!--
 	  - B E A N S
 	  -->
@@ -22,21 +24,28 @@
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="source" expression="phones"/>
-		<binding name="columns">'* SerialNumber:Serial Number:endpoint.serialNumber, ' + 
-			'AssignedUser:Assigned User:assignedUser, Model:phone.modelId, ' + 
-			'Ext.:extension'</binding>
+		<binding name="columns">'* Phone:label,' + 
+			'Lines:lines,Model:phone.modelId'</binding>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
 	<component id="phoneRows" type="contrib:TableRows">
-		<binding name="row" expression="currentPhone"/>
+		<binding name="row" expression="currentRow"/>
 		<binding name="class" expression="beans.rowClass.next"/>
-	</component>
-	<component id="selectPhone" type="Checkbox">
-		<binding name="selected" expression="currentPhone.selected"/>
 	</component>
 	<component id="phoneValues" type="contrib:TableValues">
 	</component>
+    <component id="selectedRow" type="Checkbox">
+        <binding name="selected" expression="selections.selected[currentRow.id]"/>
+    </component>
+    <component id="PhoneColumnValue" type="Block"/>
+    <component id="editPhoneLink" type="ActionLink">
+        <binding name="listener" expression="listeners.editPhone"/>
+    </component>
+    <component id="phoneLabel" type="Insert"> 
+        <binding name="value" expression="currentRow.label"/>
+    </component>
+    
 	<!--
 	  - A S S E T S
 	  -->

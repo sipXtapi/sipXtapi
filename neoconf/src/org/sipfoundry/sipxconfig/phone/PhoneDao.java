@@ -64,25 +64,23 @@ public interface PhoneDao {
     
     public User loadUserByDisplayId(String displayId);
     
+    public List loadPhoneSummaries(PhoneContext context);      
+
+    public void storeLine(Line line);
+    
+    public void deleteLine(Line line);
+
+    public Line loadLine(int id);
+
     public Endpoint loadEndpoint(int id);
         
-    public List loadPhoneSummaries(PhoneSummaryFactory table);
-    
-    /**
-     * Complete with endpoint and users loaded
-     * @return list of endpoint objects
-    public List loadEndpoints();
-
-    public List loadEndpointAssigments();
-     */
-
     public void storeEndpoint(Endpoint endpoint);
 
     public void deleteEndpoint(Endpoint endpoint);
     
-    public void storeEndpointAssignment(EndpointAssignment assignment);
+    public void storeEndpointLine(EndpointLine eline);
     
-    public EndpointAssignment loadEndpointAssignment(int assignmentId);
+    public EndpointLine loadEndpointLine(int elineId);
 
-    public void deleteEndpointAssignment(EndpointAssignment assignment);
+    public void deleteEndpointLine(EndpointLine eline);
 }

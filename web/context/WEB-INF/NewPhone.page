@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
 	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.EditPhone">
+<page-specification class="org.sipfoundry.sipxconfig.site.NewPhone">
 	<!--
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
 		global.phoneContext </property-specification>
-	<property-specification name="phone" 
-		type="org.sipfoundry.sipxconfig.phone.Phone" persistent="yes"/>
+	<property-specification name="endpoint" 
+		type="org.sipfoundry.sipxconfig.phone.Endpoint" persistent="yes"/>
     <!--
       - B E A N S
       -->
@@ -18,8 +18,7 @@
       - C O M P O N E N T S
       -->
     <component id="editPhoneForm" type="EditPhoneForm">
-        <binding name="phone" expression="phone"/>
-        <binding name="endpoint" expression="phone.endpoint"/>
+        <binding name="endpoint" expression="endpoint"/>
         <binding name="phoneContext" expression="global.phoneContext"/>
     </component>    
 	<!--

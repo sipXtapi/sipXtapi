@@ -122,7 +122,7 @@
 		<copy todir="${jboss.container.deploy}" file="${sipxconfig.war}"/>
 
 	</target>
-
+	
 	<target name="install-tomcat" depends="war"
 	   description="Copy war file into Tomcat 5 webapp directory, not genenic, gentoo developement purpose only">
 

@@ -21,9 +21,9 @@ public class Endpoint implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private int m_id = -1;
+    private int m_id = PhoneDao.UNSAVED_ID;
 
-    private String m_description;
+    private String m_name;
 
     private String m_serialNumber;
 
@@ -53,12 +53,12 @@ public class Endpoint implements Serializable {
         m_id = id;
     }
 
-    public String getDescription() {
-        return m_description;
+    public String getName() {
+        return m_name;
     }
 
-    public void setDescription(String description) {
-        m_description = description;
+    public void setName(String name) {
+        m_name = name;
     }
 
     public String getSerialNumber() {

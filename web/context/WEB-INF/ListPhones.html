@@ -60,19 +60,15 @@
 					<td>134</td>
 				</tr>
                 <!-- RENDERED -->
-                <span jwcid="SerialNumberColumnValue@Block">
-                    <a href="#" jwcid="@ActionLink" listener="ognl:listeners.editPhone"><span 
-                        jwcid="@Insert" 
-                        value="ognl:currentPhone.endpoint.serialNumber"/></a>
+                <span jwcid="PhoneColumnValue">
+                    <a href="#" jwcid="editPhoneLink"><span jwcid="phoneLabel">serial number</span></a>
                 </span>
 				<tr class="table-view-hdr">
-					<td></td>
+					<td/>
 					<td jwcid="phoneColumns"/>
 				</tr>
 				<tr jwcid="phoneRows">
-					<td>
-						<span jwcid="selectPhone"/>
-					</td>
+                    <td><span jwcid="selectedRow"/></td>
 					<td jwcid="phoneValues"/>                    
 				</tr>
                 <tr class="table-view-hdr">

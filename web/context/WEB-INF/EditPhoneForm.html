@@ -1,17 +1,28 @@
 <span jwcid="$content$">
-<table>
-			<tr>
-					<td>Serial Number:</td>
-					<td>
-						<input jwcid="@TextField" value="ognl:endpoint.serialNumber"/>
-					</td>
-				</tr>
-                <tr>
-                    <td>Model</td>
-                    <td>
-                        <span jwcid="@PropertySelection" model="ognl:phoneSelectionModel" 
-                            value="ognl:endpoint.phoneId"/>
-                     </td>
-                 </tr>
-</table>   
+	<table>
+		<tr>
+			<td>Serial Number:</td>
+			<td>
+				<input jwcid="@TextField" value="ognl:endpoint.serialNumber"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label for="endpoint:name">
+					<span jwcid="endpointNameLabel">Alternate Label</span>
+				</label>
+			</td>
+			<td>
+				<input jwcid="endpointName" id="endpoint:name"/>
+			</td>
+		</tr>
+		<tr>
+			<td>Model</td>
+			<td>
+				<span jwcid="@PropertySelection" 
+					model="ognl:phoneSelectionModel" 
+					value="ognl:endpoint.phoneId"/>
+			</td>
+		</tr>
+	</table>
 </span>

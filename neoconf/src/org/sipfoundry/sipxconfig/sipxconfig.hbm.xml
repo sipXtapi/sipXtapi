@@ -17,29 +17,45 @@
 				<param name="sequence">endpoint_seq</param>
 			</generator>
 		</id>
-		<property name="description" column="description"/>
+		<property name="name" column="name"/>
 		<property name="serialNumber" column="serial_number"/>
 		<property name="phoneId" column="phone_id"/>
 		<many-to-one name="settings" column="setting_id" 
 			class="org.sipfoundry.sipxconfig.phone.SettingSet"/>
 	</class>
-	<!--
-	  -  E N D P O I N T  /  U S E R   A S S I G N M E N T
-	  -->
-	<class name="org.sipfoundry.sipxconfig.phone.EndpointAssignment" 
-		table="endpoint_assignment">
+	<class name="org.sipfoundry.sipxconfig.phone.Line" table="line">
 		<jcs-cache usage="read-write"/>
-		<id name="id" column="assignment_id" type="int" unsaved-value="-1">
+		<id name="id" column="line_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
-				<param name="sequence">assignment_seq</param>
+				<param name="sequence">line_seq</param>
 			</generator>
 		</id>
-		<property name="label" column="label"/>
-		<many-to-one name="user" column="user_id" 
-			class="org.sipfoundry.sipxconfig.phone.User"/>
+		<property name="authId" column="auth_id"/>
+		<property name="userId" column="user_id"/>
+		<property name="server" column="server"/>
+		<property name="extension" column="extension"/>		
+	</class>
+	<!--
+	  -  E N D P O I N T  L I N E
+	  -->
+	<class name="org.sipfoundry.sipxconfig.phone.EndpointLine" 
+		table="endpoint_line">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="endpoint_line_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">endpoint_line_seq</param>
+			</generator>
+		</id>
+		<many-to-one name="line" column="line_id" 
+			class="org.sipfoundry.sipxconfig.phone.Line"/>
 		<many-to-one name="endpoint" column="endpoint_id" 
 			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+		<many-to-one name="settings" column="setting_id" 
+			class="org.sipfoundry.sipxconfig.phone.SettingSet"/>
 	</class>
+	<!-- 
+      - S E T T I N G  /  S E T T I N G S E T
+	  -->
 	<class name="org.sipfoundry.sipxconfig.phone.Setting" table="setting" 
 		discriminator-value="0">
 		<jcs-cache usage="read-write"/>
@@ -101,10 +117,5 @@
 		<property name="displayId" column="display_id"/>
 		<property name="extension" column="extension"/>
 		<property name="profileEncryptionKey" column="profile_encryption_key"/>
-		<set name="assignedEndpoints" lazy="true">
-			<key column="user_id"/>
-			<one-to-many 
-				class="org.sipfoundry.sipxconfig.phone.EndpointAssignment"/>
-		</set>
 	</class>
 </hibernate-mapping>

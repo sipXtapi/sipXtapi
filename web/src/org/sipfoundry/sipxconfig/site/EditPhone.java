@@ -12,14 +12,12 @@
 package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
  */
-public abstract class EditPhone extends AbstractPhonePage implements PageRenderListener {
+public abstract class EditPhone extends AbstractPhonePage {
     
     public static final String PAGE = "EditPhone"; 
 
@@ -27,13 +25,6 @@ public abstract class EditPhone extends AbstractPhonePage implements PageRenderL
     
     public abstract void setPhone(Phone phone);
     
-    /**
-     * called before page is drawn
-     */
-    public void pageBeginRender(PageEvent eventTemp) {
-        System.out.println("EditPhone.pageBeginRender");
-    }
-
     public void save(IRequestCycle cycle) {
         getPhoneContext().getPhoneDao().storeEndpoint(getPhone().getEndpoint());
         cycle.activate(ListPhones.PAGE);

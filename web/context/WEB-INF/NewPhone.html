@@ -4,7 +4,6 @@
     </head>
 <body jwcid="@Body">
 	<div id="component">
-        Phone: <span jwcid="@Insert" value="ognl:phone.endpoint.serialNumber"/>
         <form jwcid="@Form" delegate="ognl:beans.validator">
             <span jwcid="editPhoneForm"/>
 			<table jwcid="$remove$">
@@ -25,10 +24,13 @@
 			</table>
 			<ul class="form-actions">
 				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.save" value="Save"/>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
 				</li>
 				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.finish" value="Finish"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.next" value="Next"/>
 				</li>
 			</ul>                        
 		</form>    

@@ -15,14 +15,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.BeanFactoryReference;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
-
 /**
  * Requires Database access.
  */
-public class PhoneDaoImplTestDb extends TestCase implements PhoneSummaryFactory {
+public class PhoneDaoImplTestDb extends TestCase {
 
     private PhoneDao m_dao;
 
@@ -30,23 +26,14 @@ public class PhoneDaoImplTestDb extends TestCase implements PhoneSummaryFactory 
 
     private UnitTestDao m_testData;
 
-    /*
-     * @see TestCase#setUp()
-     */
     protected void setUp() throws Exception {
         super.setUp();
 
-        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
-        BeanFactoryReference bf = bfl.useBeanFactory("unittest-db");
-
-        m_context = (PhoneContext) bf.getFactory().getBean("phoneContext");
+        m_context = PhoneTestHelper.getPhoneContextWithDb();
         assertNotNull(m_context);
-
-        // now use some bean from factory 
-        m_dao = (PhoneDao) bf.getFactory().getBean("phoneDao");
+        m_dao = m_context.getPhoneDao();
         assertNotNull(m_dao);
-
-        m_testData = (UnitTestDao) bf.getFactory().getBean("testData");
+        m_testData = PhoneTestHelper.getUnitTestDao();
         assertNotNull(m_testData);
         assertTrue(m_testData.initializeImmutableData());
     }
@@ -55,32 +42,26 @@ public class PhoneDaoImplTestDb extends TestCase implements PhoneSummaryFactory 
         assertTrue(m_testData.verifyDataUnaltered());
     }
 
-    /**
-     * This really tests UnitTestDao object
-     */
     public void testSampleData() {
-        User user = m_dao.loadUser(m_testData.getTestUserId());
+        assertNotNull(m_testData.createSampleLine());
         assertNotNull(m_testData.createSampleSettingSet());
-        Endpoint endpoint = m_testData.createSampleEndpoint();
-        assertNotNull(m_testData.createSampleEndpointAssignment(endpoint, user));
-        //m_dao.flush();
+        assertNotNull(m_testData.createSampleEndpoint());
+    }
+    
+    public void testSampleEndpointLine() {
+        assertNotNull(m_testData.createSampleEndpointLine());        
     }
 
     public void testLoadPhoneSummaries() {
-        int preSize = m_dao.loadPhoneSummaries(this).size();
+        int preSize = m_dao.loadPhoneSummaries(m_context).size();
 
-        Endpoint endpoint = m_testData.createSampleEndpoint();
-        User user = m_dao.loadUser(m_testData.getTestUserId());
-        EndpointAssignment assignment = m_testData.createSampleEndpointAssignment(endpoint, user);
-        assertNotNull(assignment);
+        EndpointLine eline = m_testData.createSampleEndpointLine();
+        assertNotNull(eline);
         
         // just test there's one more in list, not a very 
         // hard test
-        List summaries = m_dao.loadPhoneSummaries(this);
+        List summaries = m_dao.loadPhoneSummaries(m_context);
         assertEquals(preSize + 1, summaries.size());
-        
-        //PhoneSummary summary = (PhoneSummary) summaries.get(0); 
-        //assertNotNull(summary.getAssignment().getLabel());
     }
 
     /**
@@ -95,11 +76,5 @@ public class PhoneDaoImplTestDb extends TestCase implements PhoneSummaryFactory 
      */
     public PhoneContext getPhoneContext() {
         return m_context;
-    }
-
-    public void testLoadUserByDisplayId() {
-        User testUser = m_dao.loadUser(m_testData.getTestUserId());
-        User byDisplayId = m_dao.loadUserByDisplayId(testUser.getDisplayId());
-        assertNotNull(byDisplayId);
     }
 }

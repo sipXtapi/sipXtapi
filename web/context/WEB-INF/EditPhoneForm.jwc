@@ -6,14 +6,14 @@
 
 <component-specification class="org.sipfoundry.sipxconfig.components.EditPhoneForm"
     allow-body="no"
-    allow-informal-parameters="yes">    
+    allow-informal-parameters="no">    
     <!--
       - P A R A M E T E R S
       -->
     <!-- either endpoint or phone is required -->
 	<parameter name="endpoint" 
         type="org.sipfoundry.sipxconfig.phone.Endpoint" 
-        required="no" 
+        required="yes" 
         direction="in">
     </parameter>    
 	<parameter name="phone" 
@@ -30,5 +30,21 @@
       - P R O P E R T I E S
       -->
 	<property-specification name="phoneSelectionModel" 
-		type="org.apache.tapestry.form.IPropertySelectionModel"/>    
+		type="org.apache.tapestry.form.IPropertySelectionModel"/>   
+    <!--
+      - C O M P O N E N T S
+      -->
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="false"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    <component id="endpointNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.endpointName"/>
+    </component>
+    <component id="endpointName" type="ValidField">
+	    <binding name="value" expression="endpoint.name"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+	    <static-binding name="displayName" value="Alternate Label"/>
+    </component>
+    
 </component-specification>

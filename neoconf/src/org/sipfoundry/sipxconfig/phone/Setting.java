@@ -27,7 +27,7 @@ public class Setting implements Serializable {
 
     private Object m_value;
     
-    private int m_id = -1;
+    private int m_id = PhoneDao.UNSAVED_ID;
     
     private SettingSet m_parent;
 

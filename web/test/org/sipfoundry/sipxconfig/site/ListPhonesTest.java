@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
+import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 
 public class ListPhonesTest extends TestCase {
 
@@ -46,10 +47,10 @@ public class ListPhonesTest extends TestCase {
         Endpoint endpoint = new Endpoint();
         endpoint.setSerialNumber(MAC_ADDRESS);
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
-        PhoneListRow summary = new PhoneListRow();
+        PhoneSummary summary = new PhoneSummary();
         summary.setPhone(phoneContext.getPhone(endpoint));
         summaries.add(summary);
-        daoControl.expectAndReturn(dao.loadPhoneSummaries(page), summaries);
+        daoControl.expectAndReturn(dao.loadPhoneSummaries(phoneContext), summaries);
         daoControl.replay();
         
         phoneContext.setPhoneDao(dao);
@@ -60,7 +61,7 @@ public class ListPhonesTest extends TestCase {
         assertNotNull(phones);
         Iterator iphones = phones.iterator();
         assertTrue(iphones.hasNext());
-        PhoneListRow firstPhone = (PhoneListRow) iphones.next();
+        PhoneSummary firstPhone = (PhoneSummary) iphones.next();
         assertEquals(endpoint, firstPhone.getPhone().getEndpoint());
         assertFalse(iphones.hasNext());
         

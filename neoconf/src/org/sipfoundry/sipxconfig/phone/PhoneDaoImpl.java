@@ -46,52 +46,75 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
         getHibernateTemplate().delete(endpoint);        
     }
         
-    public List loadPhoneSummaries(PhoneSummaryFactory factory) {        
+    public void storeLine(Line line) {
+        getHibernateTemplate().saveOrUpdate(line);        
+    }
+    
+    public void deleteLine(Line line) {
+        getHibernateTemplate().delete(line);        
+    }
+
+    public Line loadLine(int id) {
+        return (Line) getHibernateTemplate().load(Line.class, new Integer(id));
+    }
+
+    public List loadPhoneSummaries(PhoneContext context) {        
         String endpointQuery = "from Endpoint e order by e.id";
         List endpoints = getHibernateTemplate().find(endpointQuery);
         List summaries = new ArrayList(endpoints.size());
         
-        // order by same as endpoint to help juxtapositioning 
-        String assignmentQuery = "from EndpointAssignment ea order by ea.endpoint";
-        List assignments = getHibernateTemplate().find(assignmentQuery);
+        // order by same as endpoint to help juxtapositioning
+        // load lines at same time, only ineffiec. for lines that
+        // are on many phones, they get sent many times in db search
+        // results.
+        String elineQuery = "from EndpointLine el left join fetch el.line order by el.endpoint";
+        List elines = getHibernateTemplate().find(elineQuery);
         
-        Iterator iendpoints = endpoints.iterator();
-        EndpointAssignment assignment = null;
-        PhoneContext context = factory.getPhoneContext();
-        for (int j = 0; iendpoints.hasNext();) {
-            PhoneSummary summary = factory.createPhoneSummary();
-            Endpoint endpoint = (Endpoint) iendpoints.next();
-            summary.setPhone(context.getPhone(endpoint));
-            // juxtapostion endpoint assignments
-            if (j < assignments.size()) {
-                assignment = (EndpointAssignment) assignments.get(j);
-                if (assignment.getEndpoint().equals(endpoint)) {
-                    summary.setAssignment(assignment);
-                    j++;
-                }
+        EndpointLine eline = null;
+        Endpoint endpoint = null;
+        PhoneSummary summary = new PhoneSummary();
+        summary.setEndpointLines(new ArrayList());
+        int nEndpoints = endpoints.size();
+        int nElines = elines.size();
+        int j = 0;
+        for (int i = 0; i < nEndpoints; i++) {
+            endpoint = (Endpoint) endpoints.get(i);
+            eline = (EndpointLine) getn(j, elines);
+            while (j < nElines && eline.getEndpoint().getId() == endpoint.getId()) {
+                summary.getEndpointLines().add(eline);                
+                eline = (EndpointLine) getn(j++, elines);
             }
-            
+            summary.setPhone(context.getPhone(endpoint));
             summaries.add(summary);
+            summary = new PhoneSummary();
+            summary.setEndpointLines(new ArrayList());
         }
         
         return summaries;
+    }
+    
+    /**
+     * helper routine to avoid end of list exception
+     */
+    private static final Object getn(int ndx, List l) {
+        return (ndx < l.size() ? l.get(ndx) : null);
     }
     
     public Endpoint loadEndpoint(int id) {
         return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
     }
     
-    public void storeEndpointAssignment(EndpointAssignment assignment) {
-        getHibernateTemplate().saveOrUpdate(assignment);        
+    public void storeEndpointLine(EndpointLine eline) {
+        getHibernateTemplate().saveOrUpdate(eline);        
     }
     
-    public EndpointAssignment loadEndpointAssignment(int assignmentId) {    
-        return (EndpointAssignment) getHibernateTemplate().load(EndpointAssignment.class, 
-                new Integer(assignmentId));            
+    public EndpointLine loadEndpointLine(int elineId) {    
+        return (EndpointLine) getHibernateTemplate().load(EndpointLine.class, 
+                new Integer(elineId));            
     }
     
-    public void deleteEndpointAssignment(EndpointAssignment assignment) {
-        getHibernateTemplate().delete(assignment);        
+    public void deleteEndpointLine(EndpointLine eline) {
+        getHibernateTemplate().delete(eline);        
     }
 
     public void storeSetting(Setting setting, int depth) {        

@@ -16,65 +16,57 @@ import java.io.Serializable;
 /**
  * Association between Users and their assigned phones.
  */
-public class EndpointAssignment implements Serializable {
+public class EndpointLine implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
     private String m_label;
     
-    private int m_id = -1;
+    private int m_id = PhoneDao.UNSAVED_ID;
     
-    private User m_user;
+    private Line m_line;
     
     private Endpoint m_endpoint;
+    
+    private SettingSet m_settings;
 
-
-    /**
-     * @return Returns the endpoint.
-     */
     public Endpoint getEndpoint() {
         return m_endpoint;
     }
-    /**
-     * @param endpoint The endpoint to set.
-     */
+
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
     }
-    /**
-     * @return Returns the id.
-     */
+
     public int getId() {
         return m_id;
     }
-    /**
-     * @param id The id to set.
-     */
+
     public void setId(int id) {
         m_id = id;
     }
-    /**
-     * @return Returns the label.
-     */
+
     public String getLabel() {
         return m_label;
     }
-    /**
-     * @param label The label to set.
-     */
+
     public void setLabel(String label) {
         m_label = label;
     }
-    /**
-     * @return Returns the user.
-     */
-    public User getUser() {
-        return m_user;
+
+    public Line getLine() {
+        return m_line;
     }
-    /**
-     * @param user The user to set.
-     */
-    public void setUser(User user) {
-        m_user = user;
+
+    public void setLine(Line line) {
+        m_line = line;
+    }
+
+    public SettingSet getSettings() {
+        return m_settings;
+    }
+
+    public void setSettings(SettingSet settings) {
+        m_settings = settings;
     }
 }

@@ -16,7 +16,6 @@ import java.util.Date;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
@@ -42,7 +41,6 @@ public class EditPhoneTest extends TestCase {
         Phone phone = phoneContext.getPhone(endpoint);
         assertNotNull(phone);
         page.setPhone(phone);
-        page.pageBeginRender(new PageEvent(page, cycle));
         endpoint.setSerialNumber(Long.toHexString(new Date().getTime()));
         MockControl daoControl = MockControl.createStrictControl(PhoneDao.class);
         PhoneDao dao = (PhoneDao) daoControl.getMock();
@@ -66,7 +64,6 @@ public class EditPhoneTest extends TestCase {
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
         page.setPhoneContext(phoneContext);
-        page.pageBeginRender(new PageEvent(page, cycle));
         page.cancel(cycle);
 
         cycleControl.verify();

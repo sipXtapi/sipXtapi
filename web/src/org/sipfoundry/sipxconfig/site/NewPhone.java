@@ -11,14 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 
 /**
- * Comments
+ * First page of wizard-like UI for creating a new phone
  */
-public abstract class NewPhone extends AbstractPhonePage implements PageRenderListener {
+public abstract class NewPhone extends AbstractPhonePage {
     
     public static final String PAGE = "NewPhone"; 
 
@@ -26,4 +26,16 @@ public abstract class NewPhone extends AbstractPhonePage implements PageRenderLi
     
     public abstract void setEndpoint(Endpoint endpoint);
 
+    public void finish(IRequestCycle cycle) {
+        getPhoneContext().getPhoneDao().storeEndpoint(getEndpoint());
+        cycle.activate(ListPhones.PAGE);
+    }
+
+    public void next(IRequestCycle cycle) {
+        cycle.activate(ListPhones.PAGE);
+    }
+
+    public void cancel(IRequestCycle cycle) {
+        cycle.activate(ListPhones.PAGE);
+    }
 }

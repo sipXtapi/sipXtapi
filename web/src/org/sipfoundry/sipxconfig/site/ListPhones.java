@@ -16,37 +16,37 @@ import java.util.List;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
-import org.sipfoundry.sipxconfig.phone.PhoneSummaryFactory;
 
 /**
  * List all the phones/endpoints for management and details drill-down
  */
 public abstract class ListPhones extends AbstractPhonePage 
-        implements PageRenderListener, PhoneSummaryFactory {
+        implements PageRenderListener {
     
     public static final String PAGE = "ListPhones";
-
-    public PhoneSummary createPhoneSummary() {
-        return new PhoneListRow();
-    }
     
     // Return the model of the table
     public abstract List getPhones();
     
     public abstract void setPhones(List phones);
     
-    public abstract PhoneListRow getCurrentPhone();
+    public abstract PhoneSummary getCurrentRow();
 
-    public abstract void setCurrentPhone(PhoneListRow currentPhone);
+    public abstract void setCurrentRow(PhoneSummary currentPhone);
     
+    public abstract SelectMap getSelections();
+
+    public abstract void setSelections(SelectMap selected);
+
     /**
      * When user clicks on link to edit a phone/endpoint
      */
     public void editPhone(IRequestCycle cycle) {
-        PhoneListRow phone = getCurrentPhone();
+        PhoneSummary phone = getCurrentRow();
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
         page.setPhone(phone.getPhone());
         cycle.activate(page);
@@ -64,6 +64,9 @@ public abstract class ListPhones extends AbstractPhonePage
     public void pageBeginRender(PageEvent eventTemp) {
         // Generate the list of phone items
         PhoneDao dao = getPhoneContext().getPhoneDao();
-        setPhones(dao.loadPhoneSummaries(this));        
+        setPhones(dao.loadPhoneSummaries(getPhoneContext()));
+        if (getSelections() == null) {
+            setSelections(new SelectMap());
+        }
     }    
 }
