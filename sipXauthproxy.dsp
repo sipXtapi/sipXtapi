@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcommserverLib.lib glib-2.0.lib libpcre.a /nologo /subsystem:console /pdb:"Release/sipXforkingProxy.pdb" /machine:I386 /libpath:"../sipXportLib/release" /libpath:"../sipXtackLib/release" /libpath:"../sipXcommserverLib/release"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcommserverLib.lib glib-2.0.lib libpcre.a gthread-2.0.lib /nologo /subsystem:console /pdb:"Release/sipXforkingProxy.pdb" /machine:I386 /libpath:"../sipXportLib/release" /libpath:"../sipXtackLib/release" /libpath:"../sipXcommserverLib/release"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "sipXauthproxy - Win32 Debug"
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -80,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcommserverLib.lib glib-2.0.lib libpcre.a /nologo /subsystem:console /pdb:"Debug/sipXforkingProxy.pdb" /debug /machine:I386 /pdbtype:sept /libpath:"../sipXportLib/debug" /libpath:"../sipXtackLib/debug" /libpath:"../sipXcommserverLib/debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcommserverLib.lib glib-2.0.lib libpcre.a gthread-2.0.lib /nologo /subsystem:console /pdb:"Debug/sipXforkingProxy.pdb" /debug /machine:I386 /pdbtype:sept /libpath:"../sipXportLib/debug" /libpath:"../sipXtackLib/debug" /libpath:"../sipXcommserverLib/debug"
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
