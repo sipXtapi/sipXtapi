@@ -65,7 +65,7 @@ install-exec-hook : editscripts editdata
 .PHONY : rpm
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-rpm: dist
+rpm: dist sipxproxy.spec
 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
 	cp -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
 	cp -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
