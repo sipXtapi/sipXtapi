@@ -81,24 +81,6 @@ Set up Postgresql Database
   /usr/local/sipx/bin/sipxdbmgr --create PDS
   /usr/local/sipx/bin/sipxdbmgr --create SDS
 
-Securing SSL connections
-========================
-
-See the instructions in etc/cert/INSTALL.  
-
-Apache Server
-====================
-
-Add this line to the bottom of your apache conf file. This may very
-depending on how Apache2 was installed. Possible locations include:
-
-  /usr/local/apache2/conf/httpd.conf
-  /etc/apache2/conf/apache2.conf
-
-add this line:
-
-  Include /usr/local/sipx/www/conf/httpd-sipxchange-configserver-pw.conf
-
 
 Optional SOAP Access
 ====================

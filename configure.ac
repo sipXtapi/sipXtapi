@@ -77,7 +77,7 @@ SFAC_LIB_PORT
 AC_SUBST(SIPXCONFIGLIB, [$SIPXPBXDATA/lib])
 
 # Where profiles get generated.
-#  http://server:8090/phone/profiles
+#  http://server[:port]/phone/profile
 AC_SUBST(profiledir, [${htmldir}/phone/profile])
 
 

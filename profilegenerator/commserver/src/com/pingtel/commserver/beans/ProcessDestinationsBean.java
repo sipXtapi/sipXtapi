@@ -45,9 +45,9 @@ public abstract class ProcessDestinationsBean {
             getPath( PathLocatorUtility.XML_FOLDER ) + "destinations.xml";
 
     private static final String MAPPING_RULES2_XLST = PathLocatorUtility.
-            getPath( PathLocatorUtility.XML_FOLDER ) + "mappingrules2.xslt";
+            getPath( PathLocatorUtility.XML_FOLDER ) + "forwardingrules.xslt";
     private static final String MAPPING_RULES2_XML = PathLocatorUtility.
-            getPath( PathLocatorUtility.XML_FOLDER ) + "mappingrules2.xml.in";
+            getPath( PathLocatorUtility.XML_FOLDER ) + "forwardingrules.xml.in";
     private static final String AUTH_RULES_XSLT = PathLocatorUtility.
             getPath( PathLocatorUtility.XML_FOLDER ) + "authrules.xslt";
     private static final String AUTH_RULES_XML = PathLocatorUtility.

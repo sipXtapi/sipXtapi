@@ -57,6 +57,7 @@
       <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
       <replacefilter token="@bindir@" property="bin.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
+      <replacefilter token="@SIPXPBXRUN@" property="sipxpbx.run.dir"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/profilewriter.sh" perm="ugo+x"/>
 

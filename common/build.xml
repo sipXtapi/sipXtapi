@@ -33,6 +33,7 @@
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
+      <replacefilter token="@SIPXPBXLOG@" property="sipxpbx.log.dir"/>
     </replace>
   </target>
 
@@ -58,8 +59,6 @@
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
     <copy file="etc/security.policy" todir="${dest.dir}${sipxpbx.conf.dir}"/>
 
-    <mkdir dir="${dest.dir}${localstate.dir}/log"/>
-
     <mkdir dir="${dest.dir}${bin.dir}"/>
     <copy file="bin/startrmireg.sh.in" tofile="${dest.dir}${bin.dir}/startrmireg.sh"/>
     <replace file="${dest.dir}${bin.dir}/startrmireg.sh"
@@ -67,6 +66,7 @@
       <replacefilter token="@JAVA_HOME@" property="java.home"/>
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
+      <replacefilter token="@SIPXPBXRUN@" property="sipxpbx.run.dir"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/startrmireg.sh" perm="ugo+x"/>
 

@@ -5,3 +5,4 @@ comment=opendev
 sipxconf=@SIPXPBXCONF@
 sipxdata=@SIPXPBXDATA@
 sipxvar=@localstatedir@
+sipxlog=@SIPXPBXLOG@

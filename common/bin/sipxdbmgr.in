@@ -78,7 +78,7 @@ then
   fi
 
   # harmless is executed more than once
-  su -c "initdb --pgdata=$PGDATA" postgres
+  su postgres -c "initdb --pgdata=$PGDATA"
 
   # Create back up file (possibly) requiring update
   if [ ! -f $PGDATA/pg_hba.conf-sipx.bak ]

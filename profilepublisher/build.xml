@@ -68,7 +68,9 @@
       <replacefilter token="@JAVA@" property="java"/>
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@SIPXCONFIGLIB@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
       <replacefilter token="@localstatedir@" property="localstate.dir"/>
+      <replacefilter token="@SIPXPBXRUN@" property="sipxpbx.run.dir"/>
       <replacefilter token="@libdir@" property="lib.dir"/>
       <replacefilter token="@bindir@" property="bin.dir"/>
     </replace>

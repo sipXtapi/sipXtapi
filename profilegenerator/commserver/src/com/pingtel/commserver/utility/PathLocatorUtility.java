@@ -14,6 +14,7 @@ package com.pingtel.commserver.utility;
 
 
 import java.io.File;
+import com.pingtel.pds.common.PathLocatorUtil;
 
 /**
  * A basic class for logging information. 
@@ -127,61 +128,7 @@ public class PathLocatorUtility {
 
     public static String getPath( int pathType )
     {
-        String m_isDevelopment = System.getProperty("pds.development");
-
-        String prodBase =   ".." + FILE_SEPARATOR + 
-                            ".." + FILE_SEPARATOR + 
-                            ".." + FILE_SEPARATOR +
-                            ".." + FILE_SEPARATOR ;
-
-        String devBase  =   ".." + FILE_SEPARATOR + 
-                            ".." + FILE_SEPARATOR + 
-                            ".." + FILE_SEPARATOR + 
-                            ".." + FILE_SEPARATOR + 
-                            ".." + FILE_SEPARATOR +
-                            ".." + FILE_SEPARATOR ;
-
-        String sipxHome = "home" + FILE_SEPARATOR + "sipxchange" + FILE_SEPARATOR ;
-        
-        boolean g_devRelease = false ;
-        if ( m_isDevelopment != null && m_isDevelopment.equalsIgnoreCase( "true" ) )
-            g_devRelease = true;
-
-        String path = "" ;
-
-        switch( pathType )
-        {
-            case COMMSERVER_CONFIG_FOLDER:
-                if( g_devRelease )
-                    path = devBase + sipxHome + "commserver" + FILE_SEPARATOR + "etc" + FILE_SEPARATOR ;
-                else
-                    path = prodBase + "commserver" + FILE_SEPARATOR + "etc" + FILE_SEPARATOR ; 
-                break;
-            case GLOBAL_CONFIG_FOLDER:
-                if( g_devRelease )
-                    path = devBase + sipxHome + "shared" + FILE_SEPARATOR + "etc" + FILE_SEPARATOR ;
-                else
-                    path = prodBase + "shared" + FILE_SEPARATOR + "etc" + FILE_SEPARATOR ; 
-                break;
-            case XML_FOLDER:
-                if( g_devRelease )
-                {
-                    path =  devBase + 
-                            "main" + FILE_SEPARATOR + 
-                            "product" + FILE_SEPARATOR +
-                            "sw" + FILE_SEPARATOR + 
-                            "sipxchange" + FILE_SEPARATOR + 
-                            "commserver" + FILE_SEPARATOR + 
-                            "etc" + FILE_SEPARATOR ;
-                }
-                    
-                else
-                {
-                    path = prodBase + "commserver" + FILE_SEPARATOR + "etc" + FILE_SEPARATOR ;
-                }
-                break;
-        }
-        return path;
+        return PathLocatorUtil.getInstance().conf().slash().toString();
     }
 
     

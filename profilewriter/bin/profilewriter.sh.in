@@ -30,7 +30,7 @@ done
 
 PDS_DEBUG=-Dpds.debug=true
 
-echo $$ > @localstatedir@/run/profilewriter.pid
+echo $$ > @SIPXPBXRUN@/profilewriter.pid
 
 # Production command line
 exec @JAVA_HOME@/bin/java $HOTSPOT -classpath $CLASSPATH $PDS_DEBUG -Djava.rmi.server.codebase="file:${jars}/profilewriter.jar file:${jars}/profilegen-client.jar file:${jars}/common.jar" -Dprofilewriter.props=@SIPXPBXCONF@/profilewriter.props -Djava.security.policy=file:@SIPXPBXCONF@/security.policy com.pingtel.pds.profilewriter.ProfileWriterServer $@

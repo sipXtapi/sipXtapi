@@ -12,6 +12,8 @@ Url: http://www.sipfoundry.org/sipXconfig
 %define wwwdir /var/www
 %define htmldir /var/www/html
 %define profiledir /var/www/html/phone/profile
+%define sipxpbxlog %{_localstatedir}/log/sipxpbx
+%define sipxpbxrun %{_localstatedir}/run/sipxpbx
 
 # Unfortunately because of Java's .so's  TODO: Figure out a way to 
 # tell rpm find-requires to find java's so
@@ -87,6 +89,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %{_datadir}/sipxpbx
 
+%dir %{_localstatedir}
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxlog}
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxrun}
 
 %pre
 
@@ -115,16 +120,6 @@ for Database in PDS SDS; do
        %{_bindir}/sipxdbmgr --create $Database
   fi
 done
-
-################################################################
-# WARNING: This must be removed - still need to
-#   work out details with project coordinators
-###############################################################
-chown root:@SIPXPBXUSER@ %{_localstatedir}/log
-chmod g+w %{_localstatedir}/log
-
-chown root:@SIPXPBXUSER@ %{_localstatedir}/run
-chmod g+w %{_localstatedir}/run
    
 
 

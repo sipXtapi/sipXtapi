@@ -45,6 +45,7 @@
         <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
         <replacefilter token="@bindir@" property="bin.dir"/>
         <replacefilter token="@localstatedir@" property="localstate.dir"/>
+        <replacefilter token="@SIPXPBXRUN@" property="sipxpbx.run.dir"/>
       </replace>
       <chmod file="${dest.dir}${bin.dir}/profilegenerator.sh" perm="ugo+x" />
 

@@ -10,6 +10,7 @@ debug=@JAVAC_DEBUG@
 bin.dir=@bindir@
 lib.dir=@libdir@
 localstate.dir=@localstatedir@
+dest.dir=
 
 # comma-separated combination of 'lines' 'source' and 'var' only valid
 # when debug is on
@@ -22,6 +23,8 @@ sipxconfig.lib.dir=@SIPXCONFIGLIB@
 sipxpbx.data.dir=@SIPXPBXDATA@
 sipxpbx.conf.dir=@SIPXPBXCONF@
 sipxpbx.user=@SIPXPBXUSER@
+sipxpbx.log.dir=@SIPXPBXLOG@
+sipxpbx.run.dir=@SIPXPBXRUN@
 common.jar=${top.build.dir}/common/dist/common.jar
 commserver.jar=${top.build.dir}/profilegenerator/commserver/dist/commserver.jar
 profilegen-ejb.jar=${top.build.dir}/profilegenerator/ejb/dist/profilegen-ejb.jar

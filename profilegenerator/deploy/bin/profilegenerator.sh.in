@@ -29,7 +29,7 @@ export JAVA_HOME=@JAVA_HOME@
 # Needed for ${JBOSS_HOME}/bin/run.sh
 export PATH=@JAVA_HOME@/bin:$PATH
 
-echo $$ > @localstatedir@/run/profilegenerator.pid
+echo $$ > @SIPXPBXRUN@/profilegenerator.pid
 
 # Production command line
 cd @JBOSS_HOME@/bin

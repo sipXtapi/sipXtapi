@@ -1,0 +1,101 @@
+<title>Configure SipProxy</title>
+<pagehelp>help/commserver/WebHelp/configure_sipproxy.htm</pagehelp>
+<additionalsettingshelp>help/info/p_1000.htm</additionalsettingshelp>
+
+<refproperties>
+        <ref_property code="p_1004">
+            <name>SIP_PROXY_HOST_ALIASES</name>
+            <description>SipProxy address aliases</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1010">
+            <name>SIP_PROXY_TCP_PORT</name>
+            <description>IP port for SIP TCP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1011">
+            <name>SIP_PROXY_UDP_PORT</name>
+            <description>IP port for SIP UDP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1009">
+            <name>SIP_PROXY_STALE_TCP_TIMEOUT</name>
+            <description>Retain inactive SIP TCP connections (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1002">
+            <name>SIP_PROXY_DEFAULT_EXPIRES</name>
+            <description>INVITE messages expire after (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1003">
+            <name>SIP_PROXY_DEFAULT_SERIAL_EXPIRES</name>
+            <description>Serially forked INVITE messages expire after (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>${SIPXCHANGE_REALM}</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1008">
+            <name>SIP_PROXY_MAX_FORWARDS</name>
+            <description>Value for requests with no Max-Forwards header </description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1005">
+            <name>SIP_PROXY_LOG_CONSOLE</name>
+            <description>Enable message log output to console</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1007">
+            <name>SIP_PROXY_LOG_LEVEL</name>
+            <description>Log messages with this (or higher) priority</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1006">
+            <name>SIP_PROXY_LOG_DIR</name>
+            <description>Directory path for message log</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1012">
+            <name>SIP_PROXY_USE_AUTH_SERVER</name>
+            <description>Enable SipAuthProxy component</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="p_1001">
+            <name>SIP_PROXY_AUTH_SERVER</name>
+            <description>Address of SipAuthProxy component</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+</refproperties>

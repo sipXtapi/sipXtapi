@@ -35,6 +35,8 @@ edit = sed \
         -e 's,@profiledir\@,@profiledir@,g' \
         -e 's,@htmldir\@,@htmldir@,g' \
         -e 's,@localstatedir\@,$(localstatedir),g' \
+        -e 's,@SIPXPBXLOG\@,@SIPXPBXLOG@,g' \
+        -e 's,@SIPXPBXRUN\@,@SIPXPBXRUN@,g' \
         -e 's,@libdir\@,$(libdir),g' \
         -e 's,@bindir\@,$(bindir),g'
 
@@ -71,3 +73,8 @@ rpm: clean dist
 sipxconfig.spec : sipxconfig.spec.in
 	$(edit) $(srcdir)/sipxconfig.spec.in > sipxconfig.spec
 
+## Think about this....
+install-data-hook :
+	$(INSTALL) -d $(localstatedir)
+	$(INSTALL) -d -o @SIPXPBXUSER@ $(SIPXPBXLOG)
+	$(INSTALL) -d -o @SIPXPBXUSER@ $(SIPXPBXRUN)

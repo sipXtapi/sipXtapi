@@ -62,6 +62,8 @@ public final class PathLocatorUtil {
 
     private String m_vardir;
 
+    private String m_logdir;
+
     /** Singleton Private Constructor */
     private PathLocatorUtil() {}
 
@@ -79,6 +81,7 @@ public final class PathLocatorUtil {
                 g_instance.m_datadir = versionInfo.getProperty("sipxdata");
                 g_instance.m_confdir = versionInfo.getProperty("sipxconf");
                 g_instance.m_vardir = versionInfo.getProperty("sipxvar");
+                g_instance.m_logdir = versionInfo.getProperty("sipxlog");
             }
             catch (IOException ex) 
             {
@@ -102,7 +105,7 @@ public final class PathLocatorUtil {
         return new PathBuffer(m_confdir);
     }
 
-    /** path to main configuration (e.g. /usr/local/var/log) */
+    /** path to main configuration (e.g. /usr/local/var/sipx/log) */
     public PathBuffer log()
     {
         return var().slash().dir("log");
