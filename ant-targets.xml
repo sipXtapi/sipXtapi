@@ -257,9 +257,9 @@
     -->
   <target name="test" depends="compile.test"
        description="run junit tests">
-    <echo>${classpath}</echo>
+    <echo level="debug">${classpath}</echo>
 
-    <junit fork="yes" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
       <classpath refid="test.path"/>
       <formatter type="plain"/>
       <formatter type="xml"/>
