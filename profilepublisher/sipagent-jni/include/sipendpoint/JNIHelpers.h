@@ -25,14 +25,14 @@
 #define JNI_BEGIN_METHOD(cstr) (OsSysLog::add(FAC_JNI, PRI_DEBUG, "Begin Method %s in %s, line %d", (cstr), __FILE__, __LINE__))
 #define JNI_END_METHOD() (OsSysLog::add(FAC_JNI, PRI_DEBUG, "End Method in %s, line %d", __FILE__, __LINE__))
 
-OsBoolean jniInitJVMReference();
+UtlBoolean jniInitJVMReference();
     //:Initializes the JVM reference (finds it or creates it)
 
-OsBoolean jniGetVMReference(JavaVM** pVM, JNIEnv** pEnv) ;
+UtlBoolean jniGetVMReference(JavaVM** pVM, JNIEnv** pEnv) ;
     //:Get a reference to the JVM.  If a JVM is already created, then a 
     //!reference to that VM is returned and the bCreated flag is set.
 
-OsBoolean jniReleaseVMReference(JavaVM* pVM) ;
+UtlBoolean jniReleaseVMReference(JavaVM* pVM) ;
     //:Release a reference to a JVM previous obtained by invoking 
     //!jniGetVMReference.
 
@@ -42,7 +42,7 @@ int  jniGetCurrentPriority() ;
 void jniResetPriority(int iPriority) ;
     //:Reset the current thread's priority to the specified priority.
 
-const char* assertValidString(const char* szValidString, const OsBoolean bAllowNull) ;
+const char* assertValidString(const char* szValidString, const UtlBoolean bAllowNull) ;
     //: Assert if the specified string is invalid
 
 #if DEBUG_VALID_STRINGS

@@ -37,9 +37,9 @@ static int s_iJVMCount = 0 ;
 /*****************************************************************************
  * get a reference to the one and only Java Virtual Machine
  */
-OsBoolean jniGetVMReference(JavaVM** pVM, JNIEnv** pEnv)
+UtlBoolean jniGetVMReference(JavaVM** pVM, JNIEnv** pEnv)
 {   
-   OsBoolean  bRC = false ;
+   UtlBoolean  bRC = false ;
 
    // Guard against multiple threads attach/creating a JVM at the same time.
    g_semJVMAttach.acquire() ;    
@@ -71,9 +71,9 @@ OsBoolean jniGetVMReference(JavaVM** pVM, JNIEnv** pEnv)
 }
 
 
-OsBoolean jniCreateJVM(JavaVM** pVM, JNIEnv** pEnv)
+UtlBoolean jniCreateJVM(JavaVM** pVM, JNIEnv** pEnv)
 {
-   OsBoolean bRC = false ;
+   UtlBoolean bRC = false ;
    jsize nVMs = 0 ;
    int iRC = 0 ;
 
@@ -103,9 +103,9 @@ OsBoolean jniCreateJVM(JavaVM** pVM, JNIEnv** pEnv)
    return bRC ;
 }
 
-OsBoolean jniInitJVMReference()
+UtlBoolean jniInitJVMReference()
 {
-   OsBoolean bInited = true ;
+   UtlBoolean bInited = true ;
 
    if (g_pVM == NULL)
    {
@@ -122,7 +122,7 @@ OsBoolean jniInitJVMReference()
 /**
  * release the reference to our VM
  */
-OsBoolean jniReleaseVMReference(JavaVM* pVM)
+UtlBoolean jniReleaseVMReference(JavaVM* pVM)
 {   
    g_semJVMAttach.acquire() ;
 
@@ -173,7 +173,7 @@ void jniResetPriority(int iPriority)
 }
 
 // Validate that the string is sane
-const char* assertValidString(const char* szValidString, const OsBoolean bAllowNull)
+const char* assertValidString(const char* szValidString, const UtlBoolean bAllowNull)
 {
     const char *szTraverse ;
 
