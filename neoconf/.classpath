@@ -10,7 +10,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/xmlunit/xmlunit/src/java" kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/xmlunit/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/velocity/velocity-1.4" kind="var" path="SIPX_CONFIG/lib/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry sourcepath="LIB_SRC/commons-beanutils/commons-beanutils-1.7.0-src" kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>

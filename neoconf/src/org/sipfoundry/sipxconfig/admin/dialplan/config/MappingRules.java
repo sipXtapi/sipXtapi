@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
@@ -23,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * standard SIPx hosts
  */
 public class MappingRules extends XmlFile implements ConfigFile {
+    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00";
     private static final String[] HOSTS = {
         "${SIPXCHANGE_DOMAIN_NAME}", "${MY_FULL_HOSTNAME}", "${MY_HOSTNAME}", "${MY_IP_ADDR}"
     };
@@ -31,16 +33,16 @@ public class MappingRules extends XmlFile implements ConfigFile {
     private Element m_hostMatch;
 
     public MappingRules() {
-        m_doc = FACTORY.createDocument();
-        // FIXME: enable namespace generation
-        // QName mappingsName = FACTORY.createQName("mappings", "",
-        // "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
-        // Element mappings = m_doc.addElement(mappingsName);
-        Element mappings = m_doc.addElement("mappings");
-
-        m_hostMatch = createFirstHostMatch(mappings);
+        this(NAMESPACE);
     }
-
+    
+    protected MappingRules(String namespace) {
+        m_doc = FACTORY.createDocument();
+        QName mappingsName = FACTORY.createQName("mappings", namespace);
+        Element mappings = m_doc.addElement(mappingsName);
+        m_hostMatch = createFirstHostMatch(mappings);        
+    }
+    
     /**
      * @param mappings root element of the mappingrules document
      */

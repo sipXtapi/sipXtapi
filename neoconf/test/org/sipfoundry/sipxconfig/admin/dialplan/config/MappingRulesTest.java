@@ -34,18 +34,23 @@ import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
  * MappingRulesTest
  */
 public class MappingRulesTest extends XMLTestCase {
+    public MappingRulesTest() {
+        TransformTest.setNamespaceAware(false);
+        XMLUnit.setIgnoreWhitespace(true);
+    }
+
     public void testGetDocument() throws Exception {
         MappingRules mappingRules = new MappingRules();
         Document document = mappingRules.getDocument();
 
-        org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
-        assertXpathExists("/mappings/hostMatch/hostPattern", domDoc);
+        String xml = TransformTest.asString(document);
+
+        assertXpathExists("/mappings/hostMatch/hostPattern", xml);
         assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}", "/mappings/hostMatch/hostPattern",
-                domDoc);
-        assertXpathEvaluatesTo("${MY_FULL_HOSTNAME}", "/mappings/hostMatch/hostPattern[2]",
-                domDoc);
-        assertXpathEvaluatesTo("${MY_HOSTNAME}", "/mappings/hostMatch/hostPattern[3]", domDoc);
-        assertXpathEvaluatesTo("${MY_IP_ADDR}", "/mappings/hostMatch/hostPattern[4]", domDoc);
+                xml);
+        assertXpathEvaluatesTo("${MY_FULL_HOSTNAME}", "/mappings/hostMatch/hostPattern[2]", xml);
+        assertXpathEvaluatesTo("${MY_HOSTNAME}", "/mappings/hostMatch/hostPattern[3]", xml);
+        assertXpathEvaluatesTo("${MY_IP_ADDR}", "/mappings/hostMatch/hostPattern[4]", xml);
     }
 
     /**
@@ -67,7 +72,7 @@ public class MappingRulesTest extends XMLTestCase {
         MappingRules mappingRules = new MappingRules();
         Element hostMatch = mappingRules.getFirstHostMatch();
         assertSame(mappingRules.getDocument(), hostMatch.getDocument());
-        assertEquals("/mappings/hostMatch", hostMatch.getPath());
+        assertEquals("/*[name()='mappings']/*[name()='hostMatch']", hostMatch.getPath());
     }
 
     public void testGenerate() throws Exception {
@@ -100,7 +105,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         Document document = mappingRules.getDocument();
 
-        org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
+        String domDoc = TransformTest.asString(document);
 
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathEvaluatesTo("Voicemail",
@@ -127,7 +132,7 @@ public class MappingRulesTest extends XMLTestCase {
         mappingRules.generate(rule);
 
         Document document = mappingRules.getDocument();
-        org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
+        String domDoc = TransformTest.asString(document);
 
         assertXpathNotExists("/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch", domDoc);
@@ -157,7 +162,6 @@ public class MappingRulesTest extends XMLTestCase {
 
         InputStream referenceXmlStream = MappingRulesTest.class
                 .getResourceAsStream("mappingrules.test.xml");
-        XMLUnit.setIgnoreWhitespace(true);
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
         controlPlan.verify();

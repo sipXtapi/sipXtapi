@@ -14,7 +14,10 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -61,9 +64,15 @@ public class TransformTest extends XMLTestCase {
         FullTransform transform = new FullTransform();
         String host = "10.1.1.4";
         String user = "911";
-        String[] fieldParams = { "q=1.0" };
-        String[] headerParams = { "h1", "h2" };
-        String[] urlParams = { "u1", "u2", "u3" };
+        String[] fieldParams = {
+            "q=1.0"
+        };
+        String[] headerParams = {
+            "h1", "h2"
+        };
+        String[] urlParams = {
+            "u1", "u2", "u3"
+        };
 
         transform.setHost(host);
         transform.setUser(user);
@@ -85,17 +94,37 @@ public class TransformTest extends XMLTestCase {
     }
 
     static org.w3c.dom.Document getDomDoc(Document doc) throws Exception {
-        return new DOMWriter().write(doc);
+        DOMWriter writer = new DOMWriter();
+        return writer.write(doc);
     }
 
-    static void dumpXml(Document doc) {
+    static String asString(Document doc) {
         try {
             StringWriter writer = new StringWriter();
             doc.write(writer);
-            System.err.println(writer);
+            return writer.toString();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+    }
+
+    static void dumpXml(Document doc) {
+        System.err.println(asString(doc));
+    }
+
+    /**
+     * In most cases where we use the xpath it's easier to ignore namespace than to construct
+     * proper namespace aware XPatch expression
+     * 
+     * @param namespaceAware
+     */
+    static void setNamespaceAware(boolean namespaceAware) {
+        DocumentBuilderFactory testDocumentBuilderFactory = XMLUnit
+                .getTestDocumentBuilderFactory();
+        testDocumentBuilderFactory.setNamespaceAware(namespaceAware);
+
+        DocumentBuilderFactory controlDocumentBuilderFactory = XMLUnit
+                .getControlDocumentBuilderFactory();
+        controlDocumentBuilderFactory.setNamespaceAware(namespaceAware);
     }
 }

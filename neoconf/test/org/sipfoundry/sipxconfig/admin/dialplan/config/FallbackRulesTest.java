@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
@@ -25,29 +26,42 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * MappingRulesTest
  */
 public class FallbackRulesTest extends XMLTestCase {
+    public FallbackRulesTest() {
+        TransformTest.setNamespaceAware(false);
+        XMLUnit.setIgnoreWhitespace(true);
+    }
 
     public void testGenerateRuleWithGateways() throws Exception {
         Gateway g1 = new Gateway();
         g1.setAddress("10.1.1.14");
-        List gateways = Arrays.asList(new Gateway[] { g1 });
+        List gateways = Arrays.asList(new Gateway[] {
+            g1
+        });
         FullTransform t1 = new FullTransform();
         t1.setUser("333");
         t1.setHost(g1.getAddress());
-        t1.setFieldParams(new String[] {"Q=0.97"});
+        t1.setFieldParams(new String[] {
+            "Q=0.97"
+        });
 
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.getPatterns(), new String[] { "x." });
-        //control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] { Permission.VOICEMAIL }));
+        control.expectAndReturn(rule.getPatterns(), new String[] {
+            "x."
+        });
+        // control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
+        // Permission.VOICEMAIL }));
         control.expectAndReturn(rule.getGateways(), gateways, 2);
-        control.expectAndReturn(rule.getTransforms(), new Transform[] { t1 });
+        control.expectAndReturn(rule.getTransforms(), new Transform[] {
+            t1
+        });
         control.replay();
 
         MappingRules mappingRules = new FallbackRules();
         mappingRules.generate(rule);
 
         Document document = mappingRules.getDocument();
-        org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
+        String domDoc = TransformTest.asString(document);
 
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
@@ -71,7 +85,7 @@ public class FallbackRulesTest extends XMLTestCase {
         mappingRules.generate(rule);
 
         Document document = mappingRules.getDocument();
-        org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
+        String domDoc = TransformTest.asString(document);
 
         assertXpathNotExists("/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch", domDoc);

@@ -19,10 +19,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * 
  */
 public class FallbackRules extends MappingRules {
-    public FallbackRules() {
-        // Initially identical to mapping rules
-    }
-
     public void generate(IDialingRule rule) {
         if (!isInternal(rule)) {
             generateRule(rule);
