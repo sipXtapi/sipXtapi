@@ -13,8 +13,6 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.setting.SettingDao;
-
 
 
 /**
@@ -41,8 +39,6 @@ public interface PhoneContext {
      * </pre>
      */
     public static final int UNSAVED_ID = -1;
-    
-    public void setSettingDao(SettingDao dao);
     
     public Phone getPhone(Endpoint endpoint);
     

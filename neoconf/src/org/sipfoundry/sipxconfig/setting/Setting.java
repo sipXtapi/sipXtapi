@@ -19,7 +19,7 @@ import org.apache.commons.beanutils.BeanUtils;
 /**
  * Base class for all items describing and using setting.  
  */    
-public class Setting implements Cloneable {
+public class Setting implements Cloneable, AvoidEclipseWarningHack {
 
     private String m_label;
 
@@ -90,7 +90,7 @@ public class Setting implements Cloneable {
         }
         return clone;
     }
-
+    
     /**
      * @return null always
      */
@@ -206,3 +206,14 @@ public class Setting implements Cloneable {
         return sb.toString();
     }
 }
+
+/**
+ * Part of composite design pattern with SettingGroup where subclass implements
+ * functions defined but not used in base class
+ */
+interface AvoidEclipseWarningHack {
+    Setting getSetting(int i);
+    Setting addSetting(Setting s);
+    Setting getSetting(String s);
+}
+

@@ -21,14 +21,6 @@ import junit.framework.TestCase;
 
 public class XmlModelBuilderTest extends TestCase {
 
-    private String[] m_suitsNames = new String[] { 
-        "hearts", "spades", "clubs", "diamonds" 
-    };
-    
-    private String[] m_cardValues = new String[] { 
-        "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
-    };
-    
     public void testReadingGames() throws IOException {        
         XmlModelBuilder builder = new XmlModelBuilder();
         InputStream in = getClass().getResourceAsStream("games.xml");

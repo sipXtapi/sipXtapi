@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 
 /**
@@ -70,6 +71,14 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
         page.setEndpointId(endpointId.intValue());
         cycle.activate(page);        
+    }
+    
+    public void editLine(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
+        page.setLineId(lineId.intValue());
+        cycle.activate(page);                
     }
 
     public void ok(IRequestCycle cycle) {

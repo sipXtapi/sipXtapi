@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
+import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 /**
  * List all the phones/endpoints for management and details drill-down
@@ -68,6 +69,14 @@ public abstract class ManagePhones extends BasePage
         cycle.activate(page);
     }
     
+    public void editLine(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
+        page.setLineId(lineId.intValue());
+        cycle.activate(page);                
+    }
+
     public void addPhone(IRequestCycle cycle) {
         NewPhone page = (NewPhone) cycle.getPage(NewPhone.PAGE);
         cycle.activate(page);

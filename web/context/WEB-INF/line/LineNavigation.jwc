@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.line.LineNavigation"
+    allow-body="yes"
+    allow-informal-parameters="yes">
+    
+    <description>add a description</description>
+    <!--
+    - P A R A M E T E R S
+    -->
+    <parameter name="line"
+        type="org.sipfoundry.sipxconfig.phone.Line"
+        required="yes"
+        direction="in">
+    </parameter>
+    <parameter name="tab"
+        type="java.lang.String"
+        required="yes"
+        direction="auto">
+    </parameter>
+    <parameter name="heading"
+        type="java.lang.String"
+        required="yes"
+        direction="in">
+    </parameter>    
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="currentSettingGroup"
+        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+    <property-specification name="settingGroup"
+        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+    <!--
+      - B E A N S
+      -->
+    <bean name="tabs" class="org.sipfoundry.sipxconfig.components.Tabs" lifecycle="request">
+        <set-property name="activeTab" expression="tab"/>
+    </bean>
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="heading" type="Insert">
+        <binding name="value" expression="heading"/>
+    </component>            
+    <component id="lineTab" type="DirectLink">
+        <binding name="listener" expression="listeners.editLine"/>
+        <binding name="parameters" expression="line.id"/>
+        <binding name="class" expression="beans.tabs.getTabClass('EditLine')"/>
+    </component>
+    <component id="settingsTabs" type="Foreach">
+        <binding name="source" expression="settingGroup.values"/>
+        <binding name="value" expression="currentSettingGroup"/>
+    </component>
+    <component id="settingsTab" type="DirectLink">
+        <binding name="listener" expression="listeners.editSettings"/>
+        <binding name="parameters" expression="editSettingListenerParameters"/>
+        <binding name="class" expression="beans.tabs.getTabClass(currentSettingGroup.name)"/>
+    </component>
+    <component id="settingsTabLabel" type="Insert">
+        <binding name="value" expression="getCurrentSettingGroup().getLabel()"/>
+    </component>
+    <component id="lineLabel" type="LineLabel">
+        <binding name="line" expression="line"/>
+    </component>    
+    
+    
+</component-specification>

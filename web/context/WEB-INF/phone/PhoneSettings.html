@@ -1,33 +1,12 @@
-<html jwcid="@Shell" title="Edit Phone" stylesheet="ognl:assets.stylesheet">    
-    <head jwcid="$remove$">
-        <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-    </head>
-<body jwcid="@Body">
-	<div id="component">
-        <span jwcid="editPhoneNavigation"> [Navigation]
-        </span>
-        
-        <form jwcid="settingsForm">
-            <table>
-            <span jwcid="settings">
-            <tr>
-                <td><label><span jwcid="settingLabel"/></label></td>
-                <td><span jwcid="setting"/></td>
-            </tr>
-            </span>
-            </table>
-			<ul class="form-actions">
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
-				</li>
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.apply" value="Apply"/>
-				</li>
-				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.ok" value="OK"/>
-				</li>
-			</ul>                        
-        </form>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border" id="component">
+        <span jwcid="editPhoneNavigation"/>        
+        <span jwcid="settingsForm"/>
     </div>   
 </body>
 </html>
+

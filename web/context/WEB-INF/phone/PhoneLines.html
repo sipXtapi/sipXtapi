@@ -1,9 +1,9 @@
-<html jwcid="@Shell" title="Edit Phone" stylesheet="ognl:assets.stylesheet">
-	<head jwcid="$remove$">
-		<link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-	</head>
-	<body jwcid="@Body">
-		<div id="component">
+<html title="Activate Dial Plan">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border" id="component">
 			<span jwcid="editPhoneNavigation"> [Navigation] </span>
 			<form jwcid="editLinesForm">
 				<ul class="component-actions">
@@ -12,42 +12,9 @@
 					</li>
 				</ul>
 				<table jwcid="lineTableView" class="table-view">
-					<!-- PREVIEW -->
-						<tr jwcid="$remove$" class="table-view-hdr">
-							<th></th>
-							<th>
-								<a href="#">Address</a>
-							</th>
-							<th>
-								<a href="#">Server</a>
-							</th>
-							<th>
-								<a href="#">Type</a>
-							</th>
-						</tr>
-						<tr jwcid="$remove$" class="odd">
-							<td>
-								<input type="checkbox" name="id1"/>
-							</td>
-							<td>
-								<a href="../line/phones.html">"Joe 
-									Smith"&lt;sip:jsmith@wallyco.com&gt;</a>
-							</td>
-							<td>sipxpbx01.wallyco.com</td>
-							<td>shared</td>
-						</tr>
-						<tr jwcid="$remove$" class="even">
-							<td>
-								<input type="checkbox" name="id1"/>
-							</td>
-							<td>
-								<a href="../line/phones.html">"Wally Co. 
-									Sales"&lt;sip:sales@wallyco.com&gt;</a>
-							</td>
-							<td>sipxpbx01.wallyco.com</td>
-							<td>shared</td>
-						</tr>
-                <!-- RENDERED -->
+                <span jwcid="LineColumnValue">
+                    <a href="#" jwcid="editLineLink"><span jwcid="lineLabel">address of record</span></a>
+                </span>
 				<tr class="table-view-hdr">
 					<td/>
 					<td jwcid="lineColumns"/>

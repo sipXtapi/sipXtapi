@@ -13,13 +13,11 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.StringWriter;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 
 /**

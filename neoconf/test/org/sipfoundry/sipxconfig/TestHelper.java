@@ -23,7 +23,6 @@ import java.sql.DriverManager;
 import java.util.Properties;
 
 import net.sf.hibernate.FlushMode;
-import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 
@@ -38,7 +37,6 @@ import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.dao.CleanupFailureDataAccessException;
 import org.springframework.orm.hibernate.SessionFactoryUtils;
 import org.springframework.orm.hibernate.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -56,10 +54,6 @@ public final class TestHelper {
     
     private static ApplicationContext s_appContext;
 
-    private static String P6SPY = "com.p6spy.engine.spy.P6SpyDriver";
-    
-    private static String POSTGRES = "org.postgresql.Driver";
-    
     static {
         // default XML parser (crimson) cannot resolve relative DTDs, google for bug
         System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
@@ -150,10 +144,10 @@ public final class TestHelper {
         // Could optionally get this from Spring
         //    DataSource.getConnection()
         // may pool connections and be faster.
-        // Class driverClass = Class.forName(POSTGRES);
+        // Class driverClass = Class.forName("org.postgresql.Driver");
         
         //  dumps sql commands to log file spy.log in working directory
-        Class driverClass = Class.forName(P6SPY);  
+        Class.forName("com.p6spy.engine.spy.P6SpyDriver");  
         
         Connection jdbcConnection = DriverManager.getConnection(
                 "jdbc:postgresql://localhost/PDS", "postgres", "");        
@@ -166,20 +160,19 @@ public final class TestHelper {
     
     public static void main(String[] args) {
         try {
-            //generateDbDtd();
+            generateDbDtd();
             generateDbXml();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
-    
+
     private static void generateDbDtd() throws Exception {
         IDatabaseConnection c = getConnection();
         
         FlatDtdDataSet.write(c.createDataSet(),
-            new FileOutputStream("test/org/sipfoundry/sipxconfig/sipxconfig-dataset.dtd"));
-        
+            new FileOutputStream("test/org/sipfoundry/sipxconfig/sipxconfig-dataset.dtd"));        
     }
     
     private static void generateDbXml() throws Exception {

@@ -38,7 +38,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         CharArrayWriter out = new CharArrayWriter();
         cfg.generateProfile(out);
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("data/plain-phone1.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("data/plain-phone.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 

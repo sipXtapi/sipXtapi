@@ -7,22 +7,30 @@
         add a description
     </description>
     <!--
-    - P R O P E R T I E S
-    -->
-    <property-specification name="endpoint"
-        type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-    <property-specification name="endpointId"
+     - P R O P E R T I E S
+     -->
+    <property-specification name="line"
+        type="org.sipfoundry.sipxconfig.phone.Line"/>
+    <property-specification name="lineId"
         type="int"
         persistent="yes"/>
-    <property-specification name="setting" type="java.lang.String"/>
-    <component id="editPhoneNavigation" type="PhoneNavigation">
-        <binding name="endpoint" expression="endpoint"/>
-        <binding name="tab" expression="setting"/>
-        <binding name="heading" expression="setting"/>
-    </component>
+    <property-specification name="parentSettingGroupName"
+        type="java.lang.String"
+        persistent="yes"/>    
+    <property-specification name="parentSettingGroup"
+        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
     <!--
-    - A S S E T S
-    -->
-    <!-- TODO Find some way to define this globally -->
-    <context-asset name="stylesheet" path="css/sipxconfig.css"/>
+     - C O M P O N E N T S
+     -->
+    <component id="editLineNavigation" type="LineNavigation">
+        <binding name="line" expression="line"/>
+        <binding name="tab" expression="parentSettingGroup.name"/>
+        <binding name="heading" expression="parentSettingGroup.label"/>
+    </component>
+    <component id="settingsForm" type="SettingsForm">
+        <binding name="settings" expression="parentSettingGroup"/>
+        <binding name="cancelListener" expression="listeners.cancel"/>
+        <binding name="okListener" expression="listeners.ok"/>
+        <binding name="applyListener" expression="listeners.apply"/>
+    </component>
 </page-specification>

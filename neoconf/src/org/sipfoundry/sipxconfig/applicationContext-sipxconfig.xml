@@ -117,9 +117,6 @@
 				<value>polycom600</value>
 			</list>
 		</property>
-		<property name="settingDao">
-			<ref bean="settingDao"/>
-		</property>
 	</bean>
 	<!--
       - P H O N E  C O N T E X T

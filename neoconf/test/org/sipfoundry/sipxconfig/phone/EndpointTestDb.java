@@ -31,8 +31,6 @@ public class EndpointTestDb extends TestCase {
     
     private PhoneContext m_context;
     
-    private Class m_class = EndpointTestDb.class;
-        
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);        

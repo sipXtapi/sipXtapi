@@ -45,7 +45,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         CharArrayWriter out = new CharArrayWriter();
         app.generateProfile(out);
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("data/plain-macaddress-phone.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("data/plain-macaddress.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
         

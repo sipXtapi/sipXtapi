@@ -25,7 +25,7 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 /**
- * Velocity model for generating XXXXXXXXXXXX-phone.cfg, pointer to all other 
+ * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other 
  * config files.  See page 11 of Administration guide for more information
  */
 public class ApplicationConfiguration extends ConfigurationTemplate {
@@ -48,7 +48,7 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     
     public String getAppFilename() {
         // todo, put in a sequence generator for TFTP
-        return getEndpoint().getSerialNumber() + "-phone.cfg";
+        return getEndpoint().getSerialNumber() + ".cfg";
     }
     
     String getDirectory() {
@@ -121,7 +121,7 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     }
     
     public String getPhoneFilename() {
-        return getDirectory() + "/phone1.cfg";        
+        return getDirectory() + "/phone.cfg";        
     }
     
     public void deleteStaleDirectories() throws IOException {

@@ -30,7 +30,6 @@ public class NewPhoneTest extends TestCase {
     public void testSave() {
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         NewPhone page = (NewPhone) pageMaker.getInstance(NewPhone.class);
-        GenericPhone phone = new GenericPhone();
         Endpoint endpoint = new Endpoint();
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
         page.setEndpoint(endpoint);

@@ -24,13 +24,13 @@ public class PolycomPhoneConfig {
 
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
-    private String m_phoneTemplate = m_phoneConfigDir + "/phone1.cfg.vm";
+    private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
 
     private String m_sipTemplate = m_phoneConfigDir + "/sip.cfg.vm";
 
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
 
-    private String m_applicationTemplate = "polycom/mac-address-phone.cfg.vm";
+    private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
 
     public VelocityEngine getVelocityEngine() {
         return m_velocityEngine;

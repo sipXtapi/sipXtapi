@@ -22,7 +22,6 @@ import net.sf.hibernate.expression.Criterion;
 import net.sf.hibernate.expression.Expression;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -38,8 +37,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     
     private List m_phoneIds;
     
-    private SettingDao m_settingDao;
-    
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
@@ -47,10 +44,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         m_beanFactory = beanFactory;
     }
     
-    public void setSettingDao(SettingDao settingDao) {
-        m_settingDao = settingDao;
-    }
-
     public Phone getPhone(Endpoint endpoint) {
         return (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
     }

@@ -4,8 +4,8 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
 <component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneLabel"
-    allow-body="yes"
-    allow-informal-parameters="yes">
+    allow-body="no"
+    allow-informal-parameters="no">
     
     <description>add a description</description>
     <!--

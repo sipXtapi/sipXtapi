@@ -18,6 +18,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
+    <page name="EditLine" specification-path="line/EditLine.page"/>    
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
@@ -50,6 +51,9 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+    <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
+    <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
+    <component-type type="SettingsForm" specification-path="setting/SettingsForm.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>

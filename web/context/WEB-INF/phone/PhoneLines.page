@@ -52,6 +52,14 @@
         <binding name="listener" expression="listeners.addUser"/>
         <binding name="parameters" expression="endpoint.id"/>
     </component>
+    <component id="LineColumnValue" type="Block"/>
+    <component id="editLineLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editLine"/>
+        <binding name="parameters" expression="currentRow.id"/>
+    </component>
+    <component id="lineLabel" type="Insert"> 
+        <binding name="value" expression="currentRow.displayLabel"/>
+    </component>
     <!--
     - A S S E T S
     -->

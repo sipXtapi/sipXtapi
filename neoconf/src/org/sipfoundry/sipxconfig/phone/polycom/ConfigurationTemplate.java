@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.io.IOException;
 import java.io.Writer;
 
 import org.apache.velocity.Template;
@@ -52,7 +51,7 @@ public abstract class ConfigurationTemplate {
 
     public abstract void addContext(VelocityContext context);
 
-    public void generateProfile(Writer out) throws IOException {
+    public void generateProfile(Writer out) {
         Template template;
         // has to be relative to system directory
         PolycomPhoneConfig config = getPhone().getConfig();

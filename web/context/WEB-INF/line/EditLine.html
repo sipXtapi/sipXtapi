@@ -1,0 +1,39 @@
+<html title="Activate Dial Plan">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border" id="component">
+			<span jwcid="editLineNavigation"/>
+			<form jwcid="editLineForm">
+				<fieldset>
+					<legend>Authorization</legend>
+					<table>
+						<tr>
+							<td>
+								<label for="line:displayId">
+									<span jwcid="registrationServerLabel">
+										Registration Server:</span>
+								</label>
+							</td>
+							<td>
+								<input jwcid="registrationServer"/>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+				<ul class="form-actions">
+					<li>
+						<input jwcid="cancel" value="Cancel"/>
+					</li>
+					<li>
+						<input jwcid="apply" value="Apply"/>
+					</li>
+					<li>
+						<input jwcid="ok" value="OK"/>
+					</li>
+				</ul>
+			</form>
+		</div>
+	</body>
+</html>
