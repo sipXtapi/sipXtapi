@@ -32,7 +32,7 @@
       <replacefilter token="@VERSION@" property="version"/>
       <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
-      <replacefilter token="@localstatedir@" property="localstate.dir"/>
+      <replacefilter token="@SIPXPBXTMP@" property="sipxpbx.tmp.dir"/>
       <replacefilter token="@SIPXPBXLOG@" property="sipxpbx.log.dir"/>
     </replace>
   </target>

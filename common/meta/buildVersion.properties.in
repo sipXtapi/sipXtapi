@@ -4,5 +4,5 @@ build_number=0000
 comment=opendev
 sipxconf=@SIPXPBXCONF@
 sipxdata=@SIPXPBXDATA@
-sipxvar=@localstatedir@
+sipxtmp=@SIPXPBXTMP@
 sipxlog=@SIPXPBXLOG@

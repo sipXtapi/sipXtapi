@@ -60,7 +60,7 @@ public final class PathLocatorUtil {
 
     private String m_confdir;
 
-    private String m_vardir;
+    private String m_tmpdir;
 
     private String m_logdir;
 
@@ -80,7 +80,7 @@ public final class PathLocatorUtil {
                 g_instance = new PathLocatorUtil();
                 g_instance.m_datadir = versionInfo.getProperty("sipxdata");
                 g_instance.m_confdir = versionInfo.getProperty("sipxconf");
-                g_instance.m_vardir = versionInfo.getProperty("sipxvar");
+                g_instance.m_tmpdir = versionInfo.getProperty("sipxtmp");
                 g_instance.m_logdir = versionInfo.getProperty("sipxlog");
             }
             catch (IOException ex) 
@@ -108,13 +108,13 @@ public final class PathLocatorUtil {
     /** path to main configuration (e.g. /usr/local/var/sipx/log) */
     public PathBuffer log()
     {
-        return var().slash().dir("log");
+        return new PathBuffer(m_logdir);
     }
 
-    /** path to main configuration (e.g. /usr/local/var) */
-    public PathBuffer var()
+    /** path to main configuration (e.g. /usr/local/var/tmp) */
+    public PathBuffer tmp()
     {
-        return new PathBuffer(m_vardir);
+        return new PathBuffer(m_tmpdir);
     }
 
     /**
@@ -158,7 +158,7 @@ public final class PathLocatorUtil {
                 break;
 
             case DATA_FOLDER: {
-                folderLocation = var().append("data").slash();
+                folderLocation = tmp().append("data").slash();
                 break;
             }
         }

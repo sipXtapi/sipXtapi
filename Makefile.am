@@ -37,6 +37,7 @@ edit = sed \
         -e 's,@localstatedir\@,$(localstatedir),g' \
         -e 's,@SIPXPBXLOG\@,@SIPXPBXLOG@,g' \
         -e 's,@SIPXPBXRUN\@,@SIPXPBXRUN@,g' \
+        -e 's,@SIPXPBXTMP\@,@SIPXPBXTMP@,g' \
         -e 's,@libdir\@,$(libdir),g' \
         -e 's,@bindir\@,$(bindir),g'
 

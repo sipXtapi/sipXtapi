@@ -30,6 +30,7 @@ import org.apache.log4j.Category;
 
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.URLPinger;
+import com.pingtel.pds.common.PathLocatorUtil;
 import com.pingtel.pds.sds.cache.SessionCache;
 import com.pingtel.pds.sds.cache.SessionCacheException;
 import com.pingtel.pds.sds.cmd.*;
@@ -326,7 +327,9 @@ public class ProfileListenerImpl extends UnicastRemoteObject implements ProfileL
                     documentRoot = sb.toString();
                 }
 
-                FileOutputStream stream = new FileOutputStream ( DOCROOT_PROPSFILE );
+                String docroot = PathLocatorUtil.getInstance().tmp().slash()
+                    .append(DOCROOT_PROPSFILE).toString();
+                FileOutputStream stream = new FileOutputStream ( docroot );
                 Properties docrootProps = new Properties();
                 docrootProps.setProperty( "docroot", documentRoot );
                 docrootProps.store(stream, "docroot properties file");
