@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
-import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 
 /**
@@ -48,8 +47,10 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     
     public abstract void setParentSettingGroup(SettingGroup parent);
     
-    public void pageBeginRender(PageEvent event) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
+    public abstract PhoneContext getPhoneContext();
+
+    public void pageBeginRender(PageEvent event_) {
+        PhoneContext context = getPhoneContext();
         Line line = context.loadLine(getLineId());
         setLine(line);
         Phone phone = context.getPhone(line.getEndpoint()); 
@@ -63,8 +64,8 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
         cycle.activate(ManagePhones.PAGE);
     }
 
-    public void apply(IRequestCycle cycle) {
-        PhoneContext dao = PhonePageUtils.getPhoneContext(cycle);
+    public void apply(IRequestCycle cycle_) {
+        PhoneContext dao = getPhoneContext();
         dao.storeLine(getLine());
         dao.flush();
     }

@@ -21,6 +21,10 @@
         required="yes" 
         direction="auto">
     </parameter>
+	<parameter name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	required="yes"
+    	direction="auto"/>    
     <!-- parameter name="emptyMessage"
         type="java.lang.String"
         required="no"

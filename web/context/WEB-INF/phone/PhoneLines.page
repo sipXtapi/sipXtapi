@@ -18,6 +18,9 @@
         type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="selections"
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
 	<!--
 	  - B E A N S
 	  -->
@@ -29,6 +32,7 @@
         <binding name="endpoint" expression="endpoint"/>
         <static-binding name="tab" value="PhoneLines"/>
         <static-binding name="heading" value="Lines"/>
+        <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="editLinesForm" type="Form"/>
     <component id="lineTableView" type="contrib:TableView">

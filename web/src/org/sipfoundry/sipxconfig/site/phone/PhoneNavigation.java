@@ -37,6 +37,8 @@ public abstract class PhoneNavigation extends BaseComponent {
 
     public abstract SettingGroup getCurrentSettingGroup();
     
+    public abstract PhoneContext getPhoneContext();
+
     public void editPhone(IRequestCycle cycle) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
 
@@ -83,7 +85,7 @@ public abstract class PhoneNavigation extends BaseComponent {
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext context = getPhoneContext();
         Phone phone = context.getPhone(getEndpoint());
         SettingGroup model = getEndpoint().getSettings(phone);
         setSettingGroup(model);

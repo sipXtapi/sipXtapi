@@ -58,6 +58,8 @@ public abstract class ManagePhones extends BasePage
     
     public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
+    public abstract PhoneContext getPhoneContext();
+
     /**
      * When user clicks on link to edit a phone/endpoint
      */
@@ -87,9 +89,9 @@ public abstract class ManagePhones extends BasePage
         cycle.activate(page);
     }
     
-    public void generateProfiles(IRequestCycle cycle) {
+    public void generateProfiles(IRequestCycle cycle_) {
         // TODO: Should execute asychronously
-        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext phoneContext = getPhoneContext();
         
         SelectMap selections = getSelections();        
         Iterator endpointIds = selections.getAllSelected().iterator();
@@ -108,8 +110,8 @@ public abstract class ManagePhones extends BasePage
     /**
      * called before page is drawn
      */
-    public void pageBeginRender(PageEvent event) {
-        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(event.getRequestCycle());
+    public void pageBeginRender(PageEvent event_) {
+        PhoneContext phoneContext = getPhoneContext();
         
         setIdConverter(new PhoneSummaryDataSqueezer(phoneContext));
 

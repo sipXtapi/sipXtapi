@@ -46,8 +46,10 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     
     public abstract void setParentSettingGroup(SettingGroup parent);
     
-    public void pageBeginRender(PageEvent event) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
+    public abstract PhoneContext getPhoneContext();
+
+    public void pageBeginRender(PageEvent event_) {
+        PhoneContext context = getPhoneContext();
         setEndpoint(context.loadEndpoint(getEndpointId()));
         Phone phone = context.getPhone(getEndpoint()); 
         SettingGroup root = getEndpoint().getSettings(phone);
@@ -60,8 +62,8 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
         cycle.activate(ManagePhones.PAGE);
     }
 
-    public void apply(IRequestCycle cycle) {
-        PhoneContext dao = PhonePageUtils.getPhoneContext(cycle);
+    public void apply(IRequestCycle cycle_) {
+        PhoneContext dao = getPhoneContext();
         dao.storeEndpoint(getEndpoint());
         dao.flush();
     }

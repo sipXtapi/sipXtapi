@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
-import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 public abstract class LineNavigation extends BaseComponent {
 
@@ -35,6 +34,8 @@ public abstract class LineNavigation extends BaseComponent {
 
     public abstract SettingGroup getCurrentSettingGroup();
     
+    public abstract PhoneContext getPhoneContext();
+
     public void editLine(IRequestCycle cycle) {
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
 
@@ -71,7 +72,7 @@ public abstract class LineNavigation extends BaseComponent {
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext context = getPhoneContext();
         Phone phone = context.getPhone(getLine().getEndpoint());
         SettingGroup model = getLine().getSettings(phone);
         setSettingGroup(model);

@@ -53,8 +53,10 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public abstract void setSelections(SelectMap selections);
     
-    public void pageBeginRender(PageEvent event) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
+    public abstract PhoneContext getPhoneContext();
+
+    public void pageBeginRender(PageEvent event_) {
+        PhoneContext context = getPhoneContext();
         Endpoint endpoint = context.loadEndpoint(getEndpointId()); 
         setEndpoint(endpoint);
         setLines(endpoint.getLines());
@@ -82,7 +84,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     }
     
     public void deleteLine(IRequestCycle cycle) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext context = getPhoneContext();
         context.deleteLine(loadLine(cycle));
     }
     
@@ -95,7 +97,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     }
     
     private void moveLine(IRequestCycle cycle, int relativePosition) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext context = getPhoneContext();
         Line line = loadLine(cycle);
         Endpoint endpoint = line.getEndpoint();
         endpoint.moveLine(line.getPosition(), relativePosition);
@@ -105,7 +107,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     private Line loadLine(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
         Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext context = getPhoneContext();
         return context.loadLine(lineId.intValue());
     }
 
@@ -114,8 +116,8 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         cycle.activate(ManagePhones.PAGE);
     }
 
-    public void apply(IRequestCycle cycle) {
-        PhoneContext dao = PhonePageUtils.getPhoneContext(cycle); 
+    public void apply(IRequestCycle cycle_) {
+        PhoneContext dao = getPhoneContext();
         dao.storeEndpoint(getEndpoint());
         dao.flush();
     }

@@ -29,6 +29,5 @@ public class ManagePhonesTestUi extends PhoneTestUiBase {
         clickButton("phone:sendProfiles");
         // present if no exception
         assertLinkPresent("AddPhone");
-    }
-    
+    }    
 }

@@ -28,10 +28,12 @@ public abstract class PhoneLabel extends BaseComponent {
     
     public abstract void setPhone(Phone phone);
         
+    public abstract PhoneContext getPhoneContext();
+
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext context = getPhoneContext();
         setPhone(context.getPhone(getEndpoint()));
     }        
 }

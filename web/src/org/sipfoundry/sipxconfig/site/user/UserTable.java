@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
 import org.sipfoundry.sipxconfig.site.phone.PhoneContextDataSqueezer;
-import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 public abstract class UserTable extends BaseComponent implements PageRenderListener {
     
@@ -42,11 +41,13 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
      * */
     public abstract void setUsers(List users);
     
-    public void pageBeginRender(PageEvent event) {
+    public abstract PhoneContext getPhoneContext();
+    
+    public void pageBeginRender(PageEvent event_) {
         if (getSelections() == null) {
             setSelections(new SelectMap());            
         }
-        PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
+        PhoneContext context = getPhoneContext();
         m_idConverter = new PhoneContextDataSqueezer(context, User.class);
     }
     

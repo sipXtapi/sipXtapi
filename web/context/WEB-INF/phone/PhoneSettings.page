@@ -17,6 +17,9 @@
         persistent="yes"/>    
     <property-specification name="parentSettingGroup"
         type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
    <!--
     - C O M P O N E N T S
     -->
@@ -24,6 +27,7 @@
         <binding name="endpoint" expression="endpoint"/>
         <binding name="tab" expression="parentSettingGroup.name"/>
         <binding name="heading" expression="parentSettingGroup.label"/>
+        <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="settingDescription" type="Insert">
         <binding name="value" expression="parentSettingGroup.description"/>

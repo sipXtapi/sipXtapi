@@ -20,7 +20,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
-import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 
 public abstract class UserSearch extends BaseComponent implements PageRenderListener {
@@ -35,8 +34,10 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
     
     public abstract void setUsers(List users);
     
-    public void search(IRequestCycle cycle) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+    public abstract PhoneContext getPhoneContext();
+    
+    public void search(IRequestCycle cycle_) {
+        PhoneContext context = getPhoneContext();
         
         // keep original collection, reference has already been given to other
         // components.  

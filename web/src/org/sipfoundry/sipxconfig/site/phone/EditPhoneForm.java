@@ -34,12 +34,14 @@ public abstract class EditPhoneForm extends BaseComponent {
 
     public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
      
+    public abstract PhoneContext getPhoneContext();
+    
     /**
      * called before page is drawn
      */
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext phoneContext = getPhoneContext();
         String[] phoneIds = (String[]) phoneContext.getPhoneIds().toArray(new String[0]);
         setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
     }        

@@ -14,6 +14,9 @@
        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
    	<property-specification name="idConverter" 
        type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
 	<!--
 	  - B E A N S
 	  -->

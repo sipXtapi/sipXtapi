@@ -15,6 +15,9 @@
         type="int" persistent="yes"/>    
     <property-specification name="returnPage"
         type="java.lang.String" persistent="yes"/>    
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
     <!--
     - C O M P O N E N T S
     -->

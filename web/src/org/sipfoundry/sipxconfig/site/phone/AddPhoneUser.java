@@ -38,8 +38,10 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public abstract void setEndpointId(int id);
     
+    public abstract PhoneContext getPhoneContext();
+    
     public void select(IRequestCycle cycle) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        PhoneContext context = getPhoneContext();
         Endpoint endpoint = context.loadEndpoint(getEndpointId());
         
         UserTable table = (UserTable) getComponent("searchResults");
@@ -67,8 +69,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
         cycle.activate(page);
     }
     
-    public void pageBeginRender(PageEvent event) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
-        setEndpoint(context.loadEndpoint(getEndpointId()));
+    public void pageBeginRender(PageEvent event_) {
+        setEndpoint(getPhoneContext().loadEndpoint(getEndpointId()));
     }           
 }

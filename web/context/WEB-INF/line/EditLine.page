@@ -15,6 +15,9 @@
         type="int" persistent="yes"/>
     <property-specification name="registrationServer"
         type="java.lang.String"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
     <!--
       - B E A N S
       -->
@@ -30,6 +33,7 @@
         <binding name="line" expression="line"/>
         <static-binding name="tab" value="EditLine"/>
         <static-binding name="heading" value="Authorization"/>
+        <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="editLineForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>

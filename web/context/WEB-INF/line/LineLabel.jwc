@@ -17,6 +17,10 @@
         required="yes" 
         direction="in">
     </parameter>    
+	<parameter name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	required="yes"
+    	direction="auto"/>    
     <!--
       - C O M P O N E N T S
       -->
@@ -25,5 +29,6 @@
     </component>
     <component id="phoneLabel" type="PhoneLabel">
         <binding name="endpoint" expression="line.endpoint"/>
+        <binding name="phoneContext" expression="phoneContext"/>
     </component>      
 </component-specification>

@@ -19,6 +19,7 @@
       -->
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="endpoint" expression="endpoint"/>
+        <binding name="phoneContext" expression="phoneContext"/>
     </component>    
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.finish"/>

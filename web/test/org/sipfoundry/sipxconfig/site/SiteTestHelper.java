@@ -22,8 +22,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SiteTestHelper {
     
-    private static final String APPLICATION_CONTEXT_FILE = "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml";
-    
     private static Properties s_sysDirProps;
     
     private static ApplicationContext s_appContext;
