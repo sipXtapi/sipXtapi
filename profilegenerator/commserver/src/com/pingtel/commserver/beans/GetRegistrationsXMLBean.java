@@ -114,7 +114,7 @@ public class GetRegistrationsXMLBean extends ResourceBean {
      * exceptions.
      */
     public String getHtmlpage() throws RedirectServletException, PDSException{
-        String xml = "https://" + mLocation +":8091/shared/" + mXMLfile;
+        String xml = "https://" + mLocation +":8091/sipdb/" + mXMLfile;
         String xslt = null;
 
         try {

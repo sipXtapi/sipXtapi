@@ -9,34 +9,101 @@ message.
 
                                  Installation
 
-Required Software
+For Redhat Users
+
+   These instructions apply to Enterprise and Fedora systems unless
+   explicitly noted
+
+  System Installation
+
+    1. Install Redhat from CDs. You can select any set of packages
+       including the minimum set of packages labled "router
+       configuration" in the redhat installer process
+    2. When prompted for firewall support, select "no firewall support"
+       or open up the following ports in your iptables: 80, 8080, 8090,
+       8091, 5060 and 5090
+
+  Installing dependencies with up2date
+
+   Fedora users may experience periodic connection errors using using
+   up2date but usually if you're persistent you can get thru executing
+   up2date repeatedly. If you do not use up2date, I recommend installing
+   postgres and apache while installing your system, or use the redhat
+   package manager to install those RPMs for you.
+     * Run up2date for the first time and follow instructions to setup
+       propery up2date operation.
+     * Run up2date -u to make your system is up to date.
+     * Run up2date on the following packages:
+
+        Postgres
+                up2date rh-postgresql-server *Enterprise Users Only
+                up2date postgresql-server *Fedora Users Only
+
+        Apache 2 webserver
+                up2date httpd
+
+  Installing Java RPM
+
+     * j2sdk 1.4 or greater available by opening your webbrowser to this
+       URL:
+       [1]http://java.sun.com/j2se/1.4.2/download.html
+
+  Installing RPMs from SIPfoundry
+
+   Sipfoundry will make the following rpms available. After downloading,
+   you can install these by typing the command rpm -iv packagename.rpm.
+   It's often helpful to list more than one rpm at a time to fullfil rpm
+   interpackage dependencies. RPMs listed here are in proper order to
+   install individually.
+
+   Available from sipfoundry.org
+     * sipx-jboss-2.4.10-1.noarch.rpm
+     * sipxportlib
+     * sipxtacklib
+     * sipxcommserverlib
+     * sipxconfig
+     * sipxproxy
+     * sipxregistry
+     * sipxpublisher
+     * sipxvxml
+     * sipxpbx
+
+Installing From Source and Non-Redhat Users
+
+   Install the following software packages. Follow the installation
+   instructions for your OS. If there is any special installation
+   instructions, they will be noted.
+
+  Dependencies
 
    sipXportLib (same version sipXconfig)
-          [1]http://www.sipfoundry.org/sipXportLib
+          [2]http://www.sipfoundry.org/sipXportLib
 
    sipXtackLib (same version sipXconfig)
-          [2]http://www.sipfoundry.org/sipXtack
+          [3]http://www.sipfoundry.org/sipXtack
 
    sipXcommserverLib (same version sipXconfig)
-          [3]http://www.sipfoundry.org/sipXcommserverLib
+          [4]http://www.sipfoundry.org/sipXcommserverLib
+
+   sipXpbx (same version sipXconfig)
+          [5]http://www.sipfoundry.org/sipXpbx
 
    Java SDK 1.4 (tested w/1.4.2.03)
-          [4]http://java.sun.com
+          [6]http://java.sun.com
 
    postgres 7.3 (tested with 7.3.4)
-          [5]http://www.postgresql.org/
+          [7]http://www.postgresql.org/
 
    JBoss 2.4.4 with Tomcat 4.0.1 (exactly this version!)
-          [6]http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-
+          [8]http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-
           4.0.1.zip
 
    Ant 1.6 (tested with 1.6.1)
-          [7]http://ant.apache.org/
+          [9]http://ant.apache.org/
 
-Environment Variables
+  Environment Variables
 
-   After installing these packages, set the following environment
-   variables:
+   Set the following environment variables:
 
    JAVA_HOME
           to where you installed java. This setting is just used to
@@ -62,9 +129,9 @@ Environment Variables
           export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
 
 
-Special Software Installion Instructions
+  Special Software Installion Instructions
 
-  JBoss
+    JBoss
 
    After unzipping JBoss
     1. run this patch on it
@@ -72,14 +139,34 @@ Special Software Installion Instructions
     2. be sure user running sipxpbx (most cases sipxchange) has full r/w
        access to all files and directories in ${JBOSS_HOME}
 
-Installation
+  Installation
 
    After building the prerequisite components, build sipXconfig by:
      ./configure
      make
      make install
 
-Set up the Postgresql Database
+  Set up the Postgresql Database
+
+   Postgres needs to always be running on your system. If you've
+   installed sipXconfig from RPM, you shouldn't have to do this.
+
+   To start postgres on Redhat 9 or Fedora systems run this command.
+      service postgresql start
+
+
+   To start postgres on Enterprise 3 systems run this command.
+      service rhdb start
+
+
+   It's recommended you should have postgres start automatically when
+   your machine restarts (usually in runlevels 3 and 5).
+
+   Fedora and Redhat 9 usersshould run this command:
+      chkconfig postgresql on
+
+   Redhat Enterprise 3 users should run this command:
+      chkconfig rhdb on
 
    Edit postgres config files to work. This will open up TCP connections
    and allow localhost to connect to posgres
@@ -87,31 +174,13 @@ Set up the Postgresql Database
      /usr/local/sipx/bin/sipxdbmgr --create PDS
      /usr/local/sipx/bin/sipxdbmgr --create SDS
 
-Arrange for Postgres to start automatically
-
-   Since sipX needs Postgres to work, it helps if you configure your
-   system to start Postgres automatically (usually in runlevels 3 and
-   5).  In Red Hat distributions, "chkconfig --level 35 postgresql on"
-   will do it.  (In Red Hat Enterprise, the service is called "rhdb"
-   instead of "postgresql".)  In other distributions, you may have to
-   create the /etc/rc?.d/{S85,K15}postgresql links yourself.
-
-SSL Initialization
+  SSL Initialization
 
    Set up an SSL key using the instructions in
-   sipXcommserverLib/doc/INSTALL.ssl.
+   sipXcommserverLib/doc/INSTALL.ssl or
+   /usr/share/doc/sipxcommserverlib-version/INSTALL.ssl.
 
-Optional SOAP Access
-
-   A SOAP API is available to automate adding/deleting and limited
-   editing of phone configuration information. In particular user lines,
-   devices and credentials.
-
-   A SOAP client perl script is provided as an example and as a useful
-   importing utility. See following directory for scripts and examples:
-   profilegeneration/soap/bin
-
-Compiling the Profile Publisher's SIP agent w/ MSVC 6
+  Compiling the Profile Publisher's SIP agent w/ MSVC 6
 
    Support for windows is experimental, here's the latest know
    instructions that were known to work, you may have to play around with
@@ -132,14 +201,16 @@ Compiling the Profile Publisher's SIP agent w/ MSVC 6
    Additional Libs:
           C:\Program Files\Java\j2sdk1.4.2_03\lib
 
-   Last modified: Sun Oct 10 15:15:13 EDT 2004
+   Last modified: Thu Oct 21 13:51:21 EDT 2004
 
 References
 
-   1. http://www.sipfoundry.org/sipXportLib
-   2. http://www.sipfoundry.org/sipXtack
-   3. http://www.sipfoundry.org/sipXcommserverLib
-   4. http://java.sun.com/
-   5. http://www.postgresql.org/
-   6. http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip
-   7. http://ant.apache.org/
+   1. http://java.sun.com/j2se/1.4.2/download.html
+   2. http://www.sipfoundry.org/sipXportLib
+   3. http://www.sipfoundry.org/sipXtack
+   4. http://www.sipfoundry.org/sipXcommserverLib
+   5. http://www.sipfoundry.org/sipXpbx
+   6. http://java.sun.com/
+   7. http://www.postgresql.org/
+   8. http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip
+   9. http://ant.apache.org/

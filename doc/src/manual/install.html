@@ -22,13 +22,10 @@ message.
 
 <h1>Installation</h1>
 
+<h2>For Redhat Users</h2>
 
-<h2>Redhat Only</h2>
-
-<p>RPMs are still in the process of being officially built and made
-available on sipfoundry, but here's the instructions for getting your
-system running once RPMs become available. These instructions apply to
-Enterprise and Fedora systems unless explicitly noted</p>
+<p>These instructions apply to Enterprise and Fedora systems unless
+explicitly noted</p>
 
 <h3>System Installation</h3>
 <ol>
@@ -128,6 +125,9 @@ instructions, they will be noted.</p>
   <dt>sipXcommserverLib (same version sipXconfig)</dt>
   <dd><a href="http://www.sipfoundry.org/sipXcommserverLib">http://www.sipfoundry.org/sipXcommserverLib</a></dd>
 
+  <dt>sipXpbx (same version sipXconfig)</dt>
+  <dd><a href="http://www.sipfoundry.org/sipXpbx">http://www.sipfoundry.org/sipXpbx</a></dd>
+
   <dt>Java SDK 1.4 (tested w/1.4.2.03)</dt>
   <dd><a href="http://java.sun.com">http://java.sun.com</a></dd>
 
@@ -205,7 +205,39 @@ and not break your installation
 </pre>
 </p>
 
-<h2>Set up the Postgresql Database</h2>
+<h3>Set up the Postgresql Database</h3>
+
+<p>Postgres needs to always be running on your system. If you've
+installed sipXconfig from RPM, you shouldn't have to do this.</p>
+
+<p>To start postgres on Redhat 9 or Fedora systems run this command.
+  <pre>
+      service postgresql start 
+  </pre>
+</p>
+
+<p>To start postgres on Enterprise 3 systems run this command.
+  <pre>
+      service rhdb start 
+  </pre>
+</p>
+
+<p>It's recommended you should have postgres start automatically when your machine
+restarts (usually in runlevels 3 and 5).</p>
+
+<p>Fedora and Redhat 9 usersshould run this command:
+
+<pre>
+      chkconfig postgresql on
+</pre>
+</p>
+
+<p>Redhat Enterprise 3 users should run this command:
+
+<pre>
+      chkconfig rhdb on
+</pre>
+</p>
 
 <p>Edit postgres config files to work. This will open up TCP connections and
 allow localhost to connect to posgres</p>
@@ -249,7 +281,7 @@ following:</p>
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Sun Oct 10 19:02:28 EDT 2004
+Last modified: Thu Oct 21 13:51:21 EDT 2004
 <!-- hhmts end -->
 </span>
 
