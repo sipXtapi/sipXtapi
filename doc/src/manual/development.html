@@ -86,7 +86,7 @@ For example, to debug profilegenerator replace the java launching command at the
 the following:
 </p>
 <pre>
-JAVA_DEBUG_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=9142,suspend=n"
+JAVA_DEBUG_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=5432,suspend=n"
 exec java $JAVA_DEBUG_OPTS $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main catalina $@
 </pre>
 <p>
