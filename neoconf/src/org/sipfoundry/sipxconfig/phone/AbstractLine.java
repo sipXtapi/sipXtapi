@@ -31,7 +31,7 @@ public abstract class AbstractLine implements Line {
     public AbstractLine(Phone phone) {
         setPhone(phone);
         LineMetaData meta = new LineMetaData();
-        meta.setLine(this);
+        //meta.setLine(this);
         setLineMetaData(meta);        
     }
 

@@ -19,9 +19,7 @@ import junit.framework.TestCase;
 import org.easymock.MockControl;
 
 
-public class BatchPhoneJobTest extends TestCase {
-    
-    private int m_count;
+public class JobManagerTest extends TestCase {
     
     public void testRestart() throws Exception {
         MockControl control = MockControl.createStrictControl(Phone.class);
@@ -57,27 +55,45 @@ public class BatchPhoneJobTest extends TestCase {
         control.verify();
     }
     
-    public void testCustomJob() throws Exception {
+    /** 
+     * Make sure phone doesn't try to restart if it didn't generate profiles
+     */
+    public void testGenerateProfilesAndRestart() throws Exception {
         MockControl control = MockControl.createStrictControl(Phone.class);
         Phone phone = (Phone) control.getMock(); 
-        control.expectAndReturn(phone.getDisplayLabel(), "", 1001);
+        phone.generateProfiles();
+        phone.restart();
+        phone.generateProfiles();
+        control.setThrowable(new RuntimeException("MOCK TEST"), 1);
+        control.expectAndReturn(phone.getPhoneMetaData(), new PhoneMetaData());
         control.replay();
-    
-        PhoneJob job = new PhoneJob() {
-            public void operate(Phone phone) {
-                phone.getDisplayLabel();
-                if ((m_count++ % 10) == 0) {
-                    throw new RuntimeException("Mod 10 test");
-                }
-            }
-        };
-
+        
         JobManager jmgr = new JobManager();
-        jmgr.startJob(createPhones(phone, 1001), job);        
+        jmgr.generateProfilesAndRestart(createPhones(phone, 2));        
         jmgr.join();
         
         control.verify();
-        assertEquals(1001, m_count);
-        assertEquals(101, jmgr.getExceptions().size());
+    }
+
+    public void testCustomJob() throws Exception {
+        MockControl control = MockControl.createStrictControl(Phone.class);
+        Phone phone = (Phone) control.getMock(); 
+        control.expectAndReturn(phone.getPhoneMetaData(), new PhoneMetaData(), 5);
+        control.replay();
+        
+        MockControl jobControl = MockControl.createStrictControl(PhoneJob.class);
+        PhoneJob job = (PhoneJob) jobControl.getMock();
+        job.operate(phone);
+        jobControl.setThrowable(new RuntimeException("MOCK TEST"), 5);
+        jobControl.setVoidCallable(5);
+        jobControl.replay();
+
+        JobManager jmgr = new JobManager();
+        jmgr.startJob(createPhones(phone, 10), job);        
+        jmgr.join();
+        
+        jobControl.verify();
+        control.verify();
+        assertEquals(5, jmgr.getExceptions().length);
     }
 }

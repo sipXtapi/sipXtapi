@@ -39,15 +39,17 @@ public class LineMetaData implements Serializable, DataCollectionItem {
 
     private int m_position;
     
+    /*
     private transient Line m_line;
 
-    public Line getLine() {
+        public Line getLine() {
         return m_line;
     }
     
     public void setLine(Line line) {
         m_line = line;
     }
+    */
 
     public Integer getId() {
         return m_id;

@@ -42,7 +42,6 @@ public class PhoneMetaData implements PrimaryKeySource, Serializable {
 
     private List m_lines;
     
-    private transient Phone m_phone;
     
     /** BEAN ACCESS ONLY **/
     public PhoneMetaData() {    
@@ -52,6 +51,9 @@ public class PhoneMetaData implements PrimaryKeySource, Serializable {
         setFactoryId(factoryId);
     }
     
+    /*
+    private transient Phone m_phone;
+
     public Phone getPhone() {
         return m_phone;
     }
@@ -59,6 +61,7 @@ public class PhoneMetaData implements PrimaryKeySource, Serializable {
     public void setPhone(Phone phone) {
         m_phone = phone;
     }
+    */
     
     /**
      * @return ids used in PhoneFactory

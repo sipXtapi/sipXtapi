@@ -29,4 +29,6 @@ public interface Line {
     public Setting getSettingModel();
 
     public Setting getSettings();
+    
+    public String getUri();
 }

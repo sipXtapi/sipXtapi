@@ -15,18 +15,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Run an ansynchorous operation on a list of jobs.  
  */
 public class JobManager extends Thread {
     
+    private static Log s_log = LogFactory.getLog(JobManager.class);
+
     private Iterator m_phones;
     
     private PhoneJob m_job;
     
     private volatile boolean m_stop;
     
-    private List m_exceptions = new ArrayList();
+    private BatchPhoneException[] m_exceptions;
     
     public void stopJob() {
         m_stop = true;
@@ -39,19 +44,23 @@ public class JobManager extends Thread {
     }
     
     public void run() {
+        List exceptions = new ArrayList();
         while (!m_stop && m_phones.hasNext()) {
             Phone phone = (Phone) m_phones.next();
             try {
                 m_job.operate(phone);
             } catch (Throwable t) {
-                m_exceptions.add(new BatchPhoneException(phone, t));
-                // TOD: XCF-225
-                t.printStackTrace();
+                exceptions.add(new BatchPhoneException(phone, t));
+                // TODO: XCF-225
+                s_log.error("could not complete job on phone " 
+                        + phone.getPhoneMetaData().getDisplayLabel(), t);
             }
         }
+        
+        m_exceptions = (BatchPhoneException[]) exceptions.toArray(new BatchPhoneException[0]);        
     }
     
-    public List getExceptions() {
+    public BatchPhoneException[] getExceptions() {
         return m_exceptions;
     }    
     
@@ -77,5 +86,18 @@ public class JobManager extends Thread {
             }
         };
         startJob(phones, job);        
-    }    
+    }
+    
+    /**
+     * Generate profiles and restart phones that successfully generated profiles
+     */
+    public void generateProfilesAndRestart(Iterator phones) {
+        PhoneJob job = new PhoneJob() {
+            public void operate(Phone phone) {
+                phone.generateProfiles();
+                phone.restart();
+            }
+        };
+        startJob(phones, job);        
+    }
 }

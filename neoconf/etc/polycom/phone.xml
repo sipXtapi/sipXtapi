@@ -948,35 +948,27 @@
 					<type>dotted-decimal IP address or host name</type>
 					<value></value>
 					<description>IP address or host name and port of a SIP 
-						server that accepts registrations. Multiple servers can 
-						be listed starting with for fault tolerance. If port is 
-						0 or Null: If Address is a hostname and Transport is 
-						set to DNSnaptr, do NAPTR then SRV lookups. If 
-						Transport is set to TCPpreferred or UDPonly then use 
-						5060 and don't advertise the port number in signalling. 
-						If Address is an IP address, there is no DNS lookup and 
-						5060 is used for the port but it is not advertised in 
-						signaling. If port is 1 to 65535: This value is used 
-						and it is advertised in signaling.</description>
+						server that accepts registrations.</description>
 				</setting>
 				<setting name="port">
 					<profileName>server.1.port</profileName>
 					<type>0, Null, 1 to 65535</type>
 					<value>5060</value>
-					<description></description>
+					<description>0, empty, 1 to 65535, If port is 5060, then this is not advertised in 
+						signaling.</description>
 				</setting>
 				<setting name="transport">
 					<profileName>server.1.transport</profileName>
-					<type>DNSnaptr or TCPpreferred or UDPonly</type>
+					<type></type>
 					<value></value>
-					<description>If set to Null or DNSnaptr: If Address is a 
-						hostname and Port is 0 or Null, do NAPTR then SRV 
+					<description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and 
+						if Address is a hostname and Port is 0 or Null, do NAPTR then SRV 
 						look-ups to try to discover the transport, ports and 
 						servers, as per RFC 3263. If Address is an IP address, 
 						or a port is given, then UDP is used. If set to 
 						TCPpreferred: TCP is the preferred transport, UDP is 
 						used if TCP fails. If set to UDPonly: Only UDP will be 
-						used. </description>
+						used.  </description>
 				</setting>
 				<setting name="expires">
 					<profileName>server.1.expires</profileName>
@@ -1029,17 +1021,7 @@
 					<type>dotted-decimal IP address or host name</type>
 					<value></value>
 					<description>Backup IP address or host name and port of a 
-						SIP server that accepts registrations. Multiple servers 
-						can be listed starting with for fault tolerance. If 
-						port is 0 or Null: If Address is a hostname and 
-						Transport is set to DNSnaptr, do NAPTR then SRV 
-						lookups. If Transport is set to TCPpreferred or UDPonly 
-						then use 5060 and don't advertise the port number in 
-						signalling. If Address is an IP address, there is no 
-						DNS lookup and 5060 is used for the port but it is not 
-						advertised in signaling. If port is 1 to 65535: This 
-						value is used and it is advertised in 
-						signaling.</description>
+						SIP server that accepts registrations.</description>
 				</setting>
 				<setting name="port">
 					<type>0, Null, 1 to 65535</type>
@@ -1049,10 +1031,10 @@
 				</setting>
 				<setting name="transport">
 					<profileName>server.2.transport</profileName>
-					<type>DNSnaptr or TCPpreferred or UDPonly</type>
+					<type></type>
 					<value></value>
-					<description>If set to Null or DNSnaptr: If Address is a 
-						hostname and Port is 0 or Null, do NAPTR then SRV 
+					<description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and 
+						if Address is a hostname and Port is 0 or Null, do NAPTR then SRV 
 						look-ups to try to discover the transport, ports and 
 						servers, as per RFC 3263. If Address is an IP address, 
 						or a port is given, then UDP is used. If set to 

@@ -189,10 +189,13 @@ public class PolycomPhone extends AbstractPhone {
 
         PolycomLine line = (PolycomLine) getLine(0);
 
-        String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: SIP/2.0/TCP {1}\r\n"
-                + "From: <sip:{2}>\r\n" + "To: <sip:{0}>\r\n" + "Event: check-sync\r\n"
+        // The check-sync message is a flavor of unsolicited NOTIFY
+        // this message does not require that the phone be enrolled
+        // the message allows us to reboot a specific phone 
+        String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: {1}\r\n"
+                + "From: {2}\r\n" + "To: {0}\r\n" + "Event: check-sync\r\n"
                 + "Date: {3}\r\n" + "Call-ID: {4}\r\n" + "CSeq: 1 NOTIFY\r\n"
-                + "Contact: <sip:{2}>\r\n" + "Content-Length: 0\r\n" + "\r\n";
+                + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
             line.getUri(), 
             m_sip.getServerVia(),

@@ -90,7 +90,7 @@ public abstract class ManagePhones extends BasePage
         Phone[] phones = getSelectedPhones();
         if (phones.length >= 0) {        
             Iterator i = Arrays.asList(phones).iterator();
-            new JobManager().generateProfiles(i);
+            new JobManager().generateProfilesAndRestart(i);
         }
     }
     

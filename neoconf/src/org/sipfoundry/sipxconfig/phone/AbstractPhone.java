@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
@@ -25,29 +28,38 @@ public abstract class AbstractPhone implements Phone {
     
     private Setting m_settings;
     
+    private List m_lines = new ArrayList();
+    
     /** BEAN ACCESS ONLY */
     public AbstractPhone() {        
     }
     
     public AbstractPhone(PhoneMetaData meta) {
         setPhoneMetaData(meta);
-        meta.setPhone(this);
     }
     
     public void setPhoneMetaData(PhoneMetaData meta) {
         m_meta = meta;
+        m_lines.clear();
+        List lineMeta = meta.getLines();
+        for (int i = 0; lineMeta != null && i < lineMeta.size(); i++) {
+            Line line = createLine();
+            line.setLineMetaData((LineMetaData) lineMeta.get(i));
+            m_lines.add(line);
+        }
     }
     
     public int getLineCount() {
         return m_meta.getLines().size();
     }
     
-    public Line getLine(int position) {
-        return ((LineMetaData) m_meta.getLines().get(position)).getLine();
+    public Line getLine(int position) {        
+        return (Line) m_lines.get(position);
     }
     
     public void addLine(Line line) {
         m_meta.addLine(line.getLineMetaData());
+        m_lines.add(line);
     }
     
     public PhoneMetaData getPhoneMetaData() {

@@ -50,15 +50,15 @@ public class PolycomPhoneTest extends TestCase {
     }
     
     public void testRestart() throws Exception {
-		String expected = "NOTIFY juser@sipfoundry.org SIP/2.0\r\n" 
-				+ "Via: SIP/2.0/TCP [VIA]\r\n"
-				+ "From: <sip:[SERVER_URI]>\r\n" 
-				+ "To: <sip:juser@sipfoundry.org>\r\n"
+		String expected = "NOTIFY sip:juser@sipfoundry.org SIP/2.0\r\n" 
+				+ "Via: [VIA]\r\n"
+				+ "From: [SERVER_URI]\r\n" 
+				+ "To: sip:juser@sipfoundry.org\r\n"
 				+ "Event: check-sync\r\n" 
 				+ "Date: [DATE]\r\n" 
 				+ "Call-ID: [CALL_ID]\r\n"
 				+ "CSeq: 1 NOTIFY\r\n" 
-				+ "Contact: <sip:[SERVER_URI]>\r\n"
+				+ "Contact: null\r\n"
 				+ "Content-Length: 0\r\n" 
 				+ "\r\n";        
         
@@ -81,8 +81,7 @@ public class PolycomPhoneTest extends TestCase {
 //        assertEquals(helper.line[0], helper.endpoint[0].getLines().get(0));
 
         helper.phone[0].setSipService(sip);
-        helper.phone[0].restart();
-        
+        helper.phone[0].restart();        
         
         control.verify();
     }
