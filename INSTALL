@@ -67,8 +67,8 @@ or
   make install 
 
 
-Setup Postgresql Database
-=============================
+Set up Postgresql Database
+==========================
 
 1.) Initialize postgres. 
 
@@ -91,7 +91,7 @@ optionally or on other systems, this will also initialize the database
     su postgres
     initdb --pgdata=$PGDATA
 
-2.) Setup security permissions. Edit file: 
+2.) Set up security permissions. Edit file: 
 
   $PGDATA/pg_hba.conf
 
@@ -155,8 +155,8 @@ users.
    psql -U sipxchange -f profilepub_seq.sql SDS
 
 
-Setup JBOSS and Tomcat
-====================
+Set up JBOSS and Tomcat
+=======================
 
 1.) Edit file security setup file:
 
