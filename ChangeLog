@@ -1,0 +1,7 @@
+
+Release Notes - sipXproxy - Version 2.5.1
+
+** Bug
+    * [XPR-3] - wont build with sipXportLib
+
+
