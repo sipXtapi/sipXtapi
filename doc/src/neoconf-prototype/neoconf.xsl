@@ -23,7 +23,7 @@
       <title><xsl:apply-templates select="x:head/x:title/text()"/></title>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
       <link type="text/css" rel="stylesheet">
-          <xsl:attribute name="href"><xsl:value-of select="$wwwroot"/>manual.css</xsl:attribute>
+          <xsl:attribute name="href"><xsl:value-of select="$wwwroot"/>sipxconfig.css</xsl:attribute>
       </link> 
       <xsl:apply-templates select="x:head/x:style"/>
   </head>

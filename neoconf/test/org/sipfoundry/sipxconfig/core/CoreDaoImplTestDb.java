@@ -21,7 +21,7 @@ public class CoreDaoImplTestDb extends TestCase {
     
     private Organization m_testOrganization;
     
-    private LogicalPhone m_testPhone;
+    private Endpoint m_testPhone;
     
     private User m_testUser;
     
@@ -35,54 +35,34 @@ public class CoreDaoImplTestDb extends TestCase {
         BeanFactoryReference bf = bfl.useBeanFactory("unittest-db");
         // now use some bean from factory 
         m_dao = (CoreDao) bf.getFactory().getBean("coreDao");
-    }
-    
-    protected void tearDown() throws Exception {
-        if (m_testOrganization != null) {
-            m_dao.deleteOrganization(m_testOrganization);
-        }
-    }
-
-    public void testCreate() {
         assertNotNull(m_dao);
     }
     
-    public void testStore() {        
-        Organization org = new Organization();
-        org.setDnsDomain("coredao.sipfoundry.org");
-        org.setName("CoreDaoImplTest");
-        m_dao.storeOrganization(org);
+    public void testStore() {  
         
-        m_testOrganization = org;
+        Organization org = m_dao.loadOrganization(1);
+        assertEquals(1, org.getId());
         
         User user = new User();
         user.setFirstName("First Name");
         user.setOrganization(org);
         user.setPassword("h4ck3rs");        
         m_dao.storeUser(user);
-        m_testUser = user;
 
-        LogicalPhone phone = new LogicalPhone();
-        phone.setSerialNumber("0000000000000");
-        phone.setShortName("CoreDaoImplTest");
-        phone.setOrganization(org);
-        phone.setUser(user);
-        m_dao.storeLogicalPhone(phone);
-        m_testPhone = phone;
+        Endpoint endpoint = new Endpoint();
+        endpoint.setSerialNumber("0000000000000");
+        endpoint.setName("CoreDaoImplTest");
+        endpoint.setUser(user);
+        m_dao.storeEndpoint(endpoint);
         
         Line line = new Line();
         line.setName("joe");
         line.setUser(user);
-    }
-    
-    public void _testLoad() {
         
-        // create test data
-        testStore();
+        // TODO 
+        //m_dao.delete(user);
+        //m_dao.delete(endpoint);
         
-        LogicalPhone load = (LogicalPhone)m_dao.loadLogicalPhone(m_testPhone.getId());
-        assertNotNull(load);
-        assertEquals(load.getId(), m_testPhone.getId());
+        // TODO check they are truly deleted
     }
-
 }

@@ -14,9 +14,6 @@
 		<constructor-arg type="org.springframework.core.io.Resource">
 			<ref bean="phoneFactoryResource"/>
 		</constructor-arg>
-		<property name="sipxConfig">
-			<ref bean="sipxconfig"/>
-		</property>
 	</bean>
 	<!--
       -  B U S I N E S S  C O N T E X T
@@ -24,9 +21,10 @@
       -  Single object holding access to all other service layer objects
       -->
 	<bean id="sipxconfig" class="org.sipfoundry.sipxconfig.core.SipxConfigImpl">
-		<!--property name="coreDao">
-			<ref bean="coreDao"/>
-		</property -->
+		<!-- 
+		 - LOAD DAO indendently so this file can be used for unittests
+		 - that don't use the database.
+		  -->
 		<property name="phoneFactory">
 			<ref bean="phoneFactory"/>
 		</property>

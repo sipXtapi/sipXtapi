@@ -16,7 +16,7 @@ package org.sipfoundry.sipxconfig.core;
  */
 public interface CoreDao {
 
-    public LogicalPhone loadLogicalPhone(int id);
+    public Endpoint loadEndpoint(int id);
     
     public Organization loadOrganization(int id);
     
@@ -26,11 +26,7 @@ public interface CoreDao {
     
     public void storeUser(User user);
 
-    public void storeLogicalPhone(LogicalPhone logicalPhone);
-    
-    public void storeOrganization(Organization org);
+    public void storeEndpoint(Endpoint endpoint);
 
     public void storeLine(Line line);
-    
-    public void deleteOrganization(Organization org);
 }

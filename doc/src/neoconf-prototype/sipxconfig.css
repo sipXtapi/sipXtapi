@@ -1,4 +1,11 @@
+/*  Legacy colors
+ *    #669999  - faded green
+ *    #ffffcc  - faded yellow
+ */
+
 body {
+  padding:      0;
+  margin:       0;
   font-family:  Verdana, Arial, Helvetica, sans-serif;
   font-size:    12px;
 }
@@ -34,23 +41,33 @@ pre, tt, code, kbd, samp {
 }
 
 #banner {
-  padding: 20px;
-  background: #3d5561
+    background:   #669999;
+    width:        100%;
+    border-style: solid;
+    border-color: #ffffcc;
+    border-width: 0 0 0 0;
+    padding:      7px;
+    margin:       0 0 0 0;
 }
 
 #banner h1 {
     margin: 0px;
     font: 130%
     font-style: bold;
-    color: #ffd65b;
+    color: #ffffcc;
 }
 
 #navigation {
-  float: left;
-  width: 15%;
+    float:      left;
+    top:        90px;
+    left:       0;
+    width:      120px;
+    min-height: 100%;
+    padding:    0 14px 2px 14px;
 }
 
 #navigation ul {
+  list-style-type:none;
   padding: 5px 5px 5px 5px;
 }
 
@@ -59,25 +76,16 @@ li {
   margin-bottom: 5px;
 }
 
-#actions ul {
+ul.table-actions {
   list-style-type:none
 }
 
-#actions li {
+ul.table-actions li {
   display: inline;
   margin: 0 5px;
 }
 
-#table-actions ul {
-  list-style-type:none
-}
-
-#table-actions li {
-  display: inline;
-  margin: 0 5px;
-}
-
-#endpoints th {
+table.table-view th {
     background-color: #ccc;
     border-bottom: thin solid #000;
     border-right: thin solid #000;
@@ -85,29 +93,29 @@ li {
     white-space: nowrap;    
 }
 
-#endpoints td {
+table.table-view td {
     padding: 3px;
     white-space: nowrap;    
     border-collapse: collapse;
 }
 
-#endpoints table {
+table.table-view {
     border-top: thin solid #000;
     border-left: thin solid #000;
     border-right: thin solid #000;
     border-bottom: thin solid #000;
 }
 
-#pager ul {
+ul.table-pager {
   list-style-type:none
 }
 
-#pager li {
+ul.table-pager li {
   display: inline;
   margin: 0 5px;
 }
 
-#navigation li {
+li.navigation {
   margin-top: 2px;
   margin-bottom: 2px;
   list-style: none;
@@ -115,13 +123,15 @@ li {
 }
 
 #content {
-  margin-left: 18%;
+  float : center;
 }
 
 #footer {
-  clear: left;
-  padding: 20px;
-  font-style: italic;
+    clear:        both;
+    padding:      .5em 1em .25em 1em;
+    font-size:    10px; 
+    margin-top:   3em;
+    font-style: italic;
 }
 
 .hide {

@@ -19,9 +19,5 @@ package org.sipfoundry.sipxconfig.core;
  */
 public interface PhoneFactory {
     
-    public Phone getPhoneByModel(String model);
-
-    public Phone getPhoneByVendor(String model);
-    
-    public Phone getPhoneById(String id);
+    public Phone getPhoneById(String id, Endpoint endpoint);
 }

@@ -16,68 +16,13 @@ package org.sipfoundry.sipxconfig.core;
  */
 public interface Phone {
 
-    /**
-     * return this on getProfileSequenceNumber if you do not
-     * support incrementing
-     */
-    public static final int SEQUENCE_NUMBER_NOT_SUPPORTED = -1;
-        
-    /**
-     * File linking properties to this device
-     * 
-     * @return Absolute file path to xml file
-     */
-    public String getDefinitions();
-        
-    /**
-     * Identifying string unique across all plugins 
-     * 
-     * @return e.g. cisco7960
-     */
     public String getModelId();
+    
+    public void setModel(String id);
 
-    /**
-     * How many files make-up the list of files this writer creates
-     * 
-     * @return zero or greater
-     */
+    public String generateProfile(int profileIndex);
+
     public int getProfileCount();
     
-    /**
-     * Associate a profile w/a token to distinguish them as part of
-     * SIP's SUBSCRIBE messages
-     * 
-     * @param profileIndex
-     * @return e.g. "device-settings" or "user-settings"
-     */
-    public String getProfileSubscribeToken(int profileIndex);
-    
-    /**
-     * What is the filename of the Nth profile
-     *
-     * TODO: Change this to take LogicalPhone
-     * 
-     * @param profileIndex
-     * @param macAddress
-     * 
-     * @return No path, just filename
-     */
-    public String getProfileFileName(int profileIndex, String macAddress);
-    
-    /**
-     * Where to send http message to notify phone there's a new profile
-     * 
-     * @param profileIndex
-     * @return null if not supported
-     */
-    public String getProfileNotifyUrl(LogicalPhone logicalPhone, int profileIndex);
-    
-    /**
-     * Increment a counter everytime there's a new profile for devices
-     * can decide if they have the latest copy.
-     * 
-     * @param profileIndex
-     * @return SEQUENCE_NUMBER_NOT_SUPPORTED if not supported
-     */
-    public int getProfileSequenceNumber(LogicalPhone logicalPhone, int profileIndex);
+    public void setEndpoint(Endpoint endpoint);
 }

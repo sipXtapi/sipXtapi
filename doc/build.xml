@@ -2,88 +2,90 @@
 
 <project name="documentation" default="doc" basedir="." >
 
-  <patternset id="test.classes" excludes="**"/>
+	<patternset id="test.classes" excludes="**"/>
 
-  <property name="project.dir" value="doc"/>
-  <import file="../ant-targets.xml"/>
+	<property name="project.dir" value="doc"/>
+	<import file="../ant-targets.xml"/>
 
-  <property name="manual.dir" value="${build.dir}/manual"/>
-  <property name="api.built.flag" value="${build.dir}/.api-built-flag"/>
+	<property name="manual.dir" value="${build.dir}/manual"/>
+	<property name="neoconf-prototype.dir" value="${build.dir}/neoconf-prototype"/>
+	<property name="api.built.flag" value="${build.dir}/.api-built-flag"/>
 
-  <!--
+	<!--
     - Point to local DTDs for XHMTL for speed among other advantages
     -->
-  <xmlcatalog id="xhtml-dtd">
-   <dtd
+	<xmlcatalog id="xhtml-dtd">
+		<dtd
      publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"
      location="xml-catalog/xhtml1-transitional.dtd"/>
-   <dtd
+		<dtd
      publicId="-//W3C//ENTITIES Latin 1 for XHTML//EN"
      location="xml-catalog/xhtml-lat1.ent"/>
-   <dtd
+		<dtd
      publicId="-//W3C//ENTITIES Symbols for XHTML//EN"
      location="xml-catalog/xhtml-symbol.ent"/>
-   <dtd
+		<dtd
      publicId="-//W3C//ENTITIES Special for XHTML//EN"
      location="xml-catalog/xhtml-special.ent"/>
-  </xmlcatalog>
+	</xmlcatalog>
 
-  <!-- M A I N  T A R G E T -->
-  <target name="doc" depends="manual,api-avoid-rebuilding,api"/>
+	<!-- M A I N  T A R G E T -->
+	<target name="doc" depends="manual,neoconf-prototype,api-avoid-rebuilding,api"/>
 
-  <!-- I N I T -->
-  <target name="init">
-    <mkdir dir="${manual.dir}"/>
-  </target>
+	<!-- I N I T -->
+	<target name="init">
+		<mkdir dir="${manual.dir}"/>
+		<mkdir dir="${neoconf-prototype.dir}"/>
+	</target>
 
-  <!-- J A V A D O C S -->
-  <target name="api" depends="init" unless="api-built-already">
+	<!-- J A V A D O C S -->
+	<target name="api" depends="init" unless="api-built-already">
 
-    <subant target="doc">
-      <property name="top.build.dir" value="${top.build.dir}"/>
+		<subant target="doc">
+			<property name="top.build.dir" value="${top.build.dir}"/>
 
-      <!-- only have to list build.xml one-level deep because doc
+			<!-- only have to list build.xml one-level deep because doc
         - target will recursive 
         -->
-      <filelist dir="${top.dir}" files="
+			<filelist dir="${top.dir}" files="
         common/build.xml
         profilegenerator/build.xml
         profilewriter/build.xml
         profilepublisher/build.xml"/>
 
-    </subant>
+		</subant>
 
-    <touch file="${api.built.flag}"/>
+		<touch file="${api.built.flag}"/>
 
-  </target>
+	</target>
 
-  <!-- 
+	<!-- 
     - Use this target to avoids building javadoc everytime, type clean to rebuild
     - or just use 'ant api' to avoid this check
     -->
-  <target name="api-avoid-rebuilding">
+	<target name="api-avoid-rebuilding">
 
-    <!-- set flag if api was ever built -->
-    <available file="${api.built.flag}" property="api-built-already"/>
+		<!-- set flag if api was ever built -->
+		<available file="${api.built.flag}" property="api-built-already"/>
 
-  </target>
+	</target>
 
-  <!-- M A N U A L -->
-  <target name="manual" depends="resources">
+	<!-- M A N U A L -->
+	<target name="manual" depends="resources">
 
-    <dependset>
+		<dependset>
 
-      <srcfilelist
+			<srcfilelist
           dir="${src.dir}/manual"
           files="navigation.xml"/>
 
-      <targetfileset 
+			<targetfileset 
           dir="${manual.dir}" 
           includes="**/*.html"/>
-        
-    </dependset>
 
-    <!-- 
+		</dependset>
+
+		<!-- 
       - generate the manual from xhtml files, wrapping navigation and framework
       - around it. Each manual page should be readable on it's own.
       -
@@ -93,59 +95,100 @@
       -  but this is required to strip 'src/manual' from destination
       -  directory.
       -->
-    <style basedir="${src.dir}/manual" destdir="${manual.dir}"
+		<style basedir="${src.dir}/manual" destdir="${manual.dir}"
          extension=".html"
          style="manual.xsl">
-      <include name="*.html"/>
-      <xmlcatalog refid="xhtml-dtd"/>
-      <param name="navigation" expression="navigation.xml"/>
-      <param name="top.dir" expression="${top.dir}"/>
-    </style>
+			<include name="*.html"/>
+			<xmlcatalog refid="xhtml-dtd"/>
+			<param name="navigation" expression="navigation.xml"/>
+			<param name="top.dir" expression="${top.dir}"/>
+		</style>
 
-  </target>
+	</target>
 
-  <target name="resources" depends="init">
+	<!-- N E O C O N F   P R O T O T Y P E -->
+	<target name="neoconf-prototype" depends="resources">
 
-    <copy todir="${manual.dir}">
+		<dependset>
 
-      <fileset dir="${src.dir}/manual">
-        <include name="**/*.gif"/>
-        <include name="**/*.jpg"/>
-        <include name="**/*.css"/>
-      </fileset>
+			<srcfilelist
+	          dir="${src.dir}/neoconf-prototype"
+	          files="navigation.xml"/>
 
-    </copy>
+			<targetfileset 
+	          dir="${neoconf-prototype.dir}" 
+	          includes="**/*.html"/>
 
-  </target>
+		</dependset>
 
-  <!-- Doesn't depend on manual because used pre-xslt'ed form -->
-  <target name="text-doc"
-          description="Generate INSTALL, TODO and README from manual. This target is NOT called automatically and must be run each time install.html, todo.html or readme.html is edited">
+		<!-- 
+	      - generate the manual from xhtml files, wrapping navigation and framework
+	      - around it. Each manual page should be readable on it's own.
+	      -
+	      - Issues warning:
+	      -    DEPRECATED - the style attribute should be ...
+	      -
+	      -  but this is required to strip 'src/manual' from destination
+	      -  directory.
+	      -->
+		<style basedir="${src.dir}/neoconf-prototype" destdir="${neoconf-prototype.dir}"
+	         extension=".html"
+	         style="neoconf.xsl">
+			<include name="*.html"/>
+			<xmlcatalog refid="xhtml-dtd"/>
+			<param name="navigation" expression="navigation.xml"/>
+			<param name="top.dir" expression="${top.dir}"/>
+		</style>
 
-    <exec executable="lynx" output="${top.dir}/INSTALL">
-      <arg line="-dump ${src.dir}/manual/install.html"/>
-    </exec>
+	</target>
 
-    <exec executable="lynx" output="${top.dir}/TODO">
-      <arg line="-dump ${src.dir}/manual/todo.html"/>
-    </exec>
+	<target name="resources" depends="init">
 
-    <exec executable="lynx" output="${top.dir}/README">
-      <arg line="-dump ${src.dir}/manual/readme.html"/>
-    </exec>
+		<copy todir="${manual.dir}">
+			<fileset dir="${src.dir}/manual">
+				<include name="**/*.gif"/>
+				<include name="**/*.jpg"/>
+				<include name="**/*.css"/>
+			</fileset>
+		</copy>
 
-  </target>
+		<copy todir="${neoconf-prototype.dir}">
+			<fileset dir="${src.dir}/neoconf-prototype">
+				<include name="**/*.gif"/>
+				<include name="**/*.jpg"/>
+				<include name="**/*.css" />
+			</fileset>
+		</copy>
 
-  <!-- C L E A N -->
-  <target name="clean">
-    <delete failonerror="false">
-      <fileset dir="${manual.dir}" includes="**/*"/>
-      <fileset file="${api.built.flag}"/>
-    </delete>
-  </target>
+	</target>
 
-  <!-- S T U B S -->
-  <target name="test"/>
-  <target name="style"/>
- 
+	<!-- Doesn't depend on manual because used pre-xslt'ed form -->
+	<target name="text-doc" description="Generate INSTALL, TODO and README from manual. This target is NOT called automatically and must be run each time install.html, todo.html or readme.html is edited">
+
+		<exec executable="lynx" output="${top.dir}/INSTALL">
+			<arg line="-dump ${src.dir}/manual/install.html"/>
+		</exec>
+
+		<exec executable="lynx" output="${top.dir}/TODO">
+			<arg line="-dump ${src.dir}/manual/todo.html"/>
+		</exec>
+
+		<exec executable="lynx" output="${top.dir}/README">
+			<arg line="-dump ${src.dir}/manual/readme.html"/>
+		</exec>
+
+	</target>
+
+	<!-- C L E A N -->
+	<target name="clean">
+		<delete failonerror="false">
+			<fileset dir="${manual.dir}" includes="**/*"/>
+			<fileset file="${api.built.flag}"/>
+		</delete>
+	</target>
+
+	<!-- S T U B S -->
+	<target name="test"/>
+	<target name="style"/>
+
 </project>

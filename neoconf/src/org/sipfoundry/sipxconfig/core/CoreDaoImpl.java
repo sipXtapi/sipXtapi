@@ -25,20 +25,16 @@ public class CoreDaoImpl extends HibernateDaoSupport implements CoreDao {
         getHibernateTemplate().saveOrUpdate(user);        
     }
 
-    public void storeLogicalPhone(LogicalPhone logicalPhone) {
-        getHibernateTemplate().saveOrUpdate(logicalPhone);        
+    public void storeEndpoint(Endpoint endpoint) {
+        getHibernateTemplate().saveOrUpdate(endpoint);        
     }
     
-    public void storeOrganization(Organization org) {
-        getHibernateTemplate().saveOrUpdate(org);        
-    }
-
     public void storeLine(Line line) {
         getHibernateTemplate().saveOrUpdate(line);        
     }
 
-    public LogicalPhone loadLogicalPhone(int id) {
-        return (LogicalPhone) getHibernateTemplate().load(LogicalPhone.class, new Integer(id));
+    public Endpoint loadEndpoint(int id) {
+        return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
     }
     
     public Line loadLine(User user, int position) {
@@ -73,18 +69,5 @@ public class CoreDaoImpl extends HibernateDaoSupport implements CoreDao {
     
     public User loadUser(int id) {
         return (User) getHibernateTemplate().load(User.class, new Integer(id));        
-    }
-    
-    public void deleteOrganization(Organization org) {
-        Collection phones = getHibernateTemplate().find("from LogicalPhone where Organization = ?", 
-                new Integer(org.getId()));
-        Iterator iphones = phones.iterator();
-        while (iphones.hasNext()) {
-            LogicalPhone phone = (LogicalPhone) iphones.next();
-            getHibernateTemplate().delete(phone);
-        }
-        
-        
-        getHibernateTemplate().delete(org);
-    }
+    }    
 }

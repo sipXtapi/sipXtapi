@@ -47,9 +47,9 @@
 		</set -->
 	</class>
 	<!-- 
-	- L O G I C A L  P H O N E
+	- E N D P O I N T 
 	-->
-	<class name="org.sipfoundry.sipxconfig.core.LogicalPhone" 
+	<class name="org.sipfoundry.sipxconfig.core.Endpoint" 
 		table="logical_phones">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
@@ -57,20 +57,12 @@
 				<param name="sequence">log_phn_seq</param>
 			</generator>
 		</id>
-		<property name="shortName" column="short_name"/>
-
-                <!-- no business objects defined yet -->
-		<!-- property name="m_csdId" column="csd_id" access="field"/ -->
-		<!-- property name="m_rcsId" column="rcs_id" access="field"/ -->
-		<!-- property name="m_pgId" column="pg_id" access="field"/ -->
-		<!-- property name="m_ptId" column="pt_id" access="field"/ -->
+		<property name="name" column="name"/>
 
 		<property name="description" column="description"/>
 		<property name="serialNumber" column="serial_number"/>
-		<many-to-one name="user" column="usrs_id" 
+		<many-to-one name="user" column="user_id" 
 			class="org.sipfoundry.sipxconfig.core.User"/>
-		<many-to-one name="organization" column="org_id" 
-			class="org.sipfoundry.sipxconfig.core.Organization"/>
 	</class>
 	<!-- 
 	- L I N E

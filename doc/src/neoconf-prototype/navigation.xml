@@ -1,6 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
 <menu>
-  <item name="pds" href="pds.html" title="Cisco and sipXphone" >Cisco and sipXphone Phones</item>
-  <item name="pbx-admin" href="pbx-admin.html" title="PBX Administration" >PBX Administration</item>
-  <item name="endpoint" href="readme.html" title="Polycom Phones" >Polycom Phones</item>
+  <item name="legacy" href="#" title="Cisco and sipXphone" >Cisco and sipXphone Phones</item>
+  <item name="endpoint" href="endpoints.html" title="Polycom Phones" >Other Phones</item>
 </menu>

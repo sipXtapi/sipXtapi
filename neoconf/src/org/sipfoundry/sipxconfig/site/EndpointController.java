@@ -20,7 +20,7 @@ import org.springframework.web.servlet.mvc.Controller;
 /**
  * Comments
  */
-public class DeviceController implements Controller {
+public class EndpointController implements Controller {
     
     public ModelAndView handleRequest(HttpServletRequest requestTemp, HttpServletResponse responseTemp)
         throws Exception {
