@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.Serializable;
 
 import org.sipfoundry.sipxconfig.setting.Folder;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -91,11 +92,15 @@ public class Line implements Serializable {
     }
 
     public SettingGroup getSettings(Phone phone) {
-        SettingGroup model = phone.getSettingModel(this);
+        SettingGroup settings = phone.getSettingModel(this);
         if (m_valueStorage == null) {
             m_valueStorage = new ValueStorage();
         }
-
-        return (SettingGroup) m_valueStorage.decorate(model);
+        
+        if (m_folder != null) {
+            settings = (SettingGroup) m_folder.decorate(settings);
+        }
+        
+        return (SettingGroup) m_valueStorage.decorate(settings);
     }
 }

@@ -8,41 +8,49 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->    
-    <property-specification name="currentSetting" 
-        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <!-- Persistent -->
+    <property-specification name="phoneId" 
+        persistent="yes"
+        type="java.lang.String"/>
+    <property-specification name="editFormSettingName" 
+        persistent="yes"
+        type="java.lang.String"/>
+    <property-specification name="editFormFolderResource" 
+        persistent="yes"
+        type="java.lang.String"/>
+    <!-- Transient -->
 	<property-specification name="settingDao" 
 		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
     	initial-value="global.settingDao"/>    
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
+    <property-specification name="currentNavigationSetting" 
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="currentEditFormSetting" 
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="phone" 
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="phoneId" 
-        persistent="yes"
-        type="java.lang.String"/>
     <property-specification name="endpointFolder"
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
     <property-specification name="lineFolder"
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
-    <property-specification name="editSetting" 
-        persistent="yes"
-        type="org.sipfoundry.sipxconfig.setting.Setting"/>    
+    <property-specification name="editFormSettings" 
+        type="java.util.Collection"/>    
     <!--
      - C O M P O N E N T S
      -->    
-    <component id="form" type="Form">
-    </component>
+    <!--Navigation-->  
     <component id="endpointSettings" type="Foreach">
-        <binding name="source" expression="endpointSettings"/>
-        <binding name="value" expression="currentSetting"/>
+        <binding name="source" expression="endpointNavigationSettings"/>
+        <binding name="value" expression="currentNavigationSetting"/>
     </component>
     <component id="lineSettings" type="Foreach">
-        <binding name="source" expression="lineSettings"/>
-        <binding name="value" expression="currentSetting"/>
+        <binding name="source" expression="lineNavigationSettings"/>
+        <binding name="value" expression="currentNavigationSetting"/>
     </component>
     <component id="endpointSettingsLabel" type="Insert">
-        <binding name="value" expression="currentSetting.label"/>
+        <binding name="value" expression="currentNavigationSetting.label"/>
     </component>    
     <component id="endpointSettingsLink" type="ActionLink">
         <binding name="listener" expression="listeners.editEndpointSettings"/>
@@ -51,9 +59,12 @@
     </component>    
     <component id="lineSettingsLink" type="ActionLink">
         <binding name="listener" expression="listeners.editLineSettings"/>
-    </component>    
+    </component>  
+    <!-- Edit form -->  
+    <component id="form" type="Form">
+    </component>
     <component id="IfGroup" type="Conditional">
-        <binding name="condition" expression="currentSetting.getValues().size() > 0"/>
+        <binding name="condition" expression="currentEditFormSetting.getValues().size() > 0"/>
     </component>
     <component id="hideGroup" type="DirectLink">
         <binding name="listener" expression="hideGroup"/>
@@ -62,29 +73,26 @@
         <binding name="listener" expression="showGroup"/>
     </component>
     <component id="IfSetting" type="Conditional">
-        <binding name="condition" expression="currentSetting.getValues().size() == 0"/>
+        <binding name="condition" expression="currentEditFormSetting.getValues().size() == 0"/>
     </component>
     <component id="settingsForm" type="Form">
     </component>
     <component id="settings" type="Foreach">
-        <binding name="source" expression="flattenedSettings"/>
-        <binding name="value" expression="currentSetting"/>
+        <binding name="source" expression="editFormSettings"/>
+        <binding name="value" expression="currentEditFormSetting"/>
     </component>
     <component id="settingLabel" type="Insert">
-        <binding name="value" expression="currentSetting.label"/>
+        <binding name="value" expression="currentEditFormSetting.label"/>
     </component>
     <component id="groupLabel" copy-of="settingLabel"/>
     <component id="settingDefault" type="Insert">
-        <binding name="value" expression="currentSetting.defaultValue"/>
+        <binding name="value" expression="currentEditFormSetting.defaultValue"/>
     </component>    
     <component id="setting" type="TextField">
-        <binding name="value" expression="currentSetting.value"/>
-    </component>
-    <component id="settingHidden" type="Checkbox">
-        <binding name="selected" expression="currentSetting.hidden"/>
+        <binding name="value" expression="currentEditFormSetting.value"/>
     </component>
     <component id="settingDescription" type="Insert">
-        <binding name="value" expression="currentSetting.description"/>
+        <binding name="value" expression="currentEditFormSetting.description"/>
     </component>
     <component id="groupDescription" copy-of="settingDescription"/>    
     <component id="ok" type="Submit">

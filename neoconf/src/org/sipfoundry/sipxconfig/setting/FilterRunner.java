@@ -36,7 +36,7 @@ import java.util.Iterator;
  * </pre>
  */
 public final class FilterRunner implements SettingVisitor {
-    
+        
     private Collection m_collection = new ArrayList();
     
     private SettingFilter m_filter;

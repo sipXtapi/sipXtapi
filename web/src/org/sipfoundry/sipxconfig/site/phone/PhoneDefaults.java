@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -33,13 +34,6 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     
     public static final String PAGE = "PhoneDefaults";
     
-    /** show all setting and groups in one flat list */
-    private static final SettingFilter FLATTEN_SETTINGS = new SettingFilter() {
-        public boolean acceptSetting(Setting root_, Setting setting_) {
-            return true;
-        }
-    };
-
     private Endpoint m_blankEndpoint;
     
     private Line m_blankLine;
@@ -50,7 +44,7 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     
     public abstract String getPhoneId();
     
-    public abstract void setPhoneId(String phoneId);    
+    public abstract void setPhoneId(String phoneId);
     
     public abstract Folder getEndpointFolder();
     
@@ -64,40 +58,48 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     
     public abstract PhoneContext getPhoneContext();
 
-    public abstract Setting getCurrentSetting();
+    public abstract Setting getCurrentNavigationSetting();
     
-    public abstract void setCurrentSetting(Setting setting);
+    public abstract Setting getCurrentEditFormSetting();
     
-    public abstract void setEditSetting(Setting settings);
+    public abstract Collection getEditFormSettings();
     
-    public abstract Setting getEditSetting();
+    public abstract void setEditFormSettings(Collection settings);
     
-    public Collection getEndpointSettings() {
+    public abstract String getEditFormSettingName();
+    
+    public abstract void setEditFormSettingName(String name);
+
+    public abstract void setEditFormFolderResource(String resource);
+    
+    public abstract String getEditFormFolderResource();
+    
+    public Collection getEndpointNavigationSettings() {
         return getPhone().getSettingModel(m_blankEndpoint).getValues();
     }
     
-    public Collection getLineSettings() {
+    public Collection getLineNavigationSettings() {
         return getPhone().getSettingModel(m_blankLine).getValues();        
     }
     
-    public Collection getFlattenedSettings() {
-        return FilterRunner.filter(FLATTEN_SETTINGS, getEditSetting());
-    }    
-    
-    public void editEndpointSettings(IRequestCycle cycle_) {        
-        setEditDecoratedSettings(getEndpointFolder(), getCurrentSetting());
+    public void editEndpointSettings(IRequestCycle cycle_) {
+        setEditFormFolderResource(Endpoint.FOLDER_RESOURCE_NAME);
+        setEditFormSettingName(getCurrentNavigationSetting().getName());
+        editSettings();        
     }
-    
-    public void editLineSettings(IRequestCycle cycle_) {        
-        setEditDecoratedSettings(getLineFolder(), getCurrentSetting());
+        
+    public void editLineSettings(IRequestCycle cycle_) {
+        setEditFormFolderResource(Line.FOLDER_RESOURCE_NAME);
+        setEditFormSettingName(getCurrentNavigationSetting().getName());
+        editSettings();        
     }
     
     public void hideGroup(IRequestCycle cycle_) {
-        getEditSetting().setHidden(true);
+        //getEditSetting().setHidden(true);
     }
 
     public void showGroup(IRequestCycle cycle_) {
-        getEditSetting().setHidden(false);
+        //getEditSetting().setHidden(false);
     }
 
     public void ok(IRequestCycle cycle) {
@@ -133,12 +135,33 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
 
         setPhone(getPhoneContext().getPhone(m_blankEndpoint));
         
-        if (getEditSetting() == null) {
-            setEditDecoratedSettings(getEndpointFolder(), (Setting) getEndpointSettings().iterator().next());
-        }
+        String editSettingsName = getEditFormSettingName(); 
+        if (editSettingsName == null) {
+            setEditFormFolderResource(Endpoint.FOLDER_RESOURCE_NAME);
+            Iterator nav = getEndpointNavigationSettings().iterator();
+            setEditFormSettingName(((Setting) nav.next()).getName());
+        }        
+        
+        editSettings();        
     }
     
-    private void setEditDecoratedSettings(Folder folder, Setting setting) {
-        setEditSetting(folder.decorate(setting));        
-    }
+    /**
+     * Based on current (persistent) page state, setup the settings data 
+     * for the setting edit form
+     */
+    private void editSettings() {
+        Folder folder;
+        Setting rootSettings;
+        if (getEditFormFolderResource().equals(Endpoint.FOLDER_RESOURCE_NAME)) {
+            folder = getEndpointFolder();
+            rootSettings = getPhone().getSettingModel(m_blankEndpoint);
+        } else {
+            folder = getLineFolder();
+            rootSettings = getPhone().getSettingModel(m_blankLine);
+        }
+
+        Setting subset = rootSettings.getSetting(getEditFormSettingName());
+        Setting decorated = folder.decorate(subset);
+        setEditFormSettings(FilterRunner.filter(SettingFilter.ALL, decorated));
+    }    
 }

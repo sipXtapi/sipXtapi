@@ -47,6 +47,7 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     
     public void pageBeginRender(PageEvent event_) {
         // always fresh object
-        setEndpoint(new Endpoint());
+        Endpoint endpoint = new Endpoint();
+        setEndpoint(endpoint);
     }
 }

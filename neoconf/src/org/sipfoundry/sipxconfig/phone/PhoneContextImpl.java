@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -25,6 +26,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         PhoneContext {
     private CoreContext m_coreContext;
+    
+    private SettingDao m_settingDao;
 
     private BeanFactory m_beanFactory;
 
@@ -32,6 +35,10 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+    
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 
     /**
@@ -74,6 +81,9 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public void storeEndpoint(Endpoint endpoint) {
+        if (endpoint.getFolder() == null) {
+            endpoint.setFolder(m_settingDao.loadRootFolder(Endpoint.FOLDER_RESOURCE_NAME));
+        }
         getHibernateTemplate().saveOrUpdate(endpoint);
     }
 
@@ -82,6 +92,9 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public void storeLine(Line line) {
+        if (line.getFolder() == null) {
+            line.setFolder(m_settingDao.loadRootFolder(Line.FOLDER_RESOURCE_NAME));
+        }
         getHibernateTemplate().saveOrUpdate(line);
     }
 

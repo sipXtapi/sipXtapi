@@ -18,6 +18,12 @@ import junit.framework.TestCase;
 
 public class ValueStorageTest extends TestCase {
 
+    private static SettingFilter APPLE = new SettingFilter() {
+        public boolean acceptSetting(Setting root, Setting setting) {                
+            return setting.getName().equals("apple");
+        }
+    };
+
     private SettingGroup m_root;
     
     private Setting m_apple;
@@ -84,16 +90,37 @@ public class ValueStorageTest extends TestCase {
         SettingGroup copy = (SettingGroup) storage.decorate(m_root);
         copy.getSetting("fruit").getSetting("apple").setValue("macintosh");
         
-        SettingFilter appleFilter = new SettingFilter() {
-            public boolean acceptSetting(Setting root, Setting setting) {                
-                return setting.getName().equals("apple");
-            }
-        };
         
-        Collection c = FilterRunner.filter(appleFilter, copy);
+        Collection c = FilterRunner.filter(APPLE, copy);
         assertEquals(1, c.size());
         Setting actualApple = (Setting) c.iterator().next(); 
         assertEquals(actualApple.getValue(), "macintosh");        
+    }
+    
+   /**
+    *  ValueStorage that's decorating a Folder, that inturn is decorating a Model  
+    */
+    public void testFolderAndValueStorageDecorated() {
+        seedSimpleSettingGroup();
+        m_apple.setValue("system default");
+        
+        Folder f = new Folder();
+        Setting folderDecorated = f.decorate(m_root);
+        folderDecorated.getSetting("fruit").getSetting("apple").setValue("folder default");
+        
+        ValueStorage vs = new ValueStorage();
+        Setting vsDecorated = vs.decorate(folderDecorated);
+        vsDecorated.getSetting("fruit").getSetting("apple").setValue("actual setting value");
+                      
+        Setting settingValue = vsDecorated.getSetting("fruit").getSetting("apple");
+        assertEquals("actual setting value", settingValue.getValue());
+
+        Setting folderValue = (Setting) f.get(m_apple.getPath());
+        assertEquals("folder default", folderValue.getValue());
+        assertEquals(settingValue.getDefaultValue(), folderValue.getValue());
+
+        assertEquals("system default", m_apple.getValue());
+        assertEquals(folderValue.getDefaultValue(), m_apple.getValue());
     }
 
     private void seedSimpleSettingGroup() {

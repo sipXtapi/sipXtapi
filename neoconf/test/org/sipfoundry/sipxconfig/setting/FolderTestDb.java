@@ -78,19 +78,6 @@ public class FolderTestDb extends TestCase {
         }
     }
 
-    /**
-     * TODO: Write Aspect to dump all SQL exception for BatchUpdateExceptions to stderr, this
-     * would be useful to all db unittests
-     */
-    private void handleDiveException(DataIntegrityViolationException e) throws Throwable {
-        Throwable t = e.getCause();
-        if (t instanceof BatchUpdateException) {
-            BatchUpdateException bue = (BatchUpdateException) t;
-            bue.getNextException().printStackTrace();
-        }
-        throw e;
-    }
-
     public void testUpdate() throws Throwable {
         try {
             TestHelper.cleanInsert("dbdata/ClearDb.xml");
@@ -129,5 +116,18 @@ public class FolderTestDb extends TestCase {
         } catch (DataIntegrityViolationException e) {
             handleDiveException(e);
         }
+    }
+    
+    /**
+     * TODO: Write Aspect to dump all SQL exception for BatchUpdateExceptions to stderr, this
+     * would be useful to all db unittests
+     */
+    private void handleDiveException(DataIntegrityViolationException e) throws Throwable {
+        Throwable t = e.getCause();
+        if (t instanceof BatchUpdateException) {
+            BatchUpdateException bue = (BatchUpdateException) t;
+            bue.getNextException().printStackTrace();
+        }
+        throw e;
     }
 }

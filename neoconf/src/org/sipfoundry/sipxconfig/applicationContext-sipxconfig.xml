@@ -161,6 +161,9 @@
         <property name="coreContext">
             <ref bean="coreContextImpl"/>            
         </property>
+        <property name="settingDao">
+            <ref bean="settingDaoImpl"/>            
+        </property>
 		<property name="phoneIds">
 			<list>
 				<value>polycom300</value>

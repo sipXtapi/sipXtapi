@@ -15,5 +15,15 @@ package org.sipfoundry.sipxconfig.setting;
 
 public interface SettingFilter {
 
+    /**
+     * Effectively returns all settings and setting groups recursively
+     * not including root setting.
+     */
+    public static final SettingFilter ALL = new SettingFilter() {
+        public boolean acceptSetting(Setting root_, Setting setting_) {
+            return true;
+        }
+    };
+
     public boolean acceptSetting(Setting root, Setting setting);
 }
