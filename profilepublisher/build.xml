@@ -31,6 +31,9 @@
     <!-- SPRING -->
     <pathelement path="${spring.jar}"/>
 
+    <!-- for style target -->
+    <pathelement location="${jdom.jar}"/>
+
     <!-- TEST -->
     <!-- TODO separate into run path -->
     <path refid="neoconf.runtime.dependencies"/>
