@@ -1,0 +1,82 @@
+
+<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
+  <observer>out1.sipxchange.pingtel.com</observer>
+  <obs_seq>0</obs_seq>
+  <obs_time>2003-08-15T17:22.090Z</obs_time>
+  <obs_msg>
+    <obs_status>0</obs_status>
+    <obs_text>Observer Restart</obs_text>
+  </obs_msg>
+</call_event>
+
+<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
+  <observer>out1.sipxchange.pingtel.com</observer>
+  <obs_seq>288</obs_seq>
+  <obs_time>2003-08-15T17:24.085Z</obs_time>
+  <call_request>
+    <call>
+      <dialog>
+        <call_id>call-1063657885-12@10.1.1.252</call_id>
+        <from_tag>1c954235820</from_tag>
+      </dialog>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@pingtel.com&gt;;transport=tcp</to>
+    </call>
+    <contact>&lt;sip:scott-ix@10.1.1.252:9999&gt;</contact>
+  </call_start>
+</call_event>
+
+<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
+  <observer>out1.sipxchange.pingtel.com</observer>
+  <obs_seq>288</obs_seq>
+  <obs_time>2003-08-15T17:25.023Z</obs_time>
+  <call_setup>
+    <call>
+      <dialog>
+        <call_id>call-1063657885-12@10.1.1.252</call_id>
+        <from_tag>1c954235820</from_tag>
+        <to_tag>c1592453082</to_tag>
+      </dialog>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@pingtel.com&gt;;tag=c1592453082,transport=tcp</to>
+    </call>
+    <contact>&lt;sip:scott-ix@10.1.1.166:5060&gt;</contact>
+  </call_setup>
+</call_event>
+
+<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
+  <observer>out1.sipxchange.pingtel.com</observer>
+  <obs_seq>290</obs_seq>
+  <obs_time>2003-08-15T17:27.023Z</obs_time>
+  <call_failure>
+    <call>
+      <dialog>
+        <call_id>call-1036576858-13@10.1.1.252</call_id>
+        <from_tag>1c954235820</from_tag>
+      </dialog>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@pingtel.com&gt;transport=tcp</to>
+    </call>
+    <response>
+      <status>403</status>
+      <reason>Permission Denied</reason>
+    </response>
+  </call_failure>
+</call_event>
+
+<call_event xmlns='http://pingtel.com/xml/schema/cse-00-02'>
+  <observer>out1.sipxchange.pingtel.com</observer>
+  <obs_seq>312</obs_seq>
+  <obs_time>2003-08-15T17:45.023Z</obs_time>
+  <call_end>
+    <call>
+      <dialog>
+        <call_id>call-1063657885-12@10.1.1.252</call_id>
+        <from_tag>1c954235820</from_tag>
+        <to_tag>c1592453082</to_tag>
+      </dialog>
+      <from>"Scott"&lt;sip:scott-ix@kathmandu.pingtel.com&gt;;tag=1c954235820</from>
+      <to>Some Phone&lt;sip:162@pingtel.com&gt;;tag=c1592453082,transport=tcp</to>
+    </call>
+  </call_end>
+</call_event>

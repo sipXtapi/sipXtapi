@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!DOCTYPE schema [
+<!ENTITY % sip_word "([&lt;&gt;&quot;a-zA-Z0-9.!&#x25;*_+`'~():\/[&#x5d;?{}-]+)">
+<!ENTITY % sip_token "([a-zA-Z0-9.!&#x25;*_+`'~-]+)">
+<!ENTITY % dns_token "[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?">
+<!ENTITY % doc_src "http://kathmandu.pingtel.com/commserver-cse-fs.html">
+]>
+<!--
+    XML Schema for Pingtel Call State Events
+  -->
+<schema
+    xmlns:cse='http://pingtel.com/xml/schema/cse-00-03'
+    targetNamespace='http://pingtel.com/xml/schema/cse-00-03'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      Pingtel SIPxchange Call State Events
+    </documentation>
+    <documentation source='http://kathmandu.pingtel.com/commserver-cse-fs.html'/>
+  </annotation>
+
+<!-- Types -->
+
+
+  <simpleType name="dns_name">
+    <annotation>
+      <documentation>
+        A DNS name.
+      </documentation>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="%dns_token(\.%dns_token)+"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="sip_tag">
+    <annotation>
+      <documentation>
+        This type corresponds to the token 'tag' in RFC 3261 section
+        25.1.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="%sip_token;" />
+    </restriction>
+  </simpleType>
+
+  <simpleType name="sip_call_id">
+    <annotation>
+      <documentation>
+        This type corresponds to the token 'callid' in RFC 3261 section
+        25.1.  Note that it does not, by itself, uniquely identify a
+        dialog; that is identified by the complete dialog_id type.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="%sip_word;@%sip_word;" />
+    </restriction>
+  </simpleType>
+
+  <simpleType name="sip_tofrom_value">
+    <annotation>
+      <documentation>
+      The values allowed in the SIP To or From header fields.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString"/>
+  </simpleType>
+
+  <simpleType name="sip_status">
+    <annotation>
+      <documentation>
+        SIP Status codes
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="positiveInteger">
+      <minInclusive value='100' />
+      <maxExclusive value='700' />
+    </restriction>
+  </simpleType>
+ 
+  <simpleType name="obs_status_code">
+    <annotation>
+      <documentation>
+        CSE Observer status 
+      </documentation>
+    </annotation>
+    <restriction base="positiveInteger">
+      <enumeration value='101'> 
+        <annotation>
+          <documentation>Observer Startup</documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+
+<!-- Elements -->
+
+  <element name='call_event'>
+    <annotation>
+      <documentation>
+      A single call_event is generated for each event
+      seen by a CSE Observer.  They are sent to a CSE Collector, whose
+      reponsibilty is to store and make available the information from a
+      set of CSE Observers.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+          <element ref='cse:observer'/>
+          <element ref='cse:obs_seq'/>
+          <element ref='cse:obs_time'/>
+          <choice>
+            <element ref='cse:obs_msg'/>
+            <element ref='cse:call_request'/>
+            <element ref='cse:call_setup'/>
+            <element ref='cse:call_failure'/>
+            <element ref='cse:call_end'/>
+          </choice>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='obs_msg'>
+    <annotation>
+      <documentation>
+      This element conveys information about the state of an
+      observer.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+          <element ref='cse:obs_status'/>
+          <element ref='cse:obs_text' minOccurs='0'/>
+      </sequence>
+    </complexType>
+  </element>
+   
+  <element name='obs_status' type='cse:obs_status_code'/>
+
+  <element name='obs_text' type='normalizedString'/>
+
+  <element name='call_request'>
+    <annotation>
+      <documentation>
+      This identifies a call attempt.  
+      The contact in this event is the calling party.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+          <element ref='cse:call'/>
+          <element ref='cse:contact'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='call_setup'>
+    <annotation>
+      <documentation>
+      This identifies a successful call completion.  
+      The contact in this event is the called party.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+          <element ref='cse:call'/>
+          <element ref='cse:contact'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='call_end'>
+    <annotation>
+      <documentation>
+
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+          <element ref='cse:call'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='call_failure'>
+    <annotation>
+      <documentation>
+
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+          <element ref='cse:call'/>
+          <element ref='cse:reason'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='call'>
+    <complexType>
+      <sequence>
+          <element ref='cse:dialog'/>
+          <element ref='cse:to'/>
+          <element ref='cse:from'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='dialog'>
+    <annotation>
+      <documentation>
+      This uniquely identifies a call.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+          <element ref='cse:call_id'/>
+          <element ref='cse:from_tag' minOccurs='0'/>
+          <element ref='cse:to_tag' minOccurs='0'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='observer' type='cse:dns_name'>
+    <annotation>
+      <documentation>
+      The DNS name of the commserver host that observed this event.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='obs_seq' type='unsignedLong'/>
+
+  <element name='obs_time' type='dateTime'/>
+
+  <element name='call_id' type='cse:sip_call_id' />
+
+  <element name='from_tag' type='cse:sip_tag' />
+
+  <element name='to_tag' type='cse:sip_tag' />
+
+  <element name='from' type='cse:sip_tofrom_value' />
+
+  <element name='to' type='cse:sip_tofrom_value' />
+
+  <element name='response'>
+    <complexType>
+      <sequence>
+          <element ref='cse:status'/>
+          <element ref='cse:reason'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='status' type='cse:sip_status'/>
+
+  <element name='reason' type='normalizedString'/>
+
+</schema>
