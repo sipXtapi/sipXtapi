@@ -89,6 +89,9 @@
         <binding name="listener" expression="listeners.activate"/>
     </component>
         
+    <component id="revert" type="Submit">
+        <binding name="listener" expression="listeners.revert"/>
+    </component>
     <!--
 	  - A S S E T S
 	  -->	

@@ -55,6 +55,12 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         cycle.activate(ActivateDialPlan.PAGE);
     }
 
+    public void revert(IRequestCycle cycle_) {
+        DialPlanContext manager = getDialPlanManager();
+        FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
+        flexDialPlan.resetToFactoryDefault();
+    }
+    
     /**
      * Deletes all selected rows (on this screen deletes rules from flexible
      * dial plan).

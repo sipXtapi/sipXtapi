@@ -68,7 +68,10 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickButton("dialplan:delete");
         // should be empty now
         WebTable rulesTable = getDialog().getWebTableBySummaryOrId("dialplan:list");
-        assertEquals(1, rulesTable.getRowCount()); 
+        assertEquals(1, rulesTable.getRowCount());
+        // test revert
+        clickButton("dialplan:revert");
+        assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
     }
 
     public void testViewRules() {
