@@ -21,6 +21,8 @@
 		destroy-method="close">
 		<property name="driverClassName">
 			<value>org.postgresql.Driver</value>
+			<!-- useful for debugging -->
+			<!-- value>com.p6spy.engine.spy.P6SpyDriver</value -->
 		</property>
 		<property name="url">
 			<value>jdbc:postgresql://localhost/PDS</value>

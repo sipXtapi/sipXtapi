@@ -39,6 +39,7 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/datasets/EndpointSeed.xml");
 
         Endpoint endpoint = m_context.loadEndpoint(1);
+        assertEquals(0, endpoint.getLines().size());
         User user = m_context.loadUserByDisplayId("testuser");
 
         Line line = new Line();
@@ -63,6 +64,7 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/datasets/AddLineSeed.xml");
 
         Endpoint endpoint = m_context.loadEndpoint(1);
+        assertEquals(2, endpoint.getLines().size());
         User user = m_context.loadUserByDisplayId("testuser");
 
         Line secondLine = new Line();

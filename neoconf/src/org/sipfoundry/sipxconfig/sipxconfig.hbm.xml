@@ -23,7 +23,7 @@
 		<many-to-one cascade="all" name="valueStorage" column="storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 	    <list name="lines" table="line" lazy="true" inverse="true" cascade="all-delete-orphan">
-			<key column="line_id"/>
+			<key column="endpoint_id"/>
 			<index column="position"/>
     		<one-to-many class="org.sipfoundry.sipxconfig.phone.Line"/>
 		</list>
@@ -40,7 +40,7 @@
 			</generator>
 		</id>
 		<many-to-one name="endpoint" column="endpoint_id" 
-			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+			class="org.sipfoundry.sipxconfig.phone.Endpoint" not-null="true"/>
 		<property name="position" column="position"/>
 		<many-to-one name="user" column="user_id" 
 			class="org.sipfoundry.sipxconfig.phone.User"/>

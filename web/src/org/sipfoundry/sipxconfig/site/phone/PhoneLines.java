@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
@@ -23,7 +22,6 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.site.line.NewLine;
 
 
 /**
@@ -56,9 +54,9 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public void pageBeginRender(PageEvent event) {
         PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
-        setPhone(context.getPhone(getPhoneId()));
-
-        setLines(new ArrayList());
+        Phone phone = context.getPhone(getPhoneId()); 
+        setPhone(phone);
+        setLines(phone.getEndpoint().getLines());
         
         // Generate the list of phone items
         if (getSelections() == null) {
@@ -66,15 +64,6 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         }
     }
     
-    public void newLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
-        Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        NewLine page = (NewLine) cycle.getPage(NewLine.PAGE);
-        page.setPhoneId(endpointId.intValue());
-        page.setReturnPage(PAGE);
-        cycle.activate(page);
-    }
-
     public void addUser(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);

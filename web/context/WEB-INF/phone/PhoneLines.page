@@ -18,6 +18,10 @@
         type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="selections"
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+	<!--
+	  - B E A N S
+	  -->
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
     <!--
     - C O M P O N E N T S
     -->
@@ -30,7 +34,7 @@
     <component id="lineTableView" type="contrib:TableView">
         <binding name="source" expression="lines"/>
         <binding name="columns">
-            '* Line:line.displayLabel'
+            '* Line:displayLabel'
         </binding>
     </component>
     <component id="lineColumns" type="contrib:TableColumns">

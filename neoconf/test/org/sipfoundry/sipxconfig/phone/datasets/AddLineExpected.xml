@@ -14,9 +14,15 @@
 		user_id="4"
 		storage_id="[null]"/> 
     <line 
-		line_id="[line_id]" 
+		line_id="2" 
 		endpoint_id="1"
 		position="1" 
+		user_id="4"
+		storage_id="[null]"/> 
+    <line 
+		line_id="[line_id]" 
+		endpoint_id="1"
+		position="2" 
 		user_id="4"
 		storage_id="[null]"/> 
 </dataset>

@@ -53,6 +53,7 @@ create table line(
   endpoint_id int4 not null
 );
 create sequence line_seq;
+create unique index idx_line_pos_endpt on line (endpoint_id, position);
 
 alter table line
 add constraint fk_line_1 

@@ -81,6 +81,8 @@
 				<include name="**/*.xml"/>
 				<include name="**/*.properties"/>
 			</fileset>
+                        <!-- helpful when turning SQL debugging on -->
+                        <!-- fileset file="${test.src.dir}/spy.properties"/ -->
 	    </jar>
 	</target>
 
