@@ -19,8 +19,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
@@ -32,9 +31,9 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     public static final String PAGE = "SelectGateways";
 
     // virtual properties
-    public abstract DialPlanManager getDialPlanManager();
+    public abstract DialPlanContext getDialPlanManager();
 
-    public abstract void setDialPlanManager(DialPlanManager manager);
+    public abstract void setDialPlanManager(DialPlanContext manager);
 
     public abstract Integer getRuleId();
 
@@ -74,7 +73,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
      * @param gatewayIds list of gateway ids to be added to the dial plan
      */
     void selectGateways(Collection gatewayIds) {
-        DialPlanManager manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanManager();
         FlexibleDialPlan flexDialPlan = manager.getFlexDialPlan();
         Integer ruleId = getRuleId();
         DialingRule rule = flexDialPlan.getRule(ruleId);

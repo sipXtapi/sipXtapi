@@ -13,8 +13,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 
@@ -26,7 +25,7 @@ public abstract class ActivateDialPlan extends BasePage {
 
     public abstract ConfigFileType getSelected();
 
-    public abstract DialPlanManager getDialPlanManager();
+    public abstract DialPlanContext getDialPlanManager();
 
     public String getXml() {
         ConfigGenerator generator = getDialPlanManager().getGenerator();
@@ -39,7 +38,7 @@ public abstract class ActivateDialPlan extends BasePage {
     }
 
     public void activate(IRequestCycle cycle_) {
-        DialPlanManager manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanManager();
         manager.activateDialPlan();
     }
 }

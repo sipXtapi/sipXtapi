@@ -16,8 +16,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
@@ -40,9 +39,9 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
 
     public abstract void setRuleId(Integer id);
 
-    public abstract void setDialPlanManager(DialPlanManager dialPlanManager);
+    public abstract void setDialPlanManager(DialPlanContext dialPlanManager);
 
-    public abstract DialPlanManager getDialPlanManager();
+    public abstract DialPlanContext getDialPlanManager();
     
     public abstract String getNextPage();
     
@@ -66,8 +65,8 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         }
         Integer id = getGatewayId();
         if (null != id) {
-            DialPlanManager manager = getDialPlanManager();
-            gateway = manager.getGateway(id);
+            DialPlanContext manager = getDialPlanManager();
+            gateway = (Gateway) manager.getGateway(id).detach();
         } else {
             gateway = new Gateway();
         }
@@ -75,7 +74,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     }
 
     void saveValid(IRequestCycle cycle) {
-        DialPlanManager manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanManager();
         Gateway gateway = getGateway();
         Integer id = getGatewayId();
         if (id == null) {

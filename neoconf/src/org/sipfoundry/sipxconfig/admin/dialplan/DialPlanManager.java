@@ -15,21 +15,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.phone.Organization;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * DialPlanManager TODO: need interface and hibernate persistence implementation
  */
-public class DialPlanManager {
-    private List m_gateways = new ArrayList();
+class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
     private String m_configDirectory;
 
     private EmergencyRouting m_emergencyRouting = new EmergencyRouting(); 
@@ -43,55 +41,33 @@ public class DialPlanManager {
     private CoreContext m_coreContext;
 
     public List getGateways() {
-        return m_gateways;
-    }
-
-    public void setGateways(List gateways) {
-        m_gateways = gateways;
-    }
-
-    private Gateway getOrgGateway(Integer id) {
-        if (null == id) {
-            return null;
-        }
-        Object key = new Gateway(id);
-        int i = m_gateways.indexOf(key);
-        if (i < 0) {
-            return null;
-        }
-        Gateway g = (Gateway) m_gateways.get(i);
-        return g;
+        List gateways = getHibernateTemplate().loadAll(Gateway.class);
+        return gateways;
     }
 
     public Gateway getGateway(Integer id) {
-        Gateway g = getOrgGateway(id);
-        return null != g ? (Gateway) g.detach() : null;
+        return (Gateway) getHibernateTemplate().load(Gateway.class, id);
+        
     }
 
-    public boolean updateGateway(Integer id, Gateway gatewayData) {
-        Gateway gateway = getOrgGateway(id);
-        if (null == gateway) {
-            return false;
-        }
-        gateway.update(gatewayData);
-        return true;
+    public void updateGateway(Integer id, Gateway gatewayData) {
+        Gateway gateway = getGateway(id);
+        gateway.update(gatewayData);        
+        getHibernateTemplate().update(gateway);
     }
 
-    public boolean addGateway(Gateway gateway) {
-        if (!m_gateways.remove(gateway)) {
-            m_gateways.add(gateway);
-            return true;
-        }
-        return false;
+    public void addGateway(Gateway gateway) {
+        getHibernateTemplate().save(gateway);
     }
 
     public void clear() {
-        m_gateways.clear();
         m_flexDialPlan.getRules().clear();
     }
 
     public boolean deleteGateway(Integer id) {
-        return m_gateways.remove(new Gateway(id));
+        Gateway g = getGateway(id);
+        getHibernateTemplate().delete(g);
+        return true;
     }
 
     public void deleteGateways(Collection selectedRows) {
@@ -112,10 +88,8 @@ public class DialPlanManager {
         if (null == rule) {
             return Collections.EMPTY_LIST;
         }
-        Set gateways = new HashSet(getGateways());
-        Collection ruleGateways = rule.getGateways();
-        gateways.removeAll(ruleGateways);
-        return gateways;
+        List allGateways = getGateways();
+        return rule.getAvailableGateways(allGateways);
     }
 
     public FlexibleDialPlan getFlexDialPlan() {
@@ -176,7 +150,7 @@ public class DialPlanManager {
         List gateways = new ArrayList(gatewayIds.size());
         for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            gateways.add(getOrgGateway(id));
+            gateways.add(getGateway(id));
         }
         return gateways;
     }

@@ -6,8 +6,8 @@
 
 <page-specification class="org.sipfoundry.sipxconfig.site.Home">
 	<property-specification name="dialPlanManager" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager" 
-    	initial-value="global.dialPlanManager"/>
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
 
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>

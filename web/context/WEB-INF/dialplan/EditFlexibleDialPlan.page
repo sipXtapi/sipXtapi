@@ -9,8 +9,8 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="dialPlanManager" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager" 
-    	initial-value="global.dialPlanManager"/>
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
     
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">

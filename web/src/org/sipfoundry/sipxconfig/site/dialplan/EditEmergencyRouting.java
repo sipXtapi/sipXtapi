@@ -19,8 +19,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
 import org.apache.tapestry.html.BasePage;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -30,7 +29,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
  */
 public abstract class EditEmergencyRouting extends BasePage implements PageRenderListener {
 
-    public abstract DialPlanManager getDialPlanManager();
+    public abstract DialPlanContext getDialPlanManager();
 
     public abstract EmergencyRouting getEmergencyRouting();
 

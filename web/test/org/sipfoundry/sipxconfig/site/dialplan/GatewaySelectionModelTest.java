@@ -31,7 +31,7 @@ public class GatewaySelectionModelTest extends TestCase {
         List gateways = new ArrayList();
         for (int i = 0; i < NAMES.length; i++) {
             String name = NAMES[i];
-            Gateway gateway = new Gateway();
+            Gateway gateway = new Gateway(new Integer(i));
             gateway.setName(name);
             gateways.add(gateway);
         }

@@ -15,7 +15,7 @@ import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -24,7 +24,7 @@ public abstract class ListGateways extends BasePage {
     public static final String PAGE = "ListGateways";
 
     // virtual properties
-    public abstract DialPlanManager getDialPlanManager();
+    public abstract DialPlanContext getDialPlanManager();
 
     public abstract Collection getSelectedRows();
 
@@ -42,7 +42,7 @@ public abstract class ListGateways extends BasePage {
     public void formSubmit(IRequestCycle cycle_) {
         Collection selectedRows = getSelectedRows();
         if (selectedRows != null) {
-            DialPlanManager manager = getDialPlanManager();
+            DialPlanContext manager = getDialPlanManager();
             manager.deleteGateways(selectedRows);
         }
     }

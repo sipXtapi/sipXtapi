@@ -38,7 +38,7 @@ public class CustomDialingRuleTest extends TestCase {
         m_rule.setDialPatterns(Arrays.asList(dialPatterns));
 
         for (int i = 0; i < GATEWAYS.length; i++) {
-            Gateway gateway = new Gateway();
+            Gateway gateway = new Gateway(new Integer(i));
             gateway.setAddress(GATEWAYS[i]);
             m_rule.addGateway(gateway);
         }

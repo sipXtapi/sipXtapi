@@ -22,7 +22,7 @@
 		<property name="driverClassName">
 			<value>org.postgresql.Driver</value>
 			<!-- useful for debugging -->
-			<!-- value>com.p6spy.engine.spy.P6SpyDriver</value -->
+			<!--value>com.p6spy.engine.spy.P6SpyDriver</value-->
 		</property>
 		<property name="url">
 			<value>jdbc:postgresql://localhost/PDS</value>
@@ -54,6 +54,7 @@
 			<list>
 				<value>org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -381,10 +382,13 @@
         </property>
     </bean>
     
-    <bean id="dialPlanManager" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+    <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
         <property name="coreContext">
             <ref bean="coreContext"></ref>
         </property>
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
     	<property name="flexDialPlan">
             <ref bean="flexDialPlan"></ref>
         </property>
@@ -395,4 +399,20 @@
 			<value>${sysdir.etc}</value>            
         </property>
     </bean>
+    
+	<!--
+      - D I A L P L A N  C O N T E X T
+      -->
+	<bean id="dialPlanContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>dialPlanContextImpl</value>
+			</list>
+		</property>
+	</bean>
 </beans>

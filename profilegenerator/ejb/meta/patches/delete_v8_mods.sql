@@ -17,3 +17,5 @@ drop table folder_setting;
 /* v8_mods-2 */
 drop table ring;
 drop sequence ring_seq;
+drop table gateway;
+drop sequence gateway_seq;

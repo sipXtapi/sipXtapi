@@ -19,6 +19,7 @@
   <table name="folder_setting"/>
   <table name="folder"/>
   <table name="ring"/>
+  <table name="gateway"/>
   <table name="organizations">
     <column>id</column>
     <column>name</column>

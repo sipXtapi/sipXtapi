@@ -15,8 +15,7 @@ import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 
@@ -27,7 +26,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     public static final String PAGE = "EditFlexibleDialPlan";
 
     // virtual properties
-    public abstract DialPlanManager getDialPlanManager();
+    public abstract DialPlanContext getDialPlanManager();
 
     public abstract DialingRule getCurrentRow();
 
@@ -51,7 +50,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     }
 
     public void activate(IRequestCycle cycle) {
-        DialPlanManager manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanManager();
         manager.generateDialPlan();
         cycle.activate(ActivateDialPlan.PAGE);
     }

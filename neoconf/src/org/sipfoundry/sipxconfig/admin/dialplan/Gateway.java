@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+
 /**
  * Gateway
  */
@@ -20,14 +22,14 @@ public class Gateway extends BeanWithId {
     private String m_description;
 
     public Gateway() {
-        //intentionally empty
+        super(new Integer(PhoneContext.UNSAVED_ID));
     }
 
     /**
      * Only to be used by DialPlanManager
      * @param id of the existing gateway
      */
-    Gateway(Integer id) {
+    public Gateway(Integer id) {
         super(id);
     }
 

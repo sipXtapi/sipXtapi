@@ -11,8 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -62,5 +65,40 @@ public class DialingRuleTest extends TestCase {
             assertEquals("description", rule.getDescription());
         }
     }
+    
+    public void testGetAvailableGateways() {
+        List allGateways = new ArrayList();
+        DialingRule rule1 = new CustomDialingRule();
+        DialingRule rule2 = new CustomDialingRule();
+        Collection availableGateways = rule1.getAvailableGateways(allGateways);
+        assertEquals(0, availableGateways.size());
+        availableGateways = rule2.getAvailableGateways(allGateways);
+        assertEquals(0, availableGateways.size());
+
+        Gateway g1 = new Gateway(new Integer(1));
+        Gateway g2 = new Gateway(new Integer(2));
+        Gateway g3 = new Gateway(new Integer(3));
+        allGateways.add(g1);
+        allGateways.add(g2);
+        allGateways.add(g3);
+        
+        rule1.addGateway(g2);
+        rule2.addGateway(g1);
+        rule2.addGateway(g3);
+
+        availableGateways = rule1.getAvailableGateways(allGateways);
+        assertEquals(2, availableGateways.size());
+        assertTrue(availableGateways.contains(g1));
+        assertFalse(availableGateways.contains(g2));
+        assertTrue(availableGateways.contains(g3));
+
+        availableGateways = rule2.getAvailableGateways(allGateways);
+        assertEquals(1, availableGateways.size());
+        assertFalse(availableGateways.contains(g1));
+        assertTrue(availableGateways.contains(g2));
+        assertFalse(availableGateways.contains(g3));
+    }
+
+
 
 }

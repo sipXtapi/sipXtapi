@@ -13,8 +13,10 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
@@ -111,6 +113,18 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
         if (isEnabled()) {
             rules.add(this);
         }
+    }
+
+    /**
+     * Returns the lis of gateways that can be added to this rule.
+     * @param allGateways pool of all possible gateways
+     * @return list of gateways that still can be assigned to this rule
+     */
+    public Collection getAvailableGateways(List allGateways) {
+        Set gateways = new HashSet(allGateways);
+        Collection ruleGateways = getGateways();
+        gateways.removeAll(ruleGateways);
+        return gateways;
     }
 
     /**
