@@ -113,6 +113,25 @@
 		</exec>
     </target>
 
+    <!-- HBM 2 DDL -->
+    <!-- generate SQL from java files and hibernate mappings -->
+    <path id="full.classpath">
+        <path refid="base.path"></path>
+        <pathelement path="${classes.dir}"/>
+    </path>
+
+    <taskdef name="schemaexport"
+        classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
+	classpathref="full.classpath"/>
+
+    <target name="hbm2ddl">
+        <schemaexport properties="${top.dir}/meta/hibernate.properties" quiet="no"
+            text="yes" drop="no" delimiter=";" output="${build.dir}/schema-export.sql">
+	         <fileset dir="${src.dir}">
+    	         <include name="**/*.hbm.xml"/>
+        	 </fileset>
+        </schemaexport>
+    </target>
 </project>
 
 
