@@ -77,6 +77,3 @@ rpm: clean dist
 sipxconfig.spec : sipxconfig.spec.in
 	$(edit) $(srcdir)/sipxconfig.spec.in > sipxconfig.spec
 
-# record the configuration for the rpm doc directory
-install-data-hook:
-	cp config.log doc/${PACKAGE}.config

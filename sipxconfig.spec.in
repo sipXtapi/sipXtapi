@@ -47,6 +47,7 @@ SOAP, postgresql and other J2EE technologies to get the job done.
 
 # Where httpd RPM's web root is
 %configure wwwdir=%{wwdir} htmldir=%{htmldir}
+cp config.log %name.configlog
 make
 
 %install
@@ -69,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 # WARNING: Do use @ SIPX_CONFDIR @ because prefix used and 'make dist'
 # typically does not RPM's prefix
 
-%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
