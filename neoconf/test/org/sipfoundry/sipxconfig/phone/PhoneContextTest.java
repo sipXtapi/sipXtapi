@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
@@ -20,13 +20,13 @@ import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 /**
  * Comments
  */
-public class SipxConfigTest extends TestCase {
+public class PhoneContextTest extends TestCase {
     
     public void testInstantiation() {
         BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
         BeanFactoryReference bf = bfl.useBeanFactory("unittest");
         // now use some bean from factory 
-        SipxConfig sipx = (SipxConfig) bf.getFactory().getBean("sipxconfig");
-        assertNotNull(sipx);
+        PhoneContext PhoneContext = (PhoneContext) bf.getFactory().getBean("phoneContext");
+        assertNotNull(PhoneContext);
    }
 }

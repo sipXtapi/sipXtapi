@@ -9,12 +9,13 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+
 import javax.sql.DataSource;
 
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;

@@ -5,7 +5,7 @@
 	
 	<!-- Manages test data -->
    <bean id="testData"
-	    class="org.sipfoundry.sipxconfig.core.UnitTestDao">
+	    class="org.sipfoundry.sipxconfig.phone.UnitTestDao">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>
 		</property>

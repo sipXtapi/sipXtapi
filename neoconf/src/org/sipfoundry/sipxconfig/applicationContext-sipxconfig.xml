@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<!--
+      -  P H O N E  C O N T E X T
+      -
+      -  Single object holding access to all other service layer objects
+      -->
+	<bean id="phoneContext" 
+		class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
+		<!-- 
+		 - LOAD DAO indendently so this file can be used for unittests
+		 - that don't use the database.
+		  -->
+	</bean>
+	<!--
+      -  S E T T I N G S  C O N T E X T
+      -
+      -  Single object holding access to all other service layer objects
+      -->
+	<bean id="settingsContext" 
+		class="org.sipfoundry.sipxconfig.settings.SettingsContextImpl">
+		<!-- 
+		 - LOAD DAO indendently so this file can be used for unittests
+		 - that don't use the database.
+		  -->
+	</bean>
+
+    <bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
+		    singleton="false">
+        <property name="modelId"><value>polycom300</value></property>
+        <property name="phoneContext"><ref local="phoneContext"/></property>		
+        <property name="settingsContext"><ref local="settingsContext"/></property>		
+    </bean>
+	<!--
+	  - S E T T I N G S
+	  -->
+	<bean id="settings" class="org.sipfoundry.sipxconfig.settings.SettingSet" 
+		singleton="false">
+	</bean>
+
+	<!-- 
+	- TO COME...
+	-->
+	<!-- bean id="networkSettings" class="org.sipfoundry.sipxconfig.settings.Network" 
+		singleton="false">
+	</bean -->
+	
+</beans>

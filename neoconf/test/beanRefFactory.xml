@@ -8,10 +8,9 @@
          class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
        <list>
-         <value>org/sipfoundry/sipxconfig/core/applicationContext-coredao.xml</value>
-         <value>org/sipfoundry/sipxconfig/core/applicationContext-core.xml</value>
-         <value>org/sipfoundry/sipxconfig/core/applicationContext-unittest-dao.xml</value>
-         <value>PhoneFactory.xml</value>		 
+         <value>org/sipfoundry/sipxconfig/applicationContext-dao.xml</value>
+         <value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
+         <value>org/sipfoundry/sipxconfig/phone/applicationContext-unittest-dao.xml</value>
        </list>
      </constructor-arg>
    </bean>
@@ -21,8 +20,7 @@
         class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
        <list>
-         <value>org/sipfoundry/sipxconfig/core/applicationContext-core.xml</value>
-         <value>PhoneFactory.xml</value>		 
+         <value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
        </list>
      </constructor-arg>
    </bean>		

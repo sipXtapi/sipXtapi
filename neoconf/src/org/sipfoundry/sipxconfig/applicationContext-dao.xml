@@ -36,13 +36,12 @@
 		</property>
 		<property name="mappingResources">
 			<list>
-				<value>
-					org/sipfoundry/sipxconfig/core/sipxconfig-core.hbm.xml</value>
+				<value> org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
 			<props>
-				<prop key="hibernate.dialect">
+				<prop key="hibernate.dialect"> 
 					net.sf.hibernate.dialect.PostgreSQLDialect</prop>
 				<prop key="hibernate.query.substitutions">true=1 false=0</prop>
 				<prop key="hibernate.show_sql">true</prop>
@@ -59,27 +58,51 @@
 		</property>
 	</bean>
 	<!--
-      - G E N E R I C  D B
+      - P H O N E  D A O   I M P L
       -->
-	<bean id="coreDaoImpl" class="org.sipfoundry.sipxconfig.core.CoreDaoImpl">
+	<bean id="phoneDaoImpl" 
+		class="org.sipfoundry.sipxconfig.phone.PhoneDaoImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>
 		</property>
 	</bean>
 	<!--
-      - B U S I N E S S /  D B   I N T E R F A C E
+      - P H O N E  D A O
       -->
-	<bean id="coreDao" 
+	<bean id="phoneDao" 
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="proxyInterfaces">
-			<value>org.sipfoundry.sipxconfig.core.CoreDao</value>
+			<value>org.sipfoundry.sipxconfig.phone.PhoneDao</value>
 		</property>
 		<property name="interceptorNames">
 			<list>
 				<value>hibernateInterceptor</value>
-				<value>coreDaoImpl</value>
+				<value>phoneDaoImpl</value>
 			</list>
 		</property>
 	</bean>
-	
+	<!--
+      - S E T T I N G S  D A O   I M P L
+      -->
+	<bean id="settingsDaoImpl" 
+		class="org.sipfoundry.sipxconfig.settings.SettingsDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+	<!--
+      - S E T T I N G S  D A O
+      -->
+	<bean id="settingDao" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.settings.SettingsDao</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>settingsDaoImpl</value>
+			</list>
+		</property>
+	</bean>
 </beans>

@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 /**
  * Phone Line controls what sip addresses a logical phone will use

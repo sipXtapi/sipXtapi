@@ -57,12 +57,6 @@
         <!-- D E F A U L T -->
         <target name="default" depends="war"/>
 
-	<!-- C O M P I L E -->
-	<target name="compile" depends="init">
-		<javac srcdir="${src.dir}/" destdir="${classes.dir}" classpathref="base.path" debug="${debug}" debuglevel="${debuglevel}" deprecation="on" optimize="${optimize}" includes="**/*.java" />
-
-	</target>
-
 	<!-- J A R -->
 	<target name="war" depends="compile" description="assemble neoconf war">
 		

@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 /**
  * Ultimate parent for all objects. Represent the entire configuration for a particular company or

@@ -9,14 +9,14 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Use Hibernate to r/w object to database for device related items
  */
-public class CoreDaoImpl extends HibernateDaoSupport implements CoreDao {
+public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
     
     public User loadUser(int id) {
         return (User) getHibernateTemplate().load(User.class, new Integer(id));        

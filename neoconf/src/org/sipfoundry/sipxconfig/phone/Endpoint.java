@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Set;
 
@@ -29,6 +29,8 @@ public class Endpoint {
     private String m_phoneId;
 
     private Set m_assignedEnpoints;
+    
+    private int m_settingsId;
 
     /**
      * @return ids used in PhoneFactory
@@ -94,5 +96,13 @@ public class Endpoint {
      */
     public void setAssignedEnpoints(Set assignedEnpoints) {
         m_assignedEnpoints = assignedEnpoints;
+    }
+    
+    public int getSettingsId() {
+        return m_settingsId;
+    }
+    
+    public void setSettingsId(int settingsId) {
+        m_settingsId = settingsId;
     }
 }

@@ -1,10 +1,15 @@
 /*
- * Created on Nov 27, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
+ * 
+ * Copyright (C) 2004 SIPfoundry Inc.
+ * Licensed by SIPfoundry under the LGPL license.
+ * 
+ * Copyright (C) 2004 Pingtel Corp.
+ * Licensed to SIPfoundry under a Contributor Agreement.
+ * 
+ * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
@@ -15,9 +20,9 @@ import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 /**
  * Requires Database access.
  */
-public class CoreDaoImplTestDb extends TestCase {
+public class PhoneDaoImplTestDb extends TestCase {
 
-    private CoreDao m_dao;
+    private PhoneDao m_dao;
     
     private Endpoint m_teardownEndpoint;
     
@@ -34,7 +39,7 @@ public class CoreDaoImplTestDb extends TestCase {
         BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
         BeanFactoryReference bf = bfl.useBeanFactory("unittest-db");
         // now use some bean from factory 
-        m_dao = (CoreDao) bf.getFactory().getBean("coreDao");
+        m_dao = (PhoneDao) bf.getFactory().getBean("phoneDao");
         assertNotNull(m_dao);
         
         m_testData = (UnitTestDao) bf.getFactory().getBean("testData");
@@ -62,7 +67,7 @@ public class CoreDaoImplTestDb extends TestCase {
         Endpoint endpoint = new Endpoint();
         // assumption that this is unique
         endpoint.setSerialNumber("f34298760024fcc1"); 
-        endpoint.setPhoneId("unittest - CoreDaoImplTestDb");
+        endpoint.setPhoneId("unittest - PhoneDaoImplTestDb");
         m_dao.storeEndpoint(endpoint);
         m_teardownEndpoint = endpoint;
         

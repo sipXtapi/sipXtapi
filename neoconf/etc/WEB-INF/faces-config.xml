@@ -26,4 +26,16 @@
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
   		
+	<managed-bean>
+		<managed-bean-name>endpoint</managed-bean-name>
+		<managed-bean-class>org.sipfoundry.sipxconfig.phone.Endpoint</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>network</managed-bean-name>
+		<managed-bean-class>org.sipfoundry.sipxconfig.settings.Network</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
 </faces-config>

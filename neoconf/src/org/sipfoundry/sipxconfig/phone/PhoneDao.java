@@ -9,13 +9,13 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 /**
- * Create/Retrieve/Update/Delete for Object in core
+ * Create/Retrieve/Update/Delete for Object in phone
  * package that r/w to a database.
  */
-public interface CoreDao {
+public interface PhoneDao {
 
     public Organization loadRootOrganization();
 

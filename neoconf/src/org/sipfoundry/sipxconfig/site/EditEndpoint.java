@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import org.sipfoundry.sipxconfig.core.Endpoint;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 /**
  * Editing Endpoints 

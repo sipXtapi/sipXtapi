@@ -9,7 +9,8 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
+
 
 /**
  * Implement this to add support for new devices to the system
@@ -18,11 +19,15 @@ public interface Phone {
 
     public String getModelId();
     
-    public void setModel(String id);
+    public void setModelId(String id);
 
     public String generateProfile(int profileIndex);
 
     public int getProfileCount();
     
     public void setEndpoint(Endpoint endpoint);
+    
+    public void setPhoneContext(PhoneContext phoneContext);
+
+    public PhoneContext getPhoneContext();
 }

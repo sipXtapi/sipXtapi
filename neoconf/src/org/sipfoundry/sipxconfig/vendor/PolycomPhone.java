@@ -11,8 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.vendor;
 
-import org.sipfoundry.sipxconfig.core.Endpoint;
-import org.sipfoundry.sipxconfig.core.Phone;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.settings.SettingsContext;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000
@@ -36,11 +38,43 @@ public class PolycomPhone implements Phone {
     
     private Endpoint m_endpoint;
     
+    private PhoneContext m_phoneContext;
+    
+    private SettingsContext m_settingsContext;
+    
+    /**
+     * @return Returns the settingsContext.
+     */
+    public SettingsContext getSettingsContext() {
+        return m_settingsContext;
+    }
+    
+    /**
+     * @param settingsContext The settingsContext to set.
+     */
+    public void setSettingsContext(SettingsContext settingsContext) {
+        m_settingsContext = settingsContext;
+    }
+    
+    /**
+     * @return Returns the phoneContext.
+     */
+    public PhoneContext getPhoneContext() {
+        return m_phoneContext;
+    }
+    
+    /**
+     * @param phoneContext The phoneContext to set.
+     */
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+    
     public String getModelId() {
         return m_id;
     }
     
-    public void setModel(String id) {
+    public void setModelId(String id) {
         m_id = id;
     }
 
@@ -55,5 +89,4 @@ public class PolycomPhone implements Phone {
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
     }
-   
 }

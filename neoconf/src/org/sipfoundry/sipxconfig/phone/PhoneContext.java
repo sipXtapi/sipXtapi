@@ -9,19 +9,18 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
+
 
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public interface SipxConfig {
+public interface PhoneContext {
 
-    public CoreDao getCoreDao();
+    public PhoneDao getPhoneDao();
 
-    public void setCoreDao(CoreDao dao);
+    public void setPhoneDao(PhoneDao dao);
         
-    public PhoneFactory getPhoneFactory();
-    
-    public void setPhoneFactory(PhoneFactory phoneFactory);
+    public Phone getPhone(Endpoint endpoint);
 }

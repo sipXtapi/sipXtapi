@@ -9,15 +9,18 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.core;
+package org.sipfoundry.sipxconfig.phone;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
+
 /**
- * Comments
+ * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public class PhoneFactoryImpl implements BeanFactoryAware, PhoneFactory {
+public class PhoneContextImpl implements BeanFactoryAware, PhoneContext {
+
+    private PhoneDao m_dao;
 
     private BeanFactory m_beanFactory;
 
@@ -27,11 +30,21 @@ public class PhoneFactoryImpl implements BeanFactoryAware, PhoneFactory {
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
-
-    public Phone getPhoneById(String id, Endpoint endpoint) {
-        Phone phone = (Phone) m_beanFactory.getBean(id);
-        phone.setEndpoint(endpoint);
+    
+    public Phone getPhone(Endpoint endpoint) {
+        Phone phone = (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
+        if (phone != null) {
+            phone.setEndpoint(endpoint);
+        }
         
         return phone;
     }
+    
+    public PhoneDao getPhoneDao() {
+        return m_dao;
+    }
+
+    public void setPhoneDao(PhoneDao dao) {
+        m_dao = dao;
+    }    
 }

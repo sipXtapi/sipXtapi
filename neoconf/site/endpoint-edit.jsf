@@ -20,7 +20,7 @@
 								<td>Serial #:</td>
 								<td>
 									<h:inputText id="serialNumber"
-										value="#{editEndpoint.serialNumber}"/>
+										value="#{endpoint.serialNumber}"/>
 								</td>
 							</tr>
 						</table>
@@ -30,7 +30,7 @@
 							<tr>
 								<td>Boot (TFTP) Server:</td>
 								<td>
-									<h:inputText id="bootServer" value="xyz"/>
+									<h:inputText id="bootServer" value="#{network.tftpServer}"/>
 								</td>
 								<td>(default value: shrike.pingtel.com)</td>
 							</tr>

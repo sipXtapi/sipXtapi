@@ -10,7 +10,7 @@
 	<!-- 
 	- E N D P O I N T 
 	-->
-	<class name="org.sipfoundry.sipxconfig.core.Endpoint" table="endpoint">
+	<class name="org.sipfoundry.sipxconfig.phone.Endpoint" table="endpoint">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="endpoint_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
@@ -24,7 +24,7 @@
 	<!--
 	  -  E N D P O I N T  /  U S E R   A S S I G N M E N T
 	  -->
-	<class name="org.sipfoundry.sipxconfig.core.EndpointAssignment" 
+	<class name="org.sipfoundry.sipxconfig.phone.EndpointAssignment" 
 		table="endpoint_assignment">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="assignment_id" type="int" unsaved-value="-1">
@@ -34,17 +34,26 @@
 		</id>
 		<property name="label" column="label"/>
 		<many-to-one name="user" column="user_id" 
-			class="org.sipfoundry.sipxconfig.core.User"/>
+			class="org.sipfoundry.sipxconfig.phone.User"/>
 		<many-to-one name="endpoint" column="endpoint_id" 
-			class="org.sipfoundry.sipxconfig.core.Endpoint"/>
+			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
 	</class>
+	<class name="org.sipfoundry.sipxconfig.settings.Setting" table="setting">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="setting_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">setting_seq</param>
+			</generator>
+		</id>
+		<property name="name" column="name"/>
+	</class>	
 	<!--
 	  -  LEGACY DATABASE MODEL 
 	  -->
 	<!--
 	- O R G A N I Z A T I O N
 	-->
-	<class name="org.sipfoundry.sipxconfig.core.Organization" 
+	<class name="org.sipfoundry.sipxconfig.phone.Organization" 
 		table="organizations">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
@@ -61,7 +70,7 @@
 	<!-- 
 	- U S E R
 	-->
-	<class name="org.sipfoundry.sipxconfig.core.User" table="users">
+	<class name="org.sipfoundry.sipxconfig.phone.User" table="users">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="id" type="int" unsaved-value="-1">
 			<generator class="sequence">
@@ -70,7 +79,7 @@
 		</id>
 		<property name="firstName" column="first_name"/>
 		<many-to-one name="organization" column="org_id" 
-			class="org.sipfoundry.sipxconfig.core.Organization"/>
+			class="org.sipfoundry.sipxconfig.phone.Organization"/>
 		<property name="password" column="password"/>
 		<property name="userGroupId" column="ug_id"/>
 		<property name="rcsId" column="rcs_id"/>
@@ -81,7 +90,7 @@
 		<set name="assignedEndpoints" lazy="true">
 			<key column="user_id"/>
 			<one-to-many 
-				class="org.sipfoundry.sipxconfig.core.EndpointAssignment"/>
+				class="org.sipfoundry.sipxconfig.phone.EndpointAssignment"/>
 		</set>
 	</class>
 </hibernate-mapping>
