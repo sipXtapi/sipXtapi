@@ -64,10 +64,12 @@ dist dist-all: distdir
 	$(am__remove_distdir)
 
 .PHONY : rpm
+# Where rpmbuild will do its work.
+RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
 rpm: clean dist
 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
-	mv -f /usr/src/redhat/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
-	mv -f /usr/src/redhat/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
+	mv -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
+	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
 
 # RPM Spec file
 sipxconfig.spec : sipxconfig.spec.in
