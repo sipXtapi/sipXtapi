@@ -72,7 +72,6 @@ CHECK_TOMCAT_HOME
 
 AC_CONFIG_FILES([
     Makefile
-    sipxconfig.spec
     etc/Makefile 
     etc/cert/Makefile
     common/Makefile
