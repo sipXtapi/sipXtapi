@@ -80,10 +80,14 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         "SELECT DNS_DOMAIN FROM ORGANIZATIONS WHERE ID = 1";
 
 
-    private static Properties PGS_PROPERTIES = loadPgsProperties();
+    private static Properties PGS_PROPERTIES = null;
     
-    private static Properties loadPgsProperties()
+    private static Properties getPgsProperties()
     {
+        if( null != PGS_PROPERTIES )
+        {
+            return PGS_PROPERTIES;
+        }
         try {
             Properties props = new Properties();
             String configFolder =
@@ -92,6 +96,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
                         PathLocatorUtil.PGS );
 
             props.load( new FileInputStream ( configFolder + PathLocatorUtil.PGS_PROPS )  );
+            PGS_PROPERTIES = props;
         	return props;
         }
         catch ( IOException ex ) {
@@ -314,7 +319,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
      * @param username
      * @return
      */
-    String normalizeUserName( String username ) {
+    static String normalizeUserName( String username ) {
         int startIndex = 0;
         int endIndex = username.length();
 
@@ -481,7 +486,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
 
 
     private String getRealm () {
-        return PGS_PROPERTIES.getProperty(PathLocatorUtil.PGS_SIPXCHANGE_REALM,"");
+        return getPgsProperties().getProperty(PathLocatorUtil.PGS_SIPXCHANGE_REALM,"");
     }
 
     private String getDnsDomain () throws LoginException {

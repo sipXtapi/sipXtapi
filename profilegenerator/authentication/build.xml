@@ -2,12 +2,7 @@
 
 <project name="authentication" default="jar" basedir="." >
 
-  <!--
-    - TODO: Put SIPxchangeLoginModuleTest back in
-    -->
-  <patternset id="test.classes" 
-      includes="**/*Test.class" 
-      excludes="**/SIPxchangeLoginModuleTest.class"/>
+  <patternset id="test.classes" includes="**/*Test.class"/>
 
   <property name="top.build.dir" value="${basedir}/../.."/>
   <property name="build.dir" value="${top.build.dir}/profilegenerator/authentication"/>
@@ -16,10 +11,9 @@
 
   <path id="base.path">
   	  <!-- J2EE -->
-  	  <!-- we should be more selective here - for now exclude the jar that we are trying to build -->
-      <fileset dir="${jboss.lib}" includes="**/*.jar"  excludes="**/profilegen-auth.jar"/>
-      <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
-  	  <!-- need to show buildVersion.properties for the tests -->
+      <fileset dir="${jboss.lib}">
+      	<include name="jboss-jaas.jar" />
+      </fileset>
       <pathelement location="${top.build.dir}/common/dist"/> 
   </path>
   <property name="classpath" refid="base.path" />
@@ -28,15 +22,8 @@
   <!-- C O M P I L E -->
   <target name="compile" depends="init" unless="subdirs"
       description="[internal] Compile all files in src directory">
-    <!-- HACK: we need some classes from common jar -->
-  	<unjar src="${common.jar}" dest="${classes.dir}">
-  		<patternset>
-  			<include name="**/MD5Encoder.class"/>
-  			<include name="**/PathLocatorUtil.class"/>
-  			<include name="**/VersionInfo.class"/>
-  			<include name="**/PathBuffer.class"/>
-		</patternset>  		
-  	</unjar>
+    <!-- HACK: we need to package common jar -->
+  	<unjar src="${common.jar}" dest="${classes.dir}"/>
   	<antcall target="ant-targets.compile"/>
   </target>
 	
