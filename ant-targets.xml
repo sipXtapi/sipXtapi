@@ -237,7 +237,7 @@
   <target name="style" depends="check.src.present" if="src.present"
       description="checks code convention violations"> 
     <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false" 
-        failureproperty="checkstyle.failed"> 
+        failureproperty="checkstyle.failed" classpathref="base.path"> 
       <fileset dir="${src.dir}">
         <include name="**/*.java"/>
       </fileset>
