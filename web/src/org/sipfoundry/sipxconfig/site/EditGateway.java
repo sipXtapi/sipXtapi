@@ -38,9 +38,7 @@ public abstract class EditGateway extends BasePage {
         Gateway gateway = getGateway();
         if (getAddMode()) {
             manager.addGateway(gateway);
-        }
-        else
-        {
+        } else {
             manager.updateGateway(gateway);
         }
         cycle.activate(PAGE_LIST_GATEWAYS);
