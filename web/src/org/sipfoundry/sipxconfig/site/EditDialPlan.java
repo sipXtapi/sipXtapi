@@ -37,7 +37,7 @@ public abstract class EditDialPlan extends BasePage implements PageRenderListene
 
         DialPlan plan = getDialPlan();
         if (plan == null) {
-            plan = new DialPlan("kuku", 5);
+            plan = new DialPlan("Dial Plan Name", DialPlan.DEFAULT_LOCAL_EXT_LEN);
             setDialPlan(plan);
         }
     }

@@ -17,7 +17,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
  * LenSelectionModel
  */
 public class LenSelectionModel implements IPropertySelectionModel {
-    private static final int[] LENS = {3, 4, 5, 6 }; 
+    private static final int[] LENS = {3, 4, 5, 6};
 
     public int getOptionCount() {
         return LENS.length;
@@ -28,19 +28,18 @@ public class LenSelectionModel implements IPropertySelectionModel {
     }
 
     public String getLabel(int index) {
-        return "" + LENS[index] + " digits"; 
+        return getValue(index);
     }
 
     public String getValue(int index) {
-        return "" + LENS[index] + " digits"; 
+        return "" + LENS[index] + " digits";
     }
 
     public Object translateValue(String value) {
         int index;
 
-        
-        index = Integer.parseInt(value.substring(0,1));
+        index = Integer.parseInt(value.substring(0, 1));
 
-        return new Integer( index );
+        return new Integer(index);
     }
 }

@@ -16,7 +16,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
  * DialPlan - settings for configuring dial plan
  */
 public class DialPlan {
-    private static final int DEFAULT_LOCAL_EXT_LEN = 3;
+    public static final int DEFAULT_LOCAL_EXT_LEN = 3;
     private static final String DEFAULT_PSTN_PREFIX = "9";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
 
