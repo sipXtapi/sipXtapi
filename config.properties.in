@@ -72,6 +72,8 @@ junit.jar=${top.dir}/lib/junit.jar
 # libraries used in unit tests only
 xmlunit.jar=${top.dir}/lib/xmlunit1.0.jar
 easymock.jar=${top.dir}/lib/easymock.jar
+httpunit.jar=${top.dir}/lib/httpunit.jar
+jwebunit.jar=${top.dir}/lib/jwebunit-1.2.jar
 checkstyle.jar=${top.dir}/lib/checkstyle-3.5.jar
 checkstyle-optional.jar=${top.dir}/lib/checkstyle-optional-3.5.jar
 

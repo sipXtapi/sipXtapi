@@ -15,8 +15,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import sun.net.www.content.text.plain;
-
 import junit.framework.TestCase;
 
 /**

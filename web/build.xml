@@ -49,7 +49,8 @@
 		<path refid="runtime.dependencies" />
 		<!-- TEST -->
 		<pathelement path="${easymock.jar}" />
-		<pathelement path="${top.dir}/lib/httpunit.jar"/>
+		<pathelement path="${httpunit.jar}"/>
+		<pathelement path="${jwebunit.jar}"/>
 	</path>
 	<property name="classpath" refid="base.path" />
 

@@ -27,5 +27,6 @@
 	<classpathentry kind="var" path="SPRING_HOME/lib/aopalliance/aopalliance.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/cglib/cglib-full-2.0.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/Tidy.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
