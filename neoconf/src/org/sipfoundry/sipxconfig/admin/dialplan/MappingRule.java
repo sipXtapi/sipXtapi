@@ -11,8 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
@@ -21,16 +27,43 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
 /**
  * MappingRule
+ * 
+ * Strangely URLs im mapping rules are partially URL encoded
+ * 
+ * <code>
+ * 
+ *    Ampersand (&) 26
+ *    Forward slash/Virgule (&quot;/&quot;) 2F
+ *    Colon (:) 3A 
+ *    Semi-colon (;) 3B
+ *    Equals (=) 3D
+ *    Question mark (?) 3F
+ *    'At' symbol (@) 40
+ *   
+ *  
+ * </code>
+ * 
+ * Common prefix
+ * 
+ * sip:{0}@{mediaserver};play={voicemail}
+ * 
+ * where 0 is {digits} or {vdigits}
+ * 
+ * Autoattendant: /cgi-bin/voicemail/mediaserver.cgi?action=autoattendant&name={0}
+ * 
+ * Voice mail: /cgi-bin/voicemail/mediaserver.cgi?action=retrieve&mailbox={digits}
+ * 
+ * Voicemail fallback: /cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}
+ * 
+ * Voicemail transfer: /cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox={vdigits}
+ * 
  */
 public class MappingRule extends DialingRule {
-    protected static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
-    protected static final String URL_PREFIX = "<sip:{digits}@{mediaserver}" + URL_PARAMS;
-    protected static final String OPERATOR_URL = URL_PREFIX + "autoattendant>";
-    protected static final String VOICEMAIL_URL = URL_PREFIX + "retrieve%26mailbox%3D{digits}>";
-    protected static final String VOICEMAIL_FALLBACK_URL = URL_PREFIX
-            + "deposit%26mailbox%3D{digits}>;q=0.1";
-    protected static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver}"
-            + URL_PARAMS + "deposit%26mailbox%3D{vdigits}>";
+    protected static final String PREFIX = "sip:'{'{0}'}'@'{'mediaserver'}';play='{'voicemail'}'";
+    protected static final String SUFFIX = "/cgi-bin/voicemail/mediaserver.cgi?action=";
+    protected static final String VMAIL_DEPOSIT = "deposit";
+    protected static final String VMAIL_RETRIEVE = "retrieve";
+    protected static final String AUTOATTENDANT = "autoattendant";
 
     private String[] m_patterns;
     private String m_url;
@@ -82,11 +115,16 @@ public class MappingRule extends DialingRule {
 
     // specialized classes
     public static class Operator extends MappingRule {
-        public Operator(String operator) {
+        public Operator(String name, String operator) {
+            setName(name);
             setPatterns(new String[] {
                 "operator", operator, "0"
             });
-            setUrl(MappingRule.OPERATOR_URL);
+            Map params = new HashMap();
+            if (StringUtils.isNotBlank(name)) {
+                params.put("name", name);
+            }
+            setUrl(buildUrl(CallDigits.FIXED_DIGITS, AUTOATTENDANT, params));
         }
     }
 
@@ -96,7 +134,8 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 pattern.calculatePattern()
             });
-            setUrl(VOICEMAIL_FALLBACK_URL);
+            setUrl(buildUrl(CallDigits.FIXED_DIGITS, MappingRule.VMAIL_DEPOSIT,
+                    getMailboxParams(CallDigits.FIXED_DIGITS), ";q=0.1"));
         }
 
         public List getPermissions() {
@@ -111,7 +150,8 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 voiceMail
             });
-            setUrl(VOICEMAIL_URL);
+            setUrl(buildUrl(CallDigits.FIXED_DIGITS, MappingRule.VMAIL_RETRIEVE,
+                    getMailboxParams(CallDigits.FIXED_DIGITS)));
         }
 
     }
@@ -122,7 +162,54 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 pattern.calculatePattern()
             });
-            setUrl(VOICEMAIL_TRANSFER_URL);
+            setUrl(buildUrl(CallDigits.VARIABLE_DIGITS, MappingRule.VMAIL_DEPOSIT,
+                    getMailboxParams(CallDigits.VARIABLE_DIGITS)));
         }
+    }
+
+    static String buildUrl(CallDigits digits, String action, Map params) {
+        return buildUrl(digits, action, params, null);
+    }
+
+    /**
+     * Creates URL for mediaserver
+     * 
+     * @param digits - vdigits or digits
+     * @param action - autoattendant, sos, deposit or retrieve
+     * @param params - any additional mediaserver params (can be null or empty)
+     * @param sipParams - any additional SIP params (can be null or empty)
+     * @return String representign the URL
+     */
+    static String buildUrl(CallDigits digits, String action, Map params, String sipParams) {
+        try {
+            StringBuffer url = new StringBuffer("<");
+            String suffix = URLEncoder.encode(SUFFIX, "UTF-8");
+            MessageFormat f = new MessageFormat(PREFIX + suffix + "{1}");
+            f.format(new Object[] {
+                digits.getName(), action
+            }, url, null);
+            if (null != params) {
+                for (Iterator i = params.entrySet().iterator(); i.hasNext();) {
+                    Map.Entry entry = (Map.Entry) i.next();
+                    url.append("%26"); // & - URL encoded
+                    url.append(entry.getKey());
+                    url.append("%3D"); // = - URL encoded
+                    url.append(entry.getValue());
+                }
+            }
+            url.append('>');
+            if (null != sipParams) {
+                url.append(sipParams);
+            }
+            return url.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected Map getMailboxParams(CallDigits digits) {
+        Map map = new HashMap();
+        map.put("mailbox", "{" + digits.getName() + "}");
+        return map;
     }
 }

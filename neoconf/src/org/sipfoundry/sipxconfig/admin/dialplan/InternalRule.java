@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**
@@ -72,11 +73,26 @@ public class InternalRule extends DialingRule {
     }
 
     public void appendToGenerationRules(List rules) {
-        if (isEnabled()) {
-            rules.add(new MappingRule.Operator(m_autoAttendant));
-            rules.add(new MappingRule.Voicemail(m_voiceMail));
-            rules.add(new MappingRule.VoicemailTransfer(m_voiceMailPrefix, m_localExtensionLen));
-            rules.add(new MappingRule.VoicemailFallback(m_localExtensionLen));
+        if (!isEnabled()) {
+            return;
+        }
+        boolean generateVoiceMailRules = StringUtils.isNotBlank(m_voiceMail);
+        if (StringUtils.isNotBlank(m_autoAttendant)) {
+            MappingRule operator = new MappingRule.Operator(getName(), m_autoAttendant);
+            rules.add(operator);
+        }
+        if (generateVoiceMailRules) {
+            MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail);
+            rules.add(voicemail);
+        }
+        if (StringUtils.isNotBlank(m_voiceMailPrefix)) {
+            MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
+                    m_localExtensionLen);
+            rules.add(transfer);
+        }
+        if (generateVoiceMailRules) {
+            MappingRule fallback = new MappingRule.VoicemailFallback(m_localExtensionLen);
+            rules.add(fallback);
         }
     }
 

@@ -22,14 +22,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  * LongDistanceRule
  */
 public class EmergencyRule extends DialingRule {
-    private static final String MEDIASERVER_SOS_URL = MappingRule.URL_PREFIX + "sos>";
+    private static final String SOS = "sos";
+
     private String m_emergencyNumber;
     private String m_optionalPrefix;
     private boolean m_useMediaServer;
 
     public String[] getPatterns() {
         ArrayList patterns = new ArrayList();
-        patterns.add("sos");
+        patterns.add(SOS);
         patterns.add(m_emergencyNumber);
         if (null != m_optionalPrefix && 0 < m_optionalPrefix.length()) {
             patterns.add(m_optionalPrefix + m_emergencyNumber);
@@ -52,7 +53,8 @@ public class EmergencyRule extends DialingRule {
 
     public Transform[] getMediaServerTransforms() {
         UrlTransform transform = new UrlTransform();
-        transform.setUrl(MEDIASERVER_SOS_URL);
+        String url = MappingRule.buildUrl(CallDigits.FIXED_DIGITS, SOS, null);
+        transform.setUrl(url);
         return new Transform[] {
             transform
         };

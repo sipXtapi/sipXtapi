@@ -92,11 +92,11 @@ public class MappingRulesTest extends XMLTestCase {
 
         MockControl control = MockControl.createStrictControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.isInternal(),true);
+        control.expectAndReturn(rule.isInternal(), true);
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "x."
         });
-        control.expectAndReturn(rule.isInternal(),true);
+        control.expectAndReturn(rule.isInternal(), true);
         control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
             Permission.VOICEMAIL
         }));
@@ -145,7 +145,7 @@ public class MappingRulesTest extends XMLTestCase {
     public void testInternalRules() throws Exception {
         int extension = 3;
         List rules = new ArrayList();
-        rules.add(new MappingRule.Operator("100"));
+        rules.add(new MappingRule.Operator("", "100"));
         rules.add(new MappingRule.Voicemail("101"));
         rules.add(new MappingRule.VoicemailTransfer("2", extension));
         rules.add(new MappingRule.VoicemailFallback(extension));

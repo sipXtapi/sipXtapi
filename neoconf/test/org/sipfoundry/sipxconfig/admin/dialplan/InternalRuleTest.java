@@ -24,8 +24,21 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  */
 public class InternalRuleTest extends TestCase {
 
+    private static final String RULE_NAME_PARAM = "%26name%3Dkuku";
+
+    private static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
+    private static final String URL_PREFIX = "<sip:{digits}@{mediaserver}" + URL_PARAMS;
+    private static final String OPERATOR_URL = URL_PREFIX + "autoattendant" + RULE_NAME_PARAM
+            + ">";
+    private static final String VOICEMAIL_URL = URL_PREFIX + "retrieve%26mailbox%3D{digits}>";
+    private static final String VOICEMAIL_FALLBACK_URL = URL_PREFIX
+            + "deposit%26mailbox%3D{digits}>;q=0.1";
+    private static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver}"
+            + URL_PARAMS + "deposit%26mailbox%3D{vdigits}>";
+
     public void testAppendToGenerationRules() throws Exception {
         InternalRule ir = new InternalRule();
+        ir.setName("kuku");
         ir.setLocalExtensionLen(5);
         ir.setAutoAttendant("20003");
         ir.setVoiceMail("20004");
@@ -45,22 +58,41 @@ public class InternalRuleTest extends TestCase {
         assertEquals("20003", o.getPatterns()[1]);
         assertEquals(0, o.getPermissions().size());
         UrlTransform to = (UrlTransform) o.getTransforms()[0];
-        assertEquals(MappingRule.OPERATOR_URL, to.getUrl());
-        
+        assertEquals(OPERATOR_URL, to.getUrl());
+
         assertEquals("20004", v.getPatterns()[0]);
         assertEquals(0, v.getPermissions().size());
         UrlTransform tv = (UrlTransform) v.getTransforms()[0];
-        assertEquals(MappingRule.VOICEMAIL_URL, tv.getUrl());
+        assertEquals(VOICEMAIL_URL, tv.getUrl());
 
         assertEquals("7xxxxx", vt.getPatterns()[0]);
         assertEquals(0, vt.getPermissions().size());
         UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
-        assertEquals(MappingRule.VOICEMAIL_TRANSFER_URL, tvt.getUrl());
-        
+        assertEquals(VOICEMAIL_TRANSFER_URL, tvt.getUrl());
+
         assertEquals("xxxxx", vf.getPatterns()[0]);
         assertEquals(Permission.VOICEMAIL, vf.getPermissions().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
-        assertEquals(MappingRule.VOICEMAIL_FALLBACK_URL, tvf.getUrl());
+        assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
+    }
+
+    public void testAppendToGenerationRulesAutoAttandantOnly() throws Exception {
+        InternalRule ir = new InternalRule();
+        ir.setName("kuku");
+        ir.setLocalExtensionLen(5);
+        ir.setAutoAttendant("20003");
+        ir.setEnabled(true);
+        ir.setVoiceMail("");
+        ir.setVoiceMailPrefix("");
+        List rules = new ArrayList();
+        ir.appendToGenerationRules(rules);
+        assertEquals(1, rules.size());
+
+        MappingRule o = (MappingRule) rules.get(0);
+        assertEquals("20003", o.getPatterns()[1]);
+        assertEquals(0, o.getPermissions().size());
+        UrlTransform to = (UrlTransform) o.getTransforms()[0];
+        assertEquals(OPERATOR_URL, to.getUrl());
     }
 
 }
