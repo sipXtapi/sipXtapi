@@ -4,6 +4,12 @@
     <!-- No permissions are required to dial an emergency number. -->
     <hostPattern>${GW_EMERGENCY_DIALING_ADDR}</hostPattern>
     <userMatch>
+      <!-- Internet draft draft-schulzrinne-sipping-sos-04.txt describes
+           the emerging standard "sos" (case insensitive) as the
+           universal emergency assistance number, to unify the
+           incompatible national standards.
+           All other emergency assistance numbers (e.g., 9911) are mapped
+           to 911 by fallbackrules.xml and so need not be mentioned here. -->
       <userPattern>sos</userPattern>
       <userPattern>911</userPattern>
       <permissionMatch>
