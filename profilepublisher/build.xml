@@ -57,6 +57,11 @@
       </fileset>
     </copy>
 
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/sds-config.in"
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@SIPXPBXLOG@" property="sipxpbx.log.dir"/>
+    </replace>
+
     <mkdir dir="${dest.dir}${sipxpbx.data.dir}/sql"/>
     <copy todir="${dest.dir}${sipxpbx.data.dir}/sql">
       <fileset dir="meta/sql" includes="**"/>
