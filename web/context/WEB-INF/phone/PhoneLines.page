@@ -44,8 +44,8 @@
     <component id="selectedRow" type="Checkbox">
         <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
-    <component id="newLineLink" type="DirectLink">
-        <binding name="listener" expression="listeners.newLine"/>
+    <component id="addUserLink" type="DirectLink">
+        <binding name="listener" expression="listeners.addUser"/>
         <binding name="parameters" expression="phone.endpoint.id"/>
     </component>
     <!--

@@ -67,13 +67,35 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     }
     
     public void newLine(IRequestCycle cycle) {
-        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        Phone phone = context.getPhone(endpointId.intValue());
         NewLine page = (NewLine) cycle.getPage(NewLine.PAGE);
-        page.setPhone(phone);
+        page.setPhoneId(endpointId.intValue());
         page.setReturnPage(PAGE);
         cycle.activate(page);
+    }
+
+    public void addUser(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
+        page.setPhoneId(endpointId.intValue());
+        cycle.activate(page);        
+    }
+
+    public void ok(IRequestCycle cycle) {
+        apply(cycle);
+        cycle.activate(ManagePhones.PAGE);
+    }
+
+    public void apply(IRequestCycle cycle) {
+        PhoneContext dao = PhonePageUtils.getPhoneContext(cycle); 
+        dao.storeEndpoint(getPhone().getEndpoint());
+        dao.flush();
+    }
+    
+    public void cancel(IRequestCycle cycle) {
+        setPhone(null);
+        cycle.activate(ManagePhones.PAGE);
     }
 }

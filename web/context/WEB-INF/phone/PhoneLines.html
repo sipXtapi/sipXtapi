@@ -8,10 +8,7 @@
 			<form jwcid="editLinesForm">
 				<ul class="component-actions">
 					<li>
-						<a href="#" jwcid="newLineLink">Create New Line</a>
-					</li>
-					<li>
-						<a href="#">Add Line</a>
+						<a href="#" jwcid="addUserLink">Add User</a>
 					</li>
 				</ul>
 				<table jwcid="lineTableView" class="table-view">
@@ -65,18 +62,17 @@
 						<input type="button" name="" value="Remove"/>
 					</li>
 				</ul>
-				<ul class="form-actions">
-					<li>
-						<input type="submit" name="cancel" value="Cancel"/>
-					</li>
-					<li>
-						<input type="button" name="apply" value="Apply" 
-							onclick="javascript:location.href='#';"/>
-					</li>
-					<li>
-						<input type="submit" name="save" value="OK"/>
-					</li>
-				</ul>
+			<ul class="form-actions">
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.apply" value="Apply"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.ok" value="OK"/>
+				</li>
+			</ul>                     
 			</form>
 		</div>
 	</body>

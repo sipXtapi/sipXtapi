@@ -16,6 +16,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.hibernate.Criteria;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.expression.Expression;
+import net.sf.hibernate.expression.MatchMode;
+
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -97,6 +102,32 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         List users = getHibernateTemplate().find(query);
         
         return (User) requireOneOrZero(users, query);
+    }
+    
+    public List loadUserByTemplateUser(User template) {
+        try {
+            Criteria criteria = getHibernateTemplate().createCriteria(getSession(), User.class);
+            if (template.getFirstName() != null) {
+                criteria.add(Expression.like("firstName", template.getFirstName(),
+                        MatchMode.START));
+            }
+            if (template.getLastName() != null) {
+                criteria
+                        .add(Expression.like("lastName", template.getLastName(), MatchMode.START));
+            }
+            if (template.getDisplayId() != null) {
+                criteria.add(Expression.like("displayId", template.getDisplayId(),
+                        MatchMode.START));
+            }
+            if (template.getExtension() != null) {
+                criteria.add(Expression.like("extension", template.getExtension(),
+                        MatchMode.START));
+            }
+
+            return criteria.list();
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        }
     }
     
     public void storeEndpoint(Endpoint endpoint) {

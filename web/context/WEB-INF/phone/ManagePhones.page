@@ -32,12 +32,13 @@
 		<binding name="row" expression="currentRow"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
-    <!-- Column 1: edit phone -->
 	<component id="phoneValues" type="contrib:TableValues">
 	</component>
+    <!-- Column 1: select phone -->
     <component id="selectedRow" type="Checkbox">
         <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
+    <!-- Column 2: edit phone -->
     <component id="PhoneColumnValue" type="Block"/>
     <component id="editPhoneLink" type="DirectLink">
         <binding name="listener" expression="listeners.editPhone"/>

@@ -72,6 +72,8 @@ public interface PhoneContext {
 
     public User loadUser(int id);
     
+    public List loadUserByTemplateUser(User template);
+
     public User loadUserByDisplayId(String displayId);
     
     public List loadPhoneSummaries();      

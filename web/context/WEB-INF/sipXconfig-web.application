@@ -18,10 +18,9 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>    
+    <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
-    <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="Home" specification-path="Home.page"/>
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
@@ -31,6 +30,8 @@
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>
     <page name="PhoneLines" specification-path="phone/PhoneLines.page"/>
+    <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
+    <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
 
     <!--
       -  C O M P O N E N T S
@@ -42,13 +43,15 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
-	<component-type type="Border" specification-path="common/Border.jwc"/>
+    <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
     <component-type type="DialingRuleCommon" specification-path="dialplan/DialingRuleCommon.jwc"/>
+    <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
-    <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
+    <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>
+    <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
 
 </application>

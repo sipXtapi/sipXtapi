@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<span jwcid="@Border">
+			<div id="component">
+				<p><span class="pagelabel">Phone:</span> <span jwcid="@Insert" 
+					value="ognl:phone.endpoint.displayLabel">Serial 
+					Number</span> /<span jwcid="@Insert" 
+					value="ognl:phone.displayLabel">Phone Model</span></p>
+				<div id="help">
+					<b>Quick Links</b>
+					<ul>
+						<li>
+							<a href="#">Create new line?</a>
+						</li>
+					</ul>
+				</div>
+				<h2>Add User</h2>
+				<p>Adding a user to the phone will add a line appearance on 
+					that phone representing that user. You can add users to as 
+					many phones as you'd like including different phone models. 
+					Setting about how that user is configured on this 
+					particular phone can be set after adding the user.</p>
+				<span jwcid="searchForm"/>
+				<span jwcid="searchResults"/>                
+			</div>
+		</span>
+	</body>
+</html>

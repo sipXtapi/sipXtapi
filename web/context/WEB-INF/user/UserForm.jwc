@@ -26,7 +26,7 @@
     <component id="userId" type="ValidField">
 	    <binding name="value" expression="user.userId"/>
     	<binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="User ID"/>
+	    <static-binding name="displayName" value="Display ID"/>
     </component>
     <component id="firstNameLabel" type="FieldLabel">
         <binding name="field" expression="components.userId"/>

@@ -69,6 +69,14 @@ public class PhoneContextTestDb extends TestCase {
         List summaries = m_context.loadPhoneSummaries();
         assertEquals(preSize + 1, summaries.size());
     }
+    
+    public void testLoadUsersByTemplateUsers() {
+        User user = createSampleUser();
+        List users = m_context.loadUserByTemplateUser(user);
+        assertEquals(1, users.size());
+        User results = (User) users.get(0);
+        assertEquals(user.getId(), results.getId());
+    }
 
     /**
      * PhoneSummaryFactory implementation
@@ -77,13 +85,6 @@ public class PhoneContextTestDb extends TestCase {
         return new PhoneSummary();
     }
 
-    /**
-     * PhoneSummaryFactory implementation
-     */
-    public PhoneContext getPhoneContext() {
-        return m_context;
-    }
-    
     public User createSampleUser() {
         User user = new User();
         user.setExtension("0000000000"); // assumption, unique
