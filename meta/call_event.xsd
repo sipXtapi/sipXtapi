@@ -1,12 +1,10 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
-<!DOCTYPE schema [
-<!ENTITY % sip_word "([&lt;&gt;&quot;a-zA-Z0-9.!&#x25;*_+`'~():\/[&#x5d;?{}-]+)">
-<!ENTITY % sip_token "([a-zA-Z0-9.!&#x25;*_+`'~-]+)">
-<!ENTITY % dns_token "[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?">
-]>
 <!--
     XML Schema for sipX Call State Events
   -->
+<!-- ENTITY % sip_word "([&lt;&gt;&quot;a-zA-Z0-9.!&#x25;*_+`'~():\/[&#x5d;?{}-]+) -->
+<!-- ENTITY % sip_token "([a-zA-Z0-9.!&#x25;*_+`'~-]+)" -->
+<!-- ENTITY % dns_token "[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*" -->
 <schema
     xmlns:cse='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
     targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
@@ -29,7 +27,26 @@
       </documentation>
     </annotation>
     <restriction base="normalizedString">
-      <pattern value="%dns_token(\.%dns_token)+"/>
+      <pattern value="(([a-zA-Z0-9]+-)*[a-zA-Z0-9]+\.)*([a-zA-Z0-9]+-)*[a-zA-Z0-9]+">
+        <annotation>
+          <documentation>dns_token(\.dns_token)+</documentation>
+        </annotation>
+      </pattern>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="dns_name_port">
+    <annotation>
+      <documentation>
+        A DNS name with an optional port specification.
+      </documentation>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="(([a-zA-Z0-9]+-)*[a-zA-Z0-9]+\.)*([a-zA-Z0-9]+-)*[a-zA-Z0-9]+(:[0-9]+)?">
+        <annotation>
+          <documentation>dns_token(\.dns_token)+(:port)?</documentation>
+        </annotation>
+      </pattern>
     </restriction>
   </simpleType>
 
@@ -42,7 +59,11 @@
       <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
     </annotation>
     <restriction base="normalizedString">
-      <pattern value="%sip_token;" />
+      <pattern value="([a-zA-Z0-9.!&#x25;*_+`'~\-]+)">
+        <annotation>
+          <documentation>sip_token</documentation>
+        </annotation>
+      </pattern>
     </restriction>
   </simpleType>
 
@@ -56,7 +77,11 @@
       <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
     </annotation>
     <restriction base="normalizedString">
-      <pattern value="%sip_word;@%sip_word;" />
+      <pattern value="([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)@([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)">
+         <annotation>
+           <documentation>sip_word@sip_word</documentation>
+         </annotation>
+      </pattern>
     </restriction>
   </simpleType>
 
@@ -109,7 +134,7 @@
     </annotation>
     <complexType>
       <sequence>
-        <element ref='call_event' minOccurs='0' />
+        <element ref='cse:call_event' minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
     </complexType>
   </element>
@@ -150,7 +175,7 @@
       <sequence>
           <element ref='cse:obs_status'/>
           <element ref='cse:obs_text' minOccurs='0'/>
-          <element name='schema' type='uri' minOccurs='0'>
+          <element name='schema' type='anyURI' minOccurs='0'>
             <annotation>
               <documentation>
                 If present, this is the schema URI that the observer is using in generating 
@@ -204,7 +229,8 @@
   <element name='call_end'>
     <annotation>
       <documentation>
-
+      This identifies the termination of a call.
+      It records the BYE request.
       </documentation>
     </annotation>
     <complexType>
@@ -218,7 +244,8 @@
   <element name='call_failure'>
     <annotation>
       <documentation>
-
+      This identifies a failure in response to a call request.
+      It indicates a permanent failure response to an INVITE.
       </documentation>
     </annotation>
     <complexType>
@@ -255,7 +282,7 @@
     </complexType>
   </element>
 
-  <element name='observer' type='cse:dns_name'>
+  <element name='observer' type='cse:dns_name_port'>
     <annotation>
       <documentation>
       The DNS name of the commserver host that observed this event.
@@ -291,5 +318,7 @@
   <element name='reason' type='normalizedString'/>
 
   <element name='via' type='normalizedString'/>
+
+  <element name='contact' type='normalizedString'/>
 
 </schema>
