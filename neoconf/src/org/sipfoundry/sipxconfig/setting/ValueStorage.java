@@ -21,9 +21,9 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * This represents a link table between several business objects and SettingValues
- * It serves no business purpose and serves a 
+ * It serves no business purpose but gets around a hibernate and RDBMS mismatch
  */
-class SettingMap implements Serializable, Map {
+public class ValueStorage implements Map, Serializable {
     
     private static final long serialVersionUID = 1L;      
 
@@ -38,19 +38,19 @@ class SettingMap implements Serializable, Map {
     public void setId(int id) {
         m_id = id;
     }
-    
-    public void setDelegate(Map delegate) {
-        m_delegate = delegate;
-    }
-
-    public Map getDelegate() {
+ 
+    public Map getValues() {
         return m_delegate;
     }
-
+    
+    public void setValues(Map delegate) {
+        m_delegate = delegate;
+    }
+    
     public void clear() {
         m_delegate.clear();
     }
-    
+
     public boolean containsKey(Object key) {
         return m_delegate.containsKey(key);
     }
@@ -58,7 +58,7 @@ class SettingMap implements Serializable, Map {
     public boolean containsValue(Object value) {
         return m_delegate.containsValue(value);
     }
-    
+
     public Set entrySet() {
         return m_delegate.entrySet();
     }
@@ -75,13 +75,13 @@ class SettingMap implements Serializable, Map {
         return m_delegate.keySet();
     }
 
-    public Object put(Object key, Object value) {
-        ((SettingValue) value).setSettingMap(this);
-        return m_delegate.put(key, value);
+    public Object put(Object key_, Object value) {
+        SettingValue settingValue = (SettingValue) value;
+        settingValue.setValueStorage(this);
+        return m_delegate.put(settingValue.getPath(), settingValue);
     }
 
     public void putAll(Map t) {
-        // avoids setting m_map...fix
         m_delegate.putAll(t);
     }
 

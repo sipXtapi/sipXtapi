@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model>
-	<group name="registration">
+	<group name="registrations">
 		<label>Registration</label>
 		<setting name="displayName">
 			<label>Display Name</label>
@@ -13,15 +13,15 @@
 			<label>Label</label>
 		</setting>
 		<setting name="type">
-			<defaultValue>public</defaultValue>
+			<label>Type</label>
+			<defaultValue>private</defaultValue>
 			<possibleValues>
-				<value>public</value>
 				<value>private</value>
+				<value>public</value>
 			</possibleValues>
 		</setting>
 	</group>
-	<!-- TODO: think about 'line' element to remove opportunity for user error -->
 	<group name="line">
-		<label>Line Settings</label>
+		<label>Lines</label>
 	</group>
 </model>

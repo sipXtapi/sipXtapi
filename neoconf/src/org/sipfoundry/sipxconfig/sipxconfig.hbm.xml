@@ -20,8 +20,8 @@
 		<property name="name" column="name"/>
 		<property name="serialNumber" column="serial_number"/>
 		<property name="phoneId" column="phone_id"/>
-		<many-to-one name="settingValues" column="setting_map_id"
-			class="org.sipfoundry.sipxconfig.setting.SettingMap"/>
+		<many-to-one cascade="all" name="valueStorage" column="storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 	</class>
 	<class name="org.sipfoundry.sipxconfig.phone.Credential" table="credential">
 		<jcs-cache usage="read-write"/>
@@ -51,8 +51,8 @@
 			class="org.sipfoundry.sipxconfig.phone.Credential"/>
 		<many-to-one name="endpoint" column="endpoint_id" 
 			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-		<many-to-one name="settingValues" column="setting_map_id"
-			class="org.sipfoundry.sipxconfig.setting.SettingMap"/>
+		<many-to-one cascade="all" name="valueStorage" column="storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 	</class>
 	<!--
 	  - S E T T I N G  M A P
@@ -60,15 +60,15 @@
 	  - making this a table w/one column.  It's more straight forward
 	  - from hibernate and foreign key perspective, just feels unnec.
 	  -->
-	<class name="org.sipfoundry.sipxconfig.setting.SettingMap" table="setting_map">
+	<class name="org.sipfoundry.sipxconfig.setting.ValueStorage" table="storage">
 		<jcs-cache usage="read-write"/>
-		<id name="id" column="setting_map_id" type="int" unsaved-value="-1">
+		<id name="id" column="storage_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
-				<param name="sequence">setting_map_seq</param>
+				<param name="sequence">storage_seq</param>
 			</generator>
 		</id>
-		<map name="delegate" cascade="all" inverse="true">
-			<key column="setting_map_id"/>
+		<map name="values" cascade="all" inverse="true">
+			<key column="storage_id"/>
 			<index column="path" type="string"/>
 			<many-to-many class="org.sipfoundry.sipxconfig.setting.SettingValue"/>
 	    </map>
@@ -83,8 +83,8 @@
 				<param name="sequence">setting_seq</param>
 			</generator>
 		</id>
-		<many-to-one name="settingMap" column="setting_map_id" 
-			class="org.sipfoundry.sipxconfig.setting.SettingMap"/>
+		<many-to-one name="valueStorage" column="storage_id" 
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 		<property name="path" column="path"/>
 		<property name="value" column="value"/>
 	</class>

@@ -1,18 +1,18 @@
 /** 
- * S E T T I N G   M A P
+ * S E T T I N G   S T O R A G E
  */
-create table setting_map(
-  setting_map_id int4 not null primary key
+create table storage(
+  storage_id int4 not null primary key
 );
 
-create sequence setting_map_seq;
+create sequence storage_seq;
 
 /**
  * S E T T I N G
  */
 create table setting(
   setting_id int4 not null primary key,
-  setting_map_id int4 not null,
+  storage_id int4 not null,
   path varchar(256) not null,
   value varchar(256) not null
 );
@@ -27,7 +27,7 @@ create table endpoint(
   serial_number varchar(256) not null,
   name varchar(256),
   phone_id varchar(256) not null,
-  setting_map_id int4
+  storage_id int4
 );
 
 /* 
@@ -36,7 +36,7 @@ create table endpoint(
  * possible w/postgres
 alter table endpoint
 add constraint fk_endpoint_1
-foreign key (setting_map_id) references setting_map (setting_map_id);
+foreign key (storage_id) references storage (storage_id);
  */
  
 create sequence endpoint_seq;
@@ -60,7 +60,7 @@ create table line(
   line_id int4 not null primary key,
   credential_id int4 not null,
   user_id int4 not null,
-  setting_map_id int4,
+  storage_id int4,
   endpoint_id int4 not null
 );
 create sequence line_seq;
@@ -75,7 +75,7 @@ foreign key (endpoint_id) references endpoint (endpoint_id);
  * possible w/postgres
 alter table line
 add constraint fk_line_2
-foreign key (setting_map_id) references setting_map (setting_map_id);
+foreign key (storage_id) references storage (storage_id);
 */
 
 /** may relax if user null ok */

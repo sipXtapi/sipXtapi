@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.map.LinkedMap;
@@ -25,15 +24,13 @@ import org.apache.commons.collections.map.LinkedMap;
 public class SettingGroup extends Setting {
     
     private LinkedMap m_delegate = new LinkedMap();
-    
-    private Map m_settingValues = new SettingMap();
-
-    /**
-     * Create the top most model
+        
+    /** 
+     * Root setting group and bean access only
      */
     public SettingGroup() {
     }
-    
+        
     public SettingGroup(String name) {
         super(name);
     }
@@ -41,59 +38,21 @@ public class SettingGroup extends Setting {
     /**
      * generate a mutable, deep copy populated with the settings,  recursive
      */
-    public Setting deepClone() {
+    public Setting getCopy(ValueStorage valueStorage) {
+        setValueStorage(valueStorage);
         SettingGroup clone = (SettingGroup) this.clone();
         int size = m_delegate.size();        
         clone.m_delegate = new LinkedMap(size > 0 ? size : 1); // throws error if ever size = 0        
         Iterator values = m_delegate.values().iterator();
         while (values.hasNext()) {
             Setting setting = (Setting) values.next();
-            Setting settingCopy = setting.deepClone();
-            clone.put(settingCopy.getName(), settingCopy);
+            Setting settingCopy = setting.getCopy(valueStorage);
+            clone.addSetting(settingCopy);
         }
 
         return clone;
     }
-    
-    public SettingValue getSettingValue() {
-        return (SettingValue) m_settingValues.get(getPath());
-    }
-    
-    public void setSettingValue(SettingValue settingValue) {        
-        if (settingValue.getValue() == null) {
-            m_settingValues.remove(getPath());
-        } else {            
-            m_settingValues.put(getPath(), settingValue);
-        }
-    }
-
-    /**
-     * accumulate values the user has actually set.  will clear all previsous settings
-     * 
-     * @return null if no settings values
-     */
-    public Map getSettingValues() {
-        return m_settingValues;
-    }
-    
-    /**
-     * The values the user has actually set
-     * 
-     * @return null if no settings values
-     */
-    public void setSettingValues(Map settingValues) {
-        if (settingValues == null) {
-            m_settingValues.clear();
-        } else {
-            m_settingValues = settingValues;
-        }
-        super.setSettingValues(m_settingValues);
-        Iterator values = m_delegate.values().iterator();
-        while (values.hasNext()) {
-            ((Setting) values.next()).setSettingValues(m_settingValues);            
-        }        
-    }
-    
+            
     /**
      * the nth item that was added to this model
      */
@@ -103,11 +62,11 @@ public class SettingGroup extends Setting {
     }
 
     /**
-     * @throws IllegalArgumentException  Cannot put settings into another setting, only groups
+     * adds the setting to this group collection along with setting the
+     * group on the setting 
      */
     public Setting addSetting(Setting setting) {
         setting.setSettingGroup(this);
-        setting.setSettingValues(m_settingValues);
         m_delegate.put(setting.getName(), setting);
         
         return setting;
@@ -119,6 +78,9 @@ public class SettingGroup extends Setting {
     
     /**
      * M A P  I M P L E M E N T A T I O N
+     * quasi implementation, turns out little benefit to support map interface
+     * infact tapestry gets confused and all other methods do not get called
+     * instean map.get(methodName) tends to get called.
      */
     public int size() {
         return m_delegate.size();
@@ -132,20 +94,16 @@ public class SettingGroup extends Setting {
         return m_delegate.isEmpty();
     }
 
-    public boolean containsKey(Object key) {
+    public boolean hasKey(Object key) {
         return m_delegate.containsKey(key);
     }
 
-    public boolean containsValue(Object value) {
+    public boolean hasValue(Object value) {
         return m_delegate.containsValue(value);
     }
 
-    public Collection values() {
+    public Collection getValues() {
         return m_delegate.values();
-    }
-
-    public void putAll(Map t) {
-        m_delegate.putAll(t);
     }
 
     public Set entrySet() {
@@ -155,16 +113,4 @@ public class SettingGroup extends Setting {
     public Set keySet() {
         return m_delegate.keySet();
     }
-
-    public Object get(Object key) {
-        return m_delegate.get(key);
-    }
-
-    public Object remove(Object key) {
-        return m_delegate.remove(key);
-    }
-
-    public Object put(Object key_, Object value) {
-        return addSetting((Setting) value);
-    }    
 }

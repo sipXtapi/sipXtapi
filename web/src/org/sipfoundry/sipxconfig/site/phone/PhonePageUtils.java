@@ -42,13 +42,4 @@ public final class PhonePageUtils {
         return context;
         
     }    
-    
-    /**
-     * Get phone if pass as a parameter such as a DirectLink
-    public static final Phone getPhoneFromParameter(IRequestCycle cycle, int index) {
-        Object[] params = cycle.getServiceParameters();
-        Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, index);
-        return getPhoneContext(cycle).getPhone(endpointId.intValue());
-    }
-     */
 }

@@ -23,26 +23,17 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
 public class PolycomPhone extends GenericPhone {
+        
+    public static final String REGISTRATION_SETTINGS = "registrations";
 
-    /** basic model */
-    public static final String MODEL_300 = "polycom300";
-
-    /** standard model */
-    public static final String MODEL_500 = "polycom500";
-
-    /** deluxe model */
-    public static final String MODEL_600 = "polycom600";
-
-    /** conference phone */
-    public static final String MODEL_3000 = "polycom3000";
-
-    private String m_id;
+    private Polycom m_model = Polycom.MODEL_300;
 
     private String m_tftpRoot;
 
@@ -50,7 +41,7 @@ public class PolycomPhone extends GenericPhone {
 
     private String m_modelDefinitions = "polycom/model.xml";
 
-    private String m_phoneConfigTemplate = "polycom/phone1.cfg";
+    private String m_phoneConfigTemplate = "polycom/phone1.cfg.vm";
 
     private VelocityEngine m_velocityEngine;
 
@@ -75,15 +66,19 @@ public class PolycomPhone extends GenericPhone {
     }
 
     public String getModelId() {
-        return m_id;
+        return m_model.getModelId();
     }
 
     public String getDisplayLabel() {
-        return "Polycom SoundPoint IP 300";
+        return m_model.getDisplayLabel();
     }
 
     public void setModelId(String id) {
-        m_id = id;
+        m_model = Polycom.getModel(id);
+    }
+    
+    public int getMaxLineCount() {
+        return m_model.getMaxLines();
     }
 
     SettingGroup getSettingModel() {
@@ -116,8 +111,12 @@ public class PolycomPhone extends GenericPhone {
     
     public SettingGroup getSettingGroup() {
         if (m_settingGroup == null) {
-            m_settingGroup = (SettingGroup) getSettingModel().deepClone();
-            m_settingGroup.setSettingValues(getEndpoint().getSettingValues());
+            ValueStorage valueStorage = getEndpoint().getValueStorage();
+            if (valueStorage == null) {
+                valueStorage = new ValueStorage();
+                getEndpoint().setValueStorage(valueStorage);
+            }
+            m_settingGroup = (SettingGroup) getSettingModel().getCopy(valueStorage);
         }
         
         return m_settingGroup;
@@ -155,6 +154,7 @@ public class PolycomPhone extends GenericPhone {
 
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("phone", this);
+        velocityContext.put("model", new ProfileModel(this));
 
         FileWriter wtr = null;
         File profile = getFile(getTftpRoot(), getPhoneConfigFilename());
@@ -209,4 +209,5 @@ public class PolycomPhone extends GenericPhone {
     File getFile(String root, String filename) {
         return new File(root + '/' + filename);
     }
+    
 }

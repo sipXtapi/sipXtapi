@@ -12,16 +12,12 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
- * Meta Information about a Setting.
- */
-public class Setting implements Map, Cloneable {
+ * Base class for all items describing and using setting.  
+ */    
+public class Setting implements Cloneable {
 
     private String m_label;
 
@@ -29,13 +25,15 @@ public class Setting implements Map, Cloneable {
 
     private String m_name;
     
-    private SettingValue m_settingValue;
-
     private String m_defaultValue;
 
     private List m_possibleValues;
     
+    private String m_profileName;
+    
     private SettingGroup m_settingGroup;
+    
+    private ValueStorage m_valueStorage;
     
     /**
      * bean access only, must set name before valid object
@@ -46,41 +44,20 @@ public class Setting implements Map, Cloneable {
     public Setting(String name) {
         setName(name);
     }
-    
-    public Setting(String name, String value) {
-        this(name);
-        setValue(value);
-    }
 
-    public Setting deepClone() {
-        return (Setting) clone();        
+    public Setting getCopy(ValueStorage valueStorage) {
+        Setting clone = (Setting) clone();
+        clone.setValueStorage(valueStorage);
+        
+        return clone;
     }
         
-    public void setSettingValues(Map settingValues) {
-        m_settingValue = (SettingValue) settingValues.get(getPath());
+    void setValueStorage(ValueStorage valueStorage) {
+        m_valueStorage = valueStorage;
     }
     
-    void updateSettingValues() {
-        if (m_settingGroup != null) {
-            if (m_settingValue == null) {
-                m_settingGroup.getSettingValues().remove(getPath());
-            } else {            
-                m_settingGroup.getSettingValues().put(getPath(), m_settingValue);
-            }
-        }
-    }
-
-    public SettingValue getSettingValue() {
-        return m_settingValue;
-    }
-    
-    public void setSettingValue(SettingValue settingValue) {
-        if (settingValue == null || settingValue.getValue() == null) {
-            m_settingValue = null;                    
-        } else {
-            m_settingValue = settingValue;
-        }
-        updateSettingValues();
+    public ValueStorage getValueStorage() {
+        return m_valueStorage;
     }
 
     public SettingGroup getSettingGroup() {
@@ -89,7 +66,6 @@ public class Setting implements Map, Cloneable {
     
     public void setSettingGroup(SettingGroup settingGroup) {
         m_settingGroup = settingGroup;
-        updateSettingValues();
     }
     
     public String getPath() {
@@ -157,14 +133,36 @@ public class Setting implements Map, Cloneable {
     public void setName(String name) {
         m_name = name;
     }
+    
+    public String getProfileName() {
+        return m_profileName == null ? m_name : m_profileName;
+    }
+    
+    public void setProfileName(String profileName) {
+        m_profileName = profileName;
+    }
+
+    public String getProfileValue() {
+        String value = getValue();
+        return value == null ? m_defaultValue : value;
+    }
 
     public String getValue() {
-        return m_settingValue == null ? null : m_settingValue.getValue();
+        checkImmutable();
+        SettingValue value = getSettingValue();
+        return value == null ? null : value.getValue();
     }
 
     public void setValue(String value) {
+        checkImmutable();
         if (value != null) {
-            setSettingValue(new SettingValue(getPath(), value));        
+            SettingValue settingValue = getSettingValue();
+            if (settingValue == null) {
+                setSettingValue(new SettingValue(getPath(), value));
+                
+            } else {
+                settingValue.setValue(value);
+            }
         } else {
             setSettingValue(null);
         }
@@ -193,57 +191,23 @@ public class Setting implements Map, Cloneable {
         m_possibleValues = possibleValues;
     }
 
-    /*
-     * M A P  I M P L E M E N T A T I O N
-     */
-
-    public int size() {
-        return 0;
+    private SettingValue getSettingValue() {
+        checkImmutable();
+        return (SettingValue) m_valueStorage.get(getPath());
     }
-
-    public void clear() {
+    
+    protected void checkImmutable() {
+        if (m_valueStorage == null) {
+            throw new IllegalStateException("Immutable copy, you must call getCopy on root SettingGroup instance");
+        }        
     }
-
-    public boolean isEmpty() {
-        return true;
+    
+    private void setSettingValue(SettingValue settingValue) {
+        checkImmutable();
+        if (settingValue == null || settingValue.getValue() == null) {
+            m_valueStorage.remove(getPath());
+        } else {
+            m_valueStorage.put(getPath(), settingValue);
+        }
     }
-
-    public boolean containsKey(Object key_) {
-        return false;
-    }
-
-    public boolean containsValue(Object value_) {
-        return false;
-    }
-
-    public Collection values() {
-        return Collections.EMPTY_LIST;
-    }
-
-    public void putAll(Map t_) {
-    }
-
-    public Set entrySet() {
-        return Collections.EMPTY_SET;
-    }
-
-    public Set keySet() {
-        return Collections.EMPTY_SET;
-    }
-
-    public Object get(Object key_) {
-        return null;
-    }
-
-    public Object remove(Object key_) {
-        return null;
-    }
-
-    public Object put(Object key_, Object value_) {
-        return null;
-    }
-
-    /*
-     *  E N D  M A P I M P L E M E N T A T I O N
-     */
 }

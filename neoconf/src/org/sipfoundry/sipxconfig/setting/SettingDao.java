@@ -16,5 +16,5 @@ package org.sipfoundry.sipxconfig.setting;
  */
 public interface SettingDao {
     
-    public void storeSettingValues(SettingMap map);
+    public void storeValueStorage(ValueStorage storage);
 }

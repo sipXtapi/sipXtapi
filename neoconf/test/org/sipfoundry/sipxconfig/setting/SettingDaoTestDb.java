@@ -23,13 +23,16 @@ public class SettingDaoTestDb extends TestCase {
     }
     
     public void testSettingGroup() {
-        SettingMap map = new SettingMap();
-        SettingValue value = new SettingValue("/any/path", "value");
-        map.put(value.getPath(), value);
+        SettingGroup root = new SettingGroup();
+        root.addSetting(new Setting("setting"));
+        
+        SettingGroup copy = (SettingGroup) root.getCopy(new ValueStorage());
+        copy.getSetting("setting").setValue("some value");
+
         ApplicationContext context = TestHelper.getApplicationContext();
         SettingDao dao = (SettingDao) context.getBean("settingDao");
-        dao.storeSettingValues(map);
+        dao.storeValueStorage(copy.getValueStorage());
         
-        TestHelper.deleteOnTearDown(map);
+        TestHelper.deleteOnTearDown(copy.getValueStorage());
     }
 }

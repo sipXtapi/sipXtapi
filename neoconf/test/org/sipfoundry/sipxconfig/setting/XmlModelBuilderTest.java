@@ -66,7 +66,7 @@ public class XmlModelBuilderTest extends TestCase {
         InputStream in = getClass().getResourceAsStream("games.xml");
         SettingGroup games = builder.buildModel(in);
         
-        Iterator i = games.values().iterator();
+        Iterator i = games.getValues().iterator();
         while (i.hasNext()) {
             assertTrue(i.next().getClass().isAssignableFrom(SettingGroup.class));
         }       

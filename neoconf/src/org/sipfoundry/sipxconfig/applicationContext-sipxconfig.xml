@@ -111,6 +111,8 @@
 		<property name="phoneIds">
 			<list>
 				<value>polycom300</value>
+				<value>polycom500</value>
+				<value>polycom600</value>
 			</list>
 		</property>
 		<property name="settingDao">
@@ -149,6 +151,36 @@
 		</property>
 		<property name="modelId">
 			<value>polycom300</value>
+		</property>
+	</bean>
+	<bean id="polycom500" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
+		singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="systemDirectory">
+			<value>${sysdir.etc}</value>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
+		</property>
+		<property name="modelId">
+			<value>polycom500</value>
+		</property>
+	</bean>
+	<bean id="polycom600" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
+		singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="systemDirectory">
+			<value>${sysdir.etc}</value>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
+		</property>
+		<property name="modelId">
+			<value>polycom600</value>
 		</property>
 	</bean>
 	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		

@@ -12,7 +12,8 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
-import java.util.Map;
+
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 
 /**
@@ -30,7 +31,7 @@ public class Endpoint implements Serializable {
 
     private String m_phoneId;
     
-    private Map m_settingValues;
+    private ValueStorage m_valueStorage;
 
     /**
      * @return ids used in PhoneFactory
@@ -70,18 +71,18 @@ public class Endpoint implements Serializable {
         m_serialNumber = serialNumber;
     }
     
-    public Map getSettingValues() {
-        return m_settingValues;
-    }
-    
-    public void setSettingValues(Map settingValues) {
-        m_settingValues = settingValues;
-    }
-
     /**
      * @return name if set otherwise serial number, convienent for display purposes
      */
     public String getDisplayLabel() {
         return m_name != null ? m_name : m_serialNumber;
+    }
+    
+    public ValueStorage getValueStorage() {
+        return m_valueStorage;
+    }
+    
+    public void setValueStorage(ValueStorage valueStorage) {
+        m_valueStorage = valueStorage;
     }
 }

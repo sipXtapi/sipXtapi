@@ -28,8 +28,7 @@ public class SettingValue implements Serializable {
     
     private int m_id = PhoneContext.UNSAVED_ID;
     
-    /** hibernate only */
-    private SettingMap m_map;
+    private ValueStorage m_valueStorage;
     
     /** bean access only */
     public SettingValue() {        
@@ -66,12 +65,12 @@ public class SettingValue implements Serializable {
 
 
     /** hibernate only */
-    public void setSettingMap(SettingMap map) {
-        m_map = map;
+    public void setValueStorage(ValueStorage valueStorage) {
+        m_valueStorage = valueStorage;
     }
 
     /** hibernate only */
-    public SettingMap getSettingMap() {
-        return m_map;
+    public ValueStorage getValueStorage() {
+        return m_valueStorage;
     }
 }

@@ -6,5 +6,5 @@ drop table endpoint cascade;
 drop sequence endpoint_seq;
 drop table setting cascade;
 drop sequence setting_seq;
-drop table setting_map;
-drop sequence setting_map_seq;
+drop table storage;
+drop sequence storage_seq;

@@ -18,7 +18,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     
-    public void storeSettingValues(SettingMap map) {
-        getHibernateTemplate().saveOrUpdate(map);                        
+    public void storeValueStorage(ValueStorage storage) {
+        getHibernateTemplate().saveOrUpdate(storage);                        
     }
 }

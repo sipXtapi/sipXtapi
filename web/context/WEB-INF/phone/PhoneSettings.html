@@ -16,6 +16,17 @@
             </tr>
             </span>
             </table>
+			<ul class="form-actions">
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.apply" value="Apply"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.ok" value="OK"/>
+				</li>
+			</ul>                        
         </form>
     </div>   
 </body>

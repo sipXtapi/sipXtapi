@@ -11,73 +11,61 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.TestCase;
 
 public class SettingGroupTest extends TestCase {
 
-    public void testDeepClone() {
+    public void testImmutableModel() {
         SettingGroup root = new SettingGroup();
         SettingGroup fruit = (SettingGroup)root.addSetting(new SettingGroup("fruit"));
         root.addSetting(new SettingGroup("vegatables"));
         Setting apple = fruit.addSetting(new Setting("apple"));
+
+        assertEquals("/fruit/apple", apple.getPath());
+        assertNull(root.getValueStorage());
         
-        Map values = new HashMap();
-        values.put(apple.getPath(), new SettingValue(apple.getPath(), "granny smith"));        
-        
-        SettingGroup rootClone = (SettingGroup) root.deepClone();
-        rootClone.setSettingValues(values);
-        Setting appleClone = rootClone.getSetting("fruit").getSetting("apple");
-        
-        // should be a cloned copy, not same instance
-        assertFalse(apple == appleClone);
-        assertEquals("granny smith", appleClone.getValue());
-        assertEquals("/fruit/apple", appleClone.getPath());
+        try {
+            apple.setValue("granny smith");
+            fail();
+        }
+        catch (IllegalStateException e) {
+            assertTrue(true);
+        }
     }
     
-    public void testSetSettingValues() {
+    public void testValueStorage() {
         SettingGroup root = new SettingGroup();
         SettingGroup fruit = (SettingGroup)root.addSetting(new SettingGroup("fruit"));
         Setting apple = fruit.addSetting(new Setting("apple"));
 
-        root.setSettingValues(null);
-        // always returns something
-        assertNotNull(root.getSettingValues());
+        ValueStorage settingValues = new ValueStorage();
+        settingValues.put(apple.getPath(), new SettingValue(apple.getPath(), "granny smith"));
         
-        HashMap settingValues = new HashMap();
-        root.setSettingValues(settingValues);
-        assertNotNull(root.getSettingValues());
-        
-        apple.setValue("granny smith");
-        SettingValue valuePreClear = (SettingValue) settingValues.get(apple.getPath());
-        assertNotNull(valuePreClear);
-        assertEquals("granny smith", valuePreClear.getValue());
-        
-        // operations on map will affect setting group because it should always
-        // be kept in sync
-        settingValues.clear();
-        SettingValue valuePostClear = (SettingValue) settingValues.get(apple.getPath());
-        assertNull(valuePostClear);
+        SettingGroup copy = (SettingGroup) root.getCopy(settingValues);
+        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+
+        assertEquals("granny smith", appleCopy.getValue());
+        assertFalse(apple == appleCopy);
+        assertEquals("/fruit/apple", appleCopy.getPath());
     }
     
-    public void testSettingValues() {
+    public void testNullSettings() {
         SettingGroup root = new SettingGroup();
         SettingGroup fruit = (SettingGroup)root.addSetting(new SettingGroup("fruit"));
-        Setting apple = fruit.addSetting(new Setting("apple", "granny smith"));
+        Setting apple = fruit.addSetting(new Setting("apple"));
+
+        SettingGroup copy = (SettingGroup) root.getCopy(new ValueStorage());
+        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
         
-        Map values = root.getSettingValues();
+        assertNull(appleCopy.getValue());
         
-        assertEquals(1, values.size());
-        SettingValue value = (SettingValue) values.get(apple.getPath());
-        assertNotNull(value);
-        assertEquals("granny smith", value.getValue());        
+        appleCopy.setValue("granny smith");
+        assertEquals("granny smith", appleCopy.getValue());
+
+        appleCopy.setValue(null);
+        assertNull(appleCopy.getValue());
     }
     
-    /**
-     * performance test
-     */
     public void test100ModelsWith100Metas() {
         SettingGroup root = new SettingGroup();
         for (int i = 0; i < 100; i++) {
