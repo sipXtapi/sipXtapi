@@ -17,7 +17,7 @@
                 <tr>
                     <td>
                         <label for="gateway:name">
-                            <span jwcid="@FieldLabel" field="ognl:components.gatewayName"> Name</span>
+                            <span jwcid="gatewayNameLabel">Name</span>
                         </label>
                     </td>
                     <td>
@@ -27,7 +27,7 @@
                 <tr>
                     <td>
                         <label for="gateway:address">
-                            <span jwcid="@FieldLabel" field="ognl:components.gatewayAddress">Address</span>
+                            <span jwcid="gatewayAddressLabel">Address</span>
                         </label>
                     </td>
                     <td>
@@ -37,7 +37,7 @@
                 <tr>
                     <td>
                         <label for="gateway:description">
-                            <span jwcid="@FieldLabel" field="ognl:components.gatewayDescription" displayName="Description">Description</span>
+                            <span jwcid="gatewayDescriptionLabel">Description</span>
                         </label>
                     </td>
                     <td>
@@ -49,10 +49,10 @@
         </fieldset>
         <ul class="form-actions">
             <li>
-                <input jwcid="onSave" type="submit" value="Save"/>
+                <input id="gateway:save" jwcid="onSave" type="submit" value="Save"/>
             </li>
             <li>
-                <input jwcid="onCancel" type="submit" value="Cancel"/>
+                <input id="gateway:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
             </li>
 		</ul>
     </form>

@@ -5,11 +5,11 @@
 <body jwcid="@Body">
 	<div id="component">    
 	<ul class="component-actions">
-		<li><a jwcid="addGatewayLink" href="EditGateway.html">Add Gateway</a></li>        
-		<li><a jwcid="dialPlansLink" href="ListDialplans.html">Dial Plans</a></li>
+		<li><a jwcid="addGatewayLink" id="addGateway" href="EditGateway.html">Add Gateway</a></li>        
+		<li><a jwcid="dialPlansLink" id="dialPlans	" href="ListDialplans.html">Dial Plans</a></li>
 	</ul>        
     <form jwcid="@Form" delegate="ognl:beans.validator">
-	<table jwcid="tableView" class="table-view">
+	<table id="list:gateway" jwcid="tableView" class="table-view">
             <thead>
                 <span jwcid="tableColumns"/>
                 <tr jwcid="$remove$">

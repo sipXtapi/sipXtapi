@@ -126,7 +126,7 @@
                         </label>
                     </td>
                     <td>
-                        <textarea jwcid="dialPlanDescription" id="dialplan:description" cols="60" rows="5">Default PSTN gateway</textarea>
+                        <textarea jwcid="dialPlanDescription" id="dialplan:description" cols="45" rows="5">Default PSTN gateway</textarea>
                     </td>
                 </tr>
             </tbody>
@@ -170,6 +170,12 @@
                 </tr>
             </tbody>
         </table>
+        <ul class="table-actions">
+            <li>
+                <input type="button" name="" value="Remove"
+                    onclick="confirm('Are you sure you want to remove selected gateways?')"/>
+            </li>
+        </ul>
         </fieldset>
         <fieldset>        
         <legend>Emergency gateways</legend>

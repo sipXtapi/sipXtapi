@@ -44,15 +44,12 @@
 	</path>
 
 	<path id="base.path">
-
 		<path refid="compile.dependencies" />
-
-		<!-- TEST -->
 		<!-- TODO: Separate these from compile dependencies -->
 		<path refid="runtime.dependencies" />
-
 		<!-- TEST -->
 		<pathelement path="${easymock.jar}" />
+		<pathelement path="${top.dir}/lib/httpunit.jar"/>
 	</path>
 	<property name="classpath" refid="base.path" />
 

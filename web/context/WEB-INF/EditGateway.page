@@ -42,20 +42,32 @@
     <!--
      - C O M P O N E N T S
      -->
+    <component id="gatewayNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewayName"/>
+    </component>
     <component id="gatewayName" type="ValidField">
 	    <binding name="value" expression="gateway.name"/>
     	<binding name="validator" expression="beans.nameValidator"/>
 	    <static-binding name="displayName" value="Name"/>
+    </component>
+    
+    <component id="gatewayAddressLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewayAddress"/>
     </component>
     <component id="gatewayAddress" type="ValidField">
 	    <binding name="value" expression="gateway.address"/>
     	<binding name="validator" expression="beans.nameValidator"/>
 	    <static-binding name="displayName" value="Address"/>
     </component>
-    <component id="gatewayDescription" type="TextArea">
-	    <binding name="value" expression="gateway.description"/>
+    
+    <component id="gatewayDescriptionLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewayDescription"/>
 	    <static-binding name="displayName" value="Description"/>
     </component>
+    <component id="gatewayDescription" type="TextArea">
+	    <binding name="value" expression="gateway.description"/>
+    </component>
+    
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
     </component>
