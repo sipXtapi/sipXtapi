@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,6 +22,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.phone.JobManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneMetaData;
@@ -76,20 +77,34 @@ public abstract class ManagePhones extends BasePage
     }
     
     public void generateProfiles(IRequestCycle cycle_) {
+        Phone[] phones = getSelectedPhones();
+        if (phones.length >= 0) {        
+            Iterator i = Arrays.asList(phones).iterator();
+            new JobManager().generateProfiles(i);
+        }
+    }
+    
+    private Phone[] getSelectedPhones() {
         // TODO: Should execute asychronously and submit job
         // to job database table 
         PhoneContext phoneContext = getPhoneContext();
         
         SelectMap selections = getSelections();        
         Iterator phoneIds = selections.getAllSelected().iterator();
-        while (phoneIds.hasNext()) {
+        Phone[] phones = new Phone[selections.getAllSelected().size()];
+        for (int i = 0; i < phones.length; i++) {
             Integer phoneId = (Integer) phoneIds.next();
-            Phone phone = phoneContext.loadPhone(phoneId);
-            try {
-                phone.generateProfiles();
-            } catch (IOException ioe) {
-                throw new RuntimeException("Error generating profiles", ioe);
-            }
+            phones[i] = phoneContext.loadPhone(phoneId);
+        }
+        
+        return phones;
+    }
+    
+    public void restart(IRequestCycle cycle_) {
+        Phone[] phones = getSelectedPhones();
+        if (phones.length >= 0) {        
+            Iterator i = Arrays.asList(phones).iterator();
+            new JobManager().restart(i);
         }
     }
     

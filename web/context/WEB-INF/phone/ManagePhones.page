@@ -75,4 +75,7 @@
     <component id="sendProfiles" type="Submit">
         <binding name="listener" expression="listeners.generateProfiles"/>
     </component>
+    <component id="restart" type="Submit">
+        <binding name="listener" expression="listeners.restart"/>
+    </component>
 </page-specification>

@@ -30,11 +30,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class PolycomPhone extends AbstractPhone {
 
     public static final String SERVER = "server";
-    
+
     public static final String ADDRESS = "address";
 
     public static final String FIRST = "1";
-    
+
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
     private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
@@ -52,20 +52,20 @@ public class PolycomPhone extends AbstractPhone {
     private VelocityEngine m_velocityEngine;
 
     private SipService m_sip;
-    
+
     /** BEAN ACCESS ONLY */
-    public PolycomPhone() {        
+    public PolycomPhone() {
     }
 
     public PolycomPhone(PolycomSupport polycom, PhoneMetaData meta) {
         super(meta);
         setPolycom(polycom);
     }
-    
+
     public PolycomModel getModel() {
         return PolycomModel.getModel(getPhoneMetaData().getFactoryId());
     }
-    
+
     public Line createLine() {
         return new PolycomLine(this);
     }
@@ -73,7 +73,7 @@ public class PolycomPhone extends AbstractPhone {
     public void setSipService(SipService sip) {
         m_sip = sip;
     }
-    
+
     public SipService getSip() {
         return m_sip;
     }
@@ -152,26 +152,30 @@ public class PolycomPhone extends AbstractPhone {
         }
     }
 
-    public void generateProfiles() throws IOException {
-        initialize();
+    public void generateProfiles() {
+        try {
+            initialize();
 
-        ApplicationConfiguration app = new ApplicationConfiguration(this);
-        app.setTemplate(getApplicationTemplate());
-        generateProfile(app, app.getAppFilename());
+            ApplicationConfiguration app = new ApplicationConfiguration(this);
+            app.setTemplate(getApplicationTemplate());
+            generateProfile(app, app.getAppFilename());
 
-        CoreConfiguration core = new CoreConfiguration(this);
-        core.setTemplate(getCoreTemplate());
-        generateProfile(core, app.getCoreFilename());
+            CoreConfiguration core = new CoreConfiguration(this);
+            core.setTemplate(getCoreTemplate());
+            generateProfile(core, app.getCoreFilename());
 
-        PhoneConfiguration phone = new PhoneConfiguration(this);
-        phone.setTemplate(getPhoneTemplate());
-        generateProfile(phone, app.getPhoneFilename());
+            PhoneConfiguration phone = new PhoneConfiguration(this);
+            phone.setTemplate(getPhoneTemplate());
+            generateProfile(phone, app.getPhoneFilename());
 
-        ConfigurationFile sip = new ConfigurationFile(this);
-        sip.setTemplate(getSipTemplate());
-        generateProfile(sip, app.getSipFilename());
+            ConfigurationFile sip = new ConfigurationFile(this);
+            sip.setTemplate(getSipTemplate());
+            generateProfile(sip, app.getSipFilename());
 
-        app.deleteStaleDirectories();
+            app.deleteStaleDirectories();
+        } catch (IOException ioe) {
+            throw new RuntimeException("Could not generate phones", ioe);
+        }
     }
 
     /**
@@ -182,7 +186,7 @@ public class PolycomPhone extends AbstractPhone {
             throw new RestartException("Restart command is sent to first line and "
                     + "first phone line is not valid");
         }
-        
+
         PolycomLine line = (PolycomLine) getLine(0);
 
         String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: SIP/2.0/TCP {1}\r\n"
@@ -237,9 +241,9 @@ public class PolycomPhone extends AbstractPhone {
         Setting voip = settings.getSetting("voIpProt");
         voip.getSetting(SERVER).getSetting(FIRST).getSetting(ADDRESS).setValue(domainName);
         voip.getSetting("SIP.outboundProxy").getSetting(ADDRESS).setValue(domainName);
-        
+
         return settings;
     }
-    
+
 }
 

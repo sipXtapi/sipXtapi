@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.IOException;
-
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -30,9 +28,9 @@ public interface Phone {
 
     public Setting getSettings();
 
-    public void generateProfiles() throws IOException;
+    public void generateProfiles();
     
-    public void restart() throws IOException;
+    public void restart();
         
     public Line getLine(int position);
     

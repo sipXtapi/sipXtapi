@@ -4,6 +4,10 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
+    	<div class="help">
+        Note: restart only works if phones can successfully register, otherwise you
+        will need to restart phones manually
+        </div>
 		<form jwcid="phoneManagement">
 			<ul class="component-links">
 				<li>
@@ -34,6 +38,9 @@
 			<ul class="component-submit">
 				<li>
 					<input id="phone:sendProfiles" jwcid="sendProfiles" value="Send Profiles"/>
+				</li>
+				<li>
+					<input id="phone:restart" jwcid="restart" value="Restart"/>
 				</li>
 				<li>
 					<input type="submit" name="" value="Delete"/>

@@ -84,7 +84,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public Line loadLine(Integer id) {
-        return loadLineFromFactory((LineMetaData) getHibernateTemplate().load(LineMetaData.class, id));
+        return loadLine((LineMetaData) getHibernateTemplate().load(LineMetaData.class, id));
     }
 
     public List loadPhones() {
@@ -97,6 +97,10 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         for (int i = 0; i < metas.size(); i++) {
             PhoneMetaData meta = (PhoneMetaData) metas.get(i);
             phones.add(loadPhoneFromFactory(meta));
+            List lines = meta.getLines();
+            for (int j = 0; j < lines.size(); j++) {
+                loadLine((LineMetaData) lines.get(0));
+            }
         }
 
         return phones;
@@ -124,7 +128,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return phone;        
     }
 
-    private Line loadLineFromFactory(LineMetaData meta) {
+    Line loadLine(LineMetaData meta) {
         Line line = meta.getLine();
         if (line == null) {
             line = loadPhoneFromFactory(meta.getPhoneMetaData()).createLine();
