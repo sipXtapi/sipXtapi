@@ -18,6 +18,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.XmlUnitHelper;
 
 /**
  * FullTransformTest

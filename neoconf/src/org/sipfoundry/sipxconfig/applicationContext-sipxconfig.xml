@@ -152,6 +152,22 @@
 			</list>
 		</property>
     </bean>
+    
+    <bean name="aliasServiceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="serviceInterface">
+            <value>org.sipfoundry.sipxconfig.admin.forwarding.AliasService</value>
+        </property>
+        <property name="service">
+			<bean class="org.sipfoundry.sipxconfig.admin.forwarding.AliasServiceImpl">
+                <property name="context">
+                    <ref bean="forwardingContext"/>
+                </property>
+            </bean>            
+        </property>
+        <property name="serviceName">
+            <value>ForwardingAliasService</value>
+        </property>
+    </bean>
 	<!--
       - P H O N E  C O N T E X T   I M P L
       -->

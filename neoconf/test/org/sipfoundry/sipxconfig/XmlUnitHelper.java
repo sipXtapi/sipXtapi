@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.config;
+package org.sipfoundry.sipxconfig;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -34,7 +34,7 @@ public abstract class XmlUnitHelper {
      * 
      * @param namespaceAware
      */
-    static void setNamespaceAware(boolean namespaceAware) {
+    public static void setNamespaceAware(boolean namespaceAware) {
         DocumentBuilderFactory testDocumentBuilderFactory = XMLUnit
                 .getTestDocumentBuilderFactory();
         testDocumentBuilderFactory.setNamespaceAware(namespaceAware);
@@ -50,7 +50,7 @@ public abstract class XmlUnitHelper {
      * @param doc DOM4J document
      * @return String containing XML document
      */
-    static String asString(Document doc) {
+    public static String asString(Document doc) {
         try {
             StringWriter writer = new StringWriter();
             doc.write(writer);
@@ -77,13 +77,13 @@ public abstract class XmlUnitHelper {
      * @param element dom4jj element
      * @param expectedNamespaceUri URI of the namespace
      */
-    static void assertElementInNamespace(Element element, String expectedNamespaceUri) {
+    public static void assertElementInNamespace(Element element, String expectedNamespaceUri) {
         QName name = element.getQName();
         String namespaceURI = name.getNamespaceURI();
         Assert.assertEquals(expectedNamespaceUri, namespaceURI);
     }
 
-    static org.w3c.dom.Document getDomDoc(Document doc) throws Exception {
+    public static org.w3c.dom.Document getDomDoc(Document doc) throws Exception {
         DOMWriter writer = new DOMWriter();
         return writer.write(doc);
     }

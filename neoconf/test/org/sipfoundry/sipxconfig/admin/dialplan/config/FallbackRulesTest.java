@@ -11,14 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
@@ -34,9 +31,6 @@ public class FallbackRulesTest extends XMLTestCase {
     public void testGenerateRuleWithGateways() throws Exception {
         Gateway g1 = new Gateway();
         g1.setAddress("10.1.1.14");
-        List gateways = Arrays.asList(new Gateway[] {
-            g1
-        });
         FullTransform t1 = new FullTransform();
         t1.setUser("333");
         t1.setHost(g1.getAddress());

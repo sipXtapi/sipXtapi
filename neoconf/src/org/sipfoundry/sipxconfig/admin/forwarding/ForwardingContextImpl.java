@@ -11,6 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -18,7 +22,6 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 /**
  * ForwardingContextImpl
  * 
- * TODO: for testing purposes returns a single call sequence (for all users and for all ids)
  */
 public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext {
     /**
@@ -55,5 +58,13 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return (Ring) hibernate.load(Ring.class, id);
     }
     
-    
+    public List getForwardingAliases() {
+        List aliases = new ArrayList();
+        List sequences = getHibernateTemplate().loadAll(CallSequence.class);
+        for (Iterator i = sequences.iterator(); i.hasNext();) {
+            CallSequence sequence = (CallSequence) i.next();
+            aliases.addAll(sequence.generateAliases());
+        }
+        return aliases;
+    }
 }
