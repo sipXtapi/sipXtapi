@@ -1,4 +1,5 @@
 
+
 This file was generated using the following command.  If you are
 already looking at this from a web browser, then please ignore this
 message.
@@ -31,27 +32,27 @@ message.
 
 For Redhat Users
 
-   These instructions apply to Enterprise and Fedora systems unless
-   explicitly noted
+   These instructions apply to Enterprise and Fedora systems unless explicitly
+   noted
 
   System Installation
 
-    1. Install Redhat from CDs. You can select any set of packages
-       including the minimum set of packages labeled "router
-       configuration" in the Redhat installer process
-    2. When prompted for firewall support, select "no firewall support"
-       or open up the following ports in your iptables: 80, 8080, 8090,
-       8091, 5060 and 5090
+    1. Install Redhat from CDs. You can select any set of packages including
+       the minimum set of packages labeled "router configuration" in the Redhat
+       installer process
+    2. When prompted for firewall support, select "no firewall support" or open
+       up the following ports in your iptables: 80, 8080, 8090, 8091, 5060 and
+       5090
 
   Installing dependencies with up2date
 
-   Fedora users may experience periodic connection errors using using
-   up2date but usually if you're persistent you can get through executing
-   up2date repeatedly. If you do not use up2date, I recommend installing
-   Postgres and apache while installing your system, or use the Redhat
-   package manager to install those RPMs for you.
-     * Run up2date for the first time and follow instructions to setup
-       properly up2date operation.
+   Fedora users may experience periodic connection errors using using up2date
+   but usually if you're persistent you can get through executing up2date
+   repeatedly. If you do not use up2date, I recommend installing Postgres and
+   apache while installing your system, or use the Redhat package manager to
+   install those RPMs for you.
+     * Run up2date for the first time and follow instructions to setup properly
+       up2date operation.
      * Run up2date -u to make your system is up to date.
      * Run up2date on the following packages:
 
@@ -64,8 +65,7 @@ For Redhat Users
 
   Installing Java RPM
 
-     * j2sdk 1.4 or greater available by opening your webbrowser to this
-       URL:
+     * j2sdk 1.4 or greater available by opening your webbrowser to this URL:
        [20]http://java.sun.com/j2se/1.4.2/download.html
 
   Installing RPMs dependencies from SIPfoundry
@@ -76,14 +76,14 @@ For Redhat Users
      * xerces-c
 
    Download and install the following RPMS from
-   [21]http://www.sipfoundry.org/pub/sipX/depends/FC/2/SIPfoundry.
+   [21]http://www.sipfoundry.org/pub/sipX/depends/.
 
   Installing sipX RPMs from SIPfoundry
 
    Download and install the following RPMs from
    [22]http://www.sipfoundry.org/pub/sipX/FC/2/
-     * sipx-jboss-4.0.0-1.noarch.rpm this rpm is not available yet -
-       please install JBoss 4.0 from source
+     * sipx-jboss-4.0.1-1.noarch.rpm this rpm is not available yet - please
+       install JBoss 4.0.1 from source
      * sipxportlib
      * sipxtacklib
      * sipxcommserverlib
@@ -96,9 +96,9 @@ For Redhat Users
 
 Installing From Source and Non-Redhat Users
 
-   Install the following software packages. Follow the installation
-   instructions for your OS. If there is any special installation
-   instructions, they will be noted.
+   Install  the  following  software  packages.  Follow  the installation
+   instructions for your OS. If there is any special installation instructions,
+   they will be noted.
 
   Dependencies
 
@@ -120,24 +120,21 @@ Installing From Source and Non-Redhat Users
    postgres 7.3 (tested with 7.3.4)
           [28]http://www.postgresql.org/
 
-   JBoss 4.0 (includes Tomcat 5.0)
-          [29]http://prdownloads.sourceforge.net/jboss/jboss-4.0.0.tar.gz
-
-   Spring Framework 1.1.2 with dependencies
-          [30]http://www.springframework.org/download.html
+   JBoss 4.0.1 (includes Tomcat 5.0)
+          [29]http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz
 
    Ant 1.6 (tested with 1.6.1)
-          [31]http://ant.apache.org/
+          [30]http://ant.apache.org/
 
   Environment Variables
 
    Set the following environment variables:
 
    JAVA_HOME
-          to where you installed java. This setting is just used to
-          compile. After installation the sipx-config --jdk is used to
-          find java dynamically. That means you can upgrade your java and
-          not break your installation
+          to where you installed java. This setting is just used to compile.
+          After  installation  the sipx-config --jdk is used to find java
+          dynamically. That means you can upgrade your java and not break your
+          installation
 
        Example:
            export JAVA_HOME=/usr/java/j2sdk1.4.2_03
@@ -154,20 +151,13 @@ Installing From Source and Non-Redhat Users
           where you unzipped JBoss
 
        Example:
-          export JBOSS_HOME=/opt/jboss-4.0.0
-
-
-   SPRING_HOME
-          where you unzipped Spring Framwork
-
-       Example:
-          export SPRING_HOME=/opt/springframework-1.1.2
+          export JBOSS_HOME=/opt/jboss-4.0.1
 
 
   Compiling and Installation
 
-   If you've obtained your source from subversion, and not from a tar
-   file, run this command:
+   If you've obtained your source from subversion, and not from a tar file, run
+   this command:
   autoreconf -if
 
    Now compile and install sipXconfig by running this command:
@@ -177,41 +167,41 @@ Installing From Source and Non-Redhat Users
 
   JBoss Setup
 
-   If you've installed JBoss from [32]the RPM found on sipfoundry website
-   then add user 'sipxchange' (or user defined SIPXPBXUSER) to the jboss
-   user group and skip the next few steps about patching JBoss and skip
-   to setting up your database
+   If you've installed JBoss from [31]the RPM found on sipfoundry website then
+   add user 'sipxchange' (or user defined SIPXPBXUSER) to the jboss user group
+   and skip the next few steps about patching JBoss and skip to setting up your
+   database
 
-   JBoss 4.0 is distributed with several server configurations. They are
-   located under $JBOSS_HOME/server directory. By default sipXconfig
-   components will run under "default" configuration. One can change it
-   by creating a custom configuration:
+   JBoss  4.0 is distributed with several server configurations. They are
+   located under $JBOSS_HOME/server directory. By default sipXconfig components
+   will run under "default" configuration. One can change it by creating a
+   custom configuration:
      * make a copy of a default configuration
-        cp -rp $JBOSS_HOME/server/default $JBOSS_HOME/server/my_conf
+        cp -rp $JBOSS_HOME/server/default $JBOSS_HOME/server/sipx
 
      * set environment variable to point to your new server configuration
-        export env JBOSS_SERVER_CONF=my_conf
+        export env JBOSS_SERVER_CONF=sipx
 
      * run (or re-run) configure script
 
-   Standard JBoss installation needs to be patched to use Postgres
-   database and to enable sipX provided authentication modules.
+   Standard JBoss installation needs to be patched to use Postgres database and
+   to enable sipX provided authentication modules.
     1. Run the following patch after installing JBoss
-      patch -d ${JBOSS_HOME}/server/default/conf -p1 < meta/sipx-jboss4-configu
-re.patch
-       If you use custom JBoss server configuration use its name instead
-       of "default". Every configuration has to be patched separately.
-    2. be sure user running sipxpbx (most cases sipxchange) has full r/w
-       access to all files and directories in ${JBOSS_HOME}
+      patch -d ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/conf -p1 < meta/sipx-j
+boss4-configure.patch
+       If you use custom JBoss server configuration use its name instead of
+       "default". Every configuration has to be patched separately.
+    2. be sure user running sipxpbx (most cases sipxchange) has full r/w access
+       to all files and directories in ${JBOSS_HOME}
 
    If you are runnning sipXconfig 2.6.x (or older) on the same machine as
-   version 2.7 you have to reconfigure your JBOSS_HOME every time you
-   switch between 2.6 and 2.7.
+   version 2.7 you have to reconfigure your JBOSS_HOME every time you switch
+   between 2.6 and 2.7.
 
   Postgresql Database Setup
 
-   Postgres needs to always be running on your system. If you've
-   installed sipXconfig from RPM, you shouldn't have to do this.
+   Postgres needs to always be running on your system. If you've installed
+   sipXconfig from RPM, you shouldn't have to do this.
 
    To start Postgres on Redhat 9 or Fedora systems run this command.
       service postgresql start
@@ -221,13 +211,13 @@ re.patch
       service rhdb start
 
 
-   To start Postgres on Debian, and perhaps other linux distributions, if
-   you don't already have a /etc/init.d/postgresql you may need to get
-   the example from the contrib directory in the postgres distibution:
+   To start Postgres on Debian, and perhaps other linux distributions, if you
+   don't already have a /etc/init.d/postgresql you may need to get the example
+   from the contrib directory in the postgres distibution:
         cp contrib/start-scripts/linux /etc/init.d/postgresql
 
-   It's recommended you should have Postgres start automatically when
-   your machine restarts (usually in runlevels 3 and 5).
+   It's recommended you should have Postgres start automatically when your
+   machine restarts (usually in runlevels 3 and 5).
 
    Fedora and Redhat 9 users should run this command:
       chkconfig postgresql on
@@ -235,8 +225,8 @@ re.patch
    Redhat Enterprise 3 users should run this command:
       chkconfig rhdb on
 
-   Edit Postgres config files to work. This will open up TCP connections
-   and allow localhost to connect to Postgres
+   Edit Postgres config files to work. This will open up TCP connections and
+   allow localhost to connect to Postgres
      /usr/local/sipx/bin/sipxdbmgr --setup
      /usr/local/sipx/bin/sipxdbmgr --create PDS
      /usr/local/sipx/bin/sipxdbmgr --create SDS
@@ -251,12 +241,12 @@ Optional Setup
 
   TFTP Setup for Cisco 79xx phones
 
-   Most Cisco phones in the 79xx series use a tftp server to serve phone
-   configuration information and firmware upgrades. You must install a
-   tftp server and map the tftp root directory to:
+   Most  Cisco phones in the 79xx series use a tftp server to serve phone
+   configuration information and firmware upgrades. You must install a tftp
+   server and map the tftp root directory to:
    var/sipxdata/configserver/phone/profile/tftproot. Consult phone vendor
-   documentation for recommended TFTP servers but below is a set of known
-   tftp server setups that work.
+   documentation for recommended TFTP servers but below is a set of known tftp
+   server setups that work.
 
     On Fedora or Red Hat Enterprise
 
@@ -296,40 +286,39 @@ e/profile/tftproot"
   Phone Plugin Development
 
    New module for developing support for new phone devices. Although this
-   module is intended to be a foundation for a new system architecture
-   for entire project. See [33]Neoconf for installation procedure and
-   necessary software dependencies.
+   module is intended to be a foundation for a new system architecture for
+   entire project. See [32]Neoconf for installation procedure and necessary
+   software dependencies.
 
 Running
 
   Running with other sipX servers
 
-   This is the normal configuration. It's where all the sipx servers like
-   the proxy, status server, mediaserver, etc. are running on the same
-   machine. In this case you will want to follow the instructions in the
-   sipXpbx project for starting the sipxpbx service. This will control
-   the starting and stopping of the necessary components of the
-   configuration system. The sipXproxy will direct SIP messages to the
-   Profile Publisher automatically. If you are using another SIP proxy
-   other than the sipXproxy, or running the sipXproxy on another machine,
-   follow next section "Running Standalone".
+   This is the normal configuration. It's where all the sipx servers like the
+   proxy, status server, mediaserver, etc. are running on the same machine. In
+   this case you will want to follow the instructions in the sipXpbx project
+   for  starting  the sipxpbx service. This will control the starting and
+   stopping  of the necessary components of the configuration system. The
+   sipXproxy will direct SIP messages to the Profile Publisher automatically.
+   If you are using another SIP proxy other than the sipXproxy, or running the
+   sipXproxy on another machine, follow next section "Running Standalone".
 
   Running Standalone
 
-   This is when you are running just the sipXconfig server on one
-   machine. You can follow the instructions for running with all the
-   other sipX servers after making the following configurations changes:
+   This is when you are running just the sipXconfig server on one machine. You
+   can follow the instructions for running with all the other sipX servers
+   after making the following configurations changes:
 
    Directing SIP message directly to sipXconfig's Profile Publisher.
-          To direct SIP messages to the ProfilePublisher, a job normally
-          done by the sipXproxy, edit file: etc/sipxpbx/config.defs and
-          set following setting to read the following values:
+          To direct SIP messages to the ProfilePublisher, a job normally done
+          by  the  sipXproxy,  edit file: etc/sipxpbx/config.defs and set
+          following setting to read the following values:
 
     CONFIG_SERVER_SIP_PORT=5060
 
    Only start sipXconfig related services
-          Edit config file : etc/sipxpbx/ProcessDefinitions.xml and
-          remove sections
+          Edit config file : etc/sipxpbx/ProcessDefinitions.xml and remove
+          sections
 
 
           <group name="CommServer" >
@@ -342,23 +331,22 @@ Running
 
 Windows
 
-   Currently there is no support for windows but here is a list of steps
-   towards supporting Windows. Please submit your findings and patches
-   back to mailing list
-    1. edit config.properties.in and replace all variables with @VAR@
-       symbol with where you have dependencies installed
-    2. Run ant then ant install on all the build.xml files in these
-       directories and in this order:
+   Currently  there is no support for windows but here is a list of steps
+   towards supporting Windows. Please submit your findings and patches back to
+   mailing list
+    1. edit config.properties.in and replace all variables with @VAR@ symbol
+       with where you have dependencies installed
+    2. Run ant then ant install on all the build.xml files in these directories
+       and in this order:
          1. common
          2. profilegenerator
          3. profilewriter
          4. profilepublisher
     3. Compiling the Profile Publisher's SIP agent w/ MSVC 6
-       First, see the INSTALL instructions in sipXportLib on adding glib
-       and pcre to the MSVC 6 environment. Next, you must add Java's JNI
-       include and library paths to your MSVC 6 environment following the
-       same process.
-       Assuming that you installed the SDK in C:\Program
+       First, see the INSTALL instructions in sipXportLib on adding glib and
+       pcre to the MSVC 6 environment. Next, you must add Java's JNI include
+       and library paths to your MSVC 6 environment following the same process.
+       Assuming    that    you    installed   the   SDK   in   C:\Program
        Files\Java\j2sdk1.4.2_03 you will need to add the following:
 
         Additional Includes:
@@ -368,38 +356,38 @@ Windows
         Additional Libs:
                 C:\Program Files\Java\j2sdk1.4.2_03\lib
 
-    4. Write a series of batch scripts that mimic what these scripts do
-       or use Cygwin to start your system:
+    4. Write a series of batch scripts that mimic what these scripts do or use
+       Cygwin to start your system:
          1. startrmiregistry.sh
          2. profilewriter.sh
          3. profilegenerator.sh
          4. profilepublisher.sh
 
-   Last modified: Mon Nov 29 14:14:11 EST 2004
+   Last modified: Mon Feb 21 14:53:32 EST 2005
 
 References
 
-   1. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#rh
-   2. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#rh-system
-   3. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#rh-dep
-   4. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#rh-jdk
-   5. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#rh-sipx
-   6. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#src
-   7. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#src-dep
-   8. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#src-env
-   9. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#src-compile
-  10. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#src-jboss
-  11. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#src-db
-  12. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#optional
-  13. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#tftp
-  14. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#neoconf
-  15. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#security
-  16. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#run
-  17. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#run-sipx
-  18. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#run-alone
-  19. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/install.html#windows
+   1. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh
+   2. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-system
+   3. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-dep
+   4. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-jdk
+   5. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-sipx
+   6. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src
+   7. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-dep
+   8. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-env
+   9. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-compile
+  10. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-jboss
+  11. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-db
+  12. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#optional
+  13. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#tftp
+  14. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#neoconf
+  15. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#security
+  16. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run
+  17. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-sipx
+  18. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-alone
+  19. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#windows
   20. http://java.sun.com/j2se/1.4.2/download.html
-  21. http://www.sipfoundry.org/pub/sipX/depends/FC/2/SIPfoundry
+  21. http://www.sipfoundry.org/pub/sipX/depends/
   22. http://www.sipfoundry.org/pub/sipX/FC/2/
   23. http://www.sipfoundry.org/sipXportLib
   24. http://www.sipfoundry.org/sipXtack
@@ -407,8 +395,7 @@ References
   26. http://www.sipfoundry.org/sipXpbx
   27. http://java.sun.com/
   28. http://www.postgresql.org/
-  29. http://prdownloads.sourceforge.net/jboss/jboss-4.0.0.tar.gz
-  30. http://www.springframework.org/download.html
-  31. http://ant.apache.org/
-  32. http://www.sipfoundry.org/pub/sipX/depends/
-  33. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/neoconf.html
+  29. http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz
+  30. http://ant.apache.org/
+  31. http://www.sipfoundry.org/pub/sipX/depends/
+  32. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/neoconf.html
