@@ -7,6 +7,8 @@
  --                                                         
 
 
+ -- lower the logging level from NOTICE to WARNING
+SET client_min_messages TO warning; 
 
 CREATE TABLE CONTEXTS(
 ID INTEGER NOT NULL PRIMARY KEY,

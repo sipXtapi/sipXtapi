@@ -6,7 +6,8 @@
 /* project-author :Not yet specified                        */
 /*                                                          */
 
-
+/* lower the logging level from NOTICE to WARNING */
+SET client_min_messages TO warning; 
 
 CREATE TABLE JOBS(
 ID int4 NOT NULL PRIMARY KEY,

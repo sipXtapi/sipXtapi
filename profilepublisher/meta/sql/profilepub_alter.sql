@@ -7,6 +7,8 @@
  --                                                         
 
 
+ -- lower the logging level from NOTICE to WARNING
+SET client_min_messages TO warning; 
 
 
 ALTER TABLE PROFILE_SEQUENCE_NUMS

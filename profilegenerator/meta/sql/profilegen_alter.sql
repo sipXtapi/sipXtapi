@@ -7,8 +7,8 @@
 /*                                                          */
 
 
-
-
+/* lower the logging level from NOTICE to WARNING */
+SET client_min_messages TO warning; 
 
 ALTER TABLE PHONE_TYPES
 ADD CONSTRAINT FK_PHONE_TYPES_1 
