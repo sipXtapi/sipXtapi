@@ -611,74 +611,84 @@
 	</group>
 	<group name="log">
 		<label>Basic Logging</label>
-		<setting name="level.change.sip">
+		<group name="sip">
 			<label>SIP Logging</label>
+		<setting name="level.change.sip">
 			<type>0-5</type>
 			<defaultValue>4</defaultValue>
 			<description>This attribute controls the logging detail level for 
 				the SIP component. These are the input filters for the internal 
 				memory-based log system.</description>
 		</setting>
-		<setting name="render.level">
+		<setting name="level.change.sip.obs">
+			<type>0-5</type>
+			<defaultValue>5</defaultValue>
+			<description></description>
+		</setting>
+		</group>
+		<group name="render">
+			<label>Log Rendering</label>
+		<setting name="level">
 			<type>0-6</type>
 			<defaultValue>1</defaultValue>
 			<description>Specifies the lowest class of event that will be 
 				rendered to the log files. This is the output filter from the 
 				internal mem-ory-based log system. </description>
 		</setting>
-		<setting name="render.type">
+		<setting name="type">
 			<type>0-2</type>
 			<defaultValue>2</defaultValue>
 			<description>See above table for timestamp type.</description>
 		</setting>
-		<setting name="render.realtime">
+		<setting name="realtime">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>Set to 1. Do not change. </description>
 		</setting>
-		<setting name="render.stdout">
+		<setting name="stdout">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>Set to 1. Do not change. </description>
 		</setting>
-		<setting name="render.file">
+		<setting name="file">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>Set to 1. Do not change. </description>
 		</setting>
-		<setting name="render.file.size">
+		<setting name="file.size">
 			<type>positive integer</type>
 			<defaultValue>16</defaultValue>
 			<description>Maximum local application log file size in Kbytes. 
 				When this size is exceeded, the file is uploaded to the boot 
 				server and the local copy is erased. </description>
 		</setting>
-		<setting name="render.file.upload.period">
+		<setting name="file.upload.period">
 			<type>positive integer</type>
 			<defaultValue>172800</defaultValue>
 			<description>Time in seconds between log file uploads to the boot 
 				server. Note: The log file will not be uploaded if no new 
 				events have been logged since the last upload.</description>
 		</setting>
-		<setting name="render.file.upload.append">
+		<setting name="file.upload.append">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>If set to 1, use append mode when uploading log files 
 				to server. </description>
 		</setting>
-		<setting name="render.file.upload.append.sizeLimit">
+		<setting name="file.upload.append.sizeLimit">
 			<type>positive integer</type>
 			<defaultValue>512</defaultValue>
 			<description>Maximum log file size on boot server in Kbytes. 
 				</description>
 		</setting>
-		<setting name="render.file.upload.append.limitMode">
+		<setting name="file.upload.append.limitMode">
 			<type>"delete, stop " </type>
 			<defaultValue>delete </defaultValue>
 			<description>Behavior when server log file has reached its limit. 
 				delete=delete file and start over, stop=stop appending to file. 
 				</description>
 		</setting>
+		</group>
 	</group>
 	<group name="sec">
 		<label>Security</label>

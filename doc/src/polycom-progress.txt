@@ -48,9 +48,6 @@ C L E A N  U P
 - Performance analysis
 - code coverage
 - logged bug
-
-M I S C.  T O D O
------------------
 - 3 col. CSS layout
 
 S U M M A R Y 

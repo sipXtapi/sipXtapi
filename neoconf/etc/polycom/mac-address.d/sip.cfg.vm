@@ -74,7 +74,9 @@
 
 	<logging>
 		<level>
-			<change log.level.change.sip="4" log.level.change.sip.obs="5"/>
+			<change 
+			log.level.change.sip="4" log.level.change.sip.obs="5"
+			/>
 		</level>
 	</logging>
 </sip>
