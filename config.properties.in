@@ -23,6 +23,10 @@ sipxconfig.lib.dir=@SIPXCONFIG_LIBDIR@
 sipxpbx.data.dir=@SIPX_DATADIR@
 sipxpbx.conf.dir=@SIPX_CONFDIR@
 sipxpbx.user=@SIPXPBXUSER@
+# because jboss installation needs to know this, configuring
+# this to any other user will require manual update to jboss
+# configuration
+sipxconfig.db.user=postgres
 sipxpbx.log.dir=@SIPX_LOGDIR@
 sipxpbx.run.dir=@SIPX_RUNDIR@
 sipxpbx.tmp.dir=@SIPX_TMPDIR@

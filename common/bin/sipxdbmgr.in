@@ -155,10 +155,10 @@ then
   # If user doesn't exist in postgres' db create it, blindly dropping
   # then blindly creating fails when PDS or SDS dbs already exists
   if test `psql -U postgres -c \
-         "select 'yes' from pg_user where usename='sipxchange';" \
+         "select 'yes' from pg_user where usename='@sipxconfig.db.user@';" \
          -d template1 | grep -c yes` -eq 0
   then
-    createuser -U postgres --no-adduser --createdb @sipxpbx.user@
+    createuser -U postgres --no-adduser --createdb @sipxconfig.db.user@
   fi
 
   exit 0
@@ -167,21 +167,21 @@ elif test "$Action" = CREATE && test $Database = PDS
 then
     # Create a database.
 
-    createdb -U @sipxpbx.user@ --encoding=UNICODE $Database
-    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_create.sql $Database
-    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_alter.sql $Database
-    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_seq.sql $Database
-    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilegen_initvalues.sql $Database
+    createdb -U @sipxconfig.db.user@ --encoding=UNICODE $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_create.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_alter.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_seq.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_initvalues.sql $Database
 
     exit 0
 
 elif test "$Action" = CREATE && test $Database = SDS
 then
 
-    createdb -U @sipxpbx.user@ --encoding=UNICODE $Database
-    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilepub_create.sql $Database
-    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilepub_alter.sql $Database
-    psql -U @sipxpbx.user@ -f @sipxpbx.data.dir@/sql/profilepub_seq.sql $Database
+    createdb -U @sipxconfig.db.user@ --encoding=UNICODE $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilepub_create.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilepub_alter.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilepub_seq.sql $Database
 
     exit 0
 
@@ -207,7 +207,7 @@ elif test "$Action" = DROP && ! test -z $Database
 then
     # Delete a database.
 
-    dropdb -U @sipxpbx.user@ $Database
+    dropdb -U @sipxconfig.db.user@ $Database
 
     exit 0
 

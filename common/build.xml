@@ -94,6 +94,7 @@
         propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/sipxdbmgr" perm="ugo+x"/>
 
