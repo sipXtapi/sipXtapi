@@ -85,8 +85,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/tftproot
 
 # Because of generation of config files via config.defs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}
-%config %{sipxpbxconf}/*
+# These files are created in sipXpbx...
+#%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}
+#%config %{sipxpbxconf}/*
 
 %{_datadir}/sipxpbx
 
@@ -116,6 +117,3 @@ for Database in PDS SDS; do
        %{_bindir}/sipxdbmgr --create $Database >/dev/null
   fi
 done
-   
-
-
