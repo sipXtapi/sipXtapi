@@ -8,6 +8,9 @@
 
 
 <%
+    // Redirect to login page
+    response.sendRedirect( "../index.jsp" );
+
     String orgName = request.getParameter( "orgname" ).trim();
     String password = request.getParameter( "password" ).trim();
     String dnsDomain = request.getParameter( "dnsdomain" ).trim();
@@ -36,7 +39,5 @@
 
     //Kill the session
     session.invalidate();
-    // Redirect to login page
-    response.sendRedirect( "../index.jsp" );
 %>
 

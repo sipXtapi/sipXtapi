@@ -1,5 +1,8 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+	response.sendRedirect( "list_all_users.jsp?groupid=" + request.getParameter("grpid") );
+%>
 <html>
 <head>
 <title>DeleteUser</title></head>
@@ -14,8 +17,5 @@ generateCredentials
 <pgs:generateExtensions/>
 <pgs:generateAuthExceptions changepointid='<%=request.getParameter("userid")%>'
     changepointtype="user"/>
-<%
-	response.sendRedirect( "list_all_users.jsp?groupid=" + request.getParameter("grpid") );
-%>
 </body>
 </html>

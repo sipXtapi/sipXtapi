@@ -1,5 +1,8 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+	response.sendRedirect( "list_all_usergroups.jsp" );
+%>
 <html>
 <head>
 <title>Delete UserGroup</title></head>
@@ -17,8 +20,5 @@
     changepointid='<%=request.getParameter("usergroupid")%>'
     changepointtype="usergroup"/>
 
-<%
-	response.sendRedirect( "list_all_usergroups.jsp" );
-%>
 </body>
 </html>

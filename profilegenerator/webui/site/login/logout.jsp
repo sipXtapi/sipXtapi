@@ -1,7 +1,5 @@
 <%
     session.invalidate();
-    //response.sendRedirect( "../ui" );
-
     String lic = request.getParameter("lic");
 %>
 <html>

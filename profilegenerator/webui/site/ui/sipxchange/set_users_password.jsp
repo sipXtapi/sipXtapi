@@ -1,6 +1,8 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
 <%
+    response.sendRedirect( "main.jsp?userid=" + request.getParameter( "userid" ) );
+
     String pass = request.getParameter("password");
     if( pass.equals("") || pass == null )
     {
@@ -13,8 +15,3 @@
     parameters='<%="userid=" + request.getParameter("userid").trim() %>'  />
 
 <pgs:generateCredentials/>
-
-
-<%
-    response.sendRedirect( "main.jsp?userid=" + request.getParameter( "userid" ) );
-%>

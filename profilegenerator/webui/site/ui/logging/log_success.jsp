@@ -9,8 +9,5 @@
 <pgs:logTXSuccess   userid= '<%= (String)session.getAttribute( "user" ) %>'
                     orgname= '<%= (String)session.getAttribute( "orgname" ) %>'
                     message= '<%= request.getParameter("message")%>' />
-<%
-   //response.sendRedirect( "" );
-%>
 </body>
 </html>

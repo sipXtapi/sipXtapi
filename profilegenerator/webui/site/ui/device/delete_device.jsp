@@ -1,5 +1,8 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+	response.sendRedirect( "list_all_devices.jsp?groupid=" + request.getParameter("grpid") );
+%>
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="../../style/dms.css">
@@ -9,8 +12,5 @@
 <%-- Custom Tag to delete a Device --%>
 <pgs:deleteDevice  deviceid= '<%=request.getParameter("deviceid")%>' />
 <pgs:generateCredentials/>
-<%
-	response.sendRedirect( "list_all_devices.jsp?groupid=" + request.getParameter("grpid") );
-%>
 </body>
 </html>

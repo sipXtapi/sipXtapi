@@ -1,5 +1,8 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+   response.sendRedirect( "list_all_devices.jsp" );
+%>
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="../../style/dms.css">
@@ -9,8 +12,5 @@
 
 <pgs:copyDevice  sourcedeviceid= '<%=request.getParameter("sourcedeviceid")%>' />
 <pgs:generateCredentials/>
-<%
-   response.sendRedirect( "list_all_devices.jsp" );
-%>
 </body>
 </html>

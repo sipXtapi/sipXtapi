@@ -1,5 +1,8 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+    response.sendRedirect( "../administration/about.jsp" );
+%>
 <html>
 <head>
 <link rel="stylesheet" href="../../style/dms.css" type="text/css">
@@ -9,8 +12,5 @@
 <p></p>
 <p class="formtext">Upgrading the database...</p>
 <pgs:upgradeDatabase version= '<%= request.getParameter( "version" )%>' />
-<%
-    response.sendRedirect( "../administration/about.jsp" );
-%>
 </body>
 </html>

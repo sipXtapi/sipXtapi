@@ -1,5 +1,8 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+   response.sendRedirect( "list_all_devicegroups.jsp" );
+%>
 <html>
 <head>
 <title>Copy DeviceGroup</title></head>
@@ -8,8 +11,5 @@
 
 <pgs:copyDeviceGroup
     sourcedevicegroupid= '<%=request.getParameter("sourcedevicegroupid")%>' />
-<%
-   response.sendRedirect( "list_all_devicegroups.jsp" );
-%>
 </body>
 </html>

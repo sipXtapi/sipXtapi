@@ -1,5 +1,9 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+    response.sendRedirect( "../sipxchange/applications.jsp?userid="
+        + request.getParameter("entityid"));
+%>
 
 <html>
 <head>
@@ -17,9 +21,5 @@
                         entitytype="user"
                         entityid= '<%=request.getParameter("entityid")%>'/>
 
-<%
-    response.sendRedirect( "../sipxchange/applications.jsp?userid="
-        + request.getParameter("entityid"));
-%>
 </body>
 </html>

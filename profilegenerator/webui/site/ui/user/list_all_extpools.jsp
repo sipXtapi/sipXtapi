@@ -3,6 +3,16 @@
 <%
     String orgid = session.getAttribute("orgid").toString();
 %>
+<%
+    if( request.getParameter("deletepool").equals("true") ){
+%>
+    <pgs:deleteExtensionPool
+        id='<%=request.getParameter("extensionpoolid")%>' />
+
+<%
+    response.sendRedirect("list_all_extpools.jsp?deletepool=false");
+    }
+%>
 <html>
 <head>
 <title>List Extension Pools</title>
@@ -100,16 +110,5 @@ function MM_swapImage() { //v3.0
                 organizationid='<%=orgid%>'/>
 
 </form>
-<%
-    if( request.getParameter("deletepool").equals("true") ){
-%>
-    <pgs:deleteExtensionPool
-        id='<%=request.getParameter("extensionpoolid")%>' />
-
-<%
-    response.sendRedirect("list_all_extpools.jsp?deletepool=false");
-    }
-%>
-
 </body>
 </html>

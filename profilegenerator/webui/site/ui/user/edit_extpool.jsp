@@ -1,5 +1,9 @@
 <%@ page errorPage="/ui/error/error.jsp" %>
 <%@ taglib uri="pgstags" prefix="pgs" %>
+<%
+	response.sendRedirect( "extpool_details.jsp?extensionpoolid=" +
+            request.getParameter("extensionpoolid"));
+%>
 <html>
 <head>
 <title>Edit Extension Pool</title></head>
@@ -11,9 +15,5 @@
 <pgs:generateAliases/>
 <pgs:generatePermissions/>
 <pgs:generateExtensions/>
-<%
-	response.sendRedirect( "extpool_details.jsp?extensionpoolid=" +
-            request.getParameter("extensionpoolid"));
-%>
 </body>
 </html>
