@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import java.util.List;
-
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
@@ -36,11 +34,14 @@ public abstract class EditGateway extends BasePage {
     public abstract DialPlanManager getDialPlanManager();
 
     public void save(IRequestCycle cycle) {
+        DialPlanManager manager = getDialPlanManager();
+        Gateway gateway = getGateway();
         if (getAddMode()) {
-            DialPlanManager manager = getDialPlanManager();
-            List gateways = manager.getGateways();
-            Gateway gateway = getGateway();
-            gateways.add(gateway);
+            manager.addGateway(gateway);
+        }
+        else
+        {
+            manager.updateGateway(gateway);
         }
         cycle.activate(PAGE_LIST_GATEWAYS);
     }

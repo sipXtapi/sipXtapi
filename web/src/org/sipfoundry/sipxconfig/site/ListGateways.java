@@ -15,6 +15,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -23,6 +24,8 @@ public abstract class ListGateways extends BasePage {
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
 
+    public abstract Gateway getCurrentRow();
+
     /**
      * When user clicks on link to edit a gateway
      */
@@ -30,6 +33,15 @@ public abstract class ListGateways extends BasePage {
     public void addGateway(IRequestCycle cycle) {
         EditGateway page = (EditGateway) cycle.getPage("EditGateway");
         page.setAddMode(true);
+        cycle.activate(page);
+    }
+
+    public void editGateway(IRequestCycle cycle) {
+        EditGateway page = (EditGateway) cycle.getPage("EditGateway");
+
+        page.setAddMode(false);
+        Gateway currentRow = getCurrentRow();
+        page.setGateway(currentRow);
         cycle.activate(page);
     }
 }

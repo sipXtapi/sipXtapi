@@ -36,4 +36,25 @@ public class DialPlanManager {
     public void setGateways(List gateways) {
         m_gateways = gateways;
     }
+
+    public boolean updateGateway(Gateway gateway) {
+        if (m_gateways.remove(gateway)) {
+            m_gateways.add(gateway);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteGateway(Gateway gateway) {
+        return m_gateways.remove(gateway);
+    }
+
+    public boolean addGateway(Gateway gateway) {
+        if (!m_gateways.remove(gateway)) {
+            m_gateways.add(gateway);
+            return true;
+        }
+        return false;
+    }
+
 }
