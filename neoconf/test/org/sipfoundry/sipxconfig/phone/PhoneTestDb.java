@@ -27,7 +27,7 @@ import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureExceptio
  * You need to call 'ant reset-db-patch' which clears a lot of data in your
  * database. before calling running this test. 
  */
-public class EndpointTestDb extends TestCase {
+public class PhoneTestDb extends TestCase {
     
     private PhoneContext m_context;
     

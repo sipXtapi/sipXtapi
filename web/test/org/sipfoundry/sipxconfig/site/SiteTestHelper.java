@@ -18,6 +18,8 @@ import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.common.TestUtil;
 
+import com.meterware.httpunit.WebTable;
+
 public class SiteTestHelper {
     private static String s_buildDir;
 
@@ -59,6 +61,28 @@ public class SiteTestHelper {
             tester.dumpResponse(System.err);
             throw e;
         }
+    }
+    
+    /** 
+     * Returns the row count in a table. Don't forget 
+     * to include +1 in assert count if you have a table header.
+     */
+    public static int getRowCount(WebTester tester, String table) {
+        return tester.getDialog().getWebTableBySummaryOrId(table).getRowCount();
+    }
+
+    /**
+     * Translates between Tapestry index and normal index
+     * 
+     * @param id
+     * @param index
+     */
+    public static void checkCheckbox(WebTester tester, String id, int index) {
+        String suffix = "";
+        if (index > 0) {
+            suffix = "$" + (index - 1);
+        }
+        tester.checkCheckbox(id + suffix);
     }
 
     public static String getBaseUrl() {

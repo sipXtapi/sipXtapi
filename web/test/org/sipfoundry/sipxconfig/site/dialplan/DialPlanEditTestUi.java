@@ -63,7 +63,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
         // remove all
         for (int i = 0; i < 7; i++) {
-            checkCheckbox("selectedRow", i);
+            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
         }
         clickButton("dialplan:delete");
         // should be empty now
@@ -141,7 +141,7 @@ public class DialPlanEditTestUi extends WebTestCase {
     
     public void testMove() {
         clickButton("dialplan:revert");
-        checkCheckbox("selectedRow", 0);
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         clickButton("dialplan:move:up");
         // no changes
         dumpResponse(System.err);
@@ -149,7 +149,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
         
         // move first row down
-        checkCheckbox("selectedRow", 0);
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         clickButton("dialplan:move:down");
         SiteTestHelper.assertNoException(getTester());
         WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("dialplan:list");
@@ -172,19 +172,5 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickLink("pattern:delete");
         // no delete link again
         assertLinkNotPresent("pattern:delete");
-    }
-
-    /**
-     * Translates between Tapestry index and normal index
-     * 
-     * @param id
-     * @param index
-     */
-    private void checkCheckbox(String id, int index) {
-        String suffix = "";
-        if (index > 0) {
-            suffix = "$" + (index - 1);
-        }
-        checkCheckbox(id + suffix);
     }
 }

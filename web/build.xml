@@ -158,8 +158,8 @@ sysdir.phone=${sipxconfig.phone.dir}
 
 	</target>
 	
-	<target name="run" depends="test-war,compile.test"
-	   description="Runs Jetty on current code, developement purpose only">
+	<target name="run" depends="test-war"
+  	     description="Runs Jetty on current code, development purpose only">
            <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
                <classpath refid="base.path"/>
                <classpath refid="test.path"/>
@@ -172,7 +172,7 @@ sysdir.phone=${sipxconfig.phone.dir}
 
         <target name="test-all" depends="ant-targets.test-all,test-ui"/>
 
-	<target name="test-war" depends="war" description="Creates a war file for unittests">
+	<target name="test-war" depends="compile.test,war" description="Creates a war file for unittests">
 
 		<delete dir="${test.war}"/>
 		<unwar src="${sipxconfig.war}" dest="${test.war}"/>
@@ -190,7 +190,7 @@ dataSource.url=jdbc:postgresql://localhost/${sipxconfig.db.pds}
   <!-- 
     - U N I T T E S T   W E B   U I
     -->
-  <target name="test-ui" depends="compile.test,test-war"
+  <target name="test-ui" depends="test-war"
        description="run junit tests for web interface">
     
     <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">

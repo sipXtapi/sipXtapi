@@ -63,7 +63,6 @@ public class EditPhoneLinesTestUi extends WebTestCase {
         
         tester.checkCheckbox("selectedRow");
         clickButton("line:delete");
-        WebTable lineTable = getDialog().getWebTableBySummaryOrId("line:list");
-        assertEquals(1, lineTable.getRowCount());
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));
     }
 }

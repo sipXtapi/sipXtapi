@@ -35,8 +35,14 @@ public class PhoneSummaryTestDb extends TestCase {
         
         assertEquals(3, summaries.size());
         Phone[] summariesArray = (Phone[]) summaries.toArray(new Phone[0]);
+
+        assertEquals("unittest-sample phone1", summariesArray[0].getPhoneMetaData().getDisplayLabel());
         assertEquals(1, summariesArray[0].getLineCount());
+
+        assertEquals("unittest-sample phone2", summariesArray[1].getPhoneMetaData().getDisplayLabel());
         assertEquals(0, summariesArray[1].getLineCount());
+
+        assertEquals("unittest-sample phone3", summariesArray[2].getPhoneMetaData().getDisplayLabel());
         assertEquals(2, summariesArray[2].getLineCount());
     }
 }

@@ -225,8 +225,8 @@
 			<ref local="sip"/>
 		</property>
 	</bean>
-	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300"/>
-	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300"/>
+	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
+	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
 	
 	<!--
 	  - D I A L   P L A N S

@@ -31,18 +31,41 @@ public class ManagePhonesTestUi extends WebTestCase {
         m_helper.reset();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        dumpResponse(System.err);
-    }
-
     public void testGenerateProfiles() {
-        m_helper.seedPhone(10);
+        m_helper.seedPhone(11);
 
-        clickLink("ManagePhones");          
+        clickLink("ManagePhones");      
+        selectRows(0, 11);
         checkCheckbox("selectedRow");
         clickButton("phone:sendProfiles");
-        // present if no exception
-        assertLinkPresent("AddPhone");
+        SiteTestHelper.assertNoException(tester);
+        // test if profiles were actually generated
     }    
+
+    public void testRestart() {
+        m_helper.seedPhone(11);
+
+        clickLink("ManagePhones");   
+        selectRows(0, 11);
+        clickButton("phone:restart");
+        SiteTestHelper.assertNoException(tester);        
+        // test if SIP messages were sent
+    }    
+    
+    public void testDelete() {
+        m_helper.seedPhone(11);
+
+        clickLink("ManagePhones");          
+        selectRows(0, 11);
+        clickButton("phone:delete");
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "phone:list"));
+        
+        SiteTestHelper.assertNoException(tester);
+    }    
+    
+    private void selectRows(int start, int count) {
+        for (int i = start; i < count; i++) {
+            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
+        }
+    }
 }

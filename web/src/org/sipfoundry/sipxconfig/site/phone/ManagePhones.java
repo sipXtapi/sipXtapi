@@ -39,6 +39,8 @@ public abstract class ManagePhones extends BasePage
     /** model of the table */
     public abstract void setPhones(List phones);
     
+    public abstract List getPhones();
+    
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selected);
@@ -69,6 +71,14 @@ public abstract class ManagePhones extends BasePage
     public void addPhone(IRequestCycle cycle) {
         NewPhone page = (NewPhone) cycle.getPage(NewPhone.PAGE);
         cycle.activate(page);
+    }
+    
+    public void deletePhone(IRequestCycle cycle_) {
+        PhoneContext context = getPhoneContext();
+        Phone[] phones = getSelectedPhones();
+        for (int i = 0; i < phones.length; i++) {
+            context.deletePhone(phones[i]);
+        }
     }
     
     public void defaults(IRequestCycle cycle) {
@@ -118,6 +128,7 @@ public abstract class ManagePhones extends BasePage
 
         // Generate the list of phone items
         setPhones(phoneContext.loadPhones());
+        Phone[] phones = (Phone[]) getPhones().toArray(new Phone[0]);
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }

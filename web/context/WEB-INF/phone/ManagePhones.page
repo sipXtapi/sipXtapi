@@ -79,4 +79,7 @@
     <component id="restart" type="Submit">
         <binding name="listener" expression="listeners.restart"/>
     </component>
+    <component id="delete" type="Submit">
+        <binding name="listener" expression="listeners.deletePhone"/>
+    </component>
 </page-specification>
