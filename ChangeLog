@@ -1,4 +1,14 @@
 
+Release Notes - sipXproxy - Version 2.5.2
+
+** Bug
+    * [XPR-4] - Failed unittest ForwardingRulesTest
+    * [XPR-7] - sipproxy.log in etc/sipxpbx dir, should be in var/log
+
+** Improvement
+    * [XPR-5] - Clean up code to remove all warnings.
+    * [XPR-6] - Clean up code to remove all warnings.
+
 Release Notes - sipXproxy - Version 2.5.1
 
 ** Bug
