@@ -362,7 +362,6 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
 {
  
    OsStatus fieldMatchFound = OS_FAILED;
-   OsStatus currentStatus = OS_FAILED;
    OsBoolean methodMatchFound = false;
    UtlString method;
    request.getRequestMethod(&method);
@@ -467,7 +466,6 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
   
    OsStatus getRouteFound = OS_FAILED;
    OsBoolean fieldPatternFound = false;
-   OsStatus currentStatus = OS_FAILED;
 
    TiXmlNode* fieldMatchNode = previousFieldMatchNode;
 
@@ -475,7 +473,6 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
       && (getRouteFound != OS_SUCCESS)   ) 
    {
 
-      OsBoolean fieldMatchFound = false;
       OsBoolean fieldNameMatches = false;
       OsBoolean noFieldPatternRequired = false;
 
@@ -567,7 +564,7 @@ OsStatus ForwardRules::getRouteTo(UtlString& RouteToString,
 {
    
    OsStatus currentStatus = OS_FAILED;
-   TiXmlElement* nodeElement  = nodeWithRouteToChild->ToElement();
+   nodeWithRouteToChild->ToElement();
    TiXmlNode* routeToNode = NULL;
    TiXmlNode* routeToText = NULL;
 

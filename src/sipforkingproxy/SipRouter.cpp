@@ -81,7 +81,8 @@ SipRouter::~SipRouter()
 OsBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 {
 	int msgType = eventMessage.getMsgType();
-	int msgSubType = eventMessage.getMsgSubType();
+	// int msgSubType =
+        eventMessage.getMsgSubType();
 
 	if(msgType == OsMsg::PHONE_APP)
 	 //&& msgSubType == CP_SIP_MESSAGE)

@@ -304,7 +304,7 @@ void initSysLog(OsConfigDb* pConfig)
                                     // exist
    struct tagPrioriotyLookupTable
    {
-      char*            pIdentity;
+      const char*      pIdentity;
       OsSysLogPriority ePriority;
    };
 

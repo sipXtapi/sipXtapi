@@ -183,7 +183,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
             {
                 UtlString myRouteUri;
                 UtlString targetUri;
-                OsBoolean isNextHop;
+                OsBoolean isNextHop = FALSE;
                 UtlString nextHopUri;
                 UtlString firstRouteUri;
                 OsBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
