@@ -1,21 +1,20 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = doc src bin
+include $(top_builddir)/config/sipXcommon.mak
+
+SUBDIRS = src bin
+
+# 
+# If Doxygen is enabled
+if DOC
+SUBDIRS += doc
+endif
+
+.PHONY : doc
+doc :
+	cd doc && $(MAKE) $(AM_MAKEFLAGS) all
 
 INSTALL=@INSTALL@
-
-edit = sed \
-        -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
-        -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
-        -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
-        -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \
-        -e 's,@SIPX_RUNDIR\@,@SIPX_RUNDIR@,g' \
-        -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
-        -e 's,@SIPX_DBDIR\@,@SIPX_DBDIR@,g' \
-        -e 's,@localstatedir\@,$(localstatedir),g' \
-        -e 's,@bindir\@,$(bindir),g' \
-        -e 's,@PACKAGE\@,@PACKAGE@,g' \
-        -e 's,@VERSION\@,@VERSION@,g'
 
 editdata_IN = \
     etc/authproxy-config.in \
@@ -27,7 +26,7 @@ editdata :
 	@for cfgfile in $(editdata_IN); \
 	do \
 		target=`basename $$cfgfile`; \
-		$(edit) $(srcdir)/$$cfgfile > $$target; \
+		$(LocalizeSipXconfig) $(srcdir)/$$cfgfile > $$target; \
 		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		then \
 			echo ""; echo "Installing default $(sysconfdir)/sipxpbx/$$target"; \
@@ -62,7 +61,7 @@ rpm : dist sipxproxy.spec
 # Extract the options to ./configure from config.log and propagate them into the .spec file.
 sipxproxy.spec : sipxproxy.spec.in
 	V="$$( sed -e '/^ *\$$ .*\/configure/!d' -e 's/^.*\/configure *//' config.log )" ; \
-	$(edit) -e "s#@CONFIGURE_OPTIONS@#$$V#" \
+	$(LocalizeSipXconfig) -e "s#@CONFIGURE_OPTIONS@#$$V#" \
 		$(srcdir)/sipxproxy.spec.in > sipxproxy.spec
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build

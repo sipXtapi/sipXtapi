@@ -16,6 +16,9 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 AC_PROG_CC
 
+ENABLE_DOXYGEN
+AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -60,9 +63,8 @@ SFAC_LIB_COMMSERVER
 SFAC_LIB_STACK
 SFAC_LIB_PORT
 
-ENABLE_DOXYGEN
-
 AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([src/sipforkingproxy/Makefile])
 AC_CONFIG_FILES([src/sipauthproxy/Makefile])

@@ -70,6 +70,7 @@
     </t>
 
       <section title="Common Elements">
+
       <t>
         All Call State Events have some elements in common; in fact, most
         of each event consists of the common elements.  These common

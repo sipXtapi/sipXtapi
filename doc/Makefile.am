@@ -1,3 +1,4 @@
+all: doc
 
 EXTRA_DIST = \
   Doxyfile.in \
