@@ -14,6 +14,7 @@
     
     
     <!-- P R O P E R T I E S -->
+    <property-specification name="pattern" type="org.sipfoundry.sipxconfig.admin.dialplan.DialPattern"/>
     
     <!-- B E A N S -->
     <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
@@ -27,18 +28,38 @@
 	</bean>    
     
     <!-- C O M P O N E N T S -->
+    <component id="foreach" type="Foreach">
+        <binding name="source" expression="patterns"/>
+        <binding name="value" expression="pattern"/>        
+    </component>
+    
     <component id="prefixLabel" type="FieldLabel">
         <binding name="field" expression="components.prefix"/>
     </component>
     <component id="prefix" type="ValidField">
-        <binding name="value" expression="patterns[0].prefix"/>
+        <binding name="value" expression="pattern.prefix"/>
         <binding name="validator" expression="beans.nameValidator"/>
         <static-binding name="displayName" value="Prefix"/>
     </component>
-    <component id="digits" type="PropertySelection">
-        <binding name="value" expression="patterns[0].digits"/>
-        <binding name="model" expression="beans.digitsModel"/>
+    
+    <component id="add" type="LinkSubmit">
+        <binding name="listener" expression="listeners.add"/>
+    </component>
+
+    <component id="delete" type="LinkSubmit">
+        <binding name="listener" expression="listeners.delete"/>
     </component>
     
-	                            
+    <component id="conditionalAdd" type="contrib:FormConditional">
+		<binding name="condition" expression="last"/>
+    </component>
+
+    <component id="conditionalDelete" type="contrib:FormConditional">
+		<binding name="condition" expression="patterns.size > 1"/>
+    </component>
+            
+    <component id="digits" type="PropertySelection">
+        <binding name="value" expression="pattern.digits"/>
+        <binding name="model" expression="beans.digitsModel"/>
+    </component>
 </component-specification>

@@ -1,5 +1,5 @@
 <span jwcid="$content$">
-    <tr>
+    <tr jwcid="foreach" element="tr">
         <td>
             <label jwcid="prefixLabel" for="pattern:prefix">Enabled</label>
         </td>
@@ -21,7 +21,15 @@
                 <option value="13">13 digits</option>
             </select>
         </td>
-		<td><a href="#" id="pattern:add">Add</a></td>
-		<td><a href="#" id="pattern:delete">Delete</a></td>
+		<td>
+            <span jwcid="conditionalAdd">
+            	<a jwcid="add" href="#" id="pattern:add">Add</a>
+			</span>                
+        </td>
+		<td>
+            <span jwcid="conditionalDelete">
+	            <a jwcid="delete" href="#" id="pattern:delete">Delete</a>
+			</span>                
+        </td>
     </tr>
 </span>

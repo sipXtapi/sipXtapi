@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.ui;
 
+import com.meterware.httpunit.HttpUnitOptions;
+
 import net.sourceforge.jwebunit.WebTestCase;
 
 /**
@@ -18,6 +20,8 @@ import net.sourceforge.jwebunit.WebTestCase;
  */
 public class EditCustomeDialRuleTestUi extends WebTestCase {    
     public void setUp() {
+        HttpUnitOptions.setExceptionsThrownOnScriptError(false);
+        
         getTestContext().setBaseUrl("http://localhost:8080/sipxconfig");
         beginAt("/");
         clickLink("EditCustomDialRule");
@@ -32,4 +36,20 @@ public class EditCustomeDialRuleTestUi extends WebTestCase {
         
         assertFormElementPresentWithLabel("Name");
     }
+    
+    public void testAddDeletePattern() throws Exception {
+        // no delete link
+        assertLinkNotPresent("pattern:delete");
+        // add 2 more
+        clickLink("pattern:add");
+        clickLink("pattern:add");
+        
+        dumpResponse(System.err);
+        // delete 2
+        
+        clickLink("pattern:delete");
+        clickLink("pattern:delete");
+        // no delete link again
+        assertLinkNotPresent("pattern:delete");        
+    }    
 }
