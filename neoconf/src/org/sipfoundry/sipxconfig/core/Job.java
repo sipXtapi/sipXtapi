@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.core;
 
 import java.util.Date;
 
+/**
+ * Database object
+ */
 public class Job {
 
     private int m_id;

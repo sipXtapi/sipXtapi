@@ -46,4 +46,13 @@ public interface DevicePlugin {
      * @return No path, just filename
      */
     public String getProfileFileName(int profileIndex, String macAddress);
+    
+    /**
+     * Associate a profile w/a token to distinguish them as part of
+     * SIP's SUBSCRIBE messages
+     * 
+     * @param profileIndex
+     * @return e.g. "device-settings" or "user-settings"
+     */
+    public String getProfileSubscribeToken(int profileIndex);
 }

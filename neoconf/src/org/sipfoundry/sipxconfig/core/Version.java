@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.core;
 
 import java.util.Date;
 
+/**
+ * Database object
+ */
 public class Version {
 
     private Date m_applied;

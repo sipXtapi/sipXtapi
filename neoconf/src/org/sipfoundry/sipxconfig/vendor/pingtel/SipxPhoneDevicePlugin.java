@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.vendor.pingtel;
 
+import java.text.MessageFormat;
+
 import org.sipfoundry.sipxconfig.core.DevicePlugin;
 
 /**
@@ -18,21 +20,18 @@ import org.sipfoundry.sipxconfig.core.DevicePlugin;
  */
 public class SipxPhoneDevicePlugin implements DevicePlugin {
 
+    /** system-wide plugin id for device */
     public static final String HARDPHONE = "xpressa_strongarm_vxworks";
 
+    /** system-wide plugin id for device */
     public static final String SOFTPHONE = "ixpressa_x86_win32";
 
-    private static final String SEPARATOR = "/";
-    
-    private static final String PINGTEL = "pingtel/";
-    
-    private static final int PROF_TYPE_PHONE = 0;
-
-    private static final int PROF_TYPE_USER = 1;
-
-    private static final int PROF_TYPE_APPLICATION_REF = 2;
-
-    private static final int PROF_TYPE_UPGRADESCRIPT = 3;
+    private static final Profile[] PROFILES = new Profile[] {
+        new Profile("pingtel/{0}/{1}/pinger-config", "x-xpressa-device"),
+        new Profile("pingtel/{0}/{1}/user-config", "x-xpressa-user"),
+        new Profile("pingtel/{0}/{1}/app-config", "x-xpressa-apps"),
+        new Profile("pingtel/{0}/{1}/install-script", "x-xpressa-install")
+    };
 
     private String m_id;
 
@@ -55,28 +54,38 @@ public class SipxPhoneDevicePlugin implements DevicePlugin {
     }
 
     public int getProfileCount() {
-        return PROF_TYPE_UPGRADESCRIPT + 1;
+        return PROFILES.length;
     }
 
     public String getProfileFileName(int profileIndex, String macAddress) {
-        String profileName = null;
-        switch (profileIndex) {
-        case PROF_TYPE_PHONE:
-            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/pinger-config";
-            break;
-        case PROF_TYPE_USER:
-            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/user-config";
-            break;
-        case PROF_TYPE_APPLICATION_REF:
-            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/app-config";
-            break;
-        case PROF_TYPE_UPGRADESCRIPT:
-            profileName = PINGTEL + m_id + SEPARATOR + macAddress + "/install-script";
-            break;
-        default:
-        // FIXME: assert false
-        }
+        String profileName = MessageFormat.format(PROFILES[profileIndex].getFilename(), 
+                new Object[] {m_id, macAddress});
 
         return profileName.toLowerCase();
+    }
+    
+    public String getProfileSubscribeToken(int profileIndex) {
+        return PROFILES[profileIndex].getSubscribeToken();
+    }    
+}
+
+
+class Profile {
+
+    private String m_filename;
+    
+    private String m_subscribeToken;
+    
+    Profile(String filename, String token) {
+        m_filename = filename;
+        m_subscribeToken = token;
+    }
+
+    public String getFilename() {
+        return m_filename;
+    }
+
+    public String getSubscribeToken() {
+        return m_subscribeToken;
     }
 }

@@ -27,7 +27,6 @@ public class CiscoDevicePluginTest extends TestCase {
         SipxConfig sipx = (SipxConfig) ctx.getBean("sipxconfig");
         assertNotNull(sipx);
 
-        // TODO : Use constant for plugin id
         m_7960 = sipx.getDevicePlugin(CiscoDevicePlugin.MODEL_7960);
         assertTrue(m_7960 != null);
     }
@@ -37,5 +36,14 @@ public class CiscoDevicePluginTest extends TestCase {
         String macAddress = "00D001E0064CF";        
         assertEquals(m_7960.getProfileCount(), 1);                 
         assertNotNull(m_7960.getProfileFileName(1, macAddress));
+        try
+        {
+            // not supported
+            assertNotNull(m_7960.getProfileSubscribeToken(1));
+            fail();
+        } catch (IllegalArgumentException e)
+        {
+            assertTrue(true);
+        }
     }
 }

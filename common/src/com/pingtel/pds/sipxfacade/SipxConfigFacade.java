@@ -19,4 +19,7 @@ public interface SipxConfigFacade {
     public String getDeviceProfileName(int profileType, String vendor, 
             String model, String macAddress);
 
+    
+    public String getDeviceProfileToken(int profileType, String vendor);
+    
 }

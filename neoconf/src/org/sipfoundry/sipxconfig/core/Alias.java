@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
+/**
+ * Database object
+ */
 public class Alias {
 
     private String m_userId;

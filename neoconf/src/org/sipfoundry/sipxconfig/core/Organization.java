@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
+/**
+ * Database object
+ */
 public class Organization {
 
     private int m_id;

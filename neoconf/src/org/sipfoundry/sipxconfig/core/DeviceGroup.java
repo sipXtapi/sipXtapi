@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
+/**
+ * Database object
+ */
 public class DeviceGroup {
 
     private int m_id;

@@ -18,12 +18,16 @@ import org.sipfoundry.sipxconfig.core.DevicePlugin;
  */
 public class CiscoDevicePlugin implements DevicePlugin {
 
+    /** system-wide plugin id for device */
     public static final String MODEL_7960 = "cisco7960";
 
+    /** system-wide plugin id for device */
     public static final String MODEL_7940 = "cisco7940";
 
+    /** system-wide plugin id for device */
     public static final String MODEL_7905 = "cisco7905";
 
+    /** system-wide plugin id for device */
     public static final String MODEL_7912 = "cisco7912";
 
     private String m_id;
@@ -53,5 +57,10 @@ public class CiscoDevicePlugin implements DevicePlugin {
     public String getProfileFileName(int profileIndexTemp, String macAddress) {
         // Goes into TFTP Root dir, no vendor prefix
         return macAddress + ".lnk";
+    }
+    
+    public String getProfileSubscribeToken(int profileIndex) {
+        throw new IllegalArgumentException("Subscribe unsupported by device profile " 
+                + profileIndex + " : " + m_id);
     }
 }

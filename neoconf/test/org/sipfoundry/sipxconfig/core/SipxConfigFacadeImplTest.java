@@ -19,8 +19,6 @@ import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import org.sipfoundry.sipxconfig.core.SipxConfigFacadeImpl;
-
 /**
  * Comments
  */
@@ -46,16 +44,18 @@ public class SipxConfigFacadeImplTest extends TestCase {
     {
         MockControl pluginControl = MockControl.createNiceControl(DevicePlugin.class);
         DevicePlugin plugin = (DevicePlugin) pluginControl.getMock();
-        pluginControl.expectAndReturn(plugin.getPluginId(), "Cisco - 7960");
+        pluginControl.expectAndReturn(plugin.getPluginId(), "MockPlugin");
         pluginControl.expectAndReturn(plugin.getProfileCount(), 1);
         pluginControl.expectAndReturn(plugin.getProfileFileName(0, m_macAddress), "profile.dat");
+        pluginControl.expectAndReturn(plugin.getProfileSubscribeToken(0), "profile-token");
         pluginControl.replay();        
         
         Set plugins = new HashSet();
         plugins.add(plugin);
         m_sipx.setDevicePlugins(plugins);
 
-        m_facade.getDeviceProfileName(0, "Cisco", "7960", m_macAddress);
+        m_facade.getDeviceProfileName(0, "MockPlugin", "", m_macAddress);
+        m_facade.getDeviceProfileToken(0, "MockPlugin");
         pluginControl.verify();
     }
 }

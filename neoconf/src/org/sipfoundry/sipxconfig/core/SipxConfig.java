@@ -36,6 +36,14 @@ public class SipxConfig {
             m_plugins.put(plugin.getPluginId(), plugin);
         }
     }
+    
+    public int getPluginCount() {
+        return m_plugins.size();
+    }
+    
+    public Set getPluginIds() {
+        return m_plugins.keySet();
+    }
 
     /**
      * @return null if no plugin by that id exists

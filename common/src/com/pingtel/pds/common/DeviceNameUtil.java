@@ -34,23 +34,9 @@ public class DeviceNameUtil {
     }
 
     public String getDeviceProfileToken(int profileType, String vendor) {
-        if ( vendor.equalsIgnoreCase("Pingtel") ) {
-            switch (profileType) {
-            case PDSDefinitions.PROF_TYPE_PHONE:
-                return "x-xpressa-device";
-            case PDSDefinitions.PROF_TYPE_USER:
-                return "x-xpressa-user";
-            case PDSDefinitions.PROF_TYPE_APPLICATION_REF:
-                return "x-xpressa-apps";
-            case PDSDefinitions.PROF_TYPE_UPGRADESCRIPT:
-                return "x-xpressa-install";
-            default:
-                throw new IllegalArgumentException("No token for profile type: " +
-                    profileType + " using " + vendor + "'s phone");
-            }
-        } else {
-            throw new IllegalArgumentException(
-                "Subscribe unsupported by: " + vendor + "'s phone");
-        }
+
+        return SipxConfigFacadeFactory.getFacade().getDeviceProfileToken(
+                profileType, vendor);
+        
     }
 }

@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
+/**
+ * Database object
+ */
 public class DeviceCharacteristic {
 
     private String m_rpCharsCharacteristic;
