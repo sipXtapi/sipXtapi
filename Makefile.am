@@ -2,7 +2,11 @@ include $(top_builddir)/config/sipXcommon.mak
 
 include $(srcdir)/config/sipXprojtop.mak
 
-SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter sipagent-jni web $(doc_SUBDIRS)
+if SIPAGENT
+SIPAGENT_OPT = sipagent-jni
+endif
+
+SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter $(SIPAGENT_OPT) web $(doc_SUBDIRS)
 
 EXTRA_DIST = \
     config/sipX-config.in \

@@ -17,15 +17,22 @@ SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([common/src/com/pingtel/pds/common/PDSException.java])
-AM_CONFIG_HEADER([config.h])
 
+AC_ARG_ENABLE(sipagent,
+ [ --disable-sipagent    Do not try to compile sipagent jni, requires sipXtackLib],
+ , enable_sipagent=yes)
+AM_CONDITIONAL(SIPAGENT, test x$enable_sipagent = xyes)
 
 AC_PROG_LIBTOOL
-
 
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+
+SFAC_INIT_FLAGS
+if test x$enable_sipagent = xyes
+then
+AM_CONFIG_HEADER([config.h])
 
 # Checks for libraries.
 
@@ -62,7 +69,8 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
-SFAC_LIB_STACK
+  SFAC_LIB_STACK
+fi
 
 # Jar files to all of sipXconfig. 
 AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
