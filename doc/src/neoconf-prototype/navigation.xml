@@ -1,5 +1,31 @@
 <?xml version="1.0" standalone="yes"?>
+
 <menu>
-  <item name="legacy" href="#" title="Cisco and sipXphone" >Cisco and sipXphone Phones</item>
-  <item name="endpoint" href="endpoints.html" title="Polycom Phones" >Other Phones</item>
+	
+	<item name="users" href="#" title="Users">Users</item>
+	<menu>
+		<item name="listAllUsers" href="users.html" title="List All Users">List All Users</item>
+		<item name="listAllUserGroups" href="#" title="List All Groups">List All Groups</item>
+	</menu>
+	<item name="devices" href="#" title="Devices">Devices</item>
+	<menu>
+		<item name="listAllDevices" href="#" title="List All Users">List All Devices</item>
+		<item name="listAllDeviceGroups" href="#" title="List All Groups">List All Groups</item>
+        <item name="additionalDevices" href="phones.html" title="Additional Devices Types">Additional Devices</item>
+	</menu>
+	<item name="applications" href="#" title="Applications">Applications</item>
+	<menu>
+		<item name="listAllApplications" href="#" title="List All Users">List All Applications</item>
+		<item name="listAllApplicationSets" href="#" title="List All Application Sets">List All Application Sets</item>
+	</menu>
+    <item name="administration" href="#" title="Administration">Administration</item>
+	<menu>
+		<item name="listAdministration" href="#" title="List Administration">List All Administrators</item>
+		<item name="settings" href="#" title="Settings">Settings</item>
+		<item name="extentionPools" href="#" title="Extension Pools">Extension Pools</item>
+		<item name="jobStatus" href="#" title="Job Status">Job Status</item>
+		<item name="Registrations" href="#" title="Registrations">Registrations</item>		
+		<item name="about" href="#" title="About">About</item>		
+	</menu>	
+	
 </menu>

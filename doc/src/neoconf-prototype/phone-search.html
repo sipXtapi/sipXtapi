@@ -7,7 +7,7 @@
   <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
 
 </head>
-<body id="assign-user">
+<body id="phone-search">
 
 <div id="component">
 
@@ -17,29 +17,17 @@
 	<table>		
 		<tr>
 			<td>Device:</td>
-			<td>2932f42c96fa</td>
-		</tr>
-		<tr>
-			<td>Label</td>
-			<td><input type="text" value="Work Phone"/></td>				
+			<td><input type="text" name="serialNumber"/></td>				
 		</tr>
 	    <tr>
-			<td>User:</td>
-			<td>
-				<select name="user">
-					<option>msmith</option>
-					<option>pdavis</option>
-					<option>hjones</option>
-					<option>fdogooder</option>
-					<option>mclapper</option>
-				</select>
-			</td>
+			<td>Assigned User:</td>
+			<td><input type="text" name="user"/></td>				
 		</tr>
 	</table>
 
 	<ul class="form-actions">
 		<li>
-			<input type="submit" name="save" value="Save"/>
+			<input type="submit" name="search" value="Search"/>
 		</li>
 		<li>
 			<input type="submit" name="cancel" value="Cancel"/>

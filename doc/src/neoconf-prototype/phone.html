@@ -7,16 +7,12 @@
   <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
 
 </head>
-<body id="addendpoint">
+<body id="phone">
 
 <div class="component">
 	
-<form action="endpoints.html">
+<form action="edit-phone.html">
 <table>
-	<tr>
-		<td>Name</td>
-		<td><input type="text" name="name"/></td>
-	</tr>
 	<tr>
 		<td>Serial #:</td>
 		<td><input type="text" name="serialNumber"/></td>
@@ -30,27 +26,14 @@
 			</select>
 			</td>
 	</tr>
-	<tr>
-		<td>Phone Group:</td>
-		<td><select name="extension">
-			<option>Sales</option>
-			<option>Engineering</option>
-			<option>Tech. Support</option>
-			<option>Management</option>
-			</select>
-		</td>
-	</tr>
 </table>
 
 <ul class="form-actions">
 	<li><input type="submit" name="save" value="Save"/></li>
-	<li><input type="submit" name="cancel" value="Cancel"/></li>
+	<li><input type="button" name="cancel" value="Cancel" onclick="javascript:location.href='phones.html';"/></li>
 </ul>	
 
 </form>
 </div>
-
-<hr/>
-
 </body>
 </html>

@@ -8,7 +8,7 @@ body {
   margin:       0;
   font-family:  Verdana, Arial, Helvetica, sans-serif;
   font-size:    12px;
-  background: #fff;
+  background: #ffc;
 }
 
 h1 { font: 170% }
@@ -59,31 +59,35 @@ pre, tt, code, kbd, samp {
 #navigation {
   float : left;
   background: #699;
-  width: 100px;
+  width: 180px;
   padding: 2px;
 }
 
 #navigation ul {
   list-style-type:none;
+  margin: 2px;
   padding: 5px 5px 5px 5px;
 }
 
-#navigation li a:link, #navigation li a:visited {
+#navigation li a {
   color: #fff;
-  font-weight: bold;
+  text-decoration: none;
+}
+
+#navigation li ul li a {
+  font-weight: plain;
 }
 
 #content {
-  float : left;
-  top: 90px;
-  padding: 5px;  
+  margin-left : 182px; /* navigation.width + navigation.padding */
+  padding: 5px 5px 5px 10px;
 }
 
 #footer {
-    clear: both;
-    padding:      .5em 1em .25em 1em;
-    font-size:    10px; 
-    margin-top:   3em;
+    clear : both;
+    padding: .5em 1em .25em 1em;
+    font-size: 10px; 
+    margin-top: 3em;
     font-style: italic;
 }
 
@@ -105,22 +109,49 @@ ul.table-actions li {
 
 table.table-view {
     background: #fff;
-    width: 60em;
+    width: 45em;
     border-collapse: collapse;
-    border: thin solid #ccc;
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc;  
+}
+
+tr.table-view-hdr {
+    background-color: #699;
 }
 
 table.table-view th {
-    background-color: #ffc;
-    border: thin solid #ccc;
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc;  
     padding: 3px;
-    white-space: nowrap;    
+    white-space: nowrap;        
+}
+    
+table.table-view th a {
+    color: #ffc;
 }
 
 table.table-view td {
     inset: 3px;
     white-space: nowrap;    
     border-collapse: collapse;
+}
+
+ul.table-selection {
+  list-style-type: none;
+  margin: 0px 2px 2px 2px;
+  padding: 0px
+}
+
+ul.table-selection li {
+  display: inline;
+  margin: 0 5px;
+}
+
+ul.table-selection li a {
+  text-decoration: none;
+  font-size: .8em;
 }
 
 tr.even {
@@ -146,20 +177,13 @@ ul.table-pager li {
   margin: 0 5px;
 }
 
-li.navigation {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  list-style: none;
-  white-space: nowrap;
-}
-
 #component {
-    width: 60em;
+    width: 45em;
 }
 
 ul.component-actions {
   list-style-type : none;
-  text-align: right;  
+  text-align: right; 
 }
 
 ul.component-actions li {
@@ -176,8 +200,9 @@ ul.form-actions li {
   display: inline;
 }
 
-input {
-}
+
+
 .hide {
   display: none
 }
+
