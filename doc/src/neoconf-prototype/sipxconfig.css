@@ -116,6 +116,10 @@ table.table-view {
     border-color : #ccc;  
 }
 
+table.table-view thead {
+    background-color: #699;
+}
+
 tr.table-view-hdr {
     background-color: #699;
 }
@@ -127,6 +131,16 @@ table.table-view th {
     padding: 3px;
     white-space: nowrap;        
 }
+
+table.table-view thead th {
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc;  
+    padding: 3px;
+    white-space: nowrap;        
+    color: #ffc;
+}
+
     
 table.table-view th a {
     color: #ffc;
