@@ -10,17 +10,11 @@
     <!--
       - P A R A M E T E R S
       -->
-    <!-- either endpoint or phone is required -->
 	<parameter name="endpoint" 
         type="org.sipfoundry.sipxconfig.phone.Endpoint" 
         required="yes" 
         direction="in">
     </parameter>    
-	<parameter name="phone" 
-        type="org.sipfoundry.sipxconfig.phone.Phone" 
-        required="no" 
-        direction="in">
-    </parameter>
     <!--
       - P R O P E R T I E S
       -->

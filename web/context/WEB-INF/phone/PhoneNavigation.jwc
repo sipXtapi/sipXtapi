@@ -11,8 +11,8 @@
     <!--
     - P A R A M E T E R S
     -->
-    <parameter name="phone"
-        type="org.sipfoundry.sipxconfig.phone.Phone"
+    <parameter name="endpoint"
+        type="org.sipfoundry.sipxconfig.phone.Endpoint"
         required="yes"
         direction="in">
     </parameter>
@@ -47,12 +47,12 @@
     </component>            
     <component id="deviceIdTab" type="DirectLink">
         <binding name="listener" expression="listeners.editPhone"/>
-        <binding name="parameters" expression="phone.endpoint.id"/>
+        <binding name="parameters" expression="endpoint.id"/>
         <binding name="class" expression="beans.tabs.getTabClass('EditPhone')"/>
     </component>
     <component id="linesTab" type="DirectLink">
         <binding name="listener" expression="listeners.editLines"/>
-        <binding name="parameters" expression="phone.endpoint.id"/>
+        <binding name="parameters" expression="endpoint.id"/>
         <binding name="class" expression="beans.tabs.getTabClass('PhoneLines')"/>
     </component>
     <component id="settingsTabs" type="Foreach">
@@ -66,5 +66,8 @@
     </component>
     <component id="settingsTabLabel" type="Insert">
         <binding name="value" expression="getCurrentSettingGroup().getLabel()"/>
+    </component>
+    <component id="phoneLabel" type="PhoneLabel">
+        <binding name="endpoint" expression="endpoint"/>
     </component>
 </component-specification>

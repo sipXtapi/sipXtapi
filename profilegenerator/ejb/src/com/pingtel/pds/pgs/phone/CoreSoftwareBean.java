@@ -82,13 +82,20 @@ public class CoreSoftwareBean extends JDBCAwareEJB implements EntityBean, CoreSo
                                 String deviceTypeID ) throws CreateException {
 
         try {
+
+logFatal(" ########  GOT HERE  ##########", new Exception("BOGUS"));
+
             executePreparedUpdate(  "INSERT INTO phone_type_csd_assoc ( CSD_ID, " +
                                     "                                   PT_ID ) " +
                                     "VALUES  ( ?, ? ) ",
-                                    new Object [] { this.id, deviceTypeID } );
-
+                                    new Object [] { this.id, new Integer(deviceTypeID) } );
+        }
+        catch (NumberFormatException nfe) {
+            logFatal(nfe.getMessage(), nfe);
+            throw new RuntimeException("unexpected internal error", nfe);
         }
         catch ( SQLException ex ) {
+            logFatal(ex.toString(), ex);
             m_ctx.setRollbackOnly();
 
             throw new CreateException ( ex.toString() );
@@ -111,6 +118,7 @@ public class CoreSoftwareBean extends JDBCAwareEJB implements EntityBean, CoreSo
 
         }
         catch ( SQLException ex ) {
+            logFatal(ex.toString(), ex);
             m_ctx.setRollbackOnly();
 
             throw new RemoveException ( ex.toString() );

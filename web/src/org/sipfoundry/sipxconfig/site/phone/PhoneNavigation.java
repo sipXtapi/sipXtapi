@@ -87,5 +87,5 @@ public abstract class PhoneNavigation extends BaseComponent {
         Phone phone = context.getPhone(getEndpoint());
         SettingGroup model = getEndpoint().getSettings(phone);
         setSettingGroup(model);
-    }    
+    }        
 }

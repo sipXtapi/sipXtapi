@@ -5,9 +5,9 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="phone" 
-		type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="phoneId"
+	<property-specification name="endpoint" 
+		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+    <property-specification name="endpointId"
         type="int" persistent="yes"/>
     <!--
       - B E A N S
@@ -17,13 +17,12 @@
       - C O M P O N E N T S
       -->
     <component id="editPhoneNavigation" type="PhoneNavigation">        
-        <binding name="phone" expression="phone"/>
+        <binding name="endpoint" expression="endpoint"/>
         <static-binding name="tab" value="EditPhone"/>
         <static-binding name="heading" value="Device Identification"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">
-        <binding name="phone" expression="phone"/>
-        <binding name="endpoint" expression="phone.endpoint"/>
+        <binding name="endpoint" expression="endpoint"/>
     </component>    
 	<!--
 	  - A S S E T S

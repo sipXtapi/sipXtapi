@@ -6,22 +6,6 @@
 	<div id="component">
         <form jwcid="@Form" delegate="ognl:beans.validator">
             <span jwcid="editPhoneForm"/>
-			<table jwcid="$remove$">
-				<tr>
-					<td>Serial Number:</td>
-					<td>
-						<input type="text"/>
-					</td>
-				</tr>
-                <tr>
-                    <td>Model</td>
-                    <td>
-                        <select>
-                            <option>-- select  one ---</option>
-                        </select>
-                     </td>
-                 </tr>
-			</table>
 			<ul class="form-actions">
 				<li>
                     <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>

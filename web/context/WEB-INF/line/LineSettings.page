@@ -9,12 +9,14 @@
     <!--
     - P R O P E R T I E S
     -->
-    <property-specification name="phone"
-        type="org.sipfoundry.sipxconfig.phone.Phone"
+    <property-specification name="endpoint"
+        type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+    <property-specification name="endpointId"
+        type="int"
         persistent="yes"/>
     <property-specification name="setting" type="java.lang.String"/>
     <component id="editPhoneNavigation" type="PhoneNavigation">
-        <binding name="phone" expression="phone"/>
+        <binding name="endpoint" expression="endpoint"/>
         <binding name="tab" expression="setting"/>
         <binding name="heading" expression="setting"/>
     </component>

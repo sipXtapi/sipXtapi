@@ -16,10 +16,10 @@
     -  P R O P E R T I E S
     -
     - EXTERNAL PROPERTIES DEPENDECIES:
-    -  project.dir          = path relative to ant-targets.xml to project
+    -  project.dir          = path relative to subant-targets.xml to project
     -->
-  <dirname property="ant-targets.basedir" file="${ant.file.ant-targets}"/>
-  <property file="${ant-targets.basedir}/top.build.dir"/>
+  <dirname property="subant-targets.basedir" file="${ant.file.subant-targets}"/>
+  <property file="${subant-targets.basedir}/top.build.dir"/>
   <property file="${top.build.dir}/config.properties"/>
 
   <!--

@@ -12,7 +12,7 @@
 package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 
 /**
@@ -22,9 +22,13 @@ public abstract class LineSettings extends BasePage {
     
     public static final String PAGE = "LineSettings";
 
-    public abstract Phone getPhone();
+    public abstract Endpoint getEndpoint();
     
-    public abstract void setPhone(Phone phone);
+    public abstract void setEndpoint(Endpoint endpoint);
+
+    public abstract int getEndpointId();
+    
+    public abstract void setEndpointId(int id);
 
     public abstract void setSetting(String setting);
 

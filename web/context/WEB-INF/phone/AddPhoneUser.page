@@ -9,7 +9,9 @@
 	  -->
 	<property-specification name="phone" 
 		type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="phoneId"
+	<property-specification name="endpoint" 
+		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+    <property-specification name="endpointId"
         type="int" persistent="yes"/>
     <!--
       - C O M P O N E N T S
@@ -20,5 +22,8 @@
     <component id="searchResults" type="UserTable">
         <binding name="users" expression="components.searchForm.users"/>    
         <binding name="selectListener" expression="listeners.select"/>
+    </component>
+    <component id="phoneLabel" type="PhoneLabel">
+        <binding name="endpoint" expression="endpoint"/>
     </component>
 </page-specification>

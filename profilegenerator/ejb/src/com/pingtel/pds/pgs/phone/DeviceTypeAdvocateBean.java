@@ -97,6 +97,7 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                 doc = m_saxBuilder.build(new URL("file://" + fileName));
             }
             catch ( JDOMException ex ) {
+                logFatal(ex.toString(), ex);
                 m_ctx.setRollbackOnly();
 
                 throw new PDSException(
@@ -141,6 +142,7 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                 cManu = m_manufacturerHome.findByName( manufacturerName );
             }
             catch ( FinderException ex ) {
+                logFatal(ex.toString(), ex);
                 m_ctx.setRollbackOnly();
 
                 throw new PDSException(
@@ -159,6 +161,7 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                     logDebug ( "created manufacturer" );
                 }
                 catch ( CreateException ex ) {
+                    logFatal(ex.toString(), ex);
                     m_ctx.setRollbackOnly();
 
                     throw new PDSException(
@@ -177,6 +180,7 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                 pt = m_deviceTypeHome.create( manu.getID(), modelName );
             }
             catch ( CreateException ex ) {
+                    logFatal(ex.toString(), ex);
                     m_ctx.setRollbackOnly();
 
                     throw new PDSException(
@@ -251,6 +255,7 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                                                 pt.getID().toString() );
                 }
                 catch ( CreateException ex ) {
+                    logFatal(ex.toString(), ex);
                     m_ctx.setRollbackOnly();
 
                     throw new PDSException(
@@ -296,6 +301,7 @@ public class DeviceTypeAdvocateBean extends JDBCAwareEJB
                                 projectionClass.getTextNormalize());
                     }
                     catch ( CreateException ex ) {
+                        logFatal(ex.toString(), ex);
                         m_ctx.setRollbackOnly();
 
                         throw new PDSException(

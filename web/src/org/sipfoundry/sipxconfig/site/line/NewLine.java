@@ -13,8 +13,8 @@ package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
@@ -26,17 +26,17 @@ public abstract class NewLine extends BasePage {
     
     public static final String PAGE = "NewLine";
     
-    public abstract void setPhone(Phone phone);
+    public abstract void setEndpoint(Endpoint endpoint);
 
-    public abstract Phone getPhone();
+    public abstract Endpoint getEndpoint();
     
     public abstract void setLine(Line line);
     
     public abstract Line getLine();
     
-    public abstract int getPhoneId();
+    public abstract int getEndpointId();
     
-    public abstract void setPhoneId(int id);
+    public abstract void setEndpointId(int id);
     
     public abstract void setReturnPage(String returnPage);
     
@@ -52,7 +52,7 @@ public abstract class NewLine extends BasePage {
     }
     
     public boolean isEndpointWizard() {
-        return getPhone() != null;
+        return getEndpoint() != null;
     }
     
     void saveLine(PhoneContext phoneContext) {

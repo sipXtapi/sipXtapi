@@ -16,18 +16,13 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * Editing a phone is reused for creating new phones and editing existing ones
  */
 public abstract class EditPhoneForm extends BaseComponent {
-    
-    public abstract Phone getPhone();
-    
-    public abstract void setPhone(Phone phone);
-    
+
     public abstract Endpoint getEndpoint();
     
     public abstract void setEndpoint(Endpoint endpoint);    
@@ -38,7 +33,7 @@ public abstract class EditPhoneForm extends BaseComponent {
     public abstract IPropertySelectionModel getPhoneSelectionModel();
 
     public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
-    
+     
     /**
      * called before page is drawn
      */
