@@ -30,7 +30,7 @@ public abstract class EditPhone extends AbstractPhonePage {
         cycle.activate(ListPhones.PAGE);
     }
 
-    public void apply(IRequestCycle cycle) {
+    public void apply(IRequestCycle cycle_) {
         getPhoneContext().getPhoneDao().storeEndpoint(getPhone().getEndpoint());
     }
     

@@ -42,7 +42,7 @@ public class PolycomPhone extends GenericPhone {
     }
     
     public String getDisplayLabel() {
-        return "Polycom SoundPoint IP " + m_id.substring(7);
+        return "Polycom SoundPoint IP 300";
     }
     
     public void setModelId(String id) {
