@@ -25,6 +25,22 @@ do
     shift # always consume 1
 done
 
+dns_sipsrv () { # ( transport, domain )
+  target=`echo _sip._$1.$2 | tr A-Z a-z`
+  dig  -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
+dns_cname () { # ( domain )
+  target=`echo $1 | tr A-Z a-z`
+  dig  -t cname +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
@@ -54,6 +70,30 @@ case ${Action} in
    CONFIGTEST)
      #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
      #Status=$?
+
+     myHostname=`hostname -f`
+     status=$? 
+     Status=$((${Status}+${status}))
+     
+     myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME}`
+     status=$? 
+     Status=$((${Status}+${status}))
+
+     if [ "${myHostname}" != "${myDomain}" ]
+     then
+         tcpSrv=`dns_sipsrv tcp ${myDomain}`
+         udpSrv=`dns_sipsrv udp ${myDomain}`
+         if [ "${myHostname}" != "${tcpSrv}" -a "${myHostname}" != "${udpSrv}" ] 
+         then
+             sipAlias=`dns_cname ${myDomain}`
+             if [ "${myHostname}" != "${sipAlias}" ] 
+             then
+                 Status=1
+                 echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}'" 1>&2
+                 echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
+             fi
+         fi
+     fi
      ;;
 esac
 
