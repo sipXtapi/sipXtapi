@@ -65,13 +65,15 @@ Special Software Installion Instructions
 Installation
 =====================
 
+After building the prerequisite components, build sipXconfig by:
+
   ./configure
   make
   make install 
 
 
-Set up Postgresql Database
-==========================
+Set up the Postgresql Database
+==============================
 
   # to edit postgres config files to work
   # Note: this will open up TCP connections and
@@ -85,7 +87,8 @@ Set up Postgresql Database
 SSL Initialization
 ==================
 
-See the instructions in doc/ssl/INSTALL.ssl
+Set up an SSL key using the instructions in doc/ssl/INSTALL.ssl.
+
 
 Optional SOAP Access
 ====================
