@@ -4,13 +4,14 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
-        <form jwcid="@Form" delegate="ognl:beans.validator">
+        <form jwcid="form">
+            <span jwcid="userForm"/>
 			<ul class="form-actions">
 				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+                    <input type="submit" jwcid="cancel" value="Cancel"/>
 				</li>
 				<li>
-                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.finish" value="Finish"/>
+                    <input type="submit" jwcid="save" value="Save"/>
 				</li>
 			</ul>                        
 		</form>    

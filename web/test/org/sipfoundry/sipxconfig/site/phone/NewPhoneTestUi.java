@@ -40,10 +40,10 @@ public class NewPhoneTestUi extends WebTestCase {
     public void testAddPhone() {
         clickLink("NewPhone");  
         setFormElement("serialNumber", "000000000000");
-        setFormElement("phoneModel", "1");
+        selectOption("phoneModel", "Polycom SoundPoint IP 500");
         clickButton("phone:ok");
         String[][] table = new String[][] {
-            { "000000000000", "", "SoundPoint IP 500" },                
+            { "000000000000", "", "Polycom SoundPoint IP 500" },                
         };
         assertTextInTable("phone:list", table[0]);
     }
@@ -51,7 +51,7 @@ public class NewPhoneTestUi extends WebTestCase {
     public void testSaveAndStay() {
         clickLink("NewPhone");  
         setFormElement("serialNumber", "000000000000");
-        setFormElement("phoneModel", "1");
+        selectOption("phoneModel", "Polycom SoundPoint IP 500");
         checkCheckbox("stay");
         clickButton("phone:ok");
         assertCheckboxSelected("stay");
@@ -60,7 +60,7 @@ public class NewPhoneTestUi extends WebTestCase {
 
         clickButton("phone:cancel");
         String[][] table = new String[][] {
-            { "000000000000", "", "SoundPoint IP 500" },                
+            { "000000000000", "", "Polycom SoundPoint IP 500" },                
         };
         assertTextInTable("phone:list", table[0]);
     }
