@@ -16,7 +16,9 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.settings.SettingsContext;
+import org.sipfoundry.sipxconfig.phone.SettingSet;
+import org.sipfoundry.sipxconfig.settings.NetworkSettings;
+import org.sipfoundry.sipxconfig.settings.PhoneSettings;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
@@ -27,8 +29,6 @@ import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 public class PolycomPhoneTest extends TestCase {
     
     private PhoneContext m_phoneContext;
-
-    private SettingsContext m_settingsContext;
     
     public void setUp() {
         BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
@@ -43,6 +43,10 @@ public class PolycomPhoneTest extends TestCase {
         endpoint.setPhoneId(PolycomPhone.MODEL_300);
         Phone phone = m_phoneContext.getPhone(endpoint);
         assertNotNull(phone);
+        
+        PhoneSettings settings = (PhoneSettings) phone.getSettings(new SettingSet());
+        NetworkSettings network = settings.getNetworkSettings();
+        network.getSetting("tftpServer").setValue("hey there");
     }
 
 }

@@ -17,11 +17,31 @@ package org.sipfoundry.sipxconfig.phone;
  */
 public interface PhoneDao {
 
-    public Organization loadRootOrganization();
+    public static final int CASCADE = -1;
+    
+    /**
+     * Commits the transaction and performs a batch of SQL commands
+     * to happen. Call this as high in the application stack as possible
+     * for better performance and data integrity.
+     * 
+     * You need to call this before you attempt to delete and object
+     * that was created before last to to flush. Not a big deal, most
+     * times you don't delete and object before it's created, but happens
+     * a lot in unittests. 
+     */
+    public void flush();
+    
+    public void storeSetting(Setting setting, int dpeth);
 
+    public void storeSetting(Setting setting);
     
-    public User loadUser(int id);
+    public void deleteSetting(Setting setting);
     
+    public SettingSet loadSettings(int id);
+
+    public Organization loadRootOrganization();
+    
+    public User loadUser(int id);    
     
     public Endpoint loadEndpoint(int id);
     

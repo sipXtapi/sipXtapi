@@ -11,11 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.vendor;
 
+import org.sipfoundry.sipxconfig.phone.AbstractSettings;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.settings.SettingSet;
-import org.sipfoundry.sipxconfig.settings.SettingsContext;
+import org.sipfoundry.sipxconfig.phone.SettingSet;
+import org.sipfoundry.sipxconfig.settings.NetworkSettings;
+import org.sipfoundry.sipxconfig.settings.PhoneSettings;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000
@@ -39,23 +41,7 @@ public class PolycomPhone implements Phone {
     
     private Endpoint m_endpoint;
     
-    private PhoneContext m_phoneContext;
-    
-    private SettingsContext m_settingsContext;
-    
-    /**
-     * @return Returns the settingsContext.
-     */
-    public SettingsContext getSettingsContext() {
-        return m_settingsContext;
-    }
-    
-    /**
-     * @param settingsContext The settingsContext to set.
-     */
-    public void setSettingsContext(SettingsContext settingsContext) {
-        m_settingsContext = settingsContext;
-    }
+    private PhoneContext m_phoneContext;    
     
     /**
      * @return Returns the phoneContext.
@@ -91,10 +77,11 @@ public class PolycomPhone implements Phone {
         m_endpoint = endpoint;
     }
     
-    public SettingSet getDefaultSettings() {
-        SettingSet root = new SettingSet("root");
-        root.addSetting(new SettingSet("network"));
+    public AbstractSettings getSettings(SettingSet rootSettings) {
+        PhoneSettings phoneSettings = new PhoneSettings(rootSettings);
+        NetworkSettings network = phoneSettings.getNetworkSettings();
+        network.defaultSetting("tftpServer", null);
         
-        return root;        
+        return phoneSettings;
     }
 }

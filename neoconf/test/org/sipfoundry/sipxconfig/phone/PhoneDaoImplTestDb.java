@@ -27,6 +27,8 @@ public class PhoneDaoImplTestDb extends TestCase {
     private Endpoint m_teardownEndpoint;
     
     private EndpointAssignment m_teardownAssignment;
+    
+    private SettingSet m_teardownSettings;
 
     private UnitTestDao m_testData;       
     
@@ -48,21 +50,44 @@ public class PhoneDaoImplTestDb extends TestCase {
     }
     
     protected void tearDown() throws Exception {
+        // NOTE: If unittest fails to tear down, next unittest run
+        // may fail due to duplicate data errors
+        if (m_teardownSettings != null) {
+            m_dao.deleteSetting(m_teardownSettings);
+        }
         if (m_teardownEndpoint != null) {
             m_dao.deleteEndpointAssignment(m_teardownAssignment);
         }
         if (m_teardownEndpoint != null) {
             m_dao.deleteEndpoint(m_teardownEndpoint);
         }
+        m_dao.flush();
         assertTrue(m_testData.verifyDataUnaltered());
     }
     
-    public void testStore() {  
+    /**
+     * Tests a number of sattelite objects to endpoint as well
+     *
+     */
+    public void testEndpoint() {  
         
         Organization org = m_dao.loadRootOrganization();
         assertEquals(1, org.getId());
                        
         User user = m_dao.loadUser(m_testData.getTestUserId());
+
+        SettingSet root = new SettingSet("root");       
+        SettingSet subset = new SettingSet("subset");
+        root.addSetting(subset);
+        Setting setting = new Setting("subsetting", "value");
+        subset.addSetting(setting);
+        
+        m_dao.storeSetting(root, PhoneDao.CASCADE);
+        m_teardownSettings = root;
+        
+        SettingSet rootRead = m_dao.loadSettings(root.getId());
+        assertNotNull(rootRead);
+        assertEquals(1, rootRead.getSettings().size());
 
         Endpoint endpoint = new Endpoint();
         // assumption that this is unique
@@ -77,5 +102,7 @@ public class PhoneDaoImplTestDb extends TestCase {
         assignment.setLabel("work phone");
         m_dao.storeEndpointAssignment(assignment);                
         m_teardownAssignment = assignment;
-    }
+
+        m_dao.flush();
+    }    
 }

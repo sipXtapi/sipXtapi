@@ -20,6 +20,8 @@
 		<property name="description" column="description"/>
 		<property name="serialNumber" column="serial_number"/>
 		<property name="phoneId" column="phone_id"/>
+		<many-to-one name="settings" column="setting_id" 
+			class="org.sipfoundry.sipxconfig.phone.SettingSet"/>
 	</class>
 	<!--
 	  -  E N D P O I N T  /  U S E R   A S S I G N M E N T
@@ -38,7 +40,7 @@
 		<many-to-one name="endpoint" column="endpoint_id" 
 			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
 	</class>
-	<class name="org.sipfoundry.sipxconfig.settings.Setting" table="setting" 
+	<class name="org.sipfoundry.sipxconfig.phone.Setting" table="setting" 
 		discriminator-value="0">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="setting_id" type="int" unsaved-value="-1">
@@ -50,13 +52,13 @@
 		<property name="name" column="name"/>
 		<property name="string" column="string_value"/>
 		<many-to-one name="parent" column="parent_id" 
-			class="org.sipfoundry.sipxconfig.settings.SettingSet"/>
-		<subclass name="org.sipfoundry.sipxconfig.settings.SettingSet" 
+			class="org.sipfoundry.sipxconfig.phone.SettingSet"/>
+		<subclass name="org.sipfoundry.sipxconfig.phone.SettingSet" 
 			discriminator-value="1">
 			<map name="settings" inverse="true" lazy="true">
 				<key column="parent_id"/>
 				<index column="name" type="string"/>
-				<one-to-many class="org.sipfoundry.sipxconfig.settings.Setting"/> 
+				<one-to-many class="org.sipfoundry.sipxconfig.phone.Setting"/> 
 			</map>
 		</subclass>
 	</class>

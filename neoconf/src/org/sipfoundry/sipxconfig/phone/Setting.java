@@ -9,10 +9,11 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.settings;
+package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collections;
 import java.util.Map;
+
 
 
 public class Setting {
@@ -29,7 +30,7 @@ public class Setting {
     }
 
     public Setting(String name) {
-        m_name = name;
+        this(name, null);
     }
 
     public Setting(String name, Object value) {

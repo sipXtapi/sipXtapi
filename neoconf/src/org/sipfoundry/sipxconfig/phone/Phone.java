@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 
+
 /**
  * Implement this to add support for new devices to the system
  */
@@ -30,4 +31,6 @@ public interface Phone {
     public void setPhoneContext(PhoneContext phoneContext);
 
     public PhoneContext getPhoneContext();
+    
+    public AbstractSettings getSettings(SettingSet settings);
 }

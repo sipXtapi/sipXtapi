@@ -9,10 +9,11 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.settings;
+package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Map;
 import java.util.TreeMap;
+
 
 /**
  * Set of data for a configurable object
@@ -25,11 +26,11 @@ public class SettingSet extends Setting {
     private Map m_settings;
 
     public SettingSet() {
-        this(null);
+        this(null); 
     }
     
     public SettingSet(String name) {
-        setName(name);
+        super(name);
         setValue(this);
         m_settings = new TreeMap();
     }

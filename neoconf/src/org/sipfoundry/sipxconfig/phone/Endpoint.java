@@ -30,7 +30,7 @@ public class Endpoint {
 
     private Set m_assignedEnpoints;
     
-    private int m_settingsId;
+    private SettingSet m_settings;
 
     /**
      * @return ids used in PhoneFactory
@@ -98,11 +98,11 @@ public class Endpoint {
         m_assignedEnpoints = assignedEnpoints;
     }
     
-    public int getSettingsId() {
-        return m_settingsId;
+    public SettingSet getSettings() {
+        return m_settings;
     }
     
-    public void setSettingsId(int settingsId) {
-        m_settingsId = settingsId;
+    public void setSettings(SettingSet settings) {
+        m_settings = settings;
     }
 }

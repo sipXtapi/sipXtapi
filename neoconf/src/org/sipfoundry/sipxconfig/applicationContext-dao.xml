@@ -81,28 +81,4 @@
 			</list>
 		</property>
 	</bean>
-	<!--
-      - S E T T I N G S  D A O   I M P L
-      -->
-	<bean id="settingsDaoImpl" 
-		class="org.sipfoundry.sipxconfig.settings.SettingsDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory"/>
-		</property>
-	</bean>
-	<!--
-      - S E T T I N G S  D A O
-      -->
-	<bean id="settingsDao" 
-		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="proxyInterfaces">
-			<value>org.sipfoundry.sipxconfig.settings.SettingsDao</value>
-		</property>
-		<property name="interceptorNames">
-			<list>
-				<value>hibernateInterceptor</value>
-				<value>settingsDaoImpl</value>
-			</list>
-		</property>
-	</bean>
 </beans>
