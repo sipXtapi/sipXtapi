@@ -12,8 +12,10 @@
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
         global.sipXconfigContext.getBean("dialPlanManager")
     </property-specification>
+    
 	<property-specification name="selected" 
-		type="java.lang.String">"mappingrules.xml"
+		type="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType">
+        @org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES
     </property-specification>
 
         
@@ -21,6 +23,14 @@
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+
+    <bean name="xmlSelectorModel" 
+        class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
+        lifecycle="page">
+        <set-property name="enumClass" 
+        	expression="@org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@class"/>
+    </bean>
+        
     
     <!--
      - C O M P O N E N T S
@@ -30,7 +40,7 @@
     </component>
     
     <component id="xmlSelector" type="PropertySelection">
-        <binding name="model" expression="@org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan@XML_FILES_MODEL"/>
+        <binding name="model" expression="beans.xmlSelectorModel"/>
         <binding name="value" expression="selected"/>
         <static-binding name="submitOnChange" value="true"/>
     </component>

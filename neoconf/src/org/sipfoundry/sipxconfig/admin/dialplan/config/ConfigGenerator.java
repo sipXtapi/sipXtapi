@@ -11,8 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import org.dom4j.Document;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
@@ -24,14 +33,18 @@ public class ConfigGenerator {
     private MappingRules m_mapping;
     private AuthRules m_auth;
     private FallbackRules m_fallback;
+    private Map m_files = new HashMap();
 
     public ConfigGenerator() {
         m_mapping = new MappingRules();
         m_auth = new AuthRules();
         m_fallback = new FallbackRules();
+        m_files.put(ConfigFileType.MAPPING_RULES, m_mapping);
+        m_files.put(ConfigFileType.FALLBACK_RULES, m_fallback);
+        m_files.put(ConfigFileType.AUTH_RULES, m_auth);
     }
 
-    void generate(FlexibleDialPlan plan) {
+    public void generate(FlexibleDialPlan plan) {
         List rules = plan.getRules();
 
         for (Iterator i = rules.iterator(); i.hasNext();) {
@@ -45,4 +58,40 @@ public class ConfigGenerator {
         }
     }
 
+    /**
+     * Writes the content of the file using supplied writer.
+     * 
+     * @param type type of the configuration file
+     * @param writer standard Java IO writer (user StringWriter to write to
+     *        string)
+     * @throws IOException
+     */
+    public void write(ConfigFileType type, Writer writer) throws IOException {
+        ConfigFile file = (ConfigFile) m_files.get(type);
+        Document document = file.getDocument();
+        OutputFormat format = new OutputFormat();
+        format.setNewlines(true);
+        format.setIndent(true);
+        XMLWriter xmlWriter = new XMLWriter(writer, format);
+        xmlWriter.write(document);
+    }
+
+    /**
+     * Retrieves configuration file content as stream.
+     * 
+     * Use only for preview, use write function to dump it to the file.
+     * 
+     * @param type type of the configuration file
+     */
+    public String getFileContent(ConfigFileType type) {
+        try {
+            StringWriter writer = new StringWriter();
+            write(type, writer);
+            return writer.toString();
+        } catch (IOException e) {
+            // ignore when writing to string
+            // TODO: log
+            return "";
+        }
+    }
 }

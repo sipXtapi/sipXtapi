@@ -39,7 +39,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * </code>
  * 
  */
-public class AuthRules {
+public class AuthRules implements ConfigFile {
     private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     private Document m_doc;
@@ -49,7 +49,7 @@ public class AuthRules {
         m_doc.addElement("mappings");
     }
 
-    void generate(IDialingRule rule) {
+    public void generate(IDialingRule rule) {
         Element mappings = m_doc.getRootElement();
         Element hostMatch = mappings.addElement("hostMatch");
         hostMatch.addComment(rule.getName());

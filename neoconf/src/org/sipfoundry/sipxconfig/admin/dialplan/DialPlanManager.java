@@ -19,12 +19,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
+
 /**
  * DialPlanManager TODO: need interface and hibernate persistence implementation
  */
 public class DialPlanManager {
     private List m_gateways = new ArrayList();
+    
+    // TODO: inject those through Spring
     private FlexibleDialPlan m_flexDialPlan = new FlexibleDialPlan();
+    private ConfigGenerator m_generator = new ConfigGenerator();
 
     public List getGateways() {
         return m_gateways;
@@ -109,4 +114,13 @@ public class DialPlanManager {
     public void setFlexDialPlan(FlexibleDialPlan flexDialPlan) {
         m_flexDialPlan = flexDialPlan;
     }
+
+    public ConfigGenerator activateDialPlan() {
+        m_generator.generate(m_flexDialPlan);
+        return m_generator;
+    }
+    
+    public ConfigGenerator getGenerator() {
+        return m_generator;
+    }    
 }

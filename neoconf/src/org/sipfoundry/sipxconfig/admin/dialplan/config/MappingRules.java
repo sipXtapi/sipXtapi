@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * Special type of mappingrules document with a single host match matching
  * standard SIPx hosts
  */
-public class MappingRules {
+public class MappingRules implements ConfigFile {
     private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
     private static final String[] HOSTS = { 
         "${SIPXCHANGE_DOMAIN_NAME}", 

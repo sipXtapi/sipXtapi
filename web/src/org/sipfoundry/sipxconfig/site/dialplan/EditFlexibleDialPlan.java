@@ -56,6 +56,8 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     }
 
     public void activate(IRequestCycle cycle) {
+        DialPlanManager manager = getDialPlanManager();
+        manager.activateDialPlan();
         cycle.activate(ActivateDialPlan.PAGE);
     }
 
