@@ -27,5 +27,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-2.5.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.6.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jsf-impl.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jsf-api.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

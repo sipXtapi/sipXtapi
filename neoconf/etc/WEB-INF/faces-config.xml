@@ -38,4 +38,10 @@
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
 
+	<managed-bean>
+		<managed-bean-name>dialPlan</managed-bean-name>
+		<managed-bean-class>org.sipfoundry.sipxconfig.admin.dialplan.DialPlan</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
 </faces-config>

@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<jsp:root version="1.2" 
+    xmlns:jsp="http://java.sun.com/JSP/Page" 
+    xmlns:f="http://java.sun.com/jsf/core" 
+    xmlns:h="http://java.sun.com/jsf/html"
+    >
+
+<jsp:directive.page contentType="text/html"/>
+
+<f:view>    
+    <f:loadBundle basename="org.sipfoundry.sipxconfig.admin.dialplan.messages" var="msgs"/>
+    
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title><h:outputText value="#{msgs.dialPlan_title}"/></title>
+	<link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
+</head>
+<body>
+    <h:form id="dialplan">
+		<h:panelGrid columns="3">
+            <h:outputLabel for="name" value="#{msgs.name}"/>
+            <h:inputText id="name" value="#{dialPlan.name}" required="yes"/>            
+            <h:message for="name"/>
+            
+            <h:outputLabel for="localExtensionLen" value="#{msgs.localExtensionLen}"/>
+            <h:selectOneMenu  id="localExtensionLen">
+                <f:selectItems value="#{dialPlan.localExtensionLenRange}"/>
+            </h:selectOneMenu>
+            <h:message for="localExtensionLen"/>
+            
+            <h:outputLabel for="autoAttendant" value="#{msgs.autoAttendant}"/>
+            <h:inputText id="autoAttendant" value="#{dialPlan.autoAttendant}"/>            
+            <h:message for="autoAttendant"/>
+
+            <h:outputLabel for="voiceMail" value="#{msgs.voiceMail}"/>
+            <h:inputText id="voiceMail" value="#{dialPlan.voiceMail}"/>            
+            <h:message for="voiceMail"/>
+
+            <h:outputLabel for="did" value="#{msgs.did}"/>
+            <h:inputText id="did" value="#{dialPlan.did}"/>            
+            <h:message for="did"/>
+
+            <h:outputLabel for="pstnPrefix" value="#{msgs.pstnPrefix}"/>
+            <h:inputText id="pstnPrefix" value="#{dialPlan.pstnPrefix}"/>            
+            <h:message for="pstnPrefix"/>
+
+            <h:outputLabel for="emergencyNumber" value="#{msgs.emergencyNumber}"/>
+            <h:inputText id="emergencyNumber" value="#{dialPlan.emergencyNumber}"/>            
+            <h:message for="emergencyNumber"/>
+
+            <h:outputLabel for="internationalPrefix" value="#{msgs.internationalPrefix}"/>
+            <h:inputText id="internationalPrefix" value="#{dialPlan.internationalPrefix}"/>            
+            <h:message for="internationalPrefix"/>
+
+            <h:outputLabel for="voiceMailPrefix" value="#{msgs.voiceMailPrefix}"/>
+            <h:inputText id="voiceMailPrefix" value="#{dialPlan.voiceMailPrefix}"/>            
+            <h:message for="voiceMailPrefix"/>
+
+            <h:outputLabel for="longDistancePrefix" value="#{msgs.longDistancePrefix}"/>
+            <h:inputText id="longDistancePrefix" value="#{dialPlan.longDistancePrefix}"/>            
+            <h:message for="longDistancePrefix"/>
+        </h:panelGrid>
+        <h:commandButton value="Save" action="#dialPlan.onSave"/>
+   	    <h:commandButton value="Reload" type="reset"/>
+    </h:form>
+</body>
+</html>
+</f:view>
+</jsp:root>
