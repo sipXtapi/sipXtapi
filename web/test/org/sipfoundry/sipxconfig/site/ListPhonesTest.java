@@ -18,7 +18,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.ITableModel;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
@@ -46,13 +47,17 @@ public class ListPhonesTest extends TestCase {
         
         phoneContext.setPhoneDao(dao);
 
-        ListPhones page = new ListPhones();
+        AbstractInstantiator pageMaker = new AbstractInstantiator();
+        ListPhones page = (ListPhones) pageMaker.getInstance(ListPhones.class);
         page.setPhoneContext(phoneContext);
-        ITableModel model = page.getTableModel(); 
-        assertEquals(1, model.getPageCount());
-        Iterator rows = model.getCurrentPageRows();
-        assertTrue(rows.hasNext());
-        assertEquals(endpoint, rows.next());
+        page.pageBeginRender(new PageEvent(page, cycle));
+        List phones = page.getPhones(); 
+        assertNotNull(phones);
+        Iterator iphones = phones.iterator();
+        assertTrue(iphones.hasNext());
+        PhoneItem firstPhone = (PhoneItem) iphones.next();
+        assertEquals(endpoint, firstPhone.getPhone().getEndpoint());
+        assertFalse(iphones.hasNext());
         
         daoControl.verify();
         cycleControl.verify();

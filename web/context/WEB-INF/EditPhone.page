@@ -6,12 +6,14 @@
 
 <page-specification class="org.sipfoundry.sipxconfig.site.EditPhone">
     
-<property-specification name="endpoint" type="org.sipfoundry.sipxconfig.phone.Endpoint">
-    endpoint
-</property-specification>
-
 <property-specification name="phoneContext" type="org.sipfoundry.sipxconfig.phone.PhoneContext">
     global.phoneContext
 </property-specification>
+
+<property-specification name="endpoint" type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
+<property-specification name="phoneSelectionModel" type="org.apache.tapestry.form.IPropertySelectionModel"/>
+
+<!-- TODO Find some way to define this globally -->
+<context-asset name="stylesheet" path="css/sipxconfig.css"/>
     
 </page-specification>

@@ -54,6 +54,10 @@ public class GenericPhone implements Phone {
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
     }
+    
+    public Endpoint getEndpoint() {
+        return m_endpoint;
+    }
 
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;

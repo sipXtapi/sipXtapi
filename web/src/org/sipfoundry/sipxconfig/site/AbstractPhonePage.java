@@ -17,16 +17,9 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 /**
  * Comments
  */
-public class AbstractPhonePage extends BasePage {
+public abstract class AbstractPhonePage extends BasePage {
 
-    private PhoneContext m_phoneContext;
+    public abstract PhoneContext getPhoneContext();
 
-    public PhoneContext getPhoneContext() {
-        return m_phoneContext;
-    }
-
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
-    }
-
+    public abstract void setPhoneContext(PhoneContext phoneContext);
 }

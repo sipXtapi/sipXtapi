@@ -11,38 +11,46 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import org.apache.tapestry.contrib.table.model.ITableColumnModel;
-import org.apache.tapestry.contrib.table.model.ITableModel;
-import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumnModel;
-import org.apache.tapestry.contrib.table.model.simple.SimpleTableModel;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * List all the phones/endpoints for management and details drill-down
  */
-public class ListPhones extends AbstractPhonePage {
+public abstract class ListPhones extends AbstractPhonePage 
+		implements PageRenderListener {
 
     /** Serial number column */
     public static final String SERIAL_NUMBER = "Serial Number";
-
+    
     // Return the model of the table
-    public ITableModel getTableModel() {
+    public abstract List getPhones();
+    
+    public abstract void setPhones(List phones);
+    
+    public abstract PhoneItem getCurrentPhone();
 
-        // Generate the list of data
+    public abstract void setCurrentPhone(PhoneItem currentPhone);  
+    
+    /**
+     * called before page is drawn
+     */
+    public void pageBeginRender(PageEvent event) {
+        // Generate the list of phone items
         List endpointList = getPhoneContext().getPhoneDao().loadEndpoints();
-        Endpoint[] endpoints = (Endpoint[]) endpointList.toArray(new Endpoint[0]);
-
-        // Generate a simple sorting column model that uses OGNL to get the column data.
-        // The columns are defined using pairs of strings.
-        // The first string in the pair is the column name.
-        // The second is an OGNL expression used to obtain the column value.
-        ITableColumnModel objColumnModel = new ExpressionTableColumnModel(new String[] {
-            SERIAL_NUMBER, "serialNumber" }, true);
-
-        // Create the table model and return it
-        return new SimpleTableModel(endpoints, objColumnModel);
-    }
-
+        List phones = new ArrayList(endpointList.size());
+        Iterator i =  endpointList.iterator();
+        while (i.hasNext()) {
+            Endpoint endpoint = (Endpoint) i.next();
+            Phone phone = getPhoneContext().getPhone(endpoint);
+            phones.add(new PhoneItem(phone));
+        }
+        setPhones(phones);
+    }    
 }

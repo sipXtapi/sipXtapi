@@ -12,36 +12,33 @@
 package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
  */
-public class EditPhone extends AbstractPhonePage {
+public abstract class EditPhone extends AbstractPhonePage implements PageRenderListener {
     
     private static final String NEXT_PAGE = "ListPhones";
-
-    /** TODO: read from db if edit mode */
-    private Endpoint m_endpoint = new Endpoint();
             
-    private IPropertySelectionModel m_phoneModels;
-    
-    public void setPhoneContext(PhoneContext phoneContext) {
-        super.setPhoneContext(phoneContext);
-        String[] phoneIds = (String[]) phoneContext.getPhoneIds().toArray(new String[0]);
-        m_phoneModels = new StringPropertySelectionModel(phoneIds);        
-    }
+    /**
+     * called before page is drawn
+     */
+    public void pageBeginRender(PageEvent event) {
+        String[] phoneIds = (String[]) getPhoneContext().getPhoneIds().toArray(new String[0]);
+        setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
+        
+        // TODO: Read from DB if edit mode
+        setEndpoint(new Endpoint());
+    }    
 
-    public Endpoint getEndpoint() {
-        return m_endpoint;
-    }
+    public abstract Endpoint getEndpoint();
     
-    public void setEndpoint(Endpoint endpoint) {
-        m_endpoint = endpoint;
-    }
+    public abstract void setEndpoint(Endpoint endpoint);
     
     public void save(IRequestCycle cycle) {
         getPhoneContext().getPhoneDao().storeEndpoint(getEndpoint());
@@ -55,7 +52,7 @@ public class EditPhone extends AbstractPhonePage {
     /**
      * @return Returns all the phoneModels available to the system ready for UI selection 
      */
-    public IPropertySelectionModel getPhoneSelectionModel() {
-        return m_phoneModels;
-    }
+    public abstract IPropertySelectionModel getPhoneSelectionModel();
+
+    public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
 }

@@ -69,8 +69,8 @@
 		<war warfile="${sipxconfig-tapestry.war}" webxml="context/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
 
             <!-- not sure this is nec. -->
-	        <fileset dir="context/WEB-INF">
-				<include name="**/*.html"/>
+	        <fileset dir="context">
+				<exclude name="WEB-INF/*"/>
 			</fileset>
 
 			<webinf dir="context/WEB-INF">

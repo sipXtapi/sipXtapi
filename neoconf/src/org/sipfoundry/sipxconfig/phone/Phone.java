@@ -28,6 +28,8 @@ public interface Phone {
     
     public void setEndpoint(Endpoint endpoint);
     
+    public Endpoint getEndpoint();
+
     public void setPhoneContext(PhoneContext phoneContext);
 
     public PhoneContext getPhoneContext();

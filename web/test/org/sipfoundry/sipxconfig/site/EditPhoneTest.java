@@ -16,7 +16,9 @@ import java.util.Date;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -31,8 +33,10 @@ public class EditPhoneTest extends TestCase {
         cycle.activate("ListPhones");
         cycleControl.replay();
         
-        EditPhone page = new EditPhone();
+        AbstractInstantiator pageMaker = new AbstractInstantiator();
+        EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
         page.setPhoneContext(phoneContext);
+        page.pageBeginRender(new PageEvent(page, cycle));
         page.getEndpoint().setSerialNumber(Long.toHexString(new Date().getTime()));        
         page.getEndpoint().setPhoneId(GenericPhone.GENERIC_PHONE_ID);
 
@@ -59,7 +63,8 @@ public class EditPhoneTest extends TestCase {
         cycle.activate("ListPhones");
         cycleControl.replay();
         
-        EditPhone page = new EditPhone();
+        AbstractInstantiator pageMaker = new AbstractInstantiator();
+        EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
         page.cancel(cycle);
     
         cycleControl.verify();    

@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.List;
+
 /**
  * Create/Retrieve/Update/Delete for Object in phone
  * package that r/w to a database.
@@ -44,6 +46,8 @@ public interface PhoneDao {
     public User loadUser(int id);    
     
     public Endpoint loadEndpoint(int id);
+    
+    public List loadEndpoints();
     
     public void storeEndpoint(Endpoint endpoint);
 

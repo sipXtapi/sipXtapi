@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -34,6 +35,10 @@ public class PhoneDaoImpl extends HibernateDaoSupport implements PhoneDao {
     
     public void deleteEndpoint(Endpoint endpoint) {
         getHibernateTemplate().delete(endpoint);        
+    }
+
+    public List loadEndpoints() {
+        return getHibernateTemplate().find("from Endpoint");        
     }
 
     public Endpoint loadEndpoint(int id) {

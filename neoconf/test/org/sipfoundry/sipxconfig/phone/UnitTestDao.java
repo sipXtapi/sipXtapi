@@ -22,7 +22,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Construct test data meant to be perisistent in database. Unittest are not meant to alter any
- * data created but, but instead, rely on the data here to always be available. If unittests need
+ * data created, but instead, rely on the data here to always be available. If unittests need
  * to alter data, they should create and destroy it themselves.
  * 
  * Biggest reason this class exists is that unittests need to interact with data created in other

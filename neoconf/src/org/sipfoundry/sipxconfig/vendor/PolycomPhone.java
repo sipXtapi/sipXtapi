@@ -12,9 +12,7 @@
 package org.sipfoundry.sipxconfig.vendor;
 
 import org.sipfoundry.sipxconfig.phone.AbstractSettings;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
-import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.SettingSet;
 import org.sipfoundry.sipxconfig.settings.NetworkSettings;
 import org.sipfoundry.sipxconfig.settings.PhoneSettings;
@@ -23,7 +21,7 @@ import org.sipfoundry.sipxconfig.settings.PhoneSettings;
  * Support for Polycom 300, 400, and 500 series phones and model 3000
  * conference phone
  */
-public class PolycomPhone implements Phone {
+public class PolycomPhone extends GenericPhone {
     
     /** basic model */
     public static final String MODEL_300 = "polycom300";
@@ -37,26 +35,8 @@ public class PolycomPhone implements Phone {
     /** conference phone */
     public static final String MODEL_3000 = "polycom3000";
     
-    private String m_id;
-    
-    private Endpoint m_endpoint;
-    
-    private PhoneContext m_phoneContext;    
-    
-    /**
-     * @return Returns the phoneContext.
-     */
-    public PhoneContext getPhoneContext() {
-        return m_phoneContext;
-    }
-    
-    /**
-     * @param phoneContext The phoneContext to set.
-     */
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
-    }
-    
+    private String m_id;    
+        
     public String getModelId() {
         return m_id;
     }
@@ -72,11 +52,7 @@ public class PolycomPhone implements Phone {
     public int getProfileCount() {
         return 1;
     }
-    
-    public void setEndpoint(Endpoint endpoint) {
-        m_endpoint = endpoint;
-    }
-    
+        
     public AbstractSettings getSettings(SettingSet rootSettings) {
         PhoneSettings phoneSettings = new PhoneSettings(rootSettings);
         NetworkSettings network = phoneSettings.getNetworkSettings();
