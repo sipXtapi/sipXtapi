@@ -7,13 +7,13 @@
 </head>
 <body>
 	<div id="component">    
-    <h1>Dial Plan Configuration</h1>
-    <h2>Dial Plan Details</h2>
     <span class="hide">
 	    <!-- TODO: add styling for errors-->
 		<label>Error Message</label>
     </span>
     <form action="dialplans.html">
+        <fieldset>
+	    <legend>Dial Plan Details</legend>
         <table>
             <tbody>
                 <tr>
@@ -111,10 +111,12 @@
                 </tr>
             </tbody>
         </table>
-        <h2>Gateways</h2>
+        </fieldset>
+        <fieldset>
+        <legend>Gateways</legend>
 		<ul class="component-actions">
-			<li><a href="edit-gateway.html">Add Gateway</a></li>        
-			<li><a href="select-gateways.html">Select Existing Gateway</a></li>        
+			<li><a href="edit-gateway.html">Add New Gateway</a></li>        
+			<li><a href="select-gateways.html">Add Existing Gateway</a></li>        
 		</ul>        
         <table class="table-view">
             <thead>
@@ -154,10 +156,12 @@
                     onclick="confirm('Are you sure you want to remove selected gateways?')"/>
             </li>
         </ul>
-        <h2>Emergency gateways</h2>
+        </fieldset>
+        <fieldset>        
+        <legend>Emergency gateways</legend>
 		<ul class="component-actions">
-			<li><a href="edit-gateway.html">Add Gateway</a></li>        
-			<li><a href="select-gateways.html">Select Existing Gateway</a></li>        
+			<li><a href="edit-gateway.html">Add New Gateway</a></li>        
+			<li><a href="select-gateways.html">Add Existing Gateway</a></li>        
 		</ul>        
         <table class="table-view">
             <thead>
@@ -187,6 +191,7 @@
                     onclick="confirm('Are you sure you want to remove selected gateways?')"/>
             </li>
         </ul>
+        </fieldset>
         <ul class="form-actions">
             <li>
                 <input type="submit" value="Save"/>
@@ -196,6 +201,14 @@
             </li>
         </ul>
     </form>
-	</div>    
+	</div>
+    <div id="comments">
+        <ul>
+        <li><em>Add New Gateway</em> allows takes users to the screen where new gateway params can be configured. 
+            Newly created gateways are then automatically added to the current dial plan.</li>
+		<li><em>Add Existing Gateway</em> allows user to select the gateways from the pool of already created gateways. 
+            One gateways can be used in multiple plans.</li>            
+        </ul>            
+	</div>        
 </body>
 </html>

@@ -91,6 +91,12 @@ pre, tt, code, kbd, samp {
     font-style: italic;
 }
 
+/* temporary comments sections */
+#comments {
+	border-top: solid;
+	color: #08f
+}
+
 li {
   margin-top: 5px;
   margin-bottom: 5px;
@@ -193,6 +199,16 @@ ul.table-pager li {
 
 #component {
     width: 45em;
+}
+
+#component fieldset {
+  border-style: none;
+  font-size: 120%;
+  
+}
+
+#component legend {
+  font-size: 120%;
 }
 
 ul.component-actions {

@@ -5,14 +5,14 @@
     <title>Gateway Configuration</title>
     <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
 </head>
-<body>
-    <h1>Gateway Configuration</h1>
-    <h2>Gateway Details</h2>
+<body id="component">
     <span class="hide">
 	    <!-- TODO: add styling for errors-->
 		<label>Error Message</label>
     </span>
     <form action="gateways.html">
+        <fieldset>
+		<legend>Gateway Details</legend>            
         <table>
             <tbody>
                 <tr>
@@ -33,21 +33,22 @@
                 </tr>
                 <tr>
                     <td>
-                        <label for="gateway:voiceMail"> Voice Mail Extension</label>
+                        <label for="gateway:description">Description</label>
                     </td>
                     <td>
-                        <input id="gateway:voiceMail" type="text" value="101" />
+                        <textarea id="gateway:description" cols="60" rows="5">Default PSTN gateway</textarea>
                     </td>
                 </tr>
             </tbody>
         </table>
+        </fieldset>
         <ul class="form-actions">
             <li>
-                <input type="submit" value="Save"/>
-			</li>
-			<li>
-                <input type="submit" value="Cancel"/>
-			</li>
+                <input type="button" value="Save" onclick="history.go(-1)"/>
+            </li>
+            <li>
+                <input type="button" value="Cancel" onclick="history.go(-1)"/>
+            </li>
 		</ul>
     </form>
 </body>
