@@ -30,16 +30,10 @@
   </path>
   <property name="classpath" refid="base.path" />
 
-  <!-- C L E A N -->
-  <target name="clean" depends="ant-targets.clean">
-    <submake target="clean" dir="${build.dir}/sipagent-jni" />
-  </target>
-
   <!-- C O M P I L E -->
   <target name="compile" depends="ant-targets.compile" >
      <rmic base="${classes.dir}" includes="**/*Impl.class" 
          verify="yes" stubversion="1.2" classpathref="base.path" />
-    <submake dir="${build.dir}/sipagent-jni"/>
   </target>
 
   <!-- J A R -->
@@ -82,13 +76,6 @@
 
     <copy file="${dist.dir}/profilepublisher.jar" todir="${sipxconfig.lib.dir}"/>
 
-    <submake target="install"  dir="${build.dir}/sipagent-jni"/>
-
-  </target>
-
-  <!-- T E S T  -->
-  <target name="test" depends="ant-targets.test">
-    <submake target="check" dir="${build.dir}/sipagent-jni"/>
   </target>
 
   <target name="regression" depends="compile.test" description="Full regression, assumes machine is setup to run sipXconfig">

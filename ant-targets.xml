@@ -314,21 +314,4 @@
 
   </target>
 
-
-  <!-- 
-    - B R I D G E  A N T  /  C + +
-    -
-    -  Call C++ make file from ant.
-    -->
-  <macrodef name="submake">
-    <attribute name="target" default=""/>
-    <attribute name="dir" default=""/>
-    <sequential>
-      <exec executable="make">
-        <arg line="--directory @{dir}"/>
-        <arg line="@{target}"/>
-      </exec>
-    </sequential>
-  </macrodef>
-
 </project>

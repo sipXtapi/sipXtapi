@@ -1,5 +1,5 @@
 
-SUBDIRS = . etc
+SUBDIRS = . etc sipagent-jni
 
 include $(top_srcdir)/ant-targets.am
 
@@ -43,6 +43,12 @@ BUILT_SOURCES = config.properties
 
 config.properties : config.properties.in Makefile
 	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
+
+rpm: dist
+	rpm -ta $(PACKAGE)-$(VERSION).tar.gz
+	mv -f /usr/src/redhat/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
+	mv -f /usr/src/redhat/RPMS/*/$(PACKAGE)-$(VERSION)-*.rpm .
+
 
 # Override default tarball creation, need to support paths > 99 chars
 # change tar optoions: "chof"  to "chf", implications tarball is not

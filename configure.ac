@@ -72,7 +72,7 @@ CHECK_TOMCAT_HOME
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([etc/Makefile etc/cert/Makefile])
-AC_CONFIG_FILES([profilepublisher/sipagent-jni/Makefile profilepublisher/sipagent-jni/src/Makefile profilepublisher/sipagent-jni/include/Makefile])
+AC_CONFIG_FILES([sipagent-jni/Makefile sipagent-jni/src/Makefile sipagent-jni/include/Makefile])
 
 AC_OUTPUT
 
