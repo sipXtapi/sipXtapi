@@ -83,15 +83,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_datadir}/doc/sipx/%name/*
 
 %pre
-
+sipx-upgrade -p sipxproxy -c
 
 %post
-# add the namespace to an existing 2.6.x authrules file
-if test -r %{_localstatedir}/sipxdata/sipdb/authrules.xml.in
-then
-  cp %{_localstatedir}/sipxdata/sipdb/authrules.xml.in %{_localstatedir}/sipxdata/sipdb/authrules.xml.in.OLD
-  sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' %{_localstatedir}/sipxdata/sipdb/authrules.xml.in.OLD > %{_localstatedir}/sipxdata/sipdb/authrules.xml.in
-fi
-
+sipx-upgrade -p sipxproxy -u --ldir %{_localstatedir} --cdir %{_sysconfdir}
 
 
