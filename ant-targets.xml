@@ -37,12 +37,20 @@
   </target>
 
   <!--
+    - T A S K   D E F I N I T I O N S
+    - Common task definitions.
+    -->
+  <taskdef resource="checkstyletask.properties" 
+    classpath="${checkstyle.jar}"/> 
+
+  <!--
     - I N I T 
     - Create output directories. 
     -->
   <target name="init" unless="subdirs"
     description="[internal] create standard output directories">
-
+    <echo>checkstyle []${checkstyle.jar}[]</echo>
+    
     <echo>entering ${ant.project.name}</echo>
     <mkdir dir="${build.dir}" />
     <mkdir dir="${classes.dir}" />
@@ -178,6 +186,20 @@
     </javac>
   </target>
 
+  <!-- J A V A D O C -->
+  <target name="style">
+    <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false" 
+        failureproperty="checkstyle.failed"> 
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+      <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/> 
+    </checkstyle>
+    <xslt in="${build.dir}/checkstyle_errors.xml" 
+        out="${build.dir}/checkstyle_errors.html" 
+        style="${top.dir}/meta/checkstyle-noframes-sorted.xsl"/> 
+  </target> 
+	
 
   <!-- J A V A D O C -->
   <target name="doc" depends="subdoc,realdoc"

@@ -1,4 +1,5 @@
 
+
 # G E N E R A L
 version=@VERSION@
 top.dir=@abs_srcdir@
@@ -58,6 +59,7 @@ jdbc-driver.jar=${top.dir}/lib/pgjdbc2.jar
 # libraries used in unit tests only
 xmlunit.jar=${top.dir}/lib/xmlunit1.0.jar
 easymock.jar=${top.dir}/lib/easymock.jar
+checkstyle.jar==${top.dir}/lib/checkstyle-all-3.5.jar
 
 # common jars located at root of ear file that ear applications can share by 
 # including in their manifest
