@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC 
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.apache.tapestry.BaseComponent" allow-body="yes" 
+    allow-informal-parameters="yes">
+
+    <component id="shell" type="Shell">
+        <binding name="stylesheet" expression="assets.stylesheet"/>
+        <static-binding name="title" value="sipXconfig"/>
+    </component>
+
+	<component id="wrapped" type="RenderBody"/>	
+
+	<!--
+	  - A S S E T S
+	  -->	
+    <context-asset name="stylesheet" path="css/sipxconfig.css"/>
+</component-specification>

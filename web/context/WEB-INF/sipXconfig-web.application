@@ -18,18 +18,20 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>    <page name="EditDialPlan" specification-path="EditDialPlan.page"/>
-    <page name="EditGateway" specification-path="EditGateway.page"/>
+    <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>    
+    <page name="EditDialPlan" specification-path="EditDialPlan.page"/>
+    <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
+    <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
+    <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="Home" specification-path="Home.page"/>
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListDialPlans" specification-path="ListDialPlans.page"/>
-    <page name="ListGateways" specification-path="ListGateways.page"/>
+    <page name="ListGateways" specification-path="dialplan/ListGateways.page"/>
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>
     <page name="PhoneLines" specification-path="phone/PhoneLines.page"/>
-    <page name="SelectGateways" specification-path="SelectGateways.page"/>
 
     <!--
       -  C O M P O N E N T S
@@ -41,8 +43,10 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+	<component-type type="Border" specification-path="common/Border.jwc"/>
+    <component-type type="DialingRuleCommon" specification-path="dialplan/DialingRuleCommon.jwc"/>
+    <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
-    <component-type type="GatewayTable" specification-path="GatewayTable.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
 

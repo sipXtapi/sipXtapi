@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditCustomDialRule">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+    <property-specification name="customRule" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule">
+        global.sipXconfigContext.getBean("customRule")
+    </property-specification>
+    
+    
+    
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    
+    <bean name="permissionsModel" 
+        class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
+        lifecycle="page">
+        <set-property name="enumClass" 
+        	expression="@org.sipfoundry.sipxconfig.admin.dialplan.config.Permission@class"/>
+    </bean>
+    <!--
+     - C O M P O N E N T S
+     -->
+    
+	<component id="common" type="DialingRuleCommon">
+        <binding name="rule" expression="customRule"/>
+    </component>
+    
+    <component id="permissions" type="contrib:MultiplePropertySelection">
+        <binding name="selectedList" expression="customRule.permissions"/>
+        <binding name="model" expression="beans.permissionsModel"/>
+    </component>
+    
+    <component id="onSave" type="Submit">
+        <binding name="listener" expression="listeners.save"/>
+    </component>
+    <component id="onCancel" type="Submit">
+        <binding name="listener" expression="listeners.cancel"/>
+    </component>
+    
+    
+    
+    <!--
+	  - A S S E T S
+	  -->	
+</page-specification>

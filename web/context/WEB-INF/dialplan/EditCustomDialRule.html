@@ -1,0 +1,30 @@
+<span jwcid="@Border">
+    <div id="component">
+    <span jwcid="@Conditional" condition="ognl:beans.validator.hasErrors">
+	    <!-- TODO: add styling for errors-->
+		<span jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</span>
+    </span>
+    <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
+        <fieldset>
+		<legend>Custom Dialing Rule</legend>            
+        <table>
+            <tbody>
+                <span jwcid="common"/>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+        <legend>Required Permissions</legend>
+        	<span jwcid="permissions"></span>
+        </fieldset>
+        <ul class="form-actions">
+            <li>
+                <input id="rule:save" jwcid="onSave" type="submit" value="Save"/>
+            </li>
+            <li>
+                <input id="rule:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</span>
