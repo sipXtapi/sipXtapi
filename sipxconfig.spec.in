@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: 2
+Release: %{buildno}
 
 Summary: Configuration Managment for SIP base Phones
 License: LGPL

@@ -22,6 +22,7 @@ AC_ARG_ENABLE(sipagent,
  [ --disable-sipagent    Do not try to compile sipagent jni, requires sipXtackLib],
  , enable_sipagent=yes)
 AM_CONDITIONAL(SIPAGENT, test x$enable_sipagent = xyes)
+AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 
 AC_PROG_LIBTOOL
 

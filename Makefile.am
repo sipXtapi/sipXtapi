@@ -7,6 +7,7 @@ SIPAGENT_OPT = sipagent-jni
 endif
 
 SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter $(SIPAGENT_OPT) web $(doc_SUBDIRS)
+RELEASE = 2
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -63,8 +64,15 @@ dist dist-all : distdir
 .PHONY : rpm
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+# Get the revision number
+if USE_BLDNO
+BUILDPARM=--define="buildno 0.$(shell cat $(srcdir)/SVN-VERSION)"
+else
+BUILDPARM=--define="buildno $(RELEASE)"
+endif
+
 rpm : clean dist
-	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
+	rpmbuild -ta $(BUILDPARM) $(PACKAGE)-$(VERSION).tar.gz
 	mv -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
 	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
 
