@@ -2,15 +2,15 @@
 
 bin_PROGRAMS = sipproxy
 
-sipproxy_CXXFLAGS = $(GLIB_CFLAGS) \
+sipproxy_CXXFLAGS = \
 	-I$(top_builddir)/config \
 	-I$(top_srcdir)/src/cse \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipproxy_LDADD = \
-	$(GLIB_LIBS) \
-	../cse/libcse.la
+	../cse/libcse.la \
+	@SIPXCOMMSERVER_LIBS@
 
 sipproxy_SOURCES =  \
 	../../config/sipxproxy-buildstamp.h \

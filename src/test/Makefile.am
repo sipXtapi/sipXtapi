@@ -9,15 +9,13 @@ check_PROGRAMS = testsuite
 testsuite_CXXFLAGS = \
    -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
 	-I$(top_srcdir)/src/cse \
-   $(GLIB_CFLAGS)
+	-I$(top_srcdir)/src/sipforkingproxy
 
 ## Point to *.a directly so gdb can load source.
 ## -static in LDFLAGS in not working as I thought it should
 testsuite_LDADD = \
-   @SIPXUNIT_LDADD@ \
-	../cse/libcse.la \
-   @PCRE_LIBS@ \
-   $(GLIB_LIBS)
+   @SIPXUNIT_LIBS@ \
+	../cse/libcse.la
 
 ## TODO: Find a way to include ForwardingRules.o instead of
 ## ForwardingRules.cpp. Initial plan to do this failed because recent
