@@ -50,7 +50,7 @@
 		</property>
 		<property name="mappingResources">
 			<list>
-				<value> org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
+				<value>org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

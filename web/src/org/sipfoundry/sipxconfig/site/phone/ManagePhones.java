@@ -97,12 +97,41 @@ public abstract class ManagePhones extends BasePage
     public void pageBeginRender(PageEvent event) {
         PhoneContext phoneContext = PhonePageUtils.getPhoneContext(event.getRequestCycle());
         
-        setIdConverter(new PhoneContextDataSqueezer(phoneContext, Endpoint.class));
+        setIdConverter(new PhoneSummaryDataSqueezer(phoneContext));
 
         // Generate the list of phone items
         setPhones(phoneContext.loadPhoneSummaries());
         if (getSelections() == null) {
             setSelections(new SelectMap());
+        }
+    }
+    
+    /**
+     * PhoneSummary is not a make up object contructed of and endpoint and a phone
+     * object.  reconstruct it here from endpoint and phonecontext
+     */
+    static class PhoneSummaryDataSqueezer extends PhoneContextDataSqueezer {
+        
+        PhoneSummaryDataSqueezer(PhoneContext context) {
+            super(context, Endpoint.class);
+        }
+
+        public Object getPrimaryKey(Object objValue) {
+            Object pk = null;
+            if (objValue != null) {
+                pk = ((PhoneSummary) objValue).getEndpoint().getPrimaryKey();
+            }
+            
+            return pk;
+        }
+
+        public Object getValue(Object objPrimaryKey) {           
+            Endpoint endpoint = (Endpoint) super.getValue(objPrimaryKey);
+            PhoneSummary summary = new PhoneSummary();
+            summary.setEndpoint(endpoint);
+            summary.setPhone(getPhoneContext().getPhone(endpoint));
+            
+            return summary;
         }
     }
 }

@@ -144,7 +144,7 @@ sysdir.phone=${sipxconfig.phone.dir}
 	<target name="install" depends="war"
 	   description="Copy war file into Jboss deploy directory">
 
-		<copy todir="${jboss.container.deploy}" file="${dest.dir}${sipxconfig.war}"/>
+		<copy todir="${dest.dir}${jboss.container.deploy}" file="${sipxconfig.war}"/>
 
 	</target>
 	

@@ -178,11 +178,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
     
     public Endpoint loadEndpoint(int id) {
-        Endpoint e = (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
-        // hack: forces lazy loading
-        e.getLines().size();
-
-        return e;
+        return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
     }
     
     public Object load(Class c, int id) {

@@ -30,11 +30,13 @@ public class LineTestDb extends TestCase {
     private PhoneContext m_context;
 
     protected void setUp() throws Exception {
+        TestHelper.setUpHibernateSession();
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
-        
-        // unittests leave objects in cache using same pkeys, force clear
-        m_context.flush();
+    }
+    
+    protected void tearDown() throws Exception {
+        TestHelper.tearDownHibernateSession();
     }
 
     public void testSave() throws Exception {

@@ -37,6 +37,10 @@ public class PhoneContextDataSqueezer implements IPrimaryKeyConvertor  {
 
     public Object getValue(Object objPrimaryKey) {
         return m_context.load(m_class, ((Integer) objPrimaryKey).intValue());
-    }            
+    }
+    
+    public PhoneContext getPhoneContext() {
+        return m_context;
+    }
 }
 
