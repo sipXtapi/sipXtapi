@@ -35,16 +35,16 @@ public class UserGroup {
         return m_rcsId;
     }
 
-    public void setRcsId(int rcs_id) {
-        this.m_rcsId = rcs_id;
+    public void setRcsId(int rcsId) {
+        this.m_rcsId = rcsId;
     }
 
     public int getOrgId() {
         return m_orgId;
     }
 
-    public void setOrgId(int org_id) {
-        this.m_orgId = org_id;
+    public void setOrgId(int orgId) {
+        this.m_orgId = orgId;
     }
 
     public String getName() {
@@ -59,9 +59,8 @@ public class UserGroup {
         return m_parentPgId;
     }
 
-    public void setParentPgId(int parent_pg_id) {
-        this.m_parentPgId = parent_pg_id;
+    public void setParentPgId(int parentPgId) {
+        m_parentPgId = parentPgId;
     }
 
 }
-

@@ -23,8 +23,8 @@ public class Alias {
         return m_userId;
     }
 
-    public void setUserId(String user_id) {
-        this.m_userId = user_id;
+    public void setUserId(String userId) {
+        m_userId = userId;
     }
 
     public String getAlias() {
@@ -32,16 +32,15 @@ public class Alias {
     }
 
     public void setAlias(String alias) {
-        this.m_alias = alias;
+        m_alias = alias;
     }
 
     public int getAliasOrder() {
         return m_aliasOrder;
     }
 
-    public void setAliasOrder(int alias_order) {
-        this.m_aliasOrder = alias_order;
+    public void setAliasOrder(int aliasOrder) {
+        m_aliasOrder = aliasOrder;
     }
 
 }
-

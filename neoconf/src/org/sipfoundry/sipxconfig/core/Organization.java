@@ -28,7 +28,7 @@ public class Organization {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getName() {
@@ -36,23 +36,23 @@ public class Organization {
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        m_name = name;
     }
 
     public int getParentId() {
         return m_parentId;
     }
 
-    public void setParentId(int parent_id) {
-        this.m_parentId = parent_id;
+    public void setParentId(int parentId) {
+        m_parentId = parentId;
     }
 
     public String getDnsDomain() {
         return m_dnsDomain;
     }
 
-    public void setDnsDomain(String dns_domain) {
-        this.m_dnsDomain = dns_domain;
+    public void setDnsDomain(String dnsDomain) {
+        m_dnsDomain = dnsDomain;
     }
 
     public int getStereotype() {
@@ -60,8 +60,7 @@ public class Organization {
     }
 
     public void setStereotype(int stereotype) {
-        this.m_stereotype = stereotype;
+        m_stereotype = stereotype;
     }
 
 }
-

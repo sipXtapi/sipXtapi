@@ -26,23 +26,23 @@ public class ConfigurationSet {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public int getRcsId() {
         return m_rcsId;
     }
 
-    public void setRcsId(int rcs_id) {
-        this.m_rcsId = rcs_id;
+    public void setRcsId(int rcsId) {
+        m_rcsId = rcsId;
     }
 
     public int getProfileType() {
         return m_profileType;
     }
 
-    public void setProfileType(int profile_type) {
-        this.m_profileType = profile_type;
+    public void setProfileType(int profileType) {
+        m_profileType = profileType;
     }
 
     public String getContent() {
@@ -50,8 +50,7 @@ public class ConfigurationSet {
     }
 
     public void setContent(String content) {
-        this.m_content = content;
+        m_content = content;
     }
 
 }
-

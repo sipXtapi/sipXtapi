@@ -13,18 +13,14 @@ package org.sipfoundry.sipxconfig.core;
 
 import com.pingtel.pds.sipxfacade.SipxConfigFacade;
 
-
-/**
- * Comments
- */
 public class SipxConfigFacadeImpl implements SipxConfigFacade {
 
     /**
      * TODO: Implement this
      */
-    public String getDeviceProfleName(int profileType, String vendor, 
-            String model, String macAddress) {
-        
+    public String getDeviceProfleName(int profileTypeTemp, String vendorTemp, String modelTemp,
+            String macAddressTemp) {
+
         throw new RuntimeException("TODO");
     }
 

@@ -28,7 +28,7 @@ public class RefProperty {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getContent() {
@@ -36,15 +36,15 @@ public class RefProperty {
     }
 
     public void setContent(String content) {
-        this.m_content = content;
+        m_content = content;
     }
 
     public int getProfileType() {
         return m_profileType;
     }
 
-    public void setProfileType(int profile_type) {
-        this.m_profileType = profile_type;
+    public void setProfileType(int profileType) {
+        m_profileType = profileType;
     }
 
     public String getName() {
@@ -52,7 +52,7 @@ public class RefProperty {
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        m_name = name;
     }
 
     public String getCode() {
@@ -60,8 +60,7 @@ public class RefProperty {
     }
 
     public void setCode(String code) {
-        this.m_code = code;
+        m_code = code;
     }
 
 }
-

@@ -27,16 +27,16 @@ public class Patch {
         return m_patchNumber;
     }
 
-    public void setPatchNumber(int patch_number) {
-        this.m_patchNumber = patch_number;
+    public void setPatchNumber(int patchNumber) {
+        m_patchNumber = patchNumber;
     }
 
     public Date getDateApplied() {
         return m_dateApplied;
     }
 
-    public void setDateApplied(Date date_applied) {
-        this.m_dateApplied = date_applied;
+    public void setDateApplied(Date dateApplied) {
+        m_dateApplied = dateApplied;
     }
 
     public String getStatus() {
@@ -44,7 +44,7 @@ public class Patch {
     }
 
     public void setStatus(String status) {
-        this.m_status = status;
+        m_status = status;
     }
 
     public String getDescription() {
@@ -52,8 +52,7 @@ public class Patch {
     }
 
     public void setDescription(String description) {
-        this.m_description = description;
+        m_description = description;
     }
 
 }
-

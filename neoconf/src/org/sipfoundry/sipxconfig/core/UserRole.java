@@ -21,17 +21,16 @@ public class UserRole {
         return m_usrsId;
     }
 
-    public void setUsrsId(int usrs_id) {
-        this.m_usrsId = usrs_id;
+    public void setUsrsId(int usrsId) {
+        m_usrsId = usrsId;
     }
 
     public String getRolesName() {
         return m_rolesName;
     }
 
-    public void setRolesName(String roles_name) {
-        this.m_rolesName = roles_name;
+    public void setRolesName(String rolesName) {
+        m_rolesName = rolesName;
     }
 
 }
-

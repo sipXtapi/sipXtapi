@@ -30,48 +30,47 @@ public class AdminGroupAssignment {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getAdmGrpsId() {
         return m_admGrpsId;
     }
 
-    public void setAdmGrpsId(String adm_grps_id) {
-        this.m_admGrpsId = adm_grps_id;
+    public void setAdmGrpsId(String admGrpsId) {
+        m_admGrpsId = admGrpsId;
     }
 
     public String getUsrsId() {
         return m_usrsId;
     }
 
-    public void setUsrsId(String usrs_id) {
-        this.m_usrsId = usrs_id;
+    public void setUsrsId(String usrsId) {
+        m_usrsId = usrsId;
     }
 
     public int getLogPnId() {
         return m_logPnId;
     }
 
-    public void setLogPnId(int log_pn_id) {
-        this.m_logPnId = log_pn_id;
+    public void setLogPnId(int logPnId) {
+        m_logPnId = logPnId;
     }
 
     public int getUgId() {
         return m_ugId;
     }
 
-    public void setUgId(int ug_id) {
-        this.m_ugId = ug_id;
+    public void setUgId(int ugId) {
+        m_ugId = ugId;
     }
 
     public int getPgId() {
         return m_pgId;
     }
 
-    public void setPgId(int pg_id) {
-        this.m_pgId = pg_id;
+    public void setPgId(int pgId) {
+        m_pgId = pgId;
     }
 
 }
-

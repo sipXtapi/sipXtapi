@@ -24,7 +24,7 @@ public class RefConfigurationSet {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getName() {
@@ -32,16 +32,15 @@ public class RefConfigurationSet {
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        m_name = name;
     }
 
     public int getOrgId() {
         return m_orgId;
     }
 
-    public void setOrgId(int org_id) {
-        this.m_orgId = org_id;
+    public void setOrgId(int orgId) {
+        m_orgId = orgId;
     }
 
 }
-

@@ -23,16 +23,16 @@ public class Extension {
         return m_extensionNumber;
     }
 
-    public void setExtensionNumber(int extension_number) {
-        this.m_extensionNumber = extension_number;
+    public void setExtensionNumber(int extensionNumber) {
+        m_extensionNumber = extensionNumber;
     }
 
     public int getExtPoolId() {
         return m_extPoolId;
     }
 
-    public void setExtPoolId(int ext_pool_id) {
-        this.m_extPoolId = ext_pool_id;
+    public void setExtPoolId(int extPoolId) {
+        m_extPoolId = extPoolId;
     }
 
     public String getStatus() {
@@ -40,8 +40,7 @@ public class Extension {
     }
 
     public void setStatus(String status) {
-        this.m_status = status;
+        m_status = status;
     }
 
 }
-

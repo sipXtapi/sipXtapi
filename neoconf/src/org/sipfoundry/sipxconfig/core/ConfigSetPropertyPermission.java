@@ -25,33 +25,32 @@ public class ConfigSetPropertyPermission {
         return m_refPropId;
     }
 
-    public void setRefPropId(int ref_prop_id) {
-        this.m_refPropId = ref_prop_id;
+    public void setRefPropId(int refPropId) {
+        m_refPropId = refPropId;
     }
 
     public int getRcsId() {
         return m_rcsId;
     }
 
-    public void setRcsId(int rcs_id) {
-        this.m_rcsId = rcs_id;
+    public void setRcsId(int rcsId) {
+        m_rcsId = rcsId;
     }
 
     public int getIsReadOnly() {
         return m_isReadOnly;
     }
 
-    public void setIsReadOnly(int is_read_only) {
-        this.m_isReadOnly = is_read_only;
+    public void setIsReadOnly(int isReadOnly) {
+        m_isReadOnly = isReadOnly;
     }
 
     public int getIsFinal() {
         return m_isFinal;
     }
 
-    public void setIsFinal(int is_final) {
-        this.m_isFinal = is_final;
+    public void setIsFinal(int isFinal) {
+        m_isFinal = isFinal;
     }
 
 }
-

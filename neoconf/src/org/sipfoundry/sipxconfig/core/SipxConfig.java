@@ -15,13 +15,12 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Context for entire sipXconfig framework. Holder for service layer bean
- * factories.
+ * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public class SipxConfig {
 
     private Map m_plugins;
-    
+
     private DeviceDao m_deviceDao;
 
     /**
@@ -37,14 +36,13 @@ public class SipxConfig {
     public Map getDevicePlugins() {
         return Collections.unmodifiableMap(m_plugins);
     }
-    
-    public DeviceDao getDeviceDao()
-    {
+
+    public DeviceDao getDeviceDao() {
         return m_deviceDao;
     }
-    
+
     public void setDeviceDao(DeviceDao deviceDao) {
         m_deviceDao = deviceDao;
     }
-      
+
 }

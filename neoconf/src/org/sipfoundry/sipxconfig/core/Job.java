@@ -57,8 +57,8 @@ public class Job {
         return m_startTime;
     }
 
-    public void setStartTime(Date start_time) {
-        this.m_startTime = start_time;
+    public void setStartTime(Date startTime) {
+        this.m_startTime = startTime;
     }
 
     public String getDetails() {
@@ -81,9 +81,8 @@ public class Job {
         return m_exceptionMessage;
     }
 
-    public void setExceptionMessage(String exception_message) {
-        this.m_exceptionMessage = exception_message;
+    public void setExceptionMessage(String exceptionMessage) {
+        this.m_exceptionMessage = exceptionMessage;
     }
 
 }
-

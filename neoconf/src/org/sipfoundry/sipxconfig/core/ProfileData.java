@@ -23,8 +23,8 @@ public class ProfileData {
         return m_logPnId;
     }
 
-    public void setLogPnId(int log_pn_id) {
-        this.m_logPnId = log_pn_id;
+    public void setLogPnId(int logPnId) {
+        m_logPnId = logPnId;
     }
 
     public int getType() {
@@ -32,16 +32,15 @@ public class ProfileData {
     }
 
     public void setType(int type) {
-        this.m_type = type;
+        m_type = type;
     }
 
     public int getSeqNumber() {
         return m_seqNumber;
     }
 
-    public void setSeqNumber(int seq_number) {
-        this.m_seqNumber = seq_number;
+    public void setSeqNumber(int seqNumber) {
+        m_seqNumber = seqNumber;
     }
 
 }
-

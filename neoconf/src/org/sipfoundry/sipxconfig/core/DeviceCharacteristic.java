@@ -25,8 +25,8 @@ public class DeviceCharacteristic {
         return m_rpCharsCharacteristic;
     }
 
-    public void setRpCharsCharacteristic(String rp_chars_characteristic) {
-        this.m_rpCharsCharacteristic = rp_chars_characteristic;
+    public void setRpCharsCharacteristic(String rpCharsCharacteristic) {
+        m_rpCharsCharacteristic = rpCharsCharacteristic;
     }
 
     public String getValue() {
@@ -34,24 +34,23 @@ public class DeviceCharacteristic {
     }
 
     public void setValue(String value) {
-        this.m_value = value;
+        m_value = value;
     }
 
     public int getPtId() {
         return m_ptId;
     }
 
-    public void setPtId(int pt_id) {
-        this.m_ptId = pt_id;
+    public void setPtId(int ptId) {
+        m_ptId = ptId;
     }
 
     public int getAppsId() {
         return m_appsId;
     }
 
-    public void setAppsId(int apps_id) {
-        this.m_appsId = apps_id;
+    public void setAppsId(int appsId) {
+        m_appsId = appsId;
     }
 
 }
-

@@ -24,7 +24,7 @@ public class AdminGroup {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getName() {
@@ -32,16 +32,15 @@ public class AdminGroup {
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        m_name = name;
     }
 
     public int getOrgId1() {
         return m_orgId1;
     }
 
-    public void setOrgId1(int org_id_1) {
-        this.m_orgId1 = org_id_1;
+    public void setOrgId1(int orgId1) {
+        m_orgId1 = orgId1;
     }
 
 }
-

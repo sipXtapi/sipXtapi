@@ -32,23 +32,23 @@ public class Application {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public int getPtId() {
         return m_ptId;
     }
 
-    public void setPtId(int pt_id) {
-        this.m_ptId = pt_id;
+    public void setPtId(int ptId) {
+        m_ptId = ptId;
     }
 
     public int getRefPropId() {
         return m_refPropId;
     }
 
-    public void setRefPropId(int ref_prop_id) {
-        this.m_refPropId = ref_prop_id;
+    public void setRefPropId(int refPropId) {
+        m_refPropId = refPropId;
     }
 
     public String getUrl() {
@@ -56,15 +56,15 @@ public class Application {
     }
 
     public void setUrl(String url) {
-        this.m_url = url;
+        m_url = url;
     }
 
     public int getOrgId() {
         return m_orgId;
     }
 
-    public void setOrgId(int org_id) {
-        this.m_orgId = org_id;
+    public void setOrgId(int orgId) {
+        m_orgId = orgId;
     }
 
     public String getName() {
@@ -72,7 +72,7 @@ public class Application {
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        m_name = name;
     }
 
     public String getDescription() {
@@ -80,8 +80,7 @@ public class Application {
     }
 
     public void setDescription(String description) {
-        this.m_description = description;
+        m_description = description;
     }
 
 }
-

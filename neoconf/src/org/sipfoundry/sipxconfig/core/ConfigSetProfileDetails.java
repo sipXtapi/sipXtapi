@@ -32,56 +32,55 @@ public class ConfigSetProfileDetails {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getProjectionClass() {
         return m_projectionClass;
     }
 
-    public void setProjectionClass(String projection_class) {
-        this.m_projectionClass = projection_class;
+    public void setProjectionClass(String projectionClass) {
+        m_projectionClass = projectionClass;
     }
 
     public int getCsdId() {
         return m_csdId;
     }
 
-    public void setCsdId(int csd_id) {
-        this.m_csdId = csd_id;
+    public void setCsdId(int csdId) {
+        m_csdId = csdId;
     }
 
     public String getFileName() {
         return m_fileName;
     }
 
-    public void setFileName(String file_name) {
-        this.m_fileName = file_name;
+    public void setFileName(String fileName) {
+        m_fileName = fileName;
     }
 
     public String getRenderClass() {
         return m_renderClass;
     }
 
-    public void setRenderClass(String render_class) {
-        this.m_renderClass = render_class;
+    public void setRenderClass(String renderClass) {
+        m_renderClass = renderClass;
     }
 
     public int getProfileType() {
         return m_profileType;
     }
 
-    public void setProfileType(int profile_type) {
-        this.m_profileType = profile_type;
+    public void setProfileType(int profileType) {
+        m_profileType = profileType;
     }
 
     public String getXsltUrl() {
         return m_xsltUrl;
     }
 
-    public void setXsltUrl(String xslt_url) {
-        this.m_xsltUrl = xslt_url;
+    public void setXsltUrl(String xsltUrl) {
+        m_xsltUrl = xsltUrl;
     }
 
 }
-

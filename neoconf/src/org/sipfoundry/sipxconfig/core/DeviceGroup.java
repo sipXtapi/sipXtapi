@@ -28,23 +28,23 @@ public class DeviceGroup {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public int getRcsId() {
         return m_rcsId;
     }
 
-    public void setRcsId(int rcs_id) {
-        this.m_rcsId = rcs_id;
+    public void setRcsId(int rcsId) {
+        m_rcsId = rcsId;
     }
 
     public int getOrgId() {
         return m_orgId;
     }
 
-    public void setOrgId(int org_id) {
-        this.m_orgId = org_id;
+    public void setOrgId(int orgId) {
+        m_orgId = orgId;
     }
 
     public String getName() {
@@ -52,16 +52,15 @@ public class DeviceGroup {
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        m_name = name;
     }
 
     public int getParentPgId() {
         return m_parentPgId;
     }
 
-    public void setParentPgId(int parent_pg_id) {
-        this.m_parentPgId = parent_pg_id;
+    public void setParentPgId(int parentPgId) {
+        m_parentPgId = parentPgId;
     }
 
 }
-

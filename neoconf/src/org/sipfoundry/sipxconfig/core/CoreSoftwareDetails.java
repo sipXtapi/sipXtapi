@@ -30,15 +30,15 @@ public class CoreSoftwareDetails {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public Date getInstalledDate() {
         return m_installedDate;
     }
 
-    public void setInstalledDate(Date installed_date) {
-        this.m_installedDate = installed_date;
+    public void setInstalledDate(Date installedDate) {
+        m_installedDate = installedDate;
     }
 
     public String getDescription() {
@@ -46,7 +46,7 @@ public class CoreSoftwareDetails {
     }
 
     public void setDescription(String description) {
-        this.m_description = description;
+        m_description = description;
     }
 
     public String getVersion() {
@@ -54,7 +54,7 @@ public class CoreSoftwareDetails {
     }
 
     public void setVersion(String version) {
-        this.m_version = version;
+        m_version = version;
     }
 
     public String getName() {
@@ -62,8 +62,7 @@ public class CoreSoftwareDetails {
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        m_name = name;
     }
 
 }
-

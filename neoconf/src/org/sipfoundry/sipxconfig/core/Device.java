@@ -38,55 +38,55 @@ public class Device {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getShortName() {
         return m_shortName;
     }
 
-    public void setShortName(String short_name) {
-        this.m_shortName = short_name;
+    public void setShortName(String shortName) {
+        m_shortName = shortName;
     }
 
     public int getCsdId() {
         return m_csdId;
     }
 
-    public void setCsdId(int csd_id) {
-        this.m_csdId = csd_id;
+    public void setCsdId(int csdId) {
+        m_csdId = csdId;
     }
 
     public int getOrgId() {
         return m_orgId;
     }
 
-    public void setOrgId(int org_id) {
-        this.m_orgId = org_id;
+    public void setOrgId(int orgId) {
+        m_orgId = orgId;
     }
 
     public int getRcsId() {
         return m_rcsId;
     }
 
-    public void setRcsId(int rcs_id) {
-        this.m_rcsId = rcs_id;
+    public void setRcsId(int rcsId) {
+        m_rcsId = rcsId;
     }
 
     public int getPgId() {
         return m_pgId;
     }
 
-    public void setPgId(int pg_id) {
-        this.m_pgId = pg_id;
+    public void setPgId(int pgId) {
+        m_pgId = pgId;
     }
 
     public String getUsrsId() {
         return m_usrsId;
     }
 
-    public void setUsrsId(String usrs_id) {
-        this.m_usrsId = usrs_id;
+    public void setUsrsId(String usrsId) {
+        m_usrsId = usrsId;
     }
 
     public String getDescription() {
@@ -94,24 +94,23 @@ public class Device {
     }
 
     public void setDescription(String description) {
-        this.m_description = description;
+        m_description = description;
     }
 
     public int getPtId() {
         return m_ptId;
     }
 
-    public void setPtId(int pt_id) {
-        this.m_ptId = pt_id;
+    public void setPtId(int ptId) {
+        m_ptId = ptId;
     }
 
     public String getSerialNumber() {
         return m_serialNumber;
     }
 
-    public void setSerialNumber(String serial_number) {
-        this.m_serialNumber = serial_number;
+    public void setSerialNumber(String serialNumber) {
+        m_serialNumber = serialNumber;
     }
 
 }
-

@@ -11,14 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
-
 /**
  * System-wide access to plugins
  */
 public interface DevicePlugin {
-    
+
     public DeviceModel[] getModels();
-    
+
     public DeviceGenerator getGenerator(DeviceModel model);
 
     public DevicePublisher getPublisher(DeviceModel model);

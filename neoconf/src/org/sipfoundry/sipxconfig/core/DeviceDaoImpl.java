@@ -20,25 +20,20 @@ import org.springframework.orm.hibernate.SessionFactoryUtils;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
- * Use Hibernate to r/w object to database for device related
- * items  
+ * Use Hibernate to r/w object to database for device related items
  */
-public class DeviceDaoImpl extends HibernateDaoSupport
-		implements DeviceDao {
+public class DeviceDaoImpl extends HibernateDaoSupport implements DeviceDao {
 
     /**
-     * This this be be qualified to removed altogether 
+     * This this be be qualified to removed altogether
      * 
      * @see org.sipfoundry.sipxconfig.core.DeviceDao#getAllDevices()
      */
     public List getAllDevices() {
-        Session session = SessionFactoryUtils.getSession(getSessionFactory(), 
-                false);
+        Session session = SessionFactoryUtils.getSession(getSessionFactory(), false);
         try {
             return session.find("from Device");
-        }
-        catch (HibernateException ex)
-        {
+        } catch (HibernateException ex) {
             throw SessionFactoryUtils.convertHibernateAccessException(ex);
         }
     }

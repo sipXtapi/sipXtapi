@@ -38,23 +38,23 @@ public class User {
     }
 
     public void setId(int id) {
-        this.m_id = id;
+        m_id = id;
     }
 
     public String getFirstName() {
         return m_firstName;
     }
 
-    public void setFirstName(String first_name) {
-        this.m_firstName = first_name;
+    public void setFirstName(String firstName) {
+        m_firstName = firstName;
     }
 
     public int getOrgId() {
         return m_orgId;
     }
 
-    public void setOrgId(int org_id) {
-        this.m_orgId = org_id;
+    public void setOrgId(int orgId) {
+        m_orgId = orgId;
     }
 
     public String getPassword() {
@@ -62,39 +62,39 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.m_password = password;
+        m_password = password;
     }
 
     public int getUgId() {
         return m_ugId;
     }
 
-    public void setUgId(int ug_id) {
-        this.m_ugId = ug_id;
+    public void setUgId(int ugId) {
+        m_ugId = ugId;
     }
 
     public int getRcsId() {
         return m_rcsId;
     }
 
-    public void setRcsId(int rcs_id) {
-        this.m_rcsId = rcs_id;
+    public void setRcsId(int rcsId) {
+        m_rcsId = rcsId;
     }
 
     public String getLastName() {
         return m_lastName;
     }
 
-    public void setLastName(String last_name) {
-        this.m_lastName = last_name;
+    public void setLastName(String lastName) {
+        m_lastName = lastName;
     }
 
     public String getDisplayId() {
         return m_displayId;
     }
 
-    public void setDisplayId(String display_id) {
-        this.m_displayId = display_id;
+    public void setDisplayId(String displayId) {
+        m_displayId = displayId;
     }
 
     public String getExtension() {
@@ -102,16 +102,15 @@ public class User {
     }
 
     public void setExtension(String extension) {
-        this.m_extension = extension;
+        m_extension = extension;
     }
 
     public String getProfileEncryptionKey() {
         return m_profileEncryptionKey;
     }
 
-    public void setProfileEncryptionKey(String profile_encryption_key) {
-        this.m_profileEncryptionKey = profile_encryption_key;
+    public void setProfileEncryptionKey(String profileEncryptionKey) {
+        m_profileEncryptionKey = profileEncryptionKey;
     }
 
 }
-

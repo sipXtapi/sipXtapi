@@ -17,10 +17,9 @@ import java.util.List;
  * Comments
  */
 public interface DeviceDao {
-    
+
     /**
-     * HACK this is a temporary method, impractical call as it may 
-     * return to large of a list
+     * HACK this is a temporary method, impractical call as it may return to large of a list
      * 
      * @return
      */
