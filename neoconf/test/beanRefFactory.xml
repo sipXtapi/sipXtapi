@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-  "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans> 
-   <bean id="unittest-db"
-         class="org.springframework.context.support.ClassPathXmlApplicationContext">
-     <constructor-arg>
-       <list>
-         <value>org/sipfoundry/sipxconfig/applicationContext-dao.xml</value>
-         <value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
-         <value>org/sipfoundry/sipxconfig/phone/applicationContext-unittest-dao.xml</value>
-       </list>
-     </constructor-arg>
-   </bean>   
-   <bean id="unittest"
-        class="org.springframework.context.support.ClassPathXmlApplicationContext">
-     <constructor-arg>
-       <list>
-         <!-- Daos must be mocked in unittest -->   
-         <value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
-       </list>
-     </constructor-arg>
-   </bean>		   
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <!--
+	  - WARNING: When reformatting this xml file, be sure 
+	  -    <value>applicationContext-*.xml</value> 
+	  - are on one line, otherwise spring complains it cannot find files
+	  -->
+	<bean id="unittest" 
+		class="org.springframework.context.support.ClassPathXmlApplicationContext">
+		<constructor-arg>
+			<list>
+				<value>org/sipfoundry/sipxconfig/applicationContext-dao-stub.xml</value>
+				<value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="unittest-db" 
+		class="org.springframework.context.support.ClassPathXmlApplicationContext">
+		<constructor-arg>
+			<list>
+				<value>org/sipfoundry/sipxconfig/applicationContext-dao.xml</value>
+				<value>org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
+				<value>org/sipfoundry/sipxconfig/phone/applicationContext-unittest-dao.xml</value>
+			</list>
+		</constructor-arg>
+	</bean>
 </beans>

@@ -22,12 +22,14 @@ import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
  */
 public class PhoneContextTest extends TestCase {
     
-    public void testInstantiation() {
-        
+    public void testInstantiation() {        
         BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
         BeanFactoryReference bf = bfl.useBeanFactory("unittest");
         // now use some bean from factory
         PhoneContext phoneContext = (PhoneContext) bf.getFactory().getBean("phoneContext");
         assertNotNull(phoneContext);
+        
+        // stub implementation
+        assertNotNull(phoneContext.getPhoneDao());
    }
 }

@@ -9,27 +9,29 @@
       -->
 	<bean id="phoneContext" 
 		class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
-		<!-- 
-		 - LOAD DAO indendently so this file can be used for unittests
-		 - that don't use the database.
-		  -->
-		 <property name="phoneIds">
+		<property name="phoneDao">
+			<ref bean="phoneDao"/>
+		</property>
+		<property name="phoneIds">
 			<list>
 				<value>generic</value>
 				<value>polycom300</value>
-			</list>			
-		 </property>
+			</list>
+		</property>
 	</bean>
-
-    <bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
-		    singleton="false">
-        <property name="modelId"><value>polycom300</value></property>
-        <property name="phoneContext"><ref local="phoneContext"/></property>		
-    </bean>
-
-    <bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" 
-		    singleton="false">
-        <property name="phoneContext"><ref local="phoneContext"/></property>		
-    </bean>
-	
+	<bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
+		singleton="false">
+		<property name="modelId">
+			<value>polycom300</value>
+		</property>
+		<property name="phoneContext">
+			<ref local="phoneContext"/>
+		</property>
+	</bean>
+	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" 
+		singleton="false">
+		<property name="phoneContext">
+			<ref local="phoneContext"/>
+		</property>
+	</bean>
 </beans>

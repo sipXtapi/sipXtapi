@@ -3,6 +3,11 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>    
+    <!--
+	  - WARNING: When reformatting this xml file, be sure 
+	  -    <value>applicationContext-*.xml</value> 
+	  - are on one line, otherwise spring complains it cannot find files
+	  -->
    <bean id="sipxconfig-web"
        class="org.springframework.context.support.ClassPathXmlApplicationContext">
      <constructor-arg>
