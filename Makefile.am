@@ -2,19 +2,11 @@
 
 include $(top_builddir)/config/sipXcommon.mak
 
-unconditional_SUBDIRS = src bin
+unconditional_SUBDIRS = . src bin
 
-# 
-# If Doxygen is enabled
-if DOC
-doc_SUBDIRS = doc
-endif
+include $(srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
-
-.PHONY : doc
-doc :
-	cd doc && $(MAKE) $(AM_MAKEFLAGS) all
 
 INSTALL=@INSTALL@
 
@@ -41,8 +33,12 @@ editdata :
 
 EXTRA_DIST = \
     CONTRIBUTORS \
-    config/sipXcommon.mak.in \
+	 SVN-VERSION \
     config/sipX-config.in \
+    config/sipX-buildstamp.cpp.in \
+    config/sipX-buildstamp.h.in \
+    config/sipXprojtop.mak \
+    config/sipXcommon.mak.in \
     $(editdata_IN) \
     sipXauthproxy.dsp \
     sipXforkingProxy.dsp \

@@ -31,6 +31,14 @@
 
 #include <ForkingProxyCseObserver.h>
 
+#ifndef SIPX_VERSION
+#  include "sipxproxy-buildstamp.h"
+#  define SIPX_VERSION SipXproxyVersion
+#  define SIPX_BUILD   SipXproxyBuildStamp
+#else
+#  define SIPX_BUILD   ""
+#endif
+
 //uncomment next line to enable bound checker checking with 'b' key
 //#define BOUNDS_CHECKER
 
@@ -457,7 +465,7 @@ main(int argc, char* argv[])
         NameValueTokenizer::frontBackTrim(&argString, "\t ");
         if(argString.compareTo("-v") == 0)
         {
-            osPrintf("Version: %s\n", SIPX_VERSION);
+            osPrintf("Version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
             return(1);
         }
         else if( argString.compareTo("-i") == 0)
@@ -546,6 +554,10 @@ main(int argc, char* argv[])
 
     // Initialize the OsSysLog...
     initSysLog(&configDb);    
+
+    OsSysLog::add(FAC_SIP, PRI_INFO, "Starting - version %s build %s",
+                  SIPX_VERSION, SIPX_BUILD
+                  );
 
     configDb.get("SIP_PROXY_DOMAIN_NAME", domainName);
     if(domainName.isNull())

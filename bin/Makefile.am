@@ -7,8 +7,11 @@ EXTRA_DIST = \
     $(editscripts_IN) \
     $(bin_SCRIPTS)
 
-${PACKAGE}-config: $(top_builddir)/config/sipX-config
-	cp $(top_builddir)/config/sipX-config ${PACKAGE}-config
+${PACKAGE}-config: ../config/sipX-config $(top_builddir)/BUILDSTAMP
+	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
+	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
+	    $(top_builddir)/config/sipX-config \
+	  > ${PACKAGE}-config
 
 editscripts_IN = \
     sipauthproxy.sh.in \

@@ -28,6 +28,14 @@
 #include "SipAaa.h"
 #include "AuthProxyCseObserver.h"
 
+#ifndef SIPX_VERSION
+#  include "sipxproxy-buildstamp.h"
+#  define SIPX_VERSION SipXproxyVersion
+#  define SIPX_BUILD   SipXproxyBuildStamp
+#else
+#  define SIPX_BUILD   ""
+#endif
+
 // DEFINES
 
 #define CONFIG_SETTING_CALL_STATE     "SIP_AUTHPROXY_CALL_STATE"
@@ -287,7 +295,7 @@ main( int argc, char* argv[] )
        NameValueTokenizer::frontBackTrim(&argString, "\t ");
        if(argString.compareTo("-v") == 0)
        {
-           osPrintf("Version: %s\n", SIPX_VERSION);
+           osPrintf("Version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
            return(1);
        } else if( argString.compareTo("-i") == 0)
        {
