@@ -3,7 +3,7 @@
 	<classpathentry excluding="**/.svn/**|test/" kind="src" path="src"/>
 	<classpathentry excluding="**/.svn/**" kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jdom-1.0.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/jdom/jdom-1.0/src/java" kind="var" path="SIPX_CONFIG/lib/jdom-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-j2ee.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
