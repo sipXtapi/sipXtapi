@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,31 +68,6 @@ public class CustomDialingRule extends DialingRule {
             transforms[i] = transform;
         }
         return transforms;
-    }
-
-    static class SerialForkQueueValue {
-        private static final float MAX = 1.0f;
-        private static final float MIN = 0.80f;
-        private static final int MAX_FRAC = 3;
-        private static final int MIN_FRAC = 1;
-        private static final NumberFormat Q_FORMAT = NumberFormat.getInstance();
-        static {
-            Q_FORMAT.setMaximumFractionDigits(MAX_FRAC);
-            Q_FORMAT.setMinimumFractionDigits(MIN_FRAC);
-        }
-
-        private float m_nextValue = MAX;
-        private float m_step;
-
-        SerialForkQueueValue(int sequenceCont) {
-            m_step = (MAX - MIN) / (sequenceCont + 1);
-        }
-
-        String getNextValue() {
-            String result = "Q=" + Q_FORMAT.format(m_nextValue);
-            m_nextValue = m_nextValue - m_step;
-            return result;
-        }
     }
 
     public Type getType() {

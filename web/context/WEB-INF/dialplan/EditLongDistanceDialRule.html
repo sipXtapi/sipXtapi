@@ -1,0 +1,87 @@
+<html title="Long Distance Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border" id="component">    
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="long:rule:edit">
+        <fieldset>
+		<legend>Long Distance Dialing Rule</legend>            
+        <table>
+            <tbody>
+                <span jwcid="common"/>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+	    <legend>Details</legend>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label jwcid="pstnPrefixLabel" for="dialplan:pstnPrefix">PSTN Calls Prefix</label>
+                    </td>
+                    <td>
+                        <input jwcid="pstnPrefix" id="dialplan:pstnPrefix" type="text" value="9" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label jwcid="longDistancePrefixLabel" for="dialplan:longDistancePrefix">Long Distance Calls Prefix</label>
+                    </td>
+                    <td>
+                        <input jwcid="longDistancePrefix" id="dialplan:longDistancePrefix" type="text" value="1" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label jwcid="areaCodesLabel" for="dialplan:areaCodes">Area Codes</label>
+                    </td>
+                    <td>
+                        <input jwcid="areaCodes" id="dialplan:areaCodes" type="text" value="618, 789, 508, 978" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label jwcid="externalLenLabel" for="dialplan:externalLen">External Number Length</label>
+                    </td>
+                    <td>
+                        <select jwcid="externalLen" id="dialplan:externalLen" size="1">
+                            <option value="3" selected="selected">7 digits</option>
+                            <option value="4">6 digits</option>
+                            <option value="5">7 digits</option>
+                            <option value="6">8 digits</option>
+                            <option value="6">9 digits</option>
+                            <option value="6">10 digits</option>
+                        </select>
+                    </td>                                             
+                </tr>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+        <legend>Gateways</legend>
+		<ul class="component-actions">
+			<li><a jwcid="addGatewayLink" href="#">Add New Gateway</a></li>        
+			<li><a jwcid="selectGatewayLink" href="#">Add Existing Gateway</a></li>        
+		</ul>        
+        <table jwcid="gatewayTable" class="table-view"/>
+        <ul class="table-actions">
+            <li>
+                <input jwcid="removeGateways" type="submit" name="" value="Remove"/>
+            </li>
+        </ul>
+        </fieldset>
+        <ul class="form-actions">
+            <li>
+                <input id="rule:save" jwcid="onSave" type="submit" value="Save"/>
+            </li>
+            <li>
+                <input id="rule:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</body>
+</html>

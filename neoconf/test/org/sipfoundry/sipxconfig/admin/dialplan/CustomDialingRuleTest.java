@@ -15,7 +15,6 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule.SerialForkQueueValue;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
@@ -73,7 +72,7 @@ public class CustomDialingRuleTest extends TestCase {
     }
     
     public void testQueueValue() throws Exception {
-        SerialForkQueueValue value = new CustomDialingRule.SerialForkQueueValue(3);
+        SerialForkQueueValue value = new SerialForkQueueValue(3);
         assertEquals("Q=1.0",value.getNextValue());
         assertEquals("Q=0.95",value.getNextValue());
         assertEquals("Q=0.9",value.getNextValue());

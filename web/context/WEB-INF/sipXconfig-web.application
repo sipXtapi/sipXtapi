@@ -21,8 +21,11 @@
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
+    <page name="EditEmergencyDialRule" specification-path="dialplan/EditEmergencyDialRule.page"/>
     <page name="EditInternalDialRule" specification-path="dialplan/EditInternalDialRule.page"/>
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
+    <page name="EditLongDistanceDialRule" specification-path="dialplan/EditLongDistanceDialRule.page"/>
+    <page name="EditRestrictedDialRule" specification-path="dialplan/EditRestrictedDialRule.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="Home" specification-path="Home.page"/>

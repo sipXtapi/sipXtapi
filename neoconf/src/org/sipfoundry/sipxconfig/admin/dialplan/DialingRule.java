@@ -119,7 +119,8 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
      * Dialing rules type.
      */
     public static final class Type extends Enum {
-        public static final Type MAPPING_RULE = new Type("VoiceMailFallBack");
+        public static final Type EMERGENCY = new Type("Emergency");
+        public static final Type MAPPING_RULE = new Type("Mapping Rule");
         public static final Type CUSTOM = new Type("Custom");
         public static final Type LOCAL = new Type("Local");
         public static final Type INTERNAL = new Type("Internal");

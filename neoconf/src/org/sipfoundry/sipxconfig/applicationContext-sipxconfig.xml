@@ -185,12 +185,18 @@
 	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		
 	</bean>
 
-    <!-- temporary gateways and dialPlans singletons-->
+	<!--
+	  - D I A L   P L A N S
+	  - TODO: move to separate file
+	  -->
     <bean id="dialRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory"/>
     
     <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule">
         <property name="name">
-            <value>Default</value>
+            <value>Internal</value>
+        </property>
+        <property name="description">
+            <value>Default internal dialing plan</value>
         </property>
         <property name="enabled">
         	<value>true</value>
@@ -206,10 +212,48 @@
         </property>
     </bean>
     
+    <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule">
+        <property name="name">
+			<value>Emergency</value>            
+        </property>
+        <property name="description">
+            <value>Emergency dialing plan</value>
+        </property>
+        <property name="enabled">
+        	<value>true</value>
+        </property>
+        <property name="emergencyNumber">
+        	<value>911</value>
+        </property>        
+    </bean>
+
+    <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule">
+        <property name="name">
+			<value>Long Distance</value>            
+        </property>
+        <property name="description">
+            <value>Long distance dialing plan</value>
+        </property>
+        <property name="enabled">
+        	<value>false</value>
+        </property>
+        <property name="pstnPrefix">
+        	<value>9</value>
+        </property>        
+        <property name="longDistancePrefix">
+        	<value>1</value>
+        </property>        
+        <property name="externalLen">
+        	<value>7</value>
+        </property>        
+    </bean>
+    
     <bean id="flexDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
     	<property name="rules">
         	<list>
+                <ref bean="defaultEmergencyRule"></ref>
                 <ref bean="defaultInternalRule"></ref>
+                <ref bean="defaultLongDistanceRule"></ref>
             </list>
         </property>
     </bean>

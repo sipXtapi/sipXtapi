@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import org.apache.commons.lang.StringUtils;
 
 /**
  * CallPattern
@@ -18,6 +19,15 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 public class CallPattern {
     private CallDigits m_digits;
     private String m_prefix;
+
+    public CallPattern() {
+        this(StringUtils.EMPTY, CallDigits.NO_DIGITS);
+    }
+
+    public CallPattern(String prefix, CallDigits digits) {
+        m_prefix = prefix;
+        m_digits = digits;
+    }
 
     public CallDigits getDigits() {
         return m_digits;
@@ -38,7 +48,7 @@ public class CallPattern {
     public String calculatePattern() {
         String digits = "{" + m_digits.getName() + "}";
         if (m_digits.equals(CallDigits.NO_DIGITS)) {
-            digits = "";
+            digits = StringUtils.EMPTY;
         }
         return m_prefix + digits;
     }

@@ -33,6 +33,8 @@ public abstract class SelectRuleType extends BasePage {
     static {
         TYPE_2_PAGE.put(Type.CUSTOM, EditCustomDialRule.PAGE);
         TYPE_2_PAGE.put(Type.INTERNAL, EditInternalDialRule.PAGE);
+        TYPE_2_PAGE.put(Type.LONG_DISTANCE, EditLongDistanceDialRule.PAGE);
+        TYPE_2_PAGE.put(Type.EMERGENCY, EditEmergencyDialRule.PAGE);
         
         TYPES = (Type[]) TYPE_2_PAGE.keySet().toArray(new Type[TYPE_2_PAGE.size()]);
     }
