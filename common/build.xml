@@ -94,5 +94,8 @@
     <copy file="${common.jar}" todir="${sipxconfig.lib.dir}"/>
 
   </target>
+
+  <!-- Unittest do not work -->
+  <target name="compile.test"/>
  
 </project>

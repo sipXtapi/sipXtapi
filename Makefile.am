@@ -3,12 +3,17 @@ include $(top_srcdir)/ant-targets.am
 
 EXTRA_DIST = \
     doc/license \
+    build.xml \
+    ant-targets.xml \
+    acsite.m4 \
+    CONTRIBUTORS \
     config.properties.in \
     common \
     profilegenerator \
     profilewriter \
     profilepublisher \
-    profilepub_sipagent.dsp
+    profilepub_sipagent.dsp \
+    lib
 
 ## Search and replace helpful make/conf variables
 edit = sed \
@@ -30,8 +35,20 @@ edit = sed \
         -e 's,@libdir\@,$(libdir),g' \
         -e 's,@bindir\@,$(bindir),g'
 
+
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
 config.properties : config.properties.in Makefile
 	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
+
+# Override default tarball creation, need to support paths > 99 chars
+# change tar optoions: "chof"  to "chf", implications tarball is not
+# compatible on legacy systems.  See 'man tar' for more info
+# Other dist types will have same problem, but not orerriding yet as we do
+# support them at this time nor do I have time to check/maintain them, yet.
+dist dist-all: distdir
+	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	$(am__remove_distdir)
+
+ 
