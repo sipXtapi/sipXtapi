@@ -20,27 +20,34 @@ import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
  */
 public class PhoneTestHelper {
     
-    private final static String PHONE_CONTEXT = "phoneContext";
+    private BeanFactory m_factory; 
     
     private final static String DB_FACTORY_CONFIG = "beanRefFactory-db.xml";
     
     private final static String FACTORY_CONFIG = "beanRefFactory.xml";
+
+    private PhoneTestHelper(String factory) {
+        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance(factory);
+        m_factory = bfl.useBeanFactory("unittest").getFactory();
+    }
     
+    public static PhoneTestHelper createHelper() {
+        return new PhoneTestHelper(FACTORY_CONFIG);
+    }
     
-    public static PhoneContext getPhoneContext() {
-        return (PhoneContext) getFactory(FACTORY_CONFIG).getBean(PHONE_CONTEXT);
+    public static PhoneTestHelper createHelperWithDatabase() {
+        return new PhoneTestHelper(DB_FACTORY_CONFIG);
+    }
+    
+    public PhoneContext getPhoneContext() {
+        return (PhoneContext) m_factory.getBean(PhoneContext.CONTEXT_BEAN_NAME);
+    }
+    
+    public UnitTestDao getUnitTestDao() {
+        return (UnitTestDao) getFactory().getBean("testData");
     }
 
-    public static PhoneContext getPhoneContextWithDb() {
-        return (PhoneContext) getFactory(DB_FACTORY_CONFIG).getBean(PHONE_CONTEXT);
-    }
-    
-    public static UnitTestDao getUnitTestDao() {
-        return (UnitTestDao) getFactory(DB_FACTORY_CONFIG).getBean("testData");
-    }
-    
-    private static BeanFactory getFactory(String factory) {
-        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance(factory);
-        return  bfl.useBeanFactory("unittest").getFactory();
+    public BeanFactory getFactory() {
+        return m_factory;
     }
 }

@@ -19,12 +19,16 @@ import java.util.List;
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public interface PhoneContext {
+    
+    public static final String CONTEXT_BEAN_NAME = "phoneContext";
 
     public PhoneDao getPhoneDao();
 
     public void setPhoneDao(PhoneDao dao);
         
     public Phone getPhone(Endpoint endpoint);
+    
+    public Phone getPhone(int endpointId);
     
     public List getPhoneIds();
 

@@ -16,10 +16,8 @@ import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.site.EditPhone;
 import org.sipfoundry.sipxconfig.site.EditPhoneLines;
 import org.sipfoundry.sipxconfig.site.EditSettings;
@@ -41,42 +39,47 @@ public abstract class EditPhoneNavigation extends BaseComponent {
 
     public abstract String getCurrentSetting();
     
-    public abstract PhoneContext getPhoneContext();
-
-    public abstract void setPhoneContext(PhoneContext phoneContext);
-
     public void editPhone(IRequestCycle cycle) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
-        Object[] params = (Object[]) cycle.getServiceParameters();
-        page.setPhone(getPhone(0, params));
+        page.setPhone(getPhone(cycle));
         cycle.activate(page);
     }
     
     public void editLines(IRequestCycle cycle) {
         EditPhoneLines page = (EditPhoneLines) cycle.getPage(EditPhoneLines.PAGE);
-        Object[] params = (Object[]) cycle.getServiceParameters();
-        page.setPhone(getPhone(0, params));
+        page.setPhone(getPhone(cycle));
         cycle.activate(page);
     }
     
     public void editSettings(IRequestCycle cycle) {
         EditSettings page = (EditSettings) cycle.getPage(EditSettings.PAGE);
-        Object[] params = (Object[]) cycle.getServiceParameters();
-        page.setPhone(getPhone(0, params));
-        page.setSetting((String) params[1]);
+        page.setPhone(getPhone(cycle));
+        Object[] params = cycle.getServiceParameters();
+        String setting = (String) TapestryUtils.assertParameter(String.class, params, 1);
+        page.setSetting(setting);
         cycle.activate(page);        
     }
-
-    private Phone getPhone(int index, Object[] params) {
-        Integer endpointId = (Integer) params[index];
-        PhoneDao dao = getPhoneContext().getPhoneDao();
-        Endpoint endpoint = dao.loadEndpoint(endpointId.intValue());
-        
-        return getPhoneContext().getPhone(endpoint);
+    
+    private Phone getPhone(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(cycle);
+        return phoneContext.getPhone(endpointId.intValue());
+    }
+    
+    /**
+     * Used for contructing parameters for EditSettings DirectLink
+     */
+    public Object[] getEditSettingListenerParameters() {
+        return new Object[] { 
+            new Integer(getPhone().getEndpoint().getId()),
+            getCurrentSetting() 
+        };
     }
     
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
+        // TODO: Build these from Endpoints, SettingsSet heirarchy
         String[] headings = new String[] {
             "Outbound Proxy", "Network" 
         };        

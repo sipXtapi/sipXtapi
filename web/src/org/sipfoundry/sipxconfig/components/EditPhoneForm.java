@@ -32,10 +32,6 @@ public abstract class EditPhoneForm extends BaseComponent {
     
     public abstract void setEndpoint(Endpoint endpoint);    
 
-    public abstract PhoneContext getPhoneContext();
-
-    public abstract void setPhoneContext(PhoneContext phoneContext);
-
     /**
      * @return Returns all the phoneModels available to the system ready for UI selection 
      */
@@ -48,7 +44,8 @@ public abstract class EditPhoneForm extends BaseComponent {
      */
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        String[] phoneIds = (String[]) getPhoneContext().getPhoneIds().toArray(new String[0]);
+        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(cycle);
+        String[] phoneIds = (String[]) phoneContext.getPhoneIds().toArray(new String[0]);
         setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
     }        
 }

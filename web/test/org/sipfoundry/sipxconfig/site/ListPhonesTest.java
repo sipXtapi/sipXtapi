@@ -32,7 +32,8 @@ public class ListPhonesTest extends TestCase {
     private final static String MAC_ADDRESS = "ffffffffff";
     
     public void testListPhones() {
-        PhoneContext phoneContext = SiteTestHelper.getPhoneContext();
+        SiteTestHelper helper = SiteTestHelper.createHelper();
+        PhoneContext phoneContext = helper.getPhoneContext();
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
         cycleControl.replay();
@@ -55,7 +56,6 @@ public class ListPhonesTest extends TestCase {
         
         phoneContext.setPhoneDao(dao);
 
-        page.setPhoneContext(phoneContext);
         page.pageBeginRender(new PageEvent(page, cycle));
         List phones = page.getPhones(); 
         assertNotNull(phones);

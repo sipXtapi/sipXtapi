@@ -17,8 +17,7 @@ import javax.servlet.ServletContext;
 
 import org.apache.tapestry.engine.BaseEngine;
 import org.apache.tapestry.request.RequestContext;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
@@ -26,8 +25,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class SipxconfigEngine extends BaseEngine {
 
-    private static final String APPLICATION_CONTEXT_KEY = "phoneContext";
-    private static final String SIPXCONFIG_CONTEXT_KEY = "sipXconfigContext";
+    private static final String BEANFACTORY_CONTEXT_KEY = "sipXconfigContext";
 
     private static final long serialVersionUID;
 
@@ -47,17 +45,23 @@ public class SipxconfigEngine extends BaseEngine {
         Map global = (Map) getGlobal();
         // in ogml use: global.appContext.getBean("sipXconfigContext") to get
         // this object
-        ApplicationContext ac = (ApplicationContext) global.get(SIPXCONFIG_CONTEXT_KEY);
-        PhoneContext pc = (PhoneContext) global.get(APPLICATION_CONTEXT_KEY);
-        if (ac == null || pc == null) {
+        BeanFactory bf = (BeanFactory) global.get(BEANFACTORY_CONTEXT_KEY);
+        if (bf == null) {
             ServletContext servletContext = context.getServlet().getServletContext();
-            ac = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-            global.put(SIPXCONFIG_CONTEXT_KEY, ac);
-            pc = (PhoneContext) ac.getBean(APPLICATION_CONTEXT_KEY);
-            if (pc == null) {
-                throw new IllegalStateException("Could not create phone context");
-            }
-            global.put(APPLICATION_CONTEXT_KEY, pc);
+            bf = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+            global.put(BEANFACTORY_CONTEXT_KEY, bf);
         }
+    }
+    
+    /**
+     * setupForRequest must have been called first, but this should be accessable
+     * by any pages.
+     */
+    public  BeanFactory getBeanFactory() {
+        // insert PhoneContext in global, if not there
+        Map global = (Map) getGlobal();
+        // in ogml use: global.appContext.getBean("sipXconfigContext") to get
+        // this object
+        return (BeanFactory) global.get(BEANFACTORY_CONTEXT_KEY);
     }
 }

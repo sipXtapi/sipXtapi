@@ -5,9 +5,6 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
-		global.phoneContext </property-specification>
 	<property-specification name="endpoint" 
 		type="org.sipfoundry.sipxconfig.phone.Endpoint" persistent="yes"/>
     <!--
@@ -19,7 +16,6 @@
       -->
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="endpoint" expression="endpoint"/>
-        <binding name="phoneContext" expression="global.phoneContext"/>
     </component>    
 	<!--
 	  - A S S E T S

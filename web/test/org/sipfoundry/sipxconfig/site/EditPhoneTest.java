@@ -27,7 +27,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneDao;
 public class EditPhoneTest extends TestCase {
 
     public void testSave() {
-        PhoneContext phoneContext = SiteTestHelper.getPhoneContext();
+        SiteTestHelper helper = SiteTestHelper.createHelper();
+        PhoneContext phoneContext = helper.getPhoneContext();
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
         cycle.activate("ListPhones");
@@ -35,7 +36,6 @@ public class EditPhoneTest extends TestCase {
 
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
-        page.setPhoneContext(phoneContext);
         Endpoint endpoint = new Endpoint();
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
         Phone phone = phoneContext.getPhone(endpoint);
@@ -55,7 +55,7 @@ public class EditPhoneTest extends TestCase {
     }
 
     public void textCancel() {
-        PhoneContext phoneContext = SiteTestHelper.getPhoneContext();
+        SiteTestHelper.createHelper();
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
         cycle.activate("ListPhones");
@@ -63,7 +63,6 @@ public class EditPhoneTest extends TestCase {
 
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
-        page.setPhoneContext(phoneContext);
         page.cancel(cycle);
 
         cycleControl.verify();

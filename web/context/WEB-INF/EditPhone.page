@@ -5,9 +5,6 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
-		global.phoneContext </property-specification>
 	<property-specification name="phone" 
 		type="org.sipfoundry.sipxconfig.phone.Phone" persistent="yes"/>
     <!--
@@ -21,12 +18,10 @@
         <binding name="phone" expression="phone"/>
         <static-binding name="tab" value="EditPhone"/>
         <static-binding name="heading" value="Device Identification"/>
-        <binding name="phoneContext" expression="global.phoneContext"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="phone" expression="phone"/>
         <binding name="endpoint" expression="phone.endpoint"/>
-        <binding name="phoneContext" expression="global.phoneContext"/>
     </component>    
 	<!--
 	  - A S S E T S

@@ -16,15 +16,18 @@ import java.util.List;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.PhonePageUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 
 /**
  * List all the phones/endpoints for management and details drill-down
  */
-public abstract class ListPhones extends AbstractPhonePage 
+public abstract class ListPhones extends BasePage 
         implements PageRenderListener {
     
     public static final String PAGE = "ListPhones";
@@ -46,9 +49,8 @@ public abstract class ListPhones extends AbstractPhonePage
      * When user clicks on link to edit a phone/endpoint
      */
     public void editPhone(IRequestCycle cycle) {
-        PhoneSummary phone = getCurrentRow();
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
-        page.setPhone(phone.getPhone());
+        page.setPhone(PhonePageUtils.getPhoneFromParameter(cycle, 0));
         cycle.activate(page);
     }
     
@@ -63,8 +65,9 @@ public abstract class ListPhones extends AbstractPhonePage
      */
     public void pageBeginRender(PageEvent eventTemp) {
         // Generate the list of phone items
-        PhoneDao dao = getPhoneContext().getPhoneDao();
-        setPhones(dao.loadPhoneSummaries(getPhoneContext()));
+        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(eventTemp.getRequestCycle()); 
+        PhoneDao dao = phoneContext.getPhoneDao();
+        setPhones(dao.loadPhoneSummaries(phoneContext));
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }

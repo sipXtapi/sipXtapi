@@ -11,13 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 
 /**
  * Comments
  */
-public abstract class EditPhoneLines extends AbstractPhonePage {
+public abstract class EditPhoneLines extends BasePage {
 
     public static final String PAGE = "EditPhoneLines";
 

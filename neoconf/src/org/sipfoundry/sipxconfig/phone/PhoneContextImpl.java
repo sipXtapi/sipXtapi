@@ -44,6 +44,11 @@ public class PhoneContextImpl implements BeanFactoryAware, PhoneContext {
         return phone;
     }
     
+    public Phone getPhone(int endpointId) {
+        return getPhone(getPhoneDao().loadEndpoint(endpointId));
+    }
+    
+    
     public PhoneDao getPhoneDao() {
         return m_dao;
     }

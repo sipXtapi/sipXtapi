@@ -12,12 +12,15 @@
 package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.PhonePageUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneDao;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
  */
-public abstract class EditPhone extends AbstractPhonePage {
+public abstract class EditPhone extends BasePage {
     
     public static final String PAGE = "EditPhone"; 
 
@@ -26,12 +29,14 @@ public abstract class EditPhone extends AbstractPhonePage {
     public abstract void setPhone(Phone phone);
     
     public void ok(IRequestCycle cycle) {
-        getPhoneContext().getPhoneDao().storeEndpoint(getPhone().getEndpoint());
+        PhoneDao dao = PhonePageUtils.getPhoneContext(cycle).getPhoneDao(); 
+        dao.storeEndpoint(getPhone().getEndpoint());
         cycle.activate(ListPhones.PAGE);
     }
 
-    public void apply(IRequestCycle cycle_) {
-        getPhoneContext().getPhoneDao().storeEndpoint(getPhone().getEndpoint());
+    public void apply(IRequestCycle cycle) {
+        PhoneDao dao = PhonePageUtils.getPhoneContext(cycle).getPhoneDao(); 
+        dao.storeEndpoint(getPhone().getEndpoint());
     }
     
     public void cancel(IRequestCycle cycle) {

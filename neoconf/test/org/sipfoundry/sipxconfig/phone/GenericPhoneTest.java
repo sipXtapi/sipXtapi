@@ -22,7 +22,8 @@ import org.sipfoundry.sipxconfig.settings.PhoneSettings;
 public class GenericPhoneTest extends TestCase {
     
     public void testFactoryCreation() {
-        PhoneContext phoneContext = PhoneTestHelper.getPhoneContext();
+        PhoneTestHelper helper = PhoneTestHelper.createHelper();
+        PhoneContext phoneContext = helper.getPhoneContext();
         Endpoint endpoint = new Endpoint();
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
         Phone phone = phoneContext.getPhone(endpoint);

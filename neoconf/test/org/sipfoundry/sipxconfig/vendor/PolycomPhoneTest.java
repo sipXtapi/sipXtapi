@@ -24,7 +24,8 @@ import org.sipfoundry.sipxconfig.settings.PhoneSettings;
 public class PolycomPhoneTest extends TestCase {
         
     public void testFactoryCreation() {
-        PhoneContext phoneContext = PhoneTestHelper.getPhoneContext();
+        PhoneTestHelper helper = PhoneTestHelper.createHelper();
+        PhoneContext phoneContext = helper.getPhoneContext();
         Endpoint endpoint = new Endpoint();
         endpoint.setPhoneId(PolycomPhone.MODEL_300);
         Phone phone = phoneContext.getPhone(endpoint);

@@ -28,12 +28,12 @@ public class PhoneDaoImplTestDb extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-
-        m_context = PhoneTestHelper.getPhoneContextWithDb();
+        PhoneTestHelper helper = PhoneTestHelper.createHelperWithDatabase();
+        m_context = helper.getPhoneContext();
         assertNotNull(m_context);
         m_dao = m_context.getPhoneDao();
         assertNotNull(m_dao);
-        m_testData = PhoneTestHelper.getUnitTestDao();
+        m_testData = helper.getUnitTestDao();
         assertNotNull(m_testData);
         assertTrue(m_testData.initializeImmutableData());
     }
