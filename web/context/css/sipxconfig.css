@@ -1,6 +1,7 @@
 /*  Legacy colors
  *    #699  - faded green
  *    #ffc  - faded yellow
+ *    #F0E68C - slightly darker, ugly yellow used as background in tables and forms
  */
 
 body {
@@ -30,6 +31,10 @@ dd {
 pre, tt, code, kbd, samp { 
     color: #009;
     font-family: monospace; 
+}
+
+legend {
+  font: bold 80%;
 }
 
 .hack {
@@ -123,6 +128,11 @@ a.tab.active, a.tab.active:hover, a.tab.active:visited {
     font-weight: bold;
 }
 
+p.message {
+    font-weight: bold;
+    color: #f00;
+}
+
 .settingLabel {
 }
 
@@ -147,8 +157,8 @@ ul.table-actions li {
 }
 
 table.table-view {
-    background: #fff;
     width: 45em;
+    background: #fff;
     border-collapse: collapse;
     border: 1px;
     border-style : solid;
@@ -219,8 +229,6 @@ tr.odd {
     font-style: italic;
 }
 
-
-
 ul.table-pager {
   list-style-type:none
 }
@@ -228,26 +236,6 @@ ul.table-pager {
 ul.table-pager li {
   display: inline;
   margin: 0 5px;
-}
-
-#component {
-    width: 45em;
-}
-
-#component fieldset {
-  border-style: none;
-  font-size: 120%;
-  
-}
-
-#component legend {
-  font-size: 120%;
-}
-
-.page-label {
-  font-weight: bold;
-  margin: 2px;
-  padding: 2px;
 }
 
 #help {
@@ -261,14 +249,54 @@ ul.table-pager li {
   padding: 5px;
   background: #fff;
 }
+
+#component {
+  width: 40em;    
+  background: #ffc;
+}
+
+#component fieldset {
+  border-style: none;
+  font-size: 120%;
+  width: 40em;
+  margin-top: 1em; 
+}
+
+#component legend {
+  font-size: 120%;
+}
+
+#component label {
+  padding-right: 1em;
+}
+
+/* enlarged border allows to have uniform background for fieldset and legend 
+   however it does not work well if fieldsets do not have a legend */
+form.with-sections fieldset {
+  border-style: solid !important;
+  border-top-width: 2em;
+  border-color: #F0E68C;
+  background: #F0E68C;
+}
+
+form.with-sections legend {
+  background: #F0E68C;
+}
+
+.page-label {
+  font-weight: bold;
+  margin: 2px;
+  padding: 2px;
+}
+
 ul.component-actions {
   list-style-type : none;
-  text-align: right; 
+  text-align: right;
 }
 
 ul.component-actions li {
   display: inline;
-  margin: 0 5px;
+  padding-left: 1em; 
 }
 
 ul.form-actions {
@@ -279,8 +307,6 @@ ul.form-actions {
 ul.form-actions li {
   display: inline;
 }
-
-
 
 .hide {
   display: none

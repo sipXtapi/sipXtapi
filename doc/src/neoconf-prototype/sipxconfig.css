@@ -65,6 +65,10 @@ a.tab.active, a.tab.active:hover, a.tab.active:visited {
   color: #000;
 }
 
+.settingDefault {
+    font-style: italic;
+}
+
 #lastmodified {
     align: right;
     font-style: italic;
@@ -120,15 +124,20 @@ a.tab.active, a.tab.active:hover, a.tab.active:visited {
     font-style: italic;
 }
 
-/* temporary comments sections */
-#comments {
-	border-top: solid;
-	color: #08f
+.pageLabel {
+    font-weight: bold;
 }
 
 p.message {
     font-weight: bold;
     color: #f00;
+}
+
+.settingLabel {
+}
+
+.settingDefault {
+  font-style: italic;
 }
 
 li {
@@ -137,7 +146,6 @@ li {
 }
 
 ul.table-actions {
-  width: 35em;
   list-style-type: none;
   margin: 5px;
   padding: 0px
@@ -149,7 +157,7 @@ ul.table-actions li {
 }
 
 table.table-view {
-    width: 38em;
+    width: 45em;
     background: #fff;
     border-collapse: collapse;
     border: 1px;
@@ -177,7 +185,7 @@ table.table-view thead th {
     border: 1px;
     border-style : solid;
     border-color : #ccc;  
-    padding: 3px 5px 3px 5px;
+    padding: 3px;
     white-space: nowrap;        
     color: #ffc;
 }
@@ -189,6 +197,7 @@ table.table-view th a {
 
 table.table-view td {
     inset: 3px;
+    white-space: nowrap;    
     border-collapse: collapse;
 }
 
@@ -238,7 +247,7 @@ ul.table-pager li {
   border-style : solid;
   border-color : #ccc;  
   padding: 5px;
-  background: #fffffc;
+  background: #fff;
 }
 
 #component {
@@ -246,12 +255,15 @@ ul.table-pager li {
   background: #ffc;
 }
 
-
 #component fieldset {
   border-style: none;
   font-size: 120%;
   width: 40em;
   margin-top: 1em; 
+}
+
+#component legend {
+  font-size: 120%;
 }
 
 #component label {
@@ -271,12 +283,13 @@ form.with-sections legend {
   background: #F0E68C;
 }
 
-#component legend {
-  font-size: 120%;
+.page-label {
+  font-weight: bold;
+  margin: 2px;
+  padding: 2px;
 }
 
 ul.component-actions {
-  width: 35em;
   list-style-type : none;
   text-align: right;
 }
@@ -295,12 +308,11 @@ ul.form-actions li {
   display: inline;
 }
 
-.page-label {
-  font-weight: bold;
-  margin: 2px;
-  padding: 2px;
+.hide {
+  display: none
 }
 
+/* everything that follows is doc specific - do not copy to web project css */
 #settings-navigation {
   padding: 2px;
 }
@@ -321,7 +333,11 @@ ul.form-actions li {
   white-space: nowrap;        
 }
 
-.hide {
-  display: none
+
+/* temporary comments sections */
+#comments {
+	border-top: solid;
+	color: #08f
 }
+
 
