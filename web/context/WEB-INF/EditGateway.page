@@ -8,9 +8,18 @@
 	  -->
 	<property-specification name="gateway" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway" 
-    	initial-value="new org.sipfoundry.sipxconfig.admin.dialplan.Gateway()"
-    	persistent="yes"/>
+    	initial-value="new org.sipfoundry.sipxconfig.admin.dialplan.Gateway()"/>
 
+	<property-specification name="addMode" 
+		type="boolean" 
+    	initial-value="false"
+    	persistent="yes"/>
+    
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+        global.sipXconfigContext.getBean("dialPlanManager")
+    </property-specification>    
+    
     <!--
      - B E A N S
      -->
@@ -37,6 +46,12 @@
     <component id="gatewayDescription" type="TextArea">
 	    <binding name="value" expression="gateway.description"/>
 	    <static-binding name="displayName" value="Description"/>
+    </component>
+    <component id="onSave" type="Submit">
+        <binding name="listener" expression="listeners.save"/>
+    </component>
+    <component id="onCancel" type="Submit">
+        <binding name="listener" expression="listeners.cancel"/>
     </component>
 
     <!--

@@ -11,15 +11,41 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.util.List;
+
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 
 /**
  * EditGateway
  */
 public abstract class EditGateway extends BasePage {
+    private static final String PAGE_LIST_GATEWAYS = "ListGateways";
+
     public abstract void setGateway(Gateway gateway);
+
     public abstract Gateway getGateway();
 
+    public abstract void setAddMode(boolean addMode);
+
+    public abstract boolean getAddMode();
+
+    public abstract DialPlanManager getDialPlanManager();
+
+    public void save(IRequestCycle cycle) {
+        if (getAddMode()) {
+            DialPlanManager manager = getDialPlanManager();
+            List gateways = manager.getGateways();
+            Gateway gateway = getGateway();
+            gateways.add(gateway);
+        }
+        cycle.activate(PAGE_LIST_GATEWAYS);
+    }
+
+    public void cancel(IRequestCycle cycle) {
+        cycle.activate(PAGE_LIST_GATEWAYS);
+    }
 }
