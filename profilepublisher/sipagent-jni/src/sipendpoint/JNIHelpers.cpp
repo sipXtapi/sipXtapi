@@ -180,10 +180,24 @@ const char* assertValidString(const char* szValidString, const OsBoolean bAllowN
     if (szValidString != NULL)
     {
         for (   szTraverse = szValidString; 
-                *szTraverse != NULL;
+                *szTraverse != '\0';
                 szTraverse++)
         {
-            assert((*szTraverse >= 0x20) && (*szTraverse < 0x80)) ;            
+         // The compiler complained, with good reason, about the
+         // comparison with 0x80, since all SIGNED chars are less than
+         // 0x80.  Apparently, we are trying to make sure that every
+         // character in the string is a printable, 7-bit, ASCII
+         // character in the range 0x20..0x7f.
+         // 
+         // Since the deep question of whether char variables are signed
+         // or unsigned is a great unsolved problem in computer science,
+         // I have replaced the original test with the less obvious, yet
+         // more portable, test requiring that
+         // 
+         //   one or both of the two bits in 0x60 must be set.
+         // 
+         // assert((*szTraverse >= 0x20) && (*szTraverse < 0x80));
+            assert(0 != (*szTraverse & 0x60));
         }        
     }
     else
@@ -193,6 +207,3 @@ const char* assertValidString(const char* szValidString, const OsBoolean bAllowN
 
     return szValidString ;
 }
-
-
-
