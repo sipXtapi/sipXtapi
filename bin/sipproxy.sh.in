@@ -1,6 +1,29 @@
 #!/bin/bash
+#
+# Copyright (C) 2004 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2004 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
 
-# Copyright (c) 2002 Pingtel Corp.
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
 
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
@@ -8,10 +31,6 @@ CONFIG_FILES="\
   @SIPX_CONFDIR@/proxy-config \
   @SIPX_CONFDIR@/forwardingrules.xml \
   "
-
-# Common environment variables used by the in memory database (IMDB)
-#export SIPX_DB_VAR_PATH=@localstatedir@
-#export SIPX_DB_CFG_PATH=@localstatedir@/sipxdata/sipdb
 
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
@@ -26,6 +45,17 @@ then
   done
 fi
 
-echo $$ > @SIPX_RUNDIR@/sipproxy.pid
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipproxy.pid
+     exec @bindir@/sipproxy $Args
+     ;;
 
-exec @bindir@/sipproxy $@
+   CONFIGTEST)
+     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
+     #Status=$?
+     ;;
+esac
+
+exit $Status
+

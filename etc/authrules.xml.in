@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mappings>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'>
   <hostMatch>
     <!-- No permissions are required to dial an emergency number. -->
     <hostPattern>${GW_EMERGENCY_DIALING_ADDR}</hostPattern>
