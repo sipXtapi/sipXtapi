@@ -63,9 +63,9 @@ public abstract class ListPhones extends BasePage
     /**
      * called before page is drawn
      */
-    public void pageBeginRender(PageEvent eventTemp) {
+    public void pageBeginRender(PageEvent event) {
         // Generate the list of phone items
-        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(eventTemp.getRequestCycle()); 
+        PhoneContext phoneContext = PhonePageUtils.getPhoneContext(event.getRequestCycle()); 
         PhoneDao dao = phoneContext.getPhoneDao();
         setPhones(dao.loadPhoneSummaries(phoneContext));
         if (getSelections() == null) {
