@@ -30,7 +30,7 @@
 							<tr>
 								<td>Boot (TFTP) Server:</td>
 								<td>
-									<h:inputText id="bootServer" value="#{network.tftpServer}"/>
+									<h:inputText id="bootServer" value="xyz"/>
 								</td>
 								<td>(default value: shrike.pingtel.com)</td>
 							</tr>

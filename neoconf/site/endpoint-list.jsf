@@ -15,7 +15,7 @@
 			</head>
 			<body id="phones">
 				<div id="component">
-					<f:form>
+					<h:form>
 						<ul class="component-actions">
 							<li>
 								<a href="phone-search.html">Find Phone</a>
@@ -199,7 +199,7 @@
 								<a href="#"><![CDATA[&gt;&gt;]]></a>
 							</li>
 						</ul>
-					</f:form>
+					</h:form>
 				</div>
 			</body>
 		</html>
