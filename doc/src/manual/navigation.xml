@@ -11,6 +11,6 @@
   <item name="architecture" href="architecture.html" title="Architecture" >Architecture</item>
   <item name="todo" href="todo.html" title="TODOs" >TODOs</item>
   <item name="neoconf" href="neoconf.html" title="Neoconf" >Neoconf</item>
-  <item name="new-device" href="new-device.html" title="New Device" >Adding New Devices</item>
+  <item name="polycom" href="polycom.html" title="Polycom" >Polycom Support</item>
   <item name="about-manual" href="about-manual.html" title="About Manual" >About Manual</item>
 </menu>

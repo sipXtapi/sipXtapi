@@ -1,48 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="documentation" default="doc" basedir="." >
+<project name="documentation" default="doc" basedir=".">
 
-	<patternset id="test.classes" excludes="**"/>
+	<patternset id="test.classes" excludes="**" />
 
-	<property name="project.dir" value="doc"/>
-	<import file="../ant-targets.xml"/>
+	<property name="project.dir" value="doc" />
+	<import file="../ant-targets.xml" />
 
-	<property name="manual.dir" value="${build.dir}/manual"/>
-	<property name="neoconf-prototype.dir" value="${build.dir}/neoconf-prototype"/>
-	<property name="api.built.flag" value="${build.dir}/.api-built-flag"/>
+	<property name="manual.dir" value="${build.dir}/manual" />
+	<property name="neoconf-prototype.dir" value="${build.dir}/neoconf-prototype" />
+	<property name="api.built.flag" value="${build.dir}/.api-built-flag" />
 
 	<!--
     - Point to local DTDs for XHMTL for speed among other advantages
     -->
 	<xmlcatalog id="xhtml-dtd">
-		<dtd
-     publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"
-     location="xml-catalog/xhtml1-transitional.dtd"/>
-		<dtd
-     publicId="-//W3C//ENTITIES Latin 1 for XHTML//EN"
-     location="xml-catalog/xhtml-lat1.ent"/>
-		<dtd
-     publicId="-//W3C//ENTITIES Symbols for XHTML//EN"
-     location="xml-catalog/xhtml-symbol.ent"/>
-		<dtd
-     publicId="-//W3C//ENTITIES Special for XHTML//EN"
-     location="xml-catalog/xhtml-special.ent"/>
+		<dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN" location="xml-catalog/xhtml1-transitional.dtd" />
+		<dtd publicId="-//W3C//ENTITIES Latin 1 for XHTML//EN" location="xml-catalog/xhtml-lat1.ent" />
+		<dtd publicId="-//W3C//ENTITIES Symbols for XHTML//EN" location="xml-catalog/xhtml-symbol.ent" />
+		<dtd publicId="-//W3C//ENTITIES Special for XHTML//EN" location="xml-catalog/xhtml-special.ent" />
 	</xmlcatalog>
 
 	<!-- M A I N  T A R G E T -->
-	<target name="doc" depends="manual,neoconf-prototype,api-avoid-rebuilding,api"/>
+	<target name="doc" depends="manual,neoconf-prototype,api-avoid-rebuilding,api" />
 
 	<!-- I N I T -->
 	<target name="init">
-		<mkdir dir="${manual.dir}"/>
-		<mkdir dir="${neoconf-prototype.dir}"/>
+		<mkdir dir="${manual.dir}" />
+		<mkdir dir="${neoconf-prototype.dir}" />
 	</target>
 
 	<!-- J A V A D O C S -->
 	<target name="api" depends="init" unless="api-built-already">
 
 		<subant target="doc">
-			<property name="top.build.dir" value="${top.build.dir}"/>
+			<property name="top.build.dir" value="${top.build.dir}" />
 
 			<!-- only have to list build.xml one-level deep because doc
         - target will recursive 
@@ -51,11 +43,11 @@
         common/build.xml
         profilegenerator/build.xml
         profilewriter/build.xml
-        profilepublisher/build.xml"/>
+        profilepublisher/build.xml" />
 
 		</subant>
 
-		<touch file="${api.built.flag}"/>
+		<touch file="${api.built.flag}" />
 
 	</target>
 
@@ -66,7 +58,7 @@
 	<target name="api-avoid-rebuilding">
 
 		<!-- set flag if api was ever built -->
-		<available file="${api.built.flag}" property="api-built-already"/>
+		<available file="${api.built.flag}" property="api-built-already" />
 
 	</target>
 
@@ -75,13 +67,9 @@
 
 		<dependset>
 
-			<srcfilelist
-          dir="${src.dir}/manual"
-          files="navigation.xml"/>
+			<srcfilelist dir="${src.dir}/manual" files="navigation.xml" />
 
-			<targetfileset 
-          dir="${manual.dir}" 
-          includes="**/*.html"/>
+			<targetfileset dir="${manual.dir}" includes="**/*.html" />
 
 		</dependset>
 
@@ -95,13 +83,11 @@
       -  but this is required to strip 'src/manual' from destination
       -  directory.
       -->
-		<style basedir="${src.dir}/manual" destdir="${manual.dir}"
-         extension=".html"
-         style="manual.xsl">
-			<include name="*.html"/>
-			<xmlcatalog refid="xhtml-dtd"/>
-			<param name="navigation" expression="navigation.xml"/>
-			<param name="top.dir" expression="${top.dir}"/>
+		<style basedir="${src.dir}/manual" destdir="${manual.dir}" extension=".html" style="manual.xsl">
+			<include name="*.html" />
+			<xmlcatalog refid="xhtml-dtd" />
+			<param name="navigation" expression="navigation.xml" />
+			<param name="top.dir" expression="${top.dir}" />
 		</style>
 
 	</target>
@@ -111,13 +97,9 @@
 
 		<dependset>
 
-			<srcfilelist
-	          dir="${src.dir}/neoconf-prototype"
-	          files="navigation.xml"/>
+			<srcfilelist dir="${src.dir}/neoconf-prototype" files="navigation.xml" />
 
-			<targetfileset 
-	          dir="${neoconf-prototype.dir}" 
-	          includes="**/*.html"/>
+			<targetfileset dir="${neoconf-prototype.dir}" includes="**/*.html" />
 
 		</dependset>
 
@@ -131,13 +113,11 @@
 	      -  but this is required to strip 'src/manual' from destination
 	      -  directory.
 	      -->
-		<style basedir="${src.dir}/neoconf-prototype" destdir="${neoconf-prototype.dir}"
-	         extension=".html"
-	         style="neoconf.xsl">
-			<include name="*.html"/>
-			<xmlcatalog refid="xhtml-dtd"/>
-			<param name="navigation" expression="navigation.xml"/>
-			<param name="top.dir" expression="${top.dir}"/>
+		<style basedir="${src.dir}/neoconf-prototype" destdir="${neoconf-prototype.dir}" extension=".html" style="neoconf.xsl">
+			<include name="*.html" />
+			<xmlcatalog refid="xhtml-dtd" />
+			<param name="navigation" expression="navigation.xml" />
+			<param name="top.dir" expression="${top.dir}" />
 		</style>
 
 	</target>
@@ -146,17 +126,17 @@
 
 		<copy todir="${manual.dir}">
 			<fileset dir="${src.dir}/manual">
-				<include name="**/*.gif"/>
-				<include name="**/*.jpg"/>
-				<include name="**/*.css"/>
+				<include name="**/*.gif" />
+				<include name="**/*.jpg" />
+				<include name="**/*.css" />
 			</fileset>
 		</copy>
 
 		<copy todir="${neoconf-prototype.dir}">
 			<fileset dir="${src.dir}/neoconf-prototype">
-				<include name="**/*.gif"/>
-				<include name="**/*.jpg"/>
+				<include name="**/*.png" />
 				<include name="**/*.css" />
+				<include name="**/*.js" />
 			</fileset>
 		</copy>
 
@@ -166,29 +146,55 @@
 	<target name="text-doc" description="Generate INSTALL, TODO and README from manual. This target is NOT called automatically and must be run each time install.html, todo.html or readme.html is edited">
 
 		<exec executable="lynx" output="${top.dir}/INSTALL">
-			<arg line="-dump ${src.dir}/manual/install.html"/>
+			<arg line="-dump ${src.dir}/manual/install.html" />
 		</exec>
 
 		<exec executable="lynx" output="${top.dir}/TODO">
-			<arg line="-dump ${src.dir}/manual/todo.html"/>
+			<arg line="-dump ${src.dir}/manual/todo.html" />
 		</exec>
 
 		<exec executable="lynx" output="${top.dir}/README">
-			<arg line="-dump ${src.dir}/manual/readme.html"/>
+			<arg line="-dump ${src.dir}/manual/readme.html" />
 		</exec>
 
+	</target>
+
+	<target name="publish" depends="doc"
+		description="Manage mechanics of copying manual to website for online publishing">
+
+		<fail message="env. var SIPFOUNDRY_ORG=${sipfoundry.org.dir} not set or not valid">
+			<condition>
+				<not>
+					<available file="${sipfoundry.org.dir}" type="dir" />
+				</not>
+			</condition>
+		</fail>
+
+		<!-- 
+		  - NOTE: This does not attempt to remove files in sipfoundry.org
+		  - that are no longer in here.
+		  -->
+		<copy todir="${sipfoundry.org.dir}/src/www/sipXconfig/doc/manual">
+			<fileset dir="${manual.dir}"/>
+		</copy>
+		<copy todir="${sipfoundry.org.dir}/src/www/sipXconfig/doc/neoconf-prototype">
+			<fileset dir="${neoconf-prototype.dir}"/>
+		</copy>
+		<copy todir="${sipfoundry.org.dir}/src/www/sipXconfig/doc/api/soap">
+			<fileset dir="${top.build.dir}/doc/api/soap"/>
+		</copy>
 	</target>
 
 	<!-- C L E A N -->
 	<target name="clean">
 		<delete failonerror="false">
-			<fileset dir="${manual.dir}" includes="**/*"/>
-			<fileset file="${api.built.flag}"/>
+			<fileset dir="${manual.dir}" includes="**/*" />
+			<fileset file="${api.built.flag}" />
 		</delete>
 	</target>
 
 	<!-- S T U B S -->
-	<target name="test"/>
-	<target name="style"/>
+	<target name="test" />
+	<target name="style" />
 
 </project>

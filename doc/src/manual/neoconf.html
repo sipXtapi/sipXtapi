@@ -10,23 +10,29 @@
 <body id="neoconf">
 
 <h1>Neoconf</h1>
-
+ 
 <p>Neoconf is the codename for a new module created
-	to change the system's architecture over time. It
+	to evolve the system's architecture over time. It
 	uses more modern J2EE technologies, namely the 
 	Spring Framework in an interesting way to stage the
 	evolution across various 6 month releases.  
 	</p>
-
-<p>You'll see more information here over time</p>
-
-<p>Here's a <a href="../neoconf-prototype/phones.html">prototype</a> of some 
-	new interface screens.</p>
-
+	
+<p>Various architectures were explored on how to integrate this into the 
+	existing system and one approach came forward as the best approach. The 
+	neonconf will be packaged as a WAR (Web Application) and deployed by 
+	current JBoss Application Server. This application will only share data 
+	with the current application thru the database. Serving URL will be 
+	<code>http://machine-name:8080/neoconf</code> and the current system will 
+	still be on <code>http://machine-name:8080/pds</code>.</p>
+	
+<p>Adding support for Polycom phones will be the first major feature to be
+	based completely on neoconf module.  See more information about this
+	project on the <a href="polycom.html">polycom page</a>.</p>
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Thu Nov 25 21:31:52 EST 2004
+Last modified: Tue Dec  7 15:28:09 EST 2004
 <!-- hhmts end -->
 </span>
 

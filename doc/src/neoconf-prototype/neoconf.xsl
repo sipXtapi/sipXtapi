@@ -22,7 +22,9 @@
   <head>
       <title><xsl:apply-templates select="x:head/x:title/text()"/></title>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
-	  <script language="JavaScript1.2" src="functions.js" type="text/javascript"></script>
+	  <script language="Javascript" src="functions.js" type="text/javascript">
+		<![CDATA[ /* DLH:hack for IE, needs some body */]]>
+	  </script>
       <link type="text/css" rel="stylesheet">
           <xsl:attribute name="href"><xsl:value-of select="$wwwroot"/>sipxconfig.css</xsl:attribute>
       </link> 

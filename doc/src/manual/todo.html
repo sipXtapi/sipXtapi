@@ -22,14 +22,16 @@ message.
 	
 <h1>TODOs</h1>
 
-<p>Short term TODOs are either managed in the issue tracker as 
-	<code>Tasks</code> or source level TODOs are tracked by leaving 
-	<code>TODO</code> in comments. This page talks about some of the longer 
-	term issues we'd like to track.</p>
+<p>Well defined TODOs are either managed in the issue tracker under <a 
+	href="http://track.sipfoundry.org/secure/BrowseProject.jspa?id=10002&amp;report=roadmap"> 
+	Roadmap</a> or in the source code by leaving <code>TODO</code>s in 
+	comments. This page is meant the help track some ideas, encourage 
+	collaboratation in development projects with similiar agendas and spark 
+	some dialog on mailing list.</p>
 
 <p>All the changes that we introduce in sipXconfig code are the results of 
 	implementing user requirements. We do not change sipXconfig architecture 
-	without a user story to be implemented. Every change has a its 
+	without a user story to be implemented. Every change has a
 	corresponding JIRA issue. The long term goal of the team is to make 
 	sipXconfig simpler, more testable and easier to extend. On this page we 
 	maintain a registry of ideas of how to get closer to this goal. We may 
@@ -70,18 +72,14 @@ Even if we do in fact access those beans remotely adding local interfaces would 
 beans act as a back end for a facade of session beans (A.K.A advocate beans).
 The same maybe true about session beans.</p>
 
-<h2>Update JBoss</h2>
+<h2>Update JBoss [<a href="http://track.sipfoundry.org/browse/XCF-84">XCF-84</a>]</h2>
 <p>Update code to current version of JBoss. 
 Clearly delineate code that depends on JBoss server from container independent code. 
 Consider removing dependency on JBoss in favor of some lighter weight container.</p>
 
-<h2>Plugin API for Support of New Phones</h2>
+<h2>Plugin API for Support of New Phones [<a href="http://track.sipfoundry.org/browse/XCF-89">XCF-89</a>]</h2>
 <p>Adding support for a new phone meaning "weaving" code into multiple spots. We need to make 
 adding a new phone as simple as loading the code from a jar. This is a large goal.</p>
-
-<h2>Update SIPFoundry Website</h2>
-<p>Update <a href="http://www.sipfoundry.org/sipXconfig">http://www.sipfoundry.org/sipXconfig</a>
-, possibly a copy of this manual</p>
 
 <h2>Replace ProfilePulisher with sipXpublisher Plugin</h2>
 <p>ProfilePublisher handles <code>SIP SUBSCRIBE/NOTIFY</code>

@@ -3,18 +3,63 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
  <head>
-  <title>Adding a new device</title>
+  <title>Polycom SoundPoint IP Support</title>
   <link rel="stylesheet" type="text/css" href="manual.css"/>
 
 </head>
-<body id="new-device">
+<body id="polycom">
 
-<h1>Adding a new device</h1>
+<h1>Polycom SoundPoint&reg; IP</h1>
 
-<p>This is a list of the steps required for adding support for new phones.  
-	It also provides insight into steps toward plugin architecture.</p>
+<p>Below is a breakdown of the work plan to support Polycom phones. This
+	involves creating a whole new API for phone support.</p>
+	
+<dl>
+	<dt>Create business objects and database tables if necessary</dt>
+	<dd>For example, Endpoint, ConfigProperty, etc.</dd>
+	<dd>STATUS: Hibernate was investigated and proved adequate.</dd>
+	
+	<dt>Create loadable modules for new phone models</dt>
+	<dd>GOALS: Developer must be able to build support for new phones
+		without changing source code in sipXconfig project
+		</dd>
+	<dd>STATUS: SpringFrame work has a powerful way to do this and
+		proof of concept was a success. See PhoneFactory.java in source base</dd>
 
-<h2>ProfileGenerator</h2>
+	<dt>Config Set Replacement</dt>
+	<dd>Current application stores properies in XML in the postgres DB as a
+		CLOB. This complicates code significantly.</dd>
+	<dd>STATUS:Possible meta data in database as name value pairs, with an id 
+		to determine with property it's defining. Will have to support 
+		hierarchy. May be optional for a particular phone model.</dd>
+		
+	<dt>Understand Polycom phones.</dt>	
+	<dd>Have manual and understand basic boot server mechanisms</dd>
+	
+	<dt>Create prototype of user interface</dt>
+	<dd>STATUS: done, see <a href="../neoconf-prototype/phones.html">prototype</a></dd>
+	
+	<dt>Add support in ProfileWriter and ProfilePublisher</dt>
+	<dd>STATUS: Catalogued where in source changes need to be made. See
+		<a href="#exhibit-a">Exhibit A</a></dd>
+	
+	<dt>Misc.</dt>	
+	<dd>
+		<ol>
+			<li>Use db patch mechanism to migrate database from 2.6</li>
+			<li>Integrate into navigation system</li>
+			<li>security issues being in a separate war w/no direct login</li>			
+		</ol>		
+	</dd>	
+</dl>	
+
+<h2><a name="exhibit-a"/>Exhibit A</h2>
+<p>A list of all the places in codebase that deal with phone model
+	specifics before neoconf project was started. This list is behind the decision
+	to start a new module to support phones going forward.</p>
+
+
+<h3>ProfileGenerator</h3>
 
 <dl>
 	<dt>Add a new patch</dt>
@@ -74,7 +119,7 @@
 		<br/><span class="hack">if (vendor)/else loop</span></dd>
 </dl>
 
-<h2>ProfilePublisher</h2>
+<h3>ProfilePublisher</h3>
 <dl>		
 	<dt>Profile Update/Upgrade/Restart/Reciever support</dt>
 	<dd>Create a set of new java files:
@@ -87,7 +132,7 @@
 		
 </dl>
 
-<h2>ProfileWriter</h2>
+<h3>ProfileWriter</h3>
 <dl>		
     <dt>HTTP/TFTP Server Location/Deletion/Creation/SDS notification</dt>
 	<dd><code>profilewriter/src/com/pingtel/pds/profilewriter/ProfileWriterServer.java</code>,
@@ -96,8 +141,9 @@
 	</dd>
 		
 </dl>
+	
 
-	<span id="lastmodified">
+<span id="lastmodified">
 <!-- hhmts start -->
 Last modified: Wed Oct  6 10:25:15 EDT 2004
 <!-- hhmts end -->
