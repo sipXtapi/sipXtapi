@@ -110,8 +110,16 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         relaxHttps();
     }
 
+    /**
+     * WARNING: Relaxing server names is ok only because https
+     * connection HAS to be localhost and localhost probably doens't
+     * match certificate's server name. When servers are on different
+     * machines as exhibited in topology.xml.in file, then this
+     * shouldn't be relaxed.
+     */
     public void relaxHttps()
     {
+        // This is the normal way to override and works in a testbed
         HostnameVerifier hv = new HostnameVerifier() 
         {
             public boolean verify(String urlHostName, SSLSession session) 
@@ -121,7 +129,26 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
             }
         };
 
+        // This seems to be the bit of code that actually works.  My suspition is that
+        // Jboss https was compiled against and old JVM and somehow causes JVM to
+        // use this verifier
+        com.sun.net.ssl.HostnameVerifier oldhv = new com.sun.net.ssl.HostnameVerifier()
+        {
+            public boolean verify(String hostName, SSLSession session)
+            {
+                log.info("Warning: URL Host: " + hostName + " vs. " + session.getPeerHost());
+                return true;
+            }
+
+            public boolean verify(String urlHostname, String certHostname)
+            {
+                log.info("Warning: URL Host: " + urlHostname + " vs. " + certHostname);
+                return true;
+            }
+        };
+
         HttpsURLConnection.setDefaultHostnameVerifier(hv);
+        com.sun.net.ssl.internal.www.protocol.https.HttpsURLConnectionOldImpl.setDefaultHostnameVerifier(oldhv);
     }
 
     /**
