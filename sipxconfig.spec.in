@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: 1
+Release: 2
 
 Summary: Configuration Managment for SIP base Phones
 License: LGPL
@@ -26,7 +26,7 @@ Source: %name-%version.tar.gz
 
 Requires: sipxtacklib >= 2.6.1
 Requires: sipxcommserverlib >= 2.6.1
-Requires: sipx-jboss >= 2.4
+Requires: sipx-jboss >= 4.0
 Requires: postgresql-server >= 7.3
 
 # to serve profile/catalog/apps.  These can be served from
@@ -75,9 +75,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}
 %attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
 %{_libdir}/lib*.la
-@JBOSS_HOME@/jboss/deploy/profilegenerator.ear
-@JBOSS_HOME@/jboss/deploy/neoconf.war
-@JBOSS_HOME@/jboss/lib/ext/*.jar
+@JBOSS_HOME@/server/@JBOSS_SERVER_CONF@/deploy/*
+@JBOSS_HOME@/server/@JBOSS_SERVER_CONF@/lib/*
 
 # Because of generation of data and profiles
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}
