@@ -30,16 +30,15 @@ public class LineTestDb extends TestCase {
     private PhoneContext m_context;
 
     protected void setUp() throws Exception {
-        TestHelper.setUpHibernateSession();
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
     }
     
     protected void tearDown() throws Exception {
-        TestHelper.tearDownHibernateSession();
     }
 
     public void testSave() throws Exception {
+        TestHelper.setUpHibernateSession();
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
 
@@ -54,11 +53,13 @@ public class LineTestDb extends TestCase {
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveLineExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[line_id]", new Integer(line.getId()));        
+        expectedRds.addReplacementObject("[line_id]", new Integer(1));        
         expectedRds.addReplacementObject("[null]", null);
         
         ITable expected = expectedRds.getTable("line");
+        m_context.flush();
                 
+        TestHelper.tearDownHibernateSession();
         ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
         
         Assertion.assertEquals(expected, actual);        

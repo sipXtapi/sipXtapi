@@ -218,7 +218,7 @@ public final class TestHelper {
     public static void setUpHibernateSession() throws Exception {
         SessionFactory sessionFactory = (SessionFactory) getApplicationContext().getBean("sessionFactory");
         Session session = SessionFactoryUtils.getSession(sessionFactory, true);
-        //session.setFlushMode(FlushMode.AUTO);
+        session.setFlushMode(FlushMode.AUTO);
 	    TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
     }
 

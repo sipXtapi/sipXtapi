@@ -3,7 +3,10 @@
 <!--
   - Data here represent the bare min. db. plus one testuser.  
   - dbunit is not expected to clear all your old data successfully.
-  - you must drop and recreate you db (see sipxdbmgr script)  
+  - you must have fresh db
+  -
+  -    sipxdbmgr -d PDS  
+  -    sipxdbmgr -c PDS  
   -
   - test user id = 4, you can asssociate data with this user
   - if you create new users, set rcs_id=2, ug=1, id=5... 
