@@ -116,6 +116,28 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
     }
 
+    
+    public void testInternationalRuleAdd() {
+        for (int i = 0; i < 12; i++) {
+            clickLink("dialplan:add");
+            String name = "international" + i;
+            String description = "international description" + i;
+            // 2 means custom...
+            selectOption("ruleTypeSelection", "International");
+            clickButton("selectRule:next");
+
+            setFormElement("name", name);
+            setFormElement("description", description);
+            // dial patter prefix
+            setFormElement("internationalPrefix", "100" + i);
+
+            clickButton("rule:save");
+
+            assertTextInTable("dialplan:list", description);
+            assertLinkPresentWithText(name);
+        }
+    }
+    
     // TODO: add this for custom rule test - it relies on Java script at the moment
     private void checkAddDeletePattern() {
         // no delete link

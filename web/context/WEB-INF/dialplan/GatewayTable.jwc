@@ -42,6 +42,7 @@
     <!-- C O M P O N E N T S -->           
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="gatewayCollection"/>
+        <static-binding name="pageSize" value="-1"/>              
         <static-binding name="columns" value="* Name:name,Address:address,Description:description"/>
     </component>    
     

@@ -16,8 +16,6 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import com.meterware.httpunit.WebTable;
-
 /**
  * UserCallForwardingTestUi
  */
