@@ -71,6 +71,8 @@ SFAC_LIB_PORT
 # Jar files to all of sipXconfig. 
 AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
 
+AC_ARG_VAR(SIPFOUNDRY_ORG, [If you plan to publish manual to www.sipfoundry.org, set this to where you keep your local copy of http://scm.sipfoundry.org/rep/sipfoundry.org])
+
 # Expand build dir into absolute path
 AC_SUBST(BUILDDIR_EXPAND, [`cd $builddir && pwd`])
 

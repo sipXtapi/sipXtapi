@@ -39,6 +39,8 @@ profilegen-tags.jar=${top.build.dir}/profilegenerator/webui/dist/profilegen-tags
 buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
 neoconf.war=${top.build.dir}/neoconf/dist/neoconf.war
 beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
+# very optional
+sipfoundry.org.dir=@SIPFOUNDRY_ORG@
 
 # U T I L
 junit.jar=${top.dir}/lib/junit.jar

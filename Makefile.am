@@ -41,6 +41,7 @@ edit = sed \
         -e 's,@SIPXCONFIG_LIBDIR\@,@SIPXCONFIG_LIBDIR@,g' \
         -e 's,@SIPX_CONFIGPHONEDIR\@,@SIPX_CONFIGPHONEDIR@,g' \
         -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
+        -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
         -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
         -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
         -e 's,@profiledir\@,@profiledir@,g' \
