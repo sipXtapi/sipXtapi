@@ -23,9 +23,7 @@ import org.mortbay.util.InetAddrPort;
  */
 public class JettyTestSetup extends TestSetup {
 
-    private static boolean m_serverStarted;
-
-    private Server m_server;
+    private static Server m_server;
 
     private int m_port = 9999;
 
@@ -45,40 +43,50 @@ public class JettyTestSetup extends TestSetup {
         return m_url;
     }
 
+    /**
+     * "Leaks" the web server on purpose, but does gracefully shutdown 
+     * server when JVM shutsdown.  First test will start server, subsequent
+     * tests will use shared server instance.
+     */
     protected void setUp() throws Exception {
-        if (!m_serverStarted) {
-            m_server = new Server();
-            m_server.addListener(new InetAddrPort(m_port));
-
-            String war = SiteTestHelper.getBuildDirectory() + "/tests/war";
-            m_server.addWebApplication("/sipxconfig", war);
-            m_server.start();
-            m_serverStarted = true;
+        if (m_server == null) {
+            startServer();
         }
     }
+    
+    protected void startServer() throws Exception {
+        m_server = new Server();
+        m_server.addListener(new InetAddrPort(m_port));
 
-    protected void tearDown() throws Exception {
-        if (m_server != null) {
-            m_server.stop();
-            m_server = null;
-            m_serverStarted = false;
-        }
+        String war = SiteTestHelper.getBuildDirectory() + "/tests/war";
+        m_server.addWebApplication("/sipxconfig", war);
+        m_server.start();
     }
-
+    
     /**
      * If you want to run sipXconfig in jetty w/o any tests
      */
     public static void main(String[] args) {
-        Test empty = new TestCase() {
-        };
-        JettyTestSetup jetty = new JettyTestSetup(empty);
+        TestCase notest = new TestCase() {};
+        JettyTestSetup jetty = new JettyTestSetup(notest);
         try {
-            jetty.setUp();
-            // set breakpoint on teardown and go to http://localhost:9999/sipxconfig
-            jetty.tearDown();
+            jetty.startServer();
+            Runtime.getRuntime().addShutdownHook(new Thread(jetty.shutdownHoook()));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    Runnable shutdownHoook() {
+        return new Runnable() {
+            public void run() {
+                try {
+                    m_server.stop();
+                    m_server = null;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
 }

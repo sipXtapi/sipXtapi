@@ -9,6 +9,8 @@
 	<property name="sysdir.properties" value="${classes.dir}/sysdir.properties"/>
 	<property name="test.war" value="${test.classes.dir}/war"/>
 
+    <patternset id="test-ui.classes" includes="**/*TestUi.class" />
+
 	<!-- 
 	    - common path unittests will need that interfaces w/sipxconfig lib 
 	    - all spring jars at this point
@@ -163,10 +165,8 @@ sysdir.phone=${sipxconfig.phone.dir}
 
 	</target>
 
-	<target name="test-ui" depends="test-war,ant-targets.test-ui"/>
+        <target name="test-all" depends="ant-targets.test-all,test-ui"/>
 
-	<target name="test-ui-suite" depends="test-war,ant-targets.test-ui-suite"/>
-	
 	<target name="test-war" depends="war" description="Creates a war file for unittests">
 
 		<delete dir="${test.war}"/>
@@ -181,5 +181,24 @@ sysdir.phone=${test.results.dir}
 		
 	</target>
 
+  <!-- 
+    - U N I T T E S T   W E B   U I
+    -->
+  <target name="test-ui" depends="compile.test,test-war"
+       description="run junit tests for web interface">
+    
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+      <classpath refid="test.path"/>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${test.results.dir}">
+        <fileset dir="${test.classes.dir}"> 
+          <patternset refid="test-ui.classes"/>
+        </fileset>
+      </batchtest>
+    </junit>        
+    <fail if="junit.failed"/>   
+  </target>
 
 </project>
