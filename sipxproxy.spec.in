@@ -1,6 +1,6 @@
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  1
+Release:  %{buildno}
 
 Summary:  SIP Proxy Servers
 License:  LGPL

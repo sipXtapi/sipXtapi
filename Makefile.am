@@ -7,6 +7,7 @@ unconditional_SUBDIRS = . src bin
 include $(srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+RELEASE = 1
 
 INSTALL=@INSTALL@
 
@@ -60,10 +61,17 @@ install-exec-hook : editdata
 .PHONY : rpm
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+# Get the revision number
+if USE_BLDNO
+BUILDPARM=--define="buildno 0.$(shell cat $(srcdir)/SVN-VERSION)"
+else
+BUILDPARM=--define="buildno $(RELEASE)"
+endif
+
 rpm : dist sipxproxy.spec
-	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
-	cp -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
-	cp -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
+	rpmbuild -ta $(BUILDPARM) $(PACKAGE)-$(VERSION).tar.gz
+	mv -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
+	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
 
 # RPM Spec file
 # Extract the options to ./configure from config.log and propagate them into the .spec file.

@@ -18,6 +18,7 @@ AC_PROG_CC
 
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 
 # Checks for libraries.
 
