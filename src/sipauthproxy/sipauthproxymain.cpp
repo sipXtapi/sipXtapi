@@ -19,7 +19,7 @@
 #include <iostream.h>
 
 // APPLICATION INCLUDES
-#include "sipauthproxy/version.h"
+#include "version.h"
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
