@@ -32,7 +32,11 @@ public class VersionInfoTest extends TestCase {
     public void testVersionInfo() throws IOException {
         InputStream stream = new ByteArrayInputStream(VERSION_INFO.getBytes());
         VersionInfo info = new VersionInfo(stream);
-        assertEquals("Version: 2.6.0 (opendev) Build #: 0000",info.getVersion());
+        assertEquals("Version: 2.6.0",info.getVersion());
+        assertEquals("opendev",info.getProperty("comment"));
+        assertEquals("Version: 2.6.0 (opendev) Build #: 0000",info.getVersion(VersionInfo.LONG_VERSION_INFO));
+        assertEquals("opendev",info.getProperty("comment"));
+        assertEquals("Version: 2.6.0",info.getVersion(VersionInfo.SHORT_VERSION_INFO));
         assertEquals("opendev",info.getProperty("comment"));
 	}
 	
