@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.site.phone.EditPhone;
+import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public class EditPhoneTest extends TestCase {
 
@@ -32,7 +33,7 @@ public class EditPhoneTest extends TestCase {
         PhoneContext phoneContext = helper.getPhoneContext();
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycle.activate("ListPhones");
+        cycle.activate(ManagePhones.PAGE);
         cycleControl.replay();
 
         AbstractInstantiator pageMaker = new AbstractInstantiator();
