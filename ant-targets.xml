@@ -41,7 +41,6 @@
 
   <!-- Default pattern for unittest naming schema -->
   <patternset id="test.classes" includes="**/*Test.class" />
-  <patternset id="test-db.classes" includes="**/*TestDb.class" />
 
   <!--
     - T A S K   D E F I N I T I O N S
@@ -255,7 +254,6 @@
 
   <!--
     - U N I T T E S T 
-    - TODO: Share target contents w/test-db
     -->
   <target name="test" depends="compile.test"
        description="run junit tests">
@@ -269,26 +267,6 @@
       <batchtest todir="${test.results.dir}">
         <fileset dir="${test.classes.dir}"> 
           <patternset refid="test.classes"/>
-        </fileset>
-      </batchtest>
-    </junit>        
-    <fail if="junit.failed"/>   
-  </target>
-
-  <!--
-    - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
-    -->
-  <target name="test-db" depends="compile.test"
-       description="run junit tests that interact with database">
-
-    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
-      <classpath refid="test.path"/>
-      <formatter type="plain"/>
-      <formatter type="xml"/>
-      <sysproperty key="basedir" value="${basedir}"/>
-      <batchtest todir="${test.results.dir}">
-        <fileset dir="${test.classes.dir}"> 
-          <patternset refid="test-db.classes"/>
         </fileset>
       </batchtest>
     </junit>        

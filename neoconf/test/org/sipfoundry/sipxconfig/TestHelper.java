@@ -17,10 +17,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
-import net.sf.hibernate.FlushMode;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -33,9 +29,6 @@ import org.dbunit.operation.DatabaseOperation;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate.SessionFactoryUtils;
-import org.springframework.orm.hibernate.SessionHolder;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * For unittests that need spring instantiated
@@ -154,25 +147,5 @@ public final class TestHelper {
 
     public static void insertFlat( String resource) throws Exception {
         DatabaseOperation.INSERT.execute(getConnection(), loadDataSetFlat(resource));
-    }
-    
-    /**
-     * Opens hibernate session to avoid lazyload and to demarc application-level-transactions
-     * done in web application via a servlet filter 
-     */
-    public static void setUpHibernateSession() throws Exception {
-        SessionFactory sessionFactory = (SessionFactory) getApplicationContext().getBean("sessionFactory");
-        Session session = SessionFactoryUtils.getSession(sessionFactory, true);
-        session.setFlushMode(FlushMode.AUTO);
-	    TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
-    }
-
-    public static void tearDownHibernateSession() throws Exception {
-	    SessionFactory sessionFactory = (SessionFactory) getApplicationContext().getBean("sessionFactory");
-	    SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
-	    Session s = holder.getSession(); 
-	    s.flush();
-	    TransactionSynchronizationManager.unbindResource(sessionFactory);
-	    SessionFactoryUtils.closeSessionIfNecessary(s, sessionFactory);
     }
 }

@@ -4,6 +4,7 @@
 <project name="neoconf" default="default" basedir=".">
 
 	<property name="test.src.dir" value="test" />
+        <patternset id="test-db.classes" includes="**/*TestDb.class" />
 	<property name="checkstyle.severity" value="error" />
 
 	<property name="project.dir" value="neoconf" />
@@ -93,6 +94,29 @@
                         <!-- fileset file="${test.src.dir}/spy.properties"/ -->
 	    </jar>
 	</target>
+
+        <target name="test-all" depends="ant-targets.test-all,test-db"/>
+
+  <!--
+    - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
+    -->
+  <target name="test-db" depends="compile.test"
+       description="run junit tests that interact with database">
+
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+      <classpath refid="test.path"/>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${test.results.dir}">
+        <fileset dir="${test.classes.dir}"> 
+          <patternset refid="test-db.classes"/>
+        </fileset>
+      </batchtest>
+    </junit>        
+    <fail if="junit.failed"/>   
+  </target>
+  
 
 	<!-- D E V E L O P E R   T A S K S -->
 	<target name="reset-db-patch" 

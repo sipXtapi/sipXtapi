@@ -1266,7 +1266,11 @@
 			</setting>
 			<setting name="checkSync.alwaysReboot">
 				<type>0, 1</type>
-				<value>0</value>
+				<!-- 
+			      - different from admin manual, gives us ability to reboot
+				  - remotely on demand
+				  -->
+				<value>1</value>
 				<description>If set to 1, always reboot when a NOTIFY message 
 					is received from the server with event equal to check-sync. 
 					If set to 0, only reboot if any of the files listed in 

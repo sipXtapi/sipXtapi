@@ -39,11 +39,6 @@ public class LineTestDb extends TestCase {
                 PhoneContext.CONTEXT_BEAN_NAME);
         m_core = (CoreContext) TestHelper.getApplicationContext().getBean(
                 CoreContext.CONTEXT_BEAN_NAME);
-        TestHelper.setUpHibernateSession();
-    }
-    
-    protected void tearDown() throws Exception {
-        TestHelper.tearDownHibernateSession();
     }
 
     public void testSave() throws Exception {

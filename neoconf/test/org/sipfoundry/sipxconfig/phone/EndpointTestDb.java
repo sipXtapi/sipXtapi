@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.List;
-
 import junit.framework.TestCase;
 
 import org.dbunit.Assertion;
@@ -76,15 +74,4 @@ public class EndpointTestDb extends TestCase {
             assertTrue(true);
         }
     }
-    
-    public void _testFlushMode() throws Exception {
-        TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
-        
-        TestHelper.setUpHibernateSession();
-        
-        Endpoint e = m_context.loadEndpoint(new Integer(1));
-        e.setSerialNumber("ABC123");            
-        TestHelper.tearDownHibernateSession();
-    }
-
 }

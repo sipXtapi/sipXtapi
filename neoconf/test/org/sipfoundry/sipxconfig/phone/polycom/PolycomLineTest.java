@@ -18,6 +18,15 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PolycomLineTest extends TestCase {
     
+    public void testGetSipPort() {
+        assertEquals(5060, PolycomLine.getSipPort(null));
+        assertEquals(5060, PolycomLine.getSipPort(""));
+        assertEquals(5060, PolycomLine.getSipPort("5060"));
+        assertEquals(1234, PolycomLine.getSipPort("1234"));
+        // print stack trace expected
+        assertEquals(5060, PolycomLine.getSipPort("bogus"));
+    }
+    
     public void testDefaults() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         PolycomLine line = new PolycomLine(helper.phone[0], helper.line[0]);

@@ -98,7 +98,7 @@ public class Line implements Serializable, DataCollectionItem {
     }
 
     public Setting getSettings(Phone phone) {
-        Setting settings = phone.getSettingModel(this);
+        Setting settings = phone.getSettingModel(this).copy();
         if (m_valueStorage == null) {
             m_valueStorage = new ValueStorage();
         }
@@ -108,5 +108,5 @@ public class Line implements Serializable, DataCollectionItem {
         }
         
         return (SettingGroup) m_valueStorage.decorate(settings);
-    }
+    }    
 }
