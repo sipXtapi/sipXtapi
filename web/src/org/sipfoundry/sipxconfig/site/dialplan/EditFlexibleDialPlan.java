@@ -35,6 +35,8 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public abstract Collection getSelectedRows();
 
+    public abstract Collection getRowsToDuplicate();
+
     public void add(IRequestCycle cycle) {
         EditCustomDialRule page = EditCustomDialRule.getPage(cycle);
         page.setRuleId(null);
@@ -50,6 +52,11 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public void formSubmit(IRequestCycle cycle_) {
         delete();
+        duplicate();
+    }
+
+    public void activate(IRequestCycle cycle) {
+        cycle.activate(ActivateDialPlan.PAGE);
     }
 
     /**
@@ -61,6 +68,18 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         if (null != selectedRows) {
             FlexibleDialPlan manager = getDialPlanManager().getFlexDialPlan();
             manager.deleteRules(selectedRows);
+        }
+    }
+
+    /**
+     * Deletes all selected rows (on this screen deletes rules from flexible
+     * dial plan).
+     */
+    private void duplicate() {
+        Collection selectedRows = getRowsToDuplicate();
+        if (null != selectedRows) {
+            FlexibleDialPlan manager = getDialPlanManager().getFlexDialPlan();
+            manager.duplicateRules(selectedRows);
         }
     }
 }

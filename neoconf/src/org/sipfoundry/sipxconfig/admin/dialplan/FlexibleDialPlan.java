@@ -67,4 +67,12 @@ public class FlexibleDialPlan {
         orgRule.update(rule);
         return true;
     }
+
+    public void duplicateRules(Collection selectedRows) {
+        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            IDialingRule newRule = (IDialingRule) getOrgRule(id).duplicate();
+            addRule(newRule);
+        }
+    }
 }

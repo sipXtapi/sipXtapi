@@ -11,6 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 /**
@@ -40,4 +44,22 @@ public class DialingRuleTest extends TestCase {
         assertEquals("name", newRule.getName());
         assertEquals("description", newRule.getDescription());
     }
+
+    public void testDuplicate() {
+        DialingRule orgRule = new DialingRule();
+        orgRule.setName("name");
+        orgRule.setDescription("description");
+
+        Set rules = new HashSet();
+        rules.add(orgRule);
+        rules.add(orgRule.duplicate());
+        rules.add(orgRule.duplicate());
+        assertEquals(3, rules.size());
+        for (Iterator i = rules.iterator(); i.hasNext();) {
+            DialingRule rule = (DialingRule) i.next();
+            assertEquals("name", rule.getName());
+            assertEquals("description", rule.getDescription());
+        }
+    }
+
 }

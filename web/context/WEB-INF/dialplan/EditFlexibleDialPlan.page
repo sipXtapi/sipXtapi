@@ -23,6 +23,7 @@
     	/>    
 
 	<property-specification name="selectedRows" type="java.util.Collection"/>    
+	<property-specification name="rowsToDuplicate" type="java.util.Collection"/>    
     
     <!--
      - B E A N S
@@ -79,6 +80,16 @@
         <binding name="selected" expression="selectedRows"/>
         <binding name="tag" expression="selections.allSelected"/>
     </component>
+
+    <component id="duplicate" type="Submit">
+        <binding name="selected" expression="rowsToDuplicate"/>
+        <binding name="tag" expression="selections.allSelected"/>
+    </component>
+
+    <component id="activate" type="Submit">
+        <binding name="listener" expression="listeners.activate"/>
+    </component>
+        
     <!--
 	  - A S S E T S
 	  -->	

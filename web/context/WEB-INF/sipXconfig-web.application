@@ -18,6 +18,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
+    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>

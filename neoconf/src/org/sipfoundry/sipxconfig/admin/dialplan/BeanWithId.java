@@ -83,4 +83,10 @@ class BeanWithId {
             throw new RuntimeException(e);
         }
     }
+    
+    public BeanWithId duplicate() {
+        BeanWithId clone = detach();
+        clone.setId(new Integer(s_id++));
+        return clone;
+    }    
 }
