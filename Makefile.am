@@ -46,8 +46,24 @@ EXTRA_DIST = \
     $(editscripts_IN) \
     $(editdata_IN) \
     sipXauthproxy.dsp \
-    sipXforkingProxy.dsp
+    sipXforkingProxy.dsp \
+    sipxpbx.spec.in
 
 install-exec-hook : editscripts editdata
 
 .PHONY : editscripts editdata
+
+.PHONY : rpm
+# Where rpmbuild will do its work.
+RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+rpm: dist
+	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
+	cp -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
+	cp -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
+
+# RPM Spec file
+sipxproxy.spec : sipxproxy.spec.in
+	$(edit) $(srcdir)/sipxproxy.spec.in > sipxproxy.spec
+
+dist-hook:
+	cp sipxproxy.spec $(distdir)
