@@ -5,6 +5,7 @@ EXTRA_DIST = \
     config/sipX-config.in \
     ant-targets.am \
     ant-targets.xml \
+    subant-targets.xml \
     acsite.m4 \
     CONTRIBUTORS \
     LICENSE \
