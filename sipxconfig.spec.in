@@ -76,6 +76,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
 %{_libdir}/lib*.la
 @JBOSS_HOME@/jboss/deploy/profilegenerator.ear
+@JBOSS_HOME@/jboss/deploy/neoconf.war
 @JBOSS_HOME@/jboss/lib/ext/*.jar
 
 # Because of generation of data and profiles
