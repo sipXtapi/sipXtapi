@@ -135,8 +135,10 @@ public class AbstractInstantiator
         }
     }
 
-    private void addDefaultConstructor(CtClass ctClass)
+    private void addDefaultConstructor(CtClass ctClassTemp)
     {
+        // avoid eclipse warning
+        ctClassTemp.getClass();
     }
 
     private void addField(CtClass ctClass, String fieldName, Class fieldType)

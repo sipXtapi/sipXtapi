@@ -15,10 +15,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneDao;
 
 /**
  * List all the phones/endpoints for management and details drill-down
@@ -37,6 +39,20 @@ public abstract class ListPhones extends AbstractPhonePage
     public abstract PhoneItem getCurrentPhone();
 
     public abstract void setCurrentPhone(PhoneItem currentPhone);
+    
+    /**
+     * When user clicks on link to edit a phone/endpoint
+     */
+    public void editPhone(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        Integer endpointId = (Integer) params[0];
+        EditPhone page = (EditPhone) cycle.getPage("EditPhone");
+        // load from dao, but optionally could find it in list
+        PhoneDao dao = getPhoneContext().getPhoneDao();
+        Endpoint endpoint = dao.loadEndpoint(endpointId.intValue());
+        page.setEndpoint(endpoint);
+        cycle.activate(page);
+    }
     
     /**
      * called before page is drawn

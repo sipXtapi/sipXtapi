@@ -72,9 +72,10 @@
 				</tr>
                 <!-- REAL -->
                 <span jwcid="SerialNumberColumnValue@Block">
-                    <a href="#" jwcid="@PageLink" page="EditPhone">
-                        <!-- TODO : pass current endpoint object -->
-                        <span jwcid="@InsertText" value="ognl:components.phoneRows.tableRow.endpoint.serialNumber"/></a>
+                    <a href="#" jwcid="@DirectLink" listener="ognl:listeners.editPhone" 
+                        parameters="ognl:components.phoneRows.tableRow.endpoint.id"><span 
+                        jwcid="@Insert" 
+                        value="ognl:components.phoneRows.tableRow.endpoint.serialNumber"/></a>
                 </span>
 				<tr class="table-view-hdr">
 					<td></td>

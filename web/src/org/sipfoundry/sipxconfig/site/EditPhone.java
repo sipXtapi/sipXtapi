@@ -32,8 +32,11 @@ public abstract class EditPhone extends AbstractPhonePage implements PageRenderL
         String[] phoneIds = (String[]) getPhoneContext().getPhoneIds().toArray(new String[0]);
         setPhoneSelectionModel(new StringPropertySelectionModel(phoneIds));
         
-        // TODO: Read from DB if edit mode
-        setEndpoint(new Endpoint());
+        // editing endpoint or...
+        if (getEndpoint() == null) {
+            // ...new endpoint
+            setEndpoint(new Endpoint());
+        }
     }    
 
     public abstract Endpoint getEndpoint();
