@@ -32,7 +32,6 @@ public class NewPhoneTest extends TestCase {
         NewPhone page = (NewPhone) pageMaker.getInstance(NewPhone.class);
         GenericPhone phone = new GenericPhone();
         Endpoint endpoint = new Endpoint();
-        phone.setEndpoint(endpoint);
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
         page.setEndpoint(endpoint);
         endpoint.setSerialNumber(Long.toHexString(new Date().getTime()));

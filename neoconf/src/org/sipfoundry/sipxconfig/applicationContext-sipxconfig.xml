@@ -139,9 +139,9 @@
 	<!--
 	  - P H O N E  M O D E L S
 	  - hoping to move this external file for end user modification
+	  - TODO: Normalize common settings into Config Bean(s)
 	  -->
-	<bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
-		singleton="false">
+	<bean id="polycomConfig" class="org.sipfoundry.sipxconfig.vendor.PolycomPhoneConfig">
 		<property name="velocityEngine">
 			<ref bean="velocityEngine"/>
 		</property>
@@ -150,36 +150,27 @@
 		</property>
 		<property name="tftpRoot">
 			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
+		</property>
+    </bean>
+	<bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone">
+		<property name="config">
+			<ref local="polycomConfig"/>
 		</property>
 		<property name="modelId">
 			<value>polycom300</value>
 		</property>
 	</bean>
-	<bean id="polycom500" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
-		singleton="false">
-		<property name="velocityEngine">
-			<ref bean="velocityEngine"/>
-		</property>
-		<property name="systemDirectory">
-			<value>${sysdir.etc}</value>
-		</property>
-		<property name="tftpRoot">
-			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
+	<bean id="polycom500" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone">
+		<property name="config">
+			<ref local="polycomConfig"/>
 		</property>
 		<property name="modelId">
 			<value>polycom500</value>
 		</property>
 	</bean>
-	<bean id="polycom600" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
-		singleton="false">
-		<property name="velocityEngine">
-			<ref bean="velocityEngine"/>
-		</property>
-		<property name="systemDirectory">
-			<value>${sysdir.etc}</value>
-		</property>
-		<property name="tftpRoot">
-			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
+	<bean id="polycom600" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone">
+		<property name="config">
+			<ref local="polycomConfig"/>
 		</property>
 		<property name="modelId">
 			<value>polycom600</value>

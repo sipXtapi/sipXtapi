@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.vendor;
 
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -46,10 +47,13 @@ public class PolycomPhoneTest extends XMLTestCase {
         rootOrg.setDnsDomain("localhost.localdomain");
         phoneControl.replay();
 
+        PolycomPhone phone = new PolycomPhone();
+        phone.setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
+        phone.setModelId(Polycom.MODEL_600.getModelId());
+
         Endpoint endpoint = new Endpoint();
         endpoint.setSerialNumber("0004f200e06b");
-        endpoint.setPhoneId(Polycom.MODEL_600.getModelId());
-        PolycomPhone phone = new PolycomPhone();
+        endpoint.setPhoneId(phone.getModelId());
         
         User user = new User();
         user.setDisplayId("joe");
@@ -59,32 +63,24 @@ public class PolycomPhoneTest extends XMLTestCase {
         Line line = new Line();
         line.setUser(user);
         endpoint.addLine(line);
-                
-        phone.setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
-        phone.setTftpRoot(TestHelper.getTestDirectory());
-        phone.setModelId(Polycom.MODEL_600.getModelId());
-        phone.setEndpoint(endpoint);
-        phone.setVelocityEngine(TestHelper.getVelocityEngine());
         
-        // sample settings
-        SettingGroup root = endpoint.getSettings(phone);
-        SettingGroup reg = (SettingGroup) root.getSetting(PolycomPhone.REGISTRATION_SETTINGS);
-        reg.getSetting("displayName").setValue("joe");
-        reg.getSetting("address").setValue("joe@mycompany.com");
-        reg.getSetting("label").setValue("joe the kid");
-        reg.getSetting("type").setValue("public");        
-
+        PolycomPhoneConfig config = new PolycomPhoneConfig();
+        config.setTftpRoot(TestHelper.getTestDirectory());
+        config.setVelocityEngine(TestHelper.getVelocityEngine());
+        phone.setConfig(config);
+        
+        ApplicationConfiguration app = new ApplicationConfiguration(phone, endpoint);
+        
+        
         phone.generateProfiles(phoneContext, endpoint);
         InputStream expectedPhoneStream = null;
         InputStream actualPhoneStream = null;
         try {            
-            expectedPhoneStream = getClass().getResourceAsStream("basicProfile-phone1.cfg");
+            expectedPhoneStream = getClass().getResourceAsStream("basicProfile/0004f200e06b-phone.cfg");
             assertNotNull(expectedPhoneStream);
             Reader expectedXml = new InputStreamReader(expectedPhoneStream);
             
-            actualPhoneStream = phone.getPhoneConfigFile();
-            assertNotNull(actualPhoneStream);
-            Reader generatedXml = new InputStreamReader(actualPhoneStream);
+            Reader generatedXml = new FileReader(app.getAppFilename());
 
             Diff phoneDiff = new Diff(expectedXml, generatedXml);
             assertXMLEqual(phoneDiff, true);

@@ -14,31 +14,32 @@ package org.sipfoundry.sipxconfig.vendor;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 
-public class ProfileModel {
+public class PhoneConfiguration extends ConfigurationTemplate {
     
-    private PolycomPhone m_phone;
-    
-    private Endpoint m_endpoint;
-    
-    public ProfileModel(PolycomPhone phone, Endpoint endpoint) {
-        m_phone = phone;
-        m_endpoint = endpoint;
+    public PhoneConfiguration(PolycomPhone phone, Endpoint endpoint) {
+        super(phone, endpoint);
+    }
+
+    public void addContext(VelocityContext context) {
+        context.put("phone", this);
     }
 
     public Collection getRegistrations() {
-        ArrayList registrations = new ArrayList(m_phone.getMaxLineCount());
+        PolycomPhone phone = getPhone();
+        ArrayList registrations = new ArrayList(phone.getMaxLineCount());
 
-        SettingGroup root = m_endpoint.getSettings(m_phone);
+        SettingGroup root = getEndpoint().getSettings(phone);
         SettingGroup reg = (SettingGroup) root.getSetting(PolycomPhone.REGISTRATION_SETTINGS);
         registrations.add(reg.getValues());
 
         // copy in blank registrations of all unused lines
-        for (int i = 1; i < m_phone.getMaxLineCount(); i++) {
+        for (int i = 1; i < phone.getMaxLineCount(); i++) {
             SettingGroup regCopy = (SettingGroup) reg.getCopy(new ValueStorage());
             registrations.add(regCopy.getValues());
         }

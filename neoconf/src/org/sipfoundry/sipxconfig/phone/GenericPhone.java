@@ -29,8 +29,6 @@ public class GenericPhone implements Phone {
 
     private String m_id = GENERIC_PHONE_ID;
 
-    private Endpoint m_endpoint;
-    
     private String m_systemDirectory;
     
     private String m_lineModelFilename;
@@ -51,14 +49,6 @@ public class GenericPhone implements Phone {
 
     public void setModelId(String id) {
         m_id = id;
-    }
-
-    public void setEndpoint(Endpoint endpoint) {
-        m_endpoint = endpoint;
-    }
-    
-    public Endpoint getEndpoint() {
-        return m_endpoint;
     }
 
     public SettingGroup getSettingModel(Endpoint endpoint_) {
