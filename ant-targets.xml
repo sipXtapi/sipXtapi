@@ -89,9 +89,9 @@
   <!--
     -  D E F A U L T
     -->
-  <target name="default" depends="subant-defs" if="subdirs"
+  <target name="default" if="subdirs"
       description="recurse w/default target">
-    <subant/>
+    <my.subant/>
   </target>
 
 
@@ -115,9 +115,9 @@
   <!-- C L E A N -->
   <target name="clean" depends="subclean,realclean"/>
 
-  <target name="subclean" if="subdirs" depends="subant-defs"
+  <target name="subclean" if="subdirs"
         description="[internal] recurse w/clean target">
-    <subant target="clean"/>
+    <my.subant target="clean"/>
   </target>
 
   <target name="realclean" unless="subdirs"
@@ -134,8 +134,8 @@
   <target name="install" depends="subinstall,realinstall"
        description="Install java components" />
 
-  <target name="subinstall" depends="subant-defs" if="subdirs">
-    <subant target="install"/>
+  <target name="subinstall" if="subdirs">
+    <my.subant target="install"/>
   </target>
 
   <target name="realinstall" unless="subdirs"
@@ -146,8 +146,8 @@
   <target name="uninstall" depends="subuninstall,realuninstall"
        description="Uninstall java components"/>
 
-  <target name="subuninstall" depends="subant-defs" if="subdirs">
-    <subant target="install"/>
+  <target name="subuninstall" if="subdirs">
+    <my.subant target="install"/>
   </target>
 
   <target name="realuninstall" unless="subdirs"
@@ -179,9 +179,9 @@
   <target name="doc" depends="subdoc,realdoc"
       description="generate javadocs for src and test code"/>
 
-  <target name="subdoc" depends="subant-defs" if="subdirs"
+  <target name="subdoc" if="subdirs"
       description="[internal] recurse w/given target">
-    <subant target="doc"/>
+    <my.subant target="doc"/>
   </target>
 
   <target name="realdoc" depends="init" unless="subdirs"
@@ -204,9 +204,9 @@
   <target name="test" depends="subtest,realtest" 
        description="run junit tests"/>
 
-  <target name="subtest" depends="subant-defs" if="subdirs" 
+  <target name="subtest" if="subdirs" 
        description="run junit tests">
-    <subant target="test"/>
+    <my.subant target="test"/>
   </target>
 
   <target name="realtest" depends="compile.test" unless="subdirs" 
@@ -239,9 +239,9 @@
   <target name="regression" depends="subregression,realregression" 
        description="run regression junit tests"/>
 
-  <target name="subregression" depends="subant-defs" if="subdirs" 
+  <target name="subregression" if="subdirs" 
        description="run regression junit tests">
-    <subant target="regression"/>
+    <my.subant target="regression"/>
   </target>
 
   <target name="realregression" depends="compile.test" unless="subdirs" 
@@ -271,9 +271,9 @@
   <target name="test-report" depends="subtest-report,realtest-report"
    description="Generate test results to test-results/junit-noframe.html"/>
 
-  <target name="subtest-report" depends="subant-defs" if="subdirs"
+  <target name="subtest-report" if="subdirs"
       description="[internal] recurse">
-    <subant target="test-report"/>
+    <my.subant target="test-report"/>
   </target>
 
   <target name="realtest-report" depends="init" unless="subdirs"  
@@ -298,14 +298,10 @@
     - R E C U R S E  B U I L D S 
     - Analogous to autoconf's SUBDIRS this will recurse directories calling
     - build files ANT passing target name
+    - This is our own subant definition - it passes only top.build.dir property to subant and 
+    - it operated on a fileset defined by ${subdirs} is set.
     --> 
-  <target name="subant-defs" unless="xyz"
-     description="[internal] Preset defs for subant call">
-
-    <!-- avoids a warning when this target is called twice -->
-    <property name="xyz" value="somevalue"/>
-
-    <presetdef name="subant"> 
+    <presetdef name="my.subant"> 
       <subant inheritall="false" inheritrefs="false">
         <property name="top.build.dir" value="${top.build.dir}"/>
 
@@ -315,7 +311,6 @@
 
       </subant>
     </presetdef>
-
-  </target>
+    
 
 </project>
