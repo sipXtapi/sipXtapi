@@ -108,6 +108,7 @@ httpunit.jar=${top.dir}/lib/httpunit-1.6.jar
 jwebunit.jar=${top.dir}/lib/jwebunit-1.2.jar
 checkstyle.jar=${top.dir}/lib/checkstyle-3.5.jar
 checkstyle-optional.jar=${top.dir}/lib/checkstyle-optional-3.5.jar
+dbunit.jar=${top.dir}/lib/dbunit-2.1.jar
 
 clover.home=@CLOVER_HOME@
 clover.jar=${clover.home}/lib/clover.jar

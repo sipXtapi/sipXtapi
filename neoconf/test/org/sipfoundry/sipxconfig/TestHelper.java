@@ -17,14 +17,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Stack;
+
+import javax.sql.DataSource;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.xml.FlatDtdDataSet;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -123,6 +129,28 @@ public final class TestHelper {
             session.flush();
             session.close();
         }
+    }
+    
+    public static IDatabaseConnection getDbUnitConnection() throws SQLException {
+        DataSource dataSource = (DataSource) getApplicationContext().getBean("dataSource");
+        return new DatabaseConnection(dataSource.getConnection());
+    }
+    
+    public static void main(String[] args) {
+        try {
+            generateDbUnitDtd();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+    
+    private static void generateDbUnitDtd() throws Exception {
+        IDatabaseConnection c = getDbUnitConnection();
+        
+        FlatDtdDataSet.write(c.createDataSet(),
+            new FileOutputStream("test/org/sipfoundry/sipxconfig/sipxconfig-dataset.dtd"));
+        
     }
 
 }
