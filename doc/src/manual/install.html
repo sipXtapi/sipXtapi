@@ -308,36 +308,34 @@ another machine, follow next section "Running Standalone".</p>
 
 <h3><a name="run-alone">Running Standalone</a></h3>
 
-<p>This is when you are running just the sipXconfig server on one machine.</p>
+<p>This is when you are running just the sipXconfig server on one
+machine. You can follow the instructions for running with all the
+other sipX servers after making the following configurations
+changes:</p>
 
 <dl>
   <dt>Directing SIP message directly to sipXconfig's Profile Publisher.</dt>
    <dd>To direct SIP messages to the ProfilePublisher, a job normally done by
 the sipXproxy, edit
-file: <code>/etc/sipxpbx/config.defs</code> and set following setting
+file: <code>etc/sipxpbx/config.defs</code> and set following setting
 to read the following values:
 <pre>
     CONFIG_SERVER_SIP_PORT=5060
 </pre>
   </dd>
 
-  <dt>Starting stopping sipXconfig</dt>
-  <dd>To start all the components of sipXconfig, launch the following
-service as root user:
+  <dt>Only start sipXconfig related services</dt>
+  <dd>Edit config file : <code>etc/sipxpbx/ProcessDefinitions.xml</code> and remove sections
+<pre>      
+          &lt;group name="CommServer" &gt;
+          ...
+          &lt;/group&gt;
 
-<pre>
-  service httpd start
-  sipxconfig start
-</pre>
-
-<p>Conversely to stop:</p>
-
-<pre>
-  sipxconfig stop
-  service httpd stop
-</pre>
-
-      </dd>
+          &lt;group name="MediaServer" &gt;
+          ...
+          &lt;/group&gt;
+</pre>      
+  </dd>
 </dl>
 
 
@@ -398,7 +396,7 @@ following:</p>
 
 <span id="lastmodified">
 <!-- hhmts start -->
-Last modified: Thu Oct 21 15:39:00 EDT 2004
+Last modified: Mon Nov  1 18:02:34 EST 2004
 <!-- hhmts end -->
 </span>
 
