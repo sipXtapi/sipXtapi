@@ -9,11 +9,9 @@
 </head>
 <body id="addendpoint">
 
+<div class="component">
+	
 <form action="endpoints.html">
-<ul id="actions">
-	<li><input type="submit" name="save" value="Save"/></li>
-</ul>	
-
 <table>
 	<tr>
 		<td>Name</td>
@@ -24,20 +22,33 @@
 		<td><input type="text" name="serialNumber"/></td>
 	</tr>
 	<tr>
-		<td>Extension Pool:</td>
-		<td><select name="extensionPool">
-			<option>-- Assigned Extension --</option>
-			<option>Ext. pool 1</option>
-			<option>Ext. pool 2</option>
+		<td>Model:</td>
+		<td><select name="model">
+			<option>Polycom Soundpoint IP 300</option>
+			<option>Polycom Soundpoint IP 500</option>
+			<option>Polycom Soundpoint IP 600</option>
 			</select>
 			</td>
 	</tr>
 	<tr>
-		<td>Assigned Extension:</td>
-		<td><input type="text" name="extension"/></td>
+		<td>Phone Group:</td>
+		<td><select name="extension">
+			<option>Sales</option>
+			<option>Engineering</option>
+			<option>Tech. Support</option>
+			<option>Management</option>
+			</select>
+		</td>
 	</tr>
 </table>
+
+<ul class="form-actions">
+	<li><input type="submit" name="save" value="Save"/></li>
+	<li><input type="submit" name="cancel" value="Cancel"/></li>
+</ul>	
+
 </form>
+</div>
 
 <hr/>
 
