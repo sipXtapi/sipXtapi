@@ -205,7 +205,8 @@
 	<!-- C L E A N -->
 	<target name="clean">
 		<delete failonerror="false">
-			<fileset dir="${manual.dir}" includes="**/*" />
+			<fileset dir="${manual.dir}"/>
+			<fileset dir="${neoconf-prototype.dir}"/>
 			<fileset file="${api.built.flag}" />
 		</delete>
 	</target>
