@@ -41,26 +41,22 @@ Environment Variables
 After installing these packages, set the following environment
 variables:
 
- JAVA_HOME - where you installed java, for example:
- ANT_HOME
+ JAVA_HOME   - where you installed java
+               Example: 
+                   export JAVA_HOME=/usr/java/j2sdk1.4.2_03
 
+ ANT_HOME    - where you unzipped (e.g. installed) ant
+               Example: 
+                   export ANT_HOME=~/apache-ant-1.6.2
 
- "Installing" JBoss just means unzipping the file and then setting 
- these two environment variables:
-   JBOSS_HOME - where you unzipped Jboss + "/jboss"
-   TOMCAT_HOME - where you unzipped Jboss + "/catalina"
+ JBOSS_HOME  - where you unzipped JBoss
+               Example: 
+                   export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
+
 
 
 Installation
 =====================
-
-  copy JUnit's junit.jar into ${ANT_HOME}/lib
-
-  ./configure
-  ant
-  ant install 
-
-or
 
   ./configure
   make
@@ -70,184 +66,13 @@ or
 Set up Postgresql Database
 ==========================
 
-1.) Initialize postgres. 
-
- a.) If you have never started postgres, start it
-now to initialize default database settings. On redhat systems:
-
-  service postgresql start
-
- b.) Now shut it down as follows
-
-  service postgresql stop
-
-optionally or on other systems, this will also initialize the database
-
-    # on some systems, this is /var/lib/postgresql/data
-    export PGDATA=/var/lib/pgsql/data
-
-    mkdir -p $PGDATA
-    chown postgres $PGDATA
-    su postgres
-    initdb --pgdata=$PGDATA
-
-2.) Set up security permissions. Edit file: 
-
-  $PGDATA/pg_hba.conf
-
- a.) uncomment following lines
-
-  local   all         all                                             trust
-  host    all         all         127.0.0.1         255.255.255.255   trust
-
- b.) comment out following line
-
-  #local  all     all             ident   sameuser
-
-
-3.) Enable TCP/IP connections. Edit file:
-
-   $PGDATA/postgresql.conf
-
- a.) uncomment and edit this line
-
-   tcpip_socket = true
-
-4.) Create postmaster file for tcp/ip communications to postgres
-
-   echo "-i" > $PGDATA/postmaster.opts.default
-   chmod 664 $PGDATA/postmaster.opts.default
-   chown postgres $PGDATA/postmaster.opts.default
-
-5.) Now you can start up postgres, must be root user
-
-General Linux Systems :
-
-  /usr/bin/pg_ctl -D $PGDATA start
-
-Redhat:
-  service postgresql start
-
-  ...and for Redhat users this may be a goodtime to configure postgres
-to start when the system starts up
-
-  chkconfig postgresql on
-
-6.) Create database user
-
-   createuser -U postgres sipxchange
-
-sipxchange user will need access to create databases, but not add more
-users.
-
-7.) Create database
-
-   cd /usr/local/share/sipxpbx/sql
-   createdb -U sipxchange --encoding=UNICODE PDS
-   psql -U sipxchange -f profilegen_create.sql PDS
-   psql -U sipxchange -f profilegen_alter.sql PDS
-   psql -U sipxchange -f profilegen_seq.sql PDS
-   psql -U sipxchange -f profilegen_initvalues.sql PDS
-
-   createdb -U sipxchange --encoding=UNICODE SDS
-   psql -U sipxchange -f profilepub_create.sql SDS
-   psql -U sipxchange -f profilepub_alter.sql SDS
-   psql -U sipxchange -f profilepub_seq.sql SDS
-
-
-Set up JBOSS and Tomcat
-=======================
-
-1.) Edit file security setup file:
-
-    ${JBOSS_HOME}/conf/catalina/auth.conf
-
- a.) Remove "other" section and add the following:
-
-  other {
-      com.pingtel.pds.jbossauth.SIPxchangeLoginModule required dsJndiName="java:/PDSDataSource";
-  };
-
-2.) Edit file resource setup file:
-
-    ${JBOSS_HOME}/conf/catalina/jboss.jcml
-
- a.) change JDBC driver from Hypersonic to Postgres. In follwing element:
-
-  <mbean code="org.jboss.jdbc.JdbcProvider" name="DefaultDomain:service=JdbcProvider">
-
-change child elemennt from this:
-
-     <attribute name="Drivers">org.hsqldb.jdbcDriver</attribute>
-
-to this:
-
-     <attribute name="Drivers">org.postgresql.Driver</attribute>
-
-
- b.) replace Hypersonic and XADataSourceLoader sections with this:
-
-Remove sections starting with these xml elements:
-
-   <mbean code="org.jboss.jdbc.HypersonicDatabase"...
-
-and
-   <mbean code="org.jboss.jdbc.XADataSourceLoader" ...
-
-and add this
-
-  <mbean code="org.jboss.jdbc.XADataSourceLoader" name="DefaultDomain:service=XADataSource,name=PDSDataSource">
-    <attribute name="PoolName">PDSDataSource</attribute>
-    <attribute name="DataSourceClass">org.jboss.pool.jdbc.xa.wrapper.XADataSourceImpl</attribute>
-    <attribute name="Properties"></attribute>
-    <attribute name="URL">jdbc:postgresql://localhost/PDS</attribute>
-    <attribute name="GCMinIdleTime">1200000</attribute>
-    <attribute name="JDBCUser">postgres</attribute>
-    <attribute name="MaxSize">10</attribute>
-    <attribute name="Password"></attribute>
-    <attribute name="GCEnabled">false</attribute>
-    <attribute name="InvalidateOnError">false</attribute>
-    <attribute name="TimestampUsed">false</attribute>
-    <attribute name="Blocking">true</attribute>
-    <attribute name="GCInterval">120000</attribute>
-    <attribute name="IdleTimeout">1800000</attribute>
-    <attribute name="IdleTimeoutEnabled">false</attribute>
-    <attribute name="LoggingEnabled">false</attribute>
-    <attribute name="MaxIdleTimeoutPercent">1.0</attribute>
-    <attribute name="MinSize">0</attribute>
-  </mbean>
-
-NOTE: Following components were installed into JBOSS's installation as
-part of this project's 'make install':
-
-  - Postgres JDBC driver
-  - sipxconfig's authentication jar
-  - sipXconfig's EAR file
-
-3.) Ownership - change the ownership of JBoss files to user that will
-be running sipxchange.
-
-  chown -R sipxchange:sipxchange /usr/local/jboss
-
-4.) Jboss/Tomcat Security Policy.  Edit this file
-
-  ${JBOSS_HOME}/conf/catalina/jboss.properties
-
-and add these items
-
-  java.security.manager=java.lang.SecurityManager
-  java.security.policy=/usr/local/etc/sipxpbx/security.policy
-  pds.debug=false
-
-5.) Optional. If JBoss runs out of memory, try editing this file
-
-  ${JBOSS_HOME}/bin/run.sh
-
-And and JVM argument "-mx256m" to the java command line. This line
-should look similiar to this one:
-
-   java $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main $@
-
+  # to edit postgres config files to work
+  # Note: this will open up TCP connections and
+  # allow localhost to connect to posgres
+  /usr/local/sipx/bin/sipxdbmgr --setup
+
+  /usr/local/sipx/bin/sipxdbmgr --create PDS
+  /usr/local/sipx/bin/sipxdbmgr --create SDS
 
 Securing SSL connections
 ========================
@@ -265,7 +90,7 @@ depending on how Apache2 was installed. Possible locations include:
 
 add this line:
 
-  Include /usr/local/www/conf/httpd-sipxchange-configserver-pw.conf
+  Include /usr/local/sipx/www/conf/httpd-sipxchange-configserver-pw.conf
 
 
 Optional SOAP Access
