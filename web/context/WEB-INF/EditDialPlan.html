@@ -214,10 +214,10 @@
         </fieldset>        
         <ul class="form-actions">
             <li>
-                <input type="submit" jwcid="@Submit" listener="ognl:listeners.save" value="Save"/>
+                <input type="submit" jwcid="@Submit" id="dialplan:save" listener="ognl:listeners.save" value="Save"/>
 			</li>
 			<li>
-                <input type="reset" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+                <input type="reset" jwcid="@Submit"  id="dialplan:cancel" listener="ognl:listeners.cancel" value="Cancel"/>
 			</li>
 		</ul>
     </form>

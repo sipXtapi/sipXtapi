@@ -12,16 +12,12 @@
 package org.sipfoundry.sipxconfig.site.ui;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import org.xml.sax.SAXException;
 
-import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.SubmitButton;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebLink;
-import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
 
@@ -32,21 +28,16 @@ import junit.framework.TestCase;
  */
 public class GatewaysTestUi extends TestCase {
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+    private WebResponse m_home;
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    protected void setUp() throws Exception {
+        m_home = TestUiHelper.getHomePage();
+        // reset page
+        m_home = TestUiHelper.resetDialPlans(m_home);
     }
 
     public void testAddGateways() throws Exception {
-        WebResponse home = getHomePage();
-
-        // reset page
-        home = resetDialPlans(home);
-
-        WebLink link = home.getLinkWith("List Gateways");
+        WebLink link = m_home.getLinkWith("List Gateways");
         WebResponse listGateways = link.click();
 
         WebTable gatewaysTable = listGateways.getTableWithID("list:gateway");
@@ -77,12 +68,7 @@ public class GatewaysTestUi extends TestCase {
     }
 
     public void testDeleteGateways() throws Exception {
-        WebResponse home = getHomePage();
-
-        // reset page
-        home = resetDialPlans(home);
-
-        WebLink link = home.getLinkWith("List Gateways");
+        WebLink link = m_home.getLinkWith("List Gateways");
         WebResponse listGateways = link.click();
 
         for (int i = 0; i < 10; i++) {
@@ -133,20 +119,5 @@ public class GatewaysTestUi extends TestCase {
         }
         SubmitButton buttonSave = formGateway.getSubmitButtonWithID("gateway:save");
         return formGateway.submit(buttonSave);
-    }
-
-    /**
-     * @return sipxconfig application home page
-     */
-    public static WebResponse getHomePage() throws MalformedURLException, IOException, SAXException {
-        WebConversation wc = new WebConversation();
-        WebRequest req = new GetMethodWebRequest("http://localhost:8080/sipxconfig");
-        WebResponse home = wc.getResponse(req);
-        return home;
-    }
-
-    public static WebResponse resetDialPlans(WebResponse homePage) throws IOException, SAXException {
-        final WebLink resetLink = homePage.getLinkWithID("resetDialPlans");
-        return resetLink.click();
     }
 }

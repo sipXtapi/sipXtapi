@@ -5,11 +5,11 @@
 <body jwcid="@Body">
 	<div id="component">    
 	<ul class="component-actions">
-		<li><a jwcid="addLink" href="EditDialPlan.html">Add Dial Plan</a></li>
+		<li><a jwcid="addLink" id="dialplan:add" href="EditDialPlan.html">Add Dial Plan</a></li>
 		<li><a jwcid="gatewaysLink" href="Gateways.html">Gateways</a></li>
 	</ul>                
     <form jwcid="form" ListDialPlans.html">
-    	<table jwcid="tableView" class="table-view">
+    	<table jwcid="tableView" id="dialplan:list" class="table-view">
             <thead>
         		<span jwcid="tableColumns"/>
                 <tr jwcid="$remove$">
