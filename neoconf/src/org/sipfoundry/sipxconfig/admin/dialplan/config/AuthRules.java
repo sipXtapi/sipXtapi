@@ -66,10 +66,10 @@ public class AuthRules {
             Element userPattern = userMatch.addElement("userPattern");
             userPattern.setText(pattern);
         }
-        Permission[] permissions = rule.getPermissions();
+        List permissions = rule.getPermissions();
         Element permissionMatch = userMatch.addElement("permissionMatch");
-        for (int i = 0; i < permissions.length; i++) {
-            Permission permission = permissions[i];
+        for (Iterator i = permissions.iterator(); i.hasNext();) {
+            Permission permission = (Permission) i.next();
             Element pelement = permissionMatch.addElement("permission");
             pelement.setText(permission.getName());
         }

@@ -38,7 +38,7 @@ public class FallbackRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getPatterns(), new String[] { "x." });
-        control.expectAndReturn(rule.getPermissions(), new Permission[] { Permission.VOICEMAIL });
+        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] { Permission.VOICEMAIL }));
         control.expectAndReturn(rule.getGateways(), gateways);
         control.expectAndReturn(rule.getTransforms(), new Transform[] { t1 });
         control.replay();

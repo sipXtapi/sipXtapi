@@ -126,8 +126,13 @@
 	</bean>
 	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		
 	</bean>
+
     <!-- temporary gateways and dialPlans singletons-->
     <bean id="dialPlanManager" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
-        
+    </bean>
+    <bean id="customRule" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
+        <property name="name">
+            <value>Test name</value>
+        </property>
     </bean>
 </beans>

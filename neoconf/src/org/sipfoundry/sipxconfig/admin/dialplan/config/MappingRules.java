@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -76,9 +79,9 @@ public class MappingRules {
             userPattern.setText(pattern);
         }
         Element permissionMatch = userMatch.addElement("permissionMatch");
-        Permission[] permissions = rule.getPermissions();
-        for (int i = 0; i < permissions.length; i++) {
-            Permission permission = permissions[i];
+        List permissions = rule.getPermissions();
+        for (Iterator i = permissions.iterator(); i.hasNext();) {
+            Permission permission = (Permission) i.next();
             Element permissionElement = permissionMatch.addElement("permission");
             permissionElement.setText(permission.getName());
         }

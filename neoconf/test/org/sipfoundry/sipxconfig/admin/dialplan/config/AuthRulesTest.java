@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -43,7 +44,7 @@ public class AuthRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getPatterns(), new String[] { "555", "666", "777" });
-        control.expectAndReturn(rule.getPermissions(), new Permission[] { Permission.VOICEMAIL });
+        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] { Permission.VOICEMAIL }));
         control.expectAndReturn(rule.getGateways(), gateways);
         control.expectAndReturn(rule.getName(), "testrule");
         control.replay();

@@ -62,7 +62,7 @@ public class MappingRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getPatterns(), new String[] { "x." });
-        control.expectAndReturn(rule.getPermissions(), new Permission[] { Permission.VOICEMAIL });
+        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] { Permission.VOICEMAIL }));
         control.expectAndReturn(rule.getGateways(), Collections.EMPTY_LIST);
         control.expectAndReturn(rule.getTransforms(), new Transform[] { voicemail, voicemail2 });
         control.replay();

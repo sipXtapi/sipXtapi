@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**
@@ -23,7 +23,8 @@ public class DialingRule extends BeanWithId implements IDialingRule {
     private boolean m_enabled;
     private String m_name;
     private String m_description;
-    private List m_gateways;
+    private List m_gateways = new ArrayList();
+    private List m_permissions = new ArrayList();
 
     DialingRule(Integer id) {
         super(id);
@@ -73,10 +74,14 @@ public class DialingRule extends BeanWithId implements IDialingRule {
         return new Transform[] {};
     }
 
-    public Permission[] getPermissions() {
-        return new Permission[] {};
+    public List getPermissions() {
+        return m_permissions;
     }
 
+    public void setPermissions(List permissions) {
+        m_permissions = permissions;
+    }
+    
     /**
      * @return list of Gateway objects representing source hosts
      */
