@@ -76,8 +76,9 @@
 
     <!-- So running config server can create files here -->
     <chown owner="${sipxpbx.user}" type="dir">
-      <fileset dir="${dest.dir}${sipxconfig.phone.dir}" includes="**"/>
+      <fileset dir="${dest.dir}${sipxconfig.phone.dir}" includes="**/*"/>
     </chown>
+    <chmod perm="775" dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" type="dir"/>
 
     <!-- configuration -->
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>

@@ -1,1030 +1,1182 @@
 <?xml version="1.0"?>
 <model>
-<group name="lcl.datetime">
-  <label>Date and Time</label>
-    <setting name="date.format">
-        <label>24 Hour Time</label>
-        <type>"string which includes 'D', 'd' and 'M' and two optional comma's "</type>
-        <defaultValue></defaultValue>
-<description>Controls format of date string. D = day of week d = day M = month Up to two comma's may be included. e.g. D,dM = Thursday, 3 July Md,D = July 3, Thursday The field may contain 0, 1 or 2 comma's which can occur only between characters and only one at a time i.e. 'D,,dM' is illegal.</description>
-   </setting>
-   <setting name="date.longFormat">
-     <type>0,1</type>
-     <defaultValue></defaultValue>
-<description>If 1, display the day and month in long format (Friday/November), otherwise, use abbreviations (Fri/Nov). </description>
-   </setting>
-   <setting name="lcl.datetime.date.dateTop">
-<type>0,1</type>
-<defaultValue></defaultValue>
-<description>If 1, display date above time else display time above date.</description>
-</setting>
-</group>
-
-<group name="up">
-  <label>User Preferences</label>
-    <setting name="headsetMode">
-      <type>0,1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the headset will be selected as the preferred transducer after its first use until the headset key is pressed again; otherwise, handsfree will be selected preferentially over the headset.</description>
-   </setting>
-
-	<setting name="useDirectoryNames">
-<type>0,1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the name fields of directory entries which match incoming calls will be used for caller identification display and in the call lists instead of the name provided via network signaling.</description>
- </setting>
-
-	<setting name="oneTouchVoiceMail">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the voicemail summary display is bypassed and voicemail is dialed directly (if configured).</description>
-        </setting>
-
-	<setting name="welcomeSoundEnabled">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, play welcome sound effect after a reboot.</description>
-        </setting>
-
-	<setting name="welcomeSoundOnWarmBootEnabled">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, play welcome sound effect on warm as well as cold boots, otherwise only a cold boot will trigger the welcome sound effect.</description>
-   </setting>
-
-	<setting name="localClockEnabled">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, display the date and time on the idle display</description>
-   </setting>
-  </group>
-
-  <group name="tone.dtmf">
-    <label>DTMF</label>
-
-	<setting name="level">
-<type>-33 to -3</type>
-<defaultValue>-15</defaultValue>
-<description>Level of the high frequency compo-nent of the DTMF digit measured in dBm0; the low frequency tone will be two dB lower.</description>
-    </setting>
-
-	<setting name="onTime">
-<type>positive integer</type>
-<defaultValue>50</defaultValue>
-<description>When a sequence of DTMF tones is played out automatically, this is the length of time in milliseconds the tones will be generated for; this is also the minimum time the tone will be played for when dialing manually (even if key press is shorter).</description>
-</setting>
-
-	<setting name="offTime">
-<type>positive integer</type>
-<defaultValue>50</defaultValue>
-<description>When a sequence of DTMF tones is played out automatically, this is the length of time in milliseconds the phone will pause between digits; this is also the minimum inter-digit time when dialing manually.</description>
-        </setting>
-
-	<setting name="chassis.masking">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, DTMF tones will be sub-stituted with a non-DTMF pacifier tone when dialing in hands-free mode. This prevents DTMF digits being broadcast to other surrounding telephony devices or being inadvert-ently transmitted in-band due to local acoustic echo. Note: tone.dtmf.chassis.masking should only be enabled when tone.dtmf.viaRtp is disabled. </description>
-         </setting>
-
-	<setting name="stim.pac.offHookOnly">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>Not currently used.</description>
-        </setting>
-
-	<setting name="viaRtp">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, encode DTMF in the active RTP stream, otherwise, DTMF may be encoded within the signaling protocol only when the protocol offers the option. Note: tone.dtmf.chassis.masking should be enabled when tone.dtmf.viaRtp is disabled. </description>
-      </setting>
-
-	<setting name="rfc2833Control">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, the phone will indicate a preference for encoding DTMF via RFC 2833 format in its Session Description Protocol (SDP) offers by showing support for the phone-event payload type; this does not affect SDP answers, these will always honor the DTMF format present in the offer since the phone has native support for RFC 2833.</description>
-     </setting>
-
-	<setting name="rfc2833Payload">
-<type>96-127</type>
-<defaultValue>101</defaultValue>
-<description>The phone-event payload encoding in the dynamic range to be used in SDP offers.</description>
-  </setting>
-</group>
-
-
-<group name="se">
-  <label>Sound Effects</label>
-<description>SoundPoint(R) IP uses both synthesized (based on the chord-sets described earlier) and sampled audio sound effects. Sound effects are defined by patterns: rudimentary sequences of chord-sets, silence periods, and wave files.</description>
-
-	<setting name="stutterOnVoiceMail">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, stuttered dial tone is used in place of normal dial tone to indicate that one or more messages (voice-mail) are waiting at the message center.</description>
-   </setting>
-
-	<setting name="appLocalEnabled">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, local user interface sound effects such as confirmation/error tones, will be enabled. </description>
-   </setting>
-</group>
-
-<group name="voice">
-  <label>Codec Preferences</label>
-	<setting name="codecPref.G711Mu">
-<type>Null, 1-3</type>
-<defaultValue>1</defaultValue>
-<description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give each codec a unique priority, this will dictate the order used in SDP negotiations. Note: If less than two codecs are specified, SoundPoint(R) IP will automatically use G711Mu and G711A with default parameters.</description>
-   </setting>
-
-	<setting name="codecPref.G711A">
-<type>Null, 1-3</type>
-<defaultValue>2</defaultValue>
-<description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give each codec a unique priority, this will dictate the order used in SDP negotiations. Note: If less than two codecs are specified, SoundPoint(R) IP will automatically use G711Mu and G711A with default parameters.</description>
- </setting>
-
-	<setting name="codecPref.G729AB">
-<type>Null, 1-3</type>
-<defaultValue>3</defaultValue>
-<description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give each codec a unique priority, this will dictate the order used in SDP negotiations. Note: If less than two codecs are specified, SoundPoint(R) IP will automatically use G711Mu and G711A with default parameters.</description>
-   </setting>
-
-
-	<setting name="audioProfile.x.payloadSize">
-<type>10, 20, 30, ...80</type>
-<defaultValue></defaultValue>
-<description>Preferred Tx payload size in milliseconds to be provided in SDP offers and used in the absence of ptime negotiations. This is also the range of supported Rx payload sizes.</description>
-</setting>
-
-	<setting name="audioProfile.x.jitterBufferMin">
-<type>40, 50, 60, ... (multiple of 10)</type>
-<defaultValue></defaultValue>
-<description>The smallest jitter buffer depth (in milli-seconds) that must be achieved before play out begins for the first time. Once this depth has been achieved initially, the depth may fall below this point and play out will still continue. This parameter should be set to the smallest possible value which is at least two packet pay-loads, and larger than the expected short term average jitter.</description>
-        </setting>
-
-	<setting name="audioProfile.x.jitterBufferShrink">
-<type>10, 20, 30, ... (multiple of 10)</type>
-<defaultValue></defaultValue>
-<description>The absolute minimum duration time (in milliseconds) of RTP packet Rx with no packet loss between jitter buffer size shrinks. Use smaller values (1000 ms) to minimize the delay on known good networks. Use larger values to minimize packet loss on networks with large jitter (3000 ms).</description>
-   </setting>
-
-	<setting name="audioProfile.x.jitterBufferMax">
-<type> greater than jitterBuf-ferMin, multiple of 10,  less than or =500 for IP 500 and IP 600, less than or = 160 for IP 300</type>
-<defaultValue>
-		</defaultValue>
-<description>The largest jitter buffer depth to be sup-ported (in milliseconds). Jitter above this size will always cause lost packets. This parameter should be set to the smallest possible value that will support the expected network jitter</description>
-   </setting>
-
-    <group name="volume">
-      <label>Volume Persistence</label>
-<description>The user's selection of the receive volume during a call can be remembered between calls. This can be configured per termination (handset, headset and handsfree/chassis). In some countries regulations exist which dictate that receive volume should be reset to nominal at the start of each call on handset and headset.</description>
-
-	<setting name="persist.handset">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the receive volume will be remembered between calls. If set to 0, the receive volume will be reset to nominal at the start of each call.</description>
-        </setting>
-
-	<setting name="persist.headset">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the receive volume will be remembered between calls. If set to 0, the receive volume will be reset to nominal at the start of each call.</description>
-        </setting>
-
-	<setting name="persist.handsfree">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, the receive volume will be remembered between calls. If set to 0, the receive volume will be reset to nominal at the start of each call.</description>
-        </setting>
-     </group>
-
-    <group name="vad">
-      <label>Voice Activity Detection</label>
-<description>These settings control the performance of the voice activity detection (silence suppres-sion) feature</description>
-
-	<setting name="vadEnable">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, enable VAD.</description>
-   </setting>
-
-	<setting name="vadThresh">
-<type>integer from 0 to 30</type>
-<defaultValue>15</defaultValue>
-<description>The threshold for determining what is active voice and what is background noise in dB. This does not apply to G.729AB codec operation which has its own built-in VAD function.</description>
- </setting>
-</group>
-</group>
-
-<group name="qos">
- <label>Quality of Service</label>
-	<setting name="ethernet.rtp.user_priority">
-<type>0-7</type>
-<defaultValue>5</defaultValue>
-<description>User-priority used for RTP packets.</description>
- </setting>
-
-	<setting name="ethernet.callControl.user_priority">
-<type>0-7</type>
-<defaultValue>5</defaultValue>
-<description>User-priority used for call control packets.</description>
-</setting>
-
-<setting name="ethernet.other.user_priority">
-<type>0-7</type>
-<defaultValue>2</defaultValue>
-<description>User-priority used for packets that do not have a per-protocol setting.</description>
- </setting>
-
-   <setting name="ip.rtp.min_delay">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, set min-delay bit in the IP TOS field of the IP header, or else don't set it.</description>
-   </setting>
-
-	<setting name="ip.rtp.max_throughput">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, set max-throughput bit in the IP TOS field of the IP header, or else don't set it.</description>
-</setting>
-
-	<setting name="ip.rtp.max_reliability">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, set max-reliability bit in the IP TOS field of the IP header, or else don't set it.</description>
- </setting>
-
-	<setting name="ip.rtp.min_cost">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, set min-cost bit in the IP TOS field of the IP header, or else don't set it.</description>
-</setting>
-
-	<setting name="ip.rtp.precedence">
-<type>0-7</type>
-<defaultValue>5</defaultValue>
-<description>If set to 1, set precedence bits in the IP TOS field of the IP header, or else don't set them.</description>
- </setting>
-
-	<setting name="ip.callControl.min_delay">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, set min-delay bit in the IP TOS field of the IP header, or else don't set it.</description>
-</setting>
-
-	<setting name="ip.callControl.max_throughput">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, set max-throughput bit in the IP TOS field of the IP header, or else don't set it.</description>
-</setting>
-
-	<setting name="ip.callControl.max_reliability">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, set max-reliability bit in the IP TOS field of the IP header, or else don't set it.</description>
-</setting>
-
-	<setting name="ip.callControl.min_cost">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, set min-cost bit in the IP TOS field of the IP header, or else don't set it. </description>
-</setting>
-
-	<setting name="ip.callControl.precedence">
-<type>0-7</type>
-<defaultValue>5</defaultValue>
-<description>If set to 1, set precedence bits in the IP TOS field of the IP header, or else don't set them.</description>
-</setting>
-</group>
-
-
-<group name="tcpIpApp.sntp">
-  <label>Time Synchronization</label>
-  <description>The following table describes the parameters used to set up time synchronization and daylight savings time. The defaults shown will enable daylight savings time for North America. Daylight savings defaults</description>
-
-	<setting name="resyncPeriod">
-  <type>positive integer</type>
-<defaultValue>86400 (24 hours) </defaultValue>
-<description>Time in seconds between SNTP re-syncs.</description>
- </setting>
-
-	<setting name="address">
-<type>a valid host name or IP address</type>
-<defaultValue>clock</defaultValue>
-<description>Address of the SNTP server.</description>
-</setting>
-
-	<setting name="gmtOffset">
-<type>positive or negative integer</type>
-<defaultValue>-28800 (Pacific time)</defaultValue>
-<description>Offset in seconds of the local time zone from GMT. Note: 3600 seconds per hour</description>
-</setting>
-
-	<setting name="daylightSavings.enable">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, apply day-light savings rules to displayed time.</description>
-</setting>
-
-	<setting name="daylightSavings.fixedDayEnable">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, 'April 1st' is used, otherwise 'the first Sunday in April' is used.</description>
-</setting>
-
-	<setting name="daylightSavings.start.month">
-<type>12-Jan</type>
-<defaultValue>4 (April)</defaultValue>
-<description>Month to start DST. 1=Jan, 2=Feb, ..., 12=Dec</description>
-</setting>
-
-	<setting name="daylightSavings.start.date">
-<type>31-Jan</type>
-<defaultValue>1</defaultValue>
-<description>Day of the month to start DST.</description>
-</setting>
-
-	<setting name="daylightSavings.start.time">
-<type>0-23</type>
-<defaultValue>2</defaultValue>
-<description>Time of day to start DST, in 24 hour clock. 2=2 am, 14=2 pm</description>
-</setting>
-
-	<setting name="daylightSavings.start.dayOfWeek">
-<type>7-Jan</type>
-<defaultValue>1</defaultValue>
-<description>Day of week to apply DST. 1=Sun, 2=Mon, ..., 7=Sat</description>
-</setting>
-
-	<setting name="daylightSavings.start.dayOfWeek.lastInMonth">
-<type>0, 10</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1 and fixedDayEnable=0, start DST on the last day of the week (specified by dayOf- Week) in the month, rather than the first in the month.</description>
-</setting>
-
-	<setting name="daylightSavings.stop.month">
-<type>12-Jan</type>
-<defaultValue>10</defaultValue>
-<description>Month to stop DST. 1=Jan, 2=Feb, ..., 12=Dec</description>
-</setting>
-
-	<setting name="daylightSavings.stop.date">
-<type>31-Jan</type>
-<defaultValue>1</defaultValue>
-<description>Day of the month to start DST.</description>
-</setting>
-
-	<setting name="daylightSavings.stop.time">
-<type>0-23</type>
-<defaultValue>2</defaultValue>
-<description>Time of day to stop DST, in 24 hour clock. 2= 2 am, 14=2 pm</description>
-</setting>
-
-	<setting name="daylightSavings.stop.dayOfWeek">
-<type>7-Jan</type>
-<defaultValue>1</defaultValue>
-<description>Day of week to stop DST. 1=Sun, 2=Mon, ..., 7=Sat</description>
-</setting>
-
-	<setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1 and fixedDay- Enable=0, stop DST on the last day of the week (specified by dayOf- Week) in the month, rather than the first in the month.</description>
-</setting>
-</group>
-
-<group name="tcpIpApp.port">
-  <label>RTP</label>
-
-	<setting name="port.rtp.filterByIp">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, reject RTP pack-ets arriving from (sent from) a non-negotiated (via SDP) IP address.</description>
-</setting>
-
-	<setting name="rtp.filterByPort">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, reject RTP pack-ets arriving from (sent from) a non-negotiated (via SDP) port.</description>
-</setting>
-
-	<setting name="rtp.forceSend">
-<type>Null, 1024- 65534</type>
-<defaultValue></defaultValue>
-<description>When non-Null, send all RTP packets to, and expect all RTP packets to arrive on, the specified port. Note: both tcpIpApp.port.rtp.filter- ByIp and tcpI-pApp.port.rtp.filterByPort must be enabled for this to work.</description>
-</setting>
-
-	<setting name="rtp.mediaPortRangeStart">
-<type>Null, even integer from 1024-65534</type>
-<defaultValue></defaultValue>
-<description>If set to Null, the value 2222 will be used for the first allo-cated RTP port, otherwise, the specified port will be used. Subsequent ports will be allocated from a pool starting with the specified port plus two up to a value of (start-port + 46), after which the port number will wrap back to the starting value.</description>
-</setting>
-</group>
-
-<group name="httpd">
-<label>Web Server</label>
-
-	<setting name="enabled">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, the HTTP server will be enabled.</description>
-</setting>
-
-	<setting name="cfg.enabled">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, the HTTP server configuration interface will be enabled.</description>
-</setting>
-
-	<setting name="cfg.port">
-<type>1-65535</type>
-<defaultValue>80</defaultValue>
-<description>Port is 80 for HTTP servers. Care should be taken when choosing an alternate port.</description>
-</setting>
-</group>
-
-<group name="call">
-  <label>Call</label>
-
-        <!-- PhoneConfiguration -->
-	<setting name="donotdisturb.perReg">
-<label>Do Not Disturb</label>
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the DND feature will allow selection of DND on a per-registration basis. </description>
-</setting>
-
-        <!-- AppConfiguration until end of group -->
-<label>Call Handling Configuration</label>
-
-	<setting name="rejectBusyOnDnd">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, reject all incoming calls with the reason 'busy' if do-not-disturb is enabled.</description>
-</setting>
-
-	<setting name="enableOnNotRegistered">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, calls will be allowed when the phone is not successfully registered, other-wise, calls will not be permitted without a valid registration.</description>
-</setting>
-
-	<setting name="offeringTimeOut">
-<type>positive integer</type>
-<defaultValue>60</defaultValue>
-<description>Time in seconds to allow an incoming call to ring before dropping the call, 0=infinite.</description>
-</setting>
-
-	<setting name="ringBackTimeOut">
-<type>positive integer</type>
-<defaultValue>60</defaultValue>
-<description>Time in seconds to allow an outgoing call to remain in the ringback state before dropping the call, 0=infinite.</description>
-</setting>
-
-	<setting name="lastCallReturnString">
-<type>string of maximum length 32</type>
-<defaultValue>*69</defaultValue>
-<description>The string sent to the server when the user selects the 'last call return' action.</description>
-</setting>
-
-	<setting name="shared.disableDivert">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, disable diversion feature for shared lines.</description>
-</setting>
-
-	<setting name="shared.seizeFailReorder">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, play re-order tone locally on shared line seize failure.</description>
-</setting>
-
-	<setting name="shared.oneTouchResume">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, when a shared line has a call on hold the remote user can press that line and resume the call. If more than one call is on hold on the line then the first one will be selected and resumed automatically. If set to 0, pressing the shared line will bring up a list of the calls on that line and the user can select which call the next action should be applied to. The call diversion, no answer feature will take precedence over this feature if enabled.</description>
-</setting>
-</group>
-
-<group name="call.hold">
-<label>Hold, Local Reminder</label>
-
-	<setting name="localReminder.enabled">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, periodically notify the local user that calls have been on hold for an extended period of time. </description>
-</setting>
-
-	<setting name="localReminder.period">
-<type>non-negative integer</type>
-<defaultValue>60</defaultValue>
-<description>Time in seconds between subsequent reminders.</description>
-</setting>
-
-	<setting name="localReminder.startDelay">
-<type>non-negative integer</type>
-<defaultValue>90</defaultValue>
-<description>Time in seconds to wait before the initial reminder.</description>
-</setting>
-</group>
-
-<group name="key">
- <label>Keys</label>
-
-	<setting name="scrolling.timeout">
-<type>positive integer</type>
-<defaultValue>1</defaultValue>
-<description>The time-out after which a key that is enabled for scrolling will go into scrolling mode until the key is released. Keys enabled for scrolling are menu navigation keys (left, right, up, down arrows), volume keys, and some context-spe-cific soft keys. The value is an integer multiple of 500 milliseconds (1=500ms). </description>
-</setting>
-</group>
-
-<group name="log">
-  <label>Basic Logging</label>
-
-	<setting name="level.change.sip">
-  <label>SIP Logging</label>
-<type>0-5</type>
-<defaultValue>4</defaultValue>
-<description>This attribute controls the logging detail level for the SIP component. These are the input filters for the internal memory-based log system.</description>
-</setting>
-
-	<setting name="render.level">
-<type>0-6</type>
-<defaultValue>1</defaultValue>
-<description>Specifies the lowest class of event that will be rendered to the log files. This is the output filter from the internal mem-ory-based log system. </description>
-</setting>
-
-	<setting name="render.type">
-<type>0-2</type>
-<defaultValue>2</defaultValue>
-<description>See above table for timestamp type.</description>
-</setting>
-
-	<setting name="render.realtime">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>Set to 1. Do not change. </description>
-</setting>
-
-	<setting name="render.stdout">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>Set to 1. Do not change. </description>
-</setting>
-
-	<setting name="render.file">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>Set to 1. Do not change. </description>
-</setting>
-
-	<setting name="render.file.size">
-<type>positive integer</type>
-<defaultValue>16</defaultValue>
-<description>Maximum local application log file size in Kbytes. When this size is exceeded, the file is uploaded to the boot server and the local copy is erased. </description>
-</setting>
-
-	<setting name="render.file.upload.period">
-<type>positive integer</type>
-<defaultValue>172800</defaultValue>
-<description>Time in seconds between log file uploads to the boot server. Note: The log file will not be uploaded if no new events have been logged since the last upload.</description>
-</setting>
-
-	<setting name="render.file.upload.append">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, use append mode when uploading log files to server. </description>
-</setting>
-
-	<setting name="render.file.upload.append.sizeLimit">
-<type>positive integer</type>
-<defaultValue>512</defaultValue>
-<description>Maximum log file size on boot server in Kbytes. </description>
-</setting>
-
-	<setting name="render.file.upload.append.limitMode">
-<type>"delete, stop "	</type>
-<defaultValue>delete </defaultValue>
-<description>Behavior when server log file has reached its limit. delete=delete file and start over, stop=stop appending to file. </description>
-</setting>
-</group>
-
-<group name="sec">
-  <label>Security</label>
-  <description>These settings affect security aspects of SoundPoint(R) IP.</description>
-
-	<setting name="tagSerialNo">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the phone may advertise its serial num-ber (Ethernet address) via protocol signaling. </description>
-</setting>
-
-	<setting name="pwd.length.admin">
-<type>0-32</type>
-<defaultValue>1</defaultValue>
-<description>Password changes will need to be at least this long. Use 0 to allow null passwords. </description>
-</setting>
-
-	<setting name="pwd.length.user">
-<type>0-32</type>
-<defaultValue>2</defaultValue>
-<description>Password changes will need to be at least this long. Use 0 to allow null passwords. </description>
-</setting>
-</group>
-
-<group name="request">
- <label>Request</label>
-
-	<setting name="delay.type">
-<type>Null, 'audio', or 'call'</type>
-<defaultValue>call</defaultValue>
-<description>Defines the strategy to adopt before a request gets executed. If set to 'audio', a request can be exe-cuted as soon as there is no active audio on the phone, independently of any call state. If set to 'call', a request can be executed as soon as there are no calls in any state on the phone.</description>
-</setting>
-</group>
-
-<group name="mb">
-<label>MicroBrowser</label>
-<description> These settings control the home page and proxy to be used by the MicroBrowser when it is selected to provide services and also when it is used as part of the Idle Display. They also control size limits and the Idle Display refresh rate.</description>
-
-	<setting name="proxy">
-<type>Null or domain name or IP address in the format address:port</type>
-<defaultValue>Null. Default port = 8080. </defaultValue>
-<description>Address of the desired HTTP proxy to be used by the MicroBrowser. If blank, nor-mal unproxied HTTP is used by the MicroBrowser. </description>
-</setting>
-
-	<setting name="idleDisplay.home">
-<type>Null, or any fully formed valid HTTP URL. Length up to 255 characters.</type>
-<defaultValue></defaultValue>
-<description>URL used for MicroBrowser idle display home-page. Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. If empty, there will be no microbrowser idle display feature. Note that the MicroBrowser idle display will displace the idle display indicator. See Indicators settings.</description>
-</setting>
-
-	<setting name="idleDisplay.refresh">
-<type>0 or an integer greater than 5</type>
-<defaultValue>0</defaultValue>
-<description>The period in seconds between refreshes of the idle display MicroBrowser's con-tent. 0 = the idle display MicroBrowser is not refreshed. Minimum refresh period = 5 seconds (values from 1 to 4 will be ignored, and 5 will be used instead) Notes: If an HTTP Refresh header is detected, it will be respected, even if this parameter is set to 0. The use of this parameter in combination with the Refresh HTTP header may cause the idle display to refresh at unexpected times.</description>
-</setting>
-
-	<setting name="main.home">
-<type>Any fully formed valid HTTP URL. Length up to 255 characters.</type>
-<defaultValue></defaultValue>
-<description>URL used for MicroBrowser home-page. If blank, the browser will notify the user that a blank home-page was used. Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. </description>
-</setting>
-
-	<setting name="limits.nodes">
-<type>Null or positive integer</type>
-<defaultValue>256</defaultValue>
-<description>Limits the number of tags which the XML parser will handle. This limits the amount of memory used by complicated pages. The Services browser and the Idle Display each use memory defined by this limit. A maximum total of 500 (256 each) is recommended. Increasing this value may have a detrimental effect on perfor-mance of the phone. </description>
-</setting>
-
-	<setting name="limits.cache">
-<type>Null or positive integer 200</type>
-<defaultValue></defaultValue>
-<description>Limits the total size of objects down-loaded for each page (both XHTML and images). Once this limit is reached, no more images are downloaded until the next page is requested. Units = kBytes. Increasing this value may have a detri-mental effect on performance of the phone.</description>
-</setting>
-</group>
-
-<group name="voIpProt">
-	<label>Servers</label>
-
-	<setting name="local.port">
-<label>Local Port</label>		
-<type>0 to 65535</type>
-<defaultValue>5060</defaultValue>
-<description>Local port for sending and receiving SIP signaling packets. If set to 0 or Null,
-	 5060 is used for the local port but it is not advertised in the SIP signaling. 
-	 If set to some other value, that value is used for the local port and it is advertised 
-	 in the SIP signaling.</description>
-</setting>
-
-    <group name="server">
-		<group name="1">
-	<setting name="address">
-<label>Primary Registration Server</label>		
-	<type>dotted-decimal IP address or host name</type>
-<defaultValue></defaultValue>
-<description>IP address or host name and port of a SIP server that accepts 
-	registrations. Multiple servers can be listed starting with for fault tolerance. 
-	If port is 0 or Null: If Address is a hostname and Transport is set to DNSnaptr, 
-	do NAPTR then SRV lookups. If Transport is set to TCPpreferred or UDPonly then use 
-	5060 and don't advertise the port number in signalling. If Address is an IP address,
-	 there is no DNS lookup and 5060 is used for the port but it is not advertised 
-	 in signaling. If port is 1 to 65535: This value is used and it is advertised 
-	 in signaling.</description>
-</setting>
-
-	<setting name="port">
-<type>0, Null, 1 to 65535</type>
-<defaultValue>5060</defaultValue>
-<description></description>
-</setting>
-
-	<setting name="transport">
-<type>DNSnaptr or TCPpreferred or UDPonly</type>
-<defaultValue></defaultValue>
-<description>If set to Null or DNSnaptr: If Address is a hostname and Port is 0 or Null, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per RFC 3263. If Address is an IP address, or a port is given, then UDP is used. If set to TCPpreferred: TCP is the preferred transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be used. </description>
-</setting>
-
-	<setting name="expires">
-<type>positive integer, minimum 300</type>
-<defaultValue></defaultValue>
-<description>Requested registration period in seconds. This is SoundPoint(R) IP's requested registration period. The period negotiated with the server may be different. SoundPoint(R) IP will attempt to re-register when half the negotiated period has expired.</description>
-</setting>
-
-	<setting name="register">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 0, calls can be routed to an outbound proxy without registration. </description>
-</setting>
-
-	<setting name="retryTimeOut">
-<type>Null or non-negative integer</type>
-<defaultValue>0</defaultValue>
-<description>If set to 0 or Null, use standard RFC 3261 signaling retry behavior. Otherwise retryTimeOut determines how often retries will be sent. Units = milliSeconds. (Finest resolution = 100ms). </description>
-</setting>
-
-	<setting name="retryMaxCount">
-<type>Null or non-negative integer</type>
-<defaultValue>0</defaultValue>
-<description>If set to 0 or Null, 3 is used. retryMaxCount retries will be attempted before moving on to the next available server. </description>
-</setting>
-
-	<setting name="expires.lineSeize">
-<type>"positive integer, minimum 10 "	</type>
-<defaultValue>30</defaultValue>
-<description>Requested line-seize subscription period. </description>
-</setting>
-   </group>
-      
-    <group name="2">
-	<setting name="address">
-<label>Secondary Registration Server</label>		
-	<type>dotted-decimal IP address or host name</type>
-<defaultValue></defaultValue>
-<description>Backup IP address or host name and port of a SIP server that accepts registrations. Multiple servers can be listed starting with for fault tolerance. If port is 0 or Null: If Address is a hostname and Transport is set to DNSnaptr, do NAPTR then SRV lookups. If Transport is set to TCPpreferred or UDPonly then use 5060 and don't advertise the port number in signalling. If Address is an IP address, there is no DNS lookup and 5060 is used for the port but it is not advertised in signaling. If port is 1 to 65535: This value is used and it is advertised in signaling.</description>
-</setting>
-
-	<setting name="port">
-<type>0, Null, 1 to 65535</type>
-<defaultValue>5060</defaultValue>
-<description></description>
-</setting>
-
-	<setting name="transport">
-<type>DNSnaptr or TCPpreferred or UDPonly</type>
-<defaultValue></defaultValue>
-<description>If set to Null or DNSnaptr: If Address is a hostname and Port is 0 or Null, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per RFC 3263. If Address is an IP address, or a port is given, then UDP is used. If set to TCPpreferred: TCP is the preferred transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be used. </description>
-</setting>
-
-	<setting name="expires">
-<type>positive integer, minimum 300</type>
-<defaultValue></defaultValue>
-<description>Requested registration period in seconds. This is SoundPoint(R) IP's requested registration period. The period negotiated with the server may be different. SoundPoint(R) IP will attempt to re-register when half the negotiated period has expired.</description>
-</setting>
-
-	<setting name="register">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 0, calls can be routed to an outbound proxy without reg-istration. </description>
-</setting>
-
-	<setting name="retryTimeOut">
-<type>Null or non-negative integer</type>
-<defaultValue>0</defaultValue>
-<description>If set to 0 or Null, use standard RFC 3261 signaling retry behavior. Otherwise retryTim-eOut determines how often retries will be sent. Units = milliSeconds. (Finest resolution = 100ms). </description>
-</setting>
-
-	<setting name="retryMaxCount">
-<type>Null or non-negative integer</type>
-<defaultValue>0</defaultValue>
-<description>If set to 0 or Null, 3 is used. retryMaxCount retries will be attempted before moving on to the next available server. </description>
-</setting>
-
-	<setting name="expires.lineSeize">
-<type>"positive integer, minimum 10 "	</type>
-<defaultValue>30</defaultValue>
-<description>Requested line-seize subscription period. </description>
-</setting>
-</group>
-</group>
-
-	<setting name="SIP.useRFC2543hold">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, use the obsolete c=0.0.0.0 RFC2543 technique, otherwise, use 
-	SDP media direction attributes (such as a=sendonly) per RFC 3264 when 
-	initiating hold. In either case, the phone processes incoming hold signaling 
-	in either format. </description>
-</setting>
-
-	<setting name="SIP.lcs">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>
-	If set to 1, the proprietary 'epid' parameter is added to the From field 
-	of all requests to support Windows Live Communications Server. </description>
-</setting>
-
-	<setting name="SIP.sendCompactHdrs">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 0, SIP header names generated by the phone use 
-	the long form, for example 'From'. If set to 1, SIP header names 
-	generated by the phone use the short form, for example 'f'. 
-</description>
-</setting>
-
-<group name="SIP.outboundProxy">
-	<setting name="address">
-<label>Outbound SIP Proxy</label>		
-	<type>dotted-decimal IP address or host name</type>
-<defaultValue></defaultValue>
-<description>IP address or host name and port of a SIP server to which the phone shall 
-	send all requests for making calls. </description>
-</setting>
-
-	<setting name="port">
-<type>1 to 65535</type>
-<defaultValue>5060</defaultValue>
-<description></description>
-</setting>
-</group>
-
-	<setting name="SIP.alertInfo.x.value">
-<type>string to compare against the value of Alert-Info headers in INVITE requests</type>
-<defaultValue></defaultValue>
-<description>Alert-Info fields from INVITE requests will be compared against as many 
-	of these parameters as are spec-ified (x=1, 2, ..., N) and if a match is found,
-	 the behavior described in the corresponding ring class will be applied.</description>
-</setting>
-
-	<setting name="SIP.alertInfo.x.class">
-<type>positive integer</type>
-<defaultValue></defaultValue>
-<description></description>
-</setting>
-
-	<setting name="SIP.requestValidation.x.request">
-<type>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 'OPTIONS', 'INFO', 'MESSAGE', 'SUB-SCRIBE', 'NOTIFY', 'REFER', 'PRACK', or 'UPDATE'</type>
-<defaultValue></defaultValue>
-<description>Sets the name of the method for which validation will be applied. WARNING: Intensive request validation may have a negative performance impact due to the additional signaling required in some cases, therefore, use it judiciously.</description>
-</setting>
-
-	<setting name="SIP.requestValidation.x.method">
-<type>Null or one of: 'source', 'digest' or 'both'/'all'</type>
-<defaultValue></defaultValue>
-<description>If Null, no validation is done. Otherwise this sets the type of validation performed 
-	for the request: source: ensure request is received from an IP address of a 
-	server belonging to the set of target registration servers; digest: challenge 
-	requests with digest authentication using the local credentials for the associated 
-	registration (line); both or all: apply both of the above methods </description>
-</setting>
-
-	<setting name="SIP.requestValidation.x.request.y.event">
-<type>A valid string</type>
-<defaultValue></defaultValue>
-<description>Determines which events specified with the Event header should be validated; 
-	only applicable when voIp- Prot.SIP.requestValida-tion.x.request is set to 
-	'SUBSCRIBE' or 'NOTIFY'. If set to Null, all events will be validated. </description>
-</setting>
-
-	<setting name="SIP.requestValidation.digest.realm">
-<type>A valid string</type>
-<defaultValue>PolycomSPIP</defaultValue>
-<description>Determines string used for Realm.</description>
-</setting>
-
-	<setting name="SIP.specialEvent.lineSeize.nonStandard">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, process a 200 OK response for a line-seize event SUBSCRIBE as 
-	though a line-seize NOTIFY with Subscription State: active header had been
-	 received, this speeds up processing. </description>
-</setting>
-
-	<setting name="SIP.specialEvent.checkSync.alwaysReboot">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, always reboot when a NOTIFY message is received from the 
-	server with event equal to check-sync. If set to 0, only reboot if any of the 
-	files listed in [mac].cfg have changed on the FTP server when a NOTIFY 
-	message is received from the server with event equal to check-sync. </description>
-</setting>
-
-	<setting name="SIP.conference.address">
-<type>ASCII string up to 128 characters long</type>
-<defaultValue></defaultValue>
-<description>If Null, conferences are set up on the phone locally. If set 
-	to some value, conferences are set up by the server using the conferencing 
-	agent specified by this address. The acceptable values depend on the 
-	conferencing server implementation policy. </description>
-</setting>
-</group>
-
-<group name="dialplan">
-  <label>Dial Plan</label>
-
-	<setting name="impossibleMatchHandling">
-<type>0, 1 or 2</type>
-<defaultValue>0</defaultValue>
-<description>If set to 0, the digits entered up to and including the point where 
-	an impossible match occurred are sent to the server immediately. If set to 1, 
-	give reorder tone. If set to 2, allow user to accumulate digits and dispatch 
-	call manually with the Send soft key. </description>
-</setting>
-
-	<setting name="removeEndOfDial">
-<type>0, 1</type>
-<defaultValue>1</defaultValue>
-<description>If set to 1, strip trailing # digit from digits sent out. </description>
-</setting>
-
-	<setting name="digitmap">
-<type>string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String is limited to 512 bytes and 20 seg-ments; a comma is also allowed; when reached in the digit map, a comma will turn dial tone back on.</type>
-<defaultValue>[2-9]11|0T| 011xxx.T| [0-1][2- 9]xxxxxxxxx| [2-9]xxxxxxxxx| [2-9]xxxT</defaultValue>
-<description>When this attribute is present, number-only dialing during the setup 
-	phase of new calls will be compared against the patterns therein and if 
-	a match is found, the call will be initiated automatically eliminating 
-	the need to press Send. </description>
-</setting>
-
-	<setting name="digitmap.timeOut">
-<type>positive integer</type>
-<defaultValue>3</defaultValue>
-<description>Timeout in seconds for 'T' feature of digitmap. </description>
-</setting>
-
-	<setting name="routing.server.x.address">
-<type>dotted-decimal IP address or host name</type>
-<defaultValue></defaultValue>
-<description>IP address or host name and port of a SIP server that will be used for 
-	routing calls. Multiple servers can be listed start-ing with x=1, 2, ... 
-	for fault tolerance. </description>
-</setting>
-
-	<setting name="routing.server.x.port">
-<type>1 to 65535</type>
-<defaultValue>5060</defaultValue>
-<description></description>
-</setting>
-
- <group name="routing.emergency">
-<label>Emergency</label>
-<description>In the following attributes, x is the index of the emergency entry 
-	description and y is the index of the server associated with emergency entry x. 
-	For each emergency entry (index x), one or more server entries (indexes (x,y)) 
-	can be configured. x and y must both use sequential numbering starting at 1. </description>
-
-	<setting name="x.value">
-<type>Comma separated list of entries or single entry representing a SIP URL or a combination of SIP URLs.</type>
-<defaultValue>Null Example: '15,17,18', '911', 'sos'.</defaultValue>
-<description>This determines the URLs that should be watched for. When one of these defined 
-	URLs is detected as having been dialed by the user, the call will automatically be 
-	directed to the defined emergency server. </description>
-</setting>
-
-	<setting name="x.server.y">
-<type>positive integer</type>
-<defaultValue></defaultValue>
-<description>Index representing the server defined in Servers that will be used for 
-	emergency routing.</description>
-</setting>
-</group>
-</group>
-
-
-<group name="msg">
- <label>Messaging</label>
-<description>SoundPoint(R) IP supports message-waiting indication on a per-registration basis. </description>
-
-	<setting name="bypassInstantMessage">
-<type>0, 1</type>
-<defaultValue>0</defaultValue>
-<description>If set to 1, the display offering a choice of 'Message Center' and 'Instant Mes-sages' will be bypassed when pressing the Messages key, the phone will act as if 'Message Center' was chosen. See 3.6.1 Voicemail Integration on page 49. Instant Messages will still be accessible from the Main Menu.</description>
-</setting>
-</group>
-
-<group name="nat">
- <label>Network Address Translation</label>
-<description>These parameters define port and IP address changes used in NAT traversal. The port changes will change the port used by the phone, while the IP entry simply changes the IP advertised in the SIP signaling. This allows the use of simple NAT devices that can redirect traffic, but do not allow for port mapping. For example, port 5432 on the NAT device can be sent to port 5432 on an internal device, but not port 1234. </description>
-
-	<setting name="ip">
-<type>dotted-decimal IP address</type>
-<defaultValue></defaultValue>
-<description>IP address to advertise within SIP signaling - should match the external IP address used by the NAT device.</description>
-</setting>
-
-	<setting name="signalPort">
-<type>1024 to 65536</type>
-<defaultValue></defaultValue>
-<description>If non-Null, this port will be used by the phone for SIP signaling, overriding the value set for RTP Settings</description>
-</setting>
-
-	<setting name="mediaPortStart">
-<type>1024 to 65536</type>
-<defaultValue></defaultValue>
-<description>If non-Null, this attribute will be used to set the initially allocated RTP port, overriding the value set in RTP Settings.</description>
-</setting>
-
-</group>
-
+	<group name="lcl.datetime">
+		<label>Date and Time</label>
+		<setting name="date.format">
+			<label>24 Hour Time</label>
+			<type>"string which includes 'D', 'd' and 'M' and two optional 
+				comma's "</type>
+			<defaultValue></defaultValue>
+			<description>Controls format of date string. D = day of week d = 
+				day M = month Up to two comma's may be included. e.g. D,dM = 
+				Thursday, 3 July Md,D = July 3, Thursday The field may contain 
+				0, 1 or 2 comma's which can occur only between characters and 
+				only one at a time i.e. 'D,,dM' is illegal.</description>
+		</setting>
+		<setting name="date.longFormat">
+			<type>0,1</type>
+			<defaultValue></defaultValue>
+			<description>If 1, display the day and month in long format 
+				(Friday/November), otherwise, use abbreviations (Fri/Nov). 
+				</description>
+		</setting>
+		<setting name="lcl.datetime.date.dateTop">
+			<type>0,1</type>
+			<defaultValue></defaultValue>
+			<description>If 1, display date above time else display time above 
+				date.</description>
+		</setting>
+	</group>
+	<group name="up">
+		<label>User Preferences</label>
+		<setting name="headsetMode">
+			<type>0,1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, the headset will be selected as the 
+				preferred transducer after its first use until the headset key 
+				is pressed again; otherwise, handsfree will be selected 
+				preferentially over the headset.</description>
+		</setting>
+		<setting name="useDirectoryNames">
+			<type>0,1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, the name fields of directory entries 
+				which match incoming calls will be used for caller 
+				identification display and in the call lists instead of the 
+				name provided via network signaling.</description>
+		</setting>
+		<setting name="oneTouchVoiceMail">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, the voicemail summary display is bypassed 
+				and voicemail is dialed directly (if configured).</description>
+		</setting>
+		<setting name="welcomeSoundEnabled">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, play welcome sound effect after a 
+				reboot.</description>
+		</setting>
+		<setting name="welcomeSoundOnWarmBootEnabled">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, play welcome sound effect on warm as well 
+				as cold boots, otherwise only a cold boot will trigger the 
+				welcome sound effect.</description>
+		</setting>
+		<setting name="localClockEnabled">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, display the date and time on the idle 
+				display</description>
+		</setting>
+	</group>
+	<group name="tone.dtmf">
+		<label>DTMF</label>
+		<setting name="level">
+			<type>-33 to -3</type>
+			<defaultValue>-15</defaultValue>
+			<description>Level of the high frequency compo-nent of the DTMF 
+				digit measured in dBm0; the low frequency tone will be two dB 
+				lower.</description>
+		</setting>
+		<setting name="onTime">
+			<type>positive integer</type>
+			<defaultValue>50</defaultValue>
+			<description>When a sequence of DTMF tones is played out 
+				automatically, this is the length of time in milliseconds the 
+				tones will be generated for; this is also the minimum time the 
+				tone will be played for when dialing manually (even if key 
+				press is shorter).</description>
+		</setting>
+		<setting name="offTime">
+			<type>positive integer</type>
+			<defaultValue>50</defaultValue>
+			<description>When a sequence of DTMF tones is played out 
+				automatically, this is the length of time in milliseconds the 
+				phone will pause between digits; this is also the minimum 
+				inter-digit time when dialing manually.</description>
+		</setting>
+		<setting name="chassis.masking">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, DTMF tones will be sub-stituted with a 
+				non-DTMF pacifier tone when dialing in hands-free mode. This 
+				prevents DTMF digits being broadcast to other surrounding 
+				telephony devices or being inadvert-ently transmitted in-band 
+				due to local acoustic echo. Note: tone.dtmf.chassis.masking 
+				should only be enabled when tone.dtmf.viaRtp is disabled. 
+				</description>
+		</setting>
+		<setting name="stim.pac.offHookOnly">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>Not currently used.</description>
+		</setting>
+		<setting name="viaRtp">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, encode DTMF in the active RTP stream, 
+				otherwise, DTMF may be encoded within the signaling protocol 
+				only when the protocol offers the option. Note: 
+				tone.dtmf.chassis.masking should be enabled when 
+				tone.dtmf.viaRtp is disabled. </description>
+		</setting>
+		<setting name="rfc2833Control">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, the phone will indicate a preference for 
+				encoding DTMF via RFC 2833 format in its Session Description 
+				Protocol (SDP) offers by showing support for the phone-event 
+				payload type; this does not affect SDP answers, these will 
+				always honor the DTMF format present in the offer since the 
+				phone has native support for RFC 2833.</description>
+		</setting>
+		<setting name="rfc2833Payload">
+			<type>96-127</type>
+			<defaultValue>101</defaultValue>
+			<description>The phone-event payload encoding in the dynamic range 
+				to be used in SDP offers.</description>
+		</setting>
+	</group>
+	<group name="se">
+		<label>Sound Effects</label>
+		<description>SoundPoint(R) IP uses both synthesized (based on the 
+			chord-sets described earlier) and sampled audio sound effects. 
+			Sound effects are defined by patterns: rudimentary sequences of 
+			chord-sets, silence periods, and wave files.</description>
+		<setting name="stutterOnVoiceMail">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, stuttered dial tone is used in place of 
+				normal dial tone to indicate that one or more messages 
+				(voice-mail) are waiting at the message center.</description>
+		</setting>
+		<setting name="appLocalEnabled">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, local user interface sound effects such 
+				as confirmation/error tones, will be enabled. </description>
+		</setting>
+	</group>
+	<group name="voice">
+		<label>Codec Preferences</label>
+		<setting name="codecPref.G711Mu">
+			<type>Null, 1-3</type>
+			<defaultValue>1</defaultValue>
+			<description>Specifies the codec preference. 1=highest 3=lowest 
+				Null=do not use Give each codec a unique priority, this will 
+				dictate the order used in SDP negotiations. Note: If less than 
+				two codecs are specified, SoundPoint(R) IP will automatically 
+				use G711Mu and G711A with default parameters.</description>
+		</setting>
+		<setting name="codecPref.G711A">
+			<type>Null, 1-3</type>
+			<defaultValue>2</defaultValue>
+			<description>Specifies the codec preference. 1=highest 3=lowest 
+				Null=do not use Give each codec a unique priority, this will 
+				dictate the order used in SDP negotiations. Note: If less than 
+				two codecs are specified, SoundPoint(R) IP will automatically 
+				use G711Mu and G711A with default parameters.</description>
+		</setting>
+		<setting name="codecPref.G729AB">
+			<type>Null, 1-3</type>
+			<defaultValue>3</defaultValue>
+			<description>Specifies the codec preference. 1=highest 3=lowest 
+				Null=do not use Give each codec a unique priority, this will 
+				dictate the order used in SDP negotiations. Note: If less than 
+				two codecs are specified, SoundPoint(R) IP will automatically 
+				use G711Mu and G711A with default parameters.</description>
+		</setting>
+		<setting name="audioProfile.x.payloadSize">
+			<type>10, 20, 30, ...80</type>
+			<defaultValue></defaultValue>
+			<description>Preferred Tx payload size in milliseconds to be 
+				provided in SDP offers and used in the absence of ptime 
+				negotiations. This is also the range of supported Rx payload 
+				sizes.</description>
+		</setting>
+		<setting name="audioProfile.x.jitterBufferMin">
+			<type>40, 50, 60, ... (multiple of 10)</type>
+			<defaultValue></defaultValue>
+			<description>The smallest jitter buffer depth (in milli-seconds) 
+				that must be achieved before play out begins for the first 
+				time. Once this depth has been achieved initially, the depth 
+				may fall below this point and play out will still continue. 
+				This parameter should be set to the smallest possible value 
+				which is at least two packet pay-loads, and larger than the 
+				expected short term average jitter.</description>
+		</setting>
+		<setting name="audioProfile.x.jitterBufferShrink">
+			<type>10, 20, 30, ... (multiple of 10)</type>
+			<defaultValue></defaultValue>
+			<description>The absolute minimum duration time (in milliseconds) 
+				of RTP packet Rx with no packet loss between jitter buffer size 
+				shrinks. Use smaller values (1000 ms) to minimize the delay on 
+				known good networks. Use larger values to minimize packet loss 
+				on networks with large jitter (3000 ms).</description>
+		</setting>
+		<setting name="audioProfile.x.jitterBufferMax">
+			<type> greater than jitterBuf-ferMin, multiple of 10, less than or 
+				=500 for IP 500 and IP 600, less than or = 160 for IP 300</type>
+			<defaultValue>
+			</defaultValue>
+			<description>The largest jitter buffer depth to be sup-ported (in 
+				milliseconds). Jitter above this size will always cause lost 
+				packets. This parameter should be set to the smallest possible 
+				value that will support the expected network 
+				jitter</description>
+		</setting>
+		<group name="volume">
+			<label>Volume Persistence</label>
+			<description>The user's selection of the receive volume during a 
+				call can be remembered between calls. This can be configured 
+				per termination (handset, headset and handsfree/chassis). In 
+				some countries regulations exist which dictate that receive 
+				volume should be reset to nominal at the start of each call on 
+				handset and headset.</description>
+			<setting name="persist.handset">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, the receive volume will be remembered 
+					between calls. If set to 0, the receive volume will be 
+					reset to nominal at the start of each call.</description>
+			</setting>
+			<setting name="persist.headset">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, the receive volume will be remembered 
+					between calls. If set to 0, the receive volume will be 
+					reset to nominal at the start of each call.</description>
+			</setting>
+			<setting name="persist.handsfree">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, the receive volume will be remembered 
+					between calls. If set to 0, the receive volume will be 
+					reset to nominal at the start of each call.</description>
+			</setting>
+		</group>
+		<group name="vad">
+			<label>Voice Activity Detection</label>
+			<description>These settings control the performance of the voice 
+				activity detection (silence suppres-sion) feature</description>
+			<setting name="vadEnable">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, enable VAD.</description>
+			</setting>
+			<setting name="vadThresh">
+				<type>integer from 0 to 30</type>
+				<defaultValue>15</defaultValue>
+				<description>The threshold for determining what is active voice 
+					and what is background noise in dB. This does not apply to 
+					G.729AB codec operation which has its own built-in VAD 
+					function.</description>
+			</setting>
+		</group>
+	</group>
+	<group name="qos">
+		<label>Quality of Service</label>
+		<setting name="ethernet.rtp.user_priority">
+			<type>0-7</type>
+			<defaultValue>5</defaultValue>
+			<description>User-priority used for RTP packets.</description>
+		</setting>
+		<setting name="ethernet.callControl.user_priority">
+			<type>0-7</type>
+			<defaultValue>5</defaultValue>
+			<description>User-priority used for call control 
+				packets.</description>
+		</setting>
+		<setting name="ethernet.other.user_priority">
+			<type>0-7</type>
+			<defaultValue>2</defaultValue>
+			<description>User-priority used for packets that do not have a 
+				per-protocol setting.</description>
+		</setting>
+		<setting name="ip.rtp.min_delay">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, set min-delay bit in the IP TOS field of 
+				the IP header, or else don't set it.</description>
+		</setting>
+		<setting name="ip.rtp.max_throughput">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, set max-throughput bit in the IP TOS 
+				field of the IP header, or else don't set it.</description>
+		</setting>
+		<setting name="ip.rtp.max_reliability">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, set max-reliability bit in the IP TOS 
+				field of the IP header, or else don't set it.</description>
+		</setting>
+		<setting name="ip.rtp.min_cost">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, set min-cost bit in the IP TOS field of 
+				the IP header, or else don't set it.</description>
+		</setting>
+		<setting name="ip.rtp.precedence">
+			<type>0-7</type>
+			<defaultValue>5</defaultValue>
+			<description>If set to 1, set precedence bits in the IP TOS field 
+				of the IP header, or else don't set them.</description>
+		</setting>
+		<setting name="ip.callControl.min_delay">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, set min-delay bit in the IP TOS field of 
+				the IP header, or else don't set it.</description>
+		</setting>
+		<setting name="ip.callControl.max_throughput">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, set max-throughput bit in the IP TOS 
+				field of the IP header, or else don't set it.</description>
+		</setting>
+		<setting name="ip.callControl.max_reliability">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, set max-reliability bit in the IP TOS 
+				field of the IP header, or else don't set it.</description>
+		</setting>
+		<setting name="ip.callControl.min_cost">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, set min-cost bit in the IP TOS field of 
+				the IP header, or else don't set it. </description>
+		</setting>
+		<setting name="ip.callControl.precedence">
+			<type>0-7</type>
+			<defaultValue>5</defaultValue>
+			<description>If set to 1, set precedence bits in the IP TOS field 
+				of the IP header, or else don't set them.</description>
+		</setting>
+	</group>
+	<group name="tcpIpApp.sntp">
+		<label>Time Synchronization</label>
+		<description>The following table describes the parameters used to set 
+			up time synchronization and daylight savings time. The defaults 
+			shown will enable daylight savings time for North America. Daylight 
+			savings defaults</description>
+		<setting name="resyncPeriod">
+			<type>positive integer</type>
+			<defaultValue>86400 (24 hours) </defaultValue>
+			<description>Time in seconds between SNTP re-syncs.</description>
+		</setting>
+		<setting name="address">
+			<type>a valid host name or IP address</type>
+			<defaultValue>clock</defaultValue>
+			<description>Address of the SNTP server.</description>
+		</setting>
+		<setting name="gmtOffset">
+			<type>positive or negative integer</type>
+			<defaultValue>-28800 (Pacific time)</defaultValue>
+			<description>Offset in seconds of the local time zone from GMT. 
+				Note: 3600 seconds per hour</description>
+		</setting>
+		<setting name="daylightSavings.enable">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, apply day-light savings rules to 
+				displayed time.</description>
+		</setting>
+		<setting name="daylightSavings.fixedDayEnable">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, 'April 1st' is used, otherwise 'the first 
+				Sunday in April' is used.</description>
+		</setting>
+		<setting name="daylightSavings.start.month">
+			<type>12-Jan</type>
+			<defaultValue>4 (April)</defaultValue>
+			<description>Month to start DST. 1=Jan, 2=Feb, ..., 
+				12=Dec</description>
+		</setting>
+		<setting name="daylightSavings.start.date">
+			<type>31-Jan</type>
+			<defaultValue>1</defaultValue>
+			<description>Day of the month to start DST.</description>
+		</setting>
+		<setting name="daylightSavings.start.time">
+			<type>0-23</type>
+			<defaultValue>2</defaultValue>
+			<description>Time of day to start DST, in 24 hour clock. 2=2 am, 
+				14=2 pm</description>
+		</setting>
+		<setting name="daylightSavings.start.dayOfWeek">
+			<type>7-Jan</type>
+			<defaultValue>1</defaultValue>
+			<description>Day of week to apply DST. 1=Sun, 2=Mon, ..., 
+				7=Sat</description>
+		</setting>
+		<setting name="daylightSavings.start.dayOfWeek.lastInMonth">
+			<type>0, 10</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1 and fixedDayEnable=0, start DST on the 
+				last day of the week (specified by dayOf- Week) in the month, 
+				rather than the first in the month.</description>
+		</setting>
+		<setting name="daylightSavings.stop.month">
+			<type>12-Jan</type>
+			<defaultValue>10</defaultValue>
+			<description>Month to stop DST. 1=Jan, 2=Feb, ..., 
+				12=Dec</description>
+		</setting>
+		<setting name="daylightSavings.stop.date">
+			<type>31-Jan</type>
+			<defaultValue>1</defaultValue>
+			<description>Day of the month to start DST.</description>
+		</setting>
+		<setting name="daylightSavings.stop.time">
+			<type>0-23</type>
+			<defaultValue>2</defaultValue>
+			<description>Time of day to stop DST, in 24 hour clock. 2= 2 am, 
+				14=2 pm</description>
+		</setting>
+		<setting name="daylightSavings.stop.dayOfWeek">
+			<type>7-Jan</type>
+			<defaultValue>1</defaultValue>
+			<description>Day of week to stop DST. 1=Sun, 2=Mon, ..., 
+				7=Sat</description>
+		</setting>
+		<setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1 and fixedDay- Enable=0, stop DST on the 
+				last day of the week (specified by dayOf- Week) in the month, 
+				rather than the first in the month.</description>
+		</setting>
+	</group>
+	<group name="tcpIpApp.port">
+		<label>RTP</label>
+		<setting name="port.rtp.filterByIp">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, reject RTP pack-ets arriving from (sent 
+				from) a non-negotiated (via SDP) IP address.</description>
+		</setting>
+		<setting name="rtp.filterByPort">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, reject RTP pack-ets arriving from (sent 
+				from) a non-negotiated (via SDP) port.</description>
+		</setting>
+		<setting name="rtp.forceSend">
+			<type>Null, 1024- 65534</type>
+			<defaultValue></defaultValue>
+			<description>When non-Null, send all RTP packets to, and expect all 
+				RTP packets to arrive on, the specified port. Note: both 
+				tcpIpApp.port.rtp.filter- ByIp and 
+				tcpI-pApp.port.rtp.filterByPort must be enabled for this to 
+				work.</description>
+		</setting>
+		<setting name="rtp.mediaPortRangeStart">
+			<type>Null, even integer from 1024-65534</type>
+			<defaultValue></defaultValue>
+			<description>If set to Null, the value 2222 will be used for the 
+				first allo-cated RTP port, otherwise, the specified port will 
+				be used. Subsequent ports will be allocated from a pool 
+				starting with the specified port plus two up to a value of 
+				(start-port + 46), after which the port number will wrap back 
+				to the starting value.</description>
+		</setting>
+	</group>
+	<group name="httpd">
+		<label>Web Server</label>
+		<setting name="enabled">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, the HTTP server will be 
+				enabled.</description>
+		</setting>
+		<setting name="cfg.enabled">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, the HTTP server configuration interface 
+				will be enabled.</description>
+		</setting>
+		<setting name="cfg.port">
+			<type>1-65535</type>
+			<defaultValue>80</defaultValue>
+			<description>Port is 80 for HTTP servers. Care should be taken when 
+				choosing an alternate port.</description>
+		</setting>
+	</group>
+	<group name="call">
+		<label>Call</label>
+		<!-- PhoneConfiguration -->
+		<setting name="donotdisturb.perReg">
+			<label>Do Not Disturb</label>
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, the DND feature will allow selection of 
+				DND on a per-registration basis. </description>
+		</setting>
+		<!-- AppConfiguration until end of group -->
+		<label>Call Handling Configuration</label>
+		<setting name="rejectBusyOnDnd">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, reject all incoming calls with the reason 
+				'busy' if do-not-disturb is enabled.</description>
+		</setting>
+		<setting name="enableOnNotRegistered">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, calls will be allowed when the phone is 
+				not successfully registered, other-wise, calls will not be 
+				permitted without a valid registration.</description>
+		</setting>
+		<setting name="offeringTimeOut">
+			<type>positive integer</type>
+			<defaultValue>60</defaultValue>
+			<description>Time in seconds to allow an incoming call to ring 
+				before dropping the call, 0=infinite.</description>
+		</setting>
+		<setting name="ringBackTimeOut">
+			<type>positive integer</type>
+			<defaultValue>60</defaultValue>
+			<description>Time in seconds to allow an outgoing call to remain in 
+				the ringback state before dropping the call, 
+				0=infinite.</description>
+		</setting>
+		<setting name="lastCallReturnString">
+			<type>string of maximum length 32</type>
+			<defaultValue>*69</defaultValue>
+			<description>The string sent to the server when the user selects 
+				the 'last call return' action.</description>
+		</setting>
+		<setting name="shared.disableDivert">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, disable diversion feature for shared 
+				lines.</description>
+		</setting>
+		<setting name="shared.seizeFailReorder">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, play re-order tone locally on shared line 
+				seize failure.</description>
+		</setting>
+		<setting name="shared.oneTouchResume">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, when a shared line has a call on hold the 
+				remote user can press that line and resume the call. If more 
+				than one call is on hold on the line then the first one will be 
+				selected and resumed automatically. If set to 0, pressing the 
+				shared line will bring up a list of the calls on that line and 
+				the user can select which call the next action should be 
+				applied to. The call diversion, no answer feature will take 
+				precedence over this feature if enabled.</description>
+		</setting>
+	</group>
+	<group name="call.hold">
+		<label>Hold, Local Reminder</label>
+		<setting name="localReminder.enabled">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, periodically notify the local user that 
+				calls have been on hold for an extended period of time. 
+				</description>
+		</setting>
+		<setting name="localReminder.period">
+			<type>non-negative integer</type>
+			<defaultValue>60</defaultValue>
+			<description>Time in seconds between subsequent 
+				reminders.</description>
+		</setting>
+		<setting name="localReminder.startDelay">
+			<type>non-negative integer</type>
+			<defaultValue>90</defaultValue>
+			<description>Time in seconds to wait before the initial 
+				reminder.</description>
+		</setting>
+	</group>
+	<group name="key">
+		<label>Keys</label>
+		<setting name="scrolling.timeout">
+			<type>positive integer</type>
+			<defaultValue>1</defaultValue>
+			<description>The time-out after which a key that is enabled for 
+				scrolling will go into scrolling mode until the key is 
+				released. Keys enabled for scrolling are menu navigation keys 
+				(left, right, up, down arrows), volume keys, and some 
+				context-spe-cific soft keys. The value is an integer multiple 
+				of 500 milliseconds (1=500ms). </description>
+		</setting>
+	</group>
+	<group name="log">
+		<label>Basic Logging</label>
+		<setting name="level.change.sip">
+			<label>SIP Logging</label>
+			<type>0-5</type>
+			<defaultValue>4</defaultValue>
+			<description>This attribute controls the logging detail level for 
+				the SIP component. These are the input filters for the internal 
+				memory-based log system.</description>
+		</setting>
+		<setting name="render.level">
+			<type>0-6</type>
+			<defaultValue>1</defaultValue>
+			<description>Specifies the lowest class of event that will be 
+				rendered to the log files. This is the output filter from the 
+				internal mem-ory-based log system. </description>
+		</setting>
+		<setting name="render.type">
+			<type>0-2</type>
+			<defaultValue>2</defaultValue>
+			<description>See above table for timestamp type.</description>
+		</setting>
+		<setting name="render.realtime">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>Set to 1. Do not change. </description>
+		</setting>
+		<setting name="render.stdout">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>Set to 1. Do not change. </description>
+		</setting>
+		<setting name="render.file">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>Set to 1. Do not change. </description>
+		</setting>
+		<setting name="render.file.size">
+			<type>positive integer</type>
+			<defaultValue>16</defaultValue>
+			<description>Maximum local application log file size in Kbytes. 
+				When this size is exceeded, the file is uploaded to the boot 
+				server and the local copy is erased. </description>
+		</setting>
+		<setting name="render.file.upload.period">
+			<type>positive integer</type>
+			<defaultValue>172800</defaultValue>
+			<description>Time in seconds between log file uploads to the boot 
+				server. Note: The log file will not be uploaded if no new 
+				events have been logged since the last upload.</description>
+		</setting>
+		<setting name="render.file.upload.append">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, use append mode when uploading log files 
+				to server. </description>
+		</setting>
+		<setting name="render.file.upload.append.sizeLimit">
+			<type>positive integer</type>
+			<defaultValue>512</defaultValue>
+			<description>Maximum log file size on boot server in Kbytes. 
+				</description>
+		</setting>
+		<setting name="render.file.upload.append.limitMode">
+			<type>"delete, stop " </type>
+			<defaultValue>delete </defaultValue>
+			<description>Behavior when server log file has reached its limit. 
+				delete=delete file and start over, stop=stop appending to file. 
+				</description>
+		</setting>
+	</group>
+	<group name="sec">
+		<label>Security</label>
+		<description>These settings affect security aspects of SoundPoint(R) 
+			IP.</description>
+		<setting name="tagSerialNo">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, the phone may advertise its serial 
+				num-ber (Ethernet address) via protocol signaling. 
+				</description>
+		</setting>
+		<setting name="pwd.length.admin">
+			<type>0-32</type>
+			<defaultValue>1</defaultValue>
+			<description>Password changes will need to be at least this long. 
+				Use 0 to allow null passwords. </description>
+		</setting>
+		<setting name="pwd.length.user">
+			<type>0-32</type>
+			<defaultValue>2</defaultValue>
+			<description>Password changes will need to be at least this long. 
+				Use 0 to allow null passwords. </description>
+		</setting>
+	</group>
+	<group name="request">
+		<label>Request</label>
+		<setting name="delay.type">
+			<type>Null, 'audio', or 'call'</type>
+			<defaultValue>call</defaultValue>
+			<description>Defines the strategy to adopt before a request gets 
+				executed. If set to 'audio', a request can be exe-cuted as soon 
+				as there is no active audio on the phone, independently of any 
+				call state. If set to 'call', a request can be executed as soon 
+				as there are no calls in any state on the phone.</description>
+		</setting>
+	</group>
+	<group name="mb">
+		<label>MicroBrowser</label>
+		<description> These settings control the home page and proxy to be used 
+			by the MicroBrowser when it is selected to provide services and 
+			also when it is used as part of the Idle Display. They also control 
+			size limits and the Idle Display refresh rate.</description>
+		<setting name="proxy">
+			<type>Null or domain name or IP address in the format 
+				address:port</type>
+			<defaultValue>Null. Default port = 8080. </defaultValue>
+			<description>Address of the desired HTTP proxy to be used by the 
+				MicroBrowser. If blank, nor-mal unproxied HTTP is used by the 
+				MicroBrowser. </description>
+		</setting>
+		<setting name="idleDisplay.home">
+			<type>Null, or any fully formed valid HTTP URL. Length up to 255 
+				characters.</type>
+			<defaultValue></defaultValue>
+			<description>URL used for MicroBrowser idle display home-page. 
+				Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. 
+				If empty, there will be no microbrowser idle display feature. 
+				Note that the MicroBrowser idle display will displace the idle 
+				display indicator. See Indicators settings.</description>
+		</setting>
+		<setting name="idleDisplay.refresh">
+			<type>0 or an integer greater than 5</type>
+			<defaultValue>0</defaultValue>
+			<description>The period in seconds between refreshes of the idle 
+				display MicroBrowser's con-tent. 0 = the idle display 
+				MicroBrowser is not refreshed. Minimum refresh period = 5 
+				seconds (values from 1 to 4 will be ignored, and 5 will be used 
+				instead) Notes: If an HTTP Refresh header is detected, it will 
+				be respected, even if this parameter is set to 0. The use of 
+				this parameter in combination with the Refresh HTTP header may 
+				cause the idle display to refresh at unexpected 
+				times.</description>
+		</setting>
+		<setting name="main.home">
+			<type>Any fully formed valid HTTP URL. Length up to 255 
+				characters.</type>
+			<defaultValue></defaultValue>
+			<description>URL used for MicroBrowser home-page. If blank, the 
+				browser will notify the user that a blank home-page was used. 
+				Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. 
+				</description>
+		</setting>
+		<setting name="limits.nodes">
+			<type>Null or positive integer</type>
+			<defaultValue>256</defaultValue>
+			<description>Limits the number of tags which the XML parser will 
+				handle. This limits the amount of memory used by complicated 
+				pages. The Services browser and the Idle Display each use 
+				memory defined by this limit. A maximum total of 500 (256 each) 
+				is recommended. Increasing this value may have a detrimental 
+				effect on perfor-mance of the phone. </description>
+		</setting>
+		<setting name="limits.cache">
+			<type>Null or positive integer 200</type>
+			<defaultValue></defaultValue>
+			<description>Limits the total size of objects down-loaded for each 
+				page (both XHTML and images). Once this limit is reached, no 
+				more images are downloaded until the next page is requested. 
+				Units = kBytes. Increasing this value may have a detri-mental 
+				effect on performance of the phone.</description>
+		</setting>
+	</group>
+	<group name="voIpProt">
+		<label>Servers</label>
+		<setting name="local.port">
+			<label>Local Port</label>
+			<type>0 to 65535</type>
+			<defaultValue>5060</defaultValue>
+			<description>Local port for sending and receiving SIP signaling 
+				packets. If set to 0 or Null, 5060 is used for the local port 
+				but it is not advertised in the SIP signaling. If set to some 
+				other value, that value is used for the local port and it is 
+				advertised in the SIP signaling.</description>
+		</setting>
+		<group name="server">
+			<group name="1">
+				<setting name="address">
+					<label>Primary Registration Server</label>
+					<type>dotted-decimal IP address or host name</type>
+					<defaultValue></defaultValue>
+					<description>IP address or host name and port of a SIP 
+						server that accepts registrations. Multiple servers can 
+						be listed starting with for fault tolerance. If port is 
+						0 or Null: If Address is a hostname and Transport is 
+						set to DNSnaptr, do NAPTR then SRV lookups. If 
+						Transport is set to TCPpreferred or UDPonly then use 
+						5060 and don't advertise the port number in signalling. 
+						If Address is an IP address, there is no DNS lookup and 
+						5060 is used for the port but it is not advertised in 
+						signaling. If port is 1 to 65535: This value is used 
+						and it is advertised in signaling.</description>
+				</setting>
+				<setting name="port">
+					<type>0, Null, 1 to 65535</type>
+					<defaultValue>5060</defaultValue>
+					<description></description>
+				</setting>
+				<setting name="transport">
+					<type>DNSnaptr or TCPpreferred or UDPonly</type>
+					<defaultValue></defaultValue>
+					<description>If set to Null or DNSnaptr: If Address is a 
+						hostname and Port is 0 or Null, do NAPTR then SRV 
+						look-ups to try to discover the transport, ports and 
+						servers, as per RFC 3263. If Address is an IP address, 
+						or a port is given, then UDP is used. If set to 
+						TCPpreferred: TCP is the preferred transport, UDP is 
+						used if TCP fails. If set to UDPonly: Only UDP will be 
+						used. </description>
+				</setting>
+				<setting name="expires">
+					<type>positive integer, minimum 300</type>
+					<defaultValue></defaultValue>
+					<description>Requested registration period in seconds. This 
+						is SoundPoint(R) IP's requested registration period. 
+						The period negotiated with the server may be different. 
+						SoundPoint(R) IP will attempt to re-register when half 
+						the negotiated period has expired.</description>
+				</setting>
+				<setting name="register">
+					<type>0, 1</type>
+					<defaultValue>1</defaultValue>
+					<description>If set to 0, calls can be routed to an 
+						outbound proxy without registration. </description>
+				</setting>
+				<setting name="retryTimeOut">
+					<type>Null or non-negative integer</type>
+					<defaultValue>0</defaultValue>
+					<description>If set to 0 or Null, use standard RFC 3261 
+						signaling retry behavior. Otherwise retryTimeOut 
+						determines how often retries will be sent. Units = 
+						milliSeconds. (Finest resolution = 100ms). 
+						</description>
+				</setting>
+				<setting name="retryMaxCount">
+					<type>Null or non-negative integer</type>
+					<defaultValue>0</defaultValue>
+					<description>If set to 0 or Null, 3 is used. retryMaxCount 
+						retries will be attempted before moving on to the next 
+						available server. </description>
+				</setting>
+				<setting name="expires.lineSeize">
+					<type>"positive integer, minimum 10 " </type>
+					<defaultValue>30</defaultValue>
+					<description>Requested line-seize subscription period. 
+						</description>
+				</setting>
+			</group>
+			<group name="2">
+				<setting name="address">
+					<label>Secondary Registration Server</label>
+					<type>dotted-decimal IP address or host name</type>
+					<defaultValue></defaultValue>
+					<description>Backup IP address or host name and port of a 
+						SIP server that accepts registrations. Multiple servers 
+						can be listed starting with for fault tolerance. If 
+						port is 0 or Null: If Address is a hostname and 
+						Transport is set to DNSnaptr, do NAPTR then SRV 
+						lookups. If Transport is set to TCPpreferred or UDPonly 
+						then use 5060 and don't advertise the port number in 
+						signalling. If Address is an IP address, there is no 
+						DNS lookup and 5060 is used for the port but it is not 
+						advertised in signaling. If port is 1 to 65535: This 
+						value is used and it is advertised in 
+						signaling.</description>
+				</setting>
+				<setting name="port">
+					<type>0, Null, 1 to 65535</type>
+					<defaultValue>5060</defaultValue>
+					<description></description>
+				</setting>
+				<setting name="transport">
+					<type>DNSnaptr or TCPpreferred or UDPonly</type>
+					<defaultValue></defaultValue>
+					<description>If set to Null or DNSnaptr: If Address is a 
+						hostname and Port is 0 or Null, do NAPTR then SRV 
+						look-ups to try to discover the transport, ports and 
+						servers, as per RFC 3263. If Address is an IP address, 
+						or a port is given, then UDP is used. If set to 
+						TCPpreferred: TCP is the preferred transport, UDP is 
+						used if TCP fails. If set to UDPonly: Only UDP will be 
+						used. </description>
+				</setting>
+				<setting name="expires">
+					<type>positive integer, minimum 300</type>
+					<defaultValue></defaultValue>
+					<description>Requested registration period in seconds. This 
+						is SoundPoint(R) IP's requested registration period. 
+						The period negotiated with the server may be different. 
+						SoundPoint(R) IP will attempt to re-register when half 
+						the negotiated period has expired.</description>
+				</setting>
+				<setting name="register">
+					<type>0, 1</type>
+					<defaultValue>1</defaultValue>
+					<description>If set to 0, calls can be routed to an 
+						outbound proxy without reg-istration. </description>
+				</setting>
+				<setting name="retryTimeOut">
+					<type>Null or non-negative integer</type>
+					<defaultValue>0</defaultValue>
+					<description>If set to 0 or Null, use standard RFC 3261 
+						signaling retry behavior. Otherwise retryTim-eOut 
+						determines how often retries will be sent. Units = 
+						milliSeconds. (Finest resolution = 100ms). 
+						</description>
+				</setting>
+				<setting name="retryMaxCount">
+					<type>Null or non-negative integer</type>
+					<defaultValue>0</defaultValue>
+					<description>If set to 0 or Null, 3 is used. retryMaxCount 
+						retries will be attempted before moving on to the next 
+						available server. </description>
+				</setting>
+				<setting name="expires.lineSeize">
+					<type>"positive integer, minimum 10 " </type>
+					<defaultValue>30</defaultValue>
+					<description>Requested line-seize subscription period. 
+						</description>
+				</setting>
+			</group>
+		</group>
+		<setting name="SIP.useRFC2543hold">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, use the obsolete c=0.0.0.0 RFC2543 
+				technique, otherwise, use SDP media direction attributes (such 
+				as a=sendonly) per RFC 3264 when initiating hold. In either 
+				case, the phone processes incoming hold signaling in either 
+				format. </description>
+		</setting>
+		<setting name="SIP.lcs">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description> If set to 1, the proprietary 'epid' parameter is 
+				added to the From field of all requests to support Windows Live 
+				Communications Server. </description>
+		</setting>
+		<setting name="SIP.sendCompactHdrs">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 0, SIP header names generated by the phone 
+				use the long form, for example 'From'. If set to 1, SIP header 
+				names generated by the phone use the short form, for example 
+				'f'. </description>
+		</setting>
+		<group name="SIP.outboundProxy">
+			<setting name="address">
+				<label>Outbound SIP Proxy</label>
+				<type>dotted-decimal IP address or host name</type>
+				<defaultValue></defaultValue>
+				<description>IP address or host name and port of a SIP server 
+					to which the phone shall send all requests for making 
+					calls. </description>
+			</setting>
+			<setting name="port">
+				<type>1 to 65535</type>
+				<defaultValue>5060</defaultValue>
+				<description></description>
+			</setting>
+		</group>
+		<setting name="SIP.alertInfo.x.value">
+			<type>string to compare against the value of Alert-Info headers in 
+				INVITE requests</type>
+			<defaultValue></defaultValue>
+			<description>Alert-Info fields from INVITE requests will be 
+				compared against as many of these parameters as are spec-ified 
+				(x=1, 2, ..., N) and if a match is found, the behavior 
+				described in the corresponding ring class will be 
+				applied.</description>
+		</setting>
+		<setting name="SIP.alertInfo.x.class">
+			<type>positive integer</type>
+			<defaultValue></defaultValue>
+			<description></description>
+		</setting>
+		<setting name="SIP.requestValidation.x.request">
+			<type>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 
+				'OPTIONS', 'INFO', 'MESSAGE', 'SUB-SCRIBE', 'NOTIFY', 'REFER', 
+				'PRACK', or 'UPDATE'</type>
+			<defaultValue></defaultValue>
+			<description>Sets the name of the method for which validation will 
+				be applied. WARNING: Intensive request validation may have a 
+				negative performance impact due to the additional signaling 
+				required in some cases, therefore, use it 
+				judiciously.</description>
+		</setting>
+		<setting name="SIP.requestValidation.x.method">
+			<type>Null or one of: 'source', 'digest' or 'both'/'all'</type>
+			<defaultValue></defaultValue>
+			<description>If Null, no validation is done. Otherwise this sets 
+				the type of validation performed for the request: source: 
+				ensure request is received from an IP address of a server 
+				belonging to the set of target registration servers; digest: 
+				challenge requests with digest authentication using the local 
+				credentials for the associated registration (line); both or 
+				all: apply both of the above methods </description>
+		</setting>
+		<setting name="SIP.requestValidation.x.request.y.event">
+			<type>A valid string</type>
+			<defaultValue></defaultValue>
+			<description>Determines which events specified with the Event 
+				header should be validated; only applicable when voIp- 
+				Prot.SIP.requestValida-tion.x.request is set to 'SUBSCRIBE' or 
+				'NOTIFY'. If set to Null, all events will be validated. 
+				</description>
+		</setting>
+		<setting name="SIP.requestValidation.digest.realm">
+			<type>A valid string</type>
+			<defaultValue>PolycomSPIP</defaultValue>
+			<description>Determines string used for Realm.</description>
+		</setting>
+		<setting name="SIP.specialEvent.lineSeize.nonStandard">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, process a 200 OK response for a 
+				line-seize event SUBSCRIBE as though a line-seize NOTIFY with 
+				Subscription State: active header had been received, this 
+				speeds up processing. </description>
+		</setting>
+		<setting name="SIP.specialEvent.checkSync.alwaysReboot">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, always reboot when a NOTIFY message is 
+				received from the server with event equal to check-sync. If set 
+				to 0, only reboot if any of the files listed in [mac].cfg have 
+				changed on the FTP server when a NOTIFY message is received 
+				from the server with event equal to check-sync. </description>
+		</setting>
+		<setting name="SIP.conference.address">
+			<type>ASCII string up to 128 characters long</type>
+			<defaultValue></defaultValue>
+			<description>If Null, conferences are set up on the phone locally. 
+				If set to some value, conferences are set up by the server 
+				using the conferencing agent specified by this address. The 
+				acceptable values depend on the conferencing server 
+				implementation policy. </description>
+		</setting>
+	</group>
+	<group name="dialplan">
+		<label>Dial Plan</label>
+		<setting name="impossibleMatchHandling">
+			<type>0, 1 or 2</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 0, the digits entered up to and including 
+				the point where an impossible match occurred are sent to the 
+				server immediately. If set to 1, give reorder tone. If set to 
+				2, allow user to accumulate digits and dispatch call manually 
+				with the Send soft key. </description>
+		</setting>
+		<setting name="removeEndOfDial">
+			<type>0, 1</type>
+			<defaultValue>1</defaultValue>
+			<description>If set to 1, strip trailing # digit from digits sent 
+				out. </description>
+		</setting>
+		<setting name="digitmap">
+			<type>string compatible with the digit map feature of MGCP 
+				described in 2.1.5 of RFC 3435. String is limited to 512 bytes 
+				and 20 seg-ments; a comma is also allowed; when reached in the 
+				digit map, a comma will turn dial tone back on.</type>
+			<defaultValue>[2-9]11|0T| 011xxx.T| [0-1][2- 9]xxxxxxxxx| 
+				[2-9]xxxxxxxxx| [2-9]xxxT</defaultValue>
+			<description>When this attribute is present, number-only dialing 
+				during the setup phase of new calls will be compared against 
+				the patterns therein and if a match is found, the call will be 
+				initiated automatically eliminating the need to press Send. 
+				</description>
+		</setting>
+		<setting name="digitmap.timeOut">
+			<type>positive integer</type>
+			<defaultValue>3</defaultValue>
+			<description>Timeout in seconds for 'T' feature of digitmap. 
+				</description>
+		</setting>
+		<setting name="routing.server.x.address">
+			<type>dotted-decimal IP address or host name</type>
+			<defaultValue></defaultValue>
+			<description>IP address or host name and port of a SIP server that 
+				will be used for routing calls. Multiple servers can be listed 
+				start-ing with x=1, 2, ... for fault tolerance. </description>
+		</setting>
+		<setting name="routing.server.x.port">
+			<type>1 to 65535</type>
+			<defaultValue>5060</defaultValue>
+			<description></description>
+		</setting>
+		<group name="routing.emergency">
+			<label>Emergency</label>
+			<description>In the following attributes, x is the index of the 
+				emergency entry description and y is the index of the server 
+				associated with emergency entry x. For each emergency entry 
+				(index x), one or more server entries (indexes (x,y)) can be 
+				configured. x and y must both use sequential numbering starting 
+				at 1. </description>
+			<setting name="x.value">
+				<type>Comma separated list of entries or single entry 
+					representing a SIP URL or a combination of SIP URLs.</type>
+				<defaultValue>Null Example: '15,17,18', '911', 
+					'sos'.</defaultValue>
+				<description>This determines the URLs that should be watched 
+					for. When one of these defined URLs is detected as having 
+					been dialed by the user, the call will automatically be 
+					directed to the defined emergency server. </description>
+			</setting>
+			<setting name="x.server.y">
+				<type>positive integer</type>
+				<defaultValue></defaultValue>
+				<description>Index representing the server defined in Servers 
+					that will be used for emergency routing.</description>
+			</setting>
+		</group>
+	</group>
+	<group name="msg">
+		<label>Messaging</label>
+		<description>SoundPoint(R) IP supports message-waiting indication on a 
+			per-registration basis. </description>
+		<setting name="bypassInstantMessage">
+			<type>0, 1</type>
+			<defaultValue>0</defaultValue>
+			<description>If set to 1, the display offering a choice of 'Message 
+				Center' and 'Instant Mes-sages' will be bypassed when pressing 
+				the Messages key, the phone will act as if 'Message Center' was 
+				chosen. See 3.6.1 Voicemail Integration on page 49. Instant 
+				Messages will still be accessible from the Main 
+				Menu.</description>
+		</setting>
+	</group>
+	<group name="nat">
+		<label>Network Address Translation</label>
+		<description>These parameters define port and IP address changes used 
+			in NAT traversal. The port changes will change the port used by the 
+			phone, while the IP entry simply changes the IP advertised in the 
+			SIP signaling. This allows the use of simple NAT devices that can 
+			redirect traffic, but do not allow for port mapping. For example, 
+			port 5432 on the NAT device can be sent to port 5432 on an internal 
+			device, but not port 1234. </description>
+		<setting name="ip">
+			<type>dotted-decimal IP address</type>
+			<defaultValue></defaultValue>
+			<description>IP address to advertise within SIP signaling - should 
+				match the external IP address used by the NAT 
+				device.</description>
+		</setting>
+		<setting name="signalPort">
+			<type>1024 to 65536</type>
+			<defaultValue></defaultValue>
+			<description>If non-Null, this port will be used by the phone for 
+				SIP signaling, overriding the value set for RTP 
+				Settings</description>
+		</setting>
+		<setting name="mediaPortStart">
+			<type>1024 to 65536</type>
+			<defaultValue></defaultValue>
+			<description>If non-Null, this attribute will be used to set the 
+				initially allocated RTP port, overriding the value set in RTP 
+				Settings.</description>
+		</setting>
+	</group>
 </model>
