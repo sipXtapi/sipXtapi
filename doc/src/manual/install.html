@@ -69,8 +69,8 @@ explicitly noted</p>
 <h3><a name="rh-system">System Installation</a></h3>
 <ol>
   <li>Install Redhat from CDs.  You can select any set of packages
-  including the minimum set of packages labled "router configuration"
-  in the redhat installer process</li>
+  including the minimum set of packages labeled "router configuration"
+  in the Redhat installer process</li>
 
   <li>When prompted for firewall support, select "no firewall support" or
   open up the following ports in your iptables: 80, 8080, 8090, 8091,
@@ -81,16 +81,16 @@ explicitly noted</p>
 <h3><a name="rh-dep">Installing dependencies with up2date</a></h3>
 
 <p>Fedora users may experience periodic connection errors using using
-<code>up2date</code> but usually if you're persistent you can get thru
+<code>up2date</code> but usually if you're persistent you can get through
 executing <code>up2date</code> repeatedly. If you do not use
-<code>up2date</code>, I recommend installing postgres and apache while
-installing your system, or use the redhat package manager to install
+<code>up2date</code>, I recommend installing Postgres and apache while
+installing your system, or use the Redhat package manager to install
 those RPMs for you.</p>
 
 <ul>
   
   <li>Run <code>up2date</code> for the first time and follow
-instructions to setup propery <code>up2date</code> operation.</li>
+instructions to setup properly <code>up2date</code> operation.</li>
 
   <li>Run <code>up2date -u</code> to make your system is up to date.</li>
 
@@ -123,16 +123,16 @@ Only</strong></dd>
 
 <h3><a name="rh-sipx">Installing RPMs from SIPfoundry</a></h3>
 
-<p>Sipfoundry will make the following rpms available. After
+<p>SIPfoundry will make the following rpms available. After
 downloading, you can install these by typing the command <code>rpm -iv
 <em>packagename</em>.rpm</code>. It's often helpful to list more than
-one rpm at a time to fullfil rpm interpackage dependencies. RPMs
+one rpm at a time to fulfill rpm interpackage dependencies. RPMs
 listed here are in proper order to install individually.</p>
 
 
 <p>Available from sipfoundry.org</p>
 <ul>
-  <li>sipx-jboss-2.4.10-1.noarch.rpm</li>
+  <li>sipx-jboss-2.4.10-2.noarch.rpm</li>
   <li>sipxportlib</li>
   <li>sipxtacklib</li>
   <li>sipxcommserverlib</li>
@@ -247,25 +247,72 @@ file, run this command:</p>
   <li>be sure user running sipxpbx (most cases sipxchange) has full r/w
      access to all files and directories in <code>${JBOSS_HOME}</code></li>
 </ol>
+<p>
+You also need to patch Jasper class loader in Tomcat servlet container that is bundled with this version of JBoss
+</p>
+<ol>
+<li>Checkout Tomcat 4.0.1 source
+<pre>
+      export CVSROOT=:pserver:anoncvs@cvs.apache.org:/home/cvspublic
+      cvs login [anoncvs]
+      cvs co -r tomcat_401 jakarta-tomcat-4.0
+</pre></li>
+<li>Patch sources
+<pre>
+      patch -d /path/to/tomcat -p0 &lt; meta/tomcat_401.diff
+</pre></li>
+
+<li>Prepare Tomcat build environment.<br/>
+BUILDING.txt file contains detailed description of the entire building process. Since we 
+just need to build jasper module we can use simplified approach.<br/>
+Create a <code>build.properties</code> file by copying a sample properties file:
+<pre>
+      cd /path/to/tomcat
+      cp build.properties.sample build.properties
+</pre>
+and modify <code>servlet.lib</code> property in a newly created file to point to your Tomcat lib directory
+<pre>
+      servlet.lib=${JBOSS_HOME}/catalina/common/lib
+</pre></li>
+
+<p>Verify that you have set the path correctly:
+<pre>
+      cd /path/to/tomcat
+      ant detect | grep servlet.jar
+</pre>
+You should see:
+<pre>
+      [echo] servlet.jar.present=true
+</pre></p>
+
+<li>Compile Jasper
+<pre>
+      cd /path/to/tomcat/jasper
+      ant
+</pre>
+Build creates 2 jar file. Only <code>jasper-compiler.jar</code> has to be copied to Tomcat installation.
+<pre>
+      cp /path/to/tomcat/build/lib/jasper-compiler.jar ${JBOSS_HOME}/catalina/lib/jasper-compiler.jar
+</pre></li>
+</ol>
 
 <h3><a name="src-db">Postgresql Database Setup</a></h3>
 
 <p>Postgres needs to always be running on your system. If you've
 installed sipXconfig from RPM, you shouldn't have to do this.</p>
 
-<p>To start postgres on Redhat 9 or Fedora systems run this command.</p>
+<p>To start Postgres on Redhat 9 or Fedora systems run this command.</p>
   <pre>
       service postgresql start 
   </pre>
 
 
-<p>To start postgres on Enterprise 3 systems run this command.</p>
+<p>To start Postgres on Enterprise 3 systems run this command.</p>
   <pre>
       service rhdb start 
   </pre>
 
-
-<p>It's recommended you should have postgres start automatically when your machine
+<p>It's recommended you should have Postgres start automatically when your machine
 restarts (usually in runlevels 3 and 5).</p>
 
 <p>Fedora and Redhat 9 users should run this command:</p>
@@ -282,8 +329,8 @@ restarts (usually in runlevels 3 and 5).</p>
 </pre>
 
 
-<p>Edit postgres config files to work. This will open up TCP connections and
-allow localhost to connect to posgres</p>
+<p>Edit Postgres config files to work. This will open up TCP connections and
+allow localhost to connect to Postgres</p>
 
 <pre>
      /usr/local/sipx/bin/sipxdbmgr --setup
@@ -306,7 +353,7 @@ sipXcommserverLib/doc/INSTALL.ssl or
 phone configuration information and firmware upgrades.  You must
 install a tftp server and map the tftp root directory to:
 <code>var/sipxdata/configserver/phone/profile/tftproot</code>.
-Consult phone vendor documenation for recommended TFTP servers but
+Consult phone vendor documentation for recommended TFTP servers but
 below is a set of known tftp server setups that work.</p>
 
 <h4>On Fedora or Red Hat Enterprise</h4>

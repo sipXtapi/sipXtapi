@@ -12,12 +12,16 @@
 
 package com.pingtel.pds.profilewriter;
 
-import com.pingtel.pds.common.PDSDefinitions;
-import com.pingtel.pds.sds.ProfileListener;
-import org.apache.log4j.Category;
-import org.apache.log4j.NDC;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,6 +29,13 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+
+import org.apache.log4j.Category;
+import org.apache.log4j.NDC;
+
+import com.pingtel.pds.common.PDSDefinitions;
+import com.pingtel.pds.common.PathLocatorUtil;
+import com.pingtel.pds.sds.ProfileListener;
 
 /**
  *  Class that is responsible for dequeueing a set of prerendered profiles
@@ -39,8 +50,7 @@ public class ProfileWriterWorker implements Runnable {
 
     // directory into which the cisco mini-profiles get created.   They
     // are later coalesced into the real profile.
-    private static final String m_partialProfilesDirectory =
-            ".." + m_fileSeparator + "data" + m_fileSeparator + "partial" + m_fileSeparator;
+    private String m_partialProfilesDirectory;
 
     private URL m_internalHttpBaseURL;
 
@@ -94,6 +104,9 @@ public class ProfileWriterWorker implements Runnable {
                                  String tftpBaseURL,
                                  String tftpServerName )
         throws IOException {
+    	
+    	m_partialProfilesDirectory = PathLocatorUtil.getInstance()
+		        .phone().dir("partial").slash().toString();
 
         boolean atLeastOneRemoteProtocol = false;
         // Determine the Local IP Address as we need to factor this

@@ -694,6 +694,11 @@ public class DeviceAdvocateBean extends JDBCAwareEJB
             for ( Iterator iCSC = deviceCSC.iterator(); iCSC.hasNext(); )
                 cs = (ConfigurationSet) iCSC.next();
 
+            if( cs == null ) {
+                // some phones do not have configuration sets
+                return;
+            }
+            
             RefProperty deviceLineRP = this.getDeviceLineRP();
             String deviceLineRPID = deviceLineRP.getID().toString();
 
