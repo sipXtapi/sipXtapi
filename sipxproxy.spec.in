@@ -27,6 +27,16 @@ proxy. Though it is not necessary. The forking proxy provides service level
 routing as well as parallel and serial forking. The auth proxy provides AAA
 services.
 
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name 
+Requires: sipxcommserverlib-devel >= 2.7.0
+
+%description devel
+Internal class documentation for the proxy classes
+
 %prep
 %setup -q
 
@@ -53,14 +63,13 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 
 %doc CONTRIBUTORS ChangeLog %name.configlog
-#%docdir doc
 %attr(755,root,root) %{_bindir}/sipproxy.sh
 %attr(755,root,root) %{_bindir}/sipproxy
 %attr(755,root,root) %{_bindir}/sipauthproxy.sh
 %attr(755,root,root) %{_bindir}/sipauthproxy
 %attr(755,root,root) %{_bindir}/%name-config
 
-# The configuration directory needs to be writeable becausen
+# The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
 
@@ -68,6 +77,10 @@ rm -rf $RPM_BUILD_ROOT
 %config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
 %config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
 %config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
+
+%files devel
+%defattr(644,root,root,755)
+%doc %{_datadir}/doc/sipx/%name/*
 
 %pre
 

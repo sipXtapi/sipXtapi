@@ -63,6 +63,6 @@ AC_CONFIG_FILES([src/sipforkingproxy/Makefile])
 AC_CONFIG_FILES([src/sipauthproxy/Makefile])
 AC_CONFIG_FILES([src/cse/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
-AC_CONFIG_FILES([doc/Makefile doc/Doxyfile])
+AC_CONFIG_FILES([doc/Makefile])
 AC_OUTPUT
 
