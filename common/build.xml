@@ -77,14 +77,14 @@
     <copy file="etc/security.policy" todir="${dest.dir}${sipxpbx.conf.dir}"/>
 
     <mkdir dir="${dest.dir}${bin.dir}"/>
-    <copy file="bin/startrmireg.sh.in" tofile="${dest.dir}${bin.dir}/startrmireg.sh"/>
-    <replace file="${dest.dir}${bin.dir}/startrmireg.sh"
+    <copy file="bin/rmiregistry.sh.in" tofile="${dest.dir}${bin.dir}/rmiregistry.sh"/>
+    <replace file="${dest.dir}${bin.dir}/rmiregistry.sh"
          propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@bin.dir@" property="bin.dir"/>
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
     </replace>
-    <chmod file="${dest.dir}${bin.dir}/startrmireg.sh" perm="ugo+x"/>
+    <chmod file="${dest.dir}${bin.dir}/rmiregistry.sh" perm="ugo+x"/>
 
     <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>
     <mkdir dir="${dest.dir}${sipxpbx.run.dir}"/>

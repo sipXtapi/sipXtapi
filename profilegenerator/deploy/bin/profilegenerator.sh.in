@@ -1,7 +1,32 @@
 #!/bin/bash
+#
+# Copyright (C) 2004 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2004 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
 
 # Startup Script for Profile Generator Service
 # Check for SUN(tm) JVM w/ HotSpot support
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
 
 CONFIG_DEFS="@sipxpbx.conf.dir@/config.defs"
 
@@ -21,6 +46,13 @@ then
        @bin.dir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
     fi
   done
+fi
+
+if [ ${Action} = CONFIGTEST ]
+then
+    #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/topology.xml
+    #$Status=$(($Status+$?))
+    exit $Status
 fi
 
 # Needed for Jasper page compiler (possibly for other components as well)
