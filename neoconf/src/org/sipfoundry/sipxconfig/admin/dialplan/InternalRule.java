@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule.Type;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**

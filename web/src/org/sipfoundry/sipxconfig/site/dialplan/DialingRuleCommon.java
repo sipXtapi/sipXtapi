@@ -17,5 +17,5 @@ import org.apache.tapestry.BaseComponent;
  * DialingRuleCommon
  */
 public class DialingRuleCommon extends BaseComponent {
-
+    // empty for now - we may be able to remove it
 }

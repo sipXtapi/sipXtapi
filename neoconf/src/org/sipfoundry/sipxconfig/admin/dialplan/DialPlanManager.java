@@ -29,8 +29,11 @@ public class DialPlanManager {
 
     // TODO: inject those through Spring
     private FlexibleDialPlan m_flexDialPlan = new FlexibleDialPlan();
+    
     private transient ConfigGenerator m_generator;
 
+    private DialingRuleFactory m_ruleFactory;
+    
     public List getGateways() {
         return m_gateways;
     }
@@ -127,5 +130,12 @@ public class DialPlanManager {
             return activateDialPlan();
         }
         return m_generator;
+    }
+    
+    public DialingRuleFactory getRuleFactory() {
+        return m_ruleFactory;
+    }
+    public void setRuleFactory(DialingRuleFactory ruleFactory) {
+        m_ruleFactory = ruleFactory;
     }
 }

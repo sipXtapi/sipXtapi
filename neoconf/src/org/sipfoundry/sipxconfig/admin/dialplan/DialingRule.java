@@ -16,8 +16,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.type.Type;
-
 import org.apache.commons.lang.enum.Enum;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;

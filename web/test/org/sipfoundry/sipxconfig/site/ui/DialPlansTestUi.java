@@ -103,7 +103,6 @@ public class DialPlansTestUi extends TestCase {
      * 
      * @param page edit DialPlan page
      * @param name response after clicking submit button
-     * @return
      */
     private WebResponse addDialPlan(WebResponse page, String name) throws SAXException,
             IOException {
