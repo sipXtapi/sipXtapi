@@ -56,6 +56,7 @@
 		<!-- TEST -->
 		<pathelement location="${easymock.jar}" />
 		<pathelement location="${dbunit.jar}" />
+		<pathelement location="${p6spy.jar}" />
         <pathelement location="${xmlunit.jar}"/>
 	</path>
 	<property name="classpath" refid="base.path" />

@@ -20,7 +20,6 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
@@ -30,18 +29,18 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public static final String PAGE = "AddPhoneUser"; 
 
-    public abstract Phone getPhone();
+    public abstract Endpoint getEndpoint();
     
-    public abstract void setPhone(Phone phone);
+    public abstract void setEndpoint(Endpoint endpoint);
     
     /** REQUIRED PROPERTY */
-    public abstract int getPhoneId();
+    public abstract int getEndpointId();
     
-    public abstract void setPhoneId(int id);
+    public abstract void setEndpointId(int id);
     
     public void select(IRequestCycle cycle) {
         PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
-        Endpoint endpoint = context.loadEndpoint(getPhoneId());
+        Endpoint endpoint = context.loadEndpoint(getEndpointId());
         
         UserTable table = (UserTable) getComponent("searchResults");
         SelectMap selections = table.getSelections();        
@@ -56,18 +55,18 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
         context.storeEndpoint(endpoint);
 
         PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
-        page.setPhoneId(getPhoneId());
+        page.setEndpointId(getEndpointId());
         cycle.activate(page);
     }
 
     public void cancel(IRequestCycle cycle) {
         PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
-        page.setPhoneId(getPhoneId());
+        page.setEndpointId(getEndpointId());
         cycle.activate(page);
     }
     
     public void pageBeginRender(PageEvent event) {
         PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
-        setPhone(context.getPhone(getPhoneId()));
+        setEndpoint(context.loadEndpoint(getEndpointId()));
     }           
 }

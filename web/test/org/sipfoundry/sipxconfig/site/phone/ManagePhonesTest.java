@@ -38,11 +38,11 @@ public class ManagePhonesTest extends TestCase {
         List summaries = new ArrayList();
         Phone phone = new GenericPhone();
         Endpoint endpoint = new Endpoint();
-        phone.setEndpoint(endpoint);
         endpoint.setSerialNumber(MAC_ADDRESS);
         endpoint.setPhoneId(phone.getModelId());
         PhoneSummary summary = new PhoneSummary();        
         summary.setPhone(phone);
+        summary.setEndpoint(endpoint);
         summaries.add(summary);
         daoControl.expectAndReturn(dao.loadPhoneSummaries(), summaries);
         daoControl.replay();
@@ -60,7 +60,7 @@ public class ManagePhonesTest extends TestCase {
         Iterator iphones = phones.iterator();
         assertTrue(iphones.hasNext());
         PhoneSummary firstPhone = (PhoneSummary) iphones.next();
-        assertEquals(endpoint, firstPhone.getPhone().getEndpoint());
+        assertEquals(endpoint, firstPhone.getEndpoint());
         assertFalse(iphones.hasNext());
         
         daoControl.verify();

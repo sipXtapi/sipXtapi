@@ -11,9 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Generic phone does not correlate to any particular phone. It represents any unsupported phones
@@ -29,8 +31,16 @@ public class GenericPhone implements Phone {
 
     private Endpoint m_endpoint;
     
-    private SettingGroup m_settingGroup = new SettingGroup();
+    private String m_systemDirectory;
     
+    private String m_lineModelFilename;
+    
+    private String m_endpointModelFilename;
+    
+    private SettingGroup m_endpointModel;
+
+    private SettingGroup m_lineModel;
+
     public String getModelId() {
         return m_id;
     }
@@ -51,22 +61,63 @@ public class GenericPhone implements Phone {
         return m_endpoint;
     }
 
-    /**
-     * Return empty model, no custom settings
-     */
-    public SettingGroup getSettingGroup() {
-        return m_settingGroup;
+    public SettingGroup getSettingModel(Endpoint endpoint_) {
+        if (m_endpointModel == null) {
+            File modelDefsFile = getFile(getSystemDirectory(), getEndpointModelFilename());
+            m_endpointModel = new XmlModelBuilder().buildModel(modelDefsFile);
+        }
+
+        return m_endpointModel;
+    }
+
+    public SettingGroup getSettingModel(Line line_) {
+        if (m_lineModel == null) {
+            File lineDefsFile = getFile(getSystemDirectory(), getLineModelFilename());
+            m_lineModel = new XmlModelBuilder().buildModel(lineDefsFile);
+        }
+
+        return m_lineModel;
     }
 
     /**
      * Not applicable
      */
-    public void generateProfiles(PhoneContext phoneContextTemp) throws IOException {        
+    public void generateProfiles(PhoneContext phoneContext_, Endpoint endpoint_) throws IOException {        
     }
     
     /**
      * Not applicable
      */
-    public void restart(PhoneContext phoneContextTemp) throws IOException {
+    public void restart(PhoneContext phoneContext_, Endpoint endpoint_) throws IOException {
     }
+    
+    public String getEndpointModelFilename() {
+        return m_endpointModelFilename;
+    }
+
+    public void setEndpointModelFilename(String endpointModelFilename) {
+        m_endpointModelFilename = endpointModelFilename;
+    }
+
+    public String getSystemDirectory() {
+        return m_systemDirectory;
+    }
+
+    public void setSystemDirectory(String systemDirectory) {
+        m_systemDirectory = systemDirectory;
+    }
+
+    protected File getFile(String root, String filename) {
+        return new File(root + '/' + filename);
+    }
+
+    public String getLineModelFilename() {
+        return m_lineModelFilename;
+    }
+
+    public void setLineModelFilename(String lineModelFilename) {
+        m_lineModelFilename = lineModelFilename;
+    }
+
+    
 }

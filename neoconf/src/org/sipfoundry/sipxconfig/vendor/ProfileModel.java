@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.vendor;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -22,14 +23,17 @@ public class ProfileModel {
     
     private PolycomPhone m_phone;
     
-    public ProfileModel(PolycomPhone phone) {
+    private Endpoint m_endpoint;
+    
+    public ProfileModel(PolycomPhone phone, Endpoint endpoint) {
         m_phone = phone;
+        m_endpoint = endpoint;
     }
 
     public Collection getRegistrations() {
         ArrayList registrations = new ArrayList(m_phone.getMaxLineCount());
 
-        SettingGroup root = m_phone.getSettingGroup();
+        SettingGroup root = m_endpoint.getSettings(m_phone);
         SettingGroup reg = (SettingGroup) root.getSetting(PolycomPhone.REGISTRATION_SETTINGS);
         registrations.add(reg.getValues());
 

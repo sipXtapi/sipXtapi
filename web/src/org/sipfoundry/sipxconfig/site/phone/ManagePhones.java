@@ -55,7 +55,7 @@ public abstract class ManagePhones extends BasePage
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setPhoneId(endpointId.intValue());
+        page.setEndpointId(endpointId.intValue());
         cycle.activate(page);
     }
     

@@ -32,10 +32,10 @@ public class ProfileModelTest extends TestCase {
         phone.setModelId(Polycom.MODEL_600.getModelId());
         phone.setEndpoint(endpoint);
         phone.setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
-        SettingGroup reg = (SettingGroup) phone.getSettingGroup().getSetting(PolycomPhone.REGISTRATION_SETTINGS);
-        reg.getSetting("displayName").setValue("homer");
+        SettingGroup reg = endpoint.getSettings(phone);
+        reg.getSetting(PolycomPhone.REGISTRATION_SETTINGS).getSetting("displayName").setValue("homer");
         
-        ProfileModel model = new ProfileModel(phone);
+        ProfileModel model = new ProfileModel(phone, endpoint);
         Collection registrations = model.getRegistrations();
         assertEquals(Polycom.MODEL_600.getMaxLines(), registrations.size());
         

@@ -21,4 +21,8 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     public void storeValueStorage(ValueStorage storage) {
         getHibernateTemplate().saveOrUpdate(storage);                        
     }
+    
+    public ValueStorage loadValueStorage(int storageId) {
+        return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, new Integer(storageId));    
+    }
 }

@@ -20,34 +20,29 @@ import java.io.InputStream;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
 public class PolycomPhone extends GenericPhone {
-        
+
     public static final String REGISTRATION_SETTINGS = "registrations";
 
     private Polycom m_model = Polycom.MODEL_300;
 
     private String m_tftpRoot;
 
-    private String m_systemDirectory;
-
-    private String m_modelDefinitions = "polycom/model.xml";
-
     private String m_phoneConfigTemplate = "polycom/phone1.cfg.vm";
 
     private VelocityEngine m_velocityEngine;
 
-    private SettingGroup m_settingModel;      
-
-    private SettingGroup m_settingGroup;      
+    public PolycomPhone() {
+        setEndpointModelFilename("polycom/phone.xml");
+        setLineModelFilename("polycom/line.xml");
+    }
 
     public VelocityEngine getVelocityEngine() {
         return m_velocityEngine;
@@ -76,54 +71,9 @@ public class PolycomPhone extends GenericPhone {
     public void setModelId(String id) {
         m_model = Polycom.getModel(id);
     }
-    
+
     public int getMaxLineCount() {
         return m_model.getMaxLines();
-    }
-
-    SettingGroup getSettingModel() {
-        if (m_settingModel == null) {
-            FileInputStream is = null;
-            try {
-                File modelDefsFile = getFile(getSystemDirectory(), getModelDefinitions());
-                is = new FileInputStream(modelDefsFile);
-                XmlModelBuilder build = new XmlModelBuilder();
-                m_settingModel = build.buildModel(is);
-
-            } catch (IOException e) {
-                throw new RuntimeException("Cannot parse polycom model definitions file "
-                        + getModelDefinitions(), e);
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException ignore) {
-                        // cleanup non fatal
-                        log(ignore);
-                    }
-                }
-            }
-        }
-        
-
-        return m_settingModel;
-    }
-    
-    public SettingGroup getSettingGroup() {
-        if (m_settingGroup == null) {
-            ValueStorage valueStorage = getEndpoint().getValueStorage();
-            if (valueStorage == null) {
-                valueStorage = new ValueStorage();
-                getEndpoint().setValueStorage(valueStorage);
-            }
-            m_settingGroup = (SettingGroup) getSettingModel().getCopy(valueStorage);
-        }
-        
-        return m_settingGroup;
-    }
-
-    private void log(Exception e) {
-        e.printStackTrace();
     }
 
     private void initialize() {
@@ -136,7 +86,7 @@ public class PolycomPhone extends GenericPhone {
         }
     }
 
-    public void generateProfiles(PhoneContext context_) throws IOException {
+    public void generateProfiles(PhoneContext context_, Endpoint endpoint) throws IOException {
         initialize();
         Template template;
         // has to be relative to system directory
@@ -144,8 +94,7 @@ public class PolycomPhone extends GenericPhone {
         try {
             template = getVelocityEngine().getTemplate(templateFile);
         } catch (Exception e) {
-            throw new RuntimeException("Error creating velocity template " 
-                    + templateFile, e);
+            throw new RuntimeException("Error creating velocity template " + templateFile, e);
         }
 
         // PERFORMANCE: depending on how resource intensive the above code is
@@ -154,7 +103,7 @@ public class PolycomPhone extends GenericPhone {
 
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("phone", this);
-        velocityContext.put("model", new ProfileModel(this));
+        velocityContext.put("model", new ProfileModel(this, endpoint));
 
         FileWriter wtr = null;
         File profile = getFile(getTftpRoot(), getPhoneConfigFilename());
@@ -162,9 +111,8 @@ public class PolycomPhone extends GenericPhone {
             wtr = new FileWriter(profile);
             template.merge(velocityContext, wtr);
         } catch (Exception e) {
-            throw new RuntimeException("Error using velocity template " 
-                    + templateFile + " to create output profile "
-                    + profile.getPath(), e);
+            throw new RuntimeException("Error using velocity template " + templateFile
+                    + " to create output profile " + profile.getPath(), e);
         } finally {
             if (wtr != null) {
                 wtr.close();
@@ -178,14 +126,6 @@ public class PolycomPhone extends GenericPhone {
         return getEndpoint().getSerialNumber() + ".cfg";
     }
 
-    public String getModelDefinitions() {
-        return m_modelDefinitions;
-    }
-
-    public void setModelDefinitions(String modelDefinitions) {
-        m_modelDefinitions = modelDefinitions;
-    }
-
     public InputStream getPhoneConfigFile() throws IOException {
         return new FileInputStream(getFile(m_tftpRoot, getPhoneConfigFilename()));
     }
@@ -197,17 +137,4 @@ public class PolycomPhone extends GenericPhone {
     public void setPhoneConfigTemplate(String phoneConfigTemplate) {
         m_phoneConfigTemplate = phoneConfigTemplate;
     }
-
-    public String getSystemDirectory() {
-        return m_systemDirectory;
-    }
-
-    public void setSystemDirectory(String systemDirectory) {
-        m_systemDirectory = systemDirectory;
-    }
-    
-    File getFile(String root, String filename) {
-        return new File(root + '/' + filename);
-    }
-    
 }

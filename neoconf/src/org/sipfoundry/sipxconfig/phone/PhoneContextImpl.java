@@ -52,12 +52,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public Phone getPhone(Endpoint endpoint) {
-        Phone phone = (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
-        if (phone != null) {
-            phone.setEndpoint(endpoint);
-        }
-        
-        return phone;
+        return (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
     }
     
     public Phone getPhone(int endpointId) {
@@ -174,8 +169,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         for (int i = 0; i < endpoints.size(); i++) {
             Endpoint endpoint = (Endpoint) endpoints.get(i);
             PhoneSummary summary = new PhoneSummary();
+            summary.setEndpoint(endpoint);
             summary.setPhone(getPhone(endpoint));
-            summary.setLines(endpoint.getLines());
             summaries.add(summary);
         }
         
@@ -186,6 +181,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         Endpoint e = (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
         // hack: forces lazy loading
         e.getLines().size();
+
         return e;
     }
     
@@ -216,5 +212,4 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public Organization loadRootOrganization() {
         return (Organization) getHibernateTemplate().load(Organization.class, new Integer(1));        
     }
-
 }

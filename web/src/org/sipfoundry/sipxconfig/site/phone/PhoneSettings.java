@@ -29,20 +29,20 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     
     public static final String PAGE = "PhoneSettings"; 
 
-    public abstract int getPhoneId();
+    public abstract int getEndpointId();
     
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setPhoneId(int id);
+    public abstract void setEndpointId(int id);
+    
+    public abstract Endpoint getEndpoint();
+    
+    public abstract void setEndpoint(Endpoint endpoint);
     
     public abstract String getParentSettingGroupName();
     
     /** REQUIRED PAGE PARAMETER */
     public abstract void setParentSettingGroupName(String name); 
 
-    public abstract Phone getPhone();
-    
-    public abstract void setPhone(Phone phone);   
-    
     public abstract SettingGroup getParentSettingGroup();
     
     public abstract void setParentSettingGroup(SettingGroup parent);
@@ -53,9 +53,9 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     
     public void pageBeginRender(PageEvent event) {
         PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
-        Phone phone = context.getPhone(getPhoneId()); 
-        setPhone(phone);
-        SettingGroup root = phone.getSettingGroup();
+        setEndpoint(context.loadEndpoint(getEndpointId()));
+        Phone phone = context.getPhone(getEndpoint()); 
+        SettingGroup root = getEndpoint().getSettings(phone);
         SettingGroup parent = (SettingGroup) root.getSetting(getParentSettingGroupName());
         setParentSettingGroup(parent);
     }
@@ -67,16 +67,11 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
 
     public void apply(IRequestCycle cycle) {
         PhoneContext dao = PhonePageUtils.getPhoneContext(cycle);
-        Endpoint endpoint = getPhone().getEndpoint();
-        //SettingGroup root = getPhone().getSettingGroup();
-        //endpoint.setSettingValues(root.getSettingValues());
-        dao.storeEndpoint(endpoint);
+        dao.storeEndpoint(getEndpoint());
         dao.flush();
     }
     
     public void cancel(IRequestCycle cycle) {
-        setPhone(null);
         cycle.activate(ManagePhones.PAGE);
-    }
-    
+    }    
 }

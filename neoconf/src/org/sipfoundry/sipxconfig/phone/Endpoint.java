@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 
@@ -90,6 +91,15 @@ public class Endpoint implements Serializable {
         m_valueStorage = valueStorage;
     }
     
+    public SettingGroup getSettings(Phone phone) {
+        SettingGroup model = phone.getSettingModel(this);
+        if (m_valueStorage == null) {
+            m_valueStorage = new ValueStorage();
+        }
+        
+        return (SettingGroup) model.getCopy(getValueStorage());
+    }
+    
     public List getLines() {
         return m_lines;
     }
@@ -125,4 +135,5 @@ public class Endpoint implements Serializable {
     public void setLines(List lines) {
         m_lines = lines;
     }
+
 }

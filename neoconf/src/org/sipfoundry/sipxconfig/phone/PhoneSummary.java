@@ -25,20 +25,24 @@ public class PhoneSummary implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private Endpoint m_endpoint;
+    
     private Phone m_phone;
     
-    private List m_lines;
-    
-    public Phone getPhone() {
-        return m_phone;
-    }
-
-    public void setPhone(Phone phone) {
-        m_phone = phone;
+    public void setEndpoint(Endpoint endpoint) {
+        m_endpoint = endpoint;
     }
 
     public Endpoint getEndpoint() {
-        return m_phone.getEndpoint();
+        return m_endpoint;
+    }
+    
+    public void setPhone(Phone phone) {
+        m_phone = phone;
+    }
+    
+    public Phone getPhone() {
+        return m_phone;
     }
     
     public int getId() {
@@ -50,10 +54,6 @@ public class PhoneSummary implements Serializable {
     }
 
     public List getLines() {
-        return m_lines;
-    }
-
-    public void setLines(List endpointLines) {
-        m_lines = endpointLines;
+        return m_endpoint.getLines();
     }
 }

@@ -34,13 +34,11 @@ public interface Phone {
     
     public String getDisplayLabel();
 
-    public void setEndpoint(Endpoint endpoint);
-    
-    public Endpoint getEndpoint();
-    
-    public SettingGroup getSettingGroup();
+    public SettingGroup getSettingModel(Endpoint endpoint);
 
-    public void generateProfiles(PhoneContext phoneContext) throws IOException;
+    public SettingGroup getSettingModel(Line line);
     
-    public void restart(PhoneContext phoneContext) throws IOException;
+    public void generateProfiles(PhoneContext phoneContext, Endpoint endpoint) throws IOException;
+    
+    public void restart(PhoneContext phoneContext, Endpoint endpoint) throws IOException;
 }

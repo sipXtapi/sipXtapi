@@ -30,8 +30,8 @@ public class UserTestDb extends TestCase {
     }
     
     public void testLoadUserByTemplateUser() throws Exception {
-        TestHelper.cleanInsert("phone/datasets/ClearDb.xml");
-        TestHelper.insertFlat("phone/datasets/UserSearchSeed.xml");
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.insertFlat("phone/dbdata/UserSearchSeed.xml");
         
         User template = new User();
         template.setDisplayId("userseed");

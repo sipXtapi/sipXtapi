@@ -14,7 +14,9 @@ package org.sipfoundry.sipxconfig.site.phone;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**
@@ -23,9 +25,9 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
 public abstract class PhoneNavigation extends BaseComponent {
     
     /** REQUIRED PARAMETER */
-    public abstract void setPhone(Phone phone);
+    public abstract void setEndpoint(Endpoint endpoint);
     
-    public abstract Phone getPhone();
+    public abstract Endpoint getEndpoint();
     
     public abstract void setSettingGroup(SettingGroup model);
     
@@ -40,7 +42,7 @@ public abstract class PhoneNavigation extends BaseComponent {
 
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setPhoneId(endpointId.intValue());
+        page.setEndpointId(endpointId.intValue());
 
         cycle.activate(page);
     }
@@ -50,7 +52,7 @@ public abstract class PhoneNavigation extends BaseComponent {
 
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setPhoneId(endpointId.intValue());
+        page.setEndpointId(endpointId.intValue());
         
         cycle.activate(page);
     }
@@ -60,7 +62,7 @@ public abstract class PhoneNavigation extends BaseComponent {
 
         Object[] params = cycle.getServiceParameters();
         Integer endpointId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
-        page.setPhoneId(endpointId.intValue());
+        page.setEndpointId(endpointId.intValue());
 
         String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
         page.setParentSettingGroupName(section);
@@ -73,14 +75,17 @@ public abstract class PhoneNavigation extends BaseComponent {
      */
     public Object[] getEditSettingListenerParameters() {
         return new Object[] { 
-            new Integer(getPhone().getEndpoint().getId()),
+            new Integer(getEndpoint().getId()),
             getCurrentSettingGroup().getName() 
         };
     }
     
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        SettingGroup model = getPhone().getSettingGroup();
+        
+        PhoneContext context = PhonePageUtils.getPhoneContext(cycle);
+        Phone phone = context.getPhone(getEndpoint());
+        SettingGroup model = getEndpoint().getSettings(phone);
         setSettingGroup(model);
     }    
 }

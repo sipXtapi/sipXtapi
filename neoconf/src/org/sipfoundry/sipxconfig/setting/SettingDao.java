@@ -17,4 +17,6 @@ package org.sipfoundry.sipxconfig.setting;
 public interface SettingDao {
     
     public void storeValueStorage(ValueStorage storage);
+
+    public ValueStorage loadValueStorage(int storageId);
 }

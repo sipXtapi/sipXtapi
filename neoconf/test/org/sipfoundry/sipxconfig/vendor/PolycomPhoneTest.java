@@ -52,14 +52,14 @@ public class PolycomPhoneTest extends XMLTestCase {
         phone.setVelocityEngine(TestHelper.getVelocityEngine());
         
         // sample settings
-        SettingGroup root = phone.getSettingGroup();
+        SettingGroup root = endpoint.getSettings(phone);
         SettingGroup reg = (SettingGroup) root.getSetting(PolycomPhone.REGISTRATION_SETTINGS);
         reg.getSetting("displayName").setValue("joe");
         reg.getSetting("address").setValue("joe@mycompany.com");
         reg.getSetting("label").setValue("joe the kid");
         reg.getSetting("type").setValue("public");        
 
-        phone.generateProfiles(phoneContext);
+        phone.generateProfiles(phoneContext, endpoint);
         InputStream expectedPhoneStream = null;
         InputStream actualPhoneStream = null;
         try {            
@@ -90,7 +90,7 @@ public class PolycomPhoneTest extends XMLTestCase {
         String sysDir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         assertNotNull(sysDir);
         phone.setSystemDirectory(sysDir);
-        SettingGroup model = phone.getSettingModel();
+        SettingGroup model = phone.getSettingModel(new Endpoint());
         assertNotNull(model);
         
         SettingGroup lines = (SettingGroup) model.getSetting(Phone.LINE_SETTINGS);

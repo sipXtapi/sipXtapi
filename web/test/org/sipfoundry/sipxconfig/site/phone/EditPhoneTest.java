@@ -27,11 +27,9 @@ public class EditPhoneTest extends TestCase {
     public void testSave() {
         AbstractInstantiator pageMaker = new AbstractInstantiator();
         EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
-        GenericPhone phone = new GenericPhone();
         Endpoint endpoint = new Endpoint();
-        phone.setEndpoint(endpoint);
-        endpoint.setPhoneId(phone.getModelId());
-        page.setPhone(phone);
+        page.setEndpoint(endpoint);
+        endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
         endpoint.setSerialNumber(Long.toHexString(new Date().getTime()));
         
         MockControl daoControl = MockControl.createStrictControl(PhoneContext.class);

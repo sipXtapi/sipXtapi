@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
 
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
@@ -24,11 +25,10 @@ public class Line implements Serializable {
 
     private int m_id = PhoneContext.UNSAVED_ID;
 
-    /** null ok */
     private User m_user;
 
     private ValueStorage m_valueStorage;
-
+    
     private Endpoint m_endpoint;
 
     private int m_position;
@@ -75,5 +75,14 @@ public class Line implements Serializable {
 
     public void setPosition(int position) {
         m_position = position;
+    }
+
+    public SettingGroup getSettings(Phone phone) {
+        SettingGroup model = phone.getSettingModel(this);
+        if (m_valueStorage == null) {
+            m_valueStorage = new ValueStorage();
+        }
+        
+        return (SettingGroup) model.getCopy(getValueStorage());
     }
 }

@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.beans.PropertyDescriptor;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -25,6 +27,31 @@ import org.xml.sax.SAXException;
  * Build a SettingModel object hierarchy from a model XML file.
  */
 public class XmlModelBuilder {
+    
+    public SettingGroup buildModel(File modelFile) {
+        SettingGroup model = null;
+        FileInputStream is = null;
+        try {
+            is = new FileInputStream(modelFile);
+            XmlModelBuilder build = new XmlModelBuilder();
+            model = build.buildModel(is);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot parse polycom model definitions file "
+                    + modelFile.getPath(), e);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignore) {
+                    // cleanup non fatal
+                    ignore.printStackTrace();
+                }
+            }
+        }
+        
+        return model;        
+    }
 
     public SettingGroup buildModel(InputStream is) throws IOException {
         Digester digester = new Digester();
