@@ -54,3 +54,8 @@ S U M M A R Y
 -------------
 - In order to meet time line, I recommend all items w/importance 2 be cut
   and most items with importance 5 also be cut
+
+N O T   T O   D I S T A N T   F U T U R E 
+-----------------------------------------
+- Support different input types other than just input field
+- Add more validation types.

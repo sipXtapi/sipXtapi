@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <model>
 	<group name="lcl">
+		<label>Date/Time</label>
 		<group name="time">
 			<label>Time Format</label>
 			<setting name="24HourClock">
@@ -618,18 +619,18 @@
 		</setting>
 		<group name="cfg">
 			<label>Configuration</label>
-		<setting name="enabled">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, the HTTP server configuration interface 
-				will be enabled.</description>
-		</setting>
-		<setting name="port">
-			<type>1-65535</type>
-			<defaultValue>80</defaultValue>
-			<description>Port is 80 for HTTP servers. Care should be taken when 
-				choosing an alternate port.</description>
-		</setting>
+			<setting name="enabled">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, the HTTP server configuration 
+					interface will be enabled.</description>
+			</setting>
+			<setting name="port">
+				<type>1-65535</type>
+				<defaultValue>80</defaultValue>
+				<description>Port is 80 for HTTP servers. Care should be taken 
+					when choosing an alternate port.</description>
+			</setting>
 		</group>
 	</group>
 	<group name="call">
@@ -676,31 +677,32 @@
 				the 'last call return' action.</description>
 		</setting>
 		<group name="shared">
-			<label>Shared</label>
-		<setting name="disableDivert">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, disable diversion feature for shared 
-				lines.</description>
-		</setting>
-		<setting name="seizeFailReorder">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, play re-order tone locally on shared line 
-				seize failure.</description>
-		</setting>
-		<setting name="oneTouchResume">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 1, when a shared line has a call on hold the 
-				remote user can press that line and resume the call. If more 
-				than one call is on hold on the line then the first one will be 
-				selected and resumed automatically. If set to 0, pressing the 
-				shared line will bring up a list of the calls on that line and 
-				the user can select which call the next action should be 
-				applied to. The call diversion, no answer feature will take 
-				precedence over this feature if enabled.</description>
-		</setting>
+			<label>Shared Lines</label>
+			<setting name="disableDivert">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, disable diversion feature for shared 
+					lines.</description>
+			</setting>
+			<setting name="seizeFailReorder">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, play re-order tone locally on shared 
+					line seize failure.</description>
+			</setting>
+			<setting name="oneTouchResume">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, when a shared line has a call on hold 
+					the remote user can press that line and resume the call. If 
+					more than one call is on hold on the line then the first 
+					one will be selected and resumed automatically. If set to 
+					0, pressing the shared line will bring up a list of the 
+					calls on that line and the user can select which call the 
+					next action should be applied to. The call diversion, no 
+					answer feature will take precedence over this feature if 
+					enabled.</description>
+			</setting>
 		</group>
 	</group>
 	<group name="call.hold.localReminder">
@@ -833,18 +835,18 @@
 		</setting>
 		<group name="pwd.length">
 			<label>Password Length</label>
-		<setting name="admin">
-			<type>0-32</type>
-			<defaultValue>1</defaultValue>
-			<description>Password changes will need to be at least this long. 
-				Use 0 to allow null passwords. </description>
-		</setting>
-		<setting name="user">
-			<type>0-32</type>
-			<defaultValue>2</defaultValue>
-			<description>Password changes will need to be at least this long. 
-				Use 0 to allow null passwords. </description>
-		</setting>
+			<setting name="admin">
+				<type>0-32</type>
+				<defaultValue>1</defaultValue>
+				<description>Password changes will need to be at least this 
+					long. Use 0 to allow null passwords. </description>
+			</setting>
+			<setting name="user">
+				<type>0-32</type>
+				<defaultValue>2</defaultValue>
+				<description>Password changes will need to be at least this 
+					long. Use 0 to allow null passwords. </description>
+			</setting>
 		</group>
 	</group>
 	<group name="request.delay">
@@ -853,7 +855,7 @@
 			<type>Null, 'audio', or 'call'</type>
 			<defaultValue>call</defaultValue>
 			<description>Defines the strategy to adopt before a request gets 
-				executed. If set to 'audio', a request can be exe-cuted as soon 
+				executed. If set to 'audio', a request can be executed as soon 
 				as there is no active audio on the phone, independently of any 
 				call state. If set to 'call', a request can be executed as soon 
 				as there are no calls in any state on the phone.</description>
@@ -870,65 +872,68 @@
 				address:port</type>
 			<defaultValue></defaultValue>
 			<description>Address of the desired HTTP proxy to be used by the 
-				MicroBrowser. If blank, nor-mal unproxied HTTP is used by the 
+				MicroBrowser. If blank, normal unproxied HTTP is used by the 
 				MicroBrowser. </description>
 		</setting>
 		<group name="idleDisplay">
-		<setting name="home">
-			<type>Null, or any fully formed valid HTTP URL. Length up to 255 
-				characters.</type>
-			<defaultValue></defaultValue>
-			<description>URL used for MicroBrowser idle display home-page. 
-				Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. 
-				If empty, there will be no microbrowser idle display feature. 
-				Note that the MicroBrowser idle display will displace the idle 
-				display indicator. See Indicators settings.</description>
-		</setting>
-		<setting name="refresh">
-			<type>0 or an integer greater than 5</type>
-			<defaultValue>0</defaultValue>
-			<description>The period in seconds between refreshes of the idle 
-				display MicroBrowser's con-tent. 0 = the idle display 
-				MicroBrowser is not refreshed. Minimum refresh period = 5 
-				seconds (values from 1 to 4 will be ignored, and 5 will be used 
-				instead) Notes: If an HTTP Refresh header is detected, it will 
-				be respected, even if this parameter is set to 0. The use of 
-				this parameter in combination with the Refresh HTTP header may 
-				cause the idle display to refresh at unexpected 
-				times.</description>
-		</setting>
+			<setting name="home">
+				<type>Null, or any fully formed valid HTTP URL. Length up to 
+					255 characters.</type>
+				<defaultValue></defaultValue>
+				<description>URL used for MicroBrowser idle display home-page. 
+					Example: http://www.example.com/ 
+					xhtml/frontpage.cgi?page=home. If empty, there will be no 
+					microbrowser idle display feature. Note that the 
+					MicroBrowser idle display will displace the idle display 
+					indicator. See Indicators settings.</description>
+			</setting>
+			<setting name="refresh">
+				<type>0 or an integer greater than 5</type>
+				<defaultValue>0</defaultValue>
+				<description>The period in seconds between refreshes of the 
+					idle display MicroBrowser's content. 0 = the idle display 
+					MicroBrowser is not refreshed. Minimum refresh period = 5 
+					seconds (values from 1 to 4 will be ignored, and 5 will be 
+					used instead) Notes: If an HTTP Refresh header is detected, 
+					it will be respected, even if this parameter is set to 0. 
+					The use of this parameter in combination with the Refresh 
+					HTTP header may cause the idle display to refresh at 
+					unexpected times.</description>
+			</setting>
 		</group>
 		<group name="main">
-		<setting name="home">
-			<type>Any fully formed valid HTTP URL. Length up to 255 
-				characters.</type>
-			<defaultValue></defaultValue>
-			<description>URL used for MicroBrowser home-page. If blank, the 
-				browser will notify the user that a blank home-page was used. 
-				Example: http://www.example.com/ xhtml/frontpage.cgi?page=home. 
-				</description>
-		</setting>
+			<setting name="home">
+				<type>Any fully formed valid HTTP URL. Length up to 255 
+					characters.</type>
+				<defaultValue></defaultValue>
+				<description>URL used for MicroBrowser home-page. If blank, the 
+					browser will notify the user that a blank home-page was 
+					used. Example: http://www.example.com/ 
+					xhtml/frontpage.cgi?page=home. </description>
+			</setting>
 		</group>
 		<group name="limits">
-		<setting name="nodes">
-			<type>Null or positive integer</type>
-			<defaultValue></defaultValue>
-			<description>Limits the number of tags which the XML parser will 
-				handle. This limits the amount of memory used by complicated 
-				pages. The Services browser and the Idle Display each use 
-				memory defined by this limit. A maximum total of 500 (256 each) 
-				is recommended. Increasing this value may have a detrimental 
-				effect on perfor-mance of the phone. </description>
-		</setting>
-		<setting name="cache">
-			<type>Null or positive integer 200</type>
-			<defaultValue></defaultValue>
-			<description>Limits the total size of objects down-loaded for each 
-				page (both XHTML and images). Once this limit is reached, no 
-				more images are downloaded until the next page is requested. 
-				Units = kBytes. Increasing this value may have a detri-mental 
-				effect on performance of the phone.</description>
-		</setting>
+			<setting name="nodes">
+				<type>Null or positive integer</type>
+				<defaultValue></defaultValue>
+				<description>Limits the number of tags which the XML parser 
+					will handle. This limits the amount of memory used by 
+					complicated pages. The Services browser and the Idle 
+					Display each use memory defined by this limit. A maximum 
+					total of 500 (256 each) is recommended. Increasing this 
+					value may have a detrimental effect on performance of the 
+					phone. </description>
+			</setting>
+			<setting name="cache">
+				<type>Null or positive integer 200</type>
+				<defaultValue></defaultValue>
+				<description>Limits the total size of objects downloaded for 
+					each page (both XHTML and images). Once this limit is 
+					reached, no more images are downloaded until the next page 
+					is requested. Units = kBytes. Increasing this value may 
+					have a detrimental effect on performance of the 
+					phone.</description>
+			</setting>
 		</group>
 	</group>
 	<group name="voIpProt">
@@ -1173,61 +1178,83 @@
 			</setting>
 		</group>
 		<group name="alertInfo">
-			<setting name="x.value">
-				<type>string to compare against the value of Alert-Info headers 
-					in INVITE requests</type>
-				<defaultValue></defaultValue>
-				<description>Alert-Info fields from INVITE requests will be 
-					compared against as many of these parameters as are 
-					specified (x=1, 2, ..., N) and if a match is found, the 
-					behavior described in the corresponding ring class will be 
-					applied.</description>
-			</setting>
-			<setting name="x.class">
-				<type>positive integer</type>
-				<defaultValue></defaultValue>
-				<description></description>
-			</setting>
+			<label>Alert Information</label>
+			<description>Match incoming call's alert information to a 
+				particular ring response. NOTE: Currently only 1 alert type is supported</description>
+			<group name="1">
+				<label>Alert Info Details</label>
+				<setting name="value">
+					<type>string to compare against the value of Alert-Info 
+						headers in INVITE requests</type>
+					<defaultValue></defaultValue>
+					<description>Alert-Info fields from INVITE requests will be 
+						compared against with this value and if a match is 
+						found, the behavior described in the corresponding ring 
+						class will be applied.</description>
+				</setting>
+				<setting name="class">
+					<type>positive integer</type>
+					<defaultValue></defaultValue>
+					<possibleValues>
+						<value>ring</value>
+						<value>visual</value>
+						<value>answer</value>
+						<value>ring-answer</value>
+					</possibleValues>
+					<description>one of these four valid values: ring, visual, 
+						answer, or ring-answer</description>
+				</setting>
+			</group>
 		</group>
 		<group name="requestValidation">
-			<setting name="x.request">
-				<type>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 
-					'OPTIONS', 'INFO', 'MESSAGE', 'SUB-SCRIBE', 'NOTIFY', 
-					'REFER', 'PRACK', or 'UPDATE'</type>
-				<defaultValue></defaultValue>
-				<description>Sets the name of the method for which validation 
-					will be applied. WARNING: Intensive request validation may 
-					have a negative performance impact due to the additional 
-					signaling required in some cases, therefore, use it 
-					judiciously.</description>
-			</setting>
-			<setting name="x.method">
-				<type>Null or one of: 'source', 'digest' or 'both'/'all'</type>
-				<defaultValue></defaultValue>
-				<description>If Null, no validation is done. Otherwise this 
-					sets the type of validation performed for the request: 
-					source: ensure request is received from an IP address of a 
-					server belonging to the set of target registration servers; 
-					digest: challenge requests with digest authentication using 
-					the local credentials for the associated registration 
-					(line); both or all: apply both of the above methods 
-					</description>
-			</setting>
-			<setting name="x.request.y.event">
-				<type>A valid string</type>
-				<defaultValue></defaultValue>
-				<description>Determines which events specified with the Event 
-					header should be validated; only applicable when voIp- 
-					Prot.SIP.requestValida-tion.x.request is set to 'SUBSCRIBE' 
-					or 'NOTIFY'. If set to Null, all events will be validated. 
-					</description>
-			</setting>
-			<setting name="digest.realm">
-				<type>A valid string</type>
-				<defaultValue>PolycomSPIP</defaultValue>
-				<description>Determines string used for Realm.</description>
-			</setting>
+			<label>Request Validation</label>
+			<description>To guard against unauthorized callers or telephony 
+				events. NOTE: Currently only 1 event type is supported</description>
+			<group name="1">
+				<label>Event Type to Validate</label>
+				<setting name="request">
+					<type>string</type>
+					<defaultValue></defaultValue>
+					<description>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 
+						'OPTIONS', 'INFO', 'MESSAGE', 'SUBSCRIBE', 'NOTIFY', 
+						'REFER', 'PRACK', or 'UPDATE'.  Sets the name of the method for which 
+						validation will be applied. WARNING: Intensive request 
+						validation may have a negative performance impact due 
+						to the additional signaling required in some cases, 
+						therefore, use it judiciously.</description>
+				</setting>
+				<setting name="method">
+					<type>string</type>
+					<defaultValue></defaultValue>
+					<description>Null or one of: 'source', 'digest' or 
+						'both'/'all'.  If Null, no validation is done. Otherwise this 
+						sets the type of validation performed for the request: 
+						source: ensure request is received from an IP address 
+						of a server belonging to the set of target registration 
+						servers; digest: challenge requests with digest 
+						authentication using the local credentials for the 
+						associated registration (line); both or all: apply both 
+						of the above methods </description>
+				</setting>
+				<setting name="request.1.event">
+					<type>string</type>
+					<defaultValue></defaultValue>
+					<description>Determines which events specified with the 
+						Event header should be validated; only applicable when 
+						request is set to 'SUBSCRIBE' or 'NOTIFY'. If set to 
+						Null, all events will be validated. </description>
+				</setting>
+			</group>
 		</group>
+			<group name="digest">
+				<description>Credentials for incoming requests, if request
+					validation is enabled.</description>
+				<setting name="realm">
+					<type>string</type>
+					<defaultValue>PolycomSPIP</defaultValue>
+					<description>Determines string used for Realm.</description>
+				</setting>
+			</group>
 		<group name="specialEvent">
 			<setting name="lineSeize.nonStandard">
 				<type>0, 1</type>

@@ -28,17 +28,36 @@
 #end			
 				/>
 			<alertInfo 
-			    voIpProt.SIP.alertInfo.1.value="" 
-				voIpProt.SIP.alertInfo.1.class=""/>
-			<requestValidation voIpProt.SIP.requestValidation.1.request="" 
-				voIpProt.SIP.requestValidation.1.method="" 
-				voIpProt.SIP.requestValidation.1.request.1.event="">
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('alertInfo'))
+#foreach ($setting in $cfg.getRecursiveSettings($group))
+    voIpProt.SIP.alertInfo.${setting.SettingGroup.ProfileName}.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+            />
+			<requestValidation 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('requestValidation'))
+#foreach ($setting in $cfg.getRecursiveSettings($group))
+    voIpProt.SIP.requestValidation.${setting.SettingGroup.ProfileName}.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end			
+				>
 				<digest 
-					voIpProt.SIP.requestValidation.digest.realm="PolycomSPIP"/>
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('digest'))
+#foreach ($setting in $cfg.getRecursiveSettings($group))
+    voIpProt.SIP.requestValidation.digest.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end			
+					/>
 			</requestValidation>
-			<specialEvent voIpProt.SIP.specialEvent.lineSeize.nonStandard="1" 
-				voIpProt.SIP.specialEvent.checkSync.alwaysReboot="0"/>
-			<conference voIpProt.SIP.conference.address=""/>
+			<specialEvent 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('specialEvent'))
+#foreach ($setting in $cfg.getSettings($group))
+    voIpProt.SIP.specialEvent.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end			
+			/>
+			<conference
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('conference'))
+#foreach ($setting in $cfg.getSettings($group))
+    voIpProt.SIP.conference.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end						
+			/>
 		</SIP>
 	</voIpProt>
 
