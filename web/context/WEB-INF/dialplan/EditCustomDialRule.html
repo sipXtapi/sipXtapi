@@ -1,5 +1,9 @@
-<span jwcid="@Border">
-    <div id="component">
+<html title="Edit Custom Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border" id="component">    
     <span jwcid="@Conditional" condition="ognl:beans.validator.hasErrors">
 	    <!-- TODO: add styling for errors-->
 		<span jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</span>
@@ -54,4 +58,5 @@
 		</ul>
     </form>
     </div>
-</span>
+</body>
+</html>

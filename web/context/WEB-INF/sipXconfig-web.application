@@ -20,11 +20,11 @@
       -->
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
+    <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="Home" specification-path="Home.page"/>
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
-    <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
     <page name="ListGateways" specification-path="dialplan/ListGateways.page"/>
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>

@@ -1,10 +1,9 @@
-<html jwcid="@Shell" title="Gateway Configuration" stylesheet="ognl:assets.stylesheet">
-<head jwcid="$remove$">
-    <title>Gateway Configuration</title>
-    <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
+<html title="Edit Gateway">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
-<body jwcid="@Body">
-    <div id="component">
+<body jwcid="$content$">
+	<div jwcid="@Border" id="component">    
     <span jwcid="@Conditional" condition="ognl:beans.validator.hasErrors">
 	    <!-- TODO: add styling for errors-->
 		<span jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</span>
