@@ -23,7 +23,6 @@ testsuite_LDADD = \
 ## versions of libtool name .o file sipproxy-ForwardingRules.o and
 ## early versions named it ForwardingRules.o
 testsuite_SOURCES = \
-    @SIPXUNIT_SRCDIR@/sipxunit/unitmain.cpp \
     $(top_srcdir)/src/sipforkingproxy/ForwardRules.cpp \
     ForwardRulesTest.cpp
 
