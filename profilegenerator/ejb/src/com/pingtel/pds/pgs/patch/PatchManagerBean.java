@@ -90,7 +90,7 @@ public class PatchManagerBean extends JDBCAwareEJB implements SessionBean, Patch
             Element root = getUpgradeInfo ();
             Integer version = getDBVersion();
             logDebug ("existing database version is: " + version);
-            logDebug ("target version is: " + version);
+            logDebug ("target version is: " + targetVersion);
 
             Collection versions = root.getChildren( "version" );
             for ( Iterator iV = versions.iterator(); iV.hasNext(); ) {

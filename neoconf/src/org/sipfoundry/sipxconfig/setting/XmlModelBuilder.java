@@ -55,6 +55,11 @@ public class XmlModelBuilder {
 
     public SettingGroup buildModel(InputStream is) throws IOException {
         Digester digester = new Digester();
+        
+        // JBoss uses digester and therefore, preloaded, and therefore it's
+        // classloader cannot find classes inside deployment containers
+        digester.setClassLoader(this.getClass().getClassLoader());
+        
         digester.setValidating(false);
         String addSetting = "addSetting";
         digester.push(new SettingGroup());

@@ -126,6 +126,24 @@ a.tab.active:hover, a.tab:hover {
   padding: 5px 5px 5px 10px;
 }
 
+#settings-nav {
+  width: 10em;
+  float:left;
+}
+
+#settings-nav ul {
+  margin: 2px;
+  padding: 2px;
+  list-style-type:none;
+}
+
+#settings-nav a {
+  white-space: nowrap;    
+}
+
+#settings-content {
+}
+
 #footer {
     clear : both;
     padding: .5em 1em .25em 1em;

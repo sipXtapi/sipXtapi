@@ -347,8 +347,7 @@
 				<label>Emergency Numbers</label>
 				<type>Comma separated list of entries or single entry 
 					representing a or a combination of SIP URL.</type>
-				<defaultValue>"Null Example: '15,17,18', '911', 'sos'. 
-					"</defaultValue>
+				<defaultValue></defaultValue>
 				<description>This represents the URLs that should be watched 
 					for emergency routing. When one of these defined URL is 
 					detected as being dialed by the user, the call will be 

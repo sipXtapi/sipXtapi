@@ -116,7 +116,7 @@
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
   #set ($group = $line.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
-     dialplan.${i}.routing.emergency.1.value="$!{group.getSetting('emergency1.value').ProfileValue}"
+     dialplan.${i}.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').ProfileValue}"
      dialplan.${i}.routing.emergency.1.server.1="1"
 #end
             />

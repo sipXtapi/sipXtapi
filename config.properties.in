@@ -43,7 +43,6 @@ profilegen-tags.jar=${top.build.dir}/profilegenerator/webui/dist/profilegen-tags
 buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
 sipxconfig.war=${top.build.dir}/web/dist/sipxconfig.war
 sipxconfig.jar=${top.build.dir}/neoconf/dist/sipxconfig.jar
-beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
 # very optional
 sipfoundry.org.dir=@SIPFOUNDRY_ORG@
 neoconf.etc.dir=${top.dir}/neoconf/etc

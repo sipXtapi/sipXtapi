@@ -50,7 +50,8 @@ fi
 
 if [ ${Action} = CONFIGTEST ]
 then
-    #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/topology.xml
+    # comment out until (benign?) xml errors are resolved
+    #@bin.dir@/sipx-validate-xml @sipxpbx.conf.dir@/topology.xml
     #$Status=$(($Status+$?))
     exit $Status
 fi

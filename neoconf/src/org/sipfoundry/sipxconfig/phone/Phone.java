@@ -15,19 +15,11 @@ import java.io.IOException;
 
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
-
-
 /**
  * Implement this to add support for new devices to the system
  */
 public interface Phone {
     
-    /**
-     * every settings model for phones should have a lines settings model in the root model with
-     * this name
-     */
-    public static final String LINE_SETTINGS = "line";
-
     public String getModelId();
     
     public void setModelId(String id);

@@ -33,29 +33,25 @@ F E A T U R E S
   5%  2   - howto restart polycom phone
   0%  10  - data validation
   0%  5   - instructional text for pages
-
-I N T E G R A T I O N
----------------------
- 50%  8   - site integration
-
-C O N C E R N S
----------------
-- Some domain features may require more than a text field to capture
-  such as drop down boxes and lite tables.
+ 80%  8   - site integration
 
 C L E A N  U P
 --------------
 - Performance analysis
 - code coverage
-- logged bug
-- 3 col. CSS layout
-
-S U M M A R Y 
--------------
-- In order to meet time line, I recommend all items w/importance 2 be cut
-  and most items with importance 5 also be cut
+- logged bugs
+ + validate serial numbers
+ + list phone labels in selection dropdown list
+ + allow users to change models 300 <-> 500 <-> 600
+ + remove extra space on top of tapestry frameset, add margin to sides
+ + even -> odd, odd -> even when generating profiles and you have an odd number of row to begin with
+ + move up/down on lines
+ + phone.xml  registration server descriptions are need work
+ + default values when loading
 
 N O T   T O   D I S T A N T   F U T U R E 
 -----------------------------------------
 - Support different input types other than just input field
 - Add more validation types.
+- SOAP support
+

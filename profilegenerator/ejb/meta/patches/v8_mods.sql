@@ -1,4 +1,9 @@
 /** 
+ *   W A R N I N G  :   
+ *   exact copy maintained in profilegen_create.sql
+ */
+
+/** 
  * S E T T I N G   S T O R A G E
  */
 create table storage(
