@@ -17,11 +17,25 @@ import javax.faces.model.SelectItem;
  * DialPlan - settings for configuring dial plan
  */
 public class DialPlan {
+    private static final int DEFAULT_LOCAL_EXT_LEN = 3;
+
+    private static final int DEFAULT_PSTN_PREFIX = 9;
+
+    private static final int DEFAULT_VMAIL_PREFIX = 3;
+
+    private static final int MIN_DIGIT = 1;
+
+    private static final int MAX_DIGIT = 9;
+
+    private static final int MIN_EXT_LEN = 9;
+
+    private static final int MAX_EXT_LEN = 9;
+
     // dial plan attributes
 
     private String m_name;
 
-    private Integer m_localExtensionLen = new Integer(6);
+    private Integer m_localExtensionLen = new Integer(DEFAULT_LOCAL_EXT_LEN);
 
     private String m_autoAttendant = "100";
 
@@ -29,28 +43,27 @@ public class DialPlan {
 
     private String m_did;
 
-    private Integer m_pstnPrefix = new Integer(9);
+    private Integer m_pstnPrefix = new Integer(DEFAULT_PSTN_PREFIX);
 
     private String m_emergencyNumber = "911";
 
     private String m_internationalPrefix;
 
-    private Integer m_voiceMailPrefix = new Integer(8);
+    private Integer m_voiceMailPrefix = new Integer(DEFAULT_VMAIL_PREFIX);
 
     private String m_longDistancePrefix = "1";
 
     // helpers
-    private SelectItem[] m_oneDigitRange = getMapForRange(1, 9);
+    private SelectItem[] m_oneDigitRange = getMapForRange(MIN_DIGIT, MAX_DIGIT);
 
-    private SelectItem[] m_localExtensionLenRange = getMapForRange(2, 6);
+    private SelectItem[] m_localExtensionLenRange = getMapForRange(MIN_EXT_LEN, MAX_EXT_LEN);
 
     public String getAutoAttendant() {
         return m_autoAttendant;
     }
 
     SelectItem[] getMapForRange(int min, int max) {
-        if( min >= max )
-        {
+        if (min >= max) {
             return new SelectItem[0];
         }
         SelectItem[] items = new SelectItem[max - min + 1];
@@ -143,11 +156,11 @@ public class DialPlan {
         return null;
     }
 
-    public SelectItem[]  getLocalExtensionLenRange() {
+    public SelectItem[] getLocalExtensionLenRange() {
         return m_localExtensionLenRange;
     }
 
-    public SelectItem[]  getOneDigitRange() {
+    public SelectItem[] getOneDigitRange() {
         return m_oneDigitRange;
     }
 }

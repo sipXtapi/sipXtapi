@@ -43,6 +43,8 @@
 		<pathelement path="${bsf.jar}" />
 		<pathelement path="${jakarta-oro.jar}" />
 		<pathelement path="${commons-lang.jar}" />
+		<!-- JSF -->
+		<pathelement path="${top.dir}/lib/jsf-api.jar"/>
 	</path>
 
 	<path id="base.path">
