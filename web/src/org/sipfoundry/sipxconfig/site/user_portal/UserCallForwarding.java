@@ -120,8 +120,10 @@ public abstract class UserCallForwarding extends BasePage implements IExternalPa
     public void deleteRing(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
                 .getServiceParameters(), 0);
-        Ring ring = getForwardingContext().getRing(id);
+        ForwardingContext forwardingContext = getForwardingContext();
+        Ring ring = forwardingContext.getRing(id);
         CallSequence callSequence = ring.getCallSequence();
         callSequence.removeRing(ring);
+        forwardingContext.saveCallSequence(callSequence);
     }
 }
