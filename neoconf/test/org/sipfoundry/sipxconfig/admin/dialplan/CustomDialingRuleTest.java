@@ -65,17 +65,9 @@ public class CustomDialingRuleTest extends TestCase {
         for (int i = 0; i < GATEWAYS.length; i++) {
             assertTrue(transforms[i] instanceof FullTransform);
             FullTransform full = (FullTransform) transforms[i];
-            assertTrue(full.getFieldParams()[0].startsWith("Q="));
+            assertTrue(full.getFieldParams()[0].startsWith("q="));
             assertEquals(GATEWAYS[i], full.getHost());
             assertTrue(full.getUser().startsWith("999"));
         }
-    }
-    
-    public void testQueueValue() throws Exception {
-        SerialForkQueueValue value = new SerialForkQueueValue(3);
-        assertEquals("Q=1.0",value.getNextValue());
-        assertEquals("Q=0.95",value.getNextValue());
-        assertEquals("Q=0.9",value.getNextValue());
-        assertEquals("Q=0.85",value.getNextValue());        
     }
 }

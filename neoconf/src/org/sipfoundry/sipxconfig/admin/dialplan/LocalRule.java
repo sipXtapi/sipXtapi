@@ -49,14 +49,14 @@ public class LocalRule extends DialingRule {
         String user = patternNormal.calculatePattern();
         List gateways = getGateways();
         List transforms = new ArrayList(gateways.size());
-        SerialForkQueueValue q = new SerialForkQueueValue(gateways.size());
+        ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Gateway gateway = (Gateway) i.next();
             FullTransform transform = new FullTransform();
             transform.setUser(user);
             transform.setHost(gateway.getAddress());
             String[] fieldParams = new String[] {
-                q.getNextValue()
+                q.getSerial()
             };
             transform.setFieldParams(fieldParams);
             transforms.add(transform);

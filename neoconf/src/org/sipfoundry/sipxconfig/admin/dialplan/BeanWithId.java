@@ -22,12 +22,12 @@ import org.apache.commons.beanutils.BeanUtils;
  * Hibernate advises against using object identifiers in equals and hashCode
  * methods
  */
-class BeanWithId {
+public class BeanWithId {
     private static int s_id = 1;
 
     private Integer m_id;
 
-    BeanWithId() {
+    public BeanWithId() {
         this(new Integer(s_id++));
     }
 

@@ -57,13 +57,13 @@ public class CustomDialingRule extends DialingRule {
         final String calculatePattern = getCallPattern().calculatePattern();
         List gateways = getGateways();
         Transform[] transforms = new Transform[gateways.size()];
-        SerialForkQueueValue q = new SerialForkQueueValue(gateways.size());
+        ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (int i = 0; i < transforms.length; i++) {
             Gateway g = (Gateway) gateways.get(i);
             FullTransform transform = new FullTransform();
             transform.setHost(g.getAddress());
             transform.setUser(calculatePattern);
-            String[] fieldParams = new String[] {q.getNextValue()};
+            String[] fieldParams = new String[] {q.getSerial()};
             transform.setFieldParams(fieldParams);
             transforms[i] = transform;
         }
