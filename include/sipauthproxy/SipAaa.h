@@ -56,7 +56,8 @@ public:
 /* ============================ CREATORS ================================== */
 
    SipAaa(SipUserAgent& sipUserAgent,
-          const char* authenticationRealm);
+          const char* authenticationRealm,
+          UtlString& routeName);
      //:Default constructor
 
    SipAaa(const SipAaa& rSipAaa);
@@ -104,6 +105,7 @@ private:
     UtlString mSignatureSecret;
     SipNonceDb mNonceDb;
     long mNonceExpiration;
+    UtlString mRouteName;
 
 
 };

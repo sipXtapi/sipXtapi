@@ -51,8 +51,9 @@ extern UtlString gExpiresKey;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipAaa::SipAaa( SipUserAgent& sipUserAgent,
-               const char* authenticationRealm ) :
+SipAaa::SipAaa(SipUserAgent& sipUserAgent,
+               const char* authenticationRealm,
+               UtlString& routeName) :
    OsServerTask("SipAaa-%d", NULL, 2000)
 {
     mpSipUserAgent = &sipUserAgent;
@@ -60,6 +61,9 @@ SipAaa::SipAaa( SipUserAgent& sipUserAgent,
 
     // Initialize the outbound authorization rules
     mpAuthorizationRules = new UrlMapping();
+
+    // The name to appear in the route header for the authproxy
+    mRouteName = routeName;
 
     char signBuf[100];
     //int ranNum = rand();
@@ -551,19 +555,31 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     // Record route if authenticated
                     if ( needsRecordRouting )
                     {
+                        Url routeUrl(mRouteName);
+                        if(mRouteName.isNull())
+                        {
+                            UtlString uriString;
+                            int port;
+                            //sipRequest->getRequestUri(&uriString);
 
-                        UtlString uriString;
-                        int port;
-                        //sipRequest->getRequestUri(&uriString);
-                        mpSipUserAgent->getViaInfo(
-                            OsSocket::UDP, uriString, port );
+                            mpSipUserAgent->getViaInfo(
+                                OsSocket::UDP, uriString, port );
 #ifdef TEST_PRINT
-                        osPrintf("SipAaa:handleMessage Record-Route address: %s port: %d\n",
-                                 uriString.data(), port);
+                            osPrintf("SipAaa:handleMessage Record-Route address: %s port: %d\n",
+                                     uriString.data(), port);
 #endif
-                        Url routeUrl;
-                        routeUrl.setHostAddress(uriString.data());
-                        routeUrl.setHostPort(port);
+
+                            routeUrl.setHostAddress(uriString.data());
+                            routeUrl.setHostPort(port);
+                        }
+#ifdef TEST_PRINT
+                        else
+                        {
+                            osPrintf("SipAaa:handleMessage Record-Route mRouteName: %s\n",
+                                mRouteName.data());
+                        }
+#endif
+
                         routeUrl.setUrlParameter("lr", "");
                         UtlString signature;
 

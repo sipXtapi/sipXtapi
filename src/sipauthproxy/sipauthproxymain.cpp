@@ -556,7 +556,7 @@ main( int argc, char* argv[] )
 
     // Create a router to route stuff either
     // to a local server or on out to the real world
-    pServerTask = new SipAaa ( sipUserAgent, realm );
+    pServerTask = new SipAaa(sipUserAgent, realm, routeName);
 
     // Start the router running
     pServerTask->start();
