@@ -20,7 +20,6 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 
 /**
@@ -65,8 +64,7 @@ public abstract class ManagePhones extends BasePage
     public void pageBeginRender(PageEvent event) {
         // Generate the list of phone items
         PhoneContext phoneContext = PhonePageUtils.getPhoneContext(event.getRequestCycle()); 
-        PhoneDao dao = phoneContext.getPhoneDao();
-        setPhones(dao.loadPhoneSummaries(phoneContext));
+        setPhones(phoneContext.loadPhoneSummaries(phoneContext));
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }

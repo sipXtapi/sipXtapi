@@ -55,7 +55,7 @@
 	</path>
 	<property name="classpath" refid="base.path" />
 
-	<target name="init" depends="ant-targets.init,unittest.sysdir.properties">
+	<target name="init" depends="ant-targets.init">
 		<mkdir dir="${dist.dir}/war-root" />
 	</target>
 

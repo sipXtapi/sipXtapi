@@ -23,7 +23,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
 import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.phone.SettingSet;
 
 /**
@@ -86,8 +85,7 @@ public class PolycomPhone extends GenericPhone {
             getEndpoint().setSettings(settings);
         }
         PhoneContext context = getPhoneContext();
-        PhoneDao dao = context.getPhoneDao();
-        Organization org = dao.loadRootOrganization();
+        Organization org = context.loadRootOrganization();
         
         settings.setDefault("network/tftpServer", org.getDnsDomain());
         

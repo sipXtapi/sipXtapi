@@ -16,7 +16,7 @@ package org.sipfoundry.sipxconfig.phone;
  */
 public class Credential {
 
-    private int m_id = PhoneDao.UNSAVED_ID;
+    private int m_id = PhoneContext.UNSAVED_ID;
 
     private String m_authId;
 

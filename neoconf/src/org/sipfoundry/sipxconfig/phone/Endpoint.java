@@ -21,7 +21,7 @@ public class Endpoint implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private int m_id = PhoneDao.UNSAVED_ID;
+    private int m_id = PhoneContext.UNSAVED_ID;
 
     private String m_name;
 

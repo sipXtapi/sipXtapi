@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site;
+package org.sipfoundry.sipxconfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,10 +19,14 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.util.Properties;
 
+import org.apache.velocity.app.VelocityEngine;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class SiteTestHelper {
+/**
+ * For unittests that need spring instantiated
+ */
+public final class TestHelper {
     
     private static final String APPLICATION_CONTEXT_FILE = "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml";
     
@@ -34,12 +38,25 @@ public class SiteTestHelper {
         if (s_appContext == null) {
             getSysDirProperties();
             s_appContext = new ClassPathXmlApplicationContext(
-                    SiteTestHelper.APPLICATION_CONTEXT_FILE);
+                TestHelper.APPLICATION_CONTEXT_FILE);
         }
         
         return s_appContext;
     }        
 
+    public static VelocityEngine getVelocityEngine() throws Exception {
+        Properties sysdir = getSysDirProperties();
+
+        String etcDir = sysdir.getProperty("sysdir.etc");
+
+        VelocityEngine engine = new VelocityEngine();
+        engine.setProperty("resource.loader", "file");
+        engine.setProperty("file.resource.loader.path", etcDir);
+        engine.init();
+        
+        return engine;
+    }
+    
     /**
      * Create a sysdir.properties file in the classpath.  Uses a trick that
      * will only work if unittests are unjar-ed.  This is infavor of doing
@@ -49,7 +66,7 @@ public class SiteTestHelper {
     public static Properties getSysDirProperties() {
         if (s_sysProps == null) {
 	        // create file on classpath
-	        CodeSource code = SiteTestHelper.class.getProtectionDomain().getCodeSource();
+	        CodeSource code = TestHelper.class.getProtectionDomain().getCodeSource();
 	        URL classpathUrl = code.getLocation();
 	        File classpathDir = new File(classpathUrl.getFile());
 	        File sysdirPropsFile = new File(classpathDir, "sysdir.properties");
@@ -60,9 +77,8 @@ public class SiteTestHelper {
 	            throw new RuntimeException("could not create system dir properties file", e);
 	        }
 	        s_sysProps = new Properties();
-	        
-	        String baseDir = System.getProperty("basedir");
-	        String etcDir = System.getProperty("user.dir", baseDir) + "/../etc";
+	        String userDir = System.getProperty("user.dir");
+	        String etcDir = System.getProperty("basedir", userDir) + "/etc";
 	        s_sysProps.setProperty("sysdir.etc", etcDir);
 	        s_sysProps.setProperty("sysdir.var", classpathDir.getAbsolutePath());
 	        s_sysProps.setProperty("sysdir.log", classpathDir.getAbsolutePath());
@@ -78,4 +94,5 @@ public class SiteTestHelper {
         
         return s_sysProps;
     }
+
 }

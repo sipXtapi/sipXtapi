@@ -28,7 +28,7 @@ public abstract class NewPhone extends BasePage {
     public abstract void setEndpoint(Endpoint endpoint);
 
     public void finish(IRequestCycle cycle) {
-        PhonePageUtils.getPhoneDao(cycle).storeEndpoint(getEndpoint());
+        PhonePageUtils.getPhoneContext(cycle).storeEndpoint(getEndpoint());
         cycle.activate(ManagePhones.PAGE);
     }
 

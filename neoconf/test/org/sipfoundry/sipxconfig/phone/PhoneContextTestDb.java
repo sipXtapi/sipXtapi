@@ -15,12 +15,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
+
 /**
  * Requires Database access.
  */
-public class PhoneDaoImplTestDb extends TestCase {
-
-    private PhoneDao m_dao;
+public class PhoneContextTestDb extends TestCase {
 
     private PhoneContext m_context;
 
@@ -28,18 +28,17 @@ public class PhoneDaoImplTestDb extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        PhoneTestHelper helper = PhoneTestHelper.createHelperWithDatabase();
-        m_context = helper.getPhoneContext();
+        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
         assertNotNull(m_context);
-        m_dao = m_context.getPhoneDao();
-        assertNotNull(m_dao);
-        m_testData = helper.getUnitTestDao();
+
+        m_testData = PhoneTestHelper.getUnitTestDao();
         assertNotNull(m_testData);
-        assertTrue(m_testData.initializeImmutableData());
+        assertTrue(m_testData.initializeImmutableData());        
     }
 
     protected void tearDown() throws Exception {
         assertTrue(m_testData.verifyDataUnaltered());
+        m_context.flush();
     }
 
     public void testSampleData() {
@@ -49,20 +48,20 @@ public class PhoneDaoImplTestDb extends TestCase {
     }
     
     public void testSampleEndpointLine() {
-        User user = m_dao.loadUser(m_testData.getTestUserId());
+        User user = m_context.loadUser(m_testData.getTestUserId());
         assertNotNull(m_testData.createSampleLine(user));        
     }
 
     public void testLoadPhoneSummaries() {
-        int preSize = m_dao.loadPhoneSummaries(m_context).size();
+        int preSize = m_context.loadPhoneSummaries(m_context).size();
 
-        User user = m_dao.loadUser(m_testData.getTestUserId());
+        User user = m_context.loadUser(m_testData.getTestUserId());
         Line line = m_testData.createSampleLine(user);
         assertNotNull(line);
         
         // just test there's one more in list, not a very 
         // hard test
-        List summaries = m_dao.loadPhoneSummaries(m_context);
+        List summaries = m_context.loadPhoneSummaries(m_context);
         assertEquals(preSize + 1, summaries.size());
     }
 

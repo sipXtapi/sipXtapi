@@ -29,7 +29,7 @@ public class Setting implements Serializable {
     
     private Object m_default;
     
-    private int m_id = PhoneDao.UNSAVED_ID;
+    private int m_id = PhoneContext.UNSAVED_ID;
     
     private SettingSet m_parent;
 

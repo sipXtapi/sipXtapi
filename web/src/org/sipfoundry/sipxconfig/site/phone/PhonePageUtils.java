@@ -15,33 +15,36 @@ import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
  * Helper functions for phone related Tapestry pages and components
  */
 public final class PhonePageUtils {
+    
+    private static PhoneContext s_unittestPhoneContext;
 
     /**
      * restrict construction 
      */
     private PhonePageUtils() {
     }
+    
+    public static final void setUnittestPhoneContext(PhoneContext phoneContext) {
+        s_unittestPhoneContext = phoneContext;
+    }
 
     /**
      * Get the phone context from tapestry's cycle context
      */
     public static final PhoneContext getPhoneContext(IRequestCycle cycle) {
-        BeanFactory bf = TapestryUtils.getBeanFactory(cycle);
-        return (PhoneContext) bf.getBean(PhoneContext.CONTEXT_BEAN_NAME);
-    }
-    
-    /**
-     * Convienence method to phone data access object
-     */
-    public static final PhoneDao getPhoneDao(IRequestCycle cycle) {
-        return getPhoneContext(cycle).getPhoneDao();
+        PhoneContext phoneContext = s_unittestPhoneContext;
+        if (phoneContext == null) {
+            BeanFactory bf = TapestryUtils.getBeanFactory(cycle);
+            phoneContext = (PhoneContext) bf.getBean(PhoneContext.CONTEXT_BEAN_NAME); 
+        }
+
+        return phoneContext;
     }
     
     /**

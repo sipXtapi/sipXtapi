@@ -21,7 +21,7 @@ public class Organization implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private int m_id = -1;
+    private int m_id = PhoneContext.UNSAVED_ID;
     
     private String m_name;
     

@@ -115,17 +115,6 @@
   </target>
 
 
-  <target name="unittest.sysdir.properties"
-	    description="internal, for generating sysdir.properties for unittests">
-    <!-- DLH: Consult w/DK on this -->
-    <echo file="${test.src.dir}/sysdir.properties">
-# used in applicationContext-sipxconfig.xml to set system properies
-sysdir.etc=${neoconf.etc.dir}
-sysdir.log=${build.dir}/test-results
-sysdir.var=${build.dir}/test-results
-    </echo>
-  </target>
-
   <!--
     - Creates a standard version file 
     - MUST DEFINE property ${version.file}

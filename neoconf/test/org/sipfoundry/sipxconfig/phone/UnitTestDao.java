@@ -30,10 +30,13 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * there's a need to do this from the applicaton
  */
 public class UnitTestDao extends HibernateDaoSupport {
+    
+    public static final String APPLICATION_CONTEXT_FILE = 
+        "org/sipfoundry/sipxconfig/phone/applicationContext-unittest-dao.xml";
 
     private DataSource m_dataSource;
     
-    private PhoneDao m_phoneDao;
+    private PhoneContext m_phoneContext;
 
     private int m_testUserId;
     
@@ -72,8 +75,8 @@ public class UnitTestDao extends HibernateDaoSupport {
         return m_dataSource;
     }
     
-    public void setPhoneDao(PhoneDao phoneDao) {
-        m_phoneDao = phoneDao;
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
     }
 
     /**
@@ -87,22 +90,22 @@ public class UnitTestDao extends HibernateDaoSupport {
         // Order is important here to comply with foriegn key
         //   relationships
         if (m_teardownLine != null) {
-            m_phoneDao.deleteLine(m_teardownLine);
+            m_phoneContext.deleteLine(m_teardownLine);
             m_teardownLine = null;
         }
         if (m_teardownEndpoint != null) {
-            m_phoneDao.deleteEndpoint(m_teardownEndpoint);
+            m_phoneContext.deleteEndpoint(m_teardownEndpoint);
             m_teardownEndpoint = null;
         }
         if (m_teardownSettings != null) {
-            m_phoneDao.deleteSetting(m_teardownSettings);
+            m_phoneContext.deleteSetting(m_teardownSettings);
             m_teardownSettings = null;
         }
         if (m_teardownCredential != null) {
-            m_phoneDao.deleteCredential(m_teardownCredential);
+            m_phoneContext.deleteCredential(m_teardownCredential);
             m_teardownCredential = null;
         }
-        m_phoneDao.flush();
+        m_phoneContext.flush();
         
         return true;
     }
@@ -149,7 +152,7 @@ public class UnitTestDao extends HibernateDaoSupport {
             testUser.setFirstName("Test");
             testUser.setLastName("User");
             testUser.setDisplayId("testuser");
-            m_phoneDao.saveUser(testUser);
+            m_phoneContext.saveUser(testUser);
             m_testUserId = testUser.getId();
             setRecordId(testLabel, connection, testUser.getId());
         }
@@ -190,7 +193,7 @@ public class UnitTestDao extends HibernateDaoSupport {
         // assumption that this is unique
         endpoint.setSerialNumber("f34298760024fcc1"); 
         endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
-        m_phoneDao.storeEndpoint(endpoint);
+        m_phoneContext.storeEndpoint(endpoint);
         m_teardownEndpoint = endpoint;
         
         return endpoint;
@@ -201,7 +204,7 @@ public class UnitTestDao extends HibernateDaoSupport {
      */    
     public Credential createSampleCredential() {
         Credential cred = new Credential();
-        m_phoneDao.storeCredential(cred);
+        m_phoneContext.storeCredential(cred);
         m_teardownCredential = cred;
         
         return cred;
@@ -217,7 +220,7 @@ public class UnitTestDao extends HibernateDaoSupport {
         Setting setting = new Setting("subsetting", "value");
         subset.addSetting(setting);
 
-        m_phoneDao.storeSetting(root, PhoneDao.CASCADE);
+        m_phoneContext.storeSetting(root, PhoneContext.CASCADE);
         m_teardownSettings = root;
                 
         return root;
@@ -232,7 +235,7 @@ public class UnitTestDao extends HibernateDaoSupport {
         line.setEndpoint(createSampleEndpoint());
         line.setSettings(createSampleSettingSet());
         line.setUser(user);
-        m_phoneDao.storeLine(line);                
+        m_phoneContext.storeLine(line);                
         m_teardownLine = line;
         
         return line;

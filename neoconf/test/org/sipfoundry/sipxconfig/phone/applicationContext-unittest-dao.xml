@@ -13,8 +13,8 @@
 		<property name="dataSource">
 			<ref bean="dataSource"/>
 		</property>
-		<property name="phoneDao">
-			<ref bean="phoneDao"/>
+		<property name="phoneContext">
+			<ref bean="phoneContext"/>
 		</property>
 	</bean>
 </beans>

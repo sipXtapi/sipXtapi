@@ -17,7 +17,6 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
@@ -35,13 +34,13 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
     public abstract void setPhoneId(int id);
     
     public void ok(IRequestCycle cycle) {
-        PhoneDao dao = PhonePageUtils.getPhoneContext(cycle).getPhoneDao(); 
+        PhoneContext dao = PhonePageUtils.getPhoneContext(cycle); 
         dao.storeEndpoint(getPhone().getEndpoint());
         cycle.activate(ManagePhones.PAGE);
     }
 
     public void apply(IRequestCycle cycle) {
-        PhoneDao dao = PhonePageUtils.getPhoneContext(cycle).getPhoneDao(); 
+        PhoneContext dao = PhonePageUtils.getPhoneContext(cycle); 
         dao.storeEndpoint(getPhone().getEndpoint());
     }
     

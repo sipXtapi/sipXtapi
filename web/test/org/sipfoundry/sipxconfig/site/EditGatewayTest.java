@@ -11,15 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import junit.framework.TestCase;
+
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
-
-import junit.framework.TestCase;
 
 /**
  * EditGatewayTest

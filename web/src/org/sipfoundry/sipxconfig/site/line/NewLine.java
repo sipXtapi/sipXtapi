@@ -16,7 +16,6 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
@@ -46,24 +45,22 @@ public abstract class NewLine extends BasePage {
     public void finish(IRequestCycle cycle) {
         PhoneContext phoneContext = PhonePageUtils.getPhoneContext(cycle);
         saveLine(phoneContext);
-        if (isEndpointLineWizard()) {
-            saveEndpointLine(phoneContext);
+        if (isEndpointWizard()) {
+            saveEndpoint(phoneContext);
         }
         cycle.activate(getReturnPage());
     }
     
-    public boolean isEndpointLineWizard() {
+    public boolean isEndpointWizard() {
         return getPhone() != null;
     }
     
     void saveLine(PhoneContext phoneContext) {
-        PhoneDao dao = phoneContext.getPhoneDao();
-        dao.storeLine(getLine());
+        phoneContext.storeLine(getLine());
     }
     
-    void saveEndpointLine(PhoneContext phoneContext) {
-        PhoneDao dao = phoneContext.getPhoneDao();
-        dao.storeLine(getLine());
+    void saveEndpoint(PhoneContext phoneContext) {
+        phoneContext.storeEndpoint(getLine().getEndpoint());
     }
 
     public void cancel(IRequestCycle cycle) {

@@ -19,64 +19,37 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Credential;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.Organization;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDao;
-import org.sipfoundry.sipxconfig.phone.PhoneTestHelper;
 import org.sipfoundry.sipxconfig.phone.SettingSet;
 import org.sipfoundry.sipxconfig.phone.User;
 
 public class PolycomPhoneTest extends XMLTestCase {
-    
-    private MockControl m_control;
-    
-    private PhoneContext m_phoneContext;
-    
+        
     public void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
-
-        PhoneTestHelper helper = PhoneTestHelper.createHelper();
-        m_phoneContext = helper.getPhoneContext();
-        
-        m_control = MockControl.createStrictControl(PhoneDao.class);
-        PhoneDao dao = (PhoneDao) m_control.getMock();
-        Organization rootOrganization = new Organization();
-        rootOrganization.setDnsDomain("hostname.domainname");
-        m_control.expectAndReturn(dao.loadRootOrganization(), rootOrganization);        
-
-        m_phoneContext.setPhoneDao(dao);
-    }
-    
-    public void tearDown() {
-    }
-    
-    public void testFactoryCreation() {
-        m_control.replay();
-
-        Endpoint endpoint = new Endpoint();
-        endpoint.setSettings(new SettingSet());
-        endpoint.setPhoneId(PolycomPhone.MODEL_300);
-        Phone phone = m_phoneContext.getPhone(endpoint);
-        
-        assertNotNull(phone);
-
-        m_control.verify();
     }
     
     public void testBasicProfile() throws Exception {
-        m_control.replay();        
-        
-        // create basic data
-        Endpoint endpoint = new Endpoint();
-        endpoint.setSettings(new SettingSet());
-        endpoint.setSerialNumber("123abc");
-        endpoint.setPhoneId(PolycomPhone.MODEL_300);
-        PolycomPhone phone = (PolycomPhone) m_phoneContext.getPhone(endpoint);
+        MockControl phoneControl = MockControl.createStrictControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneControl.getMock();
+        phoneControl.replay();
 
+        Endpoint endpoint = new Endpoint();
+        endpoint.setSerialNumber("123abc");
+        endpoint.setSettings(new SettingSet());
+        endpoint.setPhoneId(PolycomPhone.MODEL_300);
+        PolycomPhone phone = new PolycomPhone();
+        phone.setModelId(PolycomPhone.MODEL_300);
+        phone.setEndpoint(endpoint);
+        phone.setVelocityEngine(TestHelper.getVelocityEngine());
+
+        phone.setPhoneContext(phoneContext);
+
+        // create basic data
         Line line = new Line();
         User user = new User();
         Credential credential = new Credential();
@@ -107,6 +80,6 @@ public class PolycomPhoneTest extends XMLTestCase {
             }
         }
         
-        m_control.verify();
+        phoneControl.verify();
     }       
 }

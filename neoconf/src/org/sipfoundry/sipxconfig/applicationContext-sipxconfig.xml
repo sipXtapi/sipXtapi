@@ -15,6 +15,61 @@
 		</property>
 	</bean>
 	<!--
+       - P O S T G R E S
+       -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close">
+		<property name="driverClassName">
+			<value>org.postgresql.Driver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:postgresql://localhost/PDS</value>
+		</property>
+		<property name="username">
+			<value>postgres</value>
+		</property>
+	</bean>
+	<!--
+       - T R A N S A C T I O N  S U P P O R T
+       -->
+	<bean id="transactionManager" 
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref local="dataSource"/>
+		</property>
+	</bean>
+	<!--
+      - H I B E R N A T E   F A C T O R Y
+      -->
+	<bean id="sessionFactory" 
+		class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref local="dataSource"/>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value> org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect"> 
+					net.sf.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.query.substitutions">true=1 false=0</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+	<!--
+      - H I B E R N A T E   S E S S I O N
+      -->
+	<bean id="hibernateInterceptor" 
+		class="org.springframework.orm.hibernate.HibernateInterceptor">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+	<!--
 	  - V E L O C I T Y
 	  -->
 	<bean id="velocityEngine" 
@@ -22,20 +77,38 @@
 	  <property name="resourceLoaderPath"><value>file:${sysdir.etc}</value></property>          
 	</bean>
 	<!--
-      -  P H O N E  C O N T E X T
+      - P H O N E  C O N T E X T   I M P L
       -->
-	<bean id="phoneContext" 
+	<bean id="phoneContextImpl" 
 		class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
-		<property name="phoneDao">
-			<ref bean="phoneDao"/>
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
 		</property>
 		<property name="phoneIds">
 			<list>
-				<value>generic</value>
 				<value>polycom300</value>
 			</list>
 		</property>
 	</bean>
+	<!--
+      - P H O N E  C O N T E X T
+      -->
+	<bean id="phoneContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.phone.PhoneContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>phoneContextImpl</value>
+			</list>
+		</property>
+	</bean>
+	<!--
+	  - P H O N E  M O D E L S
+	  - hoping to move this external file
+	  -->
 	<bean id="polycom300" class="org.sipfoundry.sipxconfig.vendor.PolycomPhone" 
 		singleton="false">
 		<property name="velocityEngine">
@@ -51,8 +124,7 @@
 			<ref local="phoneContext"/>
 		</property>
 	</bean>
-	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" 
-		singleton="false">
+	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		
 		<property name="phoneContext">
 			<ref local="phoneContext"/>
 		</property>
