@@ -86,11 +86,11 @@
     </userMatch>
   </hostMatch>
   <hostMatch>
-    <!-- Local calls (e.g. back to the PBX) are designated by the
-         xxx pattern and require LocalDialing permission -->
+    <!-- Local calls (seven digit external calls) are designated by the
+         xxxxxxx pattern and require LocalDialing permission -->
     <hostPattern>${GW_LOCAL_DIALING_ADDR}</hostPattern>
     <userMatch>
-      <userPattern>xxx</userPattern>
+      <userPattern>xxxxxxx</userPattern>
       <permissionMatch>
         <permission>LocalDialing</permission>
       </permissionMatch>
