@@ -79,7 +79,15 @@ public class PolycomPhone extends GenericPhone {
         FileWriter out = null;                
         String tftpRoot = getConfig().getTftpRoot() + '/';
         try {
-            out = new FileWriter(tftpRoot + outputFile);
+            File f = new File(tftpRoot + outputFile);
+            File d = f.getParentFile();
+            if (!d.exists()) {
+                if (!d.mkdirs()) {
+                    throw new RuntimeException("Could not create profile directory "
+                            + d.getPath());                    
+                }
+            }
+            out = new FileWriter(f);
             cfg.generateProfile(out);     
         } finally {
             if (out != null) {
@@ -99,15 +107,15 @@ public class PolycomPhone extends GenericPhone {
         
         CoreConfiguration core = new CoreConfiguration(this, endpoint);
         core.setTemplate(config.getCoreTemplate());
-        generateProfile(app, app.getCoreFilename());
+        generateProfile(core, app.getCoreFilename());
         
         PhoneConfiguration phone = new PhoneConfiguration(this, endpoint);
         phone.setTemplate(config.getPhoneTemplate());
-        generateProfile(app, app.getPhoneFilename());
+        generateProfile(phone, app.getPhoneFilename());
         
         SipConfiguration sip = new SipConfiguration(this, endpoint);
         sip.setTemplate(config.getSipTemplate());
-        generateProfile(app, app.getSipFilename());
+        generateProfile(sip, app.getSipFilename());
     }
         
     public SettingGroup getSettingModel(Line line) {

@@ -91,6 +91,8 @@ public interface PhoneContext {
     public Line loadLine(int id);
 
     public Endpoint loadEndpoint(int id);
+    
+    public Object load(Class c, int id);
         
     public void storeEndpoint(Endpoint endpoint);
 

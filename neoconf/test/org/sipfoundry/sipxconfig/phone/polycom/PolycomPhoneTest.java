@@ -13,57 +13,30 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.Iterator;
 
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
+import junit.framework.TestCase;
+
+import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
-public class PolycomPhoneTest extends XMLTestCase {
+public class PolycomPhoneTest extends TestCase {
         
-    public void setUp() {
-        XMLUnit.setIgnoreWhitespace(true);
-    }
-    
-    public void testNop() {
-        // remove this
-    }
-    
-    public void _testBasicProfile() throws Exception {
-        /*
+    public void testGenerateProfiles() throws Exception {
         MockControl phoneControl = MockControl.createStrictControl(PhoneContext.class);
         PhoneContext phoneContext = (PhoneContext) phoneControl.getMock();
         Organization rootOrg = new Organization();
         rootOrg.setDnsDomain("localhost.localdomain");
         phoneControl.replay();
 
-        
-        ApplicationConfiguration app = new ApplicationConfiguration(phone, endpoint);        
-        
-        phone.generateProfiles(phoneContext, endpoint);
-        InputStream expectedPhoneStream = null;
-        InputStream actualPhoneStream = null;
-        try {            
-            expectedPhoneStream = getClass().getResourceAsStream("basicProfile/0004f200e06b-phone.cfg");
-            assertNotNull(expectedPhoneStream);
-            Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-            
-            Reader generatedXml = new FileReader(app.getAppFilename());
-
-            Diff phoneDiff = new Diff(expectedXml, generatedXml);
-            assertXMLEqual(phoneDiff, true);
-        } finally {
-            if (expectedPhoneStream != null) {
-                expectedPhoneStream.close();
-            }
-            if (actualPhoneStream != null) {
-                actualPhoneStream.close();
-            }
-        }
-        
+        PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
+        helper.phone[0].generateProfiles(phoneContext, helper.endpoint[0]);
         phoneControl.verify();
-        */
+        
+        // content of profiles is tested in individual base classes of ConfigurationTemplate
     }
     
     public void _testSettingModel() {

@@ -16,7 +16,7 @@ import java.io.Serializable;
 /**
  * User that logs in, and base info for most lines
  */
-public class User implements Serializable {
+public class User implements PrimaryKeySource, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -143,5 +143,9 @@ public class User implements Serializable {
 
     public void setCredential(Credential credential) {
         m_credential = credential;
+    }
+
+    public Object getPrimaryKey() {
+        return new Integer(getId());
     }
 }

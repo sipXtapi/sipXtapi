@@ -2,16 +2,16 @@
 <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 <dataset>
     <endpoint serial_number="999123456" 		
-		endpoint_id="1"
+		endpoint_id="1000"
         name="unittest-sample phone1"
         phone_id="polycom300"/> 
     <line 
-		line_id="1" 
+		line_id="1000" 
 		endpoint_id="1"
 		position="0" 
 		user_id="4"/> 
     <line 
-		line_id="2" 
+		line_id="1001" 
 		endpoint_id="1"
 		position="1" 
 		user_id="4"/> 

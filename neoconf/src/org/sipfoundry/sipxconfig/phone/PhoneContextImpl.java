@@ -185,6 +185,10 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return e;
     }
     
+    public Object load(Class c, int id) {
+        return getHibernateTemplate().load(c, new Integer(id));        
+    }
+
     /**
      * Catch database curruption errors when more than one record exists.
      * In general fields should have unique indexes setup to protect against

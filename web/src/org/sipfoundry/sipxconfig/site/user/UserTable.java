@@ -20,6 +20,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
+import org.sipfoundry.sipxconfig.site.phone.PhoneContextDataSqueezer;
 import org.sipfoundry.sipxconfig.site.phone.PhonePageUtils;
 
 public abstract class UserTable extends BaseComponent implements PageRenderListener {
@@ -46,29 +47,11 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
             setSelections(new SelectMap());            
         }
         PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());
-        m_idConverter = new UserByIdConverter(context);
+        m_idConverter = new PhoneContextDataSqueezer(context, User.class);
     }
     
     public IPrimaryKeyConvertor getIdConverter() {
         return m_idConverter;
-    }
-
-    static class UserByIdConverter implements IPrimaryKeyConvertor  {
-        
-        private PhoneContext m_context;
-        
-        public UserByIdConverter(PhoneContext context) {
-            m_context = context;
-        }
-        
-        public Object getPrimaryKey(Object objValue) {
-            return new Integer(((User) objValue).getId());
-        }
-
-        public Object getValue(Object objPrimaryKey) {
-            Integer id = (Integer) objPrimaryKey;
-            return m_context.loadUser(id.intValue());
-        }            
     }
 }
 

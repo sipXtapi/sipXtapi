@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 /**
  * Database object representing an actualy physical phone you can touch.
  */
-public class Endpoint implements Serializable {
+public class Endpoint implements PrimaryKeySource, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -134,6 +134,10 @@ public class Endpoint implements Serializable {
      */
     public void setLines(List lines) {
         m_lines = lines;
+    }
+
+    public Object getPrimaryKey() {
+        return new Integer(getId());
     }
 
 }

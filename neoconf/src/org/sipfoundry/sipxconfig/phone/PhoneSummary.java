@@ -21,13 +21,18 @@ import java.util.List;
  * model with subclasses that have additional properies related to viewing system. e.g, is this
  * item selected from interface.
  */
-public class PhoneSummary implements Serializable {
+public class PhoneSummary implements PrimaryKeySource, Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Endpoint m_endpoint;
     
-    private Phone m_phone;
+    /** 
+     * transient because can't make assumption about custom code, not to mention peristing
+     * this would be very helpful because there really only should be one per context.
+     * (BTW: Tapestry pages need to persist PhoneSummaries)
+     */
+    private transient Phone m_phone;
     
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
@@ -55,5 +60,9 @@ public class PhoneSummary implements Serializable {
 
     public List getLines() {
         return m_endpoint.getLines();
+    }
+    
+    public Object getPrimaryKey() {
+        return new Integer(getId());
     }
 }
