@@ -9,6 +9,23 @@ message.
 
                                  Installation
 
+    1. For Redhat Users
+         1. System Installation
+         2. Installing dependencies with up2date
+         3. Installing Java RPM
+         4. Installing RPMs from SIPfoundry
+    2. Installing From Source and Non-Redhat Users
+         1. Dependencies
+         2. Environment Variables
+         3. Installation
+         4. JBOSS Setup
+         5. Postgres Database Setup
+    3. Security
+    4. Running
+         1. Running with other sipX servers
+         2. Running Standalone
+    5. Windows
+
 For Redhat Users
 
    These instructions apply to Enterprise and Fedora systems unless
@@ -129,9 +146,18 @@ Installing From Source and Non-Redhat Users
           export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
 
 
-  Special Software Installion Instructions
+  Installation
 
-    JBoss
+   If you've obtained your source from subversion, and not from a tar
+   file, run this command:
+  autoreconf -if
+
+   Now compile and install sipXconfig by running this command:
+     ./configure
+     make
+     make install
+
+  JBOSS Setup
 
    After unzipping JBoss
     1. run this patch on it
@@ -139,14 +165,7 @@ Installing From Source and Non-Redhat Users
     2. be sure user running sipxpbx (most cases sipxchange) has full r/w
        access to all files and directories in ${JBOSS_HOME}
 
-  Installation
-
-   After building the prerequisite components, build sipXconfig by:
-     ./configure
-     make
-     make install
-
-  Set up the Postgresql Database
+  Postgresql Database Setup
 
    Postgres needs to always be running on your system. If you've
    installed sipXconfig from RPM, you shouldn't have to do this.
@@ -174,34 +193,86 @@ Installing From Source and Non-Redhat Users
      /usr/local/sipx/bin/sipxdbmgr --create PDS
      /usr/local/sipx/bin/sipxdbmgr --create SDS
 
-  SSL Initialization
+Security
 
    Set up an SSL key using the instructions in
    sipXcommserverLib/doc/INSTALL.ssl or
    /usr/share/doc/sipxcommserverlib-version/INSTALL.ssl.
 
-  Compiling the Profile Publisher's SIP agent w/ MSVC 6
+Running
 
-   Support for windows is experimental, here's the latest know
-   instructions that were known to work, you may have to play around with
-   it, please submit your findings and patches back to mailing list
+  Running with other sipX servers
 
-   First, see the INSTALL instructions in sipXportLib on adding glib and
-   pcre to the MSVC 6 environment. Next, you must add Java's JNI include
-   and library paths to your MSVC 6 environment following the same
-   process.
+   This is the normal configuration. It's where all the sipx servers like
+   the proxy, status server, mediaserver, etc. are running on the same
+   machine. In this case you will want to follow the instructions in the
+   sipXpbx project for starting the sipxpbx service. This will control
+   the starting and stopping of the necessary components of the
+   configuration system. The sipXproxy will direct SIP messages to the
+   Profile Publisher automatically. If you are using another SIP proxy
+   other than the sipXproxy, or running the sipXproxy on another machine,
+   follow next section "Running Standalone".
 
-   Assuming that you installed the SDK in C:\Program
-   Files\Java\j2sdk1.4.2_03 you will need to add the following:
+  Running Standalone
 
-   Additional Includes:
-          C:\Program Files\Java\j2sdk1.4.2_03\include
-          C:\Program Files\Java\j2sdk1.4.2_03\include\win32
+   This is when you are running just the sipXconfig server on one
+   machine.
 
-   Additional Libs:
-          C:\Program Files\Java\j2sdk1.4.2_03\lib
+   Directing SIP message directly to sipXconfig's Profile Publisher.
+          To direct SIP messages to the ProfilePublisher, a job normally
+          done by the sipXproxy, edit file: /etc/sipxpbx/config.defs and
+          set following setting to read the following values:
 
-   Last modified: Thu Oct 21 13:51:21 EDT 2004
+    CONFIG_SERVER_SIP_PORT=5060
+
+   Starting stopping sipXconfig
+          To start all the components of sipXconfig, launch the following
+          service as root user:
+
+  service httpd start
+  sipxconfig start
+
+          Conversely to stop:
+
+  sipxconfig stop
+  service httpd stop
+
+Windows
+
+   Currently there is no support for windows but here is a list of steps
+   towards supporting Windows. Please submit your findings and patches
+   back to mailing list
+    1. edit config.properties.in and replace all variables with @VAR@
+       symbol with where you have dependencies installed
+    2. Run ant then ant install on all the build.xml files in these
+       directories and in this order:
+         1. common
+         2. profilegenerator
+         3. profilewriter
+         4. profilepublisher
+    3. Compiling the Profile Publisher's SIP agent w/ MSVC 6
+       First, see the INSTALL instructions in sipXportLib on adding glib
+       and pcre to the MSVC 6 environment. Next, you must add Java's JNI
+       include and library paths to your MSVC 6 environment following the
+       same process.
+       Assuming that you installed the SDK in C:\Program
+       Files\Java\j2sdk1.4.2_03 you will need to add the following:
+
+        Additional Includes:
+                C:\Program Files\Java\j2sdk1.4.2_03\include
+                C:\Program Files\Java\j2sdk1.4.2_03\include\win32
+
+        Additional Libs:
+                C:\Program Files\Java\j2sdk1.4.2_03\lib
+
+    4. Write a series of batch scripts that mimic what these scripts do
+       or use Cygwin to start your system:
+         1. startrmiregistry.sh
+         2. profilewriter.sh
+         3. profilegenerator.sh
+         4. profilepublisher.sh
+
+   Last modified: Thu Oct 21 15:24:18 EDT 2004
 
 References
 
