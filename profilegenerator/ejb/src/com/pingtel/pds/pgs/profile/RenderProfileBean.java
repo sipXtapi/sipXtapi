@@ -12,6 +12,26 @@
 
 package com.pingtel.pds.pgs.profile;
 
+import java.io.ByteArrayInputStream;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Properties;
+
+import javax.ejb.EJBException;
+import javax.ejb.FinderException;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.pgs.common.MasterDetailsMap;
@@ -21,24 +41,8 @@ import com.pingtel.pds.pgs.phone.CSProfileDetail;
 import com.pingtel.pds.pgs.phone.CSProfileDetailHome;
 import com.pingtel.pds.pgs.phone.Device;
 import com.pingtel.pds.profilewriter.ProfileWriter;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-
-import javax.ejb.EJBException;
-import javax.ejb.FinderException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import java.io.ByteArrayInputStream;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Properties;
+import com.pingtel.pds.sipxfacade.SipxConfigFacade;
+import com.pingtel.pds.sipxfacade.SipxConfigFacadeFactory;
 
 /**
  *  RenderProfileBean is the EJ Bean implementation of the RenderProile
@@ -180,13 +184,19 @@ public class RenderProfileBean extends JDBCAwareEJB
                 String notifyURL = null;
                 int profileSequenceNumber = -1;
 
-                if ( device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7940 ) ||
+                if (SipxConfigFacadeFactory.hasImplementation()) {
+                    SipxConfigFacade facade = SipxConfigFacadeFactory.getFacade();
+                    notifyURL = facade.getDeviceNotifyUrl(deviceID.intValue(), profileType, device.getModel());
+                    profileSequenceNumber = facade.getDeviceSequenceNumber(deviceID.intValue(), profileType, device.getModel());
+                } else {
+                    if ( device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7940 ) ||
                         device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7960 ) ) {
 
-                    notifyURL = getDeviceNotifyURL ( device );
-                } else {
-                    // sequence number have no meaning for Cisco phones, only Pingtel.
-                    profileSequenceNumber = getLogicalPhonesSeq(deviceID, profileType);
+                        notifyURL = getDeviceNotifyURL ( device );
+                    } else {
+                        // sequence number have no meaning for Cisco phones, only Pingtel.
+                        profileSequenceNumber = getLogicalPhonesSeq(deviceID, profileType);                    
+                    }
                 }
 
                 // Render the Profile Object via the profile writer, the profile

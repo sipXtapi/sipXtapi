@@ -73,6 +73,19 @@ public class SipxConfigFacadeImpl implements SipxConfigFacade {
         return plugin.getProfileSubscribeToken(profileType);        
     }
     
+    public String getDeviceNotifyUrl(int deviceId, int profileType, String model)
+    {
+        return "TODO deviceId=" + deviceId + ", profileType=" + profileType
+                + "model=" + model;
+    }
+
+    public int getDeviceSequenceNumber(int deviceId, int profileType, String model)
+    {
+        System.out.println("TODO x deviceId=" + deviceId + ", x profileType=" 
+                + profileType + "x model=" + model);
+        return -1;        
+    }
+    
     DevicePlugin getPluginId(String modelOrVersion) {
         String pluginId = modelOrVersion;
 

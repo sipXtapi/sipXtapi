@@ -20,17 +20,23 @@ public class SipxConfigFacadeFactory {
     
     private static SipxConfigFacade m_facade;
     
+    private static boolean m_initialized = false;
+    
+    public static boolean hasImplementation() {
+        return getFacade() != null;
+    }    
+    
     public static SipxConfigFacade getFacade() {
-        if (m_facade == null)
+        if (m_facade == null && m_initialized == false)
         {
+            m_initialized = true;
             Exception e = null;
             try {
-                String facadeClassname = System.getProperty("sipxconfig.facade", 
-                        SipxConfigFacadeImpl.class.getName());
-                Class facadeClass = Class.forName(facadeClassname); 
-                // TODO: Read from property file, to instantiate
-                // real implementation
-                m_facade = (SipxConfigFacade)facadeClass.newInstance();
+                String facadeClassname = System.getProperty("sipxconfig.facade");
+                if (facadeClassname != null) {
+                    Class facadeClass = Class.forName(facadeClassname); 
+                    m_facade = (SipxConfigFacade)facadeClass.newInstance();
+                }
             }
             catch (ClassNotFoundException cnfe) {
                 e = cnfe;

@@ -18,8 +18,10 @@ public interface SipxConfigFacade {
     
     public String getDeviceProfileName(int profileType, String vendor, 
             String model, String macAddress);
-
     
     public String getDeviceProfileToken(int profileType, String vendor);
     
+    public String getDeviceNotifyUrl(int deviceId, int profileType, String model);
+
+    public int getDeviceSequenceNumber(int deviceId, int profileType, String model);
 }
