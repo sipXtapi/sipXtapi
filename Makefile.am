@@ -33,6 +33,7 @@ editdata :
 
 EXTRA_DIST = \
     CONTRIBUTORS \
+    BUILDSTAMP \
 	 SVN-VERSION \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
