@@ -24,4 +24,4 @@ install :
 # There's probably a better way to do this via TESTS and
 # TEST_ENVIRONEMENT, but I need more time to research this
 check :
-	@ANT@ $(ANT_FLAGS) test style
+	@ANT@ $(ANT_FLAGS) test
