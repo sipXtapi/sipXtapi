@@ -19,7 +19,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/pg74.215.jdbc3.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/hibernate/odmg.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.1.jar"/>
+	<classpathentry sourcepath="LIB_SRC/Tapestry-3.0.1/framework/src" kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-1.0.jar"/>
@@ -27,6 +27,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-2.5.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.6.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.1.jar"/>
+	<classpathentry sourcepath="LIB_SRC/httpunit-1.6/src" kind="var" path="SIPX_CONFIG/lib/httpunit.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jsf-impl.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jsf-api.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>

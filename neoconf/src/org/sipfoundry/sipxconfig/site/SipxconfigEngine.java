@@ -33,6 +33,10 @@ public class SipxconfigEngine extends BaseEngine {
         serialVersionUID = 1L;
     }
 
+    /**
+     * TODO: Unittest . No unittests for this at the moment. Waiting to see if we go w/tapestry
+     * and how to create a valid RequestContect object. Quick attempts failed.
+     */
     protected void setupForRequest(RequestContext context) {
         super.setupForRequest(context);
 
@@ -43,6 +47,9 @@ public class SipxconfigEngine extends BaseEngine {
             BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
             BeanFactoryReference bf = bfl.useBeanFactory("sipxconfig-web");
             pc = (PhoneContext) bf.getFactory().getBean(APPLICATION_CONTEXT_KEY);
+            if (pc == null) {
+                throw new IllegalStateException("Could not create phone context");
+            }
             global.put(APPLICATION_CONTEXT_KEY, pc);
         }
     }

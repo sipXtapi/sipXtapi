@@ -21,9 +21,6 @@ import org.sipfoundry.sipxconfig.phone.SettingSet;
 import org.sipfoundry.sipxconfig.settings.NetworkSettings;
 import org.sipfoundry.sipxconfig.settings.PhoneSettings;
 
-/**
- * Comments
- */
 public class PolycomPhoneTest extends TestCase {
         
     public void testFactoryCreation() {

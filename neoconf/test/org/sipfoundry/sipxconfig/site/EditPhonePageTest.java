@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestHelper;
 
 public class EditPhonePageTest extends TestCase {
     
-    public void testSave() {
+    public void testSaveAndCancel() {
         PhoneContext phoneContext = PhoneTestHelper.getPhoneContext();
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
@@ -47,6 +47,7 @@ public class EditPhonePageTest extends TestCase {
         assertEquals(GenericPhone.GENERIC_PHONE_ID, ids.getOption(0));
         
         page.save(cycle);
+        // NOTE: may not be a valid realworld test, but should still act graceful
         page.cancel(cycle);
         
         daoControl.verify();
