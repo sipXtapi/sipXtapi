@@ -87,7 +87,7 @@ Set up the Postgresql Database
 SSL Initialization
 ==================
 
-Set up an SSL key using the instructions in doc/ssl/INSTALL.ssl.
+Set up an SSL key using the instructions in sipXcommserverLib/doc/INSTALL.ssl.
 
 
 Optional SOAP Access
