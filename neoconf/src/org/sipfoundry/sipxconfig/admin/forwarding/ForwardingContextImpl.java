@@ -20,9 +20,11 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Session;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.legacy.LegacyContext;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.orm.hibernate.HibernateTemplate;
@@ -35,6 +37,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext {
     private JmsOperations m_jms;
     private CoreContext m_coreContext;
+    private LegacyContext m_legacyContext;
 
     /**
      * Looks for a call sequence associated with a given user.
@@ -89,31 +92,37 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         List sequences = loadAllCallSequences();
         for (Iterator i = sequences.iterator(); i.hasNext();) {
             CallSequence sequence = (CallSequence) i.next();
-            aliases.addAll(sequence.generateAuthExceptions());
+            User user = sequence.getUser();
+            if (m_legacyContext.checkUserPermission(user, Permission.FORWARD_CALLS_EXTERNAL)) {
+                aliases.addAll(sequence.generateAuthExceptions());
+            }
         }
         return aliases;
-    }    
+    }
 
     /**
      * Loads call sequences for all uses in current root organization
+     * 
      * @return list of CallSequence objects
      */
     private List loadAllCallSequences() {
         Organization organization = m_coreContext.loadRootOrganization();
         String ringsForUser = "from CallSequence cs where cs.user.organization = :organization";
-        List sequences = getHibernateTemplate().findByNamedParam(ringsForUser, "organization", organization);
+        List sequences = getHibernateTemplate().findByNamedParam(ringsForUser, "organization",
+                organization);
         return sequences;
     }
 
     private static class GenerateMessage implements MessageCreator {
-        private static final String PARAM_NAME = "datasettype"; 
+        private static final String PARAM_NAME = "datasettype";
         private static final String TYPE_ALIAS = "aliases";
         private static final String TYPE_AUTH_EXCEPTIONS = "authexceptions";
-        
+
         private String m_type;
-        
+
         /**
-         * @param type types of the data set to be generated as a result of sending of this message
+         * @param type types of the data set to be generated as a result of sending of this
+         *        message
          */
         public GenerateMessage(String type) {
             // TODO Auto-generated constructor stub
@@ -140,5 +149,9 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setLegacyContext(LegacyContext legacyContext) {
+        m_legacyContext = legacyContext;
     }
 }

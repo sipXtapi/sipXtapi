@@ -137,6 +137,7 @@ sysdir.phone=${sipxconfig.phone.dir}
 			<lib file="${commons-io.jar}" />
 			<lib file="${aopalliance.jar}" />
 			<lib file="${dom4j.jar}" />
+            <lib file="${saxpath.jar}" />
 			<lib file="${jaxen.jar}" />
 			<lib file="${cglib.jar}" />
 			<lib file="${jta.jar}" />

@@ -36,14 +36,8 @@ public class ForwardingContextImplTestDb extends TestCase {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_context = (ForwardingContext) appContext.getBean(ForwardingContext.CONTEXT_BEAN_NAME);
-        try {
-            TestHelper.cleanInsert("dbdata/ClearDb.xml");
-            TestHelper.insertFlat("admin/forwarding/dbdata/RingSeed.xml");
-
-        } catch (SQLException e) {
-            System.err.println(e.getNextException().getMessage());
-            throw e;
-        }
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.insertFlat("admin/forwarding/dbdata/RingSeed.xml");
     }
 
     public void testGetCallSequenceForUser() throws Exception {
@@ -136,14 +130,20 @@ public class ForwardingContextImplTestDb extends TestCase {
         assertEquals( new Integer(3), actual.getValue(0, "Position"));
     }
     
-    public void testGetForwardingAliasesAndAuthExceptions() {
+    public void testGetForwardingAliasesAndAuthExceptions() throws Exception {
+        try {
+            TestHelper.update("admin/forwarding/dbdata/permissions.xml");
+        } catch (SQLException e) {
+            System.err.println(e.getNextException().getMessage());
+            throw e;
+        }
         // this just tests that all aliases and excpetions are processed by the context
         // there are separate test that take care of the content testing
         int seedRings = 5;
         List forwardingAliases = m_context.getForwardingAliases();
         assertEquals(seedRings,forwardingAliases.size());
         List authExceptions = m_context.getForwardingAuthExceptions();
-        assertEquals(seedRings,authExceptions.size());
+        assertEquals(3,authExceptions.size());
         
         User user = m_coreContext.loadUser(4);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
@@ -156,6 +156,6 @@ public class ForwardingContextImplTestDb extends TestCase {
         forwardingAliases = m_context.getForwardingAliases();
         assertEquals(seedRings + 1,forwardingAliases.size());        
         authExceptions = m_context.getForwardingAuthExceptions();
-        assertEquals(seedRings + 1,authExceptions.size());
+        assertEquals(4,authExceptions.size());
     }
 }

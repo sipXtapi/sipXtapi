@@ -15,6 +15,7 @@
 	    - all spring jars at this point
 	    -->
 	<path id="compile.dependencies">
+		<pathelement location="${saxpath.jar}" />
 		<pathelement location="${jaxen.jar}" />
 		<pathelement location="${j2ee.jar}" />
 		<pathelement location="${commons-lang.jar}" />

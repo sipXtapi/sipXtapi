@@ -167,6 +167,9 @@
         <property name="coreContext">
             <ref bean="coreContextImpl"/>
         </property>
+        <property name="legacyContext">
+            <ref bean="legacyContextImpl"/>
+        </property>
     </bean>
 
 	<bean id="forwardingContext" 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - This is to be used in conjunction with ClearDB.xml
+  - It adds ForwardCallsExternal permission for user with id 4
+  -->
+<dataset>
+  <table name="config_sets">
+    <column>id</column>
+    <column>rcs_id</column>
+    <column>profile_type</column>
+    <column>content</column>
+    <row>
+      <value>1</value>
+      <value>2</value>
+      <value>2</value>
+        <value><![CDATA[
+			<PROFILE><PERMISSIONS ref_property_id="57"><PERMISSIONS>
+            <ForwardCallsExternal>ENABLE</ForwardCallsExternal>
+        	</PERMISSIONS></PERMISSIONS></PROFILE>
+      ]]></value>
+    </row>
+  </table>
+</dataset>

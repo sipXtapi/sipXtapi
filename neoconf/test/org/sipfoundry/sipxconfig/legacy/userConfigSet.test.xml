@@ -1,0 +1,15 @@
+<PROFILE>
+    <PERMISSIONS ref_property_id="57">
+        <PERMISSIONS>
+            <_900Dialing><![CDATA[ENABLE]]></_900Dialing>
+            <AutoAttendant><![CDATA[ENABLE]]></AutoAttendant>
+            <InternationalDialing><![CDATA[ENABLE]]></InternationalDialing>
+            <LocalDialing><![CDATA[ENABLE]]></LocalDialing>
+            <LongDistanceDialing><![CDATA[ENABLE]]></LongDistanceDialing>
+            <Voicemail><![CDATA[ENABLE]]></Voicemail>
+            <ForwardCallsExternal><![CDATA[DISABLE]]></ForwardCallsExternal>
+            <RecordSystemPrompts><![CDATA[DISABLE]]></RecordSystemPrompts>
+        </PERMISSIONS>
+    </PERMISSIONS>
+</PROFILE>
+

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
@@ -48,5 +49,10 @@ public class LegacyContextImplTestDb extends TestCase {
             UserConfigSet cs = (UserConfigSet) i.next();
             assertEquals("<PROFILE></PROFILE>", cs.getContent());            
         }
+    }
+        
+    public void testCheckUserPermission() {
+        User user = m_coreContext.loadUser(4);
+        assertFalse(m_legacyContext.checkUserPermission(user,Permission.VOICEMAIL));
     }
 }

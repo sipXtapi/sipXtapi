@@ -11,7 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.legacy;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 
 public class UserConfigSet extends ConfigSet {
     private Set m_users;
@@ -22,5 +32,52 @@ public class UserConfigSet extends ConfigSet {
 
     public void setUsers(Set users) {
         m_users = users;
+    }
+
+    /**
+     * Retrieves the set of permissions from the config sets
+     * 
+     * <code>
+     * 
+     * <PROFILE>
+     *  <PERMISSIONS>
+     *      <name_of_permission>ENABLE</name_of_permission>
+     *      <name_of_permission>DISABLE</name_of_permission>
+     *      <name_of_permission>ENABLE</name_of_permission>
+     *  </PERMISSIONS>
+     * </PROFILE>
+     * 
+     * </code>
+     * 
+     * @return Map of Permission->Boolean
+     */
+    public Map getPermissions() {
+        try {
+            Map allPermissions = new HashMap();
+            Document profile = DocumentHelper.parseText(getContent());
+            List permissionNodes = profile.selectNodes("/PROFILE/PERMISSIONS/PERMISSIONS/*");
+            for (Iterator i = permissionNodes.iterator(); i.hasNext();) {
+                Element permElem = (Element) i.next();
+                String status = permElem.getText();
+                Boolean enabled = Boolean.valueOf("ENABLE".equalsIgnoreCase(status));
+                Permission permission = Permission.getEnum(permElem.getName());
+                allPermissions.put(permission, enabled);
+            }
+            return allPermissions;
+        } catch (DocumentException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Checks if the permission is present and enabled in this config set
+     * 
+     * @param p permission
+     * @return true if (both) present and enabled, false otherwise
+     */
+    public boolean hasPermission(Permission p) {
+        Map perms = getPermissions();
+        Boolean enabled = (Boolean) perms.get(p);
+        return enabled != null && enabled.booleanValue();
     }
 }

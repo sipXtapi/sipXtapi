@@ -838,8 +838,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
         Collection groupConfigSets = getUserGroupsConfigurationSets(userGroupConfigSetsMap,
                 userGroup);
 
-        ArrayList configSetsList = new ArrayList();
-        configSetsList.addAll(groupConfigSets);
+        ArrayList configSetsList = new ArrayList(groupConfigSets);
         Collections.reverse(configSetsList);
 
         cachedGroupPermissionProjectionMap = projectPermissions(groupConfigSets, null);

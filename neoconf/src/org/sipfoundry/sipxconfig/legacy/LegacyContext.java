@@ -13,10 +13,13 @@ package org.sipfoundry.sipxconfig.legacy;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 
 public interface LegacyContext {
     public static final String CONTEXT_BEAN_NAME = "legacyContext";
 
     public abstract Collection getConfigSetsForUser(User user);
+    
+    public abstract boolean checkUserPermission(User user, Permission permission);
 }
