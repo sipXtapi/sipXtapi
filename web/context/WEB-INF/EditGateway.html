@@ -1,0 +1,61 @@
+<html jwcid="@Shell" title="Gateway Configuration" stylesheet="ognl:assets.stylesheet">
+<head jwcid="$remove$">
+    <title>Gateway Configuration</title>
+    <link rel="stylesheet" type="text/css" href="sipxconfig.css"/>
+</head>
+<body jwcid="@Body">
+    <div id="component">
+    <span jwcid="@Conditional" condition="ognl:beans.validator.hasErrors">
+	    <!-- TODO: add styling for errors-->
+		<span jwcid="@Delegator" delegate="ognl:beans.validator.firstError">Error Message</span>
+    </span>
+    <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
+        <fieldset>
+		<legend>Gateway Details</legend>            
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="gateway:name">
+                            <span jwcid="@FieldLabel" field="ognl:components.gatewayName"> Name</span>
+                        </label>
+                    </td>
+                    <td>
+                        <input jwcid="gatewayName" id="gateway:name" type="text" value="boston"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="gateway:address">
+                            <span jwcid="@FieldLabel" field="ognl:components.gatewayAddress">Address</span>
+                        </label>
+                    </td>
+                    <td>
+                        <input jwcid="gatewayAddress" id="gateway:address" type="text" value="10.1.1.15" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="gateway:description">
+                            <span jwcid="@FieldLabel" field="ognl:components.gatewayDescription" displayName="Description">Description</span>
+                        </label>
+                    </td>
+                    <td>
+                        <textarea jwcid="gatewayDescription" id="gateway:description" cols="60" rows="5">Default PSTN gateway</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </fieldset>
+        <ul class="form-actions">
+            <li>
+                <input type="submit" value="Save"/>
+            </li>
+            <li>
+                <input type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</body>
+</html>

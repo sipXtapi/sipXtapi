@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * DialPlan - settings for configuring dial plan
@@ -31,6 +34,8 @@ public class DialPlan {
     private String m_internationalPrefix = "011";
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private String m_longDistancePrefix = "1";
+    private Set m_gateways = new HashSet();
+    private Set m_emergencyGateways = new HashSet();
 
     public DialPlan() {
         // empty
@@ -125,4 +130,24 @@ public class DialPlan {
         // Save something
         return null;
     }
+    
+    public Set getGateways() {
+        return m_gateways;
+    }
+
+    public Set getEmergencyGateways() {
+        return m_emergencyGateways;
+    }
+    
+    private Set getGatewaySet(boolean emergency) {
+        return emergency ? m_emergencyGateways : m_gateways;
+    }
+
+    public boolean addGateway(Gateway gateway, boolean emergency) {
+        return getGatewaySet(emergency).add(gateway);
+    }
+    
+    public boolean removeGateway(Gateway gateway, boolean emergency) {
+        return getGatewaySet(emergency).remove(gateway);
+    }    
 }
