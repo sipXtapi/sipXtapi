@@ -25,7 +25,6 @@
         <binding name="phone" expression="phone"/>
         <static-binding name="tab" value="PhoneLines"/>
         <static-binding name="heading" value="Lines"/>
-        <binding name="phoneContext" expression="global.phoneContext"/>
     </component>
     <component id="editLinesForm" type="Form"/>
     <component id="lineTableView" type="contrib:TableView">

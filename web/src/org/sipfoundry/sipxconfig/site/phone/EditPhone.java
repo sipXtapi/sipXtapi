@@ -29,6 +29,7 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
     
     public abstract void setPhone(Phone phone);
     
+    /** REQUIRED PROPERTY */
     public abstract int getPhoneId();
     
     public abstract void setPhoneId(int id);

@@ -35,7 +35,7 @@
 		<property name="realm" column="realm"/>
 	</class>
 	<!--
-	  -  E N D P O I N T  L I N E
+	  -  L I N E
 	  -->
 	<class name="org.sipfoundry.sipxconfig.phone.Line" 
 		table="line">
@@ -72,7 +72,7 @@
 			class="org.sipfoundry.sipxconfig.setting.SettingSet"/>
 		<subclass name="org.sipfoundry.sipxconfig.setting.SettingSet" 
 			discriminator-value="1">
-			<map name="settings" inverse="true" lazy="true">
+			<map name="settings" inverse="true">
 				<key column="parent_id"/>
 				<index column="name" type="string"/>
 				<one-to-many class="org.sipfoundry.sipxconfig.setting.Setting"/> 

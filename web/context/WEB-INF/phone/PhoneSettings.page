@@ -4,17 +4,32 @@
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneSettings">
-  <!--
+    <!--
     - P R O P E R T I E S
     -->
-  <!--
+    <property-specification name="phoneId"
+        type="int" 
+        persistent="yes"/>
+    <property-specification name="modelName"
+        type="java.lang.String"
+        persistent="yes"/>    
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="settingModel"
+        type="org.sipfoundry.sipxconfig.setting.SettingModel"/>
+   <!--
     - B E A N S
     -->
-  <!--
+   <!--
     - C O M P O N E N T S
     -->
-  <!--
-    - A S S E T S
-    -->   
+    <component id="editPhoneNavigation" type="PhoneNavigation">
+        <binding name="phone" expression="phone"/>
+        <binding name="tab" expression="modelName"/>
+        <binding name="heading" expression="settingModel.label"/>
+    </component>
+    <!--
+     - A S S E T S
+     -->   
   <context-asset name="stylesheet" path="css/sipxconfig.css"/>
 </page-specification>

@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * Meta Information about a Setting.
  */
-public class SettingMeta implements Map {
+public class SettingMeta implements Map, Cloneable {
 
     private String m_label;
 
@@ -43,6 +43,16 @@ public class SettingMeta implements Map {
     
     public SettingMeta(String name) {
         setName(name);
+    }
+    
+    protected Object clone() {
+        SettingMeta clone;
+        try {
+            clone = (SettingMeta) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("clone SettingMeta is a required operations", e);
+        }
+        return clone;
     }
 
     /**

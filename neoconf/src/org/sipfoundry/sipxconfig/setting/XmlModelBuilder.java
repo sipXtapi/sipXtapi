@@ -11,17 +11,21 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.digester.Digester;
 import org.xml.sax.SAXException;
 
 /**
- * Build a model schema from an XML file
+ * Build a SettingModel object hierarchy from a model XML file.
  */
 public class XmlModelBuilder {
-    
+
     public SettingModel buildModel(InputStream is) throws IOException {
         Digester digester = new Digester();
         digester.setValidating(false);
@@ -30,24 +34,56 @@ public class XmlModelBuilder {
         digester.addObjectCreate("set", SettingModel.class);
 
         String set = "*/set";
+        String[] setIgnore = new String[] {
+            "setting", "possibleValues" 
+        };
+        Arrays.sort(setIgnore);
         digester.addObjectCreate(set, SettingModel.class);
         digester.addSetProperties(set);
+        addAllBeanPropertySetter(digester, set, setIgnore, SettingModel.class);
         digester.addBeanPropertySetter(set + "/label");
         digester.addSetNext(set, addMeta, SettingMeta.class.getName());
 
         String setting = "*/setting";
+        // because setting in baseclass to set, this should be a subset of same ignore
+        // list
+        String[] settingIgnore = setIgnore;
         digester.addObjectCreate(setting, SettingMeta.class);
         digester.addSetProperties(setting);
+        addAllBeanPropertySetter(digester, setting, settingIgnore, SettingMeta.class);
         digester.addSetNext(setting, addMeta, SettingMeta.class.getName());
 
         String possibleValues = "*/possibleValues/value";
         digester.addCallMethod(possibleValues, "addPossibleValue", 1);
         digester.addCallParam(possibleValues, 0);
-        
+
         try {
             return (SettingModel) digester.parse(is);
         } catch (SAXException se) {
             throw new RuntimeException("Could not parse model definition file", se);
+        }
+    }
+
+    /**
+     * Get all setters on bean and automatically add them to digester's current rule. This
+     * is so you can invent a new element on the model definition (dtd eventually) and 
+     * add a new setter on the respective bean and that's it.  You will from time to time
+     * have to add to the ignore list, but this seems much less work IMHO.
+     * 
+     * NOTE: checkstyle was complaining this method was unused if i made it private.  make
+     * package protected for now.
+     */
+    void addAllBeanPropertySetter(Digester digester, String pattern, String[] ignore,
+            Class c) {
+        PropertyDescriptor[] props = new PropertyUtilsBean().getPropertyDescriptors(c);
+        for (int i = 0; i < props.length; i++) {
+            Method m = props[i].getWriteMethod();
+            String propName = props[i].getName();
+            if (m != null && Arrays.binarySearch(ignore, propName) < 0) {
+                String propPattern = pattern + "/" + propName;
+                digester.addBeanPropertySetter(propPattern);
+                System.out.println("adding " + propPattern);
+            }
         }
     }
 }

@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +35,26 @@ public class SettingModel extends SettingMeta {
     
     public SettingModel(String name) {
         super(name);
+    }
+    
+    /**
+     * generate a mutable, deep copy populated with the settings
+     */
+    public SettingModel populateCopy(SettingSet set) {
+        SettingModel clone = (SettingModel) this.clone();
+        clone.setSetting(set);
+        // TODO: see why m_delegate.size() can return -1
+        //clone.m_delegate = new LinkedMap(m_delegate.size());        
+        clone.m_delegate = new LinkedMap(m_delegate.size());        
+        Iterator values = m_delegate.values().iterator();
+        while (values.hasNext()) {
+            SettingMeta meta = (SettingMeta) values.next();
+            meta.setSetting(set.getSetting(meta.getName()));
+            clone.put(meta.getName(), meta.clone());
+        }
+        clone.m_delegate = (LinkedMap) m_delegate.clone();        
+
+        return clone;
     }
     
     /**

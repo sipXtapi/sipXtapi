@@ -17,7 +17,6 @@
         <binding name="phone" expression="phone"/>
         <binding name="tab" expression="setting"/>
         <binding name="heading" expression="setting"/>
-        <binding name="phoneContext" expression="global.phoneContext"/>
     </component>
     <!--
     - A S S E T S

@@ -35,9 +35,11 @@ public class SettingSet extends Setting {
         m_settings = new TreeMap();
     }
     
-    public void addSetting(Setting setting) {
+    public Setting addSetting(Setting setting) {
         setting.setParent(this);
         m_settings.put(setting.getName(), setting);
+        
+        return setting;
     }
     
     public Setting getSetting(String settingName) {

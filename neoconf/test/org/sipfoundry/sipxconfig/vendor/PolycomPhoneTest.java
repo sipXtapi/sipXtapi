@@ -11,10 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.vendor;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Iterator;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -35,18 +35,6 @@ public class PolycomPhoneTest extends XMLTestCase {
         
     public void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
-    }
-    
-    public void testSettingModel() throws Exception {
-        PolycomPhone phone = new PolycomPhone();
-        String sysDir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
-        assertNotNull(sysDir);
-        phone.setSystemDirectory(sysDir);
-        SettingModel model = phone.getSettingModel();
-        assertNotNull(model);
-        
-        SettingModel lines = (SettingModel) model.getMeta(Phone.LINE_SETTINGS);
-        assertNotNull(lines);
     }
     
     public void testBasicProfile() throws Exception {
@@ -204,6 +192,24 @@ public class PolycomPhoneTest extends XMLTestCase {
      *     dao.deleteSettings(changed);
      * 
      */    
-    public void testSettingsModel() {
+    public void testSettingModel() {
+        PolycomPhone phone = new PolycomPhone();
+        String sysDir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
+        assertNotNull(sysDir);
+        phone.setSystemDirectory(sysDir);
+        SettingModel model = phone.getSettingModel();
+        assertNotNull(model);
+        
+        SettingModel lines = (SettingModel) model.getMeta(Phone.LINE_SETTINGS);
+        assertNotNull(lines);
+        
+        Iterator headings = model.values().iterator();
+        assertEquals("Registration", nextModel(headings).getLabel());
+        assertEquals("Line Settings", nextModel(headings).getLabel());
+        assertFalse(headings.hasNext());
+    }
+    
+    private SettingModel nextModel(Iterator i) {
+        return (SettingModel) i.next();
     }
 }

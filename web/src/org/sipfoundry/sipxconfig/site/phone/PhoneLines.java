@@ -39,6 +39,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public abstract int getPhoneId();
     
+    /** REQUIRED PROPERTY */
     public abstract void setPhoneId(int id);
 
     public abstract List getLines();
