@@ -17,14 +17,14 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.BeanWithId;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
+import org.sipfoundry.sipxconfig.phone.User;
 
 /**
  * CallSequence
  */
 public class CallSequence extends BeanWithId {
     private List m_calls = new ArrayList();
-    private String m_user;
-    private String m_domain;
+    private User m_user;
     private boolean m_withVoicemail;
 
     public CallSequence() {
@@ -36,44 +36,59 @@ public class CallSequence extends BeanWithId {
      * @param user original phone number
      * @param withVoicemail
      */
-    CallSequence(List calls, String user, boolean withVoicemail) {
+    CallSequence(List calls, User user, boolean withVoicemail) {
         m_calls = calls;
         m_user = user;
         m_withVoicemail = withVoicemail;
     }
 
-    public void addRing(Ring ring) {
+    public Ring insertRing() {
+        Ring ring = new Ring();
+        ring.setCallSequence(this);
         m_calls.add(ring);
+        ring.setPosition(m_calls.size() - 1);
+        return ring;
     }
 
     public void removeRing(Integer ringId) {
-        m_calls.remove(new BeanWithId(ringId));
-    }
-
-    private Ring getRingOrg(Integer ringId) {
-        int i = m_calls.indexOf(new BeanWithId(ringId));
-        if (i < 0) {
-            return null;
+        int index = m_calls.indexOf(new BeanWithId(ringId));
+        m_calls.remove(index);
+        for (int i = index; i < m_calls.size(); i++) {
+            Ring ring = (Ring) m_calls.get(i);
+            ring.setPosition(i);
         }
-        return (Ring) m_calls.get(i);
     }
 
-    public Ring getRing(Integer ringId) {
-        return (Ring) getRingOrg(ringId).detach();
+    public boolean moveRingUp(Ring ring) {
+        int i = m_calls.indexOf(ring);
+        if (i <= 0) {
+            return false;
+        }
+        m_calls.remove(i);
+        m_calls.add(i - 1, ring);
+        ring.setPosition(i - 1);
+        return true;
     }
 
-    public void updateRing(Integer ringId, Ring ring) {
-        Ring ringOrg = getRingOrg(ringId);
-        ringOrg.update(ring);
+    public boolean moveRingDown(Ring ring) {
+        int i = m_calls.indexOf(ring);
+        if (i < 0 || i >= m_calls.size()) {
+            return false;
+        }
+        m_calls.remove(i);
+        m_calls.add(i + 1, ring);
+        ring.setPosition(i + 1);
+        return true;
     }
 
     public List generateAliases() {
         List aliases = new ArrayList(m_calls.size());
         ForkQueueValue q = new ForkQueueValue(m_calls.size());
-        String identity = m_user + "@" + m_domain;
+        String domain = m_user.getOrganization().getDnsDomain();
+        String identity = m_user.getDisplayId() + "@" + domain;
         for (Iterator i = m_calls.iterator(); i.hasNext();) {
             Ring r = (Ring) i.next();
-            String contact = r.calculateContact(m_domain, q);
+            String contact = r.calculateContact(domain, q);
             AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
         }
@@ -88,11 +103,11 @@ public class CallSequence extends BeanWithId {
         m_calls = calls;
     }
 
-    public synchronized String getUser() {
+    public synchronized User getUser() {
         return m_user;
     }
 
-    public synchronized void setUser(String user) {
+    public synchronized void setUser(User user) {
         m_user = user;
     }
 
@@ -102,13 +117,5 @@ public class CallSequence extends BeanWithId {
 
     public synchronized void setWithVoicemail(boolean withVoicemail) {
         m_withVoicemail = withVoicemail;
-    }
-
-    public synchronized String getDomain() {
-        return m_domain;
-    }
-
-    public synchronized void setDomain(String domain) {
-        m_domain = domain;
     }
 }

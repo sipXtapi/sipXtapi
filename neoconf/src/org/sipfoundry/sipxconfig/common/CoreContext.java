@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.phone.User;
  * CoreContext
  */
 public interface CoreContext {
+    public static final String CONTEXT_BEAN_NAME = "coreContext";
+
     public Organization loadRootOrganization();
     
     public void saveUser(User user);

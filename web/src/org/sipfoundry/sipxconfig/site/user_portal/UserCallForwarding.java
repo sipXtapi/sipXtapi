@@ -35,7 +35,7 @@ public abstract class UserCallForwarding extends BasePage  implements PageRender
     // FIXME: implement for a specific user
     public CallSequence getCallSequence() {
         ForwardingContext forwardingContext = getForwardingContext();
-        return forwardingContext.getCallSequence(null);
+        return forwardingContext.getCallSequenceForUser(null);
     }
     
     public abstract ListEditMap getRingsMap();
@@ -58,8 +58,7 @@ public abstract class UserCallForwarding extends BasePage  implements PageRender
     
     public void apply(IRequestCycle cycle_) {
         if (TapestryUtils.isValid(this)) {
-            //TODO: implement
-            return;
+            getForwardingContext().saveCallSequence(getCallSequence());
         }
     }
 
@@ -79,7 +78,7 @@ public abstract class UserCallForwarding extends BasePage  implements PageRender
 
     public void addRing(IRequestCycle cycle_) {
         CallSequence callSequence = getCallSequence();
-        callSequence.addRing(new Ring());
+        callSequence.insertRing();
     }
 
     public void deleteRing(IRequestCycle cycle) {

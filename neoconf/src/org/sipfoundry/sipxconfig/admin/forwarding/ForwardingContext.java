@@ -17,7 +17,11 @@ import org.sipfoundry.sipxconfig.phone.User;
  * ForwardingContext
  */
 public interface ForwardingContext {
-    public abstract CallSequence getCallSequenceForUser(User user);
+    public static final String CONTEXT_BEAN_NAME = "forwardingContext";
+    
+    public CallSequence getCallSequenceForUser(User user);
 
-    public abstract CallSequence getCallSequence(Integer id);
+    public void saveCallSequence(CallSequence callSequence);
+    
+    public void flush();
 }

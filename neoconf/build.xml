@@ -108,6 +108,9 @@
 		<exec executable="psql" failonerror="true">
 			<arg line=" -U postgres PDS -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods.sql"/>
 		</exec>
+		<exec executable="psql" failonerror="true">
+			<arg line=" -U postgres PDS -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods_2.sql"/>
+		</exec>
     </target>
 
 </project>

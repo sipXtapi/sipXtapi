@@ -53,6 +53,7 @@
 		<property name="mappingResources">
 			<list>
 				<value>org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -127,6 +128,28 @@
 			</list>
 		</property>
 	</bean>
+	<!--
+      - F O R W A R D I N G  C O N T E X T
+      -->
+    
+	<bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>                
+    </bean>
+
+	<bean id="forwardingContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>forwardingContextImpl</value>
+			</list>
+		</property>
+    </bean>
 	<!--
       - P H O N E  C O N T E X T   I M P L
       -->
@@ -210,8 +233,6 @@
 	<bean id="generic" class="org.sipfoundry.sipxconfig.phone.GenericPhone" singleton="false">		
 	</bean>
 
-	<bean id="forwardingContext" class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl">
-    </bean>
 	<!--
 	  - D I A L   P L A N S
 	  - TODO: move to separate file

@@ -14,9 +14,9 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 import java.text.MessageFormat;
 
 import org.apache.commons.lang.enum.Enum;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.BeanWithId;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
+import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 /**
  * Ring - represents one stage in a call forwaring sequence
@@ -27,6 +27,8 @@ public class Ring extends BeanWithId {
     private String m_number;
     private int m_expiration;
     private Type m_type = Type.DELAYED;
+    private CallSequence m_callSequence;
+    private int m_position;
 
     /**
      * Default "bean" constructor
@@ -53,6 +55,15 @@ public class Ring extends BeanWithId {
 
         public Type(String name) {
             super(name);
+        }
+    }
+
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class UserType extends EnumUserType {
+        public UserType() {
+            super(Type.class);
         }
     }
 
@@ -87,5 +98,21 @@ public class Ring extends BeanWithId {
 
     public synchronized void setType(Type type) {
         m_type = type;
+    }
+
+    public synchronized CallSequence getCallSequence() {
+        return m_callSequence;
+    }
+
+    public synchronized void setCallSequence(CallSequence callSequence) {
+        m_callSequence = callSequence;
+    }
+
+    int getPosition() {
+        return m_position;
+    }
+
+    void setPosition(int position) {
+        m_position = position;
     }
 }
