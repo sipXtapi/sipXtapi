@@ -13,7 +13,7 @@
   -    composite project can not have it's own src as well
   -
   -->
-<project name="ant-targets" default="jar" basedir="." >
+<project name="ant-targets" default="default" basedir="." >
 
   <!-- 
     -  P R O P E R T I E S
@@ -187,14 +187,13 @@
   <target name="realdoc" depends="init" unless="subdirs"
       description="generate javadocs for src and test code">
 
-    <javadoc sourcepath="${src.dir}" 
-       destdir="${api.dir}"
-       classpathref="base.path">
+    <javadoc sourcepath="${src.dir}" destdir="${api.dir}">
       <fileset dir="${src.dir}">
         <include name="**/*.java"/>
       </fileset>
+      <classpath refid="base.path"/>
+      <classpath path="${junit.jar}"/>	
     </javadoc>
-
   </target>
 
 
