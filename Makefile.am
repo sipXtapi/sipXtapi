@@ -2,6 +2,7 @@
 SUBDIRS = . bin common profilegenerator profilepublisher profilewriter sipagent-jni
 
 EXTRA_DIST = \
+	 config/sipX-config.in \
     doc/license \
     ant-targets.am \
     ant-targets.xml \
@@ -75,3 +76,7 @@ rpm: clean dist
 # RPM Spec file
 sipxconfig.spec : sipxconfig.spec.in
 	$(edit) $(srcdir)/sipxconfig.spec.in > sipxconfig.spec
+
+# record the configuration for the rpm doc directory
+install-data-hook:
+	cp config.log doc/${PACKAGE}.config
