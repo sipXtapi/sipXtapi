@@ -5,15 +5,86 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<!--
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext"> 
-		global.phoneContext </property-specification>
-	<property-specification name="endpoint" 
-		type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-	<property-specification name="phoneSelectionModel" 
-		type="org.apache.tapestry.form.IPropertySelectionModel"/>
-	  -->
+	<property-specification name="dialPlan" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" persistent="yes"/>
+	<property-specification name="localExtensionLenSelectionModel" 
+		type="org.apache.tapestry.form.IPropertySelectionModel" persistent="yes">new org.sipfoundry.sipxconfig.site.LenSelectionModel()</property-specification>
+    <!-- 
+      - C O M P O N E N T S 
+      -->
+    <bean name="dialPlanValidator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="3"/>
+	</bean>
+
+    <!-- phone validator - only digits, at least one -->
+    <bean name="phoneValidator" class="org.apache.tapestry.valid.PatternValidator" lifecycle="page">
+	    <set-property name="patternString">"^\\d+$"</set-property>
+	    <set-property name="patternNotMatchedMessage">"Extension number should contain only digits, for example: 123"</set-property>
+	</bean>
+        
+    <component id="dialPlanName" type="ValidField">
+	    <binding name="value" expression="dialPlan.name"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+	    <static-binding name="displayName" value="Name"/>
+    </component>
+    
+    <component id="dialPlanLocalExtensionLen" type="PropertySelection">
+	    <binding name="value" expression="dialPlan.localExtensionLen"/>
+    	<binding name="model" expression="localExtensionLenSelectionModel"/>
+	    <static-binding name="displayName" value="Internal Station Extension Length"/>
+    </component>
+
+    <component id="dialPlanAutoAttendant" type="ValidField">
+	    <binding name="value" expression="dialPlan.autoAttendant"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="Auto Attendant Extension"/>
+    </component>
+
+    <component id="dialPlanVoiceMail" type="ValidField">
+	    <binding name="value" expression="dialPlan.voiceMail"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="Voice Mail Extension"/>
+    </component>
+
+    <component id="dialPlanDid" type="ValidField">
+	    <binding name="value" expression="dialPlan.did"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="Direct Inward Dialing (DID) Prefix"/>
+    </component>
+    
+    <component id="dialPlanPstnPrefix" type="ValidField">
+	    <binding name="value" expression="dialPlan.pstnPrefix"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="PSTN Calls Prefix"/>
+    </component>
+
+    <component id="dialPlanEmergencyNumber" type="ValidField">
+	    <binding name="value" expression="dialPlan.emergencyNumber"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="Emergency Number"/>
+    </component>
+                
+    <component id="dialPlanInternationalPrefix" type="ValidField">
+	    <binding name="value" expression="dialPlan.internationalPrefix"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="International Prefix"/>
+    </component>
+
+    <component id="dialPlanVoiceMailPrefix" type="ValidField">
+	    <binding name="value" expression="dialPlan.voiceMailPrefix"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="Extension's Voicemail Inbox Prefix"/>
+    </component>
+
+    <component id="dialPlanLongDistancePrefix" type="ValidField">
+	    <binding name="value" expression="dialPlan.longDistancePrefix"/>
+    	<binding name="validator" expression="beans.phoneValidator"/>
+	    <static-binding name="displayName" value="Long Distance Calls Prefix"/>
+    </component>
+    
 	<!--
 	  - A S S E T S
 	  -->	

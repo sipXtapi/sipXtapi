@@ -26,5 +26,5 @@
 	<classpathentry sourcepath="SPRING_HOME/src" kind="var" path="SPRING_HOME/dist/spring.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/aopalliance/aopalliance.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/cglib/cglib-full-2.0.2.jar"/>
-	<classpathentry kind="output" path="context/WEB-INF/classes"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
