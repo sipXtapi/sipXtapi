@@ -145,20 +145,28 @@
 	</group>
 	<group name="call">
 		<label>Call Handling</label>
-		<setting name="autoOffHook.enabled">
+		<group name="autoOffHook">
+			<label>Auto Off Hook</label>
+			<description>Also called 'Ring down' this phone will automatically
+				dial this contact immediately upon lifting handset (or similiar
+				operation with headset). This is useful for lobby phones or as
+				a integration technique when interfacing with legacy PBXes that
+				managing call state and dial tone for phones.</description>
+		<setting name="enabled">
 			<type>0, 1</type>
 			<defaultValue>0</defaultValue>
-			<description>If set to 1, a call will be automati-cally placed to 
+			<description>If set to 1, a call will be automatically placed to 
 				the contact specified upon going off hook on this 
-				regis-tration. </description>
+				registration. </description>
 		</setting>
-		<setting name="autoOffHook.contact">
+		<setting name="contact">
 			<type>ASCII encoded string containing digits (the user part of a 
 				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
 				6416@polycom.com) </type>
 			<defaultValue></defaultValue>
 			<description></description>
 		</setting>
+		</group>
 		<setting name="serverMissedCall.enabled">
 			<type>0, 1</type>
 			<defaultValue>0</defaultValue>
@@ -170,37 +178,36 @@
 	<group name="divert">
 		<label>Diversion</label>
 		<description>SoundPoint(R) IP contains a flexible call 
-			forward/diversion feature for each registration. In all cases, a 
+			forward/diversion feature for this line. In all cases, a 
 			call will only be diverted if a non-Null contact has been 
-			configured. In the following tables, x is the registration number. 
-			IP 300: x=1-2; IP 500: x=1-3; IP 600: x=1-6</description>
+			configured. </description>
 		<setting name="contact">
 			<type>ASCII encoded string containing digits (the user part of a 
-				SIP URL) or a string that consti-tutes a valid SIP URL (6416 or 
+				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
 				6416@poly-com.com)</type>
 			<defaultValue></defaultValue>
 			<description>The forward-to contact used for all automatic call 
 				diversion features unless overridden by a specific contact of a 
-				per-call diver-sion feature (see below). </description>
+				per-call diversion feature. </description>
 		</setting>
 		<setting name="autoOnSpecificCaller">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>If set to 1, calls may be diverted using the Auto 
-				Divert feature of the direc-tory. This is a global flag. 
+				Divert feature of the directory. This is a global flag. 
 				</description>
 		</setting>
 		<setting name="sharedDisabled">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
-			<description>If set to 1, all diversion fea-tures on that line will 
-				be disabled if the line is con-figured as shared. </description>
+			<description>If set to 1, all diversion features on this line will 
+				be disabled if the line is configured as shared. </description>
 		</setting>
 		<setting name="fwd.enabled">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
 			<description>If set to 1, the user will be able to enable 
-				uni-versal call forwarding via the soft key menu. </description>
+				universal call forwarding via the soft key menu. </description>
 		</setting>
 		<setting name="divert.busy.enabled">
 			<type>0, 1</type>
@@ -214,12 +221,12 @@
 				6416@polycom.com)</type>
 			<defaultValue></defaultValue>
 			<description>Forward-to contact for calls forwarded due to busy 
-				status, if Null, divert.x.contact will be used. </description>
+				status, if Null, Contact will be used. </description>
 		</setting>
 		<setting name="divert.noanswer.enabled">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
-			<description>If set to 1, calls will be for-warded on no answer to 
+			<description>If set to 1, calls will be forwarded on no answer to 
 				the contact specified. </description>
 		</setting>
 		<setting name="divert.noanswer.timeout">
@@ -231,10 +238,10 @@
 		<setting name="divert.noanswer.contact">
 			<type>ASCII encoded string con-taining digits (the user part of a 
 				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
-				6416@poly-com.com) </type>
+				6416@polycom.com) </type>
 			<defaultValue></defaultValue>
 			<description>Forward-to contact used for calls forwarded due to no 
-				answer, if Null, divert.x.contact will be used. </description>
+				answer, if Null, Contact will be used. </description>
 		</setting>
 		<setting name="divert.dnd.enabled">
 			<type>0, 1</type>
@@ -248,7 +255,7 @@
 				6416@poly-com.com)</type>
 			<defaultValue></defaultValue>
 			<description>Forward-to contact used for calls forwarded due to DND 
-				status, if Null divert.x.contact will be used. </description>
+				status, if Null Contact will be used. </description>
 		</setting>
 	</group>
 	<group name="dialplan">
@@ -316,7 +323,7 @@
 		<description>SoundPoint(R) IP supports message-waiting indication on a 
 			per-registration basis. </description>
 		<setting name="subscribe">
-			<type>ASCII encoded string con-taining digits (the user part of a 
+			<type>ASCII encoded string containing digits (the user part of a 
 				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
 				6416@poly-com.com) </type>
 			<defaultValue></defaultValue>
@@ -330,12 +337,12 @@
 			<description>If set to 'contact', a call will be placed to the 
 				contact specified in the callback attribute when the user 
 				invokes message retrieval. If set to 'registration', a call 
-				will be placed using this registration to the con-tact 
+				will be placed using this registration to the contact 
 				registered (the phone will call itself). If set to 'disabled', 
 				mes-sage retrieval is disabled. </description>
 		</setting>
 		<setting name="callBack">
-			<type>ASCII encoded string con-taining digits (the user part of a 
+			<type>ASCII encoded string containing digits (the user part of a 
 				SIP URL) or a string that constitutes a valid SIP URL (6416 or 
 				6416@poly-com.com) </type>
 			<defaultValue></defaultValue>

@@ -3,9 +3,10 @@
 <!-- Revision: 1.59 Date: 2004/05/22 00:50:41 -->
 <phone1>
   <reg 
-#foreach ($line in ${reg})
+#foreach ($line in ${lines})
   #set ($i = $velocityCount)
-  #foreach ($setting in ${line.Values})
+  #set ($reg = $line.getSetting('reg'))  
+  #foreach ($setting in $reg.Values)
       reg.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
   #end
 	reg.${i}.acd-login-logout="0" 
@@ -14,18 +15,15 @@
 />
 	<call>
 		<donotdisturb call.donotdisturb.perReg="0"/>
-		<autoOffHook call.autoOffHook.1.enabled="0" 
-			call.autoOffHook.1.contact="" 
-			call.autoOffHook.2.enabled="0" 
-			call.autoOffHook.2.contact="" 
-			call.autoOffHook.3.enabled="0" 
-			call.autoOffHook.3.contact="" 
-			call.autoOffHook.4.enabled="0" 
-			call.autoOffHook.4.contact="" 
-			call.autoOffHook.5.enabled="0" 
-			call.autoOffHook.5.contact="" 
-			call.autoOffHook.6.enabled="0" 
-			call.autoOffHook.6.contact=""/>
+		<autoOffHook 
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($autoOffHook = $line.getSetting('call').getSetting('autoOffHook'))  
+  #foreach ($setting in $autoOffHook.Values)
+        call.autoOffHook.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+/>
 		<serverMissedCall 
 		    call.serverMissedCall.1.enabled="0" 
 			call.serverMissedCall.2.enabled="0" 

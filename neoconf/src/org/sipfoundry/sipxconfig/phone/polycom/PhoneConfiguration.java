@@ -31,10 +31,10 @@ public class PhoneConfiguration extends ConfigurationTemplate {
     }
 
     public void addContext(VelocityContext context) {
-        context.put("reg", getRegistrations());
+        context.put("lines", getLines());
     }
 
-    public Collection getRegistrations() {
+    public Collection getLines() {
         PolycomPhone phone = getPhone();
         ArrayList linesSettings = new ArrayList(phone.getMaxLineCount());
 
@@ -42,16 +42,14 @@ public class PhoneConfiguration extends ConfigurationTemplate {
         int i = 0;
         for (; lines != null && i < lines.size(); i++) {
             Line line = (Line) lines.get(i);
-            Setting reg = line.getSettings(phone).getSetting(REGISTRATION_SETTINGS); 
-            linesSettings.add(reg);
+            linesSettings.add(line.getSettings(phone));
         }
 
         // copy in blank registrations of all unused lines
         Line blank = new Line();
-        Setting model = phone.getSettingModel(blank).getSetting(REGISTRATION_SETTINGS);
+        Setting model = phone.getSettingModel(blank);
         for (; i < phone.getMaxLineCount(); i++) {
-            Setting reg = model.getCopy(new ValueStorage());
-            linesSettings.add(reg);
+            linesSettings.add(model.getCopy(new ValueStorage()));
         }
         
         return linesSettings;
