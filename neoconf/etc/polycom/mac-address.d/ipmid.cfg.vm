@@ -1678,9 +1678,13 @@
 	<HTTPD httpd.enabled="1">
 		<cfg httpd.cfg.enabled="1" httpd.cfg.port="80"/>
 	</HTTPD>
-	<call call.rejectBusyOnDnd="1" call.enableOnNotRegistered="1" 
-		call.offeringTimeOut="60" call.ringBackTimeOut="60" 
-		call.lastCallReturnString="*69" call.callWaiting.prompt="0">
+#set($call = ${settings.getSetting('call')})
+	<call 
+#foreach ($setting in $call.getValues())
+      call.${setting.ProfileName}="$!{setting.ProfileValue}"
+#end
+		call.callWaiting.prompt="0"		
+		>
 		<shared call.shared.disableDivert="1" call.shared.seizeFailReorder="1" 
 			call.shared.oneTouchResume="0"/>
 		<hold>

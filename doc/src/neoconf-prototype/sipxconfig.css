@@ -46,14 +46,13 @@ div.tabArea {
   font-weight: bold;
   background: #ffc;
   width: 40em;
-  border-bottom: 1px solid #000;
 }
 
 a.tab {
   background-color: #ccc;
-  border: 1px solid #000;
   padding: 2px 1em 0px 1em;
   text-decoration: none;
+  white-space: nowrap;        
 }
 
 a.tab, a.tab:visited {
@@ -62,7 +61,6 @@ a.tab, a.tab:visited {
 
 a.tab.active, a.tab.active:hover, a.tab.active:visited {
   background-color: #ffc;
-  border-bottom-color: #ffc;
   color: #000;
 }
 

@@ -21,11 +21,15 @@ import org.apache.commons.beanutils.BeanUtils;
  */    
 public class Setting implements Cloneable, AvoidEclipseWarningHack {
 
+    public static final String NULL_VALUE = new String();
+
     private String m_label;
 
     private String m_type;
 
     private String m_name;
+    
+    private String m_description;
     
     private String m_defaultValue;
 
@@ -35,7 +39,7 @@ public class Setting implements Cloneable, AvoidEclipseWarningHack {
     
     private SettingGroup m_settingGroup;
     
-    private ValueStorage m_valueStorage;
+    private ValueStorage m_valueStorage;    
     
     /**
      * bean access only, must set name before valid object
@@ -150,16 +154,32 @@ public class Setting implements Cloneable, AvoidEclipseWarningHack {
     }
 
     public String getValue() {
+        
+        // technically not trying to mutate, but
+        // probably not a valid state. could relax if valid
+        // case comes up.
         checkImmutable();
-        return (String) m_valueStorage.get(getPath());
+        
+        String value = (String) m_valueStorage.get(getPath());
+        
+        return value == null ? m_defaultValue : value;
     }
 
     public void setValue(String value) {
         checkImmutable();
-        if (value != null) {
-            m_valueStorage.put(getPath(), value);
+        String defValue = getDefaultValue();
+        if (value == null) {
+            if (defValue == null) {
+                m_valueStorage.remove(getPath());
+            } else {
+                m_valueStorage.put(getPath(), NULL_VALUE);
+            }
         } else {
-            m_valueStorage.remove(getPath());
+            if (value.equals(defValue)) {
+                m_valueStorage.remove(getPath());
+            } else {
+                m_valueStorage.put(getPath(), value);                
+            }
         }
     }
 
@@ -204,6 +224,14 @@ public class Setting implements Cloneable, AvoidEclipseWarningHack {
         }
         
         return sb.toString();
+    }
+
+    public String getDescription() {
+        return m_description;
+    }
+
+    public void setDescription(String description) {
+        m_description = description;
     }
 }
 

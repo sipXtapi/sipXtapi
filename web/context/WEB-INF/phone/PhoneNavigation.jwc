@@ -3,7 +3,7 @@
   "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 <component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneNavigation"
-    allow-body="no"
+    allow-body="yes"
     allow-informal-parameters="no">
     <description>
         <![CDATA[ Navigational tabs, intro text and help box  ]]>

@@ -25,6 +25,9 @@
         <binding name="tab" expression="parentSettingGroup.name"/>
         <binding name="heading" expression="parentSettingGroup.label"/>
     </component>
+    <component id="settingDescription" type="Insert">
+        <binding name="value" expression="parentSettingGroup.description"/>
+    </component>
     <component id="settingsForm" type="SettingsForm">
         <binding name="settings" expression="parentSettingGroup"/>
         <binding name="cancelListener" expression="listeners.cancel"/>

@@ -5,15 +5,29 @@
 		<title>sipXconfig</title>
 		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
 	</head>
-	<body id="phone-groups">
+	<body id="phone">
 		<div id="component">
-				<div id="help">Here will be hints.</div>
-				<h2>Call Handling</h2>
-				<p>To provide settings that can be shared across all phones of 
-					a particular model. Values explicitly set on individual 
-					phones will override these values.</p>
-				<form action="#">
- 				<table>
+			<div class="tabArea">
+				<a class="tab" href="edit-phone.html">Device Identification</a>
+				<a class="tab" href="lines.html">Lines</a>
+				<a class="tab active" href="call-handling.html">Call 
+					Handling</a>
+			</div>
+			<p><span class="page-label">Phone:</span> Joe's work phone/Polycom 
+				Soundpoint&reg; IP 300</p>
+			<div id="help">
+				<b>Quick Links</b>
+				<ul>
+					<li>
+						<a href="../line/new-line.html">Create new line?</a>
+					</li>
+				</ul>
+			</div>
+			<h2>Call Handling</h2>
+			<p>Control how incoming and outgoing calls are handled on all 
+				lines.</p>
+			<form action="#">
+				<table>
 					<tr>
 						<td colspan="2">
 							<hr/>
@@ -24,13 +38,7 @@
 							<b>Value:</b>
 						</td>
 						<td>
-							<input type="checkbox"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Setting 1: </td>
-						<td>
-							<input type="checkbox"/>
+							<input type="checkbox"/> <i>(default: checked)</i>
 						</td>
 					</tr>
 					<tr>
@@ -52,13 +60,7 @@
 							<b>Value:</b>
 						</td>
 						<td>
-							<input type="checkbox"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Setting 1: </td>
-						<td>
-							<input type="checkbox"/>
+							<input type="checkbox"/> <i>(default: checked)</i>
 						</td>
 					</tr>
 					<tr>
@@ -80,13 +82,7 @@
 							<b>Value:</b>
 						</td>
 						<td>
-							<input type="text" value="Settting Value Here"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Setting 1: </td>
-						<td>
-							<input type="checkbox"/>
+							<input type="text" value="Settting Value Here"/><i> (default: Setting Default Here)</i>
 						</td>
 					</tr>
 					<tr>
@@ -108,13 +104,7 @@
 							<b>Value:</b>
 						</td>
 						<td>
-							<input type="text" value="Settting Value Here"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Setting 1: </td>
-						<td>
-							<input type="checkbox"/>
+							<input type="text" value="Settting Value Here"/> <i>(default: checked)</i>
 						</td>
 					</tr>
 					<tr>
@@ -132,20 +122,20 @@
 						</td>
 					</tr>
 				</table>
-					<ul class="form-actions">
-						<li>
-						<input type="button" value="Cancel"
-					           onclick="history.go(-1)"/>
-						</li>
-						<li>
-						<input type="button" value="Apply"/>
-						</li>
-						<li>
-						<input type="button" value="OK"
-					           onclick="history.go(-1)"/>
-						</li>
-					</ul>
-				</form>
+				<ul class="form-actions">
+					<li>
+						<input type="button" name="cancel" value="Cancel" 
+							onclick="location.href='phones.html'"/>
+					</li>
+					<li>
+						<input type="button" name="apply" value="Apply"/>
+					</li>
+					<li>
+						<input type="button" name="save" value="OK" 
+							onclick="location.href='phones.html'"/>
+					</li>
+				</ul>
+			</form>
 		</div>
 	</body>
 </html>

@@ -18,7 +18,6 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**
@@ -46,10 +45,6 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     public abstract SettingGroup getParentSettingGroup();
     
     public abstract void setParentSettingGroup(SettingGroup parent);
-    
-    public abstract Setting getCurrentSetting();
-    
-    public abstract void setCurrentSetting(Setting setting);
     
     public void pageBeginRender(PageEvent event) {
         PhoneContext context = PhonePageUtils.getPhoneContext(event.getRequestCycle());

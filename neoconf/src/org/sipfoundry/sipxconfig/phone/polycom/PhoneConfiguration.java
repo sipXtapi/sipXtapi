@@ -21,7 +21,9 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
-
+/**
+ * Responsible for generating phone.cfg
+ */
 public class PhoneConfiguration extends ConfigurationTemplate {
     
     public PhoneConfiguration(PolycomPhone phone, Endpoint endpoint) {

@@ -20,9 +20,10 @@ import java.io.Reader;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 
-public class PhoneConfigurationTest extends XMLTestCase {
+public class CoreConfigurationTest extends XMLTestCase {
     
     public void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
@@ -30,15 +31,18 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
     public void testGenerateProfile() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();        
+
+        SettingGroup settings = helper.endpoint[0].getSettings(helper.phone[0]);
+        settings.getSetting("call").getSetting("rejectBusyOnDnd").setValue("0");
         
-        PhoneConfiguration cfg = new PhoneConfiguration(
+        CoreConfiguration cfg = new CoreConfiguration(
             helper.phone[0], helper.endpoint[0]);
         
-        cfg.setTemplate(helper.phone[0].getConfig().getPhoneTemplate());
+        cfg.setTemplate(helper.phone[0].getConfig().getCoreTemplate());
         CharArrayWriter out = new CharArrayWriter();
-        cfg.generateProfile(out);
+        cfg.generateProfile(out);       
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/plain-phone.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-ipmid.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 

@@ -42,8 +42,14 @@
     <component id="settingLabel" type="Insert">
         <binding name="value" expression="currentSetting.label"/>
     </component>
+    <component id="settingDefault" type="Insert">
+        <binding name="value" expression="currentSetting.defaultValue"/>
+    </component>    
     <component id="setting" type="TextField">
         <binding name="value" expression="currentSetting.value"/>
+    </component>
+    <component id="settingDescription" type="Insert">
+        <binding name="value" expression="currentSetting.description"/>
     </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="cancelListener"/>

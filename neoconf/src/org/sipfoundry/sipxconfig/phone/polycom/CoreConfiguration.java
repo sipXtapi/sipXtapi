@@ -15,7 +15,7 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 
 /**
- * Velocity model for generating ipmid.cfg
+ * Responsible for generating ipmid.cfg
  */
 public class CoreConfiguration extends ConfigurationTemplate {
     
@@ -24,6 +24,6 @@ public class CoreConfiguration extends ConfigurationTemplate {
     }
     
     public void addContext(VelocityContext context) {
-        context.put("core", this);
+        context.put("settings", getEndpoint().getSettings(getPhone()));
     }
 }
