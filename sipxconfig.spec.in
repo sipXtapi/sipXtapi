@@ -26,7 +26,7 @@ Source: %name-%version.tar.gz
 Requires: sipxtacklib >= 2.5
 Requires: sipxcommserverlib >= 2.5
 Requires: sipx-jboss >= 2.4
-Requires: rh-postgresql-server >= 7.3
+Requires: postgresql-server >= 7.3
 
 # to serve profile/catalog/apps.  These can be served from
 # tomcat eventually to improve scalability by reducing server
