@@ -26,7 +26,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlunit1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/velocity-1.4/src" kind="var" path="SIPX_CONFIG/lib/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.6.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-digester.jar"/>
+	<classpathentry sourcepath="LIB_SRC/commons-digester-1.6-src/src" kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-digester.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

@@ -27,18 +27,22 @@ public class XmlModelBuilder {
         Digester digester = new Digester();
         digester.setValidating(false);
         String metaSetter = "addMeta";
+
+        String rootModelPattern = "model";        
+        digester.addObjectCreate(rootModelPattern, SettingModel.class);
+        
         String modelPattern = "*/model";
         digester.addObjectCreate(modelPattern, SettingModel.class);
         digester.addSetNext(modelPattern, metaSetter, SettingModel.class.getName());
         digester.addSetProperties(modelPattern);
 
-        String metaPattern = "*/model/meta";
-        digester.addSetNext(metaPattern, metaSetter, SettingMeta.class.getName());
+        String metaPattern = "*/meta";
         digester.addObjectCreate(metaPattern, SettingMeta.class);
+        digester.addSetNext(metaPattern, metaSetter, SettingMeta.class.getName());
         digester.addSetProperties(metaPattern);
 
-        digester.addObjectCreate("*/meta/enum", ArrayList.class);
-        digester.addObjectCreate("*/enum/element", String.class);
+        digester.addObjectCreate("*/enum", ArrayList.class);
+        digester.addObjectCreate("*/element", String.class);
         
         try {
             return (SettingModel) digester.parse(is);
