@@ -28,3 +28,5 @@ testsuite_SOURCES = \
 
 EXTRA_DATA = \
     rulesdata/simple-forwarding.xml
+
+EXTRA_DIST = $(EXTRA_DATA)
