@@ -9,6 +9,7 @@
   <path id="base.path">
     <!-- SIPXCONFIG -->
     <pathelement location="${common.jar}"/>
+    <pathelement location="${sipxconfig.jar}"/>  	
     <pathelement location="${commserver.jar}"/>
     <!-- IDEALLY:  pathelement location="${profilegen-client.jar}"/ -->
     <pathelement location="${profilegen-ejb.jar}"/>

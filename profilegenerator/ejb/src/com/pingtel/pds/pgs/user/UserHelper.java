@@ -225,6 +225,10 @@ public class UserHelper {
             Element passtokenElement = credential.getChild("PASSTOKEN");
             passtokenElement.removeContent();
             passtokenElement.addContent(new CDATA(passtoken));
+
+            Element useridElement = credential.getChild("USERID");
+            useridElement.removeContent();
+            useridElement.addContent(new CDATA(m_user.getDisplayID()));
         }
     }
     

@@ -16,18 +16,20 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.ErrorManager;
 
 import javax.ejb.CreateException;
 import javax.naming.NamingException;
 
+import org.sipfoundry.sipxconfig.legacy.LegacyNotifyService;
+
 import com.pingtel.commserver.utility.GlobalConfigUIHelper;
 import com.pingtel.pds.common.ConfigFileManager;
 import com.pingtel.pds.common.EJBHomeFactory;
-import com.pingtel.pds.common.ErrorMessageBuilder;
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.common.PathLocatorUtil;
+import com.pingtel.pds.pgs.common.RMIConnectionManager;
+import com.pingtel.pds.pgs.common.ejb.BaseEJB;
 import com.pingtel.pds.pgs.organization.OrganizationAdvocate;
 import com.pingtel.pds.pgs.organization.OrganizationAdvocateHome;
 import com.pingtel.pds.pgs.sipxchange.process.ProcessManager;
@@ -36,9 +38,8 @@ import com.pingtel.pds.pgs.sipxchange.process.ProcessManager;
  * InstallOrganizationBean
  */
 public class InstallOrganizationBean {
-    final private String ERR_INSTALL_ORG = "An error occured while trying to install organization";  
- 
-    
+    final private String ERR_INSTALL_ORG = "An error occured while trying to install organization";
+
     String m_dnsDomain;
 
     String m_realm;
@@ -78,6 +79,12 @@ public class InstallOrganizationBean {
             OrganizationAdvocate orgAdvocate = organizationAdvocateHome.create();
 
             orgAdvocate.install(m_orgName, m_stereotype, m_dnsDomain, m_password);
+
+            String serviceUrl = BaseEJB.getPGSProperty("legacynotifyservice.rmi.url");
+            LegacyNotifyService notifyService = (LegacyNotifyService) RMIConnectionManager
+                    .getInstance().getConnection(serviceUrl);
+            notifyService.onInit();
+
         } catch (NamingException e) {
             throw new PDSException(ERR_INSTALL_ORG, e);
         } catch (RemoteException e) {
@@ -88,8 +95,8 @@ public class InstallOrganizationBean {
     }
 
     /**
-     * Updates the value of the realm in the properties and in the config.defs
-     * file Restarts the servers to make sure new config.defs are applied
+     * Updates the value of the realm in the properties and in the config.defs file Restarts the
+     * servers to make sure new config.defs are applied
      * 
      * @param dnsDomain new domain value
      * @param realm new realm value

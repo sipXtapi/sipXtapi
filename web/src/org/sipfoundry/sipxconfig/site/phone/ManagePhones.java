@@ -22,7 +22,6 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.phone.JobManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneData;
@@ -48,7 +47,7 @@ public abstract class ManagePhones extends BasePage
     public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
     public abstract PhoneContext getPhoneContext();
-
+    
     /**
      * When user clicks on link to edit a phone/phone
      */
@@ -87,10 +86,10 @@ public abstract class ManagePhones extends BasePage
     }
     
     public void generateProfiles(IRequestCycle cycle_) {
-        Phone[] phones = getSelectedPhones();
-        if (phones.length >= 0) {        
-            Iterator i = Arrays.asList(phones).iterator();
-            new JobManager().generateProfilesAndRestart(i);
+        Phone[] selectedPhones = getSelectedPhones();
+        if (selectedPhones.length >= 0) {        
+            Collection phones = Arrays.asList(selectedPhones);
+            getPhoneContext().generateProfilesAndRestart(phones);
         }
     }
     
@@ -111,10 +110,10 @@ public abstract class ManagePhones extends BasePage
     }
     
     public void restart(IRequestCycle cycle_) {
-        Phone[] phones = getSelectedPhones();
-        if (phones.length >= 0) {        
-            Iterator i = Arrays.asList(phones).iterator();
-            new JobManager().restart(i);
+        Phone[] selectedPhones = getSelectedPhones();
+        if (selectedPhones.length >= 0) {        
+            Collection phones = Arrays.asList(selectedPhones);
+            getPhoneContext().restart(phones);
         }
     }
     

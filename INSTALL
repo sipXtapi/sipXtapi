@@ -1,5 +1,4 @@
 
-
 This file was generated using the following command.  If you are
 already looking at this from a web browser, then please ignore this
 message.
@@ -69,8 +68,8 @@ For Redhat Users
   wget -P /etc/yum.repos.d http://jpackage.org/jpackage.repo
 
    Now you can update your system to the required packages
-  yum install ant junit ant-junit checkstyle checkstyle-optional ant-trax jakar
-ta-commons-beanutils jakarta-commons-collections
+  yum install ant ant-nodeps junit ant-junit checkstyle checkstyle-optional ant
+-trax jakarta-commons-beanutils jakarta-commons-collections
 
     Fedora Core 2 and Redhat Enterprise: Java build tools using custom rpm
 
@@ -190,11 +189,13 @@ Installing From Source and Non-Redhat Users
    Standard JBoss installation needs to be patched to use Postgres database and
    to enable sipX provided authentication modules.
     1. Run the following patch after installing JBoss
-      patch -d ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/conf -p1 < meta/sipx-j
-boss4-configure.patch
+      patch -d ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF} -p0 < meta/sipx-jboss4
+-configure.patch
        If you use custom JBoss server configuration use its name instead of
        "default". Every configuration has to be patched separately.
-    2. be sure user running sipxpbx (most cases sipxchange) has full r/w access
+    2. Copy in web certificate for basic https support
+     cp meta/ssl.pkcs12 ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/conf
+    3. Be sure user running sipxpbx (most cases sipxchange) has full r/w access
        to all files and directories in ${JBOSS_HOME}
 
    If you are runnning sipXconfig 2.6.x (or older) on the same machine as
@@ -240,7 +241,7 @@ Additional Setup
 
     TFTP on Redhat
 
-  Run the following commands
+   Run the following commands
   ${EDITOR} /etc/xinetd.d/tftp
 
    make the following edits, if you've installed via RPM, then {where you
@@ -255,9 +256,8 @@ Additional Setup
 
   # if so, stop it
   kill -15 {tftp pid}
-
   # restart xinit.d that in turn will start tftp on demand
-  service xinet.d restart
+  service xinetd restart
 
     TFTP on Gentoo
 
@@ -312,7 +312,6 @@ Running
           <group name="CommServer" >
           ...
           </group>
-
           <group name="MediaServer" >
           ...
           </group>

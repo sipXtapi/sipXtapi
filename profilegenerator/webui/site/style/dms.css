@@ -78,11 +78,15 @@ h1.dms {
 }
 hr.dms {
 	color: #669999;
-	background-color : transparent;
+	background-color: #669999;
+	height: 2px;
+	border: 0;
 }
 hr.seperator {
-    color: #FF9933;
-    background-color : #669999;
+	color: #669999;
+	background-color: #669999;
+	height: 2px;
+	border: 0;
  }
 .formtitle {
 	 font-family: Verdana, Arial, Helvetica, sans-serif;

@@ -172,7 +172,7 @@ public class UserHelperTest extends XMLTestCase {
         userControl.expectAndReturn(user.getDisplayID(), "first_last", 1);
         userControl.expectAndReturn(user.getFirstName(), "ABC", 1);
         userControl.expectAndReturn(user.getLastName(), "DEF", 1);
-        userControl.expectAndReturn(user.getDisplayID(), "abc_def", 1);
+        userControl.expectAndReturn(user.getDisplayID(), "abc_def", 2);
         userControl.replay();
 
         UserHelper helper = new UserHelper(user);
@@ -196,7 +196,7 @@ public class UserHelperTest extends XMLTestCase {
         assertXpathEvaluatesTo("8f44d1d713b8aa4e56c6fd78e8ef1b1a",
                 "/PROFILE/PRIMARY_LINE/PRIMARY_LINE/CREDENTIAL/PASSTOKEN", domDocument);
 
-        // this time replace a passtoken and DNS name
+        // this time replace a passtoken, user id and DNS name
         helper.fixUserPrimaryLine(elementPrimaryLine, org, "auth.mycomp.com", true, "kuku");
         domDocument = converter.output(document);
         assertXpathEvaluatesTo("ABC DEF<sip:abc_def@ognob.com>",
@@ -205,8 +205,7 @@ public class UserHelperTest extends XMLTestCase {
                 "/PROFILE/PRIMARY_LINE/PRIMARY_LINE/CREDENTIAL/REALM", domDocument);
         assertXpathEvaluatesTo("kuku", "/PROFILE/PRIMARY_LINE/PRIMARY_LINE/CREDENTIAL/PASSTOKEN",
                 domDocument);
-        // current implementation does not change userid
-        assertXpathEvaluatesTo("first_last",
+        assertXpathEvaluatesTo("abc_def",
                 "/PROFILE/PRIMARY_LINE/PRIMARY_LINE/CREDENTIAL/USERID", domDocument);
 
         orgControl.verify();

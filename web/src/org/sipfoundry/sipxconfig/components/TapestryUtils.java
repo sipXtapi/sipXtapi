@@ -91,7 +91,21 @@ public final class TapestryUtils {
      * @return true if no errors found
      */
     public static boolean isValid(AbstractPage page) {
-        IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(VALIDATOR);
+        IValidationDelegate validator = getValidator(page);
         return !validator.getHasErrors();
+    }
+
+    /**
+     * Retrieves the validator for the current page. Use only if standard "validator" name
+     * has been used.
+     * 
+     * Use to record errors not related to any specific component.
+     * 
+     * @param page
+     * @return validation delegate component 
+     */
+    public static IValidationDelegate getValidator(AbstractPage page) {
+        IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(VALIDATOR);
+        return validator;
     }
 }

@@ -32,7 +32,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        beginAt("/");
+        SiteTestHelper.home(getTester());
         clickLink("resetDialPlans");
     }
 

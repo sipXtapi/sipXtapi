@@ -56,6 +56,14 @@
     <copy file="etc/security.policy" todir="${dest.dir}${sipxpbx.conf.dir}"/>
 
     <mkdir dir="${dest.dir}${bin.dir}"/>
+    <copy file="bin/install-ssl-keystore.sh.in" tofile="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"/>
+    <replace file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"
+         propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@jboss.server@" value="${jboss.server}"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh" perm="ugo+x"/>
+
+    <mkdir dir="${dest.dir}${bin.dir}"/>
     <copy file="bin/rmiregistry.sh.in" tofile="${dest.dir}${bin.dir}/rmiregistry.sh"/>
     <replace file="${dest.dir}${bin.dir}/rmiregistry.sh"
          propertyfile="${top.build.dir}/config.properties">

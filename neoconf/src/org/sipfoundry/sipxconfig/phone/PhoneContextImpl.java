@@ -11,15 +11,23 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.LinkedMap;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.legacy.LegacyContext;
+import org.sipfoundry.sipxconfig.legacy.UserConfigSet;
 import org.sipfoundry.sipxconfig.setting.Folder;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -36,10 +44,48 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     private Map m_phoneIds;
 
+    private JobQueue m_jobQueue;
+    
+    private String m_systemDirectory;
+    
+    private CoreContext m_coreContext; 
+    
+    private LegacyContext m_legacy;
+    
+    private Map m_modelCache = new HashMap();
+
+    /**
+     * Generate profile on phones in background
+     */
+    public void generateProfilesAndRestart(Collection phones) {
+        JobRecord job = createJobRecord(phones, JobRecord.TYPE_PROJECTION);
+        m_jobQueue.addJob(job);
+    }
+    
+    /**
+     * Restart phones in background
+     */
+    public void restart(Collection phones) {
+        JobRecord job = createJobRecord(phones, JobRecord.TYPE_DEVICE_RESTART);
+        m_jobQueue.addJob(job);
+    }
+
+    JobRecord createJobRecord(Collection phones, int type) {
+        JobRecord job = new JobRecord();
+        job.setType(type);
+        Phone[] phonesArray = (Phone[]) phones.toArray(new Phone[0]);
+        job.setPhones(phonesArray);
+        
+        return job;
+    }
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
 
+    public void setJobQueue(JobQueue jobQueue) {
+        m_jobQueue = jobQueue;
+    }
+    
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
@@ -57,18 +103,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     public void flush() {
         getHibernateTemplate().flush();
-    }
-
-    public void storeCredential(Credential credential) {
-        getHibernateTemplate().saveOrUpdate(credential);
-    }
-
-    public void deleteCredential(Credential credential) {
-        getHibernateTemplate().delete(credential);
-    }
-
-    public Credential loadCredential(Integer id) {
-        return (Credential) getHibernateTemplate().load(Credential.class, id);
     }
 
     public void storePhone(Phone phone) {
@@ -166,13 +200,19 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public Phone newPhone(String factoryId) {
         Phone phone = (Phone) m_beanFactory.getBean(factoryId);
         phone.setPhoneData(new PhoneData(factoryId));
+        phone.setPhoneContext(this);
 
         return phone;
+    }
+    
+    public Line newLine(String factoryId) {
+        return (Line) m_beanFactory.getBean(factoryId);
     }
 
     private Phone loadPhoneFromFactory(PhoneData meta) {
         Phone phone = (Phone) m_beanFactory.getBean(meta.getFactoryId());
         phone.setPhoneData(meta);
+        phone.setPhoneContext(this);
         meta.setModelLabel((String) m_phoneIds.get(meta.getFactoryId()));
 
         return phone;
@@ -194,6 +234,14 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return m_settingDao.loadRootFolder(LineData.FOLDER_RESOURCE_NAME);
     }
 
+    public JobRecord loadJob(Integer id) {
+        return (JobRecord) getHibernateTemplate().load(JobRecord.class, id);
+    }
+    
+    public void storeJob(JobRecord job) {
+        getHibernateTemplate().saveOrUpdate(job);
+    }
+        
     /** unittesting only */
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
@@ -202,5 +250,41 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         getHibernateTemplate().delete("from PhoneData");
         getHibernateTemplate().delete("from Folder");
         getHibernateTemplate().delete("from ValueStorage");
+    }
+
+    public String getSystemDirectory() {
+        return m_systemDirectory;
+    }
+
+    public void setSystemDirectory(String systemDirectory) {
+        m_systemDirectory = systemDirectory;
+    }
+    
+    public String getDnsDomain() {
+        return m_coreContext.loadRootOrganization().getDnsDomain();
+    }
+
+    public String getClearTextPassword(User user) {        
+        UserConfigSet ucs = m_legacy.getConfigSetForUser(user);
+        return ucs.getClearTextPassword();
+    }
+
+    public void setLegacyContext(LegacyContext legacy) {
+        m_legacy = legacy;
+    }    
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }    
+
+    public Setting getSettingModel(String filename) {
+        // cache it, but may be helpful to reload model on fly in future
+        Setting model = (Setting) m_modelCache.get(filename);
+        if (model == null) {
+            File modelDefsFile = new File(getSystemDirectory() + '/' + filename);
+            model = new XmlModelBuilder().buildModel(modelDefsFile);
+            m_modelCache.put(filename, model);
+        }
+        return model;
     }
 }

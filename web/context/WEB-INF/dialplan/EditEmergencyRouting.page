@@ -12,8 +12,8 @@
     	initial-value="global.dialPlanContext"/>
     
 	<property-specification name="emergencyRouting" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting">
-        dialPlanManager.emergencyRouting
+		type="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting"
+        persistent="yes">
     </property-specification>
     
     <property-specification name="exceptionsMap" type="org.apache.tapestry.form.ListEditMap"/>
@@ -47,10 +47,6 @@
         <binding name="listener" expression="listeners.addException"/>
     </component>
         
-    <component id="enabled" type="Checkbox">
-        <binding name="selected" expression="emergencyRouting.enabled"></binding>
-    </component>
-    
     <component id="gatewaysLabel" type="FieldLabel">
         <binding name="field" expression="components.gateways"/>
         <static-binding name="displayName" value="Gateway"/>

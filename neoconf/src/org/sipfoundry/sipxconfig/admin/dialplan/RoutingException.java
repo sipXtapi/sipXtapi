@@ -24,7 +24,7 @@ public class RoutingException extends BeanWithId {
      * Default constructor used for bean creation
      */
     public RoutingException() {
-        // intentionally empty
+        setUniqueId();
     }
 
     /**

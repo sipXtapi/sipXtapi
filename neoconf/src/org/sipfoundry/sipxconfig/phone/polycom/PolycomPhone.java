@@ -18,9 +18,6 @@ import java.text.MessageFormat;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.AbstractPhone;
-import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineData;
-import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.SipService;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -29,6 +26,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
 public class PolycomPhone extends AbstractPhone {
+    
+    public static final String FACTORY_ID = "polycom";
 
     public static final String SERVER = "server";
 
@@ -46,8 +45,6 @@ public class PolycomPhone extends AbstractPhone {
 
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
 
-    private PolycomSupport m_polycom;
-
     private String m_tftpRoot;
 
     private VelocityEngine m_velocityEngine;
@@ -56,19 +53,12 @@ public class PolycomPhone extends AbstractPhone {
     
     /** BEAN ACCESS ONLY */
     public PolycomPhone() {
-    }
-
-    public PolycomPhone(PolycomSupport polycom, PhoneData meta) {
-        super(meta);
-        setPolycom(polycom);
+        setModelFilename(FACTORY_ID + "/phone.xml");
+        setLineFactoryId(PolycomLine.FACTORY_ID);
     }
 
     public PolycomModel getModel() {
         return PolycomModel.getModel(getPhoneData().getFactoryId());
-    }
-
-    public Line createLine(LineData meta) {
-        return new PolycomLine(this, meta);
     }
 
     public void setSipService(SipService sip) {
@@ -127,14 +117,6 @@ public class PolycomPhone extends AbstractPhone {
         m_velocityEngine = velocityEngine;
     }
 
-    PolycomSupport getPolycom() {
-        return m_polycom;
-    }
-
-    public void setPolycom(PolycomSupport polycom) {
-        m_polycom = polycom;
-    }
-
     public int getMaxLineCount() {
         return getModel().getMaxLines();
     }
@@ -190,15 +172,16 @@ public class PolycomPhone extends AbstractPhone {
         // this message does not require that the phone be enrolled
         // the message allows us to reboot a specific phone 
         String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: {1}\r\n"
-                + "From: {2}\r\n" + "To: {0}\r\n" + "Event: check-sync\r\n"
-                + "Date: {3}\r\n" + "Call-ID: {4}\r\n" + "CSeq: 1 NOTIFY\r\n"
+                + "From: {2}\r\n" + "To: {3}\r\n" + "Event: check-sync\r\n"
+                + "Date: {4}\r\n" + "Call-ID: {5}\r\n" + "CSeq: 1 NOTIFY\r\n"
                 + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
-            line.getUri(), 
+            line.getNotifyRequestUri(), 
             m_sip.getServerVia(),
             m_sip.getServerUri(), 
+            line.getUri(),
             m_sip.getCurrentDate(), 
-            m_sip.generateCallId() 
+            m_sip.generateCallId()
         };
         String msg = MessageFormat.format(restartSip, sipParams);
         try {
@@ -232,14 +215,11 @@ public class PolycomPhone extends AbstractPhone {
         }
     }
 
-    public Setting getSettingModel() {
-        Setting settings = m_polycom.getEndpointSettingModel().copy();
-        String domainName = m_polycom.getDnsDomain();
+    protected void setDefaults(Setting settings) {
+        String domainName = getPhoneContext().getDnsDomain();
         Setting voip = settings.getSetting("voIpProt");
         voip.getSetting(SERVER).getSetting(FIRST).getSetting(ADDRESS).setValue(domainName);
         voip.getSetting("SIP.outboundProxy").getSetting(ADDRESS).setValue(domainName);
-
-        return settings;
     }
 }
 

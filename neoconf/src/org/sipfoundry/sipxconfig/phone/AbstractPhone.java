@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Implements some of the more menial methods of Phone interface 
@@ -32,15 +34,13 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     
     private Setting m_settings;
     
+    private String m_modelFilename;
+
     private DataCollection m_lines = new DataCollection();
     
-    /** BEAN ACCESS ONLY */
-    public AbstractPhone() {        
-    }
+    private PhoneContext m_phoneContext;
     
-    public AbstractPhone(PhoneData meta) {
-        setPhoneData(meta);
-    }
+    private String m_lineFactoryId;
     
     public void setPhoneData(PhoneData meta) {
         m_meta = meta;
@@ -65,23 +65,36 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
 
     public Setting getSettings() {
         if (m_settings == null) {
-
-            m_settings = getSettingModel();
-            ValueStorage valueStorage = m_meta.getValueStorage();
-            if (valueStorage == null) {
-                valueStorage = new ValueStorage();
-                m_meta.setValueStorage(valueStorage);
-            }
-
-            Folder folder = m_meta.getFolder();
-            if (folder != null) {
-                m_settings = (SettingGroup) folder.decorate(m_settings);
-            }
-
-            m_settings = (SettingGroup) valueStorage.decorate(m_settings);
+            Setting settings = getSettingModel();
+            setDefaults(settings);
+            decorateSettings(settings);
         }
 
         return m_settings;
+    }
+    
+    protected abstract void setDefaults(Setting settings);
+    
+    public Setting getSettingModel() {
+        File modelDefsFile = new File(m_phoneContext.getSystemDirectory() + '/' 
+                + m_modelFilename);
+        return new XmlModelBuilder().buildModel(modelDefsFile).copy();        
+    }
+    
+    protected void decorateSettings(Setting settings) {
+        m_settings = settings;
+        ValueStorage valueStorage = m_meta.getValueStorage();
+        if (valueStorage == null) {
+            valueStorage = new ValueStorage();
+            m_meta.setValueStorage(valueStorage);
+        }
+
+        Folder folder = m_meta.getFolder();
+        if (folder != null) {
+            m_settings = (SettingGroup) folder.decorate(m_settings);
+        }
+
+        m_settings = (SettingGroup) valueStorage.decorate(m_settings);        
     }
     
     public Object getPrimaryKey() {
@@ -90,6 +103,37 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     
     public Collection getDeletedLines() {
         return m_lines.getDeleted();
+    }
+
+    public void setModelFilename(String modelFilename) {
+        m_modelFilename = modelFilename;
+    }
+
+    public String getModelFilename() {
+        return m_modelFilename;
+    }
+
+    public PhoneContext getPhoneContext() {
+        return m_phoneContext;
+    }
+    
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+    
+    public void setLineFactoryId(String lineFactoryId) {
+        m_lineFactoryId = lineFactoryId;
+    }
+    
+    public String getLineFactoryId() {
+        return m_lineFactoryId;
+    }
+
+    public Line createLine(LineData meta) {
+        Line line = getPhoneContext().newLine(m_lineFactoryId);
+        line.setPhone(this);
+        line.setLineData(meta);
+        return line;
     }
 }
 

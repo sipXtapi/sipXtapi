@@ -52,6 +52,7 @@ public class FallbackRulesTest extends XMLTestCase {
 
         MappingRules mappingRules = new FallbackRules();
         mappingRules.generate(rule);
+        mappingRules.end();
 
         Document document = mappingRules.getDocument();
 
@@ -80,6 +81,7 @@ public class FallbackRulesTest extends XMLTestCase {
 
         MappingRules mappingRules = new FallbackRules();
         mappingRules.generate(rule);
+        mappingRules.end();
 
         Document document = mappingRules.getDocument();
 

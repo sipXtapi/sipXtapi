@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.Collection;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
-
 
 
 /**
@@ -38,6 +38,20 @@ public interface PhoneContext {
      */
     public static final Integer UNSAVED_ID = new Integer(-1);
     
+    /**
+     * Generate profile on phones in background
+     * 
+     * @param phones collection of phone objects
+     */
+    public void generateProfilesAndRestart(Collection phones);
+    
+    /**
+     * Restart phones in background
+     * 
+     * @param phones collection of phone objects
+     */
+    public void restart(Collection phones);    
+
     public Map getPhoneFactoryIds();
 
     public void setPhoneFactoryIds(Map phoneIds);
@@ -56,15 +70,11 @@ public interface PhoneContext {
     
     public Collection loadPhones();      
 
-    public void storeCredential(Credential credential);
-    
-    public void deleteCredential(Credential credential);
-
-    public Credential loadCredential(Integer id);
-
     public void storeLine(Line line);
     
     public void deleteLine(Line line);
+
+    public Line newLine(String factoryId);
 
     public Line loadLine(Integer id);
     
@@ -82,6 +92,16 @@ public interface PhoneContext {
     
     public Folder loadRootLineFolder();
     
+    public JobRecord loadJob(Integer id);
+    
+    public void storeJob(JobRecord job);
+
     /** unittesting only */
     public void clear();
+
+    public String getSystemDirectory();
+
+    public String getDnsDomain();
+
+    public String getClearTextPassword(User user);
 }

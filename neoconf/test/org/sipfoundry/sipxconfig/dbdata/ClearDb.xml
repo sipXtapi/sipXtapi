@@ -37,6 +37,7 @@
   <table name="gateway"/>
   
   <!-- legacy -->
+  <table name="jobs"/>
   <table name="organizations">
     <column>id</column>
     <column>name</column>

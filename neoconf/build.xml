@@ -2,7 +2,9 @@
 <!--  -->
 
 <project name="neoconf" default="default" basedir=".">
-
+	<property name="sipxconfig.db.pds" value="PDS_TEST"/>
+	<property name="sipxconfig.db.user" value="postgres"/>
+	
 	<property name="test.src.dir" value="test" />
         <patternset id="test-db.classes" includes="**/*TestDb.class" />
 	<property name="checkstyle.severity" value="error" />
@@ -77,6 +79,7 @@
         <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxconfig.properties.in"
             propertyfile="${top.build.dir}/config.properties">
             <replacefilter token="@version@" property="version"/>
+            <replacefilter token="@sipxpbx.bin.dir@" property="sipxpbx.bin.dir"/>
             <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
             <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
             <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
@@ -90,8 +93,10 @@
 	<target name="default" depends="jar"/>
     
     <target name="compile.rmi" depends="compile">
-    	<rmic base="${classes.dir}" includes="**/AliasServiceImpl.class" 
-            verify="yes" stubversion="1.2" classpathref="base.path" />
+    	<rmic base="${classes.dir}"
+            verify="yes" stubversion="1.2" classpathref="base.path">
+    		<include name="**/*ServiceImpl.class"/>	
+    	</rmic>
     </target>
 	
 	<!-- J A R -->

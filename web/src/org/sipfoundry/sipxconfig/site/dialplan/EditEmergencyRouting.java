@@ -33,6 +33,8 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
 
     public abstract EmergencyRouting getEmergencyRouting();
 
+    public abstract void setEmergencyRouting(EmergencyRouting emergencyRouting);
+
     public abstract ListEditMap getExceptionsMap();
 
     public abstract void setExceptionsMap(ListEditMap map);
@@ -41,6 +43,10 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
 
     public void pageBeginRender(PageEvent event_) {
         EmergencyRouting emergencyRouting = getEmergencyRouting();
+        if (emergencyRouting == null) {
+            emergencyRouting = getDialPlanManager().getEmergencyRouting();
+            setEmergencyRouting(emergencyRouting);
+        }
         Collection exceptions = emergencyRouting.getExceptions();
         ListEditMap map = new ListEditMap();
         for (Iterator i = exceptions.iterator(); i.hasNext();) {
@@ -86,5 +92,4 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
                 .getServiceParameters(), 0);
         getEmergencyRouting().removeException(id);
     }
-
 }

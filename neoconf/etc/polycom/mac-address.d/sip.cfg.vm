@@ -94,7 +94,9 @@
 	<logging>
 		<level>
 			<change 
-			log.level.change.sip="4" log.level.change.sip.obs="5"
+#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('sip'))  			
+			log.level.change.sip="$!{group.getSetting('level.change.sip').Value}" 
+			log.level.change.sip.obs="5"
 			/>
 		</level>
 	</logging>

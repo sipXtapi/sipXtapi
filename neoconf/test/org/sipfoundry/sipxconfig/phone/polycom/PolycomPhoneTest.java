@@ -53,7 +53,7 @@ public class PolycomPhoneTest extends TestCase {
 		String expected = "NOTIFY sip:juser@sipfoundry.org SIP/2.0\r\n" 
 				+ "Via: [VIA]\r\n"
 				+ "From: [SERVER_URI]\r\n" 
-				+ "To: sip:juser@sipfoundry.org\r\n"
+				+ "To: \"Joe User\"<sip:juser@sipfoundry.org>\r\n"
 				+ "Event: check-sync\r\n" 
 				+ "Date: [DATE]\r\n" 
 				+ "Call-ID: [CALL_ID]\r\n"

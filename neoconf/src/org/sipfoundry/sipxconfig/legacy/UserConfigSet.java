@@ -60,7 +60,9 @@ public class UserConfigSet extends ConfigSet {
             Element permElem = (Element) i.next();
             String status = permElem.getText();
             Boolean enabled = Boolean.valueOf("ENABLE".equalsIgnoreCase(status));
-            Permission permission = Permission.getEnum(permElem.getName());
+            String name = permElem.getName();
+            // remove leading underscore characters before changing to permission name
+            Permission permission = Permission.getEnum(name.replaceAll("^_*", ""));
             allPermissions.put(permission, enabled);
         }
         return allPermissions;
@@ -94,6 +96,6 @@ public class UserConfigSet extends ConfigSet {
      */
     public String getClearTextPassword() {
         Document profile = getDocument();
-        return profile.valueOf("//PROFILE/line1[@ref_property_id=128]/container/line1_password/text()");
+        return profile.valueOf("//PROFILE/line1[position()=1]/container/line1_password/text()");
     }
 }

@@ -50,6 +50,15 @@
     
     <!-- emergency specific -->
 
+    <component id="pstnPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.pstnPrefix"/>
+    </component>
+    <component id="pstnPrefix" type="ValidField">
+        <binding name="value" expression="rule.optionalPrefix"/>
+        <binding name="validator" expression="global.validPhone"/>
+        <static-binding name="displayName" value="PSTN prefix"/>
+    </component>
+    
     <component id="emergencyNumberLabel" type="FieldLabel">
         <binding name="field" expression="components.emergencyNumber"/>
     </component>

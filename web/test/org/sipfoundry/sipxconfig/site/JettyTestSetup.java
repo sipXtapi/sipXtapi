@@ -32,7 +32,7 @@ public class JettyTestSetup extends TestSetup {
     static {
         // shows which URLs were accessed among other diagnotics
         // but slows down testing.
-        //System.setProperty("DEBUG", "true");
+        // System.setProperty("DEBUG", "true");
     }
 
     public JettyTestSetup(Test test) {
@@ -44,30 +44,32 @@ public class JettyTestSetup extends TestSetup {
     }
 
     /**
-     * "Leaks" the web server on purpose, but does gracefully shutdown 
-     * server when JVM shutsdown.  First test will start server, subsequent
-     * tests will use shared server instance.
+     * "Leaks" the web server on purpose, but does gracefully shutdown server when JVM shutsdown.
+     * First test will start server, subsequent tests will use shared server instance.
      */
     protected void setUp() throws Exception {
         if (m_server == null) {
             startServer();
         }
     }
-    
+
     protected void startServer() throws Exception {
         m_server = new Server();
         m_server.addListener(new InetAddrPort(m_port));
 
         String war = SiteTestHelper.getBuildDirectory() + "/tests/war";
         m_server.addWebApplication("/sipxconfig", war);
+        m_server.addRealm(new JettyUserRealm());
         m_server.start();
     }
-    
+
     /**
      * If you want to run sipXconfig in jetty w/o any tests
      */
     public static void main(String[] args) {
-        TestCase notest = new TestCase() {};
+        TestCase notest = new TestCase() {
+            // empty
+        };
         JettyTestSetup jetty = new JettyTestSetup(notest);
         try {
             jetty.startServer();

@@ -1,6 +1,13 @@
 include $(top_builddir)/config/sipXcommon.mak
 
 include $(srcdir)/config/sipXprojtop.mak
+# Append to global search/replace with _very_ project specific search/replaces
+edit = $(LocalizeSipXconfig) \
+    -e 's,@CLOVER_JAR\@,@CLOVER_JAR@,g' \
+    -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
+    -e 's,@JBOSS_SERVER_CONF\@,@JBOSS_SERVER_CONF@,g' \
+    -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
+
 
 if SIPAGENT
 SIPAGENT_OPT = sipagent-jni
@@ -38,7 +45,7 @@ EXTRA_DIST = \
 BUILT_SOURCES = config.properties
 
 config.properties : config.properties.in Makefile $(top_srcdir)/top.build.dir
-	$(LocalizeSipXconfig) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
+	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
 
 # This sets the default build dir to the last directory that called
 # configure shell script.  This allows 'ant' to be called from any directory

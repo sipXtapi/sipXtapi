@@ -28,7 +28,12 @@
         type="org.apache.tapestry.IActionListener"
         required="yes"
         direction="in">
-    </parameter>
+    </parameter>    
+    <parameter name="settingRenderer"
+        type="org.sipfoundry.sipxconfig.setting.SettingRenderer"
+        required="yes"
+        direction="in">
+    </parameter>    
     <property-specification name="currentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting">
     </property-specification>
@@ -45,7 +50,10 @@
         <binding name="source" expression="flattenedSettings"/>
         <binding name="value" expression="currentSetting"/>
     </component>
-    <component id="settingLabel" type="Insert">
+    <component id="settingLabel" type="Any">
+        <binding name="for" expression="'setting:' + currentSetting.name"/>
+    </component>
+    <component id="settingLabelText" type="Insert">
         <binding name="value" expression="currentSetting.label"/>
     </component>
     <component id="groupLabel" copy-of="settingLabel"/>
@@ -54,7 +62,9 @@
     </component>    
     <component id="setting" type="TextField">
         <binding name="value" expression="currentSetting.value"/>
-    </component>
+        <binding name="hidden" expression="currentRenderProperties.password"/>
+        <binding name="id" expression="'setting:' + currentSetting.name"/>
+    </component>    
     <component id="settingDescription" type="Insert">
         <binding name="value" expression="currentSetting.description"/>
     </component>

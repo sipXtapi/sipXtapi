@@ -50,7 +50,7 @@ function getFrameLocation(){
 <table width="600">
     <tr>
         <td width="50%" align="left">
-            <h1 class="list">Operate Services</h1>
+            <h1 class="list">Servers</h1>
         </td>
         <td width="50%" align="right">
             <a href="#" onclick="window.parent.MM_openBrWindow('/pds/commserver/help/commserver/WebHelp/operate_services.htm','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')" class="formtext">Help</a>

@@ -72,14 +72,16 @@ h1.dms {
 }
 hr.dms {
 	color: #669999;
-; font-size: 9px; line-height: normal
+	background-color: #669999;
+	height: 2px;
+	border: 0;
 }
 .formtitle {
-	 font-family: Verdana, Arial, Helvetica, sans-serif;
-	 font-size: 18px;
-	 font-weight: bold;
-	 color: #669999;
-	background-color : #FFFFCC;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 24px;
+	font-weight: bolder;
+	color: #669999;
+	background-color : transparent;
 }
 body.bgdark {
 	background-color: #669999

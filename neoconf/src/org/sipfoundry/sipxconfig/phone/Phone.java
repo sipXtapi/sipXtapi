@@ -45,4 +45,8 @@ public interface Phone {
 
     /** implementation need to declare they implement PrimaryKeySource */
     public Object getPrimaryKey();
+    
+    public void setPhoneContext(PhoneContext phoneContext);
+    
+    public PhoneContext getPhoneContext();
 }

@@ -89,6 +89,12 @@ public class DataCollectionUtilTest extends TestCase {
         assertEquals(new Integer(30), items[31].getPrimaryKey());
         assertEquals(new Integer(31), items[30].getPrimaryKey());
     }
+    
+    public void testExtractPrimaryKeys() {
+        Collection c = DataCollectionUtil.extractPrimaryKeys(m_items);
+        Integer[] pks = (Integer[]) c.toArray(new Integer[0]);
+        Arrays.equals(m_primaryKeys, pks);
+    }
 
     public void testUpdatePositions() {
         Collections.reverse(m_items);

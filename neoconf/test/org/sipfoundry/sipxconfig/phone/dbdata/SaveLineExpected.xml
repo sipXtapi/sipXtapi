@@ -3,8 +3,8 @@
 <dataset>
     <line 
 		line_id="[line_id]" 
-		folder_id="2"
-		phone_id="1"
+		folder_id="1001"
+		phone_id="1000"
 		position="0" 
 		user_id="4"
 		storage_id="[null]"/> 

@@ -3,6 +3,7 @@
 <%@ taglib uri="xtags" prefix="xslxtags" %>
 <%@ page import="com.pingtel.commserver.utility.GlobalConfigUIHelper" %>
 <%@ page import="com.pingtel.commserver.utility.ErrorMessageBuilder" %>
+<%@ page import="com.pingtel.pds.pgs.jsptags.util.XtagXslTagReplacement" %>
 <%@ page import="java.io.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="java.net.URLEncoder" %>
@@ -64,6 +65,9 @@
     // find the definitionlist and put it in the session
     String definitionList = helper.getDefinitionList( generatedxml );
     session.setAttribute("definitionlist", definitionList);
+    
+    File path = new File(request.getRealPath(request.getServletPath())).getParentFile();
+    String xslFile = new File(path, "xslt/globaldefinitions.xslt").getPath();
 %>
 <html>
     <head>
@@ -74,8 +78,6 @@
         <script src="script/jsFunctions.js"></script>
   </head>
    <body class="bglight" onLoad="MM_preloadImages('../image/del.gif');MM_goToURL('top.frames[\'command\']','command/globalconfig_cmd.html');populateFormFields();" onunload="checkSaveFlag('globalconfig')">
-        <xslxtags:style xsl="xslt/globaldefinitions.xslt">
-            <%= generatedxml %>
-        </xslxtags:style>
+        <%= XtagXslTagReplacement.style(generatedxml, xslFile, null) %>
    </body>
 </html>

@@ -4,8 +4,14 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
-    <h2>Dial Plan Configuration</h2>
+    <h2>Dial Plans</h2>
     <div class="help">
+        <p>Dial plan consist of dial rules of various types. 
+            You can configure Dial Plan by adding, removing, editing or reordering the rules. 
+            It is possible to have more than one rule of each kind.</p>
+		<p>Rule order matters: make sure that more specific rules proceed more general rules. 
+            For example, move Long Distance rules for specified area codes above the default Long Distance rule.
+        </p>
 		<b>Quick Links</b>
 		<ul>
 			<li><a jwcid="gatewaysLink" href="#">Gateways</a></li>
@@ -47,7 +53,7 @@
 				<input type="submit" jwcid="moveDown" id="dialplan:move:down" value="Move down"/>
 			</li>
 		</ul>
-	    <h2>Dial Plan Activation</h2>
+	    <h3>Dial Plan Activation</h3>
 		<ul class="component-submit">
 			<li>
 				<input type="submit" jwcid="activate" id="dialplan:activate" value="Activate"/>

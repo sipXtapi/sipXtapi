@@ -11,89 +11,86 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.Arrays;
-import java.util.Iterator;
-
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 
 
 public class JobManagerTest extends TestCase {
-    
-    public void testRestart() throws Exception {
-        MockControl control = MockControl.createStrictControl(Phone.class);
-        Phone phone = (Phone) control.getMock(); 
-        phone.restart();
-        control.setVoidCallable(1001);
-        control.replay();
         
-        JobManager jmgr = new JobManager();
-        jmgr.restart(createPhones(phone, 1001));        
-        jmgr.join();
-        
-        control.verify();
-    }
-    
-    private Iterator createPhones(Phone phone, int size) {
-        Phone[] phones = new Phone[size];
-        Arrays.fill(phones, phone);
-        return Arrays.asList(phones).iterator();
-    }
-    
     public void testGenerateProfiles() throws Exception {
-        MockControl control = MockControl.createStrictControl(Phone.class);
-        Phone phone = (Phone) control.getMock(); 
-        phone.generateProfiles();
-        control.setVoidCallable(1001);
-        control.replay();
+        PhoneData phoneData = new PhoneData();
+        phoneData.setSerialNumber("000000000000");
         
-        JobManager jmgr = new JobManager();
-        jmgr.generateProfiles(createPhones(phone, 1001));        
-        jmgr.join();
+        MockControl phoneControl = MockControl.createStrictControl(Phone.class);
+        Phone phone = (Phone) phoneControl.getMock();
+        phoneControl.expectAndReturn(phone.getPhoneData(), phoneData);
+        phone.generateProfiles();        
+        phoneControl.setVoidCallable(1);
+        phone.restart();
+        phoneControl.setVoidCallable(1);
+        phoneControl.replay();
+
+        JobRecord job = new JobRecord();
+        job.setPhones(new Phone[] {phone});        
+
+        MockControl phoneContextControl = MockControl.createControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextControl.getMock();
+        job.setType(JobRecord.TYPE_PROJECTION);
+        phoneContext.storeJob(job);
+        phoneContextControl.setVoidCallable(4);
+        phoneContextControl.replay();                               
+
+        JobManagerImpl mgr = new JobManagerImpl();
+        mgr.setPhoneContext(phoneContext);        
+        mgr.runJob(job);
         
-        control.verify();
+        assertNotNull(job.getProgress());
+        assertNotNull(job.getDetails());
+        assertNull(job.getExceptionMessage());
+        
+        phoneControl.verify();
+        phoneContextControl.verify();        
     }
     
-    /** 
-     * Make sure phone doesn't try to restart if it didn't generate profiles
-     */
-    public void testGenerateProfilesAndRestart() throws Exception {
-        MockControl control = MockControl.createStrictControl(Phone.class);
-        Phone phone = (Phone) control.getMock(); 
-        phone.generateProfiles();
+    public void testRestartException() throws Exception {
+        PhoneData phoneData = new PhoneData();
+        phoneData.setSerialNumber("000000000000");
+        
+        MockControl phoneControl = MockControl.createStrictControl(Phone.class);
+        Phone phone = (Phone) phoneControl.getMock();
+        phoneControl.expectAndReturn(phone.getPhoneData(), phoneData);
         phone.restart();
-        phone.generateProfiles();
-        control.setThrowable(new RuntimeException("MOCK TEST"), 1);
-        control.expectAndReturn(phone.getPhoneData(), new PhoneData());
-        control.replay();
+        phoneControl.setVoidCallable(1);
+        phoneControl.replay();
+
+        JobRecord job = new JobRecord();
+        job.setPhones(new Phone[] {phone});        
+
+        MockControl phoneContextControl = MockControl.createControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextControl.getMock();
+        job.setType(JobRecord.TYPE_DEVICE_RESTART);
+        phoneContext.storeJob(job);
+        phoneContextControl.setVoidCallable(4);
+        phoneContextControl.replay();                               
+
+        JobManagerImpl mgr = new JobManagerImpl();
+        mgr.setPhoneContext(phoneContext);        
+        mgr.runJob(job);
         
-        JobManager jmgr = new JobManager();
-        jmgr.generateProfilesAndRestart(createPhones(phone, 2));        
-        jmgr.join();
+        assertNotNull(job.getProgress());
+        assertNotNull(job.getDetails());
+        assertNull(job.getExceptionMessage());
         
-        control.verify();
+        phoneControl.verify();
+        phoneContextControl.verify();        
     }
-
-    public void testCustomJob() throws Exception {
-        MockControl control = MockControl.createStrictControl(Phone.class);
-        Phone phone = (Phone) control.getMock(); 
-        control.expectAndReturn(phone.getPhoneData(), new PhoneData(), 5);
-        control.replay();
-        
-        MockControl jobControl = MockControl.createStrictControl(PhoneJob.class);
-        PhoneJob job = (PhoneJob) jobControl.getMock();
-        job.operate(phone);
-        jobControl.setThrowable(new RuntimeException("MOCK TEST"), 5);
-        jobControl.setVoidCallable(5);
-        jobControl.replay();
-
-        JobManager jmgr = new JobManager();
-        jmgr.startJob(createPhones(phone, 10), job);        
-        jmgr.join();
-        
-        jobControl.verify();
-        control.verify();
-        assertEquals(5, jmgr.getExceptions().length);
+    
+    public void testStartStop() throws Exception {        
+        JobManagerImpl mgr = new JobManagerImpl();
+        JobQueue queue = new JobQueue();        
+        mgr.setJobQueue(queue);
+        mgr.finishProcessingJobs();
+        assertTrue(queue.isEmpty());
     }
 }

@@ -11,19 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.ArrayList;
 import java.util.Collection;
-
-import org.apache.commons.collections.set.ListOrderedSet;
 
 /**
  * EmergencyRouting
  */
 public class EmergencyRouting {
-    private boolean m_enabled;
     private Gateway m_defaultGateway;
     private String m_externalNumber;
 
-    private Collection m_exceptions = new ListOrderedSet();
+    private Collection m_exceptions = new ArrayList();
 
     public void addException(RoutingException exception) {
         m_exceptions.add(exception);
@@ -44,14 +42,6 @@ public class EmergencyRouting {
 
     public void setDefaultGateway(Gateway defaultGateway) {
         m_defaultGateway = defaultGateway;
-    }
-
-    public boolean isEnabled() {
-        return m_enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        m_enabled = enabled;
     }
 
     public Collection getExceptions() {

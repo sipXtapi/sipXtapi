@@ -180,16 +180,16 @@ public class BaseEJB {
 
 
 
-    protected final String getPGSProperty ( String propertyName ) {
-        return BaseEJB.m_pgsProperties.getProperty( propertyName );
+    public final static String getPGSProperty ( String propertyName ) {
+        return m_pgsProperties.getProperty( propertyName );
     }
 
-    protected final String getPGSProperty ( String propertyName, String defaultValue) {
-        return BaseEJB.m_pgsProperties.getProperty( propertyName, defaultValue );
+    public final static String getPGSProperty ( String propertyName, String defaultValue) {
+        return m_pgsProperties.getProperty( propertyName, defaultValue );
     }
     
-    protected final Object setPGSProperty ( String propertyName, String value) {
-        return BaseEJB.m_pgsProperties.setProperty( propertyName, value );
+    protected final static Object setPGSProperty ( String propertyName, String value) {
+        return m_pgsProperties.setProperty( propertyName, value );
     }
 
     protected String getEnvEntry ( String envEntryName ) {

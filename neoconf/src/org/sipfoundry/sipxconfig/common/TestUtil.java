@@ -81,6 +81,8 @@ public final class TestUtil {
             String outputDirectory) {
         Properties sysProps = new Properties();
 
+        // HACK: sysdir.bin is not a real directory when testing
+        sysProps.setProperty("sysdir.bin", "/opt/work-2.8/sipx/bin/");
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
         sysProps.setProperty("sysdir.phone", outputDirectory);

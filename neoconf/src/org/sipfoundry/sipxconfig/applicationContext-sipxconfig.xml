@@ -34,9 +34,7 @@
 		<property name="username">
 			<value>postgres</value>
 		</property>
-	</bean>
-    
-    
+	</bean>    
 	<!--
        - T R A N S A C T I O N  S U P P O R T
        -->
@@ -153,7 +151,16 @@
 				<value>legacyContextImpl</value>
 			</list>
 		</property>        
-    </bean>      
+    </bean>
+      
+	<!-- 
+      - B A C K U P   C O N T E X T           
+      -->
+	<bean id="backupContext" class="org.sipfoundry.sipxconfig.admin.BackupContextImpl">
+        <constructor-arg index="0" type="java.lang.String">
+            <value>${sysdir.bin}</value>         
+        </constructor-arg>
+	</bean>
       
 	<!--
       - F O R W A R D I N G  C O N T E X T
@@ -186,17 +193,39 @@
 	  - S I P 
 	  -->
 	<bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl"/>
+	<bean id="jobQueue" class="org.sipfoundry.sipxconfig.phone.JobQueue" singleton="true"/>
+	<bean id="jobManager" 
+		class="org.sipfoundry.sipxconfig.phone.JobManagerImpl">
+		<property name="phoneContext">
+			<ref bean="phoneContext"/>
+		</property>
+		<property name="jobQueue">
+			<ref bean="jobQueue"/>
+		</property>
+	</bean>
 	<!--
       - P H O N E  C O N T E X T   I M P L
       -->
 	<bean id="phoneContextImpl" 
 		class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
+		<property name="coreContext">
+			<ref local="coreContext"/>
+		</property>
+        <property name="legacyContext">
+            <ref bean="legacyContext"/>
+        </property>
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>
 		</property>
         <property name="settingDao">
             <ref bean="settingDaoImpl"/>            
         </property>
+		<property name="jobQueue">
+			<ref bean="jobQueue"/>
+		</property>
+		<property name="systemDirectory">
+			<value>${sysdir.etc}</value>
+		</property>                
 		<property name="phoneFactoryIds">
 			<map>
 				<entry key="polycom300">
@@ -208,6 +237,10 @@
 				<entry key="polycom600">
 					<value>Polycom SoundPoint IP 600</value>
 				</entry>
+				<!-- don't put kphone in, it's only an example phone -->
+				<!--entry key="kphone">
+					<value>KPhone 4.1</value>
+				</entry-->
 			</map>
 		</property>
 	</bean>
@@ -230,22 +263,14 @@
 	  - P H O N E  M O D E L S
 	  - hoping to move this external file for end user modification
 	  -->
+	<bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false">  
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+	</bean>
+	<bean id="kphoneLine" class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" singleton="false"/>  
 	<!-- POLYCOM -->
-	<bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomSupportImpl">
-		<property name="coreContext">
-			<ref local="coreContext"/>
-		</property>
-        <property name="legacyContext">
-            <ref bean="legacyContext"/>
-        </property>
-		<property name="systemDirectory">
-			<value>${sysdir.etc}</value>
-		</property>                
-    </bean>		
 	<bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false">
-		<property name="polycom">
-			<ref bean="polycom"/>
-		</property>
 		<property name="velocityEngine">
 			<ref bean="velocityEngine"/>
 		</property>
@@ -258,6 +283,7 @@
 	</bean>
 	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
 	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
+	<bean id="polycomLine" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomLine" singleton="false"/>
 	
 	<!--
 	  - D I A L   P L A N S
@@ -296,9 +322,12 @@
         <property name="enabled">
         	<value>true</value>
         </property>
+		<property name="optionalPrefix">
+			<value>9</value>
+		</property>
         <property name="emergencyNumber">
         	<value>911</value>
-        </property>        
+        </property>
     </bean>
 
     <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" singleton="false">

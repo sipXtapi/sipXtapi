@@ -11,12 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
+import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
@@ -40,8 +46,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  */
 public class AuthRules extends XmlFile implements ConfigFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00";
+    private static final String NO_ACCESS_RULE = "Reject all other calls to the gateways"
+            + " that are not handled by the earlier rules";
 
     private Document m_doc;
+    private Set m_gateways = new HashSet();
 
     public AuthRules() {
         m_doc = FACTORY.createDocument();
@@ -63,6 +72,7 @@ public class AuthRules extends XmlFile implements ConfigFile {
             Gateway gateway = (Gateway) i.next();
             Element hostPattern = hostMatch.addElement("hostPattern");
             hostPattern.setText(gateway.getAddress());
+            m_gateways.add(gateway);
         }
         Element userMatch = hostMatch.addElement("userMatch");
         String[] patterns = rule.getPatterns();
@@ -81,5 +91,19 @@ public class AuthRules extends XmlFile implements ConfigFile {
 
     public Document getDocument() {
         return m_doc;
+    }
+
+    void generateNoAccess(List gateways) {
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setName(NO_ACCESS_RULE);
+        rule.setGateways(gateways);
+        rule.setPermissions(Collections.singletonList(Permission.NO_ACCESS));
+        DialPattern matchAll = new DialPattern(".", 0);
+        rule.setDialPatterns(Collections.singletonList(matchAll));
+        generate(rule);
+    }
+
+    public void end() {
+        generateNoAccess(new ArrayList(m_gateways));
     }
 }

@@ -136,10 +136,11 @@ public class X_SetUsersPasswordTag extends ExTagSupport {
             // I recommend caution changing this code.
             //
             ////////////////////////////////////////////////////////////////////////////
+            
             MBeanServer server = (MBeanServer)
                 MBeanServerFactory.findMBeanServer(null).iterator().next();
 
-            ObjectName jaasMgr = new ObjectName("Security:name=JaasSecurityManager");
+            ObjectName jaasMgr = new ObjectName("jboss.security:service=JaasSecurityManager");
             Object[] params = {"other"};
             String[] signature = {"java.lang.String"};
             server.invoke(jaasMgr, "flushAuthenticationCache", params, signature);

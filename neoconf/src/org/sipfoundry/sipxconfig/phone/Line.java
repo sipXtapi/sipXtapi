@@ -27,9 +27,9 @@ public interface Line extends DataCollectionItem {
 
     public LineData getLineData();
 
-    public Setting getSettingModel();
-
     public Setting getSettings();
+    
+    public Setting getSettingModel();
     
     public String getUri();
     

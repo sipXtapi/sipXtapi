@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -74,7 +75,9 @@ public final class TestHelper {
     }
 
     public static String getTestDirectory() {
-        return getClasspathDirectory() + "/test-output";
+        File f = new File(getClasspathDirectory() + "/test-output");
+        f.mkdirs();
+        return f.getPath();
     }
 
     public static Properties getSysDirProperties() {

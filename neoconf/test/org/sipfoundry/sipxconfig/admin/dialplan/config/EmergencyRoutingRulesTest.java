@@ -58,7 +58,6 @@ public class EmergencyRoutingRulesTest extends XMLTestCase {
         g4.setUniqueId();
         g4.setAddress("10.2.3.4");
         m_routing.setDefaultGateway(g4);
-        m_routing.setEnabled(true);
         m_routing.setExternalNumber("919");
     }
 

@@ -3,6 +3,7 @@
 <%@ taglib uri="xtags" prefix="xslxtags" %>
 <%@ page import="com.pingtel.commserver.utility.ServerConfigUIHelper" %>
 <%@ page import="com.pingtel.commserver.utility.ErrorMessageBuilder" %>
+<%@ page import="com.pingtel.pds.pgs.jsptags.util.XtagXslTagReplacement" %>
 <%@ page import="java.io.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="java.net.URLEncoder" %>
@@ -43,6 +44,11 @@
         String secondpart = generatedxml.substring(index);
         generatedxml = firstpart + message + secondpart ;
     }
+
+    File path = new File(request.getRealPath(request.getServletPath())).getParentFile();
+    String xslFile = new File(path, "xslt/serverconfig.xslt").getPath();
+    Map params = new HashMap();
+    params.put("servername", servername);
 %>
 <html>
     <head>
@@ -93,9 +99,6 @@
        %>
    </head>
    <body class="bglight" onLoad="MM_goToURL('top.frames[\'command\']','command/serverconfig_cmd.jsp?servername=<%=servername%>');populateFormFields();" onunload="checkSaveFlag('serverconfig')">
-        <xslxtags:style xsl="xslt/serverconfig.xslt">
-            <xslxtags:param name="servername" value="<%= servername %>"/>
-            <%= generatedxml %>
-        </xslxtags:style>
+       <%= XtagXslTagReplacement.style(generatedxml, xslFile, params) %>
    </body>
 </html>

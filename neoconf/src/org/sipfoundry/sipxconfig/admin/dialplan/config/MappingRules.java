@@ -93,4 +93,8 @@ public class MappingRules extends XmlFile implements ConfigFile {
             transform.addToParent(permissionMatch);
         }
     }
+
+    public void end() {
+        // do nothing
+    }
 }

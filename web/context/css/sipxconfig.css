@@ -1,5 +1,6 @@
 /*  Legacy colors
  *    #699  - faded green
+ *    #669999 - yet another faded green 
  *    #ffc  - faded yellow
  *    #F0E68C - slightly darker, ugly yellow used as background in tables and forms
  */
@@ -19,12 +20,24 @@ h2 {
 	font-family : Arial, Helvetica, sans-serif;
 	font-size : 24px;
 	font-weight: bolder;
-	color: #699;
-	border-bottom : groove;
-	width: 30em;
+	color: #669999;
+	width: 23em;
+	padding-bottom: 0.5em;
+	background-color: transparent;
+	border-bottom: solid;
+	border-bottom-width: 2px;
 }
 
-h3 { font: 120% }
+/*
+ * Legacy h3 header
+ */	
+h3 { 
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bolder;
+	color: #669999;
+	background-color : transparent;	
+}
 h4 { font: bold 100% }
 h5 { font: italic 100% }
 h6 { font: small-caps 100% }

@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 /**
  * EditCustomeDialRule
@@ -85,6 +86,10 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     public void addGateway(IRequestCycle cycle) {
+        if (!isValid()) {
+            return;
+        }
+        saveValid();
         EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
         Integer id = getRuleId();
         editGatewayPage.setRuleId(id);
@@ -94,15 +99,19 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     public void selectGateway(IRequestCycle cycle) {
-        SelectGateways selectGatewayPage = (SelectGateways) cycle.getPage(SelectGateways.PAGE);
+        if (!isValid()) {
+            return;
+        }
+        saveValid();
         Integer id = getRuleId();
+        SelectGateways selectGatewayPage = (SelectGateways) cycle.getPage(SelectGateways.PAGE);
         selectGatewayPage.setRuleId(id);
         selectGatewayPage.setNextPage(cycle.getPage().getPageName());
         cycle.activate(selectGatewayPage);
     }
 
     private boolean isValid() {
-        IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
+        IValidationDelegate delegate = TapestryUtils.getValidator(this);
         AbstractComponent component = (AbstractComponent) getComponent("common");
         StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
                 .getBean("descriptionValidator");
@@ -112,22 +121,22 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     public void save(IRequestCycle cycle) {
         if (isValid()) {
-            saveValid(cycle);
+            saveValid();
             cycle.activate(EditFlexibleDialPlan.PAGE);
         }
     }
 
-    private void saveValid(IRequestCycle cycle_) {
+    private void saveValid() {
         FlexibleDialPlanContext plan = getDialPlanManager().getFlexDialPlan();
         DialingRule rule = getRule();
         plan.storeRule(rule);
+        Integer id = getRule().getId();
+        setRuleId(id);
     }
 
     /**
      * Handles removing gateways on submit.
      * 
-     * Emergency property is set by Remove submit buttons. If it's not set at all none of this
-     * buttong has been pressed and we have nothing to do.
      */
     private void removeGateways() {
         String removeGateways = getRemoveGateways();
@@ -136,11 +145,14 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         }
         GatewayTable table = (GatewayTable) getComponent("gatewayTable");
         Collection selectedGateways = table.getSelections().getAllSelected();
-        // remove normal gateways
         getRule().removeGateways(selectedGateways);
+        saveValid();
     }
 
     public void formSubmit(IRequestCycle cycle_) {
+        if (!isValid()) {
+            return;
+        }
         removeGateways();
     }
 }

@@ -17,5 +17,14 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * ConfigFile
  */
 public interface ConfigFile {
+    /**
+     * Called for each enabled rule
+     * @param rule
+     */
     public abstract void generate(IDialingRule rule);
+    
+    /**
+     * Called after the last rule
+     */
+    public abstract void end();
 }

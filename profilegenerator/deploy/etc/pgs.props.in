@@ -1,6 +1,7 @@
 sds.rmi.url = rmi://localhost:2001/SDSProfileListener
 profilewriter.rmi.url = rmi://localhost:2001/ProfileWriter
 forwardingaliasservice.rmi.url = rmi://localhost:2001/ForwardingAliasService
+legacynotifyservice.rmi.url = rmi://localhost:2001/LegacyNotifyService
 # change the value of mediaserver.host to be the name
 # of machine which runs the media server
 mediaserver.host = https://${MY_FULL_HOSTNAME}:${MEDIA_SERVER_HTTPS_PORT}

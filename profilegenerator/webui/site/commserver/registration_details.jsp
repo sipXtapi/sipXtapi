@@ -77,7 +77,7 @@ div.nav{
 <table width="600">
     <tr>
         <td width="50%" align="left">
-            <h1 class="list">Active Registrations</h1>
+            <h1 class="list">Registrations</h1>
         </td>
         <td width="50%" align="right">
             <a href="#" onclick="window.parent.MM_openBrWindow('/pds/commserver/help/commserver/WebHelp/configsrvr.htm#dial_plans.htm','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')" class="formtext">Help</a>

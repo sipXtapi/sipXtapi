@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="test/" kind="src" path="authentication/src"/>
+	<classpathentry kind="src" path="webui/src/test"/>
 	<classpathentry kind="src" path="authentication/src/test"/>
 	<classpathentry excluding="test/" kind="src" path="commserver/src"/>
 	<classpathentry kind="src" path="commserver/src/test"/>
 	<classpathentry excluding="test/" kind="src" path="ejb/src"/>
 	<classpathentry kind="src" path="ejb/src/test"/>
 	<classpathentry kind="src" path="soap/src"/>
-	<classpathentry kind="src" path="webui/src"/>
+	<classpathentry excluding="test/" kind="src" path="webui/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/dom4j-1.5.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
@@ -26,5 +27,6 @@
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-system-client.jar"/>
 	<classpathentry kind="src" path="/sipXconfig-common"/>
 	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/taglibs-xtags.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

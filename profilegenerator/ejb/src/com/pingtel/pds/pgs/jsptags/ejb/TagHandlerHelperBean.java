@@ -1528,8 +1528,9 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
 
         Element organization = new Element ( "organization" );
         Organization usersOrganization = mOrganizationHome.findByPrimaryKey( usersOrganizationID );
-        organization.addContent ( new Element ( "id").setText( usersOrganizationID.toString() ) );
-        organization.addContent ( new Element ( "dnsdomain").setText( usersOrganization.getDNSDomain() ) );
+        organization.addContent ( new Element ( "id" ).setText( usersOrganizationID.toString() ) );
+        organization.addContent ( new Element ( "dnsdomain" ).setText( usersOrganization.getDNSDomain() ) );
+        organization.addContent ( new Element ( "realm" ).setText( usersOrganization.getAuthenticationRealm() ) );
         return organization;
     }
 

@@ -42,6 +42,22 @@ public final class DataCollectionUtil {
     }
     
     /**
+     * Given a list of objects that know their primary keys, extract a collection
+     * of just primary keys
+     * 
+     * @param c collection of PrimaryKeySource objects
+     * @return collecion of primary keys
+     */
+    public static Collection extractPrimaryKeys(Collection c) {
+        ArrayList list = new ArrayList(c.size());
+        for (Iterator i = c.iterator(); i.hasNext();) {
+            list.add(((PrimaryKeySource) i.next()).getPrimaryKey());
+        }        
+        
+        return list;
+    }
+    
+    /**
      * Fixes position fields after a list manipluation such.
      */
     public static void updatePositions(Collection c) {

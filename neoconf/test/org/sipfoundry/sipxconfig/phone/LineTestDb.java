@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 
 /**
  * You need to call 'ant reset-db-patch' which clears a lot of data in your
@@ -45,7 +46,7 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
 
-        Phone phone = m_context.loadPhone(new Integer(1));
+        Phone phone = m_context.loadPhone(new Integer(1000));
         assertEquals(2, phone.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
@@ -57,7 +58,7 @@ public class LineTestDb extends TestCase {
 
         // reload data to get updated ids
         m_context.flush();
-        Phone reloadedPhone = m_context.loadPhone(new Integer(1));
+        Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
         Line reloadedThirdLine = reloadedPhone.getLine(2);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/AddLineExpected.xml"); 
@@ -75,7 +76,7 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
 
-        Phone phone = m_context.loadPhone(new Integer(1));
+        Phone phone = m_context.loadPhone(new Integer(1000));
         assertEquals(0, phone.getLines().size());
         User user = m_core.loadUserByDisplayId("testuser");
 
@@ -88,7 +89,7 @@ public class LineTestDb extends TestCase {
         
         // reload data to get updated ids
         m_context.flush();        
-        Phone reloadedPhone = m_context.loadPhone(new Integer(1));
+        Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
         Line reloadedLine = reloadedPhone.getLine(0);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveLineExpected.xml"); 
@@ -106,13 +107,13 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
         
-        Phone phone = m_context.loadPhone(new Integer(1));
+        Phone phone = m_context.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
         assertEquals(1, lines.size());        
         lines.clear();
         m_context.storePhone(phone);
         
-        Phone cleared = m_context.loadPhone(new Integer(1));
+        Phone cleared = m_context.loadPhone(new Integer(1000));
         assertEquals(0, cleared.getLines().size());        
     }
     
@@ -120,7 +121,7 @@ public class LineTestDb extends TestCase {
          TestHelper.cleanInsert("dbdata/ClearDb.xml");
          TestHelper.cleanInsertFlat("phone/dbdata/MoveLineSeed.xml");
 
-         Phone phone = m_context.loadPhone(new Integer(1));
+         Phone phone = m_context.loadPhone(new Integer(1000));
          Line l1 = phone.getLine(0);
          Object[] ids = new Object[] { l1.getPrimaryKey() };
          DataCollectionUtil.moveByPrimaryKey(phone.getLines(), ids, 1);
@@ -144,10 +145,10 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/DeleteLineWithSettingsSeed.xml");
         
-        Phone phone = m_context.loadPhone(new Integer(1));
+        Phone phone = m_context.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
         assertEquals(3, lines.size());
-        DataCollectionUtil.removeByPrimaryKey(lines, new Object[] {new Integer(2)});
+        DataCollectionUtil.removeByPrimaryKey(lines, new Object[] {new Integer(1001)});
         m_context.storePhone(phone);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/DeleteLineWithSettingsExpected.xml");
@@ -164,10 +165,9 @@ public class LineTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
         
-        Phone existingPhone = m_context.loadPhone(new Integer(1));
-        Phone newPhone = m_context.newPhone(existingPhone.getPhoneData().getFactoryId());
+        Phone newPhone = m_context.newPhone(PolycomModel.MODEL_600.getModelId());
         newPhone.getPhoneData().setSerialNumber("XXXX");
-        newPhone.getPhoneData().setFolder(existingPhone.getPhoneData().getFolder());
+        newPhone.getPhoneData().setFolder(m_context.loadRootPhoneFolder());
         m_context.storePhone(newPhone);
         Phone loadedPhone = m_context.loadPhone(newPhone.getPhoneData().getId());
         assertEquals(0, loadedPhone.getLines().size());        

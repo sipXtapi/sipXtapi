@@ -46,7 +46,9 @@ public class PhoneConfiguration extends ConfigurationFile {
 
         // copy in blank lines of all unused lines
         for (; i < phone.getMaxLineCount(); i++) {
-            PolycomLine line = new PolycomLine(getPhone(), new LineData());
+            PolycomLine line = new PolycomLine();
+            line.setPhone(phone);
+            line.setLineData(new LineData());
             line.getLineData().setPosition(i);
             linesSettings.add(line.getSettings());
         }

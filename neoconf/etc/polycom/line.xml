@@ -12,8 +12,7 @@
 			<label>User Address</label>
 			<type></type>
 			<value></value>
-			<description>user or user@domain. If only user is entered (e.g. 
-				'1002'), the implied domain will be the registration 
+			<description>user (e.g. '1002'), the implied domain will be the registration 
 				server.</description>
 		</setting>
 		<setting name="label">

@@ -66,7 +66,7 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointLineSeed.xml");
         
-        Phone p = m_context.loadPhone(new Integer(1));
+        Phone p = m_context.loadPhone(new Integer(1000));
         PhoneData e = p.getPhoneData();
         assertEquals("999123456", e.getSerialNumber());
         
@@ -88,14 +88,14 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
         
-        Phone p = m_context.loadPhone(new Integer(1));
+        Phone p = m_context.loadPhone(new Integer(1000));
         Setting setting = p.getSettings().getSetting("up").getSetting("headsetMode");
         String newValue = setting.getValue().equals("0") ? "1" : "0"; // toggle
         setting.setValue(newValue);
         m_context.storePhone(p);        
         m_context.flush();
         
-        Phone reloadPhone = m_context.loadPhone(new Integer(1));               
+        Phone reloadPhone = m_context.loadPhone(new Integer(1000));               
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/UpdateSettingsExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         ValueStorage vs = reloadPhone.getPhoneData().getValueStorage();

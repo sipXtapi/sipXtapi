@@ -23,4 +23,4 @@ install :
 	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) install
 
 check :
-	$(ANT_CMD) $(ANT_FLAGS) test
+	$(ANT_CMD) $(ANT_FLAGS) test style

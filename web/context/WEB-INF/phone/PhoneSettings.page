@@ -36,5 +36,6 @@
         <binding name="cancelListener" expression="listeners.cancel"/>
         <binding name="okListener" expression="listeners.ok"/>
         <binding name="applyListener" expression="listeners.apply"/>
+        <binding name="settingRenderer" expression="settingRenderer"/>
     </component>
 </page-specification>

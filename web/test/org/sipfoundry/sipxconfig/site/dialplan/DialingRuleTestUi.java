@@ -26,7 +26,7 @@ public class DialingRuleTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        beginAt("/");
+        SiteTestHelper.home(getTester());
         clickLink("resetDialPlans");
     }
 

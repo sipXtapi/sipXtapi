@@ -18,7 +18,10 @@ import java.util.List;
  * CoreContext
  */
 public interface CoreContext {
+    
     public static final String CONTEXT_BEAN_NAME = "coreContext";
+    
+    public static final Integer UNSAVED_ID = new Integer(-1);
 
     public Organization loadRootOrganization();
     

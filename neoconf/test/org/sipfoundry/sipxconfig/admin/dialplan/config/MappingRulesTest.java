@@ -107,6 +107,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         MappingRules mappingRules = new MappingRules();
         mappingRules.generate(rule);
+        mappingRules.end();
 
         Document document = mappingRules.getDocument();
 
@@ -131,6 +132,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         MappingRules mappingRules = new MappingRules();
         mappingRules.generate(rule);
+        mappingRules.end();
 
         Document document = mappingRules.getDocument();
         String domDoc = XmlUnitHelper.asString(document);

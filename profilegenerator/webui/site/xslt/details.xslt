@@ -1066,7 +1066,7 @@
 
 
             <xsl:for-each select="PRIMARY_LINE/CREDENTIAL">
-                <xsl:if test="REALM = /details/attributes/organization/dnsdomain">
+                <xsl:if test="REALM = /details/attributes/organization/realm">
                     <xsl:variable name="cid">
                         <xsl:value-of select="position()"/>
                     </xsl:variable>
@@ -1104,7 +1104,7 @@
             </xsl:for-each>
             <div id="insert_plcredential">
                 <xsl:for-each select="PRIMARY_LINE/CREDENTIAL">
-                    <xsl:if test="not(REALM = /details/attributes/organization/dnsdomain)">
+                    <xsl:if test="not(REALM = /details/attributes/organization/realm)">
                         <xsl:variable name="cid">
                             <xsl:value-of select="position()"/>
                         </xsl:variable>

@@ -72,6 +72,8 @@ public class DeviceTypeSelectTag extends ExTagSupport {
          Collection deviceTypes = m_deviceTypeHome.findAll();
          Iterator deviceTypeIterator = deviceTypes.iterator();
          com.pingtel.pds.pgs.phone.DeviceType m_deviceTypeProp;
+         m_dtBuffer.setLength(0);
+         m_rpBuffer.setLength(0);
          if( m_coreVersion.equalsIgnoreCase( "true" ) )
          {
 

@@ -53,7 +53,7 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
         
         return (User) requireOneOrZero(users, query);
     }
-        
+    
     public List loadUserByTemplateUser(User template) {
         try {
             // See a query building facade here, lot's of redundancy and areas for error. 

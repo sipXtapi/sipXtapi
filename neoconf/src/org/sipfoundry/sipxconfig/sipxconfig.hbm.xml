@@ -102,6 +102,19 @@
 		<property name="dnsDomain" column="dns_domain"/>
 		<property name="stereotype" column="stereotype"/>
 	</class>
+	<class name="org.sipfoundry.sipxconfig.phone.JobRecord" table="jobs">
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">job_seq</param>
+			</generator>
+		</id>
+		<property name="type" column="type"/>
+		<property name="status" column="status"/>
+		<property name="startTimeString" column="start_time"/>
+		<property name="details" column="details"/>
+		<property name="progress" column="progress"/>
+		<property name="exceptionMessage" column="exception_message"/>
+	</class>
 	<!-- 
 	- U S E R
 	-->

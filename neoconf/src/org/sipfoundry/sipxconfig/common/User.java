@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
 
-import org.sipfoundry.sipxconfig.phone.Credential;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
@@ -42,8 +41,6 @@ public class User implements PrimaryKeySource, Serializable {
     private String m_extension;
 
     private String m_profileEncryptionKey;
-
-    private Credential m_credential;
 
     public Integer getId() {
         return m_id;
@@ -100,6 +97,23 @@ public class User implements PrimaryKeySource, Serializable {
     public void setDisplayId(String displayId) {
         m_displayId = displayId;
     }
+    
+    public String getDisplayName() {
+        StringBuffer sb = new StringBuffer();
+        delimAppend(sb, m_firstName, ' ');            
+        delimAppend(sb, m_lastName, ' ');
+        
+        return sb.length() == 0 ? null : sb.toString();
+    }
+    
+    private void delimAppend(StringBuffer sb, String s, char delim) {
+        if (s != null) {
+            if (sb.length() != 0) {
+                sb.append(delim);                
+            }
+            sb.append(s);
+        }
+    }
 
     public String getExtension() {
         return m_extension;
@@ -123,21 +137,6 @@ public class User implements PrimaryKeySource, Serializable {
 
     public void setOrganization(Organization organization) {
         m_organization = organization;
-    }
-
-    public Credential getCredential() {
-        if (m_credential == null) {
-            m_credential = new Credential();
-            m_credential.setAuthId(getDisplayId());
-            m_credential.setPassword(getPassword());
-            m_credential.setRealm(m_organization.getDnsDomain());            
-        }
-        
-        return m_credential;
-    }
-
-    public void setCredential(Credential credential) {
-        m_credential = credential;
     }
 
     public Object getPrimaryKey() {

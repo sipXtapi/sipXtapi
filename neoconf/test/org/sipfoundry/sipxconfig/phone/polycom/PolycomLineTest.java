@@ -37,7 +37,7 @@ public class PolycomLineTest extends TestCase {
 
     public void testDefaultsNoUser() throws Exception {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        PolycomLine line = new PolycomLine(helper.phone[0], new LineData());
+        PolycomLine line = (PolycomLine) helper.phone[0].createLine(new LineData());
         Setting settings = line.getSettings();        
         assertEquals(Setting.NULL_VALUE, settings.getSetting("reg").getSetting("server")
                 .getSetting("1").getSetting("address").getValue());

@@ -50,6 +50,9 @@ public class ConfigGenerator {
             m_auth.generate(rule);
             m_fallback.generate(rule);
         }
+        m_mapping.end();
+        m_auth.end();
+        m_fallback.end();
     }
 
     /**

@@ -20,6 +20,7 @@ import java.io.Reader;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 
 public class SipConfigurationTest  extends XMLTestCase {
@@ -32,6 +33,11 @@ public class SipConfigurationTest  extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
         helper.plainSettingsSeed();
         
+        // settings selected at random, there are too many
+        // to test all.  select a few.
+        Setting endpointSettings = helper.phone[0].getSettings();
+        endpointSettings.getSetting("log").getSetting("sip").getSetting("level.change.sip").setValue("3");
+
         ConfigurationFile cfg = new ConfigurationFile(helper.phone[0]);
         
         cfg.setTemplate(helper.phone[0].getSipTemplate());

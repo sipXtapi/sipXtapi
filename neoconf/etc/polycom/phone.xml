@@ -534,8 +534,8 @@
 		<setting name="daylightSavings.start.dayOfWeek">
 			<type>7-Jan</type>
 			<value>1</value>
-			<description>Day of week to apply DST. 1=Sun, 2=Mon, ..., 
-				7=Sat</description>
+			<description>Day of week to apply DST. 1=Mon, 2=Tue, ..., 
+				7=Sun</description>
 		</setting>
 		<setting name="daylightSavings.start.dayOfWeek.lastInMonth">
 			<type>0, 10</type>
@@ -564,8 +564,8 @@
 		<setting name="daylightSavings.stop.dayOfWeek">
 			<type>7-Jan</type>
 			<value>1</value>
-			<description>Day of week to stop DST. 1=Sun, 2=Mon, ..., 
-				7=Sat</description>
+			<description>Day of week to stop DST. 1=Mon, 2=Tue, ..., 
+				7=Sun</description>
 		</setting>
 		<setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
 			<type>0, 1</type>
@@ -751,11 +751,13 @@
 					for the SIP component. These are the input filters for the 
 					internal memory-based log system.</description>
 			</setting>
-			<setting name="level.change.sip.obs">
+			<!--
+			  - XCF-284 No idea what this setting does so hesitant to expose it				
+				 setting name="level.change.sip.obs">
 				<type>0-5</type>
 				<value>5</value>
 				<description></description>
-			</setting>
+			</setting -->
 		</group>
 		<group name="render">
 			<label>Log Rendering</label>
