@@ -39,6 +39,7 @@ editdata :
 	echo ""
 
 EXTRA_DIST = \
+	 config/sipX-config.in \
     $(editdata_IN) \
     sipXauthproxy.dsp \
     sipXforkingProxy.dsp \
@@ -65,3 +66,6 @@ sipxproxy.spec : sipxproxy.spec.in
 dist-hook: sipxproxy.spec
 	cp sipxproxy.spec $(distdir)
 
+# record the configuration for the rpm doc directory
+install-data-hook:
+	cp config.log doc/${PACKAGE}.config
