@@ -38,6 +38,8 @@ profilegen-soap.jar=${top.build.dir}/profilegenerator/soap/dist/profilegen-soap.
 profilegen-tags.jar=${top.build.dir}/profilegenerator/webui/dist/profilegen-tags.jar
 buildVersion.properties=${top.build.dir}/common/dist/buildVersion.properties
 sipxconfig.war=${top.build.dir}/neoconf/dist/sipxconfig.war
+sipxconfig.jar=${top.build.dir}/neoconf/dist/sipxconfig.jar
+sipxconfig-tapestry.war=${top.build.dir}/web/dist/sipxconfig-tapestry.war
 beanRefFactory.xml=${top.dir}/neoconf/etc/beanRefFactory.xml
 # very optional
 sipfoundry.org.dir=@SIPFOUNDRY_ORG@

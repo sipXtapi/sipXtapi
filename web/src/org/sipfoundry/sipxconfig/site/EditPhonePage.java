@@ -14,28 +14,22 @@ package org.sipfoundry.sipxconfig.site;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
  */
-public class EditPhonePage extends BasePage {
+public class EditPhonePage extends AbstractPhonePage {
     
     /** TODO: read from db if edit mode */
     private Endpoint m_endpoint = new Endpoint();
     
-    private PhoneContext m_phoneContext;
     
     private IPropertySelectionModel m_phoneModels;
     
-    public PhoneContext getPhoneContext() {
-        return m_phoneContext;
-    }
-
     public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
+        super.setPhoneContext(phoneContext);
         String[] phoneIds = (String[]) phoneContext.getPhoneIds().toArray(new String[0]);
         m_phoneModels = new StringPropertySelectionModel(phoneIds);        
     }

@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!--  -->
-
-<project name="neoconf" default="default" basedir=".">
-
+<project name="web" default="default" basedir="." >
+ 
 	<property name="test.src.dir" value="test" />
 	<property name="checkstyle.severity" value="error" />
 
-	<property name="project.dir" value="neoconf" />
+	<property name="project.dir" value="web" />
 	<import file="../ant-targets.xml" />
 
 	<!-- 
@@ -14,6 +11,7 @@
 	    - all spring jars at this point
 	    -->
 	<path id="compile.dependencies">
+		<pathelement path="${sipxconfig.jar}" />		
 		<pathelement path="${spring.jar}" />
 		<pathelement path="${hibernate2.jar}" />
 		<pathelement path="${servlet.jar}" />
@@ -43,8 +41,6 @@
 		<pathelement path="${bsf.jar}" />
 		<pathelement path="${jakarta-oro.jar}" />
 		<pathelement path="${commons-lang.jar}" />
-		<!-- JSF -->
-		<pathelement path="${top.dir}/lib/jsf-api.jar"/>
 	</path>
 
 	<path id="base.path">
@@ -65,27 +61,19 @@
 	</target>
 
 	<!-- D E F A U L T -->
-	<target name="default" depends="jar,war"/>
+	<target name="default" depends="war"/>
 	
-	<!-- J A R -->
-	<target name="jar" depends="compile" description="assemble sipxconfig jar library">
-		<jar file="${sipxconfig.jar}">
-			<fileset dir="${classes.dir}"/>
-			<fileset dir="${src.dir}">
-				<include name="**/*.xml"/>
-				<include name="**/*.properties"/>
-			</fileset>
-	    </jar>
-	</target>
-
 	<!-- W A R -->
-	<target name="war" depends="compile" description="assemble sipxconfig war">
+	<target name="war" depends="compile" description="assemble sipxconfig for tapestry war">
 
-		<war warfile="${sipxconfig.war}" webxml="etc/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
+		<war warfile="${sipxconfig-tapestry.war}" webxml="context/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
 
-			<fileset dir="site" />
+            <!-- not sure this is nec. -->
+	        <fileset dir="context/WEB-INF">
+				<include name="**/*.html"/>
+			</fileset>
 
-			<webinf dir="etc/WEB-INF">
+			<webinf dir="context/WEB-INF">
 				<!-- avoid warning about already there -->
 				<exclude name="web.xml" />
 			</webinf>
@@ -101,25 +89,21 @@
 			</classes>
 
 			<lib file="${spring.jar}" />
+			<lib file="${sipxconfig.jar}" />
 			<lib file="${hibernate2.jar}" />
 			<lib file="${jdbc-driver.jar}" />
 			<lib file="${odmg.jar}" />
 			<lib file="${commons-logging.jar}" />
 			<lib file="${commons-dbcp.jar}" />
 			<lib file="${commons-pool.jar}" />
-			<!-- JSF -->
 			<lib file="${commons-digester.jar}" />
 			<lib file="${commons-beanutils.jar}" />
-			<lib file="${jsf-api.jar}" />
-			<lib file="${jsf-impl.jar}" />
-			<lib file="${jstl.jar}" />
 			<lib file="${aopalliance.jar}" />
 			<lib file="${dom4j.jar}" />
 			<lib file="${commons-collections.jar}" />
 			<lib file="${ehcache.jar}" />
 			<lib file="${cglib-full.jar}" />
 			<lib file="${jta.jar}" />
-			<!-- TAPESTRY -->
 			<lib file="${tapestry.jar}" />
 			<lib file="${tapestry-contrib.jar}" />
 			<lib file="${ognl.jar}" />
@@ -130,23 +114,24 @@
 			<lib file="${commons-codec.jar}" />			
 			<lib file="${commons-fileupload.jar}" />
 			<lib file="${log4j.jar}" />			
+			<lib file="${tapestry.tld}" />
+
 		</war>
 	</target>
 
 	<target name="install" depends="war"
 	   description="Copy war file into Jboss deploy directory">
 
-		<copy todir="${jboss.container.deploy}" file="${sipxconfig.war}"/>
+		<copy todir="${jboss.container.deploy}" file="${sipxconfig-tapestry.war}"/>
 
 	</target>
 
 	<target name="install-tomcat" depends="war"
 	   description="Copy war file into Tomcat 5 webapp directory">
 
-		<copy todir="/opt/tomcat5/webapps" file="${sipxconfig.war}"/>
+		<copy todir="/opt/tomcat5/webapps" file="${sipxconfig-tapestry.war}"/>
 
 	</target>
 
+
 </project>
-
-
