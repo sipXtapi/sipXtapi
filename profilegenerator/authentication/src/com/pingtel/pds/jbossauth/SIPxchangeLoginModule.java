@@ -76,13 +76,6 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         "   WHERE   users.id = user_roles.usrs_id " +
         "   AND     users.display_id=? ";
 
-    private static final String DNS_DOMAIN_COUNT_QUERY =
-        "SELECT COUNT(*) FROM ORGANIZATIONS";
-
-    private static final String DNS_DOMAIN_QUERY =
-        "SELECT DNS_DOMAIN FROM ORGANIZATIONS WHERE ID = 1";
-
-
     private static Properties PGS_PROPERTIES = null;
     
     private static Properties getPgsProperties()
@@ -179,11 +172,12 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         com.sun.net.ssl.internal.www.protocol.https.HttpsURLConnectionOldImpl.setDefaultHostnameVerifier(oldhv);
     }
     
-    /** Called by login() to acquire the username and password strings for
-    authentication. This method does no validation of either.
-    @return String[], [0] = username, [1] = password
-    @exception LoginException thrown if CallbackHandler is not set or fails.
-    */
+    /** 
+     * Called by login() to acquire the username and password strings for
+     * authentication. This method does no validation of either.
+     * @return String[], [0] = username, [1] = password
+     * @exception LoginException thrown if CallbackHandler is not set or fails.
+     */
    private String[] getUsernameAndPassword() throws LoginException
    {
       String[] info = {null, null};
@@ -223,9 +217,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
       info[1] = password;
       return info;
    }
-
     
-
     /**
      * Looks for javax.security.auth.login.name and
      * javax.security.auth.login.password values in the sharedState map if
@@ -327,17 +319,11 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         }
         // try both with and without DNS domain
         String realm = getRealm().trim();
-        String digestedPassword = "";
-        try {
-            String dnsDomain = getDnsDomain().trim();
-            digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);
-            
-                if ( !expectedPassword.equals( digestedPassword ) ) {
-                    digestedPassword =
-                        MD5Encoder.digestPassword(realUserID, realm, password);
-                }
-        } catch (FailedLoginException fle) {
-            // fail thru ok, could be initial database
+        String dnsDomain = getDnsDomain().trim();
+        String digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);    
+        if ( !expectedPassword.equals( digestedPassword ) ) {
+            digestedPassword =
+                MD5Encoder.digestPassword(realUserID, realm, password);
         }
         
         // login is OK if digested password is matched or
@@ -365,8 +351,6 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
     
     /**
      * Remove "sip:" prefix and domain name suffix 
-     * @param username
-     * @return
      */
     static String normalizeUserName( String username ) {
         int startIndex = 0;
@@ -386,8 +370,6 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
     /**
      * Overriden by subclasses to return the Principal that corresponds to
      * the user primary identity.
-     *
-     * @return
      */
     protected Principal getIdentity() {
         return mIdentity;
@@ -451,20 +433,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
             throw new LoginException(ex.toString());
         }
         finally {
-            if( ps != null ) {
-                try {
-                    ps.close();
-                }
-                catch(SQLException e)
-                {}
-            }
-            if( conn != null ) {
-                try {
-                    conn.close();
-                }
-                catch (Exception ex)
-                {}
-            }
+            closeQuietly(conn, ps);
         }
 
         Group[] roleSets = new Group[setsMap.size()];
@@ -515,19 +484,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
             throw new LoginException(ex.toString());
         }
         finally {
-            if( ps != null ) {
-                try {
-                    ps.close();
-                }
-                catch(SQLException e) {}
-            }
-
-            if( conn != null ) {
-                try {
-                conn.close();
-                }
-                catch (SQLException ex) {}
-            }
+            closeQuietly(conn, ps);
         }
 
         return new String [] { realUserID,password };
@@ -538,64 +495,8 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         return getPgsProperties().getProperty(PathLocatorUtil.PGS_SIPXCHANGE_REALM,"");
     }
 
-    private String getDnsDomain () throws LoginException {
-
-        String realm = null;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        PreparedStatement psCount = null;
-
-        try {
-            conn = getConnection();
-
-            psCount = conn.prepareStatement( DNS_DOMAIN_COUNT_QUERY );
-
-            ResultSet rsCount = psCount.executeQuery();
-
-            rsCount.next();
-            int count = rsCount.getInt(1);
-
-            // This is for the enterprise model
-            if (count == 1) {
-
-                ps = conn.prepareStatement( DNS_DOMAIN_QUERY );
-
-                ResultSet rs = ps.executeQuery();
-                if( rs.next() == false )
-                    throw new FailedLoginException(
-                            "No matching username found in Principals");
-
-                realm = rs.getString(1);
-                rs.close();
-            }
-            else {  // this if for the SP model; we need to parse the userid
-                //assert true : "we have hit more than one domain.";
-            }
-
-        }
-        catch(NamingException ex) {
-            throw new LoginException(ex.toString(true));
-        }
-        catch(SQLException ex) {
-            log.error("Query failed", ex);
-            throw new LoginException(ex.toString());
-        }
-        finally {
-            if( ps != null ) {
-                try {
-                    ps.close();
-                }
-                catch(SQLException e) {}
-            }
-            if( conn != null ) {
-                try {
-                    conn.close();
-                }
-                catch (SQLException ex) {}
-            }
-        }
-
-        return realm;
+    private String getDnsDomain () {
+        return getPgsProperties().getProperty(PathLocatorUtil.PGS_SIPXCHANGE_DOMAIN_NAME,"");
     }
 
 
@@ -628,18 +529,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
             throw new LoginException(ex.toString());
         }
         finally {
-            if( ps != null ) {
-                try {
-                    ps.close();
-                }
-                catch(SQLException e) {}
-            }
-            if( conn != null ) {
-                try {
-                    conn.close();
-                }
-                catch (SQLException ex) {}
-            }
+            closeQuietly(conn, ps);
         }
     }
 
@@ -671,18 +561,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
             throw new LoginException(ex.toString());
         }
         finally {
-            if( ps != null ) {
-                try {
-                    ps.close();
-                }
-                catch(SQLException e) {}
-            }
-            if( conn != null ) {
-                try {
-                    conn.close();
-                }
-                catch (SQLException ex) {}
-            }
+            closeQuietly(conn, ps);
         }
     }
 
@@ -730,17 +609,30 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
             throw new LoginException(ex.toString());
         }
         finally {
-            if( ps != null ) {
-                try {
-                    ps.close();
-                }
-                catch(SQLException e) {}
+            closeQuietly(conn, ps);
+        }
+    }
+
+    /**
+     * Closes statements and connections if they are null.
+     * @param conn connection
+     * @param ps prepared statement
+     */
+    private void closeQuietly(Connection conn, PreparedStatement ps) {
+        if( ps != null ) {
+            try {
+                ps.close();
             }
-            if( conn != null ) {
-                try {
-                    conn.close();
-                }
-                catch (SQLException ex) {}
+            catch(SQLException e) {
+                // ignore
+            }
+        }
+        if( conn != null ) {
+            try {
+                conn.close();
+            }
+            catch (SQLException ex) {
+                // ignore
             }
         }
     }
@@ -763,7 +655,4 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
 //////////////////////////////////////////////////////////////////////////
 // Native Method Declarations
 ////
-
-
-
 }

@@ -17,7 +17,7 @@
 	<classpathentry sourcepath="LIB_SRC/httpunit/src.zip" kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-2.5.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/ognl/java" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
