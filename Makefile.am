@@ -7,7 +7,8 @@ EXTRA_DIST = \
     common \
     profilegenerator \
     profilewriter \
-    profilepublisher
+    profilepublisher \
+    profilepub_sipagent.dsp
 
 ## Search and replace helpful make/conf variables
 edit = sed \
