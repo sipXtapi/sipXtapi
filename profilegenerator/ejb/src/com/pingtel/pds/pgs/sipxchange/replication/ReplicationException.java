@@ -13,36 +13,15 @@
 
 package  com.pingtel.pds.pgs.sipxchange.replication;
 
-import java.util.*;
-import java.io.*;
+import java.util.Collection;
+import java.util.Iterator;
 
-import com.pingtel.pds.pgs.sipxchange.*;
-/**
- *
- * @author Pradeep Paudyal
- */
 public class ReplicationException extends Exception
 {
-//////////////////////////////////////////////////////////////////////////////
-// Constants
-////
-
-//////////////////////////////////////////////////////////////////////////////
-// Attributes
-////
     private Collection m_replicationErrors;
 
-//////////////////////////////////////////////////////////////////////////////
-// Construction
-////
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Public Methods
-////
     public ReplicationException() {
-	    super();
+        // empty
     }
 
     public ReplicationException(String reason) {
@@ -50,7 +29,6 @@ public class ReplicationException extends Exception
     }
 
     public ReplicationException(Collection replicationErrors) {
-	    super();
         m_replicationErrors = replicationErrors;
     }
 
@@ -58,7 +36,7 @@ public class ReplicationException extends Exception
         return m_replicationErrors;
     }
 
-    public String toString () {
+    public String getMessage() {
         StringBuffer messageText = new StringBuffer ();
 
         for ( Iterator i = m_replicationErrors.iterator(); i.hasNext(); ) {
@@ -70,24 +48,4 @@ public class ReplicationException extends Exception
 
         return messageText.toString();
     }
-
-    public String getMessage() {
-        return toString();
-    }
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Implementation Methods
-////
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Nested / Inner classes
-////
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Native Method Declarations
-////
 }

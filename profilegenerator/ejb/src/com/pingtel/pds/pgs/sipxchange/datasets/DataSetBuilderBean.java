@@ -13,6 +13,7 @@
 package com.pingtel.pds.pgs.sipxchange.datasets;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -268,7 +269,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                     authExceptionsRoot.addContent(exceptions);
                 }
             }
-            
+
             appendForwardingItems(AliasService.TYPE_AUTHEXCEPTION, authExceptionsRoot);
 
             java.util.Date d2 = new java.util.Date();
@@ -322,136 +323,115 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
              * <authtype>DIGEST </authtype> </item> </items>
              */
             final SAXBuilder saxBuilder = new SAXBuilder();
-            try {
-                String xchangeRealm = null;
+            String xchangeRealm = null;
 
-                if (mIsEnterprise) {
-                    Organization xchangeOrganization = mOrganizationHome
-                            .findByPrimaryKey(new Integer("1"));
+            if (mIsEnterprise) {
+                Organization xchangeOrganization = mOrganizationHome
+                        .findByPrimaryKey(new Integer("1"));
 
-                    xchangeRealm = xchangeOrganization.getAuthenticationRealm();
+                xchangeRealm = xchangeOrganization.getAuthenticationRealm();
+            }
+
+            logDebug("generateCredentials::creating the database XML document");
+
+            Element credentials = new Element("items").setAttribute("type", "credential");
+
+            // fix for bug# 2953, remove when we get SSO sorted out between the CS
+            // and MS.
+            credentials.addContent(createSuperadminCredential());
+
+            for (Iterator csI = configSets.iterator(); csI.hasNext();) {
+                ConfigurationSet cs = (ConfigurationSet) csI.next();
+
+                logDebug("generateCredentials::Looking at configuration set: " + cs.getID());
+                Document doc = null;
+                try {
+                    doc = saxBuilder.build(new StringReader(cs.getContent()));
+                } catch (java.io.IOException ex) {
+                    throw new PDSException(ex.toString());
+                } catch (JDOMException jde) {
+                    throw new PDSException(jde.toString());
                 }
 
-                logDebug("generateCredentials::creating the database XML document");
+                Element csRoot = doc.getRootElement();
+                for (Iterator contentI = csRoot.getChildren().iterator(); contentI.hasNext();) {
+                    Element e = (Element) contentI.next();
 
-                Element credentials = new Element("items").setAttribute("type", "credential");
+                    String rpID = e.getAttributeValue("ref_property_id");
 
-                // fix for bug# 2953, remove when we get SSO sorted out between the CS
-                // and MS.
-                credentials.addContent(createSuperadminCredential());
+                    if (rpID != null
+                            && (rpID.equals(phonesetLineRPID) || rpID.equals(primaryLineRPID))) {
 
-                for (Iterator csI = configSets.iterator(); csI.hasNext();) {
-                    ConfigurationSet cs = (ConfigurationSet) csI.next();
+                        Collection lineWrapperC = e.getChildren();
+                        Element lineWrapper = null;
+                        for (Iterator iWrap = lineWrapperC.iterator(); iWrap.hasNext();)
+                            lineWrapper = (Element) iWrap.next();
 
-                    logDebug("generateCredentials::Looking at configuration set: " + cs.getID());
-                    Document doc = null;
-                    try {
-                        doc = saxBuilder.build(new StringReader(cs.getContent()));
-                    } catch (java.io.IOException ex) {
-                        throw new PDSException(ex.toString());
-                    } catch (JDOMException jde) {
-                        throw new PDSException(jde.toString());
-                    }
+                        for (Iterator credI = lineWrapper.getChildren("CREDENTIAL").iterator(); credI
+                                .hasNext();) {
 
-                    Element csRoot = doc.getRootElement();
-                    for (Iterator contentI = csRoot.getChildren().iterator(); contentI.hasNext();) {
-                        Element e = (Element) contentI.next();
+                            Element credential = (Element) credI.next();
 
-                        String rpID = e.getAttributeValue("ref_property_id");
+                            String credentialRealm = credential.getChild("REALM").getText();
+                            logDebug("generateCredentials::realm for credential: "
+                                    + credentialRealm);
 
-                        if (rpID != null
-                                && (rpID.equals(phonesetLineRPID) || rpID.equals(primaryLineRPID))) {
+                            if ((mIsEnterprise && credentialRealm.equalsIgnoreCase(xchangeRealm))
+                                    || !mIsEnterprise) {
 
-                            Collection lineWrapperC = e.getChildren();
-                            Element lineWrapper = null;
-                            for (Iterator iWrap = lineWrapperC.iterator(); iWrap.hasNext();)
-                                lineWrapper = (Element) iWrap.next();
+                                Element item = new Element("item");
+                                credentials.addContent(item);
 
-                            for (Iterator credI = lineWrapper.getChildren("CREDENTIAL")
-                                    .iterator(); credI.hasNext();) {
+                                Element uri = new Element("uri");
+                                logDebug("generateCredentials::uri for credential: "
+                                        + lineWrapper.getChild("URL").getText());
+                                uri.addContent(lineWrapper.getChild("URL").getText());
+                                item.addContent(uri);
 
-                                Element credential = (Element) credI.next();
+                                Element realm = new Element("realm");
+                                realm.addContent(credential.getChild("REALM").getText());
+                                item.addContent(realm);
 
-                                String credentialRealm = credential.getChild("REALM").getText();
-                                logDebug("generateCredentials::realm for credential: "
-                                        + credentialRealm);
+                                Element userID = new Element("userid");
+                                logDebug("generateCredentials::userid for credential: "
+                                        + credential.getChild("USERID").getText());
+                                userID.addContent(credential.getChild("USERID").getText());
+                                item.addContent(userID);
 
-                                if ((mIsEnterprise && credentialRealm
-                                        .equalsIgnoreCase(xchangeRealm))
-                                        || !mIsEnterprise) {
+                                Element password = new Element("passtoken");
+                                logDebug("generateCredentials::passtoken for credential: "
+                                        + credential.getChild("PASSTOKEN").getText());
+                                password.addContent(credential.getChild("PASSTOKEN").getText());
+                                item.addContent(password);
 
-                                    Element item = new Element("item");
-                                    credentials.addContent(item);
+                                // This is a hardcoded value for now; it is needed by the
+                                // database but is not part of line definitions.
+                                Element authType = new Element("authtype");
+                                authType.addContent("DIGEST");
+                                item.addContent(authType);
+                            }
+                        } // for
+                    } // if
 
-                                    Element uri = new Element("uri");
-                                    logDebug("generateCredentials::uri for credential: "
-                                            + lineWrapper.getChild("URL").getText());
-                                    uri.addContent(lineWrapper.getChild("URL").getText());
-                                    item.addContent(uri);
+                } // for all elements in cs
 
-                                    Element realm = new Element("realm");
-                                    realm.addContent(credential.getChild("REALM").getText());
-                                    item.addContent(realm);
+            } // for each config set
 
-                                    Element userID = new Element("userid");
-                                    logDebug("generateCredentials::userid for credential: "
-                                            + credential.getChild("USERID").getText());
-                                    userID.addContent(credential.getChild("USERID").getText());
-                                    item.addContent(userID);
+            // sent to MS and PRRS
 
-                                    Element password = new Element("passtoken");
-                                    logDebug("generateCredentials::passtoken for credential: "
-                                            + credential.getChild("PASSTOKEN").getText());
-                                    password.addContent(credential.getChild("PASSTOKEN")
-                                            .getText());
-                                    item.addContent(password);
+            java.util.Date d2 = new java.util.Date();
 
-                                    // This is a hardcoded value for now; it is needed by the
-                                    // database but is not part of line definitions.
-                                    Element authType = new Element("authtype");
-                                    authType.addContent("DIGEST");
-                                    item.addContent(authType);
-                                }
-                            } // for
-                        } // if
+            logInfo("IT TOOK " + (d2.getTime() - d1.getTime()) + " ms TO GENERATE CREDENTIALS");
 
-                    } // for all elements in cs
+            logDebug(mXMLOutputter.outputString((Element) credentials.detach()));
 
-                } // for each config set
+            writeFile(new Document((Element) credentials.detach()),
+                    SatelliteComponent.TYPE_COMM_SERVER, ReplicationResource.DATABASE_CREDENTIAL);
 
-                // sent to MS and PRRS
-
-                java.util.Date d2 = new java.util.Date();
-
-                logInfo("IT TOOK " + (d2.getTime() - d1.getTime())
-                        + " ms TO GENERATE CREDENTIALS");
-
-                logDebug(mXMLOutputter.outputString((Element) credentials.detach()));
-
-                writeFile(new Document((Element) credentials.detach()),
-                        SatelliteComponent.TYPE_COMM_SERVER,
-                        ReplicationResource.DATABASE_CREDENTIAL);
-
-            } catch (java.io.IOException ex) {
-                ex.printStackTrace();
-                mCTX.setRollbackOnly();
-
-                throw new PDSException(collateErrorMessages("UC1000", "E7007", null), ex);
-            } catch (FinderException e) {
-                e.printStackTrace();
-                mCTX.setRollbackOnly();
-
-                throw new PDSException(collateErrorMessages("UC1000", "E4056", null), e);
-            }
-        } catch (PDSException ex) {
-            ex.printStackTrace();
-            mCTX.setRollbackOnly();
-            throw new PDSException(collateErrorMessages("UC1000"), ex);
-        } catch (RemoteException ex) {
-            ex.printStackTrace();
-            logFatal(ex.toString(), ex);
-
-            throw new EJBException(collateErrorMessages("UC1000", "E4056", null));
+        } catch (IOException ex) {
+            logFatalAndRethrow(collateErrorMessages("UC1000", "E7007", null), ex);
+        } catch (FinderException e) {
+            logFatalAndRethrow(collateErrorMessages("UC1000", "E4056", null), e);
         }
     }
 
@@ -590,13 +570,14 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             writeFile(new Document((Element) items.detach()),
                     SatelliteComponent.TYPE_COMM_SERVER, ReplicationResource.DATABASE_ALIAS);
 
-        } catch (PDSException ex) {
-            mCTX.setRollbackOnly();
-            throw new PDSException(collateErrorMessages("UC1080"), ex);
-        } catch (Exception ex) { // If we can't find a user's organization
-            logFatal(ex.toString(), ex);
-
-            throw new EJBException(collateErrorMessages("UC1080", "E4066", null));
+        } catch (FileNotFoundException e) {
+            logFatalAndRethrow(e.toString(), e);
+        } catch (JDOMException e) {
+            logFatalAndRethrow(e.toString(), e);
+        } catch (IOException e) {
+            logFatalAndRethrow(e.toString(), e);
+        } catch (FinderException e) {
+            logFatalAndRethrow(e.toString(), e);
         }
     }
 
@@ -606,16 +587,15 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
      * 
      * @param items JDOM elements representing root element of aliases.xml - i.e. items
      */
-    private void appendForwardingItems(String type, Element items)
-            throws IOException, RemoteException, JDOMException {
-        String serviceUrl = getPGSProperty("forwardingaliasservice.rmi.url");        
+    private void appendForwardingItems(String type, Element items) throws IOException,
+            RemoteException, JDOMException {
+        String serviceUrl = getPGSProperty("forwardingaliasservice.rmi.url", "rmi://localhost:2001/ForwardingAliasService");
         AliasService aliasService = (AliasService) RMIConnectionManager.getInstance()
                 .getConnection(serviceUrl);
         String xml;
-        if( AliasService.TYPE_ALIAS.equals(type)) {
+        if (AliasService.TYPE_ALIAS.equals(type)) {
             xml = aliasService.getForwardingAliases();
-        }
-        else if (AliasService.TYPE_AUTHEXCEPTION.equals(type)) {
+        } else if (AliasService.TYPE_AUTHEXCEPTION.equals(type)) {
             xml = aliasService.getForwardingAuthExceptions();
         } else {
             // nothing to do
@@ -676,13 +656,12 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
             writeFile(new Document((Element) items.detach()),
                     SatelliteComponent.TYPE_COMM_SERVER, ReplicationResource.DATABASE_PERMISSION);
-        } catch (RemoteException ex) {
-            logFatal(ex.toString(), ex);
-
-            throw new EJBException(collateErrorMessages("UC1090", "E4067", null));
-        } catch (Exception ex) {
-            mCTX.setRollbackOnly();
-            throw new PDSException(collateErrorMessages("UC1090"), ex);
+        } catch (JDOMException e) {
+            logFatalAndRethrow(e.toString(), e);
+        } catch (IOException e) {
+            logFatalAndRethrow(e.toString(), e);
+        } catch (FinderException e) {
+            logFatalAndRethrow(e.toString(), e);
         }
     }
 
@@ -737,14 +716,12 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
             writeFile(new Document((Element) items.detach()),
                     SatelliteComponent.TYPE_MEDIA_SERVER, ReplicationResource.DATABASE_EXTENSION);
-        } catch (PDSException ex) {
-            mCTX.setRollbackOnly();
-            throw new PDSException(collateErrorMessages("UC1100"), ex);
-        } catch (Exception ex) {
-            logFatal(ex.toString(), ex);
-
-            throw new EJBException(collateErrorMessages("UC1100", "E4078", null));
+        } catch (IOException e) {
+            logFatalAndRethrow(collateErrorMessages("UC1100", "E4078", null), e);
+        } catch (FinderException e) {
+            logFatalAndRethrow(collateErrorMessages("UC1100", "E4078", null), e);
         }
+
     }
 
     // ////////////////////////////////////////////////////////////////////////
@@ -920,9 +897,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
         return permissionList;
     }
 
-    private void writeFile(Document content, int componentType, String targetDataName)
-            throws PDSException {
-
+    private void writeFile(Document content, int componentType, String targetDataName) throws IOException {
         try {
             java.util.Date d1 = new java.util.Date();
             ByteArrayOutputStream bas = new ByteArrayOutputStream();
@@ -935,20 +910,11 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             java.util.Date d2 = new java.util.Date();
 
             logInfo("IT TOOK " + (d2.getTime() - d1.getTime()) + " ms TO WRITE FILE");
-        } catch (IOException ex) {
-            mCTX.setRollbackOnly();
-
-            throw new PDSException(collateErrorMessages("E8006", new Object[] {
-                targetDataName
-            }), ex);
         } catch (ReplicationException ex) {
-            mCTX.setRollbackOnly();
-
-            throw new PDSException(collateErrorMessages("E8006", new Object[] {
+            logFatalAndRethrow(collateErrorMessages("E8006", new Object[] {
                 targetDataName
             }), ex);
         }
-
     }
 
     /**
