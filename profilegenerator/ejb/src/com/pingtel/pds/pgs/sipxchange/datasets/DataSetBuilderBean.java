@@ -692,14 +692,10 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                     item.addContent(uri);
 
                     Element extensionElem = new Element("extension");
-                    StringBuffer extensionText = new StringBuffer();
-                    extensionText.append(extension);
-                    extensionText.append("@");
-                    extensionText.append(usersOrganization.getDNSDomain());
 
-                    logDebug("generateExtensions::setting extension: " + extensionText.toString());
+                    logDebug("generateExtensions::setting extension: " + extension);
 
-                    extensionElem.setText(extensionText.toString());
+                    extensionElem.setText(extension);
 
                     item.addContent(extensionElem);
 
