@@ -116,6 +116,8 @@ public class PolycomPhone extends GenericPhone {
         SipConfiguration sip = new SipConfiguration(this, endpoint);
         sip.setTemplate(config.getSipTemplate());
         generateProfile(sip, app.getSipFilename());
+        
+        app.deleteStaleDirectories();
     }
         
     public SettingGroup getSettingModel(Line line) {
@@ -130,5 +132,6 @@ public class PolycomPhone extends GenericPhone {
 
         return lineModel;
     }
-    
 }
+
+

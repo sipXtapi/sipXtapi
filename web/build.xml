@@ -75,7 +75,8 @@
 # used in applicationContext-sipxconfig.xml to set system properies
 sysdir.etc=${sipxpbx.conf.dir}
 sysdir.log=${sipxpbx.log.dir}
-sysdir.var=${sipxpbx.data.dir}
+sysdir.data=${sipxpbx.data.dir}
+sysdir.phone=${sipxconfig.phone.dir}
       </echo>
     </target>
 
@@ -123,6 +124,7 @@ sysdir.var=${sipxpbx.data.dir}
 			<lib file="${commons-lang.jar}" />			
 			<lib file="${commons-codec.jar}" />			
 			<lib file="${commons-fileupload.jar}" />
+			<lib file="${commons-io.jar}" />
 			<lib file="${aopalliance.jar}" />
 			<lib file="${dom4j.jar}" />
 			<lib file="${jaxen.jar}" />

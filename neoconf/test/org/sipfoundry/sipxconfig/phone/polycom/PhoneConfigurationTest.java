@@ -42,7 +42,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 
-        // debug
+        // helpful debug
         System.out.println(new String(out.toCharArray()));
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);

@@ -64,6 +64,6 @@
         <binding name="value" expression="currentLine.displayLabel"/>
     </component>    
     <component id="sendProfiles" type="Submit">
-        <binding name="listener" expression="listenergenerateProfiles"/>
+        <binding name="listener" expression="listeners.generateProfiles"/>
     </component>
 </page-specification>

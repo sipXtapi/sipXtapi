@@ -146,7 +146,7 @@
 			<ref bean="velocityEngine"/>
 		</property>
 		<property name="tftpRoot">
-			<value>${sysdir.var}/configserver/phone/profiles/tftproot</value>
+			<value>${sysdir.phone}/profile/tftproot</value>
 		</property>
     </bean>
 	<bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone">

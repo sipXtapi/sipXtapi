@@ -22,6 +22,7 @@
 		<pathelement location="${velocity.jar}" />
 		<pathelement location="${commons-digester.jar}"/>
 		<pathelement location="${commons-collections.jar}" />
+		<pathelement location="${commons-io.jar}" />
 	</path>
 
 	<!-- 

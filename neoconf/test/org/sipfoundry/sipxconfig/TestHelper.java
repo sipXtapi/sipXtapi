@@ -43,6 +43,8 @@ public final class TestHelper {
     
     private static Properties s_sysProps;
     
+    private static String s_classpathDir;
+    
     private static ApplicationContext s_appContext;
     
     private static String P6SPY = "com.p6spy.engine.spy.P6SpyDriver";
@@ -64,8 +66,20 @@ public final class TestHelper {
         return s_appContext;
     }
     
+    public static String getClasspathDirectory() {
+        if (s_classpathDir == null) {
+	        // create file on classpath
+	        CodeSource code = TestHelper.class.getProtectionDomain().getCodeSource();
+	        URL classpathUrl = code.getLocation();
+	        File classpathDir = new File(classpathUrl.getFile());
+	        s_classpathDir = classpathDir.getAbsolutePath();            
+        }
+        
+        return s_classpathDir;        
+    }
+    
     public static String getTestDirectory() {
-        return getSysDirProperties().getProperty("sysdir.var");
+        return getClasspathDirectory() + "/test-output";
     }
 
     public static VelocityEngine getVelocityEngine() throws Exception {
@@ -89,11 +103,8 @@ public final class TestHelper {
      */
     public static Properties getSysDirProperties() {
         if (s_sysProps == null) {
-	        // create file on classpath
-	        CodeSource code = TestHelper.class.getProtectionDomain().getCodeSource();
-	        URL classpathUrl = code.getLocation();
-	        File classpathDir = new File(classpathUrl.getFile());
-	        File sysdirPropsFile = new File(classpathDir, "sysdir.properties");
+            String classpath = getClasspathDirectory();
+	        File sysdirPropsFile = new File(classpath, "sysdir.properties");
 	        FileOutputStream sysdirPropsStream;
 	        try {
 	            sysdirPropsStream = new FileOutputStream(sysdirPropsFile);
@@ -101,11 +112,18 @@ public final class TestHelper {
 	            throw new RuntimeException("could not create system dir properties file", e);
 	        }
 	        s_sysProps = new Properties();
+
+	        // eclipse        
 	        String userDir = System.getProperty("user.dir");
-	        String etcDir = System.getProperty("basedir", userDir) + "/etc";
+	        
+	        // from ant
+	        String etcDir = System.getProperty("basedir", userDir) + "/etc";    
+	        
+            String testpath = getTestDirectory();
 	        s_sysProps.setProperty("sysdir.etc", etcDir);
-	        s_sysProps.setProperty("sysdir.var", classpathDir.getAbsolutePath());
-	        s_sysProps.setProperty("sysdir.log", classpathDir.getAbsolutePath());
+	        s_sysProps.setProperty("sysdir.data", testpath);
+	        s_sysProps.setProperty("sysdir.phone", testpath);
+	        s_sysProps.setProperty("sysdir.log", testpath);	        
 	        
 	        try {
 	            // store them so spring's application context file find it
