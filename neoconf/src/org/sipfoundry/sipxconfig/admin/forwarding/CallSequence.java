@@ -74,7 +74,7 @@ public class CallSequence extends BeanWithId {
         for (Iterator i = m_calls.iterator(); i.hasNext();) {
             Ring r = (Ring) i.next();
             String contact = r.calculateContact(m_domain, q);
-            Alias alias = new Alias(identity, contact);
+            AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
         }
         return aliases;

@@ -37,7 +37,7 @@ public class CallSequenceTest extends TestCase {
         List aliases = sequence.generateAliases();
         assertEquals(N, aliases.size());
         for (Iterator i = aliases.iterator(); i.hasNext();) {
-            Alias a = (Alias) i.next();
+            AliasMapping a = (AliasMapping) i.next();
             assertEquals("abc@sipfoundry.org", a.getIdentity());
             String contact = a.getContact();
             assertTrue(contact.matches("<sip:\\d+@sipfoundry.org\\?expires=\\d+>;;q=[01]\\.\\d+"));

@@ -12,13 +12,13 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 /**
- * Alias
+ * AliasMapping
  */
-public class Alias {
+public class AliasMapping {
     private String m_identity;
     private String m_contact;
 
-    public Alias() {
+    public AliasMapping() {
         // empty default
     }
 
@@ -26,7 +26,7 @@ public class Alias {
      * @param identity
      * @param contact
      */
-    Alias(String identity, String contact) {
+    AliasMapping(String identity, String contact) {
         this.m_identity = identity;
         this.m_contact = contact;
     }
