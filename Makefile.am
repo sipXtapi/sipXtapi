@@ -19,7 +19,7 @@ editscripts :
 		target=`basename $$f .in`; \
 		echo ""; echo "Installing $(bindir)/$$target"; \
 		$(edit) $(srcdir)/$$f > $$target; \
-		$(INSTALL) -d -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
+		$(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
 	done
 
 editdata_IN = \
@@ -36,7 +36,7 @@ editdata :
 		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		then \
 			echo ""; echo "Installing default $(sysconfdir)/sipxpbx/$$target"; \
-			$(INSTALL) -d -m 644 $$target $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
+			$(INSTALL) -D -m 644 $$target $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		else \
 	    	 echo ""; echo "Using existing $(sysconfdir)/sipxpbx/$$target"; \
 	    fi; \
