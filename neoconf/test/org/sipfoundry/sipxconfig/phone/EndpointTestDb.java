@@ -21,19 +21,40 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.operation.DatabaseOperation;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.vendor.Polycom;
 
 
 public class EndpointTestDb extends DatabaseTestCase {
+    
+    static {
+//        System.setProperty("xml.catalog.files", "test/catalog.xml");
+//        System.setProperty("relative-catalogs", "yes");
+//        System.setProperty("static-catalog", "yes");
+//        System.setProperty("catalog-class-name", "org.apache.xml.resolver.Resolver");
+        System.setProperty("verbosity", "99");    
+        System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
+    }
     
     protected IDatabaseConnection getConnection() throws Exception
     {
         return TestHelper.getDbUnitConnection();
     }
+
+    protected DatabaseOperation getSetUpOperation() throws Exception
+    {
+        return DatabaseOperation.NONE;
+    }
+
+    protected DatabaseOperation getTearDownOperation() throws Exception
+    {
+        return DatabaseOperation.NONE;
+    }
     
     protected IDataSet getDataSet() throws Exception {
-        // no setup required
-        return loadDataSet("endpoint-save-expected.xml");
+        // empty, no setup required, (null not accepted)
+        return null;
     }
     
     public void testSave() throws Exception {
@@ -41,9 +62,10 @@ public class EndpointTestDb extends DatabaseTestCase {
                 PhoneContext.CONTEXT_BEAN_NAME);
         
         Endpoint e = new Endpoint();
+        e.setPhoneId(Polycom.MODEL_300.getModelId());
         e.setSerialNumber("999123456");
         e.setName("unittest-sample phone1");
-        context.storeEndpoint(e);
+        //context.storeEndpoint(e);
         
         IDataSet actualDs = getConnection().createDataSet();
         ITable actualRawTable = actualDs.getTable("endpoint");

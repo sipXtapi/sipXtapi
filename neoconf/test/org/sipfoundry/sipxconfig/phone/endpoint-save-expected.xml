@@ -1,4 +1,4 @@
-<!DOCTYPE dataset SYSTEM "file:///tmp/sipxconfig-db.dtd" >
+<!DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" >
 <dataset>
     <endpoint serial_number="999123456" 
 		endpoint_id="0"

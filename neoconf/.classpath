@@ -30,5 +30,8 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/asm-1.4.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/dbunit-2.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/xercesImpl-2.6.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/resolver-2.6.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/xml-apis.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
