@@ -11,9 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,9 +23,9 @@ import org.springframework.web.servlet.mvc.Controller;
 public class DeviceController implements Controller {
     
     public ModelAndView handleRequest(HttpServletRequest requestTemp, HttpServletResponse responseTemp)
-        throws ServletException, IOException {
+        throws Exception {
 
-        return new ModelAndView("/list_devices.jsp");
+        return new ModelAndView("/device.jsp");
     }
 
 }

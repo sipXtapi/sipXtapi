@@ -6,6 +6,8 @@
   -->
 <beans>
 
-  <bean name="/device" class="org.sipfoundry.sipxconfig.site.DeviceController"/>
+  <bean name="/list-endpoints" class="org.sipfoundry.sipxconfig.site.ListEndpointsController"/>
+
+  <bean name="/endpoint" class="org.sipfoundry.sipxconfig.site.EndpointController"/>
 
 </beans>
