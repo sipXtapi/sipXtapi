@@ -83,6 +83,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
             FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
             DialingRule rule = flexDialPlan.getRule(ruleId);
             rule.addGateway(gateway);
+            flexDialPlan.storeRule(rule);
         }
         cycle.activate(getNextPage());
     }

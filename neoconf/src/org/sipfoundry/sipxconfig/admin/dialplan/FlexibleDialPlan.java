@@ -11,14 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
@@ -27,26 +24,35 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
         FlexibleDialPlanContext {
 
-    private static final String[] DEFAULT_RULE_NAMES = {
-        "defaultEmergencyRule", "defaultInternationalRule", "defaultInternalRule",
-        "defaultLocalRule", "defaultLongDistanceRule", "defaultRestrictedRule",
-        "defaultTollFreeRule"
-    };
-
     private BeanFactory m_beanFactory;
 
-    public void storeRule(IDialingRule rule) {
-        getHibernateTemplate().saveOrUpdate(rule);
+    /**
+     * Loads dial plan, creates a new one if none exist
+     * 
+     * @return the single instance of dial plan
+     */
+    private DialPlan getDialPlan() {
+        List list = getHibernateTemplate().loadAll(DialPlan.class);
+        if (!list.isEmpty()) {
+            return (DialPlan) list.get(0);
+        }
+        DialPlan plan = new DialPlan();
+        getHibernateTemplate().save(plan);
+        return plan;
     }
 
-    boolean removeRule(Integer id) {
-        Object rule = getHibernateTemplate().load(DialingRule.class, id);
-        getHibernateTemplate().delete(rule);
-        return true;
+    public void storeRule(DialingRule rule) {
+        if (BeanWithId.UNSAVED_ID.equals(rule.getId())) {
+            DialPlan dialPlan = getDialPlan();
+            dialPlan.addRule(rule);
+            getHibernateTemplate().saveOrUpdate(dialPlan);
+        } else {
+            getHibernateTemplate().saveOrUpdate(rule);
+        }
     }
 
     public List getRules() {
-        return getHibernateTemplate().loadAll(DialingRule.class);
+        return getDialPlan().getRules();
     }
 
     public DialingRule getRule(Integer id) {
@@ -54,33 +60,20 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
     }
 
     public void deleteRules(Collection selectedRows) {
-        Collection rules = new ArrayList();
-        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            DialingRule rule = getRule(id);
-            rules.add(rule);
-        }
-        getHibernateTemplate().deleteAll(rules);
+        DialPlan dialPlan = getDialPlan();
+        dialPlan.removeRules(selectedRows);
+        getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
     public void duplicateRules(Collection selectedRows) {
-        HibernateTemplate hibernate = getHibernateTemplate();
-        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            DialingRule rule = getRule(id);
-            BeanWithId ruleDup = rule.duplicate();
-            hibernate.save(ruleDup);
-        }
+        DialPlan dialPlan = getDialPlan();
+        dialPlan.duplicateRules(selectedRows);
+        getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
     public List getGenerationRules() {
-        ArrayList generationRules = new ArrayList();
-        List rules = getRules();
-        for (Iterator i = rules.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
-            rule.appendToGenerationRules(generationRules);
-        }
-        return generationRules;
+        DialPlan dialPlan = getDialPlan();
+        return dialPlan.getGenerationRules();
     }
 
     /**
@@ -89,19 +82,20 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
      * Loads default rules definition from bean factory file.
      */
     public void resetToFactoryDefault() {
+        DialPlan dialPlan = getDialPlan();
         // unload all rules
-        HibernateTemplate hibernate = getHibernateTemplate();
-        List allRules = hibernate.loadAll(DialingRule.class);
-        hibernate.deleteAll(allRules);
-
-        for (int i = 0; i < DEFAULT_RULE_NAMES.length; i++) {
-            String beanName = DEFAULT_RULE_NAMES[i];
-            DialingRule rule = (DialingRule) m_beanFactory.getBean(beanName);
-            storeRule((IDialingRule) rule.duplicate());
-        }
+        getHibernateTemplate().delete(dialPlan);
+        dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");
+        getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    public void moveRules(Collection selectedRows, int step) {
+        DialPlan dialPlan = getDialPlan();
+        dialPlan.moveRules(selectedRows, step);
+        getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 }

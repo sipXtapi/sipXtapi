@@ -21,14 +21,16 @@ import java.util.Set;
 
 import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 
 /**
  * DialingRule At some point it's be replaced by the IDialingRule interface or made abstract.
  */
-public abstract class DialingRule extends BeanWithId implements IDialingRule {
+public abstract class DialingRule extends BeanWithId implements IDialingRule, DataCollectionItem {
     private boolean m_enabled;
     private String m_name;
     private String m_description;
+    private int m_position;
     private List m_gateways = new ArrayList();
 
     public abstract String[] getPatterns();
@@ -126,6 +128,18 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule {
         Collection ruleGateways = getGateways();
         gateways.removeAll(ruleGateways);
         return gateways;
+    }
+    
+    public int getPosition() {
+        return m_position;
+    }
+
+    public void setPosition(int position) {
+        m_position = position;        
+    }
+
+    public Object getPrimaryKey() {
+        return getId();
     }
 
     /**

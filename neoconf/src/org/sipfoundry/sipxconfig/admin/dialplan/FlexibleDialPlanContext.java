@@ -17,7 +17,7 @@ import java.util.List;
 public interface FlexibleDialPlanContext {
     public static final String CONTEXT_BEAN_NAME = "flexDialPlan";
 
-    public void storeRule(IDialingRule rule);
+    public void storeRule(DialingRule rule);
 
     public List getRules();
 
@@ -26,6 +26,8 @@ public interface FlexibleDialPlanContext {
     public void deleteRules(Collection selectedRows);
 
     public void duplicateRules(Collection selectedRows);
+    
+    public void moveRules(Collection selectedRows, int step);
 
     public List getGenerationRules();
     

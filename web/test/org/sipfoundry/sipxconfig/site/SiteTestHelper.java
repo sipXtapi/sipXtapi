@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.sourceforge.jwebunit.WebTester;
@@ -48,9 +49,16 @@ public class SiteTestHelper {
 
     /**
      * Looks for exception stack on tapestry error page
+     * Dumps response if there was an exception.
      */
     public static void assertNoException(WebTester tester) {
-        tester.assertTextNotPresent("An exception has occurred");
+        try {
+            tester.assertTextNotPresent("An exception has occurred");
+        }
+        catch (AssertionFailedError e) {
+            tester.dumpResponse(System.err);
+            throw e;
+        }
     }
 
     public static String getBaseUrl() {

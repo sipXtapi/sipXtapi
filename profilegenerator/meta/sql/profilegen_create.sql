@@ -406,6 +406,13 @@ create sequence gateway_seq;
  * D I A L I N G   R U L E 
  */
  
+create table dial_plan (
+   dial_plan_id int4 not null,
+   primary key (dial_plan_id)
+);
+
+create sequence dial_plan_seq;
+ 
 create table dial_pattern (
    custom_dialing_rule_id int4 not null,
    prefix varchar(40),
@@ -419,8 +426,12 @@ create table dialing_rule (
    name varchar(255) not null,
    description varchar(255),
    enabled bool,
+   position int4,
+   dial_plan_id int4,
    primary key (dialing_rule_id)
 );
+
+alter table dialing_rule add constraint FK3B60F0A99F03EC22 foreign key (dial_plan_id) references dial_plan;
 
 create table dialing_rule_gateway (
    dialing_rule_id int4 not null,
@@ -428,7 +439,6 @@ create table dialing_rule_gateway (
    index int4 not null,
    primary key (dialing_rule_id, index)
 );
-
 
 create table custom_dialing_rule (
    custom_dialing_rule_id int4 not null,

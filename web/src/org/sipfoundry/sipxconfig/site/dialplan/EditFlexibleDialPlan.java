@@ -36,6 +36,10 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public abstract Collection getRowsToDuplicate();
 
+    public abstract Collection getRowsToMoveUp();
+
+    public abstract Collection getRowsToMoveDown();
+
     public void add(IRequestCycle cycle) {
         cycle.activate(SelectRuleType.PAGE);
     }
@@ -45,8 +49,25 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     }
 
     public void formSubmit(IRequestCycle cycle_) {
+        move(getRowsToMoveUp(), -1);
+        move(getRowsToMoveDown(), 1);
         delete();
         duplicate();
+    }
+
+    /**
+     * Moves selected dialing rules up and down.
+     * 
+     * Pressing moveUp/moveDown buttons sets moveStep property. selectedRows property represents
+     * all the rows with checked check boxes.
+     */
+    private void move(Collection rows, int step) {
+        if (null == rows) {
+            return;
+        }
+        DialPlanContext manager = getDialPlanManager();
+        FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
+        flexDialPlan.moveRules(rows, step);
     }
 
     public void activate(IRequestCycle cycle) {
@@ -60,10 +81,9 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
         flexDialPlan.resetToFactoryDefault();
     }
-    
+
     /**
-     * Deletes all selected rows (on this screen deletes rules from flexible
-     * dial plan).
+     * Deletes all selected rows (on this screen deletes rules from flexible dial plan).
      */
     private void delete() {
         Collection selectedRows = getSelectedRows();
@@ -74,8 +94,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     }
 
     /**
-     * Deletes all selected rows (on this screen deletes rules from flexible
-     * dial plan).
+     * Deletes all selected rows (on this screen deletes rules from flexible dial plan).
      */
     private void duplicate() {
         Collection selectedRows = getRowsToDuplicate();

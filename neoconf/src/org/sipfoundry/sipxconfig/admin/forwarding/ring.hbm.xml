@@ -12,9 +12,9 @@
 				<param name="sequence">ring_seq</param>
 			</generator>
 		</id>
-		<property name="number" column="number"/>
-        <property name="position" column="position"/>
-		<property name="expiration" column="expiration"/>
+		<property name="number"/>
+        <property name="position"/>
+		<property name="expiration"/>
 		<property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.forwarding.Ring$UserType"/>
         <many-to-one name="callSequence" column="user_id" class="org.sipfoundry.sipxconfig.admin.forwarding.CallSequence" not-null="true"/>
 	</class>

@@ -2,6 +2,20 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan">
+    <class name="DialPlan" table="dial_plan">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="dial_plan_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">dial_plan_seq</param>
+			</generator>
+		</id>
+        <list name="rules" cascade="all-delete-orphan">
+            <key column="dial_plan_id"/>
+            <index column="position"/>
+            <one-to-many class="DialingRule"/>
+        </list>
+    </class>
+    
 	<class name="DialingRule" table="dialing_rule">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="dialing_rule_id" type="int" unsaved-value="-1">
@@ -12,6 +26,7 @@
 		<property name="name" not-null="true"/>
         <property name="description"/>
         <property name="enabled"/>
+        <property name="position"/>
         <list name="gateways" table="dialing_rule_gateway" cascade="save-update">
             <key column="dialing_rule_id"/>
             <index column="index"/>
@@ -67,5 +82,4 @@
             <property name="pstnPrefix"/>
         </joined-subclass>
 	</class>
-    
 </hibernate-mapping>

@@ -42,9 +42,9 @@ public class FlexibleDialPlanTestDb extends TestCase {
     public void testAddDeleteRule() {
         // TODO - replace with IDialingRule mocks
 
-        IDialingRule r1 = new CustomDialingRule();
+        DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
-        IDialingRule r2 = new CustomDialingRule();
+        DialingRule r2 = new CustomDialingRule();
         r2.setName("a2");
 
         m_plan.storeRule(r1);
@@ -77,7 +77,7 @@ public class FlexibleDialPlanTestDb extends TestCase {
     }
 
     public void testDuplicateRules() throws Exception {
-        IDialingRule r1 = new CustomDialingRule();
+        DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
         m_plan.storeRule(r1);
         assertFalse(BeanWithId.UNSAVED_ID.equals(r1.getId()));

@@ -138,6 +138,26 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
     }
     
+    
+    public void testMove() {
+        clickButton("dialplan:revert");
+        checkCheckbox("selectedRow", 0);
+        clickButton("dialplan:move:up");
+        // no changes
+        dumpResponse(System.err);
+        SiteTestHelper.assertNoException(getTester());
+        assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
+        
+        // move first row down
+        checkCheckbox("selectedRow", 0);
+        clickButton("dialplan:move:down");
+        SiteTestHelper.assertNoException(getTester());
+        WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("dialplan:list");
+        assertEquals(DEFAULTS[0][0], rulesTable.getCellAsText(2,1));
+        assertEquals(DEFAULTS[1][0], rulesTable.getCellAsText(1,1));
+        assertEquals(DEFAULTS[2][0], rulesTable.getCellAsText(3,1));
+    }
+    
     // TODO: add this for custom rule test - it relies on Java script at the moment
     private void checkAddDeletePattern() {
         // no delete link

@@ -19,10 +19,12 @@
 	<property-specification name="selections" 
     	type="org.sipfoundry.sipxconfig.components.SelectMap"
     	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"
-    	/>    
-
+    	/>
+    
 	<property-specification name="selectedRows" type="java.util.Collection"/>    
 	<property-specification name="rowsToDuplicate" type="java.util.Collection"/>    
+	<property-specification name="rowsToMoveUp" type="java.util.Collection"/>    
+	<property-specification name="rowsToMoveDown" type="java.util.Collection"/>    
     
     <!--
      - B E A N S
@@ -93,6 +95,17 @@
     <component id="revert" type="Submit">
         <binding name="listener" expression="listeners.revert"/>
     </component>
+    
+    <component id="moveUp" type="Submit">
+        <binding name="selected" expression="rowsToMoveUp"/>
+        <binding name="tag" expression="selections.allSelected"/>
+    </component>
+
+    <component id="moveDown" type="Submit">
+        <binding name="selected" expression="rowsToMoveDown"/>
+        <binding name="tag" expression="selections.allSelected"/>
+    </component>
+    
     <!--
 	  - A S S E T S
 	  -->	
