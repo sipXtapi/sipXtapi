@@ -3,39 +3,36 @@
 Accessing web GUI
 ==========================
 
-After completing the instructions in INSTALL, and..
+Normally, this is run under sipXpbx script, but if you want to launch
+the services manually, you can run the following:
 
- - Installing the sipXpbx project. In practice, you've installed all
-sipX projects, except possibly sipXtest.
-
- - Runing watchdog according to sipXpbx/README
-
- - Waiting until all components are fully started, typically 30
-seconds or so.
-
+  # start postgres if it's not already started
+  sudo -u sipxchange startrmireg.sh &
+  sudo -u sipxchange profilepublisher.sh &
+  sudo -u sipxchange profilewriter.sh &
+  sudo -u sipxchange profilegenerator.sh &
 
 Then you can access the web gui from this url
 
   http://localhost:8080/pds
 
-### BUG ALERT ###
-Currently there is a bug (XCF-12) where you have to visit this link
-first before you can successfully log into sipxchange
-
-  http://localhost:8080/pds/login/logout.jsp
-
-
 Initial Setup of Domain
 ==============================
 
 First this you'll want to do is setup your domain, at login prompt,
-type this user name and password
+type the following user name and password
 
   user name: installer
   password : password
 
-On next form, specify following information
+Here's a sample of information on next screen, see manual for 
+details
 
+ Organization : Acme Corp.
+ DNS Domain   : acme.com       ## for testing, you may want to prepend 
+                               ## your hostname (e.g myhost.acme.com)
+ PIN          : ****
+  
 
 Troubleshooting
 =============================
