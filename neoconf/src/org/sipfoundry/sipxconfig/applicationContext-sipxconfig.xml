@@ -34,4 +34,8 @@
 			<ref local="phoneContext"/>
 		</property>
 	</bean>
+    <!-- temporary gateways and dialPlans singletons-->
+    <bean id="dialPlanManager" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+        
+    </bean>
 </beans>

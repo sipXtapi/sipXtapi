@@ -15,18 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DialPlanList
+ * DialPlanManager
  */
-public class DialPlanList {
+public class DialPlanManager {
     private List m_dialPlans = new ArrayList();
-
-    public DialPlanList() {
-        int plan = 1;
-        m_dialPlans.add(new DialPlan("aaa", plan++));
-        m_dialPlans.add(new DialPlan("bbb", plan++));
-        m_dialPlans.add(new DialPlan("ccc", plan++));
-        m_dialPlans.add(new DialPlan("ddd", plan++));
-    }
+    private List m_gateways = new ArrayList();
 
     public List getDialPlans() {
         return m_dialPlans;
@@ -36,4 +29,11 @@ public class DialPlanList {
         m_dialPlans = dialPlans;
     }
 
+    public List getGateways() {
+        return m_gateways;
+    }
+
+    public void setGateways(List gateways) {
+        m_gateways = gateways;
+    }
 }
