@@ -50,7 +50,8 @@ public class GatewaysTestUi extends TestCase {
         WebResponse listGateways = link.click();
 
         WebTable gatewaysTable = listGateways.getTableWithID("list:gateway");
-        assertEquals(3, gatewaysTable.getColumnCount());
+        int lastColumn = gatewaysTable.getColumnCount() - 1;
+        assertEquals(3, lastColumn);
 
         WebLink addGatewayLink = listGateways.getLinkWithID("addGateway");
         WebResponse addGatewayPage = addGatewayLink.click();
@@ -63,7 +64,7 @@ public class GatewaysTestUi extends TestCase {
         gatewaysTable = listGateways.getTableWithID("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
-        assertEquals("bongoDescription", gatewaysTable.getCellAsText(1,2));
+        assertEquals("bongoDescription", gatewaysTable.getCellAsText(1,lastColumn));
 
         addGatewayLink = listGateways.getLinkWithID("addGateway");
         addGatewayPage = addGatewayLink.click();
@@ -72,7 +73,7 @@ public class GatewaysTestUi extends TestCase {
         gatewaysTable = listGateways.getTableWithID("list:gateway");
         // we should have 2 gateway now
         assertEquals(3, gatewaysTable.getRowCount());
-        assertEquals("kukuDescription", gatewaysTable.getCellAsText(2,2));
+        assertEquals("kukuDescription", gatewaysTable.getCellAsText(2,lastColumn));
     }
 
     /**

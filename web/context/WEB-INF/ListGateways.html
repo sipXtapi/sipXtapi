@@ -8,7 +8,7 @@
 		<li><a jwcid="addGatewayLink" id="addGateway" href="EditGateway.html">Add Gateway</a></li>        
 		<li><a jwcid="dialPlansLink" id="dialPlans	" href="ListDialplans.html">Dial Plans</a></li>
 	</ul>        
-    <form jwcid="@Form" delegate="ognl:beans.validator">
+    <form jwcid="gatewaysListForm" id="list:gateway:form">
 	<table id="list:gateway" jwcid="tableView" class="table-view">
             <thead>
                 <span jwcid="tableColumns"/>
@@ -20,6 +20,9 @@
                 </tr>
             </thead>
             <tbody>
+                <span jwcid="SelectColumnValue">
+                    <span jwcid="selectedRow"/>
+				</span>                    
 				<span jwcid="NameColumnValue">
 					<span jwcid="editRowLink"><span jwcid="nameText"/></span>
 				</span>
@@ -45,41 +48,12 @@
                    <td>192.168.1.15</td> 
                    <td></td>                     
                 </tr>
-                <tr class="even">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">montreal</a></td> 
-                   <td>10.3.3.15</td>
-                   <td>additional</td>                     
-                </tr>                
-                <tr class="odd">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">london</a></td> 
-                   <td>192.168.1.15</td> 
-                   <td></td>                     
-                </tr>
-                <tr class="even">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">montpellier</a></td> 
-                   <td>10.1.3.25</td>
-                   <td>additional</td>                     
-                </tr>                
-                <tr class="odd">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">bejing</a></td> 
-                   <td>192.166.12.15</td>
-                   <td>some comment</td>
-                </tr>
-                <tr class="even">
-				   <td><input type="checkbox" name="id1"/></td>
-                   <td><a href="edit-gateway.html">portland</a></td> 
-                   <td>10.5.3.5</td>
-                   <td>additional</td>               
-                </tr>
                 </span>
             </tbody>
 		</table>
 		<ul class="table-actions">
-			<li><input type="submit" name="" value="Delete" onclick="confirm('Are you sure you want to remove selected gateways?')"/></li>
+			<li><input jwcid="deleteButton" type="submit" id="list:gateway:delete" 
+            	value="Delete" onclick="confirm('Are you sure you want to remove selected gateways?')"/></li>
 		</ul>
     </form>
 	</div>

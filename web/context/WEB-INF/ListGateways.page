@@ -17,7 +17,9 @@
         type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway">
     </property-specification>
 
-    <!--
+	<property-specification name="selected" type="java.util.Map"/>
+    
+     <!--
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
@@ -29,7 +31,7 @@
      -->
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="dialPlanManager.gateways"/>
-        <static-binding name="columns" value="Name:name,Address:address,Description:description"/>
+        <static-binding name="columns" value="* !Select: :unused,Name:name,Address:address,Description:description"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns">
@@ -46,6 +48,9 @@
     </component>
     
 	<component id="NameColumnValue" type="Block"/>
+
+	<component id="SelectColumnValue" type="Block"/>
+        
     
     <component id="nameText" type="Insert">
         <binding name="value" expression="currentRow.name"/>
@@ -61,6 +66,19 @@
 
     <component id="dialPlansLink" type="PageLink">
         <static-binding name="page" value="ListDialPlans"/>
+    </component>
+    
+    <component id="selectedRow" type="Checkbox">
+        <binding name="selected" expression="marked[currentRow.id]"/>
+    </component>
+    
+    <component id="deleteButton" type="Submit">
+        <binding name="listener" expression="listeners.delete"/>
+    </component>
+    
+    <component id="gatewaysListForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
     </component>
     <!--
 	  - A S S E T S

@@ -100,4 +100,8 @@ public class DialPlanManager {
         m_dialPlans.clear();
         m_gateways.clear();
     }
+
+    public boolean deleteGateway(Integer id) {
+        return m_gateways.remove(new Gateway(id));
+    }
 }
