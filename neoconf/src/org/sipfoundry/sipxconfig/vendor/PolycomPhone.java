@@ -21,10 +21,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.GenericPhone;
-import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.SettingModel;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
@@ -56,7 +54,9 @@ public class PolycomPhone extends GenericPhone {
 
     private VelocityEngine m_velocityEngine;
 
-    private SettingModel m_settingModel;
+    private SettingGroup m_settingModel;      
+
+    private SettingGroup m_settingGroup;      
 
     public VelocityEngine getVelocityEngine() {
         return m_velocityEngine;
@@ -86,7 +86,7 @@ public class PolycomPhone extends GenericPhone {
         m_id = id;
     }
 
-    public SettingModel getSettingModel() {
+    SettingGroup getSettingModel() {
         if (m_settingModel == null) {
             FileInputStream is = null;
             try {
@@ -109,19 +109,25 @@ public class PolycomPhone extends GenericPhone {
                 }
             }
         }
+        
 
         return m_settingModel;
+    }
+    
+    public SettingGroup getSettingGroup() {
+        if (m_settingGroup == null) {
+            m_settingGroup = (SettingGroup) getSettingModel().deepClone();
+            m_settingGroup.setSettingValues(getEndpoint().getSettingValues());
+        }
+        
+        return m_settingGroup;
     }
 
     private void log(Exception e) {
         e.printStackTrace();
     }
 
-    private void initialize(PhoneContext context) {
-        SettingSet settings = getEndpoint().getSettings();
-        Organization org = context.loadRootOrganization();
-
-        settings.setDefault("network/tftpServer", org.getDnsDomain());
+    private void initialize() {
         File tftpRootFile = new File(getTftpRoot());
         if (!tftpRootFile.exists()) {
             if (!tftpRootFile.mkdirs()) {
@@ -131,8 +137,8 @@ public class PolycomPhone extends GenericPhone {
         }
     }
 
-    public void generateProfiles(PhoneContext context) throws IOException {
-        initialize(context);
+    public void generateProfiles(PhoneContext context_) throws IOException {
+        initialize();
         Template template;
         // has to be relative to system directory
         String templateFile = getPhoneConfigTemplate();

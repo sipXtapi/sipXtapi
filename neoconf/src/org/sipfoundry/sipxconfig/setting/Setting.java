@@ -11,70 +11,143 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-
+import java.util.Set;
 
 /**
- * Represent one setting in a set of settings. Composite base class to SettingSet
+ * Meta Information about a Setting.
  */
-public class Setting implements Serializable {
+public class Setting implements Map, Cloneable {
 
-    private static final long serialVersionUID = 1L;
+    private String m_label;
+
+    private String m_type;
 
     private String m_name;
+    
+    private SettingValue m_settingValue;
 
-    private Object m_value;
-    
-    private Object m_default;
-    
-    private int m_id = PhoneContext.UNSAVED_ID;
-    
-    private SettingSet m_parent;
+    private String m_defaultValue;
 
+    private List m_possibleValues;
+    
+    private SettingGroup m_settingGroup;
+    
+    /**
+     * bean access only, must set name before valid object
+     */
     public Setting() {
     }
-
+    
     public Setting(String name) {
-        this(name, null);
-    }
-
-    public Setting(String name, Object value) {
-        m_name = name;
-        m_value = value;
-    }
-
-    public Object getDefault() {
-        return m_default;
+        setName(name);
     }
     
-    public void setDefault(Object default1) {
-        m_default = default1;
+    public Setting(String name, String value) {
+        this(name);
+        setValue(value);
+    }
+
+    public Setting deepClone() {
+        return (Setting) clone();        
+    }
+        
+    public void setSettingValues(Map settingValues) {
+        m_settingValue = (SettingValue) settingValues.get(getPath());
     }
     
-    /**
-     * @return null only if subclass is SettingSet and it's the root setting
-     */
-    public SettingSet getParent() {
-        return m_parent;
+    void updateSettingValues() {
+        if (m_settingGroup != null) {
+            if (m_settingValue == null) {
+                m_settingGroup.getSettingValues().remove(getPath());
+            } else {            
+                m_settingGroup.getSettingValues().put(getPath(), m_settingValue);
+            }
+        }
+    }
+
+    public SettingValue getSettingValue() {
+        return m_settingValue;
+    }
+    
+    public void setSettingValue(SettingValue settingValue) {
+        if (settingValue == null || settingValue.getValue() == null) {
+            m_settingValue = null;                    
+        } else {
+            m_settingValue = settingValue;
+        }
+        updateSettingValues();
+    }
+
+    public SettingGroup getSettingGroup() {
+        return m_settingGroup;
+    }
+    
+    public void setSettingGroup(SettingGroup settingGroup) {
+        m_settingGroup = settingGroup;
+        updateSettingValues();
+    }
+    
+    public String getPath() {
+        String path;
+        if (m_settingGroup == null) {
+            path = "";
+        } else {
+            path = m_settingGroup.getPath() + "/" + getName();
+        }
+
+        return path;
+    }
+    
+    protected Object clone() {
+        Setting clone;
+        try {
+            clone = (Setting) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("clone SettingMeta is a required operations", e);
+        }
+        return clone;
     }
 
     /**
-     * Called internally when a setting is added to its parent
+     * @return null always
      */
-    public void setParent(SettingSet parent) {
-        m_parent = parent;
+    public Setting getSetting(int index_) {
+        return null;
     }
 
-    public int getId() {
-        return m_id;
+    /**
+     * @throws IllegalArgumentException  Cannot put settings into another setting, only groups
+     */
+    public Setting addSetting(Setting setting_) {
+        throw new IllegalArgumentException("Cannot put settings into another setting, only groups");
     }
 
-    public void setId(int id) {
-        m_id = id;
+    /**
+     * @throws IllegalArgumentException  Cannot get settings from another setting, only groups
+     */
+    public Setting getSetting(String name_) {
+        throw new IllegalArgumentException("Cannot get settings from another setting, only groups");
+    }      
+    
+    public String getDefaultValue() {
+        return m_defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        m_defaultValue = defaultValue;
+    }
+
+    public String getLabel() {
+        return m_label;
+    }
+
+    public void setLabel(String label) {
+        m_label = label;
     }
 
     public String getName() {
@@ -85,30 +158,92 @@ public class Setting implements Serializable {
         m_name = name;
     }
 
-    public Object getValue() {
-        return m_value;
-    }
-        
-    /**
-     * @return string representation of value
-     */
-    public String getString() {
-        return (m_value != null ? m_value.toString() : null);
+    public String getValue() {
+        return m_settingValue == null ? null : m_settingValue.getValue();
     }
 
-    /**
-     * Called only if the value is supposed to be a string
-     * @param string
-     */
-    public void setString(String string) {
-        m_value = string;
+    public void setValue(String value) {
+        if (value != null) {
+            setSettingValue(new SettingValue(getPath(), value));        
+        } else {
+            setSettingValue(null);
+        }
     }
 
-    public void setValue(Object value) {
-        m_value = value;
+    public String getType() {
+        return m_type;
+    }
+
+    public void setType(String type) {
+        m_type = type;
     }
     
-    public Map getSettings() {
-        return Collections.EMPTY_MAP;
+    public void addPossibleValue(String value) {
+        if (m_possibleValues == null) {
+            m_possibleValues = new ArrayList();
+        }
+        m_possibleValues.add(value);
     }
+
+    public List getPossibleValues() {
+        return m_possibleValues;
+    }
+
+    public void setPossibleValues(List possibleValues) {
+        m_possibleValues = possibleValues;
+    }
+
+    /*
+     * M A P  I M P L E M E N T A T I O N
+     */
+
+    public int size() {
+        return 0;
+    }
+
+    public void clear() {
+    }
+
+    public boolean isEmpty() {
+        return true;
+    }
+
+    public boolean containsKey(Object key_) {
+        return false;
+    }
+
+    public boolean containsValue(Object value_) {
+        return false;
+    }
+
+    public Collection values() {
+        return Collections.EMPTY_LIST;
+    }
+
+    public void putAll(Map t_) {
+    }
+
+    public Set entrySet() {
+        return Collections.EMPTY_SET;
+    }
+
+    public Set keySet() {
+        return Collections.EMPTY_SET;
+    }
+
+    public Object get(Object key_) {
+        return null;
+    }
+
+    public Object remove(Object key_) {
+        return null;
+    }
+
+    public Object put(Object key_, Object value_) {
+        return null;
+    }
+
+    /*
+     *  E N D  M A P I M P L E M E N T A T I O N
+     */
 }

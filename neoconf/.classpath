@@ -21,5 +21,13 @@
 	<classpathentry sourcepath="LIB_SRC/commons-digester/commons-digester-1.6-src" kind="var" path="SIPX_CONFIG/lib/commons-digester-1.6.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-dbcp-1.2.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/aopalliance-1.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jta.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/odmg-3.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/ehcache-1.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/cglib-2.0.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/asm-1.4.3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

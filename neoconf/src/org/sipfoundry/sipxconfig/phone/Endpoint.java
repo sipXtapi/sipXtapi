@@ -12,8 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
-
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import java.util.Map;
 
 
 /**
@@ -31,7 +30,7 @@ public class Endpoint implements Serializable {
 
     private String m_phoneId;
     
-    private SettingSet m_settings = new SettingSet("root");
+    private Map m_settingValues;
 
     /**
      * @return ids used in PhoneFactory
@@ -71,12 +70,12 @@ public class Endpoint implements Serializable {
         m_serialNumber = serialNumber;
     }
     
-    public SettingSet getSettings() {
-        return m_settings;
+    public Map getSettingValues() {
+        return m_settingValues;
     }
     
-    public void setSettings(SettingSet settings) {
-        m_settings = settings;
+    public void setSettingValues(Map settingValues) {
+        m_settingValues = settingValues;
     }
 
     /**
@@ -85,5 +84,4 @@ public class Endpoint implements Serializable {
     public String getDisplayLabel() {
         return m_name != null ? m_name : m_serialNumber;
     }
-
 }

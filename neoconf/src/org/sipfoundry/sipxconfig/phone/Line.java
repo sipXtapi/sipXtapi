@@ -12,8 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
-
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import java.util.Map;
 
 /**
  * Association between Users and their assigned phones.
@@ -29,7 +28,7 @@ public class Line implements Serializable {
 
     private Endpoint m_endpoint;
 
-    private SettingSet m_settings;
+    private Map m_settingValues;
 
     private Credential m_credential;
 
@@ -65,11 +64,15 @@ public class Line implements Serializable {
         m_user = user;
     }
 
-    public SettingSet getSettings() {
-        return m_settings;
+    public Map getSettingValues() {
+        return m_settingValues;
     }
 
-    public void setSettings(SettingSet settings) {
-        m_settings = settings;
+    public void setSettingValues(Map settingValues) {
+        m_settingValues = settingValues;
+    }
+    
+    public String getDisplayLabel() {
+        return m_user.getDisplayId();
     }
 }

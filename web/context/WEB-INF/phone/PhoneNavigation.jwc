@@ -29,10 +29,10 @@
     <!--
       - P R O P E R T I E S
       -->
-    <property-specification name="currentSetting"
-        type="org.sipfoundry.sipxconfig.setting.SettingModel"/>
-    <property-specification name="settingSet"
-        type="java.util.Collection"/>
+    <property-specification name="currentSettingGroup"
+        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+    <property-specification name="settingGroup"
+        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
     <!--
       - B E A N S
       -->
@@ -56,15 +56,15 @@
         <binding name="class" expression="beans.tabs.getTabClass('PhoneLines')"/>
     </component>
     <component id="settingsTabs" type="Foreach">
-        <binding name="source" expression="settingSet"/>
-        <binding name="value" expression="currentSetting"/>
+        <binding name="source" expression="settingGroup.values"/>
+        <binding name="value" expression="currentSettingGroup"/>
     </component>
     <component id="settingsTab" type="DirectLink">
         <binding name="listener" expression="listeners.editSettings"/>
         <binding name="parameters" expression="editSettingListenerParameters"/>
-        <binding name="class" expression="beans.tabs.getTabClass(currentSetting.name)"/>
+        <binding name="class" expression="beans.tabs.getTabClass(currentSettingGroup.name)"/>
     </component>
     <component id="settingsTabLabel" type="Insert">
-        <binding name="value" expression="getCurrentSetting().getLabel()"/>
+        <binding name="value" expression="getCurrentSettingGroup().getLabel()"/>
     </component>
 </component-specification>

@@ -1,12 +1,20 @@
+/** 
+ * S E T T I N G   M A P
+ */
+create table setting_map(
+  setting_map_id int4 not null primary key
+);
+
+create sequence setting_map_seq;
+
 /**
  * S E T T I N G
  */
 create table setting(
   setting_id int4 not null primary key,
-  parent_id int4,
-  name varchar(256) not null,
-  string_value varchar(256),
-  type int4
+  setting_map_id int4 not null,
+  path varchar(256) not null,
+  value varchar(256) not null
 );
 
 create sequence setting_seq;
@@ -19,18 +27,17 @@ create table endpoint(
   serial_number varchar(256) not null,
   name varchar(256),
   phone_id varchar(256) not null,
-  setting_id int4
+  setting_map_id int4
 );
 
 /* 
  * would like to add FK contraint to setting table
  * but setting_id can be null and I don't think thats
  * possible w/postgres
- */
-/** may relax if settings null ok */
 alter table endpoint
 add constraint fk_endpoint_1
-foreign key (setting_id) references setting (setting_id);
+foreign key (setting_map_id) references setting_map (setting_map_id);
+ */
  
 create sequence endpoint_seq;
 create unique index idx_endpoint_sernum on endpoint (serial_number);
@@ -53,7 +60,7 @@ create table line(
   line_id int4 not null primary key,
   credential_id int4 not null,
   user_id int4 not null,
-  setting_id int4,
+  setting_map_id int4,
   endpoint_id int4 not null
 );
 create sequence line_seq;
@@ -62,10 +69,14 @@ alter table line
 add constraint fk_line_1 
 foreign key (endpoint_id) references endpoint (endpoint_id);
 
-/** may relax if settings null ok */
+/* 
+ * would like to add FK contraint to setting table
+ * but setting_id can be null and I don't think thats
+ * possible w/postgres
 alter table line
 add constraint fk_line_2
-foreign key (setting_id) references setting (setting_id);
+foreign key (setting_map_id) references setting_map (setting_map_id);
+*/
 
 /** may relax if user null ok */
 alter table line

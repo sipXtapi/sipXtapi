@@ -19,6 +19,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSummary;
 
@@ -38,6 +39,10 @@ public abstract class ManagePhones extends BasePage
     public abstract PhoneSummary getCurrentRow();
 
     public abstract void setCurrentRow(PhoneSummary currentPhone);
+    
+    public abstract void setCurrentLine(Line line);
+    
+    public abstract Line getCurrentLine();
     
     public abstract SelectMap getSelections();
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<set>
-	<set name="registration">
+<model>
+	<group name="registration">
 		<label>Registration</label>
 		<setting name="displayName">
 			<label>Display Name</label>
@@ -19,9 +19,9 @@
 				<value>private</value>
 			</possibleValues>
 		</setting>
-	</set>
+	</group>
 	<!-- TODO: think about 'line' element to remove opportunity for user error -->
-	<set name="line">
+	<group name="line">
 		<label>Line Settings</label>
-	</set>
-</set>
+	</group>
+</model>

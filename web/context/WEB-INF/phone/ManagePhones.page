@@ -8,6 +8,8 @@
 	<property-specification name="phones" type="java.util.List"/>
 	<property-specification name="currentRow" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneSummary"/>
+	<property-specification name="currentLine" 
+		type="org.sipfoundry.sipxconfig.phone.Line"/>
    	<property-specification name="selections" 
        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
 	<!--
@@ -30,6 +32,7 @@
 		<binding name="row" expression="currentRow"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
+    <!-- Column 1: edit phone -->
 	<component id="phoneValues" type="contrib:TableValues">
 	</component>
     <component id="selectedRow" type="Checkbox">
@@ -43,7 +46,19 @@
     <component id="phoneLabel" type="Insert"> 
         <binding name="value" expression="currentRow.endpoint.displayLabel"/>
     </component>
-    
+    <!-- Column 2: edit lines -->
+    <component id="LinesColumnValue" type="Block"/>
+    <component id="editLines" type="Foreach">
+        <binding name="source" expression="currentRow.lines"/>
+        <binding name="value" expression="currentLine"/>
+    </component>
+    <component id="lineLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editLine"/>
+        <binding name="parameters" expression="currentLine.id"/>
+    </component>
+    <component id="lineLabel" type="Insert">
+        <binding name="value" expression="currentLine.displayLabel"/>
+    </component>    
 	<!--
 	  - A S S E T S
 	  -->

@@ -37,6 +37,7 @@
 		<pathelement location="${aopalliance.jar}" />
 		<pathelement location="${dom4j.jar}" />
 		<pathelement location="${ehcache.jar}" />
+		<pathelement location="${asm.jar}" />
 		<pathelement location="${cglib.jar}" />
 		<pathelement location="${jta.jar}" />
 		<pathelement location="${jdbc-driver.jar}" />

@@ -10,23 +10,33 @@
     <property-specification name="phoneId"
         type="int" 
         persistent="yes"/>
-    <property-specification name="modelName"
+    <property-specification name="parentSettingGroupName"
         type="java.lang.String"
         persistent="yes"/>    
     <property-specification name="phone"
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="settingModel"
-        type="org.sipfoundry.sipxconfig.setting.SettingModel"/>
-   <!--
-    - B E A N S
-    -->
+    <property-specification name="parentSettingGroup"
+        type="org.sipfoundry.sipxconfig.setting.SettingGroup"/>
+    <property-specification name="currentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
    <!--
     - C O M P O N E N T S
     -->
     <component id="editPhoneNavigation" type="PhoneNavigation">
         <binding name="phone" expression="phone"/>
-        <binding name="tab" expression="modelName"/>
-        <binding name="heading" expression="settingModel.label"/>
+        <binding name="tab" expression="parentSettingGroup.name"/>
+        <binding name="heading" expression="parentSettingGroup.label"/>
+    </component>
+    <component id="settingsForm" type="Form"/>
+    <component id="settings" type="Foreach">
+        <binding name="source" expression="parentSettingGroup.values"/>
+        <binding name="value" expression="currentSetting"/>
+    </component>
+    <component id="settingLabel" type="Insert">
+        <binding name="value" expression="currentSetting.label"/>
+    </component>
+    <component id="setting" type="TextField">
+        <binding name="value" expression="currentSetting.value"/>
     </component>
     <!--
      - A S S E T S

@@ -77,6 +77,30 @@
 	  <property name="resourceLoaderPath"><value>file:${sysdir.etc}</value></property>          
 	</bean>
 	<!--
+      -  S E T T I N G  D A O  I M P L
+	  -->
+	<bean id="settingDaoImpl" 
+		class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+	<!--
+      -  S E T T I N G  D A O 
+	  -->
+	<bean id="settingDao" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.setting.SettingDao</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>settingDaoImpl</value>
+			</list>
+		</property>
+	</bean>
+	<!--
       - P H O N E  C O N T E X T   I M P L
       -->
 	<bean id="phoneContextImpl" 
@@ -88,6 +112,9 @@
 			<list>
 				<value>polycom300</value>
 			</list>
+		</property>
+		<property name="settingDao">
+			<ref bean="settingDao"/>
 		</property>
 	</bean>
 	<!--

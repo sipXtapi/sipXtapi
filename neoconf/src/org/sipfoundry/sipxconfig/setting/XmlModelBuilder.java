@@ -26,39 +26,40 @@ import org.xml.sax.SAXException;
  */
 public class XmlModelBuilder {
 
-    public SettingModel buildModel(InputStream is) throws IOException {
+    public SettingGroup buildModel(InputStream is) throws IOException {
         Digester digester = new Digester();
         digester.setValidating(false);
-        String addMeta = "addMeta";
+        String addSetting = "addSetting";
+        digester.push(new SettingGroup());
 
-        digester.addObjectCreate("set", SettingModel.class);
+        digester.addObjectCreate("group", SettingGroup.class);
 
-        String set = "*/set";
+        String set = "*/group";
         String[] setIgnore = new String[] {
             "setting", "possibleValues" 
         };
         Arrays.sort(setIgnore);
-        digester.addObjectCreate(set, SettingModel.class);
+        digester.addObjectCreate(set, SettingGroup.class);
         digester.addSetProperties(set);
-        addAllBeanPropertySetter(digester, set, setIgnore, SettingModel.class);
+        addAllBeanPropertySetter(digester, set, setIgnore, SettingGroup.class);
         digester.addBeanPropertySetter(set + "/label");
-        digester.addSetNext(set, addMeta, SettingMeta.class.getName());
+        digester.addSetNext(set, addSetting, Setting.class.getName());
 
         String setting = "*/setting";
         // because setting in baseclass to set, this should be a subset of same ignore
         // list
         String[] settingIgnore = setIgnore;
-        digester.addObjectCreate(setting, SettingMeta.class);
+        digester.addObjectCreate(setting, Setting.class);
         digester.addSetProperties(setting);
-        addAllBeanPropertySetter(digester, setting, settingIgnore, SettingMeta.class);
-        digester.addSetNext(setting, addMeta, SettingMeta.class.getName());
+        addAllBeanPropertySetter(digester, setting, settingIgnore, Setting.class);
+        digester.addSetNext(setting, addSetting, Setting.class.getName());
 
         String possibleValues = "*/possibleValues/value";
         digester.addCallMethod(possibleValues, "addPossibleValue", 1);
         digester.addCallParam(possibleValues, 0);
 
         try {
-            return (SettingModel) digester.parse(is);
+            return (SettingGroup) digester.parse(is);
         } catch (SAXException se) {
             throw new RuntimeException("Could not parse model definition file", se);
         }
@@ -82,7 +83,6 @@ public class XmlModelBuilder {
             if (m != null && Arrays.binarySearch(ignore, propName) < 0) {
                 String propPattern = pattern + "/" + propName;
                 digester.addBeanPropertySetter(propPattern);
-                System.out.println("adding " + propPattern);
             }
         }
     }

@@ -16,8 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -31,6 +30,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     
     private List m_phoneIds;
     
+    private SettingDao m_settingDao;
+    
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
@@ -38,6 +39,10 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         m_beanFactory = beanFactory;
     }
     
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
+    }
+
     public Phone getPhone(Endpoint endpoint) {
         Phone phone = (Phone) m_beanFactory.getBean(endpoint.getPhoneId());
         if (phone != null) {
@@ -129,7 +134,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         Line line = null;
         Endpoint endpoint = null;
         PhoneSummary summary = new PhoneSummary();
-        summary.setEndpointLines(new ArrayList());
+        summary.setLines(new ArrayList());
         int nEndpoints = endpoints.size();
         int nlines = lines.size();
         int j = 0;
@@ -137,13 +142,13 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             endpoint = (Endpoint) endpoints.get(i);
             line = (Line) getn(j, lines);
             while (j < nlines && line.getEndpoint().getId() == endpoint.getId()) {
-                summary.getEndpointLines().add(line);                
+                summary.getLines().add(line);                
                 line = (Line) getn(j++, lines);
             }
             summary.setPhone(getPhone(endpoint));
             summaries.add(summary);
             summary = new PhoneSummary();
-            summary.setEndpointLines(new ArrayList());
+            summary.setLines(new ArrayList());
         }
         
         return summaries;
@@ -158,18 +163,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     
     public Endpoint loadEndpoint(int id) {
         return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
-    }
-    
-    public void storeSetting(Setting setting, int depth) {        
-        getHibernateTemplate().saveOrUpdate(setting);
-        if (depth > 0 || depth == CASCADE && setting.getSettings().size() > 0) {
-            Iterator children = setting.getSettings().values().iterator();
-            int nextDepth = (depth == CASCADE ? CASCADE : depth - 1); 
-            while (children.hasNext()) {
-                Setting child = (Setting) children.next();
-                storeSetting(child, nextDepth);                    
-            }
-        }
     }
     
     /**
@@ -195,27 +188,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         
         return (i.hasNext() ? c.iterator().next() : null);
     }    
-    
-    
-    public void deleteSetting(Setting setting) {
-        // PERFORMANCE: concerned about performance, cascade at database better
-        // or custom script acceptable too 
-        Iterator children = setting.getSettings().values().iterator();
-        while (children.hasNext()) {
-            deleteSetting((Setting) children.next());
-        }
-        getHibernateTemplate().delete(setting);                
-    }
-    
-    
-    public void storeSetting(Setting setting) {
-        storeSetting(setting, 0);
-    }
-
-    public SettingSet loadSettings(int id) {
-        return (SettingSet) getHibernateTemplate().load(SettingSet.class, new Integer(id));
-    }    
-    
+       
     public Organization loadRootOrganization() {
         return (Organization) getHibernateTemplate().load(Organization.class, new Integer(1));        
     }

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.vendor;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.custommonkey.xmlunit.Diff;
@@ -28,8 +29,7 @@ import org.sipfoundry.sipxconfig.phone.Organization;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.User;
-import org.sipfoundry.sipxconfig.setting.SettingModel;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 public class PolycomPhoneTest extends XMLTestCase {
         
@@ -42,12 +42,11 @@ public class PolycomPhoneTest extends XMLTestCase {
         PhoneContext phoneContext = (PhoneContext) phoneControl.getMock();
         Organization rootOrg = new Organization();
         rootOrg.setDnsDomain("localhost.localdomain");
-        phoneControl.expectAndReturn(phoneContext.loadRootOrganization(), rootOrg);
         phoneControl.replay();
 
         Endpoint endpoint = new Endpoint();
         endpoint.setSerialNumber("123abc");
-        endpoint.setSettings(new SettingSet());
+        endpoint.setSettingValues(new HashMap());
         endpoint.setPhoneId(PolycomPhone.MODEL_300);
         PolycomPhone phone = new PolycomPhone();
         phone.setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
@@ -197,10 +196,10 @@ public class PolycomPhoneTest extends XMLTestCase {
         String sysDir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         assertNotNull(sysDir);
         phone.setSystemDirectory(sysDir);
-        SettingModel model = phone.getSettingModel();
+        SettingGroup model = phone.getSettingModel();
         assertNotNull(model);
         
-        SettingModel lines = (SettingModel) model.getMeta(Phone.LINE_SETTINGS);
+        SettingGroup lines = (SettingGroup) model.getSetting(Phone.LINE_SETTINGS);
         assertNotNull(lines);
         
         Iterator headings = model.values().iterator();
@@ -209,7 +208,7 @@ public class PolycomPhoneTest extends XMLTestCase {
         assertFalse(headings.hasNext());
     }
     
-    private SettingModel nextModel(Iterator i) {
-        return (SettingModel) i.next();
+    private SettingGroup nextModel(Iterator i) {
+        return (SettingGroup) i.next();
     }
 }

@@ -20,8 +20,8 @@
 		<property name="name" column="name"/>
 		<property name="serialNumber" column="serial_number"/>
 		<property name="phoneId" column="phone_id"/>
-		<many-to-one name="settings" column="setting_id" 
-			class="org.sipfoundry.sipxconfig.setting.SettingSet"/>
+		<many-to-one name="settingValues" column="setting_map_id"
+			class="org.sipfoundry.sipxconfig.setting.SettingMap"/>
 	</class>
 	<class name="org.sipfoundry.sipxconfig.phone.Credential" table="credential">
 		<jcs-cache usage="read-write"/>
@@ -51,33 +51,42 @@
 			class="org.sipfoundry.sipxconfig.phone.Credential"/>
 		<many-to-one name="endpoint" column="endpoint_id" 
 			class="org.sipfoundry.sipxconfig.phone.Endpoint"/>
-		<many-to-one name="settings" column="setting_id" 
-			class="org.sipfoundry.sipxconfig.setting.SettingSet"/>
+		<many-to-one name="settingValues" column="setting_map_id"
+			class="org.sipfoundry.sipxconfig.setting.SettingMap"/>
+	</class>
+	<!--
+	  - S E T T I N G  M A P
+	  - thought about making this just a sequence, but instead I'm
+	  - making this a table w/one column.  It's more straight forward
+	  - from hibernate and foreign key perspective, just feels unnec.
+	  -->
+	<class name="org.sipfoundry.sipxconfig.setting.SettingMap" table="setting_map">
+		<jcs-cache usage="read-write"/>
+		<id name="id" column="setting_map_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">setting_map_seq</param>
+			</generator>
+		</id>
+		<map name="delegate" cascade="all" inverse="true">
+			<key column="setting_map_id"/>
+			<index column="path" type="string"/>
+			<many-to-many class="org.sipfoundry.sipxconfig.setting.SettingValue"/>
+	    </map>
 	</class>
 	<!-- 
-      - S E T T I N G  /  S E T T I N G S E T
+      - S E T T I N G   V A L U E 
 	  -->
-	<class name="org.sipfoundry.sipxconfig.setting.Setting" table="setting" 
-		discriminator-value="0">
+	<class name="org.sipfoundry.sipxconfig.setting.SettingValue" table="setting">
 		<jcs-cache usage="read-write"/>
 		<id name="id" column="setting_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">setting_seq</param>
 			</generator>
 		</id>
-		<discriminator column="type" type="int"/>
-		<property name="name" column="name"/>
-		<property name="string" column="string_value"/>
-		<many-to-one name="parent" column="parent_id" 
-			class="org.sipfoundry.sipxconfig.setting.SettingSet"/>
-		<subclass name="org.sipfoundry.sipxconfig.setting.SettingSet" 
-			discriminator-value="1">
-			<map name="settings" inverse="true">
-				<key column="parent_id"/>
-				<index column="name" type="string"/>
-				<one-to-many class="org.sipfoundry.sipxconfig.setting.Setting"/> 
-			</map>
-		</subclass>
+		<many-to-one name="settingMap" column="setting_map_id" 
+			class="org.sipfoundry.sipxconfig.setting.SettingMap"/>
+		<property name="path" column="path"/>
+		<property name="value" column="value"/>
 	</class>
 	<!--
 	  -  LEGACY DATABASE MODEL 

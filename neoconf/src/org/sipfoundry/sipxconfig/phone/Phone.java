@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.IOException;
 
-import org.sipfoundry.sipxconfig.setting.SettingModel;
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 
 
@@ -38,7 +38,7 @@ public interface Phone {
     
     public Endpoint getEndpoint();
     
-    public SettingModel getSettingModel();
+    public SettingGroup getSettingGroup();
 
     public void generateProfiles(PhoneContext phoneContext) throws IOException;
     

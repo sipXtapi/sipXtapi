@@ -32,29 +32,29 @@ public class XmlModelBuilderTest extends TestCase {
     public void testReadingGames() throws IOException {        
         XmlModelBuilder builder = new XmlModelBuilder();
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingModel games = builder.buildModel(in);
+        SettingGroup games = builder.buildModel(in);
         assertNull(games.getName());
         assertEquals(2, games.size());
 
-        SettingModel chess = (SettingModel) games.getMeta(0);
+        SettingGroup chess = (SettingGroup) games.getSetting(0);
         assertEquals(chess.getName(), "chess");
         assertEquals("The game of chess", chess.getLabel());
         assertEquals(2, chess.size());
-        SettingModel colors = (SettingModel) chess.getMeta(0);       
+        SettingGroup colors = (SettingGroup) chess.getSetting(0);       
         assertEquals(2, colors.size());
-        SettingModel pieces = (SettingModel) chess.getMeta(1);       
+        SettingGroup pieces = (SettingGroup) chess.getSetting(1);       
         assertEquals(6, pieces.size());
-        SettingMeta pawn = pieces.getMeta(0);
+        Setting pawn = pieces.getSetting(0);
         List moves = pawn.getPossibleValues();
         assertNotNull(moves);
         assertEquals(3, moves.size());
         assertTrue(moves.contains("diagonal one to take another piece"));
         
-        SettingModel cards = (SettingModel) games.getMeta(1);       
+        SettingGroup cards = (SettingGroup) games.getSetting(1);       
         assertEquals(2, cards.size());
-        SettingModel suits = (SettingModel) cards.getMeta(0);       
+        SettingGroup suits = (SettingGroup) cards.getSetting(0);       
         assertEquals(4, suits.size());
-        SettingModel card = (SettingModel) cards.getMeta(1);       
+        SettingGroup card = (SettingGroup) cards.getSetting(1);       
         assertEquals(13, card.size());
     }
     
@@ -64,11 +64,11 @@ public class XmlModelBuilderTest extends TestCase {
     public void testIteration() throws IOException {
         XmlModelBuilder builder = new XmlModelBuilder();
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingModel games = builder.buildModel(in);
+        SettingGroup games = builder.buildModel(in);
         
         Iterator i = games.values().iterator();
         while (i.hasNext()) {
-            assertTrue(i.next().getClass().isAssignableFrom(SettingModel.class));
+            assertTrue(i.next().getClass().isAssignableFrom(SettingGroup.class));
         }       
     }
 }

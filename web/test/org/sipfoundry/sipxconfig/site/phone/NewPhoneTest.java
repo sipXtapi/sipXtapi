@@ -41,7 +41,7 @@ public class NewPhoneTest extends TestCase {
         
         MockControl daoControl = MockControl.createStrictControl(PhoneContext.class);
         PhoneContext dao = (PhoneContext) daoControl.getMock();
-        dao.storeSetting(endpoint.getSettings());
+        //dao.storeSetting(endpoint.getSettingValues());
         dao.storeEndpoint(endpoint);
         dao.flush();
         daoControl.replay();

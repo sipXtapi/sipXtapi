@@ -18,6 +18,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.Properties;
+import java.util.Stack;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.SessionFactory;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +38,8 @@ public final class TestHelper {
     private static Properties s_sysProps;
     
     private static ApplicationContext s_appContext;
+    
+    private static Stack m_deleteOnTeardown = new Stack();
     
     public static ApplicationContext getApplicationContext() {
         if (s_appContext == null) {
@@ -97,6 +104,25 @@ public final class TestHelper {
         }
         
         return s_sysProps;
+    }
+    
+    public static void deleteOnTearDown(Object o) {
+        m_deleteOnTeardown.push(o);
+    }
+    
+    /**
+     * straight delete, circumvents business DAO
+     */
+    public static void tearDown() throws HibernateException {
+        if (!m_deleteOnTeardown.empty()) {
+            SessionFactory sessionFactory = (SessionFactory) getApplicationContext().getBean("sessionFactory");
+            Session session = sessionFactory.openSession();
+            while (!m_deleteOnTeardown.empty()) {
+                session.delete(m_deleteOnTeardown.pop());
+            }
+            session.flush();
+            session.close();
+        }
     }
 
 }

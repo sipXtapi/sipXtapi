@@ -24,38 +24,30 @@ public class PhoneContextTestDb extends TestCase {
 
     private PhoneContext m_context;
 
-    private UnitTestDao m_testData;
-
     protected void setUp() throws Exception {
         super.setUp();
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
-        assertNotNull(m_context);
-
-        m_testData = PhoneTestHelper.getUnitTestDao();
-        assertNotNull(m_testData);
-        assertTrue(m_testData.initializeImmutableData());        
     }
 
     protected void tearDown() throws Exception {
-        assertTrue(m_testData.verifyDataUnaltered());
-        m_context.flush();
+        TestHelper.tearDown();
     }
 
     public void testSampleData() {
-        assertNotNull(m_testData.createSampleCredential());
-        assertNotNull(m_testData.createSampleEndpoint());
+        assertNotNull(createSampleCredential());
+        assertNotNull(createSampleEndpoint());
     }
     
     public void testSampleEndpointLine() {
-        User user = m_context.loadUser(m_testData.getTestUserId());
-        assertNotNull(m_testData.createSampleLine(user));        
+        User user = createSampleUser();
+        assertNotNull(createSampleLine(user));        
     }
 
     public void testLoadPhoneSummaries() {
         int preSize = m_context.loadPhoneSummaries().size();
 
-        User user = m_context.loadUser(m_testData.getTestUserId());
-        Line line = m_testData.createSampleLine(user);
+        User user = createSampleUser();
+        Line line = createSampleLine(user);
         assertNotNull(line);
         
         // just test there's one more in list, not a very 
@@ -76,5 +68,71 @@ public class PhoneContextTestDb extends TestCase {
      */
     public PhoneContext getPhoneContext() {
         return m_context;
+    }
+    
+    public User createSampleUser() {
+        User user = new User();
+        user.setExtension("0000000000"); // assumption, unique
+        user.setPassword("any-password");
+        user.setFirstName("Test");
+        user.setLastName("User");
+        user.setDisplayId("phonecontext-test-user");
+        user.setOrganization(m_context.loadRootOrganization());
+        m_context.saveUser(user);
+        TestHelper.deleteOnTearDown(user);
+        
+        return user;
+    }
+    
+    /**
+     * Create some generic sample data, destroyed verifyDataUnaltered
+     */
+    public Endpoint createSampleEndpoint() {        
+        Endpoint endpoint = new Endpoint();
+        // assumption that this is unique
+        endpoint.setSerialNumber("f34298760024fcc1"); 
+        endpoint.setPhoneId(GenericPhone.GENERIC_PHONE_ID);
+        m_context.storeEndpoint(endpoint);
+        TestHelper.deleteOnTearDown(endpoint);
+        
+        return endpoint;
+    }
+    
+    /**
+     * Create some generic sample data, destroyed verifyDataUnaltered
+     */    
+    public Credential createSampleCredential() {
+        Credential cred = new Credential();
+        m_context.storeCredential(cred);
+        TestHelper.deleteOnTearDown(cred);
+        
+        return cred;
+    }
+    
+    /**
+     * Create some generic sample data, destroyed verifyDataUnaltered
+     */
+    public Line createSampleLine(User user) {
+        Line line = new Line();        
+        line.setCredential(createSampleCredential());
+        line.setEndpoint(createSampleEndpoint());
+        line.setUser(user);
+        m_context.storeLine(line);                
+        TestHelper.deleteOnTearDown(line);
+        
+        return line;
+    }
+    
+    /** 
+     * Most data can be cleared by running patch, run this test as application to clear
+     * test data that exists in other tables from misbehaved unittests
+     */
+    public static void main(String[] args) {
+        // total reset of data
+        PhoneContext c = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
+        User testUser = c.loadUserByDisplayId("phonecontext-test-user");
+        if (testUser != null) {
+            c.deleteUser(testUser);
+        }
     }
 }

@@ -11,30 +11,29 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import java.util.Collection;
-
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.setting.SettingModel;
+import org.sipfoundry.sipxconfig.setting.SettingGroup;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
  */
 public abstract class PhoneNavigation extends BaseComponent {
     
-    public abstract Collection getSettingSet();
-
-    public abstract void setSettingSet(Collection headings);
-    
+    /** REQUIRED PARAMETER */
     public abstract void setPhone(Phone phone);
     
     public abstract Phone getPhone();
     
-    public abstract void setCurrentSetting(SettingModel setting);
+    public abstract void setSettingGroup(SettingGroup model);
+    
+    public abstract SettingGroup getSettingGroup();
 
-    public abstract SettingModel getCurrentSetting();
+    public abstract void setCurrentSettingGroup(SettingGroup setting);
+
+    public abstract SettingGroup getCurrentSettingGroup();
     
     public void editPhone(IRequestCycle cycle) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
@@ -64,7 +63,7 @@ public abstract class PhoneNavigation extends BaseComponent {
         page.setPhoneId(endpointId.intValue());
 
         String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
-        page.setModelName(section);
+        page.setParentSettingGroupName(section);
         
         cycle.activate(page);        
     }
@@ -75,13 +74,13 @@ public abstract class PhoneNavigation extends BaseComponent {
     public Object[] getEditSettingListenerParameters() {
         return new Object[] { 
             new Integer(getPhone().getEndpoint().getId()),
-            getCurrentSetting().getName() 
+            getCurrentSettingGroup().getName() 
         };
     }
     
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        SettingModel model = getPhone().getSettingModel();
-        setSettingSet(model.values());
+        SettingGroup model = getPhone().getSettingGroup();
+        setSettingGroup(model);
     }    
 }

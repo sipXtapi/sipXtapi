@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<set>
-	<set name="chess">
+<model>
+	<group name="chess">
 		<label>The game of chess</label>
-		<set name="color">
+		<group name="color">
 			<setting name="black"/>
 			<setting name="white"/>
-        </set>
-		<set name="piece">
+        </group>
+		<group name="piece">
 			<setting name="pawn">
 			   <possibleValues>
 			     <value>forward twice on first move</value>
@@ -19,17 +19,17 @@
 			<setting name="bishop"/>
 			<setting name="queen"/>
 			<setting name="king"/>
-		</set>
-	</set>
-	<set name="cards">
+		</group>
+	</group>
+	<group name="cards">
 		<label>Playing Cards</label>
-		<set name="suit">
+		<group name="suit">
 			<setting name="spades"/>
 			<setting name="clubs"/>
 			<setting name="diamonds"/>
 			<setting name="hearts"/>
-		</set>
-		<set name="card">
+		</group>
+		<group name="card">
 			<setting name="A"/>
 			<setting name="2"/>
 			<setting name="3"/>
@@ -43,6 +43,6 @@
 			<setting name="J"/>
 			<setting name="Q"/>
 			<setting name="K"/>
-		</set>
-	</set>
-</set>
+		</group>
+	</group>
+</model>

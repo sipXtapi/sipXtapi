@@ -13,8 +13,7 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 
 
@@ -43,6 +42,8 @@ public interface PhoneContext {
      */
     public static final int UNSAVED_ID = -1;
     
+    public void setSettingDao(SettingDao dao);
+    
     public Phone getPhone(Endpoint endpoint);
     
     public Phone getPhone(int endpointId);
@@ -63,14 +64,6 @@ public interface PhoneContext {
      */
     public void flush();
     
-    public void storeSetting(Setting setting, int depth);
-
-    public void storeSetting(Setting setting);
-    
-    public void deleteSetting(Setting setting);
-    
-    public SettingSet loadSettings(int id);
-
     public Organization loadRootOrganization();
     
     public void saveUser(User user);

@@ -27,7 +27,7 @@ public class PhoneSummary implements Serializable {
 
     private Phone m_phone;
     
-    private List m_endpointLines;
+    private List m_lines;
     
     public Phone getPhone() {
         return m_phone;
@@ -46,14 +46,14 @@ public class PhoneSummary implements Serializable {
     }
 
     public boolean hasLines() {
-        return getEndpointLines() != null && getEndpointLines().size() > 0;
+        return getLines() != null && getLines().size() > 0;
     }
 
-    public List getEndpointLines() {
-        return m_endpointLines;
+    public List getLines() {
+        return m_lines;
     }
 
-    public void setEndpointLines(List endpointLines) {
-        m_endpointLines = endpointLines;
+    public void setLines(List endpointLines) {
+        m_lines = endpointLines;
     }
 }
