@@ -39,7 +39,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.xml.sax.InputSource;
 
 import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PDSDefinitions;
@@ -770,7 +769,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
      * Implementation of the bean method
      * @see com.pingtel.pds.pgs.user.UserAdvocateBusiness#fixDnsDomain(com.pingtel.pds.pgs.organization.Organization)
      */
-    public void fixDnsDomain(Organization organization) throws PDSException, RemoteException {
+    public void fixDnsDomain(Organization organization, String oldDomainName) throws PDSException, RemoteException {
         try {
             Integer orgID = organization.getID();
             Collection users = mUserHome.findByOrganizationID(orgID);
@@ -778,6 +777,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
                 User user = (User) i.next();
                 // false == do not touch credentials
                 fixPrimaryLine(user,false,null);
+                fixUserLines(user,oldDomainName);
             }
         } catch (FinderException e) {
             throw new PDSException("Attempt to fix DNS name for users.", e);
@@ -800,7 +800,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
         throws PDSException {
 
         String externalID = null;
-        String oldLineURL = null;
 
         try {
             externalID = user.getExternalID();
@@ -810,13 +809,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
             final String realm = organization.getAuthenticationRealm();
             final String displayID = user.getDisplayID();
 
-            ConfigurationSet cs = null;
-
-            Collection userCSC = mConfigurationSetHome.findByUserID( user.getID () );
-            for ( Iterator iCSC = userCSC.iterator(); iCSC.hasNext(); )
-            {
-                cs = (ConfigurationSet) iCSC.next();
-            }
+            ConfigurationSet cs = getUserConfigurationSet(user);
             
             if( null == cs )
             {
@@ -845,14 +838,20 @@ public class UserAdvocateBean extends JDBCAwareEJB
                 passtoken = helper.digestPassword(organization, undigestedPassword);                
             }
             
-
+            String oldLineURL = null;
             Collection userLines = profile.getChildren( );
             for ( Iterator lineI = userLines.iterator(); lineI.hasNext(); ) {
                 Element setting = (Element) lineI.next();
                 String rpID = setting.getAttributeValue( "ref_property_id" );
 
                 if ( rpID.equals( primaryLineRPID )  ) {
-                    helper.fixUserPrimaryLine(setting, organization, realm, fixCredential, passtoken);
+                    Element url = setting.getChild( "PRIMARY_LINE" ).getChild( "URL" );
+                    List l = url.getContent();
+                    for ( Iterator iList = l.iterator(); iList.hasNext(); ) {
+                        CDATA existing = (CDATA) iList.next();
+                        oldLineURL = existing.getText();
+                    }
+                    helper.fixUserPrimaryLine(setting, organization, realm, fixCredential, passtoken);                    
                 } // if
                 else if ( rpID.equals( defaultLineRPID ) ) {
                     Element holder = setting.getChild( "USER_DEFAULT_OUTBOUND_LINE" );
@@ -917,6 +916,86 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
         }
     }
+   
+   
+    /**
+     * Modify user's configuration set. Updates all references to user lines that 
+     * had old domain name to current (organization) domain name.
+     * @param user
+     * @param oldDomainName
+     * @throws PDSException
+     */
+    private void fixUserLines(User user, String oldDomainName) throws PDSException {
+        String externalID = null;
+
+        try {
+            externalID = user.getExternalID();
+
+            Integer organizationID = user.getOrganizationID();
+            Organization organization = mOrganizationHome.findByPrimaryKey(organizationID);
+            final String domainName = organization.getDNSDomain();
+
+            ConfigurationSet cs = getUserConfigurationSet(user);
+
+            if (null == cs) {
+                return;
+            }
+
+            String xmlContent = cs.getContent();
+            Document doc = mSaxBuilder.build(new StringReader(xmlContent));
+
+            Element profile = doc.getRootElement();
+
+            RefProperty userLineRP = getRefProperty("xp_2029");
+            String userLineRPID = userLineRP.getID().toString();
+
+            UserHelper helper = new UserHelper(user);
+
+            Collection userLines = profile.getChildren();
+            for (Iterator i = userLines.iterator(); i.hasNext();) {
+                Element line = (Element) i.next();
+                String rpID = line.getAttributeValue("ref_property_id");
+
+                if (userLineRPID.equals(rpID)) {
+                    helper.fixUserLineUrl(line, domainName, oldDomainName);
+                }
+            }
+
+            cs.setContent(mXmlOutputter.outputString(profile));
+        } catch (JDOMException ex) {
+            mCTX.setRollbackOnly();
+
+            throw new PDSException(collateErrorMessages("E7008", new Object[] { externalID }), ex);
+
+        } catch (Exception ex) {
+            logFatal(ex.toString(), ex);
+            throw new EJBException(collateErrorMessages("E4068", new Object[] { externalID }));
+        }
+    }
+  
+   
+
+	/**
+     * Find the first configuration set for the use
+     * 
+     * @param user
+     * @return first configuration set matching user id (or null if none found)
+     * @throws FinderException
+     * @throws RemoteException
+     */
+	private ConfigurationSet getUserConfigurationSet(User user) 
+	    throws FinderException, RemoteException {
+	    
+	    ConfigurationSet cs = null;
+	
+	    Collection userCSC = mConfigurationSetHome.findByUserID( user.getID () );
+	    for ( Iterator iCSC = userCSC.iterator(); iCSC.hasNext(); )
+	    {
+	        cs = (ConfigurationSet) iCSC.next();
+	    }
+	    return cs;
+	}
+
 
     /**
      * copies a User - to be continued...

@@ -157,17 +157,18 @@ public interface UserAdvocateBusiness {
      */
     void fixPrimaryLine ( User user, boolean fixCredential, String undigestedPassword )
          throws PDSException, RemoteException;
-
+    
     /**
      * fixDnsDomain modifies previously generated primary line property settings
      * It replaces original DNS name with a new name.
      * It needs to be called every time organization DNS name changes
      * 
      * @param organization
+     * @param oldDomainName previous domain name value
      * @throws PDSException is thrown for application level errors
      * @throws RemoteException RMI related errors
      */
-    void fixDnsDomain( Organization organization ) throws PDSException, RemoteException;
+    void fixDnsDomain( Organization organization, String oldDomainName ) throws PDSException, RemoteException;
     
     /**
      * copies a User

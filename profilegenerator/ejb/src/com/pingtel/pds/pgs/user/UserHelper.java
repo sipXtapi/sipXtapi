@@ -15,6 +15,8 @@ package com.pingtel.pds.pgs.user;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jdom.CDATA;
 import org.jdom.Element;
@@ -225,4 +227,39 @@ public class UserHelper {
             passtokenElement.addContent(new CDATA(passtoken));
         }
     }
+    
+    /**
+     * Replaces oldDnsName with newDnsName in line URL
+     * Does not touch line URL if domain name was not matching
+     * @param line JDOM element representing User line
+     * @param newDnsName new value of DNS name
+     * @param oldDnsName old value of DNS name
+     */
+    void fixUserLineUrl(Element line, String newDnsName, String oldDnsName)
+    {
+        Element elLine = line.getChild("USER_LINE");
+        Element elUrl = elLine.getChild("URL");
+        String url = elUrl.getText();
+        String newUrl = fixUserLineUrl(url, newDnsName, oldDnsName);
+        if( !url.equals(newUrl) )
+        {
+            elUrl.removeContent();
+            elUrl.addContent(new CDATA(newUrl));
+        }
+    }
+    
+
+    /**
+     * Replaces oldDnsName with newDnsName in line URL
+     * Does not touch line URL if domain name was not matching
+     * @param url sip url in the form of "sip:xyz@abc.pingtel.com"
+     * @param newDnsName new value of DNS name
+     * @param oldDnsName old value of DNS name
+     */
+    static String fixUserLineUrl(String url, String newDnsName, String oldDnsName)
+    {
+        String newFullDnsName = "@" + newDnsName;
+        String oldFullDnsName = "@" + oldDnsName;
+        return url.replaceFirst(oldFullDnsName,newFullDnsName);
+    }    
 }

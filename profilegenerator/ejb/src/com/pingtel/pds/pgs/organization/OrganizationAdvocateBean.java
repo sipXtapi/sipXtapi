@@ -604,11 +604,11 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
                 organization.setName(name);
             }
 
-            if (dnsDomain != null &&
-                    !(organization.getDNSDomain().equals(dnsDomain))) {
-
+            String oldDomainName = organization.getDNSDomain(); 
+            if (dnsDomain != null && 
+                    !(oldDomainName.equals(dnsDomain))) {
                 organization.setDNSDomain(dnsDomain);
-                fixDomainName(organization);
+                fixDomainName(organization,oldDomainName);
             }
         } catch (FinderException ex) {
             this.m_ctx.setRollbackOnly();
@@ -639,7 +639,7 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
     }
 
 
-    private void fixDomainName(Organization orgChanged) throws RemoteException, PDSException {
+    private void fixDomainName(Organization orgChanged, String oldDomainName) throws RemoteException, PDSException {
         String name = orgChanged.getExternalID();
         try {
             Context context = new InitialContext();
@@ -647,7 +647,7 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
             DeviceAdvocateHome daHome = (DeviceAdvocateHome) context.lookup("DeviceAdvocate");
             
             UserAdvocate ua = uaHome.create();
-            ua.fixDnsDomain(orgChanged);
+            ua.fixDnsDomain(orgChanged, oldDomainName);
 
             DeviceAdvocate da = daHome.create();
             da.fixDnsName(orgChanged);

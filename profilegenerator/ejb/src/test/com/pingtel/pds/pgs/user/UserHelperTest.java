@@ -17,6 +17,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -209,5 +211,48 @@ public class UserHelperTest extends XMLTestCase {
 
         orgControl.verify();
         userControl.verify();
+    }
+
+    public void testFixUserLineUrl() throws Exception {
+        MockControl userControl = MockControl.createNiceControl(UserBusiness.class);
+        UserBusiness user = (UserBusiness) userControl.getMock();
+        UserHelper helper = new UserHelper(user);
+
+        InputStream stream = getClass().getResourceAsStream("multiline.test.xml");
+        SAXBuilder builder = new SAXBuilder();
+        Document document = builder.build(stream);
+        Element profile = document.getRootElement();
+
+        Collection lines = profile.getChildren();
+        for (Iterator i = lines.iterator(); i.hasNext();) {
+            Element line = (Element) i.next();
+            if ("51".equals(line.getAttributeValue("ref_property_id"))) {
+                helper.fixUserLineUrl(line, "pgrr.somecompany.org", "pqrr.pingtel.com");
+            }
+        }
+
+        DOMOutputter converter = new DOMOutputter();
+        org.w3c.dom.Document domDocument = converter.output(document);
+
+        // change the domain name that was equal to the old one
+        assertXpathEvaluatesTo(
+                "sip:777@pgrr.somecompany.org",
+                "/PROFILE/USER_LINE[@id = '7369703a37373740646f746f2e70696e6774656c2e636f6d']/USER_LINE/URL",
+                domDocument);
+
+        // leave in place domain name that was different than the old one
+        assertXpathEvaluatesTo(
+                "sip:888@abc.pingtel.com",
+                "/PROFILE/USER_LINE[@id = '7369703a37373740646f746f2e70696e6774656c2e636f7d']/USER_LINE/URL",
+                domDocument);
+    }
+
+    public void testFixUserLineUrlString() {
+        String newUrl = UserHelper.fixUserLineUrl("sipx:ddd@abc.com", "xyz.com", "abc.com");
+        assertEquals("sipx:ddd@xyz.com", newUrl);
+        newUrl = UserHelper.fixUserLineUrl("sipx:ddd@abc.com", "xyz.com", "abc1.com");
+        assertEquals("sipx:ddd@abc.com", newUrl);
+        newUrl = UserHelper.fixUserLineUrl("sipx:ddd.com@ddd.com", "xyz.com", "ddd.com");
+        assertEquals("sipx:ddd.com@xyz.com", newUrl);
     }
 }

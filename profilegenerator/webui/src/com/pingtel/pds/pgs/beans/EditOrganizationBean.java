@@ -13,12 +13,15 @@ package com.pingtel.pds.pgs.beans;
 
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 import javax.naming.NamingException;
 
+import com.pingtel.commserver.utility.GlobalConfigUIHelper;
 import com.pingtel.pds.common.EJBHomeFactory;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.pgs.organization.Organization;
@@ -74,6 +77,11 @@ public class EditOrganizationBean {
                     .getHomeInterface(OrganizationAdvocateHome.class, "OrganizationAdvocate");
             OrganizationAdvocate oa = orgAdvHome.create();
             oa.editOrganization(m_orgID, m_name, null, m_dnsDomain);
+            
+            GlobalConfigUIHelper helper = new GlobalConfigUIHelper();
+            Map map = new HashMap();
+            map.put(GlobalConfigUIHelper.SIPXCHANGE_DOMAIN_NAME, m_dnsDomain);
+            helper.replaceAndWrite(map);
         } catch (NamingException e) {
             throw new PDSException(ERROR_EDIT_MSG, e);
         } catch (RemoteException e) {
