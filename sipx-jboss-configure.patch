@@ -51,7 +51,7 @@
  # Tomcat session Id generation. Uncomment to make Tomcat initial request faster
  # tomcat.sessionid.randomclass=java.util.Random
 +java.security.manager=java.lang.SecurityManager
-+java.security.policy=../conf/catalina/security.policy
++java.security.policy=../conf/catalina/server.policy
 +pds.debug=false
 \ No newline at end of file
 --- JBoss-2.4.4_Tomcat-4.0.1/jboss/bin/run.sh.orig	2001-12-29 05:06:23.000000000 -0500
