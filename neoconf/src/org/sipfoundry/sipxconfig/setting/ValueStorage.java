@@ -22,7 +22,7 @@ public class ValueStorage extends AbstractStorage implements SettingVisitor {
     
     private static final long serialVersionUID = 1L;
     
-    private MetaStorage m_metaStorage;
+    private Folder m_metaStorage;
     
     public Map getValues() {
         return getDelegate();
@@ -32,11 +32,11 @@ public class ValueStorage extends AbstractStorage implements SettingVisitor {
         setDelegate(delegate);
     }
     
-    public MetaStorage getMetaStorage() {
+    public Folder getMetaStorage() {
         return m_metaStorage;
     }
     
-    public void setMetaStorage(MetaStorage metaStorage) {
+    public void setMetaStorage(Folder metaStorage) {
         m_metaStorage = metaStorage;
     }
     

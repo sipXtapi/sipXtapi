@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.MetaStorage;
+import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
@@ -46,13 +46,13 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
     /** REQUIRED PROPERTY */
     public abstract void setPhoneId(int id);
     
-    public abstract MetaStorage getPhoneFolder();
+    public abstract Folder getPhoneFolder();
     
-    public abstract void setPhoneFolder(MetaStorage metaStorage);
+    public abstract void setPhoneFolder(Folder metaStorage);
 
-    public abstract MetaStorage getLineFolder();
+    public abstract Folder getLineFolder();
 
-    public abstract void setLineFolder(MetaStorage metaStorage);
+    public abstract void setLineFolder(Folder metaStorage);
 
     public abstract SettingDao getSettingDao();
     

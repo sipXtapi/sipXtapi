@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 
-public class MetaStorageTestDb extends TestCase {
+public class FolderTestDb extends TestCase {
     private SettingDao m_dao;
 
     protected void setUp() throws Exception {
@@ -38,7 +38,7 @@ public class MetaStorageTestDb extends TestCase {
         root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
         root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea"));
 
-        MetaStorage ms = new MetaStorage();
+        Folder ms = new Folder();
         ms.setResource("unittest");
         ms.setLabel("food");
         SettingGroup copy = (SettingGroup) ms.decorate(root);
@@ -48,13 +48,13 @@ public class MetaStorageTestDb extends TestCase {
         m_dao.storeMetaStorage(ms);
 
         IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("setting/dbdata/SaveMetaStorageExpected.xml");
+                .loadDataSetFlat("setting/dbdata/SaveFolderExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[meta_storage_id]", new Integer(ms.getId()));
+        expectedRds.addReplacementObject("[folder_id]", new Integer(ms.getId()));
 
-        ITable expected = expectedRds.getTable("setting_meta");
+        ITable expected = expectedRds.getTable("folder_setting");
 
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_meta");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("folder_setting");
 
         Assertion.assertEquals(expected, actual);
     }
@@ -62,7 +62,7 @@ public class MetaStorageTestDb extends TestCase {
     public void testUpdate() throws Exception {
         try {
             TestHelper.cleanInsert("dbdata/ClearDb.xml");
-            TestHelper.cleanInsertFlat("setting/dbdata/UpdateMetaStorageSeed.xml");
+            TestHelper.cleanInsertFlat("setting/dbdata/UpdateFolderSeed.xml");
 
             SettingGroup root = new SettingGroup();
             root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"))
@@ -71,7 +71,7 @@ public class MetaStorageTestDb extends TestCase {
                     .setValue("snow pea");
             root.addSetting(new SettingGroup("dairy")).addSetting(new SettingImpl("milk"));
 
-            MetaStorage ms = m_dao.loadMetaStorage(1);
+            Folder ms = m_dao.loadMetaStorage(1);
             Setting copy = ms.decorate(root);
             // should make it disappear
             copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
@@ -86,12 +86,12 @@ public class MetaStorageTestDb extends TestCase {
             m_dao.storeMetaStorage(ms);
 
             IDataSet expectedDs = TestHelper
-                    .loadDataSetFlat("setting/dbdata/UpdateMetaStorageExpected.xml");
+                    .loadDataSetFlat("setting/dbdata/UpdateFolderExpected.xml");
             ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
             expectedRds.addReplacementObject("[null]", null);
-            ITable expected = expectedRds.getTable("setting_meta");
+            ITable expected = expectedRds.getTable("folder_setting");
 
-            ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_meta");
+            ITable actual = TestHelper.getConnection().createDataSet().getTable("folder_setting");
 
             Assertion.assertEquals(expected, actual);
         } catch (DataIntegrityViolationException e) {

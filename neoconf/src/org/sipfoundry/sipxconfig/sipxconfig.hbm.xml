@@ -67,21 +67,21 @@
 	<!--
 	  - M E T A   S T O R A G E
 	  -->
-	<class name="org.sipfoundry.sipxconfig.setting.MetaStorage" table="meta_storage">
+	<class name="org.sipfoundry.sipxconfig.setting.Folder" table="folder">
 		<jcs-cache usage="read-write"/>
-		<id name="id" column="meta_storage_id" type="int" unsaved-value="-1">
+		<id name="id" column="folder_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
-				<param name="sequence">meta_storage_seq</param>
+				<param name="sequence">folder_seq</param>
 			</generator>
 		</id>		
 		<property name="label" column="label"/>
 		<property name="resource" column="resource"/>
         <!-- S E T T I N G   M E T A -->
-		<map name="meta" cascade="all" table="setting_meta">
-			<key column="meta_storage_id"/>
+		<map name="meta" cascade="all" table="folder_setting">
+			<key column="folder_id"/>
 			<index column="path" type="string"/>
-			<composite-element class="org.sipfoundry.sipxconfig.setting.SettingMeta">
-				<parent name="metaStorage"/>
+			<composite-element class="org.sipfoundry.sipxconfig.setting.FolderValue">
+				<parent name="folder"/>
 				<property name="value" column="value"/>
 				<property name="hidden" column="hidden"/>
 		    </composite-element>

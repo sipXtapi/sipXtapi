@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
-    <meta_storage 
+    <folder 
 		resource="unittest"
 		label="food"
-		meta_storage_id="1"/> 
+		folder_id="1"/> 
 	<!-- should disappear -->	
-    <setting_meta 
-		meta_storage_id="1"
+    <folder_setting 
+		folder_id="1"
 		value="macintosh" 
 		hidden="false"
 		path="/fruit/apple"/> 
 	<!-- should update -->
-    <setting_meta 
-		meta_storage_id="1"
+    <folder_setting 
+		folder_id="1"
 		value="snap pea" 
 		hidden="false"
 		path="/vegetable/pea"/> 

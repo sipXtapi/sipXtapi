@@ -6,23 +6,23 @@
 /**
  * S E T T I N G   M E T A   S T O R A G E
  */
-create table meta_storage(
-  meta_storage_id int4 not null primary key,
+create table folder(
+  folder_id int4 not null primary key,
   resource varchar(256) not null,
   label varchar(256) not null
 );
 
-create sequence meta_storage_seq;
+create sequence folder_seq;
 
 /**
  * S E T T I N G   M E T A 
  */
-create table setting_meta(
-  meta_storage_id int4 not null,
+create table folder_setting(
+  folder_id int4 not null,
   path varchar(256) not null,
   value varchar(256),
   hidden bool,
-  primary key (meta_storage_id, path)
+  primary key (folder_id, path)
 );
 
 /** 

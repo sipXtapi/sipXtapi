@@ -14,28 +14,28 @@ package org.sipfoundry.sipxconfig.setting;
 /**
  * Attributes about settings administrators can influence.
  */
-public class SettingMeta extends SettingDecorator {
+public class FolderValue extends SettingDecorator {
 
     private String m_value;
 
     private Boolean m_hidden;
 
-    private MetaStorage m_metaStorage;
+    private Folder m_metaStorage;
 
     /** BEAN ACCESS ONLY */
-    public SettingMeta() {
+    public FolderValue() {
     }
 
-    public SettingMeta(MetaStorage metaStorage, Setting delegate) {
+    public FolderValue(Folder metaStorage, Setting delegate) {
         super(delegate);
-        setMetaStorage(metaStorage);
+        setFolder(metaStorage);
     }
 
-    public void setMetaStorage(MetaStorage metaStorage) {
+    public void setFolder(Folder metaStorage) {
         m_metaStorage = metaStorage;
     }
 
-    public MetaStorage getMetaStorage() {
+    public Folder getFolder() {
         return m_metaStorage;
     }
 

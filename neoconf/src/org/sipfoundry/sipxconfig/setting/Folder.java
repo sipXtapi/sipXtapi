@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Settings meta information user overrides is stored in this collection
  */
-public class MetaStorage extends AbstractStorage implements SettingVisitor {
+public class Folder extends AbstractStorage implements SettingVisitor {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,9 +39,9 @@ public class MetaStorage extends AbstractStorage implements SettingVisitor {
     }
 
     public void visitSetting(Setting setting) {
-        SettingMeta meta = (SettingMeta) get(setting.getPath());
+        FolderValue meta = (FolderValue) get(setting.getPath());
         if (meta == null) {
-            meta = new SettingMeta(this, setting);
+            meta = new FolderValue(this, setting);
         } else {
             meta.setDelegate(setting);
         }

@@ -24,7 +24,7 @@ public class SettingMetaTest extends TestCase {
         seedSimpleSettingGroup();
         assertNull(m_apple.getValue());
         
-        MetaStorage meta = new MetaStorage();
+        Folder meta = new Folder();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
@@ -48,7 +48,7 @@ public class SettingMetaTest extends TestCase {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isHidden());
         
-        MetaStorage meta = new MetaStorage();
+        Folder meta = new Folder();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
@@ -73,7 +73,7 @@ public class SettingMetaTest extends TestCase {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isHidden());
         
-        MetaStorage meta = new MetaStorage();
+        Folder meta = new Folder();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 

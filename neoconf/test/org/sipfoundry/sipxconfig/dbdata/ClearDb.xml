@@ -16,8 +16,8 @@
   <table name="endpoint"/>
   <table name="setting"/>
   <table name="storage"/>
-  <table name="setting_meta"/>
-  <table name="meta_storage"/>
+  <table name="folder_setting"/>
+  <table name="folder"/>
   <table name="ring"/>
   <table name="organizations">
     <column>id</column>

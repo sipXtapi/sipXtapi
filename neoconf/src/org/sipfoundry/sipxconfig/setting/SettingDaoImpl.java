@@ -29,26 +29,26 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, new Integer(storageId));    
     }
 
-    public void storeMetaStorage(MetaStorage storage) {
+    public void storeMetaStorage(Folder storage) {
         getHibernateTemplate().saveOrUpdate(storage);                        
     }
     
-    public MetaStorage loadMetaStorage(int id) {
-        return (MetaStorage) getHibernateTemplate().load(MetaStorage.class, new Integer(id));
+    public Folder loadMetaStorage(int id) {
+        return (Folder) getHibernateTemplate().load(Folder.class, new Integer(id));
     }
     
-    public MetaStorage loadRootMetaStorage() {
+    public Folder loadRootMetaStorage() {
         // Represents the single meta storage id that holds the defaults
         // for all settings groups.
-        MetaStorage meta = null;
+        Folder meta = null;
         try {
-            meta = (MetaStorage) getHibernateTemplate().load(MetaStorage.class, new Integer(1));
+            meta = (Folder) getHibernateTemplate().load(Folder.class, new Integer(1));
         } catch (HibernateObjectRetrievalFailureException e) {
             Throwable cause = e.getCause();
             // make sure only reason we create new object is if it's not 
             // created yet.  Spring wraps 4 different exceptions to one.
             if (cause != null && cause instanceof ObjectNotFoundException) {
-                meta = new MetaStorage();
+                meta = new Folder();
             } else {
                 throw e;
             }
