@@ -20,8 +20,7 @@ import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
- * Special type of mappingrules document with a single host match matching
- * standard SIPx hosts
+ * Special type of mappingrules document with a single host match matching standard SIPx hosts
  */
 public class MappingRules extends XmlFile implements ConfigFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00";
@@ -35,14 +34,14 @@ public class MappingRules extends XmlFile implements ConfigFile {
     public MappingRules() {
         this(NAMESPACE);
     }
-    
+
     protected MappingRules(String namespace) {
         m_doc = FACTORY.createDocument();
         QName mappingsName = FACTORY.createQName("mappings", namespace);
         Element mappings = m_doc.addElement(mappingsName);
-        m_hostMatch = createFirstHostMatch(mappings);        
+        m_hostMatch = createFirstHostMatch(mappings);
     }
-    
+
     /**
      * @param mappings root element of the mappingrules document
      */
@@ -65,7 +64,7 @@ public class MappingRules extends XmlFile implements ConfigFile {
     }
 
     public void generate(IDialingRule rule) {
-        if (isInternal(rule)) {
+        if (rule.isInternal()) {
             generateRule(rule);
         }
     }
@@ -80,7 +79,7 @@ public class MappingRules extends XmlFile implements ConfigFile {
             userPattern.setText(pattern);
         }
         Element permissionMatch = userMatch.addElement("permissionMatch");
-        if (isInternal(rule)) {
+        if (rule.isInternal()) {
             List permissions = rule.getPermissions();
             for (Iterator i = permissions.iterator(); i.hasNext();) {
                 Permission permission = (Permission) i.next();
@@ -93,20 +92,5 @@ public class MappingRules extends XmlFile implements ConfigFile {
             Transform transform = transforms[i];
             transform.addToParent(permissionMatch);
         }
-    }
-
-    /**
-     * Checks if rules in internal (and thus should be end up in
-     * mappingrules.xml) or external (falbackrules.xml)
-     * 
-     * For now we use the presence of gateways as an indication that the rule is
-     * external. This maybe more complicated check, and probably it belongs to
-     * rule interface
-     * 
-     * @param rule dialing rule
-     * @return true for internal rules
-     */
-    protected boolean isInternal(IDialingRule rule) {
-        return rule.getGateways().size() == 0;
     }
 }

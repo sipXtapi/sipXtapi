@@ -79,4 +79,8 @@ public class InternalRule extends DialingRule {
             rules.add(new MappingRule.VoicemailFallback(m_localExtensionLen));
         }
     }
+
+    public boolean isInternal() {
+        return true;
+    }
 }

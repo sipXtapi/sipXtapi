@@ -50,6 +50,16 @@ public class EmergencyRuleTest extends TestCase {
         assertEquals("sip:911@sosgateway.com", emergencyTransform.getUrl());
     }
 
+    public void testCallerSensitiveForwarding() {
+        m_rule.setUseMediaServer(true);
+        Transform[] transforms = m_rule.getTransforms();
+        assertEquals(1, transforms.length);
+        UrlTransform emergencyTransform = (UrlTransform) transforms[0];
+        assertEquals(
+                "<sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dsos>",
+                emergencyTransform.getUrl());
+    }
+
     public void testPermissions() {
         List permissions = m_rule.getPermissions();
         assertEquals(0, permissions.size());

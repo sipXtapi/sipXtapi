@@ -70,6 +70,13 @@ public class LocalRule extends DialingRule {
         return Type.LOCAL;
     }
 
+    /**
+     * External rule - added to mappingrules.xml
+     */
+    public boolean isInternal() {
+        return false;
+    }
+
     public int getExternalLen() {
         return m_externalLen;
     }

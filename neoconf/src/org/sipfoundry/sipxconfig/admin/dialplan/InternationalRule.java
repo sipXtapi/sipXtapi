@@ -67,6 +67,13 @@ public class InternationalRule extends DialingRule {
         return Type.INTERNATIONAL;
     }
 
+    /**
+     * External rule - added to mappingrules.xml
+     */
+    public boolean isInternal() {
+        return false;
+    }
+
     public String getInternationalPrefix() {
         return m_internationalPrefix;
     }

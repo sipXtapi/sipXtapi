@@ -3,6 +3,12 @@
     <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
 <body jwcid="$content$">
+    <div class="help">
+        <p>Please configure your phones to forward emergency goal to 
+            PSTN gateway directly.<br/>
+            If you enable caller sensitive routing you can configure a default gateway, and routing exceptions 
+            <a jwcid="emergencyRoutingLink" href="" title="Emergency Routing">here</a>.</p>
+    </div>
 	<div jwcid="@Border">
 		<span jwcid="@ErrorMsg"/>
         <form jwcid="form" id="long:rule:edit">
@@ -24,7 +30,15 @@
                     </td>
                     <td>
                         <input jwcid="emergencyNumber" id="dialplan:emergencyNumber" type="text" value="911" />
+                    </td>                    
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:callerSensitiveRouting"><span jwcid="callerSensitiveRoutingLabel">Use caller sensitive routing</span>:</label>
                     </td>
+                    <td>
+                        <input jwcid="callerSensitiveRouting" id="dialplan:callerSensitiveRouting"/>
+                    </td>                    
                 </tr>
             </tbody>
         </table>

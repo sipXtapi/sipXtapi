@@ -20,17 +20,17 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
  */
 public interface IDialingRule {
     public abstract String getDescription();
-    
+
     public abstract void setDescription(String description);
 
     public abstract boolean isEnabled();
-    
+
     public abstract void setEnabled(boolean enabled);
 
     public abstract String getName();
 
     public abstract void setName(String name);
-    
+
     public abstract List getGateways();
 
     public abstract String[] getPatterns();
@@ -40,4 +40,6 @@ public interface IDialingRule {
     public abstract List getPermissions();
 
     public abstract Integer getId();
+
+    public abstract boolean isInternal();
 }

@@ -28,7 +28,7 @@ public class CustomDialingRule extends DialingRule {
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
     }
-    
+
     public List getDialPatterns() {
         return m_dialPatterns;
     }
@@ -64,7 +64,9 @@ public class CustomDialingRule extends DialingRule {
             FullTransform transform = new FullTransform();
             transform.setHost(g.getAddress());
             transform.setUser(calculatePattern);
-            String[] fieldParams = new String[] {q.getSerial()};
+            String[] fieldParams = new String[] {
+                q.getSerial()
+            };
             transform.setFieldParams(fieldParams);
             transforms[i] = transform;
         }
@@ -74,12 +76,19 @@ public class CustomDialingRule extends DialingRule {
     public Type getType() {
         return Type.CUSTOM;
     }
-    
+
     public List getPermissions() {
         return m_permissions;
     }
 
     public void setPermissions(List permissions) {
         m_permissions = permissions;
-    }    
+    }
+
+    /**
+     * External rule if there are gateways. Internal if no gateways
+     */
+    public boolean isInternal() {
+        return getGateways().isEmpty();
+    }
 }

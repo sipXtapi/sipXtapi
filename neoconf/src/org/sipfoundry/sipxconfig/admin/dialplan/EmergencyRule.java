@@ -22,8 +22,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  * LongDistanceRule
  */
 public class EmergencyRule extends DialingRule {
+    private static final String MEDIASERVER_SOS_URL = MappingRule.URL_PREFIX + "sos>";
     private String m_emergencyNumber;
     private String m_optionalPrefix;
+    private boolean m_useMediaServer;
 
     public String[] getPatterns() {
         ArrayList patterns = new ArrayList();
@@ -35,12 +37,12 @@ public class EmergencyRule extends DialingRule {
         return (String[]) patterns.toArray(new String[patterns.size()]);
     }
 
-    public Transform[] getTransforms() {
+    public Transform[] getStandardTransforms() {
         List gateways = getGateways();
         List transforms = new ArrayList(gateways.size());
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Gateway gateway = (Gateway) i.next();
-            String url = "sip:911@" + gateway.getAddress();
+            String url = "sip:" + m_emergencyNumber + "@" + gateway.getAddress();
             UrlTransform transform = new UrlTransform();
             transform.setUrl(url);
             transforms.add(transform);
@@ -48,8 +50,27 @@ public class EmergencyRule extends DialingRule {
         return (Transform[]) transforms.toArray(new Transform[transforms.size()]);
     }
 
+    public Transform[] getMediaServerTransforms() {
+        UrlTransform transform = new UrlTransform();
+        transform.setUrl(MEDIASERVER_SOS_URL);
+        return new Transform[] {
+            transform
+        };
+    }
+
+    public Transform[] getTransforms() {
+        return m_useMediaServer ? getMediaServerTransforms() : getStandardTransforms();
+    }
+
     public Type getType() {
         return Type.EMERGENCY;
+    }
+
+    /**
+     * External rule - added to mappingrules.xml
+     */
+    public boolean isInternal() {
+        return false;
     }
 
     public String getEmergencyNumber() {
@@ -66,5 +87,13 @@ public class EmergencyRule extends DialingRule {
 
     public void setOptionalPrefix(String optionalPrefix) {
         m_optionalPrefix = optionalPrefix;
+    }
+
+    public boolean getUseMediaServer() {
+        return m_useMediaServer;
+    }
+
+    public void setUseMediaServer(boolean useMediaServer) {
+        m_useMediaServer = useMediaServer;
     }
 }

@@ -2,6 +2,7 @@
 <!DOCTYPE page-specification
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
 <page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
 	<!--
 	  - P R O P E R T I E S
@@ -56,6 +57,18 @@
         <binding name="value" expression="rule.emergencyNumber"/>
         <binding name="validator" expression="global.validPhoneRequired"/>
         <static-binding name="displayName" value="Emergency number"/>
+    </component>
+    
+    <component id="callerSensitiveRoutingLabel" type="FieldLabel">
+        <binding name="field" expression="components.callerSensitiveRouting"/>        
+        <static-binding name="displayName" value="Use caller sensitive forwarding"/>        
+    </component>
+    <component id="callerSensitiveRouting" type="Checkbox">
+        <binding name="selected" expression="rule.useMediaServer"/>
+    </component>
+    
+    <component id="emergencyRoutingLink" type="PageLink">
+        <static-binding name="page" value="EditEmergencyRouting"/>
     </component>
     
     <!-- gateways configuration -->

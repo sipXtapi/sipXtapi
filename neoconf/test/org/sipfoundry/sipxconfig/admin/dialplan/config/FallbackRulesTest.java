@@ -44,14 +44,13 @@ public class FallbackRulesTest extends XMLTestCase {
             "Q=0.97"
         });
 
-        MockControl control = MockControl.createControl(IDialingRule.class);
+        MockControl control = MockControl.createStrictControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
+        control.expectAndReturn(rule.isInternal(), false);
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "x."
         });
-        // control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
-        // Permission.VOICEMAIL }));
-        control.expectAndReturn(rule.getGateways(), gateways, 2);
+        control.expectAndReturn(rule.isInternal(), false);
         control.expectAndReturn(rule.getTransforms(), new Transform[] {
             t1
         });
@@ -82,7 +81,7 @@ public class FallbackRulesTest extends XMLTestCase {
     public void testGenerateRuleWithoutGateways() throws Exception {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.getGateways(), Collections.EMPTY_LIST);
+        control.expectAndReturn(rule.isInternal(), true);
         control.replay();
 
         MappingRules mappingRules = new FallbackRules();

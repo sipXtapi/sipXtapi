@@ -503,6 +503,7 @@ create table emergency_dialing_rule (
    emergency_dialing_rule_id int4 not null,
    optionalPrefix varchar(40),
    emergencyNumber varchar(40),
+   useMediaServer bool,
    primary key (emergency_dialing_rule_id)
 );
 

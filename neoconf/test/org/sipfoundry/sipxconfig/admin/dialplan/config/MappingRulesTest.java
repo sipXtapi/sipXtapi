@@ -16,7 +16,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -26,7 +25,6 @@ import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 
@@ -91,15 +89,16 @@ public class MappingRulesTest extends XMLTestCase {
                 .setUrl("<sip:{digits}@testserver;"
                         + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
 
-        MockControl control = MockControl.createControl(IDialingRule.class);
+        MockControl control = MockControl.createStrictControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
+        control.expectAndReturn(rule.isInternal(),true);
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "x."
         });
+        control.expectAndReturn(rule.isInternal(),true);
         control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
             Permission.VOICEMAIL
         }));
-        control.expectAndReturn(rule.getGateways(), Collections.EMPTY_LIST, 2);
         control.expectAndReturn(rule.getTransforms(), new Transform[] {
             voicemail, voicemail2
         });
@@ -124,13 +123,9 @@ public class MappingRulesTest extends XMLTestCase {
     }
 
     public void testGenerateRuleWithGateways() throws Exception {
-        List gateways = Arrays.asList(new Gateway[] {
-            new Gateway()
-        });
-
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.getGateways(), gateways);
+        control.expectAndReturn(rule.isInternal(), false);
         control.replay();
 
         MappingRules mappingRules = new MappingRules();

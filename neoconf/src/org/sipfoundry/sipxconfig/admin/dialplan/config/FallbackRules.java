@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  */
 public class FallbackRules extends MappingRules {
     public void generate(IDialingRule rule) {
-        if (!isInternal(rule)) {
+        if (!rule.isInternal()) {
             generateRule(rule);
         }
     }

@@ -66,5 +66,4 @@ public class EditPhoneLinesTestUi extends WebTestCase {
         WebTable lineTable = getDialog().getWebTableBySummaryOrId("line:list");
         assertEquals(1, lineTable.getRowCount());
     }
-    
 }

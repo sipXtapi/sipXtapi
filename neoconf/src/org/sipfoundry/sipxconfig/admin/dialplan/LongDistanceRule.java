@@ -96,6 +96,13 @@ public class LongDistanceRule extends DialingRule {
     }
 
     /**
+     * External rule - added to mappingrules.xml
+     */
+    public boolean isInternal() {
+        return false;
+    }
+
+    /**
      * Creates a single custom rule that will be used to generate dial and call patterns for a
      * specified areaCode
      * 
