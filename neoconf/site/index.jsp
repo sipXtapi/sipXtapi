@@ -12,9 +12,7 @@
 <dl>
   <dt>Things you can do<dt>
 
-   <dd><a href="#">Manage Cisco, sipXphone, and Pingtel phones</a></dd>
-   <dd><a href="controller/ListEndpoints">Manage Polycom phones</a></dd>
-   <dd><a href="#">System Administraion</a></dd>
+   <dd><a href="controller/endpoint?action=add">Add Polycom phone</a></dd>
 
 </dl>
 

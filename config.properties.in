@@ -104,6 +104,12 @@ commons-collections.jar=${spring.home}/lib/jakarta-commons/commons-collections.j
 ehcache.jar=${spring.home}/lib/ehcache/ehcache-1.0.jar
 cglib-full.jar=${spring.home}/lib/cglib/cglib-full-2.0.2.jar
 jta.jar=${spring.home}/lib/j2ee/jta.jar
+commons-beanutils.jar=${spring.home}/lib/jakarta-commons/commons-beanutils.jar
+commons-digester.jar=${spring.home}/lib/jakarta-commons/commons-digester.jar
+jsf-api.jar=${spring.home}/lib/jsf/jsf-api.jar
+jsf-impl.jar=${top.dir}/lib/jsf-impl.jar
+jstl.jar=${top.dir}/lib/jstl.jar
+
 
 # Use local copy in ./lib for the time being
 # commons-logging.jar=${spring.home}/lib/jakarta-commons/commons-logging.jar

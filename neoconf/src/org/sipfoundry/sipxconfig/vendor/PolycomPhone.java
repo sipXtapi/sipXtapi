@@ -55,5 +55,5 @@ public class PolycomPhone implements Phone {
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
     }
-
+   
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<faces-config>
+	
+	<application>
+	</application>
+
+	<navigation-rule>
+		<from-view-id>/endpoint-edit.jsf</from-view-id>
+		<navigation-case>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/endpoint-list.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>cancel</from-outcome>
+			<to-view-id>/endpoint-list.jsf</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+	<managed-bean>
+		<managed-bean-name>editEndpoint</managed-bean-name>
+		<managed-bean-class>org.sipfoundry.sipxconfig.site.EditEndpoint</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+  		
+</faces-config>

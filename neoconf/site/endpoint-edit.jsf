@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<jsp:root version="2.0" xmlns:jsp="http://java.sun.com/JSP/Page" 
+	xmlns:f="http://java.sun.com/jsf/core" 
+	xmlns:h="http://java.sun.com/jsf/html">
+	<f:view>
+		<f:verbatim><![CDATA[<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]> </f:verbatim>
+		<html xmlns="http://www.w3.org/1999/xhtml">
+			<head>
+				<title>sipXconfig</title>
+				<link rel="stylesheet" type="text/css"
+					href="sipxconfig.css"/>
+			</head>
+			<body id="endpoint-edit">
+				<div class="component">
+					<h:form>
+						<table>
+							<tr>
+								<td>Serial #:</td>
+								<td>
+									<h:inputText id="serialNumber"
+										value="#{editEndpoint.serialNumber}"/>
+								</td>
+							</tr>
+						</table>
+						<hr/>
+						<h3>Polycom Soundpoint IP 300</h3>
+						<table>
+							<tr>
+								<td>Boot (TFTP) Server:</td>
+								<td>
+									<h:inputText id="bootServer" value="xyz"/>
+								</td>
+								<td>(default value: shrike.pingtel.com)</td>
+							</tr>
+						</table>
+						<ul class="form-actions">
+							<li>
+								<h:commandButton
+									action="#{editEndpoint.save}"
+									value="Save" />
+							</li>
+							<li>
+								<h:commandButton
+									action="cancel"
+									value="Cancel" />
+							</li>
+						</ul>
+					</h:form>
+				</div>
+			</body>
+		</html>
+	</f:view>
+</jsp:root>

@@ -65,6 +65,11 @@
 
 	<!-- J A R -->
 	<target name="war" depends="compile" description="assemble neoconf war">
+		
+		<!-- dependset>
+			<srcfileset dir="site" includes="**/*"/>
+			<targetfileset file="${neoconf.war}" />
+		</dependset -->
 
 		<war warfile="${neoconf.war}" webxml="etc/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
 
@@ -86,6 +91,16 @@
 			<lib file="${commons-logging.jar}" />
 			<lib file="${commons-dbcp.jar}" />
 			<lib file="${commons-pool.jar}" />
+<!-- JSF -->
+			<lib file="${commons-digester.jar}" />
+			<lib file="${commons-beanutils.jar}" />
+			<lib file="${jsf-api.jar}" />
+			<lib file="${jsf-impl.jar}" />
+			<lib file="${jstl.jar}" />
+			<!-- TEMP DISABLED UNTIL DETERMINED NEEDED
+			  lib file="${jsf-spring.jar}" / -->
+
+			
 			<lib file="${aopalliance.jar}" />
 			<lib file="${dom4j.jar}" />
 			<lib file="${commons-collections.jar}" />
