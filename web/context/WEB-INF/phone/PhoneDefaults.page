@@ -4,12 +4,18 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneDefaults">
-
     <description>add a description</description>
-    
-    <property-specification name="currentSetting" type="org.sipfoundry.sipxconfig.setting.Setting">
-    </property-specification>
-    
+	<!--
+	  - P R O P E R T I E S
+	  -->    
+    <property-specification name="currentSetting" 
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+	<property-specification name="settingDao" 
+		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
+    	initial-value="global.settingDao"/>    
+    <!--
+     - C O M P O N E N T S
+     -->    
     <component id="phoneSettings" type="Foreach">
         <binding name="source" expression="phoneSettings"/>
         <binding name="value" expression="currentSetting"/>
@@ -27,6 +33,5 @@
     <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
     </component>    
     <component id="lineSettingsLink" copy-of="phoneSettingsLink">
-    </component>    
-    
+    </component>        
 </page-specification>

@@ -15,10 +15,15 @@ package org.sipfoundry.sipxconfig.setting;
  * Database services for setting business objects
  */
 public interface SettingDao {
+    
+    /** common name found in spring file */
+    public static final String CONTEXT_NAME = "settingDao";
        
     public void storeMetaStorage(MetaStorage meta);
-
+    
     public MetaStorage loadRootMetaStorage();
+
+    public MetaStorage loadMetaStorage(int metaStorageId);
     
     public void storeValueStorage(ValueStorage storage);
 
