@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 
 public abstract class ManageUsers extends BasePage 
-		implements PageRenderListener {
+        implements PageRenderListener {
     
     public static final String PAGE = "ManageUsers";
 
@@ -32,7 +32,7 @@ public abstract class ManageUsers extends BasePage
 
     public abstract CoreContext getCoreContext();
     
-    public void addUser(IRequestCycle cycle) {
+    public void addUser(IRequestCycle cycle_) {
 //        NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);
 //        cycle.activate(page);
     }
