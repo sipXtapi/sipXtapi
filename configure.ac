@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.59)
-AC_INIT(sipXconfig, 2.5.0.2, dev@list.sipfoundry.org)
+AC_INIT(sipXconfig, 2.5.1, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(foreign)
 

@@ -1,0 +1,7 @@
+
+Release Notes - sipXconfig - Version 2.5.1
+
+** Bug
+    * [XCF-4] - won't build with sipXportLib
+
+
