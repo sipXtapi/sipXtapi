@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 
 
 public class EditLineTestUi extends WebTestCase {
+    
+    private PhoneTestHelper m_helper;
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditLineTestUi.class);
@@ -27,7 +29,8 @@ public class EditLineTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        PhoneTestHelper.reset(tester);
+        m_helper = new PhoneTestHelper(tester);
+        m_helper.reset();
     }
 
     protected void tearDown() throws Exception {
@@ -36,11 +39,9 @@ public class EditLineTestUi extends WebTestCase {
     }
 
     public void testEditLine() {
-        PhoneTestHelper.seedPhone(tester);
-        PhoneTestHelper.seedUser(tester);
-        PhoneTestHelper.seedLine(tester);
+        m_helper.seedLine(1);
         clickLink("ManagePhones");        
-        clickLinkWithText("testuser");
+        clickLinkWithText(m_helper.user[0].getDisplayId());
         SiteTestHelper.assertNoException(tester);
-    }
+    }   
 }

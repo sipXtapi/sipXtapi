@@ -83,32 +83,30 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         cycle.activate(page);                
     }
     
-    public void deleteLine(IRequestCycle cycle) {
+    public void deleteLine(IRequestCycle cycle_) {
         PhoneContext context = getPhoneContext();
-        context.deleteLine(loadLine(cycle));
-    }
-    
-    public void moveLineUp(IRequestCycle cycle) {
-        moveLine(cycle, 1);
-    }
-    
-    public void moveLineDown(IRequestCycle cycle) {
-        moveLine(cycle, -1);
-    }
-    
-    private void moveLine(IRequestCycle cycle, int relativePosition) {
-        PhoneContext context = getPhoneContext();
-        Line line = loadLine(cycle);
-        Endpoint endpoint = line.getEndpoint();
-        endpoint.moveLine(line.getPosition(), relativePosition);
+        Endpoint endpoint = getEndpoint();
+        //Collection lineIds = getSelections().getAllSelected();
+        //endpoint.removeLinesById(lineIds);        
         context.storeEndpoint(endpoint);
+        // may not be nec.
+        //context.deleteLines(lineIds);
     }
     
-    private Line loadLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
-        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+    public void moveLineUp(IRequestCycle cycle_) {
+        moveLines(-1);
+    }
+    
+    public void moveLineDown(IRequestCycle cycle_) {
+        moveLines(1);
+    }
+    
+    private void moveLines(int relativePosition_) {
         PhoneContext context = getPhoneContext();
-        return context.loadLine(lineId.intValue());
+        Endpoint endpoint = getEndpoint();
+        //Collection lineIds = getSelections().getAllSelected();
+        //endpoint.moveLinesById(lineIds, relativePosition);        
+        context.storeEndpoint(endpoint);
     }
 
     public void ok(IRequestCycle cycle) {

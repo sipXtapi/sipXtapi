@@ -18,6 +18,8 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class ManagePhonesTestUi extends WebTestCase {
 
+    private PhoneTestHelper m_helper;
+    
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ManagePhonesTestUi.class);
     }
@@ -25,7 +27,8 @@ public class ManagePhonesTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        PhoneTestHelper.reset(tester);
+        m_helper = new PhoneTestHelper(tester);
+        m_helper.reset();
     }
 
     protected void tearDown() throws Exception {
@@ -34,7 +37,7 @@ public class ManagePhonesTestUi extends WebTestCase {
     }
 
     public void testGenerateProfiles() {
-        PhoneTestHelper.seedPhone(tester);
+        m_helper.seedPhone(10);
 
         clickLink("ManagePhones");          
         checkCheckbox("selectedRow");

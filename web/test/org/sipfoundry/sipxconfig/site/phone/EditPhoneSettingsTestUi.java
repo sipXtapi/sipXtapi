@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditPhoneSettingsTestUi extends WebTestCase {
     
+    private PhoneTestHelper m_helper;
+    
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditPhoneSettingsTestUi.class);
     }
@@ -26,7 +28,8 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        PhoneTestHelper.reset(tester);
+        m_helper = new PhoneTestHelper(tester);
+        m_helper.reset();
     }
 
     protected void tearDown() throws Exception {
@@ -35,9 +38,9 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
     }
 
     public void testEditLine() {
-        PhoneTestHelper.seedPhone(tester);
+        m_helper.seedPhone(1);
         clickLink("ManagePhones");        
-        clickLinkWithText("000000000000");
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         // NOTE: Polycom only setting 
         clickLinkWithText("SIP");        
         SiteTestHelper.assertNoException(tester);

@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditPhoneTestUi extends WebTestCase {
 
+    private PhoneTestHelper m_helper;
+        
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditPhoneTestUi.class);
     }
@@ -26,7 +28,8 @@ public class EditPhoneTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        PhoneTestHelper.reset(tester);
+        m_helper = new PhoneTestHelper(tester);
+        m_helper.reset();
     }
 
     protected void tearDown() throws Exception {
@@ -35,14 +38,14 @@ public class EditPhoneTestUi extends WebTestCase {
     }
 
     public void testEditPhone() {
-        PhoneTestHelper.seedPhone(tester);
+        m_helper.seedPhone(1);
         clickLink("ManagePhones");        
-        clickLinkWithText("000000000000");
-        setFormElement("serialNumber", "000000000001");
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
+        setFormElement("serialNumber", "a00000000000");
         setFormElement("phoneModel", "1");
         clickButton("phone:ok");
         String[][] table = new String[][] {
-            { "000000000001", "", "SoundPoint IP 500" },                
+            { "a00000000000", "", "SoundPoint IP 500" },                
         };
         assertTextInTable("phone:list", table[0]);        
     }

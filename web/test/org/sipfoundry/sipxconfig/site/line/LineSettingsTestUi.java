@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 
 public class LineSettingsTestUi extends WebTestCase {
 
+    private PhoneTestHelper m_helper;
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(LineSettingsTestUi.class);
     }
@@ -27,7 +29,8 @@ public class LineSettingsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        PhoneTestHelper.reset(tester);
+        m_helper = new PhoneTestHelper(tester);
+        m_helper.reset();
     }
 
     protected void tearDown() throws Exception {
@@ -36,12 +39,10 @@ public class LineSettingsTestUi extends WebTestCase {
     }
 
     public void testEditLine() {
-        PhoneTestHelper.seedPhone(tester);
-        PhoneTestHelper.seedUser(tester);
-        PhoneTestHelper.seedLine(tester);
+        m_helper.seedLine(1);
         
         clickLink("ManagePhones");        
-        clickLinkWithText("testuser");
+        clickLinkWithText(m_helper.user[0].getDisplayId());
         // NOTE: Polycom only setting 
         clickLinkWithText("Registration");
         SiteTestHelper.assertNoException(tester);

@@ -1,8 +1,9 @@
-<html jwcid="@Shell" title="Edit Phone" stylesheet="ognl:assets.stylesheet">    
-    <head jwcid="$remove$">
-        <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-    </head>
-<body jwcid="@Body">
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
         <form jwcid="@Form" delegate="ognl:beans.validator">
 			<ul class="form-actions">
 				<li>
@@ -13,5 +14,6 @@
 				</li>
 			</ul>                        
 		</form>    
+    </div>
 </body>
 </html>

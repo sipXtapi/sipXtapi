@@ -50,7 +50,7 @@
     <component id="lineValues" type="contrib:TableValues">
     </component>
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.id]"/>
+        <binding name="selected" expression="selections.selected[currentRow.position]"/>
     </component>
     <component id="addUserLink" type="DirectLink">
         <binding name="listener" expression="listeners.addUser"/>
@@ -63,6 +63,15 @@
     </component>
     <component id="lineLabel" type="Insert"> 
         <binding name="value" expression="currentRow.displayLabel"/>
+    </component>
+    <component id="deleteLine" type="Submit">
+        <binding name="listener" expression="listeners.deleteLine"/>
+    </component>
+    <component id="moveUp" type="Submit">
+        <binding name="listener" expression="listeners.moveLineUp"/>
+    </component>
+    <component id="moveDown" type="Submit">
+        <binding name="listener" expression="listeners.moveLineDown"/>
     </component>
     <!--
     - A S S E T S

@@ -16,7 +16,7 @@
 						<a href="#" id="AddUser" jwcid="addUserLink">Add User</a>
 					</li>
 				</ul>
-				<table jwcid="lineTableView" class="component">
+				<table id="line:list" jwcid="lineTableView" class="component">
                 <span jwcid="LineColumnValue">
                     <a href="#" jwcid="editLineLink"><span jwcid="lineLabel">address of record</span></a>
                 </span>
@@ -31,7 +31,13 @@
 				</table>
 				<ul class="component-submit">
 					<li>
-						<input type="button" name="" value="Remove"/>
+						<submit id="line:delete" jwcid="deleteLine" value="Delete"/>
+					</li>
+					<li>
+						<submit id="line:moveUp" jwcid="moveUp" value="Move Up"/>
+					</li>
+					<li>
+						<submit id="line:moveDown" jwcid="moveDown" value="Move Down"/>
 					</li>
 				</ul>
 			<ul class="form-actions">

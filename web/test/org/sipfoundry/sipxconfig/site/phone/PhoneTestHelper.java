@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import net.sourceforge.jwebunit.WebTester;
 
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Endpoint;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 /**
@@ -22,41 +25,66 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
  * protected, as they probably should be.
  */
 public class PhoneTestHelper {
+    
+    public Endpoint[] endpoint;
+    
+    public Line[] line;
+    
+    public User[] user;
+    
+    private WebTester m_tester;
+    
+    public PhoneTestHelper(WebTester tester) {
+        m_tester = tester;
+    }
         
-    public static void reset(WebTester tester) {
-        SiteTestHelper.home(tester);
-        tester.clickLink("resetPhoneContext");        
+    public void reset() {
+        SiteTestHelper.home(m_tester);
+        m_tester.clickLink("resetPhoneContext");        
     }
     
-    public static void seedUser(WebTester tester_) {
+    public void seedUser() {
         // hack, use the user created in neoconf db unittests, assumes those
         // tests have been run prior to running unittes.  should be possible
         // to call Add User in JSP web interface
+        user = new User[] { new User() };
+        user[0].setDisplayId("testuser");
     }
 
-    public static void seedPhone(WebTester tester) {
-        SiteTestHelper.home(tester);
-        tester.clickLink("NewPhone");
-        tester.setFormElement("serialNumber", "000000000000");
-        tester.setFormElement("phoneModel", "1");
-        tester.clickButton("phone:ok");
-        String[][] table = new String[][] {
-            { "000000000000", "", "SoundPoint IP 500" },                
-        };
-        tester.assertTextInTable("phone:list", table[0]);
-        SiteTestHelper.home(tester);
+    public void seedPhone(int count) {
+        SiteTestHelper.home(m_tester);
+        endpoint = new Endpoint[count];
+        for (int i = 0; i < endpoint.length; i++) {
+            endpoint[i] = new Endpoint();
+            String serNum = "000000000000" + i;
+            endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
+            m_tester.clickLink("NewPhone");
+            m_tester.setFormElement("serialNumber", endpoint[i].getSerialNumber());
+            m_tester.setFormElement("phoneModel", "1");
+            m_tester.clickButton("phone:ok");
+            SiteTestHelper.home(m_tester);
+        }
     }
     
-    public static void seedLine(WebTester tester) {
-        SiteTestHelper.home(tester);
-        tester.clickLink("ManagePhones");        
-        tester.clickLinkWithText("000000000000");
-        tester.clickLinkWithText("Lines");        
-        tester.clickLink("AddUser");        
-        tester.clickButton("user:search");
-        // first (should be only?) row
-        tester.checkCheckbox("selectedRow");
-        tester.clickButton("user:select");
-        SiteTestHelper.home(tester);
+    public void seedLine(int count) {
+        seedUser();
+        seedPhone(1);
+        SiteTestHelper.home(m_tester);
+        m_tester.clickLink("ManagePhones");        
+        m_tester.clickLinkWithText(endpoint[0].getSerialNumber());
+        m_tester.clickLinkWithText("Lines");
+        line = new Line[count];
+        for (int i = 0; i < line.length; i++) {
+            line[0] = new Line();
+            line[0].setUser(user[0]);
+            line[0].setEndpoint(endpoint[0]);
+            endpoint[0].addLine(line[0]);
+            m_tester.clickLink("AddUser");        
+            m_tester.clickButton("user:search");
+            // first (should be only?) row
+            m_tester.checkCheckbox("selectedRow");
+            m_tester.clickButton("user:select");
+        }
+        SiteTestHelper.home(m_tester);
     }
 }

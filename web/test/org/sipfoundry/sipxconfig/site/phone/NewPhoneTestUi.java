@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class NewPhoneTestUi extends WebTestCase {
     
+    private PhoneTestHelper m_helper;
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(NewPhoneTestUi.class);
     }
@@ -26,7 +28,8 @@ public class NewPhoneTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        PhoneTestHelper.reset(tester);
+        m_helper = new PhoneTestHelper(tester);
+        m_helper.reset();
     }
 
     protected void tearDown() throws Exception {
