@@ -34,10 +34,6 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
 
     public void finish(IRequestCycle cycle) {
         getPhoneContext().storeEndpoint(getEndpoint());
-
-        // nec.?
-        // getPhoneContext().flush();
-        
         cycle.activate(ManagePhones.PAGE);
     }
 

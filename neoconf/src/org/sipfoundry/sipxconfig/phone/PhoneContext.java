@@ -92,4 +92,7 @@ public interface PhoneContext extends CoreContext {
     public Folder loadRootEndpointFolder();
     
     public Folder loadRootLineFolder();
+    
+    /** unittesting only */
+    public void clear();
 }

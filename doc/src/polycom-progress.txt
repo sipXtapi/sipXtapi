@@ -46,7 +46,7 @@ C L E A N  U P
  + remove extra space on top of tapestry frameset, add margin to sides
  + even -> odd, odd -> even when generating profiles and you have an odd number of row to begin with
  + move up/down on lines
- + phone.xml  registration server descriptions are need work
+ + phone.xml  registration server descriptions need work
  + default values when loading
  + Move user and organization to common
  + remove PhonePageUtils, use new Globals map to get spring beans

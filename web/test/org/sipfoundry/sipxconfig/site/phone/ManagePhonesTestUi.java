@@ -12,41 +12,23 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class ManagePhonesTestUi extends WebTestCase {
+public class ManagePhonesTestUi extends PhoneTestUiBase {
 
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(NewPhoneTestUi.class);
+        return SiteTestHelper.webTestSuite(ManagePhonesTestUi.class);
     }
 
-    protected void setUp() throws Exception {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        beginAt("/");
-        clickLink("ManagePhones");  
-    }
-    
     public void testGenerateProfiles() {
-        //seedNewPhone();
-        
-        setFormElement("selectedRow", "true");
+        seedNewPhone();
+
+        clickLink("ManagePhones");          
+        checkCheckbox("selectedRow");
         clickButton("phone:sendProfiles");
         // present if no exception
-        assertLinkPresent("NewPhone");
+        assertLinkPresent("AddPhone");
     }
     
-    private void seedNewPhone() {
-        clickLink("NewPhone");
-        setFormElement("serialNumber", "000000000000");
-        setFormElement("phoneModel", "1");
-        clickButton("phone:ok");
-        String[][] table = new String[][] {
-            { "000000000000", "", "SoundPoint IP 500" },                
-        };
-        assertTextInTable("phone:list", table[0]);    
-
-        // verify files were generated        
-    }
 }

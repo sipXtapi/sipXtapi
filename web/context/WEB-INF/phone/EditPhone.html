@@ -9,6 +9,17 @@
         </span>
         <form jwcid="@Form" delegate="ognl:beans.validator">
             <span jwcid="editPhoneForm"/>
+				<ul class="form-actions">
+					<li>
+						<input type="submit" jwcid="cancel" id="phone:cancel" value="Cancel"/>
+					</li>
+					<li>
+						<input type="submit" jwcid="apply" id="phone:apply" value="Apply"/>
+					</li>
+					<li>
+						<input type="submit" jwcid="ok" id="phone:ok" value="OK"/>
+					</li>
+				</ul>
 			<ul class="form-actions">
 				<li>
                     <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>

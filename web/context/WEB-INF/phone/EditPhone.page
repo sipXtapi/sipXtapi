@@ -24,6 +24,15 @@
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="endpoint" expression="endpoint"/>
     </component>    
+    <component id="ok" type="Submit">
+        <binding name="listener" expression="listeners.ok"/>
+    </component>
+    <component id="apply" type="Submit">
+        <binding name="listener" expression="listeners.apply"/>
+    </component>
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="listeners.cancel"/>
+    </component>
 	<!--
 	  - A S S E T S
 	  -->	

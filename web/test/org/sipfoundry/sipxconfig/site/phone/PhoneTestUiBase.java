@@ -11,32 +11,29 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
-
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
+import net.sourceforge.jwebunit.WebTestCase;
 
-public class NewPhoneTestUi extends WebTestCase {
+
+public class PhoneTestUiBase extends WebTestCase {
     
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(NewPhoneTestUi.class);
-    }
-    
-    public void setUp() {
+    protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         beginAt("/");
-        clickLink("resetPhoneContext");
-        clickLink("NewPhone");  
+        clickLink("resetPhoneContext");        
     }
-    
-    public void testAddPhone() {
+
+    protected void seedNewPhone() {
+        beginAt("/");
+        clickLink("NewPhone");
         setFormElement("serialNumber", "000000000000");
         setFormElement("phoneModel", "1");
         clickButton("phone:ok");
         String[][] table = new String[][] {
             { "000000000000", "", "SoundPoint IP 500" },                
         };
-        assertTextInTable("phone:list", table[0]);
+        assertTextInTable("phone:list", table[0]);    
+        beginAt("/");
     }
 }

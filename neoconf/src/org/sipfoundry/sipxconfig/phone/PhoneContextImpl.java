@@ -159,4 +159,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public Folder loadRootLineFolder() {
         return m_settingDao.loadRootFolder(Line.FOLDER_RESOURCE_NAME);
     }
+
+    /** unittesting only */
+    public void clear() {
+        getHibernateTemplate().delete("from Line");
+        getHibernateTemplate().delete("from Endpoint");
+        getHibernateTemplate().delete("from Folder");
+        getHibernateTemplate().delete("from ValueStorage");
+    }
 }

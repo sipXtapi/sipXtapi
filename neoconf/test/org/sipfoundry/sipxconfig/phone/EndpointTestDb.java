@@ -32,13 +32,9 @@ public class EndpointTestDb extends TestCase {
     
     private PhoneContext m_context;
     
-    private SettingDao m_settingDao;
-    
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
-        m_settingDao = (SettingDao) TestHelper.getApplicationContext().getBean(
-                SettingDao.CONTEXT_NAME);
     }
     
     public void testSave() throws Exception {        
