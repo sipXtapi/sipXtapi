@@ -47,7 +47,6 @@ public class DeviceGroupDetailsTag extends StyleTagSupport {
     private String m_level;
     private String m_visiblefor;
     private String m_detailsType;
-    private Element m_mappingsDoc = null;
 
     private DeviceHome m_deviceHome = null;
     private DeviceGroupHome m_deviceGroupHome = null;
@@ -256,12 +255,7 @@ public class DeviceGroupDetailsTag extends StyleTagSupport {
             Element mappingElement = new Element ( "refpropertygroup_rp_mappings" );
             documentRootElement.addContent( mappingElement );
 
-            if ( m_mappingsDoc == null ) {
-                m_mappingsDoc = getMappingsDoc();
-            }
-
-            mappingElement.addContent( m_mappingsDoc );
-
+            mappingElement.addContent( getMappingsDoc() );
 
             RefConfigurationSet rcs =
                 m_rcsHome.findByPrimaryKey( deviceGroup.getRefConfigSetID() );
@@ -308,6 +302,8 @@ public class DeviceGroupDetailsTag extends StyleTagSupport {
             outputTextToBrowser ( documentRootElement, stylesheetParameters );
         }
         catch(Exception ex ) {
+            //XCF-154, nested exception isn't logged or displayed
+            ex.printStackTrace();
              throw new JspException( ex );
         }
 

@@ -15,19 +15,21 @@
     <!--
       - B E A N S
       -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>    
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
     <!--
       - C O M P O N E N T S
       -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
     <component id="editPhoneNavigation" type="PhoneNavigation">        
         <binding name="phone" expression="phone"/>
         <static-binding name="tab" value="EditPhone"/>
         <static-binding name="heading" value="Identification"/>
-        <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="phoneData" expression="phone.phoneData"/>
-        <binding name="phoneContext" expression="phoneContext"/>
+        <binding name="validator" expression="beans.validator"/>
     </component>    
     <component id="addLine" type="DirectLink">
         <binding name="listener" expression="listeners.addLine"/>
@@ -42,9 +44,4 @@
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
     </component>
-	<!--
-	  - A S S E T S
-	  -->	
-	<!-- TODO Find some way to define this globally -->
-	<context-asset name="stylesheet" path="css/sipxconfig.css"/>
 </page-specification>

@@ -29,7 +29,6 @@
         <binding name="line" expression="line"/>
         <binding name="tab" expression="parentSetting.name"/>
         <binding name="heading" expression="parentSetting.label"/>
-        <binding name="phoneContext" expression="phoneContext"/>
     </component>
     <component id="settingDescription" type="Insert">
         <binding name="value" expression="parentSetting.description"/>

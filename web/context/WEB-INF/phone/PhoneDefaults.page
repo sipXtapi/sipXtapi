@@ -35,12 +35,20 @@
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
     <property-specification name="lineFolder"
         type="org.sipfoundry.sipxconfig.setting.Folder"/>
+    <property-specification name="editFormSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="editFormSettings" 
         type="java.util.Collection"/>    
     <!--
      - C O M P O N E N T S
      -->    
     <!--Navigation-->  
+    <component id="pageSettingLabel" type="Insert">
+        <binding name="value" expression="editFormSetting.label"/>
+    </component>
+    <component id="pageSettingDescription" type="Insert">
+        <binding name="value" expression="editFormSetting.description"/>
+    </component>
     <component id="phoneSettings" type="Foreach">
         <binding name="source" expression="phoneNavigationSettings"/>
         <binding name="value" expression="currentNavigationSetting"/>

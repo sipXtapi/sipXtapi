@@ -67,12 +67,23 @@
 
 	<!-- INSTALL -->
     <target name="install">
+    	<mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
 		<copy todir="${dest.dir}${sipxpbx.conf.dir}">
 			<fileset dir="etc">
 				<include name="**/*"/>
 		    </fileset>
 	    </copy>    	
-	</target>
+
+        <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxconfig.properties.in"
+            propertyfile="${top.build.dir}/config.properties">
+            <replacefilter token="@version@" property="version"/>
+            <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+            <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
+            <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+            <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
+            <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
+        </replace>
+    </target>
 	
 	
 	<!-- D E F A U L T -->

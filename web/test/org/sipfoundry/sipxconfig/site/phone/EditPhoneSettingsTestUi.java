@@ -36,13 +36,23 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
         super.tearDown();
         dumpResponse(System.err);
     }
-
-    public void testEditLine() {
+    
+    public void testEditSipSetttings() {
         m_helper.seedPhone(1);
         clickLink("ManagePhones");        
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         // NOTE: Polycom only setting 
-        clickLinkWithText("SIP");        
-        SiteTestHelper.assertNoException(tester);
+        clickLinkWithText("Hold Reminder");        
+        // check seed data 
+        assertEquals("0", getDialog().getFormParameterValue("setting"));
+        setFormElement("setting", "1");
+        clickButton("setting:ok");
+
+        // verify setting sticks
+        SiteTestHelper.home(tester);
+        clickLink("ManagePhones");        
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
+        clickLinkWithText("Hold Reminder");
+        assertEquals("1", getDialog().getFormParameterValue("setting"));
     }
 }

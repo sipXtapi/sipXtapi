@@ -53,7 +53,7 @@ public class PolycomPhone extends AbstractPhone {
     private VelocityEngine m_velocityEngine;
 
     private SipService m_sip;
-
+    
     /** BEAN ACCESS ONLY */
     public PolycomPhone() {
     }
@@ -135,10 +135,6 @@ public class PolycomPhone extends AbstractPhone {
         m_polycom = polycom;
     }
 
-    public String getDisplayLabel() {
-        return getModel().getDisplayLabel();
-    }
-
     public int getMaxLineCount() {
         return getModel().getMaxLines();
     }
@@ -206,10 +202,7 @@ public class PolycomPhone extends AbstractPhone {
         };
         String msg = MessageFormat.format(restartSip, sipParams);
         try {
-            String to = line.getPrimaryRegistrationServerAddress();
-            String sPort = line.getPrimaryRegistrationServerPort();
-            int port = PolycomLine.getSipPort(sPort);
-            m_sip.send(to, port, msg);
+            m_sip.send(msg);
         } catch (IOException e) {
             throw new RestartException("Could not send restart SIP message", e);
         }
@@ -248,6 +241,5 @@ public class PolycomPhone extends AbstractPhone {
 
         return settings;
     }
-
 }
 

@@ -12,8 +12,8 @@ message.
 
     1. [1]For Redhat Users
          1. [2]System Installation
-         2. [3]Installing dependencies with up2date
-         3. [4]Installing Java RPM
+         2. [3]Installing Java RPM
+         3. [4]Installing dependencies with yum
          4. [5]Installing RPMs from SIPfoundry
     2. [6]Installing From Source and Non-Redhat Users
          1. [7]Dependencies
@@ -21,14 +21,13 @@ message.
          3. [9]Compile and Installation
          4. [10]JBoss Setup
          5. [11]Postgres Database Setup
-    3. [12]Optional Setup
-         1. [13]TFTP Setup for Cisco 79xx
-         2. [14]Phone Plugin Development
-    4. [15]Security
-    5. [16]Running
-         1. [17]Running with other sipX servers
-         2. [18]Running Standalone
-    6. [19]Windows
+    3. [12]Additional Setup
+         1. [13]TFTP Setup for phone boot server
+         2. [14]Security
+    4. [15]Running
+         1. [16]Running with other sipX servers
+         2. [17]Running Standalone
+    5. [18]Windows
 
 For Redhat Users
 
@@ -41,47 +40,51 @@ For Redhat Users
        the minimum set of packages labeled "router configuration" in the Redhat
        installer process
     2. When prompted for firewall support, select "no firewall support" or open
-       up the following ports in your iptables: 80, 8080, 8090, 8091, 5060 and
-       5090
-
-  Installing dependencies with up2date
-
-   Fedora users may experience periodic connection errors using using up2date
-   but usually if you're persistent you can get through executing up2date
-   repeatedly. If you do not use up2date, I recommend installing Postgres and
-   apache while installing your system, or use the Redhat package manager to
-   install those RPMs for you.
-     * Run up2date for the first time and follow instructions to setup properly
-       up2date operation.
-     * Run up2date -u to make your system is up to date.
-     * Run up2date on the following packages:
-
-        Postgres
-                up2date rh-postgresql-server *Enterprise Users Only
-                up2date postgresql-server *Fedora Users Only
-
-        Apache 2 webserver
-                up2date httpd
+       up the following ports in your iptables: 80, 8080, 8443, 8090, 8091,
+       5060 and 5090
 
   Installing Java RPM
 
      * j2sdk 1.4 or greater available by opening your webbrowser to this URL:
-       [20]http://java.sun.com/j2se/1.4.2/download.html
+       [19]http://java.sun.com/j2se/1.4.2/download.html
 
-  Installing RPMs dependencies from SIPfoundry
+  Installing dependencies with yum
 
-     * cgicc
-     * mod_cplusplus
-     * w3c-libwww
-     * xerces-c
+   Common to all Fedora systems, you need to add the following packages:
+  yum install tftp-server httpd postgresql-server
 
-   Download and install the following RPMS from
-   [21]http://www.sipfoundry.org/pub/sipX/depends/.
+   Redhat enterprise:
+  yum install tftp-server httpd rh-postgresql-server
+
+    Fedora Core 3: Java build tools using JPackage
+
+   You   can  add  jpackage  to  your  yum  repository  as  follows  (see
+   [20]http://www.mksearch.mkdoc.org/howto/jpackage-fc3/ for more information.)
+   Remove previous ant if you have it installed
+   rpm -e apache-ant
+
+   Now setup yum
+  wget -P /tmp http://jpackage.org/jpackage.asc
+  rpm --import /tmp/jpackage.asc
+  wget -P /etc/yum.repos.d http://jpackage.org/jpackage.repo
+
+   Now you can update your system to the required packages
+  yum install ant junit ant-junit checkstyle checkstyle-optional ant-trax jakar
+ta-commons-beanutils jakarta-commons-collections
+
+    Fedora Core 2 and Redhat Enterprise: Java build tools using custom rpm
+
+   Although you can get RPMs from JPacakge, SIPfoundy has an RPM will all the
+   necesary tools you'll need. NOTE: This will also work on FC3 if you run into
+   trouble with using JPackage
+  wget http://www.sipfoundry.org/pub/sipX/depends/FC/2/apache-ant-1.6.2-2.noarc
+h.rpm
+  rpm -ivh apache-ant-1.6.2-2.noarch.rpm
 
   Installing sipX RPMs from SIPfoundry
 
    Download and install the following RPMs from
-   [22]http://www.sipfoundry.org/pub/sipX/
+   [21]http://www.sipfoundry.org/pub/sipX/
      * sipx-jboss-4.0.1-1.noarch.rpm this rpm is not available yet - please
        install JBoss 4.0.1 from source
      * sipxportlib
@@ -103,28 +106,28 @@ Installing From Source and Non-Redhat Users
   Dependencies
 
    sipXportLib (same version sipXconfig)
-          [23]http://www.sipfoundry.org/sipXportLib
+          [22]http://www.sipfoundry.org/sipXportLib
 
    sipXtackLib (same version sipXconfig)
-          [24]http://www.sipfoundry.org/sipXtack
+          [23]http://www.sipfoundry.org/sipXtack
 
    sipXcommserverLib (same version sipXconfig)
-          [25]http://www.sipfoundry.org/sipXcommserverLib
+          [24]http://www.sipfoundry.org/sipXcommserverLib
 
    sipXpbx (same version sipXconfig)
-          [26]http://www.sipfoundry.org/sipXpbx
+          [25]http://www.sipfoundry.org/sipXpbx
 
    Java SDK 1.4 (tested w/1.4.2.03)
-          [27]http://java.sun.com
+          [26]http://java.sun.com
 
    postgres 7.3 (tested with 7.3.4)
-          [28]http://www.postgresql.org/
+          [27]http://www.postgresql.org/
 
    JBoss 4.0.1 (includes Tomcat 5.0)
-          [29]http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz
+          [28]http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz
 
    Ant 1.6 (tested with 1.6.1)
-          [30]http://ant.apache.org/
+          [29]http://ant.apache.org/
 
   Environment Variables
 
@@ -167,7 +170,7 @@ Installing From Source and Non-Redhat Users
 
   JBoss Setup
 
-   If you've installed JBoss from [31]the RPM found on sipfoundry website then
+   If you've installed JBoss from [30]the RPM found on sipfoundry website then
    add user 'sipxchange' (or user defined SIPXPBXUSER) to the jboss user group
    and skip the next few steps about patching JBoss and skip to setting up your
    database
@@ -231,27 +234,13 @@ boss4-configure.patch
      /usr/local/sipx/bin/sipxdbmgr --create PDS
      /usr/local/sipx/bin/sipxdbmgr --create SDS
 
-Security
+Additional Setup
 
-   Set up an SSL key using the instructions in
-   sipXcommserverLib/doc/INSTALL.ssl or
-   /usr/share/doc/sipxcommserverlib-version/INSTALL.ssl.
+  TFTP
 
-Optional Setup
+    TFTP on Redhat
 
-  TFTP Setup for Cisco 79xx phones
-
-   Most  Cisco phones in the 79xx series use a tftp server to serve phone
-   configuration information and firmware upgrades. You must install a tftp
-   server and map the tftp root directory to:
-   var/sipxdata/configserver/phone/profile/tftproot. Consult phone vendor
-   documentation for recommended TFTP servers but below is a set of known tftp
-   server setups that work.
-
-    On Fedora or Red Hat Enterprise
-
-   Run the following commands
-  up2date tftp-server
+  Run the following commands
   ${EDITOR} /etc/xinetd.d/tftp
 
    make the following edits, if you've installed via RPM, then {where you
@@ -270,7 +259,7 @@ Optional Setup
   # restart xinit.d that in turn will start tftp on demand
   service xinet.d restart
 
-    On Gentoo
+    TFTP on Gentoo
 
    Run the following commands
   emerge net-misc/tftp-hpa
@@ -283,12 +272,11 @@ e/profile/tftproot"
    then run the following command
   /etc/init.d/in.tftp start
 
-  Phone Plugin Development
+  Security
 
-   New module for developing support for new phone devices. Although this
-   module is intended to be a foundation for a new system architecture for
-   entire project. See [32]Neoconf for installation procedure and necessary
-   software dependencies.
+   Set up an SSL key using the instructions in
+   sipXcommserverLib/doc/INSTALL.ssl or
+   /usr/share/doc/sipxcommserverlib-version/INSTALL.ssl.
 
 Running
 
@@ -367,35 +355,33 @@ Windows
 
 References
 
-   1. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh
-   2. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-system
-   3. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-dep
-   4. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-jdk
-   5. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-sipx
-   6. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src
-   7. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-dep
-   8. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-env
-   9. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-compile
-  10. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-jboss
-  11. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-db
-  12. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#optional
-  13. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#tftp
-  14. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#neoconf
-  15. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#security
-  16. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run
-  17. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-sipx
-  18. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-alone
-  19. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#windows
-  20. http://java.sun.com/j2se/1.4.2/download.html
-  21. http://www.sipfoundry.org/pub/sipX/depends/
-  22. http://www.sipfoundry.org/pub/sipX/
-  23. http://www.sipfoundry.org/sipXportLib
-  24. http://www.sipfoundry.org/sipXtack
-  25. http://www.sipfoundry.org/sipXcommserverLib
-  26. http://www.sipfoundry.org/sipXpbx
-  27. http://java.sun.com/
-  28. http://www.postgresql.org/
-  29. http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz
-  30. http://ant.apache.org/
-  31. http://www.sipfoundry.org/pub/sipX/depends/
-  32. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/neoconf.html
+   1. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh
+   2. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh-system
+   3. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh-jdk
+   4. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#yum
+   5. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh-sipx
+   6. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src
+   7. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-dep
+   8. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-env
+   9. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-compile
+  10. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-jboss
+  11. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-db
+  12. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#additional
+  13. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#tftp
+  14. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#security
+  15. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#run
+  16. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#run-sipx
+  17. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#run-alone
+  18. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#windows
+  19. http://java.sun.com/j2se/1.4.2/download.html
+  20. http://www.mksearch.mkdoc.org/howto/jpackage-fc3/
+  21. http://www.sipfoundry.org/pub/sipX/
+  22. http://www.sipfoundry.org/sipXportLib
+  23. http://www.sipfoundry.org/sipXtack
+  24. http://www.sipfoundry.org/sipXcommserverLib
+  25. http://www.sipfoundry.org/sipXpbx
+  26. http://java.sun.com/
+  27. http://www.postgresql.org/
+  28. http://prdownloads.sourceforge.net/jboss/jboss-4.0.1sp1.tar.gz
+  29. http://ant.apache.org/
+  30. http://www.sipfoundry.org/pub/sipX/depends/

@@ -34,7 +34,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     private BeanFactory m_beanFactory;
 
-    private List m_phoneIds;
+    private Map m_phoneIds;
 
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
@@ -47,11 +47,11 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         m_beanFactory = beanFactory;
     }
 
-    public List getPhoneFactoryIds() {
+    public Map getPhoneFactoryIds() {
         return m_phoneIds;
     }
 
-    public void setPhoneFactoryIds(List phoneIds) {
+    public void setPhoneFactoryIds(Map phoneIds) {
         m_phoneIds = phoneIds;
     }
 
@@ -115,7 +115,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     
     ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
         // HACK: Load incase it needs to be deleted
-        return vs != null && vs.getId() == UNSAVED_ID ? null : vs;
+        return vs != null && vs.getId() == UNSAVED_ID && vs.size() == 0 ? null : vs;
     }
 
     public Line loadLine(Integer id) {
@@ -131,7 +131,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         for (int i = 0; i < phoneMetas.size(); i++) {
             PhoneData meta = (PhoneData) phoneMetas.get(i);
             Phone phone = loadPhoneFromFactory(meta);
-            phones.put(meta, phone);
+            phones.put(meta.getPrimaryKey(), phone);
         }
 
         String lineQuery = "from LineData l order by l.phoneData, l.position asc";
@@ -139,10 +139,10 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData lineMeta = (LineData) lineMetas.get(i);
             // collate by parent object: phoneMetaData
-            Phone phone = (Phone) phones.get(lineMeta.getPhoneData());
+            Phone phone = (Phone) phones.get(lineMeta.getPhoneData().getPrimaryKey());
             if (phone == null) {
                 phone = loadPhoneFromFactory(lineMeta.getPhoneData());
-                phones.put(lineMeta.getPhoneData(), phone);
+                phones.put(lineMeta.getPhoneData().getPrimaryKey(), phone);
             }
             phone.addLine(phone.createLine(lineMeta));
         }
@@ -153,8 +153,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public Phone loadPhone(Integer id) {
         Phone phone = loadPhoneFromFactory((PhoneData) getHibernateTemplate().load(
                 PhoneData.class, id));
-        String lineQuery = "from LineData l order by l.position asc";
-        List lineMetas = getHibernateTemplate().find(lineQuery);
+        String lineQuery = "from LineData l where l.phoneData = :phone order by l.position asc";
+        List lineMetas = getHibernateTemplate().findByNamedParam(lineQuery, "phone", phone.getPhoneData());
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData meta = (LineData) lineMetas.get(i);
             phone.addLine(phone.createLine(meta));
@@ -173,6 +173,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     private Phone loadPhoneFromFactory(PhoneData meta) {
         Phone phone = (Phone) m_beanFactory.getBean(meta.getFactoryId());
         phone.setPhoneData(meta);
+        meta.setModelLabel((String) m_phoneIds.get(meta.getFactoryId()));
 
         return phone;
     }

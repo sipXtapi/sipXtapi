@@ -27,7 +27,6 @@ sipxpbx.user=@SIPXPBXUSER@
 # this to any other user will require manual update to jboss
 # configuration
 sipxconfig.db.user=postgres
-sipxconfig.db.pds=PDS_TEST
 sipxpbx.log.dir=@SIPX_LOGDIR@
 sipxpbx.run.dir=@SIPX_RUNDIR@
 sipxpbx.tmp.dir=@SIPX_TMPDIR@

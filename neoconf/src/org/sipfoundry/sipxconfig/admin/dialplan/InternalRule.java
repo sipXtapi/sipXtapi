@@ -36,8 +36,8 @@ public class InternalRule extends DialingRule {
         return null;
     }
 
-    public Type getType() {
-        return Type.INTERNAL;
+    public DialingRuleType getType() {
+        return DialingRuleType.INTERNAL;
     }
 
     public String getAutoAttendant() {

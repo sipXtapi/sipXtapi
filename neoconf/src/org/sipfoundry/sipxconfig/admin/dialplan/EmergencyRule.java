@@ -64,8 +64,8 @@ public class EmergencyRule extends DialingRule {
         return m_useMediaServer ? getMediaServerTransforms() : getStandardTransforms();
     }
 
-    public Type getType() {
-        return Type.EMERGENCY;
+    public DialingRuleType getType() {
+        return DialingRuleType.EMERGENCY;
     }
 
     /**

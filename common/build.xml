@@ -23,13 +23,6 @@
     <!-- J2EE -->
     <pathelement location="${j2ee.jar}"/>
     <pathelement location="${servlet.jsp.jar}"/>
-
-    <!-- SPRING -->
-    <!-- pathelement path="${spring.jar}" / -->
-
-    <!-- TEST -->
-    <!-- TODO separate into run path -->
-    <!-- path refid="neoconf.runtime.dependencies"/ -->
   </path>
   <property name="classpath" refid="base.path" />
 
@@ -40,20 +33,6 @@
   <target name="init" depends="ant-targets.init">
   </target>
 
-  <!-- V E R S I O N -->
-  <target name="version" depends="init">
-    <copy file="meta/buildVersion.properties.in" tofile="${buildVersion.properties}"/>
-    <replace file="${buildVersion.properties}" 
-        propertyfile="${top.build.dir}/config.properties">
-      <replacefilter token="@version@" property="version"/>
-      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
-      <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
-      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
-      <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
-    </replace>
-  </target>
-
   <!-- C O M P I L E  /  R M I -->
   <target name="compile" depends="ant-targets.compile">
     <rmic base="${classes.dir}" includes="**/*Impl.class" 
@@ -61,7 +40,7 @@
   </target>
 
   <!-- J A R -->
-  <target name="jar" depends="version,compile" description="PDS interface jar file">
+  <target name="jar" depends="compile" description="PDS interface jar file">
     <jar jarfile="${dist.dir}/common.jar">
       <fileset dir="${classes.dir}" >
           <include name="**/*.class" />

@@ -67,7 +67,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         }
     }
     
-    public void addUser(IRequestCycle cycle) {
+    public void addLine(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);

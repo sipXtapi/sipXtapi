@@ -16,8 +16,7 @@ import junit.framework.TestCase;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 
 /**
  * SelectRuleTypeTest
@@ -31,15 +30,15 @@ public class SelectRuleTypeTest extends TestCase {
     }
 
     public void testNext() {
-        verifyPage(DialingRule.Type.CUSTOM, "EditCustomDialRule");
-        verifyPage(DialingRule.Type.INTERNAL, "EditInternalDialRule");
-        verifyPage(DialingRule.Type.EMERGENCY, "EditEmergencyDialRule");
-        //verifyPage(DialingRule.Type.RESTRICTED, "EditRestrictedDialRule");
-        verifyPage(DialingRule.Type.LONG_DISTANCE, "EditLongDistanceDialRule");
-        verifyPage(DialingRule.Type.LOCAL, "EditLocalDialRule");
+        verifyPage(DialingRuleType.CUSTOM, "EditCustomDialRule");
+        verifyPage(DialingRuleType.INTERNAL, "EditInternalDialRule");
+        verifyPage(DialingRuleType.EMERGENCY, "EditEmergencyDialRule");
+        //verifyPage(DialingRuleType.RESTRICTED, "EditRestrictedDialRule");
+        verifyPage(DialingRuleType.LONG_DISTANCE, "EditLongDistanceDialRule");
+        verifyPage(DialingRuleType.LOCAL, "EditLocalDialRule");
     }
 
-    private void verifyPage(DialingRule.Type type, String pageName) {
+    private void verifyPage(DialingRuleType type, String pageName) {
         EditDialRule page = (EditDialRule) m_pageMaker.getInstance(EditDialRule.class);
         page.setRuleId(new Integer(0));
 

@@ -33,6 +33,8 @@ public class PhoneData implements PrimaryKeySource, Serializable {
     private String m_serialNumber;
 
     private String m_factoryId;
+    
+    private String m_modelLabel;
 
     private ValueStorage m_valueStorage;
 
@@ -44,6 +46,7 @@ public class PhoneData implements PrimaryKeySource, Serializable {
     
     public PhoneData(String factoryId) {
         setFactoryId(factoryId);
+        setModelLabel(factoryId);
     }
     
     /**
@@ -60,6 +63,14 @@ public class PhoneData implements PrimaryKeySource, Serializable {
         m_factoryId = phoneId;
     }
 
+    public String getModelLabel() {
+        return m_modelLabel;
+    }
+
+    public void setModelLabel(String modelLabel) {
+        m_modelLabel = modelLabel;
+    }
+    
     public Integer getId() {
         return m_id;
     }

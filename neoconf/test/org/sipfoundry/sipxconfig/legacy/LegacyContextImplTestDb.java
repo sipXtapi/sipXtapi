@@ -12,16 +12,14 @@
 package org.sipfoundry.sipxconfig.legacy;
 
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Iterator;
+
+import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
-
-import junit.framework.TestCase;
 
 public class LegacyContextImplTestDb extends TestCase {
 
@@ -43,12 +41,8 @@ public class LegacyContextImplTestDb extends TestCase {
     
     public void testGetConfigSetsForUser() {
         User user = m_coreContext.loadUser(4);
-        Collection configSetsForUser = m_legacyContext.getConfigSetsForUser(user);
-        assertEquals(1,configSetsForUser.size());
-        for (Iterator i = configSetsForUser.iterator(); i.hasNext();) {
-            UserConfigSet cs = (UserConfigSet) i.next();
-            assertEquals("<PROFILE></PROFILE>", cs.getContent());            
-        }
+        UserConfigSet cs = m_legacyContext.getConfigSetForUser(user);
+        assertEquals("<PROFILE></PROFILE>", cs.getContent());            
     }
         
     public void testCheckUserPermission() {

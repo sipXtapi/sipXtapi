@@ -77,14 +77,14 @@ public class PathLocatorUtilTest extends TestCase {
 
     public static String VERSION_INFO =
         "#Thu Feb 05 01:00:14 EST 2004\n"+
-        "version=2.6.0\n"+
-        "build_number=0000\n"+
-        "comment=opendev\n"+
-        "sipxconf=/opt/work-main/sipx/etc/sipxpbx\n" + 
-        "sipxdata=/opt/work-main/sipx/share/sipxpbx\n" +
-        "sipxtmp=/opt/work-main/sipx/var/tmp\n" +
-        "sipxphone=/opt/work-main/sipx/var/sipxdata/configserver/phone\n" +
-        "sipxlog=/opt/work-main/sipx/var/log/sipxpbx\n";
+        "sysdir.version=2.6.0\n"+
+        "sysdir.build_number=0000\n"+
+        "sysdir.comment=opendev\n"+
+        "sysdir.etc=/opt/work-main/sipx/etc/sipxpbx\n" + 
+        "sysdir.share=/opt/work-main/sipx/share/sipxpbx\n" +
+        "sysdir.tmp=/opt/work-main/sipx/var/tmp\n" +
+        "sysdir.phone=/opt/work-main/sipx/var/sipxdata/configserver/phone\n" +
+        "sysdir.log=/opt/work-main/sipx/var/log/sipxpbx\n";
 
     private class MockVersionInfo extends VersionInfo
     {

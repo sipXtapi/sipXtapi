@@ -10,4 +10,3 @@ sipxchange.domain.name=${SIPXCHANGE_DOMAIN_NAME}
 sipxchange.realm=${SIPXCHANGE_REALM}
 #XPH-73
 pgs.validate.device.serialnumber=true
-

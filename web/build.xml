@@ -6,7 +6,6 @@
 	<property name="project.dir" value="web" />
 	<import file="../ant-targets.xml" />
 	
-	<property name="sysdir.properties" value="${classes.dir}/sysdir.properties"/>
 	<property name="test.war" value="${test.classes.dir}/war"/>
 
     <patternset id="test-ui.classes" includes="**/*TestUi.class" />
@@ -71,27 +70,10 @@
 	</target>
 
 	<!-- D E F A U L T -->
-	<target name="default" depends="war"/>
-	
-	  <!-- For generating sysdir for applications -->
-    <target name="sysdir.properties"
-	     description="internal, for generating sysdir.properties for web application">
-<!-- 
-  - NOTE: 
-  - a duplicate copy is maintained test/org/sipfoundry/sipxconfig/TestHelper.java
-  - but point to unittest directories
-  -->
-      <echo file="${sysdir.properties}">
-# used in applicationContext-sipxconfig.xml to set system properies
-sysdir.etc=${sipxpbx.conf.dir}
-sysdir.log=${sipxpbx.log.dir}
-sysdir.data=${sipxpbx.data.dir}
-sysdir.phone=${sipxconfig.phone.dir}
-      </echo>
-    </target>
+	<target name="default" depends="war"/>	
 
 	<!-- W A R -->
-	<target name="war" depends="compile,sysdir.properties" description="assemble sipxconfig for tapestry war">
+	<target name="war" depends="compile" description="assemble sipxconfig for tapestry war">
 
 		<war warfile="${sipxconfig.war}" webxml="context/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
 
@@ -177,14 +159,13 @@ sysdir.phone=${sipxconfig.phone.dir}
 
 		<delete dir="${test.war}"/>
 		<unwar src="${sipxconfig.war}" dest="${test.war}"/>
-	      <echo file="${test.war}/WEB-INF/classes/sysdir.properties">
-# used in applicationContext-sipxconfig.xml to set system properies
-sysdir.etc=${top.dir}/neoconf/etc
-sysdir.log=${test.results.dir}
-sysdir.data=${test.results.dir}
-sysdir.phone=${test.results.dir}
-dataSource.url=jdbc:postgresql://localhost/${sipxconfig.db.pds}
-	      </echo>
+		  <!-- generates sipxconfig.properties that has test oriented values -->
+		  <java classname="org.sipfoundry.sipxconfig.common.TestUtil" classpath="${classpath}" 
+		  	     failonerror="true">
+		     <arg value="${test.war}/WEB-INF/classes"/>
+		     <arg value="${top.dir}/neoconf/etc"/>
+   	         <arg value="${test.results.dir}"/>
+		  </java>
          <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml" overwrite="true"/>
 	</target>
 

@@ -4,13 +4,12 @@
 	</head>
 	<body jwcid="$content$">
 		<div jwcid="@Border">
-            <a href="#" jwcid="@PageLink" id="ManagePhones" page="ManagePhones">List Phones</a><br/> 
-        <form jwcid="@Form" delegate="ognl:beans.validator">
-    <fieldset>
-        <legend>Identification</legend>            
+            <h2>New Phone</h2>
+            <p>Serial number is a unique id for this device. 
+            Generally it's the phone's MAC address.</p>
+            <form jwcid="form" name="phone:new">
             <span jwcid="editPhoneForm"/>
-    </fieldset>
-          <checkbox jwcid="stay"/> create another phone after this one?
+                <checkbox jwcid="stay"/> create another phone after this one?
 				<ul class="form-actions">
 					<li>
 						<input type="submit" jwcid="cancel" id="phone:cancel" value="Cancel"/>
@@ -19,7 +18,7 @@
 						<input type="submit" jwcid="ok" id="phone:ok" value="OK"/>
 					</li>
 				</ul>
-		</form>  
+           </form>
      </div>  
 </body>
 </html>

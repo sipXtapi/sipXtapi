@@ -101,8 +101,8 @@ public class MappingRule extends DialingRule {
         return true;
     }
 
-    public Type getType() {
-        return Type.MAPPING_RULE;
+    public DialingRuleType getType() {
+        return DialingRuleType.MAPPING_RULE;
     }
 
     public void setPatterns(String[] patterns) {

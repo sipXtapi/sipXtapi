@@ -71,6 +71,15 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
     }
 
     public void deleteGateways(Collection selectedRows) {
+        // remove gateways from rules first
+        FlexibleDialPlanContext flexDialPlan = getFlexDialPlan();
+        List rules = flexDialPlan.getRules();
+        for (Iterator i = rules.iterator(); i.hasNext();) {
+            DialingRule rule = (DialingRule) i.next();
+            rule.removeGateways(selectedRows);
+            flexDialPlan.storeRule(rule);
+        }
+        // remove gateways from the database
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             deleteGateway(id);

@@ -23,9 +23,13 @@ public interface SipService {
     
     public String getServerUri();
     
-    public void send(String to, int port, String sipMsg) throws IOException;
+    public void send(String sipMsg) throws IOException;
     
     public String getCurrentDate();
+    
+    public void setProxyHost(String proxy);
+
+    public void setProxyPort(int port);
     
     /**
      * To format your own date in SIP RFC format

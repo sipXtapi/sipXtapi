@@ -12,16 +12,20 @@
 package org.sipfoundry.sipxconfig.legacy;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class LegacyContextImpl extends HibernateDaoSupport implements LegacyContext {
-    public Collection getConfigSetsForUser(User user) {
+    
+    public UserConfigSet getConfigSetForUser(User user) {
         String configSetsForUser = "from UserConfigSet cs where :user in elements(cs.users)";
-        return getHibernateTemplate().findByNamedParam(configSetsForUser, "user", user);
+        Collection configs = getHibernateTemplate().findByNamedParam(configSetsForUser, "user", user);
+        if (configs.size() > 1) {
+            throw new RuntimeException("Unexpected multiple config sets for user " + user.getDisplayId());
+        }
+        return configs.isEmpty() ? null : (UserConfigSet) configs.iterator().next();
     }
 
     /**
@@ -29,13 +33,7 @@ public class LegacyContextImpl extends HibernateDaoSupport implements LegacyCont
      * account.
      */
     public boolean checkUserPermission(User user, Permission permission) {
-        Collection configSetsForUser = getConfigSetsForUser(user);
-        for (Iterator i = configSetsForUser.iterator(); i.hasNext();) {
-            UserConfigSet cs = (UserConfigSet) i.next();
-            if (cs.hasPermission(permission)) {
-                return true;
-            }
-        }
-        return false;
+        UserConfigSet cs = getConfigSetForUser(user);
+        return cs != null && cs.hasPermission(permission);
     }
 }

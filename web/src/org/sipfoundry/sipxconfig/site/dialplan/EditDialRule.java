@@ -22,6 +22,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
@@ -40,7 +41,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         Permission.TOLL_FREE_DIALING
     };
 
-    private DialingRule.Type m_ruleType;
+    private DialingRuleType m_ruleType;
 
     public abstract DialPlanContext getDialPlanManager();
 
@@ -54,11 +55,11 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     public abstract void setRule(DialingRule rule);
 
-    public DialingRule.Type getRuleType() {
+    public DialingRuleType getRuleType() {
         return m_ruleType;
     }
 
-    public void setRuleType(DialingRule.Type dialingType) {
+    public void setRuleType(DialingRuleType dialingType) {
         m_ruleType = dialingType;
     }
 
@@ -79,7 +80,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     protected DialingRule createNewRule() {
         DialingRuleFactory ruleFactory = getDialPlanManager().getRuleFactory();
-        DialingRule.Type ruleType = getRuleType();
+        DialingRuleType ruleType = getRuleType();
         return ruleFactory.create(ruleType);
     }
 

@@ -33,6 +33,8 @@ import org.apache.commons.logging.LogFactory;
 public class SipServiceImpl implements SipService {
     
     private static final long RANDOM_MAX = Long.MAX_VALUE;
+    
+    private static final int DEFAULT_SIP_PORT = 5060;
 
     private static Log s_log = LogFactory.getLog(SipServiceImpl.class);
 
@@ -41,7 +43,11 @@ public class SipServiceImpl implements SipService {
 
     private String m_serverName = "localhost";
 
-    private String m_serverPort = "5060";
+    private int m_serverPort = DEFAULT_SIP_PORT;
+    
+    private String m_proxyHost = m_serverName;
+    
+    private int m_proxyPort = DEFAULT_SIP_PORT;
     
     public SipServiceImpl() {
         m_dateFormat = new SimpleDateFormat("EEE, d MMM yyyy kk:mm:ss z");
@@ -57,8 +63,16 @@ public class SipServiceImpl implements SipService {
         }
     }
 
+    public void setProxyHost(String proxy) {
+        m_proxyHost = proxy;
+    }
+
+    public void setProxyPort(int port) {
+        m_proxyPort = port;
+    }
+
     public String getServerVia() {
-        return "SIP/2.0/UDP " + getServerName() + ":" + getServerPort() + ";branch="
+        return "SIP/2.0/UDP " + getFromServer() + ";branch="
                 + generateBranchId();
     }
 
@@ -66,34 +80,46 @@ public class SipServiceImpl implements SipService {
         return generateUniqueId();
     }
 
-    public String getServerName() {
+    public String getFromServerName() {
         return m_serverName;
     }
 
-    public void setServerName(String serverName) {
+    public void setFromServerName(String serverName) {
         m_serverName = serverName;
     }
 
-    public String getServerPort() {
+    public int getFromServerPort() {
         return m_serverPort;
     }
 
-    public void setServerPort(String serverPort) {
+    public void setFromServerPort(int serverPort) {
         m_serverPort = serverPort;
+    }
+    
+    private String getFromServer() {
+        String from;
+        if (getFromServerPort() == DEFAULT_SIP_PORT) {
+            from  = getFromServerName();
+        } else {
+            from  = getFromServerName() + ":" + getFromServerPort();
+        }
+        
+        return from;
     }
 
     public String getServerUri() {        
-        return "sip:sipuaconfig@" + getServerName();
+        return "sip:sipuaconfig@" + getFromServer();
     }
 
-    public void send(String to, int port, String sipMsg) throws IOException {
+    public void send(String sipMsg) throws IOException {
         // not particular reason it's UDP other than we do not
         // expect a response so this seems more appropriate.
         s_log.info(sipMsg);
         DatagramSocket socket = new DatagramSocket();
         byte[] sipBytes = sipMsg.getBytes();
-        InetAddress toAddress = InetAddress.getByName(to);
-        DatagramPacket packet = new DatagramPacket(sipBytes, 0, sipBytes.length, toAddress, port);
+        InetAddress toAddress = InetAddress.getByName(m_proxyHost);
+        DatagramPacket packet = new DatagramPacket(sipBytes, 0, sipBytes.length, 
+                toAddress, m_proxyPort);
         socket.send(packet);
         socket.disconnect();
     }

@@ -56,7 +56,7 @@ public class SettingGroup extends SettingImpl implements Cloneable {
      * group on the setting 
      */
     public Setting addSetting(Setting setting) {
-        setting.setSettingGroup(this);
+        setting.setParent(this);
         m_children.put(setting.getName(), setting);
         
         return setting;

@@ -43,5 +43,15 @@ public class EditLineTestUi extends WebTestCase {
         clickLink("ManagePhones");        
         clickLinkWithText(m_helper.user[0].getDisplayId());
         SiteTestHelper.assertNoException(tester);
-    }   
+    }
+    
+    public void testReturnToEditPhone() {
+        m_helper.seedLine(1);
+        clickLink("ManagePhones");        
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
+        clickLinkWithText("Add Line");
+        clickButton("user:cancel");
+        assertFormPresent("phone:edit");
+        SiteTestHelper.assertNoException(tester);        
+    }
 }

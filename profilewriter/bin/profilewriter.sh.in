@@ -34,6 +34,7 @@ jars=@sipxpbx.data.dir@/lib
 CONFIG_DEFS="@sipxpbx.conf.dir@/config.defs"
 
 CONFIG_FILES="\
+  @sipxpbx.conf.dir@/sipxconfig.properties \
   @sipxpbx.conf.dir@/profilewriter.props \
   "
 
@@ -56,7 +57,7 @@ then
     exit $Status
 fi
 
-CLASSPATH=
+CLASSPATH=@sipxpbx.conf.dir@
 for jar in ${jars}/*.jar ; do
    CLASSPATH=$CLASSPATH:$jar
 done

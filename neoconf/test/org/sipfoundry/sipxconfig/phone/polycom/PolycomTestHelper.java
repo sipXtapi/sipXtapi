@@ -11,15 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import java.io.File;
+
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.phone.LineData;
+import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 
 public class PolycomTestHelper {
@@ -36,17 +37,21 @@ public class PolycomTestHelper {
     
     public static PolycomTestHelper plainEndpointSeed() throws Exception {
         
-        MockControl coreControl = MockControl.createNiceControl(CoreContext.class);
-        CoreContext core = (CoreContext) coreControl.getMock();
-        Organization rootOrg = new Organization();
-        rootOrg.setDnsDomain("sipfoundry.org");
-        coreControl.expectAndReturn(core.loadRootOrganization(), rootOrg, MockControl.ZERO_OR_MORE);
-        coreControl.replay();
-        
         PolycomTestHelper helper = new PolycomTestHelper();
-        helper.polycom = new PolycomSupport();
-        helper.polycom.setCoreContext(core);
-        helper.polycom.setSystemDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
+
+        MockControl polycomControl = MockControl.createNiceControl(PolycomSupport.class);
+        helper.polycom = (PolycomSupport) polycomControl.getMock();
+        polycomControl.expectAndReturn(helper.polycom.getDnsDomain(), "sipfoundry.org");
+        String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
+        polycomControl.expectAndReturn(helper.polycom.getSystemDirectory(), sysdir);
+
+        File lineFile = new File(sysdir + "/polycom/line.xml");
+        Setting lineModel = new XmlModelBuilder().buildModel(lineFile);
+        polycomControl.expectAndReturn(helper.polycom.getLineSettingModel(), lineModel, MockControl.ZERO_OR_MORE);
+
+        File phoneFile = new File(sysdir + "/polycom/phone.xml");
+        Setting endpointModel = new XmlModelBuilder().buildModel(phoneFile);
+        polycomControl.expectAndReturn(helper.polycom.getEndpointSettingModel(), endpointModel, MockControl.ZERO_OR_MORE);
         
         PhoneData meta = new PhoneData(PolycomModel.MODEL_600.getModelId());
         meta.setSerialNumber("0004f200e06b");
@@ -56,6 +61,7 @@ public class PolycomTestHelper {
         helper.user[0].setDisplayId("juser");
         helper.user[0].setFirstName("Joe");
         helper.user[0].setLastName("User");
+        polycomControl.expectAndReturn(helper.polycom.getClearTextPassword(helper.user[0]), "1234", MockControl.ZERO_OR_MORE);
         
         helper.line = new PolycomLine[] { new PolycomLine(helper.phone[0], new LineData()) };
         
@@ -65,6 +71,8 @@ public class PolycomTestHelper {
         
         helper.phone[0].setTftpRoot(TestHelper.getTestDirectory());
         helper.phone[0].setVelocityEngine(TestHelper.getVelocityEngine());
+        
+        polycomControl.replay();
         
         return helper;
     }

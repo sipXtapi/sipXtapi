@@ -32,6 +32,7 @@ CONFIG_DEFS="@sipxpbx.conf.dir@/config.defs"
 
 CONFIG_FILES="\
   @sipxpbx.conf.dir@/pgs.props
+  @sipxpbx.conf.dir@/sipxconfig.properties
   @sipxpbx.conf.dir@/topology.xml
   "
 
@@ -140,5 +141,5 @@ JBOSS_ENDORSED_DIRS="$JBOSS_HOME/lib/endorsed"
 exec "$JAVA" $JAVA_OPTS \
 	-Dprogram.name="$PROGNAME" \
 	-Djava.endorsed.dirs="$JBOSS_ENDORSED_DIRS" \
-      -classpath "$JBOSS_CLASSPATH" \
+      -classpath "@sipxpbx.conf.dir@:$JBOSS_CLASSPATH" \
       org.jboss.Main -c @jboss.server.conf@

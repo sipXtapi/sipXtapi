@@ -21,12 +21,12 @@ public class DialingRuleFactory {
     private static final Map PROTOTYPES = new HashMap();
 
     static {
-        PROTOTYPES.put(DialingRule.Type.CUSTOM, new CustomDialingRule());
-        PROTOTYPES.put(DialingRule.Type.INTERNAL, new InternalRule());
-        PROTOTYPES.put(DialingRule.Type.LONG_DISTANCE, new LongDistanceRule());
-        PROTOTYPES.put(DialingRule.Type.LOCAL, new LocalRule());
-        PROTOTYPES.put(DialingRule.Type.EMERGENCY, new EmergencyRule());
-        PROTOTYPES.put(DialingRule.Type.INTERNATIONAL, new InternationalRule());
+        PROTOTYPES.put(DialingRuleType.CUSTOM, new CustomDialingRule());
+        PROTOTYPES.put(DialingRuleType.INTERNAL, new InternalRule());
+        PROTOTYPES.put(DialingRuleType.LONG_DISTANCE, new LongDistanceRule());
+        PROTOTYPES.put(DialingRuleType.LOCAL, new LocalRule());
+        PROTOTYPES.put(DialingRuleType.EMERGENCY, new EmergencyRule());
+        PROTOTYPES.put(DialingRuleType.INTERNATIONAL, new InternationalRule());
     }
 
     /**
@@ -36,7 +36,7 @@ public class DialingRuleFactory {
      * @param type dialing rule type
      * @return newly created object
      */
-    public DialingRule create(DialingRule.Type type) {
+    public DialingRule create(DialingRuleType type) {
         BeanWithId proto = (BeanWithId) PROTOTYPES.get(type);
         if (null == proto) {
             throw new IllegalArgumentException("Illegal Dialing rule type: " + type);

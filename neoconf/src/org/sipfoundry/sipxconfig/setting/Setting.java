@@ -21,9 +21,9 @@ public interface Setting {
 
     public static final String NULL_VALUE = new String();
 
-    public SettingGroup getSettingGroup();
+    public Setting getParent();
     
-    public void setSettingGroup(SettingGroup settingGroup);
+    public void setParent(Setting setting);
     
     public String getPath(); 
 

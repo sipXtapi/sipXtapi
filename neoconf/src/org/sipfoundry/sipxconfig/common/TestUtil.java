@@ -87,7 +87,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
 
-        File sysdirPropsFile = new File(classpathDirectory, "sysdir.properties");
+        File sysdirPropsFile = new File(classpathDirectory, "sipxconfig.properties");
         FileOutputStream sysdirPropsStream;
         try {
             sysdirPropsStream = new FileOutputStream(sysdirPropsFile);
@@ -102,4 +102,17 @@ public final class TestUtil {
 
         return sysProps;
     }
+    
+    
+    /**
+     * Write out sipxconfig.properties for testing
+     * arg 0 - any path in the testing classpath
+     * arg 1 - absolute path to sipXconfig/neoconf/etc directory (not installed)
+     * arg 2 - where output is generated   
+     * @param 
+     */
+    public static void main(String[] args) {
+        // generates sipxconfig.properties in classpath (arg 0)
+        getSysDirProperties(args[0], args[1], args[2]);
+    }    
 }

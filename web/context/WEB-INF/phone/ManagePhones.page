@@ -20,7 +20,7 @@
 	<!--
 	  - B E A N S
 	  -->
-	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
 	<!--
 	  - C O M P O N E N T S
 	  -->
@@ -29,7 +29,7 @@
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="source" expression="phones"/>
 		<binding name="columns">'* Phone,' + 
-			'Lines,Model:displayLabel'</binding>
+			'Lines,Model:phoneData.modelLabel'</binding>
         <static-binding name="pageSize" value="-1"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
@@ -60,7 +60,7 @@
     <component id="phoneLabel" type="Insert"> 
         <binding name="value" expression="currentRow.phoneData.displayLabel"/>
     </component>
-    <!-- Column 2: edit lines -->
+    <!-- Column 3: edit lines -->
     <component id="LinesColumnValue" type="Block"/>
     <component id="editLines" type="Foreach">
         <binding name="source" expression="currentRow.lines"/>

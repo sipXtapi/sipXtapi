@@ -11,80 +11,21 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.io.File;
-
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Support for Polycom phones
  */
-public class PolycomSupport {
+public interface PolycomSupport {
 
-    private Setting m_lineModel;
+    public Setting getLineSettingModel();
 
-    private Setting m_endpointModel;
+    public Setting getEndpointSettingModel();
 
-    private String m_lineModelFilename = "polycom/line.xml";
+    public String getSystemDirectory();
 
-    private String m_endpointModelFilename = "polycom/phone.xml";
+    public String getDnsDomain();
 
-    private String m_systemDirectory;
-    
-    private CoreContext m_coreContext; 
-
-    public Setting getLineSettingModel() {
-        // cache it, but may be helpful to reload model on fly in future
-        if (m_lineModel == null) {
-            File modelDefsFile = getFile(getSystemDirectory(), getLineModelFilename());
-            m_lineModel = new XmlModelBuilder().buildModel(modelDefsFile);
-        }
-        return m_lineModel;
-    }
-
-    public Setting getEndpointSettingModel() {
-        // cache it, but may be helpful to reload model on fly in future
-        if (m_endpointModel == null) {
-            File modelDefsFile = getFile(getSystemDirectory(), getEndpointModelFilename());
-            m_endpointModel = new XmlModelBuilder().buildModel(modelDefsFile);
-        }
-        return m_endpointModel;
-    }
-
-    public String getEndpointModelFilename() {
-        return m_endpointModelFilename;
-    }
-
-    public void setEndpointModelFilename(String endpointModelFilename) {
-        m_endpointModelFilename = endpointModelFilename;
-    }
-
-    protected File getFile(String root, String filename) {
-        return new File(root + '/' + filename);
-    }
-
-    public String getLineModelFilename() {
-        return m_lineModelFilename;
-    }
-
-    public void setLineModelFilename(String lineModelFilename) {
-        m_lineModelFilename = lineModelFilename;
-    }
-
-    public String getSystemDirectory() {
-        return m_systemDirectory;
-    }
-
-    public void setSystemDirectory(String systemDirectory) {
-        m_systemDirectory = systemDirectory;
-    }
-    
-    public String getDnsDomain() {
-        return m_coreContext.loadRootOrganization().getDnsDomain();
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
+    public String getClearTextPassword(User user);
 }

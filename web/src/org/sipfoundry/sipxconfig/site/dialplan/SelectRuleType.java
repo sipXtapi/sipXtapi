@@ -18,7 +18,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule.Type;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 
 /**
  * SelectRuleType
@@ -27,32 +27,32 @@ public abstract class SelectRuleType extends BasePage {
     public static final String PAGE = "SelectRuleType";
     
     public static final Map TYPE_2_PAGE = new HashMap();
-    public static final Type[] TYPES;
+    public static final DialingRuleType[] TYPES;
     
 
     static {
-        TYPE_2_PAGE.put(Type.CUSTOM, "EditCustomDialRule");
-        TYPE_2_PAGE.put(Type.INTERNAL, "EditInternalDialRule");
-        TYPE_2_PAGE.put(Type.LOCAL, "EditLocalDialRule");
-        TYPE_2_PAGE.put(Type.LONG_DISTANCE, "EditLongDistanceDialRule");
-        TYPE_2_PAGE.put(Type.EMERGENCY, "EditEmergencyDialRule");
-        TYPE_2_PAGE.put(Type.INTERNATIONAL, "EditInternationalDialRule");
+        TYPE_2_PAGE.put(DialingRuleType.CUSTOM, "EditCustomDialRule");
+        TYPE_2_PAGE.put(DialingRuleType.INTERNAL, "EditInternalDialRule");
+        TYPE_2_PAGE.put(DialingRuleType.LOCAL, "EditLocalDialRule");
+        TYPE_2_PAGE.put(DialingRuleType.LONG_DISTANCE, "EditLongDistanceDialRule");
+        TYPE_2_PAGE.put(DialingRuleType.EMERGENCY, "EditEmergencyDialRule");
+        TYPE_2_PAGE.put(DialingRuleType.INTERNATIONAL, "EditInternationalDialRule");
         
-        TYPES = (Type[]) TYPE_2_PAGE.keySet().toArray(new Type[TYPE_2_PAGE.size()]);
+        TYPES = (DialingRuleType[]) TYPE_2_PAGE.keySet().toArray(new DialingRuleType[TYPE_2_PAGE.size()]);
     }
 
     
-    public abstract DialingRule.Type getRuleType();
+    public abstract DialingRuleType getRuleType();
 
-    public abstract void setRuleType(DialingRule.Type type);
+    public abstract void setRuleType(DialingRuleType type);
 
     public void next(IRequestCycle cycle) {
-        Type ruleType = getRuleType();
+        DialingRuleType ruleType = getRuleType();
         activatePage(cycle, ruleType, null);
     }
     
     public static void activateEditPage(DialingRule rule, IRequestCycle cycle) {
-        Type ruleType = rule.getType();
+        DialingRuleType ruleType = rule.getType();
         Integer ruleId = rule.getId();
         activatePage(cycle, ruleType, ruleId);
     }
@@ -64,11 +64,12 @@ public abstract class SelectRuleType extends BasePage {
      * @param ruleType - type of the rule (used to determine the type of the page
      * @param ruleId - id of the rule, can be null if new rule is to be created
      */
-    private static void activatePage(IRequestCycle cycle, Type ruleType, Integer ruleId) {
+    private static void activatePage(IRequestCycle cycle, DialingRuleType ruleType, Integer ruleId) {
         String pageName = (String) TYPE_2_PAGE.get(ruleType);
         EditDialRule page = (EditDialRule) cycle.getPage(pageName);
         page.setRuleId(ruleId);
         page.setRuleType(ruleType);
+        page.setRule(null);
         cycle.activate(page);
     }
 }

@@ -74,10 +74,15 @@
       </fileset>
     </copy>
 
-    <!-- So running config server can create files here -->
-    <chown owner="${sipxpbx.user}" type="dir">
-      <fileset dir="${dest.dir}${sipxconfig.phone.dir}" includes="**/*"/>
-    </chown>
+    <!-- 
+      - So running config server can create files here 
+      -  Didn't use chown command because ant-optional is not available
+      -  from jpackage.org and so not using this one command make install
+      -  java from yum much easier.
+      -->
+    <exec executable="chown">
+    	<arg line="-R ${sipxpbx.user} ${dest.dir}${sipxconfig.phone.dir}"/>
+    </exec>  	
     <chmod perm="775" dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" type="dir"/>
 
     <!-- configuration -->

@@ -4,7 +4,7 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserTable"
-    allow-body="no"
+    allow-body="yes"
     allow-informal-parameters="no">
     
     <description>add a description</description>
@@ -35,7 +35,7 @@
 	<!--
 	  - B E A N S
 	  -->
-	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>    
 	<!--
 	  - C O M P O N E N T S

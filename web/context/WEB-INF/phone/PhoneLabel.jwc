@@ -27,6 +27,6 @@
         <binding name="value" expression="phone.phoneData.displayLabel"/>
     </component>
     <component id="phoneModel" type="Insert">
-        <binding name="value" expression="phone.displayLabel"/>
+        <binding name="value" expression="phone.phoneData.modelLabel"/>
     </component>    
 </component-specification>

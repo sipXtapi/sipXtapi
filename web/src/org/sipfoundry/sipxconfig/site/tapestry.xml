@@ -30,4 +30,13 @@
     <bean name="validPhoneSequenceRequired" parent="validPhoneSequence">
         <property name="required"><value>true</value></property>
     </bean>
+	<bean name="validSerialNumber" class="org.apache.tapestry.valid.PatternValidator">
+        <property name="required"><value>true</value></property>
+		<property name="patternString">
+			<value>^([a-f]|\d){12}?$</value>
+	    </property>
+        <property name="patternNotMatchedMessage">
+            <value>Please enter exactly 12 alphanumeric characters comprised of digits 0-9 or characters a-f, for example: 0040214131fa</value>
+        </property>
+	</bean>
 </beans>

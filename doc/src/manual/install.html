@@ -26,8 +26,8 @@ message.
   <li><a href="#rh">For Redhat Users</a>
      <ol>
       <li><a href="#rh-system">System Installation</a></li>
-      <li><a href="#rh-dep">Installing dependencies with up2date</a></li>
       <li><a href="#rh-jdk">Installing Java RPM</a></li>
+      <li><a href="#yum">Installing dependencies with yum</a></li>
       <li><a href="#rh-sipx">Installing RPMs from SIPfoundry</a></li>
       </ol>
    </li>
@@ -42,21 +42,20 @@ message.
 	</ol>
     </li>
 
-    <li><a href="#optional">Optional Setup</a>
-	<ol>
-            <li><a href="#tftp">TFTP Setup for Cisco 79xx</a></li>
-            <li><a href="#neoconf">Phone Plugin Development</a></li>
-	 </ol>
+    <li><a href="#additional">Additional Setup</a>
+      <ol>
+      <li><a href="#tftp">TFTP Setup for phone boot server</a></li>
+      <li><a href="#security">Security</a></li>
+      </ol>
     </li>
 
-    <li><a href="#security">Security</a></li>
     <li><a href="#run">Running</a>
       <ol>
          <li><a href="#run-sipx">Running with other sipX servers</a></li>
          <li><a href="#run-alone">Running Standalone</a></li>
       </ol>
   </li>
-      
+
   <li><a href="#windows">Windows</a></li>
       
 </ol>
@@ -73,45 +72,10 @@ explicitly noted</p>
   in the Redhat installer process</li>
 
   <li>When prompted for firewall support, select "no firewall support" or
-  open up the following ports in your iptables: 80, 8080, 8090, 8091,
+  open up the following ports in your iptables: 80, 8080, 8443, 8090, 8091,
   5060 and 5090</li>
       
 </ol>
-
-<h3><a name="rh-dep">Installing dependencies with up2date</a></h3>
-
-<p>Fedora users may experience periodic connection errors using using
-<code>up2date</code> but usually if you're persistent you can get through
-executing <code>up2date</code> repeatedly. If you do not use
-<code>up2date</code>, I recommend installing Postgres and apache while
-installing your system, or use the Redhat package manager to install
-those RPMs for you.</p>
-
-<ul>
-  
-  <li>Run <code>up2date</code> for the first time and follow
-instructions to setup properly <code>up2date</code> operation.</li>
-
-  <li>Run <code>up2date -u</code> to make your system is up to date.</li>
-
-  <li>Run <code>up2date</code> on the following packages:
-
-<dl>
-   <dt>Postgres</dt>
-
-   <dd><code>up2date rh-postgresql-server</code> <strong>*Enterprise
-Users Only</strong></dd>
-       
-   <dd><code>up2date postgresql-server</code> <strong>*Fedora Users
-Only</strong></dd>
-
-   <dt>Apache 2 webserver</dt>
-   <dd><code>up2date httpd</code></dd>
-
-</dl>
-      </li>
-</ul>
-
 
 <h3><a name="rh-jdk">Installing Java RPM</a></h3>
 
@@ -121,15 +85,41 @@ Only</strong></dd>
   </li>
 </ul>
 
-<h3><a name="rh-sipx">Installing RPMs dependencies from SIPfoundry</a></h3>
-<ul>
-    <li>cgicc</li>
-    <li>mod_cplusplus</li>
-    <li>w3c-libwww</li>
-    <li>xerces-c</li>
-</ul>
+<h3><a name="yum">Installing dependencies with yum</a></h3>
 
-<p>Download and install the following RPMS from <a href="http://www.sipfoundry.org/pub/sipX/depends/">http://www.sipfoundry.org/pub/sipX/depends/</a>.</p>
+<p>Common to all Fedora systems, you need to add the following packages:</p>
+<pre>
+  yum install tftp-server httpd postgresql-server
+</pre>
+<p>Redhat enterprise:</p>
+<pre>
+  yum install tftp-server httpd rh-postgresql-server
+</pre>
+
+<h4>Fedora Core 3: Java build tools using JPackage</h4>
+<p>You can add jpackage to your yum repository as follows (see 
+  <a href="http://www.mksearch.mkdoc.org/howto/jpackage-fc3/">http://www.mksearch.mkdoc.org/howto/jpackage-fc3/</a> for more information.)</p>
+Remove previous ant if you have it installed
+<pre>
+   rpm -e apache-ant
+</pre>
+Now setup yum
+<pre>
+  wget -P /tmp http://jpackage.org/jpackage.asc
+  rpm --import /tmp/jpackage.asc
+  wget -P /etc/yum.repos.d http://jpackage.org/jpackage.repo
+</pre>
+<p>Now you can update your system to the required packages</p>
+<pre>
+  yum install ant junit ant-junit checkstyle checkstyle-optional ant-trax jakarta-commons-beanutils jakarta-commons-collections
+</pre>
+
+<h4>Fedora Core 2 and Redhat Enterprise: Java build tools using custom rpm</h4>
+<p>Although you can get RPMs from JPacakge, SIPfoundy has an RPM will all the necesary tools you'll need.  NOTE: This will also work on FC3 if you run into trouble with using JPackage</p>
+<pre>
+  wget http://www.sipfoundry.org/pub/sipX/depends/FC/2/apache-ant-1.6.2-2.noarch.rpm
+  rpm -ivh apache-ant-1.6.2-2.noarch.rpm
+</pre>
 
 <h3><a name="rh-sipx">Installing sipX RPMs from SIPfoundry</a></h3>
 
@@ -336,28 +326,14 @@ allow localhost to connect to Postgres</p>
      /usr/local/sipx/bin/sipxdbmgr --create SDS
 </pre>
 
-<h2><a name="security">Security</a></h2>
-
-<p>Set up an SSL key using the instructions in
-sipXcommserverLib/doc/INSTALL.ssl or
-/usr/share/doc/sipxcommserverlib-<em>version</em>/INSTALL.ssl.</p>
 
 
-<h2><a name="optional">Optional Setup</a></h2>
+<h2><a name="additional">Additional Setup</a></h2>
 
-<h3><a name="tftp">TFTP Setup for Cisco 79xx phones</a></h3>
-
-<p>Most Cisco phones in the 79xx series use a tftp server to serve
-phone configuration information and firmware upgrades.  You must
-install a tftp server and map the tftp root directory to:
-<code>var/sipxdata/configserver/phone/profile/tftproot</code>.
-Consult phone vendor documentation for recommended TFTP servers but
-below is a set of known tftp server setups that work.</p>
-
-<h4>On Fedora or Red Hat Enterprise</h4>
+<h3><a name="tftp">TFTP</a></h3>
+<h4>TFTP on Redhat</h4>
 <p>Run the following commands</p>
 <pre>
-  up2date tftp-server
   ${EDITOR} /etc/xinetd.d/tftp
 </pre>
 <p>make the following <strong>edits</strong>, if you've installed via
@@ -380,7 +356,7 @@ RPM, then <code>{where you installed sipXconfig}</code> is empty:</p>
 </pre>
 
 
-<h4>On Gentoo</h4>
+<h4>TFTP on Gentoo</h4>
 <p>Run the following commands</p>
 <pre>
   emerge net-misc/tftp-hpa
@@ -397,12 +373,12 @@ RPM, then <code>{where you installed sipXconfig}</code> is empty:</p>
   /etc/init.d/in.tftp start
 </pre>
 
-<h3><a name="neoconf">Phone Plugin Development</a></h3>
+<h3><a name="security">Security</a></h3>
 
-<p>New module for developing support for new phone devices. Although this 
-	module is intended to be a foundation for a new system architecture for 
-	entire project. See <a href="neoconf.html">Neoconf</a> for installation 
-	procedure and necessary software dependencies.</p>
+<p>Set up an SSL key using the instructions in
+sipXcommserverLib/doc/INSTALL.ssl or
+/usr/share/doc/sipxcommserverlib-<em>version</em>/INSTALL.ssl.</p>
+
 
 <h2><a name="run">Running</a></h2>
 

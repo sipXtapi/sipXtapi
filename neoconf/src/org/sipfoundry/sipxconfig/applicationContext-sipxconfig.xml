@@ -6,18 +6,18 @@
       -  S Y S T E M  D I R E C T O R I E S
 	  -  evaluates system directory variables e.g. ${sysdir.*} in this file
 	  --> 
-	<bean id="sysdir.properties" class="org.springframework.core.io.ClassPathResource">
-		<constructor-arg index="0"><value>sysdir.properties</value></constructor-arg>
+	<bean id="sipxconfig.properties" class="org.springframework.core.io.ClassPathResource">
+		<constructor-arg index="0"><value>sipxconfig.properties</value></constructor-arg>
 	</bean>
 	<bean id="sysdir" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location">
-			<ref bean="sysdir.properties"></ref>			
+			<ref bean="sipxconfig.properties"></ref>			
 		</property>
 	</bean>
     <!-- This is used in unit test environment only: we change dataSource.url using this mechanism -->
     <bean id="overrider" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
 		<property name="location">
-			<ref bean="sysdir.properties"></ref>			
+			<ref bean="sipxconfig.properties"></ref>			
 		</property>        
     </bean>
 	<!--
@@ -27,8 +27,6 @@
 		destroy-method="close">
 		<property name="driverClassName">
 			<value>org.postgresql.Driver</value>
-			<!-- useful for debugging -->
-			<!--value>com.p6spy.engine.spy.P6SpyDriver</value-->
 		</property>
 		<property name="url">
 			<value>jdbc:postgresql://localhost/PDS</value>
@@ -200,11 +198,17 @@
             <ref bean="settingDaoImpl"/>            
         </property>
 		<property name="phoneFactoryIds">
-			<list>
-				<value>polycom300</value>
-				<value>polycom500</value>
-				<value>polycom600</value>
-			</list>
+			<map>
+				<entry key="polycom300">
+					<value>Polycom SoundPoint IP 300</value>
+				</entry>
+				<entry key="polycom500">
+					<value>Polycom SoundPoint IP 500</value>
+				</entry>
+				<entry key="polycom600">
+					<value>Polycom SoundPoint IP 600</value>
+				</entry>
+			</map>
 		</property>
 	</bean>
 	<!--
@@ -227,10 +231,13 @@
 	  - hoping to move this external file for end user modification
 	  -->
 	<!-- POLYCOM -->
-	<bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomSupport">
+	<bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomSupportImpl">
 		<property name="coreContext">
 			<ref local="coreContext"/>
 		</property>
+        <property name="legacyContext">
+            <ref bean="legacyContext"/>
+        </property>
 		<property name="systemDirectory">
 			<value>${sysdir.etc}</value>
 		</property>                

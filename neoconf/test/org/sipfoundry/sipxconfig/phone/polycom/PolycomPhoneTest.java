@@ -69,7 +69,7 @@ public class PolycomPhoneTest extends TestCase {
         control.expectAndReturn(sip.getServerUri(), "[SERVER_URI]");
         control.expectAndReturn(sip.getCurrentDate(), "[DATE]");
         control.expectAndReturn(sip.generateCallId(), "[CALL_ID]");
-        sip.send("sipfoundry.org", 5060, expected);
+        sip.send(expected);
         control.replay();        
         
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();

@@ -16,6 +16,6 @@ public interface SettingVisitor {
     
     public void visitSetting(Setting setting);
     
-    public void visitSettingGroup(SettingGroup group);
+    public void visitSettingGroup(Setting group);
 
 }

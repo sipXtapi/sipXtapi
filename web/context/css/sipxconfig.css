@@ -11,7 +11,19 @@ body {
 }
 
 h1 { font: 170% }
-h2 { font: 140% }
+
+/*
+ * Legacy green header with underline
+ */ 
+h2 { 
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 24px;
+	font-weight: bolder;
+	color: #699;
+	border-bottom : groove;
+	width: 30em;
+}
+
 h3 { font: 120% }
 h4 { font: bold 100% }
 h5 { font: italic 100% }
@@ -32,11 +44,12 @@ pre, tt, code, kbd, samp {
 }
 
 legend {
+  color: #000; /* IE this is blue by default */
   font: bold 80%;
 }
 
 .hack {
-  color: #ff6600;
+  color: #f60;
 }
 
 ul.tabArea {
@@ -344,3 +357,6 @@ ul.form-actions li {
   display: none
 }
 
+#user-error {
+  color: #f00;
+}

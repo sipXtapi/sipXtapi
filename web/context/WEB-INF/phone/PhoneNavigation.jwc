@@ -26,10 +26,6 @@
         required="yes"
         direction="in">
     </parameter>    
-	<parameter name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	required="yes"
-    	direction="auto"/>    
     <!--
       - P R O P E R T I E S
       -->
@@ -37,27 +33,18 @@
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="settings"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
-    <!--
-      - B E A N S
-      -->
-    <bean name="tabs" class="org.sipfoundry.sipxconfig.components.Tabs" lifecycle="request">
-        <set-property name="activeTab" expression="tab"/>
-    </bean>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext"
+        initial-value="page.global.phoneContext"/>
     <!--
      - C O M P O N E N T S
      -->
     <component id="heading" type="Insert">
         <binding name="value" expression="heading"/>
     </component>            
-    <component id="deviceIdTab" type="Any">
-        <binding name="class" expression="beans.tabs.getTabClass('EditPhone')"/>
-    </component>
     <component id="deviceIdLink" type="DirectLink">
         <binding name="listener" expression="listeners.editPhone"/>
         <binding name="parameters" expression="phone.phoneData.id"/>
-    </component>
-    <component id="linesTab" type="Any">
-        <binding name="class" expression="beans.tabs.getTabClass('PhoneLines')"/>
     </component>
     <component id="linesLink" type="DirectLink">
         <binding name="listener" expression="listeners.editLines"/>
@@ -66,9 +53,6 @@
     <component id="settingsTabs" type="Foreach">
         <binding name="source" expression="settings.values"/>
         <binding name="value" expression="currentSetting"/>
-    </component>
-    <component id="settingsTab" type="Any">
-        <binding name="class" expression="beans.tabs.getTabClass(currentSetting.name)"/>
     </component>
     <component id="settingsLink" type="DirectLink">
         <binding name="listener" expression="listeners.editSettings"/>

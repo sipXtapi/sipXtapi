@@ -12,7 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.setting.Folder;
 
@@ -38,13 +38,9 @@ public interface PhoneContext {
      */
     public static final Integer UNSAVED_ID = new Integer(-1);
     
-    //public Phone getPhone(PhoneMetaData endpoint);
-    
-    //public Phone getPhone(Integer endpointId);
-    
-    public List getPhoneFactoryIds();
+    public Map getPhoneFactoryIds();
 
-    public void setPhoneFactoryIds(List phoneIds);
+    public void setPhoneFactoryIds(Map phoneIds);
 
     /**
      * Commits the transaction and performs a batch of SQL commands

@@ -15,13 +15,16 @@
     <!--
       - B E A N S
       -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>    
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
     <!--
       - C O M P O N E N T S
       -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
     <component id="editPhoneForm" type="EditPhoneForm">
         <binding name="phoneData" expression="phoneData"/>
-        <binding name="phoneContext" expression="phoneContext"/>
+        <binding name="validator" expression="beans.validator"/>
     </component>    
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.finish"/>

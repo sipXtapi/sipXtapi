@@ -33,6 +33,6 @@ public class UserCallForwardingTestUi extends WebTestCase {
     public void testDisplayUserCallForwarding() throws Exception {
         clickLink("UserCallForwarding");
         assertTextNotPresent("An exception has occurred.");
-        assertTextPresent("Call forwarding");
+        assertTextPresent("Call Forwarding");
     }
 }

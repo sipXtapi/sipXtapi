@@ -53,7 +53,10 @@ public class PropertyGroupLink {
 
 
     public synchronized Element getMappings () {
-        return  (Element)m_document.getRootElement().clone();
+        Element e = (Element)m_document.getRootElement().clone();
+        // XCF-154
+        e.detach();
+        return e;
     }
 
     private Document m_document = null;

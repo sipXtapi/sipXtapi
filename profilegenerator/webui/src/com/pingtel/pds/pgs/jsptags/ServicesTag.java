@@ -140,6 +140,9 @@ public class ServicesTag extends StyleTagSupport {
 
          //just do one for now.
         Document rootDocument = ProcessManager.getInstance().getProcessInfoDocument(location) ;
+
+        // XCF-154 - warning, jdom will throw error if property is added more than
+        // once to some DOM.  If this happens, must call Element.detach() first.
         Document rootDocumentClone1 = (Document)rootDocument.clone();
         Document rootDocumentClone2 = (Document)rootDocument.clone();
 

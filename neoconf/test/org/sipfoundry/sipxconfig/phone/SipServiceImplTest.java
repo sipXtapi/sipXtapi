@@ -22,9 +22,7 @@ import org.apache.commons.io.IOUtils;
 
 public class SipServiceImplTest extends TestCase {
     
-    private SipService m_sip;
-    
-    private static int s_port = 9023; // not magical, any will do
+    private SipServiceImpl m_sip;
     
     protected void setUp() {
         m_sip = new SipServiceImpl();
@@ -35,14 +33,21 @@ public class SipServiceImplTest extends TestCase {
         assertNotSame(m_sip.getServerVia(), m_sip.getServerVia());
     }
     
+    public void testDefaultFromPort() {
+        m_sip.setFromServerName("donut");
+        assertEquals("sip:sipuaconfig@donut", m_sip.getServerUri());
+        m_sip.setFromServerPort(5000);
+        assertEquals("sip:sipuaconfig@donut:5000", m_sip.getServerUri());
+    }
+    
     public void _testSend() throws Exception {
         ReadSipMessage rdr = new ReadSipMessage();
         
-        String msg = "NOTIFY sipuaconfig@localhost.com:" + s_port + " SIP/2.0\r\n" 
+        String msg = "NOTIFY sipuaconfig@localhost.com SIP/2.0\r\n" 
             + "Content-Length: 0\r\n" 
             + "\r\n";
 
-        m_sip.send("localhost", s_port, msg);
+        m_sip.send(msg);
         
         rdr.shutdown();
         assertEquals(msg, rdr.msg);
@@ -55,7 +60,7 @@ public class SipServiceImplTest extends TestCase {
         ServerSocket m_server;
         
         ReadSipMessage() throws IOException {
-            m_server = new ServerSocket(s_port);
+            m_server = new ServerSocket(5060);
             start();
         }
         

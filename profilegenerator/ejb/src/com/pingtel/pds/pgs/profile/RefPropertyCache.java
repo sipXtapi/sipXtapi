@@ -12,14 +12,18 @@
  
 package com.pingtel.pds.pgs.profile;
 
-import com.pingtel.pds.common.EJBHomeFactory;
+import java.io.ByteArrayInputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.naming.NamingException;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import javax.naming.NamingException;
-import java.io.ByteArrayInputStream;
-import java.util.HashMap;
+import com.pingtel.pds.common.EJBHomeFactory;
 
 /**
  * RefPropertyCache is a Singleton cache which is used to cache certain
@@ -40,17 +44,15 @@ class RefPropertyCache {
 ////    
     private static RefPropertyCache mInstance;
 
-    private HashMap mCardinalityMap;
+    private Map mCardinalityMap;
     private RefPropertyHome mRefPropertyHome;
-    private SAXBuilder mSAXBuilder;
 
 
 //////////////////////////////////////////////////////////////////////////
 // Construction
 ////
     private RefPropertyCache()  {
-        mCardinalityMap = new HashMap();
-        mSAXBuilder = new SAXBuilder();
+        mCardinalityMap = Collections.synchronizedMap(new HashMap());
 
         try {
             mRefPropertyHome = (RefPropertyHome)
@@ -99,8 +101,9 @@ class RefPropertyCache {
      * the cardinality for.
      * @return the cardinality of the RefProperty.
      */
-    public String getCardinality(Integer refPropertyId) {
+    public synchronized String getCardinality(Integer refPropertyId) {
 
+        SAXBuilder saxBuilder = new SAXBuilder();
         if(!mCardinalityMap.containsKey(refPropertyId)){
             RefProperty refProperty = null;
             String cardinality = null;
@@ -110,7 +113,7 @@ class RefPropertyCache {
 
                 String content = refProperty.getContent();
                 Document rpContent =
-                        mSAXBuilder.build(
+                    saxBuilder.build(
                             new ByteArrayInputStream (content.getBytes()));
 
                 Element definition = rpContent.getRootElement();

@@ -59,6 +59,9 @@ public class PolycomLine extends AbstractLine {
         if (u != null) {
             setUserId(u.getDisplayId());
             getRegistration().getSetting("auth.userId").setValue(u.getDisplayId());
+                        
+            String password = polyPhone.getPolycom().getClearTextPassword(u);
+            getRegistration().getSetting("auth.password").setValue(password);
 
             // only when there's a user to register do you set the registration server
             // although probably harmless            

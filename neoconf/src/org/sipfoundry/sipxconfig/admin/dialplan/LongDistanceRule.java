@@ -122,8 +122,8 @@ public class LongDistanceRule extends DialingRule {
         return rule;
     }
 
-    public Type getType() {
-        return Type.LONG_DISTANCE;
+    public DialingRuleType getType() {
+        return DialingRuleType.LONG_DISTANCE;
     }
 
     public String getAreaCodes() {

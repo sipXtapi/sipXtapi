@@ -46,6 +46,8 @@ public class PropertyMap {
             bucket = new ArrayList();
         }
 
+        // XCF-154 - warning, jdom will throw error if property is added more than
+        // once to some DOM.  If this happens, must call Element.detach() first.
         bucket.add( property.clone() );
         m_map.put( refPropertyID, bucket );
     }

@@ -15,7 +15,7 @@
         <span jwcid="editPhoneNavigation">Serial number is a unique id for this device. 
             Generally it's the phone's MAC address.
         </span>
-        <form jwcid="@Form" delegate="ognl:beans.validator">
+            <form jwcid="form" name="phone:edit">
             <span jwcid="editPhoneForm"/>
 				<ul class="form-actions">
 					<li>
@@ -28,7 +28,7 @@
 						<input type="submit" jwcid="ok" id="phone:ok" value="OK"/>
 					</li>
 				</ul>
-		</form>    
+            </form>
         </div>
 </body>
 </html>

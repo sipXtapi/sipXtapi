@@ -31,7 +31,7 @@ public class SettingImpl implements Setting, Cloneable {
     
     private String m_profileName;
     
-    private SettingGroup m_settingGroup;
+    private Setting m_settingGroup;
     
     private String m_value;
     
@@ -59,12 +59,12 @@ public class SettingImpl implements Setting, Cloneable {
         return (Setting) clone();
     }
 
-    public SettingGroup getSettingGroup() {
+    public Setting getParent() {
         return m_settingGroup;
     }
     
-    public void setSettingGroup(SettingGroup settingGroup) {
-        m_settingGroup = settingGroup;
+    public void setParent(Setting setting) {
+        m_settingGroup = setting;
     }
     
     public String getPath() {

@@ -63,7 +63,7 @@ public final class FilterRunner implements SettingVisitor {
         }
     }
 
-    public void visitSettingGroup(SettingGroup settingGroup) {
+    public void visitSettingGroup(Setting settingGroup) {
         visitSetting(settingGroup);
         iterateOver(settingGroup.getValues());
     }

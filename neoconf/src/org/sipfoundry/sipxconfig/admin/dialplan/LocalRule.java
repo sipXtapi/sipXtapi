@@ -66,8 +66,8 @@ public class LocalRule extends DialingRule {
         return (Transform[]) transforms.toArray(new Transform[transforms.size()]);
     }
 
-    public Type getType() {
-        return Type.LOCAL;
+    public DialingRuleType getType() {
+        return DialingRuleType.LOCAL;
     }
 
     /**

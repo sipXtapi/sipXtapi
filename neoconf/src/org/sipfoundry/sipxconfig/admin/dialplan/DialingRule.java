@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 
@@ -37,7 +36,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
 
     public abstract Transform[] getTransforms();
 
-    public abstract Type getType();
+    public abstract DialingRuleType getType();
 
     protected Object clone() throws CloneNotSupportedException {
         DialingRule clone = (DialingRule) super.clone();
@@ -140,24 +139,5 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
 
     public Object getPrimaryKey() {
         return getId();
-    }
-
-    /**
-     * Dialing rules type.
-     */
-    public static final class Type extends Enum {
-        public static final Type INTERNATIONAL = new Type("International");
-        public static final Type EMERGENCY = new Type("Emergency");
-        public static final Type MAPPING_RULE = new Type("Mapping Rule");
-        public static final Type CUSTOM = new Type("Custom");
-        public static final Type LOCAL = new Type("Local");
-        public static final Type INTERNAL = new Type("Internal");
-        public static final Type LONG_DISTANCE = new Type("Long Distance");
-        public static final Type RESTRICTED = new Type("Restricted");
-        public static final Type TOLL_FREE = new Type("Toll free");
-
-        private Type(String name) {
-            super(name);
-        }
     }
 }

@@ -159,4 +159,17 @@ public class LineTestDb extends TestCase {
         
         Assertion.assertEquals(expected, actual);                
     }
+    
+    public void testNoLinesButOtherPhonesHaveLines() throws Exception {
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
+        
+        Phone existingPhone = m_context.loadPhone(new Integer(1));
+        Phone newPhone = m_context.newPhone(existingPhone.getPhoneData().getFactoryId());
+        newPhone.getPhoneData().setSerialNumber("XXXX");
+        newPhone.getPhoneData().setFolder(existingPhone.getPhoneData().getFolder());
+        m_context.storePhone(newPhone);
+        Phone loadedPhone = m_context.loadPhone(newPhone.getPhoneData().getId());
+        assertEquals(0, loadedPhone.getLines().size());        
+    }
 }

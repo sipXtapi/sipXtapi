@@ -277,7 +277,7 @@ ex.printStackTrace();
     private SoftwareDeliveryServer () {
 
         InputStream versionStream =
-                getClass().getClassLoader().getResourceAsStream( "buildVersion.properties" );
+                getClass().getClassLoader().getResourceAsStream( VersionInfo.PROPERTY_RESOURCE_FILE );
 
         try {
             VersionInfo versionInfo = new VersionInfo ( versionStream );

@@ -17,7 +17,7 @@
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
 
     
     <!--

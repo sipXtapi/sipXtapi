@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 
 public class UserConfigSet extends ConfigSet {
     private Set m_users;
+    private Document m_profile;
 
     public Set getUsers() {
         return m_users;
@@ -52,21 +53,28 @@ public class UserConfigSet extends ConfigSet {
      * @return Map of Permission->Boolean
      */
     public Map getPermissions() {
-        try {
-            Map allPermissions = new HashMap();
-            Document profile = DocumentHelper.parseText(getContent());
-            List permissionNodes = profile.selectNodes("/PROFILE/PERMISSIONS/PERMISSIONS/*");
-            for (Iterator i = permissionNodes.iterator(); i.hasNext();) {
-                Element permElem = (Element) i.next();
-                String status = permElem.getText();
-                Boolean enabled = Boolean.valueOf("ENABLE".equalsIgnoreCase(status));
-                Permission permission = Permission.getEnum(permElem.getName());
-                allPermissions.put(permission, enabled);
-            }
-            return allPermissions;
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
+        Map allPermissions = new HashMap();
+        Document profile = getDocument();
+        List permissionNodes = profile.selectNodes("/PROFILE/PERMISSIONS/PERMISSIONS/*");
+        for (Iterator i = permissionNodes.iterator(); i.hasNext();) {
+            Element permElem = (Element) i.next();
+            String status = permElem.getText();
+            Boolean enabled = Boolean.valueOf("ENABLE".equalsIgnoreCase(status));
+            Permission permission = Permission.getEnum(permElem.getName());
+            allPermissions.put(permission, enabled);
         }
+        return allPermissions;
+    }
+
+    private Document getDocument() {
+        if (m_profile == null) {
+            try {
+                m_profile = DocumentHelper.parseText(getContent());
+            } catch (DocumentException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return m_profile;
     }
 
     /**
@@ -79,5 +87,13 @@ public class UserConfigSet extends ConfigSet {
         Map perms = getPermissions();
         Boolean enabled = (Boolean) perms.get(p);
         return enabled != null && enabled.booleanValue();
+    }
+
+    /**
+     * @return null or password in clear text. All non-admin users should have a password
+     */
+    public String getClearTextPassword() {
+        Document profile = getDocument();
+        return profile.valueOf("//PROFILE/line1[@ref_property_id=128]/container/line1_password/text()");
     }
 }

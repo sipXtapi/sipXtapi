@@ -15,6 +15,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneData;
@@ -36,14 +37,18 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     public abstract boolean isStay();
 
     public void finish(IRequestCycle cycle) {
-        Phone phone = getPhoneContext().newPhone(getPhoneData().getFactoryId());
-        phone.setPhoneData(getPhoneData());
-        getPhoneContext().storePhone(phone);        
-        if (isStay()) {
-            // triggers form to clear
-            cycle.activate(PAGE);                    
-        } else {
-            cycle.activate(ManagePhones.PAGE);
+        IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
+        boolean save = !delegate.getHasErrors();
+        if (save) {
+            Phone phone = getPhoneContext().newPhone(getPhoneData().getFactoryId());
+            phone.setPhoneData(getPhoneData());
+            getPhoneContext().storePhone(phone);        
+            if (isStay()) {
+                // triggers form to clear
+                cycle.activate(PAGE);                    
+            } else {
+                cycle.activate(ManagePhones.PAGE);
+            }
         }
     }
     

@@ -97,7 +97,7 @@ public final class PathLocatorUtil {
             try 
             {
                 InputStream versionStream = PathLocatorUtil.class.getClassLoader()
-                    .getResourceAsStream( "buildVersion.properties" );
+                    .getResourceAsStream( VersionInfo.PROPERTY_RESOURCE_FILE );
                 VersionInfo versionInfo = new VersionInfo(versionStream);
                 g_instance = new PathLocatorUtil(versionInfo);
             }

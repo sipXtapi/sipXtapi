@@ -13,46 +13,20 @@
 		type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="lineId"
         type="java.lang.Integer" persistent="yes"/>
-    <property-specification name="registrationServer"
-        type="java.lang.String"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
-    <!--
-      - B E A N S
-      -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate" lifecycle="page"/>    
-    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>
     <!--
       - C O M P O N E N T S
       -->
     <component id="editLineNavigation" type="LineNavigation">        
         <binding name="line" expression="line"/>
         <static-binding name="tab" value="EditLine"/>
-        <static-binding name="heading" value="Authorization"/>
-        <binding name="phoneContext" expression="phoneContext"/>
+        <static-binding name="heading" value="Line"/>
     </component>
     <component id="editLineForm" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
     </component>        
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
-    </component>
-    <component id="ok" type="Submit">
-        <binding name="listener" expression="listeners.ok"/>
-    </component>
-    <component id="apply" type="Submit">
-        <binding name="listener" expression="listeners.apply"/>
-    </component>
-    <component id="registrationServerLabel" type="FieldLabel">
-        <binding name="field" expression="components.registrationServer"/>
-    </component>
-    <component id="registrationServer" type="ValidField">
-	    <binding name="value" expression="registrationServer"/>
-    	<binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="Registraton Server"/>
     </component>
 </page-specification>

@@ -62,7 +62,7 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
 
     public abstract Setting getCurrentNavigationSetting();
     
-    public abstract Setting getCurrentEditFormSetting();
+    public abstract void setEditFormSetting(Setting setting);
     
     public abstract void setEditFormSettings(Collection settings);
     
@@ -160,6 +160,7 @@ public abstract class PhoneDefaults extends BasePage implements PageRenderListen
         }
 
         Setting subset = rootSettings.getSetting(getEditFormSettingName());
+        setEditFormSetting(subset);
         Setting decorated = folder.decorate(subset);
         setEditFormSettings(FilterRunner.filter(SettingFilter.ALL, decorated));
     }    

@@ -44,6 +44,16 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public abstract CoreContext getCoreContext();
     
+    /** 
+     * made no attempts to abstract this to return to generic page
+     * because return page needs to get state (phone id) returned
+     * This should be replaced with generic BreadCrumbs or PageFlowGraph
+     * utility class when it's invented.
+     */
+    public abstract void setReturnToEditPhone(boolean rtn);
+    
+    public abstract boolean getReturnToEditPhone();
+    
     public void select(IRequestCycle cycle) {
         PhoneContext context = getPhoneContext();
         Phone phone = context.loadPhone(getPhoneId());
@@ -68,9 +78,15 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     }
     
     public void cancel(IRequestCycle cycle) {
-        PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
-        page.setPhoneId(getPhoneId());
-        cycle.activate(page);
+        if (getReturnToEditPhone()) {
+            EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
+            page.setPhoneId(getPhoneId());
+            cycle.activate(page);        
+        } else {
+            PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
+            page.setPhoneId(getPhoneId());
+            cycle.activate(page);
+        }
     }
     
     public void pageBeginRender(PageEvent event_) {

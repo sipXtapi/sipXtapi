@@ -42,7 +42,7 @@ public class ConfigurationFile {
     
     private static final SettingFilter SETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root, Setting setting) {
-            boolean firstLevel = (setting.getSettingGroup() == root); 
+            boolean firstLevel = (setting.getParent() == root); 
             boolean group = SettingGroup.class.isAssignableFrom(setting.getClass());
             
             return !group && firstLevel;

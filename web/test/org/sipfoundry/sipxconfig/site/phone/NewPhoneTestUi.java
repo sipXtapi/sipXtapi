@@ -64,4 +64,32 @@ public class NewPhoneTestUi extends WebTestCase {
         };
         assertTextInTable("phone:list", table[0]);
     }
+    
+    public void testInvalidSerialNumber() {
+        clickLink("NewPhone");  
+        
+        // no digits
+        clickButton("phone:ok");        
+        assertElementPresent("user:error");
+        
+        // wrong chars and wrong number
+        setFormElement("serialNumber", "x");
+        clickButton("phone:ok");        
+        assertElementPresent("user:error");
+        
+        // 12 digits, but not valid chars
+        setFormElement("serialNumber", "123456789abx");
+        clickButton("phone:ok");        
+        assertElementPresent("user:error");
+
+        // 16 correct digits
+        setFormElement("serialNumber", "123456789abcdef");
+        clickButton("phone:ok");        
+        assertElementPresent("user:error");        
+
+        // finally got it right
+        setFormElement("serialNumber", "123456789abc");
+        clickButton("phone:ok");        
+        assertElementNotPresent("user:error");        
+    }
 }

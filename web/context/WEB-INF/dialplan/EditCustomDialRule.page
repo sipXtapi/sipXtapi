@@ -16,7 +16,8 @@
     </property-specification>    
     
     <property-specification name="rule" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule"
+        persistent="yes">
     </property-specification>    
 
     <!-- used by removeGateways submit button-->

@@ -136,7 +136,7 @@
             description="Object model changes to support phone plugin architecture"/>
 
 		<patch number="81" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
-			args="script=/v8_mods-2.sql"
+			args="script=/v8_mods_2.sql"
             description="Call forwarding support"/>
     </version>
 </patches>

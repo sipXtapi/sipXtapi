@@ -52,4 +52,9 @@ public class UserConfigSetTest extends TestCase {
         // the next one test if we return FALSE for properties that are not config set
         assertFalse(m_configSet.hasPermission(Permission.TOLL_FREE_DIALING));
     }
+    
+    public void testGetClearTextPassword() {
+        assertEquals("1234", m_configSet.getClearTextPassword());
+    }
+    
 }

@@ -4,35 +4,33 @@
 	</head>
 	<body jwcid="$content$">
 		<div jwcid="@Border">
-			<h2>Global Phone Settings</h2>
-			<p>To provide settings that can be shared across all phones of a 
-				particular model. Values explicitly set on individual phones 
-				will override these values.</p>
+			<h2>Default Group Settings - <span jwcid="pageSettingLabel"/></h2>
+			<p><span jwcid="pageSettingDescription"/></p>
+			<div id="settings-nav">
+				<ul>
+					<li>
+						<b>Phones</b>
+					</li>
+					<span jwcid="phoneSettings">
+						<li>
+							<a href="#" jwcid="phoneSettingsLink">
+								<span jwcid="phoneSettingsLabel"/>
+							</a>
+						</li>
+					</span>
+					<li>
+						<b>Lines</b>
+					</li>
+					<span jwcid="lineSettings">
+						<li>
+							<a href="#" jwcid="lineSettingsLink">
+								<span jwcid="lineSettingsLabel"/>
+							</a>
+						</li>
+					</span>
+				</ul>
+			</div>
 			<form jwcid="settingsForm">
-				<div id="settings-nav">
-					<ul>
-						<li>
-							<b>Phones</b>
-						</li>
-						<span jwcid="phoneSettings">
-							<li>
-								<a href="#" jwcid="phoneSettingsLink">
-									<span jwcid="phoneSettingsLabel"/>
-								</a>
-							</li>
-						</span>
-						<li>
-							<b>Lines</b>
-						</li>
-						<span jwcid="lineSettings">
-							<li>
-								<a href="#" jwcid="lineSettingsLink">
-									<span jwcid="lineSettingsLabel"/>
-								</a>
-							</li>
-						</span>
-					</ul>
-				</div>
 				<div id="settings-content">
 					<table>
 						<span jwcid="settings">

@@ -24,12 +24,10 @@ public interface Phone {
     
     public PhoneData getPhoneData();
     
-    public String getDisplayLabel();
-    
     public Setting getSettingModel();
 
     public Setting getSettings();
-
+    
     public void generateProfiles();
     
     public void restart();

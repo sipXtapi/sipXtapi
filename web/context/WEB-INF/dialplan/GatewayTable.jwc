@@ -34,7 +34,7 @@
        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
     
     <!-- B E A N S -->           
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="gateway2id" class="org.sipfoundry.sipxconfig.components.Gateway2Id" lifecycle="page">
         <set-property name="manager">page.global.dialPlanContext</set-property>
     </bean>    

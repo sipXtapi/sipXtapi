@@ -56,10 +56,10 @@ public class Folder extends AbstractStorage implements SettingVisitor {
             meta.setDelegate(setting);
         }
 
-        setting.getSettingGroup().addSetting(meta);
+        setting.getParent().addSetting(meta);
     }
 
-    public void visitSettingGroup(SettingGroup group) {
+    public void visitSettingGroup(Setting group) {
         Iterator i = group.getValues().iterator();
         while (i.hasNext()) {
             ((Setting) i.next()).acceptVisitor(this);

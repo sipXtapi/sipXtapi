@@ -80,8 +80,8 @@ public class CustomDialingRule extends DialingRule {
         return transforms;
     }
 
-    public Type getType() {
-        return Type.CUSTOM;
+    public DialingRuleType getType() {
+        return DialingRuleType.CUSTOM;
     }
 
     public List getPermissions() {

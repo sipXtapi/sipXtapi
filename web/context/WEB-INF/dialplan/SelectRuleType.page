@@ -11,7 +11,7 @@
     	initial-value="global.dialPlanContext"/>
     
     <property-specification name="ruleType" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule$Type">
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType">
     </property-specification>    
     
     <!--

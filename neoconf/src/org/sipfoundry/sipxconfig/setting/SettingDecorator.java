@@ -38,12 +38,12 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         m_delegate = delegate;
     }
     
-    public SettingGroup getSettingGroup() {
-        return m_delegate.getSettingGroup();
+    public Setting getParent() {
+        return m_delegate.getParent();
     }
 
-    public void setSettingGroup(SettingGroup settingGroup) {
-        m_delegate.setSettingGroup(settingGroup);        
+    public void setParent(Setting setting) {
+        m_delegate.setParent(setting);        
     }
 
     public String getPath() {
@@ -130,7 +130,11 @@ public abstract class SettingDecorator implements Setting, Cloneable {
      * Does not use delegate! Assumes subclass is a Setting and not a SettingGroup
      */
     public void acceptVisitor(SettingVisitor visitor) {
-        visitor.visitSetting(this);
+        if (getValues().size() == 0) {
+            visitor.visitSetting(this);
+        } else {
+            visitor.visitSettingGroup(this);
+        }
     }
 
     public void setHidden(boolean hidden) {

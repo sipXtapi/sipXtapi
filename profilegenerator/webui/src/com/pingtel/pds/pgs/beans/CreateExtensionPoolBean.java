@@ -13,36 +13,16 @@
 package com.pingtel.pds.pgs.beans;
 
 /**
- * CreateExtensionPoolBean is a 'value' bean, used in the webui
- * to report errors and persist form values.
+ * CreateExtensionPoolBean is a 'value' bean, used in the webui to report errors and persist form
+ * values.
+ * 
  * @author ibutcher
  * 
  */
 public class CreateExtensionPoolBean {
-
-//////////////////////////////////////////////////////////////////////////
-// Constants
-////
-
-
-//////////////////////////////////////////////////////////////////////////
-// Attributes
-////
     // JavaBean attributes
-    private String name;
-    private String errorMessage;
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// Construction
-////
-    public CreateExtensionPoolBean(){}
-
-
-//////////////////////////////////////////////////////////////////////////
-// Public Methods
-////
+    private String name = "";
+    private String errorMessage = "";
 
     public String getName() {
         return name;
@@ -59,20 +39,4 @@ public class CreateExtensionPoolBean {
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
-
-
-//////////////////////////////////////////////////////////////////////////
-// Implementation Methods
-////
-
-
-//////////////////////////////////////////////////////////////////////////
-// Nested / Inner classes
-////    
-
-
-//////////////////////////////////////////////////////////////////////////
-// Native Method Declarations
-////
-
 }

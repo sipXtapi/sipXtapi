@@ -63,8 +63,8 @@ public class InternationalRule extends DialingRule {
         return (Transform[]) transforms.toArray(new Transform[transforms.size()]);
     }
 
-    public Type getType() {
-        return Type.INTERNATIONAL;
+    public DialingRuleType getType() {
+        return DialingRuleType.INTERNATIONAL;
     }
 
     /**

@@ -161,6 +161,8 @@ public class ProcessManager
 
         try{
             if( doc != null ){
+                // XCF-154 - warning, jdom will throw error if property is added more than
+                // once to some DOM.  If this happens, must call Element.detach() first.
                 Element processRootElement = (Element)(doc.getRootElement().clone());
                 Collection groups = processRootElement.getChildren( "group" );
                 for(  Iterator iGroups = groups.iterator(); iGroups.hasNext(); ) {
