@@ -7,7 +7,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-j2ee.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-1.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/easymock/easymock1.1" kind="var" path="SIPX_CONFIG/lib/easymock-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/default/lib/javax.servlet.jsp.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
