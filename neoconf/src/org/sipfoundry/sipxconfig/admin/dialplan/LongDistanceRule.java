@@ -27,13 +27,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 public class LongDistanceRule extends DialingRule {
     private static final String SEPARATORS = " ,";
 
-    private String m_pstnPrefix;
-    private String m_longDistancePrefix;
-    private String m_areaCodes;
-
-    private String m_restrictedAreaCodes;
-    private String m_tollFreeAreaCodes;
+    private String m_pstnPrefix = StringUtils.EMPTY;
+    private String m_longDistancePrefix = StringUtils.EMPTY;
+    private String m_areaCodes = StringUtils.EMPTY;
     private int m_externalLen;
+    private Permission m_permission = Permission.LONG_DISTANCE_DIALING;
 
     public String[] getPatterns() {
         throw new UnsupportedOperationException("getPatterns not supported for LongDistance rule");
@@ -51,14 +49,18 @@ public class LongDistanceRule extends DialingRule {
      */
     List calculateDialPatterns(String areaCode) {
         int variableLenght = m_externalLen - areaCode.length();
-        DialPattern patternFull = new DialPattern(m_pstnPrefix + m_longDistancePrefix + areaCode,
-                variableLenght);
-        DialPattern patternNormal = new DialPattern(m_longDistancePrefix + areaCode,
-                variableLenght);
-        DialPattern patternShort = new DialPattern(areaCode, variableLenght);
         ArrayList patterns = new ArrayList();
-        patterns.add(patternFull);
-        patterns.add(patternNormal);
+        if (StringUtils.isNotBlank(m_pstnPrefix)) {
+            DialPattern patternFull = new DialPattern(m_pstnPrefix + m_longDistancePrefix
+                    + areaCode, variableLenght);
+            patterns.add(patternFull);
+        }
+        if (StringUtils.isNotBlank(m_longDistancePrefix)) {
+            DialPattern patternNormal = new DialPattern(m_longDistancePrefix + areaCode,
+                    variableLenght);
+            patterns.add(patternNormal);
+        }
+        DialPattern patternShort = new DialPattern(areaCode, variableLenght);
         patterns.add(patternShort);
         return patterns;
     }
@@ -84,11 +86,11 @@ public class LongDistanceRule extends DialingRule {
         if (!isEnabled()) {
             return;
         }
-        StringTokenizer tokenizer = new StringTokenizer(m_areaCodes, SEPARATORS);
-        if (tokenizer.countTokens() == 0) {
+        if (StringUtils.isBlank(m_areaCodes)) {
             CustomDialingRule rule = createCustomRule(StringUtils.EMPTY);
             rules.add(rule);
         } else {
+            StringTokenizer tokenizer = new StringTokenizer(m_areaCodes, SEPARATORS);
             while (tokenizer.hasMoreTokens()) {
                 String areaCode = tokenizer.nextToken();
                 CustomDialingRule rule = createCustomRule(areaCode);
@@ -112,7 +114,7 @@ public class LongDistanceRule extends DialingRule {
         rule.setGateways(getGateways());
         rule.setCallPattern(calculateCallPattern(areaCode));
         rule.setDialPatterns(calculateDialPatterns(areaCode));
-        List perms = Collections.singletonList(Permission.LONG_DISTANCE_DIALING);
+        List perms = Collections.singletonList(getPermission());
         rule.setPermissions(perms);
         return rule;
     }
@@ -153,19 +155,11 @@ public class LongDistanceRule extends DialingRule {
         m_pstnPrefix = pstnPrefix;
     }
 
-    public String getRestrictedAreaCodes() {
-        return m_restrictedAreaCodes;
+    public Permission getPermission() {
+        return m_permission;
     }
 
-    public void setRestrictedAreaCodes(String restrictedAreaCodes) {
-        m_restrictedAreaCodes = restrictedAreaCodes;
-    }
-
-    public String getTollFreeAreaCodes() {
-        return m_tollFreeAreaCodes;
-    }
-
-    public void setTollFreeAreaCodes(String tollFreeAreaCodes) {
-        m_tollFreeAreaCodes = tollFreeAreaCodes;
+    public void setPermission(Permission permission) {
+        m_permission = permission;
     }
 }

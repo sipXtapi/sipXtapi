@@ -26,7 +26,6 @@
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
     <page name="EditLocalDialRule" specification-path="dialplan/EditLocalDialRule.page"/>
     <page name="EditLongDistanceDialRule" specification-path="dialplan/EditLongDistanceDialRule.page"/>
-    <page name="EditRestrictedDialRule" specification-path="dialplan/EditRestrictedDialRule.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="Home" specification-path="Home.page"/>

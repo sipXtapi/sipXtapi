@@ -39,8 +39,8 @@ public class FallbackRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getPatterns(), new String[] { "x." });
-        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] { Permission.VOICEMAIL }));
-        control.expectAndReturn(rule.getGateways(), gateways);
+        //control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] { Permission.VOICEMAIL }));
+        control.expectAndReturn(rule.getGateways(), gateways, 2);
         control.expectAndReturn(rule.getTransforms(), new Transform[] { t1 });
         control.replay();
 
@@ -51,8 +51,7 @@ public class FallbackRulesTest extends XMLTestCase {
         org.w3c.dom.Document domDoc = TransformTest.getDomDoc(document);
 
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
-        assertXpathEvaluatesTo("Voicemail",
-                "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
+        assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
         assertXpathEvaluatesTo("333",
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/user", domDoc);
         assertXpathEvaluatesTo(g1.getAddress(),

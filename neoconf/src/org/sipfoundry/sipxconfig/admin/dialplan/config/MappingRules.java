@@ -26,11 +26,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  */
 public class MappingRules implements ConfigFile {
     private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
-    private static final String[] HOSTS = { 
-        "${SIPXCHANGE_DOMAIN_NAME}", 
-        "${MY_FULL_HOSTNAME}",
-        "${MY_HOSTNAME}",
-        "${MY_IP_ADDR}" 
+    private static final String[] HOSTS = {
+        "${SIPXCHANGE_DOMAIN_NAME}", "${MY_FULL_HOSTNAME}", "${MY_HOSTNAME}", "${MY_IP_ADDR}"
     };
 
     private Document m_doc;
@@ -38,12 +35,12 @@ public class MappingRules implements ConfigFile {
 
     public MappingRules() {
         m_doc = FACTORY.createDocument();
-        // FIXME: enable namespace generation 
-        //QName mappingsName = FACTORY.createQName("mappings", "", 
-        //      "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
-        //Element mappings = m_doc.addElement(mappingsName);
+        // FIXME: enable namespace generation
+        // QName mappingsName = FACTORY.createQName("mappings", "",
+        // "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+        // Element mappings = m_doc.addElement(mappingsName);
         Element mappings = m_doc.addElement("mappings");
-        
+
         m_hostMatch = createFirstHostMatch(mappings);
     }
 
@@ -84,11 +81,13 @@ public class MappingRules implements ConfigFile {
             userPattern.setText(pattern);
         }
         Element permissionMatch = userMatch.addElement("permissionMatch");
-        List permissions = rule.getPermissions();
-        for (Iterator i = permissions.iterator(); i.hasNext();) {
-            Permission permission = (Permission) i.next();
-            Element permissionElement = permissionMatch.addElement("permission");
-            permissionElement.setText(permission.getName());
+        if (isInternal(rule)) {
+            List permissions = rule.getPermissions();
+            for (Iterator i = permissions.iterator(); i.hasNext();) {
+                Permission permission = (Permission) i.next();
+                Element permissionElement = permissionMatch.addElement("permission");
+                permissionElement.setText(permission.getName());
+            }
         }
         Transform[] transforms = rule.getTransforms();
         for (int i = 0; i < transforms.length; i++) {

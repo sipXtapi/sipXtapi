@@ -23,12 +23,22 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
 
 /**
  * EditCustomeDialRule
  */
 public abstract class EditDialRule extends BasePage implements PageRenderListener {
+    /**
+     * list of permission types allowed for long distance permission, used in
+     * permssions modle on a long distance page
+     */
+    public static final Permission[] LONG_DISTANCE_PERMISSIONS = {
+        Permission.LONG_DISTANCE_DIALING, Permission.RESTRICTED_DIALING,
+        Permission.TOLL_FREE_DIALING
+    };
+
     private DialingRule.Type m_ruleType;
 
     public abstract DialPlanManager getDialPlanManager();

@@ -71,7 +71,7 @@ public class MappingRulesTest extends XMLTestCase {
         control.expectAndReturn(rule.getPatterns(), new String[] { "x." });
         control.expectAndReturn(rule.getPermissions(), Arrays
                 .asList(new Permission[] { Permission.VOICEMAIL }));
-        control.expectAndReturn(rule.getGateways(), Collections.EMPTY_LIST);
+        control.expectAndReturn(rule.getGateways(), Collections.EMPTY_LIST, 2);
         control.expectAndReturn(rule.getTransforms(), new Transform[] { voicemail, voicemail2 });
         control.replay();
 

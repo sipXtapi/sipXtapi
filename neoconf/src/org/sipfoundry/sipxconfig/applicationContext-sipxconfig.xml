@@ -244,10 +244,42 @@
         	<value>1</value>
         </property>        
         <property name="externalLen">
-        	<value>7</value>
+        	<value>10</value>
         </property>        
     </bean>
+
+    <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule">
+        <property name="name">
+			<value>Toll free</value>            
+        </property>
+        <property name="description">
+            <value>Toll free dialing</value>
+        </property>
+        <property name="areaCodes">
+            <value>800, 877, 888</value>
+        </property>
+        <property name="permission">
+            <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.TOLL_FREE_DIALING"
+			      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        </property>
+    </bean>
     
+    <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule">
+        <property name="name">
+			<value>Restricted</value>            
+        </property>
+        <property name="description">
+            <value>Restricted dialing</value>
+        </property>
+        <property name="areaCodes">
+            <value>900</value>
+        </property>
+        <property name="permission">
+            <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.RESTRICTED_DIALING"
+			      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        </property>
+    </bean>
+
     <bean id="defaultLocalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LocalRule">
         <property name="name">
 			<value>Local</value>            
@@ -271,8 +303,10 @@
         	<list>
                 <ref bean="defaultEmergencyRule"></ref>
                 <ref bean="defaultInternalRule"></ref>
-                <ref bean="defaultLongDistanceRule"></ref>
                 <ref bean="defaultLocalRule"></ref>
+                <ref bean="defaultLongDistanceRule"></ref>
+                <ref bean="defaultRestrictedRule"></ref>
+                <ref bean="defaultTollFreeRule"></ref>
             </list>
         </property>
     </bean>

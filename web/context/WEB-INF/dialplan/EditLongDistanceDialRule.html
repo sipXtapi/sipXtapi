@@ -20,6 +20,18 @@
             <tbody>
                 <tr>
                     <td>
+                        <label jwcid="permissionTypeLabel" for="dialplan:pstnPrefix">Type</label>
+                    </td>
+                    <td>
+                        <select jwcid="permissionType" id="dialplan:externalLen" size="1">
+                            <option value="3" selected="selected">Long Distance</option>
+                            <option value="4">Toll free</option>
+                            <option value="5">Restricted</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         <label jwcid="pstnPrefixLabel" for="dialplan:pstnPrefix">PSTN Calls Prefix</label>
                     </td>
                     <td>

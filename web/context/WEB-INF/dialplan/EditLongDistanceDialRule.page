@@ -52,8 +52,13 @@
         lifecycle="page">
     	<set-property name="min" expression="5"/>
 	    <set-property name="max" expression="15"/>
-	</bean>    
-    
+	</bean>
+    <bean name="permissionTypeModel"     
+            class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
+        lifecycle="page">
+        <set-property name="options" 
+        	expression="@org.sipfoundry.sipxconfig.site.dialplan.EditDialRule@LONG_DISTANCE_PERMISSIONS"/>
+    </bean>
         
     <!--
      - C O M P O N E N T S
@@ -75,6 +80,15 @@
     </component>
     
     <!-- long distance fields -->
+    
+    <component id="permissionTypeLabel" type="FieldLabel">
+        <binding name="field" expression="components.permissionType"/>
+        <static-binding name="displayName" value="Type"/>
+    </component>
+    <component id="permissionType" type="PropertySelection">
+        <binding name="model" expression="beans.permissionTypeModel"></binding>
+        <binding name="value" expression="rule.permission"></binding>
+    </component>    
 
     <component id="pstnPrefixLabel" type="FieldLabel">
         <binding name="field" expression="components.pstnPrefix"/>

@@ -35,7 +35,6 @@ public class LongDistanceRuleTest extends TestCase {
         m_rule.setLongDistancePrefix("1");
         m_rule.setPstnPrefix("9");
         m_rule.setExternalLen(7);
-        m_rule.setAreaCodes("  ");
         
         Gateway g = new Gateway();
         g.setAddress("longdistance.gateway.com");
@@ -112,4 +111,10 @@ public class LongDistanceRuleTest extends TestCase {
         }
     }
 
+    public void testTollFreeDialing() {
+        m_rule.setPermission(Permission.TOLL_FREE_DIALING);
+        DialingRule generationRule = getGenerationRule(m_rule);
+        List permissions = generationRule.getPermissions();
+        assertSame(Permission.TOLL_FREE_DIALING,permissions.get(0));
+    }   
 }
