@@ -4,7 +4,7 @@ INCLUDES = -I$(srcdir)/../include
 
 lib_LTLIBRARIES = libpublish-sipagent.la
 
-libpublish_sipagent_la_LDFLAGS = $(GLIB_LIBS)
+libpublish_sipagent_la_LIBADD = $(GLIB_LIBS)
 
 libpublish_sipagent_la_CXXFLAGS = $(GLIB_CFLAGS)
 
