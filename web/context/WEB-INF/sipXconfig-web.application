@@ -3,9 +3,11 @@
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<application name="sipXconfig-web" engine-class="org.sipfoundry.sipxconfig.site.SipxconfigEngine" >
+<application name="sipXconfig-web" engine-class="org.sipfoundry.sipxconfig.site.SipxconfigEngine">
 
     <description>sipXconfig Application</description>
+    
+    <property name="org.apache.tapestry.global-class" value="org.sipfoundry.sipxconfig.site.BeanFactoryGlobals"/>
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
 
     <!--
