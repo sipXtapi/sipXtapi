@@ -25,11 +25,11 @@ public class Folder extends AbstractStorage implements SettingVisitor {
 
     private String m_resource;
 
-    public Map getMeta() {
+    public Map getFolderSettings() {
         return getDelegate();
     }
 
-    public void setMeta(Map delegate) {
+    public void setFolderSettings(Map delegate) {
         setDelegate(delegate);
     }
 
@@ -39,9 +39,9 @@ public class Folder extends AbstractStorage implements SettingVisitor {
     }
 
     public void visitSetting(Setting setting) {
-        FolderValue meta = (FolderValue) get(setting.getPath());
+        FolderSetting meta = (FolderSetting) get(setting.getPath());
         if (meta == null) {
-            meta = new FolderValue(this, setting);
+            meta = new FolderSetting(this, setting);
         } else {
             meta.setDelegate(setting);
         }

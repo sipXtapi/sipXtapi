@@ -23,7 +23,7 @@ public interface SettingDao {
     
     public Folder loadRootMetaStorage();
 
-    public Folder loadMetaStorage(int metaStorageId);
+    public Folder loadMetaStorage(int folderId);
     
     public void storeValueStorage(ValueStorage storage);
 

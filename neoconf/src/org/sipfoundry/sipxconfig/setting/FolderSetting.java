@@ -14,29 +14,29 @@ package org.sipfoundry.sipxconfig.setting;
 /**
  * Attributes about settings administrators can influence.
  */
-public class FolderValue extends SettingDecorator {
+public class FolderSetting extends SettingDecorator {
 
     private String m_value;
 
     private Boolean m_hidden;
 
-    private Folder m_metaStorage;
+    private Folder m_folder;
 
     /** BEAN ACCESS ONLY */
-    public FolderValue() {
+    public FolderSetting() {
     }
 
-    public FolderValue(Folder metaStorage, Setting delegate) {
+    public FolderSetting(Folder folder, Setting delegate) {
         super(delegate);
-        setFolder(metaStorage);
+        setFolder(folder);
     }
 
-    public void setFolder(Folder metaStorage) {
-        m_metaStorage = metaStorage;
+    public void setFolder(Folder folder) {
+        m_folder = folder;
     }
 
     public Folder getFolder() {
-        return m_metaStorage;
+        return m_folder;
     }
 
     public String getDefaultValue() {
@@ -69,9 +69,9 @@ public class FolderValue extends SettingDecorator {
     private void updateStorage() {
         if (getDelegate() != null) {
             if (isHidden() != getDelegate().isHidden() || !equalValue(m_value, getDefaultValue())) {
-                m_metaStorage.put(getDelegate().getPath(), this);
+                m_folder.put(getDelegate().getPath(), this);
             } else {
-                m_metaStorage.remove(getDelegate().getPath());
+                m_folder.remove(getDelegate().getPath());
             }
         }
     }

@@ -82,7 +82,7 @@ public class FolderTestDb extends TestCase {
             // should make it new
             copy.getSetting("dairy").getSetting("milk").setHidden(true);
 
-            assertEquals(2, ms.getMeta().size());
+            assertEquals(2, ms.getFolderSettings().size());
             m_dao.storeMetaStorage(ms);
 
             IDataSet expectedDs = TestHelper

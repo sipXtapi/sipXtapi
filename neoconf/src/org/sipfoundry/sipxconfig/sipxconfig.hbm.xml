@@ -65,7 +65,7 @@
 	    </map>
 	</class>
 	<!--
-	  - M E T A   S T O R A G E
+	  - F O L D E R
 	  -->
 	<class name="org.sipfoundry.sipxconfig.setting.Folder" table="folder">
 		<jcs-cache usage="read-write"/>
@@ -76,11 +76,11 @@
 		</id>		
 		<property name="label" column="label"/>
 		<property name="resource" column="resource"/>
-        <!-- S E T T I N G   M E T A -->
-		<map name="meta" cascade="all" table="folder_setting">
+        <!-- F O L D E R  S E T T I N G  -->
+		<map name="folderSettings" cascade="all" table="folder_setting">
 			<key column="folder_id"/>
 			<index column="path" type="string"/>
-			<composite-element class="org.sipfoundry.sipxconfig.setting.FolderValue">
+			<composite-element class="org.sipfoundry.sipxconfig.setting.FolderSetting">
 				<parent name="folder"/>
 				<property name="value" column="value"/>
 				<property name="hidden" column="hidden"/>
