@@ -88,7 +88,7 @@
 
         <!-- Checks for Headers                                -->
         <!-- See http://checkstyle.sf.net/config_header.html   -->
-        <module name="Header">
+        <module name="RegexpHeader">
             <!-- The follow property value demonstrates the ability     -->
             <!-- to have access to ANT properties. In this case it uses -->
             <!-- the ${basedir} property to allow Checkstyle to be run  -->
@@ -96,7 +96,6 @@
             <!-- expansion,                                             -->
             <!-- http://checkstyle.sf.net/config.html#properties        -->
             <property name="headerFile" value="${top.dir}/meta/java.header"/>
-            <property name="ignoreLines" value="10"/>
          </module>
 
         <!-- Following interprets the header file as regular expressions. -->
@@ -207,10 +206,10 @@
         <!-- module name="usage.OneMethodPrivateField"/-->
         <module name="usage.UnusedLocalVariable"/>
         <module name="usage.UnusedParameter">
-            <property name="ignoreFormat" value="Temp$"/>
+            <property name="ignoreFormat" value="_$|Temp$"/>
         </module>
         <module name="usage.UnusedPrivateField">
-            <property name="ignoreFormat" value="(Temp$|^serialVersionUID)"/>
+            <property name="ignoreFormat" value="(_$|Temp$|^serialVersionUID)"/>
         </module>
         <module name="usage.UnusedPrivateMethod"/>        
 	</module>
