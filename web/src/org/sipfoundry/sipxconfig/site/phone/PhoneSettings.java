@@ -65,7 +65,6 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     public void apply(IRequestCycle cycle_) {
         PhoneContext dao = getPhoneContext();
         dao.storeEndpoint(getEndpoint());
-        dao.flush();
     }
     
     public void cancel(IRequestCycle cycle) {

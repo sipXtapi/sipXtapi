@@ -164,6 +164,8 @@ sysdir.phone=${sipxconfig.phone.dir}
 	</target>
 
 	<target name="test-ui" depends="test-war,ant-targets.test-ui"/>
+
+	<target name="test-ui-suite" depends="test-war,ant-targets.test-ui-suite"/>
 	
 	<target name="test-war" depends="war" description="Creates a war file for unittests">
 

@@ -96,7 +96,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public List loadPhoneSummaries() {
-        String endpointQuery = "from Endpoint e left join fetch e.lines line left join fetch line.user";
+        String endpointQuery = "from Endpoint e";
         List endpoints = getHibernateTemplate().find(endpointQuery);
         List summaries = new ArrayList(endpoints.size());
 
@@ -131,7 +131,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     /** unittesting only */
     public void clear() {
-        getHibernateTemplate().delete("from Line");
         getHibernateTemplate().delete("from Endpoint");
         getHibernateTemplate().delete("from Folder");
         getHibernateTemplate().delete("from ValueStorage");

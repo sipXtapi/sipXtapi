@@ -39,4 +39,10 @@
 		endpoint_id="3" 
 		position="0" 
 		user_id="4"/>	
+	<line 
+		line_id="3" 
+		folder_id="2"
+		endpoint_id="3" 
+		position="1" 
+		user_id="4"/>			
 </dataset>

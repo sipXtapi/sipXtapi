@@ -27,7 +27,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-1.1.3.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/tapestry/Tapestry-3.0.1/framework/src" kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.1.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/tapestry/Tapestry-3.0.1/contrib/src" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.1.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/hibernate/hibernate-2.1/src" kind="var" path="SIPX_CONFIG/lib/hibernate-2.1.jar"/>
+	<classpathentry sourcepath="LIB_SRC/hibernate/src.zip" kind="var" path="SIPX_CONFIG/lib/hibernate-2.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/jetty/src.zip" kind="var" path="SIPX_CONFIG/lib/jetty-4.2.23.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>

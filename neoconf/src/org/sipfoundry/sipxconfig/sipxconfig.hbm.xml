@@ -24,7 +24,7 @@
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 		<many-to-one name="folder" column="folder_id"
 			class="org.sipfoundry.sipxconfig.setting.Folder"/>
-	    <list name="lines" table="line" lazy="true" inverse="true" cascade="all-delete-orphan">
+	    <list name="lines" table="line" inverse="true" cascade="all-delete-orphan">
 			<key column="endpoint_id"/>
 			<index column="position"/>
     		<one-to-many class="org.sipfoundry.sipxconfig.phone.Line"/>

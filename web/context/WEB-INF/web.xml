@@ -11,20 +11,9 @@
         </param-value>
 	</context-param>
 	<filter>
-		<filter-name>hibernateFilter</filter-name>
-        <!-- Open/close hibernate sessions on web requests thru spring -->
-		<filter-class> 
-			org.sipfoundry.sipxconfig.components.FlushingSpringSessionInViewFilter 
-        </filter-class>
-	</filter>
-	<filter>
 		<filter-name>redirect</filter-name>
 		<filter-class>org.apache.tapestry.RedirectFilter</filter-class>
 	</filter>
-	<filter-mapping>
-		<filter-name>hibernateFilter</filter-name>
-		<url-pattern>/app</url-pattern>
-	</filter-mapping>
 	<filter-mapping>
 		<filter-name>redirect</filter-name>
 		<url-pattern>/</url-pattern>

@@ -34,5 +34,9 @@ public class PhoneSummaryTestDb extends TestCase {
         List summaries = m_context.loadPhoneSummaries();
         
         assertEquals(3, summaries.size());
+        PhoneSummary[] summariesArray = (PhoneSummary[]) summaries.toArray(new PhoneSummary[0]);
+        assertEquals(1, summariesArray[0].getLines().size());
+        assertEquals(0, summariesArray[1].getLines().size());
+        assertEquals(2, summariesArray[2].getLines().size());
     }
 }

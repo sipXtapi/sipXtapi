@@ -40,7 +40,8 @@ public class PhoneTestHelper {
         
     public void reset() {
         SiteTestHelper.home(m_tester);
-        m_tester.clickLink("resetPhoneContext");        
+        m_tester.clickLink("resetPhoneContext");
+        SiteTestHelper.assertNoException(m_tester);
     }
     
     public void seedUser() {
