@@ -53,20 +53,4 @@ public class EditPhoneTest extends TestCase {
         cycleControl.verify();
         daoControl.verify();
     }
-
-    public void textCancel() {
-        /*
-        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycle.activate("ListPhones");
-        cycleControl.replay();
-
-        AbstractInstantiator pageMaker = new AbstractInstantiator();
-        EditPhone page = (EditPhone) pageMaker.getInstance(EditPhone.class);
-        page.cancel(cycle);
-
-        cycleControl.verify();
-        */
-    }
-
 }

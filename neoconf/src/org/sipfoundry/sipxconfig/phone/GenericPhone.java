@@ -50,12 +50,12 @@ public class GenericPhone implements Phone {
     /**
      * Not applicable
      */
-    public void generateProfiles(PhoneContext phoneContext) throws IOException {        
+    public void generateProfiles(PhoneContext phoneContextTemp) throws IOException {        
     }
     
     /**
      * Not applicable
      */
-    public void restart(PhoneContext phoneContext) throws IOException {
+    public void restart(PhoneContext phoneContextTemp) throws IOException {
     }
 }
