@@ -16,6 +16,9 @@
   <import file="../ant-targets.xml"/>
 
   <path id="base.path" >
+    <!-- SIPXCONFIG -->
+    <pathelement location="${jdbc-driver.jar}"/> <!-- for tests only -->
+
     <!-- UTIL -->
     <pathelement location="${jdom.jar}"/>
     <pathelement location="${log4j.jar}"/>

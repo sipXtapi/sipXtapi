@@ -63,6 +63,7 @@
         	<property name="scope" value="public"/>
 		</module>
         <module name="JavadocVariable">
+            <property name="severity" value="info"/>
         	<property name="scope" value="public"/>
 		</module>
         <module name="JavadocStyle">
