@@ -6,9 +6,26 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="dialPlan" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" persistent="yes"/>
-	<property-specification name="localExtensionLenSelectionModel" 
-		type="org.apache.tapestry.form.IPropertySelectionModel" persistent="yes">new org.sipfoundry.sipxconfig.site.LenSelectionModel()</property-specification>
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan">
+    	new org.sipfoundry.sipxconfig.admin.dialplan.DialPlan()
+    </property-specification>
+	
+    <property-specification name="localExtensionLenSelectionModel" 
+		type="org.apache.tapestry.form.IPropertySelectionModel" 
+        persistent="yes">
+        	new org.sipfoundry.sipxconfig.site.LenSelectionModel()
+    </property-specification>
+
+    <property-specification name="addMode" 
+		type="boolean" 
+    	initial-value="false"
+    	persistent="yes"/>
+    
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+        global.sipXconfigContext.getBean("dialPlanManager")
+    </property-specification>    
+    
     <!-- 
       - C O M P O N E N T S 
       -->
@@ -24,65 +41,103 @@
 	    <set-property name="patternString">"^\\d+$"</set-property>
 	    <set-property name="patternNotMatchedMessage">"Extension number should contain only digits, for example: 123"</set-property>
 	</bean>
-        
+
+	<component id="dialPlanNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanName"/>
+    </component>
     <component id="dialPlanName" type="ValidField">
 	    <binding name="value" expression="dialPlan.name"/>
     	<binding name="validator" expression="beans.nameValidator"/>
 	    <static-binding name="displayName" value="Name"/>
     </component>
     
+	<component id="dialPlanLocalExtensionLenLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanLocalExtensionLen"/>
+	    <static-binding name="displayName" value="Internal Station Extension Length"/>
+    </component>
     <component id="dialPlanLocalExtensionLen" type="PropertySelection">
 	    <binding name="value" expression="dialPlan.localExtensionLen"/>
     	<binding name="model" expression="localExtensionLenSelectionModel"/>
-	    <static-binding name="displayName" value="Internal Station Extension Length"/>
     </component>
 
+	<component id="dialPlanAutoAttendantLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanAutoAttendant"/>
+    </component>
     <component id="dialPlanAutoAttendant" type="ValidField">
 	    <binding name="value" expression="dialPlan.autoAttendant"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="Auto Attendant Extension"/>
     </component>
 
+	<component id="dialPlanVoiceMailLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanVoiceMail"/>
+    </component>
     <component id="dialPlanVoiceMail" type="ValidField">
 	    <binding name="value" expression="dialPlan.voiceMail"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="Voice Mail Extension"/>
     </component>
 
+	<component id="dialPlanDidLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanDid"/>
+    </component>
     <component id="dialPlanDid" type="ValidField">
 	    <binding name="value" expression="dialPlan.did"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="Direct Inward Dialing (DID) Prefix"/>
     </component>
     
+	<component id="dialPlanPstnPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanPstnPrefix"/>
+    </component>
     <component id="dialPlanPstnPrefix" type="ValidField">
 	    <binding name="value" expression="dialPlan.pstnPrefix"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="PSTN Calls Prefix"/>
     </component>
 
+	<component id="dialPlanEmergencyNumberLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanEmergencyNumber"/>
+    </component>
     <component id="dialPlanEmergencyNumber" type="ValidField">
 	    <binding name="value" expression="dialPlan.emergencyNumber"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="Emergency Number"/>
     </component>
                 
+	<component id="dialPlanInternationalPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanInternationalPrefix"/>
+    </component>
     <component id="dialPlanInternationalPrefix" type="ValidField">
 	    <binding name="value" expression="dialPlan.internationalPrefix"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="International Prefix"/>
     </component>
-
+    
+	<component id="dialPlanVoiceMailPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanVoiceMailPrefix"/>
+    </component>
     <component id="dialPlanVoiceMailPrefix" type="ValidField">
 	    <binding name="value" expression="dialPlan.voiceMailPrefix"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="Extension's Voicemail Inbox Prefix"/>
     </component>
 
+	<component id="dialPlanLongDistancePrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanLongDistancePrefix"/>
+    </component>
     <component id="dialPlanLongDistancePrefix" type="ValidField">
 	    <binding name="value" expression="dialPlan.longDistancePrefix"/>
     	<binding name="validator" expression="beans.phoneValidator"/>
 	    <static-binding name="displayName" value="Long Distance Calls Prefix"/>
+    </component>
+
+	<component id="dialPlanDescriptionLabel" type="FieldLabel">
+        <binding name="field" expression="components.dialPlanDescription"/>
+	    <static-binding name="displayName" value="Description"/>
+    </component>
+    <component id="dialPlanDescription" type="TextArea">
+	    <binding name="value" expression="dialPlan.description"/>
     </component>
     
 	<!--

@@ -14,26 +14,30 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
  * DialPlan - settings for configuring dial plan
  */
 public class DialPlan {
-    public static final int DEFAULT_LOCAL_EXT_LEN = 3;
+    public static final String ACTIVE = "Active";
+    public static final String INACTIVE = "Inactive";
+    private static final int DEFAULT_LOCAL_EXT_LEN = 3;
     private static final String DEFAULT_PSTN_PREFIX = "9";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
+    private static final String DEFAULT_DID = "";
 
     // dial plan attributes
     private String m_name;
     private Integer m_localExtensionLen = new Integer(DEFAULT_LOCAL_EXT_LEN);
     private String m_autoAttendant = "100";
     private String m_voiceMail = "101";
-    private String m_did = "";
+    private String m_did = DEFAULT_DID;
     private String m_pstnPrefix = DEFAULT_PSTN_PREFIX;
     private String m_emergencyNumber = "911";
     private String m_internationalPrefix = "011";
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private String m_longDistancePrefix = "1";
+    private String m_status = INACTIVE;
+    private String m_description = new String();
     private Set m_gateways = new HashSet();
     private Set m_emergencyGateways = new HashSet();
 
@@ -126,11 +130,6 @@ public class DialPlan {
         m_name = name;
     }
 
-    public String onSave() {
-        // Save something
-        return null;
-    }
-    
     public Set getGateways() {
         return m_gateways;
     }
@@ -138,7 +137,7 @@ public class DialPlan {
     public Set getEmergencyGateways() {
         return m_emergencyGateways;
     }
-    
+
     private Set getGatewaySet(boolean emergency) {
         return emergency ? m_emergencyGateways : m_gateways;
     }
@@ -146,8 +145,36 @@ public class DialPlan {
     public boolean addGateway(Gateway gateway, boolean emergency) {
         return getGatewaySet(emergency).add(gateway);
     }
-    
+
     public boolean removeGateway(Gateway gateway, boolean emergency) {
         return getGatewaySet(emergency).remove(gateway);
-    }    
+    }
+
+    public String getDescription() {
+        return m_description;
+    }
+
+    public void setDescription(String description) {
+        m_description = description;
+    }
+
+    public String getStatus() {
+        return m_status;
+    }
+
+    public void setStatus(String status) {
+        m_status = status;
+    }
+
+    public boolean equals(Object o) {
+        DialPlan other = (DialPlan) o;
+        if (other == null) {
+            return false;
+        }
+        return m_name.equals(other.m_name);
+    }
+
+    public int hashCode() {
+        return m_name.hashCode();
+    }
 }

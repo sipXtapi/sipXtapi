@@ -3,16 +3,19 @@
     <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
 </head>
 <body jwcid="@Body">
+    <div id="component">
     <span jwcid="@Conditional" condition="ognl:beans.dialPlanValidator.hasErrors">
 	    <!-- TODO: add styling for errors-->
 		<p jwcid="@Delegator" delegate="ognl:beans.dialPlanValidator.firstError">Error Message</p>            
     </span>
     <form jwcid="@Form" delegate="ognl:beans.dialPlanValidator" id="dialplan">
+        <fieldset>
+	    <legend>Dial Plan Details</legend>
         <table>
             <tbody>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanName" for="dialplan:name"> Name</label>
+                        <label for="dialplan:name"><span jwcid="dialPlanNameLabel">Name</span></label>
                     </td>
                     <td>
                         <input jwcid="dialPlanName" id="dialplan:name" type="text"/>
@@ -23,9 +26,9 @@
                         <!-- HACK: for some reason dialPlanLocalExtensionLen.displayName is not found by Tapestry 
                         	so we explicitely declare it in the label
                         -->
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanLocalExtensionLen" 
-                            for="dialplan:localExtensionLen"  
-                            displayName="Internal Station Extension Length"> Internal Station Extension Length</label>
+                        <label for="dialplan:localExtensionLen">
+                            <span jwcid="dialPlanLocalExtensionLenLabel">Local Extenstion Length</span>
+                        </label>
                     </td>
                     <td>
                         <select jwcid="dialPlanLocalExtensionLen" id="dialplan:localExtensionLen" size="1">
@@ -38,7 +41,9 @@
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel"  field="ognl:components.dialPlanAutoAttendant" for="dialplan:autoAttendant"> Auto Attendant Extension</label>
+                        <label for="dialplan:autoAttendant">
+                            <span jwcid="dialPlanAutoAttendantLabel">Auto Attendant Extension</span>
+                         </label>
                     </td>
                     <td>
                         <input jwcid="dialPlanAutoAttendant" id="dialplan:autoAttendant" type="text" name="dialplan:autoAttendant" value="100" />
@@ -46,7 +51,9 @@
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanVoiceMail" for="dialplan:voiceMail"> Voice Mail Extension</label>
+                        <label for="dialplan:voiceMail">
+                            <span jwcid="dialPlanVoiceMailLabel">Voice Mail Extension</span>
+                         </label>
                     </td>
                     <td>
                         <input jwcid="dialPlanVoiceMail" id="dialplan:voiceMail" type="text" value="101" />
@@ -54,7 +61,9 @@
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanDid" for="dialplan:did"> Direct Inward Dialing (DID) Prefix</label>
+                        <label for="dialplan:did">
+                        	<span jwcid="dialPlanDidLabel">Direct Inward Dialing (DID) Prefix</span>
+                        </label>
                     </td>
                     <td>
                         <input jwcid="dialPlanDid" id="dialplan:did" type="text" name="dialplan:did" value="" />
@@ -62,15 +71,19 @@
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanPstnPrefix" for="dialplan:pstnPrefix"> PSTN Calls Prefix</label>
+                        <label for="dialplan:pstnPrefix">
+                           	<span jwcid="dialPlanPstnPrefixLabel">PSTN Calls Prefix</span>
+						</label>
                     </td>
                     <td>
-                        <input jwcid="dialPlanPstnPrefix" ="dialplan:pstnPrefix" type="text" value="9" />
+                        <input jwcid="dialPlanPstnPrefix" id="dialplan:pstnPrefix" type="text" value="9" />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanEmergencyNumber" for="dialplan:emergencyNumber"> Emergency Number</label>
+                        <label for="dialplan:emergencyNumber">
+                            <span jwcid="dialPlanEmergencyNumberLabel">Emergency Number</span>
+                         </label>
                     </td>
                     <td>
                         <input jwcid="dialPlanEmergencyNumber" id="dialplan:emergencyNumber" type="text" value="911" />
@@ -78,7 +91,9 @@
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanInternationalPrefix" for="dialplan:internationalPrefix"> International Calls Prefix</label>
+                        <label for="dialplan:internationalPrefix">
+                            <span jwcid="dialPlanInternationalPrefixLabel">International Calls Prefix</span>
+                        </label>
                     </td>
                     <td>
                         <input jwcid="dialPlanInternationalPrefix" id="dialplan:internationalPrefix" type="text" value="011" />
@@ -86,7 +101,9 @@
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanVoiceMailPrefix" for="dialplan:voiceMailPrefix"> Extension's Voicemail Inbox Prefix</label>
+                        <label for="dialplan:voiceMailPrefix">
+                            <span jwcid="dialPlanVoiceMailPrefixLabel">Extension's Voicemail Inbox Prefix</span>
+                        </label>
                     </td>
                     <td>
                         <input jwcid="dialPlanVoiceMailPrefix" id="dialplan:voiceMailPrefix" type="text" value="8" />
@@ -94,14 +111,27 @@
                 </tr>
                 <tr>
                     <td>
-                        <label jwcid="@FieldLabel" field="ognl:components.dialPlanLongDistancePrefix" for="dialplan:longDistancePrefix"> Long Distance Calls Prefix</label>
+                        <label for="dialplan:longDistancePrefix">
+                            <span jwcid="dialPlanLongDistancePrefixLabel">Long Distance Calls Prefix</span>
+                        </label>
                     </td>
                     <td>
                         <input jwcid="dialPlanLongDistancePrefix" id="dialplan:longDistancePrefix" type="text" value="1" />
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:description">
+                            <span jwcid="dialPlanDescriptionLabel">Description</span>
+                        </label>
+                    </td>
+                    <td>
+                        <textarea jwcid="dialPlanDescription" id="dialplan:description" cols="60" rows="5">Default PSTN gateway</textarea>
+                    </td>
+                </tr>
             </tbody>
         </table>
+        </fieldset>
         <ul class="form-actions">
             <li>
                 <input type="submit" jwcid="@Submit" listener="ognl:listeners.save" value="Save"/>
@@ -111,5 +141,6 @@
 			</li>
 		</ul>
     </form>
+    </div>
 </body>
 </html>

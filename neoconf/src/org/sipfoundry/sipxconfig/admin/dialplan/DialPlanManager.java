@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * DialPlanManager
+ * TODO: need interface and hibernate persistence implementation
  */
 public class DialPlanManager {
     private List m_dialPlans = new ArrayList();
@@ -57,4 +58,20 @@ public class DialPlanManager {
         return false;
     }
 
+    public boolean addDialPlan(DialPlan dialPlan) {
+        if (!m_dialPlans.remove(dialPlan)) {
+            m_dialPlans.add(dialPlan);
+            return true;
+        }
+        return false;
+        
+    }
+
+    public boolean updateDialPlan(DialPlan dialPlan) {
+        if (m_dialPlans.remove(dialPlan)) {
+            m_dialPlans.add(dialPlan);
+            return true;
+        }
+        return false;
+    }
 }

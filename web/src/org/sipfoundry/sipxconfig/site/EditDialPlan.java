@@ -12,41 +12,41 @@
 package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlan;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 
 /**
  * Tapestry Page support for editing and creating new phone endpoints
  */
-public abstract class EditDialPlan extends BasePage implements PageRenderListener {
-
-    private static final String NEXT_PAGE = "EditDialPlan";
+public abstract class EditDialPlan extends BasePage {
+    private static final String LIST_PAGE = "ListDialPlans";
 
     // virtual properties
+    public abstract DialPlanManager getDialPlanManager();
+
     public abstract DialPlan getDialPlan();
 
     public abstract void setDialPlan(DialPlan plan);
 
-    /**
-     * called before page is drawn
-     */
-    public void pageBeginRender(PageEvent eventTemp) {
+    public abstract void setAddMode(boolean b);
 
-        DialPlan plan = getDialPlan();
-        if (plan == null) {
-            plan = new DialPlan("Dial Plan Name", DialPlan.DEFAULT_LOCAL_EXT_LEN);
-            setDialPlan(plan);
-        }
-    }
+    public abstract boolean getAddMode();
 
     public void save(IRequestCycle cycle) {
-        cycle.activate(NEXT_PAGE);
+        DialPlanManager manager = getDialPlanManager();
+        DialPlan dialPlan = getDialPlan();
+        if (getAddMode()) {
+            manager.addDialPlan(dialPlan);
+        } else {
+            manager.updateDialPlan(dialPlan);
+        }
+        cycle.activate(LIST_PAGE);
     }
 
     public void cancel(IRequestCycle cycle) {
-        cycle.activate(NEXT_PAGE);
+        cycle.activate(LIST_PAGE);
     }
+
 }
