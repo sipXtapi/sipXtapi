@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- $Id: build.xml,v 1.12 2001/04/19 17:55:36 starksm Exp $ -->
+
+<project name="common" default="jar" basedir="." >
+
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/common"/>
+
+  <import file="../ant-targets.xml"/>
+
+  <path id="base.path" >
+    <!-- UTIL -->
+    <pathelement location="${jdom.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+
+    <!-- J2EE -->
+    <fileset dir="${jboss.lib}" includes="**/*.jar"/>
+    <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
+    <fileset dir="${tomcat.common.lib}" includes="**/*.jar"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- I N I T -->
+  <target name="init" depends="ant-targets.init">
+    <copy file="meta/buildVersion.properties.in" tofile="${buildVersion.properties}"/>
+    <replace file="${buildVersion.properties}" 
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@VERSION@" property="version"/>
+      <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@SIPXPBXDATA@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@localstatedir@" property="localstate.dir"/>
+    </replace>
+  </target>
+
+  <!-- C O M P I L E  /  R M I -->
+  <target name="compile" depends="ant-targets.compile">
+    <rmic base="${classes.dir}" includes="**/*Impl.class" 
+         verify="yes" stubversion="1.2" classpathref="base.path" />
+  </target>
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="PDS interface jar file">
+    <jar jarfile="${dist.dir}/common.jar">
+      <fileset dir="${classes.dir}" >
+          <include name="**/*.class" />
+      </fileset>
+      <fileset file="meta/xml/propertygrouplink.xml" />
+    </jar>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="jar">
+
+    <mkdir dir="${sipxpbx.conf.dir}"/>
+    <copy file="etc/security.policy" todir="${sipxpbx.conf.dir}"/>
+
+    <mkdir dir="${localstate.dir}/log"/>
+
+    <mkdir dir="${bin.dir}"/>
+    <copy file="bin/startrmireg.sh.in" tofile="${bin.dir}/startrmireg.sh"/>
+    <replace file="${bin.dir}/startrmireg.sh" 
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@JAVA_HOME@" property="java.home"/>
+      <replacefilter token="@SIPXPBXCONF@" property="sipxpbx.conf.dir"/>
+    </replace>
+    <chmod file="${bin.dir}/startrmireg.sh" perm="ugo+x"/>
+
+    <mkdir dir="${sipxconfig.lib.dir}"/>
+    <copy todir="${sipxconfig.lib.dir}">
+      <fileset dir="${top.dir}/lib">
+        <include name="axis.jar"/>
+        <include name="commons-collections.jar"/>
+        <include name="commons-dbcp.jar"/>
+        <include name="commons-discovery.jar"/>
+        <include name="commons-logging.jar"/>
+        <include name="commons-pool.jar"/>
+        <include name="dom4j-full.jar"/>
+        <include name="jakarta-regexp-1.3.jar"/>
+        <include name="jaxen-core.jar"/>
+        <include name="jaxen-jdom.jar"/>
+        <include name="jaxrpc.jar"/>
+        <include name="jdom.jar"/>
+        <include name="log4j.jar"/>
+        <include name="NetComponents.jar"/>
+        <include name="pgjdbc2.jar"/>
+        <include name="saaj.jar"/>
+        <include name="saxpath.jar"/>
+        <include name="taglibs-xtags.tld"/>
+        <include name="taglibs-xtags.jar"/>
+      </fileset>
+    </copy>
+
+    <copy file="${common.jar}" todir="${sipxconfig.lib.dir}"/>
+
+  </target>
+ 
+</project>

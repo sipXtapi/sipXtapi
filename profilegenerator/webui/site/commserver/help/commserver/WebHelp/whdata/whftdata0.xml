@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<ftstdata>
+<topic name="Configure Services" url="configure_services.htm" />
+<topic name="Configure SipAuthProxy" url="configure_sipauthproxy.htm" />
+<topic name="Configure SipProxy" url="configure_sipproxy.htm" />
+<topic name="Configure SipRegistrar" url="configure_sipregistrar.htm" />
+<topic name="Configure SipStatus" url="configure_sipstatus.htm" />
+<topic name="Manage Dial Plans" url="dial_plans.htm" />
+<topic name="Manage Gateways" url="gateways.htm" />
+<topic name="Manage Global Definitions" url="global_definitions.htm" />
+<topic name="Operate Services" url="operate_services.htm" />
+<topic name="Welcome" url="welcome.htm" />
+
+</ftstdata>  

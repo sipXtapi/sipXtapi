@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Startup Script for Profile Generator Service
+# Check for SUN(tm) JVM w/ HotSpot support
+
+CONFIG_DEFS="@SIPXPBXCONF@/config.defs"
+
+CONFIG_FILES="\
+  @SIPXPBXCONF@/pgs.props
+  @SIPXPBXCONF@/topology.xml
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+# Needed for Jasper page compiler (possibly for other components as well)
+export JAVA_HOME=@JAVA_HOME@
+
+# Needed for ${JBOSS_HOME}/bin/run.sh
+export PATH=$PATH:@JAVA_HOME@/bin
+
+# Production command line
+cd @JBOSS_HOME@/bin
+./run_with_catalina.sh $@

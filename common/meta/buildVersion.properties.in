@@ -1,0 +1,7 @@
+#Thu Feb 05 01:00:14 EST 2004
+version=@VERSION@
+build_number=0000
+comment=opendev
+sipxconf=@SIPXPBXCONF@
+sipxdata=@SIPXPBXDATA@
+sipxvar=@localstatedir@

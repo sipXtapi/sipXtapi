@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<!-- This file defines the "topology" file that resides on the 
+     configuration server.  This file acts as a registry/database for 
+     replication targets and remove process management agents -->
+
+<!DOCTYPE topology [
+     <!ELEMENT topology (location+)>
+     <!ELEMENT location (replication_url, agent_url, type+)>
+     <!ATTLIST location id ID #REQUIRED>
+     <!ELEMENT type (EMPTY)>
+     <!ATTLIST type id  (media-server | config-server | comm-server) #REQUIRED>
+     <!ATTLIST type name CDATA  #REQUIRED>
+     <!ELEMENT replication_url (#PCDATA)>
+     <!ELEMENT agent_url (#PCDATA)>
+]>
+ 
+<topology>
+   <location id="Config Server, Media Server and Comm Server">
+      <component id="MediaServer1" type="media-server" />         
+      <component id="CommServer1"  type="comm-server" />         
+      <replication_url>
+         https://localhost:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://localhost:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/processmonitor/process.cgi
+      </agent_url>
+   </location>
+   
+</topology>

@@ -1,0 +1,20 @@
+<project name="sipxconfig" default="default" basedir="." >
+  
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/profilegenerator"/>
+
+  <import file="../ant-targets.xml"/>
+
+  <filelist id="components" dir="${basedir}" files="
+      ejb/build.xml
+      commserver/build.xml
+      authentication/build.xml
+      soap/build.xml
+      webui/build.xml
+      deploy/build.xml"/>
+  <property name="subdirs" value="components"/>
+
+  <import file="../ant-targets.xml"/>
+
+</project>

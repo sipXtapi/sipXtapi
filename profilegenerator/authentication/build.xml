@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="authentication" default="jar" basedir="." >
+
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/../.."/>
+  <property name="build.dir" value="${top.build.dir}/profilegenerator/authentication"/>
+
+  <import file="../../ant-targets.xml"/>
+
+  <path id="base.path">
+      <pathelement location="${common.jar}"/>
+
+      <!-- J2EE -->
+      <fileset dir="${jboss.lib}" includes="**/*.jar"/>
+      <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="build jar" >
+      <jar jarfile="${dist.dir}/profilegen-auth.jar" >
+        <fileset dir="${classes.dir}" >
+          <include name="**/*.class" />
+        </fileset>
+      </jar>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="jar">
+    <copy file="${dist.dir}/profilegen-auth.jar" todir="${jboss.ext}"/>
+  </target>
+
+</project>

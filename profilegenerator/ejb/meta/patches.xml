@@ -1,0 +1,131 @@
+<patches>	
+	
+	<version number="1"> <!-- Cameroon on to Denmark -->
+
+		<patch number="1" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v1_ref_property_code.sql" 
+			description="Fix to prevent duplicate ref properties."/>	
+		
+			
+		<patch number="2" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v1_rp-mods.sql" 
+			description="Property definition modifications."/>	
+			
+		<patch number="3" class="com.pingtel.pds.pgs.patch.InitialLineMigrator"
+			description="Code to transform user lines to primary lines."/>
+			
+		<patch number="4" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v1_alter-logical-phones.sql"
+			description="Fix to make devices serial numbers unique."/>
+				
+	</version>
+
+	<version number="2"> <!-- Denmark to France -->
+			
+		<patch number="10" class="com.pingtel.pds.pgs.patch.PasswordDigester"
+			description="Security enhancement."/>	
+
+		<patch number="11" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v2_rp-mods.sql" 
+			description="Property definition modifications."/>	
+			
+		<patch number="12" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v2_indexes.sql" 
+			description="New unique indexes."/>	
+		
+				
+	</version>	
+	
+	<version number="3"> <!-- Germany to Germany-->
+
+		<patch number="20" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v3_rem-inbound-auth.sql" 
+			description="Removed inbound authentication properties."/>	
+			
+		<patch number="21" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v3_rp-mods.sql" 
+			description="Property definition modifications."/>			
+		
+				
+	</version>	
+	
+	<version number="4"> <!-- Hibernia to 1.0 GA -->
+
+		<patch number="30" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v4_extensions.sql" 
+			description="Modification to add extension pools."/>
+			
+		<patch number="31" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v4_rp-mods.sql" 
+			description="Adding new settings."/>
+			
+		<patch number="32" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v4_indexes.sql" 
+			description="New indexes."/>	
+
+		<patch number="33" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v4_job.sql" 
+			description="Create new Jobs table to track projections and restarts."/>
+
+		<patch number="34" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v4_rp-mods-2.sql" 
+			description="Adding new settings."/>
+
+		<patch number="35" class="com.pingtel.pds.pgs.patch.AliasCleaner" 			 
+			description="Migrating aliases to new format."/>
+			
+		<patch number="36" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v4_rp-mods-3.sql"			 
+			description="Fix property definition for PHONESET_HOME_SCREEN_TITLE."/>	
+			
+		<patch number="37" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+			args="script=/v4_rp-mods-4.sql"			 
+			description="Fix property definition for PHONESET_NO_ANSWER_TIMEOUT."/>	
+			
+		<patch number="38" class="com.pingtel.pds.pgs.patch.SDSPasswordRedigester" 						 
+			description="Migration to new style passwords."/>
+		
+				
+	</version>	
+	
+	<version number="5"> <!-- 1.0 to 1.1 -->
+	
+		<!--<patch number="50" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+			args="script=/v5_phone_type_mod.sql" 
+			description="Altered phone types."/>     -->
+
+        <patch number="51" class="com.pingtel.pds.pgs.patch.Load79xxDefinitions"
+			description="Loading Cisco 79xx device definitions."/>
+
+        <patch number="52" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+			args="script=/v5_rp-mods.sql"
+			description="New property definitions for version 1.1."/>
+
+	</version>
+
+    <version number="6"> <!-- inter 1.1 release -->
+        <patch number="60" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+			args="script=/v6_rp-mods.sql"
+			description="New property definitions for version 1.1."/>
+
+        <patch number="61" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+			args="script=/v6_rp-mods-2.sql"
+			description="New Cisco property definition for intra 1.1 upgrades."/>
+
+	</version>
+	
+	<version number="7"> <!-- 1.1 to Tribbles -->
+		<patch number="70" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+			args="script=/v7_rp-mods.sql"
+			description="New property definition for encryption of profiles feature."/>
+
+		<patch number="71" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+			args="script=/v7_user-table-mod.sql"
+			description="Adding a new column to the USERS table."/>
+
+               <patch number="72" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+                       args="script=/v7_rp-mods-blue.sql"
+                       description="New property definitions for QOS, Locale"/>
+	</version>
+
+</patches>

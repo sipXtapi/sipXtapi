@@ -1,0 +1,2794 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib
+PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+"http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<taglib>
+    <tlibversion>1.0</tlibversion>
+    <jspversion>1.1</jspversion>
+    <shortname>pgs</shortname>
+    <uri>pgstags</uri>
+    <info>pgs tag library</info>
+
+
+    <tag>
+        <name>listSoftware</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListSoftwareTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Lists All Software on the system</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+    <tag>
+        <name>listDeviceTypes</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListDeviceTypesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Devices</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>listAdministrators</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListAdministratorsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Administrators</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>services</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ServicesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Services</info>
+
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>command</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>location</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>process</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>group</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>redirect</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+    </tag>
+
+
+    <!--*************************************************************
+    SIPxchange overlay UI Tags
+    **************************************************************-->
+    <tag>
+        <name>x_userConfigurationSetDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.X_UserConfigurationSetTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Provides the config set for a given user</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>profiletype</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertycodes</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>generateCredentials</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.X_GenerateCredentialsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Generates xml credentials dataset</info>
+    </tag>
+
+    <tag>
+        <name>generateAliases</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.X_GenerateAliasesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Generates xml aliases dataset</info>
+    </tag>
+
+    <tag>
+        <name>generatePermissions</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.X_GeneratePermissionsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Generates xml aliases dataset</info>
+    </tag>
+
+    <tag>
+        <name>generateExtensions</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.X_GenerateExtensionsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Generates xml aliases dataset</info>
+    </tag>
+
+    <tag>
+        <name>generateAuthExceptions</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.X_GenerateAuthExceptionsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Generates xml authexceptions dataset</info>
+	<attribute>
+            <name>changepointid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+	<attribute>
+            <name>changepointtype</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>x_setUsersPassword</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.X_SetUsersPasswordTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Changes user password in the end user UI</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>oldpassword</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>password</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parameters</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+    <!--*************************************************************
+    RefConfigSet Tags
+    **************************************************************-->
+    <tag>
+        <name>listPolicyProfiles</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListPolicyProfilesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of PolicyProfiles (formerly RefConfigSets)</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <!--*************************************************************
+    RefProperty Tags
+    **************************************************************-->
+    <tag>
+        <name>listPolicyProperties</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListPolicyPropertiesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Policy Properties (formerly RefProperties)</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+    <!--*************************************************************
+    Application Tags
+    **************************************************************-->
+    <tag>
+        <name>createApplication</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateApplicationTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Create a new application</info>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertyid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>url</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>description</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteApplication</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteApplicationTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Delete an application</info>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>editApplication</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditApplicationTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Edit an application</info>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>url</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>description</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Applications</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUsersAvailApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUsersAvailApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of available applications for a user</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUserGroupsAvailApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUserGroupsAvailApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of available applications for a user group</info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listAppSetsAvailApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListAppSetsAvailApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of available applications for an appset</info>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUsersApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUsersApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Applications for a given user</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUserGroupsApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUserGroupsApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Applications for a given user group</info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>assignApplicationToUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AssignApplicationToUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>assignApplicationToUserGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AssignApplicationToUserGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>unassignApplicationFromUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UnassignApplicationFromUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>unassignApplicationFromUserGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UnassignApplicationFromUserGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>applicationDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ApplicationDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Applications</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>getApplicationsForDownload</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListApplicationsForDownloadTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Applications for downloading</info>
+        <attribute>
+            <name>sourcexmlurl</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>downloadApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DownloadApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Downloads and installs applcations</info>
+        <attribute>
+            <name>sourceurl</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationdescription</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertyid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>shouldcreate</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+   </tag>
+
+
+
+
+    <!--*************************************************************
+    ApplicationGroup Tags
+    **************************************************************-->
+    <tag>
+        <name>createApplicationGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateApplicationGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Create a new application group</info>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteApplicationSet</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteApplicationSetTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Delets an application set</info>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>editApplicationSet</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditApplicationSetTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Edit an application set</info>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listApplicationSets</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListApplicationSetsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Application Sets</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUsersAvailApplicationSets</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUsersAvailApplicationSetsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Application Sets</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUserGroupsAvailApplicationSets</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUserGroupsAvailApplicationSetsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Application Sets</info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>appsetDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ApplicationSetDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Show details for an Application Set</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>assignApplicationToApplicatonGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AssignApplicationToApplicationGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Assigns an application to an application group/set.</info>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>unassignApplicationFromApplicatonGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UnassignApplicationFromApplicationGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>unssigns an application from an application group/set.</info>
+        <attribute>
+            <name>applicationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>assignApplicationSetToUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AssignApplicationSetToUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Assigns an application set to a user.</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>unassignApplicationSetFromUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UnassignApplicationSetFromUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>unssigns an application set from a user.</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>assignApplicationSetToUserGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AssignApplicationSetToUserGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Assigns an application set to a user group.</info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>unassignApplicationSetFromUserGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UnassignApplicationSetFromUserGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>unssigns an application set from a user group.</info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>listApplicationSetsApplications</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListApplicationSetsApplicationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>list all applications for a given application group/set.</info>
+        <attribute>
+            <name>applicationsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUsersApplicationSets</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUsersApplicationSetsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>list all application sets for a given user group.</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUserGroupsApplicationSets</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUserGroupsApplicationSetsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>list all application sets for a given user group.</info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+
+    <!--*************************************************************
+    Organization Tags
+    **************************************************************-->
+    <tag>
+        <name>createOrg</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateOrgTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Create a new organization</info>
+        <attribute>
+            <name>orgname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteOrg</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteOrgTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Delete an organization</info>
+        <attribute>
+            <name>orgid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>editOrg</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditOrgTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Edit an organization</info>
+        <attribute>
+            <name>orgid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>orgname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listOrganizations</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListOrganizationsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of organizations with their device and user count</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>organizationDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.OrganizationDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Display information on an Organization</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>getOrgName</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.GetOrgNameTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Find an organization name</info>
+        <attribute>
+            <name>orgid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+    <!--*************************************************************
+    DeviceGroup Tags
+    **************************************************************-->
+    <tag>
+        <name>createDeviceGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateDeviceGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Create a new device group</info>
+        <attribute>
+            <name>groupname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refconfigsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parentgroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parameterstring</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteDeviceGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteDeviceGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Delete a device group
+        </info>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>option</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>newdevicegroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>editDeviceGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditDeviceGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Edit a device group
+        </info>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>groupname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refconfigsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parentgroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>copyDeviceGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CopyDeviceGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Copies a device group
+        </info>
+        <attribute>
+            <name>sourcedevicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deviceGroupDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeviceGroupDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns details for a device group</info>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mfgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>propname</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>vcuid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>detailstype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertygroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usertype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>level</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>visiblefor</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>deviceGroupTabs</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeviceGroupTabsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns details for a device group</info>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mfgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>propname</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>vcuid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>detailstype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertygroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usertype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>level</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>visiblefor</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+
+    <!--*************************************************************
+    UserGroup Tags
+    **************************************************************-->
+    <tag>
+        <name>createUserGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateUserGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Create a new user group
+        </info>
+        <attribute>
+            <name>usergroupname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refconfigsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parentgroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parameterstring</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteUserGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteUserGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Delete a user group
+        </info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>option</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>newusergroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>copyUserGroup</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CopyUserGroupTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Copies a user group
+        </info>
+        <attribute>
+            <name>sourceusergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>userGroupDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UserGroupDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns details for a user group</info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mfgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>propname</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>vcuid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>detailstype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertygroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usertype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>level</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>visiblefor</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+            <name>userGroupTabs</name>
+            <tagclass>com.pingtel.pds.pgs.jsptags.UserGroupTabsTag</tagclass>
+            <bodycontent>empty</bodycontent>
+            <info>Returns details for a user group</info>
+            <attribute>
+                <name>usergroupid</name>
+                <required>true</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>stylesheet</name>
+                <required>true</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>outputxml</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>devicetypeid</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>mfgid</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>propname</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>vcuid</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>detailstype</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>refpropertygroupid</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>usertype</name>
+                <required>false</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>level</name>
+                <required>true</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+            <attribute>
+                <name>visiblefor</name>
+                <required>true</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+        </tag>
+
+
+
+    <!-- *****************************************************************
+    User Tags
+    *******************************************************************-->
+    <tag>
+        <name>createUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Create a new user</info>
+        <attribute>
+            <name>firstname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>lastname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>password</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>displayid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refconfigsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>extensionnumber</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parameterstring</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>editUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Edit a user
+        </info>
+        <attribute>
+            <name>firstname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>lastname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>password</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refconfigsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Delete a user
+        </info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>copyUser</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CopyUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Copies a user
+        </info>
+        <attribute>
+            <name>sourceuserid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUsers</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUsersTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Users</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>groupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listUsersGroupsFilter</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListUsersGroupsFilterTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>assignDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AssignDeviceToUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Assigns a device to a user
+        </info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>deviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>unassignDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UnassignDeviceFromUserTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Unassigns a device from a user
+        </info>
+        <attribute>
+            <name>deviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>administratorDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AdministratorDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Displays information about a given administrator</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>userDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UserDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns details for a user</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mfgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>propname</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>vcuid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>detailstype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertygroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usertype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>level</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>visiblefor</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>userTabs</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UserTabsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns details for a user</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mfgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>propname</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>vcuid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>detailstype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertygroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usertype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>level</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>visiblefor</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>setAdminPassword</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.SetAdminPasswordTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Sets an administrators password - temporary only</info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>password</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listExtensionPools</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListExtensionPoolsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Get info on all extension pools for an organization</info>
+        <attribute>
+            <name>organizationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>createExtensionPool</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateExtensionPoolTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Create extension pool</info>
+        <attribute>
+            <name>organizationid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteExtensionPool</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteExtensionPoolTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>id</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>createExtensionRange</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateExtensionRangeTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>extensionpoolid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>minextension</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>maxextension</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteExtensionRange</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteExtensionRangeTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>minextension</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>maxextension</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>extensionpoolid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>extensionPoolDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ExtensionPoolDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Get info on for given extension pool.</info>
+        <attribute>
+            <name>extensionpoolid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>getNextExtension</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.GetNextExtensionTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Get next free extension for given extension pool.</info>
+        <attribute>
+            <name>extensionpoolid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>editExtensionPool</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditExtensionPoolTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Edit extension pool.</info>
+        <attribute>
+            <name>extensionpoolid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <!-- *****************************************************************
+    Device Tags
+    *******************************************************************-->
+    <tag>
+        <name>createDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreateDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Create a device
+        </info>
+        <attribute>
+            <name>shortname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>orgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>coresoftwaredetailsid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refconfigsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>description</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>serialnumber</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>parameterstring</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>editDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Edit a device
+        </info>
+        <attribute>
+            <name>deviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refconfigsetid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>coresoftwaredetailsid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>description</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>shortname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deleteDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeleteDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Delete a device
+        </info>
+        <attribute>
+            <name>deviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>copyDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CopyDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Copies a device
+        </info>
+        <attribute>
+            <name>sourcedeviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listDevices</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListDevicesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Devices</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>groupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>listDevicesGroupsFilter</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ListDevicesGroupsFilterTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns a list of Devices</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deviceDetails</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeviceDetailsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Details for a device</info>
+        <attribute>
+            <name>deviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mfgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>propname</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>vcuid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>detailstype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertygroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usertype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>level</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>visiblefor</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>deviceTabs</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeviceTabsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Details for a device</info>
+        <attribute>
+            <name>deviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetypeid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mfgid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>propname</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>vcuid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>detailstype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>refpropertygroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usertype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>level</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>visiblefor</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>restartDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.RestartDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Restart a device
+        </info>
+        <attribute>
+            <name>deviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>restartDeviceGroupDevices</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.RestartDeviceGroupDevicesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Restart all devices in a device group
+        </info>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>restartUserDevices</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.RestartUserDevicesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Restart a users devices
+        </info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>restartUserGroupDevices</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.RestartUserGroupDevicesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Restart a user groups devices
+        </info>
+        <attribute>
+            <name>usergroupid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <!-- *****************************************************************
+    PhysicalDevice Tags
+    *******************************************************************-->
+    <tag>
+        <name>createPhyDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CreatePhyDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Create a physical device
+        </info>
+        <attribute>
+            <name>macaddress</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetype</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>serialnumber</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>orgid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>editPhyDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.EditPhyDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Edit a physical device
+        </info>
+        <attribute>
+            <name>phydeviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>macaddress</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicetype</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>serialnumber</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>deletePhyDevice</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeletePhyDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Delete a physical device
+        </info>
+        <attribute>
+            <name>phydeviceid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <!--*************************************************************
+    Maintenance Tags
+    **************************************************************-->
+
+    <tag>
+        <name>databaseVersion</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DatabaseVersionTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Returns information about the current version of the database,
+            target versions and patches.</info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>upgradeDatabase</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UpgradeDatabaseVersionTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Upgrades the database (by processing patches) to given version</info>
+        <attribute>
+            <name>version</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>resetPatchStatus</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ResetPatchStatusTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Takes a list of comma-separed patch number/status pairs.
+            e.g. "1=A,2=F"</info>
+        <attribute>
+            <name>patchstatuslist</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+    <!--*************************************************************
+    Miscellaneous Tags
+    **************************************************************-->
+    <tag>
+        <name>listGroups</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.util.ListGroupsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Generates Hierarchical Tree View of a Group (User/Device/Organization.)</info>
+        <attribute>
+            <name>type</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>getRefConfSets</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.GetRefConfigSetsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Get a list of available refconfsets
+        </info>
+        <attribute>
+            <name>orgid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>getParentGroups</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.GetParentGroupsTag</tagclass>
+        <teiclass>com.pingtel.pds.pgs.jsptags.GetParentGroupsInfo</teiclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Get a list of parent groups
+        </info>
+        <attribute>
+            <name>orgid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>type</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mode</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>groupid</name>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>configurationSetUpdate</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ConfigurationSetUpdateTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Provides functionality to update/create configuration sets.
+        </info>
+        <attribute>
+            <name>entityid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>entitytype</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>cscontent</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>profiletype</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>logTXSuccess</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.LogTXSuccessTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>orgname</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>message</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>projectProfiles</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ProjectProfilesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>entitytype</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>entityid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>profiletypes</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>getVersion</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.GetVersionTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+    </tag>
+
+    <tag>
+        <name>readLogFile</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ReadLogFileTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info></info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <name>getJobStatuses</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.JobStatusTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Retrieves a list of jobs that have either run or are running on the PGS.
+            You can control whether you get a complete list (includes jobs that have finished) or
+            just running jobs using the jobtypes attribute.  If jobtypes is set to "all" then all
+            jobs are returned, otherwise just the current jobs are returned.</info>
+        <attribute>
+            <name>jobtypes</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>clearFinishedJobs</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.ClearFinishedJobsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Removes all complete jobs from the PGS..</info>
+    </tag>
+
+    <tag>
+        <name>getJobExceptionMessage</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.GetJobExceptionMessageTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Retrieves the id and exception message for a failed job.</info>
+        <attribute>
+            <name>jobid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+
+    <!--*************************************************************
+    Form element Tags
+    **************************************************************-->
+    <tag>
+        <name>deviceGroupSelect</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeviceGroupSelectTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Returns heirachical XML markup of DeviceGroups.  If the
+            devicegroupid attribute is specified it will only return valid
+            parent groups for the given device group.
+        </info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>devicegroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>policyProfileSelect</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.PolicyProfileSelectTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Return a select field populated with policy profiles
+        </info>
+        <attribute>
+            <name>type</name>
+            <required>true</required>
+        </attribute>
+    </tag>
+    <tag>
+        <name>coreSoftwareSelect</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.CoreSoftwareSelectTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Return a select field populated with core software
+        </info>
+    </tag>
+    <tag>
+        <name>deviceTypeSelect</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.DeviceTypeSelectTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Return a select field populated with device types
+        </info>
+        <attribute>
+            <name>refProp</name>
+            <required>false</required>
+        </attribute>
+        <attribute>
+            <name>coreVersion</name>
+            <required>false</required>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>userGroupSelect</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.UserGroupSelectTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Returns heirachical XML markup of UserGroups.  If the
+            usergroupid attribute is specified it will only return valid
+            parent groups for the given user group.
+        </info>
+        <attribute>
+            <name>stylesheet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>outputxml</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>usergroupid</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>assignedDevices</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AssignedDeviceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Return a select field populated with assigned devices
+        </info>
+        <attribute>
+            <name>userid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>availDevices</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.AvailDevicesTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            returns a list of available devices for assignment
+        </info>
+    </tag>
+
+    <tag>
+        <name>getNextExtension</name>
+        <tagclass>com.pingtel.pds.pgs.jsptags.GetNextExtensionTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Return string value of the next available extension number for
+            the given pool.
+        </info>
+        <attribute>
+            <name>extensionpoolid</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+</taglib>

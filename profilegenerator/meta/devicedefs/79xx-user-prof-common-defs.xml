@@ -1,0 +1,388 @@
+<ref_property code="cs_1114">
+
+    <definition name="additional_user_settings" mobility="false" cardinality="A"
+    	description="Additional Settings">
+
+       <value name="additional_user_settings" type="area" cardinality="1" index="true" visibility="write"
+       		description="Additional Settings" />
+
+    </definition>
+
+ </ref_property>
+
+<ref_property code="cs_1050">
+ 	<!--
+ 	Number to call to check voice mail. This number is called when the Messages key is pressed.
+
+ 	-->
+    <definition name="messages_uri" mobility="false" cardinality="0..1"
+    	description="messages_uri (Retrieve voicemail messages from)">
+
+
+       <value name="messages_uri" type="string" cardinality="1" visibility="write"
+       		description="number to call to check voicemail" />
+
+    </definition>
+
+ </ref_property>
+
+<ref_property code="cs_1000">
+ 	<!--
+		0The Anonymous Call Blocking feature is disabled by default,
+			but can be turned on and off via the phone's user interface.
+			When disabled, anonymous calls are received.
+		1The Anonymous Call Blocking feature is enabled by default,
+			but can be turned on and off via the phone's user interface.
+			When enabled, anonymous calls are rejected
+		2The Anonymous Call Blocking feature is disabled permanently and
+			cannot be turned on and off locally via the phone's user interface.
+			If specifying this value, specify this parameter in the
+			phone-specific configuration file.
+		3The Anonymous Call Blocking feature is enabled permanently and cannot
+			be turned on and off locally via the phone's user interface. If
+			specifying this value, specify this parameter in the phone-specific
+			configuration file.
+	-->
+    <definition name="anonymous_call_block" mobility="false" cardinality="0..1"
+    	description="enable Anonymous Call Block">
+
+       <value name="anonymous_call_block" type="enumeration" cardinality="1" visibility="write"
+       		description="anonymous_call_block (Anonymous call block)">
+
+       		<default_value>0 (Disabled, can override on phone)</default_value>
+       		<enum_value>0 (Disabled, can override on phone)</enum_value>
+       		<enum_value>1 (Enabled, can override on phone)</enum_value>
+       		<enum_value>2 (Disabled)</enum_value>
+       		<enum_value>3 (Enabled)</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+<ref_property code="cs_1108">
+ 	<!--
+ 	The Remote-Party-ID header supports network verification and screening of a call
+ 	participant's identity (for example, name and number) as well as provides privacy
+ 	for call participants.
+
+	Valid values are:
+
+		0  Remote-Party-ID is disabled. The phone does not send or accept the Remote Party ID.
+		1  Remote-Party-ID is enabled. The phone sends the Remote Party ID,
+			and can accept the Remote Party ID.
+
+	The default value is 0.
+ 	-->
+    <definition name="remote_party_id" mobility="false" cardinality="0..1"
+    	description="enable Remote-Party-ID">
+
+
+       <value name="remote_party_id" type="enumeration" cardinality="1" visibility="write"
+       		description="remote_party_id (Remote party ID)">
+
+       		<default_value>0 (Disabled)</default_value>
+			<enum_value>0 (Disabled)</enum_value>
+			<enum_value>1 (Enabled)</enum_value>
+
+       </value>
+
+    </definition>
+
+ </ref_property>
+
+<ref_property code="cs_1002">
+
+       <!--
+           0The Caller ID Blocking feature is disabled by default, but can be turned on
+               and off via the phone's user interface. When disabled, the caller
+               identification is included in the Request-URI header field.
+           1The Caller ID Blocking feature is enabled by default, but can be turned on and
+               off via the phone's user interface. When enabled, "Anonymous" is included
+               in place of the user identification in the Request-URI header field.
+           2The Caller ID Blocking feature is disabled permanently and cannot be turned on
+               and off locally via the phone's user interface. If specifying this value,
+               specify this parameter in the phone-specific configuration file.
+           3The Caller ID Blocking feature is enabled permanently and cannot be turned on
+               and off locally via the phone's user interface. If specifying this value,
+               specify this parameter in the phone-specific configuration file.
+
+           The default value is 0.
+       -->
+   <definition name="callerid_blocking" mobility="false" cardinality="0..1"
+       description="enable Caller ID Blocking">
+
+
+      <value name="callerid_blocking" type="enumeration" cardinality="1" visibility="write"
+              description="callerid_blocking (Caller ID block)">
+
+         <default_value>0 (Disabled, can override on phone)</default_value>
+         <enum_value>0 (Disabled, can override on phone)</enum_value>
+         <enum_value>1 (Enabled, can override on phone)</enum_value>
+         <enum_value>2 (Disabled)</enum_value>
+         <enum_value>3 (Enabled)</enum_value>
+      </value>
+
+   </definition>
+
+</ref_property>
+
+<ref_property code="cs_1069">
+
+    	<!--
+    		0The call waiting feature is disabled by default, but can be turned on and off
+    			via the phone's user interface. When disabled, call waiting calls are
+    			not received.
+			1The call waiting feature is enabled by default, but can be turned on and off
+				via the phone's user interface. When enabled, call waiting calls are accepted.
+			2The call waiting feature is disabled permanently and cannot be turned on and off
+				locally via the phone's user interface. If specifying this value, specify this
+				parameter in the phone-specific configuration file.
+			3The call waiting feature is enabled permanently and cannot be turned on and off
+				locally via the phone's user interface. If specifying this value, specify this
+				parameter in the phone-specific configuration file.
+    	-->
+    <definition name="call_waiting" mobility="false" cardinality="0..1"
+    	description="enable call waiting">
+
+
+       <value name="call_waiting" type="enumeration" cardinality="1" visibility="write"
+       		description="call_waiting (Call waiting)">
+
+          <default_value>1 (Enabled, can override on phone)</default_value>
+          <enum_value>0 (Disabled, can override on phone)</enum_value>
+          <enum_value>1 (Enabled, can override on phone)</enum_value>
+          <enum_value>2 (Disabled)</enum_value>
+          <enum_value>3 (Enabled)</enum_value>
+       </value>
+
+    </definition>
+
+ </ref_property>
+
+
+<ref_property code="cs_1102">
+ 	<!--
+       	Whether the Do Not Disturb feature is enabled or disabled by default on the phone or
+       	whether the feature is permanently enabled. When the feature is permanently enabled,
+       	a phone is a "call out" phone only. When the Do Not Disturb feature is turned on,
+       	the phone blocks all calls placed to the phone and logs those calls in the Missed Calls
+       	directory.
+
+       	Valid values are:
+
+		0The Do Not Disturb feature is off by default, but can be turned on and off locally
+			via the phone's user interface.
+		1The Do Not Disturb feature is on by default, but can be turned on and off locally
+			via the phone's user interface.
+		2The Do Not Disturb feature is off permanently and cannot be turned on and off
+			locally via the phone's user interface. If specifying this value, specify this
+			parameter in the phone-specific configuration file.
+		3The Do Not Disturb feature is on permanently and cannot be turned on and off
+			locally via the phone's user interface. This setting sets the phone to be a
+			"call out" phone only. If specifying this value, specify this parameter in the
+			phone-specific configuration file.
+
+		The default value is 0.
+       	-->
+    <definition name="dnd_control" mobility="false" cardinality="0..1"
+    	description="enable Do Not Disturb">
+
+
+       <value name="dnd_control" type="enumeration" cardinality="1" visibility="write"
+       		description="dnd_control (Do not disturb)">
+
+          	<default_value>0 (Disabled, can override on phone)</default_value>
+			<enum_value>0 (Disabled, can override on phone)</enum_value>
+			<enum_value>1 (Enabled, can override on phone)</enum_value>
+			<enum_value>2 (Disabled)</enum_value>
+			<enum_value>3 (Enabled)</enum_value>
+       </value>
+
+    </definition>
+
+ </ref_property>
+
+
+
+<ref_property code="cs_1001">
+   <!--
+          Whether to have numbers automatically completed when dialing.
+          Valid values are 0 (disable auto completion) or 1 (enable auto completion).
+          The default is 1.
+      -->
+   <definition name="autocomplete" mobility="false" cardinality="0..1"
+       description="automatically complete numbers when dialing">
+
+      <value name="autocomplete" type="enumeration" cardinality="1" visibility="write"
+              description="autocomplete (Autocomplete numbers when dialing)">
+
+             <default_value>1 (Enabled)</default_value>
+              <enum_value>0 (Disabled)</enum_value>
+              <enum_value>1 (Enabled)</enum_value>
+      </value>
+
+   </definition>
+
+</ref_property>
+
+
+
+<ref_property code="cs_1020">
+ 	<definition name="line1" mobility="false" cardinality="1"
+ 		description="Phone line 1">
+
+ 		<value name="container" type="container" cardinality="1" visibility="write">
+
+ 			<value name="line1_name" type="string" cardinality="1" visibility="write"
+ 				description="line1_name (Line identity)"/>
+
+ 			<value name="line1_shortname" type="string" cardinality="0..1" visibility="write"
+ 				description="line1_shortname (LCD Display name)"/>
+
+ 			<value name="line1_authname" type="string" cardinality="0..1" visibility="write"
+ 				description="line1_authname (Authentication name)"/>
+
+ 			<value name="line1_password" type="password" cardinality="0..1" visibility="write"
+ 				description="line1_password (Authentication password)"/>
+
+ 			<value name="line1_displayname" type="string" cardinality="0..1" visibility="write"
+ 				description="line1_displayname (Caller ID name)"/>
+
+ 		</value>
+
+ 	</definition>
+
+ </ref_property>
+
+
+ <ref_property code="cs_1021">
+ 	<definition name="line2" mobility="false" cardinality="0..1"
+ 		description="Phone line 2">
+
+ 		<value name="container" type="container" cardinality="1" visibility="write">
+
+ 			<value name="line2_name" type="string" cardinality="1" visibility="write"
+ 				description="line2_name (Name)"/>
+
+ 			<value name="line2_shortname" type="string" cardinality="0..1" visibility="write"
+ 				description="line2_shortname (LCD Display name)"/>
+
+ 			<value name="line2_authname" type="string" cardinality="0..1" visibility="write"
+ 				description="line2_authname (Authentication name)"/>
+
+ 			<value name="line2_password" type="password" cardinality="0..1" visibility="write"
+ 				description="line2_password (Authentication password)"/>
+
+ 			<value name="line2_displayname" type="string" cardinality="0..1" visibility="write"
+ 				description="line2_displayname (Caller ID name)"/>
+
+ 		</value>
+
+ 	</definition>
+
+ </ref_property>
+
+<ref_property code="cs_1055">
+ 	<!--
+ 	IP address of the primary SIP proxy server that will be used by the phones.
+ 	Enter this address in IP dotted-decimal notation.
+
+ 	Port number of the primary SIP proxy server. This is the port on which the SIP
+ 	client listens for messages. The default is 5060.
+
+	Note For additional phone lines, proxyN_address and proxyN_port parameters can be
+	used to assign different proxy addresses to different phone lines. "N" in the
+	parameters represents a phone line. The value of "N" can be from 2 to 6. If
+	the value of "N" is not specified in the proxyN_address parameter, the phone
+	uses the proxy1_address parameter as the default.
+ 	-->
+    <definition name="proxy1" mobility="false" cardinality="1"
+    	description="Primary SIP proxy server">
+
+
+		<value name="container" type="container" cardinality="1" visibility="write">
+			<value name="proxy1_address" type="string" visibility="write" cardinality="1"
+				description="proxy1_address (SIP Proxy server IP address)" />
+
+			<value name="proxy1_port" type="integer" visibility="write" cardinality="1"
+                description="proxy1_address_port (SIP Proxy server port)">
+
+				<default_value>5060</default_value>
+				<max_value>65536</max_value>
+				<min_value>0</min_value>
+			</value>
+       	</value>
+
+    </definition>
+
+ </ref_property>
+
+
+
+ <ref_property code="cs_1086">
+ 	<!--
+ 	IP address or DNS name of SIP proxy server that will be used by phone lines other
+ 	than line 1. For IP address, use the IP dotted-decimal notation. If the proxyN_address
+ 	parameter is provisioned with an FQDN, the phone sends REGISTER and INVITE messages
+ 	by using the FQDN in the Req-URI, To, and From fields. If you want to use a dotted
+ 	IP address, the proxyN_address parameters should be configured as dotted IP addresses.
+
+	Port number of the SIP proxy server that will be used by phone lines other than line 1.
+ 	-->
+    <definition name="proxy2" mobility="false" cardinality="0..1"
+    	description="Proxy server used by phone line 2">
+
+
+		<value name="container" type="container" cardinality="1" visibility="write">
+			<value name="proxy2_address" type="string" visibility="write" cardinality="1"
+				description="proxy2_address (SIP Proxy server IP address)" />
+
+			<value name="proxy2_port" type="integer" visibility="write" cardinality="0..1"
+                description="proxy2_address_port (SIP Proxy server port)">
+
+				<default_value>5060</default_value>
+				<max_value>65536</max_value>
+				<min_value>0</min_value>
+			</value>
+       	</value>
+
+    </definition>
+
+ </ref_property>
+
+<ref_property code="cs_1101">
+
+    	<!--
+    	This URL is accessed when the Directory key is pressed and the External Directory
+    	option is selected. For example, use directory_url:
+    	"http://10.10.10.10/CiscoServices/Directory.asp".
+    	-->
+
+ 	<definition name="directory_url" mobility="false" cardinality="0..1"
+    	description="URL of the external directory server">
+
+    	<value name="directory_url" type="string" cardinality="1" visibility="write"
+    		description="directory_url (URL for external directory server)">
+
+    	</value>
+
+    </definition>
+
+ </ref_property>
+
+
+
+<ref_property code="cs_1111">
+ 	<!--
+ 	URL of the services BTXML files. This URL is accessed when the Services button is pressed.
+ 	For example, use services_url:"http://10.10.10.10/CiscoServices/Services.asp"
+ 	-->
+    <definition name="services_url" mobility="false" cardinality="0..1"
+    	description="URL of the services BTXML files">
+
+
+       <value name="services_url" type="string" cardinality="1" visibility="write"
+       		description="services_url (URL for services BTXML files)" />
+
+    </definition>
+
+ </ref_property>

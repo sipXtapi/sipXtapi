@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE device_definition SYSTEM "devicedefinition.dtd"
+    [<!ENTITY common-dev-defs SYSTEM "xpressa-dev-prof-common-defs.xml">
+    <!ENTITY common-user-defs SYSTEM "xpressa-user-prof-common-defs.xml">
+    <!ENTITY common-app-defs SYSTEM "xpressa-app-prof-common-defs.xml">] >
+
+<device_definition>
+   <core_software_types>
+      <core_software>
+         <description>version 2.0</description>
+
+         <version>2.0</version>
+
+         <name>kernel</name>
+
+         <core_software_profile type="phone">
+            <profile_file_name>pinger-config</profile_file_name>
+
+            <profile_renderer_class>com.pingtel.pds.pgs.plugins.renderer.XpressaConfig</profile_renderer_class>
+
+            <profile_renderer_stylesheet>internal2pinger.xsl</profile_renderer_stylesheet>
+
+            <profile_projection_class>com.pingtel.pds.pgs.plugins.projection.StandardTopDown</profile_projection_class>
+         </core_software_profile>
+
+         <core_software_profile type="user">
+            <profile_file_name>user-config</profile_file_name>
+
+            <profile_renderer_class>com.pingtel.pds.pgs.plugins.renderer.XpressaConfig</profile_renderer_class>
+
+            <profile_renderer_stylesheet>internal2pinger.xsl</profile_renderer_stylesheet>
+
+            <profile_projection_class>com.pingtel.pds.pgs.plugins.projection.StandardTopDown</profile_projection_class>
+         </core_software_profile>
+
+         <core_software_profile type="application-ref">
+            <profile_file_name>app-config</profile_file_name>
+
+            <profile_renderer_class>com.pingtel.pds.pgs.plugins.renderer.XpressaAppConfig</profile_renderer_class>
+
+            <profile_renderer_stylesheet>internal2appconfig.xsl</profile_renderer_stylesheet>
+
+            <profile_projection_class>com.pingtel.pds.pgs.plugins.projection.StandardTopDown</profile_projection_class>
+         </core_software_profile>
+      </core_software>
+   </core_software_types>
+
+    <device_type>
+        <model>xpressa_strongarm_vxworks</model>
+        <manufacturer>Pingtel</manufacturer>
+        <profile type="phone">
+            &common-dev-defs;
+        </profile>
+        <profile type="user">
+            &common-user-defs;
+        </profile>
+        <profile type="application-ref">
+            &common-app-defs;
+        </profile>
+    </device_type>
+</device_definition>

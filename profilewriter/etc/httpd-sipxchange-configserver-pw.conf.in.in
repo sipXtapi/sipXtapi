@@ -1,0 +1,10 @@
+# This alias is used to access SIPxchange configuration profiles
+
+# This is available (in theory) for both port 8090 and 8091...
+Alias /phone/profile/ "@profiledir@/docroot/"
+
+# TODO: Run Jboss/Tomcat under apache2
+#
+# Added for mod_jk support
+# Include "@wwwdir@/conf/mod_jk.conf"
+

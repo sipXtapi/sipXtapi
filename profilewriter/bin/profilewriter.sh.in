@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Startup Script for Software Delivery Service
+# Check for SUN(tm) JVM w/ HotSpot support
+jars=@SIPXPBXDATA@/lib
+
+CONFIG_DEFS="@SIPXPBXCONF@/config.defs"
+
+CONFIG_FILES="\
+  @SIPXPBXCONF@/profilewriter.props \
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+CLASSPATH=
+for jar in ${jars}/*.jar ; do
+   CLASSPATH=$CLASSPATH:$jar
+done
+
+PDS_DEBUG=-Dpds.debug=true
+
+# Production command line
+exec @JAVA_HOME@/bin/java $HOTSPOT -classpath $CLASSPATH $PDS_DEBUG -Djava.rmi.server.codebase="file:${jars}/profilewriter.jar file:${jars}/profilegen-client.jar file:${jars}/common.jar" -Dprofilewriter.props=@SIPXPBXCONF@/profilewriter.props -Djava.security.policy=file:@SIPXPBXCONF@/security.policy com.pingtel.pds.profilewriter.ProfileWriterServer $@

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
+
+<!--
+  -  TODO: Change transport-guarantee from NONE to CONFIDENTIAL
+  -->
+
+<web-app>
+
+    <!-- J S P  T A G S -->
+
+    <!-- sipXconfig -->
+    <taglib>
+        <taglib-uri>pgstags</taglib-uri>
+        <taglib-location>/WEB-INF/lib/profilegen-tags.jar</taglib-location>
+    </taglib>
+
+    <!-- Apache's xtags -->
+    <taglib>
+        <taglib-uri>xtags</taglib-uri>
+        <taglib-location>/WEB-INF/lib/taglibs-xtags.tld</taglib-location>
+    </taglib>
+
+    <!-- A D M I N  &  S U P E R   A C C E S S -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Restricted</web-resource-name>
+            <description>Secure Servlets</description>
+            <url-pattern>/ui/administration/*</url-pattern>
+            <url-pattern>/ui/application/*</url-pattern>
+            <url-pattern>/ui/buttons/*</url-pattern>
+            <url-pattern>/ui/command/*</url-pattern>
+            <url-pattern>/ui/device/*</url-pattern>
+            <url-pattern>/ui/devicetype/*</url-pattern>
+            <url-pattern>/ui/error/*</url-pattern>
+            <url-pattern>/ui/iconbar/*</url-pattern>
+            <url-pattern>/ui/install/*</url-pattern>
+            <url-pattern>/ui/logging/*</url-pattern>
+            <url-pattern>/ui/navigation/*</url-pattern>
+            <url-pattern>/ui/png/*</url-pattern>
+            <url-pattern>/ui/popup/*</url-pattern>
+            <url-pattern>/ui/patch/*</url-pattern>
+            <url-pattern>/ui/status/*</url-pattern>
+            <url-pattern>/ui/user/*</url-pattern>
+            <url-pattern>/ui/xml/*</url-pattern>
+
+            <http-method>HEAD</http-method>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+
+        <auth-constraint>
+            <role-name>SUPER</role-name>
+            <role-name>ADMIN</role-name>
+            <!-- TEMP -->
+            <role-name>END_USER</role-name>
+        </auth-constraint>
+
+        <user-data-constraint>
+            <description></description>
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+
+    <!-- A L L  U S E R S  A C C E S S -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Restricted</web-resource-name>
+            <description>Secure Servlets</description>
+            <url-pattern>/ui/sipxchange/*</url-pattern>
+            <url-pattern>/ui/initialize/*</url-pattern>
+            <url-pattern>/ui/profile/*</url-pattern>
+            <url-pattern>/ui/popup/*</url-pattern>
+            <url-pattern>/ui/script/*</url-pattern>
+            <url-pattern>/ui/help/*</url-pattern>
+            <url-pattern>/ui/xml/update_configuration_set.jsp</url-pattern>
+
+            <url-pattern>/ui/index.jsp</url-pattern>
+            <url-pattern>/ui/welcome.jsp</url-pattern>
+            <url-pattern>/ui/frameset.html</url-pattern>
+
+            <http-method>HEAD</http-method>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+
+        <auth-constraint>
+            <role-name>SUPER</role-name>
+            <role-name>ADMIN</role-name>
+            <role-name>END_USER</role-name>
+        </auth-constraint>
+
+        <user-data-constraint>
+            <description></description>
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <!-- C O M M S E R V E R -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>CommserverUI</web-resource-name>
+            <description>Secure CommserverUI</description>
+            <url-pattern>/commserver/*</url-pattern>
+
+            <http-method>HEAD</http-method>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+
+        <auth-constraint>
+            <role-name>SUPER</role-name>
+            <role-name>ADMIN</role-name>
+        </auth-constraint>
+
+        <user-data-constraint>
+            <description></description>
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+     <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>PGS</realm-name>
+        <form-login-config>
+            <form-login-page>/login/login.html</form-login-page>
+            <form-error-page>/login/error.html</form-error-page>
+        </form-login-config>
+    </login-config>
+
+
+    <!-- S E C U R I T Y  R O L E S -->
+    <security-role>
+        <description>Root-like access role requirement to call servlets</description>
+        <role-name>SUPER</role-name> 
+    </security-role>
+
+    <security-role>
+        <description>Admin users role requirement to call servlets</description>
+        <role-name>ADMIN</role-name>
+    </security-role>
+
+    <security-role>
+        <description>Plain old user role requirement to call Servlets</description>
+        <role-name>END_USER</role-name>
+    </security-role>
+
+
+    <!-- E J B  
+      -    @jndi  java:comp/env/ejb 
+      -    @see   jboss-web.xml
+      -->
+    <ejb-ref>
+        <description>no description</description>
+        <ejb-ref-name>ejb/UserAdvocate</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <home>com.pingtel.pds.pgs.user.UserAdvocateHome</home>
+        <remote>com.pingtel.pds.pgs.user.UserAdvocate</remote>
+    </ejb-ref>
+    <ejb-ref>
+        <description>no description</description>
+        <ejb-ref-name>ejb/ReferenceDataAdvocate</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <home>com.pingtel.pds.pgs.profile.ReferenceDataAdvocateHome</home>
+        <remote>com.pingtel.pds.pgs.profile.ReferenceDataAdvocate</remote>
+    </ejb-ref>
+    <ejb-ref>
+        <description>no description</description>
+        <ejb-ref-name>ejb/PhoneTypeAdvocate</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <home>com.pingtel.pds.pgs.phone.PhoneTypeAdvocateHome</home>
+        <remote>com.pingtel.pds.pgs.phone.PhoneTypeAdvocate</remote>
+    </ejb-ref>
+</web-app>
