@@ -30,7 +30,7 @@
 int EnrollmentCallback(const SipMessage& subscribeRequest)
 {
     bool     bSuccess = false ;
-    OsString messageContents ;
+    UtlString messageContents ;
     int      iLen ;
     JavaVM*  pVM ;
     JNIEnv*  pEnv ;
