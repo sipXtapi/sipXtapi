@@ -69,6 +69,7 @@ CHECK_JBOSS_HOME
 CHECK_TOMCAT_HOME
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([etc/Makefile etc/cert/Makefile])
 AC_CONFIG_FILES([profilepublisher/sipagent-jni/Makefile profilepublisher/sipagent-jni/src/Makefile profilepublisher/sipagent-jni/include/Makefile])
 
 AC_OUTPUT

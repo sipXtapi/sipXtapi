@@ -1,4 +1,6 @@
 
+SUBDIRS = . etc
+
 include $(top_srcdir)/ant-targets.am
 
 EXTRA_DIST = \

@@ -42,15 +42,19 @@ After installing these packages, set the following environment
 variables:
 
  JAVA_HOME - where you installed java, for example:
- JBOSS_HOME - where you unzipped Jboss + "/jboss"
- TOMCAT_HOME - where you unzipped Jboss + "/catalina"
  ANT_HOME
 
-copy JUnit's junit.jar into ${ANT_HOME}/lib
+
+ "Installing" JBoss just means unzipping the file and then setting 
+ these two environment variables:
+   JBOSS_HOME - where you unzipped Jboss + "/jboss"
+   TOMCAT_HOME - where you unzipped Jboss + "/catalina"
 
 
 Installation
 =====================
+
+  copy JUnit's junit.jar into ${ANT_HOME}/lib
 
   ./configure
   ant
@@ -115,7 +119,7 @@ optionally or on other systems, this will also initialize the database
    chmod 664 $PGDATA/postmaster.opts.default
    chown postgres $PGDATA/postmaster.opts.default
 
-5.) Now you can start up postgres, must me root user
+5.) Now you can start up postgres, must be root user
 
 General Linux Systems :
 
@@ -248,34 +252,7 @@ should look similiar to this one:
 Securing SSL connections
 ========================
 
-You should replace these demo files with your company's real files
-
-/usr/local/etc/sipxpbx/server.key  - private key
-/usr/local/etc/sipxpbx/server.crt  - certificate for that host
-
-
-If you have not done this, you can add the demo certificate authority
-used to create these demo files to the local installed Java virtual
-machine by running the following command. This assumes JAVA_HOME
-environment variable points to your local Java installation.
-
-${JAVA_HOME}/bin/keytool -import -keystore ${JAVA_HOME}/jre/lib/security/cacerts -alias snakeoil -file sipXcommserverLib/etc/snakeoil-cacert.pem
-
-The default password should be "changeit".  You will want to type
-'yes' when prompted to trust this certificate.
-
-This is not a secure system and you must resolve this issue before
-using your system is used in any production environement.  You can
-remove the demo certificate authority from the Java virtual machine by
-running the following command:
-
-${JAVA_HOME}/bin/keytool -delete -keystore ${JAVA_HOME}/jre/lib/security/cacerts -alias snakeoil
-
-Type the following command to list all certificate authorities to
-ensure you've remove the Snakeoil CA
-
-${JAVA_HOME}/bin/keytool -list -keystore ${JAVA_HOME}/jre/lib/security/cacerts
-
+See the instructions in etc/cert/INSTALL.  
 
 Apache Server
 ====================
