@@ -103,17 +103,32 @@ public class XmlEditor
     public void load(String filename)
         throws IOException
     {
-        FileReader rdr = new FileReader(filename);
-        BufferedReader buffRdr = new BufferedReader(rdr);
-        String line = null;
-        StringBuffer buff = new StringBuffer(1024);
-        String eol = System.getProperty("line.separator");
-        while ((line = buffRdr.readLine()) != null)
+        FileReader rdr = null;
+        try
         {
-            buff.append(line).append(eol);
-        }
+            rdr = new FileReader(filename);
+            BufferedReader buffRdr = new BufferedReader(rdr);
+            String line = null;
+            StringBuffer buff = new StringBuffer(1024);
+            String eol = System.getProperty("line.separator");
+            while ((line = buffRdr.readLine()) != null)
+            {
+                buff.append(line).append(eol);
+            }
 
-        setContent(buff.toString());
+            setContent(buff.toString());
+        }
+        finally
+        {
+            if (rdr != null)
+            {
+                try
+                {
+                    rdr.close();
+                }
+                catch (IOException ignore) {}
+            }
+        }
     }
 
     /**
@@ -125,11 +140,26 @@ public class XmlEditor
         if (!isValid())
             throw new IOException(getErrorMessage());
         
-        FileOutputStream stream = new FileOutputStream(filename);
-        org.jdom.output.Format f = org.jdom.output.Format.getPrettyFormat();        
-        XMLOutputter outputter = new XMLOutputter( f );
-        outputter.output(m_doc, stream);
-        stream.flush();
-        stream.close();
+        FileOutputStream stream = null;
+        try
+        {
+            stream = new FileOutputStream(filename);
+            org.jdom.output.Format f = org.jdom.output.Format.getPrettyFormat();        
+            XMLOutputter outputter = new XMLOutputter( f );
+            outputter.output(m_doc, stream);
+            stream.flush();
+            stream.close();
+        }
+        finally
+        {
+            if (stream != null)
+            {
+                try
+                {
+                    stream.close();
+                }
+                catch (IOException ignore) {}
+            }
+        }
     }
 }
