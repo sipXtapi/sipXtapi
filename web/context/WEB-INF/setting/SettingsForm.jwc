@@ -33,6 +33,12 @@
         type="org.sipfoundry.sipxconfig.setting.Setting">
     </property-specification>
     
+    <component id="IfGroup" type="Conditional">
+        <binding name="condition" expression="currentSetting.getValues().size() > 0"/>
+    </component>
+    <component id="IfSetting" type="Conditional">
+        <binding name="condition" expression="currentSetting.getValues().size() == 0"/>
+    </component>
     <component id="settingsForm" type="Form">
     </component>
     <component id="settings" type="Foreach">
@@ -42,6 +48,7 @@
     <component id="settingLabel" type="Insert">
         <binding name="value" expression="currentSetting.label"/>
     </component>
+    <component id="groupLabel" copy-of="settingLabel"/>
     <component id="settingDefault" type="Insert">
         <binding name="value" expression="currentSetting.defaultValue"/>
     </component>    
@@ -51,6 +58,7 @@
     <component id="settingDescription" type="Insert">
         <binding name="value" expression="currentSetting.description"/>
     </component>
+    <component id="groupDescription" copy-of="settingDescription"/>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="cancelListener"/>
     </component>

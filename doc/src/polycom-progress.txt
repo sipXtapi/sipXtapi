@@ -7,7 +7,7 @@ U I
   - New Phone       80%     10
   - Phone Lines     70%     10
   - Edit Phone      80%     10
-  - Phone Settings  70%      8
+  - Phone Settings  80%      8
   - Phone Models     0%      5
   - Phone Defaults   0%      5
   - Phone Search     0%      5
@@ -20,15 +20,15 @@ U I
   - Add User->Phone  40%     8
 [line]
   - Add Line         0%      5 (as opposed to adding a user)
-  - Edit Line       60%      8
-  - Line Settings   50%     10
+  - Edit Line       40%      8
+  - Line Settings   80%     10
 
  20%  5   - synchronize ui with Damian for proper page standards
  10%  2   - clean up CSS
 
 F E A T U R E S
 ---------------
-  5%  10  - determine which phone and line settings are important
+ 80%  10  - determine which phone and line settings are important
 100%  10  - generate file name scheme to signify updated profiles
   5%  2   - howto restart polycom phone
   0%  10  - data validation
@@ -49,7 +49,11 @@ C L E A N  U P
 - code coverage
 - logged bug
 
+M I S C.  T O D O
+-----------------
+- 3 col. CSS layout
+
 S U M M A R Y 
 -------------
-- 57% done of items w/importance above 5.  In order to meet time line, I recommend 
-  all 2's and 5's will be cut
+- In order to meet time line, I recommend all items w/importance 2 be cut
+  and most items with importance 5 also be cut

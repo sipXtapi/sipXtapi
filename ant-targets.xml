@@ -254,6 +254,7 @@
 
   <!--
     - U N I T T E S T 
+    - TODO: Share target contents w/test-db
     -->
   <target name="test" depends="compile.test"
        description="run junit tests">
@@ -280,7 +281,7 @@
   <target name="test-db" depends="compile.test"
        description="run junit tests that interact with database">
 
-    <junit fork="yes" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
       <classpath refid="test.path"/>
       <formatter type="plain"/>
       <formatter type="xml"/>
@@ -300,21 +301,8 @@
     - require that your machine is setup, for example database, 
     - webserver, etc
     -->
-  <target name="test-all" depends="compile.test"
+  <target name="test-all" depends="test,test-db"
        description="run all junit tests">
-
-    <junit fork="yes" haltonfailure="yes" printsummary="on">
-      <classpath refid="test.path"/>
-      <formatter type="plain"/>
-      <formatter type="xml"/>
-      <sysproperty key="basedir" value="${basedir}"/>
-      <batchtest todir="${test.results.dir}">
-        <fileset dir="${test.classes.dir}"> 
-          <patternset refid="test.classes"/>
-          <patternset refid="test-db.classes"/>
-        </fileset>
-      </batchtest>
-    </junit>        
   </target>
 
 

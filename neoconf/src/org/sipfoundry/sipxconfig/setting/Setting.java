@@ -246,19 +246,19 @@ public class Setting implements Cloneable, AvoidEclipseWarningHack {
     
     public Collection list(SettingFilter filter) {
         Collection bucket = new ArrayList();
-        list(filter, bucket);
+        list(filter, this, bucket);
         
         return bucket;
     }
     
-    public void list(SettingFilter filter, Collection bucket) {
+    public void list(SettingFilter filter, Setting root, Collection bucket) {
         Iterator children = getValues().iterator();
         while (children.hasNext()) {
             Setting setting = (Setting) children.next();
-            if (filter.acceptSetting(setting)) {
+            if (filter.acceptSetting(root, setting)) {
                 bucket.add(setting);
             }
-            setting.list(filter, bucket);
+            setting.list(filter, root, bucket);
         }
     }
 }

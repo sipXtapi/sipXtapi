@@ -14,6 +14,6 @@ package org.sipfoundry.sipxconfig.setting;
 
 public interface SettingFilter {
 
-    public boolean acceptSetting(Setting setting);
+    public boolean acceptSetting(Setting root, Setting setting);
     
 }

@@ -39,7 +39,6 @@ public class ApplicationConfiguration extends ConfigurationTemplate {
     }
     
     public void addContext(VelocityContext context) {
-        context.put("app", this);
     }
     
     public String getSipBinaryFilename() {

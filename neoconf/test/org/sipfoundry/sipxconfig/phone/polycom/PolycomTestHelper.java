@@ -15,7 +15,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.User;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
@@ -23,6 +22,8 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 public class PolycomTestHelper {
     
     Endpoint[] endpoint;
+    
+    Line[] line;
     
     PolycomPhone[] phone;
     
@@ -45,9 +46,9 @@ public class PolycomTestHelper {
         helper.user[0].setFirstName("Joe");
         helper.user[0].setLastName("User");
         
-        Line line = new Line();
-        line.setUser(helper.user[0]);
-        helper.endpoint[0].addLine(line);
+        helper.line = new Line[] {new Line()};
+        helper.line[0].setUser(helper.user[0]);
+        helper.endpoint[0].addLine(helper.line[0]);
         
         PolycomPhoneConfig config = new PolycomPhoneConfig();
         config.setTftpRoot(TestHelper.getTestDirectory());
@@ -58,8 +59,11 @@ public class PolycomTestHelper {
     }
     
     public void plainSettingsSeed() throws Exception {
-        SettingGroup settings = endpoint[0].getSettings(phone[0]);
-        settings.getSetting("call").getSetting("rejectBusyOnDnd").setValue("0");
-        settings.getSetting("voIpProt").getSetting("local.port").setValue("5061");
+        SettingGroup endpointSettings = endpoint[0].getSettings(phone[0]);
+        endpointSettings.getSetting("call").getSetting("rejectBusyOnDnd").setValue("0");
+        endpointSettings.getSetting("voIpProt.SIP").getSetting("local").getSetting("port").setValue("5061");
+
+        SettingGroup lineSettings = line[0].getSettings(phone[0]);
+        lineSettings.getSetting("call").getSetting("serverMissedCall").getSetting("enabled").setValue("1");
     }
 }

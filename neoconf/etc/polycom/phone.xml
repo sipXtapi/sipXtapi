@@ -20,7 +20,7 @@
 				(Friday/November), otherwise, use abbreviations (Fri/Nov). 
 				</description>
 		</setting>
-		<setting name="lcl.datetime.date.dateTop">
+		<setting name="date.dateTop">
 			<type>0,1</type>
 			<defaultValue></defaultValue>
 			<description>If 1, display date above time else display time above 
@@ -507,7 +507,7 @@
 		</setting>
 	</group>
 	<group name="call">
-		<label>Call</label>
+		<label>Call Handling</label>
 		<!-- PhoneConfiguration -->
 		<setting name="donotdisturb.perReg">
 			<label>Do Not Disturb</label>
@@ -517,7 +517,6 @@
 				DND on a per-registration basis. </description>
 		</setting>
 		<!-- AppConfiguration until end of group -->
-		<label>Call Handling Configuration</label>
 		<setting name="rejectBusyOnDnd">
 			<type>0, 1</type>
 			<defaultValue>1</defaultValue>
@@ -576,7 +575,7 @@
 		</setting>
 	</group>
 	<group name="call.hold">
-		<label>Hold, Local Reminder</label>
+		<label>Hold Reminder</label>
 		<setting name="localReminder.enabled">
 			<type>0, 1</type>
 			<defaultValue>0</defaultValue>
@@ -784,21 +783,14 @@
 		</setting>
 	</group>
 	<group name="voIpProt">
-		<label>Servers</label>
-		<setting name="local.port">
-			<label>Local Port</label>
-			<type>0 to 65535</type>
-			<defaultValue>5060</defaultValue>
-			<description>Local port for sending and receiving SIP signaling 
-				packets. If set to 0 or Null, 5060 is used for the local port 
-				but it is not advertised in the SIP signaling. If set to some 
-				other value, that value is used for the local port and it is 
-				advertised in the SIP signaling.</description>
-		</setting>
+		<label>SIP Servers</label>
 		<group name="server">
+			<label>Registration Servers</label>
 			<group name="1">
+				<label>Primary Registration Server</label>
 				<setting name="address">
-					<label>Primary Registration Server</label>
+					<label>Server</label>
+					<profileName>server.1.address</profileName>
 					<type>dotted-decimal IP address or host name</type>
 					<defaultValue></defaultValue>
 					<description>IP address or host name and port of a SIP 
@@ -814,11 +806,13 @@
 						and it is advertised in signaling.</description>
 				</setting>
 				<setting name="port">
+					<profileName>server.1.port</profileName>
 					<type>0, Null, 1 to 65535</type>
 					<defaultValue>5060</defaultValue>
 					<description></description>
 				</setting>
 				<setting name="transport">
+					<profileName>server.1.transport</profileName>
 					<type>DNSnaptr or TCPpreferred or UDPonly</type>
 					<defaultValue></defaultValue>
 					<description>If set to Null or DNSnaptr: If Address is a 
@@ -831,6 +825,7 @@
 						used. </description>
 				</setting>
 				<setting name="expires">
+					<profileName>server.1.expires</profileName>
 					<type>positive integer, minimum 300</type>
 					<defaultValue></defaultValue>
 					<description>Requested registration period in seconds. This 
@@ -840,12 +835,14 @@
 						the negotiated period has expired.</description>
 				</setting>
 				<setting name="register">
+					<profileName>server.1.register</profileName>
 					<type>0, 1</type>
 					<defaultValue>1</defaultValue>
 					<description>If set to 0, calls can be routed to an 
 						outbound proxy without registration. </description>
 				</setting>
 				<setting name="retryTimeOut">
+					<profileName>server.1.retryTimeOut</profileName>
 					<type>Null or non-negative integer</type>
 					<defaultValue>0</defaultValue>
 					<description>If set to 0 or Null, use standard RFC 3261 
@@ -855,6 +852,7 @@
 						</description>
 				</setting>
 				<setting name="retryMaxCount">
+					<profileName>server.1.retryMaxCount</profileName>
 					<type>Null or non-negative integer</type>
 					<defaultValue>0</defaultValue>
 					<description>If set to 0 or Null, 3 is used. retryMaxCount 
@@ -862,6 +860,7 @@
 						available server. </description>
 				</setting>
 				<setting name="expires.lineSeize">
+					<profileName>server.1.expires.lineSeize</profileName>
 					<type>"positive integer, minimum 10 " </type>
 					<defaultValue>30</defaultValue>
 					<description>Requested line-seize subscription period. 
@@ -869,8 +868,10 @@
 				</setting>
 			</group>
 			<group name="2">
+				<label>Secondary Registration Server</label>
 				<setting name="address">
-					<label>Secondary Registration Server</label>
+					<label>Server</label>
+					<profileName>server.2.address</profileName>
 					<type>dotted-decimal IP address or host name</type>
 					<defaultValue></defaultValue>
 					<description>Backup IP address or host name and port of a 
@@ -888,10 +889,12 @@
 				</setting>
 				<setting name="port">
 					<type>0, Null, 1 to 65535</type>
+					<profileName>server.2.port</profileName>
 					<defaultValue>5060</defaultValue>
 					<description></description>
 				</setting>
 				<setting name="transport">
+					<profileName>server.2.transport</profileName>
 					<type>DNSnaptr or TCPpreferred or UDPonly</type>
 					<defaultValue></defaultValue>
 					<description>If set to Null or DNSnaptr: If Address is a 
@@ -904,6 +907,7 @@
 						used. </description>
 				</setting>
 				<setting name="expires">
+					<profileName>server.2.expires</profileName>
 					<type>positive integer, minimum 300</type>
 					<defaultValue></defaultValue>
 					<description>Requested registration period in seconds. This 
@@ -913,12 +917,14 @@
 						the negotiated period has expired.</description>
 				</setting>
 				<setting name="register">
+					<profileName>server.2.register</profileName>
 					<type>0, 1</type>
 					<defaultValue>1</defaultValue>
 					<description>If set to 0, calls can be routed to an 
 						outbound proxy without reg-istration. </description>
 				</setting>
 				<setting name="retryTimeOut">
+					<profileName>server.2.retryTimeOut</profileName>
 					<type>Null or non-negative integer</type>
 					<defaultValue>0</defaultValue>
 					<description>If set to 0 or Null, use standard RFC 3261 
@@ -928,6 +934,7 @@
 						</description>
 				</setting>
 				<setting name="retryMaxCount">
+					<profileName>server.2.retryMaxCount</profileName>
 					<type>Null or non-negative integer</type>
 					<defaultValue>0</defaultValue>
 					<description>If set to 0 or Null, 3 is used. retryMaxCount 
@@ -935,6 +942,7 @@
 						available server. </description>
 				</setting>
 				<setting name="expires.lineSeize">
+					<profileName>server.2.expires.lineSeize</profileName>
 					<type>"positive integer, minimum 10 " </type>
 					<defaultValue>30</defaultValue>
 					<description>Requested line-seize subscription period. 
@@ -942,33 +950,10 @@
 				</setting>
 			</group>
 		</group>
-		<setting name="SIP.useRFC2543hold">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, use the obsolete c=0.0.0.0 RFC2543 
-				technique, otherwise, use SDP media direction attributes (such 
-				as a=sendonly) per RFC 3264 when initiating hold. In either 
-				case, the phone processes incoming hold signaling in either 
-				format. </description>
-		</setting>
-		<setting name="SIP.lcs">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description> If set to 1, the proprietary 'epid' parameter is 
-				added to the From field of all requests to support Windows Live 
-				Communications Server. </description>
-		</setting>
-		<setting name="SIP.sendCompactHdrs">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 0, SIP header names generated by the phone 
-				use the long form, for example 'From'. If set to 1, SIP header 
-				names generated by the phone use the short form, for example 
-				'f'. </description>
-		</setting>
 		<group name="SIP.outboundProxy">
+			<label>Outbound Proxy</label>
 			<setting name="address">
-				<label>Outbound SIP Proxy</label>
+				<label>Server</label>
 				<type>dotted-decimal IP address or host name</type>
 				<defaultValue></defaultValue>
 				<description>IP address or host name and port of a SIP server 
@@ -981,86 +966,156 @@
 				<description></description>
 			</setting>
 		</group>
-		<setting name="SIP.alertInfo.x.value">
-			<type>string to compare against the value of Alert-Info headers in 
-				INVITE requests</type>
-			<defaultValue></defaultValue>
-			<description>Alert-Info fields from INVITE requests will be 
-				compared against as many of these parameters as are spec-ified 
-				(x=1, 2, ..., N) and if a match is found, the behavior 
-				described in the corresponding ring class will be 
-				applied.</description>
-		</setting>
-		<setting name="SIP.alertInfo.x.class">
-			<type>positive integer</type>
-			<defaultValue></defaultValue>
-			<description></description>
-		</setting>
-		<setting name="SIP.requestValidation.x.request">
-			<type>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 
-				'OPTIONS', 'INFO', 'MESSAGE', 'SUB-SCRIBE', 'NOTIFY', 'REFER', 
-				'PRACK', or 'UPDATE'</type>
-			<defaultValue></defaultValue>
-			<description>Sets the name of the method for which validation will 
-				be applied. WARNING: Intensive request validation may have a 
-				negative performance impact due to the additional signaling 
-				required in some cases, therefore, use it 
-				judiciously.</description>
-		</setting>
-		<setting name="SIP.requestValidation.x.method">
-			<type>Null or one of: 'source', 'digest' or 'both'/'all'</type>
-			<defaultValue></defaultValue>
-			<description>If Null, no validation is done. Otherwise this sets 
-				the type of validation performed for the request: source: 
-				ensure request is received from an IP address of a server 
-				belonging to the set of target registration servers; digest: 
-				challenge requests with digest authentication using the local 
-				credentials for the associated registration (line); both or 
-				all: apply both of the above methods </description>
-		</setting>
-		<setting name="SIP.requestValidation.x.request.y.event">
-			<type>A valid string</type>
-			<defaultValue></defaultValue>
-			<description>Determines which events specified with the Event 
-				header should be validated; only applicable when voIp- 
-				Prot.SIP.requestValida-tion.x.request is set to 'SUBSCRIBE' or 
-				'NOTIFY'. If set to Null, all events will be validated. 
-				</description>
-		</setting>
-		<setting name="SIP.requestValidation.digest.realm">
-			<type>A valid string</type>
-			<defaultValue>PolycomSPIP</defaultValue>
-			<description>Determines string used for Realm.</description>
-		</setting>
-		<setting name="SIP.specialEvent.lineSeize.nonStandard">
-			<type>0, 1</type>
-			<defaultValue>1</defaultValue>
-			<description>If set to 1, process a 200 OK response for a 
-				line-seize event SUBSCRIBE as though a line-seize NOTIFY with 
-				Subscription State: active header had been received, this 
-				speeds up processing. </description>
-		</setting>
-		<setting name="SIP.specialEvent.checkSync.alwaysReboot">
-			<type>0, 1</type>
-			<defaultValue>0</defaultValue>
-			<description>If set to 1, always reboot when a NOTIFY message is 
-				received from the server with event equal to check-sync. If set 
-				to 0, only reboot if any of the files listed in [mac].cfg have 
-				changed on the FTP server when a NOTIFY message is received 
-				from the server with event equal to check-sync. </description>
-		</setting>
-		<setting name="SIP.conference.address">
-			<type>ASCII string up to 128 characters long</type>
-			<defaultValue></defaultValue>
-			<description>If Null, conferences are set up on the phone locally. 
-				If set to some value, conferences are set up by the server 
-				using the conferencing agent specified by this address. The 
-				acceptable values depend on the conferencing server 
-				implementation policy. </description>
-		</setting>
 	</group>
+	<group name="voIpProt.SIP">
+		<label>SIP</label>
+		<group name="local">
+			<label>Port</label>
+			<setting name="port">
+				<label>Local Port</label>
+				<type>0 to 65535</type>
+				<defaultValue>5060</defaultValue>
+				<description>Local port for sending and receiving SIP signaling 
+					packets. If set to 0 or Null, 5060 is used for the local 
+					port but it is not advertised in the SIP signaling. If set 
+					to some other value, that value is used for the local port 
+					and it is advertised in the SIP signaling.</description>
+			</setting>
+		</group>
+		<group name="protocol">
+			<setting name="useRFC2543hold">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, use the obsolete c=0.0.0.0 RFC2543 
+					technique, otherwise, use SDP media direction attributes 
+					(such as a=sendonly) per RFC 3264 when initiating hold. In 
+					either case, the phone processes incoming hold signaling in 
+					either format. </description>
+			</setting>
+			<setting name="lcs">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description> If set to 1, the proprietary 'epid' parameter is 
+					added to the From field of all requests to support Windows 
+					Live Communications Server. </description>
+			</setting>
+			<setting name="sendCompactHdrs">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 0, SIP header names generated by the 
+					phone use the long form, for example 'From'. If set to 1, 
+					SIP header names generated by the phone use the short form, 
+					for example 'f'. </description>
+			</setting>
+			<setting name="WM50">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>Windows Messaging 5.0 Compatability</description>
+			</setting>
+			<setting name="keepalive.sessionTimers">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description></description>
+			</setting>
+			<setting name="requestURI.E164.addGlobalPrefix">
+				<type>string</type>
+				<defaultValue></defaultValue>
+				<description></description>
+			</setting>
+		</group>
+		<group name="alertInfo">
+			<setting name="x.value">
+				<type>string to compare against the value of Alert-Info headers 
+					in INVITE requests</type>
+				<defaultValue></defaultValue>
+				<description>Alert-Info fields from INVITE requests will be 
+					compared against as many of these parameters as are 
+					specified (x=1, 2, ..., N) and if a match is found, the 
+					behavior described in the corresponding ring class will be 
+					applied.</description>
+			</setting>
+			<setting name="x.class">
+				<type>positive integer</type>
+				<defaultValue></defaultValue>
+				<description></description>
+			</setting>
+		</group>
+		<group name="requestValidation">
+			<setting name="x.request">
+				<type>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 
+					'OPTIONS', 'INFO', 'MESSAGE', 'SUB-SCRIBE', 'NOTIFY', 
+					'REFER', 'PRACK', or 'UPDATE'</type>
+				<defaultValue></defaultValue>
+				<description>Sets the name of the method for which validation 
+					will be applied. WARNING: Intensive request validation may 
+					have a negative performance impact due to the additional 
+					signaling required in some cases, therefore, use it 
+					judiciously.</description>
+			</setting>
+			<setting name="x.method">
+				<type>Null or one of: 'source', 'digest' or 'both'/'all'</type>
+				<defaultValue></defaultValue>
+				<description>If Null, no validation is done. Otherwise this 
+					sets the type of validation performed for the request: 
+					source: ensure request is received from an IP address of a 
+					server belonging to the set of target registration servers; 
+					digest: challenge requests with digest authentication using 
+					the local credentials for the associated registration 
+					(line); both or all: apply both of the above methods 
+					</description>
+			</setting>
+			<setting name="x.request.y.event">
+				<type>A valid string</type>
+				<defaultValue></defaultValue>
+				<description>Determines which events specified with the Event 
+					header should be validated; only applicable when voIp- 
+					Prot.SIP.requestValida-tion.x.request is set to 'SUBSCRIBE' 
+					or 'NOTIFY'. If set to Null, all events will be validated. 
+					</description>
+			</setting>
+			<setting name="digest.realm">
+				<type>A valid string</type>
+				<defaultValue>PolycomSPIP</defaultValue>
+				<description>Determines string used for Realm.</description>
+			</setting>
+		</group>
+		<group name="specialEvent">
+			<setting name="lineSeize.nonStandard">
+				<type>0, 1</type>
+				<defaultValue>1</defaultValue>
+				<description>If set to 1, process a 200 OK response for a 
+					line-seize event SUBSCRIBE as though a line-seize NOTIFY 
+					with Subscription State: active header had been received, 
+					this speeds up processing. </description>
+			</setting>
+			<setting name="checkSync.alwaysReboot">
+				<type>0, 1</type>
+				<defaultValue>0</defaultValue>
+				<description>If set to 1, always reboot when a NOTIFY message 
+					is received from the server with event equal to check-sync. 
+					If set to 0, only reboot if any of the files listed in 
+					[mac].cfg have changed on the FTP server when a NOTIFY 
+					message is received from the server with event equal to 
+					check-sync. </description>
+			</setting>
+		</group>
+		<group name="conference">
+			<setting name="address">
+				<type>ASCII string up to 128 characters long</type>
+				<defaultValue></defaultValue>
+				<description>If Null, conferences are set up on the phone 
+					locally. If set to some value, conferences are set up by 
+					the server using the conferencing agent specified by this 
+					address. The acceptable values depend on the conferencing 
+					server implementation policy. </description>
+			</setting>
+		</group>
+	</group>
+	<!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
 	<group name="dialplan">
 		<label>Dial Plan</label>
+		<description>Dialplan for all lines on this phone. Each line may be 
+			configured independenty, see that lines settings.</description>
 		<setting name="impossibleMatchHandling">
 			<type>0, 1 or 2</type>
 			<defaultValue>0</defaultValue>
@@ -1076,61 +1131,55 @@
 			<description>If set to 1, strip trailing # digit from digits sent 
 				out. </description>
 		</setting>
-		<setting name="digitmap">
-			<type>string compatible with the digit map feature of MGCP 
-				described in 2.1.5 of RFC 3435. String is limited to 512 bytes 
-				and 20 seg-ments; a comma is also allowed; when reached in the 
-				digit map, a comma will turn dial tone back on.</type>
-			<defaultValue>[2-9]11|0T| 011xxx.T| [0-1][2- 9]xxxxxxxxx| 
-				[2-9]xxxxxxxxx| [2-9]xxxT</defaultValue>
-			<description>When this attribute is present, number-only dialing 
-				during the setup phase of new calls will be compared against 
-				the patterns therein and if a match is found, the call will be 
-				initiated automatically eliminating the need to press Send. 
-				</description>
-		</setting>
-		<setting name="digitmap.timeOut">
-			<type>positive integer</type>
-			<defaultValue>3</defaultValue>
-			<description>Timeout in seconds for 'T' feature of digitmap. 
-				</description>
-		</setting>
-		<setting name="routing.server.x.address">
-			<type>dotted-decimal IP address or host name</type>
-			<defaultValue></defaultValue>
-			<description>IP address or host name and port of a SIP server that 
-				will be used for routing calls. Multiple servers can be listed 
-				start-ing with x=1, 2, ... for fault tolerance. </description>
-		</setting>
-		<setting name="routing.server.x.port">
-			<type>1 to 65535</type>
-			<defaultValue>5060</defaultValue>
-			<description></description>
-		</setting>
-		<group name="routing.emergency">
-			<label>Emergency</label>
-			<description>In the following attributes, x is the index of the 
-				emergency entry description and y is the index of the server 
-				associated with emergency entry x. For each emergency entry 
-				(index x), one or more server entries (indexes (x,y)) can be 
-				configured. x and y must both use sequential numbering starting 
-				at 1. </description>
-			<setting name="x.value">
-				<type>Comma separated list of entries or single entry 
-					representing a SIP URL or a combination of SIP URLs.</type>
-				<defaultValue>Null Example: '15,17,18', '911', 
-					'sos'.</defaultValue>
-				<description>This determines the URLs that should be watched 
-					for. When one of these defined URLs is detected as having 
-					been dialed by the user, the call will automatically be 
-					directed to the defined emergency server. </description>
+		<group name="digitmap">
+			<label>Digit Map</label>
+			<setting name="digitmap">
+				<type>string compatible with the digit map feature of MGCP 
+					described in 2.1.5 of RFC 3435. String is limited to 512 
+					bytes and 20 segments; a comma is also allowed; when 
+					reached in the digit map, a comma will turn dial tone back 
+					on.</type>
+				<defaultValue>
+					<![CDATA[[2-9]11|0T|011xxx.T|[0-1][2-9]xxxxxxxxx|[2-9]xxxxxxxxx|[2-9]xxxT]]></defaultValue>
+				<description>When this attribute is present, number-only 
+					dialing during the setup phase of new calls will be 
+					compared against the patterns therein and if a match is 
+					found, the call will be initiated automatically eliminating 
+					the need to press Send. </description>
 			</setting>
-			<setting name="x.server.y">
+			<setting name="digitmap.timeOut">
+				<label>Time out</label>
 				<type>positive integer</type>
-				<defaultValue></defaultValue>
-				<description>Index representing the server defined in Servers 
-					that will be used for emergency routing.</description>
+				<defaultValue>3</defaultValue>
+				<description>Timeout in seconds for 'T' feature of digitmap. 
+					</description>
 			</setting>
+			<group name="routing.1">
+				<setting name="address">
+					<type>dotted-decimal IP address or host name</type>
+					<defaultValue></defaultValue>
+					<description>IP address or host name and port of a SIP 
+						server that will be used for routing calls. 
+						</description>
+				</setting>
+				<setting name="port">
+					<type>1 to 65535</type>
+					<defaultValue>5060</defaultValue>
+					<description></description>
+				</setting>
+				<setting name="emergency.1.value">
+					<label>Emergency Numbers</label>
+					<type>Comma separated list of entries or single entry 
+						representing a SIP URL or a combination of SIP 
+						URLs.</type>
+					<defaultValue>911</defaultValue>
+					<description>This determines the URLs that should be 
+						watched for. When one of these defined URLs is detected 
+						as having been dialed by the user, the call will 
+						automatically be directed to the defined emergency 
+						server. </description>
+				</setting>
+			</group>
 		</group>
 	</group>
 	<group name="msg">
@@ -1141,7 +1190,7 @@
 			<type>0, 1</type>
 			<defaultValue>0</defaultValue>
 			<description>If set to 1, the display offering a choice of 'Message 
-				Center' and 'Instant Mes-sages' will be bypassed when pressing 
+				Center' and 'Instant Messages' will be bypassed when pressing 
 				the Messages key, the phone will act as if 'Message Center' was 
 				chosen. See 3.6.1 Voicemail Integration on page 49. Instant 
 				Messages will still be accessible from the Main 

@@ -6,7 +6,7 @@
 #foreach ($line in ${lines})
   #set ($i = $velocityCount)
   #set ($reg = $line.getSetting('reg'))  
-  #foreach ($setting in $reg.Values)
+  #foreach ($setting in $cfg.getRecursiveSettings($reg))
       reg.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
   #end
 	reg.${i}.acd-login-logout="0" 
@@ -18,167 +18,130 @@
 		<autoOffHook 
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
-  #set ($autoOffHook = $line.getSetting('call').getSetting('autoOffHook'))  
-  #foreach ($setting in $autoOffHook.Values)
+  #set ($group = $line.getSetting('call').getSetting('autoOffHook'))  
+  #foreach ($setting in $cfg.getSettings($group))
         call.autoOffHook.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
   #end
 #end	
 />
 		<serverMissedCall 
-		    call.serverMissedCall.1.enabled="0" 
-			call.serverMissedCall.2.enabled="0" 
-			call.serverMissedCall.3.enabled="0" 
-			call.serverMissedCall.4.enabled="0" 
-			call.serverMissedCall.5.enabled="0" 
-			call.serverMissedCall.6.enabled="0"/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('call').getSetting('serverMissedCall'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        call.serverMissedCall.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+/>
 	</call>
+	
 	<divert 
-	    divert.1.contact="" 
-	    divert.1.autoOnSpecificCaller="1" 
-		divert.1.sharedDisabled="1" 
-		divert.2.contact="" 
-		divert.2.autoOnSpecificCaller="1" 
-		divert.2.sharedDisabled="1" 
-		divert.3.contact="" 
-		divert.3.autoOnSpecificCaller="1" 
-		divert.3.sharedDisabled="1" 
-		divert.4.contact="" 
-		divert.4.autoOnSpecificCaller="1" 
-		divert.4.sharedDisabled="1" 
-		divert.5.contact="" 
-		divert.5.autoOnSpecificCaller="1" 
-		divert.5.sharedDisabled="1" 
-		divert.6.contact="" 
-		divert.6.autoOnSpecificCaller="1" 
-		divert.6.sharedDisabled="1">
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('divert'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        divert.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+     >
 		<fwd 
-		    divert.fwd.1.enabled="1" 
-		    divert.fwd.2.enabled="1" 
-			divert.fwd.3.enabled="1" 
-			divert.fwd.4.enabled="1" 
-			divert.fwd.5.enabled="1" 
-			divert.fwd.6.enabled="1"/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('divert').getSetting('fwd'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        divert.fwd.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+		/>
 		<busy 
-		    divert.busy.1.enabled="1" 
-		    divert.busy.1.contact="" 
-			divert.busy.2.enabled="1" 
-			divert.busy.2.contact="" 
-			divert.busy.3.enabled="1" 
-			divert.busy.3.contact="" 
-			divert.busy.4.enabled="1" 
-			divert.busy.4.contact="" 
-			divert.busy.5.enabled="1" 
-			divert.busy.5.contact="" 
-			divert.busy.6.enabled="1" 
-			divert.busy.6.contact=""/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('divert').getSetting('busy'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        divert.busy.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+         />
 		<noanswer 
-		    divert.noanswer.1.enabled="1" 
-		    divert.noanswer.1.timeout="60" 
-			divert.noanswer.1.contact="" 
-			divert.noanswer.2.enabled="1" 
-			divert.noanswer.2.timeout="60" 
-			divert.noanswer.2.contact="" 
-			divert.noanswer.3.enabled="1" 
-			divert.noanswer.3.timeout="60" 
-			divert.noanswer.3.contact="" 
-			divert.noanswer.4.enabled="1" 
-			divert.noanswer.4.timeout="60" 
-			divert.noanswer.4.contact="" 
-			divert.noanswer.5.enabled="1" 
-			divert.noanswer.5.timeout="60" 
-			divert.noanswer.5.contact="" 
-			divert.noanswer.6.enabled="1" 
-			divert.noanswer.6.timeout="60" 
-			divert.noanswer.6.contact=""/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('divert').getSetting('noanswer'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        divert.noanswer.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+        />
 		<dnd 
-		    divert.dnd.1.enabled="0" 
-		    divert.dnd.1.contact="" 
-			divert.dnd.2.enabled="0" 
-			divert.dnd.2.contact="" 
-			divert.dnd.3.enabled="0" 
-			divert.dnd.3.contact="" 
-			divert.dnd.4.enabled="0" 
-			divert.dnd.4.contact="" 
-			divert.dnd.5.enabled="0" 
-			divert.dnd.5.contact="" 
-			divert.dnd.6.enabled="0"
-            divert.dnd.6.contact=""/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('divert').getSetting('dnd'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        divert.dnd.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+        />
 	</divert>
+	
+## SIMILIAR DIALPLAN SECTION EXISTS IN sip.cfg.vm 
+## to control dialplans for all lines
+
 	<dialplan 
-	    dialplan.1.impossibleMatchHandling="0" 
-		dialplan.1.removeEndOfDial="1" 
-		dialplan.2.impossibleMatchHandling="0" 
-		dialplan.2.removeEndOfDial="1" 
-		dialplan.3.impossibleMatchHandling="0" 
-		dialplan.3.removeEndOfDial="1" 
-		dialplan.4.impossibleMatchHandling="0" 
-		dialplan.4.removeEndOfDial="1" 
-		dialplan.5.impossibleMatchHandling="0" 
-		dialplan.5.removeEndOfDial="1" 
-		dialplan.6.impossibleMatchHandling="0" 
-		dialplan.6.removeEndOfDial="1">
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('dialplan'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        dialplan.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+	>
 		<digitmap 
-		    dialplan.1.digitmap="" 
-		    dialplan.1.digitmap.timeOut="" 
-			dialplan.2.digitmap="" 
-			dialplan.2.digitmap.timeOut="" 
-			dialplan.3.digitmap="" 
-			dialplan.3.digitmap.timeOut="" 
-			dialplan.4.digitmap="" 
-			dialplan.4.digitmap.timeOut="" 
-			dialplan.5.digitmap="" 
-			dialplan.5.digitmap.timeOut="" 
-			dialplan.6.digitmap="" 
-			dialplan.6.digitmap.timeOut=""/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('dialplan').getSetting('digitmap'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        dialplan.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+        />
 		<routing>
 			<server 
-			    dialplan.1.routing.server.1.address="" 
-				dialplan.1.routing.server.1.port="" 
-				dialplan.2.routing.server.1.address="" 
-				dialplan.2.routing.server.1.port="" 
-				dialplan.3.routing.server.1.address="" 
-				dialplan.3.routing.server.1.port="" 
-				dialplan.4.routing.server.1.address="" 
-				dialplan.4.routing.server.1.port="" 
-				dialplan.5.routing.server.1.address="" 
-				dialplan.5.routing.server.1.port="" 
-				dialplan.6.routing.server.1.address="" 
-				dialplan.6.routing.server.1.port=""/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
+     dialplan.${i}.routing.server.1.address="$!{group.getSetting('address').ProfileValue}"
+     dialplan.${i}.routing.server.1.port="$!{group.getSetting('port').ProfileValue}"
+#end	
+/>
 			<emergency 
-			    dialplan.1.routing.emergency.1.value="" 
-				dialplan.1.routing.emergency.1.server.1="" 
-				dialplan.2.routing.emergency.1.value="" 
-				dialplan.2.routing.emergency.1.server.1="" 
-				dialplan.3.routing.emergency.1.value="" 
-				dialplan.3.routing.emergency.1.server.1="" 
-				dialplan.4.routing.emergency.1.value="" 
-				dialplan.4.routing.emergency.1.server.1="" 
-				dialplan.5.routing.emergency.1.value="" 
-				dialplan.5.routing.emergency.1.server.1="" 
-				dialplan.6.routing.emergency.1.value="" 
-				dialplan.6.routing.emergency.1.server.1=""/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
+     dialplan.${i}.routing.emergency.1.value="$!{group.getSetting('emergency1.value').ProfileValue}"
+     dialplan.${i}.routing.emergency.1.server.1="1"
+#end
+            />
 		</routing>
 	</dialplan>
-	<msg msg.bypassInstantMessage="0">
+	<msg 
+  #set ($group = $cfg.EndpointSettings.getSetting('msg')) 
+  #foreach ($setting in $cfg.getSettings($group))
+        msg.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+	>
 		<mwi 
-		    msg.mwi.1.subscribe="" 
-		    msg.mwi.1.callBackMode="registration" 
-			msg.mwi.1.callBack="" 
-			msg.mwi.2.subscribe="" 
-			msg.mwi.2.callBackMode="disabled" 
-			msg.mwi.2.callBack="" 
-			msg.mwi.3.subscribe="" 
-			msg.mwi.3.callBackMode="disabled" 
-			msg.mwi.3.callBack="" 
-			msg.mwi.4.subscribe="" 
-			msg.mwi.4.callBackMode="disabled" 
-			msg.mwi.4.callBack="" 
-			msg.mwi.5.subscribe="" 
-			msg.mwi.5.callBackMode="disabled" 
-			msg.mwi.5.callBack="" 
-			msg.mwi.6.subscribe="" 
-			msg.mwi.6.callBackMode="disabled" 
-			msg.mwi.6.callBack=""/>
+#foreach ($line in $lines)
+  #set ($i = $velocityCount)
+  #set ($group = $line.getSetting('msg.mwi'))  
+  #foreach ($setting in $cfg.getSettings($group))
+        msg.mwi.${i}.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+#end	
+        />
 	</msg>
-	<nat nat.ip="" nat.signalPort="" nat.mediaPortStart=""/>
+	<nat 
+  #set ($group = $cfg.EndpointSettings.getSetting('nat')) 
+  #foreach ($setting in $cfg.getSettings($group))
+        nat.${setting.ProfileName}="$!{setting.ProfileValue}"
+  #end
+    />
 </phone1>

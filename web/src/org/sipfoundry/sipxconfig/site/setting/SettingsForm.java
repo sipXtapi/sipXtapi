@@ -22,12 +22,11 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
 public abstract class SettingsForm extends BaseComponent {
     
     /**
-     * Shows only settings, not setting groups
+     * Shows all settings and groups in a flat collection
      */
     private static final SettingFilter FLATTEN_SETTINGS = new SettingFilter() {
-        public boolean acceptSetting(Setting setting) {
-            boolean group = SettingGroup.class.isAssignableFrom(setting.getClass());
-            return !group;
+        public boolean acceptSetting(Setting root_, Setting setting_) {
+            return true;
         }
     };
     

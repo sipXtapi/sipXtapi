@@ -25,7 +25,7 @@ public class PatternSettingFilter implements SettingFilter {
         m_exclude.add(pattern);
     }
     
-    public boolean acceptSetting(Setting setting) {        
+    public boolean acceptSetting(Setting root_, Setting setting) {        
         boolean accept = true;
         
         for (int i = 0; accept && i < m_exclude.size(); i++) {

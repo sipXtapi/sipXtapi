@@ -128,6 +128,12 @@ public class PolycomPhone extends GenericPhone {
                     ConfigurationTemplate.REGISTRATION_SETTINGS);
             reg.getSetting("displayName").setDefaultValue(u.getDisplayId());
         }
+        
+        // See pg. 125 Admin Guide/16 June 2004
+        if (line.getPosition() == 0) {
+            lineModel.getSetting("msg.mwi").getSetting("callBackMode")
+                    .setDefaultValue("registration");
+        }
 
         return lineModel;
     }

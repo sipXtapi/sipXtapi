@@ -46,9 +46,10 @@ public class PhoneConfiguration extends ConfigurationTemplate {
         }
 
         // copy in blank registrations of all unused lines
-        Line blank = new Line();
-        Setting model = phone.getSettingModel(blank);
         for (; i < phone.getMaxLineCount(); i++) {
+            Line blank = new Line();
+            blank.setPosition(i);
+            Setting model = phone.getSettingModel(blank);
             linesSettings.add(model.getCopy(new ValueStorage()));
         }
         
