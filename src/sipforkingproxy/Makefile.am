@@ -6,7 +6,7 @@ sipproxy_CXXFLAGS = $(GLIB_CFLAGS) \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
-sipproxy_LDFLAGS = $(GLIB_LIBS)
+sipproxy_LDADD = $(GLIB_LIBS)
 sipproxy_SOURCES =  \
     SipRouter.cpp \
     ForwardRules.cpp \

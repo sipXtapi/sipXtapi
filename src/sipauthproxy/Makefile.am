@@ -6,7 +6,7 @@ sipauthproxy_CXXFLAGS = $(GLIB_CFLAGS) -I. \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
-sipauthproxy_LDFLAGS = $(GLIB_LIBS)
+sipauthproxy_LDADD = $(GLIB_LIBS)
 sipauthproxy_SOURCES =  \
     sipauthproxymain.cpp \
     SipAaa.cpp \
