@@ -81,7 +81,7 @@ For Redhat Users
   Installing sipX RPMs from SIPfoundry
 
    Download and install the following RPMs from
-   [22]http://www.sipfoundry.org/pub/sipX/FC/2/
+   [22]http://www.sipfoundry.org/pub/sipX/
      * sipx-jboss-4.0.1-1.noarch.rpm this rpm is not available yet - please
        install JBoss 4.0.1 from source
      * sipxportlib
@@ -388,7 +388,7 @@ References
   19. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#windows
   20. http://java.sun.com/j2se/1.4.2/download.html
   21. http://www.sipfoundry.org/pub/sipX/depends/
-  22. http://www.sipfoundry.org/pub/sipX/FC/2/
+  22. http://www.sipfoundry.org/pub/sipX/
   23. http://www.sipfoundry.org/sipXportLib
   24. http://www.sipfoundry.org/sipXtack
   25. http://www.sipfoundry.org/sipXcommserverLib
