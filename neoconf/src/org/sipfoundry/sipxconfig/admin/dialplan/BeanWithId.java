@@ -24,7 +24,6 @@ import org.apache.commons.beanutils.BeanUtils;
  */
 class BeanWithId {
     private static int s_id = 1;
-    private static final Integer DETACHED_ID = new Integer(-1);
 
     private Integer m_id;
 
@@ -59,7 +58,7 @@ class BeanWithId {
     public BeanWithId detach() {
         try {
             BeanWithId clone = (BeanWithId) BeanUtils.cloneBean(this);
-            clone.setId(DETACHED_ID);
+            clone.setId(m_id);
             return clone;
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);

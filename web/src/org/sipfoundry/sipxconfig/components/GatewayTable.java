@@ -46,8 +46,8 @@ public abstract class GatewayTable extends BaseComponent implements PageRenderLi
         String editPageName = getEditPageName();
         EditGateway page = (EditGateway) cycle.getPage(editPageName);
 
-        Gateway currentRow = getCurrentRow();
-        page.setGatewayId(currentRow.getId());
+        Integer id = (Integer) cycle.getServiceParameters()[0];
+        page.setGatewayId(id);
         page.setRuleId(getRuleId());
         page.setNextPage(cycle.getPage().getPageName());        
         cycle.activate(page);

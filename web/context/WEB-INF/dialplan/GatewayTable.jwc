@@ -9,7 +9,7 @@
 	<parameter name="gatewayCollection" 
         type="java.util.Collection" 
         required="yes" 
-        direction="in">
+        direction="auto">
     </parameter>
 
     <parameter name="ruleId" 
@@ -35,8 +35,11 @@
     
     <!-- B E A N S -->           
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+    <bean name="gateway2id" class="org.sipfoundry.sipxconfig.components.Gateway2Id" lifecycle="page">
+        <set-property name="manager">page.global.sipXconfigContext.getBean("dialPlanManager")</set-property>
+    </bean>    
     
-    <!-- B E A N S -->           
+    <!-- C O M P O N E N T S -->           
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="gatewayCollection"/>
         <static-binding name="columns" value="* Name:name,Address:address,Description:description"/>
@@ -44,9 +47,10 @@
     
     <component id="tableColumns" type="contrib:TableColumns"/>
     
-    <component id="tableRows" type="contrib:TableRows">
+    <component id="tableRows" type="contrib:TableFormRows">
 		<binding name="class" expression="beans.rowClass.next"/>
 		<binding name="row" expression="currentRow"/>
+        <binding name="convertor" expression="beans.gateway2id"/>
     </component>
 
     <component id="tableValues" type="contrib:TableValues"/>
@@ -57,8 +61,9 @@
         <binding name="value" expression="currentRow.name"/>
     </component>
     
-    <component id="editRowLink" type="ActionLink">
+    <component id="editRowLink" type="DirectLink">
         <binding name="listener" expression="listeners.edit"/>
+        <binding name="parameters" expression="currentRow.id"/>
     </component>
     
     <component id="selectedRow" type="Checkbox">
