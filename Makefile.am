@@ -46,8 +46,10 @@ EXTRA_DIST = \
     $(editscripts_IN) \
     $(editdata_IN) \
     sipXauthproxy.dsp \
-    sipXforkingProxy.dsp \
-    sipxpbx.spec.in
+    sipXforkingProxy.dsp
+
+# Comment out to fix build, there's no spec file yet
+#    sipxproxy.spec.in
 
 install-exec-hook : editscripts editdata
 
