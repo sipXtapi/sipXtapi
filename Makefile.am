@@ -39,6 +39,7 @@ editdata :
 	echo ""
 
 EXTRA_DIST = \
+	 CONTRIBUTORS \
 	 config/sipX-config.in \
     $(editdata_IN) \
     sipXauthproxy.dsp \
