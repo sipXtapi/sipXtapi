@@ -6,6 +6,9 @@ bin_SCRIPTS = \
 EXTRA_DIST = \
     $(bin_SCRIPTS)
 
+$(top_builddir)/BUILDSTAMP:
+	${MAKE} -C $(top_builddir) BUILDSTAMP
+
 ${PACKAGE}-config: ../config/sipX-config $(top_builddir)/BUILDSTAMP
 	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
 	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
