@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.SelectRuleType">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+        global.sipXconfigContext.getBean("dialPlanManager")
+    </property-specification>
+    
+    <property-specification name="ruleType" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule$Type">
+    </property-specification>    
+    
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    
+    <bean name="ruleTypeModel" 
+        class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
+        lifecycle="page">
+        <set-property name="enumClass" 
+        	expression="@org.sipfoundry.sipxconfig.admin.dialplan.DialingRule$Type@class"/>
+    </bean>
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    
+    <component id="ruleTypeSelection" type="PropertySelection">
+        <binding name="value" expression="ruleType"/>
+        <binding name="model" expression="beans.ruleTypeModel"/>
+    </component>
+    
+    <component id="next" type="Submit">
+        <binding name="listener" expression="listeners.next"/>
+    </component>
+    
+    <!-- gateways configuration -->
+    
+
+    <!--
+	 - A S S E T S
+	 -->	
+</page-specification>

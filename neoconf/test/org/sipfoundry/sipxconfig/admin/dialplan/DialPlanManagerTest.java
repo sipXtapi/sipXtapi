@@ -106,8 +106,8 @@ public class DialPlanManagerTest extends TestCase {
         Collection availableGateways = m_manager.getAvailableGateways(new Integer(-1));
         assertEquals(0, availableGateways.size());
 
-        DialingRule rule1 = new DialingRule();
-        DialingRule rule2 = new DialingRule();
+        DialingRule rule1 = new CustomDialingRule();
+        DialingRule rule2 = new CustomDialingRule();
         m_manager.getFlexDialPlan().addRule(rule1);
         m_manager.getFlexDialPlan().addRule(rule2);
         availableGateways = m_manager.getAvailableGateways(rule1.getId());

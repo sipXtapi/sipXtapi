@@ -17,8 +17,8 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -29,25 +29,20 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
 
-    public abstract IDialingRule getCurrentRow();
+    public abstract DialingRule getCurrentRow();
 
-    public abstract void setCurrentRow(IDialingRule plan);
+    public abstract void setCurrentRow(DialingRule plan);
 
     public abstract Collection getSelectedRows();
 
     public abstract Collection getRowsToDuplicate();
 
     public void add(IRequestCycle cycle) {
-        EditCustomDialRule page = EditCustomDialRule.getPage(cycle);
-        page.setRuleId(null);
-        cycle.activate(page);
+        cycle.activate(SelectRuleType.PAGE);
     }
 
     public void edit(IRequestCycle cycle) {
-        EditCustomDialRule page = EditCustomDialRule.getPage(cycle);
-        IDialingRule currentRow = getCurrentRow();
-        page.setRuleId(currentRow.getId());
-        cycle.activate(page);
+        SelectRuleType.activateEditPage(getCurrentRow(), cycle);
     }
 
     public void formSubmit(IRequestCycle cycle_) {

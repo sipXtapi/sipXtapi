@@ -34,6 +34,7 @@ public class FallbackRulesTest extends XMLTestCase {
         FullTransform t1 = new FullTransform();
         t1.setUser("333");
         t1.setHost(g1.getAddress());
+        t1.setFieldParams(new String[] {"Q=0.97"});
 
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
@@ -56,6 +57,8 @@ public class FallbackRulesTest extends XMLTestCase {
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/user", domDoc);
         assertXpathEvaluatesTo(g1.getAddress(),
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/host", domDoc);
+        assertXpathEvaluatesTo("Q=0.97",
+                "/mappings/hostMatch/userMatch/permissionMatch/transform/fieldparams", domDoc);
 
         control.verify();
     }

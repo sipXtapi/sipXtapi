@@ -22,7 +22,7 @@ import junit.framework.TestCase;
  */
 public class DialingRuleTest extends TestCase {
     public void testDetach() {
-        DialingRule orgRule = new DialingRule();
+        CustomDialingRule orgRule = new CustomDialingRule();
         orgRule.setName("name");
         orgRule.setDescription("description");
         DialingRule detachedRule = (DialingRule) orgRule.detach();
@@ -32,11 +32,11 @@ public class DialingRuleTest extends TestCase {
     }
 
     public void testUpdate() {
-        DialingRule orgRule = new DialingRule();
+        DialingRule orgRule = new CustomDialingRule();
         orgRule.setName("name");
         orgRule.setDescription("description");
 
-        DialingRule newRule = new DialingRule();
+        DialingRule newRule = new CustomDialingRule();
         Integer id = newRule.getId();
         assertFalse(id.equals(orgRule.getId()));
         newRule.update(orgRule);
@@ -46,7 +46,7 @@ public class DialingRuleTest extends TestCase {
     }
 
     public void testDuplicate() {
-        DialingRule orgRule = new DialingRule();
+        DialingRule orgRule = new CustomDialingRule();
         orgRule.setName("name");
         orgRule.setDescription("description");
 

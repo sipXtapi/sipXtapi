@@ -31,7 +31,7 @@ public class FlexibleDialPlan {
     }
 
     boolean removeRule(Integer id) {
-        return m_rules.remove(new DialingRule(id));
+        return m_rules.remove(new BeanWithId(id));
     }
 
     public List getRules() {
@@ -39,7 +39,7 @@ public class FlexibleDialPlan {
     }
 
     private DialingRule getOrgRule(Integer id) {
-        int i = m_rules.indexOf(new DialingRule(id));
+        int i = m_rules.indexOf(new BeanWithId(id));
         if (i < 0) {
             return null;
         }
@@ -54,7 +54,7 @@ public class FlexibleDialPlan {
     public void deleteRules(Collection selectedRows) {
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            m_rules.remove(new DialingRule(id));
+            m_rules.remove(new BeanWithId(id));
         }
     }
 

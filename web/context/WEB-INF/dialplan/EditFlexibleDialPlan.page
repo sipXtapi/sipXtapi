@@ -14,7 +14,7 @@
     </property-specification>
     
     <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule">
+        type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
     </property-specification>
     
 	<property-specification name="selections" 
@@ -42,7 +42,7 @@
     
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="dialPlanManager.flexDialPlan.rules"/>
-        <static-binding name="columns" value="Name:name,Enabled:enabled,Description:description"/>
+        <static-binding name="columns" value="Name:name,Enabled:enabled,Type:type.name,Description:description"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns"/>

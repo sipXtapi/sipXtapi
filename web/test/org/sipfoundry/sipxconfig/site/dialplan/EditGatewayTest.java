@@ -17,10 +17,11 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
  * EditGatewayTest
@@ -55,7 +56,7 @@ public class EditGatewayTest extends TestCase {
 
     public void testSaveAndAssign() {
         // TODO: these should be mocked
-        DialingRule rule = new DialingRule();
+        IDialingRule rule = new CustomDialingRule();
         rule.setName("my rule name");
         FlexibleDialPlan flexDialPlan = m_manager.getFlexDialPlan();
         flexDialPlan.addRule(rule);

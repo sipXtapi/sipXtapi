@@ -16,25 +16,29 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.hibernate.type.Type;
+
+import org.apache.commons.lang.enum.Enum;
+
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**
- * DialingRule
+ * DialingRule At some point it's be replaced by the IDialingRule interface or
+ * made abstract.
  */
-public class DialingRule extends BeanWithId implements IDialingRule {
+public abstract class DialingRule extends BeanWithId implements IDialingRule {
     private boolean m_enabled;
     private String m_name;
     private String m_description;
     private List m_gateways = new ArrayList();
     private List m_permissions = new ArrayList();
+    
+    // TODO: extract to interface?
+    public abstract String[] getPatterns();
 
-    DialingRule(Integer id) {
-        super(id);
-    }
+    public abstract Transform[] getTransforms();
 
-    public DialingRule() {
-        // intentionally empty
-    }
+    public abstract Type getType();
 
     public String getDescription() {
         return m_description;
@@ -68,14 +72,6 @@ public class DialingRule extends BeanWithId implements IDialingRule {
         m_gateways = gateways;
     }
 
-    public String[] getPatterns() {
-        return new String[] {};
-    }
-
-    public Transform[] getTransforms() {
-        return new Transform[] {};
-    }
-
     public List getPermissions() {
         return m_permissions;
     }
@@ -83,7 +79,7 @@ public class DialingRule extends BeanWithId implements IDialingRule {
     public void setPermissions(List permissions) {
         m_permissions = permissions;
     }
-    
+
     /**
      * @return list of Gateway objects representing source hosts
      */
@@ -103,6 +99,22 @@ public class DialingRule extends BeanWithId implements IDialingRule {
         for (Iterator i = selectedGateways.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             m_gateways.remove(new Gateway(id));
+        }
+    }
+
+    /**
+     * Dialing rules type.
+     */
+    public static final class Type extends Enum {
+        public static final Type CUSTOM = new Type("Custom");
+        public static final Type LOCAL = new Type("Local");
+        public static final Type INTERNAL = new Type("Internal");
+        public static final Type LONG_DISTANCE = new Type("Long Distance");
+        public static final Type RESTRICTED = new Type("Restricted");
+        public static final Type TOLL_FREE = new Type("Toll free");
+
+        private Type(String name) {
+            super(name);
         }
     }
 }

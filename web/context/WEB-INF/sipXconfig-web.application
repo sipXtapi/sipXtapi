@@ -21,6 +21,7 @@
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
+    <page name="EditInternalDialRule" specification-path="dialplan/EditInternalDialRule.page"/>
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
@@ -33,6 +34,7 @@
     <page name="PhoneLines" specification-path="phone/PhoneLines.page"/>
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
+    <page name="SelectRuleType" specification-path="dialplan/SelectRuleType.page"/>
 
     <!--
       -  C O M P O N E N T S

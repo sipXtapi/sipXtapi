@@ -2,7 +2,7 @@
 <!DOCTYPE page-specification
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditCustomDialRule">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditInternalDialRule">
 	<!--
 	  - P R O P E R T I E S
 	  -->
@@ -18,12 +18,12 @@
     
     <property-specification name="rule" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
-    </property-specification>    
-
-    <!-- used by removeGateways submit button-->
+    </property-specification>
+    
+    <!-- not used on this page -->
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>    
-    
+
     <!--
      - B E A N S
      -->
@@ -34,7 +34,7 @@
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
     
-    <bean name="permissionsModel" 
+    <bean name="extensionLenModel" 
         class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
         lifecycle="page">
         <set-property name="enumClass" 
@@ -53,19 +53,9 @@
         <binding name="rule" expression="rule"/>
     </component>
     
-    <component id="permissions" type="contrib:MultiplePropertySelection">
-        <binding name="selectedList" expression="rule.permissions"/>
-        <binding name="model" expression="beans.permissionsModel"/>
-    </component>
     
-    <component id="patterns" type="PatternsEditor">
-        <binding name="patterns" expression="rule.dialPatterns"/>
-    </component>
     
-    <component id="call_pattern" type="CallPatternEditor">
-        <binding name="pattern" expression="rule.callPattern"/>
-    </component>
-
+    
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
     </component>
@@ -73,26 +63,6 @@
         <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
     </component>
     
-    <!-- gateways configuration -->
-    
-    <component id="gatewayTable" type="GatewayTable">
-        <binding name="gatewayCollection" expression="rule.gateways"/>
-        <binding name="dialPlanId" expression="rule.id"/>
-        <static-binding name="editPageName" value="EditGateway"/>
-    </component>
-    <component id="addGatewayLink" type="LinkSubmit">
-        <binding name="listener" expression="listeners.addGateway"/>
-        <static-binding name="parameters" value="normal"/>
-    </component>
-    <component id="selectGatewayLink" type="LinkSubmit">
-        <binding name="listener" expression="listeners.selectGateway"/>
-        <static-binding name="parameters" value="normal"/>
-    </component>
-    <component id="removeGateways" type="Submit">
-        <binding name="selected" expression="removeGateways"/>
-        <static-binding name="tag" value="normal"/>
-    </component>    
-
     <!--
 	 - A S S E T S
 	 -->	

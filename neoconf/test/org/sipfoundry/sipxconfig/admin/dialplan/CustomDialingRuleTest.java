@@ -66,7 +66,7 @@ public class CustomDialingRuleTest extends TestCase {
         for (int i = 0; i < GATEWAYS.length; i++) {
             assertTrue(transforms[i] instanceof FullTransform);
             FullTransform full = (FullTransform) transforms[i];
-            assertNotNull(full.getFieldParams());
+            assertTrue(full.getFieldParams()[0].startsWith("Q="));
             assertEquals(GATEWAYS[i], full.getHost());
             assertTrue(full.getUser().startsWith("999"));
         }

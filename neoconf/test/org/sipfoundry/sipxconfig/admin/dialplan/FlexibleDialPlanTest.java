@@ -21,8 +21,9 @@ import junit.framework.TestCase;
 public class FlexibleDialPlanTest extends TestCase {
 
     public void testAddRule() {
-        DialingRule r1 = new DialingRule();
-        IDialingRule r2 = new DialingRule();
+        // TODO - replace with IDialingRule mocks
+        IDialingRule r1 = new CustomDialingRule();
+        IDialingRule r2 = new CustomDialingRule();
         Integer id1 = r1.getId();
         
         FlexibleDialPlan plan = new FlexibleDialPlan();

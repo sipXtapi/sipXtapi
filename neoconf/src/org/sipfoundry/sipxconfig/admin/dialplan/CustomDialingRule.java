@@ -95,4 +95,8 @@ public class CustomDialingRule extends DialingRule {
             return result;
         }
     }
+
+    public Type getType() {
+        return Type.CUSTOM;
+    }
 }
