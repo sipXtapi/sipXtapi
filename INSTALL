@@ -177,6 +177,11 @@ Installing From Source and Non-Redhat Users
 
   JBOSS Setup
 
+   If you've installed JBoss from [32]the RPM found on sipfoundry website
+   then add user 'sipxchange' (or user defined SIPXPBXUSER) to the jboss
+   user group and skip the next few steps about patching JBoss and Tomcat
+   and skip to setting up your database
+
    After unzipping JBoss
     1. run this patch on it
       patch -d ${JBOSS_HOME} -p1 < sipx-jboss-configure.patch
@@ -304,7 +309,7 @@ e/profile/tftproot"
 
    New module for developing support for new phone devices. Although this
    module is intended to be a foundation for a new system architecture
-   for entire project. See [32]Neoconf for installation procedure and
+   for entire project. See [33]Neoconf for installation procedure and
    necessary software dependencies.
 
 Running
@@ -417,4 +422,5 @@ References
   29. http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip
   30. http://www.springframework.org/download.html
   31. http://ant.apache.org/
-  32. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/neoconf.html
+  32. http://www.sipfoundry.org/pub/sipX/depends/
+  33. file://localhost/home/dhubler/work/main/sipXconfig/doc/src/manual/neoconf.html

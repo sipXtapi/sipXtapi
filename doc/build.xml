@@ -110,7 +110,7 @@
 	      - Issues warning:
 	      -    DEPRECATED - the style attribute should be ...
 	      -
-	      -  but this is required to strip 'src/manual' from destination
+	      -  but this is required to strip 'src/neoconf-prototype' from destination
 	      -  directory.
 	      -->
 		<style basedir="${src.dir}/neoconf-prototype" destdir="${neoconf-prototype.dir}" extension=".html" style="neoconf.xsl">
