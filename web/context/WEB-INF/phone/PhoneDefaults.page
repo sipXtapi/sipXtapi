@@ -21,9 +21,9 @@
     <property-specification name="phoneId" 
         type="java.lang.String"/>
     <property-specification name="phoneMetaStorage"
-        type="org.sipfoundry.sipxconfig.setting.MetaStorage"/>
+        type="org.sipfoundry.sipxconfig.setting.Folder"/>
     <property-specification name="lineMetaStorage"
-        type="org.sipfoundry.sipxconfig.setting.MetaStorage"/>
+        type="org.sipfoundry.sipxconfig.setting.Folder"/>
     <property-specification name="editSetting" 
         type="org.sipfoundry.sipxconfig.setting.Setting"/>    
     <!--
