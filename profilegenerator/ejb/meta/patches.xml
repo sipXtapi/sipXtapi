@@ -128,7 +128,7 @@
                        description="New property definitions for QOS, Locale"/>
 	</version>
 	
-	<version number="8"><!-- 2.6.1 to 2.6.2 -->
+	<version number="8"><!-- 2.6.1 to 2.7 -->
 		<patch number="80" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
 			args="script=/v8_mods.sql"
                        description="Object model changes to support phone plugin architecture"/>

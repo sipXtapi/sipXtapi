@@ -19,11 +19,11 @@ public class CoreDaoImplTestDb extends TestCase {
 
     private CoreDao m_dao;
     
-    private Organization m_testOrganization;
+    private Endpoint m_teardownEndpoint;
     
-    private Endpoint m_testPhone;
-    
-    private User m_testUser;
+    private EndpointAssignment m_teardownAssignment;
+
+    private UnitTestDao m_testData;       
     
     /*
      * @see TestCase#setUp()
@@ -36,33 +36,41 @@ public class CoreDaoImplTestDb extends TestCase {
         // now use some bean from factory 
         m_dao = (CoreDao) bf.getFactory().getBean("coreDao");
         assertNotNull(m_dao);
+        
+        m_testData = (UnitTestDao) bf.getFactory().getBean("testData");
+        assertNotNull(m_testData);
+        assertTrue(m_testData.initializeImmutableData());
+    }
+    
+    protected void tearDown() throws Exception {
+        if (m_teardownEndpoint != null) {
+            m_dao.deleteEndpointAssignment(m_teardownAssignment);
+        }
+        if (m_teardownEndpoint != null) {
+            m_dao.deleteEndpoint(m_teardownEndpoint);
+        }
+        assertTrue(m_testData.verifyDataUnaltered());
     }
     
     public void testStore() {  
         
-        Organization org = m_dao.loadOrganization(1);
+        Organization org = m_dao.loadRootOrganization();
         assertEquals(1, org.getId());
-        
-        User user = new User();
-        user.setFirstName("First Name");
-        user.setOrganization(org);
-        user.setPassword("h4ck3rs");        
-        m_dao.storeUser(user);
+                       
+        User user = m_dao.loadUser(m_testData.getTestUserId());
 
         Endpoint endpoint = new Endpoint();
-        endpoint.setSerialNumber("0000000000000");
-        endpoint.setName("CoreDaoImplTest");
-        endpoint.setUser(user);
+        // assumption that this is unique
+        endpoint.setSerialNumber("f34298760024fcc1"); 
+        endpoint.setPhoneId("unittest - CoreDaoImplTestDb");
         m_dao.storeEndpoint(endpoint);
+        m_teardownEndpoint = endpoint;
         
-        Line line = new Line();
-        line.setName("joe");
-        line.setUser(user);
-        
-        // TODO 
-        //m_dao.delete(user);
-        //m_dao.delete(endpoint);
-        
-        // TODO check they are truly deleted
+        EndpointAssignment assignment = new EndpointAssignment();
+        assignment.setUser(user);
+        assignment.setEndpoint(endpoint);
+        assignment.setLabel("work phone");
+        m_dao.storeEndpointAssignment(assignment);                
+        m_teardownAssignment = assignment;
     }
 }

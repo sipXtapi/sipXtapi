@@ -12,21 +12,32 @@
 package org.sipfoundry.sipxconfig.core;
 
 /**
- * Comments
+ * Create/Retrieve/Update/Delete for Object in core
+ * package that r/w to a database.
  */
 public interface CoreDao {
 
-    public Endpoint loadEndpoint(int id);
-    
-    public Organization loadOrganization(int id);
+    public Organization loadRootOrganization();
+
     
     public User loadUser(int id);
     
-    public Line loadLine(User user, int position);
     
-    public void storeUser(User user);
-
+    public Endpoint loadEndpoint(int id);
+    
     public void storeEndpoint(Endpoint endpoint);
 
+    public void deleteEndpoint(Endpoint endpoint);
+    
+    /* To come...not tests yet, so it doesn't exist yet
+    public Line loadLine(User user, int position);
+
     public void storeLine(Line line);
+    */
+    
+    public void storeEndpointAssignment(EndpointAssignment assignment);
+    
+    public EndpointAssignment loadEndpointAssignment(int assignmentId);
+
+    public void deleteEndpointAssignment(EndpointAssignment assignment);
 }

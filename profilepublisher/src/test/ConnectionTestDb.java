@@ -19,7 +19,7 @@ import java.sql.Connection;
 /**
  * Connect to DB using SDS connection pooling
  */
-public class DbConnectionTest extends TestCase 
+public class ConnectionTestDb extends TestCase 
 {
     String m_driverClassname = "org.postgresql.Driver";
 

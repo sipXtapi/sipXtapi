@@ -11,9 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
@@ -21,22 +18,36 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class CoreDaoImpl extends HibernateDaoSupport implements CoreDao {
     
-    public void storeUser(User user) {
-        getHibernateTemplate().saveOrUpdate(user);        
-    }
-
+    public User loadUser(int id) {
+        return (User) getHibernateTemplate().load(User.class, new Integer(id));        
+    }    
+    
     public void storeEndpoint(Endpoint endpoint) {
         getHibernateTemplate().saveOrUpdate(endpoint);        
     }
     
-    public void storeLine(Line line) {
-        getHibernateTemplate().saveOrUpdate(line);        
+    public void deleteEndpoint(Endpoint endpoint) {
+        getHibernateTemplate().delete(endpoint);        
     }
 
     public Endpoint loadEndpoint(int id) {
         return (Endpoint) getHibernateTemplate().load(Endpoint.class, new Integer(id));
     }
     
+    public void storeEndpointAssignment(EndpointAssignment assignment) {
+        getHibernateTemplate().saveOrUpdate(assignment);        
+    }
+    
+    public EndpointAssignment loadEndpointAssignment(int assignmentId) {    
+        return (EndpointAssignment) getHibernateTemplate().load(EndpointAssignment.class, 
+                new Integer(assignmentId));            
+    }
+    
+    public void deleteEndpointAssignment(EndpointAssignment assignment) {
+        getHibernateTemplate().delete(assignment);        
+    }
+
+/*
     public Line loadLine(User user, int position) {
         String query = "from Line where user_id = " + user.getId()
                 + " and position = " + position;
@@ -44,13 +55,13 @@ public class CoreDaoImpl extends HibernateDaoSupport implements CoreDao {
         
         return (Line) requireOneOrZero(line, query);
     }
-    
+    */
+
     /**
      * @throws IllegalStateException if more than one item in collection 
      * @param c
      * @param query
      * @return
-     */
     Object requireOneOrZero(Collection c, String query) {
         if (c.size() > 2) {
             // DatabaseCorruptionExection ?
@@ -61,13 +72,10 @@ public class CoreDaoImpl extends HibernateDaoSupport implements CoreDao {
         Iterator i = c.iterator();
         
         return (i.hasNext() ? c.iterator().next() : null);
-    }
-    
-    public Organization loadOrganization(int id) {
-        return (Organization) getHibernateTemplate().load(Organization.class, new Integer(id));        
-    }
-    
-    public User loadUser(int id) {
-        return (User) getHibernateTemplate().load(User.class, new Integer(id));        
     }    
+     */
+    
+    public Organization loadRootOrganization() {
+        return (Organization) getHibernateTemplate().load(Organization.class, new Integer(1));        
+    }
 }

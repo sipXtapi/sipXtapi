@@ -37,8 +37,24 @@ public class User {
     private String m_extension;
 
     private String m_profileEncryptionKey;
-    
+
     private Set m_lines;
+
+    private Set m_assignedEndpoints;
+
+    /**
+     * @return Returns the assignedEndpoints.
+     */
+    public Set getAssignedEndpoints() {
+        return m_assignedEndpoints;
+    }
+
+    /**
+     * @param assignedEndpoints The assignedEndpoints to set.
+     */
+    public void setAssignedEndpoints(Set assignedEndpoints) {
+        m_assignedEndpoints = assignedEndpoints;
+    }
 
     public int getId() {
         return m_id;
@@ -119,11 +135,11 @@ public class User {
     public void setProfileEncryptionKey(String profileEncryptionKey) {
         m_profileEncryptionKey = profileEncryptionKey;
     }
-    
+
     public Set getLines() {
         return m_lines;
     }
-    
+
     public void setLines(Set lines) {
         m_lines = lines;
     }

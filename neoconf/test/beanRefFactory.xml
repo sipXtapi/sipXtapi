@@ -10,11 +10,12 @@
        <list>
          <value>org/sipfoundry/sipxconfig/core/applicationContext-coredao.xml</value>
          <value>org/sipfoundry/sipxconfig/core/applicationContext-core.xml</value>
+         <value>org/sipfoundry/sipxconfig/core/applicationContext-unittest-dao.xml</value>
          <value>PhoneFactory.xml</value>		 
        </list>
      </constructor-arg>
    </bean>
-
+   
    <!-- CoreDao must be mocked in unittest -->   
    <bean id="unittest"
         class="org.springframework.context.support.ClassPathXmlApplicationContext">
