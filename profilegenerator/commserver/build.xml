@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="commserver" default="jar" basedir=".">
-
-  <patternset id="test.classes">
-     <include name="**/*Test.class"/>
-  </patternset>
+<project name="commserver" default="default" basedir=".">
 
   <property name="project.dir" value="profilegenerator/commserver"/>
   <import file="../../ant-targets.xml"/>
@@ -29,6 +25,9 @@
 
   <property name="classpath" refid="base.path" />
 
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
+
   <!-- J A R -->
   <target name="jar" depends="compile" description="build jar" >
     <jar jarfile="${commserver.jar}" >
@@ -49,6 +48,9 @@
     </copy>
 
   </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
 
 </project>
 

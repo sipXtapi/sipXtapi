@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="profilepublisher" default="jar" basedir="." >
-
-  <patternset id="test.classes" excludes="**"/>
-  <patternset id="regression.classes">
-    <include name="DbConnectionTest.class"/>
-  </patternset>
+<project name="profilepublisher" default="default" basedir="." >
 
   <property name="project.dir" value="profilepublisher"/>
   <import file="../ant-targets.xml"/>
@@ -20,6 +15,7 @@
     <pathelement location="${profilegen-ejb.jar}"/>
 
     <!-- UTIL -->
+    <pathelement location="${jdbc-driver.jar}"/>
     <pathelement location="${commons-pool.jar}"/>
     <pathelement location="${commons-dbcp.jar}"/>
     <pathelement location="${commons-collections.jar}"/>
@@ -31,6 +27,9 @@
     <pathelement location="${jdom.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
 
   <!-- C O M P I L E -->
   <target name="compile" depends="ant-targets.compile" >
@@ -86,4 +85,7 @@
 
   </target>
  
+  <!-- STUBS -->
+  <target name="style"/>
+
 </project>

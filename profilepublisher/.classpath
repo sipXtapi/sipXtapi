@@ -11,5 +11,6 @@
 	<classpathentry kind="src" path="/sipXconfig-profilegenerator"/>
 	<classpathentry kind="var" path="JBOSS_HOME/jboss/client/jboss-j2ee.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/jboss-jaas.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

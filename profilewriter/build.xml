@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="profilewriter" default="jar" basedir="." >
-
-  <patternset id="test.classes" excludes="**"/>
+<project name="profilewriter" default="default" basedir="." >
 
   <property name="project.dir" value="profilewriter"/>
   <import file="../ant-targets.xml"/>
@@ -16,6 +14,9 @@
   </path>
   <property name="classpath" refid="base.path" />
 
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
 
   <!-- C O M P I L E -->
   <target name="compile" depends="init" >
@@ -88,6 +89,9 @@
     </replace>
 
   </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
 
 </project>
 

@@ -2,12 +2,12 @@
 
 <project name="authentication" default="jar" basedir="." >
 
+  <property name="project.dir" value="profilegenerator/authentication"/>
+  <import file="../../ant-targets.xml"/>
+
   <patternset id="test.classes" 
   	includes="**/*Test.class" 
   	excludes="**/SIPxchangeLoginModuleTest.class"/>
-
-  <property name="project.dir" value="profilegenerator/authentication"/>
-  <import file="../../ant-targets.xml"/>
 
   <path id="base.path">
   	  <!-- J2EE -->

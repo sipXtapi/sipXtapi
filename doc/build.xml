@@ -195,6 +195,9 @@
 
 	<!-- S T U B S -->
 	<target name="test" />
+        <target name="test-db"/>
+        <target name="test-all"/>
+
 	<target name="style" />
 
 </project>

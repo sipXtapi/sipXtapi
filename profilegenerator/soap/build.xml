@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="soap" default="war" basedir=".">
-
-  <patternset id="test.classes" excludes="**"/>
+<project name="soap" default="default" basedir=".">
 
   <property name="project.dir" value="profilegenerator/soap"/>
   <import file="../../ant-targets.xml"/>
@@ -27,6 +25,9 @@
     <pathelement location="${saaj.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="war"/>
 
   <!-- I N I T -->
   <target name="init" depends="ant-targets.init">
@@ -76,6 +77,9 @@
     <chmod file="${data.bin.dir}/sipx_import.pl" perm="ugo+x"/>
     
   </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
 
 </project>
 

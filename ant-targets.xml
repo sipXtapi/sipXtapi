@@ -16,8 +16,6 @@
     -
     - EXTERNAL PROPERTIES DEPENDECIES:
     -  project.dir          = path relative to ant-targets.xml to project
-    -  test.classes         = Patterset of explicit junit tests for quick test
-    -  regression.classes   = Patterset of explicit junit tests for full regression test 
     -->
   <dirname property="ant-targets.basedir" file="${ant.file.ant-targets}"/>
   <property file="${ant-targets.basedir}/top.build.dir"/>
@@ -29,7 +27,7 @@
   <property name="api.dir" value="${top.build.dir}/doc/api/${ant.project.name}" />
   <property name="test.results.dir" value="${build.dir}/test-results" />
   <property name="test.classes.dir" value="${build.dir}/tests"/>
-  
+  <property name="clover.dir" value="${build.dir}/clover"/>
 
   <!-- 
     - going forward this default will change to just 'test'
@@ -70,19 +68,25 @@
   <!-- Added for Clover testing -->
   <property name="clover.excludes" value=""/>
 
-  <target name="with.clover" description="Enables code coverage instrumentation">
+  <target name="with.clover" if="with.clover"
+         description="Enables code coverage instrumentation">
     <taskdef resource="clovertasks"/>
-    <mkdir dir="${build.dir}/clover/db"/>
-    <mkdir dir="${build.dir}/clover/html"/>
-    <clover-setup initString="${build.dir}/clover/db/csdb">
+    <mkdir dir="${clover.dir}/db"/>
+    <mkdir dir="${clover.dir}/html"/>
+    <clover-setup initString="${clover.dir}/db/csdb">
       <files>
         <exclude name="**/*Test.java"/> 
       </files>
-  </clover-setup> 
-    <property name="clover.html.dir" location="${build.dir}/clover/html"/>
+    </clover-setup> 
+    <property name="clover.html.dir" location="${clover.dir}/html"/>
   </target>
 
-  <target name="clover.report" depends="with.clover">
+  <target name="with.clover.enabled" 
+        description="Internal - enabled targets that imply user wants clover on clover">
+    <property name="with.clover" value="on"/>
+  </target>
+
+  <target name="clover.report" depends="with.clover.enabled,with.clover">
     <clover-report>
       <current outfile="${clover.html.dir}">
         <format type="html"/>
@@ -90,7 +94,7 @@
     </clover-report>
   </target>
 
-  <target name="clover.viewer" depends="with.clover">
+  <target name="clover.viewer" depends="with.clover.enabled,with.clover">
     <clover-view/>
   </target> 
  
@@ -152,7 +156,7 @@
   <!-- 
    - C O M P I L E 
    -->
-  <target name="compile" depends="init"
+  <target name="compile" depends="init,with.clover"
       description="[internal] Compile all files in src directory">
 
     <javac srcdir="${src.dir}"
@@ -174,6 +178,7 @@
     <delete dir="${test.classes.dir}"/>
     <delete dir="${test.results.dir}"/>
     <delete dir="${dist.dir}"/>
+    <delete dir="${clover.dir}"/>
   </target>
 
 
@@ -193,7 +198,7 @@
     <available file="${test.src.dir}" type="dir" property="tests.present"/>
   </target>
 
-  <target name="compile.test" depends="check.compile.test,compile,init" if="tests.present"
+  <target name="compile.test" depends="check.compile.test,compile,init,with.clover" if="tests.present"
         description="[internal] compile tests">
 
     <javac srcdir="${test.src.dir}"
@@ -253,6 +258,16 @@
   </target>
 
 
+  <path id="test.path">
+    <pathelement location="${clover.jar}"/> 
+    <pathelement path="${classpath}"/>
+    <pathelement location="${classes.dir}"/>
+    <pathelement location="${test.classes.dir}"/>
+    <pathelement location="${src.dir}/test"/> 
+    <pathelement location="${src.dir}"/>
+    <pathelement location="${test.src.dir}"/>
+  </path>
+
   <!--
     - U N I T T E S T 
     -->
@@ -260,16 +275,7 @@
        description="run junit tests">
 
     <junit fork="yes" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
-      <classpath>
-        <pathelement location="${clover.jar}"/> 
-        <pathelement path="${classpath}"/>
-        <pathelement location="${classes.dir}"/>
-        <pathelement location="${test.classes.dir}"/>
-        <pathelement location="${src.dir}/test"/> 
-	<!-- resource files -->
-        <pathelement location="${src.dir}"/>
-        <pathelement location="${test.src.dir}"/>
-      </classpath>
+      <classpath refid="test.path"/>
       <formatter type="plain"/>
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
@@ -290,16 +296,7 @@
        description="run junit tests that interact with database">
 
     <junit fork="yes" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
-      <classpath>
-        <pathelement location="${clover.jar}"/> 
-        <pathelement path="${classpath}"/>
-        <pathelement location="${classes.dir}"/>
-        <pathelement location="${test.classes.dir}"/>
-        <pathelement location="${src.dir}/test"/> 
-    	<!-- resource files -->
-        <pathelement location="${src.dir}"/>
-        <pathelement location="${test.src.dir}"/>
-      </classpath>
+      <classpath refid="test.path"/>
       <formatter type="plain"/>
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
@@ -313,26 +310,23 @@
   </target>
 
   <!--
-    - R E G R E S S I O N  U N I T T E S T 
+    - A L L   U N I T T E S T S
     - This is unittests that generallly take a while to run or
     - require that your machine is setup, for example database, 
     - webserver, etc
     -->
-  <target name="regression" depends="compile.test"
-       description="run regression junit tests">
+  <target name="test-all" depends="compile.test"
+       description="run all junit tests">
 
     <junit fork="yes" haltonfailure="yes" printsummary="on">
-      <classpath>
-        <pathelement path="${classpath}"/>
-        <pathelement location="${classes.dir}"/>
-        <pathelement location="${test.classes.dir}"/>
-      </classpath>
+      <classpath refid="test.path"/>
       <formatter type="plain"/>
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
       <batchtest todir="${test.results.dir}">
         <fileset dir="${test.classes.dir}"> 
-          <patternset refid="regression.classes"/>
+          <patternset refid="test.classes"/>
+          <patternset refid="test-db.classes"/>
         </fileset>
       </batchtest>
     </junit>        

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="ejb" default="jar" basedir=".">
-
-  <patternset id="test.classes">
-    <include name="**/*Test.class"/>
-  </patternset>
+<project name="ejb" default="default" basedir=".">
 
   <property name="project.dir" value="profilegenerator/ejb"/>
   <import file="../../ant-targets.xml"/>
@@ -37,6 +33,9 @@
 
   </path>
   <property name="classpath" refid="base.path" />
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
 
   <!-- J A R S -->
   <target name="jar" depends="profilegen-ejb,profilegen-patch,profilegen-client,mdbinterceptor" 
@@ -129,6 +128,9 @@
         </fileset>
      </jar>
   </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
 
 </project>
 

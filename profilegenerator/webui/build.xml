@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="webui" default="war" basedir=".">
-
-  <patternset id="test.classes" excludes="**"/>
+<project name="webui" default="default" basedir=".">
 
   <property name="project.dir" value="profilegenerator/webui"/>
   <import file="../../ant-targets.xml"/>
@@ -26,6 +24,9 @@
     <pathelement location="${jboss.ext}/jboss-j2ee.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="war"/>
 
   <target name="init" depends="ant-targets.init" >
     <mkdir dir="${dist.dir}/war-root" />
@@ -96,6 +97,9 @@
       <fileset dir="site/xslt"/>
     </copy>
   </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
 
 </project>
 

@@ -10,7 +10,7 @@
   -    composite project can not have it's own src as well
   -
   -->
-<project name="ant-targets" default="default" basedir="." >
+<project name="subant-targets" default="default" basedir="." >
 
   <!-- 
     -  P R O P E R T I E S
@@ -32,30 +32,30 @@
 
 
   <!-- C L E A N -->
-  <target name="clean" if="subdirs"
+  <target name="clean" 
         description="[internal] recurse w/clean target">
     <my.subant target="clean"/>
   </target>
 
 
   <!-- I N S T A L L -->
-  <target name="install" if="subdirs">
+  <target name="install" >
     <my.subant target="install"/>
   </target>
 
   <!-- U N I N S T A L L -->
-  <target name="uninstall" if="subdirs">
+  <target name="uninstall" >
     <my.subant target="install"/>
   </target>
   
   <!-- C H E C K S T Y L E -->
-  <target name="style" if="subdirs" 
+  <target name="style"  
        description="run checkstyle">
     <my.subant target="style"/>
   </target>
 
   <!-- J A V A D O C -->
-  <target name="doc" if="subdirs"
+  <target name="doc" 
       description="[internal] recurse w/given target">
     <my.subant target="doc"/>
   </target>
@@ -63,26 +63,33 @@
   <!--
     - U N I T T E S T 
     -->
-  <target name="test" if="subdirs" 
+  <target name="test"  
        description="run junit tests">
     <my.subant target="test"/>
   </target>
 
-  <!--
-    - R E G R E S S I O N  U N I T T E S T 
-    - This is unittests that generallly take a while to run or
-    - require that your machine is setup, for example database, 
-    - webserver, etc
-    -->
-  <target name="regression" if="subdirs" 
-       description="run regression junit tests">
-    <my.subant target="regression"/>
+  <target name="test-db"  
+       description="run junit tests that require database to be setup and running">
+    <my.subant target="test-db"/>
+  </target>
+
+  <target name="test-all"  
+       description="run all possible junit tests">
+    <my.subant target="test-all"/>
+  </target>
+
+  <!-- 
+    - C L O V E R 
+   -->
+  <target name="with.clover"
+       description="Enables code coverage instrumentation">
+    <my.subant target="with.clover"/>
   </target>
 
   <!--
     - U N I T T E S T   R E P O R T
     -->
-  <target name="test-report" if="subdirs"
+  <target name="test-report" 
       description="[internal] recurse">
     <my.subant target="test-report"/>
   </target>
@@ -100,11 +107,6 @@
         <!-- may be tempted to use patternset, but order is not 
              preserved -->
         <filelist refid="${subdirs}"/>
-      	<reference refid="clover.files"/>
-      	<propertyset>
-          <propertyref prefix="clover"/>
-          <propertyref prefix="build.compiler"/>
-        </propertyset>
       </subant>
     </presetdef>
 

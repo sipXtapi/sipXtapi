@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="deploy" default="ear" basedir=".">
-
-  <patternset id="test.classes" excludes="**"/>
+<project name="deploy" default="default" basedir=".">
 
   <property name="project.dir" value="profilegenerator/deploy"/>
   <import file="../../ant-targets.xml"/>
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="ear"/>
 
   <target name="init">
     <mkdir dir="${dist.dir}" />
@@ -71,6 +72,9 @@
 
   <!-- STUB -->
   <target name="test"/>
+  <target name="test-db"/>
+  <target name="test-all"/>
+
   <target name="doc"/>
 
 </project>

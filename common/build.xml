@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="common" default="jar" basedir="." >
+<project name="common" default="default" basedir="." >
+
   <!-- Note: 
   	There are some tests that are broken in this project: a pattern for them is **/Test*.class
   	All new tests (**/*Test.class) have to be functional at all times.
   -->
-  <patternset id="test.classes">
-  	<include name="**/*Test.class"/>
-  </patternset>
   	
   <property name="project.dir" value="common"/>
   <import file="../ant-targets.xml"/>
@@ -34,6 +32,9 @@
     <!-- path refid="neoconf.runtime.dependencies"/ -->
   </path>
   <property name="classpath" refid="base.path" />
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
 
   <!-- I N I T -->
   <target name="init" depends="ant-targets.init">
@@ -124,5 +125,8 @@
     <copy file="${common.jar}" todir="${dest.dir}${sipxconfig.lib.dir}"/>
 
   </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
 
 </project>
