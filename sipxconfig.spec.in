@@ -14,6 +14,7 @@ Url: http://www.sipfoundry.org/sipXconfig
 %define profiledir /var/www/html/phone/profile
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
+%define sipxpbxconf %{_sysconfdir}/sipxpbx
 
 # Unfortunately because of Java's .so's  TODO: Figure out a way to 
 # tell rpm find-requires to find java's so
@@ -84,8 +85,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{profiledir}/tftproot
 
 # Because of generation of config files via config.defs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
-%config %{_sysconfdir}/sipxpbx/*
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}
+%config %{sipxpbxconf}/*
 
 %{_datadir}/sipxpbx
 
@@ -98,7 +99,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/groupadd -r @SIPXPBXUSER@ 2> /dev/null || :
 
 /usr/sbin/useradd -c "sipXpbx user" -g @SIPXPBXUSER@ \
-        -s /sbin/nologin -r @SIPXPBXUSER@ 2> /dev/null || :
+        -d %{sipxpbxconf} \
+        -s /bin/bash -r @SIPXPBXUSER@ 2> /dev/null || :
 
 # Add user to jboss group
 if test `/usr/bin/groups @SIPXPBXUSER@ | grep -c jboss` -eq 0
