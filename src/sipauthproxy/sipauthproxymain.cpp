@@ -37,7 +37,9 @@
 // TYPEDEFS
 typedef void (*sighandler_t)(int);
 
+#ifndef _WIN32
 using namespace std ;
+#endif
 
 // FUNCTIONS
 extern "C" {
