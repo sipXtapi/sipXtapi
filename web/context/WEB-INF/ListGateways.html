@@ -11,7 +11,10 @@
     <form jwcid="gatewaysListForm" id="list:gateway:form">
 	<table id="list:gateway" jwcid="tableView" class="table-view">
             <thead>
-                <span jwcid="tableColumns"/>
+                <tr>
+	                <td></td>
+					<td jwcid="tableColumns"/>
+				</tr>                    
                 <tr jwcid="$remove$">
                    <th/> 
                    <th>Name</th> 
@@ -20,13 +23,11 @@
                 </tr>
             </thead>
             <tbody>
-                <span jwcid="SelectColumnValue">
-                    <span jwcid="selectedRow"/>
-				</span>                    
 				<span jwcid="NameColumnValue">
 					<span jwcid="editRowLink"><span jwcid="nameText"/></span>
 				</span>
                 <span jwcid="tableRows">
+                    <td><span jwcid="selectedRow"/></td>
 					<span jwcid="tableValues"/>
                 </span>
                 <span jwcid="$remove$">

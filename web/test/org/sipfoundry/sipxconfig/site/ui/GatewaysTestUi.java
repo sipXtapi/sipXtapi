@@ -45,7 +45,7 @@ public class GatewaysTestUi extends TestCase {
 
         // reset page
         home = resetDialPlans(home);
-        
+
         WebLink link = home.getLinkWith("List Gateways");
         WebResponse listGateways = link.click();
 
@@ -64,7 +64,7 @@ public class GatewaysTestUi extends TestCase {
         gatewaysTable = listGateways.getTableWithID("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
-        assertEquals("bongoDescription", gatewaysTable.getCellAsText(1,lastColumn));
+        assertEquals("bongoDescription", gatewaysTable.getCellAsText(1, lastColumn));
 
         addGatewayLink = listGateways.getLinkWithID("addGateway");
         addGatewayPage = addGatewayLink.click();
@@ -73,7 +73,47 @@ public class GatewaysTestUi extends TestCase {
         gatewaysTable = listGateways.getTableWithID("list:gateway");
         // we should have 2 gateway now
         assertEquals(3, gatewaysTable.getRowCount());
-        assertEquals("kukuDescription", gatewaysTable.getCellAsText(2,lastColumn));
+        assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
+    }
+
+    public void testDeleteGateways() throws Exception {
+        WebResponse home = getHomePage();
+
+        // reset page
+        home = resetDialPlans(home);
+
+        WebLink link = home.getLinkWith("List Gateways");
+        WebResponse listGateways = link.click();
+
+        for (int i = 0; i < 10; i++) {
+            WebLink addGatewayLink = listGateways.getLinkWithID("addGateway");
+            WebResponse addGatewayPage = addGatewayLink.click();
+
+            listGateways = addGateway(addGatewayPage, "gateway" + i);
+        }
+
+        WebTable gatewaysTable = listGateways.getTableWithID("list:gateway");
+        assertEquals(11, gatewaysTable.getRowCount());
+
+        WebForm formGateway = listGateways.getFormWithID("list:gateway:form");
+        SubmitButton buttonDelete = formGateway.getSubmitButtonWithID("list:gateway:delete");
+        formGateway.setCheckbox("selectedRow", true);
+        formGateway.setCheckbox("selectedRow$0", true);
+        listGateways = formGateway.submit(buttonDelete);
+
+        gatewaysTable = listGateways.getTableWithID("list:gateway");
+        assertEquals(9, gatewaysTable.getRowCount());
+
+        formGateway = listGateways.getFormWithID("list:gateway:form");
+        buttonDelete = formGateway.getSubmitButtonWithID("list:gateway:delete");
+        formGateway.setCheckbox("selectedRow", true);
+        for (int i = 0; i < 7; i++) {
+            formGateway.setCheckbox("selectedRow$" + i, true);
+        }
+        listGateways = formGateway.submit(buttonDelete);
+
+        gatewaysTable = listGateways.getTableWithID("list:gateway");
+        assertEquals(1, gatewaysTable.getRowCount());
     }
 
     /**
@@ -104,7 +144,7 @@ public class GatewaysTestUi extends TestCase {
         WebResponse home = wc.getResponse(req);
         return home;
     }
-    
+
     private WebResponse resetDialPlans(WebResponse homePage) throws IOException, SAXException {
         final WebLink resetLink = homePage.getLinkWithID("resetDialPlans");
         return resetLink.click();

@@ -11,12 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -25,6 +22,7 @@ import org.apache.tapestry.html.BasePage;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -32,44 +30,27 @@ import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 public abstract class ListGateways extends BasePage implements PageRenderListener {
     public static final String PAGE = "ListGateways";
 
-    private List m_selectedRows = Collections.EMPTY_LIST;
+    private Collection m_selectedRows = Collections.EMPTY_LIST;
 
     // virtual properties
     public abstract DialPlanManager getDialPlanManager();
 
     public abstract Gateway getCurrentRow();
 
-    public abstract Map getSelected();
+    public abstract SelectMap getSelections();
 
-    public abstract void setSelected(Map selected);
+    public abstract void setSelections(SelectMap selected);
 
     public void pageBeginRender(PageEvent event_) {
-        Map selected = getSelected();
-        if (null == selected) {
-            DialPlanManager dialPlanManager = getDialPlanManager();
-            List gateways = dialPlanManager.getGateways();
-
-            selected = new HashMap(gateways.size());
-            for (Iterator i = gateways.iterator(); i.hasNext();) {
-                Gateway gateway = (Gateway) i.next();
-                selected.put(gateway.getId(), new Boolean(false));
-            }
-            setSelected(selected);
+        SelectMap selections = getSelections();
+        if (null == selections) {
+            setSelections(new SelectMap());
         }
-    }
-
-    public Boolean getMarked(Integer id) {
-        return (Boolean) getSelected().get(id);
-    }
-
-    public void setMarked(Integer id, Boolean state) {
-        getSelected().put(id, state);
     }
 
     /**
      * When user clicks on link to edit a gateway
      */
-
     public void addGateway(IRequestCycle cycle) {
         EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
         page.setGatewayId(null);
@@ -86,14 +67,7 @@ public abstract class ListGateways extends BasePage implements PageRenderListene
     }
 
     public void delete(IRequestCycle cycle_) {
-        m_selectedRows = new ArrayList();
-        Map m = getSelected();
-        for (Iterator i = m.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            if (entry.getValue().equals(Boolean.TRUE)) {
-                m_selectedRows.add(entry.getKey());
-            }
-        }
+        m_selectedRows = getSelections().getAllSelected();
     }
 
     public void formSubmit(IRequestCycle cycle_) {
@@ -102,6 +76,6 @@ public abstract class ListGateways extends BasePage implements PageRenderListene
             Integer id = (Integer) i.next();
             manager.deleteGateway(id);
         }
-        m_selectedRows.clear();
+        m_selectedRows = Collections.EMPTY_LIST;
     }
 }

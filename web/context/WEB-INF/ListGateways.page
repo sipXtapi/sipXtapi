@@ -17,7 +17,7 @@
         type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway">
     </property-specification>
 
-	<property-specification name="selected" type="java.util.Map"/>
+	<property-specification name="selections" type="org.sipfoundry.sipxconfig.components.SelectMap"/>
     
      <!--
      - B E A N S
@@ -31,7 +31,7 @@
      -->
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="dialPlanManager.gateways"/>
-        <static-binding name="columns" value="* !Select: :unused,Name:name,Address:address,Description:description"/>
+        <static-binding name="columns" value="* Name:name,Address:address,Description:description"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns">
@@ -48,9 +48,6 @@
     </component>
     
 	<component id="NameColumnValue" type="Block"/>
-
-	<component id="SelectColumnValue" type="Block"/>
-        
     
     <component id="nameText" type="Insert">
         <binding name="value" expression="currentRow.name"/>
@@ -69,7 +66,7 @@
     </component>
     
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="marked[currentRow.id]"/>
+        <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
     
     <component id="deleteButton" type="Submit">
