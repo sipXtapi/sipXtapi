@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="xpressa_strongarm_vxworks" class="org.sipfoundry.sipxconfig.vendor.SipxPhone" 
+		    singleton="false">
+        <property name="modelId"><value>xpressa_strongarm_vxworks</value></property>
+    </bean>
+
+    <bean id="ixpressa_x86_win32" class="org.sipfoundry.sipxconfig.vendor.SipxPhone" 
+		    singleton="false">
+        <property name="modelId"><value>ixpressa_x86_win32</value></property>
+    </bean>
+
+    <bean id="cisco7960" class="org.sipfoundry.sipxconfig.vendor.CiscoPhone" 
+		    singleton="false">
+        <property name="modelId"><value>cisco7960</value></property>
+    </bean>
+
+    <bean id="cisco7940" class="org.sipfoundry.sipxconfig.vendor.CiscoPhone" 
+		    singleton="false">
+        <property name="modelId"><value>cisco7940</value></property>
+    </bean>
+
+    <bean id="cisco7905" class="org.sipfoundry.sipxconfig.vendor.CiscoPhone" 
+		    singleton="false">
+        <property name="modelId"><value>cisco7905</value></property>
+    </bean>
+
+    <bean id="cisco7912" class="org.sipfoundry.sipxconfig.vendor.CiscoPhone" 
+		    singleton="false">
+        <property name="modelId"><value>cisco7912</value></property>
+    </bean>
+	
+</beans>

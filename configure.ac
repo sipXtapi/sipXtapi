@@ -68,18 +68,6 @@ SFAC_INIT_FLAGS
 SFAC_LIB_STACK
 SFAC_LIB_PORT
 
-## Neoconf is experiemental and you must enable it by default
-AC_ARG_ENABLE(neoconf, 
-  [  --enable-neoconf       New experimental code for a configuration system.],
-  , enable_neoconf=no)
-
-AM_CONDITIONAL(NEOCONF, test x$enable_neoconf = xyes)
-
-if test x$enable_neoconf = xyes
-then
-  CHECK_SPRING
-fi
-
 # Jar files to all of sipXconfig. 
 AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
 
@@ -87,6 +75,7 @@ CHECK_JNI
 CHECK_ANT
 CHECK_CLOVER
 CHECK_JBOSS_HOME
+CHECK_SPRING
 
 AC_CONFIG_FILES([
     Makefile

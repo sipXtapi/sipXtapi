@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="src" path="/sipXconfig-common"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/aopalliance/aopalliance.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/cglib/cglib-full-2.0.2.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/dom4j/dom4j.jar"/>
@@ -14,7 +13,7 @@
 	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-dbcp.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-logging.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-pool.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
+	<classpathentry sourcepath="SPRING_HOME/src" kind="var" path="SPRING_HOME/dist/spring.jar"/>
 	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>

@@ -1,8 +1,5 @@
-if NEOCONF
-NEOCONF_OPT = neoconf
-endif
 
-SUBDIRS = . bin common $(NEOCONF_OPT) profilegenerator profilepublisher profilewriter sipagent-jni doc
+SUBDIRS = . bin neoconf common profilegenerator profilepublisher profilewriter sipagent-jni doc
 
 EXTRA_DIST = \
     config/sipX-config.in \

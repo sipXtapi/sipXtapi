@@ -10,5 +10,8 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/pgjdbc2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/catalina/common/lib/servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
+	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry sourcepath="SPRING_HOME/src" kind="var" path="SPRING_HOME/dist/spring.jar"/>
+	<classpathentry kind="lib" path="/sipXconfig-neoconf/src"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

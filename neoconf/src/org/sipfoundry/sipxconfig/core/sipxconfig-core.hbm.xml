@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
 
-  <class name="org.sipfoundry.sipxconfig.core.Device" table="logical_phones">
+  <class name="org.sipfoundry.sipxconfig.core.LogicalPhone" table="logical_phones">
 
     <jcs-cache usage="read-write"/>
 

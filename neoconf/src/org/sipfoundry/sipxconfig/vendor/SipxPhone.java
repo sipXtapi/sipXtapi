@@ -9,16 +9,17 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.vendor.pingtel;
+package org.sipfoundry.sipxconfig.vendor;
 
 import java.text.MessageFormat;
 
-import org.sipfoundry.sipxconfig.core.DevicePlugin;
+import org.sipfoundry.sipxconfig.core.LogicalPhone;
+import org.sipfoundry.sipxconfig.core.Phone;
 
 /**
  * Support for SIP Soft Phone and legacy xpressa
  */
-public class SipxPhoneDevicePlugin implements DevicePlugin {
+public class SipxPhone implements Phone {
 
     /** system-wide plugin id for device */
     public static final String HARDPHONE = "xpressa_strongarm_vxworks";
@@ -34,7 +35,7 @@ public class SipxPhoneDevicePlugin implements DevicePlugin {
     };
 
     private String m_id;
-
+        
     /**
      * XML filename that describes a particular model's definitions
      * 
@@ -45,12 +46,12 @@ public class SipxPhoneDevicePlugin implements DevicePlugin {
         return new StringBuffer().append('/').append(m_id).append("-definitions.xml").toString();
     }
 
-    public String getPluginId() {
+    public String getModelId() {
         return m_id;
     }
 
-    public void setPluginId(String pluginId) {
-        m_id = pluginId;
+    public void setModelId(String modelId) {
+        m_id = modelId;
     }
 
     public int getProfileCount() {
@@ -67,6 +68,14 @@ public class SipxPhoneDevicePlugin implements DevicePlugin {
     public String getProfileSubscribeToken(int profileIndex) {
         return PROFILES[profileIndex].getSubscribeToken();
     }    
+
+    public String getProfileNotifyUrl(LogicalPhone logicalPhoneTemp, int profileIndexTemp) {
+        throw new RuntimeException("getDeviceNotifyUrl not implemented yet");
+    }
+
+    public int getProfileSequenceNumber(LogicalPhone logicalPhoneTemp, int profileIndexTemp) {
+        throw new RuntimeException("getProfileSequenceNumber not implemented yet");
+    }
 }
 
 

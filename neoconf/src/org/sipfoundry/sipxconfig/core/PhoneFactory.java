@@ -11,19 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.core;
 
+import org.springframework.beans.factory.BeanFactory;
+
 /**
- * Database object
+ * Comments
  */
-public class Role {
+public interface PhoneFactory extends BeanFactory {
+    
+    public Phone getPhoneByModel(String model);
 
-    private String m_name;
-
-    public String getName() {
-        return m_name;
-    }
-
-    public void setName(String name) {
-        this.m_name = name;
-    }
-
+    public Phone getPhoneByVendor(String model);
+    
 }

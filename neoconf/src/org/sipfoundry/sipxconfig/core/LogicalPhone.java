@@ -12,9 +12,9 @@
 package org.sipfoundry.sipxconfig.core;
 
 /**
- * Database object
+ * Database object representing an actualy physical phone you can touch.
  */
-public class Device {
+public class LogicalPhone {
 
     private int m_id;
 

@@ -18,6 +18,7 @@
   <path id="base.path" >
     <!-- SIPXCONFIG -->
     <pathelement location="${jdbc-driver.jar}"/> <!-- for tests only -->
+    <pathelement path="${neoconf.jar}" />
 
     <!-- UTIL -->
     <pathelement location="${jdom.jar}"/>
@@ -26,6 +27,13 @@
     <!-- J2EE -->
     <pathelement location="${jboss.lib}/ext/jboss-j2ee.jar"/>
     <pathelement location="${tomcat.lib}/servlet.jar"/>
+
+    <!-- SPRING -->
+    <pathelement path="${spring.jar}" />
+
+    <!-- TEST -->
+    <!-- TODO separate into run path -->
+    <path refid="neoconf.runtime.dependencies"/>
   </path>
   <property name="classpath" refid="base.path" />
 

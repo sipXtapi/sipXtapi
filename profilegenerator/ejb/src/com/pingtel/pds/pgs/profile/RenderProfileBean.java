@@ -41,8 +41,14 @@ import com.pingtel.pds.pgs.phone.CSProfileDetail;
 import com.pingtel.pds.pgs.phone.CSProfileDetailHome;
 import com.pingtel.pds.pgs.phone.Device;
 import com.pingtel.pds.profilewriter.ProfileWriter;
-import com.pingtel.pds.sipxfacade.SipxConfigFacade;
-import com.pingtel.pds.sipxfacade.SipxConfigFacadeFactory;
+import org.sipfoundry.sipxconfig.core.Phone;
+import org.sipfoundry.sipxconfig.core.LogicalPhone;
+import org.sipfoundry.sipxconfig.core.PhoneFactory;
+import org.sipfoundry.sipxconfig.core.SipxConfig;
+import org.sipfoundry.sipxconfig.core.CoreDao;
+import org.springframework.beans.factory.access.BeanFactoryLocator;
+import org.springframework.beans.factory.access.BeanFactoryReference;
+import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 
 /**
  *  RenderProfileBean is the EJ Bean implementation of the RenderProile
@@ -181,23 +187,18 @@ public class RenderProfileBean extends JDBCAwareEJB
 
                 logDebug ( "opened profilewriter" );
 
-                String notifyURL = null;
-                int profileSequenceNumber = -1;
+                BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
+                BeanFactoryReference bf = bfl.useBeanFactory("org.sipfoundry.sipxconfig.core");
+                SipxConfig sipx = (SipxConfig) bf.getFactory().getBean("sipxconfig");        
+                PhoneFactory phones = sipx.getPhoneFactory();    
+                Phone phone = phones.getPhoneByModel(device.getModel());
 
-                if (SipxConfigFacadeFactory.hasImplementation()) {
-                    SipxConfigFacade facade = SipxConfigFacadeFactory.getFacade();
-                    notifyURL = facade.getDeviceNotifyUrl(deviceID.intValue(), profileType, device.getModel());
-                    profileSequenceNumber = facade.getDeviceSequenceNumber(deviceID.intValue(), profileType, device.getModel());
-                } else {
-                    if ( device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7940 ) ||
-                        device.getModel().equals( PDSDefinitions.MODEL_HARDPHONE_CISCO_7960 ) ) {
-
-                        notifyURL = getDeviceNotifyURL ( device );
-                    } else {
-                        // sequence number have no meaning for Cisco phones, only Pingtel.
-                        profileSequenceNumber = getLogicalPhonesSeq(deviceID, profileType);                    
-                    }
-                }
+                CoreDao dao = sipx.getCoreDao();
+                LogicalPhone logicalPhone = (LogicalPhone) dao.requireById(LogicalPhone.class,
+                        deviceID.intValue());
+                String notifyURL = phone.getProfileNotifyUrl(logicalPhone, profileType);
+                int profileSequenceNumber = phone.getProfileSequenceNumber(logicalPhone,
+                        profileType);
 
                 // Render the Profile Object via the profile writer, the profile
                 // writer will attempt to notify the SDS which in turn will
