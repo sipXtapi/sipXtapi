@@ -19,7 +19,6 @@
 #include <iostream.h>
 
 // APPLICATION INCLUDES
-#include "version.h"
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
@@ -282,7 +281,7 @@ main( int argc, char* argv[] )
        NameValueTokenizer::frontBackTrim(&argString, "\t ");
        if(argString.compareTo("-v") == 0)
        {
-           osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION, SIPXCHANGE_VERSION_COMMENT);
+           osPrintf("Version: %s\n", SIPX_VERSION);
            return(1);
        } else if( argString.compareTo("-i") == 0)
        {

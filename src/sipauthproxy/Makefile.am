@@ -2,12 +2,13 @@
 
 bin_PROGRAMS = sipauthproxy
 
-sipauthproxy_CXXFLAGS = $(GLIB_CFLAGS) \
+sipauthproxy_CXXFLAGS = $(GLIB_CFLAGS) -I. \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipauthproxy_LDFLAGS = $(GLIB_LIBS)
 sipauthproxy_SOURCES =  \
     sipauthproxymain.cpp \
-    SipAaa.cpp
+    SipAaa.cpp \
+	 SipAaa.h
 

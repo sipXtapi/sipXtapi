@@ -10,5 +10,7 @@ sipproxy_LDFLAGS = $(GLIB_LIBS)
 sipproxy_SOURCES =  \
     SipRouter.cpp \
     ForwardRules.cpp \
-    SipForkingProxyMain.cpp
+    SipForkingProxyMain.cpp \
+	 SipRouter.h \
+	 ForwardRules.h
 
