@@ -20,17 +20,6 @@ EXTRA_DIST = \
     profilepub_sipagent.dsp \
     lib
 
-# 
-# If Doxygen is enabled
-if DOC
-SUBDIRS += doc
-endif
-
-.PHONY : doc
-doc :
-	cd doc && $(MAKE) $(AM_MAKEFLAGS) all
-
-
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 

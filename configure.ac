@@ -27,9 +27,6 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 AC_PROG_CC
 
-ENABLE_DOXYGEN
-AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
-
 # Checks for libraries.
 
 # Checks for header files.
@@ -98,7 +95,6 @@ AC_CONFIG_FILES([
     sipagent-jni/src/Makefile
     sipagent-jni/include/Makefile
     doc/Makefile
-    doc/Doxyfile
 ])
 
 AC_OUTPUT
