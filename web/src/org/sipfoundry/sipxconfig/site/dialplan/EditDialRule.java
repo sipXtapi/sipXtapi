@@ -21,6 +21,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
 
@@ -28,6 +29,8 @@ import org.sipfoundry.sipxconfig.components.GatewayTable;
  * EditCustomeDialRule
  */
 public abstract class EditDialRule extends BasePage implements PageRenderListener {
+    private DialingRule.Type m_ruleType;
+
     public abstract DialPlanManager getDialPlanManager();
 
     public abstract void setRuleId(Integer ruleId);
@@ -39,6 +42,14 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     public abstract DialingRule getRule();
 
     public abstract void setRule(DialingRule rule);
+
+    public DialingRule.Type getRuleType() {
+        return m_ruleType;
+    }
+
+    public void setRuleType(DialingRule.Type dialingType) {
+        m_ruleType = dialingType;
+    }
 
     public void pageBeginRender(PageEvent event_) {
         DialingRule rule = getRule();
@@ -55,9 +66,12 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         setRule(rule);
     }
 
-    
-    protected abstract DialingRule createNewRule();
-    
+    protected DialingRule createNewRule() {
+        DialingRuleFactory ruleFactory = getDialPlanManager().getRuleFactory();
+        DialingRule.Type ruleType = getRuleType();
+        return ruleFactory.create(ruleType);
+    }
+
     public void addGateway(IRequestCycle cycle) {
         EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
         Integer id = getRuleId();

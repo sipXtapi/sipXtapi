@@ -2,7 +2,7 @@
 <!DOCTYPE page-specification
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditLocalDialRule">
 	<!--
 	  - P R O P E R T I E S
 	  -->
@@ -34,6 +34,14 @@
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
     
+    <bean name="externalLenModel" 
+        class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
+        lifecycle="page">
+    	<set-property name="min" expression="5"/>
+	    <set-property name="max" expression="15"/>
+	</bean>    
+    
+        
     <!--
      - C O M P O N E N T S
      -->
@@ -53,16 +61,26 @@
         <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
     </component>
     
-    <!-- restricted specific -->
+    <!-- local fields -->
 
-    <component id="areaCodesLabel" type="FieldLabel">
-        <binding name="field" expression="components.areaCodes"/>
+    <component id="pstnPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.pstnPrefix"/>
     </component>
-    <component id="areaCodes" type="ValidField">
-        <binding name="value" expression="rule.areaCodes"/>
+    <component id="pstnPrefix" type="ValidField">
+        <binding name="value" expression="rule.pstnPrefix"/>
         <binding name="validator" expression="beans.nameValidator"/>
-        <static-binding name="displayName" value="Area Codes"/>
+        <static-binding name="displayName" value="PSTN Prefix"/>
     </component>
+
+    <component id="externalLenLabel" type="FieldLabel">
+        <binding name="field" expression="components.externalLen"/>
+        <static-binding name="displayName" value="External Number Length"/>
+    </component>
+    <component id="externalLen" type="PropertySelection">
+        <binding name="value" expression="rule.externalLen"/>
+        <binding name="model" expression="beans.externalLenModel"/>
+    </component>
+
     
     <!-- gateways configuration -->
     

@@ -248,12 +248,31 @@
         </property>        
     </bean>
     
+    <bean id="defaultLocalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LocalRule">
+        <property name="name">
+			<value>Local</value>            
+        </property>
+        <property name="description">
+            <value>Local dialing</value>
+        </property>
+        <property name="enabled">
+        	<value>false</value>
+        </property>
+        <property name="pstnPrefix">
+        	<value>9</value>
+        </property>        
+        <property name="externalLen">
+        	<value>7</value>
+        </property>        
+    </bean>
+
     <bean id="flexDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
     	<property name="rules">
         	<list>
                 <ref bean="defaultEmergencyRule"></ref>
                 <ref bean="defaultInternalRule"></ref>
                 <ref bean="defaultLongDistanceRule"></ref>
+                <ref bean="defaultLocalRule"></ref>
             </list>
         </property>
     </bean>

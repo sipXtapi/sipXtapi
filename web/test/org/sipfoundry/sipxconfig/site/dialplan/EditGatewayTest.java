@@ -63,12 +63,12 @@ public class EditGatewayTest extends TestCase {
 
         m_editGatewayPage.setDialPlanManager(m_manager);
         m_editGatewayPage.setRuleId(rule.getId());
-        m_editGatewayPage.setNextPage(EditCustomDialRule.PAGE);
+        m_editGatewayPage.setNextPage("EditCustomDialRule");
 
         m_editGatewayPage.pageBeginRender(null);
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycle.activate(EditCustomDialRule.PAGE);
+        cycle.activate("EditCustomDialRule");
         cycleControl.replay();
         m_editGatewayPage.saveValid(cycle);
         cycleControl.verify();

@@ -31,10 +31,11 @@ public abstract class SelectRuleType extends BasePage {
     
 
     static {
-        TYPE_2_PAGE.put(Type.CUSTOM, EditCustomDialRule.PAGE);
-        TYPE_2_PAGE.put(Type.INTERNAL, EditInternalDialRule.PAGE);
-        TYPE_2_PAGE.put(Type.LONG_DISTANCE, EditLongDistanceDialRule.PAGE);
-        TYPE_2_PAGE.put(Type.EMERGENCY, EditEmergencyDialRule.PAGE);
+        TYPE_2_PAGE.put(Type.CUSTOM, "EditCustomDialRule");
+        TYPE_2_PAGE.put(Type.INTERNAL, "EditInternalDialRule");
+        TYPE_2_PAGE.put(Type.LOCAL, "EditLocalDialRule");
+        TYPE_2_PAGE.put(Type.LONG_DISTANCE, "EditLongDistanceDialRule");
+        TYPE_2_PAGE.put(Type.EMERGENCY, "EditEmergencyDialRule");
         
         TYPES = (Type[]) TYPE_2_PAGE.keySet().toArray(new Type[TYPE_2_PAGE.size()]);
     }
@@ -66,6 +67,7 @@ public abstract class SelectRuleType extends BasePage {
         String pageName = (String) TYPE_2_PAGE.get(ruleType);
         EditDialRule page = (EditDialRule) cycle.getPage(pageName);
         page.setRuleId(ruleId);
+        page.setRuleType(ruleType);
         cycle.activate(page);
     }
 }

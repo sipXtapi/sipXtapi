@@ -31,8 +31,12 @@ public class SelectRuleTypeTest extends TestCase {
     }
 
     public void testNext() {
-        verifyPage(DialingRule.Type.CUSTOM, EditCustomDialRule.PAGE);
-        verifyPage(DialingRule.Type.INTERNAL, EditInternalDialRule.PAGE);
+        verifyPage(DialingRule.Type.CUSTOM, "EditCustomDialRule");
+        verifyPage(DialingRule.Type.INTERNAL, "EditInternalDialRule");
+        verifyPage(DialingRule.Type.EMERGENCY, "EditEmergencyDialRule");
+        //verifyPage(DialingRule.Type.RESTRICTED, "EditRestrictedDialRule");
+        verifyPage(DialingRule.Type.LONG_DISTANCE, "EditLongDistanceDialRule");
+        verifyPage(DialingRule.Type.LOCAL, "EditLocalDialRule");
     }
 
     private void verifyPage(DialingRule.Type type, String pageName) {

@@ -24,6 +24,7 @@
     <page name="EditEmergencyDialRule" specification-path="dialplan/EditEmergencyDialRule.page"/>
     <page name="EditInternalDialRule" specification-path="dialplan/EditInternalDialRule.page"/>
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
+    <page name="EditLocalDialRule" specification-path="dialplan/EditLocalDialRule.page"/>
     <page name="EditLongDistanceDialRule" specification-path="dialplan/EditLongDistanceDialRule.page"/>
     <page name="EditRestrictedDialRule" specification-path="dialplan/EditRestrictedDialRule.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
