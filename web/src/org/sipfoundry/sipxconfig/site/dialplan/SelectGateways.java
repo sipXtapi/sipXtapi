@@ -85,6 +85,6 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
             Gateway gateway = (Gateway) i.next();
             rule.addGateway(gateway);
         }
-        flexDialPlan.updateRule(ruleId, rule);
+        flexDialPlan.storeRule(rule);
     }
 }

@@ -36,12 +36,8 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
 
     private BeanFactory m_beanFactory;
 
-    public boolean addRule(IDialingRule rule) {
-        if (!PhoneContext.UNSAVED_ID.equals(rule.getId())) {
-            return false;
-        }
-        getHibernateTemplate().save(rule);
-        return true;
+    public void storeRule(IDialingRule rule) {
+        getHibernateTemplate().saveOrUpdate(rule);
     }
 
     boolean removeRule(Integer id) {
@@ -66,16 +62,6 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
             rules.add(rule);
         }
         getHibernateTemplate().deleteAll(rules);
-    }
-
-    public boolean updateRule(Integer id, DialingRule rule) {
-        DialingRule existingRule = getRule(id);
-        if (null == existingRule) {
-            return false;
-        }
-        existingRule.update(rule);
-        getHibernateTemplate().update(existingRule);
-        return true;
     }
 
     public void duplicateRules(Collection selectedRows) {
@@ -112,7 +98,7 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
         for (int i = 0; i < DEFAULT_RULE_NAMES.length; i++) {
             String beanName = DEFAULT_RULE_NAMES[i];
             DialingRule rule = (DialingRule) m_beanFactory.getBean(beanName);
-            addRule((IDialingRule) rule.duplicate());
+            storeRule((IDialingRule) rule.duplicate());
         }
     }
 

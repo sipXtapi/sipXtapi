@@ -17,15 +17,13 @@ import java.util.List;
 public interface FlexibleDialPlanContext {
     public static final String CONTEXT_BEAN_NAME = "flexDialPlan";
 
-    public boolean addRule(IDialingRule rule);
+    public void storeRule(IDialingRule rule);
 
     public List getRules();
 
     public DialingRule getRule(Integer id);
 
     public void deleteRules(Collection selectedRows);
-
-    public boolean updateRule(Integer id, DialingRule rule);
 
     public void duplicateRules(Collection selectedRows);
 

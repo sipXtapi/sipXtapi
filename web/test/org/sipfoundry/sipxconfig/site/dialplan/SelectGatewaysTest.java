@@ -53,8 +53,7 @@ public class SelectGatewaysTest extends TestCase {
         FlexibleDialPlanContext flexDialPlan = (FlexibleDialPlanContext) controlPlan.getMock();
         flexDialPlan.getRule(rule.getId());
         controlPlan.setReturnValue(rule);
-        flexDialPlan.updateRule(rule.getId(), rule);
-        controlPlan.setReturnValue(true);
+        flexDialPlan.storeRule(rule);
         controlPlan.replay();
         
         

@@ -9,10 +9,11 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.ui;
+package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -63,12 +64,7 @@ public class GatewaysTestUi extends WebTestCase {
     }
 
     public void testDeleteGateways() throws Exception {
-        clickLink("ListGateways");
-
-        for (int i = 0; i < 10; i++) {
-            clickLink("addGateway");
-            addGateway("gateway" + i);
-        }
+        addTestGateways(getTester(), 10);
 
         assertTablePresent("list:gateway");
         WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
@@ -99,11 +95,33 @@ public class GatewaysTestUi extends WebTestCase {
      * @param name response after clicking submit button
      */
     private void addGateway(String name) {
+        addGateway(getTester(), name);
+    }
+
+    /**
+     * Static version to be called from other tests
+     * 
+     * @param name response after clicking submit button
+     */
+    static void addGateway(WebTester tester, String name) {
         if (null != name) {
-            setFormElement("gatewayName", name + "Name");
-            setFormElement("gatewayAddress", name + "Address");
-            setFormElement("gatewayDescription", name + "Description");
+            tester.setFormElement("gatewayName", name + "Name");
+            tester.setFormElement("gatewayAddress", name + "Address");
+            tester.setFormElement("gatewayDescription", name + "Description");
         }
-        clickButton("gateway:save");
+        tester.clickButton("gateway:save");
+    }
+
+    /**
+     * Adds number of test gateways to test
+     * @param counter number of gateways to add - names gateway0..gateway'count-1' 
+     */
+    static void addTestGateways(WebTester tester, int counter) {
+        tester.clickLink("ListGateways");
+
+        for (int i = 0; i < counter; i++) {
+            tester.clickLink("addGateway");
+            addGateway(tester, "gateway" + i);
+        }
     }
 }

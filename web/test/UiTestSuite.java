@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.sipfoundry.sipxconfig.site.JettyTestSetup;
+import org.sipfoundry.sipxconfig.site.dialplan.DialPlanEditTestUi;
+import org.sipfoundry.sipxconfig.site.dialplan.GatewaysTestUi;
 import org.sipfoundry.sipxconfig.site.line.EditLineTestUi;
 import org.sipfoundry.sipxconfig.site.line.LineSettingsTestUi;
 import org.sipfoundry.sipxconfig.site.phone.AddPhoneUserTestUi;
@@ -12,8 +14,6 @@ import org.sipfoundry.sipxconfig.site.phone.EditPhoneSettingsTestUi;
 import org.sipfoundry.sipxconfig.site.phone.EditPhoneTestUi;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhonesTestUi;
 import org.sipfoundry.sipxconfig.site.phone.NewPhoneTestUi;
-import org.sipfoundry.sipxconfig.site.ui.DialPlanEditTestUi;
-import org.sipfoundry.sipxconfig.site.ui.GatewaysTestUi;
 
 /*
  * 

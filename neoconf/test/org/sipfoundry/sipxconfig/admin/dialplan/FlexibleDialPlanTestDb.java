@@ -47,10 +47,10 @@ public class FlexibleDialPlanTestDb extends TestCase {
         IDialingRule r2 = new CustomDialingRule();
         r2.setName("a2");
 
-        assertTrue(m_plan.addRule(r1));
-        assertFalse(m_plan.addRule(r1));
+        m_plan.storeRule(r1);
+        m_plan.storeRule(r1);
         assertEquals(1, m_plan.getRules().size());
-        assertTrue(m_plan.addRule(r2));
+        m_plan.storeRule(r2);
         assertEquals(2, m_plan.getRules().size());
 
         Integer id1 = r1.getId();
@@ -79,7 +79,7 @@ public class FlexibleDialPlanTestDb extends TestCase {
     public void testDuplicateRules() throws Exception {
         IDialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
-        assertTrue(m_plan.addRule(r1));
+        m_plan.storeRule(r1);
         assertFalse(BeanWithId.UNSAVED_ID.equals(r1.getId()));
 
         m_plan.duplicateRules(Collections.singletonList(r1.getId()));

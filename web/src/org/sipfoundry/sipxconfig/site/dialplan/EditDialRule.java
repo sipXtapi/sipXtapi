@@ -30,8 +30,8 @@ import org.sipfoundry.sipxconfig.components.GatewayTable;
  */
 public abstract class EditDialRule extends BasePage implements PageRenderListener {
     /**
-     * list of permission types allowed for long distance permission, used in
-     * permssions modle on a long distance page
+     * list of permission types allowed for long distance permission, used in permssions modle on
+     * a long distance page
      */
     public static final Permission[] LONG_DISTANCE_PERMISSIONS = {
         Permission.LONG_DISTANCE_DIALING, Permission.RESTRICTED_DIALING,
@@ -113,19 +113,14 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     private void saveValid(IRequestCycle cycle_) {
         FlexibleDialPlanContext plan = getDialPlanManager().getFlexDialPlan();
         DialingRule rule = getRule();
-        Integer ruleId = getRuleId();
-        if (null == ruleId) {
-            plan.addRule(rule);
-        } else {
-            plan.updateRule(ruleId, rule);
-        }
+        plan.storeRule(rule);
     }
 
     /**
      * Handles removing gateways on submit.
      * 
-     * Emergency property is set by Remove submit buttons. If it's not set at
-     * all none of this buttong has been pressed and we have nothing to do.
+     * Emergency property is set by Remove submit buttons. If it's not set at all none of this
+     * buttong has been pressed and we have nothing to do.
      */
     private void removeGateways() {
         String removeGateways = getRemoveGateways();

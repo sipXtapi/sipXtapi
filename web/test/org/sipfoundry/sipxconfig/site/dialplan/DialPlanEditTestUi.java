@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.ui;
+package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
