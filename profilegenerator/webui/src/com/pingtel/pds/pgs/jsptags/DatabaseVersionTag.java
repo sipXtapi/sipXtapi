@@ -35,8 +35,8 @@ public class DatabaseVersionTag extends StyleTagSupport {
                                     EJBHomeFactory.getInstance().getHomeInterface(  PatchManagerHome.class,
                                                                                     "PatchManager" );
 
-                advocate = m_pmHome.create();
             }
+            advocate = m_pmHome.create();
 
 
             Integer currentVersion = new Integer ( "0" );
@@ -104,7 +104,8 @@ public class DatabaseVersionTag extends StyleTagSupport {
         }
 
         catch(Exception ex ) {
-             throw new JspException( ex.getMessage());
+            ex.printStackTrace();
+            throw new JspException( ex.getMessage());
         }
 
         return SKIP_BODY;
