@@ -70,7 +70,7 @@
 
   <!-- STUB -->
   <target name="test"/>
-  <target name="docs"/>
+  <target name="doc"/>
 
 </project>
 

@@ -15,9 +15,8 @@
     <pathelement location="${log4j.jar}"/>
 
     <!-- J2EE -->
-    <fileset dir="${jboss.lib}" includes="**/*.jar"/>
-    <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
-    <fileset dir="${tomcat.common.lib}" includes="**/*.jar"/>
+    <pathelement location="${jboss.lib}/ext/jboss-j2ee.jar"/>
+    <pathelement location="${tomcat.lib}/servlet.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 

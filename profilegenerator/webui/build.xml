@@ -10,39 +10,39 @@
   <import file="../../ant-targets.xml"/>
 
   <path id="base.path">
-      <!-- SIPXCONFIG -->
-      <pathelement location="${common.jar}"/>
-      <pathelement location="${commserver.jar}"/>
-      <!-- IDEALLY:  pathelement location="${profilegen-client.jar}"/ -->
-      <pathelement location="${profilegen-ejb.jar}"/>
+    <!-- SIPXCONFIG -->
+    <pathelement location="${common.jar}"/>
+    <pathelement location="${commserver.jar}"/>
+    <!-- IDEALLY:  pathelement location="${profilegen-client.jar}"/ -->
+    <pathelement location="${profilegen-ejb.jar}"/>
 
-      <!-- UTIL -->
-      <pathelement location="${jdom.jar}"/>
-      <pathelement location="${log4j.jar}"/>
-      <pathelement location="${regexp.jar}"/>
+    <!-- UTIL -->
+    <pathelement location="${jdom.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${regexp.jar}"/>
 
-      <!-- J2EE -->
-      <fileset dir="${jboss.lib}" includes="**/*.jar"/>
-      <fileset dir="${jboss.container.lib}" includes="**/*.jar"/>
-      <fileset dir="${tomcat.common.lib}" includes="**/*.jar"/>
+    <!-- J2EE -->
+    <pathelement location="${jboss.lib}/jmxri.jar"/>
+    <pathelement location="${tomcat.lib}/servlet.jar"/>
+    <pathelement location="${jboss.ext}/jboss-j2ee.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 
   <target name="init" depends="ant-targets.init" >
-      <mkdir dir="${dist.dir}/war-root" />
+    <mkdir dir="${dist.dir}/war-root" />
   </target>
 
   <!-- J S P  J A R -->
   <target name="jar" depends="compile" description="build jsp tags jar" >
-      <jar jarfile="${profilegen-tags.jar}" >
-         <fileset dir="${classes.dir}" >
-             <exclude name="com/pingtel/pds/pgs/beans/**"/>
-         </fileset>
+    <jar jarfile="${profilegen-tags.jar}" >
+       <fileset dir="${classes.dir}" >
+           <exclude name="com/pingtel/pds/pgs/beans/**"/>
+       </fileset>
 
-         <fileset dir="meta">
-            <include name="META-INF/**"/>
-         </fileset>
-      </jar>
+       <fileset dir="meta">
+          <include name="META-INF/**"/>
+       </fileset>
+    </jar>
   </target>
 
   <!-- W A R -->

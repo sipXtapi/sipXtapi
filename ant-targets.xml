@@ -172,15 +172,15 @@
 
 
   <!-- J A V A D O C -->
-  <target name="docs" depends="subdocs,realdocs"
+  <target name="doc" depends="subdoc,realdoc"
       description="generate javadocs for src and test code"/>
 
-  <target name="subdocs" depends="subant-defs" if="subdirs"
+  <target name="subdoc" depends="subant-defs" if="subdirs"
       description="[internal] recurse w/given target">
-    <subant target="docs"/>
+    <subant target="doc"/>
   </target>
 
-  <target name="realdocs" depends="init" unless="subdirs"
+  <target name="realdoc" depends="init" unless="subdirs"
       description="generate javadocs for src and test code">
 
     <javadoc sourcepath="${src.dir}" 
