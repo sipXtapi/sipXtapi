@@ -21,6 +21,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -124,7 +125,9 @@ public class LineTestDb extends TestCase {
          TestHelper.cleanInsertFlat("phone/dbdata/MoveLineSeed.xml");
 
          Endpoint endpoint = m_context.loadEndpoint(1000);
-         endpoint.moveLine(1, -1);
+         Line l1 = (Line) endpoint.getLines().get(0);
+         Object[] ids = new Object[] { new Integer(l1.getId()) };
+         DataCollectionUtil.moveByPrimaryKey(endpoint.getLines(), ids, 1);
          m_context.storeEndpoint(endpoint);
          m_context.flush();
          

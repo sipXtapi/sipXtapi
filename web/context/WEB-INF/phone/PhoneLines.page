@@ -13,7 +13,6 @@
         type="org.sipfoundry.sipxconfig.phone.Endpoint"/>
     <property-specification name="endpointId"
         type="int" persistent="yes"/>
-    <property-specification name="lines" type="java.util.List"/>
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.phone.Line"/>
     <property-specification name="selections"
@@ -50,7 +49,7 @@
     <component id="lineValues" type="contrib:TableValues">
     </component>
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.position]"/>
+        <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
     <component id="addUserLink" type="DirectLink">
         <binding name="listener" expression="listeners.addUser"/>

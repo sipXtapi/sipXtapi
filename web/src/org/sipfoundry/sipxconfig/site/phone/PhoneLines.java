@@ -17,6 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Endpoint;
@@ -41,9 +42,9 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     /** REQUIRED PROPERTY */
     public abstract void setEndpointId(int id);
 
-    public abstract List getLines();
-    
-    public abstract void setLines(List lines);
+    public List getLines() {
+        return getEndpoint().getLines();
+    }
     
     public abstract Line getCurrentRow();
 
@@ -59,7 +60,6 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         PhoneContext context = getPhoneContext();
         Endpoint endpoint = context.loadEndpoint(getEndpointId()); 
         setEndpoint(endpoint);
-        setLines(endpoint.getLines());
         
         // Generate the list of phone items
         if (getSelections() == null) {
@@ -86,11 +86,9 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     public void deleteLine(IRequestCycle cycle_) {
         PhoneContext context = getPhoneContext();
         Endpoint endpoint = getEndpoint();
-        //Collection lineIds = getSelections().getAllSelected();
-        //endpoint.removeLinesById(lineIds);        
+        Object[] lineIds = getSelections().getAllSelected().toArray();
+        DataCollectionUtil.removeByPrimaryKey(endpoint.getLines(), lineIds);
         context.storeEndpoint(endpoint);
-        // may not be nec.
-        //context.deleteLines(lineIds);
     }
     
     public void moveLineUp(IRequestCycle cycle_) {
@@ -101,11 +99,11 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
         moveLines(1);
     }
     
-    private void moveLines(int relativePosition_) {
+    private void moveLines(int step) {
         PhoneContext context = getPhoneContext();
         Endpoint endpoint = getEndpoint();
-        //Collection lineIds = getSelections().getAllSelected();
-        //endpoint.moveLinesById(lineIds, relativePosition);        
+        Object[] lineIds = getSelections().getAllSelected().toArray();
+        DataCollectionUtil.moveByPrimaryKey(endpoint.getLines(), lineIds, step);        
         context.storeEndpoint(endpoint);
     }
 

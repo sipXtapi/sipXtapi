@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
 
+import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -22,13 +23,13 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 /**
  * Association between Users and their assigned phones.
  */
-public class Line implements Serializable {
+public class Line implements Serializable, DataCollectionItem {
 
     public static final String FOLDER_RESOURCE_NAME = "line";
 
     private static final long serialVersionUID = 1L;
 
-    private int m_id = PhoneContext.UNSAVED_ID;
+    private Integer m_id = new Integer(PhoneContext.UNSAVED_ID);
 
     private User m_user;
 
@@ -41,11 +42,11 @@ public class Line implements Serializable {
     private int m_position;
 
     public int getId() {
-        return m_id;
+        return m_id.intValue();
     }
 
     public void setId(int id) {
-        m_id = id;
+        m_id = new Integer(id);
     }
 
     public User getUser() {
@@ -82,6 +83,10 @@ public class Line implements Serializable {
 
     public void setEndpoint(Endpoint endpoint) {
         m_endpoint = endpoint;
+    }
+    
+    public Object getPrimaryKey() {
+        return m_id;
     }
 
     public int getPosition() {

@@ -136,7 +136,7 @@ public class Endpoint implements PrimaryKeySource, Serializable {
         line.setPosition(lines.size());
         lines.add(line);
     }
-
+    
     /**
      * automatically set's the endpoint object and position
      * <pre>
@@ -156,21 +156,5 @@ public class Endpoint implements PrimaryKeySource, Serializable {
 
     public Object getPrimaryKey() {
         return new Integer(getId());
-    }
-
-    /**
-     * Move line at position N steps up if step is positive, otherwise N steps down
-     * @param position
-     * @param step
-     */
-    public void moveLine(int position, int step) {
-        List lines = getLines();
-        Object line = lines.remove(position);
-        int newPosition = Math.max(0, Math.min(position + step, lines.size() - 1));
-        lines.add(newPosition, line);
-        for (int i = 0; i < lines.size(); i++) {
-            Line l = (Line) lines.get(i);
-            l.setPosition(i);
-        }
     }
 }
