@@ -261,6 +261,9 @@
     <xslt in="${build.dir}/checkstyle_errors.xml" 
         out="${build.dir}/checkstyle_errors.html" 
         style="${top.dir}/meta/checkstyle-noframes-sorted.xsl"/> 
+    <xslt in="${build.dir}/checkstyle_errors.xml"
+      out="${build.dir}/checkstyle_errors.txt"
+      style="${top.dir}/meta/checkstyle-text.xsl"></xslt> 
     <fail if="checkstyle.failed"/> 
   </target> 
 	
