@@ -41,7 +41,7 @@ Environment Variables
 After installing these packages, set the following environment
 variables:
 
- JAVA_HOME
+ JAVA_HOME - where you installed java, for example:
  JBOSS_HOME - where you unzipped Jboss + "/jboss"
  TOMCAT_HOME - where you unzipped Jboss + "/catalina"
  ANT_HOME
@@ -79,14 +79,17 @@ now to initialize default database settings. On redhat systems:
 
 optionally or on other systems, this will also initialize the database
 
-    mkdir -p /var/lib/pgsql/data
-    chown postgres /var/lib/pgsql/data
+    # on some systems, this is /var/lib/postgresql/data
+    export PGDATA=/var/lib/pgsql/data
+
+    mkdir -p $PGDATA
+    chown postgres $PGDATA
     su postgres
-    initdb --pgdata=/var/lib/pgsql/data
+    initdb --pgdata=$PGDATA
 
 2.) Setup security permissions. Edit file: 
 
-  /var/lib/pgsql/data/pg_hba.conf
+  $PGDATA/pg_hba.conf
 
  a.) uncomment following lines
 
@@ -100,7 +103,7 @@ optionally or on other systems, this will also initialize the database
 
 3.) Enable TCP/IP connections. Edit file:
 
-   /var/lib/pgsql/data/postgresql.conf
+   $PGDATA/postgresql.conf
 
  a.) uncomment and edit this line
 
@@ -108,15 +111,15 @@ optionally or on other systems, this will also initialize the database
 
 4.) Create postmaster file for tcp/ip communications to postgres
 
-   echo "-i" > /var/lib/pgsql/data/postmaster.opts.default
-   chmod 664 /var/lib/pgsql/data/postmaster.opts.default
-   chown postgres /var/lib/pgsql/data/postmaster.opts.default
+   echo "-i" > $PGDATA/postmaster.opts.default
+   chmod 664 $PGDATA/postmaster.opts.default
+   chown postgres $PGDATA/postmaster.opts.default
 
 5.) Now you can start up postgres, must me root user
 
 General Linux Systems :
 
-  /usr/bin/pg_ctl -D /var/lib/pgsql/data start
+  /usr/bin/pg_ctl -D $PGDATA start
 
 Redhat:
   service postgresql start

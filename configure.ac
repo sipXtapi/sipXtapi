@@ -60,10 +60,8 @@ SFAC_LIB_PORT
 AC_SUBST(SIPXCONFIGLIB, [$SIPXPBXDATA/lib])
 
 # Where profiles get generated.
-# In accordance to FHS, this is an approp. place for generated profiles, 
-# httpd conf will alias dir to appear under 
-#  http://sipchange/phone/profiles
-AC_SUBST(profiledir, [${localstatedir}/phone/profile])
+#  http://server:8090/phone/profiles
+AC_SUBST(profiledir, [${wwwdir}/doc/phone/profile])
 
 CHECK_JNI
 CHECK_ANT
