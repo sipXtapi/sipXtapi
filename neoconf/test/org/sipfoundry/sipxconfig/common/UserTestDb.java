@@ -38,4 +38,9 @@ public class UserTestDb extends TestCase {
         assertEquals(6, users.size());        
     }
     
+    public void testNewUser() throws Exception {
+        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        User u = new User();
+        //m_core.saveUser(u);
+    }    
 }

@@ -36,6 +36,11 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
     }
 
     public void saveUser(User user) {
+        // Currently only 1 organization (except brief instance when installer user exists)
+        if (user.getOrganization() == null) {
+            user.setOrganization(loadRootOrganization());
+        }
+        
         getHibernateTemplate().saveOrUpdate(user);        
     }
     
