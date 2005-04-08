@@ -193,9 +193,15 @@ Installing From Source and Non-Redhat Users
 -configure.patch
        If you use custom JBoss server configuration use its name instead of
        "default". Every configuration has to be patched separately.
-    2. Copy in web certificate for basic https support
+    2. Remove  Hibernate  distributed with JBoss (it's too old to support
+       sipXconfig):
+ rm -rf ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/deploy/jboss-hibernate.deploy
+er
+       Hibernate  2.1  required  by  sipXconfig is included in the source
+       distribution.
+    3. Copy in web certificate for basic https support
      cp meta/ssl.pkcs12 ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/conf
-    3. Be sure user running sipxpbx (most cases sipxchange) has full r/w access
+    4. Be sure user running sipxpbx (most cases sipxchange) has full r/w access
        to all files and directories in ${JBOSS_HOME}
 
    If you are runnning sipXconfig 2.6.x (or older) on the same machine as
@@ -354,24 +360,24 @@ Windows
 
 References
 
-   1. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh
-   2. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh-system
-   3. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh-jdk
-   4. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#yum
-   5. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#rh-sipx
-   6. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src
-   7. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-dep
-   8. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-env
-   9. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-compile
-  10. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-jboss
-  11. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#src-db
-  12. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#additional
-  13. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#tftp
-  14. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#security
-  15. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#run
-  16. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#run-sipx
-  17. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#run-alone
-  18. file://localhost/home/dhubler/work/2.8/sipXconfig/doc/src/manual/install.html#windows
+   1. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh
+   2. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-system
+   3. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-jdk
+   4. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#yum
+   5. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-sipx
+   6. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src
+   7. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-dep
+   8. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-env
+   9. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-compile
+  10. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-jboss
+  11. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-db
+  12. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#additional
+  13. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#tftp
+  14. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#security
+  15. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run
+  16. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-sipx
+  17. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-alone
+  18. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#windows
   19. http://java.sun.com/j2se/1.4.2/download.html
   20. http://www.mksearch.mkdoc.org/howto/jpackage-fc3/
   21. http://www.sipfoundry.org/pub/sipX/
