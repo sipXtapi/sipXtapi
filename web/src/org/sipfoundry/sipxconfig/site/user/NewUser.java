@@ -17,25 +17,31 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class NewUser extends BasePage implements PageRenderListener {
-    
+
     public abstract CoreContext getCoreContext();
-    
+
     public abstract User getUser();
-    
+
     public abstract void setUser(User user);
-    
+
     public void save(IRequestCycle cycle) {
-        getCoreContext().saveUser(getUser());
-        cycle.activate(ManageUsers.PAGE);
+        if (TapestryUtils.isValid(this)) {
+            CoreContext core = getCoreContext();
+            User user = getUser();
+            user.setOrganization(core.loadRootOrganization());
+            core.saveUser(user);
+
+            cycle.activate(ManageUsers.PAGE);
+        }
     }
 
     public void cancel(IRequestCycle cycle) {
         cycle.activate(ManageUsers.PAGE);
     }
-    
+
     public void pageBeginRender(PageEvent event_) {
         setUser(new User());
     }

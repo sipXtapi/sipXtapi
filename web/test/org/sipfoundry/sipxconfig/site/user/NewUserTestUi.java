@@ -34,7 +34,16 @@ public class NewUserTestUi extends WebTestCase {
     }
     
     public void testListUsers() throws Exception {
-        clickLink("NewUser");              
+        SiteTestHelper.home(tester);
+        clickLink("NewUser"); 
+//        setFormElement("userId", "new-user-test");
+//        setFormElement("firstName", "NewUserFname");
+//        setFormElement("lastName", "NewUserLname");
+//        setFormElement("extension", "993");
+//        setFormElement("pin", "1234");
+//        setFormElement("pinConfirm", "1234");
+//        clickButton("user:save");
+        
         SiteTestHelper.assertNoException(tester);        
     }
 }

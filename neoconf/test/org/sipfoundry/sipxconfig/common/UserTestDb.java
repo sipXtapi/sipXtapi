@@ -15,6 +15,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.dbunit.Assertion;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 
@@ -38,9 +42,26 @@ public class UserTestDb extends TestCase {
         assertEquals(6, users.size());        
     }
     
-    public void testNewUser() throws Exception {
+    public void testSave() throws Exception {
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
-        User u = new User();
-        //m_core.saveUser(u);
-    }    
+        User user = new User();
+        user.setDisplayId("userid");
+        user.setFirstName("FirstName");
+        user.setLastName("LastName");
+        user.setPassword("password");
+        user.setExtension("1234");
+        user.setOrganization(m_core.loadRootOrganization());
+        m_core.saveUser(user);
+        
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveUserExpected.xml"); 
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[user_id]", user.getId());        
+        expectedRds.addReplacementObject("[null]", null);        
+        
+        ITable expected = expectedRds.getTable("users");                
+        ITable actual = TestHelper.getConnection().createQueryTable("users", "select * from users where display_id='userid'");
+        
+        Assertion.assertEquals(expected, actual);                
+        
+    }
 }
