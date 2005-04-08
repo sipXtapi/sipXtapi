@@ -181,6 +181,10 @@ database and to enable sipX provided authentication modules.
     <pre>      patch -d ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF} -p0 &lt; meta/sipx-jboss4-configure.patch<br /></pre>
 If you use custom JBoss server configuration use its name instead of <q>default</q>.
 Every configuration has to be patched separately. </li>
+  <li>Remove Hibernate distributed with JBoss (it's too old to support sipXconfig):
+      <pre> rm -rf ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/deploy/jboss-hibernate.deployer</pre>
+      Hibernate 2.1 required by sipXconfig is included in the source distribution. 
+  </li>
   <li>Copy in web certificate for basic https support<br />
     <pre>     cp meta/ssl.pkcs12 ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/conf</pre>
   </li>
