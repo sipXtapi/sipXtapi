@@ -1,5 +1,6 @@
 /*  Legacy colors
  *    #699  - faded green
+ *    #669999 - yet another faded green 
  *    #ffc  - faded yellow
  *    #F0E68C - slightly darker, ugly yellow used as background in tables and forms
  */
@@ -13,8 +14,32 @@ body {
 }
 
 h1 { font: 170% }
-h2 { font: 140% }
-h3 { font: 120% }
+
+/*
+ * Legacy green header with underline
+ */ 
+h2 { 
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 24px;
+	font-weight: bolder;
+	color: #669999;
+	width: 23em;
+	padding-bottom: 0.5em;
+	background-color: transparent;
+	border-bottom: solid;
+	border-bottom-width: 2px;
+}
+
+/*
+ * Legacy h3 header
+ */	
+h3 { 
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bolder;
+	color: #669999;
+	background-color : transparent;	
+}
 h4 { font: bold 100% }
 h5 { font: italic 100% }
 h6 { font: small-caps 100% }
@@ -34,11 +59,12 @@ pre, tt, code, kbd, samp {
 }
 
 legend {
+  color: #000; /* IE this is blue by default */
   font: bold 80%;
 }
 
 .hack {
-  color: #ff6600;
+  color: #f60;
 }
 
 ul.tabArea {
@@ -60,10 +86,6 @@ li.tab a:link, li.tab a:hover, li.tab a:visited {
 li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
    text-decoration: none;
    color: #000;
-}
-
-.settingDefault {
-    font-style: italic;
 }
 
 #lastmodified {
@@ -114,7 +136,7 @@ li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
 }
 
 #settings-nav {
-  width: 15em;
+  width: 11em;
   float:left;
 }
 
@@ -153,6 +175,11 @@ p.message {
 
 .settingDefault {
   font-style: italic;
+}
+
+.settingDescription {
+  font-style: 80%;
+  color: #555;
 }
 
 li {
@@ -343,6 +370,10 @@ ul.form-actions li {
 
 .hide {
   display: none
+}
+
+#user-error {
+  color: #f00;
 }
 
 /* everything that follows is doc specific - do not copy to web project css */

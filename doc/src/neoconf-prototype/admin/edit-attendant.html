@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>sipXconfig</title>
+  <link rel="stylesheet" type="text/css" href="../sipxconfig.css" />
+</head>
+<body id="page_id">
+<h2>Auto Attendant</h2>
+<form method="post" action="#">
+  <table cellpadding="2" cellspacing="2">
+    <tbody>
+      <tr>
+        <td>Name:</td>
+        <td> <input name="name" /> </td>
+      </tr>
+      <tr>
+        <td>Extension:</td>
+        <td> <input name="name" /> </td>
+      </tr>
+      <tr>
+        <td>Description:</td>
+        <td> <textarea cols="40" rows="5" name="description"></textarea> </td>
+      </tr>
+      <tr >
+        <td nowrap="nowrap">Select from existing prompts:</td>
+        <td>
+        <select size="1" name="prompt">
+        <option>day-greeting.wav</option>
+        <option>goodbye.wav</option>
+        <option>technical-support.wav</option>
+        </select>
+        <br />
+        </td>
+      </tr>
+      <tr>
+        <td nowrap="nowrap" valign="top">Upload new prompt:</td>
+        <td><input value="Upload" type="file" />
+<p>* Uploaded sound files must as 8khz / 16 bit PCM samples,
+signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
+	    </td>
+      </tr>
+    </tbody>
+  </table>
+  <table>
+    <tbody>
+      <tr>
+        <th>Key</th>
+        <th>Action</th>
+        <th>Extension</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>*</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name</option>
+        <option>Reserved for ext.</option>
+        <option>Login</option>
+        <option>Route to special extension</option>
+        </select>
+        </td>
+        <td><input name="key-ext" type="text" /></td>
+      </tr>
+    </tbody>
+  </table>
+</form>
+<ul class="form-actions">
+  <li> <input value="Save" type="submit" /> </li>
+  <li> <input value="Cancel" type="submit" /> </li>
+</ul>
+<br />
+<hr />
+<h3>NOTES:</h3>
+</body>
+</html>

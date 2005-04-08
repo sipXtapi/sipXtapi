@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>sipXconfig</title>
+		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
+	</head>
+	<body id="page_id">
+	<div id="component">
+    <h2>Auto Attendants</h2>        
+	<ul class="component-links">
+		<li><a href="edit-attendant.html">Add Attendant</a></li>
+	</ul>                
+    <form action="#">
+    	<table class="component">
+            <thead>
+                <tr>
+                   <th/>
+                   <th>Name</th> 
+                   <th>Extension</th>
+                   <th>Greeting</th>
+                   <th>Description</th> 
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="odd">
+				   <td><input type="checkbox" name="id1"/></td>
+                   <td><a href="edit-attendant.html">Welcome</a></td> 
+                   <td>332</td> 
+                   <td>day-greeting.wav</td> 
+                   <td>Welcome to Harry's Kitchen...</td>
+                </tr>
+                <tr class="even">
+				   <td><input type="checkbox" name="id2"/></td>
+                   <td><a href="edit-attendant.html">Login</a></td> 
+                   <td>432</td> 
+                   <td>login.wav</td> 
+                   <td>Please enter your PIN...</td>
+                </tr>
+            </tbody>
+		</table>
+		<ul class="component-submit">
+			<li>
+				<input type="button" name="" value="Duplicate"/>
+			</li>
+			<li>
+				<input type="submit" name="" value="Delete" onclick="confirm('Are you sure you want to remove selected attendants?')"/>
+			</li>
+		</ul>
+    </form>
+	</div>        
+	<hr/>
+    	    <h3>NOTES:</h3>
+	</body>
+</html>
