@@ -1,12 +1,1 @@
-[Call register]
-Dialled0=
-
-[General]
-TrayIcon=No
-
-[Registration]
-SipUri="Joe Smith"<sip:jsmith@sipfoundry.org>
-UserName=jsmith
-SipServer=
-AutoRegister=Yes
-qValue=
+[Call register]Dialled0=[General]TrayIcon=No[Registration]SipUri="Joe Smith"<sip:jsmith@sipfoundry.org>UserName=jsmithSipServer=AutoRegister=YesqValue=
