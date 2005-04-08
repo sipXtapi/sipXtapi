@@ -26,7 +26,7 @@
     </component>
     <component id="prefix" type="ValidField">
         <binding name="value" expression="pattern.prefix"/>
-        <binding name="validator" expression="page.global.validPhoneRequired"/>
+        <binding name="validator" expression="page.global.validPhone"/>
         <static-binding name="displayName" value="Prefix"/>
     </component>
     

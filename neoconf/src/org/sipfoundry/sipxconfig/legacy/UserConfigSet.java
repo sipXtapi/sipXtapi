@@ -85,10 +85,10 @@ public class UserConfigSet extends ConfigSet {
      * @param p permission
      * @return true if (both) present and enabled, false otherwise
      */
-    public boolean hasPermission(Permission p) {
+    public Boolean hasPermission(Permission p) {
         Map perms = getPermissions();
         Boolean enabled = (Boolean) perms.get(p);
-        return enabled != null && enabled.booleanValue();
+        return enabled;
     }
 
     /**

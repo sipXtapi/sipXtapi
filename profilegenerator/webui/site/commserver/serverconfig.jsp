@@ -99,6 +99,9 @@
        %>
    </head>
    <body class="bglight" onLoad="MM_goToURL('top.frames[\'command\']','command/serverconfig_cmd.jsp?servername=<%=servername%>');populateFormFields();" onunload="checkSaveFlag('serverconfig')">
+   <p>If you've made edits to configuration files on your system with an editor like vi for emacs, and it was<br/>
+      before you've used this web page, hitting "Restore to Defaults" will not be able restore your system to<br/>
+      the initial factory settings.</p>
        <%= XtagXslTagReplacement.style(generatedxml, xslFile, params) %>
    </body>
 </html>

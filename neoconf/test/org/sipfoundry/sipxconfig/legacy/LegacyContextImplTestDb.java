@@ -48,5 +48,6 @@ public class LegacyContextImplTestDb extends TestCase {
     public void testCheckUserPermission() {
         User user = m_coreContext.loadUser(4);
         assertFalse(m_legacyContext.checkUserPermission(user,Permission.VOICEMAIL));
+        assertTrue(m_legacyContext.checkUserPermission(user,Permission.AUTO_ATTENDANT));
     }
 }

@@ -26,7 +26,7 @@ public class UserConfigSetTest extends TestCase {
 
     protected void setUp() throws Exception {
         Reader controlXml = new InputStreamReader(getClass().getResourceAsStream(
-        "userConfigSet.test.xml"));
+                "userConfigSet.test.xml"));
         String content = IOUtils.toString(controlXml);
         m_configSet = new UserConfigSet();
         m_configSet.setContent(content);
@@ -39,22 +39,22 @@ public class UserConfigSetTest extends TestCase {
         assertEquals(Boolean.TRUE, permissions.get(Permission.INTERNATIONAL_DIALING));
         assertEquals(Boolean.TRUE, permissions.get(Permission.LOCAL_DIALING));
         assertEquals(Boolean.TRUE, permissions.get(Permission.LONG_DISTANCE_DIALING));
-        assertEquals(Boolean.TRUE, permissions.get(Permission.VOICEMAIL));        
+        assertEquals(Boolean.TRUE, permissions.get(Permission.VOICEMAIL));
         assertEquals(Boolean.TRUE, permissions.get(Permission.RESTRICTED_DIALING));
         assertEquals(Boolean.FALSE, permissions.get(Permission.RECORD_SYSTEM_PROMPTS));
-        
+
         assertFalse(permissions.containsKey(Permission.TOLL_FREE_DIALING));
     }
-    
+
     public void testHasPermission() {
-        assertTrue(m_configSet.hasPermission(Permission.VOICEMAIL));
-        assertFalse(m_configSet.hasPermission(Permission.RECORD_SYSTEM_PROMPTS));
+        assertEquals(Boolean.TRUE, m_configSet.hasPermission(Permission.VOICEMAIL));
+        assertEquals(Boolean.FALSE, m_configSet.hasPermission(Permission.RECORD_SYSTEM_PROMPTS));
         // the next one test if we return FALSE for properties that are not config set
-        assertFalse(m_configSet.hasPermission(Permission.TOLL_FREE_DIALING));
+        assertNull(m_configSet.hasPermission(Permission.TOLL_FREE_DIALING));
     }
-    
+
     public void testGetClearTextPassword() {
         assertEquals("1234", m_configSet.getClearTextPassword());
     }
-    
+
 }

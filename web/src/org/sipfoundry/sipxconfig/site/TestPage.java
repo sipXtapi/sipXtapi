@@ -17,9 +17,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
- * Home page
+ * TestPage page
  */
-public abstract class Home extends BasePage {
+public abstract class TestPage extends BasePage {
     
     public abstract DialPlanContext getDialPlanManager();
     

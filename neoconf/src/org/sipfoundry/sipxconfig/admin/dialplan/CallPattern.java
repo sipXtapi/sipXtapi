@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -42,7 +43,7 @@ public class CallPattern {
     }
 
     public void setPrefix(String prefix) {
-        m_prefix = prefix;
+        m_prefix = (String) ObjectUtils.defaultIfNull(prefix, StringUtils.EMPTY);
     }
 
     public String calculatePattern() {

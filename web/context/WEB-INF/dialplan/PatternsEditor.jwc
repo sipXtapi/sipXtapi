@@ -16,9 +16,13 @@
     <property-specification name="pattern" type="org.sipfoundry.sipxconfig.admin.dialplan.DialPattern"/>
     
     <!-- B E A N S -->
-    <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel" lifecycle="page">
-    	<set-property name="min" expression="4"/>
+    <bean name="digitsOnlyModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel" lifecycle="page">
+    	<set-property name="min" expression="0"/>
 	    <set-property name="max" expression="18"/>
+	</bean>    
+    <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
+    	<set-property name="model" expression="beans.digitsOnlyModel"/>
+	    <set-property name="extraOption">"Any number of digits"</set-property>
 	</bean>    
     
     <!-- C O M P O N E N T S -->

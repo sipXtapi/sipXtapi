@@ -39,7 +39,7 @@ public class SiteTestHelper {
     }
 
     /**
-     * Go to Home.html, includes hack for slow machines.
+     * Go to TestPage.html, includes hack for slow machines.
      */
     public static void home(WebTester tester) {
         tester.beginAt("/");
@@ -48,7 +48,7 @@ public class SiteTestHelper {
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
         // to get webunit to catch up.
-        tester.beginAt("/");
+        tester.beginAt("/app?service=page/TestPage");
         assertNoException(tester);
     }
 

@@ -31,5 +31,9 @@ public class CallPatternTest extends TestCase {
         pattern.setPrefix("");
         pattern.setDigits(CallDigits.FIXED_DIGITS);
         assertEquals("{digits}", pattern.calculatePattern());
+        
+        pattern.setPrefix(null);
+        pattern.setDigits(CallDigits.NO_DIGITS);
+        assertEquals("", pattern.calculatePattern());
     }
 }

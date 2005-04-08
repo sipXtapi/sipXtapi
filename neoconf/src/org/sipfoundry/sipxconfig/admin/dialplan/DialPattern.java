@@ -53,17 +53,22 @@ public class DialPattern {
     }
 
     public String calculatePattern() {
-        char[] fixedDigits = new char[m_digits];
-        Arrays.fill(fixedDigits, 'x');
         StringBuffer buf = new StringBuffer(m_prefix);
-        buf.append(fixedDigits);
+        if (m_digits > 0) {
+            char[] fixedDigits = new char[m_digits];
+            Arrays.fill(fixedDigits, 'x');
+            buf.append(fixedDigits);
+        } else if (m_digits < 0) {
+            buf.append(".");
+        }
         return buf.toString();
     }
 
     /**
      * Helper function to tokenize list of numbers into array of strings
      * 
-     * @param patternsList comma separated list of patterns, spaces are treated as separators as well
+     * @param patternsList comma separated list of patterns, spaces are treated as separators as
+     *        well
      * @param suffix string appended to each pattern in the resulting list
      */
     public static String[] getPatternsFromList(String patternsList, String suffix) {

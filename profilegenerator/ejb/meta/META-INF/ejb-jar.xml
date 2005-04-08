@@ -23,7 +23,7 @@
         <message-driven>
             <ejb-name>ProjectionFacade</ejb-name>
             <ejb-class>com.pingtel.pds.pgs.entity.ProjectionFacade</ejb-class>
-            <transaction-type>Bean</transaction-type>
+            <transaction-type>Container</transaction-type>
             <message-selector></message-selector>
             <acknowledge-mode>Auto-acknowledge</acknowledge-mode>
             <message-driven-destination>
@@ -40,7 +40,7 @@
         <message-driven>
             <ejb-name>DataSetBuilderFacade</ejb-name>
             <ejb-class>com.pingtel.pds.pgs.sipxchange.datasets.DataSetBuilderFacade</ejb-class>
-            <transaction-type>Bean</transaction-type>
+            <transaction-type>Container</transaction-type>
             <message-selector></message-selector>
             <acknowledge-mode>Auto-acknowledge</acknowledge-mode>
             <message-driven-destination>
@@ -57,7 +57,7 @@
         <message-driven>
             <ejb-name>RestartDevicesFacade</ejb-name>
             <ejb-class>com.pingtel.pds.pgs.entity.RestartDevicesFacade</ejb-class>
-            <transaction-type>Bean</transaction-type>
+            <transaction-type>Container</transaction-type>
             <message-selector></message-selector>
             <acknowledge-mode>Auto-acknowledge</acknowledge-mode>
             <message-driven-destination>
@@ -1529,7 +1529,7 @@
                 <method-intf>Remote</method-intf>
                 <method-name>generateProfiles</method-name>
             </method>
-            <trans-attribute>NotSupported</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
 
         <container-transaction>
@@ -1794,7 +1794,7 @@
                 <method-intf>Remote</method-intf>
                 <method-name>generateProfiles</method-name>
             </method>
-            <trans-attribute>NotSupported</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
 
 
@@ -1822,7 +1822,7 @@
                 <method-intf>Remote</method-intf>
                 <method-name>restartDevices</method-name>
             </method>
-            <trans-attribute>NotSupported</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
 
         <!--    ****************** User methods *********************** -->
@@ -3218,6 +3218,30 @@
                 <method-name>listUsers</method-name>
             </method>
             <trans-attribute>Supports</trans-attribute>
+        </container-transaction>
+
+		<container-transaction>
+            <method>
+                <ejb-name>ProjectionFacade</ejb-name>
+                <method-name>*</method-name>                
+            </method>
+            <trans-attribute>Required</trans-attribute>            
+        </container-transaction>
+
+		<container-transaction>
+            <method>
+                <ejb-name>DataSetBuilderFacade</ejb-name>
+                <method-name>*</method-name>                
+            </method>
+            <trans-attribute>Required</trans-attribute>            
+        </container-transaction>
+
+		<container-transaction>
+            <method>
+                <ejb-name>RestartDevicesFacade</ejb-name>
+                <method-name>*</method-name>                
+            </method>
+            <trans-attribute>Required</trans-attribute>            
         </container-transaction>
 
     </assembly-descriptor>

@@ -184,6 +184,12 @@
       <value>2</value>
       <value><![CDATA[<PROFILE></PROFILE>]]></value>
     </row>
+    <row>
+      <value>2</value>
+      <value>3</value>
+      <value>2</value>
+      <value><![CDATA[<PROFILE><PERMISSIONS ref_property_id="57"><PERMISSIONS><AutoAttendant>ENABLE</AutoAttendant></PERMISSIONS></PERMISSIONS></PROFILE>]]></value>
+    </row>
   </table>
   <table name="user_cs_assoc">
     <column>usrs_id</column>
@@ -191,6 +197,14 @@
     <row>
       <value>4</value>
       <value>1</value>
+    </row>
+  </table>
+  <table name="ug_cs_assoc">
+    <column>ug_id</column>
+    <column>cs_id</column>
+    <row>
+      <value>1</value>
+      <value>2</value>
     </row>
   </table>
 </dataset>

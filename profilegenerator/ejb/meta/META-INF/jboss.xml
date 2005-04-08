@@ -7,6 +7,66 @@
     <!-- -->
     
     <enterprise-beans>
+        <entity>
+            <ejb-name>CoreSoftware</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>CSProfileDetail</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>User</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>Device</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>Organization</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>DeviceType</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>ConfigurationSet</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>RefConfigurationSet</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>RefProperty</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>DeviceGroup</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>Manufacturer</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+            
+        <entity>
+            <ejb-name>UserGroup</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+                    
         <message-driven>
             <ejb-name>ProjectionFacade</ejb-name>
             <destination-jndi-name>queue/A</destination-jndi-name>
@@ -62,7 +122,12 @@
 	        <MaximumSize>10</MaximumSize>
 	      </container-pool-conf>
 	    </container-configuration>
-
+ 
+    <container-configuration extends="Standard CMP EntityBean">
+      	<container-name>Optimistic CMP EntityBean</container-name>
+      	<locking-policy>org.jboss.ejb.plugins.lock.JDBCOptimisticLock</locking-policy>
+    </container-configuration>  
+  
     <!--  S T A T E L E S S  S E S S I O N  B E A N S  -->
     <container-configuration>
       <container-name>Standard Stateless SessionBean</container-name>

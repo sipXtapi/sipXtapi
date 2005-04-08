@@ -32,7 +32,7 @@ public class DialingRuleTestUi extends WebTestCase {
 
     public void testAddExistingGateway() {
         GatewaysTestUi.addTestGateways(getTester(), 3);
-        beginAt("/");
+        SiteTestHelper.home(getTester());
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
         clickLinkWithText("Emergency");

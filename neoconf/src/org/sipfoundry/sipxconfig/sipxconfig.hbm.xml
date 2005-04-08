@@ -135,4 +135,18 @@
 		<property name="extension" column="extension"/>
 		<property name="profileEncryptionKey" column="profile_encryption_key"/>
 	</class>
+    
+    <!--
+     - U S E R   G R O U P
+     -->
+     <class name="org.sipfoundry.sipxconfig.common.UserGroup" table="user_groups">
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">user_group_seq</param>
+			</generator>
+		</id>
+		<property name="rcsId" column="rcs_id"/>
+		<property name="parentGroupId" column="parent_ug_id"/>
+        <property name="name"/>
+     </class>
 </hibernate-mapping>

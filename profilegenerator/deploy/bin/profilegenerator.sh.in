@@ -141,7 +141,7 @@ else
 fi
 
 # append profilegenerator opts
-JAVA_OPTS="-server $JAVA_OPTS $PROFILEGENERATOR_OPTS"
+JAVA_OPTS="-server $JAVA_OPTS $PROFILEGENERATOR_OPTS -Xmx384M"
 
 
 # setup security manager

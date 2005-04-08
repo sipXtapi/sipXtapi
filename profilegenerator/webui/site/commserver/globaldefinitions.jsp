@@ -78,6 +78,9 @@
         <script src="script/jsFunctions.js"></script>
   </head>
    <body class="bglight" onLoad="MM_preloadImages('../image/del.gif');MM_goToURL('top.frames[\'command\']','command/globalconfig_cmd.html');populateFormFields();" onunload="checkSaveFlag('globalconfig')">
+   <p>If you've made edits to config.defs file on your system with an editor like vi for emacs, and it was<br/>
+      before you've used this web page, hitting "Restore to Defaults" will not be able restore your system to<br/>
+      the initial factory settings.</p>
         <%= XtagXslTagReplacement.style(generatedxml, xslFile, null) %>
    </body>
 </html>

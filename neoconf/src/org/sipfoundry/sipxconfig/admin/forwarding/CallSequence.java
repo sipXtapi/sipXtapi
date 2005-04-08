@@ -104,27 +104,27 @@ public class CallSequence extends BeanWithId {
         return authExceptions;
     }
 
-    public synchronized List getCalls() {
+    public List getCalls() {
         return m_calls;
     }
 
-    public synchronized void setCalls(List calls) {
+    public void setCalls(List calls) {
         m_calls = calls;
     }
 
-    public synchronized User getUser() {
+    public User getUser() {
         return m_user;
     }
 
-    public synchronized void setUser(User user) {
+    public void setUser(User user) {
         m_user = user;
     }
 
-    public synchronized boolean isWithVoicemail() {
+    public boolean isWithVoicemail() {
         return m_withVoicemail;
     }
 
-    public synchronized void setWithVoicemail(boolean withVoicemail) {
+    public void setWithVoicemail(boolean withVoicemail) {
         m_withVoicemail = withVoicemail;
     }
 }

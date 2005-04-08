@@ -28,12 +28,16 @@ public class DialPatternTest extends TestCase {
         pattern.setDigits(0);
         pattern.setPrefix("19");
         assertEquals("19", pattern.calculatePattern());
-        
+
         pattern.setDigits(5);
         pattern.setPrefix("");
-        assertEquals("xxxxx", pattern.calculatePattern());        
+        assertEquals("xxxxx", pattern.calculatePattern());
+
+        pattern.setDigits(-1);
+        pattern.setPrefix("134");
+        assertEquals("134.", pattern.calculatePattern());
     }
-    
+
     public void testGetPatternsFromList() {
         String list = "sdf, 123, 444   , 34";
         String[] patterns = DialPattern.getPatternsFromList(list, StringUtils.EMPTY);
