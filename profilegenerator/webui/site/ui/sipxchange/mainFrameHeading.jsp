@@ -1,7 +1,7 @@
 <%@ page errorPage="/ui/error/error.jsp"%>
 <html>
 <head>
-<title>Pingtel Configuration Server</title>
+<title>Configuration Server</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" type="text/css" href="style/dms_sipxchange.css">
 <script src="jsFunctions.js"></script>

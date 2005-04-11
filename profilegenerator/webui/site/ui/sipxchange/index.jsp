@@ -32,7 +32,7 @@
 
 <html>
 <head>
-<title>Pingtel Configuration Server</title>
+<title>Configuration Server</title>
 <script src="../script/dms.js"></script>
 <script language="JavaScript">
 var helpwindow = null;

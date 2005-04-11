@@ -6,7 +6,7 @@
 
 <html>
 <head>
-<title>Pingtel Configuration Server</title>
+<title>Configuration Server</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 	<frameset rows="60,*" frameborder="NO" border="0" framespacing="0"> 
