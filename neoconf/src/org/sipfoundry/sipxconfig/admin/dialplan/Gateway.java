@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+
 
 /**
  * Gateway

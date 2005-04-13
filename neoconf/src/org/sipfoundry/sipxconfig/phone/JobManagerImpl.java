@@ -54,9 +54,8 @@ public class JobManagerImpl extends Thread implements JobManager {
             JobRecord job = m_jobQueue.removeJob();
             if (job == NULL_JOB) {
                 break;
-            } else {
-                runJob(job);
             }
+            runJob(job);
         }
     }
 

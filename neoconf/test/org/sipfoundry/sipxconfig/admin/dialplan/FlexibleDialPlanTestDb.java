@@ -24,6 +24,7 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.filter.IncludeTableFilter;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -80,7 +81,7 @@ public class FlexibleDialPlanTestDb extends TestCase {
         DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
         m_plan.storeRule(r1);
-        assertFalse(BeanWithId.UNSAVED_ID.equals(r1.getId()));
+        assertFalse(r1.isNew());
 
         m_plan.duplicateRules(Collections.singletonList(r1.getId()));
 

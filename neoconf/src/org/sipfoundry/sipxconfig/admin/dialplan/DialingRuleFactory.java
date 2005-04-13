@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+
 /**
  * DialingRuleFactory
  */

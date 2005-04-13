@@ -52,7 +52,7 @@ public class Organization implements Serializable {
         return m_stereotype;
     }
     /**
-     * @param stereoType The stereoType to set.
+     * @param stereotype The stereoType to set.
      */
     public void setStereotype(int stereotype) {
         m_stereotype = stereotype;

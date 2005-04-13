@@ -42,7 +42,7 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
     }
 
     public void storeRule(DialingRule rule) {
-        if (BeanWithId.UNSAVED_ID.equals(rule.getId())) {
+        if (rule.isNew()) {
             DialPlan dialPlan = getDialPlan();
             dialPlan.addRule(rule);
             getHibernateTemplate().saveOrUpdate(dialPlan);

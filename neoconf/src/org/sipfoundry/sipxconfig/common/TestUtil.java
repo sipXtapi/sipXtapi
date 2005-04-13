@@ -111,7 +111,6 @@ public final class TestUtil {
      * arg 0 - any path in the testing classpath
      * arg 1 - absolute path to sipXconfig/neoconf/etc directory (not installed)
      * arg 2 - where output is generated   
-     * @param 
      */
     public static void main(String[] args) {
         // generates sipxconfig.properties in classpath (arg 0)

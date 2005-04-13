@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.common;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -22,7 +22,7 @@ import org.apache.commons.collections.Transformer;
  * Hibernate advises against using object identifiers in equals and hashCode methods
  */
 public class BeanWithId implements Cloneable {
-    protected static final Integer UNSAVED_ID = new Integer(-1);
+    private static final Integer UNSAVED_ID = new Integer(-1);
 
     private static int s_id = 1;
 
@@ -42,6 +42,15 @@ public class BeanWithId implements Cloneable {
 
     public Integer getId() {
         return m_id;
+    }
+    
+    /**
+     * Checks if the object has been saved to the database
+     * Works becuase hibernate changes id when object is saved
+     * @return true is the object has never been saved
+     */
+    public boolean isNew() {
+        return UNSAVED_ID.equals(getId());
     }
 
     public boolean equals(Object o) {
@@ -91,7 +100,7 @@ public class BeanWithId implements Cloneable {
         return this;
     }
 
-    static final class BeanToId implements Transformer {
+    public static final class BeanToId implements Transformer {
         public Object transform(Object item) {
             BeanWithId bean = (BeanWithId) item;
             return bean.getId();

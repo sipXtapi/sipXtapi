@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+
 /**
  * EmergencyRouting
  */
