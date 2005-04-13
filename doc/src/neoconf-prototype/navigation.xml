@@ -1,38 +1,29 @@
 <?xml version="1.0" standalone="yes"?>
 
 <menu>
-	
-	<item name="users" href="#" title="Users">Users</item>
+    <item name="admin" href="proto-stub.html" title="Administration">Administration</item>
 	<menu>
-		<item name="listAllUsers" href="users.html" title="List All Users">List All Users</item>
-		<item name="listAllUserGroups" href="#" title="List All Groups">List All Groups</item>
-	</menu>
-	<item name="devices" href="#" title="Devices">Devices</item>
-	<menu>
-		<item name="listAllDevices" href="#" title="List All Users">List All Devices</item>
-		<item name="listAllDeviceGroups" href="#" title="List All Groups">List All Groups</item>
-	</menu>
-	<item name="polycom" href="#" title="Polycom">Polycom</item>
-	<menu>
-        <item name="additionalDevices" href="phone/phones.html" title="Polycom Phones">Phones</item>
-        <item name="additionalDevices" href="user/users.html" title="Polycom Users">Users</item>		
-	</menu>
-	<item name="applications" href="#" title="Applications">Applications</item>
-	<menu>
-		<item name="listAllApplications" href="#" title="List All Users">List All Applications</item>
-		<item name="listAllApplicationSets" href="#" title="List All Application Sets">List All Application Sets</item>
-	</menu>
-    <item name="administration" href="#" title="Administration">Administration</item>
-	<menu>
-		<item name="listAdministration" href="#" title="List Administration">List All Administrators</item>
+        <item name="users" href="user/users.html" title="Users">Users</item>		
+        <item name="phones" href="phone/phones.html" title="Phones">Phones</item>
+        <item name="folders" href="folders.html" title="Folders">Folders</item>
+		<item name="administrators" href="proto-stub.html" title="Administrators">Administrators</item>
+		<item name="extensionPools" href="proto-stub.html" title="Extension Pools">Extension Pools</item>
 		<item name="dialplans" href="admin/dialplans.html" title="Dial Plans">Dial Plans</item>
+		<item name="autoAttendants" href="admin/auto-attendants.html" title="Auto Attendants">Auto Attendants</item>
+		<item name="e911forwarding" href="admin/e911-forwarding.html" title="Emergency Routing">Emergency Routing</item>
+		<item name="configuration" href="proto-stub.html" title="Configuration">Configuration</item>
+		<item name="organization" href="proto-stub.html" title="Organization Settings">Organization Settings</item>
+		<item name="backup" href="proto-stub.html" title="Backup">Backup</item>
+	</menu>
+    <item name="services" href="proto-stub.html" title="Network Services">Network Services</item>
+	<menu>
 		<item name="gateways" href="admin/gateways.html" title="Gateways">Gateways</item>
-		<item name="call-forwarding" href="admin/call-forwarding.html" title="Call Forwarding">Call Forwarding</item>
-		<item name="e911forwarding" href="admin/e911-forwarding.html" title="Caller Sensitive E911 Routing">E911 Routing</item>
-		<item name="settings" href="#" title="Settings">Settings</item>
-		<item name="extentionPools" href="#" title="Extension Pools">Extension Pools</item>
-		<item name="jobStatus" href="#" title="Job Status">Job Status</item>
-		<item name="Registrations" href="#" title="Registrations">Registrations</item>		
-		<item name="about" href="#" title="About">About</item>		
+    </menu>
+    <item name="diagnostics" href="proto-stub.html" title="Diagnostics">Diagnostics</item>
+	<menu>
+		<item name="registrations" href="proto-stub.html" title="Registrations">Registrations</item>
+		<item name="jobs" href="proto-stub.html" title="Job Status">Job Status</item>
+		<item name="servers" href="proto-stub.html" title="Servers">Servers</item>
+		<item name="about" href="proto-stub.html" title="About">About</item>		
 	</menu>
 </menu>

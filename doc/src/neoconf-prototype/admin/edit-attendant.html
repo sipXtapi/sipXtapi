@@ -6,6 +6,14 @@
 </head>
 <body id="page_id">
 <h2>Auto Attendant</h2>
+<div class="help">You can
+create an auto attendant
+menu by selecting "Route to
+special extension" for any key and enter any available extension in the
+adjacent extension field. Then create another auto attendant menu and enter
+that same extension in the extension field</div>
+<ul>
+</ul>
 <form method="post" action="#">
   <table cellpadding="2" cellspacing="2">
     <tbody>
@@ -19,10 +27,11 @@
       </tr>
       <tr>
         <td>Description:</td>
-        <td> <textarea cols="40" rows="5" name="description"></textarea> </td>
+        <td> <textarea cols="40" rows="5" name="description"> </textarea></td>
       </tr>
-      <tr >
-        <td nowrap="nowrap">Select from existing prompts:</td>
+      <tr>
+        <td nowrap="nowrap">Select
+from existing prompts:</td>
         <td>
         <select size="1" name="prompt">
         <option>day-greeting.wav</option>
@@ -35,39 +44,57 @@
       <tr>
         <td nowrap="nowrap" valign="top">Upload new prompt:</td>
         <td><input value="Upload" type="file" />
-<p>* Uploaded sound files must as 8khz / 16 bit PCM samples,
+        <p>* Uploaded sound
+files
+must as 8khz / 16 bit PCM samples,
 signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
-	    </td>
+        </td>
       </tr>
     </tbody>
   </table>
+  <div class="help">
+  <strong>Action Descriptions</strong>
+  <dl>
+    <dt>Invalid entry prompt</dt>
+    <dd>User will be prompted that, that key is an invalid entry and they will be asked to press another entry<br/>
+    Extension Shortcut ignored.</dd>
+
+    <dt>Dial by name prompt</dt>
+    <dd>User will be prompted to dial a person's name using the key pad<br/>
+    Extension Shortcut ignored.</dd>
+    <dt>Listen for extension</dt>
+    <dd>Attendant will continue to listen for additional key presses until it matches an extension in the internal dialing rules. For example, use must key "1" to listen for 1XX extensions.<br/>
+    Extension Shortcut ignored.</dd>
+
+    <dt>Voicemail login</dt>
+    <dd>User will be directed to voicemail system and prompted to log in.<br/>
+    Extension Shortcut ignored.</dd>
+
+    <dt>Extension shortcut</dt>
+    <dd>Route call to a special extension. Examples include routing to another auto attendant for chaining menus, a user's extension, directly to user's voicemail</dd>
+
+  </dl>
+  </div>
   <table>
     <tbody>
       <tr>
         <th>Key</th>
         <th>Action</th>
-        <th>Extension</th>
+        <th>Extension Shortcut</th>
       </tr>
       <tr>
         <td>0</td>
-        <td>
-        <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
+        <td colspan="2" rowspan="1">Reserved for operator</td>
       </tr>
       <tr>
         <td>1</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -76,10 +103,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>2</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -88,10 +116,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>3</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -100,10 +129,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>4</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -112,10 +142,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>5</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -124,10 +155,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>6</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -136,10 +168,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>7</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -148,10 +181,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>8</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -160,10 +194,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>9</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -172,10 +207,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>*</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
@@ -184,10 +220,11 @@ signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         <td>#</td>
         <td>
         <select name="key-action">
-        <option>Dial by name</option>
-        <option>Reserved for ext.</option>
-        <option>Login</option>
-        <option>Route to special extension</option>
+        <option>Invalid entry prompt</option>
+        <option>Dial by name prompt</option>
+        <option>Listen for extension</option>
+        <option>Voicemail login</option>
+        <option>Extension shortcut</option>
         </select>
         </td>
         <td><input name="key-ext" type="text" /></td>
