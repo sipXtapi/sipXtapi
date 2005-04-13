@@ -27,7 +27,8 @@ editdata :
 			echo ""; echo "Installing default $(sysconfdir)/sipxpbx/$$target"; \
 			$(INSTALL) -D -m 644 $$target.tmp $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
 		else \
-	    	 echo ""; echo "Using existing $(sysconfdir)/sipxpbx/$$target"; \
+	    	 echo ""; echo "Using existing $(sysconfdir)/sipxpbx/$$target - new file is at $$target.new"; \
+			 $(INSTALL) -D -m 644 $$target.tmp $(DESTDIR)$(sysconfdir)/sipxpbx/$$target.new; \
 			 case $$target in \
 			   authrules.xml.in) \
 				  echo "        Checking/updating schema for $(sysconfdir)/sipxpbx/$$target"; \
