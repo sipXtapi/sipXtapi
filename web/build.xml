@@ -160,8 +160,9 @@
 		<delete dir="${test.war}"/>
 		<unwar src="${sipxconfig.war}" dest="${test.war}"/>
 		  <!-- generates sipxconfig.properties that has test oriented values -->
-		  <java classname="org.sipfoundry.sipxconfig.common.TestUtil" classpath="${classpath}" 
+		  <java classname="org.sipfoundry.sipxconfig.common.TestUtil" 
 		  	     failonerror="true">
+             <classpath refid="test.path"/>
 		     <arg value="${test.war}/WEB-INF/classes"/>
 		     <arg value="${top.dir}/neoconf/etc"/>
    	         <arg value="${test.results.dir}"/>
