@@ -8,7 +8,8 @@
         <item name="folders" href="folders.html" title="Folders">Folders</item>
 		<item name="administrators" href="proto-stub.html" title="Administrators">Administrators</item>
 		<item name="extensionPools" href="proto-stub.html" title="Extension Pools">Extension Pools</item>
-		<item name="dialplans" href="admin/dialplans.html" title="Dial Plans">Dial Plans</item>
+        <item name="dialplans" href="admin/call-groups.html" title="Dial Plans">Call Groups</item>
+		<item name="dialplans" href="admin/dialplans.html" title="Dial Plans">Dial Plans</item>        
 		<item name="autoAttendants" href="admin/auto-attendants.html" title="Auto Attendants">Auto Attendants</item>
 		<item name="e911forwarding" href="admin/e911-forwarding.html" title="Emergency Routing">Emergency Routing</item>
 		<item name="configuration" href="proto-stub.html" title="Configuration">Configuration</item>
