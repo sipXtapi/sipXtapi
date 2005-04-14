@@ -39,6 +39,7 @@
 		<pathelement path="${jdbc-driver.jar}" />
 		<pathelement path="${odmg.jar}" />
 		<pathelement path="${velocity.jar}" />
+		<pathelement path="${commons-io.jar}" />
 		<!-- TAPESTRY -->
 		<pathelement path="${tapestry.jar}" />
 		<pathelement path="${tapestry-contrib.jar}" />
@@ -160,12 +161,15 @@
 		<delete dir="${test.war}"/>
 		<unwar src="${sipxconfig.war}" dest="${test.war}"/>
 		  <!-- generates sipxconfig.properties that has test oriented values -->
-		  <java classname="org.sipfoundry.sipxconfig.common.TestUtil" 
+		  <java classname="org.sipfoundry.sipxconfig.site.SiteTestHelper"
 		  	     failonerror="true">
-             <classpath refid="test.path"/>
+                     <classpath path="${classpath}"/>
+                     <classpath location="${junit.jar}"/>
+                     <classpath refid="test.path"/>
+                     <classpath location="${test.classes.dir}"/>
 		     <arg value="${test.war}/WEB-INF/classes"/>
 		     <arg value="${top.dir}/neoconf/etc"/>
-   	         <arg value="${test.results.dir}"/>
+   	             <arg value="${test.results.dir}"/>
 		  </java>
          <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml" overwrite="true"/>
 	</target>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendant">
+    <description>add a description</description>       
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="attendant" 
+        type="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"/>
+    <property-specification name="attendantId" 
+        type="java.lang.Integer" 
+        persistent="yes"/>
+	<property-specification name="promptSelectionModel" 
+		type="org.apache.tapestry.form.IPropertySelectionModel"
+        persistent="yes"/>   
+	<property-specification name="promptUploadFile" 
+		type="org.apache.tapestry.request.IUploadFile"/>   
+    <property-specification name="vxmlService"
+        type="org.sipfoundry.sipxconfig.admin.dialplan.VxmlService"
+        initial-value="global.vxml"/>
+    <!--
+      - B E A N S
+      -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    <bean name="extensionValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
+    	<set-property name="required" expression="false"/>
+	</bean>
+    <!--
+      - C O M P O N E N T S
+      -->
+    <component id="form" type="Form">        
+        <binding name="delegate" expression="beans.validator"/>
+    </component>       
+    <component id="nameLabel" type="FieldLabel">
+        <binding name="field" expression="components.name"/>
+    </component>
+    <component id="name" type="ValidField">
+        <binding name="value" expression="attendant.name"/>
+        <binding name="validator" expression="beans.nameValidator"/>
+        <static-binding name="displayName" value="Name"/>
+    </component>
+    <component id="descriptionLabel" type="FieldLabel">
+        <binding name="field" expression="components.name"/>
+        <static-binding name="displayName" value="Description"/>
+    </component>
+    <component id="description" type="TextField">
+        <binding name="value" expression="attendant.description"/>
+    </component>
+    <component id="extensionLabel" type="FieldLabel">
+        <binding name="field" expression="components.extension"/>
+    </component>
+    <component id="extension" type="ValidField">
+        <binding name="value" expression="attendant.extension"/>
+        <binding name="validator" expression="beans.extensionValidator"/>
+        <static-binding name="displayName" value="Extension"/>
+    </component>
+    <component id="promptLabel" type="FieldLabel">
+        <binding name="field" expression="components.prompt"/>
+        <static-binding name="displayName" value="Existing prompts"/>
+    </component>
+    <component id="prompt" type="PropertySelection">
+        <binding name="model" expression="promptSelectionModel"/>
+        <binding name="value" expression="attendant.prompt"/>
+    </component>
+    <component id="promptUploadLabel" type="FieldLabel">
+        <binding name="field" expression="components.prompt"/>
+        <static-binding name="displayName" value="Upload prompt"/>
+    </component>
+    <component id="promptUpload" type="Upload">
+        <binding name="file" expression="promptUploadFile"/>
+    </component>    
+    <component id="ok" type="Submit">
+        <binding name="listener" expression="listeners.ok"/>
+    </component>    
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="listeners.cancel"/>
+    </component>
+</page-specification>

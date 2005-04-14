@@ -2,8 +2,10 @@
 sip.proxyHost=${PROXY_SERVER_ADDR}
 sip.proxyPort=${PROXY_SERVER_SIP_PORT}
 dataSource.url=jdbc:postgresql://localhost/PDS
-# name changes to anything starting w/sysdir need to be reflected in
-# VersionInfo class as well
+vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
+vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
+# name changes for variables starting with sysdir need 
+# to be reflected in VersionInfo class as well
 sysdir.bin=@sipxpbx.bin.dir@
 sysdir.etc=@sipxpbx.conf.dir@
 sysdir.log=@sipxpbx.log.dir@

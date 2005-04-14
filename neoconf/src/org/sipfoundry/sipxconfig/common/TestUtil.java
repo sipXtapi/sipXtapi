@@ -33,6 +33,9 @@ public final class TestUtil {
     private TestUtil() {        
     }
 
+    /**
+     * The directory that is part of the classpath that a class was loaded from 
+     */
     public static String getClasspathDirectory(Class testClass) {
         // create file on classpath
         CodeSource code = testClass.getProtectionDomain().getCodeSource();
@@ -41,6 +44,31 @@ public final class TestUtil {
 
         return classpathDir.getAbsolutePath();
     }
+    
+    /**
+     * Where to direct test output, cleaned on 'ant clean' and ignored by subversion
+     */
+    public static String getTestOutputDirectory(String project) {
+        return getBuildDirectory(project)  + "/test-output";
+    }
+    
+    /**
+     * Use ClassLoader.getSystemResource() when you can gets you a stream and can work
+     * from jars, but when you need a filename use this.
+     * Example:
+     * <pre>
+     * # Test file in same directory as JUnit test source file 
+     * String testFile = TestUtil.getTestSourceDirectory(getClass()) + "/test-file";
+     * </pre>
+     */
+    public static String getTestSourceDirectory(Class testClass) {
+        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory())
+            .append("/test/")
+            .append(testClass.getPackage().getName().replace('.', '/'));
+        String path = sb.toString();
+        
+        return path;
+    }
 
     public static String getProjectDirectory() {
         // eclipse        
@@ -48,7 +76,7 @@ public final class TestUtil {
         // ant
         return System.getProperty("basedir", userDir);
     }
-
+    
     /**
      * Get the directory all autoconf and ant build output gets sent
      */
@@ -77,9 +105,8 @@ public final class TestUtil {
      * in ant because it avoids setup and works in IDE's like eclipse where
      * bin.eclipse is the classpath
      */
-    public static Properties getSysDirProperties(String classpathDirectory, String etcDirectory,
+    public static Properties getSysDirProperties(Properties sysProps, String classpathDirectory, String etcDirectory,
             String outputDirectory) {
-        Properties sysProps = new Properties();
 
         // HACK: sysdir.bin is not a real directory when testing
         sysProps.setProperty("sysdir.bin", "/opt/work-2.8/sipx/bin/");
@@ -104,16 +131,4 @@ public final class TestUtil {
 
         return sysProps;
     }
-    
-    
-    /**
-     * Write out sipxconfig.properties for testing
-     * arg 0 - any path in the testing classpath
-     * arg 1 - absolute path to sipXconfig/neoconf/etc directory (not installed)
-     * arg 2 - where output is generated   
-     */
-    public static void main(String[] args) {
-        // generates sipxconfig.properties in classpath (arg 0)
-        getSysDirProperties(args[0], args[1], args[2]);
-    }    
 }

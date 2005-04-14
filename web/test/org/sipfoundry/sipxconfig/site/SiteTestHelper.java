@@ -11,13 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.sourceforge.jwebunit.WebTester;
 
+import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.xml.sax.SAXException;
 
@@ -121,5 +124,48 @@ public class SiteTestHelper {
         }
 
         return s_buildDir;
+    }
+    
+    /**
+     * Get the root directory mimicking an installed sipx system. Useful when web pages
+     * need to reference files from other sipx projects.  Unittest should copy in seed test
+     * files.
+     */
+    public static String getArtificialSystemRootDirectory() {
+        return TestUtil.getTestOutputDirectory("web") + "/artifical-system-root";
+    }
+    
+    /**
+     * Create a dir if it doesn't exists and deletes all contents if it does exist
+     */
+    public static String cleanDirectory(String directory) {
+        File dir = new File(directory);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        } else {        
+            try {
+                FileUtils.cleanDirectory(dir);
+            } catch (IOException ioe) {
+                throw new RuntimeException("Could not clean directory " + directory, ioe);
+            }
+        }
+        
+        return directory;
+    }
+
+    /**
+     * Write out sipxconfig.properties for testing
+     * arg 0 - any path in the testing classpath
+     * arg 1 - absolute path to sipXconfig/neoconf/etc directory (not installed)
+     * arg 2 - where output is generated   
+     * @param 
+     */
+    public static void main(String[] args) {
+        Properties sysProps = new Properties();
+        String systemDirectory = cleanDirectory(getArtificialSystemRootDirectory());
+        sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
+        sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
+        // generates sipxconfig.properties in classpath (arg 0)
+        TestUtil.getSysDirProperties(sysProps, args[0], args[1], args[2]);
     }
 }

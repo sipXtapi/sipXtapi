@@ -75,16 +75,14 @@ public final class TestHelper {
     }
 
     public static String getTestDirectory() {
-        File f = new File(getClasspathDirectory() + "/test-output");
-        f.mkdirs();
-        return f.getPath();
+        return TestUtil.getTestOutputDirectory("neoconf");
     }
 
     public static Properties getSysDirProperties() {
         if (s_sysDirProps == null) {
             String etcDir = TestUtil.getProjectDirectory() + "/etc";
             String outDir = getTestDirectory();
-            s_sysDirProps = TestUtil.getSysDirProperties(getClasspathDirectory(), etcDir, outDir);
+            s_sysDirProps = TestUtil.getSysDirProperties(new Properties(), getClasspathDirectory(), etcDir, outDir);
         }
         return s_sysDirProps;
     }

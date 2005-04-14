@@ -23,6 +23,8 @@ sipxconfig.lib.dir=@SIPXCONFIG_LIBDIR@
 sipxpbx.bin.dir=@SIPX_BINDIR@
 sipxpbx.data.dir=@SIPX_DATADIR@
 sipxpbx.conf.dir=@SIPX_CONFDIR@
+sipxvxml.data.dir=@SIPX_VXMLDATADIR@
+www.dir=@wwwdir@
 sipxpbx.user=@SIPXPBXUSER@
 # because jboss installation needs to know this, configuring
 # this to any other user will require manual update to jboss

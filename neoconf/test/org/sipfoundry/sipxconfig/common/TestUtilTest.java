@@ -32,7 +32,7 @@ public class TestUtilTest extends TestCase {
     
     public void testGetSysDirProperties() {
         String classpathDir = TestUtil.getClasspathDirectory(TestUtilTest.class);
-        Properties props = TestUtil.getSysDirProperties(classpathDir, "etc", "out");
+        Properties props = TestUtil.getSysDirProperties(new Properties(), classpathDir, "etc", "out");
         assertEquals("etc", props.getProperty("sysdir.etc"));
         assertEquals("out", props.getProperty("sysdir.data"));
         assertEquals("out", props.getProperty("sysdir.phone"));
