@@ -76,6 +76,7 @@
       <files>
         <exclude name="**/*Test.java"/> 
         <exclude name="**/*TestDb.java"/> 
+        <exclude name="**/*TestUi.java"/> 
       </files>
     </clover-setup> 
     <property name="clover.html.dir" location="${clover.dir}/html"/>
@@ -149,7 +150,8 @@
         debug="${debug}"
         deprecation="${deprecation}"
         optimize="${optimize}"
-        includes="**/*.java"
+        source="1.4"
+        target="1.4"
   	    excludes="test/**"/>
   </target>
 
@@ -191,7 +193,8 @@
        debug="${debug}"
        deprecation="on"
        optimize="${optimize}"
-       includes="**">
+       source="1.4"
+       target="1.4">
       <classpath>
         <pathelement path="${classes.dir}"/>
         <pathelement location="${junit.jar}"/>
