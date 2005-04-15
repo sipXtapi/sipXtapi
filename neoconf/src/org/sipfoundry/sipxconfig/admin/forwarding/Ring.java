@@ -11,25 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
-import java.text.MessageFormat;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.enum.Enum;
-import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.EnumUserType;
+import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 
 /**
  * Ring - represents one stage in a call forwaring sequence
  */
-public class Ring extends BeanWithId {
-    private static final String FORMAT = "<sip:{0}@{1}?expires={2}>;;{3}";
-
+public class Ring extends AbstractRing {
     private String m_number = StringUtils.EMPTY;
-    private int m_expiration;
-    private Type m_type = Type.DELAYED;
     private CallSequence m_callSequence;
-    private int m_position;
 
     /**
      * Default "bean" constructor
@@ -46,43 +36,17 @@ public class Ring extends BeanWithId {
      */
     Ring(String number, int expiration, Type type) {
         m_number = number;
-        m_expiration = expiration;
-        m_type = type;
-    }
-
-    public static class Type extends Enum {
-        public static final Type DELAYED = new Type("If no response");
-        public static final Type IMMEDIATE = new Type("At the same time");
-
-        public Type(String name) {
-            super(name);
-        }
+        setExpiration(expiration);
+        setType(type);
     }
 
     /**
-     * Used for Hibernate type translation
+     * Retrieves the user part of the contact used to calculate contact
+     * 
+     * @return String or object implementing toString method
      */
-    public static class UserType extends EnumUserType {
-        public UserType() {
-            super(Type.class);
-        }
-    }
-
-    public String calculateContact(String domain, ForkQueueValue q) {
-        MessageFormat format = new MessageFormat(FORMAT);
-        Object[] params = new Object[] {
-            m_number, domain, new Integer(m_expiration), q.getValue(m_type)
-        };
-        return format.format(params);
-    }
-
-    // getters on setters
-    public synchronized int getExpiration() {
-        return m_expiration;
-    }
-
-    public synchronized void setExpiration(int expiration) {
-        m_expiration = expiration;
+    protected Object getUserPart() {
+        return m_number;
     }
 
     public synchronized String getNumber() {
@@ -93,27 +57,11 @@ public class Ring extends BeanWithId {
         m_number = number;
     }
 
-    public synchronized Type getType() {
-        return m_type;
-    }
-
-    public synchronized void setType(Type type) {
-        m_type = type;
-    }
-
     public synchronized CallSequence getCallSequence() {
         return m_callSequence;
     }
 
     public synchronized void setCallSequence(CallSequence callSequence) {
         m_callSequence = callSequence;
-    }
-
-    int getPosition() {
-        return m_position;
-    }
-
-    void setPosition(int position) {
-        m_position = position;
     }
 }

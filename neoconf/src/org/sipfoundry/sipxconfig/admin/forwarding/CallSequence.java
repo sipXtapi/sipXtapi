@@ -15,15 +15,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
  * CallSequence
  */
-public class CallSequence extends BeanWithId {
-    private List m_calls = new ArrayList();
+public class CallSequence extends AbstractCallSequence {
     private User m_user;
     private boolean m_withVoicemail;
 
@@ -37,56 +36,25 @@ public class CallSequence extends BeanWithId {
      * @param withVoicemail
      */
     CallSequence(List calls, User user, boolean withVoicemail) {
-        m_calls = calls;
         m_user = user;
         m_withVoicemail = withVoicemail;
+        setCalls(calls);
     }
 
     public Ring insertRing() {
         Ring ring = new Ring();
         ring.setCallSequence(this);
-        m_calls.add(ring);
-        ring.setPosition(m_calls.size() - 1);
+        insertRing(ring);
         return ring;
     }
 
-    public void removeRing(Ring ringToRemove) {
-        int index = m_calls.indexOf(ringToRemove);
-        m_calls.remove(index);
-        for (int i = index; i < m_calls.size(); i++) {
-            Ring ring = (Ring) m_calls.get(i);
-            ring.setPosition(i);
-        }
-    }
-
-    public boolean moveRingUp(Ring ring) {
-        int i = m_calls.indexOf(ring);
-        if (i <= 0) {
-            return false;
-        }
-        m_calls.remove(i);
-        m_calls.add(i - 1, ring);
-        ring.setPosition(i - 1);
-        return true;
-    }
-
-    public boolean moveRingDown(Ring ring) {
-        int i = m_calls.indexOf(ring);
-        if (i < 0 || i >= m_calls.size()) {
-            return false;
-        }
-        m_calls.remove(i);
-        m_calls.add(i + 1, ring);
-        ring.setPosition(i + 1);
-        return true;
-    }
-
-    public List generateAliases() {
-        List aliases = new ArrayList(m_calls.size());
-        ForkQueueValue q = new ForkQueueValue(m_calls.size());
+    public List generateAliases() {        
+        List calls = getCalls();
+        List aliases = new ArrayList(calls.size());
+        ForkQueueValue q = new ForkQueueValue(calls.size());
         String domain = m_user.getOrganization().getDnsDomain();
         String identity = m_user.getDisplayId() + "@" + domain;
-        for (Iterator i = m_calls.iterator(); i.hasNext();) {
+        for (Iterator i = calls.iterator(); i.hasNext();) {
             Ring r = (Ring) i.next();
             String contact = r.calculateContact(domain, q);
             AliasMapping alias = new AliasMapping(identity, contact);
@@ -96,20 +64,13 @@ public class CallSequence extends BeanWithId {
     }
     
     public List generateAuthExceptions() {
+        List calls = getCalls();
         List authExceptions = new ArrayList();
-        for (Iterator i = m_calls.iterator(); i.hasNext();) {
+        for (Iterator i = calls.iterator(); i.hasNext();) {
             Ring r = (Ring) i.next();
             authExceptions.add(r.getNumber());
         }
         return authExceptions;
-    }
-
-    public List getCalls() {
-        return m_calls;
-    }
-
-    public void setCalls(List calls) {
-        m_calls = calls;
     }
 
     public User getUser() {

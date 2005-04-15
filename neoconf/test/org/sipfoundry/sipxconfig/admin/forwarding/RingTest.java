@@ -23,21 +23,12 @@ public class RingTest extends TestCase {
     public void testCalculateContact() {
         ForkQueueValue q = new ForkQueueValue(3);
         Ring ring = new Ring();
-        ring.setNumber("444");
+        ring.setNumber("555");
         ring.setExpiration(45);
         ring.setType(Ring.Type.IMMEDIATE);
         
         String contact = ring.calculateContact("sipfoundry.org", q);
-        assertEquals("<sip:444@sipfoundry.org?expires=45>;;q=1.0",contact);
-        
-        Ring ring2 = new Ring("333", 25, Ring.Type.DELAYED);
-        String contact2 = ring2.calculateContact("sipfoundry.org", q);
-        assertEquals("<sip:333@sipfoundry.org?expires=25>;;q=0.95",contact2);
-        
-        // with new q value - ring2 is delayed, q mustbe < 1.0
-        ForkQueueValue q1 = new ForkQueueValue(3);
-        contact2 = ring2.calculateContact("sipfoundry.org", q1);
-        assertEquals("<sip:333@sipfoundry.org?expires=25>;;q=0.95",contact2);
+        assertEquals("<sip:555@sipfoundry.org?expires=45>;;q=1.0",contact);
     }
 
 }
