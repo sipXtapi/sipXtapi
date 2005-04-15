@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.Organization;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
- * DialPlanManager TODO: need interface and hibernate persistence implementation
+ * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
 class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
     private String m_configDirectory;
@@ -111,6 +111,7 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
 
     public ConfigGenerator generateDialPlan() {
         ConfigGenerator generator = new ConfigGenerator();
+        generator.generate(m_emergencyRouting);
         generator.generate(m_flexDialPlan);
         m_generator = generator;
         return m_generator;

@@ -61,7 +61,7 @@ public class AuthRules extends XmlFile implements ConfigFile {
     public void generate(IDialingRule rule) {
         List gateways = rule.getGateways();
         List permissions = rule.getPermissions();
-        if (gateways.size() == 0 || permissions.size() == 0) {
+        if (gateways.size() == 0) {
             // nothing to generate
             return;
         }
@@ -81,6 +81,7 @@ public class AuthRules extends XmlFile implements ConfigFile {
             Element userPattern = userMatch.addElement("userPattern");
             userPattern.setText(pattern);
         }
+        // even if no permission is specified (permission list is empty) we create empty element
         Element permissionMatch = userMatch.addElement("permissionMatch");
         for (Iterator i = permissions.iterator(); i.hasNext();) {
             Permission permission = (Permission) i.next();

@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -73,6 +74,24 @@ public class EmergencyRule extends DialingRule {
      */
     public boolean isInternal() {
         return false;
+    }
+
+    public void appendToGenerationRules(List rules) {
+        if (!isEnabled()) {
+            return;
+        }
+        if (!m_useMediaServer) {
+            super.appendToGenerationRules(rules);
+            return;
+        }
+        try {
+            DialingRule rule = (DialingRule) clone();
+            rule.setGateways(Collections.EMPTY_LIST);
+            rules.add(rule);
+        } catch (CloneNotSupportedException e) {
+            // should never happen
+            throw new RuntimeException(e);
+        }
     }
 
     public String getEmergencyNumber() {

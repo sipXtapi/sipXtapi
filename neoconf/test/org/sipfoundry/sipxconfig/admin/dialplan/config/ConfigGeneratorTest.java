@@ -20,6 +20,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 
 /**
@@ -37,7 +38,10 @@ public class ConfigGeneratorTest extends XMLTestCase {
         controlPlan.setReturnValue(Collections.EMPTY_LIST);
         controlPlan.replay();        
         
+        EmergencyRouting er = new EmergencyRouting();
+        
         ConfigGenerator generator = new ConfigGenerator();        
+        generator.generate(er);
         generator.generate(empty);
         checkConfigFileGeneration(generator, new AuthRules(), ConfigFileType.AUTH_RULES);
         checkConfigFileGeneration(generator, new MappingRules(), ConfigFileType.MAPPING_RULES);

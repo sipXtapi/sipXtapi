@@ -25,6 +25,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 public class AuthRulesTest extends XMLTestCase {
+    private static final int GATEWAYS_LEN = 5;
+
+
     public AuthRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
@@ -57,7 +60,7 @@ public class AuthRulesTest extends XMLTestCase {
         control.expectAndReturn(rule.getName(), "testrule");
         control.replay();
 
-        AuthRules authRules = new AuthRules();
+        MockAuthRules authRules = new MockAuthRules();
         authRules.generate(rule);
         authRules.end();
 
@@ -71,17 +74,14 @@ public class AuthRulesTest extends XMLTestCase {
         assertXpathEvaluatesTo("Voicemail",
                 "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
 
-        // no access match at the end of the file
-        assertXpathEvaluatesTo("10.1.2.3", "/mappings/hostMatch[2]/hostPattern", domDoc);
-        assertXpathEvaluatesTo(".", "/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
-        assertXpathEvaluatesTo("NoAccess",
-                "/mappings/hostMatch[2]/userMatch/permissionMatch/permission", domDoc);
+        // check if generate no access has been called properly
+        assertEquals(1, authRules.uniqueGateways);
 
         control.verify();
     }
 
     public void testGenerateMultipleGateways() throws Exception {
-        Gateway[] gateways = new Gateway[5];
+        Gateway[] gateways = new Gateway[GATEWAYS_LEN];
         for (int i = 0; i < gateways.length; i++) {
             gateways[i] = new Gateway();
             gateways[i].setUniqueId();
@@ -131,9 +131,51 @@ public class AuthRulesTest extends XMLTestCase {
 
         control.verify();
     }
+    
+    public void testGenerateNoPermissionRequiredRule() throws Exception {
+        Gateway[] gateways = new Gateway[GATEWAYS_LEN];
+        for (int i = 0; i < gateways.length; i++) {
+            gateways[i] = new Gateway();
+            gateways[i].setUniqueId();
+            gateways[i].setAddress("10.1.2." + i);
+        }
+        
+        MockControl control = MockControl.createControl(IDialingRule.class);
+        IDialingRule rule = (IDialingRule) control.getMock();
+        control.expectAndReturn(rule.getPatterns(), new String[] {
+            "555", "666", "777"
+        });
+        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {}));
+        control.expectAndReturn(rule.getGateways(), Arrays.asList(gateways));
+        control.expectAndReturn(rule.getName(), "testrule");
+        control.replay();
+
+        MockAuthRules authRules = new MockAuthRules();
+        authRules.generate(rule);
+        authRules.end();
+
+        Document document = authRules.getDocument();
+        String domDoc = XmlUnitHelper.asString(document);
+
+        String hostMatch = "/mappings/hostMatch/";
+        for (int i = 0; i < gateways.length; i++) {
+            String hostPattern = "hostPattern[" + (i + 1) + "]";
+            assertXpathEvaluatesTo(gateways[i].getAddress(), hostMatch + hostPattern, domDoc);
+        }
+        assertXpathEvaluatesTo("555", hostMatch + "userMatch/userPattern", domDoc);
+        assertXpathEvaluatesTo("666", hostMatch + "userMatch/userPattern[2]", domDoc);
+        assertXpathEvaluatesTo("777", hostMatch + "userMatch/userPattern[3]", domDoc);
+        assertXpathEvaluatesTo("", hostMatch + "/userMatch/permissionMatch",
+                domDoc);
+
+        // check if generate no access has been called properly
+        assertEquals(GATEWAYS_LEN, authRules.uniqueGateways);
+
+        control.verify();        
+    }
 
     public void testGenerateNoAccessRule() throws Exception {
-        Gateway[] gateways = new Gateway[5];
+        Gateway[] gateways = new Gateway[GATEWAYS_LEN];
         for (int i = 0; i < gateways.length; i++) {
             gateways[i] = new Gateway();
             gateways[i].setAddress("10.1.2." + i);
@@ -153,6 +195,8 @@ public class AuthRulesTest extends XMLTestCase {
         assertXpathEvaluatesTo("NoAccess",
                 lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
     }
+    
+    
 
     public void testNamespace() {
         AuthRules rules = new AuthRules();
@@ -161,5 +205,12 @@ public class AuthRulesTest extends XMLTestCase {
         Element rootElement = doc.getRootElement();
         XmlUnitHelper.assertElementInNamespace(rootElement,
                 "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00");
+    }
+            
+    private class MockAuthRules extends AuthRules {
+        public int uniqueGateways = 0; 
+        void generateNoAccess(List gateways) {
+            uniqueGateways = gateways.size(); 
+        }
     }
 }

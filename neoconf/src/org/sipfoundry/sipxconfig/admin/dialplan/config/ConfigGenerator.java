@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
@@ -41,6 +42,14 @@ public class ConfigGenerator {
         m_files.put(ConfigFileType.AUTH_RULES, m_auth);
     }
 
+    public void generate(EmergencyRouting er) {
+        List rules = er.asDialingRulesList();
+        for (Iterator i = rules.iterator(); i.hasNext();) {
+            IDialingRule rule = (IDialingRule) i.next();
+            m_auth.generate(rule);
+        }                
+    }
+    
     public void generate(FlexibleDialPlanContext plan) {
         List rules = plan.getGenerationRules();
 

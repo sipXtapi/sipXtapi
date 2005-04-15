@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,5 +64,34 @@ public class EmergencyRuleTest extends TestCase {
     public void testPermissions() {
         List permissions = m_rule.getPermissions();
         assertEquals(0, permissions.size());
+    }
+
+    public void testAppendToGenerationRulesEnabled() {
+        m_rule.setEnabled(true);
+        List gateways = m_rule.getGateways();
+        assertEquals(1, gateways.size());
+        ArrayList rules = new ArrayList();
+        m_rule.appendToGenerationRules(rules);
+        assertEquals(1, rules.size());
+        DialingRule rule = (DialingRule) rules.get(0);
+        assertEquals(1, rule.getGateways().size());
+
+        // if we are using media server return empty gateways list
+        m_rule.setUseMediaServer(true);
+        gateways = m_rule.getGateways();
+        assertEquals(1, gateways.size());
+        rules = new ArrayList();
+        m_rule.appendToGenerationRules(rules);
+        assertEquals(1, rules.size());
+        rule = (DialingRule) rules.get(0);
+        assertTrue(rule.getGateways().isEmpty());
+    }
+
+    public void testAppendToGenerationRulesDisabled() {
+        m_rule.setEnabled(false);
+        m_rule.setUseMediaServer(true);
+        ArrayList rules = new ArrayList();
+        m_rule.appendToGenerationRules(rules);
+        assertTrue(rules.isEmpty());
     }
 }

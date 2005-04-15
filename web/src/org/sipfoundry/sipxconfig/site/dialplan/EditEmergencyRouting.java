@@ -18,7 +18,10 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
+import org.apache.tapestry.form.PropertySelection;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
@@ -57,15 +60,20 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
     }
 
     public void formSubmit(IRequestCycle cycle_) {
-        if (!TapestryUtils.isValid(this)) {
+        if (!isValid()) {
             return;
         }
     }
 
-    public void apply(IRequestCycle cycle_) {
-        if (TapestryUtils.isValid(this)) {
-            getDialPlanManager().applyEmergencyRouting();
+    public void apply(IRequestCycle cycle) {
+        if (!isValid()) {
+            return;
         }
+        DialPlanContext manager = getDialPlanManager();
+        manager.applyEmergencyRouting();
+        // send users to page that activates dial plans
+        manager.generateDialPlan();
+        cycle.activate(ActivateDialPlan.PAGE);
     }
 
     /**
@@ -91,5 +99,19 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
                 .getServiceParameters(), 0);
         getEmergencyRouting().removeException(id);
+    }
+
+    private boolean isValid() {
+        IValidationDelegate delegate = TapestryUtils.getValidator(this);
+        PropertySelection component = (PropertySelection) getComponent("gateways");
+        // HACK: we should be checking component properties but component.getModel() always
+        // returns null
+        if (null == getEmergencyRouting().getDefaultGateway()) {
+            delegate.setFormComponent(component);
+            delegate.record("Please configure at least one gateway.",
+                    ValidationConstraint.CONSISTENCY);
+
+        }
+        return !delegate.getHasErrors();
     }
 }
