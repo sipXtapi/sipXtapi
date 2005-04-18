@@ -51,6 +51,8 @@ public class PolycomPhone extends AbstractPhone {
 
     private SipService m_sip;
     
+    private String m_outboundProxyAddress;
+    
     /** BEAN ACCESS ONLY */
     public PolycomPhone() {
         setModelFilename(FACTORY_ID + "/phone.xml");
@@ -120,6 +122,14 @@ public class PolycomPhone extends AbstractPhone {
     public int getMaxLineCount() {
         return getModel().getMaxLines();
     }
+
+    public String getOutboundProxyAddress() {
+        return m_outboundProxyAddress;
+    }    
+
+    public void setOutboundProxyAddress(String outboundProxyAddress) {
+        m_outboundProxyAddress = outboundProxyAddress;
+    }    
 
     private void initialize() {
         File tftpRootFile = new File(getTftpRoot());
@@ -219,7 +229,7 @@ public class PolycomPhone extends AbstractPhone {
         String domainName = getPhoneContext().getDnsDomain();
         Setting voip = settings.getSetting("voIpProt");
         voip.getSetting(SERVER).getSetting(FIRST).getSetting(ADDRESS).setValue(domainName);
-        voip.getSetting("SIP.outboundProxy").getSetting(ADDRESS).setValue(domainName);
+        voip.getSetting("SIP.outboundProxy").getSetting(ADDRESS).setValue(getOutboundProxyAddress());
     }
 }
 

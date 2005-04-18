@@ -25,15 +25,6 @@ public abstract class SettingsForm extends BaseComponent {
     
     private static final RenderProperties DEFAULT_RENDER_PROPERTIES = new RenderProperties();
     
-    /**
-     * Shows all settings not hidden and groups in a flat collection
-     */
-    private static final SettingFilter FLATTEN_SETTINGS = new SettingFilter() {
-        public boolean acceptSetting(Setting root_, Setting setting_) {
-            return !setting_.isHidden();
-        }
-    };
-    
     public abstract SettingRenderer getSettingRenderer();
     
     public abstract Setting getCurrentSetting();
@@ -41,7 +32,7 @@ public abstract class SettingsForm extends BaseComponent {
     public abstract Setting getSettings();
     
     public Collection getFlattenedSettings() {
-        return FilterRunner.filter(FLATTEN_SETTINGS, getSettings());
+        return FilterRunner.filter(SettingFilter.ALL, getSettings());
     }
     
     public RenderProperties getCurrentRenderProperties() {

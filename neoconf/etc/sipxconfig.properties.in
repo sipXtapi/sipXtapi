@@ -4,8 +4,11 @@ sip.proxyPort=${PROXY_SERVER_SIP_PORT}
 dataSource.url=jdbc:postgresql://localhost/PDS
 vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
 vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
-# name changes for variables starting with sysdir need 
-# to be reflected in VersionInfo class as well
+# polycom 500 and 600 inherit polycom 300 settings 
+polycom300.outboundProxyAddress=${PROXY_SERVER_ADDR}
+polycom300.tftpRoot=@sipxconfig.phone.dir@/profile/tftproot
+# name changes to anything starting w/sysdir need to be reflected in
+# VersionInfo class as well
 sysdir.bin=@sipxpbx.bin.dir@
 sysdir.etc=@sipxpbx.conf.dir@
 sysdir.log=@sipxpbx.log.dir@

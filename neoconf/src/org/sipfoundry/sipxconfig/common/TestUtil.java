@@ -115,6 +115,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.phone", outputDirectory);
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
+        sysProps.setProperty("polycom300.outboundProxyAddress", "proxy.sipfoundry.org");
 
         File sysdirPropsFile = new File(classpathDirectory, "sipxconfig.properties");
         FileOutputStream sysdirPropsStream;

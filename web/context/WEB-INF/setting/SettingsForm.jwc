@@ -56,7 +56,7 @@
     <component id="settingLabelText" type="Insert">
         <binding name="value" expression="currentSetting.label"/>
     </component>
-    <component id="groupLabel" copy-of="settingLabel"/>
+    <component id="groupLabel" copy-of="settingLabelText"/>
     <component id="settingDefault" type="Insert">
         <binding name="value" expression="currentSetting.defaultValue"/>
     </component>    

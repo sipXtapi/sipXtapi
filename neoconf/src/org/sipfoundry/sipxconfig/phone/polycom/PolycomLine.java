@@ -39,6 +39,9 @@ public class PolycomLine extends AbstractLine implements SettingRenderer {
 
     private static final int DEFAULT_SIP_PORT = 5060;
     
+    /** FIXME: Pull this value from Internal Dialing Rules */
+    private static final String VOICEMAIL_EXT = "101";
+    
     /** while building model set root so getters/setting operation on this setting set*/ 
     private Setting m_root;
 
@@ -61,16 +64,18 @@ public class PolycomLine extends AbstractLine implements SettingRenderer {
                 String password = getPhoneContext().getClearTextPassword(u);
                 getRegistration().getSetting("auth.password").setValue(password);
     
+                String domainName = getPhoneContext().getDnsDomain();
                 // only when there's a user to register do you set the registration server
                 // although probably harmless            
-                String domainName = getPhoneContext().getDnsDomain();
                 setPrimaryRegistrationServerAddress(domainName);
-            }
-    
-            // See pg. 125 Admin Guide/16 June 2004
-            if (getLineData().getPosition() == 0) {
-                settings.getSetting("msg.mwi").getSetting("callBackMode").setValue("registration");
-            }
+
+                Setting mwi = settings.getSetting("msg.mwi");
+                String uri = u.getDisplayId() + '@' + domainName;
+                mwi.getSetting("subscribe").setValue(uri);
+                mwi.getSetting("callBack").setValue(VOICEMAIL_EXT + '@' + domainName);
+                mwi.getSetting("callBackMode").setValue("contact");
+            }        
+
         } finally {        
             m_root = null;
         }

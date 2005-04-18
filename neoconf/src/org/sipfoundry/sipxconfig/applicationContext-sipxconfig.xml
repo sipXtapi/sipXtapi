@@ -282,9 +282,6 @@
 		<property name="velocityEngine">
 			<ref bean="velocityEngine"/>
 		</property>
-		<property name="tftpRoot">
-			<value>${sysdir.phone}/profile/tftproot</value>
-		</property>
 		<property name="sipService">
 			<ref local="sip"/>
 		</property>

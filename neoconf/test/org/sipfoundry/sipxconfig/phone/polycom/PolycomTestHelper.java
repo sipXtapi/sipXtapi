@@ -42,12 +42,13 @@ public class PolycomTestHelper {
         phoneContextControl.expectAndReturn(helper.phoneContext.getDnsDomain(), "sipfoundry.org", MockControl.ZERO_OR_MORE);
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         phoneContextControl.expectAndReturn(helper.phoneContext.getSystemDirectory(), sysdir, MockControl.ZERO_OR_MORE);
-
+        
         PhoneData meta = new PhoneData(PolycomModel.MODEL_600.getModelId());
         meta.setSerialNumber("0004f200e06b");
         helper.phone = new PolycomPhone[] { new PolycomPhone() };
         helper.phone[0].setPhoneContext(helper.phoneContext);
         helper.phone[0].setPhoneData(meta);
+        helper.phone[0].setOutboundProxyAddress("sipx.sipfoundry.org");
         
         helper.user = new User[] { new User() };
         helper.user[0].setDisplayId("juser");
