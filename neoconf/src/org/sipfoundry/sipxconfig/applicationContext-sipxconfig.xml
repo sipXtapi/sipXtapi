@@ -55,6 +55,7 @@
 		<property name="mappingResources">
 			<list>
 				<value>org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
@@ -457,6 +458,9 @@
 		</property>
     </bean>
     
+	<!--
+      - D I A L P L A N  C O N T E X T
+      -->
     <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
         <property name="coreContext">
             <ref bean="coreContext"></ref>
@@ -475,9 +479,6 @@
         </property>
     </bean>
     
-	<!--
-      - D I A L P L A N  C O N T E X T
-      -->
 	<bean id="dialPlanContext" 
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="proxyInterfaces">
@@ -491,4 +492,25 @@
 		</property>
 	</bean>
 	<bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlService"/>
+    <!--
+      - C A L L G R O U P   C O N T E X T
+      -->
+	<bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>        
+	</bean>
+    
+	<bean id="callGroupContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>callGroupContextImpl</value>
+			</list>
+		</property>
+	</bean>
 </beans>

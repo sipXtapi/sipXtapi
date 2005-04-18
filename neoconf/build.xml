@@ -134,32 +134,6 @@
      	<fail if="junit.failed"/>   
 	</target>
   
-
-	<!-- D E V E L O P E R   T A S K S -->
-	<target name="reset-db-patch" 
-		description="apply patches to database for new components, clears all data for the new components">
-		<!-- may fail if never run so ignre failed output -->
-		<echo>
-********************************
-*   Any errors now may be benign, it depends on what state your schema's in
-********************************
-		</echo>
-		<exec executable="psql" failonerror="false">
-			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds} -f ${top.dir}/profilegenerator/ejb/meta/patches/delete_v8_mods.sql"/>
-		</exec>
-		<echo>
-********************************
-* Any errors now are fatal.
-********************************
-		</echo>
-		<exec executable="psql" failonerror="true">
-			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds} -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods.sql"/>
-		</exec>
-		<exec executable="psql" failonerror="true">
-			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds} -f ${top.dir}/profilegenerator/ejb/meta/patches/v8_mods_2.sql"/>
-		</exec>
-    </target>
-    
     <target name="reset-db"
         description="Resets the test database. Needs to be called before UI and WEB tests.">
         <property name="sql.dir" location="${top.dir}/profilegenerator/meta/sql"/>
@@ -175,6 +149,8 @@
             <transaction src="${sql.dir}/profilegen_alter.sql"/>
             <transaction src="${sql.dir}/profilegen_seq.sql"/>
             <transaction src="${sql.dir}/profilegen_initvalues.sql"/>
+            <!-- temporary until we upgrade DB version-->
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v9_mods.sql"/>
         </sql>        
     </target>
     
@@ -198,6 +174,20 @@
         	 </fileset>
         </schemaexport>
     </target>
+    
+    <taskdef name="schemaupdate"
+        classname="net.sf.hibernate.tool.hbm2ddl.SchemaUpdateTask" 
+        classpathref="full.classpath"/>
+
+    <target name="hbm2ddl.patch" description="Generate SQL patch to existing database to bring it up to date with hibernate definitions.">
+        <schemaupdate properties="${top.dir}/meta/hibernate.properties" quiet="no"
+            text="yes">
+	         <fileset dir="${src.dir}">
+    	         <include name="**/*.hbm.xml"/>
+        	 </fileset>
+        </schemaupdate>
+    </target>
+    
 </project>
 
 

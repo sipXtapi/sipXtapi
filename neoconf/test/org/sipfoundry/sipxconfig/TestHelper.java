@@ -14,9 +14,12 @@ package org.sipfoundry.sipxconfig;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
+
+import junit.framework.TestCase;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
@@ -81,7 +84,8 @@ public final class TestHelper {
         if (s_sysDirProps == null) {
             String etcDir = TestUtil.getProjectDirectory() + "/etc";
             String outDir = getTestDirectory();
-            s_sysDirProps = TestUtil.getSysDirProperties(new Properties(), getClasspathDirectory(), etcDir, outDir);
+            s_sysDirProps = TestUtil.getSysDirProperties(new Properties(),
+                    getClasspathDirectory(), etcDir, outDir);
         }
         return s_sysDirProps;
     }
@@ -149,5 +153,24 @@ public final class TestHelper {
 
     public static void update(String resource) throws Exception {
         DatabaseOperation.UPDATE.execute(getConnection(), loadDataSet(resource));
+    }
+
+    /**
+     * Special TestCase class that catches prints additional info for SQL Exceptions errors that
+     * may happed during setUp, testXXX and tearDown.
+     * 
+     * Alternatively we could just throw e.getNextException, but we may want to preserve the
+     * original exception.
+     */
+    public static class TestCaseDb extends TestCase {
+        public void runBare() throws Throwable {
+            try {
+                super.runBare();
+            } catch (SQLException e) {
+                System.err.println(e.getNextException().getMessage());
+                throw e;
+
+            }
+        }
     }
 }

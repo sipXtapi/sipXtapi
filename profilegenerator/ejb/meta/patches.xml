@@ -139,4 +139,10 @@
 			args="script=/v8_mods_2.sql"
             description="Call forwarding support"/>
     </version>
+    
+    <version number="9">
+        <patch number="90" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+            args="script/v9_mods.sql"
+            description="Call groups support"/>        
+    </version>
 </patches>
