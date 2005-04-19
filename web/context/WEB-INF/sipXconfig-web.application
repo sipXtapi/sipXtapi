@@ -4,7 +4,6 @@
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
 <application name="sipXconfig-web" engine-class="org.sipfoundry.sipxconfig.site.SipxconfigEngine">
-
     <description>sipXconfig Application</description>
     
     <property name="org.apache.tapestry.global-class" value="org.sipfoundry.sipxconfig.site.BeanFactoryGlobals"/>
@@ -20,16 +19,17 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>    <page name="ManageUsers" specification-path="user/ManageUsers.page"/>    <page name="PhoneDefaults" specification-path="phone/PhoneDefaults.page"/>    <page name="EditLine" specification-path="line/EditLine.page"/>    
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
+	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
     <page name="EditEmergencyDialRule" specification-path="dialplan/EditEmergencyDialRule.page"/>
     <page name="EditEmergencyRouting" specification-path="dialplan/EditEmergencyRouting.page"/>
     <page name="EditInternalDialRule" specification-path="dialplan/EditInternalDialRule.page"/>
     <page name="EditInternationalDialRule" specification-path="dialplan/EditInternationalDialRule.page"/>
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
+    <page name="EditLine" specification-path="line/EditLine.page"/>    
     <page name="EditLocalDialRule" specification-path="dialplan/EditLocalDialRule.page"/>
     <page name="EditLongDistanceDialRule" specification-path="dialplan/EditLongDistanceDialRule.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
@@ -37,10 +37,13 @@
     <page name="Home" specification-path="Home.page"/>
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="dialplan/ListGateways.page"/>
+    <page name="ListCallGroups" specification-path="admin/ListCallGroups.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
+    <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>
     <page name="PhoneLines" specification-path="phone/PhoneLines.page"/>
+    <page name="PhoneDefaults" specification-path="phone/PhoneDefaults.page"/>
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
     <page name="SelectRuleType" specification-path="dialplan/SelectRuleType.page"/>
@@ -74,5 +77,4 @@
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>
     <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
-
 </application>
