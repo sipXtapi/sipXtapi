@@ -124,23 +124,12 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
             throws PDSException, RemoteException, SQLException {
 
         Element patchRoot = m_patchManager.getUpgradeInfo();
-        Collection versions = patchRoot.getChildren( "version" );
-        int versionInt = -1;
-
-        for ( Iterator iVersion = versions.iterator(); iVersion.hasNext(); ) {
-            Element version = (Element) iVersion.next();
-            String versionString = version.getAttributeValue( "number" );
-            int newVersionInt = new Integer ( versionString ).intValue();
-
-            if ( newVersionInt  > versionInt )
-                versionInt = newVersionInt;
-
-        }
+        String currentVersion = patchRoot.getAttributeValue("currentVersion");
 
         executePreparedUpdate(  "INSERT INTO VERSIONS ( APPLIED, VERSION ) " +
                                 "   VALUES ( ?, ? ) ",
                                 new Object [] { new java.sql.Date ( new java.util.Date().getTime() ),
-                                                new Integer ( versionInt ) } );
+                                                Integer.valueOf( currentVersion ) } );
     }
 
 
