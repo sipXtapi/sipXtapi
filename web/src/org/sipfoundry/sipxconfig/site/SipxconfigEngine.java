@@ -15,7 +15,6 @@ import javax.servlet.ServletContext;
 
 import org.apache.tapestry.engine.BaseEngine;
 import org.apache.tapestry.request.RequestContext;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -43,16 +42,5 @@ public class SipxconfigEngine extends BaseEngine {
                 .getWebApplicationContext(servletContext);
         global.setApplicationContext(bf);
         return global;
-    }
-
-    /**
-     * Retrieves Spring application context setupForRequest must have been called first, but this
-     * should be accessable by any pages.
-     * 
-     * @deprecated use ognl:global.beanName instead or global.getApplicationContext() directly
-     */
-    public BeanFactory getBeanFactory() {
-        BeanFactoryGlobals global = (BeanFactoryGlobals) getGlobal();
-        return global.getApplicationContext();
     }
 }

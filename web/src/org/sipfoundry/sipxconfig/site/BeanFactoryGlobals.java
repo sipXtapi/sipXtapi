@@ -36,13 +36,11 @@ public class BeanFactoryGlobals implements Map {
         m_applicationContext = applicationContext;
     }
 
-    // TODO: this function is used temporarily to support global.sipXconfigContext OGNL
-    // expressions
+    // map implementation - mostly unsupported operations
     public Object get(Object key) {
         return m_applicationContext.getBean((String) key);
     }
 
-    // map implementation - mostly unsupported operations
     public int size() {
         return m_applicationContext.getBeanDefinitionNames().length;
     }
