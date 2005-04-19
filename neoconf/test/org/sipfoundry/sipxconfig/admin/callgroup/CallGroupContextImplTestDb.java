@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
@@ -39,6 +38,17 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         assertEquals("sales.sipx.1001",callGroup.getLineName());
     }
 
+    public void testGetCallGroups() throws Exception {
+        List callGroups = m_context.getCallGroups();
+        assertEquals(2,callGroups.size());
+        CallGroup callGroup = (CallGroup) callGroups.get(0);
+        assertEquals("sales",callGroup.getName());
+        assertTrue(callGroup.isEnabled());
+        assertEquals("sales",callGroup.getName());
+        assertEquals("401",callGroup.getExtension());
+        assertEquals("sales.sipx.1001",callGroup.getLineName());
+    }
+    
     public void testLoadUserRing() throws Exception {
         CallGroup callGroup = m_context.loadCallGroup(new Integer(1002));
         List userRings = callGroup.getCalls();
@@ -72,5 +82,16 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         // table should be empty now
         ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");        
         assertEquals(0, tableCallGroup.getRowCount());        
+        ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("user_ring");
+        assertEquals(0, tableUserRing.getRowCount());                
+    }
+    
+    public void testClear() throws Exception {
+        m_context.clear();
+        // make sure the tables are empty
+        ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");        
+        assertEquals(0, tableCallGroup.getRowCount());                
+        ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("user_ring");
+        assertEquals(0, tableUserRing.getRowCount());                
     }
 }

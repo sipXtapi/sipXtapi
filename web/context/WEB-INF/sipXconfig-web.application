@@ -23,6 +23,7 @@
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
 	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
+    <page name="EditCallGroup" specification-path="admin/EditCallGroup.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
     <page name="EditEmergencyDialRule" specification-path="dialplan/EditEmergencyDialRule.page"/>
     <page name="EditEmergencyRouting" specification-path="dialplan/EditEmergencyRouting.page"/>

@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
@@ -56,6 +57,17 @@ public final class TapestryUtils {
     }
 
     /**
+     * Specialized version of assertParameter. Extracts beanId (Integer) from the first (index 0)
+     * parameter of the cycle service
+     * 
+     * @param cycle current request cycle
+     * @return bean id - exception is thrown if no id found
+     */
+    public static Integer getBeanId(IRequestCycle cycle) {
+        return (Integer) assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+    }
+
+    /**
      * Helper method to display standard "nice" stale link message
      * 
      * @param page page on which stale link is discovered
@@ -96,16 +108,17 @@ public final class TapestryUtils {
     }
 
     /**
-     * Retrieves the validator for the current page. Use only if standard "validator" name
-     * has been used.
+     * Retrieves the validator for the current page. Use only if standard "validator" name has
+     * been used.
      * 
      * Use to record errors not related to any specific component.
      * 
      * @param page
-     * @return validation delegate component 
+     * @return validation delegate component
      */
     public static IValidationDelegate getValidator(AbstractPage page) {
         IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(VALIDATOR);
         return validator;
     }
+
 }

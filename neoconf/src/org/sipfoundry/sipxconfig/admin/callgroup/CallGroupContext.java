@@ -12,11 +12,15 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface CallGroupContext {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
     
     CallGroup loadCallGroup(Integer id);
+    List getCallGroups();
     void storeCallGroup(CallGroup callGroup);
     void removeCallGroups(Collection ids);
+    void duplicateCallGroups(Collection ids);
+    void clear();
 }

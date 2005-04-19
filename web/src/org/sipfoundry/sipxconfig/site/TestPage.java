@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
@@ -25,11 +26,17 @@ public abstract class TestPage extends BasePage {
     
     public abstract PhoneContext getPhoneContext();
     
+    public abstract CallGroupContext getCallGroupContext();
+    
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanManager().clear();
     }
     
     public void resetPhoneContext(IRequestCycle cycle_) {
         getPhoneContext().clear();
+    }
+
+    public void resetCallGroupContext(IRequestCycle cycle_) {
+        getCallGroupContext().clear();
     }
 }

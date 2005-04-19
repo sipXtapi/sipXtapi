@@ -12,12 +12,18 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>
+    <property-specification name="callGroupContext" 
+    	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" 
+	    initial-value="global.callGroupContext"/>    
 
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>
     </component>    
     <component id="resetPhoneContext" type="DirectLink">
         <binding name="listener" expression="listeners.resetPhoneContext"/>
+    </component>    
+    <component id="resetCallGroupContext" type="DirectLink">
+        <binding name="listener" expression="listeners.resetCallGroupContext"/>
     </component>    
     <component id="userCallForwarding" type="ExternalLink">
         <static-binding name="page" value="UserCallForwarding"/>

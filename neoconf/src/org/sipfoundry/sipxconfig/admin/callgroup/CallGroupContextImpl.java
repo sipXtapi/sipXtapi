@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -39,5 +40,22 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
             entities.add(entity);
         }
         template.deleteAll(entities);
+    }
+
+    public List getCallGroups() {
+        return getHibernateTemplate().loadAll(CallGroup.class);
+    }
+
+    public void duplicateCallGroups(Collection ids_) {
+        // TODO Auto-generated method stub        
+    }
+    
+    /**
+     * Remove all call groups - mostly used for testing
+     */
+    public void clear() {
+        HibernateTemplate template = getHibernateTemplate();
+        Collection all = template.loadAll(CallGroup.class);
+        template.deleteAll(all);
     }
 }
