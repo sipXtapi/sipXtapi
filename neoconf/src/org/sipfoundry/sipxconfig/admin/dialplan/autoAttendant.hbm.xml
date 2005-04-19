@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<class name="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" table="auto_attendant">
+		<id name="id" column="auto_attendant_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">auto_attendant_seq</param>
+			</generator>
+		</id>
+		<property name="name"/>
+		<property name="extension"/>
+		<property name="prompt"/>
+        <property name="description"/>
+		<map name="menuItems" cascade="all" table="attendant_menu_item" order-by="key asc">
+			<key column="auto_attendant_id"/>
+			<index column="dialpad_key" type="string"/>
+    	    <composite-element class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem">
+    		    <property name="actionId" column="action"/>
+	    	    <property name="parameter"/>
+            </composite-element>
+	    </map>
+	</class>
+</hibernate-mapping>

@@ -5,13 +5,54 @@
   <link rel="stylesheet" type="text/css" href="../sipxconfig.css" />
 </head>
 <body id="page_id">
-<h2>Auto Attendant</h2>
-<div class="help">You can
-create an auto attendant
-menu by selecting "Route to
-special extension" for any key and enter any available extension in the
-adjacent extension field. Then create another auto attendant menu and enter
-that same extension in the extension field</div>
+<h2>Auto
+Attendant</h2>
+<div class="help">
+<dl>
+  <dt>Extension:</dt>
+  <dd>You can assign a
+direct extention so user can immmediately dial into the menu.</dd>
+  <dt>Upload new prompt:</dt>
+  <dd>Uploaded sound
+files
+must as 8khz / 16 bit PCM samples,
+signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)
+  </dd>
+</dl>
+<strong>Action
+Descriptions</strong>
+<dl>
+  <dt>Dial by name prompt</dt>
+  <dd>User will be prompted to
+dial a person's name using the key pad.
+  </dd>
+  <dt>Listen for extension</dt>
+  <dd>Attendant will continue to
+listen for additional key presses until it matches an extension in the
+internal dialing rules. For example, use must key "1" to listen for 1XX
+extensions.
+  </dd>
+  <dt>Voicemail login</dt>
+  <dd>User will be directed to
+voicemail system and prompted to log in.
+  </dd>
+  <dt>Goto Extension</dt>
+  <dd>Route call directly to
+another
+extension.<br />
+  </dd>
+  <dt>Auto Attendant</dt>
+  <dd>Go to another auto
+attendant menu.</dd>
+  <dt>Operator</dt>
+  <dd>Route call to extention 0</dd>
+  <dt>Cancel</dt>
+  <dd>Return to previous auto attendant</dd>
+  <dt>Disconnect</dt>
+  <dd>Play good-bye message and
+end call.</dd>
+</dl>
+</div>
 <ul>
 </ul>
 <form method="post" action="#">
@@ -44,200 +85,93 @@ from existing prompts:</td>
       <tr>
         <td nowrap="nowrap" valign="top">Upload new prompt:</td>
         <td><input value="Upload" type="file" />
-        <p>* Uploaded sound
-files
-must as 8khz / 16 bit PCM samples,
-signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
         </td>
       </tr>
     </tbody>
   </table>
-  <div class="help">
-  <strong>Action Descriptions</strong>
-  <dl>
-    <dt>Invalid entry prompt</dt>
-    <dd>User will be prompted that, that key is an invalid entry and they will be asked to press another entry<br/>
-    Extension Shortcut ignored.</dd>
-
-    <dt>Dial by name prompt</dt>
-    <dd>User will be prompted to dial a person's name using the key pad<br/>
-    Extension Shortcut ignored.</dd>
-    <dt>Listen for extension</dt>
-    <dd>Attendant will continue to listen for additional key presses until it matches an extension in the internal dialing rules. For example, use must key "1" to listen for 1XX extensions.<br/>
-    Extension Shortcut ignored.</dd>
-
-    <dt>Voicemail login</dt>
-    <dd>User will be directed to voicemail system and prompted to log in.<br/>
-    Extension Shortcut ignored.</dd>
-
-    <dt>Extension shortcut</dt>
-    <dd>Route call to a special extension. Examples include routing to another auto attendant for chaining menus, a user's extension, directly to user's voicemail</dd>
-
-  </dl>
-  </div>
-  <table>
+  <table class="component">
     <tbody>
-      <tr>
+      <tr class="component-hdr">
+        <th></th>
         <th>Key</th>
         <th>Action</th>
-        <th>Extension Shortcut</th>
+        <th>Value</th>
       </tr>
-      <tr>
-        <td>0</td>
-        <td colspan="2" rowspan="1">Reserved for operator</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>4</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>5</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>6</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>7</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>8</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
-        <td>9</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
-      </tr>
-      <tr>
+      <tr class="odd">
+        <td><input type="checkbox" /></td>
         <td>*</td>
-        <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
-        </select>
-        </td>
-        <td><input name="key-ext" type="text" /></td>
+        <td>Cancel</td>
+        <td></td>
       </tr>
-      <tr>
-        <td>#</td>
+      <tr class="even">
+        <td><input type="checkbox" /></td>
+        <td>0</td>
+        <td>Operator</td>
+        <td></td>
+      </tr>
+      <tr class="odd">
+        <td><input type="checkbox" /></td>
+        <td>1</td>
+        <td>Auto Attendant</td>
         <td>
-        <select name="key-action">
-        <option>Invalid entry prompt</option>
-        <option>Dial by name prompt</option>
-        <option>Listen for extension</option>
-        <option>Voicemail login</option>
-        <option>Extension shortcut</option>
+        <select>
+        <option>-- select one --</option>
+        <option>Sales</option>
+        <option>Engineering</option>
         </select>
         </td>
-        <td><input name="key-ext" type="text" /></td>
+      </tr>
+      <tr class="odd">
+        <td></td>
+        <td>
+        <select name="key">
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>#</option>
+        </select>
+        </td>
+        <td>
+        <select name="key-action">
+        <option>Dial by name prompt</option>
+        <option>Listen for
+extension</option>
+        <option>Voicemail login</option>
+        <option>Goto Extension</option>
+        <option>Auto Attendant</option>
+        <option>Operator</option>
+        <option>Cancel</option>
+        <option>Disconnect</option>
+        </select>
+        </td>
+        <td><input value="Add" type="submit" /></td>
       </tr>
     </tbody>
   </table>
+  <ul class="component-submit">
+    <li> <input name="" value="Delete" type="submit" />
+    </li>
+    <li> <input name="" value="Move Up" type="submit" />
+    </li>
+    <li> <input name="" value="Move Down" type="submit" />
+    </li>
+  </ul>
+  <ul class="form-actions">
+    <li> <input value="Save" type="submit" /> </li>
+    <li> <input value="Cancel" type="submit" /> </li>
+  </ul>
 </form>
-<ul class="form-actions">
-  <li> <input value="Save" type="submit" /> </li>
-  <li> <input value="Cancel" type="submit" /> </li>
-</ul>
 <br />
 <hr />
 <h3>NOTES:</h3>
+When creating a new auto attendant, keys 0 and * will always be mapped
+to "Operator" and "Cancel" so consistancy with standard auto attendants
+and sipx's voicemail system.&nbsp; They can however delete it and add a
+new menu mapping it to something else.
 </body>
 </html>

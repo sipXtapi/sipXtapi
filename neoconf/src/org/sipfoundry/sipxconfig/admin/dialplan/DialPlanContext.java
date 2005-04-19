@@ -57,4 +57,10 @@ public interface DialPlanContext {
     public abstract List getGatewayByIds(Collection gatewayIds);
 
     public abstract EmergencyRouting getEmergencyRouting();
+    
+    public abstract void storeAutoAttendant(AutoAttendant attendant);
+    
+    public abstract AutoAttendant getAutoAttendant(Integer id);
+    
+    public abstract List getAutoAttendants();
 }

@@ -60,6 +60,25 @@
 						</tr>
 					</tbody>
 				</table>
+  <table>
+    <tbody>
+      <tr>
+        <th>Key</th>
+        <th>Action</th>
+        <th>Extension Shortcut</th>
+      </tr>
+      <span jwcid="menuItems">
+      <tr>
+        <td><span jwcid="menuItemKey"/></td>
+        <td><select jwcid="menuItemAction"/></td>
+        <td>
+            <!-- TODO: use tapestry block component as switch statement  -->
+            <input jwcid="menuItemParameter" type="text" />
+         </td>
+      </tr>
+      </span>
+      </tbody>
+    </table>
 				<ul class="component-submit">
 					<li>
 						<input jwcid="ok" type="submit" id="attendant:ok" 

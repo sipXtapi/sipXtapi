@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -121,4 +122,25 @@ public final class TapestryUtils {
         return validator;
     }
 
+    /**
+     * Convience method that will quietly localize and act graceful if resources
+     * are not set or found.
+     */
+    public static final String localize(IMessages messages, String key) {
+        return localize(messages, null, key);        
+    }
+
+    /**
+     * @param prefix prepended to key w/o '.' (e.g. fullkey = prefix + key)
+     */
+    public static final String localize(IMessages messages, String prefix, String key) {
+        if (key == null || messages == null) {
+            return key;
+        }
+        
+        String fullKey = prefix != null ? prefix + key : key;
+        String label = messages.getMessage(fullKey, key);
+        
+        return label;
+    }    
 }

@@ -35,6 +35,8 @@
   <table name="internal_dialing_rule"/>
   <table name="long_distance_dialing_rule"/>
   <table name="gateway"/>
+  <table name="auto_attendant"/>
+  <table name="attendant_menu_item"/>
   
   <!-- legacy -->
   <table name="jobs"/>

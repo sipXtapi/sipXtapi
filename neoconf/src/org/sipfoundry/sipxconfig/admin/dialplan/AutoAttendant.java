@@ -11,7 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-public class AutoAttendant {
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.DialPad;
+
+public class AutoAttendant extends BeanWithId {
 
     private String m_name;
 
@@ -20,6 +26,8 @@ public class AutoAttendant {
     private String m_description;
 
     private String m_prompt;
+    
+    private Map m_menuItems;
 
     public String getDescription() {
         return m_description;
@@ -51,5 +59,24 @@ public class AutoAttendant {
 
     public void setName(String name) {
         m_name = name;
+    }
+
+    /**
+     * @return map of AttendantMenuItems where the dialpad keys are the strings 0-9,* and #
+     */
+    public Map getMenuItems() {
+        return m_menuItems;
+    }    
+
+    public void setMenuItems(Map menuItems) {
+        m_menuItems = menuItems;
+    }
+    
+    public void addMenuItem(DialPad key, AttendantMenuItem menuItem) {
+        if (m_menuItems == null) {
+            m_menuItems = new TreeMap();
+        }
+        
+        m_menuItems.put(key.getName(), menuItem);
     }
 }

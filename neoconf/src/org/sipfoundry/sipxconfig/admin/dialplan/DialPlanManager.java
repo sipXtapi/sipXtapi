@@ -50,6 +50,20 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
         
     }
 
+    public void storeAutoAttendant(AutoAttendant aa) {
+        getHibernateTemplate().saveOrUpdate(aa);
+    }
+
+    public List getAutoAttendants() {
+        List gateways = getHibernateTemplate().loadAll(AutoAttendant.class);
+        return gateways;
+    }
+
+    public AutoAttendant getAutoAttendant(Integer id) {
+        return (AutoAttendant) getHibernateTemplate().load(AutoAttendant.class, id);
+        
+    }
+
     public void storeGateway(Gateway gateway) {
         getHibernateTemplate().saveOrUpdate(gateway);
     }

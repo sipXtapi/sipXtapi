@@ -25,8 +25,11 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlService;
+import org.sipfoundry.sipxconfig.common.DialPad;
 
 public abstract class EditAutoAttendant extends BasePage implements PageRenderListener {
 
@@ -47,16 +50,41 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public abstract IUploadFile getPromptUploadFile();
 
     public abstract VxmlService getVxmlService();
+    
+    public abstract String getCurrentDialPadId();
+    
+    public abstract void setCurrentDialPadId(String dialpadId);
+    
+    public AttendantMenuItem getCurrentMenuItem() {
+        AttendantMenuItem menuItem = (AttendantMenuItem) getAttendant().getMenuItems().get(getCurrentDialPadId());
+        return menuItem;
+    }
+    
+    public DialPad getCurrentDialPad() {
+        DialPad dialpad = DialPad.getDialPadById(getCurrentDialPadId());        
+        return dialpad;
+    }
+
+    public void setCurrentDialPad(DialPad dialpad_) {
+        // TODO
+    }
 
     public void ok(IRequestCycle cycle_) {
         checkFileUpload();
     }
-
+    
     public void cancel(IRequestCycle cycle_) {
     }
 
     public void pageBeginRender(PageEvent event_) {
-        setAttendant(new AutoAttendant());
+        AutoAttendant aa = getAttendant();        
+        if (aa == null) {
+            Integer aaId = getAttendantId();
+            if (aaId == null) {
+                initializeAttendant();
+            }            
+        }
+        
         File promptsDir = new File(getVxmlService().getPromptsDirectory());
         String[] prompts = promptsDir.list();
         if (prompts == null || prompts.length == 0) {
@@ -66,6 +94,13 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             };
         }
         setPromptSelectionModel(new StringPropertySelectionModel(prompts));
+    }
+    
+    private void initializeAttendant() {
+        AutoAttendant aa = new AutoAttendant();
+        aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
+        aa.addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.CANCEL));
+        setAttendant(aa);        
     }
 
     private void checkFileUpload() {

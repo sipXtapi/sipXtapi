@@ -8,18 +8,20 @@
       - P R O P E R T I E S
       -->
     <property-specification name="attendant" 
-        type="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"/>
+        type="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"
+        persistent="yes"/>
     <property-specification name="attendantId" 
         type="java.lang.Integer" 
         persistent="yes"/>
 	<property-specification name="promptSelectionModel" 
-		type="org.apache.tapestry.form.IPropertySelectionModel"
-        persistent="yes"/>   
+		type="org.apache.tapestry.form.IPropertySelectionModel"/>           
 	<property-specification name="promptUploadFile" 
 		type="org.apache.tapestry.request.IUploadFile"/>   
     <property-specification name="vxmlService"
         type="org.sipfoundry.sipxconfig.admin.dialplan.VxmlService"
         initial-value="global.vxml"/>
+    <property-specification name="currentDialPadId"
+        type="java.lang.String"/>
     <!--
       - B E A N S
       -->
@@ -31,6 +33,17 @@
     <bean name="extensionValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
     	<set-property name="required" expression="false"/>
 	</bean>
+    <bean name="dialPadSelectionModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
+        <set-property name="enumClass" expression="@org.sipfoundry.sipxconfig.common.DialPad@class"/>
+    </bean>
+    <bean name="menuItemActions" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
+        <set-property name="enumClass" expression="@org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction@class"/>
+    </bean>
+    <bean name="localizedMenuItemActions" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator">
+        <set-property name="model" expression="beans.menuItemActions"/>
+        <set-property name="resourcePrefix" expression="'menuItemAction.'"/>
+        <set-property name="messages" expression="messages"/>
+    </bean>
     <!--
       - C O M P O N E N T S
       -->
@@ -80,5 +93,20 @@
     </component>    
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
+    </component>
+    <component id="menuItems" type="Foreach">
+        <binding name="source" expression="attendant.menuItems.keys"/>
+        <binding name="value" expression="currentDialPadId"/>
+    </component>
+    <component id="menuItemKey" type="PropertySelection">
+        <binding name="model" expression="beans.dialPadSelectionModel"/>
+        <binding name="value" expression="currentDialPad"/>
+    </component>
+    <component id="menuItemAction" type="PropertySelection">
+        <binding name="model" expression="beans.localizedMenuItemActions"/>
+        <binding name="value" expression="currentMenuItem.action"/>
+    </component>
+    <component id="menuItemParameter" type="TextField">
+        <binding name="value" expression="currentMenuItem.parameter"/>
     </component>
 </page-specification>

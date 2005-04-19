@@ -144,5 +144,8 @@
         <patch number="90" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
             args="script=/v9_mods.sql"
             description="Call groups support"/>        
+        <patch number="91" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+            args="script=/v9_mods_2.sql"
+            description="Auto attendant support"/>        
     </version>
 </patches>
