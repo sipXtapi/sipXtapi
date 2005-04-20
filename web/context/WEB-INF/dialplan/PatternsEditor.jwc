@@ -22,7 +22,7 @@
 	</bean>    
     <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
     	<set-property name="model" expression="beans.digitsOnlyModel"/>
-	    <set-property name="extraOption">"Any number of digits"</set-property>
+	    <set-property name="extraLabel">"Any number of digits"</set-property>
 	</bean>    
     
     <!-- C O M P O N E N T S -->

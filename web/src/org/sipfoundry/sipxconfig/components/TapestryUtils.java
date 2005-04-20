@@ -20,6 +20,9 @@ import org.apache.tapestry.valid.ValidatorException;
 
 /**
  * Utility method for tapestry pages and components
+ * 
+ * DEVELOPERS NOTE: Static utility methods have their place but consider adding
+ * methods to TapestryContext to avoif too many static methods and the limitations they incur
  */
 public final class TapestryUtils {
     /**
@@ -33,7 +36,7 @@ public final class TapestryUtils {
     private TapestryUtils() {
         // intentionally empty
     }
-
+    
     /**
      * Utility method to provide more descriptive unchecked exceptions for unmarshalling object
      * from Tapestry service Parameters.

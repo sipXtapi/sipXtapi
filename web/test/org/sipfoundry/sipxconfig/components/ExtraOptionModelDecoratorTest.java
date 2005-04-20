@@ -23,8 +23,7 @@ public class ExtraOptionModelDecoratorTest extends TestCase {
         model.setMax(6);
         m_model = new ExtraOptionModelDecorator();
         m_model.setModel(model);
-        m_model.setExtraOption("A new option");
-
+        m_model.setExtraLabel("A new option");        
     }
 
     public void testGetOptionCount() {
@@ -54,5 +53,20 @@ public class ExtraOptionModelDecoratorTest extends TestCase {
         assertEquals(new Integer(-1), m_model.translateValue(value0));
         String value = m_model.getValue(3);
         assertEquals(new Integer(5), m_model.translateValue(value));
+    }
+    
+    public void testSetExtraOptionNull() {
+        m_model.setExtraOption(null);
+        assertNull(m_model.getOption(0));
+        String value = m_model.getValue(0);
+        assertNull(m_model.translateValue(value));
+    }
+
+    public void testSetExtraOptionMemento() {
+        Object memento = new Object();
+        m_model.setExtraOption(memento);
+        assertEquals(memento, m_model.getOption(0));
+        String value = m_model.getValue(0);
+        assertSame(memento, m_model.translateValue(value));
     }
 }

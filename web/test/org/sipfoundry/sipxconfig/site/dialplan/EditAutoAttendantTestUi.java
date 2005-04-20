@@ -35,6 +35,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        clickLink("resetDialPlans");
         clickLink("EditAutoAttendant");
         SiteTestHelper.assertNoException(tester);
 

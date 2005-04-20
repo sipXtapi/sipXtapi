@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import org.apache.commons.lang.enum.Enum;
+import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 /**
  * All possible, supported actions for creation auto attendants. 
@@ -28,14 +29,19 @@ public final class AttendantMenuAction extends Enum {
     
     public static final AttendantMenuAction GOTO_EXTENSION  = new AttendantMenuAction("gotoExtension");
     
-    public static final Enum[] ACTIONS = 
-            (Enum[]) getEnumList(AttendantMenuAction.class).toArray(new Enum[0]);
+    public static final AttendantMenuAction[] ACTIONS = 
+            (AttendantMenuAction[]) getEnumList(AttendantMenuAction.class).toArray(new AttendantMenuAction[0]);
 
     private AttendantMenuAction(String actionId) {
         super(actionId);
     }
     
-    public static final AttendantMenuAction getActionFromId(String id) {
-        return (AttendantMenuAction) getEnumMap(AttendantMenuAction.class).get(id);
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class UserType extends EnumUserType {
+        public UserType() {
+            super(AttendantMenuAction.class);
+        }
     }
 }

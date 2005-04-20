@@ -76,6 +76,8 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
         m_flexDialPlan.resetToFactoryDefault();       
         List gateways = getHibernateTemplate().loadAll(Gateway.class);        
         getHibernateTemplate().deleteAll(gateways);
+        List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
+        getHibernateTemplate().deleteAll(attendants);        
     }
 
     public boolean deleteGateway(Integer id) {

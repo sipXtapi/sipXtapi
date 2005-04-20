@@ -45,4 +45,5 @@
             <value>Please enter exactly 12 alphanumeric characters comprised of digits 0-9 or characters a-f, for example: 0040214131fa</value>
         </property>
     </bean>
+	<bean name="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext"/>
 </beans>

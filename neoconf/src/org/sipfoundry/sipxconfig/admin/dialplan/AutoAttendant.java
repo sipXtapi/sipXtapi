@@ -62,7 +62,8 @@ public class AutoAttendant extends BeanWithId {
     }
 
     /**
-     * @return map of AttendantMenuItems where the dialpad keys are the strings 0-9,* and #
+     * @return map of AttendantMenuItems where the dialpad keys DialPad objects 
+     * representing keys 0-9,* and #
      */
     public Map getMenuItems() {
         return m_menuItems;
@@ -77,6 +78,6 @@ public class AutoAttendant extends BeanWithId {
             m_menuItems = new TreeMap();
         }
         
-        m_menuItems.put(key.getName(), menuItem);
+        m_menuItems.put(key, menuItem);
     }
 }

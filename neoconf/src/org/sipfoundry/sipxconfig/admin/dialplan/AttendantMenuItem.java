@@ -42,17 +42,6 @@ public class AttendantMenuItem {
         m_action = action;
     }
     
-    public String getActionId() {
-        return m_action.getName();
-    }
-
-    /**
-     * BEAN ACCESS ONLY, looks up action enumerated type
-     */
-    public void setActionId(String actionId) {
-        m_action = AttendantMenuAction.getActionFromId(actionId);
-    }    
-
     /**
      * Depends on the operation type, but this could be extension or aa menu name
      */

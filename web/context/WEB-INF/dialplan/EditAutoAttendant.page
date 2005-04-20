@@ -27,10 +27,12 @@
 	<property-specification name="dialPlanContext" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>   
+    <property-specification name="currentDialPad"
+        type="org.sipfoundry.sipxconfig.common.DialPad"/>
     <property-specification name="addMenuItemDialPad"
         type="org.sipfoundry.sipxconfig.common.DialPad"/>        
     <property-specification name="addMenuItemAction"
-        type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction"/>        
+        type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction"/>
     <!--
       - B E A N S
       -->
@@ -69,10 +71,10 @@
         <static-binding name="displayName" value="Name"/>
     </component>
     <component id="descriptionLabel" type="FieldLabel">
-        <binding name="field" expression="components.name"/>
+        <binding name="field" expression="components.description"/>
         <static-binding name="displayName" value="Description"/>
     </component>
-    <component id="description" type="TextField">
+    <component id="description" type="TextArea">
         <binding name="value" expression="attendant.description"/>
     </component>
     <component id="extensionLabel" type="FieldLabel">
@@ -88,7 +90,7 @@
         <static-binding name="displayName" value="Existing prompts"/>
     </component>
     <component id="prompt" type="PropertySelection">
-        <binding name="model" expression="promptSelectionModel"/>
+        <binding name="model" expression="global.tapestry.instructUserToSelect(promptSelectionModel)"/>
         <binding name="value" expression="attendant.prompt"/>
     </component>
     <component id="promptUploadLabel" type="FieldLabel">
@@ -113,13 +115,13 @@
 	<component id="menuItemColumns" type="contrib:TableColumns">
 	</component>
 	<component id="menuItemRows" type="contrib:TableFormRows">
-        <binding name="row" expression="currentDialPadId"/>
+        <binding name="row" expression="currentDialPad"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
 	<component id="menuItemValues" type="contrib:TableValues"/>
     <!-- Column 1: select phone -->
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentDialPadId]"/>
+        <binding name="selected" expression="selections.selected[currentDialPad.name]"/>
     </component>
     <!-- Column 2: key dropdown -->
     <component id="DialpadColumnValue" type="Block"/>
@@ -129,9 +131,8 @@
     </component>
     <!-- Column 3: action dropdown -->
     <component id="ActionColumnValue" type="Block"/>
-    <component id="menuItemAction" type="PropertySelection">
-        <binding name="model" expression="beans.localizedMenuItemActions"/>
-        <binding name="value" expression="currentMenuItem.action"/>
+    <component id="menuItemAction" type="Insert">
+        <binding name="value" expression="messages.getMessage('menuItemAction.' + currentMenuItem.action.name, currentMenuItem.action.name)"/>
     </component>
     <!-- Column 4: optional action parameter -->
     <component id="ParameterColumnValue" type="Block"/>
@@ -147,7 +148,7 @@
         <binding name="value" expression="addMenuItemDialPad"/>
     </component>    
     <component id="addMenuItemAction" type="PropertySelection">
-        <binding name="model" expression="beans.localizedMenuItemActions"/>
+        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.localizedMenuItemActions)"/>
         <binding name="value" expression="addMenuItemAction"/>
     </component>    
     <component id="addMenuItem" type="Submit">

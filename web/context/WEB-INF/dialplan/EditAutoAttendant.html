@@ -5,6 +5,7 @@
 	<body jwcid="$content$">
 		<div jwcid="@Border">
 			<h2>Auto Attendant</h2>
+   		    <span jwcid="@ErrorMsg"/>
 			<form jwcid="form">
 				<table>
 					<tbody>
@@ -34,7 +35,7 @@
 									jwcid="descriptionLabel">Description</span>:</label>
 							</td>
 							<td>
-								<input type="text" jwcid="description" 
+								<textarea jwcid="description" rows="5" cols="40"
 									id="attendant:description"/>
 							</td>
 						</tr>

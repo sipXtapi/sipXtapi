@@ -42,13 +42,18 @@ public final class DialPad extends Enum {
     
     public static final DialPad POUND = new DialPad("#");
     
-    public static final Enum[] KEYS = (Enum[]) getEnumList(DialPad.class).toArray(new Enum[0]);
+    public static final DialPad[] KEYS = (DialPad[]) getEnumList(DialPad.class).toArray(new DialPad[0]);
     
     private DialPad(String name) {
         super(name);        
     }
     
-    public static final DialPad getDialPadById(String id) {
-        return (DialPad) getEnumMap(DialPad.class).get(id);
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class UserType extends EnumUserType {
+        public UserType() {
+            super(DialPad.class);
+        }
     }
 }
