@@ -10,28 +10,18 @@
  * $$
  */
 
-
 package com.pingtel.pds.pgs.patch;
 
-import java.util.HashMap;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import javax.sql.DataSource;
-import javax.naming.InitialContext;
-import javax.naming.Context;
-
-import com.pingtel.pds.common.PDSException;
+import java.util.Map;
 
 public interface Patch {
 
-    public abstract String update () throws PDSException;
+    public static final String NOT_YET_APPLIED = "N";
+    public static final String ALREADY_APPLIED = "A";
+    public static final String FAILURE = "F";
+    public static final String SUCCESS = "S";
 
-    public void initialize ( HashMap props ) throws PDSException;
+    public abstract String update();
+
+    public void initialize(Map props);
 }

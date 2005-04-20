@@ -12,6 +12,21 @@
 
 package com.pingtel.pds.pgs.organization;
 
+import java.io.FileNotFoundException;
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.ejb.CreateException;
+import javax.ejb.EJBException;
+import javax.ejb.FinderException;
+import javax.ejb.RemoveException;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.common.PathLocatorUtil;
@@ -19,21 +34,33 @@ import com.pingtel.pds.pgs.common.PGSDefinitions;
 import com.pingtel.pds.pgs.common.ejb.JDBCAwareEJB;
 import com.pingtel.pds.pgs.patch.PatchManager;
 import com.pingtel.pds.pgs.patch.PatchManagerHome;
-import com.pingtel.pds.pgs.phone.*;
-import com.pingtel.pds.pgs.profile.*;
-import com.pingtel.pds.pgs.user.*;
-
-import org.jdom.Element;
-
-import javax.ejb.*;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import java.io.FileNotFoundException;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Iterator;
+import com.pingtel.pds.pgs.phone.DeviceAdvocate;
+import com.pingtel.pds.pgs.phone.DeviceAdvocateHome;
+import com.pingtel.pds.pgs.phone.DeviceGroup;
+import com.pingtel.pds.pgs.phone.DeviceGroupAdvocate;
+import com.pingtel.pds.pgs.phone.DeviceGroupAdvocateHome;
+import com.pingtel.pds.pgs.phone.DeviceGroupHome;
+import com.pingtel.pds.pgs.phone.DeviceType;
+import com.pingtel.pds.pgs.phone.DeviceTypeAdvocate;
+import com.pingtel.pds.pgs.phone.DeviceTypeAdvocateHome;
+import com.pingtel.pds.pgs.phone.DeviceTypeHome;
+import com.pingtel.pds.pgs.profile.RefConfigSetAssignment;
+import com.pingtel.pds.pgs.profile.RefConfigurationSet;
+import com.pingtel.pds.pgs.profile.RefConfigurationSetHome;
+import com.pingtel.pds.pgs.profile.RefDataAdvocate;
+import com.pingtel.pds.pgs.profile.RefDataAdvocateHome;
+import com.pingtel.pds.pgs.profile.RefProperty;
+import com.pingtel.pds.pgs.profile.RefPropertyHome;
+import com.pingtel.pds.pgs.user.ExtensionPoolAdvocate;
+import com.pingtel.pds.pgs.user.ExtensionPoolAdvocateHome;
+import com.pingtel.pds.pgs.user.User;
+import com.pingtel.pds.pgs.user.UserAdvocate;
+import com.pingtel.pds.pgs.user.UserAdvocateHome;
+import com.pingtel.pds.pgs.user.UserGroup;
+import com.pingtel.pds.pgs.user.UserGroupAdvocate;
+import com.pingtel.pds.pgs.user.UserGroupAdvocateHome;
+import com.pingtel.pds.pgs.user.UserGroupHome;
+import com.pingtel.pds.pgs.user.UserHome;
 
 
 
@@ -91,7 +118,7 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
 
             createSpecialUsers( organization, superAdminPassword);
 
-            createDatabaseVersionRecord();
+            m_patchManager.initialUpgrade();
 
             ///////////////////////////////////////////////////////////////////////
             //
@@ -119,19 +146,6 @@ public class OrganizationAdvocateBean extends JDBCAwareEJB
 
         return organization;
     }
-
-    private void createDatabaseVersionRecord()
-            throws PDSException, RemoteException, SQLException {
-
-        Element patchRoot = m_patchManager.getUpgradeInfo();
-        String currentVersion = patchRoot.getAttributeValue("currentVersion");
-
-        executePreparedUpdate(  "INSERT INTO VERSIONS ( APPLIED, VERSION ) " +
-                                "   VALUES ( ?, ? ) ",
-                                new Object [] { new java.sql.Date ( new java.util.Date().getTime() ),
-                                                Integer.valueOf( currentVersion ) } );
-    }
-
 
     private void createSpecialUsers(Organization organization, String superAdminPassword)
             throws PDSException, RemoteException {

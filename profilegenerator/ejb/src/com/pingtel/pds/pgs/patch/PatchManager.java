@@ -16,5 +16,4 @@ package com.pingtel.pds.pgs.patch;
 import javax.ejb.EJBObject;
 
 public interface PatchManager extends EJBObject, PatchManagerBusiness {
-
 }

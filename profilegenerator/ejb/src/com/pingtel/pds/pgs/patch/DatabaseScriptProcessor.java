@@ -12,83 +12,83 @@
 
 package com.pingtel.pds.pgs.patch;
 
-import javax.naming.*;
-import javax.ejb.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import java.sql.*;
-
-import java.io.*;
-
-import java.util.*;
-
 import org.apache.log4j.Category;
-
-import com.pingtel.pds.common.PathLocatorUtil;
-import com.pingtel.pds.common.PDSException;
 
 public class DatabaseScriptProcessor implements Patch {
 
     private String m_scriptName;
-    private Category m_logger = Category.getInstance( "pgs" );
+    private Category m_logger = Category.getInstance("pgs");
 
-    public void initialize(HashMap props) {
-        m_scriptName = (String) props.get( "script" );
+    public void initialize(Map props) {
+        m_scriptName = (String) props.get("script");
     }
 
-    public String update() throws PDSException {
+    public String update() {
 
         Connection con = null;
         Statement stmt = null;
+        String status = FAILURE;
 
         try {
-
             InitialContext ctx = new InitialContext();
             // @JC Need to remove the hard coding from here
-            DataSource ds = (DataSource)ctx.lookup ( "java:/PDSDataSource" );
+            DataSource ds = (DataSource) ctx.lookup("java:/PDSDataSource");
             con = ds.getConnection();
 
-            InputStream is = getClass().getResourceAsStream( m_scriptName );
-
-            byte [] buffer = new byte [1024];
+            BufferedReader is = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(m_scriptName)));            
             StringBuffer scriptContent = new StringBuffer();
-
-            while ( true ) {
-                int len = is.read( buffer );
-                if ( len == -1 )
+            while (true) {
+                String line = is.readLine();
+                if( line == null )
+                {
                     break;
-
-                scriptContent.append( new String ( buffer, 0, len ) );
+                }
+                scriptContent.append(line);
             }
 
-            StringTokenizer st = new StringTokenizer ( scriptContent.toString().trim(), ";" );
-            while ( st.hasMoreTokens() ) {
+            StringTokenizer st = new StringTokenizer(scriptContent.toString().trim(), ";");
+            while (st.hasMoreTokens()) {
                 String statementText = st.nextToken();
 
-                m_logger.debug ( "statment text <" + statementText + ">" );
+                m_logger.debug("statment text <" + statementText + ">");
                 stmt = con.createStatement();
-                stmt.execute( statementText );
+                stmt.execute(statementText);
             }
-        }
-        catch ( Exception ex ) {
-            m_logger.error ( "error in DatabaseScriptProcessor.update(): " + ex.toString() );
-            throw new PDSException ( "error in DatabaseScriptProcessor.update(): " ,ex );
-        }
-        finally {
+            status = SUCCESS;
+        } catch (SQLException e) {
+            m_logger.error("error in DatabaseScriptProcessor.update(): " + e.toString());
+        } catch (IOException e) {
+            m_logger.error("error in DatabaseScriptProcessor.update(): " + e.toString());
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        } finally {
             try {
-                if ( stmt != null )
+                if (stmt != null)
                     stmt.close();
+            } catch (SQLException ex) {
+                // ignore
             }
-            catch ( SQLException ex ) {}
 
             try {
-                if ( con != null )
+                if (con != null)
                     con.close();
+            } catch (SQLException ex) {
+                // ignore
             }
-            catch ( SQLException ex ) {}
-
         }
-
-        return "S";
+        return status;
     }
 }
