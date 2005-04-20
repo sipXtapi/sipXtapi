@@ -22,6 +22,15 @@
         initial-value="global.vxml"/>
     <property-specification name="currentDialPadId"
         type="java.lang.String"/>
+   	<property-specification name="selections" 
+       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+	<property-specification name="dialPlanContext" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>   
+    <property-specification name="addMenuItemDialPad"
+        type="org.sipfoundry.sipxconfig.common.DialPad"/>        
+    <property-specification name="addMenuItemAction"
+        type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction"/>        
     <!--
       - B E A N S
       -->
@@ -44,6 +53,7 @@
         <set-property name="resourcePrefix" expression="'menuItemAction.'"/>
         <set-property name="messages" expression="messages"/>
     </bean>
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <!--
       - C O M P O N E N T S
       -->
@@ -94,19 +104,53 @@
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
     </component>
-    <component id="menuItems" type="Foreach">
+	<component id="menuItemTableView" type="contrib:TableView">
         <binding name="source" expression="attendant.menuItems.keys"/>
-        <binding name="value" expression="currentDialPadId"/>
+		<binding name="columns">'* !Dialpad, ' + 
+			'!Action:, !Parameter:'</binding>
+        <static-binding name="pageSize" value="-1"/>
+	</component>
+	<component id="menuItemColumns" type="contrib:TableColumns">
+	</component>
+	<component id="menuItemRows" type="contrib:TableFormRows">
+        <binding name="row" expression="currentDialPadId"/>
+		<binding name="class" expression="beans.rowClass.next"/>
+	</component>
+	<component id="menuItemValues" type="contrib:TableValues"/>
+    <!-- Column 1: select phone -->
+    <component id="selectedRow" type="Checkbox">
+        <binding name="selected" expression="selections.selected[currentDialPadId]"/>
     </component>
+    <!-- Column 2: key dropdown -->
+    <component id="DialpadColumnValue" type="Block"/>
     <component id="menuItemKey" type="PropertySelection">
         <binding name="model" expression="beans.dialPadSelectionModel"/>
         <binding name="value" expression="currentDialPad"/>
     </component>
+    <!-- Column 3: action dropdown -->
+    <component id="ActionColumnValue" type="Block"/>
     <component id="menuItemAction" type="PropertySelection">
         <binding name="model" expression="beans.localizedMenuItemActions"/>
         <binding name="value" expression="currentMenuItem.action"/>
     </component>
+    <!-- Column 4: optional action parameter -->
+    <component id="ParameterColumnValue" type="Block"/>
     <component id="menuItemParameter" type="TextField">
         <binding name="value" expression="currentMenuItem.parameter"/>
     </component>
+    <!-- Last Row : Add Menu Item -->
+    <component id="addMenuItemRow" type="Any">
+		<binding name="class" expression="beans.rowClass.next"/>
+    </component>    
+    <component id="addMenuItemKey" type="PropertySelection">
+        <binding name="model" expression="beans.dialPadSelectionModel"/>
+        <binding name="value" expression="addMenuItemDialPad"/>
+    </component>    
+    <component id="addMenuItemAction" type="PropertySelection">
+        <binding name="model" expression="beans.localizedMenuItemActions"/>
+        <binding name="value" expression="addMenuItemAction"/>
+    </component>    
+    <component id="addMenuItem" type="Submit">
+		<binding name="listener" expression="listeners.addMenuItem"/>
+    </component>    
 </page-specification>

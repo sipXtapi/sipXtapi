@@ -28,8 +28,10 @@ import org.apache.tapestry.request.IUploadFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlService;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class EditAutoAttendant extends BasePage implements PageRenderListener {
 
@@ -49,12 +51,24 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
 
     public abstract IUploadFile getPromptUploadFile();
 
+    public abstract void setPromptUploadFile(IUploadFile file);
+
     public abstract VxmlService getVxmlService();
     
     public abstract String getCurrentDialPadId();
     
     public abstract void setCurrentDialPadId(String dialpadId);
     
+    public abstract SelectMap getSelections();
+
+    public abstract void setSelections(SelectMap selected);
+    
+    public abstract DialPlanContext getDialPlanContext();
+    
+    public abstract DialPad getAddMenuItemDialPad();
+    
+    public abstract AttendantMenuAction getAddMenuItemAction();
+
     public AttendantMenuItem getCurrentMenuItem() {
         AttendantMenuItem menuItem = (AttendantMenuItem) getAttendant().getMenuItems().get(getCurrentDialPadId());
         return menuItem;
@@ -75,6 +89,18 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     
     public void cancel(IRequestCycle cycle_) {
     }
+    
+    public void addMenuItem(IRequestCycle cycle_) {
+        // SUBOPTIMAL: although it would be nice to wait to upload file, tapestry
+        // cannot preserve state of Upload component and users would lose upload
+        // selection everytime a menu item was added. Negative to this method is
+        // that hitting cancel after adding 1 or more menu items would leave prompts
+        // on server.  Dedicated prompt management page would avoid this altogether.
+        //checkFileUpload();
+        
+        AttendantMenuItem menuItem = new AttendantMenuItem(getAddMenuItemAction());
+        getAttendant().addMenuItem(getAddMenuItemDialPad(), menuItem);
+    }
 
     public void pageBeginRender(PageEvent event_) {
         AutoAttendant aa = getAttendant();        
@@ -82,18 +108,25 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             Integer aaId = getAttendantId();
             if (aaId == null) {
                 initializeAttendant();
-            }            
+            } else {
+                aa = getDialPlanContext().getAutoAttendant(aaId);
+                setAttendant(aa);
+            }
         }
         
         File promptsDir = new File(getVxmlService().getPromptsDirectory());
         String[] prompts = promptsDir.list();
         if (prompts == null || prompts.length == 0) {
-            // no prompts not likely in real system
+            // having no prompts is unlikely in real system
             prompts = new String[] { 
                 "---no prompts---"
             };
         }
         setPromptSelectionModel(new StringPropertySelectionModel(prompts));
+
+        if (getSelections() == null) {
+            setSelections(new SelectMap());
+        }
     }
     
     private void initializeAttendant() {
@@ -105,7 +138,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
 
     private void checkFileUpload() {
         IUploadFile file = getPromptUploadFile();
-        if (file == null) {
+        if (file == null || file.getFileName() == null || file.getFileName().length() == 0) {
             return;
         }
         
@@ -118,6 +151,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             promptWtr = new FileOutputStream(promptFile);
             CopyUtils.copy(upload, promptWtr);
             getAttendant().setPrompt(promptFile.getName());
+            setPromptUploadFile(null);
         } catch (IOException ioe) {
             throw new RuntimeException("Could not upload file " + file.getFileName(), ioe);
         } finally {
