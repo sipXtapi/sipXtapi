@@ -11,16 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
-import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.digester.Digester;
+import org.apache.commons.digester.Rule;
+import org.apache.commons.digester.RuleSetBase;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 /**
@@ -61,30 +60,15 @@ public class XmlModelBuilder {
         digester.setClassLoader(this.getClass().getClassLoader());
         
         digester.setValidating(false);
-        String addSetting = "addSetting";
         digester.push(new SettingGroup());
 
-        digester.addObjectCreate("group", SettingGroup.class);
+        String groupPattern = "*/group";
+        SettingRuleSet groupRule = new SettingRuleSet(groupPattern, SettingGroup.class);
+        digester.addRuleSet(groupRule);
 
-        String set = "*/group";
-        String[] setIgnore = new String[] {
-            "setting", "possibleValues" 
-        };
-        Arrays.sort(setIgnore);
-        digester.addObjectCreate(set, SettingGroup.class);
-        digester.addSetProperties(set);
-        addAllBeanPropertySetter(digester, set, setIgnore, SettingGroup.class);
-        digester.addBeanPropertySetter(set + "/label");
-        digester.addSetNext(set, addSetting, SettingImpl.class.getName());
-
-        String setting = "*/setting";
-        // because setting in baseclass to set, this should be a subset of same ignore
-        // list
-        String[] settingIgnore = setIgnore;
-        digester.addObjectCreate(setting, SettingImpl.class);
-        digester.addSetProperties(setting);
-        addAllBeanPropertySetter(digester, setting, settingIgnore, SettingImpl.class);
-        digester.addSetNext(setting, addSetting, SettingImpl.class.getName());
+        String settingPattern = "*/setting";
+        SettingRuleSet settingRule = new SettingRuleSet(settingPattern, SettingImpl.class);
+        digester.addRuleSet(settingRule);
 
         String possibleValues = "*/possibleValues/value";
         digester.addCallMethod(possibleValues, "addPossibleValue", 1);
@@ -96,25 +80,42 @@ public class XmlModelBuilder {
             throw new RuntimeException("Could not parse model definition file", se);
         }
     }
+    
+    static class SettingRuleSet extends RuleSetBase {
+        
+        private String m_pattern;
+        
+        private Class m_class;
 
-    /**
-     * Get all setters on bean and automatically add them to digester's current rule. This
-     * is so you can invent a new element on the model definition (dtd eventually) and 
-     * add a new setter on the respective bean and that's it.  You will from time to time
-     * have to add to the ignore list, but this seems much less work IMHO.
-     * 
-     * NOTE: checkstyle was complaining this method was unused if i made it private.  make
-     * package protected for now.
-     */
-    void addAllBeanPropertySetter(Digester digester, String pattern, String[] ignore,
-            Class c) {
-        PropertyDescriptor[] props = new PropertyUtilsBean().getPropertyDescriptors(c);
-        for (int i = 0; i < props.length; i++) {
-            Method m = props[i].getWriteMethod();
-            String propName = props[i].getName();
-            if (m != null && Arrays.binarySearch(ignore, propName) < 0) {
-                String propPattern = pattern + "/" + propName;
-                digester.addBeanPropertySetter(propPattern);
+        public SettingRuleSet(String pattern, Class c) {
+            m_pattern = pattern;
+            m_class = c;           
+        }
+
+        public void addRuleInstances(Digester digester) {
+            digester.addObjectCreate(m_pattern, m_class);
+            digester.addSetProperties(m_pattern, "parent", null);
+            digester.addRule(m_pattern, new CopyOfRule());            
+            digester.addBeanPropertySetter(m_pattern + "/value");
+            digester.addBeanPropertySetter(m_pattern + "/description");
+            digester.addBeanPropertySetter(m_pattern + "/profileName");
+            digester.addBeanPropertySetter(m_pattern + "/label");
+            digester.addSetNext(m_pattern, "addSetting", SettingImpl.class.getName());
+        }
+    }
+    
+    static class CopyOfRule extends Rule {
+        
+        public void begin(String namespace_, String name_, Attributes attributes) {
+            String copyOfName = attributes.getValue("copy-of");
+            if (copyOfName != null) {
+                Setting copyTo = (Setting) getDigester().pop();
+                Setting parent = (Setting) getDigester().peek();
+                // setting to be copied must defined in file before setting attempting to copy 
+                Setting copyOf = parent.getSetting(copyOfName);
+                Setting copy = copyOf.copy();
+                copy.setName(copyTo.getName());
+                getDigester().push(copy);
             }
         }
     }

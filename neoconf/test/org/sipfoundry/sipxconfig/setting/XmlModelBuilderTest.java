@@ -20,6 +20,21 @@ import junit.framework.TestCase;
 
 
 public class XmlModelBuilderTest extends TestCase {
+    
+    public void testSettingPropertySetters() throws IOException {
+        XmlModelBuilder builder = new XmlModelBuilder();
+        InputStream in = getClass().getResourceAsStream("simplemodel.xml");
+        SettingGroup root = builder.buildModel(in);
+        Setting group = root.getSetting("group");
+        assertEquals("Group Profile Name", group.getProfileName());
+        assertEquals("Group Label", group.getLabel());
+        assertEquals("Group Description", group.getDescription());
+        
+        Setting setting = group.getSetting("setting");
+        assertEquals("Setting Profile Name", setting.getProfileName());
+        assertEquals("Setting Label", setting.getLabel());
+        assertEquals("Setting Description", setting.getDescription());
+    }
 
     public void testReadingGames() throws IOException {        
         XmlModelBuilder builder = new XmlModelBuilder();
@@ -66,4 +81,31 @@ public class XmlModelBuilderTest extends TestCase {
             assertTrue(i.next().getClass().isAssignableFrom(SettingGroup.class));
         }       
     }
+    
+    public void testInheritance() throws IOException {
+        XmlModelBuilder builder = new XmlModelBuilder();
+        InputStream in = getClass().getResourceAsStream("genders.xml");
+        SettingGroup root = builder.buildModel(in);
+        
+        Setting human = root.getSetting("human");
+        assertNotNull(human.getSetting("eat").getSetting("fruit").getSetting("apple"));
+        assertNull(human.getSetting("giveBirth"));
+        
+        Setting man = root.getSetting("man");
+        assertNotNull(man.getSetting("eat").getSetting("fruit").getSetting("apple"));
+        assertEquals("face", man.getSetting("shave").getValue());
+        assertNull(man.getSetting("giveBirth"));
+
+        Setting woman = root.getSetting("woman");        
+        assertNotNull(woman.getSetting("eat").getSetting("fruit").getSetting("apple"));
+        assertEquals("legs", woman.getSetting("shave").getValue());
+        assertNotNull(woman.getSetting("giveBirth"));
+        
+        // test for true clones
+        man.getSetting("shave").setValue("back");
+        assertEquals("back", man.getSetting("shave").getValue());        
+        assertNotSame("back", woman.getSetting("shave").getValue());        
+    }
+    
+    
 }

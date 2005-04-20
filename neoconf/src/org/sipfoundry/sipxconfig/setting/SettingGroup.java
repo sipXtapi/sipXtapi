@@ -63,7 +63,7 @@ public class SettingGroup extends SettingImpl implements Cloneable {
     }
 
     public Setting getSetting(String name) {
-        return (Setting) m_children.get(name);
+        return SettingImpl.getSettingByPath(m_children, this, name);
     }
 
     public Collection getValues() {

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 public class SettingImpl implements Setting, Cloneable {
@@ -72,7 +73,7 @@ public class SettingImpl implements Setting, Cloneable {
         if (m_settingGroup == null) {
             path = "";
         } else {
-            path = m_settingGroup.getPath() + "/" + getName();
+            path = m_settingGroup.getPath() + '/' + getName();
         }
 
         return path;
@@ -92,9 +93,52 @@ public class SettingImpl implements Setting, Cloneable {
     /**
      * @throws IllegalArgumentException  Cannot get settings from another setting, only groups
      */
-    public Setting getSetting(String name_) {
-        throw new IllegalArgumentException("Cannot get settings from another setting, only groups");
-    }      
+    public Setting getSetting(String name) {
+        return getSettingByPath(null, this, name);
+    }
+    
+    public static Setting getSettingByPath(Map children, Setting setting, String path) {
+        Setting target = null;
+        String relativeParent = "../";
+        if (path.indexOf(relativeParent) == 0) {            
+            target = setting.getParent().getSetting(path.substring(relativeParent.length()));             
+        } else if (path.equals("..")) {            
+            target = setting.getParent();             
+        } else if (path.equals("/")) {
+            target = getRoot(setting);
+        } else if (path.charAt(0) == '/') {
+            Setting root = getRoot(setting);
+            target = root.getSetting(path.substring(1));
+        } else {
+            int slash = path.indexOf('/');
+            if (slash > 0) {
+                String tok = path.substring(0, slash);
+                Setting child = setting.getSetting(tok);
+                if (child != null) {
+                    target = child.getSetting(path.substring(slash + 1));
+                }            
+            } else if (children == null) {
+                throw new IllegalArgumentException("Cannot get settings from another setting, only groups");            
+            } else {
+                target = (Setting) children.get(path);                        
+            }
+        }
+        
+        return target;
+    }
+    
+    public static Setting getRoot(Setting setting) {
+        if (setting == null) {
+            return null;
+        }
+        
+        Setting candidate = setting;
+        while (candidate.getParent() != null) {
+            candidate = candidate.getParent();
+        }
+        
+        return candidate;
+    }
     
     /**
      * @return label if set, otherwise return name as label.

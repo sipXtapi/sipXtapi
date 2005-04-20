@@ -13,13 +13,29 @@ package org.sipfoundry.sipxconfig.setting;
 
 import junit.framework.TestCase;
 
-
-public class SettingMetaTest extends TestCase {
-
+public class SettingTest extends TestCase {
+    
     private SettingGroup m_root;
     
     private Setting m_apple;
+    
+    private Setting m_fruit;
 
+    private void seedSimpleSettingGroup() {
+        m_root = new SettingGroup();
+        m_fruit = (SettingGroup)m_root.addSetting(new SettingGroup("fruit"));
+        m_apple = m_fruit.addSetting(new SettingImpl("apple"));
+        m_root.addSetting(new SettingGroup("vegatables"));
+    }
+
+    public void testDefaultValue() {
+        seedSimpleSettingGroup();
+        assertEquals("/fruit/apple", m_apple.getPath());        
+        m_apple.setValue("granny smith");
+        assertEquals("granny smith", m_apple.getValue());
+        assertEquals("granny smith", m_apple.getDefaultValue());
+    }    
+    
     public void testSetValue() {
         seedSimpleSettingGroup();
         assertNull(m_apple.getValue());
@@ -94,10 +110,35 @@ public class SettingMetaTest extends TestCase {
         assertEquals(0, meta.size());        
     }
     
-    private void seedSimpleSettingGroup() {
-        m_root = new SettingGroup();
-        SettingGroup fruit = (SettingGroup)m_root.addSetting(new SettingGroup("fruit"));
-        m_apple = fruit.addSetting(new SettingImpl("apple"));
-        m_root.addSetting(new SettingGroup("vegatables"));
+    public void testGetSettingViaRelativePath() {
+        seedSimpleSettingGroup();
+        assertSame(m_root, m_fruit.getSetting(".."));        
+        assertSame(m_root, m_apple.getSetting("../.."));        
+    }
+    
+    public void testGetSettingViaAbsoluePath() {
+        seedSimpleSettingGroup();
+        assertSame(m_root, m_fruit.getSetting("/"));        
+        assertSame(m_root, m_fruit.getSetting("//"));        
+        assertSame(m_fruit, m_apple.getSetting("/fruit"));        
+        assertSame(m_apple, m_root.getSetting("/fruit/apple"));        
+    }
+    
+    public void testGetSettingAbsoluteAndRelativePath() {
+        seedSimpleSettingGroup();
+        assertSame(m_fruit, m_root.getSetting("/fruit/../fruit"));        
+        assertSame(m_root, m_apple.getSetting("../../fruit//"));        
+    }
+
+    public void test100GroupsWith100Settings() {
+        SettingGroup root = new SettingGroup();
+        for (int i = 0; i < 100; i++) {
+            SettingGroup model = (SettingGroup) root.addSetting(new SettingGroup(String.valueOf(i)));
+            for (int j = 0; j < 100; j++) {
+                model.addSetting(new SettingImpl(String.valueOf(j)));                
+            }
+            assertEquals(100, model.getValues().size());
+        }
+        assertEquals(100, root.getValues().size());
     }
 }
