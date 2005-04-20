@@ -163,6 +163,7 @@
 		  <!-- generates sipxconfig.properties that has test oriented values -->
 		  <java classname="org.sipfoundry.sipxconfig.site.SiteTestHelper"
 		  	     failonerror="true">
+		      <sysproperty key="basedir" value="${basedir}"/>
                      <classpath path="${classpath}"/>
                      <classpath location="${junit.jar}"/>
                      <classpath refid="test.path"/>
