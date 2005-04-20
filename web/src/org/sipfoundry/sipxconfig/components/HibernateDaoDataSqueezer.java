@@ -19,30 +19,19 @@ import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
  * Read objects by Id for Tapestry pages that need to read individual objects by their primary key. For example
  * table with select boxes. 
  */
-public class ObjectSourceDataSqueezer implements IPrimaryKeyConvertor {
+public class HibernateDaoDataSqueezer implements IPrimaryKeyConvertor {
+
     private DataObjectSource m_source;
 
     private Class m_class;
 
-    public ObjectSourceDataSqueezer(DataObjectSource source, Class klass) {
-        setSource(source);
-        setClass(klass);
-    }
-
-    public ObjectSourceDataSqueezer() {
-        // empty bean constructor
-    }
-    
-    public void setClass(Class klass) {
-        if (!PrimaryKeySource.class.isAssignableFrom(klass)) {
+    public HibernateDaoDataSqueezer(DataObjectSource source, Class c) {
+        if (!PrimaryKeySource.class.isAssignableFrom(c)) {
             throw new IllegalArgumentException(
                     "Adapter only accepts classes that implement PrimaryKeySource");
         }
-        m_class = klass;
-    }
-
-    public void setSource(DataObjectSource source) {
         m_source = source;
+        m_class = c;
     }
 
     public Object getPrimaryKey(Object objValue) {

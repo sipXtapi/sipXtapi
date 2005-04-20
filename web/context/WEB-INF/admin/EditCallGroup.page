@@ -66,6 +66,13 @@
 	    <static-binding name="displayName" value="Extension"/>
     </component>
     
+    <component id="addRing" type="LinkSubmit">
+        <binding name="listener" expression="listeners.addRing"/>
+    </component>
+    <component id="ringTable" type="UserRingTable">
+        <binding name="rings" expression="callGroup.calls"/>
+    </component>
+    
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
     </component>

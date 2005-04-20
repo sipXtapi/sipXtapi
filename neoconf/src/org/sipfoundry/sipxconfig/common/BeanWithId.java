@@ -21,7 +21,7 @@ import org.apache.commons.collections.Transformer;
  * 
  * Hibernate advises against using object identifiers in equals and hashCode methods
  */
-public class BeanWithId implements Cloneable {
+public class BeanWithId implements Cloneable, PrimaryKeySource {
     private static final Integer UNSAVED_ID = new Integer(-1);
 
     private static int s_id = 1;
@@ -105,5 +105,12 @@ public class BeanWithId implements Cloneable {
             BeanWithId bean = (BeanWithId) item;
             return bean.getId();
         }
+    }
+
+    /**
+     * Implementation of PrimaryKeySource 
+     */
+    public Object getPrimaryKey() {
+        return getId();
     }
 }

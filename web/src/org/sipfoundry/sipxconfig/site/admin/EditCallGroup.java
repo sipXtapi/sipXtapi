@@ -68,12 +68,22 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         Integer id = getCallGroup().getId();
         setCallGroupId(id);
     }
+
+    public void addRing(IRequestCycle cycle) {
+        if (!isValid()) {
+            return;
+        }
+        saveValid();
+        AddUserRing page = (AddUserRing) cycle.getPage(AddUserRing.PAGE);
+        page.setCallGroupId(getCallGroupId());
+        cycle.activate(page);
+    }
     
     public void formSubmit(IRequestCycle cycle_) {
         if (!isValid()) {
             return;
         }
-        // TODO: add submit provessing
+        // TODO: add submit processing
     }
     
 }

@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
+import org.sipfoundry.sipxconfig.common.User;
+
 
 public class CallGroup extends AbstractCallSequence {
     private boolean m_enabled;
@@ -52,5 +54,18 @@ public class CallGroup extends AbstractCallSequence {
 
     public void setName(String name) {
         m_name = name;
+    }
+    
+    /**
+     * inserts a new ring for a specific user
+     * @param user 
+     * @return newly created user ring
+     */
+    public UserRing insertRing(User user) {
+        UserRing ring = new UserRing();
+        ring.setCallGroup(this);
+        ring.setUser(user);
+        insertRing(ring);
+        return ring;
     }
 }
