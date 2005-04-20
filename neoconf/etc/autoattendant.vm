@@ -25,14 +25,16 @@
     <var name="extension" />
     <var name="mailbox" />
     <var name="aa_menu_name" />
+    <var name="systemgreetingurl" />
+    <var name="autoattendantprompturl" />
 
     <!-- Play the autoattendant main menu -->
     <field name="menu" type="digits?minlength=1;maxlength=10">
-      <prompt">
-	<audio expr="securemediaserverurl + aa_alias + ${greeting_name}" />
+      <prompt>
+	<audio expr="securemediaserverurl + promptsalias + ${greeting_name}" />
       </prompt>
       <prompt>
-	<audio expr="securemediaserverurl + aa_alias + ${menu_instructions}" />
+	<audio expr="securemediaserverurl + promptsalias + ${menu_instructions}" />
       </prompt>
       <filled>
 	<if cond="menu=='0'" >
@@ -134,7 +136,7 @@
 	  <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
 	</prompt>
 	<disconnect />
-      <elseif cond="operation == 'repeatprompt'" />
+      <elseif cond="operation == 'repeat_prompt'" />
 	<clear namelist="menu" />
 	<goto nextitem="menu" />
       <else/>
