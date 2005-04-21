@@ -11,8 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.Collection;
+
 import org.apache.tapestry.BaseComponent;
 
 public abstract class UserRingTable extends BaseComponent {
-    // placeholder - in case we need to add functionaliy (remove if still empty)
+    public abstract Collection getRowsToDelete();
+    
+    public abstract Collection getRowsToMoveUp();
+
+    public abstract Collection getRowsToMoveDown();
+    
+    public abstract boolean getAddRow();
 }

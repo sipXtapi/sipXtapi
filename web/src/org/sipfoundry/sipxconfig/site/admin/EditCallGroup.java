@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.Collection;
+
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -33,6 +35,8 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
     public abstract void setCallGroup(CallGroup callGroup);
 
+    public abstract boolean getCommitChanges();
+
     public void pageBeginRender(PageEvent event_) {
         CallGroup callGroup = getCallGroup();
         if (null != callGroup) {
@@ -48,17 +52,52 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         setCallGroup(callGroup);
     }
 
+    /**
+     * Called when any of the submit componens on the form is activated.
+     * 
+     * Usually submit components are setting propertied. formSubmit will first check if the form
+     * is valid, then it will call all the "action" listeners. Only one of the listeners (the one
+     * that recongnizes the property that is set) will actually do something. This is a bit
+     * strange consequnce of the fact that Tapestry listeners are pretty much usuless because they
+     * are called while the form is still rewinding and not all changes are commited to beans.
+     * 
+     * @param cycle current request cycle
+     */
+    public void formSubmit(IRequestCycle cycle) {
+        if (!isValid()) {
+            return;
+        }
+        UserRingTable ringTable = getUserRingTable();
+        delete(ringTable);
+        move(ringTable);
+        addRow(cycle, ringTable);
+
+        if (getCommitChanges()) {
+            saveValid();
+            cycle.activate(ListCallGroups.PAGE);
+        }
+    }
+
+    /**
+     * Saves current call group and displays add ring page.
+     * 
+     * @param cycle current request cycle
+     * @param ringTable component with table of rings
+     */
+    private void addRow(IRequestCycle cycle, UserRingTable ringTable) {
+        if (!ringTable.getAddRow()) {
+            return;
+        }
+        saveValid();
+        AddUserRing page = (AddUserRing) cycle.getPage(AddUserRing.PAGE);
+        page.setCallGroupId(getCallGroupId());
+        cycle.activate(page);
+    }
+
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
         // TODO; add optional validation here
         return !delegate.getHasErrors();
-    }
-
-    public void save(IRequestCycle cycle) {
-        if (isValid()) {
-            saveValid();
-            cycle.activate(ListCallGroups.PAGE);
-        }
     }
 
     private void saveValid() {
@@ -69,21 +108,35 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         setCallGroupId(id);
     }
 
-    public void addRing(IRequestCycle cycle) {
-        if (!isValid()) {
+    /**
+     * 
+     * CHECKSTYLE: this method should be private, but checkstyle complains it is unused
+     */
+    private void delete(UserRingTable ringTable) {
+        Collection ids = ringTable.getRowsToDelete();
+        if (null == ids) {
             return;
         }
-        saveValid();
-        AddUserRing page = (AddUserRing) cycle.getPage(AddUserRing.PAGE);
-        page.setCallGroupId(getCallGroupId());
-        cycle.activate(page);
+        CallGroup callGroup = getCallGroup();
+        callGroup.removeRings(ids);
     }
-    
-    public void formSubmit(IRequestCycle cycle_) {
-        if (!isValid()) {
-            return;
+
+    private void move(UserRingTable ringTable) {
+        int step = -1;
+        Collection ids = ringTable.getRowsToMoveUp();
+        if (null == ids) {
+            step = 1;
+            ids = ringTable.getRowsToMoveDown();
+            if (null == ids) {
+                // nothing to do
+                return;
+            }
         }
-        // TODO: add submit processing
+        CallGroup callGroup = getCallGroup();
+        callGroup.moveRings(ids, step);
     }
-    
+
+    private UserRingTable getUserRingTable() {
+        return (UserRingTable) getComponent("ringTable");
+    }
 }

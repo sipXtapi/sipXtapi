@@ -25,31 +25,72 @@
     	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"
     	/>
     
+	<property-specification name="rowsToDelete" type="java.util.Collection"/>    
+	<property-specification name="rowsToMoveUp" type="java.util.Collection"/>  
+	<property-specification name="rowsToMoveDown" type="java.util.Collection"/>    
+	<property-specification name="addRow" type="boolean" initial-value="false"/>    
+    
     <!-- B E A N S -->           
-    <bean name="rowSqueezer" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
-        <set-property name="source" expression="page.global.coreContext"/>
-        <set-property name="class" expression="@org.sipfoundry.sipxconfig.admin.callgroup.UserRing@class"/>
-    </bean>
+    <bean name="delayModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" 
+        lifecycle="page">
+        <set-property name="enumClass" 
+        	expression="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>        
+	</bean>    
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     
     <!-- C O M P O N E N T S -->           
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="rings"/>
         <static-binding name="pageSize" value="-1"/>              
-        <static-binding name="columns" value="* !Sequence:type,!User ID:user.displayId,!Ring for:expiration"/>
-    </component>    
+        <static-binding name="columns" 
+        	value="* !sequence:Sequence:type,!userid:User ID:user.displayId,!extension:Extension:user.extension,!expiration:Ring For:expiration"/>
+    </component>
+    
+	<component id="sequenceColumnValue" type="Block"/>
+    
+    <component id="sequence" type="PropertySelection">
+        <binding name="value" expression="currentRow.type"/>
+        <binding name="model" expression="beans.delayModel"/>
+    </component>
+    
+	<component id="expirationColumnValue" type="Block"/>
+    
+    <component id="expiration" type="ValidField">
+        <binding name="value" expression="currentRow.expiration"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
+        <static-binding name="displayName" value="Ring for"/>
+    </component>
     
     <component id="tableColumns" type="contrib:TableColumns"/>
     
-    <component id="tableRows" type="contrib:TableFormRows">
+    <component id="tableRows" type="contrib:TableRows">
 		<binding name="class" expression="beans.rowClass.next"/>
 		<binding name="row" expression="currentRow"/>
-        <binding name="convertor" expression="beans.rowSqueezer"/>
     </component>
 
     <component id="tableValues" type="contrib:TableValues"/>
         
     <component id="selectedRow" type="Checkbox">
         <binding name="selected" expression="selections.selected[currentRow.id]"/>
+    </component>
+
+    <component id="addRow" type="LinkSubmit">
+        <binding name="selected" expression="addRow"/>
+        <binding name="tag" expression="true"/>
+    </component>    
+    
+    <component id="delete" type="Submit">
+        <binding name="selected" expression="rowsToDelete"/>
+        <binding name="tag" expression="selections.allSelected"/>
+    </component>
+    
+    <component id="moveUp" type="Submit">
+        <binding name="selected" expression="rowsToMoveUp"/>
+        <binding name="tag" expression="selections.allSelected"/>
+    </component>
+
+    <component id="moveDown" type="Submit">
+        <binding name="selected" expression="rowsToMoveDown"/>
+        <binding name="tag" expression="selections.allSelected"/>
     </component>
 </component-specification>

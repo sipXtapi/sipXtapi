@@ -24,7 +24,7 @@
     <bean name="delayModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" 
         lifecycle="page">
         <set-property name="enumClass" 
-        	expression="@org.sipfoundry.sipxconfig.admin.forwarding.Ring$Type@class"/>        
+        	expression="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>        
 	</bean>    
     
     <!-- C O M P O N E N T S -->

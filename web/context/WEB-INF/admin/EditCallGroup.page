@@ -16,11 +16,14 @@
 	    initial-value="global.callGroupContext"/>
     
 	<property-specification name="callGroup" 
-		type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroup"/>
+		type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroup"
+    	persistent="yes"/>
 
 	<property-specification name="callGroupId" 
 		type="java.lang.Integer"
     	persistent="yes"/>
+    
+    <property-specification name="commitChanges" type="boolean" initial-value="false"/>
     
     <!--
      - B E A N S
@@ -74,7 +77,8 @@
     </component>
     
     <component id="onSave" type="Submit">
-        <binding name="listener" expression="listeners.save"/>
+        <binding name="selected" expression="commitChanges"/>
+        <binding name="tag" expression="true"/>
     </component>
     <component id="onCancel" type="CancelButton">
         <binding name="returnPageName" expression="@org.sipfoundry.sipxconfig.site.admin.ListCallGroups@PAGE"/>

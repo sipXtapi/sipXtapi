@@ -5,6 +5,7 @@
 <body jwcid="$content$">
 <div jwcid="@Border">
 <h2>Call group</h2>    
+<span jwcid="@ErrorMsg"/>
 <form jwcid="form" id="callgroup:form">
    <fieldset>
         <table>
@@ -46,14 +47,14 @@
 		Add users to the call group. Click Add User to select user from the list of all users. You'll be able to search for users that you want to add to this call group.<br/>
            Change call sequence by moving users up and down.
     </div>
-    <fieldset>
+    <fieldset jwcid="ringTable">
     	<legend>Call Sequence</legend>
 		<ul class="component-links">
     	    <li>
-        	    <a jwcid="addRing" id="callgroup:addRing" href="../user/search.html">Add User</a>
+        	    <a id="callgroup:addRing" href="../user/search.html">Add User</a>
 	        </li>
 		</ul>
-    	<table jwcid="ringTable" class="component">
+    	<table class="component">
             <thead>
                 <tr>
                    <th/>

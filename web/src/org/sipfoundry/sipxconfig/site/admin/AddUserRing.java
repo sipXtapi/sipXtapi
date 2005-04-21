@@ -67,6 +67,7 @@ public abstract class AddUserRing extends BasePage implements PageRenderListener
     private void returnToEditCallGroup(IRequestCycle cycle) {
         EditCallGroup page = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         page.setCallGroupId(getCallGroupId());
+        page.setCallGroup(null);
         cycle.activate(page);
     }
 }

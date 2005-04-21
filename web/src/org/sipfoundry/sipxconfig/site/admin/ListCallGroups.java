@@ -42,6 +42,7 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
     public void add(IRequestCycle cycle) {
         EditCallGroup editCallGroup = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         editCallGroup.setCallGroupId(null);
+        editCallGroup.setCallGroup(null);
         cycle.activate(editCallGroup);        
     }
 
@@ -49,6 +50,7 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
         EditCallGroup editCallGroup = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         Integer callGroupId = TapestryUtils.getBeanId(cycle);
         editCallGroup.setCallGroupId(callGroupId);
+        editCallGroup.setCallGroup(null);
         cycle.activate(editCallGroup);        
     }
 

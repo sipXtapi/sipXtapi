@@ -6,6 +6,8 @@
  */
 
 body {
+  padding:      0;
+  margin:       0;
   font-family:  Verdana, Arial, Helvetica, sans-serif;
   font-size:    12px;
   background: #ffc;
@@ -269,9 +271,10 @@ table.component th a {
 }
 
 table.component td {
-    inset: 3px;
     white-space: nowrap;    
     border-collapse: collapse;
+    padding-bottom: 3px;
+    padding-top: 3px;
 }
 
 ul.component-selection {
