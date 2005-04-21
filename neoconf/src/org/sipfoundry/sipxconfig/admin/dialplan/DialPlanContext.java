@@ -15,11 +15,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
 /**
  * DialPlanContext
  */
-public interface DialPlanContext {
+public interface DialPlanContext extends DataObjectSource  {
+    
     public static final String CONTEXT_BEAN_NAME = "dialPlanContext";
 
     public abstract List getGateways();

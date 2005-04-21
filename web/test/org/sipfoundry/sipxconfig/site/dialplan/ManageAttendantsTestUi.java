@@ -16,7 +16,6 @@ import java.io.IOException;
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
-import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class ManageAttendantsTestUi extends WebTestCase {
@@ -59,6 +58,20 @@ public class ManageAttendantsTestUi extends WebTestCase {
                 { "Name edited", "301", SEED_DESCRIPTION }
         };
         assertTableRowsEqual("list:attendant", 1, expectedData);
+    }
+    
+    public void testDeleteAttendants() throws IOException {
+        seedAttendants(4);
+        // delete 2nd and last for no brilliant reason 
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 1);
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 3);
+        clickButton("list:attendant:delete");
+        String [][] expectedData = {
+                //            Name             Ext     Description
+                { "ManageAttendantsTestUi 0", "300", SEED_DESCRIPTION },
+                { "ManageAttendantsTestUi 2", "302", SEED_DESCRIPTION }
+        };
+        assertTableRowsEqual("list:attendant", 1, expectedData);        
     }
     
     private void seedAttendants(int count) throws IOException {

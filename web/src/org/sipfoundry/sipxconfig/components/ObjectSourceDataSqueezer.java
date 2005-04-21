@@ -40,6 +40,14 @@ public class ObjectSourceDataSqueezer implements IPrimaryKeyConvertor {
         }
         m_class = klass;
     }
+    
+    public void setClassName(String className) {
+        try {
+            setClass(Class.forName(className));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void setSource(DataObjectSource source) {
         m_source = source;

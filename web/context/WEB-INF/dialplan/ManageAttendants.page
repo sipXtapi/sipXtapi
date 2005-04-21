@@ -24,8 +24,8 @@
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="idConverter" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
-        <property name="class" value="@org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant@class"/>
-        <property name="source" value="dialPlanManager"/>
+        <set-property name="class" expression="@org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant@class"/>
+        <set-property name="source" expression="global.dialPlanContext"/>
     </bean>
     <!--
       - C O M P O N E N T S
@@ -57,11 +57,9 @@
         <binding name="listener" expression="listeners.add"/>
     </component>    
     <component id="deleteButton" type="Submit">
-        <binding name="selected" expression="selectedRows"/>
-        <binding name="tag" expression="selections.allSelected"/>
+        <binding name="listener" expression="listeners.deleteSelected"/>
     </component>    
     <component id="attendantListForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
-        <binding name="listener" expression="listeners.deleteSelected"/>
     </component>    
 </page-specification>

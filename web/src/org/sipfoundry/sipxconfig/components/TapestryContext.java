@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
 
+/**
+ * Tapestry utilities available to web pages 
+ */
 public class TapestryContext {
     
     /**

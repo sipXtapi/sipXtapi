@@ -17,6 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ManageAttendants extends BasePage {
@@ -25,12 +26,12 @@ public abstract class ManageAttendants extends BasePage {
     
     public abstract DialPlanContext getDialPlanManager();
     
-    public abstract Collection getSelectedRows();
-    
     public abstract AutoAttendant getCurrentRow();
+    
+    public abstract SelectMap getSelections();
 
     public void deleteSelected(IRequestCycle cycle_) {        
-        Collection selectedRows = getSelectedRows();
+        Collection selectedRows = getSelections().getAllSelected();
         if (selectedRows != null) {
             DialPlanContext manager = getDialPlanManager();
             manager.deleteAutoAttendantsByIds(selectedRows);

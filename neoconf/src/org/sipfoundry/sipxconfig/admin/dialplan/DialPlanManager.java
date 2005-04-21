@@ -21,14 +21,13 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
-class DialPlanManager extends HibernateDaoSupport implements DialPlanContext, DataObjectSource {
+class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
     private String m_configDirectory;
 
     private EmergencyRouting m_emergencyRouting = new EmergencyRouting(); 
