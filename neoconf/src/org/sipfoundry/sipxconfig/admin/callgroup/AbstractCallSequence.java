@@ -12,9 +12,11 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 
 /**
  * CallSequence
@@ -28,37 +30,37 @@ public class AbstractCallSequence extends BeanWithId {
 
     protected void insertRing(AbstractRing ring) {
         m_calls.add(ring);
-        ring.setPosition(m_calls.size() - 1);
+        DataCollectionUtil.updatePositions(m_calls);
+    }
+
+    public void removeRings(Collection ids) {
+        DataCollectionUtil.removeByPrimaryKey(m_calls, ids.toArray());
+    }
+
+    public void moveRings(Collection ids, int step) {
+        DataCollectionUtil.moveByPrimaryKey(m_calls, ids.toArray(), step);
     }
 
     public void removeRing(AbstractRing ringToRemove) {
-        int index = m_calls.indexOf(ringToRemove);
-        m_calls.remove(index);
-        for (int i = index; i < m_calls.size(); i++) {
-            AbstractRing ring = (AbstractRing) m_calls.get(i);
-            ring.setPosition(i);
-        }
+        Object[] keys = new Object[] {
+            ringToRemove.getId()
+        };
+        DataCollectionUtil.removeByPrimaryKey(m_calls, keys);
     }
 
     public boolean moveRingUp(AbstractRing ring) {
-        int i = m_calls.indexOf(ring);
-        if (i <= 0) {
-            return false;
-        }
-        m_calls.remove(i);
-        m_calls.add(i - 1, ring);
-        ring.setPosition(i - 1);
+        Object[] keys = new Object[] {
+            ring.getId()
+        };
+        DataCollectionUtil.moveByPrimaryKey(m_calls, keys, -1);
         return true;
     }
 
     public boolean moveRingDown(AbstractRing ring) {
-        int i = m_calls.indexOf(ring);
-        if (i < 0 || i >= m_calls.size()) {
-            return false;
-        }
-        m_calls.remove(i);
-        m_calls.add(i + 1, ring);
-        ring.setPosition(i + 1);
+        Object[] keys = new Object[] {
+            ring.getId()
+        };
+        DataCollectionUtil.moveByPrimaryKey(m_calls, keys, 1);
         return true;
     }
 

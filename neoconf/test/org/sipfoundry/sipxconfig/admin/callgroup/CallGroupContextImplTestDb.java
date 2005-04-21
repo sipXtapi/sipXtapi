@@ -94,4 +94,21 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("user_ring");
         assertEquals(0, tableUserRing.getRowCount());                
     }
+    
+    public void testEditUserRing() throws Exception {
+        final Integer testExpiration = new Integer(12);        
+        
+        CallGroup callGroup = m_context.loadCallGroup(new Integer(1002));
+        List userRings = callGroup.getCalls();
+        assertEquals(1,userRings.size());
+        UserRing ring = (UserRing) userRings.get(0);
+        ring.setExpiration(testExpiration.intValue());
+        ring.setType(AbstractRing.Type.IMMEDIATE);
+        m_context.storeCallGroup(callGroup);
+        
+        ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("user_ring");
+        assertEquals(1, tableUserRing.getRowCount());
+        assertEquals( testExpiration, tableUserRing.getValue(0,"expiration") );
+        assertEquals( AbstractRing.Type.IMMEDIATE.getName(), tableUserRing.getValue(0,"ring_type") );
+    }
 }

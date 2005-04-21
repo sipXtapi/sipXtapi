@@ -16,9 +16,10 @@ import java.text.MessageFormat;
 import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
-public abstract class AbstractRing extends BeanWithId {
+public abstract class AbstractRing extends BeanWithId implements DataCollectionItem {
     private static final String FORMAT = "<sip:{0}@{1}?expires={2}>;;{3}";
 
     private int m_expiration;
