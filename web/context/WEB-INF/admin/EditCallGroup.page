@@ -33,7 +33,10 @@
     <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
     	<set-property name="required" expression="true"/>
 	    <set-property name="minimumLength" expression="1"/>
-	</bean>
+	</bean>    
+    <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
+        <set-property name="component" expression="components.callGroupDescription"/>
+    </bean>    
     
     <!--
      - C O M P O N E N T S
@@ -65,9 +68,17 @@
     </component>
     <component id="callGroupExtension" type="ValidField">
 	    <binding name="value" expression="callGroup.extension"/>
-    	<binding name="validator" expression="beans.nameValidator"/>
+        <binding name="validator" expression="global.validPhone"/>
 	    <static-binding name="displayName" value="Extension"/>
     </component>
+
+    <component id="callGroupDescriptionLabel" type="FieldLabel">
+        <binding name="field" expression="components.callGroupDescription"/>
+        <static-binding name="displayName" value="Description"/>
+    </component>
+    <component id="callGroupDescription" type="TextArea">
+        <binding name="value" expression="callGroup.description"/>
+    </component>        
     
     <component id="addRing" type="LinkSubmit">
         <binding name="listener" expression="listeners.addRing"/>

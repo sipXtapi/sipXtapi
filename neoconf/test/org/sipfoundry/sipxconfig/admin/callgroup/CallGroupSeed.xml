@@ -6,12 +6,14 @@
     <column>name</column>
     <column>extension</column>
     <column>lineName</column>
+    <column>description</column>
     <row>
       <value>1001</value>
       <value>true</value>
       <value>sales</value>      
       <value>401</value>
       <value>sales.sipx.1001</value>
+      <value>something, something, something</value>
     </row>
     <row>
       <value>1002</value>
@@ -19,6 +21,7 @@
       <value>eng</value>      
       <value>401</value>
       <value>eng.sipx.1002</value>
+      <value>something else</value>
     </row>
   </table>    
   <table name="user_ring">

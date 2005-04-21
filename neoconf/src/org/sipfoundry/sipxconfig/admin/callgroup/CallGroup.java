@@ -19,6 +19,7 @@ public class CallGroup extends AbstractCallSequence {
     private String m_name;
     private String m_extension;
     private String m_lineName;
+    private String m_description;
 
     public CallGroup() {
         // bean usage only
@@ -56,6 +57,14 @@ public class CallGroup extends AbstractCallSequence {
         m_name = name;
     }
     
+    public String getDescription() {
+        return m_description;
+    }
+
+    public void setDescription(String description) {
+        m_description = description;
+    }
+    
     /**
      * inserts a new ring for a specific user
      * @param user 
@@ -69,3 +78,4 @@ public class CallGroup extends AbstractCallSequence {
         return ring;
     }
 }
+

@@ -49,9 +49,10 @@ public class ListCallGroupsTestUi extends WebTestCase {
         for (int i = 0; i < count; i++) {
             String name = "call group" + i;
             String extension = Integer.toString(400 + i);
-            addCallGroup(getTester(), name, extension);
+            String description = "Description" + i;
+            addCallGroup(getTester(), name, extension, description);
             ExpectedRow row = new ExpectedRow(new Object[] {
-                name, "false", extension,
+                name, "false", extension, description
             });
             expected.appendRow(row);
         }
@@ -63,7 +64,7 @@ public class ListCallGroupsTestUi extends WebTestCase {
     public void testEdit() {
         final String name = "call group xxx";
         final String extension = "404";
-        addCallGroup(getTester(), name, extension);
+        addCallGroup(getTester(), name, extension, "");
 
         // click on name - it should take us to the edit page
         clickLinkWithText(name);
@@ -82,10 +83,11 @@ public class ListCallGroupsTestUi extends WebTestCase {
         for (int i = 0; i < count; i++) {
             String name = "call group" + i;
             String extension = Integer.toString(400 + i);
-            addCallGroup(getTester(), name, extension);
+            String description = "Description" + i;
+            addCallGroup(getTester(), name, extension, description);
             if (!ArrayUtils.contains(toBeRemoved, i)) {
                 ExpectedRow row = new ExpectedRow(new Object[] {
-                    name, "false", extension,
+                    name, "false", extension, description
                 });
                 expected.appendRow(row);
             }
@@ -110,10 +112,11 @@ public class ListCallGroupsTestUi extends WebTestCase {
         assertButtonPresent("cancel");
     }
 
-    public static void addCallGroup(WebTester tester, String name, String extension) {
+public static void addCallGroup(WebTester tester, String name, String extension, String description) {
         tester.clickLink("callgroups:add");
         tester.setFormElement("callGroupName", name);
         tester.setFormElement("callGroupExtension", extension);
+        tester.setFormElement("callGroupDescription", description);
         tester.clickButton("callgroup:save");
     }
 }

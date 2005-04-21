@@ -20,6 +20,7 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditCallGroup extends BasePage implements PageRenderListener {
@@ -96,7 +97,9 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
-        // TODO; add optional validation here
+        StringSizeValidator descriptionValidator = (StringSizeValidator) getBeans().getBean(
+                "descriptionValidator");
+        descriptionValidator.validate(delegate);
         return !delegate.getHasErrors();
     }
 

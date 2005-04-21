@@ -26,7 +26,7 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
-        TestHelper.cleanInsert("admin/callgroup/dbdata/CallGroupSeed.xml");
+        TestHelper.cleanInsert("admin/callgroup/CallGroupSeed.xml");
     }
 
     public void testLoadCallGroup() throws Exception {

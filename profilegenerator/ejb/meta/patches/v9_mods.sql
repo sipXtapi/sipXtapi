@@ -19,6 +19,7 @@ create table call_group (
    name varchar(255),
    extension varchar(40),
    lineName varchar(255),
+   description varchar(255),
    primary key (call_group_id)
 );
 

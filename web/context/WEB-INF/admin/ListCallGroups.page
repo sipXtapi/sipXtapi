@@ -43,7 +43,7 @@
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="callGroupContext.callGroups"/>
         <static-binding name="pageSize" value="-1"/>
-        <static-binding name="columns" value="Name:name,Enabled:enabled,Extension:extension"/>
+        <static-binding name="columns" value="Name:name,Enabled:enabled,Extension:extension,Description:description"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns"/>
