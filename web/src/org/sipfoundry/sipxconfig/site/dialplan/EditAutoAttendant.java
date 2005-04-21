@@ -46,10 +46,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
 
     public abstract void setAttendant(AutoAttendant attendant);
 
-    public abstract Integer getAttendantId();
-
-    public abstract void setAttendantId(Integer id);
-
     public abstract void setPromptSelectionModel(IPropertySelectionModel model);
 
     public abstract IUploadFile getPromptUploadFile();
@@ -79,18 +75,23 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         return menuItem;
     }    
 
-    public void ok(IRequestCycle cycle_) {        
+    public void ok(IRequestCycle cycle) {        
         IValidationDelegate validator = TapestryUtils.getValidator(this);
         validatePrompt(validator);        
         checkFileUpload();
         if (!validator.getHasErrors()) {
             getDialPlanContext().storeAutoAttendant(getAttendant());
-        }
+            returnManageAttendants(cycle);
+        }        
     }
     
-    public void cancel(IRequestCycle cycle_) {
-        setAttendant(null);
-        setAttendantId(null);
+    public void cancel(IRequestCycle cycle) {
+        returnManageAttendants(cycle);
+    }
+    
+    private void returnManageAttendants(IRequestCycle cycle) {
+        cycle.activate(ManageAttendants.PAGE);
+        setAttendant(null);        
     }
     
     private void validatePrompt(IValidationDelegate validator) {
@@ -144,14 +145,10 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public void pageBeginRender(PageEvent event_) {
         AutoAttendant aa = getAttendant();        
         if (aa == null) {
-            Integer aaId = getAttendantId();
-            if (aaId == null) {
-                initializeAttendant();
-            } else {
-                aa = getDialPlanContext().getAutoAttendant(aaId);
-                setAttendant(aa);
-            }
+            // add new attendant
+            initializeAttendant();
         }
+        selectNextAvailableDialpadKey();
         
         File promptsDir = new File(getVxmlService().getPromptsDirectory());
         String[] prompts = promptsDir.list();
@@ -172,7 +169,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.CANCEL));
         setAttendant(aa);
-        selectNextAvailableDialpadKey();
     }
     
     private static boolean isUploadFileSpecified(IUploadFile file) {

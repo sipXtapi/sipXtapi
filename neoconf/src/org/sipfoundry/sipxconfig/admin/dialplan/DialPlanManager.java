@@ -21,13 +21,14 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
-class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
+class DialPlanManager extends HibernateDaoSupport implements DialPlanContext, DataObjectSource {
     private String m_configDirectory;
 
     private EmergencyRouting m_emergencyRouting = new EmergencyRouting(); 
@@ -64,6 +65,15 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
         
     }
 
+    public void deleteAutoAttendantsByIds(Collection attendantIds) {
+        // TODO: Remove attendants from internal dialing rules
+        for (Iterator i = attendantIds.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            AutoAttendant aa = getAutoAttendant(id);
+            getHibernateTemplate().delete(aa);
+        }        
+    }
+    
     public void storeGateway(Gateway gateway) {
         getHibernateTemplate().saveOrUpdate(gateway);
     }
@@ -191,5 +201,10 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public Object load(Class c, Integer id) {
+        Object o = getHibernateTemplate().load(c, id);
+        return o;
     }
 }

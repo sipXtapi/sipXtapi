@@ -63,4 +63,6 @@ public interface DialPlanContext {
     public abstract AutoAttendant getAutoAttendant(Integer id);
     
     public abstract List getAutoAttendants();
+    
+    public abstract void deleteAutoAttendantsByIds(Collection attendantsIds);
 }

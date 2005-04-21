@@ -1,0 +1,37 @@
+<html title="List Gateways">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+	<h2>Auto Attendants</h2>        
+	<ul class="component-links">
+		<li><a jwcid="addAttendantLink" id="addAttendant" href="#">Add Attendant</a></li>        
+	</ul>        
+    <form jwcid="attendantListForm" id="list:attendant:form">
+	<table jwcid="tableView" id="list:attendant" class="component">
+        <thead>
+            <tr>
+                <th/>
+                <span jwcid="tableColumns"/>
+            </tr>
+        </thead>
+        <tbody>
+			<span jwcid="NameColumnValue">
+				<span jwcid="editRowLink"><span jwcid="nameText"/></span>
+			</span>
+            <span jwcid="tableRows">
+                <td><span jwcid="selectedRow"/></td>
+				<span jwcid="tableValues"/>
+            </span>
+        </tbody>
+	</table>
+		<ul class="component-submit">
+			<li><input jwcid="deleteButton" type="submit" id="list:attendant:delete" 
+            	value="Delete" onclick="return confirm('Are you sure you want to remove selected auto attendants?')"/></li>
+		</ul>
+    </form>
+	</div>
+</body>
+</html>
+

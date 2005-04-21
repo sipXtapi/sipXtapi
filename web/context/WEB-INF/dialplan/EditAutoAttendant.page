@@ -10,9 +10,6 @@
     <property-specification name="attendant" 
         type="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"
         persistent="yes"/>
-    <property-specification name="attendantId" 
-        type="java.lang.Integer" 
-        persistent="yes"/>
 	<property-specification name="promptSelectionModel" 
 		type="org.apache.tapestry.form.IPropertySelectionModel"/>           
 	<property-specification name="promptUploadFile" 

@@ -19,7 +19,9 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
+    <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
+    <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
+    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
 	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
