@@ -60,6 +60,7 @@
     <replace file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"
          propertyfile="${top.build.dir}/config.properties">
       <replacefilter token="@jboss.server@" value="${jboss.server}"/>
+      <replacefilter token="@sipxpbx.user@" value="${sipxpbx.user}"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh" perm="ugo+x"/>
 
