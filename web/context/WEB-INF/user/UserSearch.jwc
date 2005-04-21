@@ -5,7 +5,7 @@
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserSearch"
     allow-body="yes"
     allow-informal-parameters="no">
-    <description>add a description</description>
+    <description>user search criteria form + action button</description>
     <!--
       - P A R A M E T E R S
       -->
@@ -14,17 +14,16 @@
         required="yes" 
         direction="in">
     </parameter>    
-	<parameter name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreContext" 
-    	required="yes"
-    	direction="auto"/>    
     <!--
       - P R O P E R T I E S
       -->
+    <property-specification name="coreContext" 
+    	type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="page.global.coreContext"/>
 	<property-specification name="user" 
 		type="org.sipfoundry.sipxconfig.common.User"/>   
 	<property-specification name="users" 
-		type="java.util.List"/>   
+		type="java.util.List"/>
     <!--
       - B E A N S
       -->
@@ -68,6 +67,5 @@
     </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="cancelListener"/>
-    </component>
-    
+    </component>    
 </component-specification>
