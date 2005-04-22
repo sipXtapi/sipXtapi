@@ -4,11 +4,11 @@
 		<field name="menu">
 			<filled>
 				<if cond="menu=='0'" >
-					<assign name="operation" expr="operator" />
+					<assign name="operation" expr="'operator'" />
                     <assign name="extension" expr=""/>
 					<goto nextitem="menuaction" />
 					<elseif cond="menu=='1'" />
-					<assign name="operation" expr="disconnect" />
+					<assign name="operation" expr="'disconnect'" />
                     <assign name="extension" expr=""/>
 					<goto nextitem="menuaction" />
 					<else />
