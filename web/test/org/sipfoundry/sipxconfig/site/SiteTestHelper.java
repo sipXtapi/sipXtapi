@@ -13,11 +13,14 @@ package org.sipfoundry.sipxconfig.site;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Properties;
 
+import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import net.sourceforge.jwebunit.HttpUnitDialog;
 import net.sourceforge.jwebunit.WebTester;
 
 import org.apache.commons.io.FileUtils;
@@ -25,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.WebForm;
+import com.meterware.httpunit.WebResponse;
 
 public class SiteTestHelper {
     private static String s_buildDir;
@@ -168,5 +172,37 @@ public class SiteTestHelper {
         // generates sipxconfig.properties in classpath (arg 0)
         TestUtil.setSysDirProperties(sysProps, args[1], args[2]);
         TestUtil.saveSysDirProperties(sysProps, args[0]);
+    }
+
+    /**
+     * Utility function to click on Tapestry submit links from JWebUnit
+     * 
+     * The linkSubmit component is using a jaa script to set a value of a hiddent field and then
+     * submit a form. HttpUnit/JWebUnit and rhino.jar do not support java script used by Tapesty
+     * so we try to emulate the behavior by using HTTP unit function. See: XCF-349
+     * 
+     * In addition to that we need to make JWebUnit happy: it does not know we submitted form
+     * request independently, we need to reinject the response back into the dialog. I could not
+     * find any reasonable way of doing that, so I used reflection to set private field.
+     * I guess being able to test more pages is the most important factor here.
+     * 
+     * There is no guarantee that it will work with new version of Tapestry or JWebUnit
+     * 
+     * @param linkName - name of the link component (link id will NOT work)
+     */
+    public static void clickSubmitLink(WebTester tester, String linkName) throws Exception {
+        // submit the form after setting hidden field
+        HttpUnitDialog dialog = tester.getDialog();
+        WebForm form = dialog.getForm();
+        form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
+        WebResponse response = form.submitNoButton();
+    
+        // set response directry in current JWebUnit object 
+        Class klass = dialog.getClass();
+        Field respField = klass.getDeclaredField("resp");
+        respField.setAccessible(true);
+        respField.set(dialog, response);
+        
+        Assert.assertSame(tester.getDialog().getResponse(), response);
     }
 }
