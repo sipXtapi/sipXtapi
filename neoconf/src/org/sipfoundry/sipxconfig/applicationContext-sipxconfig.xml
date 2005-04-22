@@ -492,7 +492,11 @@
 			</list>
 		</property>
 	</bean>
-	<bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlService"/>
+	<bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
+		<property name="velocityEngine">
+			<ref local="velocityEngine"/>
+		</property>
+	</bean>
     <!--
       - C A L L G R O U P   C O N T E X T
       -->

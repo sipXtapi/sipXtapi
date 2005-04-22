@@ -12,9 +12,18 @@
 package org.sipfoundry.sipxconfig;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
 
 import junit.framework.Assert;
 
@@ -87,4 +96,22 @@ public abstract class XmlUnitHelper {
         DOMWriter writer = new DOMWriter();
         return writer.write(doc);
     }
+
+    public static void style(Reader xsl, Reader xml, Writer out, Map params) throws TransformerException {
+        Source xmlSource = new javax.xml.transform.stream.StreamSource(xml);
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Source xslSource = new javax.xml.transform.stream.StreamSource(xsl);
+        Transformer transformer;
+        transformer = factory.newTransformer(xslSource);
+        if (params != null && !params.isEmpty()) {
+            Iterator entries = params.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry entry = (Map.Entry) entries.next();
+                transformer.setParameter((String) entry.getKey(), entry.getValue());
+            }
+        }
+        StreamResult result = new StreamResult(out);
+        transformer.transform(xmlSource, result);
+    }
+
 }

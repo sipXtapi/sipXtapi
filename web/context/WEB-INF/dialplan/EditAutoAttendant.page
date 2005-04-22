@@ -14,8 +14,8 @@
 		type="org.apache.tapestry.form.IPropertySelectionModel"/>           
 	<property-specification name="promptUploadFile" 
 		type="org.apache.tapestry.request.IUploadFile"/>   
-    <property-specification name="vxmlService"
-        type="org.sipfoundry.sipxconfig.admin.dialplan.VxmlService"
+    <property-specification name="vxmlGenerator"
+        type="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator"
         initial-value="global.vxml"/>
     <property-specification name="currentDialPadId"
         type="java.lang.String"/>

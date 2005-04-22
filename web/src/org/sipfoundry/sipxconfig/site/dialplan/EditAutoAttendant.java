@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.VxmlService;
+import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -52,7 +52,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
 
     public abstract void setPromptUploadFile(IUploadFile file);
 
-    public abstract VxmlService getVxmlService();
+    public abstract VxmlGenerator getVxmlGenerator();
     
     public abstract SelectMap getSelections();
 
@@ -81,6 +81,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         checkFileUpload();
         if (!validator.getHasErrors()) {
             getDialPlanContext().storeAutoAttendant(getAttendant());
+            getVxmlGenerator().generate(getAttendant());
             returnManageAttendants(cycle);
         }        
     }
@@ -150,7 +151,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         }
         selectNextAvailableDialpadKey();
         
-        File promptsDir = new File(getVxmlService().getPromptsDirectory());
+        File promptsDir = new File(getVxmlGenerator().getPromptsDirectory());
         String[] prompts = promptsDir.list();
         if (prompts == null) {
             prompts = new String[0];
@@ -185,7 +186,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         InputStream upload = file.getStream();
         FileOutputStream promptWtr = null;
         try {
-            File promptsDir = new File(getVxmlService().getPromptsDirectory());
+            File promptsDir = new File(getVxmlGenerator().getPromptsDirectory());
             promptsDir.mkdirs();
             File promptFile = new File(promptsDir, file.getFileName());
             promptWtr = new FileOutputStream(promptFile);

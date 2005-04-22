@@ -32,6 +32,10 @@ public class AutoAttendant extends BeanWithId {
     public String getDescription() {
         return m_description;
     }
+    
+    public String getScriptFileName() {
+        return "autoattendant-" + getId() + ".vxml";
+    }
 
     public void setDescription(String description) {
         m_description = description;

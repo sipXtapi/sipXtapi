@@ -31,60 +31,23 @@
     <!-- Play the autoattendant main menu -->
     <field name="menu" type="digits?minlength=1;maxlength=10">
       <prompt>
-	<audio expr="securemediaserverurl + promptsalias + ${greeting_name}" />
+	<audio expr="securemediaserverurl + promptsalias + '${attendant.Prompt}'" />
       </prompt>
       <prompt>
-	<audio expr="securemediaserverurl + promptsalias + ${menu_instructions}" />
+	<audio expr="securemediaserverurl + promptsalias + \${menu_instructions}" />
       </prompt>
       <filled>
-	<if cond="menu=='0'" >
-	  <assign name="operation" expr="${key_0}" />
-	  <assign name="extension" expr="${key_0_extn}" />
+#foreach( $dialPadKey in ${attendant.MenuItems.keySet()} )
+#if ( $velocityCount == 1 )
+	<if cond="menu=='${dialPadKey.Name}'">
+#else	
+	<elseif cond="menu=='${dialPadKey.Name}'"/>
+#end	
+#set( $menuItem = ${attendant.MenuItems.get($dialPadKey)} )
+	  <assign name="operation" expr="'${menuItem.Action.Name}'" />
+	  <assign name="extension" expr="$!{menuItem.Parameter}" />
 	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='1'" />
-	  <assign name="operation" expr="${key_1}" />
-	  <assign name="extension" expr="${key_1_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='2'" />
-	  <assign name="operation" expr="${key_2}" />
-	  <assign name="extension" expr="${key_2_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='3'" />
-	  <assign name="operation" expr="${key_3}" />
-	  <assign name="extension" expr="${key_3_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='4'" />
-	  <assign name="operation" expr="${key_4}" />
-	  <assign name="extension" expr="${key_4_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='5'" />
-	  <assign name="operation" expr="${key_5}" />
-	  <assign name="extension" expr="${key_5_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='6'" />
-	  <assign name="operation" expr="${key_6}" />
-	  <assign name="extension" expr="${key_6_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='7'" />
-	  <assign name="operation" expr="${key_7}" />
-	  <assign name="extension" expr="${key_7_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='8'" />
-	  <assign name="operation" expr="${key_8}" />
-	  <assign name="extension" expr="${key_8_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='9'" />
-	  <assign name="operation" expr="${key_9}" />
-	  <assign name="extension" expr="${key_9_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='*'" />
-	  <assign name="operation" expr="${key_star}" />
-	  <assign name="extension" expr="${key_star_extn}" />
-	  <goto nextitem="menuaction" />
-	<elseif cond="menu=='#'" />
-	  <assign name="operation" expr="${key_pound}" />
-	  <assign name="extension" expr="${key_pound_extn}" />
-	  <goto nextitem="menuaction" />
+#end	  
 	<else />
 	  <!-- Here is the transfer to a given extension -->
 	  <assign name="action" expr="'transfer'" />
