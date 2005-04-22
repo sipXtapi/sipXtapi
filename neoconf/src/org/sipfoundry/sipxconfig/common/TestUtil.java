@@ -105,7 +105,7 @@ public final class TestUtil {
      * in ant because it avoids setup and works in IDE's like eclipse where
      * bin.eclipse is the classpath
      */
-    public static Properties getSysDirProperties(Properties sysProps, String classpathDirectory, String etcDirectory,
+    public static void setSysDirProperties(Properties sysProps, String etcDirectory,
             String outputDirectory) {
 
         // HACK: sysdir.bin is not a real directory when testing
@@ -116,6 +116,9 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
         sysProps.setProperty("polycom300.outboundProxyAddress", "proxy.sipfoundry.org");
+    }
+    
+    public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
 
         File sysdirPropsFile = new File(classpathDirectory, "sipxconfig.properties");
         FileOutputStream sysdirPropsStream;
@@ -129,7 +132,5 @@ public final class TestUtil {
         } catch (IOException e) {
             throw new RuntimeException("could not store system dir properties", e);
         }
-
-        return sysProps;
     }
 }

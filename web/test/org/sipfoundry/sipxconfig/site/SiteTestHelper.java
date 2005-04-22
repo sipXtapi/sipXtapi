@@ -166,6 +166,7 @@ public class SiteTestHelper {
         sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
         // generates sipxconfig.properties in classpath (arg 0)
-        TestUtil.getSysDirProperties(sysProps, args[0], args[1], args[2]);
+        TestUtil.setSysDirProperties(sysProps, args[1], args[2]);
+        TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
 }

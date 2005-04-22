@@ -84,8 +84,9 @@ public final class TestHelper {
         if (s_sysDirProps == null) {
             String etcDir = TestUtil.getProjectDirectory() + "/etc";
             String outDir = getTestDirectory();
-            s_sysDirProps = TestUtil.getSysDirProperties(new Properties(),
-                    getClasspathDirectory(), etcDir, outDir);
+            s_sysDirProps = new Properties(); 
+            TestUtil.setSysDirProperties(s_sysDirProps, etcDir, outDir);
+            TestUtil.saveSysDirProperties(s_sysDirProps, getClasspathDirectory());
         }
         return s_sysDirProps;
     }
