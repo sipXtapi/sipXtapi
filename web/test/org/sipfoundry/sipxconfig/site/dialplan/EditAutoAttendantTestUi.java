@@ -84,6 +84,17 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertTablePresent("list:attendant");
     }
 
+    public void testRemoveMenuItems() {
+        clickLink("NewAutoAttendant");
+        assertFormPresent("attendant:form");
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        clickButton("attendant:removeMenuItems");
+        String[][] expectedMenuItems = {
+                { "0123456789*#", "Operator", "" }, 
+        };
+        assertTableRowsEqual("attendant:menuItems", 1, expectedMenuItems);        
+    }
+
     public static final String seedPromptFile() throws IOException {
         File promptsDir = getCleanPromptsDir();
         copyFileToDirectory(PROMPT_TEST_FILE, promptsDir);

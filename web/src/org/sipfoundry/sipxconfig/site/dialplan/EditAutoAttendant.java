@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.io.CopyUtils;
@@ -55,8 +56,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public abstract VxmlGenerator getVxmlGenerator();
     
     public abstract SelectMap getSelections();
-
-    public abstract void setSelections(SelectMap selected);
     
     public abstract DialPlanContext getDialPlanContext();
     
@@ -73,7 +72,17 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public AttendantMenuItem getCurrentMenuItem() {
         AttendantMenuItem menuItem = (AttendantMenuItem) getAttendant().getMenuItems().get(getCurrentDialPad());
         return menuItem;
-    }    
+    }
+    
+    public void removeMenuItems(IRequestCycle cycle_) {
+        nonSaveFormSubmit();
+        Iterator selected = getSelections().getAllSelected().iterator();
+        Map menuItems = getAttendant().getMenuItems();
+        while (selected.hasNext()) {
+            String name = (String) selected.next();
+            menuItems.remove(DialPad.getByName(name));
+        }
+    }
 
     public void ok(IRequestCycle cycle) {        
         IValidationDelegate validator = TapestryUtils.getValidator(this);
@@ -105,16 +114,9 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     }
     
     public void addMenuItem(IRequestCycle cycle_) {
-        // SUBOPTIMAL: although it would be nice to upload file when saving, tapestry
-        // cannot preserve state of Upload component and users would lose upload
-        // selection everytime a menu item was added. Negative to this method is
-        // that hitting cancel after adding 1 or more menu items would leave prompt
-        // on server.  Dedicated prompt management page would avoid this altogether.
-        checkFileUpload();
-        
-        IValidationDelegate validator = TapestryUtils.getValidator(this);
-        validator.clearErrors();
+        nonSaveFormSubmit();
         if (getAddMenuItemAction() == null) {
+            IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record("You must selection an action for your new attentant menu item", 
                     ValidationConstraint.REQUIRED);
         } else {
@@ -123,6 +125,21 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             selectNextAvailableDialpadKey();
             setAddMenuItemAction(null);
         }
+    }
+    
+    /**
+     * Doesn't leave or or save any data
+     */
+    private void nonSaveFormSubmit() {
+        // SUBOPTIMAL: although it would be nice to upload file when saving, tapestry
+        // cannot preserve state of Upload component and users would lose upload
+        // selection everytime a menu item was added. Negative to this method is
+        // that hitting cancel after adding 1 or more menu items would leave prompt
+        // on server.  Dedicated prompt management page would avoid this altogether.
+        checkFileUpload();
+        
+        IValidationDelegate validator = TapestryUtils.getValidator(this);
+        validator.clearErrors();        
     }
     
     /**
@@ -159,10 +176,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         
         IPropertySelectionModel promptsModel = new StringPropertySelectionModel(prompts);
         setPromptSelectionModel(promptsModel);
-
-        if (getSelections() == null) {
-            setSelections(new SelectMap());
-        }
     }
     
     private void initializeAttendant() {

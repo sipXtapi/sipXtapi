@@ -20,7 +20,8 @@
     <property-specification name="currentDialPadId"
         type="java.lang.String"/>
    	<property-specification name="selections" 
-       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+       type="org.sipfoundry.sipxconfig.components.SelectMap"
+       initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
 	<property-specification name="dialPlanContext" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>   
@@ -102,6 +103,9 @@
     </component>    
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
+    </component>
+    <component id="removeMenuItems" type="Submit">
+        <binding name="listener" expression="listeners.removeMenuItems"/>
     </component>
 	<component id="menuItemTableView" type="contrib:TableView">
         <binding name="source" expression="attendant.menuItems.keys"/>
