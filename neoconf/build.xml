@@ -85,6 +85,8 @@
             <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
             <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
             <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
+            <replacefilter token="@sipxvxml.data.dir@" property="sipxvxml.data.dir"/>
+            <replacefilter token="@www.dir@" property="www.dir"/>
         </replace>
     </target>
 	
