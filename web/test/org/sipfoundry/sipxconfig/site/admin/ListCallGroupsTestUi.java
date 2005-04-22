@@ -112,7 +112,8 @@ public class ListCallGroupsTestUi extends WebTestCase {
         assertButtonPresent("cancel");
     }
 
-public static void addCallGroup(WebTester tester, String name, String extension, String description) {
+    public static void addCallGroup(WebTester tester, String name, String extension,
+            String description) {
         tester.clickLink("callgroups:add");
         tester.setFormElement("callGroupName", name);
         tester.setFormElement("callGroupExtension", extension);
