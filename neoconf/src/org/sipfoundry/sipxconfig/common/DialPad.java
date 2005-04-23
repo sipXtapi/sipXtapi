@@ -56,4 +56,8 @@ public final class DialPad extends Enum {
             super(DialPad.class);
         }
     }
+    
+    public static final DialPad getByName(String name) {
+        return (DialPad) getEnumMap(DialPad.class).get(name);
+    }
 }
