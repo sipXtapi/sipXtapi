@@ -3,6 +3,7 @@ include $(top_builddir)/config/sipXcommon.mak
 include $(srcdir)/config/sipXprojtop.mak
 # Append to global search/replace with _very_ project specific search/replaces
 edit = $(LocalizeSipXconfig) \
+    -e 's,@OPENSSL\@,@OPENSSL@,g' \
     -e 's,@CLOVER_JAR\@,@CLOVER_JAR@,g' \
     -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
     -e 's,@JBOSS_SERVER_CONF\@,@JBOSS_SERVER_CONF@,g' \

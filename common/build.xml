@@ -59,6 +59,8 @@
     <copy file="bin/install-ssl-keystore.sh.in" tofile="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"/>
     <replace file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"
          propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@install_sh@" value="${install_sh}"/>
+      <replacefilter token="@openssl@" value="${openssl}"/>
       <replacefilter token="@jboss.server@" value="${jboss.server}"/>
       <replacefilter token="@sipxpbx.user@" value="${sipxpbx.user}"/>
     </replace>
