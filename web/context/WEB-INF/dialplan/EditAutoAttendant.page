@@ -101,6 +101,9 @@
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.ok"/>
     </component>    
+    <component id="apply" type="Submit">
+        <binding name="listener" expression="listeners.apply"/>
+    </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
     </component>
@@ -137,7 +140,17 @@
     </component>
     <!-- Column 4: optional action parameter -->
     <component id="ParameterColumnValue" type="Block"/>
-    <component id="menuItemParameter" type="TextField">
+    <component id="ifExtensionParameter" type="Conditional">
+        <binding name="condition" expression="currentMenuItem.action.extensionParameter"/>
+    </component>
+    <component id="extensionParameter" type="TextField">
+        <binding name="value" expression="currentMenuItem.parameter"/>
+    </component>
+    <component id="ifAttendantParameter" type="Conditional">
+        <binding name="condition" expression="currentMenuItem.action.attendantParameter"/>
+    </component>
+    <component id="attendantParameter" type="PropertySelection">
+        <binding name="model" expression="global.tapestry.instructUserToSelect(attendantSelectionModel)"/>
         <binding name="value" expression="currentMenuItem.parameter"/>
     </component>
     <!-- Last Row : Add Menu Item -->

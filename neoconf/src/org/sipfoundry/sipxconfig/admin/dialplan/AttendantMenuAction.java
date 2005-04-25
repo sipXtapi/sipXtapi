@@ -46,6 +46,14 @@ public final class AttendantMenuAction extends Enum {
         super(actionId);
     }
     
+    public boolean isExtensionParameter() {
+        return (this == VOICEMAIL_DEPOSIT || this == GOTO_EXTENSION);
+    }
+    
+    public boolean isAttendantParameter() {
+        return (this == AUTO_ATTENDANT);
+    }
+    
     /**
      * Used for Hibernate type translation
      */

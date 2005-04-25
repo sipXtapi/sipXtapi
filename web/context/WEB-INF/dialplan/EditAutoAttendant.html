@@ -127,8 +127,12 @@ end call.</dd>
 							<select jwcid="menuItemAction"/>
 						</span>
 						<span jwcid="ParameterColumnValue">
-							<!-- TODO: use tapestry block component as switch statement  -->
-							<input jwcid="menuItemParameter" type="text" />
+                            <span jwcid="ifExtensionParameter">
+    							<input jwcid="extensionParameter" type="text" />
+                            </span>
+                            <span jwcid="ifAttendantParameter">
+    							<select jwcid="attendantParameter"/>
+                            </span>
 						</span>
 						<td jwcid="menuItemValues"/>
 					</tr>
@@ -147,12 +151,16 @@ end call.</dd>
   </ul>
 				<ul class="component-submit">
 					<li>
-						<input jwcid="ok" type="submit" id="attendant:ok" 
-							value="OK"/>
+						<input jwcid="cancel" type="submit" id="attendant:cancel" 
+                            value="Cancel"/>
 					</li>
 					<li>
-						<input jwcid="cancel" type="submit" 
-							id="attendant:cancel" value="Cancel"/>
+						<input jwcid="apply" type="submit" id="attendant:apply" 
+							value="Apply"/>
+					</li>
+					<li>
+						<input jwcid="ok" type="submit" id="attendant:ok" 
+							value="OK"/>
 					</li>
 				</ul>
 			</form>

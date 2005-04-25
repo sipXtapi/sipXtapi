@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.ExpectedTable;
 import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.WebTester;
 
 import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,6 +29,8 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 public class EditAutoAttendantTestUi extends WebTestCase {
     
     private static final String PROMPT_TEST_FILE = "thankyou_goodbye.wav";
+    
+    private static final String KEYS = "0123456789*#";
     
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditAutoAttendantTestUi.class);
@@ -45,16 +49,15 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
         // need to rerender page after prompt is copied in
         String[][] expectedMenuItems = {
-                { "0123456789*#", "Cancel", "" }, 
-                { "0123456789*#", "Operator", "" }, 
+                { KEYS, "Cancel", "" }, 
+                { KEYS, "Operator", "" }, 
         };
         assertTableRowsEqual("attendant:menuItems", 1, expectedMenuItems);        
 
-        setFormElement("name", "New Attendant Test");
+        setFormElement("name", "New Attendant");
         setFormElement("description", "created by EditAutoAttendantTestUi.testNewAttendant");
         setFormElement("extension", "301");
         selectOption("prompt", PROMPT_TEST_FILE);
-        setFormElement("name", "New Attendant");
         clickButton("attendant:ok");
         SiteTestHelper.assertNoException(tester);
     }
@@ -84,15 +87,52 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertTablePresent("list:attendant");
     }
 
-    public void testRemoveMenuItems() {
+    public void testRemoveMenuItems() throws Exception {
+        seedPromptFile();
         clickLink("NewAutoAttendant");
         assertFormPresent("attendant:form");
+        
         SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         clickButton("attendant:removeMenuItems");
         String[][] expectedMenuItems = {
-                { "0123456789*#", "Operator", "" }, 
+                { KEYS, "Operator", "" }, 
         };
         assertTableRowsEqual("attendant:menuItems", 1, expectedMenuItems);        
+    }
+    
+    public void testAddMenuItems() throws Exception {
+        seedAutoAttendant(tester);
+        SiteTestHelper.home(tester);
+        
+        clickLink("NewAutoAttendant");
+        assertFormPresent("attendant:form");
+        
+        selectOption("addMenuItemAction", "Auto Attendant");
+        clickButton("attendant:addMenuItem");
+        selectOption("attendantParameter", "New Attendant");
+        clickButton("attendant:apply");
+        String[][] defaultMenuItems = {
+                { KEYS, "Cancel", "" }, 
+                { KEYS, "Operator", "" }, 
+                { KEYS, "Auto Attendant", "select...New Attendant" }, 
+        };
+        ExpectedTable expected = new ExpectedTable(defaultMenuItems);
+        assertTableRowsEqual("attendant:menuItems", 1, expected);
+        
+        selectOption("addMenuItemAction", "Deposit Voicemail");
+        clickButton("attendant:addMenuItem");
+        setFormElement("extensionParameter", "3232");
+        clickButton("attendant:apply");
+        
+        String[][] vmDepositRow = {
+                // 3rd column - curious why text fields do not show up text in table when
+                // all other form elements do. May be webunit version releated.
+                { KEYS, "Deposit Voicemail", "" }, 
+        };
+        // verify 3rd column data here
+        assertFormElementEquals("extensionParameter", "3232");
+        
+        expected.appendRows(vmDepositRow);
     }
 
     public static final String seedPromptFile() throws IOException {
@@ -101,7 +141,18 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         
         return PROMPT_TEST_FILE;
     }
-    
+        
+    private static void seedAutoAttendant(WebTester tester) throws Exception {
+        seedPromptFile();
+        tester.clickLink("NewAutoAttendant");
+        tester.setFormElement("name", "New Attendant");
+        tester.setFormElement("description",
+                "created by EditAutoAttendantTestUi.seedAutoAttendant");
+        tester.setFormElement("extension", "301");
+        tester.selectOption("prompt", PROMPT_TEST_FILE);
+        tester.clickButton("attendant:ok");
+    }
+
     private static final File getCleanPromptsDir() {
         File promptsDir = new File(SiteTestHelper.getArtificialSystemRootDirectory() + "/prompts");
         SiteTestHelper.cleanDirectory(promptsDir.getPath());
