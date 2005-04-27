@@ -33,9 +33,6 @@
       <prompt>
 	<audio expr="securemediaserverurl + promptsalias + '${attendant.Prompt}'" />
       </prompt>
-      <prompt>
-	<audio expr="securemediaserverurl + promptsalias + \${menu_instructions}" />
-      </prompt>
       <filled>
 #foreach( $dialPadKey in ${attendant.MenuItems.keySet()} )
 #if ( $velocityCount == 1 )
