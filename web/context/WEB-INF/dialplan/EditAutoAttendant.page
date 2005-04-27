@@ -53,6 +53,11 @@
         <set-property name="resourcePrefix" expression="'menuItemAction.'"/>
         <set-property name="messages" expression="messages"/>
     </bean>
+    <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+        <set-property name="collection" expression="dialPlanContext.autoAttendants"/>
+        <set-property name="labelExpression" expression="'name'"/>
+        <set-property name="valueExpression" expression="'systemName'"/>
+    </bean>
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <!--
       - C O M P O N E N T S
@@ -150,7 +155,7 @@
         <binding name="condition" expression="currentMenuItem.action.attendantParameter"/>
     </component>
     <component id="attendantParameter" type="PropertySelection">
-        <binding name="model" expression="global.tapestry.instructUserToSelect(attendantSelectionModel)"/>
+        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
         <binding name="value" expression="currentMenuItem.parameter"/>
     </component>
     <!-- Last Row : Add Menu Item -->

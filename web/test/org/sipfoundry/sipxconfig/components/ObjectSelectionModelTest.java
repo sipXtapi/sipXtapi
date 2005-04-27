@@ -22,9 +22,9 @@ public class ObjectSelectionModelTest extends TestCase {
     
     protected void setUp() {        
         m_objects = new ArrayList();
-        m_objects.add(new ExampleBusinessObject("voltar"));
-        m_objects.add(new ExampleBusinessObject("kuku"));
-        m_objects.add(new ExampleBusinessObject("bongo"));
+        m_objects.add(new ExampleBusinessObject("voltar", new Integer(100)));
+        m_objects.add(new ExampleBusinessObject("kuku", new Integer(101)));
+        m_objects.add(new ExampleBusinessObject("bongo", new Integer(102)));
     }
     
     public void testGetLabel() {
@@ -37,6 +37,16 @@ public class ObjectSelectionModelTest extends TestCase {
         assertEquals("bongo", model.getLabel(2));
     }
     
+    public void testGetOption() {
+        ObjectSelectionModel model = new ObjectSelectionModel();
+        model.setCollection(m_objects);
+        model.setValueExpression("somethingElse");
+        
+        assertEquals(new Integer(100), model.getOption(0));
+        assertEquals(new Integer(101), model.getOption(1));
+        assertEquals(new Integer(102), model.getOption(2));
+    }
+
     public void testNullCollection() {
         ObjectSelectionModel model = new ObjectSelectionModel();
         assertEquals("", model.getLabel(0));
@@ -64,13 +74,19 @@ public class ObjectSelectionModelTest extends TestCase {
         
         String m_something;
         
-        ExampleBusinessObject(String something) {
-            m_something = something;
-        }
+        Integer m_somethingElse;
         
+        ExampleBusinessObject(String something, Integer somethingElse) {
+            m_something = something;
+            m_somethingElse = somethingElse;
+        }
+
         public String getSomething() {
             return m_something;
         }
+        
+        public Integer getSomethingElse() {
+            return m_somethingElse;
+        }
     }
-
 }

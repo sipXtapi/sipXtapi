@@ -114,6 +114,11 @@ public class SiteTestHelper {
         tester.checkCheckbox(id + suffix);
     }
 
+    public static void assertOptionSelected(WebTester tester, String formElement, String expected) {
+        String value = tester.getDialog().getSelectedOption(formElement);
+        Assert.assertEquals(expected, value);
+    }
+
     public static String getBaseUrl() {
         return s_baseUrl;
     }

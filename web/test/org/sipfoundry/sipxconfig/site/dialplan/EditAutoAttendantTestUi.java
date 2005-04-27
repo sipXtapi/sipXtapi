@@ -119,6 +119,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         };
         expected.appendRows(defaultMenuItems);
         assertTableRowsEqual("attendant:menuItems", 1, expected);
+        SiteTestHelper.assertOptionSelected(tester, "attendantParameter", "New Attendant");
         
         selectOption("addMenuItemAction", "Deposit Voicemail");
         clickButton("attendant:addMenuItem");
