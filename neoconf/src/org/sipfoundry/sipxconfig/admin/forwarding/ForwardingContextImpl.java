@@ -15,18 +15,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.Session;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.legacy.LegacyContext;
 import org.springframework.jms.core.JmsOperations;
-import org.springframework.jms.core.MessageCreator;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -111,36 +105,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         List sequences = getHibernateTemplate().findByNamedParam(ringsForUser, "organization",
                 organization);
         return sequences;
-    }
-
-    private static class GenerateMessage implements MessageCreator {
-        private static final String PARAM_NAME = "datasettype";
-        private static final String TYPE_ALIAS = "aliases";
-        private static final String TYPE_AUTH_EXCEPTIONS = "authexceptions";
-
-        private String m_type;
-
-        /**
-         * @param type types of the data set to be generated as a result of sending of this
-         *        message
-         */
-        public GenerateMessage(String type) {
-            // TODO Auto-generated constructor stub
-            m_type = type;
-        }
-
-        /**
-         * Sends generateAliases message
-         * 
-         * @param session the JMS session
-         * @return the message to be sentt
-         * @throws javax.jms.JMSException if thrown by JMS API methods
-         */
-        public Message createMessage(Session session) throws JMSException {
-            MapMessage message = session.createMapMessage();
-            message.setString(PARAM_NAME, m_type);
-            return message;
-        }
     }
 
     public void setJms(JmsOperations jms) {

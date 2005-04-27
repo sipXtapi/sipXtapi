@@ -497,11 +497,14 @@
     <!--
       - C A L L G R O U P   C O N T E X T
       -->
-	<bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory"/>
-		</property>        
-	</bean>
+	<bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl" autowire="byType">
+        <property name="coreContext">
+            <ref bean="coreContextImpl"/>
+        </property>        
+		<property name="phoneContext">
+			<ref bean="phoneContextImpl"/>
+		</property>
+    </bean>
     
 	<bean id="callGroupContext" 
 		class="org.springframework.aop.framework.ProxyFactoryBean">

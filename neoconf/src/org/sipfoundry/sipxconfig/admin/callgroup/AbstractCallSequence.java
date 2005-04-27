@@ -13,8 +13,11 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 
@@ -70,5 +73,25 @@ public class AbstractCallSequence extends BeanWithId {
 
     public void setCalls(List calls) {
         m_calls = calls;
+    }
+
+    /**
+     * Generate aliases from the calling list.
+     * All aliases have the following form: identity -> ring_contact
+     * @param identity 
+     * @param domain used to calculate proper URI for ring contact
+     * @return list of AliasMapping objects
+     */
+    protected List generateAliases(String identity, String domain) {
+        List calls = getCalls();
+        List aliases = new ArrayList(calls.size());
+        ForkQueueValue q = new ForkQueueValue(calls.size());
+        for (Iterator i = calls.iterator(); i.hasNext();) {
+            AbstractRing r = (AbstractRing) i.next();
+            String contact = r.calculateContact(domain, q);
+            AliasMapping alias = new AliasMapping(identity, contact);
+            aliases.add(alias);
+        }
+        return aliases;
     }
 }

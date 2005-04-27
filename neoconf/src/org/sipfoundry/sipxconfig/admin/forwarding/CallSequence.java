@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
-import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -49,20 +48,11 @@ public class CallSequence extends AbstractCallSequence {
     }
 
     public List generateAliases() {        
-        List calls = getCalls();
-        List aliases = new ArrayList(calls.size());
-        ForkQueueValue q = new ForkQueueValue(calls.size());
         String domain = m_user.getOrganization().getDnsDomain();
         String identity = m_user.getDisplayId() + "@" + domain;
-        for (Iterator i = calls.iterator(); i.hasNext();) {
-            Ring r = (Ring) i.next();
-            String contact = r.calculateContact(domain, q);
-            AliasMapping alias = new AliasMapping(identity, contact);
-            aliases.add(alias);
-        }
-        return aliases;
+        return generateAliases(identity, domain);
     }
-    
+
     public List generateAuthExceptions() {
         List calls = getCalls();
         List authExceptions = new ArrayList();

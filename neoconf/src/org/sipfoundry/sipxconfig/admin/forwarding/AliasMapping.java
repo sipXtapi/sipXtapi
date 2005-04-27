@@ -28,7 +28,7 @@ public class AliasMapping {
      * @param identity
      * @param contact
      */
-    AliasMapping(String identity, String contact) {
+    public AliasMapping(String identity, String contact) {
         this.m_identity = identity;
         this.m_contact = contact;
     }

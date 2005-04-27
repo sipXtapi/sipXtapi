@@ -8,8 +8,11 @@
     <bean name="aliasServiceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="service">
 			<bean class="org.sipfoundry.sipxconfig.admin.forwarding.AliasServiceImpl">
-                <property name="context">
+                <property name="forwardingContext">
                     <ref bean="forwardingContext"/>
+                </property>
+                <property name="callGroupContext">
+                    <ref bean="callGroupContext"></ref>
                 </property>
             </bean>            
         </property>

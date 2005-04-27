@@ -19,12 +19,14 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 
 public class AliasServiceImpl implements AliasService {
     private static final String ITEM = "item";
     private static final String ITEMS = "items";
     private static final String TYPE = "type";
-    private ForwardingContext m_context;
+    private ForwardingContext m_forwardingContext;
+    private CallGroupContext m_callGroupContext;
 
     /**
      * Transforms list of alias mappings into standard alias XML.
@@ -36,7 +38,9 @@ public class AliasServiceImpl implements AliasService {
         Document docAliases = docFactory.createDocument();
         Element items = docAliases.addElement(ITEMS);
         items.addAttribute(TYPE, TYPE_ALIAS);
-        List forwardingAliases = m_context.getForwardingAliases();
+        List forwardingAliases = m_forwardingContext.getForwardingAliases();
+        List callGroupAliases = m_callGroupContext.getCallGroupAliases();
+        forwardingAliases.addAll(callGroupAliases);
         for (Iterator i = forwardingAliases.iterator(); i.hasNext();) {
             AliasMapping alias = (AliasMapping) i.next();
             Element item = items.addElement(ITEM);
@@ -53,7 +57,7 @@ public class AliasServiceImpl implements AliasService {
         Document docAliases = docFactory.createDocument();
         Element items = docAliases.addElement(ITEMS);
         items.addAttribute(TYPE, TYPE_AUTHEXCEPTION);
-        List forwardingAliases = m_context.getForwardingAuthExceptions();
+        List forwardingAliases = m_forwardingContext.getForwardingAuthExceptions();
         for (Iterator i = forwardingAliases.iterator(); i.hasNext();) {
             String exception = (String) i.next();
             Element item = items.addElement(ITEM);
@@ -80,11 +84,11 @@ public class AliasServiceImpl implements AliasService {
         }
     }
 
-    public ForwardingContext getContext() {
-        return m_context;
+    public void setForwardingContext(ForwardingContext context) {
+        m_forwardingContext = context;
     }
 
-    public void setContext(ForwardingContext context) {
-        m_context = context;
+    public void setCallGroupContext(CallGroupContext context) {
+        m_callGroupContext = context;
     }
 }

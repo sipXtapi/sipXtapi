@@ -60,7 +60,7 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
     }
 
     public void activate(IRequestCycle cycle_) {
-        //TODO: implement activation
+        getCallGroupContext().activateCallGroups();
     }
 
     /**
