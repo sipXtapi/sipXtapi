@@ -17,7 +17,8 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
 /**
- * Adapt a collection map to a Tapestry select list model
+ * Adapt a collection map to a Tapestry select list model. Map 
+ * keys are not used, map values must be strings.
  */
 public class MapSelectionModel implements IPropertySelectionModel {
     

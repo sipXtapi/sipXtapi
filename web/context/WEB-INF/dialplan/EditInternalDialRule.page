@@ -34,7 +34,10 @@
     	<set-property name="min" expression="1"/>
 	    <set-property name="max" expression="7"/>
 	</bean>    
-    
+    <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+        <set-property name="collection" expression="dialPlanManager.autoAttendants"/>
+        <set-property name="labelExpression" expression="'name'"/>            
+    </bean>    
     <!--
      - C O M P O N E N T S
      -->
@@ -58,11 +61,11 @@
     
     <component id="autoAttendantLabel" type="FieldLabel">
         <binding name="field" expression="components.autoAttendant"/>
-    </component>
-    <component id="autoAttendant" type="ValidField">
-        <binding name="value" expression="rule.autoAttendant"/>
-        <binding name="validator" expression="global.validPhone"/>
         <static-binding name="displayName" value="Auto attendant extension"/>
+    </component>
+    <component id="autoAttendant" type="PropertySelection">
+        <binding name="value" expression="rule.autoAttendant"/>
+        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
     </component>
 
     <component id="voiceMailLabel" type="FieldLabel">

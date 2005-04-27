@@ -44,7 +44,7 @@ public class AutoAttendantTestDb extends TestCase {
         
         // attendant data
         ITable actual = TestHelper.getConnection().createDataSet().getTable("auto_attendant");
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("admin/dialplan/dbdata/saveAttendantExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("admin/dialplan/saveAttendantExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[auto_attendant_id]", aa.getId());        
         expectedRds.addReplacementObject("[null]", null);        

@@ -85,7 +85,11 @@ class FlexibleDialPlan extends HibernateDaoSupport implements BeanFactoryAware,
         DialPlan dialPlan = getDialPlan();
         // unload all rules
         getHibernateTemplate().delete(dialPlan);
-        dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");
+        dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");        
+
+        // InternalRule internal = (InternalRule) dialPlan.getRule(InternalRule.class);
+        // internal.setAutoAttendant(operator);
+        
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 

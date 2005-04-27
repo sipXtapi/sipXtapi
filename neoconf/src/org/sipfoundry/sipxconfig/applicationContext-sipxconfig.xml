@@ -308,9 +308,6 @@
         <property name="enabled">
         	<value>true</value>
         </property>
-        <property name="autoAttendant">
-            <value>100</value>
-        </property>
         <property name="voiceMail">
             <value>101</value>
         </property>
@@ -439,7 +436,7 @@
             </list>
         </property>
     </bean>
-
+		
     <bean id="flexDialPlanImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>

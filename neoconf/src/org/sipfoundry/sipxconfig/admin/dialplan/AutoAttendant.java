@@ -19,6 +19,16 @@ import org.sipfoundry.sipxconfig.common.DialPad;
 
 public class AutoAttendant extends BeanWithId {
 
+    public static final String OPERATOR_ID = "operator";
+    
+    private static final String OPERATOR_IMPLIED_EXT = "0";
+    
+    private static final String OPERATOR_DEFAULT_EXT = "100";
+
+    private static final String SYSTEM_NAME_PREFIX = "xcf";
+    
+    private static final String OPERATOR_DEFAULT_PROMPT = "welcome.wav";
+    
     private String m_name;
 
     private String m_extension;
@@ -28,13 +38,79 @@ public class AutoAttendant extends BeanWithId {
     private String m_prompt;
     
     private Map m_menuItems;
+    
+    private String m_systemId;
+    
+    public AutoAttendant() {        
+    }
+    
+    public static AutoAttendant createOperator() {
+        AutoAttendant operator = new AutoAttendant();
+        operator.setSystemId(OPERATOR_ID);
+        operator.resetToFactoryDefault();
+        
+        return operator;
+    }
+    
+    /**
+     * This is the name passed to the mediaserver cgi to locate the correct auto attendant.
+     * Technically it's invalid until saved to database.
+     */
+    public String getSystemName() {
+        if (getSystemId() != null) {
+            return getSystemId();            
+        }
+        return SYSTEM_NAME_PREFIX + getId().toString();
+    }    
+    
+    /**
+     * Certain auto attendants like the operator are system known. 
+     * 
+     * @return null if attendant is not system known
+     */
+    public String getSystemId() {
+        return m_systemId;
+    }    
+
+    public void setSystemId(String systemId) {
+        m_systemId = systemId;
+    }
+    
+    public boolean isOperator() {
+        return OPERATOR_ID.equals(getSystemId()); 
+    }
+    
+    public String[] getDialingPatterns() {
+        String[] patterns;
+        if (isOperator()) {
+            if (getExtension() != null) {
+                patterns = new String[] { 
+                    OPERATOR_ID, getExtension(), OPERATOR_IMPLIED_EXT 
+                };
+            } else {                
+                patterns = new String[] { 
+                    OPERATOR_ID, OPERATOR_IMPLIED_EXT 
+                };
+            }
+        } else {
+            if (getExtension() != null) {
+                patterns = new String[] { 
+                    getExtension()
+                };
+            } else {                
+                patterns = new String[0];
+            }            
+        }
+        
+        return patterns;        
+    }
 
     public String getDescription() {
         return m_description;
     }
     
     public String getScriptFileName() {
-        return "autoattendant-" + getId() + ".vxml";
+        return "autoattendant-" + getSystemName() + ".vxml";
     }
 
     public void setDescription(String description) {
@@ -84,4 +160,27 @@ public class AutoAttendant extends BeanWithId {
         
         m_menuItems.put(key, menuItem);
     }
+
+    public void resetToFactoryDefault() {
+        if (m_menuItems != null) {
+            m_menuItems.clear();
+        }
+        setDescription(null);
+        if (isOperator()) {
+            setName("Operator");
+            setPrompt(OPERATOR_DEFAULT_PROMPT);
+            setExtension(OPERATOR_DEFAULT_EXT);
+            addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
+            addMenuItem(DialPad.NUM_9, new AttendantMenuItem(AttendantMenuAction.DIAL_BY_NAME));
+            addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
+            addMenuItem(DialPad.POUND, new AttendantMenuItem(AttendantMenuAction.VOICEMAIL_LOGIN));
+        } else {
+            setName(null);
+            setPrompt(null);
+            setExtension(null);
+            addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
+            addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));            
+        }
+    }
+
 }

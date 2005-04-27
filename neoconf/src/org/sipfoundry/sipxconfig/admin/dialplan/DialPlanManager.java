@@ -21,6 +21,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -52,6 +53,16 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
 
     public void storeAutoAttendant(AutoAttendant aa) {
         getHibernateTemplate().saveOrUpdate(aa);
+    }
+
+    public AutoAttendant getOperator() {
+        String operatorQuery = "from AutoAttendant a where a.systemId = :operator";
+        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, "operator",
+                AutoAttendant.OPERATOR_ID);
+
+        AutoAttendant operator = (AutoAttendant) CoreContextImpl.requireOneOrZero(operatorList, operatorQuery);
+        
+        return operator;
     }
 
     public List getAutoAttendants() {

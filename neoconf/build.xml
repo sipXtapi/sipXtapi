@@ -153,7 +153,7 @@
             <transaction src="${sql.dir}/profilegen_initvalues.sql"/>
             <!-- temporary until we upgrade DB version-->
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v9_mods.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v9_mods_2.sql"/>
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v10_add_aa.sql"/>
         </sql>        
     </target>
     

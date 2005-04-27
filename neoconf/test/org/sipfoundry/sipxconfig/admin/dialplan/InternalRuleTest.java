@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  */
 public class InternalRuleTest extends TestCase {
 
-    private static final String RULE_NAME_PARAM = "%26name%3Dkuku";
+    private static final String RULE_NAME_PARAM = "%26name%3Dxcf-1";
 
     private static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
     private static final String URL_PREFIX = "<sip:{digits}@{mediaserver}" + URL_PARAMS;
@@ -40,7 +40,9 @@ public class InternalRuleTest extends TestCase {
         InternalRule ir = new InternalRule();
         ir.setName("kuku");
         ir.setLocalExtensionLen(5);
-        ir.setAutoAttendant("20003");
+        AutoAttendant aa = new AutoAttendant();
+        aa.setExtension("100");
+        ir.setAutoAttendant(aa);
         ir.setVoiceMail("20004");
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
@@ -55,7 +57,7 @@ public class InternalRuleTest extends TestCase {
         MappingRule vt = (MappingRule) rules.get(2);
         MappingRule vf = (MappingRule) rules.get(3);
 
-        assertEquals("20003", o.getPatterns()[1]);
+        assertEquals("100", o.getPatterns()[0]);
         assertEquals(0, o.getPermissions().size());
         UrlTransform to = (UrlTransform) o.getTransforms()[0];
         assertEquals(OPERATOR_URL, to.getUrl());
@@ -80,7 +82,9 @@ public class InternalRuleTest extends TestCase {
         InternalRule ir = new InternalRule();
         ir.setName("kuku");
         ir.setLocalExtensionLen(5);
-        ir.setAutoAttendant("20003");
+        AutoAttendant aa = new AutoAttendant();
+        aa.setExtension("100");
+        ir.setAutoAttendant(aa);
         ir.setEnabled(true);
         ir.setVoiceMail("");
         ir.setVoiceMailPrefix("");
@@ -89,7 +93,7 @@ public class InternalRuleTest extends TestCase {
         assertEquals(1, rules.size());
 
         MappingRule o = (MappingRule) rules.get(0);
-        assertEquals("20003", o.getPatterns()[1]);
+        assertEquals("100", o.getPatterns()[0]);
         assertEquals(0, o.getPermissions().size());
         UrlTransform to = (UrlTransform) o.getTransforms()[0];
         assertEquals(OPERATOR_URL, to.getUrl());

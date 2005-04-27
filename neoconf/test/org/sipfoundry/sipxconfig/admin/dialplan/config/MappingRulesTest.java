@@ -25,6 +25,7 @@ import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
@@ -143,11 +144,13 @@ public class MappingRulesTest extends XMLTestCase {
 
         control.verify();
     }
-
+    
     public void testInternalRules() throws Exception {
         int extension = 3;
         List rules = new ArrayList();
-        rules.add(new MappingRule.Operator("", "100"));
+        AutoAttendant aa = AutoAttendant.createOperator();
+        aa.setExtension("100");
+        rules.add(new MappingRule.Operator("", aa));
         rules.add(new MappingRule.Voicemail("101"));
         rules.add(new MappingRule.VoicemailTransfer("2", extension));
         rules.add(new MappingRule.VoicemailFallback(extension));

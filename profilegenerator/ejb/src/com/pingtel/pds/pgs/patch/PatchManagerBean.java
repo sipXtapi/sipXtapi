@@ -134,7 +134,6 @@ public class PatchManagerBean extends JDBCAwareEJB implements SessionBean, Patch
             tx.begin();
 
             HashMap argsMap = new HashMap();
-
             if (args != null) {
                 StringTokenizer argsTok = new StringTokenizer(args, ",");
                 while (argsTok.hasMoreTokens()) {
@@ -148,9 +147,9 @@ public class PatchManagerBean extends JDBCAwareEJB implements SessionBean, Patch
 
             Patch newPatch = (Patch) Class.forName(className).newInstance();
             newPatch.initialize(argsMap);
-            String status = newPatch.update();
+            String status = newPatch.update(patchNumber);
             tx.commit();
-
+                        
             setPatchStatus(status, patchNumber);
             return status;
         } catch (NotSupportedException e) {

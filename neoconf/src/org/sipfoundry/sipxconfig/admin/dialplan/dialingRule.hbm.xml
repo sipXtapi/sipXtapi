@@ -57,7 +57,8 @@
         </joined-subclass>
         <joined-subclass name="InternalRule" table="internal_dialing_rule">
             <key column="internal_dialing_rule_id"/>
-            <property name="autoAttendant"/>
+    		<many-to-one name="autoAttendant" column="auto_attendant_id"
+			    class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"/>
             <property name="localExtensionLen"/>
             <property name="voiceMail"/>
             <property name="voiceMailPrefix"/>

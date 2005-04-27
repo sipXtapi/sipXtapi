@@ -21,7 +21,7 @@ public interface Patch {
     public static final String FAILURE = "F";
     public static final String SUCCESS = "S";
 
-    public abstract String update();
-
+    public abstract String update(Integer patchNumber);
+    
     public void initialize(Map props);
 }

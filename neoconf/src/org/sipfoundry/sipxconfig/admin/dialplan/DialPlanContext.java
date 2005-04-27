@@ -62,6 +62,8 @@ public interface DialPlanContext extends DataObjectSource  {
     
     public abstract void storeAutoAttendant(AutoAttendant attendant);
     
+    public abstract AutoAttendant getOperator();
+    
     public abstract AutoAttendant getAutoAttendant(Integer id);
     
     public abstract List getAutoAttendants();

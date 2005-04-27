@@ -25,7 +25,7 @@ public class InternalRule extends DialingRule {
 
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
-    private String m_autoAttendant = "100";
+    private AutoAttendant m_autoAttendant;
     private String m_voiceMail = "101";
 
     public String[] getPatterns() {
@@ -40,11 +40,11 @@ public class InternalRule extends DialingRule {
         return DialingRuleType.INTERNAL;
     }
 
-    public String getAutoAttendant() {
+    public AutoAttendant getAutoAttendant() {
         return m_autoAttendant;
     }
 
-    public void setAutoAttendant(String autoAttendant) {
+    public void setAutoAttendant(AutoAttendant autoAttendant) {
         m_autoAttendant = autoAttendant;
     }
 
@@ -77,7 +77,7 @@ public class InternalRule extends DialingRule {
             return;
         }
         boolean generateVoiceMailRules = StringUtils.isNotBlank(m_voiceMail);
-        if (StringUtils.isNotBlank(m_autoAttendant)) {
+        if (m_autoAttendant != null) {
             MappingRule operator = new MappingRule.Operator(getName(), m_autoAttendant);
             rules.add(operator);
         }

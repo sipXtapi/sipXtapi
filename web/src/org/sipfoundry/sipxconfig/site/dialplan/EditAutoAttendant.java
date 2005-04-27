@@ -75,6 +75,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         String[] attendantNames = new String[attendants.size()];
         for (int i = 0; i < attendantNames.length; i++) {
             AutoAttendant aa = (AutoAttendant) attendants.get(i);
+            // FIXME label should be name, but value should be system id...
             attendantNames[i] = aa.getName();
         }
         return new StringPropertySelectionModel(attendantNames);
@@ -204,8 +205,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     
     private void initializeAttendant() {
         AutoAttendant aa = new AutoAttendant();
-        aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
-        aa.addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.CANCEL));
+        aa.resetToFactoryDefault();
         setAttendant(aa);
     }
     

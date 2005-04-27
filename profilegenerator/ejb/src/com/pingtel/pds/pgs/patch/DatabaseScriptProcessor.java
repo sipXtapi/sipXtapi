@@ -36,7 +36,7 @@ public class DatabaseScriptProcessor implements Patch {
         m_scriptName = (String) props.get("script");
     }
 
-    public String update() {
+    public String update(Integer patchNumber) {
 
         Connection con = null;
         Statement stmt = null;

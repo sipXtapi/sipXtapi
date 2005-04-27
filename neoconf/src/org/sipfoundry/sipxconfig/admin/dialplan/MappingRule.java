@@ -115,15 +115,14 @@ public class MappingRule extends DialingRule {
 
     // specialized classes
     public static class Operator extends MappingRule {
-        public Operator(String name, String operator) {
+        public Operator(String name, AutoAttendant autoAttendant) {
             setName(name);
-            setPatterns(new String[] {
-                "operator", operator, "0"
-            });
+
+            setPatterns(autoAttendant.getDialingPatterns());
+
             Map params = new HashMap();
-            if (StringUtils.isNotBlank(name)) {
-                params.put("name", name);
-            }
+            params.put("name", autoAttendant.getSystemName());
+
             setUrl(buildUrl(CallDigits.FIXED_DIGITS, AUTOATTENDANT, params));
         }
     }

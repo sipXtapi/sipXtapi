@@ -17,6 +17,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -38,6 +39,26 @@ public class AutoAttendantTest extends XMLTestCase {
         m_vxml.setVelocityEngine(TestHelper.getVelocityEngine());
     }
     
+    public void testGetSystemName() {
+        AutoAttendant aa = new AutoAttendant();
+        assertEquals("xcf-1", aa.getSystemName());
+        
+        AutoAttendant operator = AutoAttendant.createOperator();
+        assertEquals("operator", operator.getSystemName());        
+    }
+    
+    public void testDialPatterns() {
+        AutoAttendant aa = new AutoAttendant();
+        assertEquals("", StringUtils.join(aa.getDialingPatterns(), "|"));
+        aa.setExtension("123");
+        assertEquals("123", StringUtils.join(aa.getDialingPatterns(), "|"));
+
+        AutoAttendant operator = AutoAttendant.createOperator();
+        assertEquals("operator|100|0", StringUtils.join(operator.getDialingPatterns(), "|"));
+        operator.setExtension("123");
+        assertEquals("operator|123|0", StringUtils.join(operator.getDialingPatterns(), "|"));
+    }
+
     public void testActivateDefaultAttendant() throws Exception {        
         AutoAttendant aa = new AutoAttendant();
         aa.setPrompt("prompt.wav");
@@ -49,9 +70,6 @@ public class AutoAttendantTest extends XMLTestCase {
     }
     
     private void assertVxmlEquals(String expectedFile, String actualXml) throws Exception {       
-        System.out.println("=======FULL ACTUAL=======");
-        System.out.println(actualXml);
-
         Reader actualRdr = new StringReader(actualXml);
         StringWriter actual = new StringWriter();
         XmlUnitHelper.style(getReader("autoattendant.xsl"), actualRdr, actual, null);
@@ -60,12 +78,6 @@ public class AutoAttendantTest extends XMLTestCase {
         StringWriter expected = new StringWriter();
         XmlUnitHelper.style(getReader("autoattendant.xsl"), expectedRdr, expected, null);
         
-        System.out.println("=======EXPECTED=======");
-        System.out.println(expected);
-        
-        System.out.println("=======ACTUAL=======");
-        System.out.println(actual);
-
         XMLAssert.assertXMLEqual(expected.toString(), actual.toString());
         System.out.print(actualXml.toString());
     }

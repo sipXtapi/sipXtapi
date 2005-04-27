@@ -32,6 +32,11 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     
     private static final String KEYS = "0123456789*#";
     
+    private static final String[][] FACTORY_DEFAULT = {
+        { KEYS, "Repeat Prompt", "" }, 
+        { KEYS, "Operator", "" } 
+    }; 
+    
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditAutoAttendantTestUi.class);
     }
@@ -48,11 +53,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
 
         // need to rerender page after prompt is copied in
-        String[][] expectedMenuItems = {
-                { KEYS, "Cancel", "" }, 
-                { KEYS, "Operator", "" }, 
-        };
-        assertTableRowsEqual("attendant:menuItems", 1, expectedMenuItems);        
+        assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);        
 
         setFormElement("name", "New Attendant");
         setFormElement("description", "created by EditAutoAttendantTestUi.testNewAttendant");
@@ -111,12 +112,12 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickButton("attendant:addMenuItem");
         selectOption("attendantParameter", "New Attendant");
         clickButton("attendant:apply");
+
+        ExpectedTable expected = new ExpectedTable(FACTORY_DEFAULT);
         String[][] defaultMenuItems = {
-                { KEYS, "Cancel", "" }, 
-                { KEYS, "Operator", "" }, 
                 { KEYS, "Auto Attendant", "select...New Attendant" }, 
         };
-        ExpectedTable expected = new ExpectedTable(defaultMenuItems);
+        expected.appendRows(defaultMenuItems);
         assertTableRowsEqual("attendant:menuItems", 1, expected);
         
         selectOption("addMenuItemAction", "Deposit Voicemail");
@@ -126,13 +127,14 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         
         String[][] vmDepositRow = {
                 // 3rd column - curious why text fields do not show up text in table when
-                // all other form elements do. May be webunit version releated.
+                // all other form elements do. May be related to webunit version.
                 { KEYS, "Deposit Voicemail", "" }, 
         };
         // verify 3rd column data here
         assertFormElementEquals("extensionParameter", "3232");
         
         expected.appendRows(vmDepositRow);
+        assertTableRowsEqual("attendant:menuItems", 1, expected);
     }
 
     public static final String seedPromptFile() throws IOException {
