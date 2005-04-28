@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
@@ -83,6 +84,7 @@ public class VxmlGenerator {
         try {
             VelocityContext context = new VelocityContext();
             context.put("attendant", aa);
+            context.put("vxml", this);            
             getVelocityEngine().mergeTemplate(getTemplate(), context, out);
         } catch (ResourceNotFoundException e) {
             throw new RuntimeException(e);

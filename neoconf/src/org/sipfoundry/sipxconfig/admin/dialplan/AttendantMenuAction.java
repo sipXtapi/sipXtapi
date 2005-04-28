@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
@@ -52,6 +53,14 @@ public final class AttendantMenuAction extends Enum {
     
     public boolean isAttendantParameter() {
         return (this == AUTO_ATTENDANT);
+    }
+    
+    public String vxmlParameter(String parameter) {
+        if (this == OPERATOR) {
+            return "operatoraddr";
+        }
+        
+        return StringUtils.isBlank(parameter) ? "none" : parameter;        
     }
     
     /**

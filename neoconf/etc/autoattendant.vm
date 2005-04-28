@@ -42,7 +42,7 @@
 #end	
 #set( $menuItem = ${attendant.MenuItems.get($dialPadKey)} )
 	  <assign name="operation" expr="'${menuItem.Action.Name}'" />
-	  <assign name="extension" expr="$!{menuItem.Parameter}" />
+	  <assign name="extension" expr="'$menuItem.Action.vxmlParameter($menuItem.Parameter)'" />
 	  <goto nextitem="menuaction" />
 #end	  
 	<else />
