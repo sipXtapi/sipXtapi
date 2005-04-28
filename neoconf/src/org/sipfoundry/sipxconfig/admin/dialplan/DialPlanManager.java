@@ -105,10 +105,8 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         // unload all rules
         getHibernateTemplate().delete(dialPlan);
         dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");        
-
-        // InternalRule internal = (InternalRule) dialPlan.getRule(InternalRule.class);
-        // internal.setAutoAttendant(operator);
-        
+        AutoAttendant operator = getOperator();
+        dialPlan.setOperator(operator);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 

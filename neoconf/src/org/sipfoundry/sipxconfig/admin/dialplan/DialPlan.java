@@ -72,4 +72,18 @@ public class DialPlan extends BeanWithId {
         }
         return generationRules;
     }
+    
+   
+    /**
+     * Run thru dialing rules and set rellevant dial plans that take
+     */
+    public void setOperator(AutoAttendant operator) {
+        for (Iterator i = m_rules.iterator(); i.hasNext();) {
+            DialingRule rule = (DialingRule) i.next();
+            if (rule.getClass().isAssignableFrom(InternalRule.class)) {
+                InternalRule internal = (InternalRule) rule;
+                internal.setAutoAttendant(operator);
+            }
+        }        
+    }
 }
