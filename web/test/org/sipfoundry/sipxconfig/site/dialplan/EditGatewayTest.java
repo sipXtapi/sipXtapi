@@ -19,7 +19,6 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 
 /**
@@ -62,13 +61,6 @@ public class EditGatewayTest extends TestCase {
         DialingRule rule = new CustomDialingRule();
         rule.setName("my rule name");
 
-        MockControl controlPlan = MockControl.createStrictControl(FlexibleDialPlanContext.class);
-        FlexibleDialPlanContext flexDialPlan = (FlexibleDialPlanContext) controlPlan.getMock();
-        flexDialPlan.getRule(rule.getId());
-        controlPlan.setReturnValue(rule);
-        flexDialPlan.storeRule(rule);
-        controlPlan.replay();
-
         Gateway g = new Gateway();
         g.setUniqueId();
 
@@ -76,7 +68,9 @@ public class EditGatewayTest extends TestCase {
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
         DialPlanContext context = (DialPlanContext) contextControl.getMock();
         context.storeGateway(g);
-        contextControl.expectAndReturn(context.getFlexDialPlan(), flexDialPlan);
+        context.getRule(rule.getId());
+        contextControl.setReturnValue(rule);
+        context.storeRule(rule);
         contextControl.replay();
 
         m_editGatewayPage.setDialPlanManager(context);
@@ -93,7 +87,6 @@ public class EditGatewayTest extends TestCase {
 
         cycleControl.verify();
         contextControl.verify();
-        controlPlan.verify();
 
         assertEquals(1, rule.getGateways().size());
         assertTrue(rule.getGateways().contains(g));

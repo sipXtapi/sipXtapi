@@ -17,7 +17,6 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -66,8 +65,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
             return;
         }
         DialPlanContext manager = getDialPlanManager();
-        FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
-        flexDialPlan.moveRules(rows, step);
+        manager.moveRules(rows, step);
     }
 
     public void activate(IRequestCycle cycle) {
@@ -78,8 +76,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public void revert(IRequestCycle cycle_) {
         DialPlanContext manager = getDialPlanManager();
-        FlexibleDialPlanContext flexDialPlan = manager.getFlexDialPlan();
-        flexDialPlan.resetToFactoryDefault();
+        manager.resetToFactoryDefault();
     }
 
     /**
@@ -88,8 +85,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     private void delete() {
         Collection selectedRows = getSelectedRows();
         if (null != selectedRows) {
-            FlexibleDialPlanContext manager = getDialPlanManager().getFlexDialPlan();
-            manager.deleteRules(selectedRows);
+            getDialPlanManager().deleteRules(selectedRows);
         }
     }
 
@@ -99,8 +95,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     private void duplicate() {
         Collection selectedRows = getRowsToDuplicate();
         if (null != selectedRows) {
-            FlexibleDialPlanContext manager = getDialPlanManager().getFlexDialPlan();
-            manager.duplicateRules(selectedRows);
+            getDialPlanManager().duplicateRules(selectedRows);
         }
     }
 }

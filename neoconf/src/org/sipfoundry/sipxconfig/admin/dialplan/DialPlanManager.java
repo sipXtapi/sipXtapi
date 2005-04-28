@@ -23,23 +23,104 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.Organization;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
-class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
+class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware, 
+        DialPlanContext  {
+    
     private String m_configDirectory;
 
     private EmergencyRouting m_emergencyRouting = new EmergencyRouting(); 
-
-    private FlexibleDialPlanContext m_flexDialPlan = new FlexibleDialPlan();
 
     private transient ConfigGenerator m_generator;
 
     private DialingRuleFactory m_ruleFactory;
     
     private CoreContext m_coreContext;
+
+    private BeanFactory m_beanFactory;
+
+    /**
+     * Loads dial plan, creates a new one if none exist
+     * 
+     * @return the single instance of dial plan
+     */
+    private DialPlan getDialPlan() {
+        List list = getHibernateTemplate().loadAll(DialPlan.class);
+        if (!list.isEmpty()) {
+            return (DialPlan) list.get(0);
+        }
+        DialPlan plan = new DialPlan();
+        getHibernateTemplate().save(plan);
+        return plan;
+    }
+
+    public void storeRule(DialingRule rule) {
+        if (rule.isNew()) {
+            DialPlan dialPlan = getDialPlan();
+            dialPlan.addRule(rule);
+            getHibernateTemplate().saveOrUpdate(dialPlan);
+        } else {
+            getHibernateTemplate().saveOrUpdate(rule);
+        }
+    }
+
+    public List getRules() {
+        return getDialPlan().getRules();
+    }
+
+    public DialingRule getRule(Integer id) {
+        return (DialingRule) getHibernateTemplate().load(DialingRule.class, id);
+    }
+
+    public void deleteRules(Collection selectedRows) {
+        DialPlan dialPlan = getDialPlan();
+        dialPlan.removeRules(selectedRows);
+        getHibernateTemplate().saveOrUpdate(dialPlan);
+    }
+
+    public void duplicateRules(Collection selectedRows) {
+        DialPlan dialPlan = getDialPlan();
+        dialPlan.duplicateRules(selectedRows);
+        getHibernateTemplate().saveOrUpdate(dialPlan);
+    }
+
+    public List getGenerationRules() {
+        DialPlan dialPlan = getDialPlan();
+        return dialPlan.getGenerationRules();
+    }
+
+    /**
+     * Resets the flexible dial plan to factory defaults.
+     * 
+     * Loads default rules definition from bean factory file.
+     */
+    public void resetToFactoryDefault() {
+        DialPlan dialPlan = getDialPlan();
+        // unload all rules
+        getHibernateTemplate().delete(dialPlan);
+        dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");        
+
+        // InternalRule internal = (InternalRule) dialPlan.getRule(InternalRule.class);
+        // internal.setAutoAttendant(operator);
+        
+        getHibernateTemplate().saveOrUpdate(dialPlan);
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
+    }
+
+    public void moveRules(Collection selectedRows, int step) {
+        DialPlan dialPlan = getDialPlan();
+        dialPlan.moveRules(selectedRows, step);
+        getHibernateTemplate().saveOrUpdate(dialPlan);
+    }
 
     public List getGateways() {
         List gateways = getHibernateTemplate().loadAll(Gateway.class);
@@ -93,7 +174,7 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
      * TODO: need to find a better way of cleaning database between tests
      */
     public void clear() {
-        m_flexDialPlan.resetToFactoryDefault();       
+        resetToFactoryDefault();       
         List gateways = getHibernateTemplate().loadAll(Gateway.class);        
         getHibernateTemplate().deleteAll(gateways);
         List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
@@ -108,12 +189,11 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
 
     public void deleteGateways(Collection selectedRows) {
         // remove gateways from rules first
-        FlexibleDialPlanContext flexDialPlan = getFlexDialPlan();
-        List rules = flexDialPlan.getRules();
+        List rules = getRules();
         for (Iterator i = rules.iterator(); i.hasNext();) {
             DialingRule rule = (DialingRule) i.next();
             rule.removeGateways(selectedRows);
-            flexDialPlan.storeRule(rule);
+            storeRule(rule);
         }
         // remove gateways from the database
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
@@ -129,7 +209,7 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
      * @return collection of available gateways
      */
     public Collection getAvailableGateways(Integer ruleId) {
-        DialingRule rule = m_flexDialPlan.getRule(ruleId);
+        DialingRule rule = getRule(ruleId);
         if (null == rule) {
             return Collections.EMPTY_LIST;
         }
@@ -137,18 +217,10 @@ class DialPlanManager extends HibernateDaoSupport implements DialPlanContext {
         return rule.getAvailableGateways(allGateways);
     }
 
-    public FlexibleDialPlanContext getFlexDialPlan() {
-        return m_flexDialPlan;
-    }
-
-    public void setFlexDialPlan(FlexibleDialPlanContext flexDialPlan) {
-        m_flexDialPlan = flexDialPlan;
-    }
-
     public ConfigGenerator generateDialPlan() {
         ConfigGenerator generator = new ConfigGenerator();
         generator.generate(m_emergencyRouting);
-        generator.generate(m_flexDialPlan);
+        generator.generate(this);
         m_generator = generator;
         return m_generator;
     }

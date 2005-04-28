@@ -92,15 +92,14 @@ public class DialPlanContextTestDb extends TestCase {
         rule.setInternationalPrefix("011");
         rule.addGateway(g1);
 
-        FlexibleDialPlanContext flexDialPlan = m_context.getFlexDialPlan();        
-        flexDialPlan.storeRule(rule);
+        m_context.storeRule(rule);
 
         // remove gateway
         m_context.deleteGateways(Collections.singletonList(g1.getId()));
 
         Integer ruleId = rule.getId();
 
-        rule = (InternationalRule) flexDialPlan.getRule(ruleId);
+        rule = (InternationalRule) m_context.getRule(ruleId);
         assertTrue(rule.getGateways().isEmpty());
     }
 }

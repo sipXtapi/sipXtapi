@@ -31,12 +31,12 @@ import org.springframework.context.ApplicationContext;
  * FlexibleDialPlanTestDb
  */
 public class FlexibleDialPlanTestDb extends TestCase {
-    private FlexibleDialPlanContext m_plan;
+    private DialPlanContext m_plan;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_plan = (FlexibleDialPlanContext) appContext
-                .getBean(FlexibleDialPlanContext.CONTEXT_BEAN_NAME);
+        m_plan = (DialPlanContext) appContext
+                .getBean(DialPlanContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
     }
 

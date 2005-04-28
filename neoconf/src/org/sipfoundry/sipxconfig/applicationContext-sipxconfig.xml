@@ -437,25 +437,6 @@
         </property>
     </bean>
 		
-    <bean id="flexDialPlanImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlan">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory"/>
-		</property>
-    </bean>
-    
-	<bean id="flexDialPlan" 
-		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="proxyInterfaces">
-			<value>org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext</value>
-		</property>
-		<property name="interceptorNames">
-			<list>
-				<value>hibernateInterceptor</value>
-				<value>flexDialPlanImpl</value>
-			</list>
-		</property>
-    </bean>
-    
 	<!--
       - D I A L P L A N  C O N T E X T
       -->
@@ -466,9 +447,6 @@
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>
 		</property>
-    	<property name="flexDialPlan">
-            <ref bean="flexDialPlan"></ref>
-        </property>
     	<property name="ruleFactory">
             <ref bean="dialRuleFactory"></ref>
         </property>

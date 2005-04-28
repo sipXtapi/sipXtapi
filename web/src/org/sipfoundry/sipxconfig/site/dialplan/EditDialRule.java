@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
-import org.sipfoundry.sipxconfig.admin.dialplan.FlexibleDialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
@@ -72,7 +71,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         Integer id = getRuleId();
         if (null != id) {
             DialPlanContext manager = getDialPlanManager();
-            rule = manager.getFlexDialPlan().getRule(id);
+            rule = manager.getRule(id);
         } else {
             rule = createNewRule();
         }
@@ -127,9 +126,8 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     private void saveValid() {
-        FlexibleDialPlanContext plan = getDialPlanManager().getFlexDialPlan();
         DialingRule rule = getRule();
-        plan.storeRule(rule);
+        getDialPlanManager().storeRule(rule);
         Integer id = getRule().getId();
         setRuleId(id);
     }

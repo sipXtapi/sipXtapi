@@ -44,8 +44,6 @@ public interface DialPlanContext extends DataObjectSource  {
      */
     public abstract Collection getAvailableGateways(Integer ruleId);
 
-    public abstract FlexibleDialPlanContext getFlexDialPlan();
-
     public abstract ConfigGenerator generateDialPlan();
 
     public abstract void activateDialPlan();
@@ -69,4 +67,20 @@ public interface DialPlanContext extends DataObjectSource  {
     public abstract List getAutoAttendants();
     
     public abstract void deleteAutoAttendantsByIds(Collection attendantsIds);
+
+    public void storeRule(DialingRule rule);
+
+    public List getRules();
+
+    public DialingRule getRule(Integer id);
+
+    public void deleteRules(Collection selectedRows);
+
+    public void duplicateRules(Collection selectedRows);
+    
+    public void moveRules(Collection selectedRows, int step);
+
+    public List getGenerationRules();
+    
+    public void resetToFactoryDefault();        
 }

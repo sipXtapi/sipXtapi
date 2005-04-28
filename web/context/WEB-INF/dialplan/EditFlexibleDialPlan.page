@@ -41,7 +41,7 @@
     </component>
     
     <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="dialPlanManager.flexDialPlan.rules"/>
+        <binding name="source" expression="dialPlanManager.rules"/>
         <static-binding name="pageSize" value="-1"/>
         <static-binding name="columns" value="!Name:name,!Enabled:enabled,!Type:type.name,!Description:description"/>
     </component>
