@@ -96,6 +96,11 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         }
     }
     
+    public void reset(IRequestCycle cycle_) {
+        nonSaveFormSubmit();
+        getAttendant().resetToFactoryDefault();
+    }
+
     public void apply(IRequestCycle cycle_) {
         save();
     }

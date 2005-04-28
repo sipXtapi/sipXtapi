@@ -28,9 +28,6 @@ public final class AttendantMenuAction extends Enum {
 
     public static final AttendantMenuAction VOICEMAIL_LOGIN = new AttendantMenuAction("voicemail_access");
 
-    /** TODO: Not defined, talk to Dong */
-    public static final AttendantMenuAction CANCEL = new AttendantMenuAction("cancel");
-
     public static final AttendantMenuAction DISCONNECT = new AttendantMenuAction("disconnect");
 
     public static final AttendantMenuAction AUTO_ATTENDANT = new AttendantMenuAction("transfer_to_another_aa_menu");

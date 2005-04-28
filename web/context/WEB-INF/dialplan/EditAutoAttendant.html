@@ -5,53 +5,42 @@
 	<body jwcid="$content$">
 		<div jwcid="@Border">
 			<h2>Auto Attendant</h2>
-<div class="help">
-<dl>
-  <dt>Extension:</dt>
-  <dd>You can assign a
-direct extention so user can immmediately dial into the menu.</dd>
-  <dt>Upload new prompt:</dt>
-  <dd>Uploaded sound
-files
-must as 8khz / 16 bit PCM samples,
-signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)
-  </dd>
-</dl>
-<strong>Action
-Descriptions</strong>
-<dl>
-  <dt>Dial by name prompt</dt>
-  <dd>User will be prompted to
-dial a person's name using the key pad.
-  </dd>
-  <dt>Listen for extension</dt>
-  <dd>Attendant will continue to
-listen for additional key presses until it matches an extension in the
-internal dialing rules. For example, use must key "1" to listen for 1XX
-extensions.
-  </dd>
-  <dt>Voicemail login</dt>
-  <dd>User will be directed to
-voicemail system and prompted to log in.
-  </dd>
-  <dt>Goto Extension</dt>
-  <dd>Route call directly to
-another
-extension.<br />
-  </dd>
-  <dt>Auto Attendant</dt>
-  <dd>Go to another auto
-attendant menu.</dd>
-  <dt>Operator</dt>
-  <dd>Route call to extention 0</dd>
-  <dt>Cancel</dt>
-  <dd>Return to previous auto attendant</dd>
-  <dt>Disconnect</dt>
-  <dd>Play good-bye message and
-end call.</dd>
-</dl>
-</div>
-   		    <span jwcid="@ErrorMsg"/>
+			<div class="help">
+				<dl>
+					<dt>Extension</dt>
+					<dd>You can assign a direct extention so user can 
+						immmediately dial into the menu.</dd>
+					<dt>Upload new prompt:</dt>
+					<dd>Uploaded sound files must as 8khz / 16 bit PCM samples, 
+						signed, little-endian, 1 channel (mono), .wav header 
+						(implied 128kbps) </dd>
+				</dl>
+				<dl>
+					<dt>Actions</dt>
+					<dd>If you the attendant user to be able to dail someone's 
+						extention at any time, do not assign a action to the 
+						first digit of the digits in your extension pool. For 
+						example, if your internal extentions all start with 1, 
+						leave 1 blank. </dd>
+					<dt>Dial by name prompt</dt>
+					<dd>User will be prompted to dial a person's name using the 
+						key pad. </dd>
+					<dt>Voicemail login</dt>
+					<dd>User will be directed to voicemail system and prompted 
+						to log in. </dd>
+					<dt>Goto Extension</dt>
+					<dd>Route call directly to another extension.<br /> </dd>
+					<dt>Auto Attendant</dt>
+					<dd>Go to another auto attendant menu.</dd>
+					<dt>Operator</dt>
+					<dd>Route call to extention 0</dd>
+					<dt>Cancel</dt>
+					<dd>Return to previous auto attendant</dd>
+					<dt>Disconnect</dt>
+					<dd>Play good-bye message and end call.</dd>
+				</dl>
+			</div>
+			<span jwcid="@ErrorMsg"/>
 			<form name="attendant:form" jwcid="form">
 				<table>
 					<tbody>
@@ -81,8 +70,8 @@ end call.</dd>
 									jwcid="descriptionLabel">Description</span>:</label>
 							</td>
 							<td>
-								<textarea jwcid="description" rows="5" cols="40"
-									id="attendant:description"/>
+								<textarea jwcid="description" rows="5" 
+									cols="40" id="attendant:description"/>
 							</td>
 						</tr>
 						<tr>
@@ -127,32 +116,43 @@ end call.</dd>
 							<select jwcid="menuItemAction"/>
 						</span>
 						<span jwcid="ParameterColumnValue">
-                            <span jwcid="ifExtensionParameter">
-    							<input jwcid="extensionParameter" type="text" />
-                            </span>
-                            <span jwcid="ifAttendantParameter">
-    							<select jwcid="attendantParameter"/>
-                            </span>
+							<span jwcid="ifExtensionParameter">
+								<input jwcid="extensionParameter" type="text" />
+							</span>
+							<span jwcid="ifAttendantParameter">
+								<select jwcid="attendantParameter"/>
+							</span>
 						</span>
 						<td jwcid="menuItemValues"/>
 					</tr>
-                    <tr jwcid="addMenuItemRow">
-                        <td/>
-                        <td><span jwcid="addMenuItemKey"/></td>
-                        <td><span jwcid="addMenuItemAction"/></td>
-                        <td>
-                            <input type="submit" id="attendant:addMenuItem" jwcid="addMenuItem" value="Add"/>
-                        </td>
-                    </tr>
+					<tr jwcid="addMenuItemRow">
+						<td/>
+						<td>
+							<span jwcid="addMenuItemKey"/>
+						</td>
+						<td>
+							<span jwcid="addMenuItemAction"/>
+						</td>
+						<td>
+							<input type="submit" id="attendant:addMenuItem" 
+								jwcid="addMenuItem" value="Add"/>
+						</td>
+					</tr>
 				</table>
-  <ul class="component-submit">
-    <li> <input jwcid="removeMenuItems" value="Remove" type="submit" id="attendant:removeMenuItems"/>
-    </li>
-  </ul>
 				<ul class="component-submit">
 					<li>
-						<input jwcid="cancel" type="submit" id="attendant:cancel" 
-                            value="Cancel"/>
+						<input jwcid="removeMenuItems" value="Remove" 
+							type="submit" id="attendant:removeMenuItems"/>
+					</li>
+				</ul>
+				<ul class="component-submit">
+					<li>
+						<input jwcid="cancel" type="submit" 
+							id="attendant:cancel" value="Cancel"/>
+					</li>
+					<li>
+						<input jwcid="reset" type="submit" id="attendant:reset" 
+							value="Reset"/>
 					</li>
 					<li>
 						<input jwcid="apply" type="submit" id="attendant:apply" 

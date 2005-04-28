@@ -88,6 +88,15 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertTablePresent("list:attendant");
     }
 
+    public void testReset() throws Exception {
+        seedPromptFile();
+        clickLink("NewAutoAttendant");
+        selectOption("addMenuItemAction", "Voicemail Login");
+        clickButton("attendant:addMenuItem");
+        clickButton("attendant:reset");
+        assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);        
+    }
+
     public void testRemoveMenuItems() throws Exception {
         seedPromptFile();
         clickLink("NewAutoAttendant");

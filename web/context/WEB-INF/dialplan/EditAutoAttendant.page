@@ -109,6 +109,9 @@
     <component id="apply" type="Submit">
         <binding name="listener" expression="listeners.apply"/>
     </component>
+    <component id="reset" type="Submit">
+        <binding name="listener" expression="listeners.reset"/>
+    </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
     </component>
