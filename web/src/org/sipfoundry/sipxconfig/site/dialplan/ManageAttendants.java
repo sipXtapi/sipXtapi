@@ -15,6 +15,9 @@ import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidationConstraint;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantInUseException;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -34,7 +37,12 @@ public abstract class ManageAttendants extends BasePage {
         Collection selectedRows = getSelections().getAllSelected();
         if (selectedRows != null) {
             DialPlanContext manager = getDialPlanManager();
-            manager.deleteAutoAttendantsByIds(selectedRows);
+            try {
+                manager.deleteAutoAttendantsByIds(selectedRows);
+            } catch (AttendantInUseException e) {
+                IValidationDelegate validator = TapestryUtils.getValidator(this);
+                validator.record(e.getMessage(), ValidationConstraint.CONSISTENCY);
+            }
         }
     }
     

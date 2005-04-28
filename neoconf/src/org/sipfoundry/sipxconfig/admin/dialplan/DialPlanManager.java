@@ -159,8 +159,39 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         for (Iterator i = attendantIds.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             AutoAttendant aa = getAutoAttendant(id);
-            getHibernateTemplate().delete(aa);
+            deleteAutoAttendant(aa);
         }        
+    }
+    
+    public void deleteAutoAttendant(AutoAttendant attendant) {
+        if (attendant.isOperator()) {
+            throw new AttendantInUseException("You cannot delete the operator attendant");
+        }
+        Collection rules = getRulesUsedByAttendant(attendant);
+        if (rules.size() > 0) {
+            StringBuffer msg = new StringBuffer("The attendant is in use by the following "
+                    + "dialing rule(s) and therefore cannot be deleted: ");
+            Iterator irules = rules.iterator();
+            // FIXME for JDK15
+            for (int i = 0; irules.hasNext(); i++) {
+                DialingRule rule = (DialingRule) irules.next();
+                if (i != 0) {
+                    msg.append(", ");
+                }
+                msg.append(rule.getName());
+            }
+            
+            throw new AttendantInUseException(msg.toString());
+        }
+
+        getHibernateTemplate().delete(attendant);
+    }
+    
+    public List getRulesUsedByAttendant(AutoAttendant attendant) {
+        String query = "from InternalRule r where r.autoAttendant = :attendant";
+        List attendants = getHibernateTemplate().findByNamedParam(query, "attendant", attendant);
+        
+        return attendants;
     }
     
     public void storeGateway(Gateway gateway) {

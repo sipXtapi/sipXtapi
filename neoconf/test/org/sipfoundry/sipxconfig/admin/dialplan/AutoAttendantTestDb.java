@@ -23,11 +23,11 @@ import org.springframework.context.ApplicationContext;
 
 public class AutoAttendantTestDb extends TestCase {
     
-    private DialPlanContext m_plan;
+    private DialPlanContext m_context;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_plan = (DialPlanContext) appContext
+        m_context = (DialPlanContext) appContext
                 .getBean(DialPlanContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("dbdata/ClearDb.xml");
     }
@@ -40,7 +40,7 @@ public class AutoAttendantTestDb extends TestCase {
         aa.setPrompt("thankyou_goodbye.wav");
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.GOTO_EXTENSION, "1234"));
         aa.addMenuItem(DialPad.NUM_5, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
-        m_plan.storeAutoAttendant(aa);
+        m_context.storeAutoAttendant(aa);
         
         // attendant data
         ITable actual = TestHelper.getConnection().createDataSet().getTable("auto_attendant");
@@ -55,5 +55,36 @@ public class AutoAttendantTestDb extends TestCase {
         ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_menu_item");
         ITable expectedItems = expectedRds.getTable("attendant_menu_item");                
         Assertion.assertEquals(actualItems, expectedItems);        
+    }    
+
+    public void testDelete() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
+        AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
+        m_context.deleteAutoAttendant(aa);
+        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_menu_item");
+        assertEquals(0, actualItems.getRowCount());
     }
+
+    public void testDeleteInUse() throws Exception {        
+        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
+        AutoAttendant aa = m_context.getAutoAttendant(new Integer(2000));
+        try {
+            m_context.deleteAutoAttendant(aa);
+            fail();
+        } catch (AttendantInUseException e) {
+            assertTrue(true);
+            assertTrue(e.getMessage().endsWith("Internal"));
+        }
+    }
+
+    public void testDeleteOperatorInUse() throws Exception {        
+        TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
+        AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
+        try {
+            m_context.deleteAutoAttendant(aa);
+            fail();
+        } catch (AttendantInUseException e) {
+            assertTrue(true);
+        }
+    }    
 }

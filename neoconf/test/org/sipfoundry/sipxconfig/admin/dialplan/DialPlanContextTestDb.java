@@ -144,7 +144,7 @@ public class DialPlanContextTestDb extends TestCase {
         assertEquals(7, table.getRowCount());
         // FIXME: test agains the real data - need to remove ids...
         // IDataSet reference = new FilteredDataSet(filter, TestHelper
-        // .loadDataSet("admin/dialplan/dbdata/defaultFlexibleDialPlan.xml"));
+        // .loadDataSet("admin/dialplan/defaultFlexibleDialPlan.xml"));
         // Assertion.assertEquals(set, reference);
     }
 
@@ -179,5 +179,5 @@ public class DialPlanContextTestDb extends TestCase {
         IDataSet set = TestHelper.getConnection().createDataSet();
         ITable table = set.getTable("dialing_rule");
         assertEquals(ruleIds.size() * 2, table.getRowCount());
-    }
+    }    
 }
