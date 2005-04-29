@@ -7,6 +7,10 @@
   -->
 
 <web-app>
+    <!-- Explicitly set session timeout to 2 hours -->
+    <session-config>
+        <session-timeout>120</session-timeout>
+    </session-config>
 
     <!-- J S P  T A G S -->
 
@@ -133,8 +137,7 @@
             <form-login-page>/login/login.html</form-login-page>
             <form-error-page>/login/error.html</form-error-page>
         </form-login-config>
-    </login-config>
-
+    </login-config>    
 
     <!-- S E C U R I T Y  R O L E S -->
     <security-role>

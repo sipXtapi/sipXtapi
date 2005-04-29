@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -23,8 +24,12 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
  */
 public class CustomDialingRuleTest extends TestCase {
     private static final int PATTERN_COUNT = 10;
-    private static final String[] GATEWAYS = { "10.2.3.4", "10.4.5.6" };
+    private static final String[] GATEWAYS = {
+        "10.2.3.4", "10.4.5.6"
+    };
     private CustomDialingRule m_rule;
+    private CallPattern m_callPattern;
+    private List m_patternsList;
 
     protected void setUp() throws Exception {
         DialPattern[] dialPatterns = new DialPattern[PATTERN_COUNT];
@@ -34,8 +39,13 @@ public class CustomDialingRuleTest extends TestCase {
             p.setDigits(i + 2);
             dialPatterns[i] = p;
         }
+        m_patternsList = Arrays.asList(dialPatterns);
+        m_callPattern = new CallPattern();
+        m_callPattern.setDigits(CallDigits.VARIABLE_DIGITS);
+        m_callPattern.setPrefix("999");
+
         m_rule = new CustomDialingRule();
-        m_rule.setDialPatterns(Arrays.asList(dialPatterns));
+        m_rule.setDialPatterns(m_patternsList);
 
         for (int i = 0; i < GATEWAYS.length; i++) {
             Gateway gateway = new Gateway();
@@ -45,10 +55,7 @@ public class CustomDialingRuleTest extends TestCase {
         }
 
         m_rule.setEnabled(true);
-        CallPattern pattern = new CallPattern();
-        pattern.setDigits(CallDigits.VARIABLE_DIGITS);
-        pattern.setPrefix("999");
-        m_rule.setCallPattern(pattern);
+        m_rule.setCallPattern(m_callPattern);
     }
 
     public void testGetPatterns() {
@@ -70,5 +77,25 @@ public class CustomDialingRuleTest extends TestCase {
             assertEquals(GATEWAYS[i], full.getHost());
             assertTrue(full.getUser().startsWith("999"));
         }
+    }
+
+    public void testNoGateways() {
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setDialPatterns(m_patternsList);
+        rule.setEnabled(true);
+        rule.setCallPattern(m_callPattern);
+
+        String[] patterns = rule.getPatterns();
+        assertEquals(PATTERN_COUNT, patterns.length);
+        for (int i = 0; i < patterns.length; i++) {
+            String p = patterns[i];
+            assertTrue(p.startsWith("91"));
+        }
+
+        Transform[] transforms = rule.getTransforms();
+        assertEquals(1, transforms.length);
+        FullTransform tr = (FullTransform) transforms[0];
+        assertEquals("999{vdigits}", tr.getUser());
+        assertNull(tr.getHost());
     }
 }

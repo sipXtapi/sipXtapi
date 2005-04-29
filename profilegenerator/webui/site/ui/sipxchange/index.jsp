@@ -4,8 +4,6 @@
 <%
     // get userid from session
     String userid = (String) session.getAttribute( "userid" );
-    // deactivate session timeout
-    session.setMaxInactiveInterval( -1 );
 
     // get userdevices from session and set to the following:
     // pingtel only = pingtel

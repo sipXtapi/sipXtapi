@@ -16,8 +16,6 @@
 
 <%
     // set user information in the session
-    session.setMaxInactiveInterval(1200);
-
     session.setAttribute("xsltBaseDir",
             PathLocatorUtil.getInstance().getPath(
                     PathLocatorUtil.XSLT_FOLDER, PathLocatorUtil.PGS ));

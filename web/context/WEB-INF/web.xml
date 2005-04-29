@@ -32,6 +32,10 @@
         <servlet-name>sipXconfig-web</servlet-name>
         <url-pattern>/app</url-pattern>
     </servlet-mapping>
+    <!-- Explicitly set session timeout to 2 hours -->
+    <session-config>
+        <session-timeout>120</session-timeout>
+    </session-config>
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Protected</web-resource-name>

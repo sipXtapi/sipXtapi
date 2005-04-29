@@ -24,16 +24,16 @@ public class CustomDialingRule extends DialingRule {
     private List m_dialPatterns = new ArrayList();
     private CallPattern m_callPattern = new CallPattern();
     private List m_permissions = new ArrayList();
-    
+
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
     }
 
-    protected Object clone() throws CloneNotSupportedException {        
+    protected Object clone() throws CloneNotSupportedException {
         CustomDialingRule clone = (CustomDialingRule) super.clone();
         clone.m_permissions = new ArrayList(m_permissions);
         clone.m_dialPatterns = new ArrayList(m_dialPatterns);
-        return clone;        
+        return clone;
     }
 
     public List getDialPatterns() {
@@ -64,18 +64,27 @@ public class CustomDialingRule extends DialingRule {
     public Transform[] getTransforms() {
         final String calculatePattern = getCallPattern().calculatePattern();
         List gateways = getGateways();
-        Transform[] transforms = new Transform[gateways.size()];
-        ForkQueueValue q = new ForkQueueValue(gateways.size());
-        for (int i = 0; i < transforms.length; i++) {
-            Gateway g = (Gateway) gateways.get(i);
+        Transform[] transforms;
+        if (gateways.isEmpty()) {
             FullTransform transform = new FullTransform();
-            transform.setHost(g.getAddress());
             transform.setUser(calculatePattern);
-            String[] fieldParams = new String[] {
-                q.getSerial()
+            transforms = new Transform[] {
+                transform
             };
-            transform.setFieldParams(fieldParams);
-            transforms[i] = transform;
+        } else {
+            transforms = new Transform[gateways.size()];
+            ForkQueueValue q = new ForkQueueValue(gateways.size());
+            for (int i = 0; i < transforms.length; i++) {
+                Gateway g = (Gateway) gateways.get(i);
+                FullTransform transform = new FullTransform();
+                transform.setHost(g.getAddress());
+                transform.setUser(calculatePattern);
+                String[] fieldParams = new String[] {
+                    q.getSerial()
+                };
+                transform.setFieldParams(fieldParams);
+                transforms[i] = transform;
+            }
         }
         return transforms;
     }
