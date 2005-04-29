@@ -41,9 +41,7 @@
 
     <!-- Checks whether files end with a new line.                        -->
     <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
-    <module name="NewlineAtEndOfFile">
-        <property  name="severity" value="ignore"/>
-    </module>
+    <module name="NewlineAtEndOfFile"/>
 
     <!-- Checks that property files contain the same keys.         -->
     <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
@@ -197,9 +195,8 @@
         <!-- See http://checkstyle.sf.net/config_misc.html -->
         <module name="ArrayTypeStyle"/>
         <module name="UpperEll"/>
-
- 	
-		<!-- Indentation checks -->
+	
+	<!-- Indentation checks -->
         <!-- See http://checkstyle.sourceforge.net/config_misc.html#Indentation -->
 		<module name="Indentation">
 		    <property name="caseIndent" value="0"/>
