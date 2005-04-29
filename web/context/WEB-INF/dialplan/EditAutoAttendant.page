@@ -58,6 +58,9 @@
         <set-property name="labelExpression" expression="'name'"/>
         <set-property name="valueExpression" expression="'systemName'"/>
     </bean>
+    <bean name="menuItems" class="org.sipfoundry.sipxconfig.components.MutableKeyMapAdapter" lifecycle="render">
+        <set-property name="map" expression="attendant.menuItems"/>
+    </bean>
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <!--
       - C O M P O N E N T S
@@ -119,7 +122,7 @@
         <binding name="listener" expression="listeners.removeMenuItems"/>
     </component>
 	<component id="menuItemTableView" type="contrib:TableView">
-        <binding name="source" expression="attendant.menuItems.keys"/>
+        <binding name="source" expression="beans.menuItems.entries"/>
 		<binding name="columns">'* !Dialpad, ' + 
 			'!Action:, !Parameter:'</binding>
         <static-binding name="pageSize" value="-1"/>
@@ -127,44 +130,44 @@
 	<component id="menuItemColumns" type="contrib:TableColumns">
 	</component>
 	<component id="menuItemRows" type="contrib:TableFormRows">
-        <binding name="row" expression="currentDialPad"/>
+        <binding name="row" expression="beans.menuItems.currentEntry"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
 	<component id="menuItemValues" type="contrib:TableValues"/>
     <!-- Column 1: select phone -->
     <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentDialPad.name]"/>
+        <binding name="selected" expression="selections.selected[beans.menuItems.key.name]"/>
     </component>
     <!-- Column 2: key dropdown -->
     <component id="DialpadColumnValue" type="Block"/>
     <component id="menuItemKey" type="PropertySelection">
         <binding name="model" expression="beans.dialPadSelectionModel"/>
-        <binding name="value" expression="currentDialPad"/>
+        <binding name="value" expression="beans.menuItems.key"/>
     </component>
     <!-- Column 3: action dropdown -->
     <component id="ActionColumnValue" type="Block"/>
     <component id="menuItemAction" type="Insert">
-        <binding name="value" expression="messages.getMessage('menuItemAction.' + currentMenuItem.action.name, currentMenuItem.action.name)"/>
+        <binding name="value" expression="messages.getMessage('menuItemAction.' + beans.menuItems.value.action.name, beans.menuItems.value.action.name)"/>
     </component>
     <!-- Column 4: optional action parameter -->
     <component id="ParameterColumnValue" type="Block"/>
     <component id="ifExtensionParameter" type="Conditional">
-        <binding name="condition" expression="currentMenuItem.action.extensionParameter"/>
+        <binding name="condition" expression="beans.menuItems.value.action.extensionParameter"/>
     </component>
     <component id="extensionParameter" type="TextField">
-        <binding name="value" expression="currentMenuItem.parameter"/>
+        <binding name="value" expression="beans.menuItems.value.parameter"/>
     </component>
     <component id="ifAttendantParameter" type="Conditional">
-        <binding name="condition" expression="currentMenuItem.action.attendantParameter"/>
+        <binding name="condition" expression="beans.menuItems.value.action.attendantParameter"/>
     </component>
     <component id="attendantParameter" type="PropertySelection">
         <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-        <binding name="value" expression="currentMenuItem.parameter"/>
+        <binding name="value" expression="beans.menuItems.value.parameter"/>
     </component>
     <!-- Last Row : Add Menu Item -->
     <component id="addMenuItemRow" type="Any">
 		<binding name="class" expression="beans.rowClass.next"/>
-    </component>    
+    </component>
     <component id="addMenuItemKey" type="PropertySelection">
         <binding name="model" expression="beans.dialPadSelectionModel"/>
         <binding name="value" expression="addMenuItemDialPad"/>

@@ -16,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.CopyUtils;
@@ -68,24 +67,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
 
     public abstract void setAddMenuItemAction(AttendantMenuAction action);
 
-    public abstract DialPad getCurrentDialPad();
-    
-    public IPropertySelectionModel getAttendantSelectionModel() {
-        List attendants = getDialPlanContext().getAutoAttendants();
-        String[] attendantNames = new String[attendants.size()];
-        for (int i = 0; i < attendantNames.length; i++) {
-            AutoAttendant aa = (AutoAttendant) attendants.get(i);
-            // FIXME label should be name, but value should be system id...
-            attendantNames[i] = aa.getName();
-        }
-        return new StringPropertySelectionModel(attendantNames);
-    }
-
-    public AttendantMenuItem getCurrentMenuItem() {
-        AttendantMenuItem menuItem = (AttendantMenuItem) getAttendant().getMenuItems().get(getCurrentDialPad());
-        return menuItem;
-    }
-    
     public void removeMenuItems(IRequestCycle cycle_) {
         nonSaveFormSubmit();
         Iterator selected = getSelections().getAllSelected().iterator();
