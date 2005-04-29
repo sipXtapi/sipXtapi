@@ -61,6 +61,7 @@
 
 		<!-- TEST -->
 		<pathelement location="${easymock.jar}" />
+		<pathelement location="${easymockclassextension.jar}" />
 		<pathelement location="${dbunit.jar}" />
 		<pathelement location="${p6spy.jar}" />
         <pathelement location="${xmlunit.jar}"/>

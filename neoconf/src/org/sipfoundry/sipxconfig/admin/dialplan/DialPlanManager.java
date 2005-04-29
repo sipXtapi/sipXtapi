@@ -50,7 +50,7 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
      * 
      * @return the single instance of dial plan
      */
-    private DialPlan getDialPlan() {
+    DialPlan getDialPlan() {
         List list = getHibernateTemplate().loadAll(DialPlan.class);
         if (!list.isEmpty()) {
             return (DialPlan) list.get(0);
