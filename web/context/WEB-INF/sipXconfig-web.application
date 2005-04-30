@@ -68,6 +68,7 @@
     <component-type type="DialingRuleCommon" specification-path="dialplan/DialingRuleCommon.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="ErrorMsg" specification-path="common/ErrorMsg.jwc"/>
+    <component-type type="GatewaysPanel" specification-path="dialplan/GatewaysPanel.jwc"/>
     <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>

@@ -80,25 +80,12 @@
         <static-binding name="page" value="EditEmergencyRouting"/>
     </component>
     
-    <!-- gateways configuration -->
-    
-    <component id="gatewayTable" type="GatewayTable">
-        <binding name="gatewayCollection" expression="rule.gateways"/>
-        <binding name="dialPlanId" expression="rule.id"/>
-        <static-binding name="editPageName" value="EditGateway"/>
+    <!-- gateways configuration -->    
+    <component id="gatewaysPanel" type="GatewaysPanel">
+        <binding name="rule" expression="rule"/>
+        <binding name="addGatewayListener" expression="listeners.addGateway"/>
+        <binding name="selectGatewayListener" expression="listeners.selectGateway"/>
     </component>
-    <component id="addGatewayLink" type="LinkSubmit">
-        <binding name="listener" expression="listeners.addGateway"/>
-        <static-binding name="parameters" value="normal"/>
-    </component>
-    <component id="selectGatewayLink" type="LinkSubmit">
-        <binding name="listener" expression="listeners.selectGateway"/>
-        <static-binding name="parameters" value="normal"/>
-    </component>
-    <component id="removeGateways" type="Submit">
-        <binding name="selected" expression="removeGateways"/>
-        <static-binding name="tag" value="normal"/>
-    </component>    
 
     <!--
 	 - A S S E T S

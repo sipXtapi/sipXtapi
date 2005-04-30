@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import java.util.Collection;
-
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -24,7 +22,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
-import org.sipfoundry.sipxconfig.components.GatewayTable;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -48,8 +45,6 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     public abstract void setRuleId(Integer ruleId);
 
     public abstract Integer getRuleId();
-
-    public abstract String getRemoveGateways();
 
     public abstract DialingRule getRule();
 
@@ -132,25 +127,15 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         setRuleId(id);
     }
 
-    /**
-     * Handles removing gateways on submit.
-     * 
-     */
-    private void removeGateways() {
-        String removeGateways = getRemoveGateways();
-        if (null == removeGateways) {
-            return;
-        }
-        GatewayTable table = (GatewayTable) getComponent("gatewayTable");
-        Collection selectedGateways = table.getSelections().getAllSelected();
-        getRule().removeGateways(selectedGateways);
-        saveValid();
-    }
-
     public void formSubmit(IRequestCycle cycle_) {
         if (!isValid()) {
             return;
         }
-        removeGateways();
+        // NOTE: do not use getComponent("gatewayPanel") here - it throws exception if component
+        // is not present
+        GatewaysPanel panel = (GatewaysPanel) getComponents().get("gatewaysPanel");
+        if (null != panel && panel.onFormSubmit()) {
+            saveValid();
+        }
     }
 }

@@ -3,7 +3,7 @@
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<component-specification class="org.sipfoundry.sipxconfig.components.GatewayTable" allow-body="no" allow-informal-parameters="yes">
+<component-specification class="org.sipfoundry.sipxconfig.components.GatewayTable" allow-body="no" allow-informal-parameters="no">
     <!-- P A R A M E T E R S -->
     
 	<parameter name="gatewayCollection" 
