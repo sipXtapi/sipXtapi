@@ -20,7 +20,9 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.AbstractPhone;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.SipService;
+import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
@@ -34,6 +36,10 @@ public class PolycomPhone extends AbstractPhone {
     public static final String ADDRESS = "address";
 
     public static final String FIRST = "1";
+
+    public static final String CALL = "call";
+        
+    public static final String REGISTRATION = "reg";
 
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
@@ -55,7 +61,6 @@ public class PolycomPhone extends AbstractPhone {
     
     /** BEAN ACCESS ONLY */
     public PolycomPhone() {
-        setModelFilename(FACTORY_ID + "/phone.xml");
         setLineFactoryId(PolycomLine.FACTORY_ID);
     }
 
@@ -129,7 +134,14 @@ public class PolycomPhone extends AbstractPhone {
 
     public void setOutboundProxyAddress(String outboundProxyAddress) {
         m_outboundProxyAddress = outboundProxyAddress;
-    }    
+    }
+    
+    public Setting getSettingModel() {
+        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/' + FACTORY_ID + "/phone.xml");
+        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        
+        return model;
+    }
 
     private void initialize() {
         File tftpRootFile = new File(getTftpRoot());
@@ -146,20 +158,16 @@ public class PolycomPhone extends AbstractPhone {
             initialize();
 
             ApplicationConfiguration app = new ApplicationConfiguration(this);
-            app.setTemplate(getApplicationTemplate());
-            generateProfile(app, app.getAppFilename());
+            generateProfile(app, getApplicationTemplate(), app.getAppFilename());
 
             CoreConfiguration core = new CoreConfiguration(this);
-            core.setTemplate(getCoreTemplate());
-            generateProfile(core, app.getCoreFilename());
+            generateProfile(core, getCoreTemplate(), app.getCoreFilename());
 
             PhoneConfiguration phone = new PhoneConfiguration(this);
-            phone.setTemplate(getPhoneTemplate());
-            generateProfile(phone, app.getPhoneFilename());
+            generateProfile(phone, getPhoneTemplate(), app.getPhoneFilename());
 
-            ConfigurationFile sip = new ConfigurationFile(this);
-            sip.setTemplate(getSipTemplate());
-            generateProfile(sip, app.getSipFilename());
+            VelocityProfileGenerator sip = new VelocityProfileGenerator(this);
+            generateProfile(sip, getSipTemplate(), app.getSipFilename());
 
             app.deleteStaleDirectories();
         } catch (IOException ioe) {
@@ -204,7 +212,7 @@ public class PolycomPhone extends AbstractPhone {
     /**
      * HACK: should be private, avoiding checkstyle error
      */
-    void generateProfile(ConfigurationFile cfg, String outputFile) throws IOException {
+    void generateProfile(VelocityProfileGenerator cfg, String template, String outputFile) throws IOException {
         FileWriter out = null;
         String tftpRoot = getTftpRoot() + '/';
         try {
@@ -217,7 +225,8 @@ public class PolycomPhone extends AbstractPhone {
                 }
             }
             out = new FileWriter(f);
-            cfg.generateProfile(out);
+            cfg.setVelocityEngine(getVelocityEngine());
+            cfg.generateProfile(template, out);
         } finally {
             if (out != null) {
                 out.close();

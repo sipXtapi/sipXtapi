@@ -11,9 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.phone.kphone;
 
+import java.io.File;
+
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.AbstractLine;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 public class KPhoneLine extends AbstractLine {
     
@@ -21,8 +24,11 @@ public class KPhoneLine extends AbstractLine {
         
     private static final String REGISTRATION = "Registration";
     
-    public KPhoneLine() {
-        setModelFilename(KPhone.FACTORY_ID + "/line.xml");
+    public Setting getSettingModel() {
+        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/' + KPhone.FACTORY_ID + "/line.xml");
+        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        
+        return model;
     }
 
     public void setDefaults(Setting setting) {

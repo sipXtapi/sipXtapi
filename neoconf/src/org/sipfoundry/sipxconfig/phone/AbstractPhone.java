@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,7 +22,6 @@ import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Implements some of the more menial methods of Phone interface 
@@ -34,14 +32,22 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     
     private Setting m_settings;
     
-    private String m_modelFilename;
-
     private DataCollection m_lines = new DataCollection();
     
     private PhoneContext m_phoneContext;
     
     private String m_lineFactoryId;
     
+    private String m_modelFile;
+    
+    public String getModelFile() {
+        return m_modelFile;
+    }
+
+    public void setModelFile(String modelFile) {
+        m_modelFile = modelFile;
+    }
+
     public void setPhoneData(PhoneData meta) {
         m_meta = meta;
     }
@@ -75,11 +81,7 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     
     protected abstract void setDefaults(Setting settings);
     
-    public Setting getSettingModel() {
-        File modelDefsFile = new File(m_phoneContext.getSystemDirectory() + '/' 
-                + m_modelFilename);
-        return new XmlModelBuilder().buildModel(modelDefsFile).copy();        
-    }
+    public abstract Setting getSettingModel();
     
     protected void decorateSettings(Setting settings) {
         m_settings = settings;
@@ -103,14 +105,6 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     
     public Collection getDeletedLines() {
         return m_lines.getDeleted();
-    }
-
-    public void setModelFilename(String modelFilename) {
-        m_modelFilename = modelFilename;
-    }
-
-    public String getModelFilename() {
-        return m_modelFilename;
     }
 
     public PhoneContext getPhoneContext() {

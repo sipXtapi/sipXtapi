@@ -243,6 +243,21 @@
 				<entry key="polycom600">
 					<value>Polycom SoundPoint IP 600</value>
 				</entry>
+				<entry key="cisco7960">
+					<value>Cisco IP 7960</value>
+				</entry>
+				<entry key="cisco7940">
+					<value>Cisco IP 7940</value>
+				</entry>
+				<entry key="cisco7912">
+					<value>Cisco IP 7912</value>
+				</entry>
+				<entry key="cisco7905">
+					<value>Cisco IP 7905</value>
+				</entry>
+				<entry key="ata18x">
+					<value>Cisco ATA 186/188</value>
+				</entry>
 			</map>
 		</property>
 	</bean>
@@ -269,7 +284,7 @@
 		<property name="webDirectory">
 			<!-- 
   			  - this is directory for a preferred place for serving 
-			  - phone configuration profiles
+			  - phone configuration profiles for http access
 			  -    http://host:8090/phone/profile/docroot/, 
 			  -->
 			<value>${sysdir.phone}/profile/docroot</value>
@@ -291,6 +306,27 @@
 	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
 	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
 	<bean id="polycomLine" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomLine" singleton="false"/>
+        <!-- Cisco 7940, 7960 -->
+	<bean id="cisco7960" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.phone}/profile/tftproot</value>
+		</property>
+        </bean>
+	<bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" parent="cisco7960" singleton="false"/>
+	<bean id="ciscoLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpLine" singleton="false"/>
+	<bean id="cisco7905" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.phone}/profile/tftproot</value>
+		</property>
+        </bean>
+	<bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" parent="cisco7960" singleton="false"/>
+	<bean id="ciscoata18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"/>
 	
 	<!--
 	  - D I A L   P L A N S

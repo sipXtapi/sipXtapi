@@ -9,13 +9,13 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone.polycom;
+package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Writer;
 import java.util.Collection;
 
-import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
@@ -24,12 +24,8 @@ import org.sipfoundry.sipxconfig.setting.SettingGroup;
 /**
  * Baseclass for velocity template generators
  */
-public class ConfigurationFile {
+public class VelocityProfileGenerator {
     
-    public static final String CALL_SETTINGS = "call";
-
-    public static final String REGISTRATION_SETTINGS = "reg";
-
     /**
      * Shows all settings and groups in a flat collection
      */
@@ -49,23 +45,23 @@ public class ConfigurationFile {
         }
     };        
 
-    private PolycomPhone m_phone;
+    private Phone m_phone;
 
-    private String m_template;
+    private VelocityEngine m_velocityEngine;
 
-    public ConfigurationFile(PolycomPhone phone) {
+    public VelocityProfileGenerator(Phone phone) {
         m_phone = phone;
     }
 
-    public String getTemplate() {
-        return m_template;
+    public VelocityEngine getVelocityEngine() {
+        return m_velocityEngine;
     }
 
-    public void setTemplate(String template) {
-        m_template = template;
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
     }
 
-    public PolycomPhone getPhone() {
+    public Phone getPhone() {
         return m_phone;
     }
     
@@ -86,33 +82,21 @@ public class ConfigurationFile {
     public Setting getEndpointSettings() {
         return getPhone().getSettings();
     }
-
+    
     protected void addContext(VelocityContext context) {
         context.put("phone", getPhone());
         context.put("endpoint", getPhone().getPhoneData());
-        context.put("cfg", this);        
+        context.put("cfg", this);                        
     }
 
-    public void generateProfile(Writer out) {
-        Template template;
-        // has to be relative to system directory
-        try {
-            template = getPhone().getVelocityEngine().getTemplate(getTemplate());
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating velocity template " + getTemplate(), e);
-        }
-
-        // PERFORMANCE: depending on how resource intensive the above code is
-        // try to reuse the template objects for subsequent profile
-        // generations
-
+    public void generateProfile(String template, Writer out) {
         VelocityContext velocityContext = new VelocityContext();
         addContext(velocityContext);
 
         try {
-            template.merge(velocityContext, out);
+            getVelocityEngine().mergeTemplate(template, velocityContext, out);
         } catch (Exception e) {
-            throw new RuntimeException("Error using velocity template " + getTemplate(), e);
+            throw new RuntimeException("Error using velocity template " + template, e);
         }
     }
 }

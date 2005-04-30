@@ -20,6 +20,8 @@ import java.io.Reader;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 
@@ -38,11 +40,11 @@ public class SipConfigurationTest  extends XMLTestCase {
         Setting endpointSettings = helper.phone[0].getSettings();
         endpointSettings.getSetting("log").getSetting("sip").getSetting("level.change.sip").setValue("3");
 
-        ConfigurationFile cfg = new ConfigurationFile(helper.phone[0]);
+        VelocityProfileGenerator cfg = new VelocityProfileGenerator(helper.phone[0]);
+        cfg.setVelocityEngine(TestHelper.getVelocityEngine());
         
-        cfg.setTemplate(helper.phone[0].getSipTemplate());
         CharArrayWriter out = new CharArrayWriter();
-        cfg.generateProfile(out);       
+        cfg.generateProfile(helper.phone[0].getSipTemplate(), out);       
         
         InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-sip.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            

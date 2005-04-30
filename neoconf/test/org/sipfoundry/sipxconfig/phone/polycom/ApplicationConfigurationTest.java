@@ -39,10 +39,9 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         helper.phone[0].setTftpRoot(root);
         
         ApplicationConfiguration app = new ApplicationConfiguration(helper.phone[0]);
-        
-        app.setTemplate(helper.phone[0].getApplicationTemplate());
+        app.setVelocityEngine(TestHelper.getVelocityEngine());        
         CharArrayWriter out = new CharArrayWriter();
-        app.generateProfile(out);
+        app.generateProfile(helper.phone[0].getApplicationTemplate(), out);
         
         InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-macaddress.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            

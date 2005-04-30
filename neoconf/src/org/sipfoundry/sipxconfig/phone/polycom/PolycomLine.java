@@ -11,12 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.AbstractLine;
 import org.sipfoundry.sipxconfig.setting.RenderProperties;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingRenderer;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Polycom business functions for line meta setting
@@ -46,9 +49,16 @@ public class PolycomLine extends AbstractLine implements SettingRenderer {
     private Setting m_root;
 
     public PolycomLine() {
-        setModelFilename(PolycomPhone.FACTORY_ID + "/line.xml");
     }
     
+    public Setting getSettingModel() {
+        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/' 
+                + PolycomPhone.FACTORY_ID + "/line.xml");
+        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        
+        return model;
+    }
+
     public void setDefaults(Setting settings) {
 
         // HACK : temporarily set root setting to trick utility methods to

@@ -20,6 +20,7 @@ import java.io.Reader;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 
 public class CoreConfigurationTest extends XMLTestCase {
@@ -33,10 +34,9 @@ public class CoreConfigurationTest extends XMLTestCase {
         helper.plainSettingsSeed();
         
         CoreConfiguration cfg = new CoreConfiguration(helper.phone[0]);
-        
-        cfg.setTemplate(helper.phone[0].getCoreTemplate());
+        cfg.setVelocityEngine(TestHelper.getVelocityEngine());        
         CharArrayWriter out = new CharArrayWriter();
-        cfg.generateProfile(out);       
+        cfg.generateProfile(helper.phone[0].getCoreTemplate(), out);       
         
         InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-ipmid.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            

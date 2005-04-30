@@ -11,15 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.File;
-
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 public abstract class AbstractLine implements Line, PrimaryKeySource {
 
@@ -28,19 +25,19 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
     private Phone m_phone;
 
     private Setting m_settings;
-
-    private String m_modelFilename;
+    
+    private String m_modelFile;
 
     public PhoneContext getPhoneContext() {
         return getPhone().getPhoneContext();
     }
 
-    public void setModelFilename(String modelFilename) {
-        m_modelFilename = modelFilename;
+    public String getModelFile() {
+        return m_modelFile;
     }
 
-    public String getModelFilename() {
-        return m_modelFilename;
+    public void setModelFile(String modelFile) {
+        m_modelFile = modelFile;
     }
 
     public void setLineData(LineData meta) {
@@ -71,12 +68,6 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
     }
 
     protected abstract void setDefaults(Setting settings);
-
-    public Setting getSettingModel() {
-        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/'
-                + m_modelFilename);
-        return new XmlModelBuilder().buildModel(modelDefsFile).copy();
-    }
 
     protected void decorateSettings(Setting settings) {
         m_settings = settings;

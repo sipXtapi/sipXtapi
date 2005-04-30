@@ -20,6 +20,7 @@ import java.io.Reader;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 /**
  * Tests file [MAC_ADDRESS.d]/phone.cfg
@@ -34,10 +35,9 @@ public class PhoneConfigurationTest extends XMLTestCase {
         PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();        
         
         PhoneConfiguration cfg = new PhoneConfiguration(helper.phone[0]);
-        
-        cfg.setTemplate(helper.phone[0].getPhoneTemplate());
+        cfg.setVelocityEngine(TestHelper.getVelocityEngine());
         CharArrayWriter out = new CharArrayWriter();
-        cfg.generateProfile(out);
+        cfg.generateProfile(helper.phone[0].getPhoneTemplate(), out);
         
         InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-phone.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            

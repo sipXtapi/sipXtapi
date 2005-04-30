@@ -16,13 +16,13 @@ import java.io.FileWriter;
 import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.AbstractPhone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 public class KPhone extends AbstractPhone {
     
@@ -35,9 +35,6 @@ public class KPhone extends AbstractPhone {
     private String m_templateFilename = FACTORY_ID + "/kphonerc.vm";
     
     public KPhone() {
-        // Where to load model relative to etc/sipxpbx directory
-        setModelFilename(FACTORY_ID + "/phone.xml");
-        
         // Tells superclass what bean to create for lines
         setLineFactoryId(KPhoneLine.FACTORY_ID);
     }
@@ -46,6 +43,13 @@ public class KPhone extends AbstractPhone {
         return m_webDirectory;
     }
     
+    public Setting getSettingModel() {
+        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/' + FACTORY_ID + "/phone.xml");
+        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        
+        return model;
+    }
+
     /**
      * KPhone doesn't have a download mechanism built in so for basic remote configuration
      * management, user will download profile from website before starting KPhone
@@ -93,9 +97,6 @@ public class KPhone extends AbstractPhone {
     }
     
     void generateProfile(Writer output) throws Exception {
-        Template template = getVelocityEngine().getTemplate(getTemplateFilename());
-        VelocityContext context = new VelocityContext();
-
         Line line;
         if (getLines().size() > 0) {
             line = getLine(0);
@@ -105,10 +106,11 @@ public class KPhone extends AbstractPhone {
         }
         
         // names match names used in kphonerc.vm
+        VelocityContext context = new VelocityContext();
         context.put("lineSettings", line.getSettings());
         context.put("phoneSettings", getSettings());
         
-        template.merge(context, output);
+        getVelocityEngine().mergeTemplate(getTemplateFilename(), context, output);
     }    
     
     public void setDefaults(Setting settings_) {        

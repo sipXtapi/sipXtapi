@@ -21,12 +21,13 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 
 /**
  * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other 
  * config files.  See page 11 of Administration guide for more information
  */
-public class ApplicationConfiguration extends ConfigurationFile {
+public class ApplicationConfiguration extends VelocityProfileGenerator {
     
     private List m_staleDirectories = new ArrayList();
     
@@ -41,14 +42,14 @@ public class ApplicationConfiguration extends ConfigurationFile {
     }
     
     public String getAppFilename() {
-        // todo, put in a sequence generator for TFTP
         return getPhone().getPhoneData().getSerialNumber() + ".cfg";
     }
     
     String getDirectory() {
         if (m_directory == null) {
-            String tftpRoot = getPhone().getTftpRoot();
-            String endpointDir = getPhone().getPhoneData().getSerialNumber();           
+            PolycomPhone polycomPhone = (PolycomPhone) getPhone();
+            String tftpRoot = polycomPhone.getTftpRoot();
+            String endpointDir = polycomPhone.getPhoneData().getSerialNumber();           
             m_staleDirectories.clear();
             m_directory = getNextDirectorySequence(tftpRoot, endpointDir, m_staleDirectories);
         }
@@ -119,7 +120,8 @@ public class ApplicationConfiguration extends ConfigurationFile {
     }
     
     public void deleteStaleDirectories() throws IOException {
-        File tftpRoot = new File(getPhone().getTftpRoot());
+        PolycomPhone polycomPhone = (PolycomPhone) getPhone();
+        File tftpRoot = new File(polycomPhone.getTftpRoot());
         Iterator i = m_staleDirectories.iterator();
         while (i.hasNext()) {
             File stale = new File(tftpRoot, (String) i.next());

@@ -141,4 +141,15 @@ public class SettingTest extends TestCase {
         }
         assertEquals(100, root.getValues().size());
     }
+    
+    public void testMergeChildren() {
+        seedSimpleSettingGroup();
+        SettingGroup anotherFruit = new SettingGroup("fruit");
+        Setting banana = new SettingImpl("banana");
+        anotherFruit.addSetting(banana);
+        m_root.addSetting(anotherFruit);
+        assertSame(anotherFruit, m_root.getSetting("fruit"));
+        assertSame(banana, anotherFruit.getSetting("banana"));
+        assertSame(m_apple, anotherFruit.getSetting("apple"));
+    }
 }

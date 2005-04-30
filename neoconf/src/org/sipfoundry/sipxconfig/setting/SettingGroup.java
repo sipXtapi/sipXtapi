@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
-
-import org.apache.commons.collections.map.LinkedMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 /**
  * Meta information about a group of settings, can contain nested
@@ -21,7 +21,7 @@ import org.apache.commons.collections.map.LinkedMap;
  */
 public class SettingGroup extends SettingImpl implements Cloneable {
     
-    private LinkedMap m_children = new LinkedMap();
+    private LinkedHashMap m_children = new LinkedHashMap();
         
     /** 
      * Root setting group and bean access only
@@ -38,9 +38,10 @@ public class SettingGroup extends SettingImpl implements Cloneable {
      */
     public Setting copy() {
         SettingGroup copy = (SettingGroup) super.copy();
-        copy.m_children = new LinkedMap();
-        for (int i = 0; i < m_children.size(); i++) {
-            Setting child = (Setting) m_children.getValue(i);            
+        copy.m_children = new LinkedHashMap();
+        Iterator i = m_children.values().iterator();
+        while (i.hasNext()) {
+            Setting child = (Setting) i.next();            
             copy.addSetting(child.copy());
         }
 
@@ -57,7 +58,19 @@ public class SettingGroup extends SettingImpl implements Cloneable {
      */
     public Setting addSetting(Setting setting) {
         setting.setParent(this);
+        
+        Setting existingChild = (Setting) m_children.get(setting.getName());            
         m_children.put(setting.getName(), setting);
+        if (existingChild != null) {
+            Collection grandChildren = existingChild.getValues();
+            if (!grandChildren.isEmpty()) {
+                Iterator igrandChildren = grandChildren.iterator();
+                while (igrandChildren.hasNext()) {
+                    Setting grandChild = (Setting) igrandChildren.next();
+                    setting.addSetting(grandChild);
+                }
+            }
+        }
         
         return setting;
     }
