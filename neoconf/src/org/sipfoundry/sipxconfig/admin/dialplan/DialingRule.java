@@ -22,6 +22,7 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 
 /**
  * DialingRule At some point it's be replaced by the IDialingRule interface or made abstract.
@@ -128,6 +129,10 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
         Collection ruleGateways = getGateways();
         gateways.removeAll(ruleGateways);
         return gateways;
+    }
+    
+    public void moveGateways(Collection ids, int step) {
+        DataCollectionUtil.moveByPrimaryKey(m_gateways, ids.toArray(), step, false);
     }
     
     public int getPosition() {

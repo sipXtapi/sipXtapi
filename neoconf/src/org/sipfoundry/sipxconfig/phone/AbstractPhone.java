@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -52,7 +53,7 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
         m_meta = meta;
     }
     
-    public Collection getLines() {
+    public List getLines() {
         return m_lines;
     }
     

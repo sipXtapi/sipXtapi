@@ -3,16 +3,22 @@
     <legend>Gateways</legend>
     <ul class="component-links">
         <li>
-            <a jwcid="addGatewayLink" href="#">Add New Gateway</a>
+            <a jwcid="addGatewayLink"  id="gateway:add" href="#">Add New Gateway</a>
         </li>
         <li>
-            <a jwcid="selectGatewayLink" href="#">Add Existing Gateway</a>
+            <a jwcid="selectGatewayLink"  id="gateway:select" href="#">Add Existing Gateway</a>
         </li>
     </ul>
     <table jwcid="gatewayTable" class="component"/>
     <ul class="component-submit">
+		<li>
+			<input jwcid="moveUp" type="submit" id="gateway:moveUp" name="" value="Move Up"/>
+		</li>
+		<li>
+			<input jwcid="moveDown" type="submit" id="gateway:moveDown" name="" value="Move Down"/>
+		</li>        
         <li>
-            <input jwcid="removeGateways" type="submit" name="" value="Remove"/>
+            <input jwcid="delete" type="submit" id="gateway:remove" name="" value="Remove"/>
         </li>
     </ul>
 </fieldset>

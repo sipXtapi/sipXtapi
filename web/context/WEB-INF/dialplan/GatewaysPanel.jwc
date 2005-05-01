@@ -6,7 +6,7 @@
 
 <component-specification class="org.sipfoundry.sipxconfig.site.dialplan.GatewaysPanel"
     allow-body="no"
-    allow-informal-parameters="yes">
+    allow-informal-parameters="no">
     
     <description>Gateway Table + Add/Remove/Move buttons</description>
 
@@ -26,7 +26,10 @@
     />
             
 	<!-- P R O P E R T I E S -->
-    <property-specification name="gatewaysToRemove" type="java.util.Collection"/>
+	<property-specification name="rowsToDelete" type="java.util.Collection"/>    
+	<property-specification name="rowsToMoveUp" type="java.util.Collection"/>  
+	<property-specification name="rowsToMoveDown" type="java.util.Collection"/>    
+	<property-specification name="action" type="org.apache.tapestry.IActionListener"/>    
     
 	<!-- C O M P O N E N T S -->    
     <component id="gatewayTable" type="GatewayTable">
@@ -35,13 +38,23 @@
         <static-binding name="editPageName" value="EditGateway"/>
     </component>
     <component id="addGatewayLink" type="LinkSubmit">
-        <binding name="listener" expression="addGatewayListener"/>
-    </component>
+        <binding name="selected" expression="action"/>
+        <binding name="tag" expression="addGatewayListener"/>
+    </component>    
     <component id="selectGatewayLink" type="LinkSubmit">
-        <binding name="listener" expression="selectGatewayListener"/>
+        <binding name="selected" expression="action"/>
+        <binding name="tag" expression="selectGatewayListener"/>
+    </component>    
+    <component id="delete" type="Submit">
+        <binding name="selected" expression="rowsToDelete"/>
+        <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
+    </component>    
+    <component id="moveUp" type="Submit">
+        <binding name="selected" expression="rowsToMoveUp"/>
+        <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
     </component>
-    <component id="removeGateways" type="Submit">
-        <binding name="selected" expression="gatewaysToRemove"/>
+    <component id="moveDown" type="Submit">
+        <binding name="selected" expression="rowsToMoveDown"/>
         <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
     </component>
     

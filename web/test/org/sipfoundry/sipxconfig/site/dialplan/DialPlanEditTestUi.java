@@ -87,6 +87,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             setFormElement("name", name + "changed");
             clickButton("rule:save");
             // a link corresponding to new name should be in now
+            SiteTestHelper.assertNoException(getTester());
             assertLinkPresentWithText(name + "changed");
         }
     }

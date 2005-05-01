@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.AbstractComponent;
+import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -80,10 +81,6 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     public void addGateway(IRequestCycle cycle) {
-        if (!isValid()) {
-            return;
-        }
-        saveValid();
         EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
         Integer id = getRuleId();
         editGatewayPage.setRuleId(id);
@@ -93,10 +90,6 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     public void selectGateway(IRequestCycle cycle) {
-        if (!isValid()) {
-            return;
-        }
-        saveValid();
         Integer id = getRuleId();
         SelectGateways selectGatewayPage = (SelectGateways) cycle.getPage(SelectGateways.PAGE);
         selectGatewayPage.setRuleId(id);
@@ -127,15 +120,38 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         setRuleId(id);
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit(IRequestCycle cycle) {
         if (!isValid()) {
             return;
         }
+        gatewaysPanelSubmit(cycle);
+    }
+
+    /**
+     * Process submit request for gatewaysPanel component It would be better if we can make
+     * component to process it submit request but I did not find any way to do that.
+     * 
+     * @param cycle current request cycle
+     */
+    private void gatewaysPanelSubmit(IRequestCycle cycle) {
         // NOTE: do not use getComponent("gatewayPanel") here - it throws exception if component
         // is not present
         GatewaysPanel panel = (GatewaysPanel) getComponents().get("gatewaysPanel");
-        if (null != panel && panel.onFormSubmit()) {
+        if (null == panel) {
+            // no componenet - nothing to do
+            return;
+        }
+        if (panel.onFormSubmit()) {
             saveValid();
+            // do not do anything else
+            return;
+        }
+        // panel can set or select action
+        // rules must be saved before such action is executed
+        IActionListener action = panel.getAction();
+        if (null != action) {
+            saveValid();
+            action.actionTriggered(panel, cycle);
         }
     }
 }

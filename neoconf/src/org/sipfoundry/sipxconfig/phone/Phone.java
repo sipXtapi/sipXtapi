@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -32,7 +33,7 @@ public interface Phone {
     
     public void restart();
         
-    public Collection getLines();
+    public List getLines();
     
     public void addLine(Line line);
     
