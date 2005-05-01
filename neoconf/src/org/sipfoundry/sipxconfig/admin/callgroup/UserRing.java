@@ -22,7 +22,7 @@ public class UserRing extends AbstractRing {
     }
 
     protected Object getUserPart() {
-        return m_callGroup.getLineName();
+        return m_user.getDisplayId();
     }
 
     public User getUser() {

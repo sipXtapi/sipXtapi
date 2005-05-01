@@ -33,8 +33,8 @@ public class CallGroupTest extends TestCase {
         UserRing ring = group.insertRing(u);
         assertSame(u, ring.getUser());
         List calls = group.getCalls();
-        assertEquals(1,calls.size());
-        assertSame(ring,calls.get(0));
+        assertEquals(1, calls.size());
+        assertSame(ring, calls.get(0));
     }
 
     public void testActivate() {
@@ -43,12 +43,12 @@ public class CallGroupTest extends TestCase {
         PhoneContext phoneContext = (PhoneContext) control.getMock();
         phoneContext.generateProfilesAndRestart(Collections.EMPTY_LIST);
         control.replay();
-        
+
         CallGroup cg = new CallGroup();
         cg.setEnabled(true);
-        cg.activate(phoneContext);        
+        cg.activate(phoneContext);
         control.verify();
-        
+
         control.reset();
         // nothing gets called when call group is disabled
         control.replay();
@@ -64,26 +64,31 @@ public class CallGroupTest extends TestCase {
         CallGroup group = new CallGroup();
         group.setName("sales");
         group.setExtension("401");
-        
+
         final int ringsLen = 5;
         for (int i = 0; i < ringsLen; i++) {
             User u = new User();
             u.setDisplayId("testUser" + i);
             group.insertRing(u);
         }
-        
+
         List aliases = group.generateAliases("kuku");
         // disabled group should not generate aliases
         assertTrue(aliases.isEmpty());
-        
+
         group.setEnabled(true);
         aliases = group.generateAliases("kuku");
-        
-        assertEquals(ringsLen + 1, aliases.size());
 
-        // the last alias is an extension => identity        
+        assertEquals(ringsLen + 1, aliases.size());
+        for (int i = 0; i < ringsLen; i++) {
+            AliasMapping am = (AliasMapping) aliases.get(i);
+            assertEquals(am.getIdentity(), group.getName() + "@kuku");
+            assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
+        }
+
+        // the last alias is an extension => identity
         AliasMapping am = (AliasMapping) aliases.get(aliases.size() - 1);
-        assertTrue(am.getIdentity().startsWith(group.getExtension() + "@kuku"));
+        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
         assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
     }
 }
