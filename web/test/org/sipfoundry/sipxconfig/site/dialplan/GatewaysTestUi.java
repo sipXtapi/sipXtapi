@@ -126,13 +126,15 @@ public class GatewaysTestUi extends WebTestCase {
      * 
      * @param name response after clicking submit button
      */
-    static void addGateway(WebTester tester, String name) {
+    static String[] addGateway(WebTester tester, String name) {
+        String[] row = new String[] {name + "Name", name + "Address", name + "Description"};
         if (null != name) {
-            tester.setFormElement("gatewayName", name + "Name");
-            tester.setFormElement("gatewayAddress", name + "Address");
-            tester.setFormElement("gatewayDescription", name + "Description");
+            tester.setFormElement("gatewayName", row[0]);
+            tester.setFormElement("gatewayAddress", row[1]);
+            tester.setFormElement("gatewayDescription", row[2]);
         }
         tester.clickButton("gateway:save");
+        return row;
     }
 
     /**

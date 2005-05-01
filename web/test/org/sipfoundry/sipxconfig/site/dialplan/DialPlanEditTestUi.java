@@ -74,11 +74,16 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
     }
 
-    public void testViewRules() {
+    public void testViewRules() throws Exception {
         for (int i = 0; i < DEFAULTS.length; i++) {
             String name = DEFAULTS[i][0];
             clickLinkWithText(name);
             assertFormElementEquals("name", name);
+
+            // all rules except of "internal" have gateways panel
+            if (!name.startsWith("Internal")) {
+                checkGateways();
+            }
 
             setFormElement("name", "");
             clickButton("rule:save");
@@ -92,7 +97,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
     }
 
-    public void testCustomRuleAdd() {
+    public void testCustomRuleAdd() throws Exception {
         for (int i = 0; i < NAMES.length; i++) {
             String[] row = NAMES[i];
             clickLink("dialplan:add");
@@ -110,6 +115,10 @@ public class DialPlanEditTestUi extends WebTestCase {
             // call pattern prefix
             setFormElement("prefix$0", "444");
 
+            checkAddDeletePattern();
+
+            checkGateways();
+
             clickButton("rule:save");
 
             assertTextInTable("dialplan:list", row[2]);
@@ -117,9 +126,8 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
     }
 
-    
     public void testInternationalRuleAdd() {
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 4; i++) {
             clickLink("dialplan:add");
             String name = "international" + i;
             String description = "international description" + i;
@@ -138,40 +146,92 @@ public class DialPlanEditTestUi extends WebTestCase {
             assertLinkPresentWithText(name);
         }
     }
-    
-    
+
     public void testMove() {
         clickButton("dialplan:revert");
         SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         clickButton("dialplan:move:up");
         // no changes
-        dumpResponse(System.err);
         SiteTestHelper.assertNoException(getTester());
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
-        
+
         // move first row down
         SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         clickButton("dialplan:move:down");
         SiteTestHelper.assertNoException(getTester());
         WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("dialplan:list");
-        assertEquals(DEFAULTS[0][0], rulesTable.getCellAsText(2,1));
-        assertEquals(DEFAULTS[1][0], rulesTable.getCellAsText(1,1));
-        assertEquals(DEFAULTS[2][0], rulesTable.getCellAsText(3,1));
+        assertEquals(DEFAULTS[0][0], rulesTable.getCellAsText(2, 1));
+        assertEquals(DEFAULTS[1][0], rulesTable.getCellAsText(1, 1));
+        assertEquals(DEFAULTS[2][0], rulesTable.getCellAsText(3, 1));
     }
-    
-    // TODO: add this for custom rule test - it relies on Java script at the moment
-    private void checkAddDeletePattern() {
+
+    private void checkAddDeletePattern() throws Exception {
         // no delete link
         assertLinkNotPresent("pattern:delete");
         // add 2 more
-        clickLink("pattern:add");
-        clickLink("pattern:add");
+        SiteTestHelper.clickSubmitLink(tester, "pattern:add");
+        SiteTestHelper.clickSubmitLink(tester, "pattern:add");
 
         // delete 2
 
-        clickLink("pattern:delete");
-        clickLink("pattern:delete");
+        SiteTestHelper.clickSubmitLink(tester, "pattern:delete");
+        SiteTestHelper.clickSubmitLink(tester, "pattern:delete");
         // no delete link again
         assertLinkNotPresent("pattern:delete");
+    }
+
+    private void checkGateways() throws Exception {
+        assertLinkPresent("gateway:add");
+        assertLinkPresent("gateway:select");
+
+        assertButtonPresent("gateway:remove");
+        assertButtonPresent("gateway:moveUp");
+        assertButtonPresent("gateway:moveDown");
+
+        assertTablePresent("list:gateway");
+
+        // add gateways
+
+        final int gatewayCount = 4;
+        String[][] gateways = new String[gatewayCount][];
+
+        for (int i = 0; i < gatewayCount; i++) {
+            SiteTestHelper.clickSubmitLink(tester, "addGatewayLink");
+            tester.dumpResponse();
+            gateways[i] = GatewaysTestUi.addGateway(tester, "g" + i);
+        }
+
+        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        assertTableRowsEqual("list:gateway", 1, gateways);
+
+        // test moving up/down
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        clickButton("gateway:moveUp");
+        // no changes expected - cannot move up
+        SiteTestHelper.assertNoException(getTester());
+        assertTableRowsEqual("list:gateway", 1, gateways);
+
+        // move down one row - no other changes expected
+        clickButton("gateway:moveDown");
+        WebTable gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("list:gateway");
+        assertEquals(gateways[0][0], gatewayTable.getCellAsText(2, 1));
+        assertEquals(gateways[1][0], gatewayTable.getCellAsText(1, 1));
+        assertEquals(gateways[2][0], gatewayTable.getCellAsText(3, 1));
+
+        // test removal
+        for (int i = 0; i < gatewayCount; i++) {
+            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
+        }
+        clickButton("gateway:remove");
+        // only header in the table
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+
+        // test adding existing gateways
+        SiteTestHelper.clickSubmitLink(tester, "selectGatewayLink");
+        for (int i = 0; i < gatewayCount; i++) {
+            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
+        }
+        clickButton("select:gateway:save");
+        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));
     }
 }

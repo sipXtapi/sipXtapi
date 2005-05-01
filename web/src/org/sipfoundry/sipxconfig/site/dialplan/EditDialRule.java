@@ -151,6 +151,8 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         IActionListener action = panel.getAction();
         if (null != action) {
             saveValid();
+            // HACK: clean rule if persistent - action will take us to some other page
+            setRule(null);
             action.actionTriggered(panel, cycle);
         }
     }
