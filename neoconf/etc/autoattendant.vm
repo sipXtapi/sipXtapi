@@ -90,7 +90,7 @@
 	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
 	</prompt>
 	<goto next="root.vxml#operator" />
-      <elseif cond="operation == 'hangup'" />
+      <elseif cond="operation == 'disconnect'" />
 	<prompt bargein="false">
 	  <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
 	</prompt>
