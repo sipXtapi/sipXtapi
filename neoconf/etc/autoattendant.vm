@@ -31,7 +31,7 @@
     <!-- Play the autoattendant main menu -->
     <field name="menu" type="digits?minlength=1;maxlength=10">
       <prompt>
-	<audio expr="securemediaserverurl + promptsalias + '${attendant.Prompt}'" />
+	<audio expr="securemediaserverurl + aa_promptsalias + '${attendant.Prompt}'" />
       </prompt>
       <filled>
 #foreach( $dialPadKey in ${attendant.MenuItems.keySet()} )
@@ -144,11 +144,10 @@
       </filled>
     </subdialog>
 
-    <subdialog name="another_aa_menu" cond="operation == 'transfer_to_another_aa_menu'" srcexpr="securemediaserverurl + aa_alias + aa_menu_name">
+    <subdialog name="another_aa_menu" cond="operation == 'transfer_to_another_aa_menu'" srcexpr="securemediaserverurl + aa_alias + 'autoattendant-' + aa_menu_name + '.vxml'">
       <param name="from" expr="from"/>
       <param name="mediaserverurl" expr="mediaserverurl"/>
       <param name="securemediaserverurl" expr="securemediaserverurl" />
-      <param name="fromdeposit" expr="'no'" />
       <filled>
 	<if cond="another_aa_menu.result=='success'">
 	  <clear namelist="menu" />
