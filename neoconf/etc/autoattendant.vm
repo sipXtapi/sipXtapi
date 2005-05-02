@@ -84,8 +84,7 @@
 	<prompt bargein="false">
 	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
 	</prompt>
-	<assign name="transferextn" expr="extension" />
-	<goto next="#transferform" />
+	<goto nextitem="transfertoextn" />
       <elseif cond="operation == 'operator'" />
 	<prompt bargein="false">
 	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
