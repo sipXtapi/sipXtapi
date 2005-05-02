@@ -44,16 +44,16 @@ public class VxmlGenerator {
         return m_scriptsDirectory;
     }
 
-    public void setScriptsDirectory(String vxmlScriptsDirectory) {
-        m_scriptsDirectory = vxmlScriptsDirectory;
+    public void setScriptsDirectory(String scriptsDirectory) {
+        m_scriptsDirectory = scriptsDirectory;
     }
 
     public String getPromptsDirectory() {
         return m_promptsDirectory;
     }   
 
-    public void setPromptsDirectory(String vxmlPromptsDirectory) {
-        m_promptsDirectory = vxmlPromptsDirectory;
+    public void setPromptsDirectory(String promptsDirectory) {
+        m_promptsDirectory = promptsDirectory;
     }
 
     public VelocityEngine getVelocityEngine() {

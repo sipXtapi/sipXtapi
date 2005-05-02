@@ -60,7 +60,7 @@ public interface DialPlanContext extends DataObjectSource  {
     
     public abstract void storeAutoAttendant(AutoAttendant attendant);
     
-    public abstract void deleteAutoAttendant(AutoAttendant attendant);
+    public abstract void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir);
     
     public abstract AutoAttendant getOperator();
     
@@ -68,7 +68,7 @@ public interface DialPlanContext extends DataObjectSource  {
     
     public abstract List getAutoAttendants();
     
-    public abstract void deleteAutoAttendantsByIds(Collection attendantsIds);
+    public abstract void deleteAutoAttendantsByIds(Collection attendantsIds, String scriptsDir);
 
     public void storeRule(DialingRule rule);
 

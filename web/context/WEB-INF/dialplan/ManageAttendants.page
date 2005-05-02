@@ -11,6 +11,9 @@
 	<property-specification name="dialPlanManager" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>
+    <property-specification name="vxmlGenerator"
+        type="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator"
+        initial-value="global.vxml"/>
    	<property-specification name="selections" 
        type="org.sipfoundry.sipxconfig.components.SelectMap"
        initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,16 +155,16 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         
     }
 
-    public void deleteAutoAttendantsByIds(Collection attendantIds) {
+    public void deleteAutoAttendantsByIds(Collection attendantIds, String scriptsDir) {
         // TODO: Remove attendants from internal dialing rules
         for (Iterator i = attendantIds.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             AutoAttendant aa = getAutoAttendant(id);
-            deleteAutoAttendant(aa);
+            deleteAutoAttendant(aa, scriptsDir);
         }        
     }
     
-    public void deleteAutoAttendant(AutoAttendant attendant) {
+    public void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir) {
         if (attendant.isOperator()) {
             throw new AttendantInUseException("You cannot delete the operator attendant");
         }
@@ -185,6 +186,10 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         }
 
         getHibernateTemplate().delete(attendant);
+        File script = new File(scriptsDir + '/' + attendant.getScriptFileName());
+        if (script.exists()) {
+            script.delete();
+        }
     }
     
     public List getRulesUsedByAttendant(AutoAttendant attendant) {
