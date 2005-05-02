@@ -13,10 +13,12 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 public final class DataCollectionUtil {
 
@@ -107,13 +109,15 @@ public final class DataCollectionUtil {
      */
     public static void moveByPrimaryKey(List c, Object[] primaryKeys, int step,
             boolean updatePositions) {
+        Set toBeMovedSet = new HashSet(primaryKeys.length);
+        CollectionUtils.addAll(toBeMovedSet, primaryKeys);
+
         if (step < 0) {
-            // move down
+            // move up
             int minPosition = 0;
-            for (int i = 0; i < c.size(); i++) {
+            for (int i = 0; i < c.size() && !toBeMovedSet.isEmpty(); i++) {
                 PrimaryKeySource item = (PrimaryKeySource) c.get(i);
-                boolean toBeMoved = ArrayUtils.contains(primaryKeys, item.getPrimaryKey());
-                if (toBeMoved) {
+                if (toBeMovedSet.remove(item.getPrimaryKey())) {
                     int newPosition = Math.max(minPosition, i + step);
                     c.remove(i);
                     c.add(newPosition, item);
@@ -121,12 +125,11 @@ public final class DataCollectionUtil {
                 }
             }
         } else if (step > 0) {
-            // move up
+            // move down
             int maxPosition = c.size() - 1;
-            for (int i = c.size() - 1; i >= 0; i--) {
+            for (int i = c.size() - 1; i >= 0 && !toBeMovedSet.isEmpty(); i--) {
                 PrimaryKeySource item = (PrimaryKeySource) c.get(i);
-                boolean toBeMoved = ArrayUtils.contains(primaryKeys, item.getPrimaryKey());
-                if (toBeMoved) {
+                if (toBeMovedSet.remove(item.getPrimaryKey())) {
                     int newPosition = Math.min(i + step, maxPosition);
                     c.remove(i);
                     c.add(newPosition, item);
