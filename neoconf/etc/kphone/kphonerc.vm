@@ -1,1 +1,16 @@
-[Call register]Dialled0=#foreach ($group in $phoneSettings.Values)[${group.Name}]#foreach ($setting in $group.Values)${setting.ProfileName}=$!{setting.Value}#end#end#foreach ($group in $lineSettings.Values)[${group.Name}]#foreach ($setting in $group.Values)${setting.ProfileName}=$!{setting.Value}#end#end
+[Call register]
+Dialled0=
+
+#foreach ($group in $phoneSettings.Values)
+[${group.Name}]
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+#end
+
+#foreach ($group in $lineSettings.Values)
+[${group.Name}]
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+#end
