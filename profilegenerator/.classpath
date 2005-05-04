@@ -21,7 +21,10 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/sipx/lib/javax.servlet.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/server/sipx/lib/jbosssx.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/jboss/src.zip" kind="var" path="JBOSS_HOME/server/sipx/lib/jbosssx.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-common-client.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/sipx/lib/jboss.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/client/jboss-system-client.jar"/>

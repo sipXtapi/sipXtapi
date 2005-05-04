@@ -13,17 +13,41 @@
 
 package com.pingtel.pds.pgs.jsptags;
 
-import com.pingtel.pds.common.EJBHomeFactory;
-import com.pingtel.pds.common.PropertyGroupLink;
-import com.pingtel.pds.pgs.jsptags.util.StyleTagSupport;
-import com.pingtel.pds.pgs.phone.*;
-import com.pingtel.pds.pgs.profile.*;
-import org.jdom.Element;
+import java.io.IOException;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.ejb.FinderException;
+import javax.naming.NamingException;
 import javax.servlet.jsp.JspException;
-import java.rmi.RemoteException;
-import java.util.*;
+import javax.xml.transform.TransformerException;
+
+import org.jdom.Content;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+
+import com.pingtel.pds.common.EJBHomeFactory;
+import com.pingtel.pds.common.ElementUtilException;
+import com.pingtel.pds.common.PropertyGroupLink;
+import com.pingtel.pds.pgs.jsptags.ejb.TagHandlerHelperBean;
+import com.pingtel.pds.pgs.jsptags.util.StyleTagSupport;
+import com.pingtel.pds.pgs.phone.DeviceGroup;
+import com.pingtel.pds.pgs.phone.DeviceGroupHome;
+import com.pingtel.pds.pgs.phone.DeviceHome;
+import com.pingtel.pds.pgs.phone.DeviceType;
+import com.pingtel.pds.pgs.phone.DeviceTypeHome;
+import com.pingtel.pds.pgs.phone.Manufacturer;
+import com.pingtel.pds.pgs.phone.ManufacturerHome;
+import com.pingtel.pds.pgs.profile.ConfigurationSetHome;
+import com.pingtel.pds.pgs.profile.RefConfigurationSet;
+import com.pingtel.pds.pgs.profile.RefConfigurationSetHome;
+import com.pingtel.pds.pgs.profile.RefProperty;
+import com.pingtel.pds.pgs.profile.RefPropertyHome;
 
 
 /**
@@ -181,15 +205,11 @@ public class DeviceGroupDetailsTag extends StyleTagSupport {
             }
 
             documentRootElement.addContent( attributes );
-
-            Element csElement = new Element ( "configurationset" );
-            documentRootElement.addContent( csElement );
-
             Collection cCS = m_csHome.findByDeviceGroupID( m_deviceGroupID );
-            for ( Iterator iCS = cCS.iterator(); iCS.hasNext(); ) {
-                ConfigurationSet cs = (ConfigurationSet) iCS.next();
-                csElement.addContent( cs.getContent() );
-            }
+            
+
+            Content csElement = TagHandlerHelperBean.createConfigurationSetElement(cCS);
+            documentRootElement.addContent( csElement );
 
             LinkedList allDeviceTypes = new LinkedList ();
             Collection cAllDeviceTypes = m_dtHome.findAll();
@@ -247,8 +267,7 @@ public class DeviceGroupDetailsTag extends StyleTagSupport {
                 Element name = new Element ( "name" );
                 name.addContent( rp.getName());
                 rpElement.addContent( name );
-                Element cont = new Element ( "content" );
-                cont.addContent(  rp.getContent() );
+                Content cont = TagHandlerHelperBean.createElementFromXlob("content", rp.getContent()); 
                 rpElement.addContent( cont );
             }
 
@@ -301,10 +320,18 @@ public class DeviceGroupDetailsTag extends StyleTagSupport {
             // depending on an optional debug tag attribute
             outputTextToBrowser ( documentRootElement, stylesheetParameters );
         }
-        catch(Exception ex ) {
-            //XCF-154, nested exception isn't logged or displayed
-            ex.printStackTrace();
-             throw new JspException( ex );
+        catch(IOException e ) {
+             throw new JspException( e );
+        } catch (TransformerException e) {
+            throw new JspException( e );
+        } catch (FinderException e) {
+            throw new JspException( e );
+        } catch (ElementUtilException e) {
+            throw new JspException( e );
+        } catch (JDOMException e) {
+            throw new JspException( e );
+        } catch (NamingException e) {
+            throw new JspException( e );
         }
 
         return SKIP_BODY;

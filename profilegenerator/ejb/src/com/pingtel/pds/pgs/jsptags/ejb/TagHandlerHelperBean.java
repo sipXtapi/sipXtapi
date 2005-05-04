@@ -12,8 +12,11 @@
 
 package com.pingtel.pds.pgs.jsptags.ejb;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +37,11 @@ import javax.ejb.SessionContext;
 import javax.naming.NamingException;
 
 import org.jdom.CDATA;
+import org.jdom.Content;
+import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 import com.pingtel.pds.common.EJBHomeFactory;
 import com.pingtel.pds.common.ElementUtilException;
@@ -79,18 +86,6 @@ import com.pingtel.pds.pgs.user.UserHome;
 public class TagHandlerHelperBean extends JDBCAwareEJB
     implements SessionBean, TagHandlerHelperBusiness {
 
-//////////////////////////////////////////////////////////////////////////
-// Constants
-////
-
-
-//////////////////////////////////////////////////////////////////////////
-// Attributes
-////
-
-    // standard session bean stuff
-    private SessionContext mCTX;
-
     // Home i/f references
     private DeviceHome mDeviceHome = null;
     private DeviceGroupHome mDeviceGroupHome = null;
@@ -113,15 +108,6 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
     private HashMap mDeviceConfigSetEJBObjectCache = new HashMap();
     private HashMap mManufacturerEJBObjectCache = new HashMap();
 
-//////////////////////////////////////////////////////////////////////////
-// Construction
-////
-
-
-//////////////////////////////////////////////////////////////////////////
-// Public Methods
-////
-
     // SessionBean callbacks
     public void ejbCreate() { }
 
@@ -132,8 +118,6 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
     public void ejbPassivate() { }
 
     public void setSessionContext(SessionContext ctx) {
-        mCTX = ctx;
-
         try {
             mDeviceHome = ( DeviceHome )
                 EJBHomeFactory.getInstance().getHomeInterface(  DeviceHome.class,
@@ -195,7 +179,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
 
 
     public void unsetSessionContext() {
-        mCTX = null;
+        // empty
     }
 
 
@@ -210,7 +194,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
      * @return JDOM Element containing the XML markup
      * @throws PDSException for all checked exceptions.
      */
-    public Element getDeviceDetails ( String m_deviceID ) throws RemoteException, PDSException
+    public Element getDeviceDetails ( String m_deviceID ) throws PDSException
     {
         Element documentRootElement = new Element("details");
 
@@ -257,14 +241,11 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
 
             documentRootElement.addContent( attributes );
 
-            Element csElement = new Element ( "configurationset" );
-            documentRootElement.addContent( csElement );
             ConfigurationSet cs = getDevicesConfigSetEJBObject( device.getID() );
 
-            // configuration sets may be null for Cisco devices, no auto generation of device lines.
-            if (cs != null) {
-                csElement.addContent( cs.getContent() );
-            }
+            Content csElement = createConfigurationSetElement(cs);
+
+            documentRootElement.addContent( csElement );
 
             // find and all all ref properties content to the XML, we use it
             // to build the input fields dynamically
@@ -307,11 +288,13 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch ( FinderException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
         catch ( SQLException e ) {
-            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
+        } catch (JDOMException e) {
+            throw new EJBException ( e );
+        } catch (IOException e) {
             throw new EJBException ( e );
         }
 
@@ -329,7 +312,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
      * @return JDOM root Element for the "details"
      * @throws PDSException for all application level errors
      */
-    public Element getUserDetails ( String userID ) throws RemoteException, PDSException {
+    public Element getUserDetails ( String userID ) throws PDSException {
 
         Element documentRootElement = new Element("details");
 
@@ -383,15 +366,9 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
                 }
             }
 
-
-            Element csElement = new Element ( "configurationset" );
-            documentRootElement.addContent( csElement );
-
             ConfigurationSet cs = getUsersConfigSetEJBObject( userID );
-
-            if ( cs != null ) {
-                csElement.addContent( cs.getContent() );
-            }
+            Content csElement = createConfigurationSetElement(cs);
+            documentRootElement.addContent( csElement );
 
             Element modelsElement = getModelsElement();
             documentRootElement.addContent( modelsElement );
@@ -432,11 +409,13 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch ( FinderException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
         catch ( SQLException e ) {
-            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
+        } catch (JDOMException e) {
+            throw new EJBException ( e );
+        } catch (IOException e) {
             throw new EJBException ( e );
         }
 
@@ -450,7 +429,6 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
      *
      * @param userID PK of the User whose tabs you are building.
      * @return XML content for the tabs to be run through XSLT.
-     * @throws PDSException is thrown for all application errors.
      */
     public Element getUserTabs (String userID) throws RemoteException {
 
@@ -514,9 +492,8 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
      * @param deviceId PK of the Device whose tabs you are
      * building.
      * @return XML content for the tabs to be run through XSLT.
-     * @throws PDSException is thrown for all application errors.
      */
-    public Element getDeviceTabs (String deviceId) throws RemoteException {
+    public Element getDeviceTabs (String deviceId) {
 
         Element documentRootElement = new Element("details");
 
@@ -566,11 +543,13 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch ( FinderException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
         catch ( SQLException e ) {
-            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
+        } catch (JDOMException e) {
+            throw new EJBException ( e );
+        } catch (IOException e) {
             throw new EJBException ( e );
         }
 
@@ -633,11 +612,9 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch ( FinderException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
         catch ( SQLException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
 
@@ -652,7 +629,6 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
      * @param deviceGroupId PK of the DeviceGroup whose tabs you are
      * building.
      * @return XML content for the tabs to be run through XSLT.
-     * @throws PDSException is thrown for all application errors.
      */
     public Element getDeviceGroupTabs (String deviceGroupId) throws RemoteException {
 
@@ -850,8 +826,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
      * device group ID (if present).
      *
      * @param deviceGroupID
-     * @return
-     * @throws PDSException
+     * @return newly created "group" element
      */
     public Element listDevices ( Integer deviceGroupID ) throws RemoteException {
         Element root = new Element ( "groups" );
@@ -866,19 +841,15 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch ( FinderException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
         catch ( SQLException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
         catch ( ElementUtilException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );            
         }
         catch (PostProcessingException e) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );            
         }
         return root;
@@ -950,7 +921,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
      * @return JDOM Element containing XML markup
      * @throws PDSException for application errors
      */
-    public Element getUserGroupDetails ( UserGroup userGroup ) throws PDSException, RemoteException {
+    public Element getUserGroupDetails ( UserGroup userGroup ) throws PDSException {
         Element documentRootElement = new Element("details");
 
         try {
@@ -979,42 +950,11 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
                 attributes.addContent( parentName );
             }
 
-//            ArrayList workingSet = new ArrayList();
-//            Collection inelligable =
-//                getInelligableParentGroups ( userGroup, workingSet );
-//            Element possibleGroups = new Element ( "possible_groups" );
-//            attributes.addContent( possibleGroups );
-//
-//            // Need to add parent org's groups at a later date.
-//            Collection allGroups =
-//                mUserGroupHome.findByOrganizationID( userGroup.getOrganizationID() );
-//
-//            for ( Iterator allGroupsI = allGroups.iterator(); allGroupsI.hasNext(); ) {
-//                UserGroup possGroup = (UserGroup) allGroupsI.next();
-//
-//                if (    !inelligable.contains( possGroup ) &&
-//                        !possGroup.getID().equals( userGroup.getID() ) ) {
-//
-//                    Element possibleGroupElem = new Element ( "group" );
-//                    possibleGroups.addContent( possibleGroupElem );
-//                    possibleGroupElem.addContent(
-//                        new Element ( "id" ).setText( possGroup.getID().toString() ) );
-//                    possibleGroupElem.addContent(
-//                        new Element ( "name" ).setText( possGroup.getName() ) );
-//                }
-//            }
-
             documentRootElement.addContent( attributes );
 
-            Element csElement = new Element ( "configurationset" );
-            documentRootElement.addContent( csElement );
-
             Collection cCS = mConfigSetHome.findByUserGroupID( userGroup.getID() );
-            for ( Iterator iCS = cCS.iterator(); iCS.hasNext(); ) {
-                ConfigurationSet cs = (ConfigurationSet) iCS.next();
-                csElement.addContent( cs.getContent() );
-            }
-
+            Content csElement = createConfigurationSetElement(cCS);
+            documentRootElement.addContent( csElement );
 
             LinkedList allDeviceTypes = new LinkedList ();
             Collection cAllDeviceTypes = mDeviceTypeHome.findAll();
@@ -1093,17 +1033,19 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             }
         }
         catch ( FinderException e ) {
-            logFatal ( e.toString(), e  );
             throw new EJBException ( e );
         }
         catch ( SQLException e ) {
-            logFatal ( e.toString(), e  );
+            throw new EJBException ( e );
+        } catch (JDOMException e) {
+            throw new EJBException ( e );
+        } catch (IOException e) {
             throw new EJBException ( e );
         }
 
         return documentRootElement;
     }
-
+    
 
     /**
      * getUserGroupTree returns XML markup containing all of the User Groups
@@ -1551,7 +1493,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
 
 
 
-    private Element createRefPropertyElements(ArrayList rows) {
+    private Element createRefPropertyElements(ArrayList rows) throws JDOMException, IOException {
 
         Element refPropertiesElement = new Element ( "refproperties" );
 
@@ -1569,8 +1511,7 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
             Element name = new Element ( "name" );
             name.addContent( (String) row.get( 2 ) ) ;
             rpElement.addContent( name );
-            Element cont = new Element ( "content" );
-            cont.addContent( (String) row.get( 3 ) );
+            Content cont = createElementFromXlob( "content", (String) row.get( 3 ) );
             rpElement.addContent( cont );
         }
 
@@ -1961,14 +1902,48 @@ public class TagHandlerHelperBean extends JDBCAwareEJB
         }
     }
 
-
-//////////////////////////////////////////////////////////////////////////
-// Nested / Inner classes
-////
-
-
-//////////////////////////////////////////////////////////////////////////
-// Native Method Declarations
-////
-
+    /**
+     * Converts XLOBs into JDOM elements 
+     * @param xmlContent string representing xml-like snippet kept in the database
+     * @return newly created "content" element
+     * @throws JDOMException
+     * @throws IOException
+     */
+    public static Content createElementFromXlob(String elementName, CharSequence xmlContent) throws JDOMException, IOException {
+        String format = "<{0}>{1}</{0}>";
+        String buffer = MessageFormat.format(format, new Object[] {elementName,xmlContent});
+        SAXBuilder builder = new SAXBuilder();
+        Document document = builder.build(new StringReader(buffer.toString()));
+        return document.getRootElement().detach();
+    }
+    
+    /**
+     * @return newly create configurationset 
+     * @throws JDOMException
+     * @throws IOException
+     * @throws RemoteException
+     */
+    private static Content createConfigurationSetElement(ConfigurationSet cs) throws JDOMException, IOException, RemoteException {
+        if(null == cs) {            
+            return new Element ( "configurationset" );
+        }
+        // configuration sets may be null for Cisco devices, no auto generation of device lines.
+        return createElementFromXlob("configurationset",cs.getContent());
+    }
+    
+    /**
+     * Creates configurationset JDOM element from the collection of configuration sets
+     * @param cCS
+     * @return
+     * @throws IOException 
+     * @throws JDOMException 
+     */
+    public static Content createConfigurationSetElement(Collection cCS) throws IOException, JDOMException {
+        StringBuffer buffer = new StringBuffer();        
+        for ( Iterator i = cCS.iterator(); i.hasNext(); ) {
+            ConfigurationSet cs = (ConfigurationSet) i.next();
+            buffer.append( cs.getContent() );
+        }        
+        return createElementFromXlob("configurationset",buffer);
+    }    
 }

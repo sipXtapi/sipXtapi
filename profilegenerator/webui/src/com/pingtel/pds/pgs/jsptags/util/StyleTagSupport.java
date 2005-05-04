@@ -14,25 +14,22 @@ package com.pingtel.pds.pgs.jsptags.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.Source;
 
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.jdom.transform.JDOMSource;
 
-import com.pingtel.pds.common.TemplatesCache;
 import com.pingtel.pds.common.ElementUtilException;
-
-import java.io.StringReader;
-import java.io.StringWriter;
+import com.pingtel.pds.common.TemplatesCache;
 
 /**
  * <p>Title: </p>
@@ -148,17 +145,6 @@ public abstract class StyleTagSupport extends ExTagSupport {
             resultStream = new ByteArrayOutputStream();
             // Debugging => bypass translation
             if (!m_outputxml) {
-
-                StringWriter sw = new StringWriter();
-                org.jdom.output.XMLOutputter xmlOut
-                    = new org.jdom.output.XMLOutputter();
-
-                xmlOut.output( xmlDocument, sw );
-
-                StringReader sr =
-                    new StringReader( StringUtil.unescapHTML( sw.toString() ) );
-
-                Source source = new javax.xml.transform.stream.StreamSource(sr);
                 Transformer transformer =
                     TemplatesCache.getInstance().
                         newTransformer( getStyleSheetFileName() );
@@ -176,7 +162,8 @@ public abstract class StyleTagSupport extends ExTagSupport {
                     }
                 }
 
-                StreamResult result = new StreamResult ( resultStream );
+                Source source = new JDOMSource(xmlDocument);
+                StreamResult result = new StreamResult ( resultStream );                
                 transformer.transform( source, result );
             } else { // just XML mode here
                 // Produce just XML output
