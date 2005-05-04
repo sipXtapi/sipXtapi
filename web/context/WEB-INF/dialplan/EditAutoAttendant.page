@@ -10,10 +10,6 @@
     <property-specification name="attendant" 
         type="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"
         persistent="yes"/>
-	<property-specification name="promptSelectionModel" 
-		type="org.apache.tapestry.form.IPropertySelectionModel"/>           
-	<property-specification name="promptUploadFile" 
-		type="org.apache.tapestry.request.IUploadFile"/>   
     <property-specification name="vxmlGenerator"
         type="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator"
         initial-value="global.vxml"/>
@@ -31,6 +27,7 @@
         type="org.sipfoundry.sipxconfig.common.DialPad"/>        
     <property-specification name="addMenuItemAction"
         type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction"/>
+    
     <!--
       - B E A N S
       -->
@@ -91,21 +88,12 @@
         <binding name="validator" expression="beans.extensionValidator"/>
         <static-binding name="displayName" value="Extension"/>
     </component>
-    <component id="promptLabel" type="FieldLabel">
-        <binding name="field" expression="components.prompt"/>
-        <static-binding name="displayName" value="Existing prompts"/>
+    <!-- auto attendant propmpts selection -->
+    <component id="attendantPromptSelector" type="AssetSelector">
+        <binding name="asset" expression="attendant.prompt"/>
+        <binding name="assetDir" expression="vxmlGenerator.promptsDirectory"/>
     </component>
-    <component id="prompt" type="PropertySelection">
-        <binding name="model" expression="global.tapestry.instructUserToSelect(promptSelectionModel)"/>
-        <binding name="value" expression="attendant.prompt"/>
-    </component>
-    <component id="promptUploadLabel" type="FieldLabel">
-        <binding name="field" expression="components.prompt"/>
-        <static-binding name="displayName" value="Upload prompt"/>
-    </component>
-    <component id="promptUpload" type="Upload">
-        <binding name="file" expression="promptUploadFile"/>
-    </component>    
+
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.ok"/>
     </component>    

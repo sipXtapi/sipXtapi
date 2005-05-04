@@ -11,23 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.io.CopyUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
@@ -36,6 +26,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -47,20 +38,14 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
 
     public abstract void setAttendant(AutoAttendant attendant);
 
-    public abstract void setPromptSelectionModel(IPropertySelectionModel model);
-
-    public abstract IUploadFile getPromptUploadFile();
-
-    public abstract void setPromptUploadFile(IUploadFile file);
-
     public abstract VxmlGenerator getVxmlGenerator();
-    
+
     public abstract SelectMap getSelections();
-    
+
     public abstract DialPlanContext getDialPlanContext();
-    
+
     public abstract DialPad getAddMenuItemDialPad();
-    
+
     public abstract void setAddMenuItemDialPad(DialPad dialPad);
 
     public abstract AttendantMenuAction getAddMenuItemAction();
@@ -76,7 +61,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             menuItems.remove(DialPad.getByName(name));
         }
     }
-    
+
     public void reset(IRequestCycle cycle_) {
         nonSaveFormSubmit();
         getAttendant().resetToFactoryDefault();
@@ -91,44 +76,37 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             returnManageAttendants(cycle);
         }
     }
-    
+
     private boolean save() {
         boolean saved = false;
         IValidationDelegate validator = TapestryUtils.getValidator(this);
-        validatePrompt(validator);        
-        checkFileUpload();
+        AssetSelector assetSelector = getAssetSelector();
+        assetSelector.validateNotEmpty(validator,
+                "You must select an existing prompt or upload a new one.");
+        assetSelector.checkFileUpload();
         if (!validator.getHasErrors()) {
             getDialPlanContext().storeAutoAttendant(getAttendant());
             getVxmlGenerator().generate(getAttendant());
             saved = true;
-        }          
-        
+        }
+
         return saved;
     }
-    
+
     public void cancel(IRequestCycle cycle) {
         returnManageAttendants(cycle);
     }
-    
+
     private void returnManageAttendants(IRequestCycle cycle) {
         cycle.activate(ManageAttendants.PAGE);
-        setAttendant(null);        
+        setAttendant(null);
     }
-    
-    private void validatePrompt(IValidationDelegate validator) {
-        if (getAttendant().getPrompt() == null) {
-            if (!isUploadFileSpecified(getPromptUploadFile())) {
-                validator.record("You must select an existing prompt or upload a new one.", 
-                        ValidationConstraint.REQUIRED);
-            }
-        }
-    }
-    
+
     public void addMenuItem(IRequestCycle cycle_) {
         nonSaveFormSubmit();
         if (getAddMenuItemAction() == null) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
-            validator.record("You must selection an action for your new attentant menu item", 
+            validator.record("You must selection an action for your new attentant menu item",
                     ValidationConstraint.REQUIRED);
         } else {
             AttendantMenuItem menuItem = new AttendantMenuItem(getAddMenuItemAction());
@@ -137,7 +115,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             setAddMenuItemAction(null);
         }
     }
-    
+
     /**
      * Doesn't leave or or save any data
      */
@@ -146,20 +124,20 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         // cannot preserve state of Upload component and users would lose upload
         // selection everytime a menu item was added. Negative to this method is
         // that hitting cancel after adding 1 or more menu items would leave prompt
-        // on server.  Dedicated prompt management page would avoid this altogether.
-        checkFileUpload();
-        
+        // on server. Dedicated prompt management page would avoid this altogether.
+        getAssetSelector().checkFileUpload();
+
         IValidationDelegate validator = TapestryUtils.getValidator(this);
-        validator.clearErrors();        
+        validator.clearErrors();
     }
-    
+
     /**
      * Try to select the next likely dial pad key
      */
     private void selectNextAvailableDialpadKey() {
         // set last desparate attempt
         setAddMenuItemDialPad(DialPad.POUND);
-        
+
         Map menuItems = getAttendant().getMenuItems();
         for (int i = 0; i < DialPad.KEYS.length; i++) {
             DialPad key = DialPad.KEYS[i];
@@ -172,54 +150,21 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     }
 
     public void pageBeginRender(PageEvent event_) {
-        AutoAttendant aa = getAttendant();        
+        AutoAttendant aa = getAttendant();
         if (aa == null) {
             // add new attendant
             initializeAttendant();
         }
         selectNextAvailableDialpadKey();
-        
-        File promptsDir = new File(getVxmlGenerator().getPromptsDirectory());
-        String[] prompts = promptsDir.list();
-        if (prompts == null) {
-            prompts = new String[0];
-        }
-        
-        IPropertySelectionModel promptsModel = new StringPropertySelectionModel(prompts);
-        setPromptSelectionModel(promptsModel);
     }
-    
+
     private void initializeAttendant() {
         AutoAttendant aa = new AutoAttendant();
         aa.resetToFactoryDefault();
         setAttendant(aa);
     }
-    
-    private static boolean isUploadFileSpecified(IUploadFile file) {
-        boolean isSpecified = file != null && !StringUtils.isBlank(file.getFileName());
-        return isSpecified;
-    }
 
-    private void checkFileUpload() {
-        IUploadFile file = getPromptUploadFile();
-        if (!isUploadFileSpecified(file)) {
-            return;
-        }
-        
-        InputStream upload = file.getStream();
-        FileOutputStream promptWtr = null;
-        try {
-            File promptsDir = new File(getVxmlGenerator().getPromptsDirectory());
-            promptsDir.mkdirs();
-            File promptFile = new File(promptsDir, file.getFileName());
-            promptWtr = new FileOutputStream(promptFile);
-            CopyUtils.copy(upload, promptWtr);
-            getAttendant().setPrompt(promptFile.getName());
-            setPromptUploadFile(null);
-        } catch (IOException ioe) {
-            throw new RuntimeException("Could not upload file " + file.getFileName(), ioe);
-        } finally {
-            IOUtils.closeQuietly(promptWtr);
-        }
+    private AssetSelector getAssetSelector() {
+        return (AssetSelector) getComponent("attendantPromptSelector");
     }
 }

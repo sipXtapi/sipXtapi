@@ -62,6 +62,7 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+    <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
