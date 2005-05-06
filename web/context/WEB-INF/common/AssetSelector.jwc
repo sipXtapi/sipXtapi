@@ -27,6 +27,7 @@
     <component id="prompt" type="PropertySelection">
         <binding name="model" expression="page.global.tapestry.instructUserToSelect(assetSelectionModel)"/>
         <binding name="value" expression="asset"/>
+        <binding name="submitOnChange" expression="true"/>
     </component>
     <component id="promptUploadLabel" type="FieldLabel">
         <binding name="field" expression="components.prompt"/>
@@ -34,6 +35,9 @@
     </component>
     <component id="promptUpload" type="Upload">
         <binding name="file" expression="uploadAsset"/>
+    </component>    
+    <component id="listenLink" type="DownloadLink">
+        <binding name="dirName" expression="assetDir"/>
+        <binding name="fileName" expression="asset"/>
     </component>
-    
 </component-specification>
