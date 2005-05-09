@@ -49,9 +49,13 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public void saveCallSequence(CallSequence callSequence) {
+        saveCallSequence(callSequence, true);
+    }
+
+    private void saveCallSequence(CallSequence callSequence, boolean notify) {
         getHibernateTemplate().update(callSequence);
         // notify profilegenerator if jms has been configured
-        if (null != m_jms) {
+        if (notify && null != m_jms) {
             m_jms.send(new GenerateMessage(GenerateMessage.TYPE_ALIAS));
             m_jms.send(new GenerateMessage(GenerateMessage.TYPE_AUTH_EXCEPTIONS));
         }
@@ -64,6 +68,12 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public CallSequence getCallSequenceForUserId(Integer userId) {
         HibernateTemplate hibernate = getHibernateTemplate();
         return (CallSequence) hibernate.load(CallSequence.class, userId);
+    }
+
+    public void removeCallSequenceForUserId(Integer userId, boolean notify) {
+        CallSequence callSequence = getCallSequenceForUserId(userId);
+        callSequence.clear();
+        saveCallSequence(callSequence, notify);
     }
 
     public Ring getRing(Integer id) {

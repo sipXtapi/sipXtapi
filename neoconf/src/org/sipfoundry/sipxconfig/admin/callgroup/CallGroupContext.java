@@ -16,13 +16,28 @@ import java.util.List;
 
 public interface CallGroupContext {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
-    
+
     void activateCallGroups();
+
     CallGroup loadCallGroup(Integer id);
+
     List getCallGroups();
+
     void storeCallGroup(CallGroup callGroup);
+
     void removeCallGroups(Collection ids);
+
     void duplicateCallGroups(Collection ids);
+
     void clear();
+
     List getCallGroupAliases();
+
+    ParkOrbit loadParkOrbit(Integer id);
+
+    void storeParkOrbit(ParkOrbit parkOrbit);
+
+    void removeParkOrbits(Collection ids);
+
+    Collection getParkOrbits();
 }

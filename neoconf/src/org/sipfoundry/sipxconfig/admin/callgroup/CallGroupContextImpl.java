@@ -42,14 +42,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     public void removeCallGroups(Collection ids) {
-        HibernateTemplate template = getHibernateTemplate();
-        Collection entities = new ArrayList(ids.size());
-        for (Iterator i = ids.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            Object entity = template.load(CallGroup.class, id);
-            entities.add(entity);
-        }
-        template.deleteAll(entities);
+        removeAll(CallGroup.class, ids);
     }
 
     public List getCallGroups() {
@@ -65,8 +58,10 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
      */
     public void clear() {
         HibernateTemplate template = getHibernateTemplate();
-        Collection all = template.loadAll(CallGroup.class);
-        template.deleteAll(all);
+        Collection callGroups = template.loadAll(CallGroup.class);
+        template.deleteAll(callGroups);
+        Collection orbits = template.loadAll(ParkOrbit.class);
+        template.deleteAll(orbits);
     }
 
     public void activateCallGroups() {
@@ -95,6 +90,33 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
             allAliases.addAll(cg.generateAliases(org.getDnsDomain()));
         }
         return allAliases;
+    }
+
+    public void storeParkOrbit(ParkOrbit parkOrbit) {
+        getHibernateTemplate().saveOrUpdate(parkOrbit);
+    }
+
+    public void removeParkOrbits(Collection ids) {
+        removeAll(ParkOrbit.class, ids);
+    }
+
+    void removeAll(Class klass, Collection ids) {
+        HibernateTemplate template = getHibernateTemplate();
+        Collection entities = new ArrayList(ids.size());
+        for (Iterator i = ids.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            Object entity = template.load(klass, id);
+            entities.add(entity);
+        }
+        template.deleteAll(entities);
+    }
+
+    public ParkOrbit loadParkOrbit(Integer id) {
+        return (ParkOrbit) getHibernateTemplate().load(ParkOrbit.class, id);
+    }
+
+    public Collection getParkOrbits() {
+        return getHibernateTemplate().loadAll(ParkOrbit.class);
     }
 
     public void setJms(JmsOperations jms) {

@@ -26,9 +26,15 @@
     
     <bean name="notifyServiceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="service">
-			<bean class="org.sipfoundry.sipxconfig.legacy.LegacyNotifyServiceImpl">
+			<bean class="org.sipfoundry.sipxconfig.legacy.LegacyNotifyServiceImpl" dependency-check="objects">
                 <property name="dialPlanContext">
                     <ref bean="dialPlanContext"/>
+                </property>
+                <property name="forwardingContext">
+                    <ref bean="forwardingContext"/>
+                </property>
+                <property name="phoneContext">
+                    <ref bean="phoneContext"/>
                 </property>
             </bean>            
         </property>

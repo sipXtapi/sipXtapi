@@ -56,6 +56,7 @@
 			<list>
 				<value>org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/callgroup/parkOrbit.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
@@ -401,9 +402,6 @@
         <property name="areaCodes">
             <value>800, 877, 888</value>
         </property>
-        <property name="externalLen">
-        	<value>7</value>
-        </property>        
         <property name="permission">
             <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.TOLL_FREE_DIALING"
 			      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
@@ -420,9 +418,6 @@
         <property name="areaCodes">
             <value>900</value>
         </property>
-        <property name="externalLen">
-        	<value>7</value>
-        </property>        
         <property name="permission">
             <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.RESTRICTED_DIALING"
 			      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>

@@ -105,4 +105,6 @@ public interface PhoneContext extends DataObjectSource {
     public String getDnsDomain();
 
     public String getClearTextPassword(User user);
+
+    public void deleteLinesForUser(Integer userId);
 }

@@ -24,6 +24,8 @@ public interface ForwardingContext {
     public Ring getRing(Integer id);
 
     public CallSequence getCallSequenceForUser(User user);
+    
+    public void removeCallSequenceForUserId(Integer userId, boolean notify);
 
     public CallSequence getCallSequenceForUserId(Integer userId);
 

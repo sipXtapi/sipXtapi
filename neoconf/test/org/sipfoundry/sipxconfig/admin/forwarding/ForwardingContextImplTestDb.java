@@ -98,8 +98,8 @@ public class ForwardingContextImplTestDb extends TestCase {
         assertTrue(callSequence.moveRingDown(ring0));
         assertTrue(callSequence.moveRingDown(ring0));
         assertTrue(callSequence.moveRingUp(ring2));
-        
-        for(int i = 0; i < calls.size(); i++) {
+
+        for (int i = 0; i < calls.size(); i++) {
             Ring ring = (Ring) calls.get(i);
             assertEquals(1002 + i, ring.getId().intValue());
         }
@@ -113,11 +113,9 @@ public class ForwardingContextImplTestDb extends TestCase {
         Assertion.assertEquals(expected, actual);
     }
 
-
     public void testAddRing() throws Exception {
         User user = m_coreContext.loadUser(4);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
-
 
         Ring ring = callSequence.insertRing();
         ring.setNumber("999999");
@@ -126,10 +124,10 @@ public class ForwardingContextImplTestDb extends TestCase {
         m_context.flush();
 
         ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
-        assertEquals( "999999", actual.getValue(0, "Number"));
-        assertEquals( new Integer(3), actual.getValue(0, "Position"));
+        assertEquals("999999", actual.getValue(0, "Number"));
+        assertEquals(new Integer(3), actual.getValue(0, "Position"));
     }
-    
+
     public void testGetForwardingAliasesAndAuthExceptions() throws Exception {
         try {
             TestHelper.update("admin/forwarding/dbdata/permissions.xml");
@@ -141,10 +139,10 @@ public class ForwardingContextImplTestDb extends TestCase {
         // there are separate test that take care of the content testing
         int seedRings = 5;
         List forwardingAliases = m_context.getForwardingAliases();
-        assertEquals(seedRings,forwardingAliases.size());
+        assertEquals(seedRings, forwardingAliases.size());
         List authExceptions = m_context.getForwardingAuthExceptions();
-        assertEquals(3,authExceptions.size());
-        
+        assertEquals(3, authExceptions.size());
+
         User user = m_coreContext.loadUser(4);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         Ring ring = callSequence.insertRing();
@@ -154,8 +152,23 @@ public class ForwardingContextImplTestDb extends TestCase {
         m_context.flush();
 
         forwardingAliases = m_context.getForwardingAliases();
-        assertEquals(seedRings + 1,forwardingAliases.size());        
+        assertEquals(seedRings + 1, forwardingAliases.size());
         authExceptions = m_context.getForwardingAuthExceptions();
-        assertEquals(4,authExceptions.size());
+        assertEquals(4, authExceptions.size());
+    }
+
+    public void testClearCallSequence() throws Exception {
+        User user = m_coreContext.loadUser(4);
+        CallSequence callSequence = m_context.getCallSequenceForUser(user);
+
+        ITable ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
+        assertFalse(callSequence.getCalls().isEmpty());
+
+        int remainingRingCount = ringTable.getRowCount() - callSequence.getCalls().size();
+
+        m_context.removeCallSequenceForUserId(user.getId(), false);
+
+        ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
+        assertEquals(remainingRingCount, ringTable.getRowCount());
     }
 }

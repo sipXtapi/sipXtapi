@@ -94,4 +94,11 @@ public class AbstractCallSequence extends BeanWithId {
         }
         return aliases;
     }
+
+    /**
+     * Clear all calls for this sequence
+     */
+    public void clear() {
+        m_calls.clear();
+    }
 }

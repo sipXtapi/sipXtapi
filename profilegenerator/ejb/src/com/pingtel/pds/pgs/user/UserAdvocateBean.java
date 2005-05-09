@@ -39,6 +39,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.sipfoundry.sipxconfig.legacy.LegacyNotifyService;
 
 import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PDSDefinitions;
@@ -46,6 +47,8 @@ import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.common.ProfileEncryptionKeyCalculator;
 import com.pingtel.pds.common.XMLSupport;
 import com.pingtel.pds.pgs.common.PGSDefinitions;
+import com.pingtel.pds.pgs.common.RMIConnectionManager;
+import com.pingtel.pds.pgs.common.ejb.BaseEJB;
 import com.pingtel.pds.pgs.common.ejb.InternalToExternalIDTranslator;
 import com.pingtel.pds.pgs.common.ejb.JDBCAwareEJB;
 import com.pingtel.pds.pgs.jobs.JobManager;
@@ -397,8 +400,23 @@ public class UserAdvocateBean extends JDBCAwareEJB
      * @throws PDSException is thrown for application level errors
      */
     public void deleteUser(User user) throws PDSException {
+        
 
         try {
+            String serviceUrl = BaseEJB.getPGSProperty("legacynotifyservice.rmi.url");
+
+            LegacyNotifyService notifyService = 
+                (LegacyNotifyService) RMIConnectionManager.getInstance().getConnection(serviceUrl);
+            try { 
+                Integer id = Integer.valueOf(user.getID());
+                notifyService.onUserDelete(id);
+            }
+            catch(NumberFormatException e) {
+                // ignore:
+                // some users such as administrator, installer or SDS have non-numeric ids 
+                // - we do not have to worry about them here
+            }
+            
             unassignDevices(user);
             logDebug("unassigned user's devices");
             deleteConfigSetsForUser(user);

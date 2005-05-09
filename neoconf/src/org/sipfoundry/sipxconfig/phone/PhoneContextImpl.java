@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.hibernate.Hibernate;
+
 import org.apache.commons.collections.map.LinkedMap;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -45,13 +47,13 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     private Map m_phoneIds;
 
     private JobQueue m_jobQueue;
-    
+
     private String m_systemDirectory;
-    
-    private CoreContext m_coreContext; 
-    
+
+    private CoreContext m_coreContext;
+
     private LegacyContext m_legacy;
-    
+
     private Map m_modelCache = new HashMap();
 
     /**
@@ -61,7 +63,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         JobRecord job = createJobRecord(phones, JobRecord.TYPE_PROJECTION);
         m_jobQueue.addJob(job);
     }
-    
+
     /**
      * Restart phones in background
      */
@@ -75,9 +77,10 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         job.setType(type);
         Phone[] phonesArray = (Phone[]) phones.toArray(new Phone[0]);
         job.setPhones(phonesArray);
-        
+
         return job;
     }
+
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
@@ -85,7 +88,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public void setJobQueue(JobQueue jobQueue) {
         m_jobQueue = jobQueue;
     }
-    
+
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
@@ -108,7 +111,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public void storePhone(Phone phone) {
         PhoneData meta = phone.getPhoneData();
         meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
-        getHibernateTemplate().saveOrUpdate(meta);        
+        getHibernateTemplate().saveOrUpdate(meta);
         Iterator lines = phone.getLines().iterator();
         while (lines.hasNext()) {
             Line line = (Line) lines.next();
@@ -146,7 +149,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
         getHibernateTemplate().delete(meta);
     }
-    
+
     ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
         // HACK: Load incase it needs to be deleted
         return vs != null && vs.getId() == UNSAVED_ID && vs.size() == 0 ? null : vs;
@@ -188,7 +191,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         Phone phone = loadPhoneFromFactory((PhoneData) getHibernateTemplate().load(
                 PhoneData.class, id));
         String lineQuery = "from LineData l where l.phoneData = :phone order by l.position asc";
-        List lineMetas = getHibernateTemplate().findByNamedParam(lineQuery, "phone", phone.getPhoneData());
+        List lineMetas = getHibernateTemplate().findByNamedParam(lineQuery, "phone",
+                phone.getPhoneData());
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData meta = (LineData) lineMetas.get(i);
             phone.addLine(phone.createLine(meta));
@@ -204,7 +208,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
         return phone;
     }
-    
+
     public Line newLine(String factoryId) {
         return (Line) m_beanFactory.getBean(factoryId);
     }
@@ -237,15 +241,15 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public JobRecord loadJob(Integer id) {
         return (JobRecord) getHibernateTemplate().load(JobRecord.class, id);
     }
-    
+
     public void storeJob(JobRecord job) {
         getHibernateTemplate().saveOrUpdate(job);
     }
-        
+
     /** unittesting only */
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
-        // not leave hanging references. DB will reject otherwise 
+        // not leave hanging references. DB will reject otherwise
         getHibernateTemplate().delete("from LineData");
         getHibernateTemplate().delete("from PhoneData");
         getHibernateTemplate().delete("from Folder");
@@ -259,23 +263,23 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public void setSystemDirectory(String systemDirectory) {
         m_systemDirectory = systemDirectory;
     }
-    
+
     public String getDnsDomain() {
         return m_coreContext.loadRootOrganization().getDnsDomain();
     }
 
-    public String getClearTextPassword(User user) {        
+    public String getClearTextPassword(User user) {
         UserConfigSet ucs = m_legacy.getConfigSetForUser(user);
         return ucs.getClearTextPassword();
     }
 
     public void setLegacyContext(LegacyContext legacy) {
         m_legacy = legacy;
-    }    
+    }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }    
+    }
 
     public Setting getSettingModel(String filename) {
         // cache it, but may be helpful to reload model on fly in future
@@ -286,5 +290,11 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             m_modelCache.put(filename, model);
         }
         return model;
+    }
+
+    public void deleteLinesForUser(Integer userId) {
+        // TODO: move query to .hbm.xml file
+        getHibernateTemplate().delete("from LineData line where line.user.id=?", userId,
+                Hibernate.INTEGER);
     }
 }

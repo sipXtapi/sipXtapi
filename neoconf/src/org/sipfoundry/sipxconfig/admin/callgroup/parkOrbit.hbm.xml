@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.callgroup">
+	<!-- 
+	  - Park Orbit
+	  -->
+	<class name="ParkOrbit" table="park_orbit">
+		<id name="id" column="park_orbit_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">park_orbit_seq</param>
+			</generator>
+		</id>
+		<property name="enabled"/>
+		<property name="name"/>
+		<property name="extension"/>        
+		<property name="description"/>
+		<property name="musicOnHold" column="music_on_hold"/>        
+	</class>
+</hibernate-mapping>
