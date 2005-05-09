@@ -70,7 +70,7 @@
     </component>
     <component id="extension" type="ValidField">
 	    <binding name="value" expression="item.extension"/>
-        <binding name="validator" expression="page.global.validPhone"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
 	    <static-binding name="displayName" value="Extension"/>
     </component>
         

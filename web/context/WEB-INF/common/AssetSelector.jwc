@@ -15,14 +15,24 @@
     <!-- All files in that directory become selectable assets -->
     <parameter name="assetDir" type="java.lang.String" direction="auto" required="yes"/>
     
+    <parameter name="selectLabel" type="java.lang.String" 
+    	required="no" direction="in" 
+    	default-value="'Prompt'"/>
+
+    <parameter name="uploadLabel" type="java.lang.String" 
+    	required="no" direction="in" 
+    	default-value="'Upload prompt'"/>
+
+    <!-- P R O P E R T I E S -->    
 	<property-specification name="uploadAsset" type="org.apache.tapestry.request.IUploadFile"/>
     
    	<property-specification name="assetSelectionModel" 
 		type="org.apache.tapestry.form.IPropertySelectionModel"/>
     
+    <!-- C O M P O N E N T S -->
     <component id="promptLabel" type="FieldLabel">
         <binding name="field" expression="components.prompt"/>
-        <static-binding name="displayName" value="Existing prompts"/>
+        <binding name="displayName" expression="selectLabel"/>
     </component>
     <component id="prompt" type="PropertySelection">
         <binding name="model" expression="page.global.tapestry.instructUserToSelect(assetSelectionModel)"/>
@@ -31,7 +41,7 @@
     </component>
     <component id="promptUploadLabel" type="FieldLabel">
         <binding name="field" expression="components.prompt"/>
-        <static-binding name="displayName" value="Upload prompt"/>
+        <binding name="displayName" expression="uploadLabel"/>
     </component>
     <component id="promptUpload" type="Upload">
         <binding name="file" expression="uploadAsset"/>

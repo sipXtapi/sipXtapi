@@ -42,7 +42,7 @@
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="callGroupContext.parkOrbits"/>
         <static-binding name="pageSize" value="-1"/>
-        <static-binding name="columns" value="Name:name,Enabled:enabled,Extension:extension,Music on Hold:musicOnHold,Description:description"/>
+        <static-binding name="columns" value="Name:name,Enabled:enabled,Extension:extension,Music on Hold:musicOnHold"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns"/>
