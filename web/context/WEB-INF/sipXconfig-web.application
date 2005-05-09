@@ -36,11 +36,13 @@
     <page name="EditLocalDialRule" specification-path="dialplan/EditLocalDialRule.page"/>
     <page name="EditLongDistanceDialRule" specification-path="dialplan/EditLongDistanceDialRule.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
+    <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="Home" specification-path="Home.page"/>
+    <page name="ListCallGroups" specification-path="admin/ListCallGroups.page"/>    
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="dialplan/ListGateways.page"/>
-    <page name="ListCallGroups" specification-path="admin/ListCallGroups.page"/>    
+    <page name="ListParkOrbits" specification-path="admin/ListParkOrbits.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
