@@ -79,6 +79,9 @@ public class DialPlanEditTestUi extends WebTestCase {
             String name = DEFAULTS[i][0];
             clickLinkWithText(name);
             assertFormElementEquals("name", name);
+            assertElementPresent("item:name");
+            assertElementPresent("item:enabled");
+            assertElementPresent("item:description");
 
             // all rules except of "internal" have gateways panel
             if (!name.startsWith("Internal")) {

@@ -3,14 +3,19 @@
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<component-specification class="org.sipfoundry.sipxconfig.site.dialplan.DialingRuleCommon" allow-body="no" allow-informal-parameters="no">
+<component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
     <!-- P A R A M E T E R S -->
-	<parameter name="rule" 
-        type="org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule" 
-        required="yes" 
+	<parameter name="item" 
+        required="yes"
+        type="java.lang.Object"        
         direction="auto">
-    </parameter>
+    </parameter>    
     
+    <parameter name="useExtension" 
+        required="no" 
+        type="boolean" 
+        default-value="false" 
+        direction="in"/>
     
     <!-- P R O P E R T I E S -->
     
@@ -31,25 +36,38 @@
         <static-binding name="displayName" value="Enabled"/>
     </component>
     <component id="enabled" type="Checkbox">
-        <binding name="selected" expression="rule.enabled"/>
-    </component>    
-    
+        <binding name="selected" expression="item.enabled"/>
+    </component>
+        
     <component id="nameLabel" type="FieldLabel">
         <binding name="field" expression="components.name"/>
     </component>
     <component id="name" type="ValidField">
-        <binding name="value" expression="rule.name"/>
+        <binding name="value" expression="item.name"/>
         <static-binding name="displayName" value="Name"/>
         <binding name="field" expression="components.name"/>
         <binding name="validator" expression="beans.nameValidator"/>
     </component>
     
+    <component id="ifUseExtension" type="Conditional">
+        <binding name="condition" expression="useExtension"/>
+        <static-binding name="element" value="tr"/>
+    </component>
+    
+    <component id="extensionLabel" type="FieldLabel">
+        <binding name="field" expression="components.extension"/>
+    </component>
+    <component id="extension" type="ValidField">
+	    <binding name="value" expression="item.extension"/>
+        <binding name="validator" expression="page.global.validPhone"/>
+	    <static-binding name="displayName" value="Extension"/>
+    </component>
+        
     <component id="descriptionLabel" type="FieldLabel">
         <binding name="field" expression="components.description"/>
         <static-binding name="displayName" value="Description"/>
     </component>
     <component id="description" type="TextArea">
-        <binding name="value" expression="rule.description"/>
-    </component>
-	                            
+        <binding name="value" expression="item.description"/>
+    </component>	                            
 </component-specification>

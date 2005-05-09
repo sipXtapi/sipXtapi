@@ -67,11 +67,11 @@
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
-    <component-type type="DialingRuleCommon" specification-path="dialplan/DialingRuleCommon.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="ErrorMsg" specification-path="common/ErrorMsg.jwc"/>
     <component-type type="GatewaysPanel" specification-path="dialplan/GatewaysPanel.jwc"/>
     <component-type type="GatewayTable" specification-path="dialplan/GatewayTable.jwc"/>
+    <component-type type="ItemCommon" specification-path="common/ItemCommon.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>

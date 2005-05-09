@@ -45,41 +45,12 @@
         <binding name="delegate" expression="beans.validator"/>
         <binding name="listener" expression="listeners.formSubmit"/>
     </component>
-    
-    <component id="callGroupNameLabel" type="FieldLabel">
-        <binding name="field" expression="components.callGroupName"/>
-    </component>
-    <component id="callGroupName" type="ValidField">
-	    <binding name="value" expression="callGroup.name"/>
-    	<binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="Name"/>
-    </component>
-    
-    <component id="callGroupEnabledLabel" type="FieldLabel">
-        <binding name="field" expression="components.callGroupEnabled"/>
-	    <static-binding name="displayName" value="Enabled"/>
-    </component>
-    <component id="callGroupEnabled" type="Checkbox">
-	    <binding name="selected" expression="callGroup.enabled"/>
-    </component>
-    
-    <component id="callGroupExtensionLabel" type="FieldLabel">
-        <binding name="field" expression="components.callGroupExtension"/>
-    </component>
-    <component id="callGroupExtension" type="ValidField">
-	    <binding name="value" expression="callGroup.extension"/>
-        <binding name="validator" expression="global.validPhone"/>
-	    <static-binding name="displayName" value="Extension"/>
-    </component>
 
-    <component id="callGroupDescriptionLabel" type="FieldLabel">
-        <binding name="field" expression="components.callGroupDescription"/>
-        <static-binding name="displayName" value="Description"/>
+    <component id="common" type="ItemCommon">
+        <binding name="item" expression="callGroup"/>
+        <binding name="useExtension" expression="true"/>
     </component>
-    <component id="callGroupDescription" type="TextArea">
-        <binding name="value" expression="callGroup.description"/>
-    </component>        
-    
+        
     <component id="ringTable" type="UserRingTable">
         <binding name="rings" expression="callGroup.calls"/>
     </component>

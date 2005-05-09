@@ -69,8 +69,8 @@ public class ListCallGroupsTestUi extends WebTestCase {
         // click on name - it should take us to the edit page
         clickLinkWithText(name);
 
-        assertFormElementEquals("callGroupName", name);
-        assertFormElementEquals("callGroupExtension", extension);
+        assertFormElementEquals("name", name);
+        assertFormElementEquals("extension", extension);
     }
 
     public void testDelete() {
@@ -115,9 +115,9 @@ public class ListCallGroupsTestUi extends WebTestCase {
     public static void addCallGroup(WebTester tester, String name, String extension,
             String description) {
         tester.clickLink("callgroups:add");
-        tester.setFormElement("callGroupName", name);
-        tester.setFormElement("callGroupExtension", extension);
-        tester.setFormElement("callGroupDescription", description);
+        tester.setFormElement("name", name);
+        tester.setFormElement("extension", extension);
+        tester.setFormElement("description", description);
         tester.clickButton("callgroup:save");
     }
 }

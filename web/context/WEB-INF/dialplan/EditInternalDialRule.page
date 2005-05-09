@@ -46,8 +46,8 @@
         <binding name="listener" expression="listeners.formSubmit"/>
     </component>
     
-	<component id="common" type="DialingRuleCommon">
-        <binding name="rule" expression="rule"/>
+	<component id="common" type="ItemCommon">
+        <binding name="item" expression="rule"/>
     </component>
     
     <component id="extensionLenLabel" type="FieldLabel">

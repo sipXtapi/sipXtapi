@@ -7,159 +7,21 @@
 <h2>Call group</h2>    
 <span jwcid="@ErrorMsg"/>
 <form jwcid="form" id="callgroup:form">
-   <fieldset>
-        <table>
-            <tbody>
-                <tr>
-                    <td>
-                        <label for="callgroup:enabled"><span jwcid="callGroupEnabledLabel">Enabled</span>:</label>
-                    </td>
-				   <td><input jwcid="callGroupEnabled" type="checkbox" id="callgroup:enabled" checked="checked"/></td>                    
-                </tr>                                
-                <tr>
-                    <td>
-                        <label for="callgroup:name"><span jwcid="callGroupNameLabel">Name</span>:</label>
-                    </td>
-                    <td>
-                        <input jwcid="callGroupName" id="callgroup:name" type="text" value="sales"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="callgroup:extension"><span jwcid="callGroupExtensionLabel">Extension</span>:</label>
-                    </td>
-                    <td>
-                        <input jwcid="callGroupExtension" id="callgroup:extension" type="text" value="330" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="callgroup:description"><span jwcid="callGroupDescriptionLabel">Description</span>:</label>
-                    </td>
-                    <td>
-                        <textarea jwcid="callGroupDescription" id="callgroup:description" cols="45" rows="5">Everybody in sales department</textarea>
-                    </td>
-                </tr>                
-            </tbody>
-        </table>
-	</fieldset>
+   <fieldset jwcid="common"/>
 	<div class="help">
 		Add users to the call group. Click Add User to select user from the list of all users. You'll be able to search for users that you want to add to this call group.<br/>
            Change call sequence by moving users up and down.
     </div>
-    <fieldset jwcid="ringTable">
-    	<legend>Call Sequence</legend>
-		<ul class="component-links">
-    	    <li>
-        	    <a id="callgroup:addRing" href="../user/search.html">Add User</a>
-	        </li>
-		</ul>
-    	<table class="component">
-            <thead>
-                <tr>
-                   <th/>
-                   <th>Sequence</th> 
-                   <th>User ID</th>
-                   <th>Extension</th>
-                   <th>Ring for</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="odd">
-				   <td align="center"><input type="checkbox" name="id1"/></td>
-			        <td  align="center">
-                        Initially call
-			        </td>
-                   <td><a href="../user/edit-user.html">alice</a></td> 
-                   <td>203</td>
-                   <td align="center"><input type="text" id="delay" size="3" value="60"/></td> 
-                </tr>
-                <tr class="even">
-				   <td align="center"><input type="checkbox" name="id2"/></td>
-			        <td align="center">
-			          <select id="parallel1" size="1">
-			            <option value="1" selected="selected">At the same time</option>
-		    	        <option value="2">If no response</option>
-		        	  </select>
-			        </td>
-                   <td><a href="../user/edit-user.html">bob</a></td> 
-                   <td>201</td> 
-                   <td align="center"><input type="text" id="delay1" size="3" value="45"/></td>
-                </tr>
-                <tr class="odd">
-				   <td align="center"><input type="checkbox" name="id1"/></td>
-			        <td  align="center">
-			          <select id="parallel2" size="1">
-			            <option value="1" selected="selected">At the same time</option>
-		    	        <option value="2">If no response</option>
-		        	  </select>
-			        </td>
-                   <td><a href="../user/edit-user.html">abc123</a></td> 
-                   <td>123</td>
-                   <td align="center"><input type="text" id="delay2" size="3" value="45"/></td> 
-                </tr>
-                <tr class="even">
-				   <td align="center"><input type="checkbox" name="id2"/></td>
-			        <td align="center">
-			          <select id="parallel3" size="1">
-			            <option value="1" selected="selected">At the same time</option>
-		    	        <option value="2">If no response</option>
-		        	  </select>
-			        </td>
-                   <td><a href="../user/edit-user.html">darryl</a></td> 
-                   <td>205</td> 
-                   <td align="center"><input type="text" id="delay3" size="3" value="45"/></td>
-                </tr>
-            </tbody>
-		</table>
-        <ul class="component-submit">
-			<li>
-				<input type="submit" name="" value="Move Up"/>
-			</li>
-			<li>
-				<input type="submit" name="" value="Move Down"/>
-			</li>
-			<li>
-				<input type="submit" name="" value="Delete" onclick="confirm('Are you sure you want to delete selected phone configurations.')"/>
-			</li>
-		</ul>
-	</fieldset>
+    <fieldset jwcid="ringTable"/>
 	<div class="help">
 		If call parking is enabled, users are able to press *2(extension) to park the call and *4(extension) 
         to retrieve the calls associated with this group.<br/>
         You can upload the sound files to provide music on hold when the calls are parked.
     </div>
-	<fieldset>
-            <legend>Call Parking</legend>
-            <table>
-            <tr>
-                <td colspan="2">
-	        	    <input id="enable" type="checkbox"></input>
-    		        <label for="enable">Enable call parking</label>
-                </td>    
-            </tr>    
-	      <tr >
-    	    <td>Music on hold:</td>
-	        <td>
-    		    <select size="1" name="prompt">
-			        <option>standards.wav</option>
-			        <option>promo.wav</option>
-		        </select>
-	        </td>
-    	  </tr>            
-	        <tr>
-    	    	<td nowrap="nowrap" valign="top"><label for="callparking:upload">Upload music:</label></td>
-	        	<td>
-    	            <input id="callparking:upload" value="Upload" type="file" />
-					<p>* Uploaded sound files must as 8khz / 16 bit PCM samples, signed, little-endian, 1 channel (mono), .wav header (implied 128kbps)</p>
-	    		</td>
-      	    </tr>
-            </table>
-        </fieldset>
-         <ul class="form-actions">
-		    <li><input jwcid="onSave" id="callgroup:save" type="button" name="save" value="OK"/></li>
-		    <li><input jwcid="onCancel" id="callgroup:cancel" type="button" name="cancel" value="Cancel"/></li>
-  </ul>
+    <ul class="form-actions">
+	    <li><input jwcid="onSave" id="callgroup:save" type="button" name="save" value="OK"/></li>
+	    <li><input jwcid="onCancel" id="callgroup:cancel" type="button" name="cancel" value="Cancel"/></li>
+    </ul>
 </form>
 </div>
 </body>    

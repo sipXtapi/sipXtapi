@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.Collection;
 
+import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -97,8 +98,9 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
-        StringSizeValidator descriptionValidator = (StringSizeValidator) getBeans().getBean(
-                "descriptionValidator");
+        AbstractComponent component = (AbstractComponent) getComponent("common");
+        StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
+                .getBean("descriptionValidator");
         descriptionValidator.validate(delegate);
         return !delegate.getHasErrors();
     }
