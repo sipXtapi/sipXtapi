@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -28,6 +29,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditAutoAttendant extends BasePage implements PageRenderListener {
@@ -78,8 +80,12 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     }
 
     private boolean save() {
-        boolean saved = false;
-        IValidationDelegate validator = TapestryUtils.getValidator(this);
+        boolean saved = false;        
+        IValidationDelegate validator = TapestryUtils.getValidator(this);        
+        AbstractComponent component = (AbstractComponent) getComponent("common");
+        StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
+                .getBean("descriptionValidator");
+        descriptionValidator.validate(validator);
         AssetSelector assetSelector = getAssetSelector();
         assetSelector.validateNotEmpty(validator,
                 "You must select an existing prompt or upload a new one.");

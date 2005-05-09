@@ -65,30 +65,14 @@
     <component id="form" type="Form">        
         <binding name="delegate" expression="beans.validator"/>
     </component>       
-    <component id="nameLabel" type="FieldLabel">
-        <binding name="field" expression="components.name"/>
+    
+    <component id="common" type="ItemCommon">
+        <binding name="item" expression="attendant"/>
+        <binding name="useEnabled" expression="false"/>
+        <binding name="useExtension" expression="true"/>
     </component>
-    <component id="name" type="ValidField">
-        <binding name="value" expression="attendant.name"/>
-        <binding name="validator" expression="beans.nameValidator"/>
-        <static-binding name="displayName" value="Name"/>
-    </component>
-    <component id="descriptionLabel" type="FieldLabel">
-        <binding name="field" expression="components.description"/>
-        <static-binding name="displayName" value="Description"/>
-    </component>
-    <component id="description" type="TextArea">
-        <binding name="value" expression="attendant.description"/>
-    </component>
-    <component id="extensionLabel" type="FieldLabel">
-        <binding name="field" expression="components.extension"/>
-    </component>
-    <component id="extension" type="ValidField">
-        <binding name="value" expression="attendant.extension"/>
-        <binding name="validator" expression="beans.extensionValidator"/>
-        <static-binding name="displayName" value="Extension"/>
-    </component>
-    <!-- auto attendant propmpts selection -->
+    
+    <!-- auto attendant prompts selection -->
     <component id="attendantPromptSelector" type="AssetSelector">
         <binding name="asset" expression="attendant.prompt"/>
         <binding name="assetDir" expression="vxmlGenerator.promptsDirectory"/>

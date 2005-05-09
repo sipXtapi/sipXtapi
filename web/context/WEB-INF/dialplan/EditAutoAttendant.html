@@ -42,42 +42,7 @@
 			</div>
 			<span jwcid="@ErrorMsg"/>
 			<form name="attendant:form" jwcid="form">
-                <fieldset>
-				<table>
-					<tbody>
-						<tr>
-							<td>
-								<label for="attendant:name"><span 
-									jwcid="nameLabel">Name</span>:</label>
-							</td>
-							<td>
-								<input type="text" jwcid="name" 
-									id="attendant:name"/>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label for="attendant:extension"><span 
-									jwcid="extensionLabel">Extension</span>:</label>
-							</td>
-							<td>
-								<input type="text" jwcid="extension" 
-									id="attendant:extension"/>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label for="attendant:description"><span 
-									jwcid="descriptionLabel">Description</span>:</label>
-							</td>
-							<td>
-								<textarea jwcid="description" rows="5" 
-									cols="40" id="attendant:description"/>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-                </fieldset>
+                <fieldset jwcid="common"/>
            		<fieldset jwcid="attendantPromptSelector"/>
 				<table jwcid="menuItemTableView" id="attendant:menuItems" 
 					class="component">

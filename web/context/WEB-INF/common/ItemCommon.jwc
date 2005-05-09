@@ -11,6 +11,12 @@
         direction="auto">
     </parameter>    
     
+    <parameter name="useEnabled" 
+        required="no" 
+        type="boolean" 
+        default-value="true" 
+        direction="in"/>
+    
     <parameter name="useExtension" 
         required="no" 
         type="boolean" 
@@ -31,6 +37,11 @@
 
     
     <!-- C O M P O N E N T S -->
+    <component id="ifUseEnabled" type="Conditional">
+        <binding name="condition" expression="useEnabled"/>
+        <static-binding name="element" value="tr"/>
+    </component>
+
     <component id="enabledLabel" type="FieldLabel">
         <binding name="field" expression="components.enabled"/>
         <static-binding name="displayName" value="Enabled"/>

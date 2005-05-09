@@ -12,12 +12,14 @@
 package org.sipfoundry.sipxconfig.components;
 
 import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IComponent;
-import org.apache.tapestry.IPage;
 import org.apache.tapestry.form.IFormComponent;
+import org.apache.tapestry.valid.FieldLabel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 
@@ -47,12 +49,10 @@ import org.apache.tapestry.valid.ValidationConstraint;
  */
 public class StringSizeValidator {
     public static final int DEFAULT_MAX_LEN = 256;
-    private static final String DISPLAY_NAME = "displayName";
     private static final String ERROR = "Enter at most {0} characters for {1}";
 
     private IFormComponent m_component;
     private int m_max = DEFAULT_MAX_LEN;
-    private String m_labelSuffix = "Label";
 
     public void validate(IValidationDelegate delegate) {
         IBinding binding = m_component.getBinding("value");
@@ -76,12 +76,20 @@ public class StringSizeValidator {
         if (null != displayName) {
             return displayName;
         }
-        String labelName = m_component.getName() + m_labelSuffix;
-        IPage page = m_component.getPage();
-        IComponent label = (IComponent) page.getComponents().get(labelName);
-        if (null != label) {
-            return (String) label.getProperty(DISPLAY_NAME);
+
+        // find the label for the component and return its display name
+        IComponent container = m_component.getContainer();
+        Collection components = container.getComponents().values();
+        for (Iterator i = components.iterator(); i.hasNext();) {
+            IComponent component = (IComponent) i.next();
+            if (component instanceof FieldLabel) {
+                FieldLabel label = (FieldLabel) component;
+                if (label.getField() == m_component) {
+                    return label.getDisplayName();
+                }
+            }
         }
+
         return StringUtils.EMPTY;
     }
 
