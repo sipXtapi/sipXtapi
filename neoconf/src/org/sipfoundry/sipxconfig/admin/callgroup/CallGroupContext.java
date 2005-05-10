@@ -40,4 +40,6 @@ public interface CallGroupContext {
     void removeParkOrbits(Collection ids);
 
     Collection getParkOrbits();
+    
+    void activateParkOrbits();
 }

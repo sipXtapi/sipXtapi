@@ -115,7 +115,8 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.phone", outputDirectory);
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
-        sysProps.setProperty("polycom300.outboundProxyAddress", "proxy.sipfoundry.org");
+        sysProps.setProperty("polycom300.outboundProxyAddress", "proxy.sipfoundry.org");        
+        sysProps.setProperty("orbitsGenerator.audioDirectory", "/opt/work-2.8/sipx/var/parkserver/music");
     }
     
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

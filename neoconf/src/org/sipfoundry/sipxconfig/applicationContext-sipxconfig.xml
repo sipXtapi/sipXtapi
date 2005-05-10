@@ -506,6 +506,12 @@
     <!--
       - C A L L G R O U P   C O N T E X T
       -->
+	<bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits" dependency-check="all">
+        <property name="configDirectory">
+            <value>${sysdir.etc}</value>
+        </property>
+    </bean>
+    
 	<bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl" autowire="byType">
         <property name="coreContext">
             <ref bean="coreContextImpl"/>
@@ -513,6 +519,9 @@
 		<property name="phoneContext">
 			<ref bean="phoneContextImpl"/>
 		</property>
+        <property name="orbitsGenerator">
+            <ref bean="orbitsGenerator"/>            
+        </property>
     </bean>
     
 	<bean id="callGroupContext" 

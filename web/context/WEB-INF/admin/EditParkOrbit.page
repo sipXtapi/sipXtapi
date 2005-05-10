@@ -45,7 +45,7 @@
     
     <component id="musicOnHoldSelector" type="AssetSelector">
         <binding name="asset" expression="parkOrbit.musicOnHold"/>
-        <binding name="assetDir" expression="global.vxml.promptsDirectory"/>
+        <binding name="assetDir" expression="global.orbitsGenerator.audioDirectory"/>
         <static-binding name="selectLabel" value="Music on hold"/>
         <static-binding name="uploadLabel" value="Upload music"/>        
     </component>

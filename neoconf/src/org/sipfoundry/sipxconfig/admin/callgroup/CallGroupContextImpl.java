@@ -11,11 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.forwarding.GenerateMessage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Organization;
@@ -29,7 +31,10 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class CallGroupContextImpl extends HibernateDaoSupport implements CallGroupContext {
     private PhoneContext m_phoneContext;
+
     private CoreContext m_coreContext;
+
+    private Orbits m_orbitsGenerator;
 
     private JmsOperations m_jms;
 
@@ -119,6 +124,16 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
         return getHibernateTemplate().loadAll(ParkOrbit.class);
     }
 
+    public void activateParkOrbits() {
+        try {
+            Collection orbits = getParkOrbits();
+            m_orbitsGenerator.generate(orbits);
+            m_orbitsGenerator.writeToFile();
+        } catch (IOException e) {
+            new RuntimeException("Activating call parking configuration failed.", e);
+        }
+    }
+
     public void setJms(JmsOperations jms) {
         m_jms = jms;
     }
@@ -129,5 +144,9 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
+    }
+
+    public void setOrbitsGenerator(Orbits orbitsGenerator) {
+        m_orbitsGenerator = orbitsGenerator;
     }
 }

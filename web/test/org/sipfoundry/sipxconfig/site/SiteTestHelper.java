@@ -174,6 +174,10 @@ public class SiteTestHelper {
         String systemDirectory = cleanDirectory(getArtificialSystemRootDirectory());
         sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
+        sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
+        sysProps.setProperty("sysdir.etc", systemDirectory + "/etc");
+        
+        
         // generates sipxconfig.properties in classpath (arg 0)
         TestUtil.setSysDirProperties(sysProps, args[1], args[2]);
         TestUtil.saveSysDirProperties(sysProps, args[0]);

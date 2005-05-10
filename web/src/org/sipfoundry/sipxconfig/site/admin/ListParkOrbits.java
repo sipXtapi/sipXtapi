@@ -57,7 +57,7 @@ public abstract class ListParkOrbits extends BasePage implements PageRenderListe
     }
 
     public void activate(IRequestCycle cycle_) {
-        getCallGroupContext().activateCallGroups();
+        getCallGroupContext().activateParkOrbits();
     }
 
     /**
