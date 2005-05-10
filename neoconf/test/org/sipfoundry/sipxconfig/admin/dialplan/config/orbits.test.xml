@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<orbits xmlns="http://www.sipfoundry.org/sipX/schema/xml/orbits-00-00">
+    <orbit>
+       <name>sales</name>
+       <extension>400</extension>
+	   <background-audio>/var/sipxdata/parkserver/music/basia.wav</background-audio>
+       <description>test description</description>      
+    </orbit>
+    <orbit>
+       <name>CEO orbit</name>
+       <extension>179</extension>
+	   <background-audio>/var/sipxdata/parkserver/music/marketing.wav</background-audio>
+       <description/>
+    </orbit>
+</orbits>
