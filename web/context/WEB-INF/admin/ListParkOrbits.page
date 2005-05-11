@@ -42,7 +42,7 @@
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="callGroupContext.parkOrbits"/>
         <static-binding name="pageSize" value="-1"/>
-        <static-binding name="columns" value="Name:name,Enabled:enabled,Extension:extension,Music on Hold:musicOnHold"/>
+        <static-binding name="columns" value="name:name,enabled:enabled,extension:extension,music:musicOnHold"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns"/>
@@ -58,7 +58,7 @@
         <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
      
-	<component id="NameColumnValue" type="Block"/>
+	<component id="nameColumnValue" type="Block"/>
     
     <component id="nameText" type="Insert">
         <binding name="value" expression="currentRow.name"/>
@@ -76,9 +76,11 @@
     <component id="delete" type="Submit">
         <binding name="selected" expression="rowsToDelete"/>
         <binding name="tag" expression="selections.allSelected"/>
+        <message-binding name="value" key="button.delete"/>
     </component>
 
     <component id="activate" type="Submit">
         <binding name="listener" expression="listeners.activate"/>
+        <message-binding name="value" key="button.activate"/>
     </component>        
 </page-specification>

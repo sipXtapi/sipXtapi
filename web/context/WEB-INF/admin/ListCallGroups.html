@@ -1,12 +1,15 @@
-<html title="List Call Groups">
+<html title="message:title">
 <head>
     <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
 <body jwcid="$content$">
 <div jwcid="@Border">
-    <h2>Call Groups</h2>        
+    <h2><span key="title">Hunt Groups</span></h2>        
 	<ul class="component-links">
-		<li><a jwcid="addLink" id="callgroups:add" href="edit-call-group.html">Add Call Group</a></li>
+		<li>
+            <a jwcid="addLink" id="callgroups:add" href="edit-call-group.html">
+            <span key="add_link">Add Hunt Group</span></a>
+        </li>
 	</ul>                
     <form jwcid="form" id="callgroups:form">
     	<table jwcid="tableView" id="callgroups:list" class="component">
@@ -35,7 +38,7 @@
                 	onclick="return confirm('Are you sure you want to delete selected call groups?')"/>
 			</li>
 		</ul>
-	    <h3>Activation</h3>
+	    <h3><span key="header.activation">Activation</span></h3>
 		<ul class="component-submit">
 			<li>
 				<input type="submit" jwcid="activate" id="callgroups:activate" value="Activate"/>

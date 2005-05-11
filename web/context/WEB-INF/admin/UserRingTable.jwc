@@ -43,7 +43,7 @@
         <binding name="source" expression="rings"/>
         <static-binding name="pageSize" value="-1"/>              
         <static-binding name="columns" 
-        	value="* !sequence:Sequence:type,!userid:User ID:user.displayId,!extension:Extension:user.extension,!expiration:Ring For:expiration"/>
+        	value="* !sequence:type,!userid:user.displayId,!extension:user.extension,!expiration:expiration"/>
     </component>
     
 	<component id="sequenceColumnValue" type="Block"/>
@@ -82,15 +82,18 @@
     <component id="delete" type="Submit">
         <binding name="selected" expression="rowsToDelete"/>
         <binding name="tag" expression="selections.allSelected"/>
+        <message-binding name="value" key="button.delete"/>
     </component>
     
     <component id="moveUp" type="Submit">
         <binding name="selected" expression="rowsToMoveUp"/>
         <binding name="tag" expression="selections.allSelected"/>
+        <message-binding name="value" key="button.up"/>
     </component>
 
     <component id="moveDown" type="Submit">
         <binding name="selected" expression="rowsToMoveDown"/>
         <binding name="tag" expression="selections.allSelected"/>
+        <message-binding name="value" key="button.down"/>
     </component>
 </component-specification>

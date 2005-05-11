@@ -46,15 +46,17 @@
     <component id="musicOnHoldSelector" type="AssetSelector">
         <binding name="asset" expression="parkOrbit.musicOnHold"/>
         <binding name="assetDir" expression="global.orbitsGenerator.audioDirectory"/>
-        <static-binding name="selectLabel" value="Music on hold"/>
-        <static-binding name="uploadLabel" value="Upload music"/>        
+        <message-binding name="selectLabel" key="label.music"/>
+        <message-binding name="uploadLabel" key="label.upload"/>        
     </component>
             
     <component id="onSave" type="Submit">
         <binding name="selected" expression="commitChanges"/>
         <binding name="tag" expression="true"/>
+        <message-binding name="value" key="button.save"/>
     </component>
     <component id="onCancel" type="CancelButton">
         <binding name="returnPageName" expression="@org.sipfoundry.sipxconfig.site.admin.ListParkOrbits@PAGE"/>
+        <message-binding name="value" key="button.cancel"/>
     </component>
 </page-specification>

@@ -4,20 +4,16 @@
 </head>
 <body jwcid="$content$">
 <div jwcid="@Border">
-<h2>Call group</h2>    
+<h2><span key="title">Call group</span></h2>    
 <span jwcid="@ErrorMsg"/>
 <form jwcid="form" id="callgroup:form">
    <fieldset jwcid="common"/>
 	<div class="help">
-		Add users to the call group. Click Add User to select user from the list of all users. You'll be able to search for users that you want to add to this call group.<br/>
-           Change call sequence by moving users up and down.
+        <span key="help.add"/>
+		<br/>
+        <span key="help.change"/>
     </div>
     <fieldset jwcid="ringTable"/>
-	<div class="help">
-		If call parking is enabled, users are able to press *2(extension) to park the call and *4(extension) 
-        to retrieve the calls associated with this group.<br/>
-        You can upload the sound files to provide music on hold when the calls are parked.
-    </div>
     <ul class="form-actions">
 	    <li><input jwcid="onSave" id="callgroup:save" type="button" name="save" value="OK"/></li>
 	    <li><input jwcid="onCancel" id="callgroup:cancel" type="button" name="cancel" value="Cancel"/></li>

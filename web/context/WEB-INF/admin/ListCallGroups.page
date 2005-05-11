@@ -67,7 +67,7 @@
     
     <component id="editRowLink" type="DirectLink">
         <binding name="listener" expression="listeners.edit"/>
-		<binding name="parameters" expression="currentRow.id"/>        
+		<binding name="parameters" expression="currentRow.id"/>
     </component>
             
     <component id="addLink" type="DirectLink">
@@ -77,11 +77,13 @@
     <component id="delete" type="Submit">
         <binding name="selected" expression="rowsToDelete"/>
         <binding name="tag" expression="selections.allSelected"/>
+        <message-binding name="value" key="button.duplicate"/>
     </component>
 
     <component id="duplicate" type="Submit">
         <binding name="selected" expression="rowsToDuplicate"/>
         <binding name="tag" expression="selections.allSelected"/>
+        <message-binding name="value" key="button.delete"/>
     </component>
 
     <component id="activate" type="Submit">

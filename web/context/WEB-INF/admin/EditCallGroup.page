@@ -58,8 +58,10 @@
     <component id="onSave" type="Submit">
         <binding name="selected" expression="commitChanges"/>
         <binding name="tag" expression="true"/>
+        <message-binding name="value" key="button.save"/>
     </component>
     <component id="onCancel" type="CancelButton">
         <binding name="returnPageName" expression="@org.sipfoundry.sipxconfig.site.admin.ListCallGroups@PAGE"/>
+        <message-binding name="value" key="button.cancel"/>
     </component>
 </page-specification>
