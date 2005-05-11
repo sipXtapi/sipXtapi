@@ -25,6 +25,8 @@ import net.sourceforge.jwebunit.WebTester;
 
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.WebForm;
@@ -89,6 +91,18 @@ public class SiteTestHelper {
         } catch (AssertionFailedError e) {
             tester.dumpResponse(System.err);
             throw e;
+        }
+    }
+    
+    
+    /**
+     * Works only for pages that use "user:error:text" id to display user errors.
+     * All pages with ErrorMsg component belong to this category.
+     */
+    public static void assertNoUserError(WebTester tester) {
+        Element element = tester.getDialog().getElement("user:error");
+        if( null != element ) {
+            Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
         }
     }
 

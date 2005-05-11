@@ -12,96 +12,43 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.ExpectedRow;
-import net.sourceforge.jwebunit.ExpectedTable;
-import net.sourceforge.jwebunit.WebTestCase;
-import net.sourceforge.jwebunit.WebTester;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class ListCallGroupsTestUi extends WebTestCase {
+public class ListCallGroupsTestUi extends ListWebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ListCallGroupsTestUi.class);
     }
 
-    public void setUp() {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
-        clickLink("resetCallGroupContext");
-        clickLink("ListCallGroups");
+    public ListCallGroupsTestUi() {
+        super("ListCallGroups", "resetCallGroupContext", "callgroups");
     }
 
     public void testDisplay() {
-        SiteTestHelper.assertNoException(getTester());
-        assertFormPresent("callgroups:form");
-        assertLinkPresent("callgroups:add");
-        // assertTableEquals("callgroups:list", createExpectedTable());
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "callgroups:list"));
-        assertButtonPresent("callgroups:delete");
-        assertButtonPresent("callgroups:duplicate");
-        assertButtonPresent("callgroups:activate");
+        super.testDisplay();
+        assertButtonPresent(buildId("activate"));
     }
 
-    public void testAdd() {
-        final int count = 5;
-        ExpectedTable expected = new ExpectedTable();
-        for (int i = 0; i < count; i++) {
-            String name = "call group" + i;
-            String extension = Integer.toString(400 + i);
-            String description = "Description" + i;
-            addCallGroup(getTester(), name, extension, description);
-            ExpectedRow row = new ExpectedRow(new Object[] {
-                name, "false", extension, description
-            });
-            expected.appendRow(row);
-        }
-        // we should have 2 gateway now
-        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, "callgroups:list"));
-        assertTableRowsEqual("callgroups:list", 1, expected);
-    }
-
-    public void testEdit() {
-        final String name = "call group xxx";
-        final String extension = "404";
-        addCallGroup(getTester(), name, extension, "");
-
-        // click on name - it should take us to the edit page
-        clickLinkWithText(name);
-
-        assertFormElementEquals("name", name);
-        assertFormElementEquals("extension", extension);
-    }
-
-    public void testDelete() {
-        final int[] toBeRemoved = {
-            2, 4
+    protected String[] getParamNames() {
+        return new String[] {
+            "name", "extension", "description"
         };
-        final int count = 5;
-        ExpectedTable expected = new ExpectedTable();
+    }
 
-        for (int i = 0; i < count; i++) {
-            String name = "call group" + i;
-            String extension = Integer.toString(400 + i);
-            String description = "Description" + i;
-            addCallGroup(getTester(), name, extension, description);
-            if (!ArrayUtils.contains(toBeRemoved, i)) {
-                ExpectedRow row = new ExpectedRow(new Object[] {
-                    name, "false", extension, description
-                });
-                expected.appendRow(row);
-            }
-        }
-        // remove 2nd and 4th
-        for (int i = 0; i < toBeRemoved.length; i++) {
-            SiteTestHelper.checkCheckbox(getTester(), "selectedRow", toBeRemoved[i]);
-        }
+    protected String[] getParamValues(int i) {
+        return new String[] {
+            "call group" + i, Integer.toString(400 + i), "Description" + i
+        };
+    }
 
-        clickButton("callgroups:delete");
-
-        assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
-                "callgroups:list"));
-        assertTableRowsEqual("callgroups:list", 1, expected);
+    protected Object[] getExpectedTableRow(String[] paramValues) {
+        Object[] expected = new Object[4];
+        expected[0] = paramValues[0];
+        expected[1] = "false";
+        expected[2] = paramValues[1];
+        expected[3] = paramValues[2];
+        return expected;
     }
 
     public void testDisplayEditCallGroup() {
@@ -110,14 +57,5 @@ public class ListCallGroupsTestUi extends WebTestCase {
         assertFormPresent("callgroup:form");
         assertButtonPresent("callgroup:save");
         assertButtonPresent("cancel");
-    }
-
-    public static void addCallGroup(WebTester tester, String name, String extension,
-            String description) {
-        tester.clickLink("callgroups:add");
-        tester.setFormElement("name", name);
-        tester.setFormElement("extension", extension);
-        tester.setFormElement("description", description);
-        tester.clickButton("callgroup:save");
     }
 }

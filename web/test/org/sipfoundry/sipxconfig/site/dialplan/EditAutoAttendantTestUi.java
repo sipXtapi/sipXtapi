@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditAutoAttendantTestUi extends WebTestCase {
     
-    private static final String PROMPT_TEST_FILE = "thankyou_goodbye.wav";
+    static public final String PROMPT_TEST_FILE = "thankyou_goodbye.wav";
     
     private static final String KEYS = "0123456789*#";
     
@@ -64,7 +64,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     }
         
     public void testUpload() {
-        File expectedFile = new File(getCleanPromptsDir(), PROMPT_TEST_FILE);
+        File expectedFile = new File(getCleanPromptsDir("prompts"), PROMPT_TEST_FILE);
         assertFalse(expectedFile.exists());
         clickLink("NewAutoAttendant");
         
@@ -147,13 +147,17 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertTableRowsEqual("attendant:menuItems", 1, expected);
     }
 
-    public static final String seedPromptFile() throws IOException {
-        File promptsDir = getCleanPromptsDir();
+    public static final String seedPromptFile(String dir) throws IOException {
+        File promptsDir = getCleanPromptsDir(dir);
         copyFileToDirectory(PROMPT_TEST_FILE, promptsDir);
         
         return PROMPT_TEST_FILE;
     }
-        
+
+    public static final String seedPromptFile() throws IOException {
+        return seedPromptFile("prompts");
+    }
+    
     private static void seedAutoAttendant(WebTester tester) throws Exception {
         seedPromptFile();
         tester.clickLink("NewAutoAttendant");
@@ -165,8 +169,8 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         tester.clickButton("attendant:ok");
     }
 
-    private static final File getCleanPromptsDir() {
-        File promptsDir = new File(SiteTestHelper.getArtificialSystemRootDirectory() + "/prompts");
+    private static final File getCleanPromptsDir(String dir) {
+        File promptsDir = new File(SiteTestHelper.getArtificialSystemRootDirectory(), dir);
         SiteTestHelper.cleanDirectory(promptsDir.getPath());
         return promptsDir;
     }

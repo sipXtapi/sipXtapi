@@ -24,10 +24,9 @@ public class EditCallGroupTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        clickLink("resetCallGroupContext");
-        clickLink("ListCallGroups");
-        ListCallGroupsTestUi.addCallGroup(getTester(), "testGroup", "233", "test description");
-        clickLinkWithText("testGroup");
+        //clickLink("resetCallGroupContext");
+        clickLink("NewCallGroup");
+        setFormData();
     }
 
     public void testDisplay() {
@@ -81,5 +80,10 @@ public class EditCallGroupTestUi extends WebTestCase {
         clickButton("user:search");
         checkCheckbox("selectedRow");
         clickButton("user:select");
+    }
+    
+    private void setFormData() {
+        setFormElement("name", "testName");
+        setFormElement("extension", "123");
     }
 }
