@@ -256,7 +256,7 @@
 				<entry key="cisco7905">
 					<value>Cisco IP 7905</value>
 				</entry>
-				<entry key="ata18x">
+				<entry key="ciscoata18x">
 					<value>Cisco ATA 186/188</value>
 				</entry>
 			</map>
