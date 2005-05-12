@@ -60,6 +60,11 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         getHibernateTemplate().save(plan);
         return plan;
     }
+    
+    public boolean isDialPlanEmpty() {
+        boolean empty = getHibernateTemplate().loadAll(DialPlan.class).isEmpty();
+        return empty;
+    }
 
     public void storeRule(DialingRule rule) {
         if (rule.isNew()) {
@@ -110,7 +115,7 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         dialPlan.setOperator(operator);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
-
+    
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }

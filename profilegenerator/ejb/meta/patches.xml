@@ -36,5 +36,8 @@
             args="script=/v11_park_orbit.sql"
             description="Call parking support"/>        
 	</version>    
-    
+	<version number="12">
+        <patch number="120" class="com.pingtel.pds.pgs.patch.LegacyNotifierPatch" 
+            description="Create default dial plan rules if none exist"/>
+	</version>        
 </patches>

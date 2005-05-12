@@ -84,5 +84,7 @@ public interface DialPlanContext extends DataObjectSource  {
 
     public List getGenerationRules();
     
-    public void resetToFactoryDefault();        
+    public void resetToFactoryDefault();
+    
+    public boolean isDialPlanEmpty();
 }

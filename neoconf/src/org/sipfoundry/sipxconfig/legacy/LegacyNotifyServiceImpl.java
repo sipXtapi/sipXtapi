@@ -11,7 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.legacy;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -21,27 +23,47 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 public class LegacyNotifyServiceImpl implements LegacyNotifyService {
 
     private static final int ADD_OPERATOR = 101;
+    
+    private static final int CREATE_DEFAULT_DIALPLAN = 120;
 
     private DialPlanContext m_dialPlanContext;
     private ForwardingContext m_forwardingContext;
     private PhoneContext m_phoneContext;
+    private Set m_patches = new HashSet(); 
 
+    /** brand new system */
     public void onInit() {
-        // reset to factory defaults
-        m_dialPlanContext.clear();
-        addOperator();
+        applyPatchIfNotAlreadyApplied(ADD_OPERATOR, null);
+        applyPatchIfNotAlreadyApplied(CREATE_DEFAULT_DIALPLAN, null);
     }
 
     public void onApplyPatch(Integer patchId, Map properties_) {
         switch (patchId.intValue()) {
         case ADD_OPERATOR:
-            addOperator();
+            AutoAttendant operator = AutoAttendant.createOperator();
+            m_dialPlanContext.storeAutoAttendant(operator);
+            break;
+        case CREATE_DEFAULT_DIALPLAN:
+            // 2.8 users may have already created dialplans so reseting
+            // dial plans shouldn't be done blindly
+            if (m_dialPlanContext.isDialPlanEmpty()) { 
+                // Create the initial dialing rules to match mappingrules.xml, et. al
+                m_dialPlanContext.resetToFactoryDefault();
+            }
             break;
         default:
             break;
         }
+        m_patches.add(patchId);
     }
-
+    
+    private void applyPatchIfNotAlreadyApplied(int patchIdInt, Map properties) {
+        Integer patchId = new Integer(patchIdInt);
+        if (!m_patches.contains(patchId)) {
+            onApplyPatch(patchId, properties);
+        }
+    }
+    
     /**
      * Called when user is deleted.
      * 
@@ -57,11 +79,6 @@ public class LegacyNotifyServiceImpl implements LegacyNotifyService {
         m_phoneContext.deleteLinesForUser(userId);
     }
 
-    private void addOperator() {
-        AutoAttendant operator = AutoAttendant.createOperator();
-        m_dialPlanContext.storeAutoAttendant(operator);
-    }
-    
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }

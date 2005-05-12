@@ -20,8 +20,16 @@ import java.util.Map;
  * events
  */
 public interface LegacyNotifyService extends Remote {
+
+    /**
+     * Call when user is first setting up system, would not be called on upgrade.
+     */
     public void onInit() throws RemoteException;
 
+    /**
+     * Call when user explicitly apply patches OR when system is setting up for the first
+     * time and there are development patches that need to be applied. 
+     */
     public void onApplyPatch(Integer patchId, Map properties) throws RemoteException;
 
     public void onUserDelete(Integer userId) throws RemoteException;
