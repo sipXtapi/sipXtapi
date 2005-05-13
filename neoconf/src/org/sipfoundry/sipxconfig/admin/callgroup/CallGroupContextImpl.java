@@ -36,6 +36,8 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     private Orbits m_orbitsGenerator;
 
+    private String m_orbitServer;
+
     private JmsOperations m_jms;
 
     public CallGroup loadCallGroup(Integer id) {
@@ -77,6 +79,13 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
             cg.activate(m_phoneContext);
         }
 
+        triggerAliasGeneration();
+    }
+
+    /**
+     *  Sends notification to progile generator to trigger alias generation 
+     */
+    private void triggerAliasGeneration() {
         // make profilegenerator to propagate new aliases
         if (null != m_jms) {
             m_jms.send(new GenerateMessage(GenerateMessage.TYPE_ALIAS));
@@ -86,13 +95,21 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     /**
      * Generate aliases for all call groups
      */
-    public List getCallGroupAliases() {
+    public List getAliases() {
+        Organization org = m_coreContext.loadRootOrganization();
+        final String dnsDomain = org.getDnsDomain();
         List callGroups = getCallGroups();
         List allAliases = new ArrayList();
-        Organization org = m_coreContext.loadRootOrganization();
         for (Iterator i = callGroups.iterator(); i.hasNext();) {
             CallGroup cg = (CallGroup) i.next();
-            allAliases.addAll(cg.generateAliases(org.getDnsDomain()));
+            allAliases.addAll(cg.generateAliases(dnsDomain));
+        }
+        Collection orbits = getParkOrbits();
+        for (Iterator i = orbits.iterator(); i.hasNext();) {
+            ParkOrbit orbit = (ParkOrbit) i.next();
+            if (orbit.isEnabled()) {
+                allAliases.add(orbit.generateAlias(dnsDomain, m_orbitServer));
+            }
         }
         return allAliases;
     }
@@ -129,9 +146,11 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
             Collection orbits = getParkOrbits();
             m_orbitsGenerator.generate(orbits);
             m_orbitsGenerator.writeToFile();
+            
+            triggerAliasGeneration();
         } catch (IOException e) {
             new RuntimeException("Activating call parking configuration failed.", e);
-        }
+        }        
     }
 
     public void setJms(JmsOperations jms) {
@@ -148,5 +167,9 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     public void setOrbitsGenerator(Orbits orbitsGenerator) {
         m_orbitsGenerator = orbitsGenerator;
+    }
+
+    public void setOrbitServer(String orbitServer) {
+        m_orbitServer = orbitServer;
     }
 }

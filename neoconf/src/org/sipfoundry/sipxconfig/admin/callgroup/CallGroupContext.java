@@ -31,7 +31,7 @@ public interface CallGroupContext {
 
     void clear();
 
-    List getCallGroupAliases();
+    List getAliases();
 
     ParkOrbit loadParkOrbit(Integer id);
 

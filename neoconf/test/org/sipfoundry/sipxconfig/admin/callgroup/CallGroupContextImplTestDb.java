@@ -114,13 +114,13 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
                 .getValue(0, "ring_type"));
     }
 
-    public void testGenerateCallGroupAliases() throws Exception {
-        List callGroupAliases = m_context.getCallGroupAliases();
-        assertNotNull(callGroupAliases);
-        assertEquals(1, callGroupAliases.size());
+    public void testGenerateAliases() throws Exception {
+        List aliases = m_context.getAliases();
+        assertNotNull(aliases);
+        assertEquals(1, aliases.size());
 
-        AliasMapping aliasMapping = (AliasMapping) callGroupAliases.get(0);
+        AliasMapping aliasMapping = (AliasMapping) aliases.get(0);
         assertTrue(aliasMapping.getIdentity().startsWith("401"));
-        assertTrue(aliasMapping.getContact().startsWith("sales"));
+        assertTrue(aliasMapping.getContact().startsWith("sales"));        
     }
 }

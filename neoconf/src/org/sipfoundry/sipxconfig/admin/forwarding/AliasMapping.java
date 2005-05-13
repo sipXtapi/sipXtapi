@@ -55,4 +55,8 @@ public class AliasMapping {
         builder.append("contact", m_contact);
         return builder.toString();
     }
+
+    public static String createUri(String user, String domain) {
+        return user + "@" + domain;
+    }
 }

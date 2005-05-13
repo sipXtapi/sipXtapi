@@ -130,19 +130,15 @@ public class CallGroup extends AbstractCallSequence {
         if (!isEnabled()) {
             return Collections.EMPTY_LIST;
         }
-        String myIdentity = createUri(m_name, domainName);
+        String myIdentity = AliasMapping.createUri(m_name, domainName);
 
         List aliases = generateAliases(myIdentity, domainName);
         if (StringUtils.isNotBlank(m_extension)) {
-            AliasMapping extensionAlias = new AliasMapping(createUri(m_extension, domainName),
+            AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension, domainName),
                     myIdentity);
             aliases.add(extensionAlias);
         }
         return aliases;
-    }
-
-    private String createUri(String user, String domain) {
-        return user + "@" + domain;
     }
 
     /**

@@ -62,7 +62,7 @@ public class AliasServiceImplTest extends XMLTestCase {
         MockControl mockCallGroupContext = MockControl
                 .createStrictControl(CallGroupContext.class);
         CallGroupContext callGroupContext = (CallGroupContext) mockCallGroupContext.getMock();
-        callGroupContext.getCallGroupAliases();
+        callGroupContext.getAliases();
         mockCallGroupContext.setReturnValue(callGroupAliases);
         mockCallGroupContext.replay();
 

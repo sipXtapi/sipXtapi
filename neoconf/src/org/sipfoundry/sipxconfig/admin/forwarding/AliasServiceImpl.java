@@ -39,7 +39,7 @@ public class AliasServiceImpl implements AliasService {
         Element items = docAliases.addElement(ITEMS);
         items.addAttribute(TYPE, TYPE_ALIAS);
         List forwardingAliases = m_forwardingContext.getForwardingAliases();
-        List callGroupAliases = m_callGroupContext.getCallGroupAliases();
+        List callGroupAliases = m_callGroupContext.getAliases();
         forwardingAliases.addAll(callGroupAliases);
         for (Iterator i = forwardingAliases.iterator(); i.hasNext();) {
             AliasMapping alias = (AliasMapping) i.next();
