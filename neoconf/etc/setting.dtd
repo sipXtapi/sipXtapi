@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Description of sipXconfig model files  -->
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT group (label?,description?,(setting|group)*)>
+<!ATTLIST group name NMTOKEN #REQUIRED>
+<!ATTLIST group copy-of NMTOKEN #IMPLIED>
+<!ELEMENT label (#PCDATA)>
+<!ELEMENT model (group+)>
+<!ELEMENT possibleValues (value+)>
+<!ELEMENT profileName (#PCDATA)>
+<!ELEMENT setting (label?,profileName?,type,value,possibleValues?,description?)>
+<!ATTLIST setting name NMTOKEN #REQUIRED>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT value (#PCDATA)>

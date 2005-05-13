@@ -1026,8 +1026,8 @@
 						SIP server that accepts registrations.</description>
 				</setting>
 				<setting name="port">
-					<type>0, Null, 1 to 65535</type>
 					<profileName>server.2.port</profileName>
+					<type>0, Null, 1 to 65535</type>
 					<value>5060</value>
 					<description></description>
 				</setting>
