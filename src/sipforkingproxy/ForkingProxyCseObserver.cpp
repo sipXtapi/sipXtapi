@@ -75,7 +75,7 @@ ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&    sipUserAgent,
    sipUserAgent.addMessageObserver(*myTaskQueue,
                                    SIP_INVITE_METHOD, // just INVITEs
                                    TRUE, // Requests,
-                                   FALSE, //Responses,
+                                   TRUE, //Responses,
                                    TRUE, //Incoming,
                                    FALSE, //OutGoing,
                                    "", //eventName,
@@ -174,6 +174,8 @@ UtlBoolean ForkingProxyCseObserver::handleMessage(OsMsg& eventMessage)
          OsSysLog::add(FAC_SIP, PRI_ERR, "ForkingProxyCseObserver getMessage returned NULL");
       }
    }
+   break;
+   
    default:
    {
       OsSysLog::add(FAC_SIP, PRI_ERR, "ForkingProxyCseObserver invalid message type %d", msgType );

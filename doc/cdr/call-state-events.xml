@@ -23,7 +23,7 @@
       <email>slawrence@pingtel.com</email>
     </address>
     </author>
-    <date day="7" month="December" year="2004"/>
+    <date day="13" month="May" year="2005"/>
     <area>sipXproxy</area>
     <abstract>
     <t>
@@ -262,14 +262,6 @@
       </section>
 
       <section title="Call Failure">
-        <t>
-          <spanx style='emph'>
-            At present, the Call Failure event is not implemented in the
-            Observers.  This is not a problem for billing and usage
-            monitoring applications, since these are not typically billable
-            events. 
-          </spanx>
-        </t>
       <t>
 
       <list style="hanging">
@@ -279,7 +271,7 @@
         </t>
 
         <t hangText="Description">
-        Indicates that at least one leg of a Call Request encountered
+        Indicates that at least one leg of a Call Request 
         was rejected.
         </t>
 
@@ -340,7 +332,7 @@
         In the present implementation, Call Request events are logged by
         the forking proxy in the file configured by the directive
         SIP_PROXY_CALL_STATE_LOG (by default "sipproxy_callstate.log" in
-        the log directory).  Call Setup and Call End events are logged by
+        the log directory).  Call Setup, Call Failure, and Call End events are logged by
         the authentication proxy in the file configured by the
         SIP_AUTHPROXY_CALL_STATE_LOG directive (by default
         "sipauthproxy_callstate.log" in the log directory).
@@ -461,11 +453,6 @@
 /cdr:call/completionCode &lt;- UC
               </artwork>
             </figure>
-            <spanx style='emph'>
-              Since Call Failure Events are not currently logged, the
-              absence of a Call Setup Event will have to be used to infer a
-              failure, and no final reason can be determined.
-            </spanx>
           </t>
         </list>
       </t>

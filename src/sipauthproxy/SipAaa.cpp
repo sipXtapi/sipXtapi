@@ -176,12 +176,13 @@ SipAaa::handleMessage( OsMsg& eventMessage )
         if ( messageType == SipMessageEvent::TRANSPORT_ERROR )
         {
             //osPrintf("ERROR: SipAaa::handleMessage received transport error message\n");
-            syslog(FAC_SIP, PRI_ERR, "ERROR: SipAaa::handleMessage received transport error message\n") ;
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                   "SipAaa::handleMessage received transport error message") ;
         } else if ( sipRequest )
         {
             if ( sipRequest->isResponse() )
             {
-                syslog(FAC_AUTH, PRI_ERR, "ERROR: SipAaa::handleMessage received response\n");
+                OsSysLog::add(FAC_AUTH, PRI_ERR, "ERROR: SipAaa::handleMessage received response");
                 //osPrintf("ERROR: SipAaa::handleMessage received response\n");
             } else
             {
@@ -316,7 +317,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 {
                     // There is no route check if it is mapped to something local
 //#ifdef TEST_PRINT
-                    syslog(FAC_SIP, PRI_DEBUG, "SipAaa::handleMessage no route found\n") ;
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipAaa::handleMessage no route found") ;
                     //osPrintf("DEBUG: SipAaa::handleMessage no route found\n");
 //#endif
                     UtlString uri;
@@ -484,7 +485,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                             mpAuthorizationRules->getPermissionRequired (
                                 nextHopUrl, isPstnNumber, permissions );
                         }
-                        //syslog(FAC_SIP, PRI_DEBUG,"SipAaa::handleMessage requires %s authorization\n",
+                        //OsSysLog::add(FAC_SIP, PRI_DEBUG,"SipAaa::handleMessage requires %s authorization\n",
                         //    authorizationType.isNull() ? "no" : authorizationType.data()) ;
                         //osPrintf("SipAaa::handleMessage requires %s authorization\n",
                         //    authorizationType.isNull() ? "no" : authorizationType.data());
@@ -725,7 +726,7 @@ UtlBoolean SipAaa::isAuthenticated(
     {
         if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive
         {
-            syslog(FAC_AUTH, PRI_DEBUG, "SipAaa:isAuthenticated: checking user '%s'",
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa:isAuthenticated: checking user '%s'",
                    requestUser.data());
 
             // Ignore this credential if it is not a current valid nonce
@@ -748,7 +749,7 @@ UtlBoolean SipAaa::isAuthenticated(
                      // THIS SHOULD NOTE BE LOGGED IN PRODUCTION
                      // For security reasons we do not want to put passtokens
                      // into the log.
-                    syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated found credential user: \"%s\" passToken: \"%s\"\n",
+                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated found credential user: \"%s\" passToken: \"%s\"",
                            requestUser.data(), passTokenDB.data());
 #endif
                     authenticated = sipRequest.verifyMd5Authorization(requestUser.data(),
@@ -761,23 +762,23 @@ UtlBoolean SipAaa::isAuthenticated(
                     if ( authenticated )
                     {
                         userUrl.toString(authUser);
-                        syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated(): authenticated as '%s'", authUser.data());
+                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated(): authenticated as '%s'", authUser.data());
                     }
                     else
                     {
-                        syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated() authentication failed as '%s'", requestUser.data());
+                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated() authentication failed as '%s'", requestUser.data());
                     }
                 }
                 // Did not find credentials in DB
                 else
                 {
-                   syslog(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() No credentials found for user: '%s'",
+                   OsSysLog::add(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() No credentials found for user: '%s'",
                            requestUser.data());
                 }
             }
             else // Is not a valid nonce
             {
-                syslog(FAC_AUTH, PRI_INFO,
+                OsSysLog::add(FAC_AUTH, PRI_INFO,
                        "SipAaa::isAuthenticated() Invalid NONCE: %s found call-id: %s from tag: %s uri: %s realm: %s expiration: %d",
                      requestNonce.data(), callId.data(), fromTag.data(),
                      requestUri.data(), mRealm.data(), nonceExpires);
@@ -791,7 +792,7 @@ UtlBoolean SipAaa::isAuthenticated(
 
     if ( !authenticated )
     {
-        syslog(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() Request not authenticated.",
+        OsSysLog::add(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() Request not authenticated.",
               requestUser.data());
 
         UtlString newNonce;
@@ -855,7 +856,7 @@ SipAaa::isAuthorized (
         UtlString rowUri        = *((UtlString*)record.findValue(&identityKey));
         UtlString grantedRowPermission = *((UtlString*)record.findValue(&permissionKey));
 
-        syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized found uri: %s permission: %s\n",
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized found uri: %s permission: %s",
                rowUri.data(), grantedRowPermission.data());
         //osPrintf("SipAaa::isAuthorized found uri: %s permission: %s\n",
         //    rowUri.data(), rowPermission.data());
@@ -928,7 +929,7 @@ SipAaa::isAuthorized (
         }
     }
 
-    syslog(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized user: %s %s for %s\n",
+    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized user: %s %s for %s",
            authUser && *authUser ? authUser : "none",
            authorized ? "authorized" : "not authorized",
            matchedPermission.data());

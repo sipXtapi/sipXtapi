@@ -202,13 +202,9 @@ Lawrence                                                        [Page 3]
 
 3.3  Call Failure
 
-   _ At present, the Call Failure event is not implemented in the
-   Observers.  This is not a problem for billing and usage monitoring
-   applications, since these are not typically billable events.  _
-
    XML element name cse_failure
-   Description Indicates that at least one leg of a Call Request
-      encountered was rejected.
+   Description Indicates that at least one leg of a Call Request was
+      rejected.
    Triggered by
          Any 5xx or 6xx response to an INVITE request,
          _or_ any 4xx response to an INVITE request _except_:
@@ -217,6 +213,10 @@ Lawrence                                                        [Page 3]
             408 Request timeout
 
    Depending on the specific failure mode and the retry behaviour of the
+   servers and endpoints, there may be more than one Call Failed event
+   for a given attempt to create a call; these should all have the same
+   dialog ids.  A call state processor can only conclude that all given
+   Call Request event ended in failure if there are no Call Setup events
 
 
 
@@ -225,10 +225,6 @@ Lawrence                                                        [Page 4]
                             Call State Events              December 2004
 
 
-   servers and endpoints, there may be more than one Call Failed event
-   for a given attempt to create a call; these should all have the same
-   dialog ids.  A call state processor can only conclude that all given
-   Call Request event ended in failure if there are no Call Setup events
    for it and there are no missing events.
 
 3.4  Call End
@@ -245,8 +241,8 @@ Lawrence                                                        [Page 4]
    In the present implementation, Call Request events are logged by the
    forking proxy in the file configured by the directive
    SIP_PROXY_CALL_STATE_LOG (by default "sipproxy_callstate.log" in the
-   log directory).  Call Setup and Call End events are logged by the
-   authentication proxy in the file configured by the
+   log directory).  Call Setup, Call Failure, and Call End events are
+   logged by the authentication proxy in the file configured by the
    SIP_AUTHPROXY_CALL_STATE_LOG directive (by default
    "sipauthproxy_callstate.log" in the log directory).
 
@@ -274,6 +270,10 @@ Lawrence                                                        [Page 4]
    the contents of the element /src-element/src-sub from namespace
    src-ns.
 
+   The namespaces used are:
+
+
+
 
 
 Lawrence                                                        [Page 5]
@@ -281,7 +281,6 @@ Lawrence                                                        [Page 5]
                             Call State Events              December 2004
 
 
-   The namespaces used are:
    cdr The Call Detail Records namespace:
       http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00 (see
       Appendix C).
@@ -329,6 +328,7 @@ Lawrence                                                        [Page 5]
    /cdr:call/completionCode <- CC
 
         If there was no <cse:call_setup> event, find the last
+       <cse:call_failed> event and set:
 
 
 
@@ -337,15 +337,10 @@ Lawrence                                                        [Page 6]
                             Call State Events              December 2004
 
 
-       <cse:call_failed> event and set:
-
    /cdr:call/caller/endpoint <- /cse:call_event/call_failed/via
    /cdr:call/end <- /cse:call_event/obs_time
    /cdr:call/completionCode <- UC
 
-       _ Since Call Failure Events are not currently logged, the absence
-       of a Call Setup Event will have to be used to infer a failure,
-       and no final reason can be determined. _
 
 
 Author's Address
@@ -385,6 +380,11 @@ Appendix A.  Call State Event XML Schema
            A DNS name.
          </documentation>
        </annotation>
+       <restriction base="normalizedString">
+         <pattern value="(([a-zA-Z0-9]+-)*[a-zA-Z0-9]+\.)*([a-zA-Z0-9]+-)*[a-zA-Z0-9]+">
+           <annotation>
+             <documentation>dns_token(\.dns_token)+</documentation>
+           </annotation>
 
 
 
@@ -393,11 +393,6 @@ Lawrence                                                        [Page 7]
                             Call State Events              December 2004
 
 
-       <restriction base="normalizedString">
-         <pattern value="(([a-zA-Z0-9]+-)*[a-zA-Z0-9]+\.)*([a-zA-Z0-9]+-)*[a-zA-Z0-9]+">
-           <annotation>
-             <documentation>dns_token(\.dns_token)+</documentation>
-           </annotation>
          </pattern>
        </restriction>
      </simpleType>
@@ -441,6 +436,11 @@ Lawrence                                                        [Page 7]
            25.1.  Note that it does not, by itself, uniquely identify a
            dialog; that is identified by the complete dialog_id type.
          </documentation>
+         <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+       </annotation>
+       <restriction base="normalizedString">
+         <pattern value="([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)@([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)">
+            <annotation>
 
 
 
@@ -449,11 +449,6 @@ Lawrence                                                        [Page 8]
                             Call State Events              December 2004
 
 
-         <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
-       </annotation>
-       <restriction base="normalizedString">
-         <pattern value="([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)@([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)">
-            <annotation>
               <documentation>sip_word@sip_word</documentation>
             </annotation>
          </pattern>
@@ -499,15 +494,17 @@ Lawrence                                                        [Page 8]
      </simpleType>
 
 
+   <!-- Elements -->
+
+     <element name='call_event_sequence'>
+
+
 
 Lawrence                                                        [Page 9]
 
                             Call State Events              December 2004
 
 
-   <!-- Elements -->
-
-     <element name='call_event_sequence'>
        <annotation>
          <documentation>
            A container for a set of call_event elements
@@ -553,6 +550,9 @@ Lawrence                                                        [Page 9]
          </documentation>
        </annotation>
        <complexType>
+         <sequence>
+             <element ref='cse:obs_status'/>
+             <element ref='cse:obs_text' minOccurs='0'/>
 
 
 
@@ -561,9 +561,6 @@ Lawrence                                                       [Page 10]
                             Call State Events              December 2004
 
 
-         <sequence>
-             <element ref='cse:obs_status'/>
-             <element ref='cse:obs_text' minOccurs='0'/>
              <element name='schema' type='anyURI' minOccurs='0'>
                <annotation>
                  <documentation>
@@ -609,6 +606,9 @@ Lawrence                                                       [Page 10]
        <complexType>
          <sequence>
              <element ref='cse:call'/>
+             <element ref='cse:contact'/>
+             <element ref='cse:via' maxOccurs='unbounded'/>
+         </sequence>
 
 
 
@@ -617,9 +617,6 @@ Lawrence                                                       [Page 11]
                             Call State Events              December 2004
 
 
-             <element ref='cse:contact'/>
-             <element ref='cse:via' maxOccurs='unbounded'/>
-         </sequence>
        </complexType>
      </element>
 
@@ -665,6 +662,9 @@ Lawrence                                                       [Page 11]
      </element>
 
      <element name='dialog'>
+       <annotation>
+         <documentation>
+         This uniquely identifies a call.
 
 
 
@@ -673,9 +673,6 @@ Lawrence                                                       [Page 12]
                             Call State Events              December 2004
 
 
-       <annotation>
-         <documentation>
-         This uniquely identifies a call.
          </documentation>
        </annotation>
        <complexType>
@@ -722,14 +719,15 @@ Lawrence                                                       [Page 12]
 
      <element name='reason' type='normalizedString'/>
 
+     <element name='via' type='normalizedString'/>
+
+
 
 
 Lawrence                                                       [Page 13]
 
                             Call State Events              December 2004
 
-
-     <element name='via' type='normalizedString'/>
 
      <element name='contact' type='normalizedString'/>
 
@@ -777,6 +775,8 @@ Appendix B.  Example Call State Events
      <call_setup>
        <call>
          <dialog>
+           <call_id>call-1063657885-12@10.1.1.252</call_id>
+           <from_tag>1c954235820</from_tag>
 
 
 
@@ -785,8 +785,6 @@ Lawrence                                                       [Page 14]
                             Call State Events              December 2004
 
 
-           <call_id>call-1063657885-12@10.1.1.252</call_id>
-           <from_tag>1c954235820</from_tag>
            <to_tag>c1592453082</to_tag>
          </dialog>
          <to>Some Phone&lt;sip:162@example.com&gt;;tag=c1592453082,transport=tcp</to>
@@ -833,6 +831,8 @@ Lawrence                                                       [Page 14]
          <from>"Scott"&lt;sip:scott-ix@kathmandu.example.com&gt;;tag=1c954235820</from>
        </call>
        <via>SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f659999999</via>
+     </call_end>
+   </call_event>
 
 
 
@@ -841,8 +841,6 @@ Lawrence                                                       [Page 15]
                             Call State Events              December 2004
 
 
-     </call_end>
-   </call_event>
    </call_event_sequence>
 
 
@@ -889,6 +887,8 @@ Appendix C.  Call Detail Record XML Schema
        </sequence>
      </complexType>
 
+     <simpleType name="call_result">
+       <annotation>
 
 
 
@@ -897,8 +897,6 @@ Lawrence                                                       [Page 16]
                             Call State Events              December 2004
 
 
-     <simpleType name="call_result">
-       <annotation>
          <documentation>
            Final result of an attempted call.
            These values are adapted from those specified by:
@@ -945,6 +943,8 @@ Lawrence                                                       [Page 16]
          </enumeration>
        </restriction>
      </simpleType>
+
+
 
 
 

@@ -22,6 +22,7 @@
 #include <os/OsSysLog.h>
 
 //#define TEST_PRINT 1
+#define LOG_DEBUG 1
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -87,6 +88,16 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&    sipUserAgent,
                                    SIP_BYE_METHOD,
                                    TRUE, // Requests,
                                    FALSE, //Responses,
+                                   TRUE, //Incoming,
+                                   FALSE, //OutGoing,
+                                   "", //eventName,
+                                   NULL, // any session
+                                   NULL // no observerData
+                                   );
+   sipUserAgent.addMessageObserver(*myTaskQueue,
+                                   SIP_INVITE_METHOD,
+                                   TRUE, // Requests,
+                                   TRUE, //Responses,
                                    TRUE, //Incoming,
                                    FALSE, //OutGoing,
                                    "", //eventName,
@@ -206,7 +217,7 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             }
          }
 
-#        if 0         
+#        ifdef LOG_DEBUG
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "AuthProxyCseObserver message is %s",
                        (  thisMsgIs == UnInteresting ? "UnInteresting"
                         : thisMsgIs == aCallEnd      ? "a Call End"
@@ -290,6 +301,8 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
          OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver getMessage returned NULL");
       }
    }
+   break;
+   
    default:
    {
       OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver invalid message type %d", msgType );

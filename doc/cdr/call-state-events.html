@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXproxy: sipXproxy Call State Events Specification</title>
-<meta http-equiv="Expires" content="Mon, 14 Feb 2005 22:39:43 +0000">
+<meta http-equiv="Expires" content="Fri, 13 May 2005 14:24:56 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXproxy Call State Events Specification">
 <meta name="generator" content="xml2rfc v1.28 (http://xml.resource.org/)">
@@ -410,13 +410,6 @@ Call Detail Record XML Schema<br />
 </p>
 <a name="rfc.section.3.3"></a><h4><a name="anchor5">3.3</a>&nbsp;Call Failure</h4>
 
-<p><span class="emph">
-            At present, the Call Failure event is not implemented in the
-            Observers.  This is not a problem for billing and usage
-            monitoring applications, since these are not typically billable
-            events. 
-          </span>
-</p>
 <p></p>
 <blockquote class="text"><dl>
 <dt>XML element name</dt>
@@ -426,7 +419,7 @@ Call Detail Record XML Schema<br />
 </dd>
 <dt>Description</dt>
 <dd>
-        Indicates that at least one leg of a Call Request encountered
+        Indicates that at least one leg of a Call Request 
         was rejected.
         
 </dd>
@@ -495,7 +488,7 @@ Call Detail Record XML Schema<br />
         In the present implementation, Call Request events are logged by
         the forking proxy in the file configured by the directive
         SIP_PROXY_CALL_STATE_LOG (by default "sipproxy_callstate.log" in
-        the log directory).  Call Setup and Call End events are logged by
+        the log directory).  Call Setup, Call Failure, and Call End events are logged by
         the authentication proxy in the file configured by the
         SIP_AUTHPROXY_CALL_STATE_LOG directive (by default
         "sipauthproxy_callstate.log" in the log directory).
@@ -619,11 +612,7 @@ Call Detail Record XML Schema<br />
 /cdr:call/end &lt;- /cse:call_event/obs_time
 /cdr:call/completionCode &lt;- UC
 </pre>
-<span class="emph">
-              Since Call Failure Events are not currently logged, the
-              absence of a Call Setup Event will have to be used to infer a
-              failure, and no final reason can be determined.
-            </span>
+
 </li>
 </ol>
 
