@@ -38,6 +38,10 @@ public class Orbits extends XmlFile {
         m_document = FACTORY.createDocument();
         Element orbits = m_document.addElement("orbits", NAMESPACE);
         File dir = new File(m_audioDirectory);
+        // add music-on-hold
+        Element musicOnHold = orbits.addElement("music-on-hold");
+        addBackgroundAudio(musicOnHold, dir, "default.wav");
+        // add other orbits
         for (Iterator i = parkOrbits.iterator(); i.hasNext();) {
             ParkOrbit parkOrbit = (ParkOrbit) i.next();
             // ignore disabled orbits
@@ -47,10 +51,14 @@ public class Orbits extends XmlFile {
             Element orbit = orbits.addElement("orbit");
             orbit.addElement("name").setText(parkOrbit.getName());
             orbit.addElement("extension").setText(parkOrbit.getExtension());
-            File audioFile = new File(dir, parkOrbit.getMusicOnHold());
-            orbit.addElement("background-audio").setText(audioFile.getAbsolutePath());
+            addBackgroundAudio(orbit, dir, parkOrbit.getMusicOnHold());
             orbit.addElement("description").setText(parkOrbit.getDescription());
         }
+    }
+
+    private void addBackgroundAudio(Element parent, File dir, String file) {
+        File audioFile = new File(dir, file);
+        parent.addElement("background-audio").setText("file://" + audioFile.getAbsolutePath());
     }
 
     /**
