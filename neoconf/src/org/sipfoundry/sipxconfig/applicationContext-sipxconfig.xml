@@ -506,7 +506,7 @@
     <!--
       - C A L L G R O U P   C O N T E X T
       -->
-	<bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits" dependency-check="all">
+	<bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits">
         <property name="configDirectory">
             <value>${sysdir.etc}</value>
         </property>

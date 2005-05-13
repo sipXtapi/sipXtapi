@@ -26,7 +26,6 @@ import net.sourceforge.jwebunit.WebTester;
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.WebForm;
@@ -181,7 +180,6 @@ public class SiteTestHelper {
      * arg 0 - any path in the testing classpath
      * arg 1 - absolute path to sipXconfig/neoconf/etc directory (not installed)
      * arg 2 - where output is generated   
-     * @param 
      */
     public static void main(String[] args) {
         Properties sysProps = new Properties();

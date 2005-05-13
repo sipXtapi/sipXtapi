@@ -31,6 +31,7 @@ public final class TestUtil {
     public static final String APPLICATION_CONTEXT_FILE = "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml";
     
     private TestUtil() {        
+        // empty - to prevent instantiation
     }
 
     /**
@@ -116,7 +117,6 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
         sysProps.setProperty("polycom300.outboundProxyAddress", "proxy.sipfoundry.org");        
-        sysProps.setProperty("orbitsGenerator.audioDirectory", "/opt/work-2.8/sipx/var/parkserver/music");
     }
     
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
