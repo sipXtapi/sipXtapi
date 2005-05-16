@@ -19,7 +19,6 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
@@ -43,6 +42,7 @@
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="dialplan/ListGateways.page"/>
     <page name="ListParkOrbits" specification-path="admin/ListParkOrbits.page"/>    
+    <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
@@ -52,6 +52,7 @@
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
     <page name="SelectRuleType" specification-path="dialplan/SelectRuleType.page"/>
+    <page name="ServerSettings" specification-path="admin/commserver/ServerSettings.page"/>    
     <page name="UserCallForwarding" specification-path="user_portal/UserCallForwarding.page"/>
 
     <!--
@@ -82,6 +83,7 @@
     <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
     <component-type type="SettingsForm" specification-path="setting/SettingsForm.jwc"/>
+    <component-type type="SettingsNavigation" specification-path="setting/SettingsNavigation.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserRingTable" specification-path="admin/UserRingTable.jwc"/>
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>

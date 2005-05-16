@@ -25,8 +25,14 @@ public interface Phone {
     
     public PhoneData getPhoneData();
     
+    /**
+     * @return undecorated model - direct representation of XML model description
+     */
     public Setting getSettingModel();
 
+    /**
+     * @return decorated model - use this to modify phone settings
+     */
     public Setting getSettings();
     
     public void generateProfiles();

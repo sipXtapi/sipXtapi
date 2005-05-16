@@ -55,15 +55,17 @@
 		<!-- TODO: Separate these from compile dependencies -->
 		<path refid="runtime.dependencies" />
 		<!-- TEST -->
+        <pathelement path="${commons-digester.jar}"/>      
 		<pathelement path="${easymock.jar}" />
 		<pathelement path="${httpunit.jar}"/>
 		<pathelement path="${jwebunit.jar}"/>
 		<pathelement path="${jetty.jar}"/>
-          <pathelement path="${servlet.jsp.jar}"/>
-          <pathelement path="${jasper-runtime.jar}"/>
-          <pathelement path="${jasper-compiler.jar}"/>
-          <pathelement path="${tidy.jar}"/>
+        <pathelement path="${servlet.jsp.jar}"/>
+        <pathelement path="${jasper-runtime.jar}"/>
+        <pathelement path="${jasper-compiler.jar}"/>
+        <pathelement path="${tidy.jar}"/>
 	</path>
+    
 	<property name="classpath" refid="base.path" />
 
 	<target name="init" depends="ant-targets.init">
@@ -157,22 +159,26 @@
         <target name="test-all" depends="ant-targets.test-all,test-ui"/>
 
 	<target name="test-war" depends="compile.test,war" description="Creates a war file for unittests">
-
+        <property name="test.systemRoot" location="${test.results.dir}/artifical-system-root"/>
+        
 		<delete dir="${test.war}"/>
 		<unwar src="${sipxconfig.war}" dest="${test.war}"/>
-		  <!-- generates sipxconfig.properties that has test oriented values -->
-		  <java classname="org.sipfoundry.sipxconfig.site.SiteTestHelper"
+		<!-- generates sipxconfig.properties that has test oriented values -->
+		<java classname="org.sipfoundry.sipxconfig.site.SiteTestHelper"
 		  	     failonerror="true">
-		      <sysproperty key="basedir" value="${basedir}"/>
-                     <classpath path="${classpath}"/>
-                     <classpath location="${junit.jar}"/>
-                     <classpath refid="test.path"/>
-                     <classpath location="${test.classes.dir}"/>
-		     <arg value="${test.war}/WEB-INF/classes"/>
-		     <arg value="${top.dir}/neoconf/etc"/>
-   	             <arg value="${test.results.dir}"/>
-		  </java>
-         <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml" overwrite="true"/>
+		  <sysproperty key="basedir" value="${basedir}"/>
+          <classpath path="${classpath}"/>
+          <classpath location="${junit.jar}"/>
+          <classpath refid="test.path"/>
+          <classpath location="${test.classes.dir}"/>
+		  <arg value="${test.war}/WEB-INF/classes"/>
+          <arg value="${test.systemRoot}"/>       
+   	      <arg value="${test.results.dir}"/>
+		</java>
+        <copy todir="${test.systemRoot}/etc">
+            <fileset dir="${top.dir}/neoconf/etc"/>
+        </copy>      
+        <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml" overwrite="true"/>
 	</target>
 
   <!-- 

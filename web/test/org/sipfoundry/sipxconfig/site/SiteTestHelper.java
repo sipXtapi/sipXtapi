@@ -36,6 +36,8 @@ public class SiteTestHelper {
 
     private static String s_baseUrl;
 
+    private static String s_artificialSystemRoot;
+
     public static Test webTestSuite(Class webTestClass) {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(webTestClass);
@@ -154,9 +156,13 @@ public class SiteTestHelper {
      * files.
      */
     public static String getArtificialSystemRootDirectory() {
-        return TestUtil.getTestOutputDirectory("web") + "/artifical-system-root";
+        if( null == s_artificialSystemRoot ) {
+            s_artificialSystemRoot = TestUtil.getTestOutputDirectory("web") + "/artifical-system-root"; 
+        }
+        return s_artificialSystemRoot;
     }
     
+        
     /**
      * Create a dir if it doesn't exists and deletes all contents if it does exist
      */
@@ -178,20 +184,21 @@ public class SiteTestHelper {
     /**
      * Write out sipxconfig.properties for testing
      * arg 0 - any path in the testing classpath
-     * arg 1 - absolute path to sipXconfig/neoconf/etc directory (not installed)
+     * arg 1 - path to artificial root directory
      * arg 2 - where output is generated   
      */
     public static void main(String[] args) {
         Properties sysProps = new Properties();
-        String systemDirectory = cleanDirectory(getArtificialSystemRootDirectory());
+        s_artificialSystemRoot = args[0];
+        
+        String systemDirectory = cleanDirectory(args[1]);
+        String etcDirectory = systemDirectory + "/etc";
         sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
-        sysProps.setProperty("sysdir.etc", systemDirectory + "/etc");
-        
-        
+                
         // generates sipxconfig.properties in classpath (arg 0)
-        TestUtil.setSysDirProperties(sysProps, args[1], args[2]);
+        TestUtil.setSysDirProperties(sysProps, etcDirectory, args[2]);
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
 

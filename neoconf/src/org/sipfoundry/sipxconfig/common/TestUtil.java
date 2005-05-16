@@ -50,7 +50,7 @@ public final class TestUtil {
      * Where to direct test output, cleaned on 'ant clean' and ignored by subversion
      */
     public static String getTestOutputDirectory(String project) {
-        return getBuildDirectory(project)  + "/test-output";
+        return getBuildDirectory(project)  + "/test-results";
     }
     
     /**

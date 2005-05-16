@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.commserver.ServerSettings">
+
+    <description>Server settings</description>
+    
+    <!-- P R O P E R T I E S -->
+    
+    <property-specification name="server" 
+    	type="org.sipfoundry.sipxconfig.admin.commserver.Server" 
+    	initial-value="global.sipxServer"/>
+    <property-specification name="parentSettingName"
+        type="java.lang.String"
+        persistent="yes"
+    	initial-value="'voice'"
+    	/>    
+    <property-specification name="parentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    
+	<!-- C O M P O N E N T S -->
+        
+    <component id="settingsNavigation" type="SettingsNavigation">
+        <binding name="settings" expression="server.settings"/>
+        <binding name="tab" expression="parentSettingName"/>
+        <message-binding name="heading" key="title"/>
+    </component>
+    <component id="settingDescription" type="Insert">
+        <binding name="value" expression="parentSetting.description"/>
+    </component>
+    <component id="settingsForm" type="SettingsForm">
+        <binding name="settings" expression="parentSetting"/>
+        <binding name="cancelListener" expression="listeners.cancel"/>
+        <binding name="okListener" expression="listeners.ok"/>
+        <binding name="applyListener" expression="listeners.apply"/>
+        <binding name="settingRenderer" expression="null"/>
+    </component>
+    
+</page-specification>

@@ -536,4 +536,14 @@
 			</list>
 		</property>
 	</bean>
+    
+    <!-- 
+      - C O M M S E R V E R S   S E T T I N G S
+      -->      
+	<bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer">
+        <property name="configDirectory">
+			<value>${sysdir.etc}</value>            
+        </property>
+    </bean>      
+      
 </beans>

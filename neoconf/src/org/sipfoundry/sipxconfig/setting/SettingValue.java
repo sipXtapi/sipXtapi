@@ -17,12 +17,12 @@ package org.sipfoundry.sipxconfig.setting;
  * Proxy setting class thru a decorator that manages values in the ValueStorage
  * class. 
  */
-class SettingValue extends SettingDecorator {
+public class SettingValue extends SettingDecorator {
     
     private ValueStorage m_valueStorage;
     
-    /** BEAN ACCESS ONLY */
     public SettingValue() {        
+        /// BEAN ACCESS ONLY
     }
     
     public SettingValue(ValueStorage valueStorage, Setting delegate) {
