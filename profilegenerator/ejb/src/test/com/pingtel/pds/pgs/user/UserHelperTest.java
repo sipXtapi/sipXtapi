@@ -18,7 +18,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Set;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -33,6 +36,7 @@ import com.pingtel.pds.pgs.organization.OrganizationBusiness;
 import com.pingtel.pds.pgs.profile.RefPropertyBusiness;
 
 public class UserHelperTest extends XMLTestCase {
+        
     public UserHelperTest() {
         XMLUnit.setIgnoreWhitespace(true);
     }
@@ -253,5 +257,34 @@ public class UserHelperTest extends XMLTestCase {
         assertEquals("sipx:ddd@abc.com", newUrl);
         newUrl = UserHelper.fixUserLineUrl("sipx:ddd.com@ddd.com", "xyz.com", "ddd.com");
         assertEquals("sipx:ddd.com@xyz.com", newUrl);
+    }
+
+    public void testGeneratePassword() {
+        Random predictable = new PredictableRandom();
+        Set pwds = new HashSet();
+        // unittest w/random is not good, however I've tested this up to 10,000
+        // and it's fine. 100 is very generous
+        for (int i = 0; i < 20; i++) {            
+            String pwd = UserHelper.generatePassword(predictable);
+            assertFalse(pwds.contains(pwd));
+        }
+    }    
+        
+    /**
+     * for range = 100, goes up like .00, .01, ...  up to 1 then starts over
+     * alg. is not important, predictable is.  Wouldn't want unittests randomly
+     * passing or failing.
+     */ 
+    static class PredictableRandom extends Random {
+        
+        int m_range = 100;
+
+        int m_seed = 0;
+        
+        public double nextDouble() {
+            int seed = m_seed++ % m_range;
+            double rand = ((double) seed) / m_range;            
+            return rand;
+        }
     }
 }

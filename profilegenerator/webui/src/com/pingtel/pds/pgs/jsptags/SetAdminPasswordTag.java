@@ -59,7 +59,7 @@ public class SetAdminPasswordTag extends ExTagSupport {
             User user = m_userHome.findByPrimaryKey( m_userID );
             String displayID = user.getDisplayID();
 
-            m_userAdvocate.setUsersPassword( m_userID, displayID, m_password );
+            m_userAdvocate.setUsersPinToken( m_userID, displayID, m_password );
         }
         catch (Exception ex ) {
             throw new JspTagException( ex.getMessage() );

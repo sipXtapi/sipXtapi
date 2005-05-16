@@ -302,9 +302,14 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
             assignSecurityRole( newUser, "END_USER", null );
 
+            String sipPassword = password;
             if (!id.equals("superadmin") && !id.equals("SDS"))  {
-                createInitialLine (newUser, password);
+                createInitialLine (newUser, sipPassword);
             }
+
+            // new users, sip password and pin token will be same
+            // user has to explicitly set sip password afterward
+            setUsersPinToken(newUser, id, password);
 
             logTransaction (mCTX, "created user " + newUser.getExternalID());
             return newUser;
@@ -346,8 +351,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
                     lastName,
                     refConfigSetID}));
         }
-    }
-
+    }    
 
 
     /**
@@ -482,7 +486,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
                                 String displayID,
                                 String firstName,
                                 String lastName,
-                                String password,
+                                String pintoken,
                                 String refConfigSetID,
                                 String userGroupID,
                                 String aliases,
@@ -515,8 +519,8 @@ public class UserAdvocateBean extends JDBCAwareEJB
             }
 
 
-            if ( password != null && password.equalsIgnoreCase("e_m_p_t_y") ) {
-                password = "";
+            if ( pintoken != null && pintoken.equalsIgnoreCase("e_m_p_t_y") ) {
+                pintoken = "";
             }
 
             ////////////////////////////////////////////////////////////////////////////
@@ -526,8 +530,8 @@ public class UserAdvocateBean extends JDBCAwareEJB
             // changed.
             //
             ////////////////////////////////////////////////////////////////////////////
-            if ( ( displayID != null && !displayID.equals( thisUser.getDisplayID() ) && password != null ) ||
-                    ( password != null && !password.equals( thisUser.getPassword() ) && displayID != null ) ) {
+            if ( ( displayID != null && !displayID.equals( thisUser.getDisplayID() ) && pintoken != null ) ||
+                    ( pintoken != null && !pintoken.equals( thisUser.getPassword() ) && displayID != null ) ) {
 
                 if ( displayID != null && !displayID.equals( thisUser.getDisplayID() ) ) {
 
@@ -546,8 +550,8 @@ public class UserAdvocateBean extends JDBCAwareEJB
                 }
 
                 thisUser.setDisplayID( displayID );
-                // setUsersPassword rebuilds the users primary line info.
-                setUsersPassword(thisUser, displayID, password);
+                // NOT the pintoken is notpart of the XMLob in DB
+                setUsersPinToken(thisUser, displayID, pintoken);
 
                 // Fix primary line
                 changedValues[PGSDefinitions.LINE_INFO_CHANGED] = true;
@@ -627,7 +631,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
             }
 
             if ( fixLine ) {
-                fixPrimaryLine( thisUser, fixCredential, password );
+                fixPrimaryLine( thisUser, fixCredential, null );
             }
 
             return changedValues;
@@ -653,14 +657,14 @@ public class UserAdvocateBean extends JDBCAwareEJB
 
 
     /**
-     * changes the given Users password. (local)
+     * changes the given Users sip passtoken. (local)
      *
      * @param user User whose password is to be set
      * @param displayID the display ID or externally visible ID for the User
      * @param password the plain-text password to be used
      * @throws PDSException is thrown for application level errors
      */
-    public void setUsersPassword(User user, String displayID, String password)
+    public void setUsersSipPassword(User user, String displayID, String password)
             throws PDSException {
 
         try {
@@ -683,10 +687,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
                                                 new Object[]{ organizationID }),
                         ex);
             }
-
-            String digestedPassword = UserHelper.digestPassword( displayID, org, password );
-
-            user.setPassword( digestedPassword );
 
             Collection roles = getSecurityRoles( user.getID().toString());
             if ( !roles.contains( "SUPER") && !roles.contains ("SDS") ){
@@ -723,7 +723,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
      * @param password the plain-text password to be used
      * @throws PDSException is thrown for application level errors
      */
-    public void setUsersPassword(String id, String displayID, String password)
+    public void setUsersSipPassword(String id, String displayID, String password)
             throws PDSException {
 
         User thisUser = null;
@@ -731,7 +731,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
         try {
             thisUser = mUserHome.findByPrimaryKey( id );
 
-            setUsersPassword ( thisUser, displayID, password );
+            setUsersSipPassword ( thisUser, displayID, password );
         }
         catch (FinderException fe) {
             mCTX.setRollbackOnly();
@@ -755,6 +755,81 @@ public class UserAdvocateBean extends JDBCAwareEJB
                                         new String[]{   userExternal == null ?
                                                             id :
                                                             userExternal } ) );
+        }
+    }
+    
+    public void setUsersPinToken(String id, String displayID, String password) throws PDSException,
+            RemoteException {
+        User thisUser = null;
+
+        try {
+            thisUser = mUserHome.findByPrimaryKey( id );
+
+            setUsersPinToken ( thisUser, displayID, password );
+        }
+        catch (FinderException fe) {
+            mCTX.setRollbackOnly();
+
+            throw new PDSException(
+                    collateErrorMessages("UC630",
+                    "E1026",
+                    new String[]{id}),
+                    fe);
+        }
+        catch (RemoteException re) {
+            logFatal( re.toString(), re );
+
+            String userExternal = null;
+
+            try { userExternal = thisUser.getExternalID();} catch ( RemoteException ex ) {}
+
+            throw new EJBException(
+                collateErrorMessages(   "UC630",
+                                        "E4020",
+                                        new String[]{   userExternal == null ?
+                                                            id :
+                                                            userExternal } ) );
+        }        
+    }
+
+    public void setUsersPinToken(User user, String displayID, String password) throws PDSException,
+            RemoteException {
+
+        try {
+            if ( password != null && password.equalsIgnoreCase("e_m_p_t_y") ) {
+                password = "";
+            }
+
+            Organization org = null;
+            Integer organizationID = user.getOrganizationID();
+
+            try {
+                org = mOrganizationHome.findByPrimaryKey( organizationID );
+            }
+            catch ( FinderException ex ) {
+                mCTX.setRollbackOnly();
+
+                throw new PDSException(
+                        collateErrorMessages(   "UC630",
+                                                "E1018",
+                                                new Object[]{ organizationID }),
+                        ex);
+            }
+
+            String digestedPassword = UserHelper.digestPassword( displayID, org, password );
+            user.setPassword( digestedPassword );
+        }
+        catch (RemoteException re) {
+            logFatal( re.toString(), re );
+
+            String userExternal = null;
+
+            try { userExternal = user.getExternalID();} catch ( RemoteException ex ) {}
+
+            throw new EJBException(
+                collateErrorMessages(   "UC630",
+                                        "E4020",
+                                        new Object []{ userExternal } ) );
         }
     }
     
@@ -1850,7 +1925,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
     }
 
 
-    private void createInitialLine ( User user, String undigestedPassword )
+    private void createInitialLine ( User user, String sipPassword )
         throws PDSException {
 
         try {
@@ -1877,7 +1952,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
             RefProperty defaultLine = getRefProperty ( "xp_2028" );
 
             UserHelper helper = new UserHelper( user );
-            String xmlContent = helper.createInitialLine( org, rpXp, defaultLine, rpCs, undigestedPassword );
+            String xmlContent = helper.createInitialLine( org, rpXp, defaultLine, rpCs, sipPassword );
             
             try {
                 mConfigurationSetHome.create( user.getRefConfigSetID(),

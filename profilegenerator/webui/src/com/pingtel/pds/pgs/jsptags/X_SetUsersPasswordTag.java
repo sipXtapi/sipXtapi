@@ -119,7 +119,7 @@ public class X_SetUsersPasswordTag extends ExTagSupport {
             String displayID = user.getDisplayID();
 
 
-            m_userAdvocate.setUsersPassword( m_userID, displayID, m_password );
+            m_userAdvocate.setUsersPinToken( m_userID, displayID, m_password );
 
             m_userAdvocate.generateProfiles(    m_userID,
                                                 String.valueOf( PDSDefinitions.PROF_TYPE_USER ),

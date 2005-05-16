@@ -18,6 +18,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.rmi.RemoteException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +39,8 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import org.apache.regexp.RE;
 import org.jdom.Document;
@@ -314,6 +320,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             logDebug("generateCredentials::primary_line rp_id is: " + primaryLineRPID);
 
             Collection configSets = getConfigSets(USER_CONFIG_SETS | DEVICE_CONFIG_SETS);
+            Map pinTokens = getPinTokens();
 
             // add to XML output doc
             /*
@@ -392,17 +399,27 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                                 realm.addContent(credential.getChild("REALM").getText());
                                 item.addContent(realm);
 
+                                String userIDTxt = credential.getChild("USERID").getText();
                                 Element userID = new Element("userid");
-                                logDebug("generateCredentials::userid for credential: "
-                                        + credential.getChild("USERID").getText());
-                                userID.addContent(credential.getChild("USERID").getText());
+                                logDebug("generateCredentials::userid for credential: " + userIDTxt);
+                                userID.addContent(userIDTxt);
                                 item.addContent(userID);
 
+                                // sip password
                                 Element password = new Element("passtoken");
                                 logDebug("generateCredentials::passtoken for credential: "
                                         + credential.getChild("PASSTOKEN").getText());
                                 password.addContent(credential.getChild("PASSTOKEN").getText());
                                 item.addContent(password);
+
+                                // sipxconfig and ivr login pin, users.password
+                                String pinTokenTxt = (String) pinTokens.get(userIDTxt);
+                                if (pinTokenTxt != null) {
+                                    Element pintokenElement = new Element("pintoken");
+                                    logDebug("generateCredentials::pintoken for credential: " + pinTokenTxt);
+                                    pintokenElement.addContent(pinTokenTxt);
+                                    item.addContent(pintokenElement);
+                                }
 
                                 // This is a hardcoded value for now; it is needed by the
                                 // database but is not part of line definitions.
@@ -742,6 +759,41 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
             groupConfigSets = (Collection) userGroupConfigSetsMap.get(userGroup.getID());
         }
         return groupConfigSets;
+    }
+    
+    /**
+     * Get all the pin token from the user table and index them by userid
+     */
+    private Map getPinTokens() {
+        Map pintokens = new HashMap();
+        InitialContext initial;
+        Statement statement = null;
+        try {
+            initial = new InitialContext();
+            DataSource dataSource = (DataSource) initial.lookup( "java:/PDSDataSource" );
+            Connection connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            String query = "SELECT DISPLAY_ID, PASSWORD FROM USERS";
+            ResultSet rs = statement.executeQuery(query);
+            while (rs.next()) {
+                String displayId = rs.getString("DISPLAY_ID");
+                String pintoken = rs.getString("PASSWORD");
+                pintokens.put(displayId, pintoken);
+            }
+        } catch (NamingException e1) {
+            throw new RuntimeException(e1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException ignore) {                    
+                }
+            }
+        }
+        
+        return pintokens;
     }
 
     private ArrayList getUserGroupTreeConfigSets(UserGroup userGroup) throws RemoteException,
@@ -1213,6 +1265,8 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
         Element userID = new Element("userid");
         userID.addContent(displayID);
         item.addContent(userID);
+
+        // intentionally skip pin token for superadmin, not rellevant.
 
         Element password = new Element("passtoken");
         password.addContent(superadmin.getPassword());

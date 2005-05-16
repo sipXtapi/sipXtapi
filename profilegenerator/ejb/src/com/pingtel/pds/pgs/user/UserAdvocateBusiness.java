@@ -129,7 +129,7 @@ public interface UserAdvocateBusiness {
      * @param password the plain-text password to be used
      * @throws PDSException is thrown for application level errors
      */
-    void setUsersPassword( User user, String displayID, String password )
+    void setUsersSipPassword( User user, String displayID, String password )
             throws PDSException, RemoteException;
 
     /**
@@ -140,8 +140,14 @@ public interface UserAdvocateBusiness {
      * @param password the plain-text password to be used
      * @throws PDSException is thrown for application level errors
      */
-    void setUsersPassword( String id, String displayID, String password )
+    void setUsersSipPassword( String id, String displayID, String password )
             throws PDSException, RemoteException;
+    
+    void setUsersPinToken( String id, String displayID, String password )
+            throws PDSException, RemoteException;
+
+    void setUsersPinToken( User user, String displayID, String password )
+        throws PDSException, RemoteException;
 
     /**
      * fixPrimaryLine modifies previously generated primary line property settings.   This

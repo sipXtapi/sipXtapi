@@ -15,8 +15,7 @@ package com.pingtel.pds.pgs.user;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Random;
 
 import org.jdom.CDATA;
 import org.jdom.Element;
@@ -27,7 +26,9 @@ import com.pingtel.pds.pgs.phone.DeviceHelper;
 import com.pingtel.pds.pgs.profile.RefPropertyBusiness;
 
 public class UserHelper {
+    private final static Random s_random = new Random();
     private UserBusiness m_user;
+    private final static char[] PASSWORD_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()?+!~".toCharArray(); 
 
     public UserHelper(UserBusiness user) {
         m_user = user;
@@ -72,25 +73,25 @@ public class UserHelper {
     }
 
     String createInitialLine(OrganizationBusiness org, RefPropertyBusiness rpXp,
-            RefPropertyBusiness rpXp_2028, RefPropertyBusiness rpCs, String password)
+            RefPropertyBusiness rpXp_2028, RefPropertyBusiness rpCs, String sipPassword)
             throws RemoteException {
         StringBuffer xmlContent = new StringBuffer();
 
         xmlContent.append("<PROFILE>");
-        xmlContent.append(createPingtelPrimaryLineMarkup(org, rpXp, rpXp_2028, password));
-        xmlContent.append(create79xxPrimaryLineMarkup(org, rpCs, password));
+        xmlContent.append(createPingtelPrimaryLineMarkup(org, rpXp, rpXp_2028, sipPassword));
+        xmlContent.append(create79xxPrimaryLineMarkup(org, rpCs, sipPassword));
         xmlContent.append("</PROFILE>");
 
         return xmlContent.toString();
     }
 
     private String createPingtelPrimaryLineMarkup(OrganizationBusiness org,
-            RefPropertyBusiness rp, RefPropertyBusiness rpXp_2028, String password)
+            RefPropertyBusiness rp, RefPropertyBusiness rpXp_2028, String sipPassword)
             throws RemoteException {
         StringBuffer xmlContent = new StringBuffer();
 
         String primaryLineURL = calculatePrimaryLineUrl(org);
-        String primaryLineCredentialPasstoken = digestPassword(org, password);
+        String primaryLineCredentialPasstoken = digestPassword(org, sipPassword);
         String userAuthID = m_user.getDisplayID();
 
         xmlContent.append("<PRIMARY_LINE ref_property_id=\"" + rp.getID() + "\">");
@@ -143,7 +144,32 @@ public class UserHelper {
 
         return xmlContent.toString();
     }
-
+        
+    /**
+     * Unique password containing number and characters.
+     */
+    public static String generatePassword() {
+        return generatePassword(s_random);
+    }
+    
+    /**
+     * Accept random number generator so unittests can get predicatable results
+     */
+    static String generatePassword(Random random) {
+        char[] chars = new char[6];
+        for (int i = 0; i < chars.length; i++) {
+            int index = (int)(random.nextDouble() * (PASSWORD_CHARS.length - 1));
+            chars[i] = PASSWORD_CHARS[index];
+        }
+        StringBuffer pwd = new StringBuffer();
+        int num = (int)(random.nextDouble() * 999);
+        pwd.append(chars, 0, 3);
+        pwd.append(num);
+        pwd.append(chars, 3, 3);
+        
+        return pwd.toString();        
+    }
+        
     /**
      * Create a digest of user password.
      * 
