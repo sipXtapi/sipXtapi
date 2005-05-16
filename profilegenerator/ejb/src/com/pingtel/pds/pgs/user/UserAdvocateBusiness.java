@@ -121,28 +121,6 @@ public interface UserAdvocateBusiness {
                                 String aliases,
                                 String extension ) throws PDSException, RemoteException;
 
-    /**
-     * changes the given Users password.
-     *
-     * @param user User whose password is to be set
-     * @param displayID the display ID or externally visible ID for the User
-     * @param password the plain-text password to be used
-     * @throws PDSException is thrown for application level errors
-     */
-    void setUsersSipPassword( User user, String displayID, String password )
-            throws PDSException, RemoteException;
-
-    /**
-     * changes the given Users password.
-     *
-     * @param id PK of the User whose password is to be set
-     * @param displayID the display ID or externally visible ID for the User
-     * @param password the plain-text password to be used
-     * @throws PDSException is thrown for application level errors
-     */
-    void setUsersSipPassword( String id, String displayID, String password )
-            throws PDSException, RemoteException;
-    
     void setUsersPinToken( String id, String displayID, String password )
             throws PDSException, RemoteException;
 

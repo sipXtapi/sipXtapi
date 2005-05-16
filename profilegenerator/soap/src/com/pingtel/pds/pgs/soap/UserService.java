@@ -321,6 +321,34 @@ public class UserService extends SoapService {
         }
 
     }
+    
+    /**
+     * Change just the pintoken for a user, pintoken is used to log into sipXconfig
+     * and voicemail access.  this is different than sip password or it's md5 form the 
+     * passtoken used purely for SIP registration authorization. 
+     * 
+     * @param
+     */
+    public void setPintoken(String userID, String pintoken) throws PDSException {
+        try {
+            checkMandatoryArgument("userID", userID);
+            checkMandatoryArgument("pintoken", pintoken);
+
+            Collection users = mUserHome.findByDisplayID(userID);
+            if (users.isEmpty()) {
+                throw new PDSException(collateErrorMessages("UC600", "E1026",
+                        new Object[] { userID }));
+            }
+
+            User user = (User) users.iterator().next();
+            mUserAdvocateEJBObject.setUsersPinToken(user, user.getDisplayID(), pintoken);
+
+        } catch (PDSException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new PDSException(e.getMessage());
+        }        
+    }
 
 
     /**
