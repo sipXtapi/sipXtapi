@@ -14,7 +14,7 @@
     <property-specification name="parentSettingName"
         type="java.lang.String"
         persistent="yes"
-    	initial-value="'voice'"
+    	initial-value="'voice-mail'"
     	/>    
     <property-specification name="parentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--DOCTYPE model
-      PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
-      "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd"-->
+<!DOCTYPE model>
+<!-- PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+      "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd" -->
 <model>
-    <group name="voice">
+    <group name="voice-mail">
         <label>Voice Mail</label>
         <setting name="VOICEMAIL_AGE_LIMIT">
             <label>VoiceMail expiration</label>
             <profileName>config.defs</profileName>
             <type></type>
-            <value></value>
-            <description>Number of days voice mail messages will be kept on the system</description>
+            <value>7</value>
+            <description>Number of days voice mail messages will be kept on the system.</description>
         </setting>
         <setting name="SMTP_SERVER">
             <label>SMTP server</label>
@@ -20,21 +20,30 @@
             <description>IP address or DNS name of SMTP server used for Voice Mail notification</description>
         </setting>        
     </group>
-    <group name="call_pick_up">
+    <group name="call-pick-up">
         <label>Call Pickup</label>
         <setting name="SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE">
-            <label>Call pickup prefix</label>
+            <label>Call pickup code</label>
             <profileName>registrar-config.in</profileName>
             <type></type>
             <value>*78</value>
-            <description>Code that needs to be dialed to to pick up a ringin calls. Set to empty to disable call pick up option.</description>
+            <description>Code that needs to be dialed to to pick up a ringing call. Set to empty to disable call pick up option.</description>
         </setting>
         <setting name="SIP_REGISTRAR_CALL_PICKUP_WAIT">
             <label>Call pick-up timeout</label>
             <profileName>registrar-config.in</profileName>
             <type></type>
-            <value>1</value>
-            <description>Number of seconds that a call pick-up action waits after sending its SUBSCRIBE before it picks which call to pick up.</description>
+            <value>3</value>
+            <description>Number of seconds that the orginal call will ring after pick-up code is dialed.</description>
         </setting>
     </group>
+    <group name="music-on-hold">
+        <label>Music on Hold</label>
+        <setting name="background-audio">
+            <profileName>orbits.xml</profileName>
+            <type></type>
+            <value>default.wav</value>
+            <description>Name of the multimedia file that will be played when incoming calls are put on hold.</description>
+        </setting>
+	</group>        
 </model>

@@ -17,7 +17,6 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public abstract class ServerSettings extends BasePage implements PageRenderListener {
     public static final String PAGE = "ServerSettings";
@@ -49,7 +48,7 @@ public abstract class ServerSettings extends BasePage implements PageRenderListe
 
     public void ok(IRequestCycle cycle) {
         apply(cycle);
-        cycle.activate(ManagePhones.PAGE);
+        cycle.activate(ServerSettings.PAGE);
     }
 
     public void apply(IRequestCycle cycle_) {
