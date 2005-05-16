@@ -30,5 +30,5 @@ alter table internal_dialing_rule
 alter table internal_dialing_rule
  drop column autoAttendant;
 
-/* take all existing internal dialing rules and set them to root aa */
-update internal_dialing_rule set auto_attendant_id = 1;
+/* must be followed up with patch to create operator, then point all */
+/* existing internal dialing rules to that operator */ 
