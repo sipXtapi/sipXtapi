@@ -12,35 +12,42 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.sipfoundry.sipxconfig.setting.ConfigFileStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingValue;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 public class SipxServer implements Server {
     private String m_configDirectory;
-    
-    private ValueStorage m_valueStorage = new ValueStorage();
-    
+
+    private ConfigFileStorage m_storage;
+
     public Setting getSettings() {
         Setting settingModel = getSettingModel();
-        return new SettingValue(m_valueStorage, settingModel);
+        settingModel.acceptVisitor(m_storage);        
+        return settingModel;
     }
-    
+
     private Setting getSettingModel() {
         File settingDir = new File(m_configDirectory, "commserver");
         File modelDefsFile = new File(settingDir, "server.xml");
         Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
-        
+
         return model;
     }
 
     public void applySettings() {
-        // TODO Auto-generated method stub        
+        try {
+            m_storage.flush();
+        } catch (IOException e) {
+            // TODO: catch and report as User Exception
+            throw new RuntimeException(e);
+        }
     }
 
     public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;        
-    }    
+        m_configDirectory = configDirectory;
+        m_storage = new ConfigFileStorage(m_configDirectory);
+    }
 }

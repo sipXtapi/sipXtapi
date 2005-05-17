@@ -11,7 +11,9 @@
  */
 package org.sipfoundry.sipxconfig;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -21,6 +23,8 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.CopyUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -174,4 +178,18 @@ public final class TestHelper {
             }
         }
     }
+    
+    /**
+     * Use in test to create copy of example files to be changed by test methods.
+     * @param from input stream
+     * @param dir destination directory
+     * @param filename destination file name
+     * @throws IOException
+     */
+    public static final void copyStreamToDirectory(InputStream from, String dir, String filename) throws IOException {
+        FileOutputStream to = new FileOutputStream(new File(dir, filename));
+        CopyUtils.copy(from, to);
+        IOUtils.closeQuietly(to);
+        IOUtils.closeQuietly(from);
+    }    
 }

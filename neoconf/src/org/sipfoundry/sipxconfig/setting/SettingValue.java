@@ -11,48 +11,41 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-
-
 /**
- * Proxy setting class thru a decorator that manages values in the ValueStorage
- * class. 
+ * Proxy setting class thru a decorator that manages values in the ValueStorage class.
  */
 public class SettingValue extends SettingDecorator {
-    
-    private ValueStorage m_valueStorage;
-    
-    public SettingValue() {        
-        /// BEAN ACCESS ONLY
-    }
-    
-    public SettingValue(ValueStorage valueStorage, Setting delegate) {
+
+    private Storage m_storage;
+
+    public SettingValue(Storage storage, Setting delegate) {
         super(delegate);
-        m_valueStorage = valueStorage;
+        m_storage = storage;
     }
-    
+
     public String getDefaultValue() {
         return getDelegate().getValue();
     }
-    
+
     public void setValue(String value) {
         String defValue = getDefaultValue();
         if (value == null) {
             if (defValue == null) {
-                m_valueStorage.remove(getDelegate().getPath());
+                m_storage.remove(getDelegate());
             } else {
-                m_valueStorage.put(getDelegate().getPath(), Setting.NULL_VALUE);
+                m_storage.setValue(getDelegate(), Setting.NULL_VALUE);
             }
         } else {
             if (value.equals(defValue)) {
-                m_valueStorage.remove(getDelegate().getPath());
+                m_storage.remove(getDelegate());
             } else {
-                m_valueStorage.put(getDelegate().getPath(), value);                
+                m_storage.setValue(getDelegate(), value);
             }
         }
     }
-    
+
     public String getValue() {
-        String value = (String) m_valueStorage.get(getDelegate().getPath());        
+        String value = (String) m_storage.getValue(getDelegate());
         return value == null ? getDefaultValue() : value;
-    }    
+    }
 }
