@@ -468,7 +468,7 @@
     </group>
   </group>
   <group name="cisco7912" copy-of="cisco7905"/>
-  <group name="ciscoata18x" copy-of="ata">
+  <group name="ciscoAta18x" copy-of="ata">
 	<group name="network">
       <setting name="TOS">
         <type>bitmap</type>

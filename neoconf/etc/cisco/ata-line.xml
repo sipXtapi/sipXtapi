@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <model>
-	<group name="ciscoata18x">
+	<group name="ciscoAta18x">
 		<group name="port">
 			<label>Port Configuration</label>
 			<setting name="UID">
@@ -25,7 +25,7 @@
 			</setting>
 		</group>
 	</group>
-	<group name="cisco7905" copy-of="ciscoata18x">
+	<group name="cisco7905" copy-of="ciscoAta18x">
 		<setting name="ShortName">
 			<type>string</type>
 			<value></value>
