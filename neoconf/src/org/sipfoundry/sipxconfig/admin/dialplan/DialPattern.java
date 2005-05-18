@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -49,7 +50,7 @@ public class DialPattern {
     }
 
     public void setPrefix(String prefix) {
-        m_prefix = prefix;
+        m_prefix = (String) ObjectUtils.defaultIfNull(prefix, StringUtils.EMPTY);
     }
 
     public String calculatePattern() {

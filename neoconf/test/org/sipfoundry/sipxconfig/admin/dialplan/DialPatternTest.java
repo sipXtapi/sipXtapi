@@ -33,6 +33,10 @@ public class DialPatternTest extends TestCase {
         pattern.setPrefix("");
         assertEquals("xxxxx", pattern.calculatePattern());
 
+        pattern.setDigits(5);
+        pattern.setPrefix(null);
+        assertEquals("xxxxx", pattern.calculatePattern());
+        
         pattern.setDigits(-1);
         pattern.setPrefix("134");
         assertEquals("134.", pattern.calculatePattern());
