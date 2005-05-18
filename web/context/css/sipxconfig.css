@@ -275,6 +275,16 @@ table.component td {
     padding-top: 3px;
 }
 
+table.component tfoot td {
+    text-align: center;
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc #ffc #ffc #ffc;  
+    padding: 3px;
+    white-space: nowrap;        
+    background-color: #ffc;
+}
+
 ul.component-selection {
   list-style-type: none;
   margin: 0px 2px 2px 2px;

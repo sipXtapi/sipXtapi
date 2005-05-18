@@ -239,10 +239,6 @@ table.component {
     border-color : #ccc;  
 }
 
-table.component thead {
-    background-color: #699;
-}
-
 tr.component-hdr {
     background-color: #699;
 }
@@ -266,6 +262,16 @@ table.component thead th {
     
 table.component th a {
     color: #ffc;
+}
+
+table.component tfoot td {
+    text-align: center;
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc #ffc #ffc #ffc;  
+    padding: 3px;
+    white-space: nowrap;        
+    background-color: #ffc;
 }
 
 table.component td {

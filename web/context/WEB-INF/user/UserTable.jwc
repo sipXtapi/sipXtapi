@@ -42,7 +42,7 @@
 	<component id="userTable" type="contrib:TableView">
 		<binding name="source" expression="users"/>
 		<static-binding name="columns" value="* DisplayID:displayId,FirstName:firstName,LastName:lastName,Extension:extension"/>
-        <static-binding name="pageSize" value="-1"/>
+        <static-binding name="pageSize" value="20"/>
 	</component>
 	<component id="userColumns" type="contrib:TableColumns">
 	</component>
