@@ -76,16 +76,16 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
             Criteria criteria = getHibernateTemplate().createCriteria(getSession(), User.class);            
             ArrayList ors = new ArrayList();
             if (StringUtils.isNotBlank(template.getFirstName())) {
-                ors.add(Expression.like("firstName", template.getFirstName() + LIKE_WILDCARD));
+                ors.add(Expression.ilike("firstName", template.getFirstName() + LIKE_WILDCARD));
             }
             if (StringUtils.isNotBlank(template.getLastName())) {
-                ors.add(Expression.like("lastName", template.getLastName() + LIKE_WILDCARD));
+                ors.add(Expression.ilike("lastName", template.getLastName() + LIKE_WILDCARD));
             }
             if (StringUtils.isNotBlank(template.getExtension())) {
                 ors.add(Expression.eq("extension", template.getExtension()));
             }
             if (StringUtils.isNotBlank(template.getDisplayId())) {
-                ors.add(Expression.like("displayId", template.getDisplayId() + LIKE_WILDCARD));
+                ors.add(Expression.ilike("displayId", template.getDisplayId() + LIKE_WILDCARD));
             }
             
             Criterion normalUsers = Expression.isNotNull("userGroupId");
@@ -99,7 +99,7 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
                 }
                 criteria.add(Expression.and(normalUsers, templateExpression));                
             }
-            
+                        
             return criteria.list();
         } catch (HibernateException e) {
             throw getHibernateTemplate().convertHibernateAccessException(e);
