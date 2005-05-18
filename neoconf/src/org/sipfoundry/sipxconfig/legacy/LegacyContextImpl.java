@@ -14,12 +14,20 @@ package org.sipfoundry.sipxconfig.legacy;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
+import org.sipfoundry.sipxconfig.admin.forwarding.GenerateMessage;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserGroup;
+import org.springframework.jms.core.JmsOperations;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class LegacyContextImpl extends HibernateDaoSupport implements LegacyContext {
     
+    private JmsOperations m_jms;
+
+    public void updateConfigSet(ConfigSet cfg) {
+        getHibernateTemplate().update(cfg);
+    }
+
     public UserConfigSet getConfigSetForUser(User user) {
         List configSets = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "findConfigSetsForUser", "userId", user.getId());
@@ -80,5 +88,16 @@ public class LegacyContextImpl extends HibernateDaoSupport implements LegacyCont
         }
 
         return hasPermission;
+    }
+
+    public void setJms(JmsOperations jms) {
+        m_jms = jms;
+    }
+
+    public void triggerCredentialGeneration() {
+        // null when unitesting, more specifically when jmsContext.xml is empty
+        if (m_jms != null) {
+            m_jms.send(new GenerateMessage(GenerateMessage.TYPE_CREDENTIALS));
+        }
     }
 }

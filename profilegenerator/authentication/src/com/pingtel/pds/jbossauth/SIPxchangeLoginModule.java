@@ -42,9 +42,9 @@ import javax.sql.DataSource;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
 
 import com.pingtel.pds.common.ConfigFileManager;
-import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PathLocatorUtil;
 
 
@@ -293,7 +293,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
                     // looks like the intention was to update it only when external plugin authenticates the users 
                     // while our internal passwords do not match
                     String enteredPEK =
-                            MD5Encoder.encode(username + ":" + password);
+                            Md5Encoder.encode(username + ":" + password);
         
                     String existingPEK =
                             getExistingProfileEncryptionKey(username);
@@ -320,10 +320,10 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         // try both with and without DNS domain
         String realm = getRealm().trim();
         String dnsDomain = getDnsDomain().trim();
-        String digestedPassword = MD5Encoder.digestPassword(realUserID, dnsDomain, realm, password);    
+        String digestedPassword = Md5Encoder.digestPassword(realUserID, dnsDomain, realm, password);    
         if ( !expectedPassword.equals( digestedPassword ) ) {
             digestedPassword =
-                MD5Encoder.digestPassword(realUserID, realm, password);
+                Md5Encoder.digestPassword(realUserID, realm, password);
         }
         
         // login is OK if digested password is matched or
@@ -584,7 +584,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
                                     String password) throws LoginException {
 
         String newPassword = 
-                MD5Encoder.digestPassword(userName, realm, password);
+                Md5Encoder.digestPassword(userName, realm, password);
 
         Connection conn = null;
         PreparedStatement ps = null;

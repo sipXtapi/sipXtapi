@@ -9,11 +9,9 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="users" type="java.util.Collection"/>
-	<property-specification name="currentRow" 
-		type="org.sipfoundry.sipxconfig.common.User"/>
 	<property-specification name="coreContext" 
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
-    	initial-value="global.coreContext"/>    
+    	initial-value="global.coreContext"/> 
 	<!--
 	  - B E A N S
 	  -->
@@ -25,10 +23,8 @@
 	</component>
 	<component id="userTable" type="UserTable">
 		<binding name="users" expression="users"/>
+        <binding name="userListener" expression="listeners.editSipPassword"/>
 	</component>
-    <component id="addUser" type="DirectLink">
-        <binding name="listener" expression="listeners.addUser"/>
-    </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deletePhone"/>
     </component>

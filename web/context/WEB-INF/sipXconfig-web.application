@@ -19,6 +19,8 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
+    <page name="EditSipPassword" specification-path="user/EditSipPassword.page"/>    
+    <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
@@ -42,7 +44,6 @@
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="dialplan/ListGateways.page"/>
     <page name="ListParkOrbits" specification-path="admin/ListParkOrbits.page"/>    
-    <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>

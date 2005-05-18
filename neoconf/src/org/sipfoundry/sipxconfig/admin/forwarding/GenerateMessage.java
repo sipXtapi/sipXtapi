@@ -21,6 +21,7 @@ import org.springframework.jms.core.MessageCreator;
 public class GenerateMessage implements MessageCreator {
     public static final String PARAM_NAME = "datasettype";
     public static final String TYPE_ALIAS = "aliases";
+    public static final String TYPE_CREDENTIALS = "credentials";
     public static final String TYPE_AUTH_EXCEPTIONS = "authexceptions";
 
     private String m_type;
@@ -30,7 +31,6 @@ public class GenerateMessage implements MessageCreator {
      *        message
      */
     public GenerateMessage(String type) {
-        // TODO Auto-generated constructor stub
         m_type = type;
     }
 

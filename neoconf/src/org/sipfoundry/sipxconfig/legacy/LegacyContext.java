@@ -19,5 +19,9 @@ public interface LegacyContext {
 
     public abstract UserConfigSet getConfigSetForUser(User user);
     
+    public abstract void updateConfigSet(ConfigSet cfg);
+    
     public abstract boolean checkUserPermission(User user, Permission permission);
+    
+    public abstract void triggerCredentialGeneration();    
 }

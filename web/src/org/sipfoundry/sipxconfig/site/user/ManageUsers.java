@@ -19,6 +19,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 
 public abstract class ManageUsers extends BasePage 
@@ -32,9 +33,17 @@ public abstract class ManageUsers extends BasePage
 
     public abstract CoreContext getCoreContext();
     
-    public void addUser(IRequestCycle cycle_) {
-//        NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);
-//        cycle.activate(page);
+    public void addUser(IRequestCycle cycle) {
+        NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);
+        cycle.activate(page);
+    }
+    
+    public void editSipPassword(IRequestCycle cycle) {
+        Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, 
+                cycle.getServiceParameters(), 0);        
+        EditSipPassword editPwd = (EditSipPassword) cycle.getPage(EditSipPassword.PAGE);
+        editPwd.setUserId(userId);
+        cycle.activate(editPwd);
     }
     
     public void pageBeginRender(PageEvent event_) {

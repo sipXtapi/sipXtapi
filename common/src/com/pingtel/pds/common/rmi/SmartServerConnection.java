@@ -13,12 +13,12 @@
 
 package com.pingtel.pds.common.rmi;
 
-import org.apache.log4j.Category;
-import org.apache.log4j.Priority;
-
 import java.lang.reflect.Method;
 import java.rmi.Naming;
 import java.rmi.Remote;
+
+import org.apache.log4j.Category;
+import org.apache.log4j.Priority;
 
 /**
  * SmartServerConnection is a class that essentially manages any java.rmi.Remote

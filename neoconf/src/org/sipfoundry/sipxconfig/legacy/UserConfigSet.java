@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.legacy;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +23,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 
 public class UserConfigSet extends ConfigSet {
@@ -97,5 +101,34 @@ public class UserConfigSet extends ConfigSet {
     public String getClearTextPassword() {
         Document profile = getDocument();
         return profile.valueOf("//PROFILE/line1[position()=1]/container/line1_password/text()");
+    }
+
+    public void setSipPassword(String password, String passtoken) {
+        Document profile = getDocument();
+
+        try {
+            Element line1pwdElem = (Element) profile
+                    .selectObject("//PROFILE/line1[position()=1]/container/line1_password");
+            line1pwdElem.setText(password);
+
+            Object o = profile.selectObject("//PROFILE/PRIMARY_LINE[position()=1]/" 
+                    + "PRIMARY_LINE[position()=1]/CREDENTIAL/PASSTOKEN");
+            Element passtokenElem = (Element) o;
+            passtokenElem.setText(passtoken);
+        } catch (ClassCastException e) {
+            // DOM4J returns empty ArrayList when items not found, how convienent
+            throw new RuntimeException("User does not have expected configuration set", e);
+        }
+
+        try {
+            StringWriter xml = new StringWriter(); 
+            OutputFormat fmt = new OutputFormat();
+            fmt.setSuppressDeclaration(true);
+            XMLWriter wtr = new XMLWriter(xml, fmt);
+            wtr.write(profile);
+            setContent(xml.toString());
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
     }
 }

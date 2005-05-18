@@ -2,8 +2,8 @@ package com.pingtel.pds.common.rmi;
 
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.rmi.RMISecurityManager;
+import java.rmi.RemoteException;
 
 /**
  * Created by IntelliJ IDEA.

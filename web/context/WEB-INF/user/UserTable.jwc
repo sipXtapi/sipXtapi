@@ -16,6 +16,12 @@
         required="yes" 
         direction="auto">
     </parameter>
+    <parameter name="userListener" 
+        type="org.apache.tapestry.IActionListener"
+        required="no" 
+        direction="auto"
+        default-value="null">
+    </parameter>
     <!--
       - P R O P E R T I E S
       -->
@@ -45,6 +51,21 @@
         <binding name="converter" expression="idConverter"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
+    <component id="DisplayIDColumnValue" type="Block"/>
+    <component id="displayIdAsLinkConditional" type="Conditional">
+        <binding name="condition" expression="userListener != null"/>
+    </component>
+    <component id="displayIdAsTextConditional" type="Conditional">
+        <binding name="condition" expression="userListener == null"/>
+    </component>
+    <component id="displayIdLink" type="DirectLink">
+        <binding name="listener" expression="userListener"/>
+        <binding name="parameters" expression="currentUser.id"/>
+    </component>
+    <component id="displayId" type="Insert">
+        <binding name="value" expression="currentUser.displayId"/>
+    </component>
+    <component id="displayIdAsText" copy-of="displayId"/>
 	<component id="userValues" type="contrib:TableValues">
 	</component>
     <component id="selectedRow" type="Checkbox">

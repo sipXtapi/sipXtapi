@@ -11,15 +11,15 @@
  */
 package com.pingtel.pds.common.test;
 
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import junit.framework.Assert;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import com.pingtel.pds.common.JDBCStatementHelper;
 

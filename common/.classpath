@@ -11,5 +11,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/server/sipx/lib/javax.servlet.jsp.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/pgsql/src.zip" kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
+	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

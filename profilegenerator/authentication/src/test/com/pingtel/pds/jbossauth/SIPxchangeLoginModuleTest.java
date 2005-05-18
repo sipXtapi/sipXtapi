@@ -36,7 +36,7 @@ public class SIPxchangeLoginModuleTest extends TestCase {
             // authentication module
             Class.forName("com.pingtel.pds.common.VersionInfo");
             Class.forName("com.pingtel.pds.common.PathLocatorUtil");
-            Class.forName("com.pingtel.pds.common.MD5Encoder");
+            Class.forName("org.sipfoundry.sipxconfig.common.Md5Encoder");
             Class.forName("com.pingtel.pds.common.PathBuffer");
         } catch (Exception e) {
             fail("Cannot create authorization module for JBoss" + e);

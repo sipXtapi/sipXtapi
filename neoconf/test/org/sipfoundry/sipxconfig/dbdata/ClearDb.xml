@@ -184,7 +184,7 @@
       <value>1</value>
       <value>2</value>
       <value>2</value>
-      <value><![CDATA[<PROFILE></PROFILE>]]></value>
+      <value><![CDATA[<PROFILE><PRIMARY_LINE ref_property_id="58"><PRIMARY_LINE><REGISTRATION>REGISTER</REGISTRATION><ALLOW_FORWARDING>ENABLE</ALLOW_FORWARDING><URL>testuser&lt;sip:testuser@sipfoundry.org&gt;</URL><CREDENTIAL><USERID>testuser</USERID><REALM>sipfoundry.org</REALM><PASSTOKEN>ac7edf52a62973d523fbd28b4eb79547</PASSTOKEN></CREDENTIAL></PRIMARY_LINE></PRIMARY_LINE><line1 ref_property_id="128"><container><line1_password>1234</line1_password><line1_displayname>"Test User"</line1_displayname><line1_authname>testuser</line1_authname><line1_name>testuser</line1_name><line1_shortname>testuser_line</line1_shortname></container></line1><USER_DEFAULT_OUTBOUND_LINE ref_property_id="50"><USER_DEFAULT_OUTBOUND_LINE>Test User&lt;sip:testuser@sipfoundry.org&gt;</USER_DEFAULT_OUTBOUND_LINE></USER_DEFAULT_OUTBOUND_LINE></PROFILE>]]></value>
     </row>
     <row>
       <value>2</value>

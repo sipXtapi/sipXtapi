@@ -42,7 +42,8 @@ public class LegacyContextImplTestDb extends TestCase {
     public void testGetConfigSetsForUser() {
         User user = m_coreContext.loadUser(4);
         UserConfigSet cs = m_legacyContext.getConfigSetForUser(user);
-        assertEquals("<PROFILE></PROFILE>", cs.getContent());            
+        assertTrue(cs.getContent().startsWith("<PROFILE>"));            
+        assertTrue(cs.getContent().endsWith("</PROFILE>"));            
     }
         
     public void testCheckUserPermission() {

@@ -2,7 +2,6 @@ package com.pingtel.pds.common.rmi;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.net.MalformedURLException;
 
 /**
  * Created by IntelliJ IDEA.

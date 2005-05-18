@@ -12,6 +12,9 @@
 
 package com.pingtel.pds.common;
 
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
+
+
 
 /**
  * ProfileEncryptionKeyCalculator is a helper class use to calculate the
@@ -41,7 +44,7 @@ public class ProfileEncryptionKeyCalculator {
 ////
     public static String calculateProfileEncryptionKey(    String displayID,
                                                     String password) {
-        return MD5Encoder.encode(displayID + ":" + password);
+        return Md5Encoder.encode(displayID + ":" + password);
     }
 
 

@@ -38,16 +38,19 @@ public class ManageUsersTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);        
     }
     
-    public void testNewUser() throws Exception {
-        clickLink("ManageUsers");              
+    /**
+     * DISABLED until sipXconfig 3.2
+     */
+    public void _testNewUser() throws Exception {
+        clickLink("ManageUsers");
         clickLink("AddUser");
-//        setFormElement("userId", "new-user-test");
-//        setFormElement("firstName", "NewUserFname");
-//        setFormElement("lastName", "NewUserLname");
-//        setFormElement("extension", "993");
-//        setFormElement("pin", "1234");
-//        setFormElement("pinConfirm", "1234");
-//        clickButton("user:ok");
+        setFormElement("userId", "new-user-test");
+        setFormElement("firstName", "NewUserFname");
+        setFormElement("lastName", "NewUserLname");
+        setFormElement("extension", "993");
+        setFormElement("pin", "1234");
+        setFormElement("pinConfirm", "1234");
+        clickButton("user:ok");
         SiteTestHelper.assertNoException(tester);
         // assert user is in table
     }

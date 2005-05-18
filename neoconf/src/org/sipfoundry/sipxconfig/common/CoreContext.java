@@ -34,4 +34,6 @@ public interface CoreContext extends DataObjectSource {
     public List loadUserByTemplateUser(User template);
 
     public User loadUserByDisplayId(String displayId);
+    
+    public String getAuthorizationRealm();
 }

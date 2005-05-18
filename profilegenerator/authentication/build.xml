@@ -25,11 +25,15 @@
     <!-- HACK: we need some classes from common jar -->
   	<unjar src="${common.jar}" dest="${classes.dir}">
   		<patternset>
-  			<include name="**/MD5Encoder.class"/>
   			<include name="**/PathLocatorUtil.class"/>
   			<include name="**/VersionInfo.class"/>
   			<include name="**/PathBuffer.class"/>
             <include name="**/ConfigFileManager.class"/>
+		</patternset>  		
+  	</unjar>
+  	<unjar src="${sipxconfig.jar}" dest="${classes.dir}">
+  		<patternset>
+  			<include name="**/Md5Encoder.class"/>
 		</patternset>  		
   	</unjar>
   	<antcall target="ant-targets.compile"/>

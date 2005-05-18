@@ -13,7 +13,8 @@ package com.pingtel.pds.pgs.phone;
 
 import java.rmi.RemoteException;
 
-import com.pingtel.pds.common.MD5Encoder;
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
+
 import com.pingtel.pds.pgs.organization.OrganizationBusiness;
 import com.pingtel.pds.pgs.profile.RefPropertyBusiness;
 
@@ -64,7 +65,7 @@ public class DeviceHelper {
         String serialNumber = m_device.getSerialNumber();
         String realm = org.getAuthenticationRealm();
         String timeStamp = Long.toString(System.currentTimeMillis());
-        return MD5Encoder.digestPassword(serialNumber, realm, timeStamp);
+        return Md5Encoder.digestPassword(serialNumber, realm, timeStamp);
     }
 
     /**

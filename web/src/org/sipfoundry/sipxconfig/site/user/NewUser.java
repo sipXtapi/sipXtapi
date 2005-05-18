@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class NewUser extends BasePage implements PageRenderListener {
 
+    public static final String PAGE = "NewUser";
+
     public abstract CoreContext getCoreContext();
 
     public abstract User getUser();

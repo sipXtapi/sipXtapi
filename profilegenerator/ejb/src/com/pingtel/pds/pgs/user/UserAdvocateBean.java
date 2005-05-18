@@ -39,9 +39,9 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.legacy.LegacyNotifyService;
 
-import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.common.PDSDefinitions;
 import com.pingtel.pds.common.PDSException;
 import com.pingtel.pds.common.ProfileEncryptionKeyCalculator;
@@ -1701,13 +1701,13 @@ public class UserAdvocateBean extends JDBCAwareEJB
      * @param realm - it used to be DNS domain 
      * @param password plain-text password
      * @return digested password.
-     * @see MD5Encoder.digestPassword
+     * @see Md5Encoder.digestPassword
      * @deprecated 
      */
     public String digestUsersPassword ( String displayID,
                                         String realm,
                                         String password ) {
-        return MD5Encoder.digestPassword(displayID,realm,password);
+        return Md5Encoder.digestPassword(displayID,realm,password);
     }
 
     

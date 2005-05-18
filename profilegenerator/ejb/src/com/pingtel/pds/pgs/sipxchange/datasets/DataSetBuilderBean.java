@@ -407,19 +407,23 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
                                 // sip password
                                 Element password = new Element("passtoken");
+                                String passTokenTxt = credential.getChild("PASSTOKEN").getText(); 
                                 logDebug("generateCredentials::passtoken for credential: "
-                                        + credential.getChild("PASSTOKEN").getText());
-                                password.addContent(credential.getChild("PASSTOKEN").getText());
+                                        + passTokenTxt);
+                                password.addContent(passTokenTxt);
                                 item.addContent(password);
 
-                                // sipxconfig and ivr login pin, users.password
+                                // sipxconfig and ivr login pin, users.password 
+                                // all users must have pintokens or replication cgi gets 
+                                // confused
                                 String pinTokenTxt = (String) pinTokens.get(userIDTxt);
-                                if (pinTokenTxt != null) {
-                                    Element pintokenElement = new Element("pintoken");
-                                    logDebug("generateCredentials::pintoken for credential: " + pinTokenTxt);
-                                    pintokenElement.addContent(pinTokenTxt);
-                                    item.addContent(pintokenElement);
-                                }
+                                if (pinTokenTxt == null) {
+                                    pinTokenTxt = passTokenTxt;
+                                }                                
+                                Element pintokenElement = new Element("pintoken");
+                                logDebug("generateCredentials::pintoken for credential: " + pinTokenTxt);
+                                pintokenElement.addContent(pinTokenTxt);
+                                item.addContent(pintokenElement);
 
                                 // This is a hardcoded value for now; it is needed by the
                                 // database but is not part of line definitions.
@@ -1266,11 +1270,14 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
         userID.addContent(displayID);
         item.addContent(userID);
 
-        // intentionally skip pin token for superadmin, not rellevant.
-
         Element password = new Element("passtoken");
         password.addContent(superadmin.getPassword());
         item.addContent(password);
+
+        // pintoken and passtoken identical
+        Element pintoken = new Element("pintoken");
+        pintoken.addContent(superadmin.getPassword());
+        item.addContent(pintoken);
 
         Element authType = new Element("authtype");
         authType.addContent("DIGEST");

@@ -29,10 +29,20 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext {
 
-    private static final char LIKE_WILDCARD = '%';    
+    private static final char LIKE_WILDCARD = '%';
+    
+    private String m_authorizationRealm;
 
     public CoreContextImpl() {
         super();
+    }
+    
+    public String getAuthorizationRealm() {
+        return m_authorizationRealm;
+    }
+
+    public void setAuthorizationRealm(String authorizationRealm) {
+        m_authorizationRealm = authorizationRealm;
     }
 
     public void saveUser(User user) {

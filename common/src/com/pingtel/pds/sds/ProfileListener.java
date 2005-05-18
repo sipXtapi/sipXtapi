@@ -11,10 +11,9 @@
  */
 package com.pingtel.pds.sds;
 
-import java.net.URL;
-import java.util.Properties;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 /**
  * The SDS exposes this interface to the ProfileWriter

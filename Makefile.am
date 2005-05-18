@@ -14,7 +14,7 @@ if SIPAGENT
 SIPAGENT_OPT = sipagent-jni
 endif
 
-SUBDIRS = . bin common neoconf profilegenerator profilepublisher profilewriter $(SIPAGENT_OPT) web $(doc_SUBDIRS)
+SUBDIRS = . bin neoconf common profilegenerator profilepublisher profilewriter $(SIPAGENT_OPT) web $(doc_SUBDIRS)
 RELEASE = 2
 
 EXTRA_DIST = \

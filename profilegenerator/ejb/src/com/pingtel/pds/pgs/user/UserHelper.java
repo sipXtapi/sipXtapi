@@ -15,20 +15,17 @@ package com.pingtel.pds.pgs.user;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Random;
 
 import org.jdom.CDATA;
 import org.jdom.Element;
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
 
-import com.pingtel.pds.common.MD5Encoder;
 import com.pingtel.pds.pgs.organization.OrganizationBusiness;
 import com.pingtel.pds.pgs.phone.DeviceHelper;
 import com.pingtel.pds.pgs.profile.RefPropertyBusiness;
 
 public class UserHelper {
-    private final static Random s_random = new Random();
     private UserBusiness m_user;
-    private final static char[] PASSWORD_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()?+!~".toCharArray(); 
 
     public UserHelper(UserBusiness user) {
         m_user = user;
@@ -146,31 +143,6 @@ public class UserHelper {
     }
         
     /**
-     * Unique password containing number and characters.
-     */
-    public static String generatePassword() {
-        return generatePassword(s_random);
-    }
-    
-    /**
-     * Accept random number generator so unittests can get predicatable results
-     */
-    static String generatePassword(Random random) {
-        char[] chars = new char[6];
-        for (int i = 0; i < chars.length; i++) {
-            int index = (int)(random.nextDouble() * (PASSWORD_CHARS.length - 1));
-            chars[i] = PASSWORD_CHARS[index];
-        }
-        StringBuffer pwd = new StringBuffer();
-        int num = (int)(random.nextDouble() * 999);
-        pwd.append(chars, 0, 3);
-        pwd.append(num);
-        pwd.append(chars, 3, 3);
-        
-        return pwd.toString();        
-    }
-        
-    /**
      * Create a digest of user password.
      * 
      * @param org organization to which user belongs
@@ -198,7 +170,7 @@ public class UserHelper {
         String displayID = m_user.getDisplayID();
         String dnsDomain = org.getDNSDomain();
         String realm = org.getAuthenticationRealm();
-        return MD5Encoder.digestPassword(displayID, dnsDomain, realm, clearPassword);
+        return Md5Encoder.digestPassword(displayID, dnsDomain, realm, clearPassword);
     }
 
     /**
@@ -214,7 +186,7 @@ public class UserHelper {
     public static String digestPassword(String displayID, OrganizationBusiness org,
             String clearPassword) throws RemoteException {
         String realm = org.getAuthenticationRealm();
-        return MD5Encoder.digestPassword(displayID, realm, clearPassword);
+        return Md5Encoder.digestPassword(displayID, realm, clearPassword);
     }
 
     /**

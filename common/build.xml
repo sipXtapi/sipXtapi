@@ -14,7 +14,7 @@
   <path id="base.path" >
     <!-- SIPXCONFIG -->
     <pathelement location="${jdbc-driver.jar}"/> <!-- for tests only -->
-    <pathelement path="${neoconf.jar}" />
+    <pathelement location="${sipxconfig.jar}" />
 
     <!-- UTIL -->
     <pathelement location="${jdom.jar}"/>

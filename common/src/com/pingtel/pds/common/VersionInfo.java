@@ -12,9 +12,8 @@
 
 package com.pingtel.pds.common;
 
-import java.io.InputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Properties;
 
