@@ -200,9 +200,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
       }
 
-      fileTarget = workingDirectory +
-         OsPathBase::separator +
-         CONFIG_LOG_FILE;
+      fileTarget = workingDirectory + OsPathBase::separator + CONFIG_LOG_FILE;
    }
    else
    {
@@ -234,7 +232,8 @@ void initSysLog(OsConfigDb* pConfig)
       {
          priority = lkupTable[i].ePriority;
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",
+                       CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
          break;
       }
    }
@@ -256,11 +255,14 @@ void initSysLog(OsConfigDb* pConfig)
    }
 
    osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-   OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",
+                 CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      OsSysLog::add(FAC_LOG, PRI_CRIT,
+                    "Cannot access %s directory; please check configuration.",
+                    CONFIG_SETTING_LOG_DIR);
    }
 }
 
@@ -274,7 +276,7 @@ main( int argc, char* argv[] )
     pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
     pt_signal(SIGSEGV,  sigHandler);    // Address access violations signal 11 
     pt_signal(SIGTERM,  sigHandler);    // Trap kill -15 on UNIX
-#if defined(__pingtel_on_posix__)
+#   if defined(__pingtel_on_posix__)
     pt_signal(SIGHUP,   sigHandler);    // Hangup
     pt_signal(SIGQUIT,  sigHandler); 
     pt_signal(SIGPIPE,  sigHandler);    // Handle TCP Failure
@@ -284,7 +286,7 @@ main( int argc, char* argv[] )
     pt_signal(SIGXFSZ,  sigHandler);
     pt_signal(SIGUSR1,  sigHandler); 
     pt_signal(SIGUSR2,  sigHandler); 
-#endif
+#   endif
 
    UtlBoolean interactiveSet = false;
    UtlString argString;
@@ -342,8 +344,6 @@ main( int argc, char* argv[] )
     int proxyUdpPort;
     int proxyTlsPort;
     UtlString routeName;
-    //UtlString proxyRecordRoute;
-    //int maxForwards;
     OsConfigDb configDb;
     UtlString ipAddress;
 
@@ -363,8 +363,6 @@ main( int argc, char* argv[] )
         configDb.set("SIP_AUTHPROXY_TLS_PORT", "5081");
         configDb.set("SIP_AUTHPROXY_ROUTE_NAME", "");
         configDb.set("SIP_AUTHPROXY_HOST_ALIASES", "");
-        //configDb.set("SIP_AUTHPROXY_RECORD_ROUTE", "DISABLE");
-        //configDb.set("SIP_AUTHPROXY_MAX_FORWARDS", "");
         configDb.set("SIP_AUTHPROXY_STALE_TCP_TIMEOUT", "");
         configDb.set(CONFIG_SETTING_LOG_DIR, "");
         configDb.set(CONFIG_SETTING_LOG_LEVEL, "");
@@ -384,12 +382,12 @@ main( int argc, char* argv[] )
     configDb.get("SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM", algorithm);
     algorithm.toUpper();
     if( TRUE )
-       // algorithm.compareTo("MD5") != 0 ||
-       // algorithm.compareTo("MD5-SESS") != 0)
     {
         algorithm = "MD5";
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM : %s", algorithm.data());
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM : %s",
+                  algorithm.data());
     osPrintf("SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM : %s\n", algorithm.data());
 
     UtlString qop;
@@ -397,9 +395,6 @@ main( int argc, char* argv[] )
     qop.toUpper();
 
     if( TRUE )
-      // qop.compareTo("none") != 0 ||
-      // qop.compareTo("AUTH") != 0 ||
-      // qop.compareTo("AUTH-INT") != 0)
     {
         qop = "none";
     }
@@ -425,8 +420,6 @@ main( int argc, char* argv[] )
         OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_AUTHENTICATE_SCHEME : NONE");
         osPrintf("SIP_AUTHPROXY_AUTHENTICATE_SCHEME : NONE\n");
     }
-    //else
-    //  osPrintf("SIP_AUTHPROXY_AUTHENTICATE_SCHEME : DIGEST\n");
 
     configDb.get("SIP_AUTHPROXY_ROUTE_NAME", routeName);
     if(routeName.isNull())
@@ -554,23 +547,9 @@ main( int argc, char* argv[] )
         dnsSrvTimeout = 4;
     }
 
-    //osPrintf("SIP_AUTHPROXY_DNSSRV_TIMEOUT : %d\n", dnsSrvTimeout);
-
-    //configDb.get("SIP_AUTHPROXY_RECORD_ROUTE", proxyRecordRoute);
-    //UtlBoolean recordRouteEnabled = FALSE;
-    //proxyRecordRoute.toLower();
-    //if(proxyRecordRoute.compareTo("enable") == 0)
-    //{
-    //    recordRouteEnabled = TRUE;
-    //    osPrintf("SIP_AUTHPROXY_RECORD_ROUTE : ENABLE\n");
-    //}
-
-    //configDb.get("SIP_AUTHPROXY_MAX_FORWARDS", maxForwards);
-    //if(maxForwards <= 0) maxForwards = SIP_DEFAULT_MAX_FORWARDS;
-    //osPrintf("SIP_AUTHPROXY_MAX_FORWARDS : %d\n", maxForwards);
-
     // Start the sip stack
-    SipUserAgent sipUserAgent(proxyTcpPort,
+    SipUserAgent sipUserAgent(
+        proxyTcpPort,
         proxyUdpPort,
         proxyTlsPort,
         NULL, // public IP address (nopt used in proxy)
@@ -594,12 +573,8 @@ main( int argc, char* argv[] )
         SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
         );
     sipUserAgent.setIsUserAgent(FALSE);
-    //sipUserAgent.setMaxForwards(maxForwards);
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
-
-    // No need for this log as it all goes in the systlog anyway
-    //sipUserAgent.startMessageLog(100000);
 
     sipUserAgent.setForking(FALSE);  // Diable forking
     sipUserAgent.setHostAliases(hostAliases);
@@ -646,7 +621,6 @@ main( int argc, char* argv[] )
                         );
           enableCallStateObserver = false;
        }
-       
     }
 
     // Do not exit, let the proxy do its stuff
@@ -654,7 +628,6 @@ main( int argc, char* argv[] )
     {
         if( interactiveSet)
         {
-
             int charCode = getchar();
 
             if(charCode != '\n' && charCode != '\r')
@@ -662,17 +635,20 @@ main( int argc, char* argv[] )
                 if( charCode == 'e')
                 {
                     OsSysLog::enableConsoleOutput(TRUE);
-                } else if( charCode == 'd')
+                }
+                else if( charCode == 'd')
                 {
                     OsSysLog::enableConsoleOutput(FALSE);
-                } else
+                }
+                else
                 {
                     sipUserAgent.printStatus();
                     sipUserAgent.getMessageLog(buffer);
                     printf("=================>\n%s\n", buffer.data());
                 }
             }
-        } else
+        }
+        else
         {
             OsTask::delay(2000);
         }

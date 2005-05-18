@@ -66,28 +66,29 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
     mRouteName = routeName;
 
     char signBuf[100];
-    //int ranNum = rand();
-    //long epochTime = OsDateTime::getSecsSinceEpoch();
+
+    // Construct the secret to be used in the route recognition hash.
+    // The signature should be the same after a restart or any calls
+    // that are up will have problems with mid-dialog transactions
+    // :TODO: this needs a secret value inserted, but a stable one.
     UtlString viaHost;
     int viaPort;
     mpSipUserAgent->getViaInfo(OsSocket::UDP, viaHost, viaPort);
-    // The signature should be the same after a restart or any calls
-    // that are up will have problems with mid-dialog transactions
-    //sprintf(signBuf, "%d:%ld:%d:", ranNum, epochTime, viaPort);
     sprintf(signBuf, "%d:", viaPort);
     mSignatureSecret = signBuf;
     mSignatureSecret.append(viaHost);
 
-    /*Config files which are specific to a component
-    (e.g. mappingrules.xml is to sipregistrar) Use the
-    following logic:
-    1) If  directory ../etc exists:
-        The path to the data file is as follows
-        ../etc/<data-file-name>
-
-    2) Else the path is assumed to be:
-       ./<data-file-name>
-    */
+    /*
+     * Config files which are specific to a component
+     *    (e.g. mappingrules.xml is to sipregistrar) Use the
+     *     following logic:
+     *     1) If  directory ../etc exists:
+     *         The path to the data file is as follows
+     *         ../etc/<data-file-name>
+     * 
+     *     2) Else the path is assumed to be:
+     *        ./<data-file-name>
+     */
     OsPath workingDirectory ;
     if ( OsFileSystem::exists( CONFIG_ETC_DIR ) )
     {
@@ -102,10 +103,7 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
         path.getNativePath(workingDirectory);
     }
 
-    UtlString fileName =
-    workingDirectory +
-    OsPathBase::separator +
-    AUTH_RULES_FILENAME;
+    UtlString fileName = workingDirectory + OsPathBase::separator + AUTH_RULES_FILENAME;
 
     mpAuthorizationRules->loadMappings(fileName);
 
@@ -123,8 +121,8 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
         NULL,    // SipSession* pSession,
         NULL);   // observerData
 
-    // The period of time in seconds that nonces are kept
-    mNonceExpiration = 60 * 5;
+    // The period of time in seconds that nonces are valid
+    mNonceExpiration = 60 * 5; // five minutes
 
     // Set up a periodic timer for nonce garbage collection
     OsQueuedEvent* queuedEvent = new OsQueuedEvent(*queue, 0);
@@ -151,11 +149,11 @@ SipAaa::handleMessage( OsMsg& eventMessage )
     int msgSubType = eventMessage.getMsgSubType();
 
     // Timer event
-    if(msgType == OsMsg::OS_EVENT &&
-		msgSubType == OsEventMsg::NOTIFY)
+    if(   msgType == OsMsg::OS_EVENT
+       && msgSubType == OsEventMsg::NOTIFY
+       )
     {
         // Garbage collect nonces
-        //osPrintf("Garbage collecting nonces\n");
 
         OsTime time;
         OsDateTime::getCurTimeSinceBoot(time);
@@ -167,7 +165,6 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
     // SIP message event
     else if ( msgType == OsMsg::PHONE_APP )
-    //&& msgSubType == CP_SIP_MESSAGE)
     {
         SipMessage* sipRequest = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
         int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
@@ -175,16 +172,16 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
         if ( messageType == SipMessageEvent::TRANSPORT_ERROR )
         {
-            //osPrintf("ERROR: SipAaa::handleMessage received transport error message\n");
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                   "SipAaa::handleMessage received transport error message") ;
-        } else if ( sipRequest )
+                          "SipAaa::handleMessage received transport error message") ;
+        }
+        else if ( sipRequest )
         {
             if ( sipRequest->isResponse() )
             {
                 OsSysLog::add(FAC_AUTH, PRI_ERR, "ERROR: SipAaa::handleMessage received response");
-                //osPrintf("ERROR: SipAaa::handleMessage received response\n");
-            } else
+            }
+            else
             {
                 UtlString myRouteUri;
                 UtlString targetUri;
@@ -195,9 +192,10 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 // If there is a route header just send it on its way
                 if ( routeExists )
                 {
-#ifdef TEST_PRINT
+#                   ifdef TEST_PRINT
                     osPrintf("SipAaa::handleMessage found a route\n");
-#endif
+#                   endif
+
                     // Check the URI.  If the URI has lr the
                     // previous proxy was a strict router
                     UtlString requestUri;
@@ -217,9 +215,10 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     // really do not know if the route set is
                     // set up as loose or strict routing.  We
                     // have to assume that it is strict routing.
-                    if(!previousHopStrictRoutes &&
-                       !uriIsMe &&
-                       !firstRouteIsMe)
+                    if(   !previousHopStrictRoutes
+                       && !uriIsMe
+                       && !firstRouteIsMe
+                       )
                     {
                         previousHopStrictRoutes = TRUE;
                     }
@@ -227,22 +226,23 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     // If the URI does not have the loose route
                     // tag and the URI is pointed to this server
                     // we assume the previous hop strict routed
-                    else if(!previousHopStrictRoutes &&
-                       uriIsMe)
+                    else if(!previousHopStrictRoutes && uriIsMe)
                     {
                         previousHopStrictRoutes = TRUE;
                     }
 
                     if ( previousHopStrictRoutes )
                     {
-#ifdef TEST_PRINT
+#                       ifdef TEST_PRINT
                         osPrintf("SipAaa::handleMessage previous hop strict routed\n");
-#endif
-                       // If this is NOT my host and port in the URI
+#                       endif
+
+                        // If this is NOT my host and port in the URI
                         if(! uriIsMe)
                         {
-                            OsSysLog::add(FAC_SIP, PRI_WARNING, "Strict route: %s not to this server",
-                                requestUri.data());
+                            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                          "Strict route: %s not to this server",
+                                          requestUri.data());
                             // Put the route back on as this URI is
                             // not this server.
                             sipRequest->addRouteUri(requestUri);
@@ -254,26 +254,29 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                             myRouteUri = requestUri;
                         }
 
-                        // We have to pop the last route and
-                        // put it in the URI
+                        // We have to pop the last route and put it in the URI
                         UtlString contactUri;
                         int lastRouteIndex;
                         sipRequest->getLastRouteUri(contactUri, lastRouteIndex);
-#ifdef TEST_PRINT
+
+#                       ifdef TEST_PRINT
                         osPrintf("SipAaa::handleMessage setting new URI: %s\n",
                                  contactUri.data());
-#endif
+#                       endif
 
                         sipRequest->removeRouteUri(lastRouteIndex, &contactUri);
-#ifdef TEST_PRINT
+
+#                       ifdef TEST_PRINT
                         osPrintf("SipAaa::handleMessage route removed: %s\n",
                                  contactUri.data());
-#endif
+#                       endif
+
                         // Put the last route in a the URI
                         Url newUri(contactUri);
                         newUri.getUri(contactUri);
                         sipRequest->changeRequestUri(contactUri);
-#ifdef TEST_PRINT
+
+#                       ifdef TEST_PRINT
                         UtlString bytes;
                         int len;
                         sipRequest->getBytes(&bytes, &len);
@@ -284,13 +287,18 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         // These are used for authorization
                         targetUri = contactUri;
                         isNextHop = sipRequest->getRouteUri(0, &nextHopUri);
-                        if ( !isNextHop ) nextHopUri = "";
-#endif
-                    } else
+                        if ( !isNextHop )
+                        {
+                           nextHopUri = "";
+                        }
+#                       endif
+                    }
+                    else
                     {
-#ifdef TEST_PRINT
+#                       ifdef TEST_PRINT
                         osPrintf("SipAaa::handleMessage previous hop loose routed\n");
-#endif
+#                       endif
+
                         // If this route is to me, pop it off
                         if(firstRouteIsMe)
                         {
@@ -316,37 +324,17 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 } else
                 {
                     // There is no route check if it is mapped to something local
-//#ifdef TEST_PRINT
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipAaa::handleMessage no route found") ;
-                    //osPrintf("DEBUG: SipAaa::handleMessage no route found\n");
-//#endif
+
                     UtlString uri;
                     sipRequest->getRequestUri(&uri);
-                    //Url originalUri(uri);
-                    //UtlString domain;
-                    //originalUri.getHostAddress(domain);
-                    //int port = originalUri.getHostPort();
-                    //if(port <= 0) port = SIP_PORT;
-                    //char portBuf[64];
-                    //sprintf(portBuf, "%d", port);
-                    //domain.append(':');
-                    //domain.append(portBuf);
-//#ifdef TEST_PRINT
-                    //osPrintf("SipAaa::handleMessage uri domain: %s\n",
-                    //    domain.data());
-//#endif
+
                     // Where are we going?
                     // These are used for authorization
                     myRouteUri = "";
                     targetUri = uri;
                     isNextHop = FALSE;
                     nextHopUri = "";
-
-                    //SipMessage routeErrorResponse;
-                    //routeErrorResponse.setResponseData(sipRequest,
-                    //    SIP_NOT_FOUND_CODE,
-                    //    "Routing error");
-                    //mpSipUserAgent->send(routeErrorResponse);
                 }
 
                 // Get some info about the request
@@ -370,11 +358,9 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 UtlString routePermission;
                 UtlString routeTag;
                 UtlString routeSignature;
-                if(!myRouteUri.isNull() &&
-                    !toTag.isNull())
+                if(!myRouteUri.isNull() && !toTag.isNull())
                 {
                     Url myRouteUrl(myRouteUri);
-
 
                     myRouteUrl.getUrlParameter("a", routePermission);
                     myRouteUrl.getUrlParameter("t", routeTag);
@@ -408,38 +394,36 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     }
                     else
                     {
-                        OsSysLog::add(FAC_SIP, PRI_WARNING, "invalid route call-id: %s signature a: %s t: %s s: %s",
-                            callId.data(), routePermission.data(),
-                            routeTag.data(), routeSignature.data());
+                        OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                      "invalid route call-id: %s signature a: %s t: %s s: %s",
+                                      callId.data(), routePermission.data(),
+                                      routeTag.data(), routeSignature.data()
+                                      );
                     }
                 }
 
                 // Check if we need to authenticate and authorize the originator.
                 ResultSet permissions;
                 UtlBoolean isPstnNumber;
-                // We do not authenticate ACKs
-                if (mpAuthorizationRules &&
-                    method.compareTo(SIP_ACK_METHOD) != 0)
+
+                if (   mpAuthorizationRules // there are authrules configured
+                    && method.compareTo(SIP_ACK_METHOD) != 0 // We do not authenticate ACKs
+                    )
                 {
                     // We have a valid route with a signature
                     if(routeSignatureIsValid)
                     {
-                        // We can use the permission from the
-                        // route field.
+                        // We can use the permission from the route field.
 
-                        // Request from the caller that required
-                        // authorization
+                        // Request from the caller that required authorization
                         if(fromMatches && !routePermission.isNull())
                         {
                             // Need to authenticate
                             UtlHashMap record;
-                            UtlString* permissionKey =
-                                new UtlString("permission");
-                            UtlString* permissionValue =
-                                new UtlString(routePermission);
+                            UtlString* permissionKey = new UtlString("permission");
+                            UtlString* permissionValue = new UtlString(routePermission);
 
-                            record.insertKeyAndValue(
-                                permissionKey,permissionValue);
+                            record.insertKeyAndValue(permissionKey,permissionValue);
 
                             permissions.addValue(record);
                         }
@@ -451,27 +435,30 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         {
                             // No authentication or authorization
                             // required
-                            if(!fromMatches)
-                            {
-                                OsSysLog::add(FAC_SIP, PRI_INFO, "upstream request call-id: %s, not authenticating",
-                                    callId.data());
-                            }
-                            else if(routePermission.isNull())
-                            {
-                                OsSysLog::add(FAC_SIP, PRI_INFO, "signed route call-id: %s with no authentication required",
-                                    callId.data());
-                            }
-                            else
-                            {
-                                OsSysLog::add(FAC_SIP, PRI_INFO, "request call-id %s to unrestricted entity with signed route",
-                                    callId.data());
-                            }
+                           if (!fromMatches)
+                           {
+                              OsSysLog::add(
+                                 FAC_SIP, PRI_INFO,
+                                 "upstream request call-id: %s, not authenticating",
+                                 callId.data());
+                           }
+                           else if(routePermission.isNull())
+                           {
+                              OsSysLog::add(
+                                 FAC_SIP, PRI_INFO,
+                                 "signed route call-id: %s with no authentication required",
+                                 callId.data());
+                           }
+                           else
+                           {
+                              OsSysLog::add(
+                                 FAC_SIP, PRI_INFO,
+                                 "request call-id %s to unrestricted entity with signed route",
+                                 callId.data());
+                           }
                         }
-
-
                     }
-
-                    else
+                    else // route signature is not valid
                     {
                         Url targetUrl(targetUri);
                         mpAuthorizationRules->getPermissionRequired(
@@ -485,11 +472,6 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                             mpAuthorizationRules->getPermissionRequired (
                                 nextHopUrl, isPstnNumber, permissions );
                         }
-                        //OsSysLog::add(FAC_SIP, PRI_DEBUG,"SipAaa::handleMessage requires %s authorization\n",
-                        //    authorizationType.isNull() ? "no" : authorizationType.data()) ;
-                        //osPrintf("SipAaa::handleMessage requires %s authorization\n",
-                        //    authorizationType.isNull() ? "no" : authorizationType.data());
-
                     }
                 }
 
@@ -517,7 +499,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     }
                     else
                     {
-                        // @JC Forwarding calls to the PSTN gateway workaround
+                        // Forwarding calls to the PSTN gateway workaround
                         // if incoming calls (fromUrl) match a an entry in the
                         // AuthexceptionDB then we do not require authentication
                         UtlString requestUri;
@@ -545,15 +527,18 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                 UtlString authUser;
                 UtlString matchedPermission;
 
-                if (needsAuthentication &&
-                     (!isAuthenticated(*sipRequest, authUser, authResponse) ||
-                      !isAuthorized( *sipRequest, permissions, authUser,
-                                     authResponse, matchedPermission ) ) )
+                if (   needsAuthentication
+                    && (   !isAuthenticated(*sipRequest, authUser, authResponse)
+                        || !isAuthorized( *sipRequest, permissions, authUser,
+                                         authResponse, matchedPermission )
+                        )
+                    )
                 {   // Either not authenticated or not authorized
                     mpSipUserAgent->send(authResponse);
-                } else
-                { // Otherwise route it on
-                    // Record route if authenticated
+                }
+                else
+                {
+                   // Otherwise route it on Record route if authenticated
                     if ( needsRecordRouting )
                     {
                         Url routeUrl(mRouteName);
@@ -561,25 +546,24 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         {
                             UtlString uriString;
                             int port;
-                            //sipRequest->getRequestUri(&uriString);
 
-                            mpSipUserAgent->getViaInfo(
-                                OsSocket::UDP, uriString, port );
-#ifdef TEST_PRINT
+                            mpSipUserAgent->getViaInfo(OsSocket::UDP, uriString, port );
+
+#                           ifdef TEST_PRINT
                             osPrintf("SipAaa:handleMessage Record-Route address: %s port: %d\n",
                                      uriString.data(), port);
-#endif
+#                           endif
 
                             routeUrl.setHostAddress(uriString.data());
                             routeUrl.setHostPort(port);
                         }
-#ifdef TEST_PRINT
+#                       ifdef TEST_PRINT
                         else
                         {
                             osPrintf("SipAaa:handleMessage Record-Route mRouteName: %s\n",
                                 mRouteName.data());
                         }
-#endif
+#                       endif
 
                         routeUrl.setUrlParameter("lr", "");
                         UtlString signature;
@@ -607,8 +591,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         // Check to see if we have already added a record-route
                         // This is a minor optimization.  It avoids the spiral
                         // on the mid-dialog transactions and keeps the message
-                        // a little smaller to avoid UDP fragmentation which cause
-                        // a problem with Cisco phones.
+                        // a little smaller.
                         UtlString previousRRoute;
                         UtlBoolean newRRouteIsUnique = TRUE;
                         if(sipRequest->getRecordRouteUri(0, &previousRRoute))
@@ -745,13 +728,15 @@ UtlBoolean SipAaa::isAuthenticated(
                                                              authTypeDB)
                   )
                 {
-#ifdef TEST_PRINT
+#                   ifdef TEST_PRINT
                      // THIS SHOULD NOTE BE LOGGED IN PRODUCTION
                      // For security reasons we do not want to put passtokens
                      // into the log.
-                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated found credential user: \"%s\" passToken: \"%s\"",
-                           requestUser.data(), passTokenDB.data());
-#endif
+                    OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                                  "SipAaa::isAuthenticated found credential "
+                                  "user: \"%s\" passToken: \"%s\"",
+                                  requestUser.data(), passTokenDB.data());
+#                   endif
                     authenticated = sipRequest.verifyMd5Authorization(requestUser.data(),
                                                                       passTokenDB.data(),
                                                                       requestNonce,
@@ -762,26 +747,33 @@ UtlBoolean SipAaa::isAuthenticated(
                     if ( authenticated )
                     {
                         userUrl.toString(authUser);
-                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated(): authenticated as '%s'", authUser.data());
+                        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                                      "SipAaa::isAuthenticated(): authenticated as '%s'",
+                                      authUser.data());
                     }
                     else
                     {
-                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated() authentication failed as '%s'", requestUser.data());
+                        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                                      "SipAaa::isAuthenticated() authentication failed as '%s'",
+                                      requestUser.data());
                     }
                 }
                 // Did not find credentials in DB
                 else
                 {
-                   OsSysLog::add(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() No credentials found for user: '%s'",
-                           requestUser.data());
+                   OsSysLog::add(FAC_AUTH, PRI_INFO,
+                                 "SipAaa::isAuthenticated() No credentials found for user: '%s'",
+                                 requestUser.data());
                 }
             }
             else // Is not a valid nonce
             {
                 OsSysLog::add(FAC_AUTH, PRI_INFO,
-                       "SipAaa::isAuthenticated() Invalid NONCE: %s found call-id: %s from tag: %s uri: %s realm: %s expiration: %d",
-                     requestNonce.data(), callId.data(), fromTag.data(),
-                     requestUri.data(), mRealm.data(), nonceExpires);
+                              "SipAaa::isAuthenticated() "
+                              "Invalid NONCE: %s found "
+                              "call-id: %s from tag: %s uri: %s realm: %s expiration: %d",
+                              requestNonce.data(), callId.data(), fromTag.data(),
+                              requestUri.data(), mRealm.data(), nonceExpires);
             }
         }
         else
@@ -930,14 +922,9 @@ SipAaa::isAuthorized (
     }
 
     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized user: %s %s for %s",
-           authUser && *authUser ? authUser : "none",
-           authorized ? "authorized" : "not authorized",
-           matchedPermission.data());
-
-    /*osPrintf("SipAaa::isAuthorized user: %s %s for %s\n",
-        authUser && *authUser ? authUser : "none",
-        authorized ? "authorized" : "not authorized",
-        authorizationType);*/
+                  authUser && *authUser ? authUser : "none",
+                  authorized ? "authorized" : "not authorized",
+                  matchedPermission.data());
 
     if ( !authorized )
     {
