@@ -23,7 +23,7 @@ public final class CiscoModel extends Enum {
     public static final CiscoModel MODEL_7940 = new CiscoModel("cisco7940", 2);
 
     /** analog phone adapter */
-    public static final CiscoModel MODEL_ATA18X = new CiscoModel("ciscoata18x", 2, "ata18x",
+    public static final CiscoModel MODEL_ATA18X = new CiscoModel("ciscoAta18x", 2, "ata18x",
             "ata", "0x301,0x400,0x200");
 
     /** only public to comply with checkstyle private/public order req. */
