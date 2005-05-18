@@ -135,10 +135,6 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
     // Misc.
     private XMLOutputter mXMLOutputter = new XMLOutputter();
 
-    private HashMap mOrganizationEJBOBjectsMap = new HashMap();
-    private HashMap mUserConfigSetsEJBObjectsMap = new HashMap();
-    private HashMap mDeviceConfigSetsEJBObjectsMap = new HashMap();
-
     private Integer mXpressaDeviceTypeID = null;
 
     // used to cache whether this is an entprise of (in the future) a
@@ -485,6 +481,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                 throw new PDSException(collateErrorMessages("E1048", null), ex);
             }
 
+            Map orgCache = new HashMap();
             for (Iterator iUser = userC.iterator(); iUser.hasNext();) {
                 User user = (User) iUser.next();
 
@@ -503,7 +500,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
                 String primaryLineURL = user.calculatePrimaryLineURL();
 
-                Organization organization = getOrganizationEJBObject(user.getOrganizationID());
+                Organization organization = getOrganizationEJBObject(orgCache, user.getOrganizationID());
 
                 StringTokenizer aliasTok = new StringTokenizer(aliases, ",");
                 while (aliasTok.hasMoreTokens()) {
@@ -1165,16 +1162,16 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
         return configSets;
     }
 
-    private Organization getOrganizationEJBObject(Integer id) throws FinderException,
+    private Organization getOrganizationEJBObject(Map organizationEJBOBjectsMap, Integer id) throws FinderException,
             RemoteException {
 
         Organization returnValue = null;
 
-        if (!mOrganizationEJBOBjectsMap.containsKey(id)) {
+        if (!organizationEJBOBjectsMap.containsKey(id)) {
             returnValue = mOrganizationHome.findByPrimaryKey(id);
-            mOrganizationEJBOBjectsMap.put(id, returnValue);
+            organizationEJBOBjectsMap.put(id, returnValue);
         } else {
-            returnValue = (Organization) mOrganizationEJBOBjectsMap.get(id);
+            returnValue = (Organization) organizationEJBOBjectsMap.get(id);
         }
 
         return returnValue;
@@ -1185,19 +1182,11 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
         ConfigurationSet returnValue = null;
 
-        if (!mUserConfigSetsEJBObjectsMap.containsKey(id)) {
-            Collection c = mConfigurationSetHome.findByUserIDAndProfileType(id,
-                    PDSDefinitions.PROF_TYPE_USER);
+        Collection c = mConfigurationSetHome.findByUserIDAndProfileType(id,
+                PDSDefinitions.PROF_TYPE_USER);
 
-            for (Iterator i = c.iterator(); i.hasNext();)
-                returnValue = (ConfigurationSet) i.next();
-
-            if (returnValue != null) {
-                mUserConfigSetsEJBObjectsMap.put(id, returnValue);
-            }
-        } else {
-            returnValue = (ConfigurationSet) mUserConfigSetsEJBObjectsMap.get(id);
-        }
+        for (Iterator i = c.iterator(); i.hasNext();)
+            returnValue = (ConfigurationSet) i.next();
 
         return returnValue;
     }
@@ -1207,18 +1196,10 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
 
         ConfigurationSet returnValue = null;
 
-        if (!mDeviceConfigSetsEJBObjectsMap.containsKey(id)) {
-            Collection c = mConfigurationSetHome.findByLogicalPhoneID(id);
+        Collection c = mConfigurationSetHome.findByLogicalPhoneID(id);
 
-            for (Iterator i = c.iterator(); i.hasNext();)
-                returnValue = (ConfigurationSet) i.next();
-
-            if (returnValue != null) {
-                mDeviceConfigSetsEJBObjectsMap.put(id, returnValue);
-            }
-        } else {
-            returnValue = (ConfigurationSet) mDeviceConfigSetsEJBObjectsMap.get(id);
-        }
+        for (Iterator i = c.iterator(); i.hasNext();)
+            returnValue = (ConfigurationSet) i.next();
 
         return returnValue;
     }
@@ -1249,7 +1230,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
         Collection superC = mUserHome.findByDisplayID("superadmin");
         User superadmin = (User) superC.iterator().next();
 
-        Organization organization = getOrganizationEJBObject(superadmin.getOrganizationID());
+        Organization organization = getOrganizationEJBObject(new HashMap(), superadmin.getOrganizationID());
 
         String domain = organization.getDNSDomain();
         String authenticationRealm = organization.getAuthenticationRealm();
