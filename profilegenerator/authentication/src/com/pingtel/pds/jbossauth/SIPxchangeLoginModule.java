@@ -331,7 +331,7 @@ public class SIPxchangeLoginModule extends AbstractServerLoginModule  {
         // if password length is different than 32 and clear passwords match
         // (among other things it allows us to clean admin user password)
         if( !expectedPassword.equals( digestedPassword ) && 
-                !(expectedPassword.length() != 32 && expectedPassword.equals( password ) ) )
+                !expectedPassword.equals( password ) )
         {
             super.log.debug("Bad password for username="+username);
             throw new FailedLoginException("Password Incorrect/Password Required");
