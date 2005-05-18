@@ -19,7 +19,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="EditSipPassword" specification-path="user/EditSipPassword.page"/>    
+    <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>    <page name="EditSipPassword" specification-path="user/EditSipPassword.page"/>    
     <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>

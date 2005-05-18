@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.List;
+
 import org.apache.commons.lang.enum.Enum;
 
 public interface SipxProcessContext {
@@ -20,12 +22,16 @@ public interface SipxProcessContext {
         public static final Process STATUS = new Process("SIPStatus");
         public static final Process PROXY = new Process("SIPProxy");
         public static final Process MEDIA_SERVER = new Process("MediaServer");
-        public static final Process PARK_SERVER = new Process("ParkServer");        
-        
+        public static final Process PARK_SERVER = new Process("ParkServer");
+
         public Process(String name) {
             super(name);
-        }        
+        }
+
+        public static List getAll() {
+            return getEnumList(SipxProcessContext.Process.class);
+        }
     };
-    
+
     void restart(Process process);
 }

@@ -29,4 +29,8 @@
         <static-binding name="page" value="UserCallForwarding"/>
         <static-binding name="parameters" value="4"/>
     </component>
+    
+    <component id="RestartReminder" type="DirectLink">
+        <binding name="listener" expression="listeners.goToRestartReminderPage"/>
+    </component>
 </page-specification>

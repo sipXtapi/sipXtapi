@@ -16,11 +16,13 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 
 /**
  * TestPage page
  */
 public abstract class TestPage extends BasePage {
+    public static final String PAGE = "TestPage"; 
     
     public abstract DialPlanContext getDialPlanManager();
     
@@ -38,5 +40,11 @@ public abstract class TestPage extends BasePage {
 
     public void resetCallGroupContext(IRequestCycle cycle_) {
         getCallGroupContext().clear();
+    }
+    
+    public void goToRestartReminderPage(IRequestCycle cycle) {
+        RestartReminder page = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
+        page.setNextPage(PAGE);
+        cycle.activate(page);
     }
 }
