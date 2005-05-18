@@ -539,12 +539,17 @@
 	</bean>
     
     <!-- 
-      - C O M M S E R V E R S   S E T T I N G S
+      - C O M M S E R V E R S
       -->      
 	<bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer">
         <property name="configDirectory">
 			<value>${sysdir.etc}</value>            
         </property>
-    </bean>      
-      
+    </bean>
+    
+    <bean id="sipxProcessContext" class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+        <property name="configDirectory">
+			<value>${sysdir.etc}</value>            
+        </property>                
+    </bean>
 </beans>
