@@ -25,8 +25,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  */
 public class CiscoIpPhone extends CiscoPhone {
 
-    public static final String FACTORY_ID = "ciscoIp";
-
     /** BEAN ACCESS ONLY */
     public CiscoIpPhone() {
         setLineFactoryId(CiscoIpLine.FACTORY_ID);

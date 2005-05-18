@@ -119,7 +119,7 @@
     <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory"/>
-		</property>        
+		</property>
     </bean>
 	<!--
       - C O R E  C O N T E X T
@@ -231,10 +231,7 @@
 		</property>                
 		<property name="phoneFactoryIds">
 			<map>
-                <!-- Register new phone models here, order is important -->
-				<entry key="kphone">
-					<value>KPhone</value>
-				</entry>
+                <!-- Register new phone models here, order is preserved -->
 				<entry key="polycom300">
 					<value>Polycom SoundPoint IP 300</value>
 				</entry>
@@ -256,8 +253,11 @@
 				<entry key="cisco7905">
 					<value>Cisco IP 7905</value>
 				</entry>
-				<entry key="ciscoata18x">
+				<entry key="ciscoAta18x">
 					<value>Cisco ATA 186/188</value>
+				</entry>
+				<entry key="kphone">
+					<value>KPhone</value>
 				</entry>
 			</map>
 		</property>
@@ -317,7 +317,7 @@
 		</property>
         </bean>
 	<bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" parent="cisco7960" singleton="false"/>
-	<bean id="ciscoLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpLine" singleton="false"/>
+	<bean id="ciscoIpLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpLine" singleton="false"/>
 	<bean id="cisco7905" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false">
 		<property name="velocityEngine">
 			<ref bean="velocityEngine"/>
@@ -327,7 +327,8 @@
 		</property>
         </bean>
 	<bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" parent="cisco7960" singleton="false"/>
-	<bean id="ciscoata18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"/>
+	<bean id="ciscoAta18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"/>
+	<bean id="ciscoAtaLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaLine" singleton="false"/>
 	
 	<!--
 	  - D I A L   P L A N S

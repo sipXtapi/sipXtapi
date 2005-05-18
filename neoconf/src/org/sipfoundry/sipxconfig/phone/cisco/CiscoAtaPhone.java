@@ -26,8 +26,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  */
 public class CiscoAtaPhone extends CiscoPhone {
 
-    public static final String FACTORY_ID = "ciscoata";
-    
     private static final String ZERO = "0";
 
     private String m_binDir;

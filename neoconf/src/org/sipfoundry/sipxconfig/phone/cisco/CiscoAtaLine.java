@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.setting.SettingRenderer;
  */
 public class CiscoAtaLine extends CiscoLine implements SettingRenderer {
 
-    public static final String FACTORY_ID = "ciscoataLine";
+    public static final String FACTORY_ID = "ciscoAtaLine";
 
     public static final String DISPLAY_NAME = "DisplayName";
 

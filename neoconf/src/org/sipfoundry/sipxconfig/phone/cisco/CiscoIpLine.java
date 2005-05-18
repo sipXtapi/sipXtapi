@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.setting.SettingRenderer;
  */
 public class CiscoIpLine extends CiscoLine implements SettingRenderer {
 
-    public static final String FACTORY_ID = "ciscoLine";
+    public static final String FACTORY_ID = "ciscoIpLine";
 
     public static final String PHONELINE = "line";
 
