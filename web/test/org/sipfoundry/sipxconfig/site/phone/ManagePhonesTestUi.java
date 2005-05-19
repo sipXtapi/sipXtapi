@@ -58,7 +58,8 @@ public class ManagePhonesTestUi extends WebTestCase {
         clickLink("ManagePhones");          
         selectRows(0, 11);
         clickButton("phone:delete");
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "phone:list"));
+        // 2 = 1 thead (columns) + 1 tfoot (pager)
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "phone:list"));
         
         SiteTestHelper.assertNoException(tester);
     }    
