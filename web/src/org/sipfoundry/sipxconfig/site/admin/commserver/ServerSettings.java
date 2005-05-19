@@ -46,10 +46,6 @@ public abstract class ServerSettings extends BasePage implements PageRenderListe
      * getServer().applySettings(); }
      */
 
-    public void ok(IRequestCycle cycle) {
-        apply(cycle);
-    }
-
     public void apply(IRequestCycle cycle) {
         getServer().applySettings();
         RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);

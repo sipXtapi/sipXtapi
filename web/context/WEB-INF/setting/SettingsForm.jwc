@@ -21,8 +21,9 @@
     </parameter>
     <parameter name="okListener"
         type="org.apache.tapestry.IActionListener"
-        required="yes"
-        direction="in">
+        required="no"
+        direction="in"
+        default-value="null">
     </parameter>
     <parameter name="applyListener"
         type="org.apache.tapestry.IActionListener"
@@ -43,6 +44,9 @@
     </component>
     <component id="IfSetting" type="Conditional">
         <binding name="condition" expression="currentSetting.getValues().size() == 0"/>
+    </component>
+    <component id="ifRenderOk" type="Conditional">
+        <binding name="condition" expression="okListener != null"/>
     </component>
     <component id="settingsForm" type="Form">
     </component>

@@ -31,20 +31,24 @@ public abstract class RestartReminder extends BasePage {
 
     public abstract SipxProcessContext getSipxProcessContext();
 
-    abstract public void setProcesses(Object[] processes);
+    public abstract void setProcesses(Object[] processes);
 
-    abstract public Object[] getProcesses();
+    public abstract Object[] getProcesses();
 
     public void proceed(IRequestCycle cycle) {
         if (!getRestartLater()) {
-            Object[] processes = getProcesses();
-            List procsToRestart = (null != processes) ? Arrays.asList(processes) : Process.getAll();
-            SipxProcessContext processContext = getSipxProcessContext();
-            for (Iterator i = procsToRestart.iterator(); i.hasNext();) {
-                Process p = (Process) i.next();
-                processContext.restart(p);
-            }
+            restart();
         }
         cycle.activate(getNextPage());
+    }
+
+    private void restart() {
+        Object[] processes = getProcesses();
+        List procsToRestart = (null != processes) ? Arrays.asList(processes) : Process.getAll();
+        SipxProcessContext processContext = getSipxProcessContext();
+        for (Iterator i = procsToRestart.iterator(); i.hasNext();) {
+            Process p = (Process) i.next();
+            processContext.restart(p);
+        }
     }
 }
