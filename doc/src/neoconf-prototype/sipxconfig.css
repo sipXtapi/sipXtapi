@@ -176,7 +176,8 @@ p.message {
 }
 
 .settingDescription {
-  font-style: 80%;
+  padding-left: 2em;
+  font-style: 60%;
   color: #555;
 }
 
@@ -332,7 +333,6 @@ div.help {
 
 fieldset {
   border-style: none;
-  font-size: 120%;
   width: 40em;
   margin-top: 1em; 
 }
@@ -343,6 +343,7 @@ legend {
 
 label {
   padding-right: 1em;
+  font-size: 120%;
 }
 
 /* enlarged border allows to have uniform background for fieldset and legend 
@@ -352,6 +353,10 @@ form.with-sections fieldset {
   border-top-width: 2em;
   border-color: #F0E68C;
   background: #F0E68C;
+}
+
+fieldset td {
+  padding: 3px;
 }
 
 form.with-sections legend {

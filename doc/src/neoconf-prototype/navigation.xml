@@ -14,7 +14,7 @@
 		<item name="e911forwarding" href="admin/e911-forwarding.html" title="Emergency Routing">Emergency Routing</item>
 		<item name="configuration" href="proto-stub.html" title="Configuration">Configuration</item>
 		<item name="organization" href="proto-stub.html" title="Organization Settings">Organization Settings</item>
-		<item name="backup" href="proto-stub.html" title="Backup">Backup</item>
+		<item name="backup" href="admin/backup.html" title="Backup">Backup</item>
 	</menu>
     <item name="services" href="proto-stub.html" title="Network Services">Network Services</item>
 	<menu>
