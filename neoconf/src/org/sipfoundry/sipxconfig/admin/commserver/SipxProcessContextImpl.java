@@ -22,11 +22,15 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 
 public class SipxProcessContextImpl implements SipxProcessContext {
+    private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
+
     private static final String ACTION_RESTART = "restart";
     private static final String URL_FORMAT = "{0}?command={1}&process={2}";
     private static final String TOPOLOGY_XML = "topology.xml";
@@ -43,8 +47,12 @@ public class SipxProcessContextImpl implements SipxProcessContext {
             connection.setDoOutput(true);
             connection.setRequestMethod("GET");
             connection.connect();
+            connection.getInputStream();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            // HACK: ignore exception
+            // at the moment process.cgi returns 500. Internal Server Error whenever services are
+            // restarted
+            LOG.error("Restarting " + process + ":" + e.getMessage());
         }
     }
 
