@@ -11,12 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 
 public abstract class RestartReminder extends BasePage {
     public static final String PAGE = "RestartReminder";
@@ -29,12 +31,17 @@ public abstract class RestartReminder extends BasePage {
 
     public abstract SipxProcessContext getSipxProcessContext();
 
+    abstract public void setProcesses(Object[] processes);
+
+    abstract public Object[] getProcesses();
+
     public void proceed(IRequestCycle cycle) {
         if (!getRestartLater()) {
-            List processes = SipxProcessContext.Process.getAll();
+            Object[] processes = getProcesses();
+            List procsToRestart = (null != processes) ? Arrays.asList(processes) : Process.getAll();
             SipxProcessContext processContext = getSipxProcessContext();
-            for (Iterator i = processes.iterator(); i.hasNext();) {
-                SipxProcessContext.Process p = (SipxProcessContext.Process) i.next();
+            for (Iterator i = procsToRestart.iterator(); i.hasNext();) {
+                Process p = (Process) i.next();
                 processContext.restart(p);
             }
         }

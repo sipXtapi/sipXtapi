@@ -15,6 +15,8 @@
     <property-specification name="restartLater" type="boolean" initial-value="false"/>
     
     <property-specification name="nextPage" type="java.lang.String"/>
+    
+    <property-specification name="processes" type="java.lang.Object[]"/>
 
     <component id="continue" type="Submit">
         <binding name="listener" expression="listeners.proceed"/>
@@ -23,6 +25,10 @@
     
     <component id="nextPage" type="Hidden">
         <binding name="value" expression="nextPage"/>
+    </component>
+    
+    <component id="processes" type="Hidden">
+        <binding name="value" expression="processes"/>
     </component>
     
     <component id="reminder" type="InsertText">
