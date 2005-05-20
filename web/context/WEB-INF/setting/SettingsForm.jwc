@@ -54,25 +54,20 @@
         <binding name="source" expression="flattenedSettings"/>
         <binding name="value" expression="currentSetting"/>
     </component>
-    <component id="settingLabel" type="Any">
-        <binding name="for" expression="'setting:' + currentSetting.name"/>
+    
+    <component id="settingEditor" type="SettingEditor">
+        <binding name="setting" expression="currentSetting"/>
+        <binding name="hiddenHint" expression="currentRenderProperties.password"/>
     </component>
-    <component id="settingLabelText" type="Insert">
+
+    <component id="groupLabel" type="Insert">
         <binding name="value" expression="currentSetting.label"/>
     </component>
-    <component id="groupLabel" copy-of="settingLabelText"/>
-    <component id="settingDefault" type="Insert">
-        <binding name="value" expression="currentSetting.defaultValue"/>
-    </component>    
-    <component id="setting" type="TextField">
-        <binding name="value" expression="currentSetting.value"/>
-        <binding name="hidden" expression="currentRenderProperties.password"/>
-        <binding name="id" expression="'setting:' + currentSetting.name"/>
-    </component>    
-    <component id="settingDescription" type="Insert">
+
+    <component id="groupDescription" type="Insert">
         <binding name="value" expression="currentSetting.description"/>
     </component>
-    <component id="groupDescription" copy-of="settingDescription"/>
+
     <component id="cancel" type="Submit">
         <binding name="listener" expression="cancelListener"/>
     </component>

@@ -66,6 +66,7 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+    <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
     <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>

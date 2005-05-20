@@ -1,36 +1,22 @@
 <span jwcid="$content$">
 	<form jwcid="settingsForm">
+        <fieldset>            
         <table>
+			<tbody>
 			<span jwcid="settings">
-				<span jwcid="IfGroup">
-				<tr>
+				<tr jwcid="IfGroup" element="tr">
 					<td colspan="2">
 						<h3><label jwcid="groupLabel"/></h3>
 						<span jwcid="groupDescription"/>
 					</td>
 				</tr>
-				</span>
 				<span jwcid="IfSetting">
-				<tr>
-					<td nowrap="nowrap">
-						<label class="settingLabel" jwcid="settingLabel"><span jwcid="settingLabelText">:</span></label>
-					</td>
-					<td>
-						<span jwcid="setting"/> 
-					</td>
-                    <td>
-						<span class="settingDefault">(Default: <span jwcid="settingDefault"/>)</span>
-                    </td>
-				</tr>
-				<tr>
-					<td></td>
-					<td colspan="2">
-						<span class="settingDescription" jwcid="settingDescription"/><br/>
-					</td>
-				</tr>
+                    <span jwcid="settingEditor"/>
 				</span>
 			</span>
+            </tbody>
 		</table>
+        </fieldset>
 		<ul class="form-actions">
 			<li>
 				<input jwcid="cancel" id="setting:cancel" value="Cancel"/>
