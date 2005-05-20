@@ -157,6 +157,7 @@
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v9_mods.sql"/>
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v10_add_aa.sql"/>
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v11_park_orbit.sql"/>
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v13_music_on_hold.sql"/>
         </sql>        
     </target>
     

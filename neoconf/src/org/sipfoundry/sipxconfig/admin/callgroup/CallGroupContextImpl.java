@@ -83,7 +83,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     /**
-     *  Sends notification to progile generator to trigger alias generation 
+     * Sends notification to progile generator to trigger alias generation
      */
     private void triggerAliasGeneration() {
         // make profilegenerator to propagate new aliases
@@ -144,13 +144,14 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     public void activateParkOrbits() {
         try {
             Collection orbits = getParkOrbits();
-            m_orbitsGenerator.generate(orbits);
+            BackgroundMusic defaultMusic = getBackgroundMusic();
+            m_orbitsGenerator.generate(defaultMusic, orbits);
             m_orbitsGenerator.writeToFile();
-            
+
             triggerAliasGeneration();
         } catch (IOException e) {
             new RuntimeException("Activating call parking configuration failed.", e);
-        }        
+        }
     }
 
     public void setJms(JmsOperations jms) {
@@ -171,5 +172,23 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     public void setOrbitServer(String orbitServer) {
         m_orbitServer = orbitServer;
+    }
+
+    public String getDefaultMusicOnHold() {
+        return getBackgroundMusic().getMusic();
+    }
+
+    public void setDefaultMusicOnHold(String music) {
+        BackgroundMusic backgroundMusic = getBackgroundMusic();
+        backgroundMusic.setMusic(music);
+        getHibernateTemplate().saveOrUpdate(backgroundMusic);
+    }
+
+    private BackgroundMusic getBackgroundMusic() {
+        List musicList = getHibernateTemplate().loadAll(BackgroundMusic.class);
+        if (!musicList.isEmpty()) {
+            return (BackgroundMusic) musicList.get(0);
+        }
+        return new BackgroundMusic();
     }
 }

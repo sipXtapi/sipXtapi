@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
@@ -37,18 +38,16 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
         assertTrue(orbit.isEnabled());
         assertEquals("sales", orbit.getName());
         assertEquals("401", orbit.getExtension());
-        assertEquals("something.wav", orbit.getMusicOnHold());
+        assertEquals("something.wav", orbit.getMusic());
     }
     
     public void testGetParkOrbits() throws Exception {
         Collection orbits = m_context.getParkOrbits();
         assertEquals(2, orbits.size());
-        ParkOrbit orbit = (ParkOrbit) orbits.iterator().next();
-        assertEquals("sales", orbit.getName());
-        assertTrue(orbit.isEnabled());
-        assertEquals("sales", orbit.getName());
-        assertEquals("401", orbit.getExtension());
-        assertEquals("something.wav", orbit.getMusicOnHold());
+        Iterator i = orbits.iterator();
+        ParkOrbit orbit1 = (ParkOrbit) i.next();
+        ParkOrbit orbit2 = (ParkOrbit) i.next();
+        assertFalse(orbit1.getName().equals(orbit2.getName()));
     }
 
     public void testStoreParkOrbit() throws Exception {
@@ -57,11 +56,11 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
         orbit.setDescription("kukuLine");
         orbit.setExtension("202");
         orbit.setEnabled(true);
-        orbit.setMusicOnHold("tango.wav");
+        orbit.setMusic("tango.wav");
         m_context.storeParkOrbit(orbit);
-        // table should be empty now
-        ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(3, tableCallGroup.getRowCount());
+        // table will have 4 rows - 3 park orbits + 1 music on hold
+        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
+        assertEquals(4, orbitTable.getRowCount());
     }
 
     public void testRemoveParkOrbit() throws Exception {
@@ -69,16 +68,16 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
             new Integer(1001), new Integer(1002)
         });
         m_context.removeParkOrbits(ids);
-        // table should be empty now
-        ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(0, tableCallGroup.getRowCount());
+        // table should be empty now - except for 1 music on hold orbit
+        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
+        assertEquals(1, orbitTable.getRowCount());
     }
 
     public void testClear() throws Exception {
         m_context.clear();
-        // make sure the tables are empty
-        ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(0, tableUserRing.getRowCount());
+        // table should be empty now - except for 1 music on hold orbit
+        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
+        assertEquals(1, orbitTable.getRowCount());
     }
     
     
@@ -91,5 +90,15 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
         System.err.println(alias);
         assertTrue(alias.getIdentity().startsWith("401"));
         assertTrue(alias.getContact().startsWith("401"));        
+    }
+    
+    public void testDefaultMusicOnHold() throws Exception {
+        final String newMusic = "new.wav";
+        assertEquals("default.wav", m_context.getDefaultMusicOnHold());
+        m_context.setDefaultMusicOnHold(newMusic);
+        assertEquals(newMusic, m_context.getDefaultMusicOnHold());
+        
+        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
+        assertEquals(newMusic, orbitTable.getValue(2, "music_on_hold"));
     }
 }

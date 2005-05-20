@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.admin.callgroup.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.callgroup.ParkOrbit;
 
 public class OrbitsTest extends XMLTestCase {
@@ -42,7 +43,7 @@ public class OrbitsTest extends XMLTestCase {
             ParkOrbit orbit = new ParkOrbit();
             orbit.setName(DATA[i][0]);
             orbit.setExtension(DATA[i][1]);
-            orbit.setMusicOnHold(DATA[i][2]);
+            orbit.setMusic(DATA[i][2]);
             orbit.setDescription(DATA[i][3]);
             // the first one is disabled
             // the remaining orbits will be enabled
@@ -54,7 +55,7 @@ public class OrbitsTest extends XMLTestCase {
     public void testGenerate() throws Exception {
         Orbits orbits = new Orbits();
         orbits.setAudioDirectory("/var/sipxdata/parkserver/music");
-        orbits.generate(m_parkOrbits);
+        orbits.generate(new BackgroundMusic(), m_parkOrbits);
         String generatedXml = orbits.getFileContent();
         InputStream referenceXml = OrbitsTest.class.getResourceAsStream("orbits.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));

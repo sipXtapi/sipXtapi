@@ -37,14 +37,4 @@
             <description>Number of seconds that the original call will ring after pick-up code is dialed.</description>
         </setting>
     </group>
-    <group name="music-on-hold">
-        <label>Music on Hold</label>
-        <setting name="background-audio">
-            <label>Background audio</label>
-            <profileName>orbits.xml</profileName>
-            <type></type>
-            <value>default.wav</value>
-            <description>Name of the multimedia file that will be played when incoming calls are put on hold.</description>
-        </setting>
-	</group>        
 </model>

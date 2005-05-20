@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IRequestCycle;
@@ -120,7 +121,7 @@ public final class TapestryUtils {
      * @param page
      * @return validation delegate component
      */
-    public static IValidationDelegate getValidator(AbstractPage page) {
+    public static IValidationDelegate getValidator(AbstractComponent page) {
         IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(VALIDATOR);
         return validator;
     }

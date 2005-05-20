@@ -12,14 +12,11 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class ParkOrbit extends BeanWithId {
-    private boolean m_enabled;
+public class ParkOrbit extends BackgroundMusic {
     private String m_name;
     private String m_extension;
     private String m_description;
-    private String m_musicOnHold;
 
     public String getDescription() {
         return m_description;
@@ -27,22 +24,6 @@ public class ParkOrbit extends BeanWithId {
 
     public void setDescription(String description) {
         m_description = description;
-    }
-
-    public boolean isEnabled() {
-        return m_enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        m_enabled = enabled;
-    }
-
-    public String getMusicOnHold() {
-        return m_musicOnHold;
-    }
-
-    public void setMusicOnHold(String musicOnHold) {
-        m_musicOnHold = musicOnHold;
     }
 
     public String getName() {

@@ -42,4 +42,8 @@ public interface CallGroupContext {
     Collection getParkOrbits();
     
     void activateParkOrbits();
+    
+    String getDefaultMusicOnHold();
+    
+    void setDefaultMusicOnHold(String newMusic);
 }

@@ -44,7 +44,7 @@
     </component>
     
     <component id="musicOnHoldSelector" type="AssetSelector">
-        <binding name="asset" expression="parkOrbit.musicOnHold"/>
+        <binding name="asset" expression="parkOrbit.music"/>
         <binding name="assetDir" expression="global.orbitsGenerator.audioDirectory"/>
         <message-binding name="selectLabel" key="label.music"/>
         <message-binding name="uploadLabel" key="label.upload"/>        

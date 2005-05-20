@@ -18,6 +18,7 @@ import java.util.Iterator;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.callgroup.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.callgroup.ParkOrbit;
 
 public class Orbits extends XmlFile {
@@ -34,13 +35,13 @@ public class Orbits extends XmlFile {
         return m_document;
     }
 
-    public void generate(Collection parkOrbits) {
+    public void generate(BackgroundMusic defaultMusic, Collection parkOrbits) {
         m_document = FACTORY.createDocument();
         Element orbits = m_document.addElement("orbits", NAMESPACE);
         File dir = new File(m_audioDirectory);
         // add music-on-hold
         Element musicOnHold = orbits.addElement("music-on-hold");
-        addBackgroundAudio(musicOnHold, dir, "default.wav");
+        addBackgroundAudio(musicOnHold, dir, defaultMusic);
         // add other orbits
         for (Iterator i = parkOrbits.iterator(); i.hasNext();) {
             ParkOrbit parkOrbit = (ParkOrbit) i.next();
@@ -51,13 +52,13 @@ public class Orbits extends XmlFile {
             Element orbit = orbits.addElement("orbit");
             orbit.addElement("name").setText(parkOrbit.getName());
             orbit.addElement("extension").setText(parkOrbit.getExtension());
-            addBackgroundAudio(orbit, dir, parkOrbit.getMusicOnHold());
+            addBackgroundAudio(orbit, dir, parkOrbit);
             orbit.addElement("description").setText(parkOrbit.getDescription());
         }
     }
 
-    private void addBackgroundAudio(Element parent, File dir, String file) {
-        File audioFile = new File(dir, file);
+    private void addBackgroundAudio(Element parent, File dir, BackgroundMusic music) {
+        File audioFile = new File(dir, music.getMusic());
         parent.addElement("background-audio").setText("file://" + audioFile.getAbsolutePath());
     }
 

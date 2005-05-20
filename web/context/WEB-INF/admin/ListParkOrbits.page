@@ -42,7 +42,7 @@
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="callGroupContext.parkOrbits"/>
         <static-binding name="pageSize" value="-1"/>
-        <static-binding name="columns" value="name:name,enabled:enabled,extension:extension,music:musicOnHold"/>
+        <static-binding name="columns" value="name:name,enabled:enabled,extension:extension,music:music"/>
     </component>
     
     <component id="tableColumns" type="contrib:TableColumns"/>
@@ -78,9 +78,6 @@
         <binding name="tag" expression="selections.allSelected"/>
         <message-binding name="value" key="button.delete"/>
     </component>
-
-    <component id="activate" type="Submit">
-        <binding name="listener" expression="listeners.activate"/>
-        <message-binding name="value" key="button.activate"/>
-    </component>        
+    
+    <component id="musicOnHold" type="MusicOnHoldForm"/>
 </page-specification>

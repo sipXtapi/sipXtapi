@@ -40,4 +40,9 @@
         <patch number="120" class="com.pingtel.pds.pgs.patch.LegacyNotifierPatch" 
             description="Create default dial plan rules if none exist"/>
 	</version>        
+	<version number="13">
+        <patch number="130" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor" 
+            args="script=/v13_music_on_hold.sql"
+            description="Music on hold support"/>        
+	</version>        
 </patches>

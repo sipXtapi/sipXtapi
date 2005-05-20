@@ -99,7 +99,6 @@ public abstract class ListWebTestCase extends WebTestCase {
         assertLinkPresent(buildId("add"));
         assertEquals(1, SiteTestHelper.getRowCount(tester, buildId("list")));
         assertButtonPresent(buildId("delete"));
-        assertButtonPresent(buildId("activate"));
 
         if (m_hasDuplicate) {
             assertButtonPresent(buildId("duplicate"));
