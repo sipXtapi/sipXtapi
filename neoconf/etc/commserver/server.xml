@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE model>
-<!-- PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
-      "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd" -->
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
     <group name="voice-mail">
         <label>Voice Mail</label>

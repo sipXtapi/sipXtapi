@@ -116,7 +116,7 @@
 	    </jar>
 	</target>
 
-    <target name="test-all" depends="ant-targets.test-all,test-db"/>
+    <target name="test-all" depends="ant-targets.test-all,test-db,test-models"/>
 
   <!--
     - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
@@ -136,6 +136,16 @@
 	      </batchtest>
     	</junit>
      	<fail if="junit.failed"/>   
+	</target>
+	
+	<target name="test-models">
+		<xmlvalidate description="validate setting description files">
+			<fileset dir="etc/cisco" includes="**/*.xml"></fileset>
+			<fileset dir="etc/commserver" includes="**/*.xml"></fileset>
+			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
+			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
+			<dtd publicid="-//SIPFoundry//sipXconfig//Model specification 1.0//EN" location="etc/setting.dtd"/>
+		</xmlvalidate>
 	</target>
   
     <target name="reset-db"
