@@ -25,8 +25,9 @@ public class KPhoneLine extends AbstractLine {
     private static final String REGISTRATION = "Registration";
     
     public Setting getSettingModel() {
-        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/' + KPhone.FACTORY_ID + "/line.xml");
-        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        String systemDirectory = getPhoneContext().getSystemDirectory();
+        File modelDefsFile = new File(systemDirectory + '/' + KPhone.FACTORY_ID + "/line.xml");
+        Setting model = new XmlModelBuilder(systemDirectory).buildModel(modelDefsFile).copy();
         
         return model;
     }

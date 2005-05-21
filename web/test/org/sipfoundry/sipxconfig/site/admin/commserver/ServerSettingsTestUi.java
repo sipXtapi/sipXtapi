@@ -45,7 +45,7 @@ public class ServerSettingsTestUi extends WebTestCase {
         
         File settingDir = new File(etcDir, "commserver");
         File modelDefsFile = new File(settingDir, "server.xml");
-        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        Setting model = new XmlModelBuilder(etcDir).buildModel(modelDefsFile).copy();
         Collection sections = model.getValues();
         assertFalse(sections.isEmpty());
         

@@ -32,7 +32,7 @@ public class SipxServer implements Server {
     private Setting getSettingModel() {
         File settingDir = new File(m_configDirectory, "commserver");
         File modelDefsFile = new File(settingDir, "server.xml");
-        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        Setting model = new XmlModelBuilder(m_configDirectory).buildModel(modelDefsFile).copy();
 
         return model;
     }

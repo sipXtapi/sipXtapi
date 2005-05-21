@@ -26,7 +26,7 @@ public abstract class CiscoLine extends AbstractLine {
     public Setting getSettingModel() {
         File sysDir = new File(getPhoneContext().getSystemDirectory());
         File modelDefsFile = new File(sysDir, getModelFile());
-        Setting model = new XmlModelBuilder().buildModel(modelDefsFile);
+        Setting model = new XmlModelBuilder(sysDir).buildModel(modelDefsFile);
         
         CiscoPhone ciscoPhone = (CiscoPhone) getPhone();
         return model.getSetting(ciscoPhone.getModel().getModelId());

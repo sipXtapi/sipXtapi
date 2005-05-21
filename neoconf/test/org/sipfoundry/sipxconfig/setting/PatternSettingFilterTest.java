@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 public class PatternSettingFilterTest extends TestCase {
     
     public void testPatternFilter() throws IOException {
-        XmlModelBuilder builder = new XmlModelBuilder();
+        XmlModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("games.xml");
         SettingGroup games = builder.buildModel(in);
 

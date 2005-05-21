@@ -49,7 +49,7 @@ public abstract class CiscoPhone extends AbstractPhone {
     public Setting getSettingModel() {
         File sysDir = new File(getPhoneContext().getSystemDirectory());
         File modelDefsFile = new File(sysDir, getModelFile());
-        Setting all = new XmlModelBuilder().buildModel(modelDefsFile);
+        Setting all = new XmlModelBuilder(sysDir).buildModel(modelDefsFile);
         Setting model = all.getSetting(getModel().getModelId());
         
         return model;

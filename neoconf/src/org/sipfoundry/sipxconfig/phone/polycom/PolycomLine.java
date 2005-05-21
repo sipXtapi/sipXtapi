@@ -52,9 +52,10 @@ public class PolycomLine extends AbstractLine implements SettingRenderer {
     }
     
     public Setting getSettingModel() {
-        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/' 
+        String systemDirectory = getPhoneContext().getSystemDirectory();
+        File modelDefsFile = new File(systemDirectory + '/' 
                 + PolycomPhone.FACTORY_ID + "/line.xml");
-        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        Setting model = new XmlModelBuilder(systemDirectory).buildModel(modelDefsFile).copy();
         
         return model;
     }

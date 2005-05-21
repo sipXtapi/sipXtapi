@@ -286,7 +286,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         Setting model = (Setting) m_modelCache.get(filename);
         if (model == null) {
             File modelDefsFile = new File(getSystemDirectory() + '/' + filename);
-            model = new XmlModelBuilder().buildModel(modelDefsFile);
+            model = new XmlModelBuilder(getSystemDirectory()).buildModel(modelDefsFile);
             m_modelCache.put(filename, model);
         }
         return model;

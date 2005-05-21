@@ -44,8 +44,9 @@ public class KPhone extends AbstractPhone {
     }
     
     public Setting getSettingModel() {
-        File modelDefsFile = new File(getPhoneContext().getSystemDirectory() + '/' + FACTORY_ID + "/phone.xml");
-        Setting model = new XmlModelBuilder().buildModel(modelDefsFile).copy();
+        String systemDirectory = getPhoneContext().getSystemDirectory();
+        File modelDefsFile = new File(systemDirectory + '/' + FACTORY_ID + "/phone.xml");
+        Setting model = new XmlModelBuilder(systemDirectory).buildModel(modelDefsFile).copy();
         
         return model;
     }
