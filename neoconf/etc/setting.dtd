@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Description of sipXconfig model files  -->
 <!ELEMENT description (#PCDATA)>
-<!ELEMENT group (label?,description?,(setting|group)*)>
+<!ELEMENT group (label?,profileName?,description?,(setting|group)*)>
 <!ATTLIST group name NMTOKEN #REQUIRED>
 <!ATTLIST group copy-of NMTOKEN #IMPLIED>
 <!ELEMENT label (#PCDATA)>
@@ -10,5 +10,27 @@
 <!ELEMENT profileName (#PCDATA)>
 <!ELEMENT setting (label?,profileName?,type,value,possibleValues?,description?)>
 <!ATTLIST setting name NMTOKEN #REQUIRED>
-<!ELEMENT type (#PCDATA)>
 <!ELEMENT value (#PCDATA)>
+
+<!ENTITY % flag "(yes|no)">
+
+<!-- settings type system -->
+<!-- TODO: remove #PCDATA from type declaration, we allow for mixed content for now. 
+    otherwise all model files will have to be changed
+    -->
+<!ELEMENT type (#PCDATA|string|type)*>
+
+<!ELEMENT integer EMPTY>
+<!ATTLIST integer 
+    min NMTOKEN #IMPLIED
+	max NMTOKEN #IMPLIED>
+
+<!ELEMENT string (patern?)>
+<!ATTLIST string
+    required %flag; "no"
+    maxLen NMTOKEN #IMPLIED
+    password %flag; "no">
+
+<!ELEMENT pattern (#PCDATA)>
+
+

@@ -1,13 +1,53 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model>
-	<group name="group">
-		<profileName>Group Profile Name</profileName>
-		<label>Group Label</label>
-		<description>Group Description</description>
-		<setting name="setting">
-			<profileName>Setting Profile Name</profileName>
-    		<label>Setting Label</label>
-    		<description>Setting Description</description>
-		</setting>
-    </group>
+    <group name="group">
+        <label>Group Label</label>
+        <profileName>Group Profile Name</profileName>
+        <description>Group Description</description>
+        <setting name="setting">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type/>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="int_setting_0">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <integer min="3" max="15"/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="int_setting_1">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <integer/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="str_setting_def">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="str_setting">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <string maxLen="15" password="yes" required="yes">
+                    <pattern>kuku</pattern>
+                </string>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+	</group>
 </model>

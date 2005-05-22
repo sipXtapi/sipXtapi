@@ -20,6 +20,9 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 import org.xml.sax.Attributes;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -102,6 +105,10 @@ public class XmlModelBuilder {
             digester.addBeanPropertySetter(m_pattern + "/description");
             digester.addBeanPropertySetter(m_pattern + "/profileName");
             digester.addBeanPropertySetter(m_pattern + "/label");
+
+            digester.addRuleSet(new IntegerSettingRule(m_pattern + "/type/integer"));
+            digester.addRuleSet(new StringSettingRule(m_pattern + "/type/string"));
+
             digester.addSetNext(m_pattern, "addSetting", SettingImpl.class.getName());
         }
     }
@@ -119,6 +126,47 @@ public class XmlModelBuilder {
                 copy.setName(copyTo.getName());
                 getDigester().push(copy);
             }
+        }
+    }
+
+    static class SettingTypeRule extends RuleSetBase {
+        private final String m_pattern;
+
+        public SettingTypeRule(String pattern) {
+            m_pattern = pattern;
+        }
+
+        public void addRuleInstances(Digester digester) {
+            digester.addSetNext(m_pattern, "setType", SettingType.class.getName());
+        }
+
+        public String getPattern() {
+            return m_pattern;
+        }
+    }
+
+    static class StringSettingRule extends SettingTypeRule {
+        public StringSettingRule(String pattern) {
+            super(pattern);
+        }
+
+        public void addRuleInstances(Digester digester) {
+            digester.addObjectCreate(getPattern(), StringSetting.class);
+            digester.addSetProperties(getPattern());
+            digester.addBeanPropertySetter(getPattern() + "/pattern");
+            super.addRuleInstances(digester);
+        }
+    }
+
+    static class IntegerSettingRule extends SettingTypeRule {
+        public IntegerSettingRule(String pattern) {
+            super(pattern);
+        }
+
+        public void addRuleInstances(Digester digester) {
+            digester.addObjectCreate(getPattern(), IntegerSetting.class);
+            digester.addSetProperties(getPattern());
+            super.addRuleInstances(digester);
         }
     }
 

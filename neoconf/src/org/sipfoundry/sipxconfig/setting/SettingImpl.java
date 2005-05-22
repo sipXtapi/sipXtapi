@@ -17,12 +17,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+
 
 public class SettingImpl implements Setting, Cloneable {
 
     private String m_label;
 
-    private String m_type;
+    private SettingType m_type = StringSetting.DEFAULT;
 
     private String m_name;
     
@@ -182,11 +185,11 @@ public class SettingImpl implements Setting, Cloneable {
         return getValue();
     }
 
-    public String getType() {
+    public SettingType getType() {
         return m_type;
     }
 
-    public void setType(String type) {
+    public void setType(SettingType type) {
         m_type = type;
     }
     

@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
+
 /**
  * Base class for all items describing and using setting.  
  */    
@@ -54,9 +56,9 @@ public interface Setting {
 
     public void setValue(String value);
 
-    public String getType();
+    public SettingType getType();
 
-    public void setType(String type);
+    public void setType(SettingType type);
     
     public void addPossibleValue(String value);
 

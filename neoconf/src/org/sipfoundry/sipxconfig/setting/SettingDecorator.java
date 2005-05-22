@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
+
 
 /**
  * Wrap another setting object, delegate ALL methods to the Settting class
@@ -90,11 +92,11 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         m_delegate.setValue(value);
     }
 
-    public String getType() {
+    public SettingType getType() {
         return m_delegate.getType();
     }
 
-    public void setType(String type) {
+    public void setType(SettingType type) {
         m_delegate.setType(type);
     }
 

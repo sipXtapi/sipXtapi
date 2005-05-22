@@ -18,12 +18,20 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+
 public class XmlModelBuilderTest extends TestCase {
+    private XmlModelBuilder m_builder;
+
+    protected void setUp() throws Exception {
+        m_builder = new XmlModelBuilder("etc");
+    }
 
     public void testSettingPropertySetters() throws IOException {
-        XmlModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("simplemodel.xml");
-        SettingGroup root = builder.buildModel(in);
+        SettingGroup root = m_builder.buildModel(in);
         Setting group = root.getSetting("group");
         assertEquals("Group Profile Name", group.getProfileName());
         assertEquals("Group Label", group.getLabel());
@@ -33,12 +41,60 @@ public class XmlModelBuilderTest extends TestCase {
         assertEquals("Setting Profile Name", setting.getProfileName());
         assertEquals("Setting Label", setting.getLabel());
         assertEquals("Setting Description", setting.getDescription());
+        assertSame(StringSetting.DEFAULT, setting.getType());
+    }
+
+    public void testSettingIntegerType() throws IOException {
+        int[][] EXPECTED = {
+            {
+                3, 15
+            }, {
+                0, Integer.MAX_VALUE
+            }
+        };
+
+        InputStream in = getClass().getResourceAsStream("simplemodel.xml");
+        SettingGroup root = m_builder.buildModel(in);
+        Setting group = root.getSetting("group");
+        for (int i = 0; i < EXPECTED.length; i++) {
+            int[] min_max = EXPECTED[i];
+
+            Setting intSetting = group.getSetting("int_setting_" + i);
+            SettingType type = intSetting.getType();
+            assertTrue(type instanceof IntegerSetting);
+            IntegerSetting intType = (IntegerSetting) type;
+            assertEquals(min_max[0], intType.getMin());
+            assertEquals(min_max[1], intType.getMax());
+        }
+    }
+
+    public void testSettingStringType() throws IOException {
+        InputStream in = getClass().getResourceAsStream("simplemodel.xml");
+        SettingGroup root = m_builder.buildModel(in);
+        Setting group = root.getSetting("group");
+
+        Setting stringSetting = group.getSetting("str_setting_def");
+        SettingType type = stringSetting.getType();
+        assertTrue(type instanceof StringSetting);
+        StringSetting strType = (StringSetting) type;
+        assertEquals(256, strType.getMaxLen());
+        assertNull(strType.getPattern());
+        assertFalse(strType.isRequired());
+        assertFalse(strType.isPassword());
+
+        stringSetting = group.getSetting("str_setting");
+        type = stringSetting.getType();
+        assertTrue(type instanceof StringSetting);
+        strType = (StringSetting) type;
+        assertEquals(15, strType.getMaxLen());
+        assertEquals("kuku", strType.getPattern());
+        assertTrue(strType.isRequired());
+        assertTrue(strType.isPassword());
     }
 
     public void testReadingGames() throws IOException {
-        XmlModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingGroup games = builder.buildModel(in);
+        SettingGroup games = m_builder.buildModel(in);
         assertNull(games.getName());
         assertEquals(2, games.getValues().size());
 
@@ -71,9 +127,8 @@ public class XmlModelBuilderTest extends TestCase {
      * marginal value, testing a bug...
      */
     public void testIteration() throws IOException {
-        XmlModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingGroup games = builder.buildModel(in);
+        SettingGroup games = m_builder.buildModel(in);
 
         Iterator i = games.getValues().iterator();
         while (i.hasNext()) {
@@ -82,9 +137,8 @@ public class XmlModelBuilderTest extends TestCase {
     }
 
     public void testInheritance() throws IOException {
-        XmlModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("genders.xml");
-        SettingGroup root = builder.buildModel(in);
+        SettingGroup root = m_builder.buildModel(in);
 
         Setting human = root.getSetting("human");
         assertNotNull(human.getSetting("eat").getSetting("fruit").getSetting("apple"));
