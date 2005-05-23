@@ -29,6 +29,24 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class BackupPage extends BasePage implements PageRenderListener {
 
+    /**
+     * Conceivable, available backup limits. Otherwise arbitrary.
+     * NOTE : Spring 1.1 couldn't define Integers in lists see
+     * DefaultXmlBeanDefinitionParser.java:parsePropertySubelement() 
+     */
+    public static final List BACKUP_LIMIT_MODEL = Arrays.asList(new Integer[] {
+        new Integer(1),
+        new Integer(2),
+        new Integer(3),
+        new Integer(4),
+        new Integer(5),
+        new Integer(10),
+        new Integer(20),
+        new Integer(30),
+        new Integer(40),
+        new Integer(50)
+    });
+
     public abstract AdminContext getAdminContext();
 
     public abstract List getBackupFiles();
@@ -38,7 +56,7 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
     public abstract BackupPlan getBackupPlan();
 
     public abstract void setBackupPlan(BackupPlan plan);
-
+    
     public void pageBeginRender(PageEvent event_) {
         List urls = getBackupFiles();
         if (urls == null) {
@@ -76,5 +94,11 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record("Backup operation failed.", ValidationConstraint.CONSISTENCY);
         }
+    }
+    
+    public void ok(IRequestCycle cycle_) {
+        AdminContext adminContext = getAdminContext();
+        BackupPlan plan = getBackupPlan();
+        adminContext.storeBackupPlan(plan);
     }
 }

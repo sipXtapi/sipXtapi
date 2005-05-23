@@ -57,7 +57,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
     
     public void storeBackupPlan(BackupPlan plan) {
-        getHibernateTemplate().save(plan);
+        getHibernateTemplate().saveOrUpdate(plan);
     }
 
     public File[] performBackup(BackupPlan plan) {

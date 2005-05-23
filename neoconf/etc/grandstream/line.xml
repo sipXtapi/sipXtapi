@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<model>
+   <group name="grandstream">
+      <group name="port">
+         <label>Line Settings</label>
+         <setting name="P35">
+            <label>SIP User ID</label>
+            <description>SIP User ID</description>
+            <type>string</type>
+            <value>8000</value>
+         </setting>
+         <setting name="P3">
+            <label>User Caller Name</label>
+            <description>User Caller Name (John Doe)</description>
+            <type>string</type>
+            <value></value>
+         </setting>
+         <setting name="P36">
+            <label>Authentication ID</label>
+            <description>Authentication ID</description>
+            <type>string</type>
+            <value>8000</value>
+         </setting>
+         <setting name="P34">
+            <label>Authentication password</label>
+            <description>Authentication password</description>
+            <type>string</type>
+            <value>0000</value>
+         </setting>
+      </group>
+   </group>
+   <group name="grandstreamHandyTone" copy-of="grandstream"/>
+   <group name="grandstreamBudgeTone" copy-of="grandstream"/>
+</model>
+

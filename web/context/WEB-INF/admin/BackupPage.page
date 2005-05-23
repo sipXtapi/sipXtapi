@@ -111,4 +111,9 @@
         <static-binding name="displayName" value="Time Of Day"/>
     </component>
 
+    <component id="ok" type="Submit">
+        <binding name="listener" expression="listeners.ok"/>
+        <static-binding name="label" value="OK"/>
+    </component> 
+
 </page-specification>

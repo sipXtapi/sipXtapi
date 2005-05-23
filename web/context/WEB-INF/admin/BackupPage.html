@@ -89,12 +89,13 @@
 				<fieldset>
 					<legend>Schedule</legend>
                             <span jwcid="schedules">
-									<input jwcid="dailyScheduleEnabled" id="backup:dailyScheduleEnabled" 
-										type="checkbox"/>
-									<select name="dailyOption" jwcid="dailyScheduledDay" 
-										id="backup:dailyOption"/>
+									<input jwcid="dailyScheduleEnabled" type="checkbox"/>
+									<select jwcid="dailyScheduledDay"/>
 									<input jwcid="dailyScheduledTime"/>
                                     </span>
+    <ul class="form-actions">
+	    <li><input jwcid="ok" id="backup:ok" type="submit" value="OK"/></li>
+    </ul>
 				</fieldset>
 			</form>
 		</div>

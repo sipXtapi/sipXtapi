@@ -15,13 +15,17 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.TestUtil;
+
 public class BackupPlanTest extends TestCase {
 
-    //private static final String BIN_DIR = "/opt/work-2.8/sipx/bin";
     private BackupPlan m_backup;
 
     protected void setUp() throws Exception {
         m_backup = new BackupPlan();
+        m_backup.setConfigsScript("mock-backup.sh");
+        m_backup.setMailstoreScript("mock-backup.sh");
     }
 
     public void testBuildExecName() {
@@ -31,11 +35,11 @@ public class BackupPlanTest extends TestCase {
     }
 
     public void testGetBackupLocations() {
-        File[] backupLocations = m_backup.getBackupFiles();
+        File[] backupLocations = m_backup.getBackupFiles(new File("."));
         assertEquals(3, backupLocations.length);
         String[] refBackupLocations = {
-            "backup-configs/fs.tar.gz", "backup-configs/pds.tar.gz",
-            "backup-mailstore/mailstore.tar.gz"
+            "./backup-configs/fs.tar.gz", "./backup-configs/pds.tar.gz",
+            "./backup-mailstore/mailstore.tar.gz"
         };
         for (int i = 0; i < refBackupLocations.length; i++) {
             assertEquals(refBackupLocations[i], backupLocations[i].getPath());
@@ -43,9 +47,23 @@ public class BackupPlanTest extends TestCase {
 
     }
 
-    /*
-     * public void testPerform() throws Exception { String tempDir = SystemUtils.JAVA_IO_TMPDIR;
-     * Process process = m_backup.exec( "/opt/work-2.8/sipx/bin/backup-configs.sh
-     * --non-interactive", new File(tempDir)); assertEquals(0, process.waitFor()); }
-     */
+    public void testPerform() throws Exception {
+        String backupPath = TestHelper.getTestDirectory() + "/backup-" + System.currentTimeMillis();
+        File[] backups = m_backup.perform(backupPath, TestUtil.getTestSourceDirectory(this.getClass()));
+        assertEquals(3, backups.length);
+        assertTrue(backups[0].exists());
+        assertTrue(backups[1].exists());
+        assertTrue(backups[2].exists());
+    }
+    
+    public void testGetNextBackupDir() {        
+        File f = m_backup.getNextBackupDir(new File("."));
+        assertTrue(f.getName().matches("\\d{12}"));
+    }
+    
+    public void testLimtedCount() throws Exception {
+        m_backup.setLimitedCount(new Integer(2));
+        assertNull(m_backup.getOldestPurgableBackup(new String[] { "20050501" }));
+        assertEquals("20050501", m_backup.getOldestPurgableBackup(new String[] { "20050501", "20050502"}));        
+    }
 }

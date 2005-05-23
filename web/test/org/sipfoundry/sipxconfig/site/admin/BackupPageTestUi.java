@@ -29,11 +29,33 @@ public class BackupPageTestUi extends WebTestCase {
     
     /**
      * Does not check if backup was successful - just checks if no Tapestry exceptions show up
-     *
      */
-    public void testDisplay() {
+    public void testBackupNow() {
         SiteTestHelper.assertNoException(getTester());
         clickButton("backup:now");
         SiteTestHelper.assertNoException(getTester());
+    }
+
+    /**
+     * Does not check if backup was successful - just checks if no Tapestry exceptions show up
+     */
+    public void testOk() {
+        SiteTestHelper.assertNoException(getTester());
+        checkCheckbox("checkVoicemail");
+        checkCheckbox("checkConfigs");
+        checkCheckbox("checkDatabase");
+        selectOption("limitCount", "10");
+        checkCheckbox("dailyScheduleEnabled");
+        selectOption("dailyScheduledDay", "Wednesday");
+        setFormElement("dailyScheduledTime", "3:24 AM");
+        clickButton("backup:ok");        
+        SiteTestHelper.assertNoException(getTester());
+        assertCheckboxSelected("checkVoicemail");
+        assertCheckboxSelected("checkConfigs");
+        assertCheckboxSelected("checkDatabase");
+        assertOptionEquals("limitCount", "10");
+        assertCheckboxSelected("dailyScheduleEnabled");
+        assertOptionEquals("dailyScheduledDay", "Wednesday");
+        assertFormElementEquals("dailyScheduledTime", "3:24 AM");
     }
 }

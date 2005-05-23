@@ -176,10 +176,6 @@
 		<property name="binDirectory">
 			<value>${sysdir.bin}</value>
 		</property>
-		<property name="backupDirectory">
-			<!-- use system define to /var/... somewhere -->
-			<value>${sysdir.tmp}/backup</value>
-		</property>
 	</bean>
       
 	<!--

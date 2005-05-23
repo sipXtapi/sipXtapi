@@ -13,16 +13,24 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
+/**
+ * Backup various parts of the system to a fixed backup directory.
+ */
 public class BackupPlan extends BeanWithId {
     
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
@@ -36,30 +44,73 @@ public class BackupPlan extends BeanWithId {
 
     private static final String SCRIPT_SUFFIX = ".sh";
     private static final String OPTIONS = "--non-interactive";
+    
+    private String m_backupConfigScript = BACKUP_CONFIGS + SCRIPT_SUFFIX;
+    private String m_backupMailstoreScript = BACKUP_MAILSTORE + SCRIPT_SUFFIX;
 
     private boolean m_voicemail = true;
     private boolean m_database = true;
     private boolean m_configs = true;    
     private Integer m_limitedCount;
+    private Date m_backupTime;
     
     private Collection m_schedules = new ArrayList(0);
     
-    public File[] perform(String backupPath, String binPath) {
+    public File[] perform(String rootBackupPath, String binPath) {
         String errorMsg = "Errors when creating backup.";
-        try {
-            File backupDir = new File(backupPath);
+        try {            
+            File rootBackupDir = new File(rootBackupPath);
+            File backupDir = getNextBackupDir(rootBackupDir);
             if (!backupDir.isDirectory()) {
                 backupDir.mkdirs();
             }
             File binDir = new File(binPath);
             perform(backupDir, binDir);
-            return getBackupFiles();
+            return getBackupFiles(backupDir);
         } catch (IOException e) {
             LOG.error(errorMsg, e);
         } catch (InterruptedException e) {
             LOG.error(errorMsg, e);
         }
         return null;
+    }
+    
+    File getNextBackupDir(File rootBackupDir) {
+        m_backupTime = new Date();
+        DateFormat fmt = new SimpleDateFormat("yyyyMMddHHmm");
+        File nextDir = new File(rootBackupDir, fmt.format(m_backupTime));
+        
+        String purgeable = getOldestPurgableBackup(rootBackupDir.list());
+        if (purgeable != null) {
+            try {
+                FileUtils.deleteDirectory(new File(rootBackupDir, purgeable));
+            } catch (IOException nonfatal) {
+                LOG.error("Could not limit backup count", nonfatal);
+            }
+        }
+        
+        return nextDir;
+    }
+    
+    String getOldestPurgableBackup(String[] filelist) {
+        if (m_limitedCount == null) {
+            return null;
+        }
+        
+        if (filelist.length < m_limitedCount.intValue()) {
+            return null;
+        }
+        
+        Arrays.sort(filelist);
+        return filelist[0];        
+    }
+    
+    void setConfigsScript(String script) {
+        m_backupConfigScript = script;
+    }
+    
+    void setMailstoreScript(String script) {
+        m_backupMailstoreScript = script;
     }
 
     String buildExecName(File path, String script) {
@@ -78,12 +129,12 @@ public class BackupPlan extends BeanWithId {
     private int perform(File workingDir, File binDir) throws IOException, InterruptedException {
         List processes = new ArrayList();
         if (isConfigs() || isDatabase()) {
-            String cmdLine = buildExecName(binDir, BACKUP_CONFIGS + SCRIPT_SUFFIX);
+            String cmdLine = buildExecName(binDir, m_backupConfigScript);
             processes.add(exec(cmdLine, workingDir));
 
         }
         if (isVoicemail()) {
-            String cmdLine = buildExecName(binDir, BACKUP_MAILSTORE + SCRIPT_SUFFIX);
+            String cmdLine = buildExecName(binDir, m_backupMailstoreScript);
             processes.add(exec(cmdLine, workingDir));
 
         }
@@ -98,20 +149,20 @@ public class BackupPlan extends BeanWithId {
         return exitCode;
     }
 
-    File[] getBackupFiles() {
+    File[] getBackupFiles(File backupDir) {
         List files = new ArrayList();
         if (isConfigs()) {
-            File path = new File(BACKUP_CONFIGS);
+            File path = new File(backupDir, BACKUP_CONFIGS);
             File configs = new File(path, CONFIGS);
             files.add(configs);
         }
         if (isDatabase()) {
-            File path = new File(BACKUP_CONFIGS);
+            File path = new File(backupDir, BACKUP_CONFIGS);
             File database = new File(path, DATABASE);
             files.add(database);
         }
         if (isVoicemail()) {
-            File path = new File(BACKUP_MAILSTORE);
+            File path = new File(backupDir, BACKUP_MAILSTORE);
             File mailstore = new File(path, MAILSTORE);
             files.add(mailstore);
         }
