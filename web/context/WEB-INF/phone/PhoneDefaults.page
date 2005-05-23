@@ -71,36 +71,11 @@
         <binding name="listener" expression="listeners.editLineSettings"/>
     </component>  
     <!-- Edit form -->  
-    <component id="IfGroup" type="Conditional">
-        <binding name="condition" expression="currentEditFormSetting.getValues().size() > 0"/>
-    </component>
-    <component id="IfSetting" type="Conditional">
-        <binding name="condition" expression="currentEditFormSetting.getValues().size() == 0"/>
-    </component>
-    <!-- TODO: replace with SettingsForm component - to support validation properly -->
-    <component id="settingsForm" type="Form">
-        <binding name="delegate" expression="beans.validate"/>
-    </component>
-    <component id="settings" type="Foreach">
-        <binding name="source" expression="editFormSettings"/>
-        <binding name="value" expression="currentEditFormSetting"/>
-    </component>
-    <component id="settingEditor" type="SettingEditor">
-        <binding name="setting" expression="currentEditFormSetting"/>
-    </component>        
-    <component id="groupLabel" type="Insert">
-        <binding name="value" expression="currentEditFormSetting.label"/>
-    </component>
-    <component id="groupDescription" type="Insert">
-        <binding name="value" expression="currentEditFormSetting.description"/>
-    </component>
-    <component id="ok" type="Submit">
-        <binding name="listener" expression="listeners.ok"/>
-    </component>
-    <component id="apply" type="Submit">
-        <binding name="listener" expression="listeners.apply"/>
-    </component>
-    <component id="cancel" type="Submit">
-        <binding name="listener" expression="listeners.cancel"/>
+    <component id="settingsForm" type="SettingsForm">
+        <binding name="validator" expression="beans.validator"/>
+        <binding name="applyListener" expression="listeners.apply"/>
+        <binding name="okListener" expression="listeners.ok"/>
+        <binding name="cancelListener" expression="listeners.cancel"/>
+        <binding name="settings" expression="editFormSetting"/>
     </component>
 </page-specification>
