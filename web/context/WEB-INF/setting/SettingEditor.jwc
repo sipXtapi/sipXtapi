@@ -33,6 +33,7 @@
         <binding name="displayName" expression="setting.label"/>
         <binding name="minimum" expression="setting.type.min"/>
         <binding name="maximum" expression="setting.type.max"/>
+        <binding name="required" expression="setting.type.required"/>
         <static-binding name="type" value="Integer"/>
     </component>    
     <component id="integerBlock" type="Block"></component>

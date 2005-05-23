@@ -15,7 +15,7 @@
             <label>Setting Label</label>
             <profileName>Setting Profile Name</profileName>
             <type>
-                <integer min="3" max="15"/>
+                <integer min="3" max="15" required="yes"/>
             </type>
             <value></value>
             <description>Setting Description</description>

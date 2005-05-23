@@ -45,12 +45,16 @@ public class XmlModelBuilderTest extends TestCase {
     }
 
     public void testSettingIntegerType() throws IOException {
-        int[][] EXPECTED = {
+        final int[][] EXPECTED = {
             {
                 3, 15
             }, {
                 0, Integer.MAX_VALUE
             }
+        };
+        
+        final boolean[] EXPECTED_REQUIRED = {
+            true, false
         };
 
         InputStream in = getClass().getResourceAsStream("simplemodel.xml");
@@ -65,6 +69,7 @@ public class XmlModelBuilderTest extends TestCase {
             IntegerSetting intType = (IntegerSetting) type;
             assertEquals(min_max[0], intType.getMin());
             assertEquals(min_max[1], intType.getMax());
+            assertEquals(EXPECTED_REQUIRED[i], intType.isRequired());
         }
     }
 

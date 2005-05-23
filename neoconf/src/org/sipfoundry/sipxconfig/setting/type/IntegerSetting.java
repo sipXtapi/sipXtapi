@@ -13,7 +13,10 @@ package org.sipfoundry.sipxconfig.setting.type;
 
 public class IntegerSetting implements SettingType {
     private int m_min;
+
     private int m_max = Integer.MAX_VALUE;
+
+    private boolean m_required;
 
     public int getMax() {
         return m_max;
@@ -33,5 +36,13 @@ public class IntegerSetting implements SettingType {
 
     public String getName() {
         return "integer";
+    }
+
+    public boolean isRequired() {
+        return m_required;
+    }
+
+    public void setRequired(boolean required) {
+        m_required = required;
     }
 }

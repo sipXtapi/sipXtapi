@@ -18,10 +18,11 @@
 <!-- TODO: remove #PCDATA from type declaration, we allow for mixed content for now. 
     otherwise all model files will have to be changed
     -->
-<!ELEMENT type (#PCDATA|string|type)*>
+<!ELEMENT type (#PCDATA|string|integer)*>
 
 <!ELEMENT integer EMPTY>
 <!ATTLIST integer 
+    required %flag; "no"    
     min NMTOKEN #IMPLIED
 	max NMTOKEN #IMPLIED>
 
