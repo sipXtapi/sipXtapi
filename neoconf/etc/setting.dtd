@@ -11,6 +11,7 @@
 <!ELEMENT setting (label?,profileName?,type,value,possibleValues?,description?)>
 <!ATTLIST setting name NMTOKEN #REQUIRED>
 <!ELEMENT value (#PCDATA)>
+<!ATTLIST value label CDATA #IMPLIED>
 
 <!ENTITY % flag "(yes|no)">
 
@@ -18,7 +19,7 @@
 <!-- TODO: remove #PCDATA from type declaration, we allow for mixed content for now. 
     otherwise all model files will have to be changed
     -->
-<!ELEMENT type (#PCDATA|string|integer)*>
+<!ELEMENT type (#PCDATA|string|integer|enum)*>
 
 <!ELEMENT integer EMPTY>
 <!ATTLIST integer 
@@ -33,5 +34,9 @@
     password %flag; "no">
 
 <!ELEMENT pattern (#PCDATA)>
+
+<!ELEMENT enum (value+)>
+
+
 
 

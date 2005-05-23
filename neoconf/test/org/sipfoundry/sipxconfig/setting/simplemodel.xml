@@ -49,5 +49,15 @@
             <value></value>
             <description>Setting Description</description>
         </setting>
+        <setting name="enum_setting">
+            <label>Enum setting label</label>
+            <type>
+                <enum>
+                    <value label="Zero">0</value>
+                    <value label="XXX">something</value>
+                    <value>no_label_value</value>
+                </enum>
+            </type>
+        </setting>
 	</group>
 </model>

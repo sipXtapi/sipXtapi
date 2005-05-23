@@ -20,6 +20,7 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
@@ -32,6 +33,8 @@ import org.xml.sax.SAXException;
  * Build a SettingModel object hierarchy from a model XML file.
  */
 public class XmlModelBuilder {
+    private static final String EL_VALUE = "/value";
+
     private final EntityResolver m_entityResolver;
 
     public XmlModelBuilder(File configDirectory) {
@@ -101,13 +104,14 @@ public class XmlModelBuilder {
             digester.addObjectCreate(m_pattern, m_class);
             digester.addSetProperties(m_pattern, "parent", null);
             digester.addRule(m_pattern, new CopyOfRule());
-            digester.addBeanPropertySetter(m_pattern + "/value");
+            digester.addBeanPropertySetter(m_pattern + EL_VALUE);
             digester.addBeanPropertySetter(m_pattern + "/description");
             digester.addBeanPropertySetter(m_pattern + "/profileName");
             digester.addBeanPropertySetter(m_pattern + "/label");
 
             digester.addRuleSet(new IntegerSettingRule(m_pattern + "/type/integer"));
             digester.addRuleSet(new StringSettingRule(m_pattern + "/type/string"));
+            digester.addRuleSet(new EnumSettingRule(m_pattern + "/type/enum"));
 
             digester.addSetNext(m_pattern, "addSetting", SettingImpl.class.getName());
         }
@@ -166,6 +170,21 @@ public class XmlModelBuilder {
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), IntegerSetting.class);
             digester.addSetProperties(getPattern());
+            super.addRuleInstances(digester);
+        }
+    }
+
+    static class EnumSettingRule extends SettingTypeRule {
+        public EnumSettingRule(String pattern) {
+            super(pattern);
+        }
+
+        public void addRuleInstances(Digester digester) {
+            digester.addObjectCreate(getPattern(), EnumSetting.class);
+            String valuePattern = getPattern() + EL_VALUE;
+            digester.addCallMethod(valuePattern, "addEnum", 2);
+            digester.addCallParam(valuePattern, 0);
+            digester.addCallParam(valuePattern, 1, "label");
             super.addRuleInstances(digester);
         }
     }

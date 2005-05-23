@@ -12,10 +12,13 @@
 package org.sipfoundry.sipxconfig.site.setting;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidator;
 import org.apache.tapestry.valid.PatternValidator;
 import org.apache.tapestry.valid.StringValidator;
+import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
@@ -25,6 +28,19 @@ public abstract class SettingEditor extends BaseComponent {
     public IValidator getValidator() {
         SettingType type = getSetting().getType();
         return validatorForType(type);
+    }
+    
+    public IPropertySelectionModel getEnumModel() {
+        SettingType type = getSetting().getType();
+        return enumModelForType(type);
+    }
+
+    static IPropertySelectionModel enumModelForType(SettingType type) {
+        if (!(type instanceof EnumSetting)) {            
+            return null;
+        }
+        EnumSetting enumType = (EnumSetting) type;
+        return new NamedValuesSelectionModel(enumType.getEnums());
     }
 
     /**

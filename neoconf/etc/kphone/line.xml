@@ -29,7 +29,12 @@
 		</setting>
 		<setting name="AutoRegister">
 			<label>Auto Register</label>
-			<type>No, Yes</type>
+			<type>
+                <enum>
+                    <value>Yes</value>
+                    <value>No</value>                
+            	</enum>
+            </type>
 			<value>Yes</value>
 			<description>Immediately upon starting, attempt to register with 
 				SIP Server</description>
