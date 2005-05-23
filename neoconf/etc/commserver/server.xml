@@ -8,7 +8,7 @@
         <setting name="VOICEMAIL_AGE_LIMIT">
             <label>VoiceMail expiration</label>
             <profileName>config.defs</profileName>
-            <type></type>
+            <type><integer min="1" max="365" required="yes"/></type>
             <value>7</value>
             <description>Number of days voice mail messages will be kept on the system.</description>
         </setting>
@@ -32,8 +32,8 @@
         <setting name="SIP_REGISTRAR_CALL_PICKUP_WAIT">
             <label>Call pick-up timeout</label>
             <profileName>registrar-config.in</profileName>
-            <type></type>
-            <value>3</value>
+            <type><integer min="1" max="30" required="yes"/></type>
+            <value>2</value>
             <description>Number of seconds that the original call will ring after pick-up code is dialed.</description>
         </setting>
     </group>
