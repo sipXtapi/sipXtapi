@@ -11,8 +11,6 @@
     
     <parameter name="setting" direction="auto" required="yes" type="org.sipfoundry.sipxconfig.setting.Setting"/>
     
-    <parameter name="hiddenHint" direction="in" required="no" default-value="false" type="boolean"/>
-    
     <component id="settingLabel" type="Any">
         <binding name="for" expression="'setting:' + setting.name"/>
     </component>

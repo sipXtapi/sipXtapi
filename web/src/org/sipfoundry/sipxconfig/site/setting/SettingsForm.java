@@ -19,16 +19,10 @@ import org.apache.tapestry.IForm;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
-import org.sipfoundry.sipxconfig.setting.RenderProperties;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
-import org.sipfoundry.sipxconfig.setting.SettingRenderer;
 
 public abstract class SettingsForm extends BaseComponent {
-
-    private static final RenderProperties DEFAULT_RENDER_PROPERTIES = new RenderProperties();
-
-    public abstract SettingRenderer getSettingRenderer();
 
     public abstract Setting getCurrentSetting();
 
@@ -40,19 +34,6 @@ public abstract class SettingsForm extends BaseComponent {
 
     public Collection getFlattenedSettings() {
         return FilterRunner.filter(SettingFilter.ALL, getSettings());
-    }
-
-    public RenderProperties getCurrentRenderProperties() {
-        RenderProperties rprops = DEFAULT_RENDER_PROPERTIES;
-        SettingRenderer render = getSettingRenderer();
-        if (render != null) {
-            RenderProperties customprops = render.getRenderProperties(getCurrentSetting());
-            if (customprops != null) {
-                rprops = customprops;
-            }
-        }
-
-        return rprops;
     }
 
     /**

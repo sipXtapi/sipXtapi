@@ -30,11 +30,6 @@
         type="org.apache.tapestry.IActionListener"
         direction="in">
     </parameter>    
-    <parameter name="settingRenderer"
-        type="org.sipfoundry.sipxconfig.setting.SettingRenderer"
-        required="yes"
-        direction="in">
-    </parameter>    
     <parameter name="validator" 
     	required="yes"
     	direction="auto" 
@@ -66,7 +61,6 @@
     
     <component id="settingEditor" type="SettingEditor">
         <binding name="setting" expression="currentSetting"/>
-        <binding name="hiddenHint" expression="currentRenderProperties.password"/>
     </component>
 
     <component id="groupLabel" type="Insert">

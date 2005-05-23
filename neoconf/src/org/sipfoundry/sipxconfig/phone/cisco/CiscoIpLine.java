@@ -12,14 +12,12 @@
 package org.sipfoundry.sipxconfig.phone.cisco;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.setting.RenderProperties;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingRenderer;
 
 /**
  * Cisco business functions for line meta setting
  */
-public class CiscoIpLine extends CiscoLine implements SettingRenderer {
+public class CiscoIpLine extends CiscoLine {
 
     public static final String FACTORY_ID = "ciscoIpLine";
 
@@ -147,15 +145,5 @@ public class CiscoIpLine extends CiscoLine implements SettingRenderer {
 
     public void setProxyPort(String userId) {
         getProxySet().getSetting(CiscoPhone.PORT).setValue(userId);
-    }
-
-    public RenderProperties getRenderProperties(Setting setting) {
-        RenderProperties props = null;
-
-        if (setting.getName().equals(PASSWORD)) {
-            props = RenderProperties.createPasswordField();
-        }
-
-        return props;
     }
 }

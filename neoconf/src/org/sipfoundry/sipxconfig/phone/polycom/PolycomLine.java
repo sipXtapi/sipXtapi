@@ -16,15 +16,13 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.AbstractLine;
-import org.sipfoundry.sipxconfig.setting.RenderProperties;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingRenderer;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Polycom business functions for line meta setting
  */
-public class PolycomLine extends AbstractLine implements SettingRenderer {
+public class PolycomLine extends AbstractLine {
 
     public static final String FACTORY_ID = "polycomLine";
 
@@ -165,15 +163,5 @@ public class PolycomLine extends AbstractLine implements SettingRenderer {
         }
         
         return sb.toString();
-    }
-
-    public RenderProperties getRenderProperties(Setting setting) {
-        RenderProperties props = null;
-        
-        if (setting.getName().endsWith(".password")) {
-            props = RenderProperties.createPasswordField();
-        }
-
-        return props;
     }
 }

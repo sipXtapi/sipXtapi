@@ -41,7 +41,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(EditAutoAttendantTestUi.class);
     }
 
-    protected void setUp() throws IOException {
+    protected void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         clickLink("resetDialPlans");

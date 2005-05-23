@@ -25,7 +25,7 @@
 					registering.</description>
 			</setting>
 			<setting name="password">
-				<type>string</type>
+				<type><string password="yes"/></type>
 				<value></value>
 				<description>Password used by the phone for 
 					authentication.</description>

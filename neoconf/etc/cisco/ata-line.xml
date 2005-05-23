@@ -12,7 +12,7 @@
 				<description>User ID</description>
 			</setting>
 			<setting name="PWD">
-				<type>string</type>
+				<type><string password="yes"/></type>
 				<value></value>
 				<description>Password</description>
 			</setting>

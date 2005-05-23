@@ -18,38 +18,36 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingRenderer;
 
 /**
- * Edit vendor specific phone setttings in abstract manor using setting model of meta
- * data
+ * Edit vendor specific phone setttings in abstract manor using setting model of meta data
  */
 public abstract class PhoneSettings extends BasePage implements PageRenderListener {
-    
-    public static final String PAGE = "PhoneSettings"; 
+
+    public static final String PAGE = "PhoneSettings";
 
     public abstract Integer getPhoneId();
-    
+
     /** REQUIRED PAGE PARAMETER */
     public abstract void setPhoneId(Integer id);
-    
+
     public abstract Phone getPhone();
-    
+
     public abstract void setPhone(Phone phone);
-    
+
     public abstract String getParentSettingName();
-    
+
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setParentSettingName(String name); 
+    public abstract void setParentSettingName(String name);
 
     public abstract Setting getParentSetting();
-    
+
     public abstract void setParentSetting(Setting parent);
-    
+
     public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
-        Phone phone = getPhoneContext().loadPhone(getPhoneId()); 
+        Phone phone = getPhoneContext().loadPhone(getPhoneId());
         setPhone(phone);
         Setting root = getPhone().getSettings();
         Setting parent = root.getSetting(getParentSettingName());
@@ -65,17 +63,8 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
         PhoneContext dao = getPhoneContext();
         dao.storePhone(getPhone());
     }
-    
+
     public void cancel(IRequestCycle cycle) {
         cycle.activate(ManagePhones.PAGE);
-    }
-    
-    public SettingRenderer getSettingRenderer() {
-        SettingRenderer renderer = null;        
-        if (getPhone() instanceof SettingRenderer) {
-            renderer = (SettingRenderer) getPhone();
-        }
-        
-        return renderer;
     }
 }

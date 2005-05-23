@@ -18,7 +18,6 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingRenderer;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 
@@ -72,13 +71,4 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     public void cancel(IRequestCycle cycle) {
         cycle.activate(ManagePhones.PAGE);
     }    
-
-    public SettingRenderer getSettingRenderer() {
-        SettingRenderer renderer = null;        
-        if (getLine() instanceof SettingRenderer) {
-            renderer = (SettingRenderer) getLine();
-        }
-        
-        return renderer;
-    }
 }
