@@ -74,6 +74,9 @@ AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
   SFAC_LIB_STACK
+else
+  CHECK_SSL
+  SFAC_INIT_FLAGS
 fi
 
 # Jar files to all of sipXconfig. 
