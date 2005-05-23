@@ -55,4 +55,8 @@ public class StringSetting implements SettingType {
     public void setPassword(boolean password) {
         m_password = password;
     }
+
+    public String getName() {
+        return "string";
+    }
 }

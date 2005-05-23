@@ -55,7 +55,7 @@ public interface Setting {
     public String getValue();
 
     public void setValue(String value);
-
+    
     public SettingType getType();
 
     public void setType(SettingType type);

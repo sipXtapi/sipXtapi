@@ -7,16 +7,16 @@
     allow-body="no"
     allow-informal-parameters="no">
     
-    <description>add a description</description>
+    <description>Form to configure set of settings</description>
     
     <parameter name="settings"
-        type="org.sipfoundry.sipxconfig.setting.Setting"
         required="yes"
+        type="org.sipfoundry.sipxconfig.setting.Setting"
         direction="auto">
     </parameter>
     <parameter name="cancelListener"
-        type="org.apache.tapestry.IActionListener"
         required="yes"
+        type="org.apache.tapestry.IActionListener"
         direction="in">
     </parameter>
     <parameter name="okListener"
@@ -26,8 +26,8 @@
         default-value="null">
     </parameter>
     <parameter name="applyListener"
-        type="org.apache.tapestry.IActionListener"
         required="yes"
+        type="org.apache.tapestry.IActionListener"
         direction="in">
     </parameter>    
     <parameter name="settingRenderer"
@@ -35,10 +35,21 @@
         required="yes"
         direction="in">
     </parameter>    
+    <parameter name="validator" 
+    	required="yes"
+    	direction="auto" 
+    	type="org.apache.tapestry.valid.IValidationDelegate"/>
+    
     <property-specification name="currentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting">
     </property-specification>
     
+    <property-specification name="action" type="org.apache.tapestry.IActionListener"/>    
+    
+    <component id="settingsForm" type="Form">
+        <binding name="delegate" expression="validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
     <component id="IfGroup" type="Conditional">
         <binding name="condition" expression="currentSetting.getValues().size() > 0"/>
     </component>
@@ -47,8 +58,6 @@
     </component>
     <component id="ifRenderOk" type="Conditional">
         <binding name="condition" expression="okListener != null"/>
-    </component>
-    <component id="settingsForm" type="Form">
     </component>
     <component id="settings" type="Foreach">
         <binding name="source" expression="flattenedSettings"/>
@@ -69,12 +78,15 @@
     </component>
 
     <component id="cancel" type="Submit">
-        <binding name="listener" expression="cancelListener"/>
+        <binding name="selected" expression="action"/>
+        <binding name="tag" expression="cancelListener"/>
     </component>
     <component id="apply" type="Submit">
-        <binding name="listener" expression="applyListener"/>
+        <binding name="selected" expression="action"/>
+        <binding name="tag" expression="applyListener"/>
     </component>
     <component id="ok" type="Submit">
-        <binding name="listener" expression="okListener"/>
+        <binding name="selected" expression="action"/>
+        <binding name="tag" expression="okListener"/>
     </component>
 </component-specification>

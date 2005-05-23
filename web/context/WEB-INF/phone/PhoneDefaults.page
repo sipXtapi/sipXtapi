@@ -39,6 +39,8 @@
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="editFormSettings" 
         type="java.util.Collection"/>    
+    <!-- B E A N S -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
     <!--
      - C O M P O N E N T S
      -->    
@@ -75,7 +77,9 @@
     <component id="IfSetting" type="Conditional">
         <binding name="condition" expression="currentEditFormSetting.getValues().size() == 0"/>
     </component>
+    <!-- TODO: replace with SettingsForm component - to support validation properly -->
     <component id="settingsForm" type="Form">
+        <binding name="delegate" expression="beans.validate"/>
     </component>
     <component id="settings" type="Foreach">
         <binding name="source" expression="editFormSettings"/>

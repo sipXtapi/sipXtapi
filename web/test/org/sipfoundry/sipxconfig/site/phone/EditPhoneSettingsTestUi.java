@@ -38,14 +38,16 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
     }
     
     public void testEditSipSetttings() {
+        final String holdParamName = "stringField";
+        
         m_helper.seedPhone(1);
         clickLink("ManagePhones");        
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         // NOTE: Polycom only setting 
         clickLinkWithText("Hold Reminder");        
         // check seed data 
-        assertEquals("0", getDialog().getFormParameterValue("setting"));
-        setFormElement("setting", "1");
+        assertEquals("0", getDialog().getFormParameterValue(holdParamName));
+        setFormElement(holdParamName, "1");
         clickButton("setting:ok");
 
         // verify setting sticks
@@ -53,6 +55,6 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
         clickLink("ManagePhones");        
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         clickLinkWithText("Hold Reminder");
-        assertEquals("1", getDialog().getFormParameterValue("setting"));
+        assertEquals("1", getDialog().getFormParameterValue(holdParamName));
     }
 }

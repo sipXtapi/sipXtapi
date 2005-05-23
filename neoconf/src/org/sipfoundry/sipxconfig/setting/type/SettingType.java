@@ -12,5 +12,5 @@
 package org.sipfoundry.sipxconfig.setting.type;
 
 public interface SettingType {
-
+    String getName();
 }

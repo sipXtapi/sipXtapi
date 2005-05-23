@@ -48,7 +48,9 @@
 				Settings menu on the phone.</description>
 		</setting>
 		<setting name="auth.password">
-			<type>string</type>
+			<type>
+                <string password="yes"/>
+            </type>
 			<value></value>
 			<description>Password to be used for authentication challenges for 
 				this registration. If non-empty, will override the 'Reg 

@@ -19,6 +19,9 @@
     <property-specification name="parentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     
+    <!-- B E A N S -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    
 	<!-- C O M P O N E N T S -->
         
     <component id="settingsNavigation" type="SettingsNavigation">
@@ -34,6 +37,7 @@
         <binding name="cancelListener" expression="listeners.cancel"/>
         <binding name="applyListener" expression="listeners.apply"/>
         <binding name="settingRenderer" expression="null"/>
+        <binding name="validator" expression="beans.validator"/>
     </component>
     
 </page-specification>

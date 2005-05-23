@@ -30,4 +30,8 @@ public class IntegerSetting implements SettingType {
     public void setMin(int min) {
         m_min = min;
     }
+
+    public String getName() {
+        return "integer";
+    }
 }
