@@ -1,565 +1,568 @@
 <?xml version="1.0" ?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
   <group name="grandstream">
     <group name="network">
       <label>Network Settings</label>
       <setting name="P8">
         <label>DHCP support</label>
-        <description>DHCP support. 0 - yes, 1 - no</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>DHCP support. 0 - yes, 1 - no</description>
       </setting>
       <setting name="P82">
         <label>PPPoE user ID</label>
-        <description>PPPoE support. PPPoE user ID</description>
         <type>string</type>
         <value></value>
+        <description>PPPoE support. PPPoE user ID</description>
       </setting>
       <setting name="P83">
         <label>PPPoE password</label>
-        <description>PPPoE password</description>
         <type>string</type>
         <value></value>
+        <description>PPPoE password</description>
       </setting>
       <setting name="P9">
         <label>IP Address byte 1</label>
-        <description>IP Address byte 1. Ignore if DHCP or PPPoE is used</description>
         <type>0-255</type>
         <value></value>
+        <description>IP Address byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P10">
         <label>IP Address byte 2</label>
-        <description>IP Address byte 2</description>
         <type>0-255</type>
         <value></value>
+        <description>IP Address byte 2</description>
       </setting>
       <setting name="P11">
         <label>IP Address byte 3</label>
-        <description>IP Address byte 3</description>
         <type>0-255</type>
         <value></value>
+        <description>IP Address byte 3</description>
       </setting>
       <setting name="P12">
         <label>IP Address byte 4</label>
-        <description>IP Address byte 4</description>
         <type>0-255</type>
         <value></value>
+        <description>IP Address byte 4</description>
       </setting>
       <setting name="P13">
         <label>Subnet mask byte 1</label>
-        <description>Subnet mask byte 2. Ignore if DHCP or PPPoE is used</description>
         <type>0-255</type>
         <value>255</value>
+        <description>Subnet mask byte 2. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P14">
         <label>Subnet mask byte 2</label>
-        <description>Subnet mask byte 2</description>
         <type>0-255</type>
         <value>255</value>
+        <description>Subnet mask byte 2</description>
       </setting>
       <setting name="P15">
         <label>Subnet mask byte 3</label>
-        <description>Subnet mask byte 3</description>
         <type>0-255</type>
         <value>255</value>
+        <description>Subnet mask byte 3</description>
       </setting>
       <setting name="P16">
         <label>Subnet mask byte 4</label>
-        <description>Subnet mask byte 4</description>
         <type>0-255</type>
         <value>0</value>
+        <description>Subnet mask byte 4</description>
       </setting>
       <setting name="P17">
         <label>Router byte 1</label>
-        <description>Router IP address byte 1. Ignore if DHCP or PPPoE is used</description>
         <type>0-255</type>
         <value></value>
+        <description>Router IP address byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P18">
         <label>Router byte 2</label>
-        <description>Router byte 2</description>
         <type>0-255</type>
         <value></value>
+        <description>Router byte 2</description>
       </setting>
       <setting name="P19">
         <label>Router byte 3</label>
-        <description>Router byte 3</description>
         <type>0-255</type>
         <value></value>
+        <description>Router byte 3</description>
       </setting>
       <setting name="P20">
         <label>Router byte 4</label>
-        <description>Router byte 4</description>
         <type>0-255</type>
         <value></value>
+        <description>Router byte 4</description>
       </setting>
       <setting name="P92">
         <label>DNS server byte 1</label>
-        <description>DNS server IP address byte 1. Use this DNS server if specified.</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS server IP address byte 1. Use this DNS server if specified.</description>
       </setting>
       <setting name="P93">
         <label>DNS server byte 2</label>
-        <description>DNS server byte 2</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS server byte 2</description>
       </setting>
       <setting name="P94">
         <label>DNS server byte 3</label>
-        <description>DNS server byte 3</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS server byte 3</description>
       </setting>
       <setting name="P95">
         <label>DNS server byte 4</label>
-        <description>DNS server byte 4</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS server byte 4</description>
       </setting>
       <setting name="P21">
         <label>DNS 1 byte 1</label>
-        <description>DNS 1 byte 1. Ignore if DHCP or PPPoE is used</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 1 byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P22">
         <label>DNS 1 byte 2</label>
-        <description>DNS 1 byte 2</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 1 byte 2</description>
       </setting>
       <setting name="P23">
         <label>DNS 1 byte 3</label>
-        <description>DNS 1 byte 3</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 1 byte 3</description>
       </setting>
       <setting name="P24">
         <label>DNS 1 byte 4</label>
-        <description>DNS 1 byte 4</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 1 byte 4</description>
       </setting>
       <setting name="P25">
         <label>DNS 2 byte 1</label>
-        <description>DNS 2 byte 1. Ignore if DHCP or PPPoE is used</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 2 byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P26">
         <label>DNS 2 byte 2</label>
-        <description>DNS 2 byte 2</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 2 byte 2</description>
       </setting>
       <setting name="P27">
         <label>DNS 2 byte 3</label>
-        <description>DNS 2 byte 3</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 2 byte 3</description>
       </setting>
       <setting name="P28">
         <label>DNS 2 byte 4</label>
-        <description>DNS 2 byte 4</description>
         <type>0-255</type>
         <value></value>
+        <description>DNS 2 byte 4</description>
       </setting>
       <setting name="P207">
         <label>Syslog Server</label>
-        <description>Syslog Server (name of the server, max length is 64 characters)</description>
         <type>string</type>
         <value></value>
+        <description>Syslog Server (name of the server, max length is 64 characters)</description>
       </setting>
       <setting name="P208">
         <label>Syslog Level</label>
-        <description>Syslog Level (Default setting is NONE) 0 - NONE, 1 - DEBUG, 2 - INFO, 3 - WARNING, 4 - ERROR</description>
         <type>0-7</type>
         <value>0</value>
+        <description>Syslog Level (Default setting is NONE) 0 - NONE, 1 - DEBUG, 2 - INFO, 3 - WARNING, 4 - ERROR</description>
       </setting>
     </group>
     <group name="upgrade">
       <label>Firmware Upgrade</label>
       <setting name="P212">
         <label>Firmware Upgrade</label>
-        <description>Firmware Upgrade. 0 - TFTP Upgrade, 1 - HTTP Upgrade.</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Firmware Upgrade. 0 - TFTP Upgrade, 1 - HTTP Upgrade.</description>
       </setting>
       <setting name="P213">
         <label>TFTP Server byte 1</label>
-        <description>TFTP Server byte 1 (for remote software upgrade and configuration. For firmware version 1.0.5.22 and above)</description>
         <type>string</type>
         <value></value>
+        <description>TFTP Server byte 1 (for remote software upgrade and configuration. For firmware version 1.0.5.22 and above)</description>
       </setting>
       <setting name="P214">
         <label>TFTP byte 2</label>
-        <description>TFTP byte 2</description>
         <type>0-255</type>
         <value></value>
+        <description>TFTP byte 2</description>
       </setting>
       <setting name="P215">
         <label>TFTP byte 3</label>
-        <description>TFTP byte 3</description>
         <type>0-255</type>
         <value></value>
+        <description>TFTP byte 3</description>
       </setting>
       <setting name="P216">
         <label>TFTP byte 4</label>
-        <description>TFTP byte 4</description>
         <type>0-255</type>
         <value></value>
+        <description>TFTP byte 4</description>
       </setting>
       <setting name="P41">
         <label>TFTP Server byte 1</label>
-        <description>TFTP Server byte 1(for remote software upgrade and configuration. For firmware version below 1.0.5.22)</description>
         <type>string</type>
         <value></value>
+        <description>TFTP Server byte 1(for remote software upgrade and configuration. For firmware version below 1.0.5.22)</description>
       </setting>
       <setting name="P42">
         <label>TFTP byte 2</label>
-        <description>TFTP byte 2</description>
         <type>0-255</type>
         <value></value>
+        <description>TFTP byte 2</description>
       </setting>
       <setting name="P43">
         <label>TFTP byte 3</label>
-        <description>TFTP byte 3</description>
         <type>0-255</type>
         <value></value>
+        <description>TFTP byte 3</description>
       </setting>
       <setting name="P44">
         <label>TFTP byte 4</label>
-        <description>TFTP byte 4</description>
         <type>0-255</type>
         <value></value>
+        <description>TFTP byte 4</description>
       </setting>
       <setting name="P192">
         <label>HTTP Server</label>
-        <description>HTTP Server ( For remote firmware upgrade and configuration provisioning, can be full URL, example: http://firmware.grandstream.com:8088/FIRMWARE/1.0.5.18)</description>
         <type>string</type>
         <value></value>
+        <description>HTTP Server ( For remote firmware upgrade and configuration provisioning, can be full URL, example: http://firmware.grandstream.com:8088/FIRMWARE/1.0.5.18)</description>
       </setting>
       <setting name="P193">
         <label>Automatic HTTP Upgrade</label>
-        <description>Automatic HTTP Upgrade. 0 - No, 1 - Yes (checking every defined days)</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Automatic HTTP Upgrade. 0 - No, 1 - Yes (checking every defined days)</description>
       </setting>
       <setting name="P194">
         <label>Check Interval</label>
-        <description>Check for new firmware every x days</description>
         <type>integer</type>
         <value>7</value>
+        <description>Check for new firmware every x days</description>
       </setting>
     </group>
     <group name="sip">
       <label>SIP Settings</label>
       <setting name="P103">
         <label>Use DNS SRV</label>
-        <description>Use DNS SRV. 0 - No, 1 - Yes.</description>
         <type>0, 1</type>
         <value>1</value>
+        <description>Use DNS SRV. 0 - No, 1 - Yes.</description>
       </setting>
       <setting name="P101">
         <label>Use NAT IP</label>
-        <description>Use NAT IP. This will enable our SIP client to use this IP in the SIP message. Example 64.3.153.50.</description>
         <type>IP address</type>
         <value></value>
+        <description>Use NAT IP. This will enable our SIP client to use this IP in the SIP message. Example 64.3.153.50.</description>
       </setting>
       <setting name="P197">
         <label>Proxy-Require</label>
-        <description>Proxy-Require (A SIP extension to enable firewall penetration)</description>
         <type>string</type>
         <value></value>
+        <description>Proxy-Require (A SIP extension to enable firewall penetration)</description>
       </setting>
       <setting name="P78">
         <label>Use Random Port</label>
-        <description>Use Random Port. 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Use Random Port. 0 - no, 1 - yes</description>
       </setting>
       <setting name="P47">
          <label>SIP Server</label>
-         <description>SIP Server</description>
          <type>string</type>
          <value>sip.mycompany.com</value>
+         <description>SIP Server</description>
       </setting>
       <setting name="P48">
          <label>Outbound Proxy</label>
-         <description>Outbound Proxy</description>
          <type>string</type>
          <value>proxy.mycompany.com</value>
+         <description>Outbound Proxy</description>
       </setting>
       <setting name="P40">
         <label>Local SIP port</label>
-        <description>Local SIP port (default 5060)</description>
         <type>1024-65535</type>
         <value>5060</value>
+        <description>Local SIP port (default 5060)</description>
       </setting>
       <setting name="P39">
         <label>Local RTP port</label>
-        <description>Local RTP port (1024-65535, default 5004)</description>
         <type>1024-65535</type>
         <value>5004</value>
+        <description>Local RTP port (1024-65535, default 5004)</description>
       </setting>
       <setting name="P52">
         <label>NAT Traversal</label>
-        <description>NAT Traversal. 0 - yes, 1 - no</description>
         <type>0, 1</type>
         <value>1</value>
+        <description>NAT Traversal. 0 - yes, 1 - no</description>
       </setting>
       <setting name="P76">
         <label>STUN server</label>
-        <description>STUN server</description>
         <type>string</type>
         <value>stun.mycompany.com</value>
+        <description>STUN server</description>
       </setting>
       <setting name="P63">
         <label>SIP User ID is phone number</label>
-        <description>SIP User ID is phone number. 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>SIP User ID is phone number. 0 - no, 1 - yes</description>
       </setting>
       <setting name="P31">
         <label>SIP Registration</label>
-        <description>SIP Registration. 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>1</value>
+        <description>SIP Registration. 0 - no, 1 - yes</description>
       </setting>
       <setting name="P32">
         <label>Register Expiration</label>
-        <description>Register Expiration (in minutes. default 1 hour, max 45 days)</description>
         <type>0-65535</type>
         <value>60</value>
+        <description>Register Expiration (in minutes. default 1 hour, max 45 days)</description>
       </setting>
       <setting name="P81">
         <label>Unregister On Reboot</label>
-        <description>Unregister On Reboot. 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Unregister On Reboot. 0 - no, 1 - yes</description>
       </setting>
       <setting name="P84">
         <label>Keep-alive interval</label>
-        <description>Keep-alive interval (in seconds. default 20 seconds)</description>
         <type>0-65535</type>
         <value>20</value>
+        <description>Keep-alive interval (in seconds. default 20 seconds)</description>
       </setting>
     </group>
     <group name="codec">
       <label>Codec Settings</label>
       <setting name="P57">
         <label>First codec</label>
-        <description>First codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>0</value>
+        <description>First codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
       <setting name="P58">
         <label>Second codec</label>
-        <description>Second codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>2</value>
+        <description>Second codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
       <setting name="P59">
         <label>Third codec</label>
-        <description>Third codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>4</value>
+        <description>Third codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
       <setting name="P60">
         <label>Fourth codec</label>
-        <description>Fourth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>8</value>
+        <description>Fourth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
       <setting name="P61">
         <label>Fifth codec</label>
-        <description>Fifth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>15</value>
+        <description>Fifth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
       <setting name="P62">
         <label>Sixth codec</label>
-        <description>Sixth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>18</value>
+        <description>Sixth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
       <setting name="P46">
         <label>Seventh codec</label>
-        <description>Seventh codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>2</value>
+        <description>Seventh codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
       <setting name="P49">
         <label>G723 rate</label>
-        <description>G723 rate. 0 - 6.3kbps encoding rate, 1 - 5.3kbps encoding rate</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>G723 rate. 0 - 6.3kbps encoding rate, 1 - 5.3kbps encoding rate</description>
       </setting>
       <setting name="P96">
         <label>iLBC payload type</label>
-        <description>iLBC payload type. Between 96 and 127</description>
         <type>96-127</type>
         <value>97</value>
+        <description>iLBC payload type. Between 96 and 127</description>
       </setting>
       <setting name="P97">
         <label>iLBC Frame Size</label>
-        <description>iLBC Frame Size. 0 - 20ms(default), 1 - 30ms.</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>iLBC Frame Size. 0 - 20ms(default), 1 - 30ms.</description>
       </setting>
       <setting name="P50">
         <label>Silence Suppression</label>
-        <description>Silence Suppression. 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Silence Suppression. 0 - no, 1 - yes</description>
       </setting>
       <setting name="P37">
         <label>Voice Frames per TX</label>
-        <description>Voice Frames per TX (up to 10/20/32/64 frames for G711/G726/G723/other codecs respectively)</description>
         <type>0-64</type>
         <value>2</value>
+        <description>Voice Frames per TX (up to 10/20/32/64 frames for G711/G726/G723/other codecs respectively)</description>
       </setting>
       <setting name="P38">
         <label>IP QoS</label>
-        <description>IP QoS (IP Diff-Serv or Precedence value for RTP)</description>
         <type>0-255</type>
         <value>48</value>
+        <description>IP QoS (IP Diff-Serv or Precedence value for RTP)</description>
       </setting>
       <setting name="P51">
         <label>Layer 2 QoS</label>
-        <description>Layer 2 QoS. 802.1Q/VLAN Tag (VLAN classification for RTP)</description>
         <type>0-4095</type>
         <value>0</value>
+        <description>Layer 2 QoS. 802.1Q/VLAN Tag (VLAN classification for RTP)</description>
       </setting>
       <setting name="P87">
         <label>Layer 2 QoS</label>
-        <description>Layer 2 QoS. 802.1p priority value (0 - 7)</description>
         <type>0-7</type>
         <value>0</value>
+        <description>Layer 2 QoS. 802.1p priority value (0 - 7)</description>
       </setting>
     </group>
     <group name="dtmf">
       <label>DTMF settings</label>
       <setting name="P73">
         <label>Send DTMF</label>
-        <description>Send DTMF. 0 - in audio 1 - via RTP 2 - via SIP INFO</description>
         <type>0-2</type>
         <value>0</value>
+        <description>Send DTMF. 0 - in audio 1 - via RTP 2 - via SIP INFO</description>
       </setting>
       <setting name="P79">
         <label>DTMF Payload Type</label>
-        <description>DTMF Payload Type</description>
         <type>0-255</type>
         <value>101</value>
+        <description>DTMF Payload Type</description>
       </setting>
       <setting name="P74">
         <label>Send Flash Event</label>
-        <description>Send Flash Event (Flash will be sent as a DTMF event if set to Yes). 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Send Flash Event (Flash will be sent as a DTMF event if set to Yes). 0 - no, 1 - yes</description>
       </setting>
     </group>
     <group name="time">
       <label>Time settings</label>
       <setting name="P30">
         <label>NTP Server</label>
-        <description>NTP Server</description>
         <type>string</type>
         <value>time.gist.gov</value>
+        <description>NTP Server</description>
       </setting>
       <setting name="P64">
         <label>Time Zone. Offset in minutes to GMT</label>
-        <description>Time Zone. Offset in minutes to GMT</description>
         <type>integer</type>
         <value>420</value>
+        <description>Time Zone. Offset in minutes to GMT</description>
       </setting>
       <setting name="P75">
         <label>Daylight Savings Time</label>
-        <description>Daylight Savings Time. 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Daylight Savings Time. 0 - no, 1 - yes</description>
       </setting>
     </group>
     <group name="misc">
       <label>Misc settings</label>
       <setting name="P2">
         <label>Admin password</label>
-        <description>Admin password for web interface</description>
         <type>string</type>
         <value>admin</value>
+        <description>Admin password for web interface</description>
       </setting>
       <setting name="P196">
         <label>End User Password</label>
-        <description>End User Password</description>
         <type>string</type>
         <value>123</value>
+        <description>End User Password</description>
       </setting>
       <setting name="P66">
         <label>Dial Plan</label>
-        <description>Dial Plan (dial plan prefix string)</description>
         <type>string</type>
         <value></value>
+        <description>Dial Plan (dial plan prefix string)</description>
       </setting>
       <setting name="P29">
         <label>Early Dial</label>
-        <description>Early Dial (use "Yes" only if proxy supports 484 response). 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Early Dial (use "Yes" only if proxy supports 484 response). 0 - no, 1 - yes</description>
       </setting>
       <setting name="P72">
         <label>Use # as Dial Key</label>
-        <description>Use # as Dial Key (if set to Yes, "#" will function as the "(Re-)Dial" key). 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>1</value>
+        <description>Use # as Dial Key (if set to Yes, "#" will function as the "(Re-)Dial" key). 0 - no, 1 - yes</description>
       </setting>
       <setting name="P33">
         <label>Voice Mail UserID</label>
-        <description>Voice Mail UserID (User ID/extension for 3rd party voice mail system)</description>
         <type>string</type>
         <value></value>
+        <description>Voice Mail UserID (User ID/extension for 3rd party voice mail system)</description>
       </setting>
       <setting name="P99">
         <label>SUBSCRIBE for MWI</label>
-        <description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication. 0 - No, 1 - Yes.</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication. 0 - No, 1 - Yes.</description>
       </setting>
       <setting name="P71">
         <label>Offhook Auto-Dial</label>
-        <description>Offhook Auto-Dial (User ID/extension to dial automatically when offhook)</description>
         <type>string</type>
         <value></value>
+        <description>Offhook Auto-Dial (User ID/extension to dial automatically when offhook)</description>
       </setting>
       <setting name="P91">
         <label>Disable Call-Waiting</label>
-        <description>Disable Call-Waiting. 0 - No, 1 - Yes.</description>
         <type>0, 1</type>
         <value>1</value>
+        <description>Disable Call-Waiting. 0 - No, 1 - Yes.</description>
       </setting>
       <setting name="P191">
         <label>Enable/Disable Call Features</label>
-        <description>Enable/Disable Call Features, 0 - No, 1 - Yes.</description>
         <type>0, 1</type>
         <value>1</value>
+        <description>Enable/Disable Call Features, 0 - No, 1 - Yes.</description>
       </setting>
       <setting name="P65">
         <label>Send Anonymous</label>
-        <description>Send Anonymous (caller ID will be blocked if set to Yes). 0 - no, 1 - yes</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Send Anonymous (caller ID will be blocked if set to Yes). 0 - no, 1 - yes</description>
       </setting>
       <setting name="P85">
         <label>No Key Entry Timeout</label>
-        <description>No Key Entry Timeout. Default - 4 seconds.</description>
         <type>0-255</type>
         <value>4</value>
+        <description>No Key Entry Timeout. Default - 4 seconds.</description>
       </setting>
       <setting name="P88">
         <label>Lock Keypad Update</label>
-        <description>Lock Keypad Update. (configuration update via keypad is disabled if set to Yes) 0 - No, 1 - Yes.</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Lock Keypad Update. (configuration update via keypad is disabled if set to Yes) 0 - No, 1 - Yes.</description>
       </setting>
     </group>
   </group>
@@ -567,48 +570,48 @@
     <group name="codec">
       <setting name="P98">
         <label>Eighth codec</label>
-        <description>Eighth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
         <type>0-127</type>
         <value>9</value>
+        <description>Eighth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 - G.722</description>
       </setting>
     </group>
     <group name="budgetone">
       <label>BudgeTone Specific</label>
       <setting name="P90">
         <label>Auto Answer</label>
-        <description>Auto Answer</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Auto Answer</description>
       </setting>
       <setting name="P102">
         <label>Date Display Format</label>
-        <description>Date Display Format. 0 - Year-Month-Day, 1 - Month-Day-Year, 2 - Day-Month-Year</description>
         <type>0-2</type>
         <value>0</value>
+        <description>Date Display Format. 0 - Year-Month-Day, 1 - Month-Day-Year, 2 - Day-Month-Year</description>
       </setting>
       <setting name="P104">
         <label>Default Ring Tone</label>
-        <description>Default Ring Tone. 0 - system ring tone, 1 - custom ring tone 1, 2 - custom ring tone 2, 3 - custom ring tone 3</description>
         <type>0-3</type>
         <value>0</value>
+        <description>Default Ring Tone. 0 - system ring tone, 1 - custom ring tone 1, 2 - custom ring tone 2, 3 - custom ring tone 3</description>
       </setting>
       <setting name="P105">
         <label>Caller ID for ring tone 1</label>
-        <description>Use custom ring tone 1 if incoming caller ID is the following.</description>
         <type>string</type>
         <value>0</value>
+        <description>Use custom ring tone 1 if incoming caller ID is the following.</description>
       </setting>
       <setting name="P106">
         <label>Caller ID for ring tone 2</label>
-        <description>Use custom ring tone 2 if incoming caller ID is the following.</description>
         <type>string</type>
         <value>0</value>
+        <description>Use custom ring tone 2 if incoming caller ID is the following.</description>
       </setting>
       <setting name="P107">
         <label>Caller ID for ring tone 3</label>
-        <description>Use custom ring tone 3 if incoming caller ID is the following.</description>
         <type>string</type>
         <value>0</value>
+        <description>Use custom ring tone 3 if incoming caller ID is the following.</description>
       </setting>
     </group>
   </group>
@@ -617,33 +620,33 @@
       <label>HandyTone Specific</label>
       <setting name="P86">
         <label>FXS Impedence</label>
-        <description>FXS Impedence 0- 600 Ohm (North America) 1 - 900 Ohm 2 - 600 Ohm + 2.16uF 3 - 900 Ohm + 2.16uF 4 - CTR21 (270 Ohm + 750 Ohm||150nF) 5 - Australia/New Zealand #1 (220 Ohm + 820 Ohm||120nF) 6 - Slovakia/Slovenia/South Africa (220 Ohm + 820 Ohm||115nF) 7 - New Zealand #2 (370 Ohm + 620 Ohm||310nF)</description>
         <type>0-7</type>
         <value>0</value>
+        <description>FXS Impedence 0- 600 Ohm (North America) 1 - 900 Ohm 2 - 600 Ohm + 2.16uF 3 - 900 Ohm + 2.16uF 4 - CTR21 (270 Ohm + 750 Ohm||150nF) 5 - Australia/New Zealand #1 (220 Ohm + 820 Ohm||120nF) 6 - Slovakia/Slovenia/South Africa (220 Ohm + 820 Ohm||115nF) 7 - New Zealand #2 (370 Ohm + 620 Ohm||310nF)</description>
       </setting>
       <setting name="P200">
         <label>Caller ID Scheme</label>
-        <description>Caller ID Scheme 0 - Bellcore (North America) 1 - ETSI-FSK (France, Germany, Norway, Taiwan, UK-CCA) 2 - ETSI-DTMF (Finland, Sweden) 3 - Denmark-DTMF</description>
         <type>0-3</type>
         <value>0</value>
+        <description>Caller ID Scheme 0 - Bellcore (North America) 1 - ETSI-FSK (France, Germany, Norway, Taiwan, UK-CCA) 2 - ETSI-DTMF (Finland, Sweden) 3 - Denmark-DTMF</description>
       </setting>
       <setting name="P206">
         <label>Onhook Voltage</label>
-        <description>Onhook Voltage 1 - 18V, 5 - 24V, 2 - 36V, 3 - 48V, 4 - 51V</description>
         <type>1-4</type>
         <value>2</value>
+        <description>Onhook Voltage 1 - 18V, 5 - 24V, 2 - 36V, 3 - 48V, 4 - 51V</description>
       </setting>
       <setting name="P205">
         <label>Polarity Reversal</label>
-        <description>Polarity Reversal. 0 - No, 1 - Yes.</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>Polarity Reversal. 0 - No, 1 - Yes.</description>
       </setting>
       <setting name="P228">
         <label>FAX Mode</label>
-        <description>FAX Mode. 0 - T.38 (Auto Detect), 1 - Pass Through</description>
         <type>0, 1</type>
         <value>0</value>
+        <description>FAX Mode. 0 - T.38 (Auto Detect), 1 - Pass Through</description>
       </setting>
     </group>
   </group>

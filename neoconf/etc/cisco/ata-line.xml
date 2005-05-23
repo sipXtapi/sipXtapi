@@ -29,11 +29,13 @@
 		</group>
 	</group>
 	<group name="cisco7905" copy-of="ciscoAta18x">
-		<setting name="ShortName">
-			<type>string</type>
-			<value></value>
-			<description>Display name for LCD screen</description>
-		</setting>
+		<group name="port">
+			<setting name="ShortName">
+				<type>string</type>
+				<value></value>
+				<description>Display name for LCD screen</description>
+			</setting>
+		</group>
 	</group>
 	<group name="cisco7912" copy-of="cisco7905"/>
 </model>

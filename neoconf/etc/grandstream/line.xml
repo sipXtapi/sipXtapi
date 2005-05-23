@@ -1,31 +1,34 @@
 <?xml version="1.0" ?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
    <group name="grandstream">
       <group name="port">
          <label>Line Settings</label>
          <setting name="P35">
             <label>SIP User ID</label>
-            <description>SIP User ID</description>
             <type>string</type>
             <value>8000</value>
+            <description>SIP User ID</description>
          </setting>
          <setting name="P3">
             <label>User Caller Name</label>
-            <description>User Caller Name (John Doe)</description>
             <type>string</type>
             <value></value>
+            <description>User Caller Name (John Doe)</description>
          </setting>
          <setting name="P36">
             <label>Authentication ID</label>
-            <description>Authentication ID</description>
             <type>string</type>
             <value>8000</value>
+            <description>Authentication ID</description>
          </setting>
          <setting name="P34">
             <label>Authentication password</label>
-            <description>Authentication password</description>
             <type>string</type>
             <value>0000</value>
+            <description>Authentication password</description>
          </setting>
       </group>
    </group>

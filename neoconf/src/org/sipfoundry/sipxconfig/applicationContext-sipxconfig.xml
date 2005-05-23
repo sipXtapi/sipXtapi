@@ -269,6 +269,12 @@
 				<entry key="ciscoAta18x">
 					<value>Cisco ATA 186/188</value>
 				</entry>
+				<entry key="grandstreamBudgeTone">
+					<value>Grandstream BudgeTone</value>
+				</entry>
+				<entry key="grandstreamHandyTone">
+					<value>Grandstream HandyTone</value>
+				</entry>
 				<entry key="kphone">
 					<value>KPhone</value>
 				</entry>
@@ -339,10 +345,20 @@
 			<value>${sysdir.phone}/profile/tftproot</value>
 		</property>
         </bean>
-	<bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" parent="cisco7960" singleton="false"/>
-	<bean id="ciscoAta18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"/>
+	<bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" parent="cisco7905" singleton="false"/>
+	<bean id="ciscoAta18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" parent="cisco7905" singleton="false"/>
 	<bean id="ciscoAtaLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaLine" singleton="false"/>
-	
+	<!-- Grandstream BudgeTone, HandyTone -->	
+	<bean id="grandstreamBudgeTone" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamBtPhone" singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.phone}/profile/tftproot</value>
+		</property>
+        </bean>
+	<bean id="grandstreamHandyTone" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamBtPhone" parent="grandstreamBudgeTone" singleton="false"/>
+	<bean id="grandstreamBtLine" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamBtLine" singleton="false"/>
 	<!--
 	  - D I A L   P L A N S
 	  - TODO: move to separate file

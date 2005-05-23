@@ -337,12 +337,6 @@
         <value>0</value>
         <description>Image ID of software image in TFTP directory.</description>
       </setting>
-      <setting name="tftpip">
-        <label>TFTP Server IP address</label>
-        <type>IP address</type>
-        <value>0.0.0.0</value>
-        <description>IP address of the tftp server.</description>
-      </setting>
     </group>
   </group>
   <group name="cisco7905" copy-of="ata">
@@ -361,8 +355,8 @@
       </setting>
     </group>
     <group name="upgradelogo">
-      <label>Software Upgrade</label>
-      <setting name="upgradecode">
+      <label>Logo Upgrade</label>
+      <setting name="logofile">
         <label>Logo filename</label>
         <type>string</type>
         <value>none</value>
@@ -373,12 +367,6 @@
         <type>string</type>
         <value>0</value>
         <description>Logo image version number.</description>
-      </setting>
-      <setting name="tftpip">
-        <label>TFTP Server IP address</label>
-        <type>IP address</type>
-        <value>0</value>
-        <description>IP address of the tftp server.</description>
       </setting>
     </group>
     <group name="caller">

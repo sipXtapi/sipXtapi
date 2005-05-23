@@ -11,22 +11,30 @@
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.io.CopyUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
- * Support for Cisco ATA186/188 and Cisco 7905/7912 
+ * Support for Cisco ATA186/188 and Cisco 7905/7912
  */
 public class CiscoAtaPhone extends CiscoPhone {
 
     private static final String ZERO = "0";
+    
+    private static final String IMAGE_ID = "imageid";
+    
+    private static final String NONE = "none";
 
     private String m_binDir;
 
@@ -46,6 +54,15 @@ public class CiscoAtaPhone extends CiscoPhone {
         return getTftpRoot() + '/' + getCfgPrefix() + phoneFilename.toLowerCase();
     }
 
+    private String getPtagFilename() {
+        return getPhoneContext().getSystemDirectory() + "/cisco/" + getCfgPrefix() + "-ptag.dat";
+    }
+
+    private String getCfgfmtFilename() {
+        // this points to the cfgfmt utility in etc/cisco directory
+        return getPhoneContext().getSystemDirectory() + "/cisco/cfgfmt";
+    }
+
     public String getBinDir() {
         return m_binDir;
     }
@@ -55,10 +72,29 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     protected void save(String profile) throws IOException {
-        // TODO: Use RC4 to encrypt buffer
-        super.save(profile);
+        String outputfile = getPhoneFilename();
+        String outputTxtfile = outputfile + ".txt";
+        FileWriter wtr = new FileWriter(outputTxtfile);
+        try {
+            CopyUtils.copy(profile, wtr);
+        } finally {
+            IOUtils.closeQuietly(wtr);
+        }
+        try {
+            File cfgfmtFile = new File(getCfgfmtFilename());
+            if (cfgfmtFile.exists()) {
+                String[] cmd = { 
+                    getCfgfmtFilename(), 
+                    "-t" + getPtagFilename(),
+                    outputTxtfile, outputfile 
+                };
+                Runtime.getRuntime().exec(cmd);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting cisco configuration " + outputfile, e);
+        }
     }
-    
+
     // some settings should probably be added here
     protected void setDefaults(Setting settings) {
         String domainName = getPhoneContext().getDnsDomain();
@@ -76,16 +112,37 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
 
         String swimage = swupgrade.getSetting("upgradecode").getValue();
-        String tftpsrv = swupgrade.getSetting("tftpip").getValue();
-        String imageid = swupgrade.getSetting("imageid").getValue();
+        String imageid = swupgrade.getSetting(IMAGE_ID).getValue();
         String upghex = getModel().getUpgCode();
 
-        if ((swimage == null) || swimage.equals("") || swimage.equals("none")
+        if (StringUtils.isBlank(swimage) || swimage.equals(NONE)
                 || imageid.equals(ZERO)) {
             return StringUtils.EMPTY;
         }
 
-        return "upgradecode:3," + upghex + ',' + tftpsrv + ",69," + imageid + ',' + swimage;
+        return "upgradecode:3," + upghex + ",0.0.0.0,69," + imageid + "," + swimage;
+    }
+
+    public String getLogoUpgradeConfig() {
+        if (getCfgPrefix().equals("ata")) {
+            return StringUtils.EMPTY;
+        }
+
+        Setting logoupgrade = getSettings().getSetting("upgradelogo");
+
+        if (logoupgrade == null) {
+            return StringUtils.EMPTY;
+        }
+
+        String logofile = logoupgrade.getSetting("logofile").getValue();
+        String imageid = logoupgrade.getSetting(IMAGE_ID).getValue();
+
+        if (StringUtils.isBlank(logofile) || logofile.equals(NONE)
+                || imageid.equals(ZERO)) {
+            return StringUtils.EMPTY;
+        }
+
+        return "upgradelogo:" + imageid + ",0," + logofile;
     }
 
     public Collection getProfileLines() {

@@ -17,24 +17,24 @@ import org.apache.commons.lang.enum.Enum;
  * Static differences in cisco models
  */
 public final class CiscoModel extends Enum {
-    
+
     public static final CiscoModel MODEL_7960 = new CiscoModel("cisco7960", 6);
 
     public static final CiscoModel MODEL_7940 = new CiscoModel("cisco7940", 2);
 
     /** analog phone adapter */
-    public static final CiscoModel MODEL_ATA18X = new CiscoModel("ciscoAta18x", 2, "ata18x",
-            "ata", "0x301,0x400,0x200");
+    public static final CiscoModel MODEL_ATA18X = new CiscoModel("ciscoAta18x", 2, "ata",
+            "0x301,0x400,0x200");
 
     /** only public to comply with checkstyle private/public order req. */
     public static final String CP79XX = "cp79xx";
 
     /** standard phone */
-    public static final CiscoModel MODEL_7905 = new CiscoModel("cisco7905", 1, CP79XX, "ld",
+    public static final CiscoModel MODEL_7905 = new CiscoModel("cisco7905", 1, "ld",
             "0x501,0x400,0x200");
 
     /** standard phone with switch */
-    public static final CiscoModel MODEL_7912 = new CiscoModel("cisco7912", 1, CP79XX, "gk",
+    public static final CiscoModel MODEL_7912 = new CiscoModel("cisco7912", 1, "gk",
             "0x601,0x400,0x200");
 
     private static final CiscoModel UNKNOWN = new CiscoModel("unknown", 0);
@@ -42,8 +42,6 @@ public final class CiscoModel extends Enum {
     private String m_modelId;
 
     private int m_maxLines;
-
-    private String m_modelFile;
 
     private String m_cfgPrefix;
 
@@ -57,22 +55,12 @@ public final class CiscoModel extends Enum {
     }
 
     /** ATA Models */
-    private CiscoModel(String modelId, int maxLines, String modelFile, String cfgPrefix,
-            String upgCode) {
+    private CiscoModel(String modelId, int maxLines, String cfgPrefix, String upgCode) {
         super(modelId);
         setModelId(modelId);
         setMaxLines(maxLines);
-        setModelFile(modelFile);
         setCfgPrefix(cfgPrefix);
         setUpgCode(upgCode);
-    }
-
-    public String getModelFile() {
-        return m_modelFile;
-    }
-
-    public void setModelFile(String modelFile) {
-        m_modelFile = modelFile;
     }
 
     public String getCfgPrefix() {
