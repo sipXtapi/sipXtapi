@@ -36,7 +36,7 @@ public class ForwardingContextImplTestDb extends TestCase {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_context = (ForwardingContext) appContext.getBean(ForwardingContext.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("admin/forwarding/dbdata/RingSeed.xml");
     }
 

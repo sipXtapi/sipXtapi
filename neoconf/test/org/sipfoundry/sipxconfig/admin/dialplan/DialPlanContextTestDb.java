@@ -37,7 +37,7 @@ public class DialPlanContextTestDb extends TestCase {
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testAddGateway() {

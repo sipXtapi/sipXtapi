@@ -8,19 +8,29 @@
 
     <description>Backup page</description>
     
-    <property-specification name="backupContext" 
-    	type="org.sipfoundry.sipxconfig.admin.BackupContext" 
-    	initial-value="global.backupContext"/>
+    <property-specification name="adminContext" 
+    	type="org.sipfoundry.sipxconfig.admin.AdminContext" 
+    	initial-value="global.adminContext"/>
         
-    <property-specification name="urls" type="java.util.List"/>
+    <property-specification name="backupFiles" type="java.util.List"/>
 
-    <property-specification name="link"/>
+    <property-specification name="backupPlan" 
+        type="org.sipfoundry.sipxconfig.admin.BackupPlan"/>
+
+    <property-specification name="schedule"/>
+
+    <property-specification name="backupFile"/>
         
      <!--
      - B E A N S
      -->
     <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
-        
+    
+    <bean name="scheduledDaysPropertyModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
+       <set-property name="enumClass" 
+           expression="@org.sipfoundry.sipxconfig.admin.ScheduledDay@class"/>
+    </bean>
+    
     <!--
      - C O M P O N E N T S
      -->
@@ -32,38 +42,73 @@
     <component id="errors" type="ErrorMsg"/>
     
     <component id="checkConfigs" type="Checkbox">
-        <binding name="selected" expression="backupContext.configs"/>
+        <binding name="selected" expression="backupPlan.configs"/>
     </component>
 
     <component id="checkDatabase" type="Checkbox">
-        <binding name="selected" expression="backupContext.database"/>
-    </component>
-
-    <component id="checkVoicemail" type="Checkbox">
-        <binding name="selected" expression="backupContext.voicemail"/>
+        <binding name="selected" expression="backupPlan.database"/>
     </component>
     
+    <component id="checkVoicemail" type="Checkbox">
+        <binding name="selected" expression="backupPlan.voicemail"/>
+    </component>
+    
+    <component id="limitCount" type="PropertySelection">
+        <binding name="model" expression="global.limitedBackupCountModel"/>
+        <binding name="value" expression="backupPlan.limitedCount"/>
+    </component>
+
     <component id="backup" type="Submit">
         <binding name="listener" expression="listeners.backup"/>
         <static-binding name="label" value="Backup Now"/>
     </component> 
     
     <component id="ifResultsPresent" type="Conditional">
-        <binding name="condition" expression="!urls.empty"/>
+        <binding name="condition" expression="!backupFiles.empty"/>
+        <static-binding name="element" value="p"/>
+    </component>    
+
+    <component id="ifInitialDescription" type="Conditional">
+        <binding name="condition" expression="backupFiles.empty"/>
         <static-binding name="element" value="p"/>
     </component>
     
     <component id="results" type="Foreach">
-        <binding name="source" expression="urls"/>
-        <binding name="value" expression="link"/>
+        <binding name="source" expression="backupFiles"/>
+        <binding name="value" expression="backupFile"/>
         <static-binding name="element" value="li"/>
     </component>
     
-    <component id="link" type="GenericLink">
-        <binding name="href" expression="link.url"/>
+    <component id="link" type="DownloadLink">
+        <binding name="fileName" expression="backupFile.name"/>
+        <binding name="dirName" expression="backupFile.parent.path"/>
+        <binding name="contentType" expression="tar/x-gzip"/>
     </component>
     
     <component id="linkText" type="InsertText">
-        <binding name="value" expression="link.label"/>
+        <binding name="value" expression="backupFile.path"/>
     </component>
+
+    <component id="schedules" type="Foreach">
+        <binding name="source" expression="backupPlan.schedules"/>
+        <binding name="value" expression="schedule"/>
+        <static-binding name="element" value="br"/>
+    </component>
+
+    <component id="dailyScheduleEnabled" type="Checkbox">
+        <binding name="selected" expression="schedule.enabled"/>
+    </component>
+
+    <component id="dailyScheduledDay" type="PropertySelection">
+        <binding name="model" expression="beans.scheduledDaysPropertyModel"/>
+        <binding name="value" expression="schedule.scheduledDay"/>
+    </component>
+
+    <component id="dailyScheduledTime" type="contrib:DateField">
+        <binding name="format" expression="global.validTime.format"/>
+        <binding name="validator" expression="global.validTime"/>
+        <binding name="date" expression="schedule.timeOfDay"/>        
+        <static-binding name="displayName" value="Time Of Day"/>
+    </component>
+
 </page-specification>

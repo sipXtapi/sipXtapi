@@ -43,7 +43,7 @@ public class LineTestDb extends TestCase {
     }
 
     public void testAddingLine() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
@@ -73,7 +73,7 @@ public class LineTestDb extends TestCase {
     }
 
     public void testSave() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
@@ -104,7 +104,7 @@ public class LineTestDb extends TestCase {
     }
 
     public void testLoadAndDelete() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
@@ -118,7 +118,7 @@ public class LineTestDb extends TestCase {
     }
 
     public void testMoveLine() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/MoveLineSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
@@ -144,7 +144,7 @@ public class LineTestDb extends TestCase {
      * Makes sure the line's settings get deleted too
      */
     public void testDeleteLinesWithSettings() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/DeleteLineWithSettingsSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
@@ -167,7 +167,7 @@ public class LineTestDb extends TestCase {
     }
 
     public void testNoLinesButOtherPhonesHaveLines() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
 
         Phone newPhone = m_context.newPhone(PolycomModel.MODEL_600.getModelId());
@@ -179,7 +179,7 @@ public class LineTestDb extends TestCase {
     }
 
     public void testDeleteLinesForUser() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
 
         ITable before = TestHelper.getConnection().createDataSet().getTable("line");

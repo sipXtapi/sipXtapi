@@ -31,7 +31,7 @@ public class LegacyContextImplTestDb extends TestCase {
         m_legacyContext = (LegacyContext) appContext.getBean(LegacyContext.CONTEXT_BEAN_NAME);
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         try {
-            TestHelper.cleanInsert("dbdata/ClearDb.xml");
+            TestHelper.cleanInsert("ClearDb.xml");
 
         } catch (SQLException e) {
             System.err.println(e.getNextException().getMessage());

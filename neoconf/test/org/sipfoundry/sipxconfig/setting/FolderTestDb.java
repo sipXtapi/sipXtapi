@@ -32,7 +32,7 @@ public class FolderTestDb extends TestCase {
     }
 
     public void testGetRootFolder() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
 
         Folder root = m_dao.loadRootFolder("unittest");
         IDataSet expectedDs = TestHelper
@@ -48,7 +48,7 @@ public class FolderTestDb extends TestCase {
 
     public void testSave() throws Throwable {
         try {
-            TestHelper.cleanInsert("dbdata/ClearDb.xml");
+            TestHelper.cleanInsert("ClearDb.xml");
 
             SettingGroup root = new SettingGroup();
             root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
@@ -80,7 +80,7 @@ public class FolderTestDb extends TestCase {
 
     public void testUpdate() throws Throwable {
         try {
-            TestHelper.cleanInsert("dbdata/ClearDb.xml");
+            TestHelper.cleanInsert("ClearDb.xml");
             TestHelper.cleanInsertFlat("setting/dbdata/UpdateFolderSeed.xml");
 
             SettingGroup root = new SettingGroup();

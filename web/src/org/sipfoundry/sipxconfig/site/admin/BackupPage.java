@@ -11,37 +11,48 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import javax.servlet.ServletContext;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.request.RequestContext;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.admin.BackupContext;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.admin.BackupPlan;
+import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class BackupPage extends BasePage implements PageRenderListener {
-    private static final String URL_SEPARATOR = "/";
-    private static final String PATH = "admin";
 
-    public abstract BackupContext getBackupContext();
+    public abstract AdminContext getAdminContext();
 
-    public abstract List getUrls();
+    public abstract List getBackupFiles();
 
-    public abstract void setUrls(List urls);
+    public abstract void setBackupFiles(List files);
+    
+    public abstract BackupPlan getBackupPlan();
+
+    public abstract void setBackupPlan(BackupPlan plan);
 
     public void pageBeginRender(PageEvent event_) {
-        List urls = getUrls();
+        List urls = getBackupFiles();
         if (urls == null) {
-            setUrls(Collections.EMPTY_LIST);
+            setBackupFiles(Collections.EMPTY_LIST);
         }
+        
+        // every plan has at least 1 schedule, thought of having this somewhere in
+        // library, but you could argue it's application specific.
+        BackupPlan plan = getAdminContext().getBackupPlan();
+        if (plan.getSchedules().isEmpty()) {
+            DailyBackupSchedule schedule = new DailyBackupSchedule(); 
+            plan.addSchedule(schedule);
+        }
+        setBackupPlan(plan);
     }
 
     public void submit(IRequestCycle cycle_) {
@@ -51,64 +62,19 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
         }
     }
 
-    public void backup(IRequestCycle cycle) {
+    public void backup(IRequestCycle cycle_) {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
         }
-        ServletContext context = cycle.getRequestContext().getServlet().getServletContext();
-        BackupContext backupContext = getBackupContext();
-        String realPath = context.getRealPath(PATH);
-        String[] backupFiles = backupContext.perform(realPath);
+        AdminContext adminContext = getAdminContext();
+        BackupPlan plan = getBackupPlan();
+        File[] backupFiles = adminContext.performBackup(plan);
         if (null != backupFiles) {
-            List urls = convertToUrl(backupFiles, cycle);
-            setUrls(urls);
+            setBackupFiles(Arrays.asList(backupFiles));
         } else {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record("Backup operation failed.", ValidationConstraint.CONSISTENCY);
-        }
-    }
-
-    /**
-     * Attempts to convert real path to backup files into URL from which files can be downloaded
-     * 
-     * A better way of handling that would be to deploy Download link service. See:
-     * http://tapestry-bayeux.sourceforge.net/components/DownloadLink.html
-     * 
-     * @param backupFiles array of backup file names (relative to PATH)
-     * @param cycle current request cycle to retriece servlet related data
-     * @return List of LinkInfo object contain URL and label to create HTML link
-     */
-    private List convertToUrl(String[] backupFiles, IRequestCycle cycle) {
-        RequestContext rc = cycle.getRequestContext();
-        String contextPath = cycle.getRequestContext().getRequest().getContextPath();
-
-        ArrayList urls = new ArrayList(backupFiles.length);
-        for (int i = 0; i < backupFiles.length; i++) {
-            // please note this is URL building - hence /
-            String path = contextPath + URL_SEPARATOR + PATH + URL_SEPARATOR + backupFiles[i];
-            String absoluteURL = rc.getAbsoluteURL(path);
-            LinkInfo linkInfo = new LinkInfo(backupFiles[i], absoluteURL);
-            urls.add(linkInfo);
-        }
-        return urls;
-    }
-
-    public static class LinkInfo {
-        private String m_url;
-        private String m_label;
-
-        public LinkInfo(String label, String url) {
-            m_label = label;
-            m_url = url;
-        }
-
-        public String getLabel() {
-            return m_label;
-        }
-
-        public String getUrl() {
-            return m_url;
         }
     }
 }

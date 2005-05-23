@@ -32,7 +32,7 @@ public class UserTestDb extends TestCase {
     }
     
     public void testLoadUserByTemplateUser() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserSearchSeed.xml");
         
         User template = new User();
@@ -43,7 +43,7 @@ public class UserTestDb extends TestCase {
     }
     
     public void testSave() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         User user = new User();
         user.setDisplayId("userid");
         user.setFirstName("FirstName");

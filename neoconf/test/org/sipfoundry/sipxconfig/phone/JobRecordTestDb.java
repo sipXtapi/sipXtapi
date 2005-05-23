@@ -33,7 +33,7 @@ public class JobRecordTestDb extends TestCase {
     }
     
     public void testStoreJob() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         
         JobRecord job = new JobRecord();
         job.setStatus(JobRecord.STATUS_STARTED);
@@ -68,7 +68,7 @@ public class JobRecordTestDb extends TestCase {
     }
     
     public void testRunJob() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
 
         PhoneData phoneData = new PhoneData();
         phoneData.setSerialNumber("000000000000");

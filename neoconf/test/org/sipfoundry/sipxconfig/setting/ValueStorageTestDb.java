@@ -30,7 +30,7 @@ public class ValueStorageTestDb extends TestCase {
     }
 
     public void testSave() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
 
         SettingGroup root = new SettingGroup();
         root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
@@ -55,7 +55,7 @@ public class ValueStorageTestDb extends TestCase {
     }
     
     public void testUpdate() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("setting/dbdata/UpdateValueStorageSeed.xml");        
 
         SettingGroup root = new SettingGroup();

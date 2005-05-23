@@ -15,13 +15,13 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-public class BackupContextImplTest extends TestCase {
+public class BackupPlanTest extends TestCase {
 
-    private static final String BIN_DIR = "/opt/work-2.8/sipx/bin";
-    private BackupContextImpl m_backup;
+    //private static final String BIN_DIR = "/opt/work-2.8/sipx/bin";
+    private BackupPlan m_backup;
 
     protected void setUp() throws Exception {
-        m_backup = new BackupContextImpl(BIN_DIR);
+        m_backup = new BackupPlan();
     }
 
     public void testBuildExecName() {
@@ -31,14 +31,14 @@ public class BackupContextImplTest extends TestCase {
     }
 
     public void testGetBackupLocations() {
-        String[] backupLocations = m_backup.getBackupLocations();
+        File[] backupLocations = m_backup.getBackupFiles();
         assertEquals(3, backupLocations.length);
         String[] refBackupLocations = {
             "backup-configs/fs.tar.gz", "backup-configs/pds.tar.gz",
             "backup-mailstore/mailstore.tar.gz"
         };
         for (int i = 0; i < refBackupLocations.length; i++) {
-            assertEquals(refBackupLocations[i], backupLocations[i]);
+            assertEquals(refBackupLocations[i], backupLocations[i].getPath());
         }
 
     }

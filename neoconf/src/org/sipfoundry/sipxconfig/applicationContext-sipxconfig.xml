@@ -58,6 +58,7 @@
                 <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/callgroup/parkOrbit.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
                 <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
@@ -157,12 +158,28 @@
     </bean>
       
 	<!-- 
-      - B A C K U P   C O N T E X T           
+      - A D M I N   C O N T E X T           
       -->
-	<bean id="backupContext" class="org.sipfoundry.sipxconfig.admin.BackupContextImpl">
-        <constructor-arg index="0" type="java.lang.String">
-            <value>${sysdir.bin}</value>         
-        </constructor-arg>
+	<bean id="adminContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.AdminContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>adminContextImpl</value>
+			</list>
+		</property>
+    </bean>
+	<bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl"
+		autowire="byType">
+		<property name="binDirectory">
+			<value>${sysdir.bin}</value>
+		</property>
+		<property name="backupDirectory">
+			<!-- use system define to /var/... somewhere -->
+			<value>${sysdir.tmp}/backup</value>
+		</property>
 	</bean>
       
 	<!--

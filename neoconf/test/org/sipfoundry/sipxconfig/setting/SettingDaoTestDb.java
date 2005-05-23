@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationContext;
 public class SettingDaoTestDb extends TestCase {
     
     public void testSettingGroup() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
 
         SettingGroup root = new SettingGroup();
         root.addSetting(new SettingImpl("setting"));

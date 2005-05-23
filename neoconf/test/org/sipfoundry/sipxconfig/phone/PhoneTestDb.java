@@ -39,7 +39,7 @@ public class PhoneTestDb extends TestCase {
     }
     
     public void testSave() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         
         Phone phone = m_context.newPhone(PolycomModel.MODEL_300.getModelId());
         PhoneData e = phone.getPhoneData();
@@ -63,7 +63,7 @@ public class PhoneTestDb extends TestCase {
     }
     
     public void testLoadAndDelete() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointLineSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1000));
@@ -85,7 +85,7 @@ public class PhoneTestDb extends TestCase {
     }
     
     public void testUpdateSettings() throws Exception {
-        TestHelper.cleanInsert("dbdata/ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1000));
