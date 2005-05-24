@@ -3,36 +3,36 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
-   <group name="grandstream">
-      <group name="port">
-         <label>Line Settings</label>
-         <setting name="P35">
-            <label>SIP User ID</label>
-            <type>string</type>
-            <value>8000</value>
-            <description>SIP User ID</description>
-         </setting>
-         <setting name="P3">
-            <label>User Caller Name</label>
-            <type>string</type>
-            <value></value>
-            <description>User Caller Name (John Doe)</description>
-         </setting>
-         <setting name="P36">
-            <label>Authentication ID</label>
-            <type>string</type>
-            <value>8000</value>
-            <description>Authentication ID</description>
-         </setting>
-         <setting name="P34">
-            <label>Authentication password</label>
-            <type>string</type>
-            <value>0000</value>
-            <description>Authentication password</description>
-         </setting>
-      </group>
-   </group>
-   <group name="grandstreamHandyTone" copy-of="grandstream"/>
-   <group name="grandstreamBudgeTone" copy-of="grandstream"/>
+  <group name="grandstream">
+    <group name="port">
+      <label>Line Settings</label>
+      <setting name="P35">
+        <label>SIP User ID</label>
+        <type><string/></type>
+        <value>8000</value>
+        <description>SIP User ID</description>
+      </setting>
+      <setting name="P3">
+        <label>User Caller Name</label>
+        <type><string/></type>
+        <value></value>
+        <description>User Caller Name (John Doe)</description>
+      </setting>
+      <setting name="P36">
+        <label>Authentication ID</label>
+        <type><string/></type>
+        <value>8000</value>
+        <description>Authentication ID</description>
+      </setting>
+      <setting name="P34">
+        <label>Authentication password</label>
+        <type><string/></type>
+        <value>0000</value>
+        <description>Authentication password</description>
+      </setting>
+    </group>
+  </group>
+  <group name="grandstreamHandyTone" copy-of="grandstream"/>
+  <group name="grandstreamBudgeTone" copy-of="grandstream"/>
 </model>
 

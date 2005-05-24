@@ -53,9 +53,9 @@
             <label>Enum setting label</label>
             <type>
                 <enum>
-                    <value label="Zero">0</value>
-                    <value label="XXX">something</value>
-                    <value>no_label_value</value>
+                   <option><label>Zero</label><value>0</value></option>
+                   <option><label>XXX</label><value>something</value></option>
+                   <option><value>no_label_value</value></option>
                 </enum>
             </type>
         </setting>

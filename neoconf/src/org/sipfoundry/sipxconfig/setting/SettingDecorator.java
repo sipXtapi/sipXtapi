@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
@@ -98,18 +97,6 @@ public abstract class SettingDecorator implements Setting, Cloneable {
 
     public void setType(SettingType type) {
         m_delegate.setType(type);
-    }
-
-    public void addPossibleValue(String value) {
-        m_delegate.addPossibleValue(value);
-    }
-
-    public List getPossibleValues() {
-        return m_delegate.getPossibleValues();
-    }
-
-    public void setPossibleValues(List possibleValues) {
-        m_delegate.setPossibleValues(possibleValues);
     }
 
     public String getDescription() {

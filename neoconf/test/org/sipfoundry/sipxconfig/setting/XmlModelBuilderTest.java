@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +147,10 @@ public class XmlModelBuilderTest extends TestCase {
         assertEquals(6, pieces.getValues().size());
 
         Setting pawn = pieces.getSetting("pawn");
-        List moves = pawn.getPossibleValues();
+        SettingType type = pawn.getType();
+        assertEquals("enum", type.getName());
+        EnumSetting enumType = (EnumSetting) type;
+        Collection moves = enumType.getEnums().keySet();
         assertNotNull(moves);
         assertEquals(3, moves.size());
         assertTrue(moves.contains("diagonal one to take another piece"));

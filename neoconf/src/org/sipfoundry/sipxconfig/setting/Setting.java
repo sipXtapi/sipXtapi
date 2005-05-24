@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
@@ -60,12 +59,6 @@ public interface Setting {
 
     public void setType(SettingType type);
     
-    public void addPossibleValue(String value);
-
-    public List getPossibleValues();
-
-    public void setPossibleValues(List possibleValues);
-
     public String getDescription();
 
     public void setDescription(String description);

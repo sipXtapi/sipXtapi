@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
  */
 public class XmlModelBuilder {
     private static final String EL_VALUE = "/value";
+    private static final String EL_LABEL = "/label";
 
     private final EntityResolver m_entityResolver;
 
@@ -78,10 +79,6 @@ public class XmlModelBuilder {
         SettingRuleSet settingRule = new SettingRuleSet(settingPattern, SettingImpl.class);
         digester.addRuleSet(settingRule);
 
-        String possibleValues = "*/possibleValues/value";
-        digester.addCallMethod(possibleValues, "addPossibleValue", 1);
-        digester.addCallParam(possibleValues, 0);
-
         try {
             return (SettingGroup) digester.parse(is);
         } catch (SAXException se) {
@@ -107,7 +104,7 @@ public class XmlModelBuilder {
             digester.addBeanPropertySetter(m_pattern + EL_VALUE);
             digester.addBeanPropertySetter(m_pattern + "/description");
             digester.addBeanPropertySetter(m_pattern + "/profileName");
-            digester.addBeanPropertySetter(m_pattern + "/label");
+            digester.addBeanPropertySetter(m_pattern + EL_LABEL);
 
             digester.addRuleSet(new IntegerSettingRule(m_pattern + "/type/integer"));
             digester.addRuleSet(new StringSettingRule(m_pattern + "/type/string"));
@@ -181,10 +178,10 @@ public class XmlModelBuilder {
 
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), EnumSetting.class);
-            String valuePattern = getPattern() + EL_VALUE;
-            digester.addCallMethod(valuePattern, "addEnum", 2);
-            digester.addCallParam(valuePattern, 0);
-            digester.addCallParam(valuePattern, 1, "label");
+            String option = getPattern() + "/option";
+            digester.addCallMethod(option, "addEnum", 2);
+            digester.addCallParam(option + EL_VALUE, 0);
+            digester.addCallParam(option + EL_LABEL, 1);
             super.addRuleInstances(digester);
         }
     }

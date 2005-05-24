@@ -11,10 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -31,8 +29,6 @@ public class SettingImpl implements Setting, Cloneable {
     
     private String m_description;
 
-    private List m_possibleValues;
-    
     private String m_profileName;
     
     private Setting m_settingGroup;
@@ -193,21 +189,6 @@ public class SettingImpl implements Setting, Cloneable {
         m_type = type;
     }
     
-    public void addPossibleValue(String value) {
-        if (m_possibleValues == null) {
-            m_possibleValues = new ArrayList();
-        }
-        m_possibleValues.add(value);
-    }
-
-    public List getPossibleValues() {
-        return m_possibleValues;
-    }
-
-    public void setPossibleValues(List possibleValues) {
-        m_possibleValues = possibleValues;
-    }
-
     public String getDescription() {
         return m_description;
     }

@@ -38,7 +38,7 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
     }
     
     public void testEditSipSetttings() {
-        final String holdParamName = "stringField";
+        final String holdParamName = "integerField";
         
         m_helper.seedPhone(1);
         clickLink("ManagePhones");        

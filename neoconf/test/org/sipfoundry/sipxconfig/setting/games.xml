@@ -8,11 +8,13 @@
         </group>
 		<group name="piece">
 			<setting name="pawn">
-			   <possibleValues>
-			     <value>forward twice on first move</value>
-			     <value>forward one on subsequent moves</value>
-			     <value>diagonal one to take another piece</value>
-				</possibleValues>
+				<type>
+                    <enum>
+	                    <option><value>forward twice on first move</value></option>
+    	                <option><value>forward one on subsequent moves</value></option>
+        	            <option><value>diagonal one to take another piece</value></option>                        
+                    </enum>
+                </type>                
 			</setting>
 			<setting name="castle"/>
 			<setting name="horse"/>

@@ -6,20 +6,15 @@
 <!ATTLIST group copy-of NMTOKEN #IMPLIED>
 <!ELEMENT label (#PCDATA)>
 <!ELEMENT model (group+)>
-<!ELEMENT possibleValues (value+)>
 <!ELEMENT profileName (#PCDATA)>
-<!ELEMENT setting (label?,profileName?,type,value,possibleValues?,description?)>
+<!ELEMENT setting (label?,profileName?,type?,value,description?)>
 <!ATTLIST setting name NMTOKEN #REQUIRED>
 <!ELEMENT value (#PCDATA)>
-<!ATTLIST value label CDATA #IMPLIED>
 
 <!ENTITY % flag "(yes|no)">
 
 <!-- settings type system -->
-<!-- TODO: remove #PCDATA from type declaration, we allow for mixed content for now. 
-    otherwise all model files will have to be changed
-    -->
-<!ELEMENT type (#PCDATA|string|integer|enum)*>
+<!ELEMENT type (string|integer|enum|ipaddr|bitmap)?>
 
 <!ELEMENT integer EMPTY>
 <!ATTLIST integer 
@@ -27,16 +22,24 @@
     min NMTOKEN #IMPLIED
 	max NMTOKEN #IMPLIED>
 
-<!ELEMENT string (patern?)>
+<!ELEMENT string (pattern?)>
 <!ATTLIST string
     required %flag; "no"
     maxLen NMTOKEN #IMPLIED
     password %flag; "no">
 
+<!ELEMENT ipaddr EMPTY>
+<!ATTLIST ipaddr
+    required %flag; "no">
+
+<!ELEMENT bitmap EMPTY>
+<!ATTLIST bitmap
+    required %flag; "no"
+    maxBits NMTOKEN "32">
+
 <!ELEMENT pattern (#PCDATA)>
 
-<!ELEMENT enum (value+)>
-
-
-
-
+<!-- enumeration type is a list of options, each option has a value and may have label -->
+<!-- if not label is provided, value is used as a label -->
+<!ELEMENT enum (option+)>
+<!ELEMENT option (label?,value)>
