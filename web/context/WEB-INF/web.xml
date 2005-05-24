@@ -21,7 +21,7 @@
     </filter-mapping>
     <listener>
         <listener-class>
-            org.springframework.web.context.ContextLoaderListener</listener-class>
+            org.sipfoundry.sipxconfig.site.ContextLoaderListener</listener-class>
     </listener>
     <servlet>
         <servlet-name>sipXconfig-web</servlet-name>

@@ -100,7 +100,8 @@ public class DailyBackupSchedule extends BeanWithId {
             Calendar when = Calendar.getInstance();
             when.set(Calendar.HOUR_OF_DAY, localCal.get(Calendar.HOUR_OF_DAY));
             when.set(Calendar.MINUTE, localCal.get(Calendar.MINUTE));
-            when.set(Calendar.SECOND, localCal.get(Calendar.SECOND));
+            when.set(Calendar.SECOND, 0);
+            when.set(Calendar.MILLISECOND, 0);
             
             if (m_day != ScheduledDay.EVERYDAY) {
                 when.set(Calendar.DAY_OF_WEEK, getScheduledDay().getDayOfWeek());

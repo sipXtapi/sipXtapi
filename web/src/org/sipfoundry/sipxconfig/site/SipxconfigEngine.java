@@ -15,8 +15,6 @@ import javax.servlet.ServletContext;
 
 import org.apache.tapestry.engine.BaseEngine;
 import org.apache.tapestry.request.RequestContext;
-import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
-import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -42,20 +40,7 @@ public class SipxconfigEngine extends BaseEngine {
         ServletContext servletContext = context.getServlet().getServletContext();
         WebApplicationContext bf = WebApplicationContextUtils
                 .getWebApplicationContext(servletContext);
-        global.setApplicationContext(bf);
-        
-        initializeApplication(bf);
-        
+        global.setApplicationContext(bf);        
         return global;
-    }
-
-    /**
-     * tell entire application, we're ready to run
-     * IMPLEMENTATION NOTE: Alternative to putting this here would be to subclassing Springs
-     * ContextLoaderListener but this next best choice w/o adding another class. Lazy or stingy,
-     * you decide.
-     */    
-    private void initializeApplication(ApplicationContext app) {
-        app.publishEvent(new ApplicationInitializedEvent(this));        
     }
 }

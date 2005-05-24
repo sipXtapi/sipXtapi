@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -78,14 +79,12 @@ public class BackupPlanTest extends TestCase {
         plan.addSchedule(schedule);
         TimerTask task = plan.getTask("root", "bin");
         
-        //MockControl timerControl = MockClassControl.createStrictControl(Timer.class);
-        MockControl timerControl = MockClassControl.createNiceControl(Timer.class);
+        MockControl timerControl = MockClassControl.createStrictControl(Timer.class);
         Timer timer = (Timer) timerControl.getMock();
-        //timer.schedule(task, date, period);
+        Date d = schedule.getTimerDate();        
+        timer.schedule(task, d, 1000 * 60 * 60 * 24);
         timerControl.replay();
 
-        // exercises code, but doesn't test anything.  need to think of
-        // how to test
         plan.schedule(timer, task);
         
         timerControl.verify();
