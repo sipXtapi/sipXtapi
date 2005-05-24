@@ -77,7 +77,5 @@
         <binding name="selected" expression="rowsToDelete"/>
         <binding name="tag" expression="selections.allSelected"/>
         <message-binding name="value" key="button.delete"/>
-    </component>
-    
-    <component id="musicOnHold" type="MusicOnHoldForm"/>
+    </component>    
 </page-specification>

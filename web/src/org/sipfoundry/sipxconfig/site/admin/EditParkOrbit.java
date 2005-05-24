@@ -100,6 +100,7 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
         CallGroupContext context = getCallGroupContext();
         ParkOrbit orbit = getParkOrbit();
         context.storeParkOrbit(orbit);
+        context.activateParkOrbits();
         Integer id = getParkOrbit().getId();
         setParkOrbitId(id);
     }

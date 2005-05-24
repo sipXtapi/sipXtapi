@@ -36,8 +36,6 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     private Orbits m_orbitsGenerator;
 
-    private String m_orbitServer;
-
     private JmsOperations m_jms;
 
     public CallGroup loadCallGroup(Integer id) {
@@ -104,13 +102,6 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
             CallGroup cg = (CallGroup) i.next();
             allAliases.addAll(cg.generateAliases(dnsDomain));
         }
-        Collection orbits = getParkOrbits();
-        for (Iterator i = orbits.iterator(); i.hasNext();) {
-            ParkOrbit orbit = (ParkOrbit) i.next();
-            if (orbit.isEnabled()) {
-                allAliases.add(orbit.generateAlias(dnsDomain, m_orbitServer));
-            }
-        }
         return allAliases;
     }
 
@@ -147,8 +138,6 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
             BackgroundMusic defaultMusic = getBackgroundMusic();
             m_orbitsGenerator.generate(defaultMusic, orbits);
             m_orbitsGenerator.writeToFile();
-
-            triggerAliasGeneration();
         } catch (IOException e) {
             new RuntimeException("Activating call parking configuration failed.", e);
         }
@@ -168,10 +157,6 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     public void setOrbitsGenerator(Orbits orbitsGenerator) {
         m_orbitsGenerator = orbitsGenerator;
-    }
-
-    public void setOrbitServer(String orbitServer) {
-        m_orbitServer = orbitServer;
     }
 
     public String getDefaultMusicOnHold() {

@@ -19,10 +19,8 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>    <page name="EditSipPassword" specification-path="user/EditSipPassword.page"/>    
-    <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
-    <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
+    <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
 	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
@@ -39,11 +37,13 @@
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
+    <page name="EditSipPassword" specification-path="user/EditSipPassword.page"/>    
     <page name="Home" specification-path="Home.page"/>
     <page name="ListCallGroups" specification-path="admin/ListCallGroups.page"/>    
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="dialplan/ListGateways.page"/>
     <page name="ListParkOrbits" specification-path="admin/ListParkOrbits.page"/>    
+    <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
@@ -51,6 +51,7 @@
     <page name="PhoneLines" specification-path="phone/PhoneLines.page"/>
     <page name="PhoneDefaults" specification-path="phone/PhoneDefaults.page"/>
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
+    <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>
     <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
     <page name="SelectRuleType" specification-path="dialplan/SelectRuleType.page"/>
     <page name="ServerSettings" specification-path="admin/commserver/ServerSettings.page"/>    
@@ -66,13 +67,11 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
-    <component-type type="MusicOnHoldForm" specification-path="admin/MusicOnHoldForm.jwc"/>
-    <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
-    <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
+    <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="ErrorMsg" specification-path="common/ErrorMsg.jwc"/>
     <component-type type="GatewaysPanel" specification-path="dialplan/GatewaysPanel.jwc"/>
@@ -80,11 +79,13 @@
     <component-type type="ItemCommon" specification-path="common/ItemCommon.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
+    <component-type type="MusicOnHoldForm" specification-path="admin/MusicOnHoldForm.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
     <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
+    <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
     <component-type type="SettingsForm" specification-path="setting/SettingsForm.jwc"/>
     <component-type type="SettingsNavigation" specification-path="setting/SettingsNavigation.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>

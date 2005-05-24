@@ -28,6 +28,7 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
+        
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsert("admin/callgroup/OrbitSeed.xml");
     }
@@ -79,17 +80,12 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
         ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
         assertEquals(1, orbitTable.getRowCount());
     }
-    
-    
+        
     public void testGenerateAliases() throws Exception {
+        // park orbits do not generate any aliases
         List aliases = m_context.getAliases();
         assertNotNull(aliases);
-        assertEquals(1, aliases.size());
-
-        AliasMapping alias = (AliasMapping) aliases.get(0);
-        System.err.println(alias);
-        assertTrue(alias.getIdentity().startsWith("401"));
-        assertTrue(alias.getContact().startsWith("401"));        
+        assertEquals(0, aliases.size());
     }
     
     public void testDefaultMusicOnHold() throws Exception {
