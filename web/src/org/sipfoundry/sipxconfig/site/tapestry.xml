@@ -49,7 +49,7 @@
 	</bean>
 	<bean name="validTime" class="org.apache.tapestry.valid.DateValidator">
 		<property name="format">
-			<bean id="org.sipfoundry.sipxconfig.admin.DailyBackupSchedule.TIME_OF_DAY_FORMAT"
+			<bean id="org.sipfoundry.sipxconfig.admin.DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT"
 				class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
 		</property>
 	</bean>

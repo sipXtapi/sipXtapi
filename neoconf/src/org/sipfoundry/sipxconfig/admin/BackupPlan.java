@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -212,5 +214,36 @@ public class BackupPlan extends BeanWithId {
     
     public void setVoicemail(boolean voicemail) {
         m_voicemail = voicemail;
+    }
+    
+    public void schedule(Timer timer, String rootBackupPath, String binPath) {
+        schedule(timer, getTask(rootBackupPath, binPath));
+    }
+    
+    void schedule(Timer timer, TimerTask task) {
+        Iterator i = getSchedules().iterator();
+        while (i.hasNext()) {
+            DailyBackupSchedule schedule = (DailyBackupSchedule) i.next();
+            schedule.schedule(timer, task);
+        }
+    }    
+    
+    TimerTask getTask(String rootBackupPath, String binPath) {
+        return new BackupTask(rootBackupPath, binPath);
+    }
+    
+    class BackupTask extends TimerTask {
+        private String m_rootBackupPath;
+        
+        private String m_binPath;
+        
+        BackupTask(String rootBackupPath, String binPath) {
+            m_rootBackupPath = rootBackupPath;
+            m_binPath = binPath;
+        }
+        
+        public void run() {
+            BackupPlan.this.perform(m_rootBackupPath, m_binPath);
+        }        
     }
 }

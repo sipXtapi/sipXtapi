@@ -22,5 +22,4 @@ public interface AdminContext {
     public abstract void storeBackupPlan(BackupPlan plan);
     
     public File[] performBackup(BackupPlan plan);
-    
 }

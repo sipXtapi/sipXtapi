@@ -11,24 +11,33 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.util.Calendar;
+
 import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public final class ScheduledDay extends Enum {
     
     public static final ScheduledDay EVERYDAY = new ScheduledDay("Everyday");    
-    public static final ScheduledDay SUNDAY = new ScheduledDay("Sunday");
-    public static final ScheduledDay MONDAY = new ScheduledDay("Monday");
-    public static final ScheduledDay TUESDAY = new ScheduledDay("Tuesday");
-    public static final ScheduledDay WEDNESDAY = new ScheduledDay("Wednesday");
-    public static final ScheduledDay THURSDAY = new ScheduledDay("Thursday");
-    public static final ScheduledDay FRIDAY = new ScheduledDay("Friday");
-    public static final ScheduledDay SATURDAY = new ScheduledDay("Saturday");
+    public static final ScheduledDay SUNDAY = new ScheduledDay("Sunday", Calendar.SUNDAY);
+    public static final ScheduledDay MONDAY = new ScheduledDay("Monday", Calendar.MONDAY);
+    public static final ScheduledDay TUESDAY = new ScheduledDay("Tuesday", Calendar.TUESDAY);
+    public static final ScheduledDay WEDNESDAY = new ScheduledDay("Wednesday", Calendar.WEDNESDAY);
+    public static final ScheduledDay THURSDAY = new ScheduledDay("Thursday", Calendar.THURSDAY);
+    public static final ScheduledDay FRIDAY = new ScheduledDay("Friday", Calendar.FRIDAY);
+    public static final ScheduledDay SATURDAY = new ScheduledDay("Saturday", Calendar.SATURDAY);
+    
+    private int m_dayOfWeek;
 
     private ScheduledDay(String id) {
         super(id);
     }
 
+    private ScheduledDay(String id, int dayOfWeek) {
+        super(id);
+        m_dayOfWeek = dayOfWeek;
+    }
+        
     /**
      * Used for Hibernate type translation
      */
@@ -36,5 +45,12 @@ public final class ScheduledDay extends Enum {
         public UserType() {
             super(ScheduledDay.class);
         }
+    }
+
+    /**
+     * @return example Calendar.SATURDAY
+     */
+    public int getDayOfWeek() {
+        return m_dayOfWeek;
     }    
 }

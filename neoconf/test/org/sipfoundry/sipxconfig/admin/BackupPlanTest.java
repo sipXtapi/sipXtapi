@@ -12,9 +12,13 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import junit.framework.TestCase;
 
+import org.easymock.MockControl;
+import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 
@@ -65,5 +69,25 @@ public class BackupPlanTest extends TestCase {
         m_backup.setLimitedCount(new Integer(2));
         assertNull(m_backup.getOldestPurgableBackup(new String[] { "20050501" }));
         assertEquals("20050501", m_backup.getOldestPurgableBackup(new String[] { "20050501", "20050502"}));        
+    }
+    
+    public void testTimer() throws Exception {        
+        BackupPlan plan = new BackupPlan();
+        DailyBackupSchedule schedule = new DailyBackupSchedule();
+        schedule.setEnabled(true);
+        plan.addSchedule(schedule);
+        TimerTask task = plan.getTask("root", "bin");
+        
+        //MockControl timerControl = MockClassControl.createStrictControl(Timer.class);
+        MockControl timerControl = MockClassControl.createNiceControl(Timer.class);
+        Timer timer = (Timer) timerControl.getMock();
+        //timer.schedule(task, date, period);
+        timerControl.replay();
+
+        // exercises code, but doesn't test anything.  need to think of
+        // how to test
+        plan.schedule(timer, task);
+        
+        timerControl.verify();
     }
 }
