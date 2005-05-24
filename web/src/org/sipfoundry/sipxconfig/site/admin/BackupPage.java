@@ -64,13 +64,16 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
         }
         
         // every plan has at least 1 schedule, thought of having this somewhere in
-        // library, but you could argue it's application specific.
-        BackupPlan plan = getAdminContext().getBackupPlan();
-        if (plan.getSchedules().isEmpty()) {
-            DailyBackupSchedule schedule = new DailyBackupSchedule(); 
-            plan.addSchedule(schedule);
+        // library, but you could argue it's application specific.        
+        BackupPlan plan = getBackupPlan();
+        if (plan == null) {
+            plan = getAdminContext().getBackupPlan();
+            if (plan.getSchedules().isEmpty()) {
+                DailyBackupSchedule schedule = new DailyBackupSchedule(); 
+                plan.addSchedule(schedule);
+            }
+            setBackupPlan(plan);
         }
-        setBackupPlan(plan);
     }
 
     public void submit(IRequestCycle cycle_) {

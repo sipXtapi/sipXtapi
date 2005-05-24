@@ -81,8 +81,8 @@
     
     <component id="link" type="DownloadLink">
         <binding name="fileName" expression="backupFile.name"/>
-        <binding name="dirName" expression="backupFile.parent.path"/>
-        <binding name="contentType" expression="tar/x-gzip"/>
+        <binding name="dirName" expression="backupFile.parentFile.path"/>
+        <static-binding name="contentType" value="tar/x-gzip"/>
     </component>
     
     <component id="linkText" type="InsertText">
