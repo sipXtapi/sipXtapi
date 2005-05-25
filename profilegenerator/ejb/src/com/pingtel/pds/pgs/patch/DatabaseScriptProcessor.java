@@ -48,15 +48,11 @@ public class DatabaseScriptProcessor implements Patch {
             DataSource ds = (DataSource) ctx.lookup("java:/PDSDataSource");
             con = ds.getConnection();
 
-            BufferedReader is = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(m_scriptName)));            
             StringBuffer scriptContent = new StringBuffer();
-            while (true) {
-                String line = is.readLine();
-                if( line == null )
-                {
-                    break;
-                }
-                scriptContent.append(line);
+            BufferedReader is = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(m_scriptName)));
+            while(is.ready()) {
+                scriptContent.append(is.readLine());
+                scriptContent.append(" ");                
             }
 
             StringTokenizer st = new StringTokenizer(scriptContent.toString().trim(), ";");
