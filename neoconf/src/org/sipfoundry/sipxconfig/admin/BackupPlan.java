@@ -95,7 +95,7 @@ public class BackupPlan extends BeanWithId {
     }
     
     String getOldestPurgableBackup(String[] filelist) {
-        if (m_limitedCount == null) {
+        if (m_limitedCount == null || filelist == null) {
             return null;
         }
         

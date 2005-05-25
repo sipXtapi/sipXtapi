@@ -89,7 +89,7 @@ public class LegacyContextImpl extends HibernateDaoSupport implements LegacyCont
 
         return hasPermission;
     }
-
+    
     public void setJms(JmsOperations jms) {
         m_jms = jms;
     }

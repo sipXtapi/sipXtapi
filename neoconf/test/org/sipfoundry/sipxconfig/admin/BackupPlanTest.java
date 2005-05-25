@@ -66,8 +66,10 @@ public class BackupPlanTest extends TestCase {
         assertTrue(f.getName().matches("\\d{12}"));
     }
     
-    public void testLimtedCount() throws Exception {
+    public void testOldestPurgableBackup() throws Exception {
         m_backup.setLimitedCount(new Integer(2));
+        assertNull(m_backup.getOldestPurgableBackup(null));
+        assertNull(m_backup.getOldestPurgableBackup(new String[0]));
         assertNull(m_backup.getOldestPurgableBackup(new String[] { "20050501" }));
         assertEquals("20050501", m_backup.getOldestPurgableBackup(new String[] { "20050501", "20050502"}));        
     }

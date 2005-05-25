@@ -15,8 +15,11 @@ import java.io.File;
 import java.util.List;
 import java.util.Timer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.legacy.LegacyNotifyService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -25,6 +28,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * Backup provides Java interface to backup scripts
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener {
+
+    private static final Log LOG = LogFactory.getLog(AdminContextImpl.class);
 
     private String m_binDirectory;
 
@@ -48,7 +53,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_binDirectory = binDirectory;
     }
 
-    public BackupPlan getBackupPlan() {
+    public BackupPlan getBackupPlan() {        
         List plans = getHibernateTemplate().loadAll(BackupPlan.class);
         BackupPlan plan = (BackupPlan) CoreContextImpl
                 .requireOneOrZero(plans, "all backup plans");
@@ -62,6 +67,19 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         return plan;
     }
     
+    public void requirePatch(Integer patchId) {
+        Patch patch = (Patch) getHibernateTemplate().get(Patch.class, patchId);
+        String description = "Required patch with id " + patchId;
+        if (patch == null) {
+            throw new PatchNotAppliedException(description + " was not applied");
+        }
+
+        if (patch.getStatus() == Patch.FAILURE) {
+            throw new PatchNotAppliedException(description + " was not successfully applied");
+        }
+    }
+
+
     public void storeBackupPlan(BackupPlan plan) {
         getHibernateTemplate().saveOrUpdate(plan);
         resetTimer(plan);
@@ -78,7 +96,15 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         // No need to register listener, all beans that implments listener interface are 
         // automatically registered
         if (event instanceof ApplicationInitializedEvent) {
-            resetTimer(getBackupPlan());            
+            try {
+                requirePatch(new Integer(LegacyNotifyService.BACKUP));            
+                resetTimer(getBackupPlan());
+            } catch (PatchNotAppliedException nonFatal) {
+                // database has not been migrated, no backup plan could possible
+                // be started. This is expected on when upgrading from systems below 
+                // 3.0
+                LOG.info("Backup plan not started." + nonFatal.getMessage());
+            }
         }
     }
 

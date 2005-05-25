@@ -21,6 +21,8 @@ import java.util.Map;
  */
 public interface LegacyNotifyService extends Remote {
 
+    public static final int BACKUP = 140;
+    
     /**
      * Call when user is first setting up system, would not be called on upgrade.
      */

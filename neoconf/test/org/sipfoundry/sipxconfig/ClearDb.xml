@@ -23,9 +23,10 @@
   <!-- forwarding -->
   <table name="ring"/>
   
-  <!-- backup -->
+  <!-- admin -->
   <table name="backup_plan"/>
   <table name="daily_backup_schedule"/>
+  <table name="patches"/>
   
   <!-- dial plans related -->  
   <table name="dialing_rule"/>
