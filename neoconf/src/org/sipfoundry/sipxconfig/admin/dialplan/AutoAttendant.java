@@ -47,6 +47,9 @@ public class AutoAttendant extends BeanWithId {
     public static AutoAttendant createOperator() {
         AutoAttendant operator = new AutoAttendant();
         operator.setSystemId(OPERATOR_ID);
+        operator.setName("Operator");
+        operator.setPrompt(OPERATOR_DEFAULT_PROMPT);
+        operator.setExtension(OPERATOR_DEFAULT_EXT);
         operator.resetToFactoryDefault();
         
         return operator;
@@ -167,17 +170,11 @@ public class AutoAttendant extends BeanWithId {
         }
         setDescription(null);
         if (isOperator()) {
-            setName("Operator");
-            setPrompt(OPERATOR_DEFAULT_PROMPT);
-            setExtension(OPERATOR_DEFAULT_EXT);
             addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
             addMenuItem(DialPad.NUM_9, new AttendantMenuItem(AttendantMenuAction.DIAL_BY_NAME));
             addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
             addMenuItem(DialPad.POUND, new AttendantMenuItem(AttendantMenuAction.VOICEMAIL_LOGIN));
         } else {
-            setName(null);
-            setPrompt(null);
-            setExtension(null);
             addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
             addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));            
         }
