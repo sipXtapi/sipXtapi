@@ -77,13 +77,13 @@
     <component id="delete" type="Submit">
         <binding name="selected" expression="rowsToDelete"/>
         <binding name="tag" expression="selections.allSelected"/>
-        <message-binding name="value" key="button.duplicate"/>
+        <message-binding name="value" key="button.delete"/>
     </component>
 
     <component id="duplicate" type="Submit">
         <binding name="selected" expression="rowsToDuplicate"/>
         <binding name="tag" expression="selections.allSelected"/>
-        <message-binding name="value" key="button.delete"/>
+        <message-binding name="value" key="button.duplicate"/>
     </component>
 
     <component id="activate" type="Submit">
