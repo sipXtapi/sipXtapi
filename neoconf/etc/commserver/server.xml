@@ -23,20 +23,48 @@
   <group name="call-pick-up">
     <label>Call Pickup</label>
     <setting name="SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE">
-      <label>Call pickup code</label>
+      <label>Global call pickup code</label>
       <profileName>registrar-config.in</profileName>
-      <type></type>
+      <type>
+        <string>
+          <pattern>\*[0-9*#]+</pattern>
+        </string>
+      </type>
+      <value>*78*</value>
+      <description>Code that needs to be dialed to to pick up a ringing call on any phone. Set to empty to disable
+        global call pickup.</description>
+    </setting>
+    <setting name="SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE">
+      <label>Directed call pickup code</label>
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string>
+          <pattern>\*[0-9*#]+</pattern>
+        </string>
+      </type>
       <value>*78</value>
-      <description>Code that needs to be dialed to to pick up a ringing call. Set to empty to disable call pick up
-        option.</description>
+      <description>Code that needs to be dialed to to pick up a ringing call on an a specific phone. To pick up
+        extention 123 dial this code followed by 123.</description>
     </setting>
     <setting name="SIP_REGISTRAR_CALL_PICKUP_WAIT">
-      <label>Call pick-up timeout</label>
+      <label>Call pickup timeout</label>
       <profileName>registrar-config.in</profileName>
       <type><integer min="1" max="30" required="yes"/></type>
       <value>2</value>
-      <description>Number of seconds that the original call will ring after pick-up code is
+      <description>Number of seconds that the original call will ring after pickup code is
         dialed.</description>
+    </setting>
+    <setting name="SIP_REGISTRAR_CALL_RETRIEVE_CODE">
+      <label>Call park retrieve code</label>
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string required="yes">
+          <pattern>\*[0-9*#]+</pattern>
+        </string>
+      </type>
+      <value>*4</value>
+      <description>Code that needs to be dialed to retrieve parked call. Dial this code followed by call park
+        extension to pick up parked call.</description>
     </setting>
   </group>
 </model>
