@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.text.MessageFormat;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enum.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -20,7 +21,8 @@ import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public abstract class AbstractRing extends BeanWithId implements DataCollectionItem {
-    private static final String FORMAT = "<sip:{0}@{1}?expires={2}>;;{3}";
+    private static final String FORMAT = "<sip:{0}@{1}{4}?expires={2}>;;{3}";
+    private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
 
     private int m_expiration;
     private Type m_type = Type.DELAYED;
@@ -82,10 +84,13 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
      * @param q contact q value
      * @return String representing the contact
      */
-    public final String calculateContact(String domain, ForkQueueValue q) {
+    public final String calculateContact(String domain, ForkQueueValue q,
+            boolean appendIgnoreVoicemail) {
         MessageFormat format = new MessageFormat(FORMAT);
+        String urlParams = appendIgnoreVoicemail ? IGNORE_VOICEMAIL_FIELD_PARAM
+                : StringUtils.EMPTY;
         Object[] params = new Object[] {
-            getUserPart(), domain, new Integer(m_expiration), q.getValue(m_type)
+            getUserPart(), domain, new Integer(m_expiration), q.getValue(m_type), urlParams
         };
         return format.format(params);
     }

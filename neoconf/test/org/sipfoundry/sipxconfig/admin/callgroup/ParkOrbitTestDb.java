@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.springframework.context.ApplicationContext;
 
 public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
