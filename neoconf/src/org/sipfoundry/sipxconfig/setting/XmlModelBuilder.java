@@ -221,8 +221,8 @@ public class XmlModelBuilder {
             String pattern = getPattern();
             digester.addObjectCreate(pattern, BooleanSetting.class);
             digester.addSetProperties(pattern);
-            digester.addBeanPropertySetter(pattern + "/true");
-            digester.addBeanPropertySetter(pattern + "/false");
+            digester.addBeanPropertySetter(pattern + "/true/value", "trueValue");
+            digester.addBeanPropertySetter(pattern + "/false/value", "falseValue");
             super.addRuleInstances(digester);
         }
     }

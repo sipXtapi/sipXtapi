@@ -28,12 +28,12 @@ public abstract class SettingEditor extends BaseComponent {
     
     public boolean getBooleanValue() {
         BooleanSetting type = (BooleanSetting) getSetting().getType();
-        return type.getTrue().equals(getSetting().getValue());        
+        return type.getTrueValue().equals(getSetting().getValue());        
     }
     
     public void setBooleanValue(boolean value) {
         BooleanSetting type = (BooleanSetting) getSetting().getType();
-        getSetting().setValue(value ? type.getTrue() : type.getFalse());
+        getSetting().setValue(value ? type.getTrueValue() : type.getFalseValue());
     }
 
     public IValidator getValidator() {

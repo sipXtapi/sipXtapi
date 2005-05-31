@@ -106,13 +106,23 @@ public class SettingTypesTest extends TestCase {
         }        
     }
     
-    public void testBooleanType() throws IOException {
+    public void testDefaultBooleanType() {
+        Setting setting = group.getSetting("boolean_default");
+        SettingType type = setting.getType();
+
+        assertTrue(type instanceof BooleanSetting);
+        BooleanSetting boolSetting = (BooleanSetting) type;
+        assertEquals("1", boolSetting.getTrueValue());
+        assertEquals("0", boolSetting.getFalseValue());
+    }
+
+    public void testBooleanType() {
         Setting setting = group.getSetting("boolean_setting");
         SettingType type = setting.getType();
 
         assertTrue(type instanceof BooleanSetting);
         BooleanSetting boolSetting = (BooleanSetting) type;
-        assertEquals("true", boolSetting.getTrue());
-        assertEquals("false", boolSetting.getFalse());
+        assertEquals("true", boolSetting.getTrueValue());
+        assertEquals("false", boolSetting.getFalseValue());
     }
 }

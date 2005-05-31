@@ -49,12 +49,18 @@
                 </enum>
             </type>
         </setting>
+        <setting name="boolean_default">
+          <label>Boolean setting label</label>
+          <type>
+            <boolean/>
+          </type>
+        </setting>
         <setting name="boolean_setting">
           <label>Boolean setting label</label>
           <type>
             <boolean>
-              <true>true</true>
-              <false>false</false>
+              <true><value>true</value></true>
+              <false><value>false</value></false>
             </boolean>
           </type>
         </setting>

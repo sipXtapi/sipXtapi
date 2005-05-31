@@ -17,27 +17,27 @@ package org.sipfoundry.sipxconfig.setting.type;
  */
 public class BooleanSetting implements SettingType {
 
-    private String m_true = "1";
+    private String m_trueValue = "1";
 
-    private String m_false = "0";
+    private String m_falseValue = "0";
 
     public String getName() {
         return "boolean";
     }
 
-    public String getFalse() {
-        return m_false;
+    public String getFalseValue() {
+        return m_falseValue;
     }
 
-    public void setFalse(String false1) {
-        m_false = false1;
+    public void setFalseValue(String false1) {
+        m_falseValue = false1;
     }
 
-    public String getTrue() {
-        return m_true;
+    public String getTrueValue() {
+        return m_trueValue;
     }
 
-    public void setTrue(String true1) {
-        m_true = true1;
+    public void setTrueValue(String true1) {
+        m_trueValue = true1;
     }
 }

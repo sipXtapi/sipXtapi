@@ -5,7 +5,7 @@
 <!ATTLIST group name NMTOKEN #REQUIRED>
 <!ATTLIST group copy-of NMTOKEN #IMPLIED>
 <!ELEMENT label (#PCDATA)>
-<!ELEMENT model (type?,group+)>
+<!ELEMENT model (type*,group+)>
 <!ELEMENT profileName (#PCDATA)>
 <!ELEMENT setting (label?,profileName?,type?,value,description?)>
 <!ATTLIST setting name NMTOKEN #REQUIRED>
@@ -14,7 +14,7 @@
 <!ENTITY % flag "(yes|no)">
 
 <!-- settings type system -->
-<!ELEMENT type (string|integer|enum|ipaddr|bitmap)?>
+<!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean)?>
 <!ATTLIST type 
     required %flag; "no"
     id NMTOKEN #IMPLIED
@@ -40,6 +40,10 @@
 <!ATTLIST bitmap
     required %flag; "no"
     maxBits NMTOKEN "32">
+
+<!ELEMENT boolean (true?,false?)>
+<!ELEMENT true (value)>
+<!ELEMENT false (value)>
 
 <!ELEMENT pattern (#PCDATA)>
 
