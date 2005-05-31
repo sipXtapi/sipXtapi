@@ -12,6 +12,8 @@
 Action=RUN
 Status=0
 Args=""
+SslDir=@sipxpbx.conf.dir@/ssl
+AuthoritiesDir=$SslDir/authorities
 
 while [ $# -ne 0 ]
 do
@@ -115,6 +117,24 @@ makeRestoreBackup @sipxpbx.conf.dir@/registrar-config.in
 makeRestoreBackup @sipxpbx.conf.dir@/status-config.in
 makeRestoreBackup @sipxpbx.conf.dir@/authproxy-config.in
 
+# List of authorities accepted system-wide
+if [ -d $AuthoritiesDir ]
+then
+  TrustStore=$SslDir/authorities.jks
+  Certificates=`find $AuthoritiesDir | egrep -i '.(crt|crl)$'`
+  @bin.dir@/ssl-cert/create-ssl-truststore.sh --checksum $SslDir/.authorities-contents.md5 --truststore $TrustStore  $Certificates
+  # password on command line is not security issue. cattrust and directory has appropriate
+  # permissions, password is required by keystores
+  TrustStoreOpts="\
+      -Djavax.net.ssl.trustStore=$TrustStore \
+      -Djavax.net.ssl.trustStoreType=JKS \
+      -Djavax.net.ssl.trustStorePassword=changeit"
+else
+  # make empty as extra measure to ensure doesn't come from env. var
+  # this is when Java's CA database has required certs
+  TrustStoreOpts=""
+fi
+
 # Setup the JVM
 if [ "x$JAVA" = "x" ]; then
 	JAVA="$JAVA_HOME/bin/java"
@@ -143,30 +163,12 @@ fi
 # append profilegenerator opts
 JAVA_OPTS="-server $JAVA_OPTS $PROFILEGENERATOR_OPTS -Xmx384M"
 
-
 # setup security manager
 PF=../server/@jboss.server.conf@/conf/server.policy
 JAVA_OPTS="$JAVA_OPTS -Djava.security.manager -Djava.security.policy=$PF"
 
 # Setup the java endorsed dirs
 JBOSS_ENDORSED_DIRS="$JBOSS_HOME/lib/endorsed"
-
-# Trust store includes Apache's CA, Only required when cert is generated or from
-# and lesser known CA, or at least not shipped w/Java's VM (see keytool -list)
-CaCertKeystore=@sipxpbx.conf.dir@/ssl/cacerts
-echo $CaCertKeystore
-if [ -f $CaCertKeystore ]; then
-  # password on command line is not security issue. cattrust and directory has appropriate
-  # permissions, password is required by keystores
-  TrustStoreOpts="\
-      -Djavax.net.ssl.trustStore=$CaCertKeystore \
-      -Djavax.net.ssl.trustStoreType=JKS \
-      -Djavax.net.ssl.trustStorePassword=changeit"
-else
-  # make empty as extra measure to ensure doesn't come from env. var
-  # this is when Java's CA database has required certs
-  TrustStoreOpts=""
-fi
 
 exec "$JAVA" $JAVA_OPTS \
     -Dprogram.name="$PROGNAME" \

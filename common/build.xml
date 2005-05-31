@@ -55,7 +55,7 @@
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
     <copy file="etc/security.policy" todir="${dest.dir}${sipxpbx.conf.dir}"/>
 
-    <mkdir dir="${dest.dir}${bin.dir}"/>
+    <mkdir dir="${dest.dir}${bin.dir}/ssl-cert"/>
     <copy file="bin/install-ssl-keystore.sh.in" tofile="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"/>
     <replace file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"
          propertyfile="${top.build.dir}/config.properties">
@@ -65,6 +65,13 @@
       <replacefilter token="@sipxpbx.user@" value="${sipxpbx.user}"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh" perm="ugo+x"/>
+
+    <copy file="bin/create-ssl-truststore.sh.in" tofile="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh"/>
+    <replace file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh"
+         propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@openssl@" value="${openssl}"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" perm="ugo+x"/>
 
     <mkdir dir="${dest.dir}${bin.dir}"/>
     <copy file="bin/rmiregistry.sh.in" tofile="${dest.dir}${bin.dir}/rmiregistry.sh"/>
