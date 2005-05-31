@@ -67,9 +67,9 @@ public interface Setting {
     
     public void acceptVisitor(SettingVisitor visitor);
     
-    public boolean isHidden();
+    public boolean isAdvanced();
     
-    public void setHidden(boolean hidden);
+    public void setAdvanced(boolean advanced);
     
     public Setting copy();
 }

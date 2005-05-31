@@ -80,7 +80,7 @@
 			<composite-element class="org.sipfoundry.sipxconfig.setting.FolderSetting">
 				<parent name="folder"/>
 				<property name="value" column="value"/>
-				<property name="hidden" column="hidden"/>
+				<property name="advanced" column="hidden"/>
 		    </composite-element>
 	    </map>
 	</class>

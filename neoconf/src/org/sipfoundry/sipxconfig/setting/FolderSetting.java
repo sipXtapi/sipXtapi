@@ -52,11 +52,11 @@ public class FolderSetting extends SettingDecorator {
         updateStorage();
     }
 
-    public boolean isHidden() {
-        return m_hidden != null ? m_hidden.booleanValue() : getDelegate().isHidden();
+    public boolean isAdvanced() {
+        return m_hidden != null ? m_hidden.booleanValue() : getDelegate().isAdvanced();
     }
 
-    public void setHidden(boolean hidden) {
+    public void setAdvanced(boolean hidden) {
         m_hidden = hidden ? Boolean.TRUE : Boolean.FALSE;
         updateStorage();
     }
@@ -68,7 +68,7 @@ public class FolderSetting extends SettingDecorator {
      */
     private void updateStorage() {
         if (getDelegate() != null) {
-            if (isHidden() != getDelegate().isHidden() || !equalValue(m_value, getDefaultValue())) {
+            if (isAdvanced() != getDelegate().isAdvanced() || !equalValue(m_value, getDefaultValue())) {
                 m_folder.put(getDelegate().getPath(), this);
             } else {
                 m_folder.remove(getDelegate().getPath());

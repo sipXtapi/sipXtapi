@@ -111,8 +111,8 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         return m_delegate.getValues();
     }
 
-    public boolean isHidden() {
-        return m_delegate.isHidden();
+    public boolean isAdvanced() {
+        return m_delegate.isAdvanced();
     }
 
     /** 
@@ -126,8 +126,8 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         }
     }
 
-    public void setHidden(boolean hidden) {
-        m_delegate.setHidden(hidden);
+    public void setAdvanced(boolean hidden) {
+        m_delegate.setAdvanced(hidden);
     }
     
     public Object clone() {

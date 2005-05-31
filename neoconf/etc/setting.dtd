@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Description of sipXconfig model files  -->
+<!ENTITY % flag "(yes|no)">
+
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT group (label?,profileName?,description?,(setting|group)*)>
 <!ATTLIST group name NMTOKEN #REQUIRED>
@@ -8,10 +10,11 @@
 <!ELEMENT model (type*,group+)>
 <!ELEMENT profileName (#PCDATA)>
 <!ELEMENT setting (label?,profileName?,type?,value,description?)>
-<!ATTLIST setting name NMTOKEN #REQUIRED>
-<!ELEMENT value (#PCDATA)>
+<!ATTLIST setting 
+  name NMTOKEN #REQUIRED
+  advanced  %flag; "no">
 
-<!ENTITY % flag "(yes|no)">
+<!ELEMENT value (#PCDATA)>
 
 <!-- settings type system -->
 <!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean)?>

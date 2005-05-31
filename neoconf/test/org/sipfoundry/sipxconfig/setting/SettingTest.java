@@ -62,7 +62,7 @@ public class SettingTest extends TestCase {
     
     public void testSetHidden() {
         seedSimpleSettingGroup();
-        assertFalse(m_apple.isHidden());
+        assertFalse(m_apple.isAdvanced());
         
         Folder meta = new Folder();
         assertNull(meta.get(m_apple.getPath()));
@@ -70,14 +70,14 @@ public class SettingTest extends TestCase {
 
         Setting copy = meta.decorate(m_root);
         Setting m_appleCopy = copy.getSetting("fruit").getSetting("apple");
-        m_appleCopy.setHidden(true);
-        assertTrue(m_appleCopy.isHidden());
+        m_appleCopy.setAdvanced(true);
+        assertTrue(m_appleCopy.isAdvanced());
         
         assertNotNull(meta.get(m_apple.getPath()));
         assertEquals(1, meta.size());
         
         // if matches default, should clear value
-        m_appleCopy.setHidden(false);
+        m_appleCopy.setAdvanced(false);
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());        
     }
@@ -87,7 +87,7 @@ public class SettingTest extends TestCase {
      */
     public void testSetValueAndSetHidden() {
         seedSimpleSettingGroup();
-        assertFalse(m_apple.isHidden());
+        assertFalse(m_apple.isAdvanced());
         
         Folder meta = new Folder();
         assertNull(meta.get(m_apple.getPath()));
@@ -95,9 +95,9 @@ public class SettingTest extends TestCase {
 
         Setting copy = meta.decorate(m_root);
         Setting m_appleCopy = copy.getSetting("fruit").getSetting("apple");
-        m_appleCopy.setHidden(true);
+        m_appleCopy.setAdvanced(true);
         m_appleCopy.setValue("macintosh");
-        assertTrue(m_appleCopy.isHidden());
+        assertTrue(m_appleCopy.isAdvanced());
         assertEquals("macintosh", m_appleCopy.getValue());
         
         assertNotNull(meta.get(m_apple.getPath()));
@@ -105,7 +105,7 @@ public class SettingTest extends TestCase {
         
         // if matches default, should clear value
         m_appleCopy.setValue(null);
-        m_appleCopy.setHidden(false);
+        m_appleCopy.setAdvanced(false);
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());        
     }

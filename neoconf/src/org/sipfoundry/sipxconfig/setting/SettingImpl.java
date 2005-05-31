@@ -35,7 +35,7 @@ public class SettingImpl implements Setting, Cloneable {
     
     private String m_value;
     
-    private boolean m_hidden;
+    private boolean m_advanced;
     
     /**
      * bean access only, must set name before valid object
@@ -201,11 +201,11 @@ public class SettingImpl implements Setting, Cloneable {
         return Collections.EMPTY_LIST;
     }
     
-    public boolean isHidden() {
-        return m_hidden;
+    public boolean isAdvanced() {
+        return m_advanced;
     }
     
-    public void setHidden(boolean hidden) {
-        m_hidden = hidden;
+    public void setAdvanced(boolean hidden) {
+        m_advanced = hidden;
     }
 }

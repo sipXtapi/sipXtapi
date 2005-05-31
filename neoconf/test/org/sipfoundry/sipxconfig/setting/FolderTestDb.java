@@ -99,7 +99,7 @@ public class FolderTestDb extends TestCase {
             copy.getSetting("vegetable").getSetting("pea").setValue("snap pea");
 
             // should make it new
-            copy.getSetting("dairy").getSetting("milk").setHidden(true);
+            copy.getSetting("dairy").getSetting("milk").setAdvanced(true);
 
             assertEquals(2, ms.getFolderSettings().size());
             m_dao.storeFolder(ms);

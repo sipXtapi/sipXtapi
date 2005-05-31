@@ -46,7 +46,7 @@
       <description>Code that needs to be dialed to to pick up a ringing call on an a specific phone. To pick up
         extention 123 dial this code followed by 123.</description>
     </setting>
-    <setting name="SIP_REGISTRAR_CALL_PICKUP_WAIT">
+    <setting name="SIP_REGISTRAR_CALL_PICKUP_WAIT" advanced="yes">
       <label>Call pickup timeout</label>
       <profileName>registrar-config.in</profileName>
       <type><integer min="1" max="30" required="yes"/></type>

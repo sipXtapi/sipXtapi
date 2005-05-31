@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.site.setting;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
@@ -36,6 +37,10 @@ public abstract class SettingsForm extends BaseComponent {
         return FilterRunner.filter(SettingFilter.ALL, getSettings());
     }
 
+    public abstract boolean getShowAdvanced();
+
+    public abstract void setShowAdvanced(boolean showAdvanced);
+
     /**
      * Called when any of the submit componens on the form is activated.
      * 
@@ -47,17 +52,45 @@ public abstract class SettingsForm extends BaseComponent {
      */
     public void formSubmit(IRequestCycle cycle) {
         IActionListener action = getAction();
+        IValidationDelegate delegate = getValidator();
         if (null == action) {
+            delegate.clear();
             return;
         }
-        if (action == getCancelListener() || isValid()) {
+        if (action == getCancelListener() || !delegate.getHasErrors()) {
             action.actionTriggered(this, cycle);
         }
     }
 
-    boolean isValid() {
+    private IValidationDelegate getValidator() {
         IForm form = (IForm) getComponent("settingsForm");
         IValidationDelegate delegate = form.getDelegate();
-        return !delegate.getHasErrors();
+        return delegate;
+    }
+
+    /**
+     * Collects ids of avanced settings to be used to refresh only those when toggle advanced link
+     * is clicked
+     * 
+     * @return collection of decorated settings ids
+     */
+    public boolean getHasAdvancedSettings() {
+        Collection flattenedSettings = getFlattenedSettings();
+        for (Iterator i = flattenedSettings.iterator(); i.hasNext();) {
+            Setting setting = (Setting) i.next();
+            if (setting.isAdvanced()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Render setting if it's not advanced (hidden) or if show advanced is set
+     * @param setting
+     * @return
+     */
+    public boolean renderSetting(Setting setting) {
+        return !setting.isAdvanced() || getShowAdvanced();
     }
 }
