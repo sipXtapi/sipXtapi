@@ -64,6 +64,7 @@
         <pathelement path="${jasper-runtime.jar}"/>
         <pathelement path="${jasper-compiler.jar}"/>
         <pathelement path="${tidy.jar}"/>
+        <pathelement path="${commons-codec.jar}"/>
 	</path>
     
 	<property name="classpath" refid="base.path" />
