@@ -26,7 +26,7 @@
     <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
     <bean name="externalLenModel" 
         class="org.sipfoundry.sipxconfig.components.LenSelectionModel"

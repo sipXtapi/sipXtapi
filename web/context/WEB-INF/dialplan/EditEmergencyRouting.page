@@ -23,7 +23,7 @@
     <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
     <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.dialplan.GatewaySelectionModel">
         <set-property name="gateways">dialPlanManager.gateways</set-property>

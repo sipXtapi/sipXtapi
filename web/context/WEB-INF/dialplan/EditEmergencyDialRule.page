@@ -27,7 +27,7 @@
     <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
     <!--
      - C O M P O N E N T S

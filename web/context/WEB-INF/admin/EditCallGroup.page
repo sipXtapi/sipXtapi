@@ -28,7 +28,7 @@
     <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
     <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
     	<set-property name="required" expression="true"/>

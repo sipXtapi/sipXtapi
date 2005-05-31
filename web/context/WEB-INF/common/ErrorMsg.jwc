@@ -10,7 +10,7 @@
     <!-- by default it'll work with validator bean defined on the page -->
     <!-- one can pass another validator as a parameter -->
 	<parameter name="validator" 
-        type="org.apache.tapestry.valid.ValidationDelegate" 
+        type="org.apache.tapestry.valid.IValidationDelegate" 
         required="no" 
         default-value="page.beans.validator"
         direction="in">

@@ -16,18 +16,17 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-
 public class EditPhoneSettingsTestUi extends WebTestCase {
-    
+
     private PhoneTestHelper m_helper;
-    
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditPhoneSettingsTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         m_helper = new PhoneTestHelper(tester);
         m_helper.reset();
     }
@@ -36,25 +35,25 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
         super.tearDown();
         dumpResponse(System.err);
     }
-    
+
     public void testEditSipSetttings() {
-        final String holdParamName = "integerField";
-        
+        final String holdParamName = "booleanField";
+
         m_helper.seedPhone(1);
-        clickLink("ManagePhones");        
+        clickLink("ManagePhones");
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
-        // NOTE: Polycom only setting 
-        clickLinkWithText("Hold Reminder");        
-        // check seed data 
-        assertEquals("0", getDialog().getFormParameterValue(holdParamName));
-        setFormElement(holdParamName, "1");
+        // NOTE: Polycom only setting
+        clickLinkWithText("Hold Reminder");
+        // check seed data
+        assertCheckboxNotSelected(holdParamName);
+        checkCheckbox(holdParamName);
         clickButton("setting:ok");
 
         // verify setting sticks
         SiteTestHelper.home(tester);
-        clickLink("ManagePhones");        
+        clickLink("ManagePhones");
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         clickLinkWithText("Hold Reminder");
-        assertEquals("1", getDialog().getFormParameterValue(holdParamName));
+        assertCheckboxSelected(holdParamName);
     }
 }

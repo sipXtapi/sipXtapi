@@ -29,7 +29,7 @@
     <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
             
     <!--

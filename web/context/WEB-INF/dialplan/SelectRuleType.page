@@ -17,7 +17,7 @@
     <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
     <bean name="ruleTypeModel" 
         class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"

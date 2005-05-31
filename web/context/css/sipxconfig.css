@@ -149,6 +149,7 @@ li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
 }
 
 #settings-content {
+  margin-left: 12em;
 }
 
 #footer {
@@ -381,6 +382,11 @@ ul.form-actions li {
   display: none
 }
 
-#user-error {
+/* The name of this class is used in: 
+ * - org.sipfoundry.sipxconfig.components.SipxValidationDelegate
+ * - ErrorMsg component
+ */
+.user-error {
+  font-weight: bold;
   color: #f00;
 }
