@@ -151,8 +151,26 @@ JAVA_OPTS="$JAVA_OPTS -Djava.security.manager -Djava.security.policy=$PF"
 # Setup the java endorsed dirs
 JBOSS_ENDORSED_DIRS="$JBOSS_HOME/lib/endorsed"
 
+# Trust store includes Apache's CA, Only required when cert is generated or from
+# and lesser known CA, or at least not shipped w/Java's VM (see keytool -list)
+CaCertKeystore=@sipxpbx.conf.dir@/ssl/cacerts
+echo $CaCertKeystore
+if [ -f $CaCertKeystore ]; then
+  # password on command line is not security issue. cattrust and directory has appropriate
+  # permissions, password is required by keystores
+  TrustStoreOpts="\
+      -Djavax.net.ssl.trustStore=$CaCertKeystore \
+      -Djavax.net.ssl.trustStoreType=JKS \
+      -Djavax.net.ssl.trustStorePassword=changeit"
+else
+  # make empty as extra measure to ensure doesn't come from env. var
+  # this is when Java's CA database has required certs
+  TrustStoreOpts=""
+fi
+
 exec "$JAVA" $JAVA_OPTS \
-	-Dprogram.name="$PROGNAME" \
-	-Djava.endorsed.dirs="$JBOSS_ENDORSED_DIRS" \
-      -classpath "@sipxpbx.conf.dir@:$JBOSS_CLASSPATH" \
-      org.jboss.Main -c @jboss.server.conf@
+    -Dprogram.name="$PROGNAME" \
+    -Djava.endorsed.dirs="$JBOSS_ENDORSED_DIRS" \
+    $TrustStoreOpts \
+    -classpath "@sipxpbx.conf.dir@:$JBOSS_CLASSPATH" \
+    org.jboss.Main -c @jboss.server.conf@

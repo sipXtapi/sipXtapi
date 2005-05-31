@@ -174,10 +174,10 @@ public class XmlModelBuilder {
                 
         public void addRuleInstances(Digester digester) {
             digester.addSetNext(m_pattern, "setType", SettingType.class.getName());            
-            digester.addRule(getParentPattern(m_pattern), new SettingTypeIdRule());
+            digester.addRule(getParentPattern(), new SettingTypeIdRule());
         }
         
-        String getParentPattern(String pattern) {
+        String getParentPattern() {
             int slash = m_pattern.lastIndexOf('/');
             return m_pattern.substring(0, slash);
         }
