@@ -13,13 +13,10 @@
       </setting>
       <setting name="UseTFTP">
         <type>
-          <enum>
-            <option><value>0</value></option>
-            <option><value>1</value></option>
-          </enum>
+          <boolean/>
         </type>
         <value>1</value>
-        <description>If 1, use TFTP server for ATA configuration.</description>
+        <description>Enable TFTP server for ATA configuration.</description>
       </setting>
       <setting name="TftpURL">
         <value>0</value>
@@ -31,12 +28,8 @@
         <description>Specify IP address or URL of the TFTP server.</description>
       </setting>
       <setting name="DHCP">
-        <type>
-          <enum>
-            <option><label>disable</label><value>0</value></option>
-            <option><label>enable"</label><value>1</value></option>
-          </enum>
-        </type>
+        <label>Enable DHCP</label>
+        <type><boolean/></type>
         <value>1</value>
         <description>If 1, enable DHCP.</description>
       </setting>
@@ -116,12 +109,12 @@
     <group name="sip">
       <label>SIP Parameters</label>
       <setting name="UseLoginID">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Use 0 = UID, 1 = LoginID as the authentication ID.</description>
+        <description>Use LoginID as the authentication ID, otherwise use UID.</description>
       </setting>
       <setting name="SIPRegOn">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Enable SIP registration.</description>
       </setting>
@@ -416,42 +409,42 @@
         <description>Date display format on LCD screen.</description>
       </setting>
       <setting name="DoNotDisturb">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Activate Do Not Disturb feature.</description>
       </setting>
       <setting name="BlockCallerId">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Enable blocking of outgoing Caller ID.</description>
       </setting>
       <setting name="CallWaiting">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Enable call waiting for every call.</description>
       </setting>
       <setting name="AttendedTransfer">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>Enable attended call transfer.</description>
       </setting>
       <setting name="BlindTransfer">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>Enable blind call transfer.</description>
       </setting>
       <setting name="Conference">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>Enable 3-way conference.</description>
       </setting>
       <setting name="BlockAnonymous">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Activate blocking of anonymous incoming call.</description>
       </setting>
       <setting name="AutoLookUp">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Enable automatic phone number lookup when dialing.</description>
       </setting>

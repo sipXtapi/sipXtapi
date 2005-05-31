@@ -5,7 +5,7 @@
 <!ATTLIST group name NMTOKEN #REQUIRED>
 <!ATTLIST group copy-of NMTOKEN #IMPLIED>
 <!ELEMENT label (#PCDATA)>
-<!ELEMENT model (group+)>
+<!ELEMENT model (type?,group+)>
 <!ELEMENT profileName (#PCDATA)>
 <!ELEMENT setting (label?,profileName?,type?,value,description?)>
 <!ATTLIST setting name NMTOKEN #REQUIRED>
@@ -15,6 +15,10 @@
 
 <!-- settings type system -->
 <!ELEMENT type (string|integer|enum|ipaddr|bitmap)?>
+<!ATTLIST type 
+    required %flag; "no"
+    id NMTOKEN #IMPLIED
+    refid NMTOKEN #IMPLIED>
 
 <!ELEMENT integer EMPTY>
 <!ATTLIST integer 

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+    <group name="group">
+        <setting name="int_setting_0">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <integer min="3" max="15" required="yes"/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="int_setting_1">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <integer/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="str_setting_def">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="str_setting">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <string maxLen="15" password="yes" required="yes">
+                    <pattern>kuku</pattern>
+                </string>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="enum_setting">
+            <label>Enum setting label</label>
+            <type>
+                <enum>
+                   <option><label>Zero</label><value>0</value></option>
+                   <option><label>XXX</label><value>something</value></option>
+                   <option><value>no_label_value</value></option>
+                </enum>
+            </type>
+        </setting>
+        <setting name="boolean_setting">
+          <label>Boolean setting label</label>
+          <type>
+            <boolean>
+              <true>true</true>
+              <false>false</false>
+            </boolean>
+          </type>
+        </setting>
+	</group>
+</model>

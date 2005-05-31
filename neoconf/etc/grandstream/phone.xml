@@ -3,14 +3,17 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
+  <type refid="byte">
+    <integer min="0" max="255"/>
+  </type>
   <group name="grandstream">
     <group name="network">
       <label>Network Settings</label>
       <setting name="P8">
         <label>DHCP support</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>DHCP support. 0 - yes, 1 - no</description>
+        <description>Enable DHCP support.</description>
       </setting>
       <setting name="P82">
         <label>PPPoE user ID</label>
@@ -26,145 +29,145 @@
       </setting>
       <setting name="P9">
         <label>IP Address byte 1</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>IP Address byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P10">
         <label>IP Address byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>IP Address byte 2</description>
       </setting>
       <setting name="P11">
         <label>IP Address byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>IP Address byte 3</description>
       </setting>
       <setting name="P12">
         <label>IP Address byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>IP Address byte 4</description>
       </setting>
       <setting name="P13">
         <label>Subnet mask byte 1</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value>255</value>
         <description>Subnet mask byte 2. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P14">
         <label>Subnet mask byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value>255</value>
         <description>Subnet mask byte 2</description>
       </setting>
       <setting name="P15">
         <label>Subnet mask byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value>255</value>
         <description>Subnet mask byte 3</description>
       </setting>
       <setting name="P16">
         <label>Subnet mask byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value>0</value>
         <description>Subnet mask byte 4</description>
       </setting>
       <setting name="P17">
         <label>Router byte 1</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>Router IP address byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P18">
         <label>Router byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>Router byte 2</description>
       </setting>
       <setting name="P19">
         <label>Router byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>Router byte 3</description>
       </setting>
       <setting name="P20">
         <label>Router byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>Router byte 4</description>
       </setting>
       <setting name="P92">
         <label>DNS server byte 1</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS server IP address byte 1. Use this DNS server if specified.</description>
       </setting>
       <setting name="P93">
         <label>DNS server byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS server byte 2</description>
       </setting>
       <setting name="P94">
         <label>DNS server byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS server byte 3</description>
       </setting>
       <setting name="P95">
         <label>DNS server byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS server byte 4</description>
       </setting>
       <setting name="P21">
         <label>DNS 1 byte 1</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 1 byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P22">
         <label>DNS 1 byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 1 byte 2</description>
       </setting>
       <setting name="P23">
         <label>DNS 1 byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 1 byte 3</description>
       </setting>
       <setting name="P24">
         <label>DNS 1 byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 1 byte 4</description>
       </setting>
       <setting name="P25">
         <label>DNS 2 byte 1</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 2 byte 1. Ignore if DHCP or PPPoE is used</description>
       </setting>
       <setting name="P26">
         <label>DNS 2 byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 2 byte 2</description>
       </setting>
       <setting name="P27">
         <label>DNS 2 byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 2 byte 3</description>
       </setting>
       <setting name="P28">
         <label>DNS 2 byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>DNS 2 byte 4</description>
       </setting>
@@ -185,10 +188,10 @@
     <group name="upgrade">
       <label>Firmware Upgrade</label>
       <setting name="P212">
-        <label>Firmware Upgrade</label>
-        <type><integer min="0" max="1"/></type>
+        <label>HTTP Firmware Upgrade</label>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Firmware Upgrade. 0 - TFTP Upgrade, 1 - HTTP Upgrade.</description>
+        <description>HTTP Firmware Upgrade, otherwise use TFTP Firmware Upgrade.</description>
       </setting>
       <setting name="P213">
         <label>TFTP Server byte 1</label>
@@ -199,19 +202,19 @@
       </setting>
       <setting name="P214">
         <label>TFTP byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>TFTP byte 2</description>
       </setting>
       <setting name="P215">
         <label>TFTP byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>TFTP byte 3</description>
       </setting>
       <setting name="P216">
         <label>TFTP byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>TFTP byte 4</description>
       </setting>
@@ -224,19 +227,19 @@
       </setting>
       <setting name="P42">
         <label>TFTP byte 2</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>TFTP byte 2</description>
       </setting>
       <setting name="P43">
         <label>TFTP byte 3</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>TFTP byte 3</description>
       </setting>
       <setting name="P44">
         <label>TFTP byte 4</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value></value>
         <description>TFTP byte 4</description>
       </setting>
@@ -249,9 +252,9 @@
       </setting>
       <setting name="P193">
         <label>Automatic HTTP Upgrade</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Automatic HTTP Upgrade. 0 - No, 1 - Yes (checking every defined days)</description>
+        <description>Automatic HTTP Upgrade. (checking every defined days)</description>
       </setting>
       <setting name="P194">
         <label>Check Interval</label>
@@ -264,9 +267,9 @@
       <label>SIP Settings</label>
       <setting name="P103">
         <label>Use DNS SRV</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>Use DNS SRV. 0 - No, 1 - Yes.</description>
+        <description>Use DNS SRV</description>
       </setting>
       <setting name="P101">
         <label>Use NAT IP</label>
@@ -283,9 +286,9 @@
       </setting>
       <setting name="P78">
         <label>Use Random Port</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Use Random Port. 0 - no, 1 - yes</description>
+        <description>Use Random Port</description>
       </setting>
       <setting name="P47">
         <label>SIP Server</label>
@@ -312,10 +315,10 @@
         <description>Local RTP port (1024-65535, default 5004)</description>
       </setting>
       <setting name="P52">
-        <label>NAT Traversal</label>
-        <type><integer min="0" max="1"/></type>
+        <label>Disable NAT Traversal</label>
+        <type><boolean/></type>
         <value>1</value>
-        <description>NAT Traversal. 0 - yes, 1 - no</description>
+        <description>Disable NAT Traversal.</description>
       </setting>
       <setting name="P76">
         <label>STUN server</label>
@@ -325,15 +328,15 @@
       </setting>
       <setting name="P63">
         <label>SIP User ID is phone number</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>SIP User ID is phone number. 0 - no, 1 - yes</description>
+        <description>Use SIP User ID is phone number.</description>
       </setting>
       <setting name="P31">
         <label>SIP Registration</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>SIP Registration. 0 - no, 1 - yes</description>
+        <description>SIP Registration.</description>
       </setting>
       <setting name="P32">
         <label>Register Expiration</label>
@@ -343,9 +346,9 @@
       </setting>
       <setting name="P81">
         <label>Unregister On Reboot</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Unregister On Reboot. 0 - no, 1 - yes</description>
+        <description>Unregister On Reboot.</description>
       </setting>
       <setting name="P84">
         <label>Keep-alive interval</label>
@@ -406,10 +409,10 @@
           9 - G.722</description>
       </setting>
       <setting name="P49">
-        <label>G723 rate</label>
-        <type><integer min="0" max="1"/></type>
+        <label>G723 5.3kbps rate</label>
+        <type><boolean/></type>
         <value>0</value>
-        <description>G723 rate. 0 - 6.3kbps encoding rate, 1 - 5.3kbps encoding rate</description>
+        <description>5.3kbps encoding rate G723 rate. Otherwise use 6.3kbps encoding rate</description>
       </setting>
       <setting name="P96">
         <label>iLBC payload type</label>
@@ -418,16 +421,16 @@
         <description>iLBC payload type. Between 96 and 127</description>
       </setting>
       <setting name="P97">
-        <label>iLBC Frame Size</label>
-        <type><integer min="0" max="1"/></type>
+        <label>30ms iLBC Frame Size</label>
+        <type><boolean/></type>
         <value>0</value>
-        <description>iLBC Frame Size. 0 - 20ms(default), 1 - 30ms.</description>
+        <description>Use 30ms iLBC Frame Size otherwise use 20ms(default)</description>
       </setting>
       <setting name="P50">
         <label>Silence Suppression</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Silence Suppression. 0 - no, 1 - yes</description>
+        <description>Silence Suppression.</description>
       </setting>
       <setting name="P37">
         <label>Voice Frames per TX</label>
@@ -438,7 +441,7 @@
       </setting>
       <setting name="P38">
         <label>IP QoS</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value>48</value>
         <description>IP QoS (IP Diff-Serv or Precedence value for RTP)</description>
       </setting>
@@ -465,16 +468,15 @@
       </setting>
       <setting name="P79">
         <label>DTMF Payload Type</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value>101</value>
         <description>DTMF Payload Type</description>
       </setting>
       <setting name="P74">
         <label>Send Flash Event</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Send Flash Event (Flash will be sent as a DTMF event if set to Yes). 0 - no, 1 -
-          yes</description>
+        <description>Send Flash Event (Flash will be sent as a DTMF event if checked).</description>
       </setting>
     </group>
     <group name="time">
@@ -493,9 +495,9 @@
       </setting>
       <setting name="P75">
         <label>Daylight Savings Time</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Daylight Savings Time. 0 - no, 1 - yes</description>
+        <description>Enable Daylight Savings Time.</description>
       </setting>
     </group>
     <group name="misc">
@@ -520,16 +522,15 @@
       </setting>
       <setting name="P29">
         <label>Early Dial</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Early Dial (use "Yes" only if proxy supports 484 response). 0 - no, 1 - yes</description>
+        <description>Early Dial (check only if proxy supports 484 response).</description>
       </setting>
       <setting name="P72">
         <label>Use # as Dial Key</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>Use # as Dial Key (if set to Yes, "#" will function as the "(Re-)Dial" key). 0 - no, 1 -
-          yes</description>
+        <description>Use # as Dial Key (if checked, "#" will function as the "(Re-)Dial" key)</description>
       </setting>
       <setting name="P33">
         <label>Voice Mail UserID</label>
@@ -539,10 +540,9 @@
       </setting>
       <setting name="P99">
         <label>SUBSCRIBE for MWI</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication. 0 - No, 1 -
-          Yes.</description>
+        <description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication.</description>
       </setting>
       <setting name="P71">
         <label>Offhook Auto-Dial</label>
@@ -553,34 +553,33 @@
       </setting>
       <setting name="P91">
         <label>Disable Call-Waiting</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>Disable Call-Waiting. 0 - No, 1 - Yes.</description>
+        <description>Disable Call-Waiting.</description>
       </setting>
       <setting name="P191">
         <label>Enable/Disable Call Features</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>Enable/Disable Call Features, 0 - No, 1 - Yes.</description>
+        <description>Enable Call Features</description>
       </setting>
       <setting name="P65">
         <label>Send Anonymous</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Send Anonymous (caller ID will be blocked if set to Yes). 0 - no, 1 - yes</description>
+        <description>Send Anonymous (caller ID will be blocked if checked).</description>
       </setting>
       <setting name="P85">
         <label>No Key Entry Timeout</label>
-        <type><integer min="0" max="255"/></type>
+        <type refid="byte"/>
         <value>4</value>
         <description>No Key Entry Timeout. Default - 4 seconds.</description>
       </setting>
       <setting name="P88">
         <label>Lock Keypad Update</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Lock Keypad Update. (configuration update via keypad is disabled if set to Yes) 0 - No, 1 -
-          Yes.</description>
+        <description>Lock Keypad Update. (configuration update via keypad is disabled if checked).</description>
       </setting>
     </group>
   </group>
@@ -598,7 +597,7 @@
       <label>BudgeTone Specific</label>
       <setting name="P90">
         <label>Auto Answer</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Auto Answer</description>
       </setting>
@@ -663,15 +662,15 @@
       </setting>
       <setting name="P205">
         <label>Polarity Reversal</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>Polarity Reversal. 0 - No, 1 - Yes.</description>
+        <description>Enable polarity reversal.</description>
       </setting>
       <setting name="P228">
-        <label>FAX Mode</label>
-        <type><integer min="0" max="1"/></type>
+        <label>Pass Through FAX Mode</label>
+        <type><boolean/></type>
         <value>0</value>
-        <description>FAX Mode. 0 - T.38 (Auto Detect), 1 - Pass Through</description>
+        <description>Enable Pass Through FAX Mode., otherwise use T.38 (Auto Detect)</description>
       </setting>
     </group>
   </group>

@@ -57,6 +57,12 @@
     </component>
     <component id="enumBlock" type="Block"></component>
     
+    <component id="booleanField" type="Checkbox">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="selected" expression="booleanValue"/>
+    </component>
+    <component id="booleanBlock" type="Block"></component>
+    
     <component id="field" type="RenderBlock">
         <binding name="block" expression="components.get(setting.type.name + 'Block')"/>
     </component>    

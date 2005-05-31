@@ -24,10 +24,10 @@
     <setting name="AutoRegister">
       <label>Auto Register</label>
       <type>
-        <enum>
-          <option><value>Yes</value></option>
-          <option><value>No</value></option>
-        </enum>
+        <boolean>
+          <true>Yes</true>
+          <false>No</false>
+        </boolean>
       </type>
       <value>Yes</value>
       <description>Immediately upon starting, attempt to register with SIP Server</description>

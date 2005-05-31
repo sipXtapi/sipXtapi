@@ -11,53 +11,5 @@
             <value></value>
             <description>Setting Description</description>
         </setting>
-        <setting name="int_setting_0">
-            <label>Setting Label</label>
-            <profileName>Setting Profile Name</profileName>
-            <type>
-                <integer min="3" max="15" required="yes"/>
-            </type>
-            <value></value>
-            <description>Setting Description</description>
-        </setting>
-        <setting name="int_setting_1">
-            <label>Setting Label</label>
-            <profileName>Setting Profile Name</profileName>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-            <description>Setting Description</description>
-        </setting>
-        <setting name="str_setting_def">
-            <label>Setting Label</label>
-            <profileName>Setting Profile Name</profileName>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>Setting Description</description>
-        </setting>
-        <setting name="str_setting">
-            <label>Setting Label</label>
-            <profileName>Setting Profile Name</profileName>
-            <type>
-                <string maxLen="15" password="yes" required="yes">
-                    <pattern>kuku</pattern>
-                </string>
-            </type>
-            <value></value>
-            <description>Setting Description</description>
-        </setting>
-        <setting name="enum_setting">
-            <label>Enum setting label</label>
-            <type>
-                <enum>
-                   <option><label>Zero</label><value>0</value></option>
-                   <option><label>XXX</label><value>something</value></option>
-                   <option><value>no_label_value</value></option>
-                </enum>
-            </type>
-        </setting>
-	</group>
+    </group>
 </model>

@@ -129,7 +129,7 @@
         </setting>
         <setting name="transport">
           <profileName>server.2.transport</profileName>
-          <type></type>
+          <type><string/></type>
           <value></value>
           <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address is a hostname and
             Port is 0 or empty, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per
@@ -178,7 +178,7 @@
         operation with headset). This is useful for lobby phones or as a integration technique when interfacing
         with legacy PBXes that manage call state.</description>
       <setting name="enabled">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>If set to 1, a call will be automatically placed to the contact specified upon going off hook
           on this registration.
@@ -193,7 +193,7 @@
     <group name="serverMissedCall">
       <label>Missed Calls</label>
       <setting name="enabled">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>If set to 0, all missed-call events will increment the counter If set to 1, only missed-call
           events sent by the server will increment the counter.</description>
@@ -216,14 +216,14 @@
       </description>
     </setting>
     <setting name="autoOnSpecificCaller">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
       <description>If set to 1, calls may be diverted using the Auto Divert feature of the directory. This is a
         global flag.
       </description>
     </setting>
     <setting name="sharedDisabled">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
       <description>If set to 1, all diversion features on this line will be disabled if the line is configured as
         shared.
@@ -232,7 +232,7 @@
     <group name="fwd">
       <label>Forwarding</label>
       <setting name="enabled">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>If set to 1, the user will be able to enable universal call forwarding via the soft key menu.
         </description>
@@ -241,7 +241,7 @@
     <group name="busy">
       <label>On Busy</label>
       <setting name="enabled">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>If set to 1, calls will be forwarded on busy to the contact specified below.</description>
       </setting>
@@ -257,7 +257,7 @@
     <group name="noanswer">
       <label>On No Answer</label>
       <setting name="enabled">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>If set to 1, calls will be forwarded on no answer to the contact specified.
         </description>
@@ -279,7 +279,7 @@
     <group name="dnd">
       <label>On Do No Disturb</label>
       <setting name="enabled">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>If set to 1, calls will be forwarded on DND to the contact specified below.
         </description>
@@ -304,7 +304,7 @@
         plan in Dial Plan settings.</description>
     </setting>
     <setting name="removeEndOfDial">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
       <description>When present, and if no digitmap setting are set, this attribute overrides the global dial
         plan in Dial Plan settings.</description>
@@ -378,6 +378,7 @@
     <setting name="callBackMode">
       <type>
         <enum>
+          <option><value>contact</value></option>
           <option><value>registration</value></option>
           <option><value>disabled</value></option>
         </enum>

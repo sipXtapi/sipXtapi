@@ -9,7 +9,7 @@
       <label>Time Format</label>
       <setting name="24HourClock">
         <label>24 Hour format</label>
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>If 1, time is display using hour range 0-24, otherwise 1-12 AM/PM.</description>
       </setting>
@@ -25,56 +25,56 @@
           can occur only between characters and only one at a time i.e. 'D,,dM' is illegal.</description>
       </setting>
       <setting name="date.longFormat">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If 1, display the day and month in long format (Friday/November), otherwise, use
+        <description>If checked, display the day and month in long format (Friday/November), otherwise, use
           abbreviations (Fri/Nov).
         </description>
       </setting>
       <setting name="date.dateTop">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If 1, display date above time else display time above date.</description>
+        <description>If checked, display date above time else display time above date.</description>
       </setting>
     </group>
   </group>
   <group name="up">
     <label>User Preferences</label>
     <setting name="headsetMode">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, the headset will be selected as the preferred transducer after its first use until
+      <description>If checked, the headset will be selected as the preferred transducer after its first use until
         the headset key is pressed again; otherwise, handsfree will be selected preferentially over the
         headset.</description>
     </setting>
     <setting name="useDirectoryNames">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, the name fields of directory entries which match incoming calls will be used for
+      <description>If checked, the name fields of directory entries which match incoming calls will be used for
         caller identification display and in the call lists instead of the name provided via network
         signaling.</description>
     </setting>
     <setting name="oneTouchVoiceMail">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, the voicemail summary display is bypassed and voicemail is dialed directly (if
+      <description>If checked, the voicemail summary display is bypassed and voicemail is dialed directly (if
         configured).</description>
     </setting>
     <setting name="welcomeSoundEnabled">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, play welcome sound effect after a reboot.</description>
+      <description>If checked, play welcome sound effect after a reboot.</description>
     </setting>
     <setting name="welcomeSoundOnWarmBootEnabled">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, play welcome sound effect on warm as well as cold boots, otherwise only a cold boot
+      <description>If checked, play welcome sound effect on warm as well as cold boots, otherwise only a cold boot
         will trigger the welcome sound effect.</description>
     </setting>
     <setting name="localClockEnabled">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, display the date and time on the idle display</description>
+      <description>If checked, display the date and time on the idle display</description>
     </setting>
   </group>
   <group name="tone.dtmf">
@@ -100,31 +100,31 @@
         manually.</description>
     </setting>
     <setting name="chassis.masking">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, DTMF tones will be substituted with a non-DTMF pacifier tone when dialing in
+      <description>If checked, DTMF tones will be substituted with a non-DTMF pacifier tone when dialing in
         hands-free mode. This prevents DTMF digits being broadcast to other surrounding telephony devices or
         being inadvertently transmitted in-band due to local acoustic echo. Note: tone.dtmf.chassis.masking
         should only be enabled when tone.dtmf.viaRtp is disabled.
       </description>
     </setting>
     <setting name="stim.pac.offHookOnly">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
       <description>Not currently used.</description>
     </setting>
     <setting name="viaRtp">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, encode DTMF in the active RTP stream, otherwise, DTMF may be encoded within the
+      <description>If checked, encode DTMF in the active RTP stream, otherwise, DTMF may be encoded within the
         signaling protocol only when the protocol offers the option. Note: tone.dtmf.chassis.masking should be
         enabled when tone.dtmf.viaRtp is disabled.
       </description>
     </setting>
     <setting name="rfc2833Control">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, the phone will indicate a preference for encoding DTMF via RFC 2833 format in its
+      <description>If checked, the phone will indicate a preference for encoding DTMF via RFC 2833 format in its
         Session Description Protocol (SDP) offers by showing support for the phone-event payload type; this does
         not affect SDP answers, these will always honor the DTMF format present in the offer since the phone has
         native support for RFC 2833.</description>
@@ -142,15 +142,15 @@
       sampled audio sound effects. Sound effects are defined by patterns: rudimentary sequences of chord-sets,
       silence periods, and wave files.</description>
     <setting name="stutterOnVoiceMail">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, stuttered dial tone is used in place of normal dial tone to indicate that one or more
+      <description>If checked, stuttered dial tone is used in place of normal dial tone to indicate that one or more
         messages (voice-mail) are waiting at the message center.</description>
     </setting>
     <setting name="appLocalEnabled">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, local user interface sound effects such as confirmation/error tones, will be
+      <description>If checked, local user interface sound effects such as confirmation/error tones, will be
         enabled.
       </description>
     </setting>
@@ -347,21 +347,21 @@
         regulations exist which dictate that receive volume should be reset to nominal at the start of each call on
         handset and headset.</description>
       <setting name="persist.handset">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, the receive volume will be remembered between calls. If set to 0, the receive
+        <description>If checked, the receive volume will be remembered between calls. If set to 0, the receive
           volume will be reset to nominal at the start of each call.</description>
       </setting>
       <setting name="persist.headset">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, the receive volume will be remembered between calls. If set to 0, the receive
+        <description>If checked, the receive volume will be remembered between calls. If set to 0, the receive
           volume will be reset to nominal at the start of each call.</description>
       </setting>
       <setting name="persist.handsfree">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, the receive volume will be remembered between calls. If set to 0, the receive
+        <description>If checked, the receive volume will be remembered between calls. If set to 0, the receive
           volume will be reset to nominal at the start of each call.</description>
       </setting>
     </group>
@@ -370,9 +370,9 @@
       <description>These settings control the performance of the voice activity detection (silence
         suppression) feature</description>
       <setting name="vadEnable">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, enable VAD.</description>
+        <description>If checked, enable VAD.</description>
       </setting>
       <setting name="vadThresh">
         <type><integer min="0" max="30"/></type>
@@ -404,66 +404,66 @@
     <group name="ip.rtp">
       <label>RTP</label>
       <setting name="min_delay">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, set min-delay bit in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set min-delay bit in the IP TOS field of the IP header, or else don't set
           it.</description>
       </setting>
       <setting name="max_throughput">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, set max-throughput bit in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set max-throughput bit in the IP TOS field of the IP header, or else don't set
           it.</description>
       </setting>
       <setting name="max_reliability">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, set max-reliability bit in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set max-reliability bit in the IP TOS field of the IP header, or else don't set
           it.</description>
       </setting>
       <setting name="min_cost">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, set min-cost bit in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set min-cost bit in the IP TOS field of the IP header, or else don't set
           it.</description>
       </setting>
       <setting name="precedence">
         <type><integer min="0" max="7"/></type>
         <value>5</value>
-        <description>If set to 1, set precedence bits in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set precedence bits in the IP TOS field of the IP header, or else don't set
           them.</description>
       </setting>
     </group>
     <group name="ip.callControl">
       <label>Call Control</label>
       <setting name="min_delay">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, set min-delay bit in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set min-delay bit in the IP TOS field of the IP header, or else don't set
           it.</description>
       </setting>
       <setting name="max_throughput">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, set max-throughput bit in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set max-throughput bit in the IP TOS field of the IP header, or else don't set
           it.</description>
       </setting>
       <setting name="max_reliability">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, set max-reliability bit in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set max-reliability bit in the IP TOS field of the IP header, or else don't set
           it.</description>
       </setting>
       <setting name="min_cost">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, set min-cost bit in the IP TOS field of the IP header, or else don't set it.
+        <description>If checked, set min-cost bit in the IP TOS field of the IP header, or else don't set it.
         </description>
       </setting>
       <setting name="precedence">
         <type><integer min="0" max="7"/></type>
         <value>5</value>
-        <description>If set to 1, set precedence bits in the IP TOS field of the IP header, or else don't set
+        <description>If checked, set precedence bits in the IP TOS field of the IP header, or else don't set
           them.</description>
       </setting>
     </group>
@@ -490,14 +490,14 @@
       <description>Offset in seconds of the local time zone from GMT. Note: 3600 seconds per hour</description>
     </setting>
     <setting name="daylightSavings.enable">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, apply daylight savings rules to displayed time.</description>
+      <description>If checked, apply daylight savings rules to displayed time.</description>
     </setting>
     <setting name="daylightSavings.fixedDayEnable">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, 'April 1st' is used, otherwise 'the first Sunday in April' is used.</description>
+      <description>If checked, 'April 1st' is used, otherwise 'the first Sunday in April' is used.</description>
     </setting>
     <setting name="daylightSavings.start.month">
       <type><integer min="1" max="12"/></type>
@@ -522,7 +522,7 @@
     <setting name="daylightSavings.start.dayOfWeek.lastInMonth">
       <type><integer min="1" max="10"/></type>
       <value>0</value>
-      <description>If set to 1 and fixedDayEnable=0, start DST on the last day of the week (specified by dayOfWeek)
+      <description>If checked and fixedDayEnable=0, start DST on the last day of the week (specified by dayOfWeek)
         in the month, rather than the first in the month.</description>
     </setting>
     <setting name="daylightSavings.stop.month">
@@ -546,24 +546,24 @@
       <description>Day of week to stop DST. 1=Mon, 2=Tue, ..., 7=Sun</description>
     </setting>
     <setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1 and fixedDayEnable=0, stop DST on the last day of the week (specified by dayOfWeek)
+      <description>If checked and fixedDayEnable=0, stop DST on the last day of the week (specified by dayOfWeek)
         in the month, rather than the first in the month.</description>
     </setting>
   </group>
   <group name="tcpIpApp.port.rtp">
     <label>RTP</label>
     <setting name="filterByIp">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, reject RTP packets arriving from (sent from) a non-negotiated (via SDP) IP
+      <description>If checked, reject RTP packets arriving from (sent from) a non-negotiated (via SDP) IP
         address.</description>
     </setting>
     <setting name="filterByPort">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, reject RTP packets arriving from (sent from) a non-negotiated (via SDP)
+      <description>If checked, reject RTP packets arriving from (sent from) a non-negotiated (via SDP)
         port.</description>
     </setting>
     <setting name="forceSend">
@@ -586,16 +586,16 @@
   <group name="httpd">
     <label>Web Server</label>
     <setting name="enabled">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, the HTTP server will be enabled.</description>
+      <description>If checked, the HTTP server will be enabled.</description>
     </setting>
     <group name="cfg">
       <label>Configuration</label>
       <setting name="enabled">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, the HTTP server configuration interface will be enabled.</description>
+        <description>If checked, the HTTP server configuration interface will be enabled.</description>
       </setting>
       <setting name="port">
         <type><integer min="1" max="65535"/></type>
@@ -610,22 +610,22 @@
     <!-- PhoneConfiguration -->
     <setting name="donotdisturb.perReg">
       <label>Do Not Disturb</label>
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, the DND feature will allow selection of DND on a per-registration basis.
+      <description>If checked, the DND feature will allow selection of DND on a per-registration basis.
       </description>
     </setting>
     <!-- AppConfiguration until end of group -->
     <setting name="rejectBusyOnDnd">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, reject all incoming calls with the reason 'busy' if do-not-disturb is
+      <description>If checked, reject all incoming calls with the reason 'busy' if do-not-disturb is
         enabled.</description>
     </setting>
     <setting name="enableOnNotRegistered">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, calls will be allowed when the phone is not successfully registered, otherwise,
+      <description>If checked, calls will be allowed when the phone is not successfully registered, otherwise,
         calls will not be permitted without a valid registration.</description>
     </setting>
     <setting name="offeringTimeOut">
@@ -649,19 +649,19 @@
     <group name="shared">
       <label>Shared Lines</label>
       <setting name="disableDivert">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, disable diversion feature for shared lines.</description>
+        <description>If checked, disable diversion feature for shared lines.</description>
       </setting>
       <setting name="seizeFailReorder">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, play reorder tone locally on shared line seize failure.</description>
+        <description>If checked, play reorder tone locally on shared line seize failure.</description>
       </setting>
       <setting name="oneTouchResume">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description>If set to 1, when a shared line has a call on hold the remote user can press that line and resume
+        <description>If checked, when a shared line has a call on hold the remote user can press that line and resume
           the call. If more than one call is on hold on the line then the first one will be selected and resumed
           automatically. If set to 0, pressing the shared line will bring up a list of the calls on that line and the
           user can select which call the next action should be applied to. The call diversion, no answer feature
@@ -672,9 +672,9 @@
   <group name="call.hold.localReminder">
     <label>Hold Reminder</label>
     <setting name="enabled">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, periodically notify the local user that calls have been on hold for an extended
+      <description>If checked, periodically notify the local user that calls have been on hold for an extended
         period of time.
       </description>
     </setting>
@@ -734,19 +734,19 @@
         <description>See above table for timestamp type.</description>
       </setting>
       <setting name="realtime">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>Set to 1. Do not change.
         </description>
       </setting>
       <setting name="stdout">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>Set to 1. Do not change.
         </description>
       </setting>
       <setting name="file">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
         <description>Set to 1. Do not change.
         </description>
@@ -765,9 +765,9 @@
           uploaded if no new events have been logged since the last upload.</description>
       </setting>
       <setting name="file.upload.append">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, use append mode when uploading log files to server.
+        <description>If checked, use append mode when uploading log files to server.
         </description>
       </setting>
       <setting name="file.upload.append.sizeLimit">
@@ -795,9 +795,9 @@
     <label>Security</label>
     <description>These settings affect security aspects of SoundPoint(R) IP.</description>
     <setting name="tagSerialNo">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, the phone may advertise its serial number (Ethernet address) via protocol
+      <description>If checked, the phone may advertise its serial number (Ethernet address) via protocol
         signaling.
       </description>
     </setting>
@@ -1000,7 +1000,7 @@
         </setting>
         <setting name="register">
           <profileName>server.2.register</profileName>
-          <type><integer min="0" max="1"/></type>
+          <type><boolean/></type>
           <value>1</value>
           <description>If set to 0, calls can be routed to an outbound proxy without registration.
           </description>
@@ -1063,34 +1063,34 @@
     </group>
     <group name="protocol">
       <setting name="useRFC2543hold">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, use the obsolete c=0.0.0.0 RFC2543 technique, otherwise, use SDP media
+        <description>If checked, use the obsolete c=0.0.0.0 RFC2543 technique, otherwise, use SDP media
           direction attributes (such as a=sendonly) per RFC 3264 when initiating hold. In either case, the phone
           processes incoming hold signaling in either format.
         </description>
       </setting>
       <setting name="lcs">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
-        <description> If set to 1, the proprietary 'epid' parameter is added to the From field of all requests to
+        <description> If checked, the proprietary 'epid' parameter is added to the From field of all requests to
           support Windows Live Communications Server.
         </description>
       </setting>
       <setting name="sendCompactHdrs">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>If set to 0, SIP header names generated by the phone use the long form, for example 'From'. If
           set to 1, SIP header names generated by the phone use the short form, for example 'f'.
         </description>
       </setting>
       <setting name="WM50">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description>Windows Messaging 5.0 Compatability</description>
       </setting>
       <setting name="keepalive.sessionTimers">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>0</value>
         <description></description>
       </setting>
@@ -1175,20 +1175,20 @@
     </group>
     <group name="specialEvent">
       <setting name="lineSeize.nonStandard">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <value>1</value>
-        <description>If set to 1, process a 200 OK response for a line-seize event SUBSCRIBE as though a line-seize
+        <description>If checked, process a 200 OK response for a line-seize event SUBSCRIBE as though a line-seize
           NOTIFY with Subscription State: active header had been received, this speeds up processing.
         </description>
       </setting>
       <setting name="checkSync.alwaysReboot">
-        <type><integer min="0" max="1"/></type>
+        <type><boolean/></type>
         <!-- 
         - different from admin manual, gives us ability to reboot
         - remotely on demand
         -->
         <value>1</value>
-        <description>If set to 1, always reboot when a NOTIFY message is received from the server with event equal
+        <description>If checked, always reboot when a NOTIFY message is received from the server with event equal
           to check-sync. If set to 0, only reboot if any of the files listed in [mac].cfg have changed on the FTP
           server when a NOTIFY message is received from the server with event equal to check-sync.
         </description>
@@ -1214,14 +1214,14 @@
       <type><integer required="yes" min="0" max="2"/></type>
       <value>0</value>
       <description>If set to 0, the digits entered up to and including the point where an impossible match occurred
-        are sent to the server immediately. If set to 1, give reorder tone. If set to 2, allow user to accumulate
+        are sent to the server immediately. If checked, give reorder tone. If set to 2, allow user to accumulate
         digits and dispatch call manually with the Send soft key.
       </description>
     </setting>
     <setting name="removeEndOfDial">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>1</value>
-      <description>If set to 1, strip trailing # digit from digits sent out.
+      <description>If checked, strip trailing # digit from digits sent out.
       </description>
     </setting>
     <group name="digitmap">
@@ -1283,9 +1283,9 @@
     <description>SoundPoint(R) IP supports message-waiting indication on a per-registration basis.
     </description>
     <setting name="bypassInstantMessage">
-      <type><integer min="0" max="1"/></type>
+      <type><boolean/></type>
       <value>0</value>
-      <description>If set to 1, the display offering a choice of 'Message Center' and 'Instant Messages' will be
+      <description>If checked, the display offering a choice of 'Message Center' and 'Instant Messages' will be
         bypassed when pressing the Messages key, the phone will act as if 'Message Center' was chosen. See 3.6.1
         Voicemail Integration on page 49. Instant Messages will still be accessible from the Main
         Menu.</description>

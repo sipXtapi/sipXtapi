@@ -7,7 +7,12 @@
     <label>General</label>
     <setting name="TrayIcon">
       <label>Tray Icon</label>
-      <type><integer min="0" max="1"/></type>
+      <type>
+        <boolean>
+          <true>Yes</true>
+          <false>No</false>
+        </boolean>
+      </type>
       <value>No</value>
       <description>Yes or No, Show KPhone as a tray icon when minimized</description>
     </setting>
