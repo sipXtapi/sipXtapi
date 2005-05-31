@@ -86,6 +86,6 @@ rm -rf $RPM_BUILD_ROOT
 sipx-upgrade -p sipxproxy -c
 
 %post
-sipx-upgrade -p sipxproxy -u --ldir %{_localstatedir} --cdir %{_sysconfdir}
+sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
 
 
