@@ -21,10 +21,11 @@ import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public abstract class AbstractRing extends BeanWithId implements DataCollectionItem {
+    private static final int DEFAULT_EXPIRATION = 30;
     private static final String FORMAT = "<sip:{0}@{1}{4}?expires={2}>;;{3}";
     private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
 
-    private int m_expiration;
+    private int m_expiration = DEFAULT_EXPIRATION;
     private Type m_type = Type.DELAYED;
     private int m_position;
 
