@@ -93,6 +93,10 @@ public class JobManagerImpl extends Thread implements JobManager {
             } catch (RestartException re) {
                 status = JobRecord.STATUS_FAILED;
                 job.setExceptionMessage(re.getMessage());
+            } catch (RuntimeException e) {
+                status = JobRecord.STATUS_FAILED;
+                job.setExceptionMessage(e.toString());
+                throw e;
             }
             m_phoneContext.storeJob(job);
         }

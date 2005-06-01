@@ -75,5 +75,4 @@ public class CiscoIpPhone extends CiscoPhone {
 
         return linesSettings;
     }
-
 }

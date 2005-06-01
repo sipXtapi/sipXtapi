@@ -22,6 +22,7 @@ import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.phone.AbstractPhone;
+import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.SipService;
 import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -63,14 +64,11 @@ public abstract class CiscoPhone extends AbstractPhone {
         m_sip = sip;
     }
 
-    public SipService getSip() {
+    public SipService getSipService() {
         return m_sip;
     }
 
-    public String getPhoneFilename() {
-        String phoneFilename = getPhoneData().getSerialNumber();
-        return getTftpRoot() + "/SIP" + phoneFilename.toUpperCase() + ".cnf";
-    }
+    public abstract String getPhoneFilename();
 
     public String getPhoneTemplate() {
         return m_phoneTemplate;
@@ -138,15 +136,9 @@ public abstract class CiscoPhone extends AbstractPhone {
     }
 
     public void restart() {
-        // waiting for fix, doesn't work yet for some reason
-        if (true) {
-            return;
-        }
-
         if (getLines().size() == 0) {
-            return;
-            // throw new RestartException("Restart command is sent to first line and "
-            //        + "first phone line is not valid");
+            throw new RestartException("Restart command is sent to first line and "
+                   + "first phone line is not valid");
         }
 
         CiscoLine line = (CiscoLine) getLine(0);
@@ -156,7 +148,7 @@ public abstract class CiscoPhone extends AbstractPhone {
         // the message allows us to reboot a specific phone 
         String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: {1}\r\n" + "From: {2}\r\n"
                 + "To: {3}\r\n" + "Event: check-sync\r\n" + "Date: {4}\r\n" + "Call-ID: {5}\r\n"
-                + "CSeq: 1 NOTIFY\r\n" + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
+                + "CSeq: 1300 NOTIFY\r\n" + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
             line.getNotifyRequestUri(), m_sip.getServerVia(),
             m_sip.getServerUri(), line.getUri(), m_sip.getCurrentDate(),
@@ -166,8 +158,7 @@ public abstract class CiscoPhone extends AbstractPhone {
         try {
             m_sip.send(msg);
         } catch (IOException e) {
-            return;
-            // throw new RestartException("Could not send restart SIP message", e);
+            throw new RestartException("Could not send restart SIP message", e);
         }
     }
 }

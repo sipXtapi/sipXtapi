@@ -23,9 +23,9 @@
         <description>Specify IP address or URL of the TFTP server.</description>
       </setting>
       <setting name="CfgInterval">
-        <type><integer min="60" max="4294967295"/></type>
+        <type><integer min="60" max="2147483647"/></type>
         <value>3600</value>
-        <description>Specify IP address or URL of the TFTP server.</description>
+        <description>Period to check for updates to configuration information. Random number from 1-1800 is added.</description>
       </setting>
       <setting name="DHCP">
         <label>Enable DHCP</label>
@@ -115,7 +115,7 @@
       </setting>
       <setting name="SIPRegOn">
         <type><boolean/></type>
-        <value>0</value>
+        <value>1</value>
         <description>Enable SIP registration.</description>
       </setting>
       <setting name="SIPRegInterval">
@@ -134,7 +134,9 @@
         <description>Backup proxy address (0 = disabled).</description>
       </setting>
       <setting name="SecProxyTimeOut">
-        <type><integer min="30" max="4294967295"/></type>
+        <type>
+          <integer min="0" max="2147483647"/>
+        </type>
         <value>0</value>
         <description>Timeout before failing back to primary proxy server (0 = not until backup
           fails).</description>

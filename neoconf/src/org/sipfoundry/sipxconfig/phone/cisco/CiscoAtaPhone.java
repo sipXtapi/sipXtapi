@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone.cisco;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,10 +36,13 @@ public class CiscoAtaPhone extends CiscoPhone {
     private static final String IMAGE_ID = "imageid";
     
     private static final String NONE = "none";
+    
+    private String m_ptagDat;
+    
+    private String m_cfgfmtUtility;
 
     private String m_binDir;
-
-    /** BEAN ACCESS ONLY */
+    
     public CiscoAtaPhone() {
         setLineFactoryId(CiscoAtaLine.FACTORY_ID);
         setPhoneTemplate("cisco/cisco-ata.vm");
@@ -53,13 +57,29 @@ public class CiscoAtaPhone extends CiscoPhone {
         String phoneFilename = getPhoneData().getSerialNumber();
         return getTftpRoot() + '/' + getCfgPrefix() + phoneFilename.toLowerCase();
     }
-
-    private String getPtagFilename() {
+    
+    public void setPtagDat(String ptagDat) {
+        m_ptagDat = ptagDat;
+    }
+    
+    public String getPtagDat() {
+        if (m_ptagDat != null) {
+            return m_ptagDat;
+        }
         return getPhoneContext().getSystemDirectory() + "/cisco/" + getCfgPrefix() + "-ptag.dat";
     }
 
-    private String getCfgfmtFilename() {
-        // this points to the cfgfmt utility in etc/cisco directory
+    public void setCfgfmtUtility(String cfgfmtUtility) {
+        m_cfgfmtUtility = cfgfmtUtility;
+    }
+
+    /**
+     * this points to the cfgfmt utility in etc/cisco directory
+     */ 
+    public String getCfgfmtUtility() {
+        if (m_cfgfmtUtility != null) {
+            return m_cfgfmtUtility;
+        }
         return getPhoneContext().getSystemDirectory() + "/cisco/cfgfmt";
     }
 
@@ -80,18 +100,42 @@ public class CiscoAtaPhone extends CiscoPhone {
         } finally {
             IOUtils.closeQuietly(wtr);
         }
+        
+        requireFile(getCfgfmtUtility());
+        requireFile(getPtagDat());        
         try {
-            File cfgfmtFile = new File(getCfgfmtFilename());
-            if (cfgfmtFile.exists()) {
-                String[] cmd = { 
-                    getCfgfmtFilename(), 
-                    "-t" + getPtagFilename(),
-                    outputTxtfile, outputfile 
-                };
-                Runtime.getRuntime().exec(cmd);
+            String[] cmd = { 
+                getCfgfmtUtility(), 
+                "-t" + getPtagDat(), 
+                outputTxtfile, 
+                outputfile
+            };
+            Process p = Runtime.getRuntime().exec(cmd);
+            int errCode = p.waitFor();
+            if (errCode != 0) {
+                String msg = "Cisco profile conversion utility failed status code:" + errCode; 
+                StringWriter err = new StringWriter();                
+                err.write(msg.toCharArray());
+                CopyUtils.copy(p.getErrorStream(), err);
+                throw new RuntimeException(err.toString());
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Error converting cisco configuration " + outputfile, e);
+            
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }            
+    }
+    
+    private void requireFile(String filename) {
+        File f = new File(filename);
+        if (!f.exists()) {
+            StringBuffer msg = new StringBuffer();
+            
+            msg.append("Cannot complete configuration of Cisco device ");
+            msg.append(getPhoneData().getSerialNumber());
+            msg.append(".  Required file cannot be found ");
+            msg.append(f.getAbsolutePath());
+            msg.append(". This file is supplied by Cisco support.");
+            throw new RuntimeException(msg.toString());
         }
     }
 

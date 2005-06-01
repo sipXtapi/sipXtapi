@@ -118,7 +118,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
         sysProps.setProperty("polycom300.outboundProxyAddress", "proxy.sipfoundry.org");        
-        sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory);        
+        sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");        
     }
     
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

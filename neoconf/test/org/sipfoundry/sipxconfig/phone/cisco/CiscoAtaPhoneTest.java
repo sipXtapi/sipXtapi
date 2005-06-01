@@ -15,6 +15,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 import junit.framework.TestCase;
@@ -32,6 +33,9 @@ public class CiscoAtaPhoneTest extends TestCase {
         m_phone.setTftpRoot(TestHelper.getTestDirectory());
         m_driver.seedLine(m_line, CiscoIpLine.FACTORY_ID);
         m_driver.replay();
+        String testDir = TestUtil.getTestSourceDirectory(getClass());
+        m_phone.setCfgfmtUtility(testDir + "/cfgfmt");
+        m_phone.setPtagDat(testDir + "/ptag.dat");
     }
     
     protected void tearDown() {

@@ -353,7 +353,7 @@
       </setting>
       <setting name="proxy_register">
         <type><boolean/></type>
-        <value>0</value>
+        <value>1</value>
         <description>The phone must register with a proxy server during initialization.</description>
       </setting>
       <setting name="sip_invite_retx">

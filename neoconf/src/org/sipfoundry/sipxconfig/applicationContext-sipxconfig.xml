@@ -331,6 +331,9 @@
     <property name="tftpRoot">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>
+    <property name="sipService">
+        <ref local="sip"/>
+    </property>
   </bean>
   <bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" parent="cisco7960"
     singleton="false"/>
