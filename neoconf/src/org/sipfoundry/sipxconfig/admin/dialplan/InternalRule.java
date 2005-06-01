@@ -91,7 +91,8 @@ public class InternalRule extends DialingRule {
             rules.add(transfer);
         }
         if (generateVoiceMailRules) {
-            MappingRule fallback = new MappingRule.VoicemailFallback(m_localExtensionLen);
+            // pass -1 to generate fallback rule that matches any extension
+            MappingRule fallback = new MappingRule.VoicemailFallback(-1);
             rules.add(fallback);
         }
     }

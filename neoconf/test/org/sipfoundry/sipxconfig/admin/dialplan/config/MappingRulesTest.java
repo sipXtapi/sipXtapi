@@ -153,7 +153,7 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.Operator("", aa));
         rules.add(new MappingRule.Voicemail("101"));
         rules.add(new MappingRule.VoicemailTransfer("2", extension));
-        rules.add(new MappingRule.VoicemailFallback(extension));
+        rules.add(new MappingRule.VoicemailFallback(3));
 
         MockControl controlPlan = MockControl.createStrictControl(DialPlanContext.class);
         DialPlanContext plan = (DialPlanContext) controlPlan.getMock();

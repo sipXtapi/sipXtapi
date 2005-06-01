@@ -72,7 +72,7 @@ public class InternalRuleTest extends TestCase {
         UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
         assertEquals(VOICEMAIL_TRANSFER_URL, tvt.getUrl());
 
-        assertEquals("xxxxx", vf.getPatterns()[0]);
+        assertEquals(".", vf.getPatterns()[0]);
         assertEquals(Permission.VOICEMAIL, vf.getPermissions().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
