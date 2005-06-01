@@ -36,7 +36,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
     private static final String[][] DEFAULTS = {
         {
-            "Emergency", "true", "Emergency", "Emergency dialing plan"
+            "Emergency", "false", "Emergency", "Emergency dialing plan"
         }, {
             "International", "false", "International", "International dialing"
         }, {
@@ -200,7 +200,6 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.clickSubmitLink(tester, "addGatewayLink");
-            tester.dumpResponse();
             gateways[i] = GatewaysTestUi.addGateway(tester, "g" + i);
         }
 

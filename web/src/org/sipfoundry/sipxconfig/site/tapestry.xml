@@ -61,6 +61,11 @@
       <value>Only limited set of characters is valid in SIP URLs, for example: 321, joedoe, joe!?~*222</value>
     </property>
   </bean>
+  <bean name="validRule" class="org.sipfoundry.sipxconfig.site.dialplan.RuleValidator">
+    <property name="gatewaysRequiredMessage">
+      <value>Add at least one gateway before enabling the rule.</value>      
+    </property>
+  </bean>
   <bean id="limitedBackupCountModelPart1"
     class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <property name="collection">

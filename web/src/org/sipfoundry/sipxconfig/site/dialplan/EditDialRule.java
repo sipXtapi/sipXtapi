@@ -16,6 +16,7 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -25,6 +26,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.BeanFactoryGlobals;
 
 /**
  * EditCustomeDialRule
@@ -103,6 +105,11 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
                 .getBean("descriptionValidator");
         descriptionValidator.validate(delegate);
+        // TODO: check if it can be changed to page bean
+        BeanFactoryGlobals globals = (BeanFactoryGlobals) getGlobal();
+        RuleValidator ruleValidator = (RuleValidator) globals.get("validRule");
+        ruleValidator.validate(getRule(), delegate, (IFormComponent) component
+                .getComponent("enabled"));
         return !delegate.getHasErrors();
     }
 
