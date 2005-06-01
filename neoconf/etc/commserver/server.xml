@@ -3,6 +3,18 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
+  <type id="loglevel">
+    <enum>
+      <option><value>DEBUG</value></option>
+      <option><value>INFO</value></option>
+      <option><value>NOTICE</value></option>
+      <option><value>WARNING</value></option>
+      <option><value>ERR</value></option>
+      <option><value>CRIT</value></option>
+      <option><value>ALERT</value></option>
+      <option><value>EMERG</value></option>
+    </enum>
+  </type>
   <group name="voice-mail">
     <label>Voice Mail</label>
     <setting name="VOICEMAIL_AGE_LIMIT">
@@ -65,6 +77,50 @@
       <value>*4</value>
       <description>Code that needs to be dialed to retrieve parked call. Dial this code followed by call park
         extension to pick up parked call.</description>
+    </setting>
+  </group>
+  <group name="Logging">
+    <setting name="SIP_AUTHPROXY_LOG_LEVEL">
+      <label>Authorization Proxy Log Level</label>
+      <profileName>authproxy-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Authorization and permission handling.</description>
+    </setting>
+    <setting name="SIP_PROXY_LOG_LEVEL">
+      <label>Proxy Log Level</label>
+      <profileName>proxy-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Dispatching of SIP traffic.</description>
+    </setting>
+    <setting name="SIP_REGISTRAR_LOG_LEVEL">
+      <label>Registrar Log Level</label>
+      <profileName>registrar-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Handling of phones registering for calls.</description>
+    </setting>
+    <setting name="SIP_SDS_LOG_LEVEL">
+      <label>Software Delivery Server Log Level</label>
+      <profileName>sds-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Handling of SUBSCRIBE/NOTIFY messages for configuration (for SIP Softphone only)</description>
+    </setting>
+    <setting name="SIP_PARK_LOG_LEVEL">
+      <label>Park Server Log Level</label>
+      <profileName>sipxpark-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Handling of calls getting parked and picked up.</description>
+    </setting>
+    <setting name="SIP_STATUS_LOG_LEVEL">
+      <label>Status Server Log Level</label>
+      <profileName>sipxpark-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Handling of SUBSCRIBE/NOTIFY messages for voicemail notification control (MWI)</description>
     </setting>
   </group>
 </model>
