@@ -28,6 +28,7 @@ public final class Permission extends Enum {
     public static final Permission AUTO_ATTENDANT = new Permission("AutoAttendant");
     public static final Permission FORWARD_CALLS_EXTERNAL = new Permission("ForwardCallsExternal");
     public static final Permission RECORD_SYSTEM_PROMPTS = new Permission("RecordSystemPrompts");
+    public static final Permission VALID_USER = new Permission("ValidUser");
 
     private Permission(String permision) {
         super(permision);
