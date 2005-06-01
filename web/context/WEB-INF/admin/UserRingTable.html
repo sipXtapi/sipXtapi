@@ -15,7 +15,12 @@
 	        </thead>
 	        <tbody>
 	            <span jwcid="sequenceColumnValue">
-	                <span jwcid="sequence"></span>
+                    <span jwcid="ifRenderSequence">
+		                <span jwcid="sequence"></span>
+                    </span>
+                	<span jwcid="ifRenderInitial">
+                        <span jwcid="@InsertText" value="message:text.initiallyCall">Initially call</span>
+                    </span>    
 	            </span>
 	            <span jwcid="expirationColumnValue">
 	                <input jwcid="expiration" maxlength="6" type="text" size="3"></input>

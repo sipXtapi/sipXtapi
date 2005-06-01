@@ -35,6 +35,7 @@ public class CallGroupTest extends TestCase {
         List calls = group.getCalls();
         assertEquals(1, calls.size());
         assertSame(ring, calls.get(0));
+        assertTrue(ring.isFirst());
     }
 
     public void testActivate() {

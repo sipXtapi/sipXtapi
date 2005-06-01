@@ -20,11 +20,13 @@
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.admin.callgroup.UserRing"/>
     
+    <property-specification name="currentRowNumber" type="int"/>
+    
 	<property-specification name="selections" 
     	type="org.sipfoundry.sipxconfig.components.SelectMap"
     	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"
     	/>
-    
+            
 	<property-specification name="rowsToDelete" type="java.util.Collection"/>    
 	<property-specification name="rowsToMoveUp" type="java.util.Collection"/>  
 	<property-specification name="rowsToMoveDown" type="java.util.Collection"/>    
@@ -51,6 +53,15 @@
     <component id="sequence" type="PropertySelection">
         <binding name="value" expression="currentRow.type"/>
         <binding name="model" expression="beans.delayModel"/>
+    </component>
+    
+    <!-- it would be better if we just suppress this for the first row however 
+    	it's hard to get access to the row number -->
+    <component id="ifRenderSequence" type="contrib:FormConditional">
+        <binding name="condition" expression="!currentRow.first"/>
+    </component>
+    <component id="ifRenderInitial" type="contrib:FormConditional">
+        <binding name="condition" expression="currentRow.first"/>
     </component>
     
 	<component id="expirationColumnValue" type="Block"/>

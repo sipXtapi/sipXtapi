@@ -40,4 +40,14 @@ public class UserRing extends AbstractRing {
     public void setCallGroup(CallGroup callGroup) {
         m_callGroup = callGroup;
     }
+
+    /**
+     * Checks if this ring is first in the sequence
+     * 
+     * @return true if this is the first ring
+     */
+    public boolean isFirst() {
+        AbstractRing ring = (AbstractRing) getCallGroup().getCalls().get(0);
+        return ring.equals(this);
+    }
 }
