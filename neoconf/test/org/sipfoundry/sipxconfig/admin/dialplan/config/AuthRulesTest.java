@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 public class AuthRulesTest extends XMLTestCase {
     private static final int GATEWAYS_LEN = 5;
 
-
     public AuthRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
@@ -50,6 +49,7 @@ public class AuthRulesTest extends XMLTestCase {
 
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
+        control.expectAndReturn(rule.getDescription(), "test rule description");
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "555", "666", "777"
         });
@@ -67,6 +67,7 @@ public class AuthRulesTest extends XMLTestCase {
         Document document = authRules.getDocument();
         String domDoc = XmlUnitHelper.asString(document);
 
+        assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
         assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
         assertXpathEvaluatesTo("555", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathEvaluatesTo("666", "/mappings/hostMatch/userMatch/userPattern[2]", domDoc);
@@ -90,6 +91,7 @@ public class AuthRulesTest extends XMLTestCase {
 
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
+        control.expectAndReturn(rule.getDescription(), null);
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "555", "666", "777"
         });
@@ -131,7 +133,7 @@ public class AuthRulesTest extends XMLTestCase {
 
         control.verify();
     }
-    
+
     public void testGenerateNoPermissionRequiredRule() throws Exception {
         Gateway[] gateways = new Gateway[GATEWAYS_LEN];
         for (int i = 0; i < gateways.length; i++) {
@@ -139,9 +141,10 @@ public class AuthRulesTest extends XMLTestCase {
             gateways[i].setUniqueId();
             gateways[i].setAddress("10.1.2." + i);
         }
-        
+
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
+        control.expectAndReturn(rule.getDescription(), null);
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "555", "666", "777"
         });
@@ -165,13 +168,12 @@ public class AuthRulesTest extends XMLTestCase {
         assertXpathEvaluatesTo("555", hostMatch + "userMatch/userPattern", domDoc);
         assertXpathEvaluatesTo("666", hostMatch + "userMatch/userPattern[2]", domDoc);
         assertXpathEvaluatesTo("777", hostMatch + "userMatch/userPattern[3]", domDoc);
-        assertXpathEvaluatesTo("", hostMatch + "/userMatch/permissionMatch",
-                domDoc);
+        assertXpathEvaluatesTo("", hostMatch + "/userMatch/permissionMatch", domDoc);
 
         // check if generate no access has been called properly
         assertEquals(GATEWAYS_LEN, authRules.uniqueGateways);
 
-        control.verify();        
+        control.verify();
     }
 
     public void testGenerateNoAccessRule() throws Exception {
@@ -195,8 +197,6 @@ public class AuthRulesTest extends XMLTestCase {
         assertXpathEvaluatesTo("NoAccess",
                 lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
     }
-    
-    
 
     public void testNamespace() {
         AuthRules rules = new AuthRules();
@@ -206,11 +206,12 @@ public class AuthRulesTest extends XMLTestCase {
         XmlUnitHelper.assertElementInNamespace(rootElement,
                 "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00");
     }
-            
+
     private class MockAuthRules extends AuthRules {
-        public int uniqueGateways = 0; 
+        public int uniqueGateways = 0;
+
         void generateNoAccess(List gateways) {
-            uniqueGateways = gateways.size(); 
+            uniqueGateways = gateways.size();
         }
     }
 }

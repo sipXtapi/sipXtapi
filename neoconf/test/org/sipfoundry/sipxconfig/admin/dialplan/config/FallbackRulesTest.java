@@ -41,6 +41,8 @@ public class FallbackRulesTest extends XMLTestCase {
         MockControl control = MockControl.createStrictControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.isInternal(), false);
+        control.expectAndReturn(rule.getName(), "my test name");
+        control.expectAndReturn(rule.getDescription(), "my test description");
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "x."
         });
@@ -61,6 +63,8 @@ public class FallbackRulesTest extends XMLTestCase {
 
         String domDoc = XmlUnitHelper.asString(document);
 
+        assertXpathEvaluatesTo("my test description",
+                "/mappings/hostMatch/userMatch/description", domDoc);
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
         assertXpathEvaluatesTo("333",

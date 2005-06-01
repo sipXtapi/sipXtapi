@@ -79,20 +79,24 @@ public class InternalRule extends DialingRule {
         boolean generateVoiceMailRules = StringUtils.isNotBlank(m_voiceMail);
         if (m_autoAttendant != null) {
             MappingRule operator = new MappingRule.Operator(getName(), m_autoAttendant);
+            operator.setDescription(getDescription());
             rules.add(operator);
         }
         if (generateVoiceMailRules) {
             MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail);
+            voicemail.setDescription(getDescription());
             rules.add(voicemail);
         }
         if (StringUtils.isNotBlank(m_voiceMailPrefix)) {
             MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
                     m_localExtensionLen);
+            transfer.setDescription(getDescription());
             rules.add(transfer);
         }
         if (generateVoiceMailRules) {
             // pass -1 to generate fallback rule that matches any extension
             MappingRule fallback = new MappingRule.VoicemailFallback(-1);
+            fallback.setDescription(getDescription());
             rules.add(fallback);
         }
     }

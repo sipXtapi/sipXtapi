@@ -67,7 +67,9 @@ public class EmergencyRuleTest extends TestCase {
     }
 
     public void testAppendToGenerationRulesEnabled() {
+        final String testDescription = "emergency rule test description";
         m_rule.setEnabled(true);
+        m_rule.setDescription(testDescription);
         List gateways = m_rule.getGateways();
         assertEquals(1, gateways.size());
         ArrayList rules = new ArrayList();
@@ -75,6 +77,7 @@ public class EmergencyRuleTest extends TestCase {
         assertEquals(1, rules.size());
         DialingRule rule = (DialingRule) rules.get(0);
         assertEquals(1, rule.getGateways().size());
+        assertEquals(testDescription,rule.getDescription());
 
         // if we are using media server return empty gateways list
         m_rule.setUseMediaServer(true);
@@ -85,6 +88,7 @@ public class EmergencyRuleTest extends TestCase {
         assertEquals(1, rules.size());
         rule = (DialingRule) rules.get(0);
         assertTrue(rule.getGateways().isEmpty());
+        assertEquals(testDescription,rule.getDescription());
     }
 
     public void testAppendToGenerationRulesDisabled() {

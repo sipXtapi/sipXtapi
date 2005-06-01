@@ -90,11 +90,13 @@ public class LongDistanceRuleTest extends TestCase {
     
     public void testAreaCodes() {
         m_rule.setAreaCodes("  305 411,222");
+        m_rule.setDescription("testDescription");
         List list = new ArrayList();
         m_rule.appendToGenerationRules(list);
         assertEquals(3, list.size());
         for (Iterator i = list.iterator(); i.hasNext();) {
             CustomDialingRule r = (CustomDialingRule) i.next();
+            assertEquals("testDescription",r.getDescription());
             String[] patterns = r.getPatterns();
             assertEquals(3, patterns.length);
             assertTrue(patterns[0].endsWith("xxxx"));

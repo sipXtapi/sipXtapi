@@ -94,6 +94,8 @@ public class MappingRulesTest extends XMLTestCase {
         MockControl control = MockControl.createStrictControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.isInternal(), true);
+        control.expectAndReturn(rule.getName(), null);
+        control.expectAndReturn(rule.getDescription(), "my rule description");
         control.expectAndReturn(rule.getPatterns(), new String[] {
             "x."
         });
@@ -114,6 +116,8 @@ public class MappingRulesTest extends XMLTestCase {
 
         String domDoc = XmlUnitHelper.asString(document);
 
+        assertXpathEvaluatesTo("my rule description",
+                "/mappings/hostMatch/userMatch/description", domDoc);
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathEvaluatesTo("Voicemail",
                 "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
@@ -144,7 +148,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         control.verify();
     }
-    
+
     public void testInternalRules() throws Exception {
         int extension = 3;
         List rules = new ArrayList();

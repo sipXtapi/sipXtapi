@@ -87,6 +87,7 @@ public class EmergencyRule extends DialingRule {
         try {
             DialingRule rule = (DialingRule) clone();
             rule.setGateways(Collections.EMPTY_LIST);
+            rule.setDescription(getDescription());
             rules.add(rule);
         } catch (CloneNotSupportedException e) {
             // should never happen

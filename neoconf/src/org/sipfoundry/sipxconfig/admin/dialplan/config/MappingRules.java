@@ -72,6 +72,8 @@ public class MappingRules extends XmlFile implements ConfigFile {
     protected final void generateRule(IDialingRule rule) {
         Element hostMatch = getFirstHostMatch();
         Element userMatch = hostMatch.addElement("userMatch");
+        addRuleNameComment(userMatch, rule);
+        addRuleDescription(userMatch, rule);
         String[] patterns = rule.getPatterns();
         for (int i = 0; i < patterns.length; i++) {
             String pattern = patterns[i];

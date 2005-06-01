@@ -67,7 +67,8 @@ public class AuthRules extends XmlFile implements ConfigFile {
         }
         Element mappings = m_doc.getRootElement();
         Element hostMatch = mappings.addElement("hostMatch");
-        hostMatch.addComment(rule.getName());
+        addRuleNameComment(hostMatch, rule);
+        addRuleDescription(hostMatch, rule);
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Gateway gateway = (Gateway) i.next();
             Element hostPattern = hostMatch.addElement("hostPattern");
@@ -96,7 +97,7 @@ public class AuthRules extends XmlFile implements ConfigFile {
 
     void generateNoAccess(List gateways) {
         CustomDialingRule rule = new CustomDialingRule();
-        rule.setName(NO_ACCESS_RULE);
+        rule.setDescription(NO_ACCESS_RULE);
         rule.setGateways(gateways);
         rule.setPermissions(Collections.singletonList(Permission.NO_ACCESS));
         DialPattern matchAll = new DialPattern(".", 0);

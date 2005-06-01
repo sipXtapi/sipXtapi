@@ -85,11 +85,13 @@ public class LongDistanceRule extends DialingRule {
         String[] areaPatterns = DialPattern.getPatternsFromList(m_areaCodes, StringUtils.EMPTY);
         if (0 == areaPatterns.length) {
             CustomDialingRule rule = createCustomRule(StringUtils.EMPTY);
+            rule.setDescription(getDescription());
             rules.add(rule);
         } else {
             for (int i = 0; i < areaPatterns.length; i++) {
                 String areaCode = areaPatterns[i];
                 CustomDialingRule rule = createCustomRule(areaCode);
+                rule.setDescription(getDescription());
                 rules.add(rule);
             }
         }
