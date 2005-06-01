@@ -28,12 +28,6 @@
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
-    <bean name="extensionLenModel" 
-        class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
-        lifecycle="page">
-    	<set-property name="min" expression="1"/>
-	    <set-property name="max" expression="7"/>
-	</bean>    
     <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
         <set-property name="collection" expression="dialPlanManager.autoAttendants"/>
         <set-property name="labelExpression" expression="'name'"/>            
@@ -52,21 +46,24 @@
     
     <component id="extensionLenLabel" type="FieldLabel">
         <binding name="field" expression="components.extensionLen"/>
-        <static-binding name="displayName" value="Internal station extension length"/>
     </component>
-    <component id="extensionLen" type="PropertySelection">
+    <component id="extensionLen" type="contrib:NumericField">
         <binding name="value" expression="rule.localExtensionLen"/>
-        <binding name="model" expression="beans.extensionLenModel"/>
+        <binding name="minimum" expression="1"/>
+        <binding name="maximum" expression="99"/>
+        <binding name="required" expression="true"/>
+        <static-binding name="type" value="int"/>
+        <message-binding name="displayName" key="label.extensionLen"/>
     </component>
     
     <component id="autoAttendantLabel" type="FieldLabel">
         <binding name="field" expression="components.autoAttendant"/>
-        <static-binding name="displayName" value="Auto attendant extension"/>
+        <message-binding name="displayName" key="label.autoAttendant"/>
     </component>
     <component id="autoAttendant" type="PropertySelection">
         <binding name="value" expression="rule.autoAttendant"/>
         <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    </component>
+    </component>    
 
     <component id="voiceMailLabel" type="FieldLabel">
         <binding name="field" expression="components.voiceMail"/>
@@ -74,7 +71,7 @@
     <component id="voiceMail" type="ValidField">
         <binding name="value" expression="rule.voiceMail"/>
         <binding name="validator" expression="global.validPhone"/>
-        <static-binding name="displayName" value="Voice mail extension"/>
+        <message-binding name="displayName" key="label.voiceMail"/>
     </component>
         
     <component id="voiceMailPrefixLabel" type="FieldLabel">
@@ -83,17 +80,15 @@
     <component id="voiceMailPrefix" type="ValidField">
         <binding name="value" expression="rule.voiceMailPrefix"/>
         <binding name="validator" expression="global.validPhone"/>
-        <static-binding name="displayName" value="Voicemail inbox prefix"/>
+        <message-binding name="displayName" key="label.voiceMailPrefix"/>
     </component>
 
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
+        <message-binding name="value" key="button.ok"/>
     </component>
     <component id="onCancel" type="CancelButton">
         <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
+        <message-binding name="value" key="button.cancel"/>
     </component>
-    
-    <!--
-	 - A S S E T S
-	 -->	
 </page-specification>

@@ -39,7 +39,7 @@
     </component>    
     <component id="integerBlock" type="Block"></component>
     
-    
+        
 	<component id="stringField" type="ValidField">
         <binding name="id" expression="'setting:' + setting.name"/>
         <binding name="value" expression="setting.value"/>
