@@ -29,6 +29,8 @@ public interface CallGroupContext {
 
     void duplicateCallGroups(Collection ids);
 
+    void removeUser(Integer userId);
+
     void clear();
 
     List getAliases();
@@ -40,10 +42,10 @@ public interface CallGroupContext {
     void removeParkOrbits(Collection ids);
 
     Collection getParkOrbits();
-    
+
     void activateParkOrbits();
-    
+
     String getDefaultMusicOnHold();
-    
+
     void setDefaultMusicOnHold(String newMusic);
 }

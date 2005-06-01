@@ -121,6 +121,20 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
 
         AliasMapping aliasMapping = (AliasMapping) aliases.get(0);
         assertTrue(aliasMapping.getIdentity().startsWith("401"));
-        assertTrue(aliasMapping.getContact().startsWith("sales"));        
+        assertTrue(aliasMapping.getContact().startsWith("sales"));
+    }
+
+    public void testRemoveUser() throws Exception {
+        CallGroup callGroup = m_context.loadCallGroup(new Integer(1002));
+        List userRings = callGroup.getCalls();
+        assertEquals(1, userRings.size());
+
+        UserRing ring = (UserRing) userRings.get(0);
+
+        m_context.removeUser(ring.getUser().getId());
+
+        callGroup = m_context.loadCallGroup(new Integer(1002));
+        userRings = callGroup.getCalls();
+        assertTrue(userRings.isEmpty());
     }
 }
