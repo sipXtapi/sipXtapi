@@ -10,6 +10,8 @@
 
 <body>
   <h2>Default Settings</h2>
+  <p>To provide settings that can be shared across all phones of a particular model.
+       Values explicitly set on individual phones will override these values.</p>
 
   <a href="defaults.html">Default</a> &gt;&gt;
   <a href="default-sales.html">Sales</a> &gt;&gt;
@@ -213,13 +215,13 @@
 
       <ul class="form-actions">
         <li><input name="cancel" value="Cancel" id="setting:cancel"
-        type="submit" /></li>
+        type="button" onclick="location.href='phones.html'"/></li>
 
         <li><input name="apply" value="Apply" id="setting:apply"
-        type="submit" /></li>
+        type="button" /></li>
 
-        <li><input name="ok" value="OK" id="setting:ok" type=
-        "submit" /></li>
+        <li><input name="ok" value="OK" id="setting:ok" 
+         type="button" onclick="location.href='phones.html'"/></li>
       </ul>
     </form>
   </div><!-- Render time: ~ 119 ms -->

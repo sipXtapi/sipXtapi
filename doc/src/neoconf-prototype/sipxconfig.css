@@ -56,6 +56,10 @@ pre, tt, code, kbd, samp {
     font-family: monospace; 
 }
 
+ul {
+  list-style: none;
+}
+
 legend {
   color: #000; /* IE this is blue by default */
   font: bold 80%;

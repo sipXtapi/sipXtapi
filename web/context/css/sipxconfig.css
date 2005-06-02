@@ -56,6 +56,10 @@ pre, tt, code, kbd, samp {
     font-family: monospace; 
 }
 
+ul {
+  list-style: none;
+}
+
 legend {
   color: #000; /* IE this is blue by default */
   font: bold 80%;
@@ -359,6 +363,10 @@ form.with-sections fieldset {
   background: #F0E68C;
 }
 
+fieldset td {
+  padding: 3px;
+}
+
 form.with-sections legend {
   background: #F0E68C;
 }
@@ -390,3 +398,4 @@ ul.form-actions li {
   font-weight: bold;
   color: #f00;
 }
+
