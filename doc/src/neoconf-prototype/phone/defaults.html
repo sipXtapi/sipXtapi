@@ -1,160 +1,56 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<title>sipXconfig</title>
-		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
-	</head>
-	<body id="phone-groups">
-		<div class="help">Here will be hints.</div>
-		<h2>Global Phone Settings</h2>
-		<p>To provide settings that can be shared across all phones of a 
-			particular model. Values explicitly set on individual phones will 
-			override these values.</p>
-		<form action="#">
-			<div id="settings-nav">
-				<ul>
-					<li>
-						<b>Phones</b>
-					</li>
-					<li>
-						<a href="#">Identification </a>
-					</li>
-					<li>
-						<a href="#">Lines </a>
-					</li>
-					<li>
-						<a href="#">Date/Time </a>
-					</li>
-					<li>
-						<a href="#">Preferences </a>
-					</li>
-					<li>
-						<a href="#">DTMF </a>
-					</li>
-					<li>
-						<a href="#">Sound Effects </a>
-					</li>
-					<li>
-						<a href="#">Voice/Codecs </a>
-					</li>
-					<li>
-						<a href="#">Quality of Service </a>
-					</li>
-					<li>
-						<a href="#">Time Synchronization </a>
-					</li>
-					<li>
-						<a href="#">RTP </a>
-					</li>
-					<li>
-						<a href="#">Web Server </a>
-					</li>
-					<li>
-						<a href="#">Call Handling </a>
-					</li>
-					<li>
-						<a href="#">Hold Reminder </a>
-					</li>
-					<li>
-						<a href="#">Keys </a>
-					</li>
-					<li>
-						<a href="#">Basic Logging </a>
-					</li>
-					<li>
-						<a href="#">Security </a>
-					</li>
-					<li>
-						<a href="#">Request </a>
-					</li>
-					<li>
-						<a href="#">MicroBrowser </a>
-					</li>
-					<li>
-						<a href="#">SIP Servers </a>
-					</li>
-					<li>
-						<a href="#">SIP </a>
-					</li>
-					<li>
-						<a href="#">Dial Plan </a>
-					</li>
-					<li>
-						<a href="#">Messaging </a>
-					</li>
-					<li>
-						<a href="#">Network Address Translation</a>
-					</li>
-					<li>
-						<b>Lines</b>
-					</li>
-					<li>
-						<a href="#">Registration </a>
-					</li>
-					<li>
-						<a href="#">Call Handling </a>
-					</li>
-					<li>
-						<a href="#">Diversion </a>
-					</li>
-					<li>
-						<a href="#">Dial Plan </a>
-					</li>
-					<li>
-						<a href="#">Messaging</a>
-					</li>
-				</ul>
-			</div>
-			<div id="settings-content">
-				<table>
-					<tr>
-						<td>
-							<b>Value:</b>
-						</td>
-						<td>
-							<input type="checkbox"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Visible :</td>
-						<td>
-							<input type="checkbox"/>
-						</td>
-					</tr>
-					<tr>
-						<td valign="top">Description:</td>
-						<td>If Enabled, reject all incoming calls with the 
-							reason "busy" if do-not-disturb is Enabled. If 
-							Enabled, reject all incoming calls with the reason 
-							"busy" if do-not-disturb is Enabled .If Enabled, 
-							reject all incoming calls with the reason "busy" if 
-							do-not-disturb is Enabled</td>
-					</tr>
-				</table>
-			</div>
-			<ul class="form-actions">
-				<li>
-					<input type="button" value="Cancel" 
-						onclick="history.go(-1)"/>
-				</li>
-				<li>
-					<input type="button" value="Apply"/>
-				</li>
-				<li>
-					<input type="button" value="OK" onclick="history.go(-1)"/>
-				</li>
-			</ul>
-		</form>
-		<hr/>
-		<h3>Additional Options/Future enhancements:</h3>
-		<ol>
-			<li>Would like to be able to click one link and see all settings 
-				that were overridden.</li>
-			<li>Description of each item here.</li>
-			<li>Search by keyword in description or by setting name.</li>
-			<li>Add new settings based on one's not included from Admin 
-				manual.</li>
-		</ol>
-	</body>
+<head>
+  <title>sipXconfig</title>
+  <link rel="stylesheet" type="text/css" href=
+  "../sipxconfig.css" />
+</head>
+
+<body>
+  <h2>Default Settings</h2>
+
+ <strong>Default</strong>
+
+  <div id="settings-nav">
+    <ul>
+      <li><a href="default-sales.html">Sales</a></li>
+
+      <li><a href="#">Engineering</a></li>
+
+    </ul>
+
+  </div>
+
+  <div id="settings-content">
+     <p>Click on the type of phone to edit the default settings.</p>
+    <ul>
+      <li><a href=
+      "defaults-phone.html">Cisco ATA 18X</a></li>
+
+      <li><a href=
+      "defaults-phone.html">Cisco 7940, 7960</a></li>
+
+      <li><a href=
+      "defaults-phone.html">Cisco 7912</a></li>
+
+      <li><a href=
+      "defaults-phone.html">Cisco 7905</a></li>
+
+      <li><a href=
+      "defaults-phone.html">Polycom Soundpoint 300/500/600</a></li>
+
+      <li><a href=
+      "defaults-phone.html">KPhone</a></li>
+    </ul>
+
+
+      <ul class="form-actions">
+        <li><input name="cancel" value="Cancel" id="setting:cancel"
+        type="submit" /></li>
+      </ul>
+    </form>
+  </div><!-- Render time: ~ 119 ms -->
+</body>
 </html>

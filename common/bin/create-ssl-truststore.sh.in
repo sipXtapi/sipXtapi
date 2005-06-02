@@ -85,10 +85,12 @@ fi
 if [ "${Action}" = "CHECKSUM" ]; then
   Checksum=`cat $Certificates | md5sum | awk '{print $1}'`
   if [ -f $CertificatesChecksum ]; then
-    PreviousChecksum=`cat $CertificatesChecksum`
-    if [ $Checksum == $PreviousChecksum ]; then
-      echo "Creating $TrustStore was skipped, previous checksum of contents matched"
-      exit 0;
+    if [ -f $TrustStore ]; then
+      PreviousChecksum=`cat $CertificatesChecksum`
+      if [ $Checksum == $PreviousChecksum ]; then
+        echo "Creating $TrustStore was skipped, previous checksum of contents matched"
+        exit 0;
+      fi
     fi
   fi
 fi
@@ -99,7 +101,9 @@ do
     caname="`$openssl x509 -noout -text -in $Certificate |\
          grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`" || exit 1
 
-    keytool -import -noprompt -alias "$caname" -keystore $TrustStore -storepass "$Password" -file $Certificate
+    JavaHome=`sipx-config --jdk`
+    $JavaHome/bin/keytool -import -noprompt -alias "$caname" \
+        -keystore $TrustStore -storepass "$Password" -file $Certificate || exit 1
 done
 
 if [ "${Action}" = "CHECKSUM" ]; then
