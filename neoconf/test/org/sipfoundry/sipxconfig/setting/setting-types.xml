@@ -19,7 +19,25 @@
             <value></value>
             <description>Setting Description</description>
         </setting>
-        <setting name="str_setting_def">
+        <setting name="real_setting_0">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <real min="3.14" max="15.12" required="yes"/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+        <setting name="real_setting_1">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type>
+                <real/>
+            </type>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+              <setting name="str_setting_def">
             <label>Setting Label</label>
             <profileName>Setting Profile Name</profileName>
             <type>

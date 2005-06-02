@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 import org.xml.sax.Attributes;
@@ -93,6 +94,7 @@ public class XmlModelBuilder {
     
     private void addSettingTypes(Digester digester, String patternPrefix) {
         digester.addRuleSet(new IntegerSettingRule(patternPrefix + "integer"));
+        digester.addRuleSet(new RealSettingRule(patternPrefix + "real"));
         digester.addRuleSet(new StringSettingRule(patternPrefix + "string"));
         digester.addRuleSet(new EnumSettingRule(patternPrefix + "enum"));
         digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean"));                    
@@ -207,6 +209,18 @@ public class XmlModelBuilder {
 
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), IntegerSetting.class);
+            digester.addSetProperties(getPattern());
+            super.addRuleInstances(digester);
+        }
+    }
+
+    class RealSettingRule extends SettingTypeRule {
+        public RealSettingRule(String pattern) {
+            super(pattern);
+        }
+
+        public void addRuleInstances(Digester digester) {
+            digester.addObjectCreate(getPattern(), RealSetting.class);
             digester.addSetProperties(getPattern());
             super.addRuleInstances(digester);
         }

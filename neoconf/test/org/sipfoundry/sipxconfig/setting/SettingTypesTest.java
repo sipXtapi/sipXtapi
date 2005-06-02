@@ -11,18 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
-
-import junit.framework.TestCase;
 
 public class SettingTypesTest extends TestCase {
 
@@ -35,7 +35,7 @@ public class SettingTypesTest extends TestCase {
         group = root.getSetting("group");
     }
 
-    public void testSettingIntegerType() throws IOException {
+    public void testSettingIntegerType() {
         final int[][] EXPECTED = {
             {
                 3, 15
@@ -61,7 +61,33 @@ public class SettingTypesTest extends TestCase {
         }
     }
 
-    public void testSettingStringType() throws IOException {
+    public void testSettingRealType() {
+        final float[][] EXPECTED = {
+            {
+                3.14f, 15.12f
+            }, {
+                0, Float.MAX_VALUE
+            }
+        };
+
+        final boolean[] EXPECTED_REQUIRED = {
+            true, false
+        };
+
+        for (int i = 0; i < EXPECTED.length; i++) {
+            float[] min_max = EXPECTED[i];
+
+            Setting realSetting = group.getSetting("real_setting_" + i);
+            SettingType type = realSetting.getType();
+            assertTrue(type instanceof RealSetting);
+            RealSetting realType = (RealSetting) type;
+            assertEquals(min_max[0], realType.getMin(), 0.001f);
+            assertEquals(min_max[1], realType.getMax(), 0.001f);
+            assertEquals(EXPECTED_REQUIRED[i], realType.isRequired());
+        }
+    }
+
+    public void testSettingStringType() {
         Setting stringSetting = group.getSetting("str_setting_def");
         SettingType type = stringSetting.getType();
         assertTrue(type instanceof StringSetting);
@@ -81,16 +107,16 @@ public class SettingTypesTest extends TestCase {
         assertTrue(strType.isPassword());
     }
 
-    public void testSettingEnumType() throws IOException {
+    public void testSettingEnumType() {
         final String[][] V2L = {
-                {
-                    "0", "Zero"
-                }, {
-                    "something", "XXX"
-                }, {
-                    "no_label_value", "no_label_value"
-                }
-            };
+            {
+                "0", "Zero"
+            }, {
+                "something", "XXX"
+            }, {
+                "no_label_value", "no_label_value"
+            }
+        };
         Setting enumSetting = group.getSetting("enum_setting");
         assertNotNull(enumSetting);
         SettingType type = enumSetting.getType();
@@ -99,13 +125,13 @@ public class SettingTypesTest extends TestCase {
         Map enums = enumType.getEnums();
         assertEquals(V2L.length, enums.size());
         int i = 0;
-        for (Iterator iter = enums.entrySet().iterator(); iter.hasNext();i++) {
+        for (Iterator iter = enums.entrySet().iterator(); iter.hasNext(); i++) {
             Map.Entry entry = (Map.Entry) iter.next();
             assertEquals(V2L[i][0], entry.getKey());
             assertEquals(V2L[i][1], entry.getValue());
-        }        
+        }
     }
-    
+
     public void testDefaultBooleanType() {
         Setting setting = group.getSetting("boolean_default");
         SettingType type = setting.getType();

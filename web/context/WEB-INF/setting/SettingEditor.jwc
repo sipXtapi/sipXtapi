@@ -39,6 +39,16 @@
     </component>    
     <component id="integerBlock" type="Block"></component>
     
+    <component id="realField" type="contrib:NumericField">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="value" expression="setting.value"/>
+        <binding name="displayName" expression="setting.label"/>
+        <binding name="minimum" expression="setting.type.min"/>
+        <binding name="maximum" expression="setting.type.max"/>
+        <binding name="required" expression="setting.type.required"/>
+        <static-binding name="type" value="Float"/>
+    </component>    
+    <component id="realBlock" type="Block"></component>
         
 	<component id="stringField" type="ValidField">
         <binding name="id" expression="'setting:' + setting.name"/>

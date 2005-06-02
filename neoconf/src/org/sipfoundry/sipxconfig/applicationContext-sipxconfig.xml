@@ -402,7 +402,7 @@
       <value>Emergency dialing plan</value>
     </property>
     <property name="enabled">
-      <value>true</value>
+      <value>false</value>
     </property>
     <property name="optionalPrefix">
       <value>9</value>
