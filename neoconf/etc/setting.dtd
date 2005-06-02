@@ -20,8 +20,8 @@
 <!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean|real)?>
 <!ATTLIST type 
     required %flag; "no"
-    id NMTOKEN #IMPLIED
-    refid NMTOKEN #IMPLIED>
+    id ID #IMPLIED
+    refid IDREF #IMPLIED>
 
 <!ELEMENT integer EMPTY>
 <!ATTLIST integer 

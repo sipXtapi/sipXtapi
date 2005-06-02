@@ -104,7 +104,7 @@
         <description>Month in which DST begins.</description>
       </setting>
       <setting name="dst_start_time">
-        <type id="hh:mm"/>
+        <type refid="hh:mm"/>
         <value>02:00</value>
         <description>Time of day on which DST begins.</description>
       </setting>
