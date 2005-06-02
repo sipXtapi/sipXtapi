@@ -399,3 +399,8 @@ ul.form-actions li {
   color: #f00;
 }
 
+/* comments sections prototype specific */
+#comments {
+	border-top: solid;
+	color: #08f
+}
