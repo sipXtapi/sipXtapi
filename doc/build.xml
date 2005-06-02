@@ -154,9 +154,9 @@
 			<fileset dir="${src.dir}/neoconf-prototype">
 				<include name="**/*.gif" />
 				<include name="**/*.png" />
-				<include name="**/*.css" />
 				<include name="**/*.js" />
 			</fileset>
+                        <fileset file="${top.dir}/web/context/css/sipxconfig.css"/>
 		</copy>
 
 	</target>
