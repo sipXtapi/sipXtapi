@@ -34,6 +34,7 @@
     <page name="EditLine" specification-path="line/EditLine.page"/>    
     <page name="EditLocalDialRule" specification-path="dialplan/EditLocalDialRule.page"/>
     <page name="EditLongDistanceDialRule" specification-path="dialplan/EditLongDistanceDialRule.page"/>
+    <page name="EditPhoneDefaults" specification-path="phone/EditPhoneDefaults.page"/>
     <page name="EditGateway" specification-path="dialplan/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
@@ -67,6 +68,7 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+    <component-type type="PhoneDefaultsNavigation" specification-path="phone/PhoneDefaultsNavigation.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>

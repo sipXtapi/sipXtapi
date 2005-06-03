@@ -138,7 +138,6 @@ li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
 }
 
 #settings-nav {
-  width: 11em;
   float:left;
 }
 
@@ -153,7 +152,6 @@ li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
 }
 
 #settings-content {
-  margin-left: 12em;
 }
 
 #footer {
@@ -341,8 +339,6 @@ div.help {
 
 fieldset {
   border-style: none;
-  font-size: 120%;
-  width: 40em;
   margin-top: 1em; 
 }
 
@@ -351,6 +347,7 @@ legend {
 }
 
 label {
+  font-size: 120%;
   padding-right: 1em;
 }
 

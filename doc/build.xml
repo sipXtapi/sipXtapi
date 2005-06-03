@@ -156,6 +156,7 @@
 				<include name="**/*.png" />
 				<include name="**/*.js" />
 			</fileset>
+                        <!-- don't copy the one in doc, it's a symbolic link, grab master copy -->
                         <fileset file="${top.dir}/web/context/css/sipxconfig.css"/>
 		</copy>
 
