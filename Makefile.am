@@ -36,6 +36,7 @@ EXTRA_DIST = \
     neoconf \
     sipxconfig.spec \
     web \
+    meta \
     profilegenerator \
     profilewriter \
     profilepublisher \
