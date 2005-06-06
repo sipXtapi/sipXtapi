@@ -225,11 +225,11 @@ then
     # Arrange for Postgres to be started automatically in runlevels 3
     # and 5.
     # Check if we can use chkconfig.
-    if which chkconfig >/dev/null 2>&1
+    if [ -f /sbin/chkconfig ]
     then
         # We have to specify the runlevels because the default set of
         # runlevels for Postgres is empty.
-        chkconfig --level 35 $Service on
+        /sbin/chkconfig --level 35 $Service on
     else
         # The user will have to do it manually.
         echo chkconfig does not exist.
