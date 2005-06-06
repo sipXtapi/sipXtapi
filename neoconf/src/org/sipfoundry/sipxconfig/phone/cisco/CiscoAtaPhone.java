@@ -24,7 +24,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineData;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
 /**
  * Support for Cisco ATA186/188 and Cisco 7905/7912
@@ -91,12 +95,15 @@ public class CiscoAtaPhone extends CiscoPhone {
         m_binDir = binDir;
     }
 
-    protected void save(String profile) throws IOException {
+    public void generateProfiles() {
         String outputfile = getPhoneFilename();
         String outputTxtfile = outputfile + ".txt";
-        FileWriter wtr = new FileWriter(outputTxtfile);
+        FileWriter wtr = null;
         try {
-            CopyUtils.copy(profile, wtr);
+            wtr = new FileWriter(outputTxtfile);
+            generateProfile(wtr);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(wtr);
         }
@@ -119,7 +126,8 @@ public class CiscoAtaPhone extends CiscoPhone {
                 CopyUtils.copy(p.getErrorStream(), err);
                 throw new RuntimeException(err.toString());
             }
-            
+        } catch (IOException e) {
+            throw new RuntimeException(e);            
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }            
@@ -138,14 +146,20 @@ public class CiscoAtaPhone extends CiscoPhone {
             throw new RuntimeException(msg.toString());
         }
     }
-
-    // some settings should probably be added here
-    protected void setDefaults(Setting settings) {
-        String domainName = getPhoneContext().getDnsDomain();
-
-        Setting pset = settings.getSetting(SIP);
-        pset.getSetting("Proxy").setValue(domainName);
-        pset.getSetting("SipOutBoundProxy").setValue(domainName);
+    
+    public Object getAdapter(Class c) {
+        Object o = null;
+        if (c == PhoneSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(c);
+            adapter.setSetting(getSettings());
+            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/SipOutBoundProxy");
+            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "sip/SIPPort");
+            o = adapter.getImplementation();
+        } else {
+            o = super.getAdapter(c);
+        }
+        
+        return o;
     }
 
     public String getSoftwareUpgradeConfig() {
@@ -196,7 +210,8 @@ public class CiscoAtaPhone extends CiscoPhone {
         int i = 0;
         Iterator ilines = lines.iterator();
         for (; ilines.hasNext() && (i < getMaxLineCount()); i++) {
-            linesSettings.add(((Line) ilines.next()).getSettings());
+            Line line = (Line) ilines.next();
+            linesSettings.add(line.getSettings());
         }
 
         // copy in blank lines of all unused lines
@@ -205,10 +220,13 @@ public class CiscoAtaPhone extends CiscoPhone {
             line.setPhone(this);
             line.setLineData(new LineData());
             line.getLineData().setPosition(i);
-            line.setUserId(ZERO);
-            line.setLoginId(ZERO);
-            line.setDisplayName(ZERO);
-            line.setPwd(ZERO);
+            line.setDefaults(new PhoneDefaults());
+            LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+            settings.setDisplayName(ZERO);
+            settings.setUserId(ZERO);
+            settings.setAuthorizationId(ZERO);
+            settings.setDisplayName(ZERO);
+            settings.setPassword(ZERO);
             linesSettings.add(line.getSettings());
         }
 

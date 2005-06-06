@@ -48,7 +48,7 @@ public class UserTestDb extends TestCase {
         user.setDisplayId("userid");
         user.setFirstName("FirstName");
         user.setLastName("LastName");
-        user.setPassword("password");
+        user.setPintoken("password");
         user.setExtension("1234");
         user.setOrganization(m_core.loadRootOrganization());
         m_core.saveUser(user);

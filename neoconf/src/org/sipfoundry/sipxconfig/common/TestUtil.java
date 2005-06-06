@@ -116,8 +116,12 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.phone", outputDirectory);
         sysProps.setProperty("sysdir.tmp", outputDirectory);
         sysProps.setProperty("sysdir.log", outputDirectory);
+        sysProps.setProperty("phoneDefaults.outboundProxy", "proxy.sipfoundry.org");
+        sysProps.setProperty("phoneDefaults.registrationServer", "registrar.sipfoundry.org");
+        sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
+        sysProps.setProperty("phoneDefaults.authorizationRealm", "realm");
+        sysProps.setProperty("phoneDefaults.domainName", "sipfoundry.org");
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
-        sysProps.setProperty("polycom300.outboundProxyAddress", "proxy.sipfoundry.org");        
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");        
     }
     

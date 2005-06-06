@@ -118,6 +118,9 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
+    <property name="legacyContext">
+      <ref bean="legacyContext"/>
+    </property>
   </bean>
   <!--
   - C O R E  C O N T E X T
@@ -275,6 +278,7 @@
       </map>
     </property>
   </bean>
+  <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.phone.PhoneDefaults"/>
   <!--
   - P H O N E  C O N T E X T
   -->
@@ -293,7 +297,9 @@
   - P H O N E  M O D E L S
   -->
   <!-- Define new phone models here, order is not important -->
-  <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false">
+  <bean id="genericPhone"
+    class="org.sipfoundry.sipxconfig.phone.GenericPhone" 
+    singleton="false">
     <property name="webDirectory">
       <!-- 
       - this is directory for a preferred place for serving 
@@ -302,72 +308,103 @@
       -->
       <value>${sysdir.phone}/profile/docroot</value>
     </property>
+    <property name="tftpRoot">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
     <property name="velocityEngine">
       <ref bean="velocityEngine"/>
+    </property>        
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>
     </property>
   </bean>
-  <bean id="kphoneLine" class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" singleton="false"/>
-  <!-- POLYCOM -->
-  <bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
+  <bean id="kphone" 
+    class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" 
+    singleton="false"
+    parent="genericPhone">
+  </bean>
+  <bean id="kphoneLine" 
+    class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" 
     singleton="false">
-    <property name="velocityEngine">
-      <ref bean="velocityEngine"/>
-    </property>
-    <property name="sipService">
-      <ref local="sip"/>
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
     </property>
   </bean>
-  <bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
-    parent="polycom300" singleton="false"/>
-  <bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
-    parent="polycom300" singleton="false"/>
-  <bean id="polycomLine" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomLine"
+    <!-- POLYCOM -->
+  <bean id="polycom300" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
+    singleton="false" 
+    parent="genericPhone">
+  </bean>
+  <bean id="polycom500" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
+    parent="polycom300" 
     singleton="false"/>
+  <bean id="polycom600" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
+    parent="polycom300" 
+    singleton="false"/>
+  <bean id="polycomLine" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
   <!-- Cisco 7940, 7960 -->
-  <bean id="cisco7960" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" singleton="false">
-    <property name="velocityEngine">
-      <ref bean="velocityEngine"/>
-    </property>
-    <property name="tftpRoot">
-      <value>${sysdir.phone}/profile/tftproot</value>
-    </property>
-    <property name="sipService">
-        <ref local="sip"/>
+  <bean id="cisco7960" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" 
+    singleton="false" 
+    parent="genericPhone">
+  </bean>
+  <bean id="cisco7940" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" 
+    parent="cisco7960"
+    singleton="false"/>
+  <bean id="ciscoIpLine" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
     </property>
   </bean>
-  <bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" parent="cisco7960"
+  <bean id="cisco7905" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" 
+    singleton="false" 
+    parent="genericPhone">
+  </bean>
+  <bean id="cisco7912" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" 
+    parent="cisco7905"
     singleton="false"/>
-  <bean id="ciscoIpLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpLine"
+  <bean id="ciscoAta18x" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone"
+    parent="cisco7905" 
     singleton="false"/>
-  <bean id="cisco7905" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false">
-    <property name="velocityEngine">
-      <ref bean="velocityEngine"/>
-    </property>
-    <property name="tftpRoot">
-      <value>${sysdir.phone}/profile/tftproot</value>
+  <bean id="ciscoAtaLine" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
     </property>
   </bean>
-  <bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" parent="cisco7905"
-    singleton="false"/>
-  <bean id="ciscoAta18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone"
-    parent="cisco7905" singleton="false"/>
-  <bean id="ciscoAtaLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaLine"
-    singleton="false"/>
   <!-- Grandstream BudgeTone, HandyTone -->
   <bean id="grandstreamBudgeTone"
-    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamBtPhone" singleton="false">
-    <property name="velocityEngine">
-      <ref bean="velocityEngine"/>
-    </property>
-    <property name="tftpRoot">
-      <value>${sysdir.phone}/profile/tftproot</value>
-    </property>
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone" 
+    singleton="false"
+    parent="genericPhone">
   </bean>
   <bean id="grandstreamHandyTone"
-    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamBtPhone"
-    parent="grandstreamBudgeTone" singleton="false"/>
-  <bean id="grandstreamBtLine" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamBtLine"
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone"
+    parent="grandstreamBudgeTone" 
     singleton="false"/>
+  <bean id="grandstreamLine" 
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
   <!--
   - D I A L   P L A N S
   - TODO: move to separate file

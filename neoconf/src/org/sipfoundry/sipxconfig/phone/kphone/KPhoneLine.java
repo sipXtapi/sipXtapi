@@ -13,17 +13,16 @@ package org.sipfoundry.sipxconfig.phone.kphone;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.AbstractLine;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 public class KPhoneLine extends AbstractLine {
     
     public static final String FACTORY_ID = "kphoneLine";
         
-    private static final String REGISTRATION = "Registration";
-    
     public Setting getSettingModel() {
         String systemDirectory = getPhoneContext().getSystemDirectory();
         File modelDefsFile = new File(systemDirectory + '/' + KPhone.FACTORY_ID + "/line.xml");
@@ -31,13 +30,25 @@ public class KPhoneLine extends AbstractLine {
         
         return model;
     }
-
-    public void setDefaults(Setting setting) {
-        User user = getLineData().getUser();
-        Setting reg = setting.getSetting(REGISTRATION);
-        if (user != null) {
-            reg.getSetting("UserName").setValue(user.getDisplayId());            
+    
+    public Object getAdapter(Class interfac) {
+        Object impl;
+        if (interfac == LineSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(getSettings());
+            adapter.addMapping(LineSettings.USER_ID, "Registration/UserName");            
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "Registration/SipServer");
+            impl = adapter.getImplementation();
+        } else {
+            impl = super.getAdapter(interfac);
         }
-        reg.getSetting("SipUri").setValue(getUri());
+        
+        return impl;        
+    }
+    
+    public void setDefaults() {
+        super.setDefaults();
+        
+        getSettings().getSetting("Registration/SipUri").setValue(getUri());
     }
 }

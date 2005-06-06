@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone.cisco;
+package org.sipfoundry.sipxconfig.phone.grandstream;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -19,31 +19,25 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
-public class CiscoIpPhoneTest extends TestCase {
+public class GrandstreamPhoneTest extends TestCase {
     
-    CiscoIpPhone phone;
+    GrandstreamPhone phone;
     
-    CiscoIpLine line;
+    GrandstreamLine line;
 
     PhoneTestDriver tester;
     
     protected void setUp() throws IOException {
-        phone = new CiscoIpPhone();
-        line = new CiscoIpLine();
-        tester = new PhoneTestDriver(phone, CiscoModel.MODEL_7960.getModelId(), line, 
-                CiscoIpLine.FACTORY_ID);
-    }
-    
-    public void testGetSettings() {
-        phone.getSettings();
+        phone = new GrandstreamPhone();
+        line = new GrandstreamLine();
+        tester = new PhoneTestDriver(phone, GrandstreamModel.MODEL_BUDGETONE.getModelId(), line, 
+                GrandstreamLine.FACTORY_ID);
     }
 
-    public void testGenerate7960Profiles() throws Exception {
+    public void testGenerateProfiles() throws Exception {
         StringWriter profile = new StringWriter();
         phone.generateProfile(profile);
-        String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-7960.cfg"));
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-gsbt.cfg"));
         assertEquals(expected, profile.toString());
     }
 }
-
-

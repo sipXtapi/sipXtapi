@@ -18,6 +18,7 @@ import java.util.Iterator;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineData;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 
 /**
@@ -48,6 +49,7 @@ public class PhoneConfiguration extends VelocityProfileGenerator {
         // copy in blank lines of all unused lines
         for (; i < phone.getMaxLineCount(); i++) {
             PolycomLine line = new PolycomLine();
+            line.setDefaults(new PhoneDefaults());
             line.setPhone(phone);
             line.setLineData(new LineData());
             line.getLineData().setPosition(i);

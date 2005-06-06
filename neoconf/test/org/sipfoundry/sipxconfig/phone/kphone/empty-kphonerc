@@ -4,9 +4,3 @@ Dialled0=
 [General]
 TrayIcon=No
 
-[Registration]
-SipUri=
-UserName=
-SipServer=
-AutoRegister=Yes
-qValue=

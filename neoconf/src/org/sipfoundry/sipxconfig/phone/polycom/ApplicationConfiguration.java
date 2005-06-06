@@ -119,13 +119,17 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
         return getDirectory() + "/phone.cfg";        
     }
     
-    public void deleteStaleDirectories() throws IOException {
-        PolycomPhone polycomPhone = (PolycomPhone) getPhone();
-        File tftpRoot = new File(polycomPhone.getTftpRoot());
-        Iterator i = m_staleDirectories.iterator();
-        while (i.hasNext()) {
-            File stale = new File(tftpRoot, (String) i.next());
-            FileUtils.deleteDirectory(stale);
+    public void deleteStaleDirectories() {
+        try {
+            PolycomPhone polycomPhone = (PolycomPhone) getPhone();
+            File tftpRoot = new File(polycomPhone.getTftpRoot());
+            Iterator i = m_staleDirectories.iterator();
+            while (i.hasNext()) {
+                File stale = new File(tftpRoot, (String) i.next());
+                FileUtils.deleteDirectory(stale);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -67,17 +67,22 @@ public final class TestHelper {
         return TestUtil.getClasspathDirectory(TestHelper.class);
     }
 
-    public static VelocityEngine getVelocityEngine() throws Exception {
-        Properties sysdir = getSysDirProperties();
-
-        String etcDir = sysdir.getProperty("sysdir.etc");
-
-        VelocityEngine engine = new VelocityEngine();
-        engine.setProperty("resource.loader", "file");
-        engine.setProperty("file.resource.loader.path", etcDir);
-        engine.init();
-
-        return engine;
+    public static VelocityEngine getVelocityEngine() {
+        
+        try {
+            Properties sysdir = getSysDirProperties();
+    
+            String etcDir = sysdir.getProperty("sysdir.etc");
+    
+            VelocityEngine engine = new VelocityEngine();
+            engine.setProperty("resource.loader", "file");
+            engine.setProperty("file.resource.loader.path", etcDir);
+            engine.init();
+    
+            return engine;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String getTestDirectory() {

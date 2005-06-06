@@ -41,6 +41,8 @@ public interface Phone {
         
     public List getLines();
     
+    public Object getAdapter(Class adatper);
+    
     public void addLine(Line line);
     
     public Line getLine(int position);

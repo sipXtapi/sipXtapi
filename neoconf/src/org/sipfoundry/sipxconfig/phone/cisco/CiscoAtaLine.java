@@ -11,8 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
 
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
 /**
  * CiscoAta business functions for line meta setting
@@ -21,89 +21,26 @@ public class CiscoAtaLine extends CiscoLine {
 
     public static final String FACTORY_ID = "ciscoAtaLine";
 
-    public static final String DISPLAY_NAME = "DisplayName";
-
-    public static final String UID = "UID";
-
-    public static final String LOGIN_ID = "LoginID";
-
-    public static final String PASSWORD = "PWD";
-
-    /** while building model set root so getters/setting operation on this setting set*/
-    private Setting m_root;
-    
     public CiscoAtaLine() {
         setModelFile("cisco/ata-line.xml");
     }
 
-    public void setDefaults(Setting settings) {
-
-        // HACK : temporarily set root setting to trick utility methods to
-        // operate on this setting set.
-        m_root = settings;
-        try {
-            User u = getLineData().getUser();
-            if (u != null) {
-                setUserId(u.getDisplayId());
-                setLoginId(u.getDisplayId());
-                String dispname = u.getDisplayName();
-                if (dispname != null) {
-                    setDisplayName(dispname);
-                }
-
-                String password = getPhoneContext().getClearTextPassword(u);
-                setPwd(password);
-            }
-        } finally {
-            m_root = null;
+    public Object getAdapter(Class interfac) {
+        Object impl;
+        if (interfac == LineSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(getSettings());
+            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/LoginID");
+            adapter.addMapping(LineSettings.USER_ID, "port/UID");            
+            adapter.addMapping(LineSettings.PASSWORD, "port/PWD");
+            adapter.addMapping(LineSettings.DISPLAY_NAME, "port/DisplayName");
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "sip/Proxy");
+            // sip/SIPPort for outbound proxy?
+            impl = adapter.getImplementation();
+        } else {
+            impl = super.getAdapter(interfac);
         }
-    }
-
-    public String getRegistrationServerAddress() {
-        return getPhone().getSettings().getSetting(CiscoPhone.SIP).getSetting("Proxy").getValue();
-    }
-
-    public String getRegistrationServerPort() {
-        return getPhone().getSettings().getSetting(CiscoPhone.SIP).getSetting("SIPPort").getValue();
-    }
-
-    private Setting getRoot() {
-        return m_root != null ? m_root : getSettings();
-    }
-
-    private Setting getPort() {
-        return getRoot().getSetting(CiscoPhone.PORT);
-    }
-
-    public String getUserId() {
-        return getPort().getSetting(UID).getValue();
-    }
-
-    public void setUserId(String userId) {
-        getPort().getSetting(UID).setValue(userId);
-    }
-
-    public String getLoginId() {
-        return getPort().getSetting(LOGIN_ID).getValue();
-    }
-
-    public void setLoginId(String userId) {
-        getPort().getSetting(LOGIN_ID).setValue(userId);
-    }
-
-    public String getPwd() {
-        return getPort().getSetting(PASSWORD).getValue();
-    }
-
-    public void setPwd(String pwd) {
-        getPort().getSetting(PASSWORD).setValue(pwd);
-    }
-
-    public String getDisplayName() {
-        return getPort().getSetting(DISPLAY_NAME).getValue();
-    }
-
-    public void setDisplayName(String userId) {
-        getPort().getSetting(DISPLAY_NAME).setValue(userId);
+        
+        return impl;
     }
 }

@@ -5,8 +5,8 @@ Dialled0=
 TrayIcon=No
 
 [Registration]
-SipUri="Joe Smith"<sip:jsmith@sipfoundry.org>
-UserName=jsmith
-SipServer=
+SipUri="Joe User"<sip:juser@sipfoundry.org>
+UserName=juser
+SipServer=registrar.sipfoundry.org
 AutoRegister=Yes
 qValue=

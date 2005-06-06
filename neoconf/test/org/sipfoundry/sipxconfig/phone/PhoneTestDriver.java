@@ -11,78 +11,65 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.IOException;
-
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class PhoneTestDriver {
 
-    String domainName = "sipfoundry.org";
+    public String password = "1234";
 
-    String password = "1234";
+    public String serialNumber = "0004f200e06b";
 
-    String serialNumber = "0004f200e06b";
+    public MockControl phoneContextControl;
 
-    MockControl phoneContextControl;
+    public PhoneContext phoneContext;
+    
+    public User user;
 
-    PhoneContext phoneContext;
+    public Phone phone;
 
-    User user;
+    public Line line;
 
-    Phone phone;
+    public SipService sip;
 
-    Line line;
+    public MockControl sipControl;
+    
+    public PhoneDefaults defaults;
 
-    SipService sip;
-
-    MockControl sipControl;
-
-    String sipMessage = "NOTIFY sip:juser@sipfoundry.org SIP/2.0\r\n" + "Via: [VIA]\r\n"
-            + "From: [SERVER_URI]\r\n" + "To: \"Joe User\"<sip:juser@sipfoundry.org>\r\n"
-            + "Event: check-sync\r\n" + "Date: [DATE]\r\n" + "Call-ID: [CALL_ID]\r\n"
-            + "CSeq: 1 NOTIFY\r\n" + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
-
-    public void seedPhoneContext() {
-        if (phoneContextControl != null) {
-            return;
-        }
-
+    public PhoneTestDriver(GenericPhone phone, String factoryId, AbstractLine line, String lineFactoryId) {
+        
         phoneContextControl = MockControl.createNiceControl(PhoneContext.class);
         phoneContext = (PhoneContext) phoneContextControl.getMock();
-        phoneContextControl.expectAndReturn(phoneContext.getDnsDomain(), domainName,
-                MockControl.ZERO_OR_MORE);
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         phoneContextControl.expectAndReturn(phoneContext.getSystemDirectory(), sysdir,
                 MockControl.ZERO_OR_MORE);
-    }
-
-    public void seedUser() {
-        if (user != null) {
-            return;
-        }
-
-        seedPhoneContext();
+        
+        defaults = new PhoneDefaults();
+        defaults.setDomainName("sipfoundry.org");
+        defaults.setOutboundProxy("proxy.sipfoundry.org");
+        defaults.setRegistrationServer("registrar.sipfoundry.org");
+        defaults.setTftpServer("tftp.sipfoundry.org");
+        phone.setDefaults(defaults);
+        line.setDefaults(defaults);
+        phone.setTftpRoot(TestHelper.getTestDirectory());
+        
         user = new User();
         user.setDisplayId("juser");
         user.setFirstName("Joe");
         user.setLastName("User");
+        user.setPassword("1234");
         phoneContextControl.expectAndReturn(phoneContext.getClearTextPassword(user), password,
                 MockControl.ZERO_OR_MORE);
-    }
 
-    public void seedPhone(Phone phone, String factoryId) {
-        seedUser();
         this.phone = phone;
-
         PhoneData meta = new PhoneData(factoryId);
         meta.setSerialNumber(serialNumber);
         phone.setPhoneContext(phoneContext);
         phone.setPhoneData(meta);
-    }
+        
+        phone.setVelocityEngine(TestHelper.getVelocityEngine());            
 
-    public void seedLine(Line line, String factoryId) {
         this.line = line;
         line.setPhone(phone);
         line.setLineData(new LineData());
@@ -90,36 +77,18 @@ public class PhoneTestDriver {
         // for alls to phone.newLine
         line.setPhone(phone);
         line.setLineData(new LineData());
-        phoneContextControl.expectAndReturn(phoneContext.newLine(factoryId), line);
+        phoneContextControl.expectAndReturn(phoneContext.newLine(lineFactoryId), line);
 
         LineData lineMeta = line.getLineData();
         lineMeta.setUser(user);
         phone.addLine(line);
-    }
-
-    public void seedSip() throws IOException {
-        if (sip != null) {
-            return;
-        }
-        seedUser();
 
         sipControl = MockControl.createStrictControl(SipService.class);
         sip = (SipService) sipControl.getMock();
-        sipControl.expectAndReturn(sip.getServerVia(), "[VIA]");
-        sipControl.expectAndReturn(sip.getServerUri(), "[SERVER_URI]");
-        sipControl.expectAndReturn(sip.getCurrentDate(), "[DATE]");
-        sipControl.expectAndReturn(sip.generateCallId(), "[CALL_ID]");
-        sip.send(sipMessage);
+        sip.sendCheckSync(line);
         sipControl.replay();
-    }
+        phone.setSipService(sip);
 
-    public void replay() {
         phoneContextControl.replay();
-    }
-    
-    public void verify() {
-        if (sipControl != null) {
-            sipControl.verify();
-        }
     }
 }

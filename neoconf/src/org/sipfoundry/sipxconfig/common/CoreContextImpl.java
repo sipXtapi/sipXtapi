@@ -22,6 +22,8 @@ import net.sf.hibernate.expression.Criterion;
 import net.sf.hibernate.expression.Expression;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.legacy.LegacyContext;
+import org.sipfoundry.sipxconfig.legacy.UserConfigSet;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
@@ -32,6 +34,8 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
     private static final char LIKE_WILDCARD = '%';
     
     private String m_authorizationRealm;
+    
+    private LegacyContext m_legacyContext;
 
     public CoreContextImpl() {
         super();
@@ -39,6 +43,10 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
     
     public String getAuthorizationRealm() {
         return m_authorizationRealm;
+    }
+    
+    public void setLegacyContext(LegacyContext legacyContext) {
+        m_legacyContext = legacyContext;
     }
 
     public void setAuthorizationRealm(String authorizationRealm) {
@@ -59,7 +67,16 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
     }
 
     public User loadUser(int id) {
-        return (User) getHibernateTemplate().load(User.class, new Integer(id));        
+        User user = (User) getHibernateTemplate().load(User.class, new Integer(id));
+        // pull from config set until password is store in user table
+        if (user != null) {
+            UserConfigSet cfg = m_legacyContext.getConfigSetForUser(user);
+            if (cfg != null) {
+                user.setPassword(cfg.getClearTextPassword());
+            }
+        }
+        
+        return user;
     }
     
     public User loadUserByDisplayId(String displayId) {

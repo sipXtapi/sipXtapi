@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -21,25 +22,37 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 /**
  * Tests file [MAC_ADDRESS.d]/phone.cfg
  */
 public class PhoneConfigurationTest extends XMLTestCase {
     
-    public void setUp() {
+    PolycomPhone phone;
+    
+    PolycomLine line;
+
+    PhoneTestDriver tester;
+    
+    protected void setUp() throws IOException {
         XMLUnit.setIgnoreWhitespace(true);
+        phone = new PolycomPhone();
+        line = new PolycomLine();
+        tester = new PhoneTestDriver(phone, PolycomModel.MODEL_600.getName(), line, 
+                PolycomLine.FACTORY_ID);
+        phone.setDefaults(tester.defaults);
+        phone.setTftpRoot(TestHelper.getTestDirectory());
+        line.setDefaults(tester.defaults);
     }
 
     public void testGenerateProfile() throws Exception {
-        PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();        
-        
-        PhoneConfiguration cfg = new PhoneConfiguration(helper.phone[0]);
+        PhoneConfiguration cfg = new PhoneConfiguration(phone);
         cfg.setVelocityEngine(TestHelper.getVelocityEngine());
         CharArrayWriter out = new CharArrayWriter();
-        cfg.generateProfile(helper.phone[0].getPhoneTemplate(), out);
+        cfg.generateProfile(phone.getPhoneTemplate(), out);
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-phone.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-phone.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 

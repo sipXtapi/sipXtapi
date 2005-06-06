@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingGroup;
@@ -27,6 +26,25 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
     private Setting m_settings;
     
     private String m_modelFile;
+
+    private PhoneDefaults m_defaults;
+    
+    private String m_uri;
+    
+    public PhoneDefaults getDefaults() {
+        return m_defaults;
+    }
+
+    public void setDefaults(PhoneDefaults defaults) {
+        m_defaults = defaults;
+    }
+
+    /**
+     * No adapters supported in generic implementation
+     */
+    public Object getAdapter(Class interfac_) {
+        return null;
+    }
 
     public PhoneContext getPhoneContext() {
         return getPhone().getPhoneContext();
@@ -59,18 +77,19 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
 
     public Setting getSettings() {
         if (m_settings == null) {
-            Setting settings = getSettingModel();
-            setDefaults(settings);
-            decorateSettings(settings);
+            m_settings = getSettingModel();
+            setDefaults();
+            decorateSettings();
         }
 
         return m_settings;
     }
+    
+    protected void setDefaults() {
+        getDefaults().setLineDefaults(this, m_meta.getUser());        
+    }
 
-    protected abstract void setDefaults(Setting settings);
-
-    protected void decorateSettings(Setting settings) {
-        m_settings = settings;
+    protected void decorateSettings() {
         ValueStorage valueStorage = m_meta.getValueStorage();
         if (valueStorage == null) {
             valueStorage = new ValueStorage();
@@ -98,20 +117,10 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
     }
 
     public String getUri() {
-        String uri = null;
-        User user = m_meta.getUser();
-        if (user != null) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("sip:").append(user.getDisplayId());
-            sb.append('@').append(getPhoneContext().getDnsDomain());
-
-            String displayName = user.getDisplayName();
-            if (displayName != null) {
-                sb.insert(0, "\"" + displayName + "\"<").append(">");
-            }
-            uri = sb.toString();
-        }
-
-        return uri;
+        return m_uri;
+    }
+    
+    public void setUri(String uri) {
+        m_uri = uri;
     }
 }

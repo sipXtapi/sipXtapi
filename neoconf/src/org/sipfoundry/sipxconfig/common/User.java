@@ -29,6 +29,8 @@ public class User implements PrimaryKeySource, Serializable {
     private Organization m_organization;
 
     private String m_password;
+    
+    private String m_pintoken;
 
     private Integer m_ugId = new Integer(1); //default group
 
@@ -41,6 +43,14 @@ public class User implements PrimaryKeySource, Serializable {
     private String m_extension;
 
     private String m_profileEncryptionKey;
+
+    public String getPintoken() {
+        return m_pintoken;
+    }
+
+    public void setPintoken(String pintoken) {
+        m_pintoken = pintoken;
+    }
 
     public Integer getId() {
         return m_id;

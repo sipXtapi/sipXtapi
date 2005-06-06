@@ -10,10 +10,22 @@
 #end        
         />
 		<server 
-#set ($group = $cfg.EndpointSettings.getSetting('voIpProt').getSetting('server'))
-#foreach ($setting in $cfg.getRecursiveSettings($group))
-    voIpProt.${setting.ProfileName}="$!{setting.Value}"
-#end
+    voIpProt.server.1.address=""
+    voIpProt.server.1.port="5060"
+    voIpProt.server.1.transport=""
+    voIpProt.server.1.expires=""
+    voIpProt.server.1.register="1"
+    voIpProt.server.1.retryTimeOut="0"
+    voIpProt.server.1.retryMaxCount="0"
+    voIpProt.server.1.expires.lineSeize="30"
+    voIpProt.server.2.address=""
+    voIpProt.server.2.port="5060"
+    voIpProt.server.2.transport=""
+    voIpProt.server.2.expires=""
+    voIpProt.server.2.register="1"
+    voIpProt.server.2.retryTimeOut="0"
+    voIpProt.server.2.retryMaxCount="0"
+    voIpProt.server.2.expires.lineSeize="30"
           />
 		<SIP 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))  

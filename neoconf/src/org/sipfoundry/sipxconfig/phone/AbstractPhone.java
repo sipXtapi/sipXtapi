@@ -41,6 +41,16 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     
     private String m_modelFile;
     
+    private PhoneDefaults m_defaults;       
+    
+    public PhoneDefaults getDefaults() {
+        return m_defaults;
+    }
+
+    public void setDefaults(PhoneDefaults defaults) {
+        m_defaults = defaults;
+    }
+
     public String getModelFile() {
         return m_modelFile;
     }
@@ -51,6 +61,13 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
 
     public void setPhoneData(PhoneData meta) {
         m_meta = meta;
+    }
+    
+    /**
+     * No adapters supported in generic implementation
+     */
+    public Object getAdapter(Class interfac_) {
+        return null;
     }
     
     public List getLines() {
@@ -72,20 +89,21 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
 
     public Setting getSettings() {
         if (m_settings == null) {
-            Setting settings = getSettingModel();
-            setDefaults(settings);
-            decorateSettings(settings);
+            m_settings = getSettingModel();
+            setDefaults();
+            decorateSettings();
         }
 
         return m_settings;
     }
     
-    protected abstract void setDefaults(Setting settings);
+    protected void setDefaults() {
+        getDefaults().setPhoneDefaults(this);        
+    }
     
     public abstract Setting getSettingModel();
     
-    protected void decorateSettings(Setting settings) {
-        m_settings = settings;
+    protected void decorateSettings() {
         ValueStorage valueStorage = m_meta.getValueStorage();
         if (valueStorage == null) {
             valueStorage = new ValueStorage();

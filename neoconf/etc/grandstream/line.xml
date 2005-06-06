@@ -31,6 +31,14 @@
         <description>Authentication password</description>
       </setting>
     </group>
+    <group name="sip">
+      <setting name="P47">
+        <label>SIP Server</label>
+        <type><string/></type>
+        <value></value>
+        <description>SIP Server</description>
+      </setting>            
+    </group>
   </group>
   <group name="grandstreamHandyTone" copy-of="grandstream"/>
   <group name="grandstreamBudgeTone" copy-of="grandstream"/>

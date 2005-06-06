@@ -17,10 +17,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -140,4 +142,52 @@ public class SipServiceImpl implements SipService {
         long l = (long) (Math.random() * RANDOM_MAX);
         return Long.toHexString(l);
     }
+
+    public void sendCheckSync(Line line) {
+        // The check-sync message is a flavor of unsolicited NOTIFY
+        // this message does not require that the phone be enrolled
+        // the message allows us to reboot a specific phone 
+        String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: {1}\r\n"
+                + "From: {2}\r\n" + "To: {3}\r\n" + "Event: check-sync\r\n"
+                + "Date: {4}\r\n" + "Call-ID: {5}\r\n" + "CSeq: 1 NOTIFY\r\n"
+                + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
+        Object[] sipParams = new Object[] { 
+            getNotifyRequestUri(line), 
+            getServerVia(),
+            getServerUri(), 
+            line.getUri(),
+            getCurrentDate(), 
+            generateCallId()
+        };
+        String msg = MessageFormat.format(restartSip, sipParams);
+        try {
+            send(msg);
+        } catch (IOException e) {
+            throw new RestartException("Could not send restart SIP message", e);
+        }        
+    }
+    
+    /**
+     * Doesn't include Display name or angle bracket, 
+     * e.g. sip:user@blah.com, not "User Name"&lt;sip:user@blah.com&gt; 
+     * NOTE: Unlike request URIs for REGISTER, this apparently requires the user
+     * portion.  NOTE: I found this out thru trial and error.
+     */
+    String getNotifyRequestUri(Line line) {
+        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+        if (settings == null) {
+            throw new RestartException("Line implementation does not support LineSettings adapter");
+        }
+
+        StringBuffer sb = new StringBuffer();        
+        sb.append("sip:").append(settings.getUserId());
+        // TODO: Should this be outbound proxy
+        sb.append('@').append(settings.getRegistrationServer());
+        String port = settings.getRegistrationServerPort();
+        if (StringUtils.isNotBlank(port)) {
+            sb.append(':').append(port);
+        }
+        
+        return sb.toString();
+    }    
 }

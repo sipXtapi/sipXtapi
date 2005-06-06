@@ -11,45 +11,37 @@
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
 
+import java.io.IOException;
 import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.TestUtil;
-import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+
 public class CiscoAtaPhoneTest extends TestCase {
     
-    CiscoAtaPhone m_phone = new CiscoAtaPhone();
+    CiscoAtaPhone phone;
     
-    CiscoAtaLine m_line = new CiscoAtaLine();
-    
-    PhoneTestDriver m_driver = new PhoneTestDriver();
-    
-    protected void setUp() {
-        m_driver.seedPhone(m_phone, CiscoModel.MODEL_ATA18X.getModelId());
-        m_phone.setTftpRoot(TestHelper.getTestDirectory());
-        m_driver.seedLine(m_line, CiscoIpLine.FACTORY_ID);
-        m_driver.replay();
-        String testDir = TestUtil.getTestSourceDirectory(getClass());
-        m_phone.setCfgfmtUtility(testDir + "/cfgfmt");
-        m_phone.setPtagDat(testDir + "/ptag.dat");
-    }
-    
-    protected void tearDown() {
-        m_driver.verify();
-    }
-    
-    public void testGetSettings() {
-        m_phone.getSettings();
-    }
+    CiscoAtaLine line;
 
+    PhoneTestDriver tester;
+    
+    protected void setUp() throws IOException {
+        phone = new CiscoAtaPhone();
+        line = new CiscoAtaLine();
+        tester = new PhoneTestDriver(phone, CiscoModel.MODEL_ATA18X.getModelId(), line, 
+                CiscoAtaLine.FACTORY_ID);
+
+        String testDir = TestUtil.getTestSourceDirectory(getClass());
+        phone.setCfgfmtUtility(testDir + "/cfgfmt");
+        phone.setPtagDat(testDir + "/ptag.dat");
+    }
+    
     public void testGenerateProfiles() throws Exception {
         StringWriter profile = new StringWriter();
-        m_phone.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_phone.generateProfile(profile);
+        phone.generateProfile(profile);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-ata18x.cfg"));
         // TODO : Order not preserved, format valid, but not optimal. work in progress
         //assertEquals(expected, profile.toString());

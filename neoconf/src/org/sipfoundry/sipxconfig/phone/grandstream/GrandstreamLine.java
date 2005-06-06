@@ -13,15 +13,22 @@ package org.sipfoundry.sipxconfig.phone.grandstream;
 
 import java.io.File;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.AbstractLine;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Grandstream business functions for line meta setting
  */
-public abstract class GrandstreamLine extends AbstractLine {
+public class GrandstreamLine extends AbstractLine {
+
+    public static final String FACTORY_ID = "grandstreamLine";
+
+    public GrandstreamLine() {
+        setModelFile("grandstream/line.xml");
+    }
 
     public Setting getSettingModel() {
         String sysPath = getPhoneContext().getSystemDirectory(); 
@@ -33,30 +40,22 @@ public abstract class GrandstreamLine extends AbstractLine {
         return model.getSetting(grandstreamPhone.getModel().getModelId());
     }
     
-    public abstract String getRegistrationServerAddress();
-
-    public abstract String getRegistrationServerPort();
-
-    public abstract String getUserId();
-
-    public abstract String getDisplayName();
-
-    /**
-     * borrowed from Polycom source as is
-     * Doesn't include Display name or angle bracket, 
-     * e.g. sip:user@blah.com, not "User Name"&lt;sip:user@blah.com&gt; 
-     * NOTE: Unlike request URIs for REGISTER, this apparently requires the user
-     * portion.  NOTE: I found this out thru trial and error.
-     */
-    public String getNotifyRequestUri() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("sip:").append(getUserId());
-        sb.append('@').append(getRegistrationServerAddress());
-        String port = getRegistrationServerPort();
-        if (StringUtils.isNotBlank(port)) {
-            sb.append(':').append(port);
+    public Object getAdapter(Class interfac) {
+        Object impl;
+        if (interfac == LineSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(getSettings());
+            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/P36");
+            adapter.addMapping(LineSettings.USER_ID, "port/P35");            
+            adapter.addMapping(LineSettings.PASSWORD, "port/P34");
+            adapter.addMapping(LineSettings.DISPLAY_NAME, "port/P3");
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "sip/P47");
+            impl = adapter.getImplementation();
+        } else {
+            impl = super.getAdapter(interfac);
         }
-
-        return sb.toString();
+        
+        return impl;
     }
+    
 }

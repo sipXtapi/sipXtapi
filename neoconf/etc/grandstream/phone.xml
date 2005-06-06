@@ -290,16 +290,10 @@
         <value>0</value>
         <description>Use Random Port</description>
       </setting>
-      <setting name="P47">
-        <label>SIP Server</label>
-        <type><string/></type>
-        <value>sip.mycompany.com</value>
-        <description>SIP Server</description>
-      </setting>
       <setting name="P48">
         <label>Outbound Proxy</label>
         <type><string/></type>
-        <value>proxy.mycompany.com</value>
+        <value></value>
         <description>Outbound Proxy</description>
       </setting>
       <setting name="P40">
@@ -323,7 +317,7 @@
       <setting name="P76">
         <label>STUN server</label>
         <type><string/></type>
-        <value>stun.mycompany.com</value>
+        <value></value>
         <description>STUN server</description>
       </setting>
       <setting name="P63">

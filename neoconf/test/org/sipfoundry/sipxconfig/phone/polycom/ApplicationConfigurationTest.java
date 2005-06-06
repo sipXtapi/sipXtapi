@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -24,26 +25,37 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 
 public class ApplicationConfigurationTest extends XMLTestCase {
     
-    public void setUp() {
+    PolycomPhone phone;
+    
+    PolycomLine line;
+
+    PhoneTestDriver tester;
+    
+    protected void setUp() throws IOException {
         XMLUnit.setIgnoreWhitespace(true);
+        phone = new PolycomPhone();
+        line = new PolycomLine();
+        tester = new PhoneTestDriver(phone, PolycomModel.MODEL_600.getName(), line, 
+                PolycomLine.FACTORY_ID);
+        phone.setDefaults(tester.defaults);
+        line.setDefaults(tester.defaults);
     }
 
     public void testGenerateProfile() throws Exception {
         // no files get created here, but must be empty
-        String root = TestHelper.getTestDirectory() + "/testGenerateProfile";
-        PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        helper.phone[0].setTftpRoot(root);
+        phone.setTftpRoot(TestHelper.getTestDirectory() + "/testGenerateProfile");
         
-        ApplicationConfiguration app = new ApplicationConfiguration(helper.phone[0]);
+        ApplicationConfiguration app = new ApplicationConfiguration(phone);
         app.setVelocityEngine(TestHelper.getVelocityEngine());        
         CharArrayWriter out = new CharArrayWriter();
-        app.generateProfile(helper.phone[0].getApplicationTemplate(), out);
+        app.generateProfile(phone.getApplicationTemplate(), out);
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("cfgdata/expected-macaddress.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-macaddress.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
         
@@ -87,15 +99,14 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     public void testDeleteStale() throws Exception {
         String root = TestHelper.getTestDirectory() + "/testDeleteStale";
         File rootDir = new File(root);
-        PolycomTestHelper helper = PolycomTestHelper.plainEndpointSeed();
-        helper.phone[0].setTftpRoot(root);
+        phone.setTftpRoot(root);
         
-        ApplicationConfiguration app0001 = new ApplicationConfiguration(helper.phone[0]);
+        ApplicationConfiguration app0001 = new ApplicationConfiguration(phone);
         assertEquals("0004f200e06b.0001", app0001.getDirectory());
         File f = new File(rootDir, app0001.getDirectory());
         f.mkdirs();
         
-        ApplicationConfiguration app0002 = new ApplicationConfiguration(helper.phone[0]);
+        ApplicationConfiguration app0002 = new ApplicationConfiguration(phone);
         assertEquals("0004f200e06b.0002", app0002.getDirectory());
 
         assertEquals(1, rootDir.list().length);

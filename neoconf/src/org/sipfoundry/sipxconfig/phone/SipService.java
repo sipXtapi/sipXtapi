@@ -25,6 +25,8 @@ public interface SipService {
     
     public void send(String sipMsg) throws IOException;
     
+    public void sendCheckSync(Line line);
+    
     public String getCurrentDate();
     
     public void setProxyHost(String proxy);

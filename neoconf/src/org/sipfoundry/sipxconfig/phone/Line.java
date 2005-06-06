@@ -33,6 +33,10 @@ public interface Line extends DataCollectionItem {
     
     public String getUri();
     
+    public void setUri(String uri);
+
+    public Object getAdapter(Class adatper);
+    
     /** implementation need to declare they implement PrimaryKeySource */
     public Object getPrimaryKey();
 }
