@@ -28,7 +28,7 @@ public class RingTest extends TestCase {
         ring.setType(Ring.Type.IMMEDIATE);
         
         String contact = ring.calculateContact("sipfoundry.org", q, false);
-        assertEquals("<sip:555@sipfoundry.org?expires=45>;;q=1.0",contact);
+        assertEquals("<sip:555@sipfoundry.org?expires=45>;q=1.0",contact);
     }
 
 }

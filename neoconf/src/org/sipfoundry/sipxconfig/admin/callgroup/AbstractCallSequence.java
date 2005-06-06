@@ -88,7 +88,7 @@ public class AbstractCallSequence extends BeanWithId {
         ForkQueueValue q = new ForkQueueValue(calls.size());
         for (Iterator i = calls.iterator(); i.hasNext();) {
             AbstractRing r = (AbstractRing) i.next();
-            String contact = r.calculateContact(domain, q, false);
+            String contact = r.calculateContact(domain, q, true);
             AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
         }
