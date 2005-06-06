@@ -27,7 +27,6 @@ public class ListCallGroupsTestUi extends ListWebTestCase {
 
     public void testDisplay() {
         super.testDisplay();
-        assertButtonPresent(buildId("activate"));
     }
 
     protected String[] getParamNames() {

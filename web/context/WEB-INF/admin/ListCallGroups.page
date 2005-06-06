@@ -85,8 +85,4 @@
         <binding name="tag" expression="selections.allSelected"/>
         <message-binding name="value" key="button.duplicate"/>
     </component>
-
-    <component id="activate" type="Submit">
-        <binding name="listener" expression="listeners.activate"/>
-    </component>        
 </page-specification>

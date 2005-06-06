@@ -59,10 +59,6 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
         duplicate();
     }
 
-    public void activate(IRequestCycle cycle_) {
-        getCallGroupContext().activateCallGroups();
-    }
-
     /**
      * Deletes all selected rows (on this screen deletes call groups).
      */

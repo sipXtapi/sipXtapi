@@ -76,6 +76,7 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
         if (getCommitChanges()) {
             saveValid();
+            getCallGroupContext().activateCallGroups();
             cycle.activate(ListCallGroups.PAGE);
         }
     }
