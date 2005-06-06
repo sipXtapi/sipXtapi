@@ -36,7 +36,7 @@
     <component id="lineTableView" type="contrib:TableView">
         <binding name="source" expression="lines"/>
         <binding name="columns">
-            '* Line:displayLabel'
+            '* !Line:displayLabel'
         </binding>
         <static-binding name="pageSize" value="-1"/>
     </component>
