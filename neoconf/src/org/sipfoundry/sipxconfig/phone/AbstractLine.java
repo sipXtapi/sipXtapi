@@ -117,6 +117,12 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
     }
 
     public String getUri() {
+        // HACK: uri is determined by it's settings, so need to initialize
+        // them before determining the URI. hesitated to create an initialize()
+        // method on phones and lines for the moment as to not introduce yet 
+        // another setup requirement on related objects.
+        getSettings();
+        
         return m_uri;
     }
     
