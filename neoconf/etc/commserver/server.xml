@@ -116,7 +116,7 @@
     </setting>
     <setting name="SIP_STATUS_LOG_LEVEL">
       <label>Status Server Log Level</label>
-      <profileName>sipxpark-config.in</profileName>
+      <profileName>status-config.in</profileName>
       <type refid="loglevel"/>
       <value>NOTICE</value>
       <description>Handling of SUBSCRIBE/NOTIFY messages for voicemail notification control (MWI)</description>
