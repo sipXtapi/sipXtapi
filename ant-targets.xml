@@ -35,6 +35,8 @@
     -->
   <property name="test.src.dir" value="${src.dir}/test"/>
 
+  <import file="dependencies.xml"/>
+
   <target name="classpath">
     <echo>${classpath}</echo>
   </target>
@@ -306,4 +308,12 @@
     </junitreport>
   </target>
 
+  <!--
+   - D E F A U L T   T A R G E T   W I T H   D E P E N D E N C I E S
+   -->
+  <target name="default.deps">
+    <antcall target="depend.${ant.project.name}"/>
+  </target>
+
 </project>
+
