@@ -11,7 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.apache.tapestry.ApplicationRuntimeException;
+import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.phone.DuplicateFieldException;
 
 /**
  * Tapestry utilities available to web pages 
@@ -29,5 +36,38 @@ public class TapestryContext {
         decorated.setModel(model);
         
         return decorated;
+    }
+    
+    /**
+     * Translates UserExceptions into form errors instead redirecting to an error page.
+     */
+    public IActionListener treatUserExceptionAsValidationError(IValidationDelegate validator, 
+            IActionListener listener) {
+        return new UserExceptionAdapter(validator, listener);        
+    }
+    
+    static class UserExceptionAdapter implements IActionListener {
+        
+        private IActionListener m_listener;
+        
+        private IValidationDelegate m_validator;
+        
+        UserExceptionAdapter(IValidationDelegate validator, IActionListener listener) {
+            m_listener = listener;
+            m_validator = validator;
+        }
+
+        public void actionTriggered(IComponent component, IRequestCycle cycle) {
+            try {
+                m_listener.actionTriggered(component, cycle);
+            } catch (ApplicationRuntimeException are) {
+                Throwable cause = are.getCause();
+                if (cause != null && cause.getClass().isAssignableFrom(DuplicateFieldException.class)) {
+                    m_validator.record(new ValidatorException(cause.getMessage()));                    
+                } else {
+                    throw are;
+                }
+            }
+        }
     }
 }

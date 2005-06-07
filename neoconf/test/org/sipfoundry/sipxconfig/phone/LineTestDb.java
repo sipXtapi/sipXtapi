@@ -44,7 +44,7 @@ public class LineTestDb extends TestCase {
 
     public void testAddingLine() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/AddLineSeed.xml");
+        TestHelper.cleanInsertFlat("phone/AddLineSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
         assertEquals(2, phone.getLines().size());
@@ -61,7 +61,7 @@ public class LineTestDb extends TestCase {
         Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
         Line reloadedThirdLine = reloadedPhone.getLine(2);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/AddLineExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddLineExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[line_id]", reloadedThirdLine.getPrimaryKey());
         expectedRds.addReplacementObject("[null]", null);
@@ -74,7 +74,7 @@ public class LineTestDb extends TestCase {
 
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
         assertEquals(0, phone.getLines().size());
@@ -92,7 +92,7 @@ public class LineTestDb extends TestCase {
         Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
         Line reloadedLine = reloadedPhone.getLine(0);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveLineExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveLineExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
         expectedRds.addReplacementObject("[line_id]", reloadedLine.getPrimaryKey());
@@ -105,7 +105,7 @@ public class LineTestDb extends TestCase {
 
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
+        TestHelper.cleanInsertFlat("phone/LineSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
@@ -119,7 +119,7 @@ public class LineTestDb extends TestCase {
 
     public void testMoveLine() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/MoveLineSeed.xml");
+        TestHelper.cleanInsertFlat("phone/MoveLineSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
         Line l1 = phone.getLine(0);
@@ -130,7 +130,7 @@ public class LineTestDb extends TestCase {
         m_context.storePhone(phone);
         m_context.flush();
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/MoveLineExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/MoveLineExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
 
@@ -145,7 +145,7 @@ public class LineTestDb extends TestCase {
      */
     public void testDeleteLinesWithSettings() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/DeleteLineWithSettingsSeed.xml");
+        TestHelper.cleanInsertFlat("phone/DeleteLineWithSettingsSeed.xml");
 
         Phone phone = m_context.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
@@ -156,7 +156,7 @@ public class LineTestDb extends TestCase {
         m_context.storePhone(phone);
 
         IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("phone/dbdata/DeleteLineWithSettingsExpected.xml");
+                .loadDataSetFlat("phone/DeleteLineWithSettingsExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
 
@@ -168,7 +168,7 @@ public class LineTestDb extends TestCase {
 
     public void testNoLinesButOtherPhonesHaveLines() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
+        TestHelper.cleanInsertFlat("phone/LineSeed.xml");
 
         Phone newPhone = m_context.newPhone(PolycomModel.MODEL_600.getModelId());
         newPhone.getPhoneData().setSerialNumber("XXXX");
@@ -180,7 +180,7 @@ public class LineTestDb extends TestCase {
 
     public void testDeleteLinesForUser() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/LineSeed.xml");
+        TestHelper.cleanInsertFlat("phone/LineSeed.xml");
 
         ITable before = TestHelper.getConnection().createDataSet().getTable("line");
         assertEquals(1, before.getRowCount());

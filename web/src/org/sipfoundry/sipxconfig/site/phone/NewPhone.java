@@ -43,6 +43,7 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
             Phone phone = getPhoneContext().newPhone(getPhoneData().getFactoryId());
             phone.setPhoneData(getPhoneData());
             getPhoneContext().storePhone(phone);        
+
             if (isStay()) {
                 // triggers form to clear
                 cycle.activate(PAGE);                    

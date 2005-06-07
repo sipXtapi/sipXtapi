@@ -21,6 +21,7 @@ import java.util.Map;
 import net.sf.hibernate.Hibernate;
 
 import org.apache.commons.collections.map.LinkedMap;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.legacy.LegacyContext;
@@ -108,8 +109,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         getHibernateTemplate().flush();
     }
 
-    public void storePhone(Phone phone) {
+    public void storePhone(Phone phone) {        
         PhoneData meta = phone.getPhoneData();
+        checkForDuplicateFields("A phone with this serial number already exists", meta, 
+            "serialNumber", meta.getSerialNumber());
+        checkForDuplicateFields("A phone with this name already exists", meta, 
+                "name", meta.getName());
         meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
         getHibernateTemplate().saveOrUpdate(meta);
         Iterator lines = phone.getLines().iterator();
@@ -122,6 +127,31 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             Line line = (Line) deleted.next();
             deleteLine(line);
         }
+    }
+    
+    void  checkForDuplicateFields(String message, BeanWithId obj, String field, Object value) {
+        if (value == null) {
+            return;
+        }
+        
+        String name = obj.getClass().getName();
+        String uniqueCheck = "select o.id from " + name + " o where o." + field + " = :value";
+        List ids = getHibernateTemplate().findByNamedParam(uniqueCheck, "value", value);
+        
+        // no match 
+        if (ids.size() == 0) {
+            return;            
+        }
+
+        // detect 1 match, itself
+        if (!obj.isNew() && ids.size() == 1) {
+            Integer id = (Integer) ids.get(0);
+            if (id.equals(obj.getId())) {
+                return;            
+            }
+        }
+        
+        throw new DuplicateFieldException(message);
     }
 
     public void deletePhone(Phone phone) {

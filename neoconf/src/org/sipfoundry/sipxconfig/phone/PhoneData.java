@@ -13,20 +13,16 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.Serializable;
 
-import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
  * Database object representing an actualy physical phone you can touch.
  */
-public class PhoneData implements PrimaryKeySource, Serializable {
+public class PhoneData extends BeanWithId implements Serializable {
     
     public static final String FOLDER_RESOURCE_NAME = "endpoint";
-
-    private static final long serialVersionUID = 1L;
-
-    private Integer m_id = PhoneContext.UNSAVED_ID;
 
     private String m_name;
 
@@ -71,14 +67,6 @@ public class PhoneData implements PrimaryKeySource, Serializable {
         m_modelLabel = modelLabel;
     }
     
-    public Integer getId() {
-        return m_id;
-    }
-
-    public void setId(Integer id) {
-        m_id = id;
-    }
-
     public String getName() {
         return m_name;
     }
@@ -116,9 +104,5 @@ public class PhoneData implements PrimaryKeySource, Serializable {
 
     public void setFolder(Folder folder) {
         m_folder = folder;
-    }
-    
-    public Object getPrimaryKey() {
-        return m_id;
     }
 }

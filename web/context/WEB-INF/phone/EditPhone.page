@@ -36,10 +36,10 @@
         <binding name="parameters" expression="phone.phoneData.id"/>
     </component>
     <component id="ok" type="Submit">
-        <binding name="listener" expression="listeners.ok"/>
+        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.ok)"/>
     </component>
     <component id="apply" type="Submit">
-        <binding name="listener" expression="listeners.apply"/>
+        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.apply)"/>
     </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>

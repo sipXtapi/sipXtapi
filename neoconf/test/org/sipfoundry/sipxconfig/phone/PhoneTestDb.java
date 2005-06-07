@@ -51,7 +51,7 @@ public class PhoneTestDb extends TestCase {
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("phone");
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/SaveEndpointExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveEndpointExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[phone_id_1]", e.getId());
         expectedRds.addReplacementObject("[folder_id]", e.getFolder().getId());
@@ -64,7 +64,7 @@ public class PhoneTestDb extends TestCase {
     
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/EndpointLineSeed.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1000));
         PhoneData e = p.getPhoneData();
@@ -86,7 +86,7 @@ public class PhoneTestDb extends TestCase {
     
     public void testUpdateSettings() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/dbdata/EndpointSeed.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1000));
         Setting setting = p.getSettings().getSetting("up").getSetting("headsetMode");
@@ -96,7 +96,7 @@ public class PhoneTestDb extends TestCase {
         m_context.flush();
         
         Phone reloadPhone = m_context.loadPhone(new Integer(1000));               
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/dbdata/UpdateSettingsExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/UpdateSettingsExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         ValueStorage vs = reloadPhone.getPhoneData().getValueStorage();
         assertNotNull(vs);

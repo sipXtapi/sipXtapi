@@ -25,8 +25,43 @@ public class PhoneContextTestDb extends TestCase {
                 PhoneContext.CONTEXT_BEAN_NAME);
     }
         
-    public void testClear() {
-        //todo, seed some data
+    public void testClear() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
         m_context.clear();
+        
+        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        m_context.clear();        
     }
+    
+    public void testCheckForDuplicateFieldsOnNew() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        
+        Phone p = m_context.newPhone("polycom600");        
+        PhoneData data = p.getPhoneData();
+        data.setFactoryId("test");
+        data.setSerialNumber("999123456");        
+        
+        try {
+            m_context.storePhone(p);
+            fail("should have thrown DuplicateFieldException");
+        } catch (DuplicateFieldException e) {
+            assertTrue(true);
+        }
+    }
+    
+    public void testCheckForDuplicateFieldsOnSave() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/DuplicateSerialNumberSeed.xml");
+        
+        Phone p = m_context.loadPhone(new Integer(1000));
+        p.getPhoneData().setSerialNumber("000000000002");
+        try {
+            m_context.storePhone(p);
+            fail("should have thrown DuplicateFieldException");
+        } catch (DuplicateFieldException e) {
+            assertTrue(true);
+        }
+    }
+    
 }
