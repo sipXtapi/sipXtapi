@@ -2,3 +2,4 @@
 
 # simply copy the input file to the output file
 cp $2 $3
+
