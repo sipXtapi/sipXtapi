@@ -154,6 +154,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/SipOutBoundProxy");
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "sip/SIPPort");
+            adapter.addMapping(PhoneSettings.TFTP_SERVER, "network/TftpURL");
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
