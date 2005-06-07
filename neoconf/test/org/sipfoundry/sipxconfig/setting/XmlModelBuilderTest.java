@@ -96,15 +96,21 @@ public class XmlModelBuilderTest extends TestCase {
         SettingGroup root = m_builder.buildModel(in);
 
         Setting human = root.getSetting("human");
+        assertEquals("Human", human.getLabel());
+        assertEquals("Earthlings", human.getDescription());       
         assertNotNull(human.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertNull(human.getSetting("giveBirth"));
 
         Setting man = root.getSetting("man");
+        assertEquals("Man", man.getLabel());
+        assertEquals("Earthlings", man.getDescription());       
         assertNotNull(man.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertEquals("face", man.getSetting("shave").getValue());
         assertNull(man.getSetting("giveBirth"));
 
         Setting woman = root.getSetting("woman");
+        assertEquals("Woman", woman.getLabel());
+        assertEquals("Earthlings", woman.getDescription());       
         assertNotNull(woman.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertEquals("legs", woman.getSetting("shave").getValue());
         assertNotNull(woman.getSetting("giveBirth"));
