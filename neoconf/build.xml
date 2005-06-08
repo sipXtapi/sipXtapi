@@ -150,7 +150,7 @@
 		</xmlvalidate>
 	</target>
   
-    <target name="reset-db"
+    <target name="reset-db" depends="compile.test"
         description="Resets the test database. Needs to be called before UI and WEB tests.">
         <property name="sql.dir" location="${top.dir}/profilegenerator/meta/sql"/>
         <property name="sipxconfig.db.pds.url" value="jdbc:postgresql://localhost/${sipxconfig.db.pds}"/>
@@ -172,7 +172,11 @@
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v13_music_on_hold.sql"/>
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v14_backup.sql"/>
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v15_aa_alias.sql"/>
-        </sql>        
+        </sql>     
+    	<echo>ClearDb</echo>
+    	<java classname="org.sipfoundry.sipxconfig.ClearDb" classpathref="test.path" fork="true" outputproperty="eatme">
+  	      <sysproperty key="basedir" value="${basedir}"/>
+  		</java>
     </target>
     
 
