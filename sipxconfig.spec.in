@@ -98,6 +98,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 
+# Check for upgrade
+sipx-upgrade -p sipxconfig -c 
+
 # Add user @SIPXPBXUSER@ to the "jboss" group
 if ! /usr/bin/groups @SIPXPBXUSER@ | grep jboss >/dev/null
 then
@@ -109,6 +112,10 @@ fi
 #TODO: Verify sipxchange user can r/w to jboss's log and deploy scratch dirs
 
 %post
+
+# Upgrade configuration
+sipx-upgrade -p sipxconfig -u --ldir %{_localstatedir} \
+  --cdir %{_sysconfdir}
 
 # Start Postgres and create the databases.  Note that we leave Postgres
 # running afterward.
