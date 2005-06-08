@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public final class ScheduledDay extends Enum {
     
-    public static final ScheduledDay EVERYDAY = new ScheduledDay("Everyday");    
+    public static final ScheduledDay EVERYDAY = new ScheduledDay("Every day");    
     public static final ScheduledDay SUNDAY = new ScheduledDay("Sunday", Calendar.SUNDAY);
     public static final ScheduledDay MONDAY = new ScheduledDay("Monday", Calendar.MONDAY);
     public static final ScheduledDay TUESDAY = new ScheduledDay("Tuesday", Calendar.TUESDAY);
