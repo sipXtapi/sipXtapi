@@ -59,8 +59,6 @@ public class PhoneTestDriver {
         user.setFirstName("Joe");
         user.setLastName("User");
         user.setPassword("1234");
-        phoneContextControl.expectAndReturn(phoneContext.getClearTextPassword(user), password,
-                MockControl.ZERO_OR_MORE);
 
         this.phone = phone;
         PhoneData meta = new PhoneData(factoryId);

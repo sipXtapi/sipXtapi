@@ -29,6 +29,8 @@ public interface CoreContext extends DataObjectSource {
     
     public void deleteUser(User user);
 
+    public void loadUserPassword(User user);
+
     public User loadUser(int id);
     
     public List loadUserByTemplateUser(User template);

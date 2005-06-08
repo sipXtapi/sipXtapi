@@ -23,9 +23,6 @@ import net.sf.hibernate.Hibernate;
 import org.apache.commons.collections.map.LinkedMap;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.legacy.LegacyContext;
-import org.sipfoundry.sipxconfig.legacy.UserConfigSet;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -52,8 +49,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     private String m_systemDirectory;
 
     private CoreContext m_coreContext;
-
-    private LegacyContext m_legacy;
 
     private Map m_modelCache = new HashMap();
 
@@ -253,6 +248,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     Line loadLine(LineData meta) {
+        m_coreContext.loadUserPassword(meta.getUser());
         return loadPhoneFromFactory(meta.getPhoneData()).createLine(meta);
     }
 
@@ -296,15 +292,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     public String getDnsDomain() {
         return m_coreContext.loadRootOrganization().getDnsDomain();
-    }
-
-    public String getClearTextPassword(User user) {
-        UserConfigSet ucs = m_legacy.getConfigSetForUser(user);
-        return ucs.getClearTextPassword();
-    }
-
-    public void setLegacyContext(LegacyContext legacy) {
-        m_legacy = legacy;
     }
 
     public void setCoreContext(CoreContext coreContext) {

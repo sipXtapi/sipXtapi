@@ -68,13 +68,7 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
 
     public User loadUser(int id) {
         User user = (User) getHibernateTemplate().load(User.class, new Integer(id));
-        // pull from config set until password is store in user table
-        if (user != null) {
-            UserConfigSet cfg = m_legacyContext.getConfigSetForUser(user);
-            if (cfg != null) {
-                user.setPassword(cfg.getClearTextPassword());
-            }
-        }
+        loadUserPassword(user);
         
         return user;
     }
@@ -82,8 +76,25 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
     public User loadUserByDisplayId(String displayId) {
         String query = "from User u where u.displayId = '" + displayId + "'";
         List users = getHibernateTemplate().find(query);
+        User user = (User) requireOneOrZero(users, query);
+        loadUserPassword(user);
         
-        return (User) requireOneOrZero(users, query);
+        return user;
+    }
+    
+    /**
+     * Load SIP Password from config set, if password is used, this must
+     * be called on user first.  This is somewhat of a hack but disappears
+     * for v3.2
+     */
+    public void loadUserPassword(User user) {
+        // pull from config set until password is store in user table
+        if (user != null) {
+            UserConfigSet cfg = m_legacyContext.getConfigSetForUser(user);
+            if (cfg != null) {
+                user.setPassword(cfg.getClearTextPassword());
+            }
+        }        
     }
     
     public List loadUserByTemplateUser(User template) {

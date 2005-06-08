@@ -224,9 +224,6 @@
     <property name="coreContext">
       <ref local="coreContext"/>
     </property>
-    <property name="legacyContext">
-      <ref bean="legacyContext"/>
-    </property>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>

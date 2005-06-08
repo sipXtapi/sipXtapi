@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Folder;
 
 
@@ -103,8 +102,6 @@ public interface PhoneContext extends DataObjectSource {
     public String getSystemDirectory();
 
     public String getDnsDomain();
-
-    public String getClearTextPassword(User user);
 
     public void deleteLinesForUser(Integer userId);
 }
