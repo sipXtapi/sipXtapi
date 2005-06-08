@@ -25,6 +25,8 @@ EXTRA_DIST = \
     config/sipXcommon.mak.in \
     ant-targets.am \
     ant-targets.xml \
+    build.xml \
+    dependencies.xml \
     subant-targets.xml \
     acsite.m4 \
     CONTRIBUTORS \
