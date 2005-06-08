@@ -27,6 +27,14 @@
       <value>Please enter comma separated list of numbers, for example: 508, 212, 333</value>
     </property>
   </bean>
+  <bean name="validUserPatternSequence" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="patternString">
+      <value>^((\d+|[a-zA-Z0-9_.!~*'\(\)&amp;=+$;?/-]+)(\s*,?\s*))*$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Please enter comma separated list of numbers or names, for example: operator, 0</value>
+    </property>
+  </bean>
   <bean name="validPhoneSequenceRequired" parent="validPhoneSequence">
     <property name="required">
       <value>true</value>
@@ -55,7 +63,7 @@
       <value>false</value>
     </property>
     <property name="patternString">
-      <value>^([a-zA-Z0-9_.!~*'()&amp;=+$,;?/-]|%[0-9a-fA-F]{2})+$</value>
+      <value>^([a-zA-Z0-9_.!~*'\(\)&amp;=+$,;?/-]|%[0-9a-fA-F]{2})+$</value>
     </property>
     <property name="patternNotMatchedMessage">
       <value>Only limited set of characters is valid in SIP URLs, for example: 321, joedoe, joe!?~*222</value>

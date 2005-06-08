@@ -27,12 +27,21 @@
                     <tr>
                         <td>
                             <label for="dialplan:autoAttendant">
-                                <span jwcid="autoAttendantLabel">Auto attendant extension</span>:
+                                <span jwcid="autoAttendantLabel">Auto attendant</span>:
                             </label>
                         </td>
                         <td>
-                            <input jwcid="autoAttendant" id="dialplan:autoAttendant" maxlength="40" type="text" 
-                                name="dialplan:autoAttendant" value="100" />
+                            <input jwcid="autoAttendant" id="dialplan:autoAttendant" type="text" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:autoAttendant">
+                                <span jwcid="autoAttendantAliasesLabel">Auto attendant aliases</span>:
+                            </label>
+                        </td>
+                        <td>
+                            <input jwcid="autoAttendantAliases" id="dialplan:autoAttendantAliases" maxlength="256" type="text"/>
                         </td>
                     </tr>
                     <tr>

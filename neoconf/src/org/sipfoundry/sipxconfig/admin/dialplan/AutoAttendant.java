@@ -21,8 +21,6 @@ public class AutoAttendant extends BeanWithId {
 
     public static final String OPERATOR_ID = "operator";
     
-    private static final String OPERATOR_IMPLIED_EXT = "0";
-    
     private static final String OPERATOR_DEFAULT_EXT = "100";
 
     private static final String SYSTEM_NAME_PREFIX = "xcf";
@@ -83,31 +81,6 @@ public class AutoAttendant extends BeanWithId {
         return OPERATOR_ID.equals(getSystemId()); 
     }
     
-    public String[] getDialingPatterns() {
-        String[] patterns;
-        if (isOperator()) {
-            if (getExtension() != null) {
-                patterns = new String[] { 
-                    OPERATOR_ID, getExtension(), OPERATOR_IMPLIED_EXT 
-                };
-            } else {                
-                patterns = new String[] { 
-                    OPERATOR_ID, OPERATOR_IMPLIED_EXT 
-                };
-            }
-        } else {
-            if (getExtension() != null) {
-                patterns = new String[] { 
-                    getExtension()
-                };
-            } else {                
-                patterns = new String[0];
-            }            
-        }
-        
-        return patterns;        
-    }
-
     public String getDescription() {
         return m_description;
     }

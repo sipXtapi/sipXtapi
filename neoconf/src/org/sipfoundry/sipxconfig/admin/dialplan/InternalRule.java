@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
@@ -26,6 +27,7 @@ public class InternalRule extends DialingRule {
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
     private AutoAttendant m_autoAttendant;
+    private String m_aaAliases;
     private String m_voiceMail = "101";
 
     public String[] getPatterns() {
@@ -72,13 +74,29 @@ public class InternalRule extends DialingRule {
         m_voiceMailPrefix = voiceMailPrefix;
     }
 
+    public String getAaAliases() {
+        return m_aaAliases;
+    }
+
+    public void setAaAliases(String attendantAliases) {
+        m_aaAliases = attendantAliases;
+    }
+
+    public String[] getAttendantAliasesAsArray() {
+        if (null == m_aaAliases) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+        return StringUtils.split(m_aaAliases, ", ");
+    }
+
     public void appendToGenerationRules(List rules) {
         if (!isEnabled()) {
             return;
         }
         boolean generateVoiceMailRules = StringUtils.isNotBlank(m_voiceMail);
         if (m_autoAttendant != null) {
-            MappingRule operator = new MappingRule.Operator(getName(), m_autoAttendant);
+            MappingRule operator = new MappingRule.Operator(m_autoAttendant,
+                    getAttendantAliasesAsArray());
             operator.setDescription(getDescription());
             rules.add(operator);
         }

@@ -7,10 +7,10 @@
     <hostPattern>${MY_HOSTNAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
 
-
     <userMatch>
-      <userPattern>operator</userPattern>
+			<!--Operator-->
       <userPattern>100</userPattern>
+      <userPattern>operator</userPattern>
       <userPattern>0</userPattern>
       <permissionMatch>
         <transform>

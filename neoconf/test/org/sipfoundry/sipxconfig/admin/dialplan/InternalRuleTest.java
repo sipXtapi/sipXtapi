@@ -16,6 +16,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule.Operator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
@@ -37,6 +40,7 @@ public class InternalRuleTest extends TestCase {
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits}>";
     
     private static final String TEST_DESCRIPTION = "kuku description";
+    private static final String TEST_NAME = "kuku name";
 
     public void testAppendToGenerationRules() throws Exception {
         InternalRule ir = new InternalRule();
@@ -107,5 +111,51 @@ public class InternalRuleTest extends TestCase {
         UrlTransform to = (UrlTransform) o.getTransforms()[0];
         assertEquals(OPERATOR_URL, to.getUrl());
     }
+    
+    public void testGetAttendantAliasesAsArray() {
+        InternalRule ir = new InternalRule();
+        String[] attendantAliases = ir.getAttendantAliasesAsArray();
+        assertEquals(0, attendantAliases.length);
+        ir.setAaAliases("0, operator");
+        attendantAliases = ir.getAttendantAliasesAsArray();
+        assertEquals(2, attendantAliases.length);
+        assertEquals("0", attendantAliases[0]);
+        assertEquals("operator", attendantAliases[1]);
+    }
+    
+    public void testOperator() {
+        AutoAttendant aa = new AutoAttendant();
+        aa.setExtension("100");
+        aa.setName(TEST_NAME);
+        aa.setDescription(TEST_DESCRIPTION);
+        
+        Operator o = new MappingRule.Operator(aa, ArrayUtils.EMPTY_STRING_ARRAY);
+        assertEquals("100", StringUtils.join(o.getPatterns(), "|"));
+        assertEquals(TEST_NAME,o.getName());
+        assertEquals(TEST_DESCRIPTION,o.getDescription());
+    }
 
+
+    public void testOperatorWithAliases() {
+        AutoAttendant aa = new AutoAttendant();
+        aa.setExtension("100");
+        aa.setName(TEST_NAME);
+        aa.setDescription(TEST_DESCRIPTION);
+        
+        Operator o = new MappingRule.Operator(aa, new String[] {"0", "operator"});
+        assertEquals("100|0|operator", StringUtils.join(o.getPatterns(), "|"));
+        assertEquals(TEST_NAME,o.getName());
+        assertEquals(TEST_DESCRIPTION,o.getDescription());
+    }
+
+    public void testOperatorNoExtension() {
+        AutoAttendant aa = new AutoAttendant();
+        aa.setName(TEST_NAME);
+        aa.setDescription(TEST_DESCRIPTION);
+        
+        Operator o = new MappingRule.Operator(aa, new String[] {"0", "operator"});
+        assertEquals("0|operator", StringUtils.join(o.getPatterns(), "|"));
+        assertEquals(TEST_NAME,o.getName());
+        assertEquals(TEST_DESCRIPTION,o.getDescription());
+    }    
 }

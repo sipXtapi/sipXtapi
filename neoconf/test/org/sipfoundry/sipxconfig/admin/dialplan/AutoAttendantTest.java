@@ -17,7 +17,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -26,9 +25,9 @@ import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.DialPad;
 
 public class AutoAttendantTest extends XMLTestCase {
-    
+
     private VxmlGenerator m_vxml;
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         XMLUnit.setIgnoreWhitespace(true);
@@ -38,28 +37,16 @@ public class AutoAttendantTest extends XMLTestCase {
         m_vxml.setScriptsDirectory(etc);
         m_vxml.setVelocityEngine(TestHelper.getVelocityEngine());
     }
-    
+
     public void testGetSystemName() {
         AutoAttendant aa = new AutoAttendant();
         assertEquals("xcf-1", aa.getSystemName());
-        
-        AutoAttendant operator = AutoAttendant.createOperator();
-        assertEquals("operator", operator.getSystemName());        
-    }
-    
-    public void testDialPatterns() {
-        AutoAttendant aa = new AutoAttendant();
-        assertEquals("", StringUtils.join(aa.getDialingPatterns(), "|"));
-        aa.setExtension("123");
-        assertEquals("123", StringUtils.join(aa.getDialingPatterns(), "|"));
 
         AutoAttendant operator = AutoAttendant.createOperator();
-        assertEquals("operator|100|0", StringUtils.join(operator.getDialingPatterns(), "|"));
-        operator.setExtension("123");
-        assertEquals("operator|123|0", StringUtils.join(operator.getDialingPatterns(), "|"));
+        assertEquals("operator", operator.getSystemName());
     }
 
-    public void testActivateDefaultAttendant() throws Exception {        
+    public void testActivateDefaultAttendant() throws Exception {
         AutoAttendant aa = new AutoAttendant();
         aa.setPrompt("prompt.wav");
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
@@ -68,22 +55,22 @@ public class AutoAttendantTest extends XMLTestCase {
         m_vxml.generate(aa, actualXml);
         assertVxmlEquals("expected-autoattendant.xml", actualXml.toString());
     }
-    
-    private void assertVxmlEquals(String expectedFile, String actualXml) throws Exception {       
+
+    private void assertVxmlEquals(String expectedFile, String actualXml) throws Exception {
         Reader actualRdr = new StringReader(actualXml);
         StringWriter actual = new StringWriter();
         XmlUnitHelper.style(getReader("autoattendant.xsl"), actualRdr, actual, null);
-        
+
         Reader expectedRdr = getReader(expectedFile);
         StringWriter expected = new StringWriter();
         XmlUnitHelper.style(getReader("autoattendant.xsl"), expectedRdr, expected, null);
-        
+
         XMLAssert.assertXMLEqual(expected.toString(), actual.toString());
         System.out.print(actualXml.toString());
     }
-    
+
     private Reader getReader(String resource) {
         InputStream stream = getClass().getResourceAsStream(resource);
-        return new InputStreamReader(stream);        
+        return new InputStreamReader(stream);
     }
 }

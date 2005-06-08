@@ -65,6 +65,15 @@
         <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
     </component>    
 
+    <component id="autoAttendantAliasesLabel" type="FieldLabel">
+        <binding name="field" expression="components.autoAttendantAliases"/>
+    </component>
+    <component id="autoAttendantAliases" type="ValidField">
+        <binding name="value" expression="rule.aaAliases"/>
+        <binding name="validator" expression="global.validUserPatternSequence"/>
+        <message-binding name="displayName" key="label.autoAttendantAliases"/>
+    </component>
+
     <component id="voiceMailLabel" type="FieldLabel">
         <binding name="field" expression="components.voiceMail"/>
     </component>

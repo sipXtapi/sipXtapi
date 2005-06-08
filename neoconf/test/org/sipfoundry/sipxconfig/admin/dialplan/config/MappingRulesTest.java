@@ -154,7 +154,9 @@ public class MappingRulesTest extends XMLTestCase {
         List rules = new ArrayList();
         AutoAttendant aa = AutoAttendant.createOperator();
         aa.setExtension("100");
-        rules.add(new MappingRule.Operator("", aa));
+        rules.add(new MappingRule.Operator(aa, new String[] {
+            "operator", "0"
+        }));
         rules.add(new MappingRule.Voicemail("101"));
         rules.add(new MappingRule.VoicemailTransfer("2", extension));
         rules.add(new MappingRule.VoicemailFallback(3));

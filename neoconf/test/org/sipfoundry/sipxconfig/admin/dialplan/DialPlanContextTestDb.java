@@ -146,6 +146,10 @@ public class DialPlanContextTestDb extends TestCase {
         // IDataSet reference = new FilteredDataSet(filter, TestHelper
         // .loadDataSet("admin/dialplan/defaultFlexibleDialPlan.xml"));
         // Assertion.assertEquals(set, reference);
+        
+        ITable internal = set.getTable("internal_dialing_rule");
+        assertEquals(1, internal.getRowCount());
+        assertEquals("operator, 0", internal.getValue(0,"auto_attendant_aliases"));
     }
 
     public void testDuplicateRules() throws Exception {

@@ -425,6 +425,9 @@
     <property name="voiceMailPrefix">
       <value>8</value>
     </property>
+    <property name="aaAliases">
+      <value>operator, 0</value>
+    </property>
   </bean>
   
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule"
