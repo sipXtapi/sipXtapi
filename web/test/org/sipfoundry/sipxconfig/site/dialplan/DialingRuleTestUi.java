@@ -38,6 +38,5 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLinkWithText("Emergency");
         //it's a submit link: uses java script, does not have id
         clickLinkWithText("Add Existing Gateway");
-        dumpResponse(System.err);  
     }
 }

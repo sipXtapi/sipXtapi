@@ -33,7 +33,6 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        dumpResponse(System.err);
     }
 
     public void testEditSipSetttings() {

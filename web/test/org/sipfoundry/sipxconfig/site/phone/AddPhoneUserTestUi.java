@@ -34,7 +34,6 @@ public class AddPhoneUserTestUi extends WebTestCase {
     
     protected void tearDown() throws Exception {
         super.tearDown();
-        dumpResponse(System.err);
     }
 
     /** 

@@ -38,7 +38,6 @@ public class EditPhoneTestUi extends WebTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        dumpResponse(System.err);
     }
 
     public void testEditPhone() {
