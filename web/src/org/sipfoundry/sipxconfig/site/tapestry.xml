@@ -48,7 +48,7 @@
           <value>true</value>
         </property>
         <property name="patternString">
-          <value>^([a-f]|\d){12}?$</value>
+          <value>^([a-f]|:|\d){12}?$</value>
         </property>
         <property name="patternNotMatchedMessage">
           <value>Please enter exactly 12 alphanumeric characters comprised of digits 0-9 or characters a-f, for

@@ -80,7 +80,14 @@ public class PhoneData extends BeanWithId implements Serializable {
     }
 
     public void setSerialNumber(String serialNumber) {
-        m_serialNumber = serialNumber;
+        m_serialNumber = cleanSerialNumber(serialNumber);
+    }
+    
+    private static String cleanSerialNumber(String rawNumber) {
+        String clean = rawNumber.toLowerCase();
+        clean = clean.replaceAll("[:\\s]*", "");
+        
+        return clean;        
     }
 
     /**
