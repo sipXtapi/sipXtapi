@@ -23,7 +23,7 @@ import org.apache.tapestry.valid.ValidatorException;
  * Utility method for tapestry pages and components
  * 
  * DEVELOPERS NOTE: Static utility methods have their place but consider adding
- * methods to TapestryContext to avoif too many static methods and the limitations they incur
+ * methods to TapestryContext to avoid too many static methods and the limitations they incur
  */
 public final class TapestryUtils {
     /**

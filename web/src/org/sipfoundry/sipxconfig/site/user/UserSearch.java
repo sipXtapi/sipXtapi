@@ -36,6 +36,10 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
     
     public abstract CoreContext getCoreContext();
     
+    public abstract boolean isQueryInUse();
+    
+    public abstract void setQueryInUse(boolean hasQuery);
+    
     public void search(IRequestCycle cycle_) {
         // keep original collection, reference has already been given to other
         // components.  
@@ -44,12 +48,18 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
         getUsers().addAll(results);
     }
     
-    public void pageBeginRender(PageEvent event_) {
+    public void pageBeginRender(PageEvent event) {
         if (getUser() == null) {        
             setUser(new User());
         }
         if (getUsers() == null) {
             setUsers(new ArrayList());
+        }        
+        
+        if (!isQueryInUse()) {
+            setQueryInUse(true);
+        } else {
+            search(event.getRequestCycle());
         }
     }
 }

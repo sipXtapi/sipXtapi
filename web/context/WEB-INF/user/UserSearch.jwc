@@ -24,16 +24,11 @@
 		type="org.sipfoundry.sipxconfig.common.User"/>   
 	<property-specification name="users" 
 		type="java.util.List"/>
-    <!--
-      - B E A N S
-      -->
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>    
+    <property-specification name="queryInUse"
+        type="boolean" initial-value="false"/>
     <!--
       - C O M P O N E N T S
       -->
-    <component id="searchForm" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-    </component>
     <component id="displayIdLabel" type="FieldLabel">
         <binding name="field" expression="components.displayId"/>
 	    <static-binding name="displayName" value="User ID"/>
@@ -68,4 +63,7 @@
     <component id="cancel" type="Submit">
         <binding name="listener" expression="cancelListener"/>
     </component>    
+    <component id="queryInUse" type="Hidden">
+        <binding name="value" expression="queryInUse"/>
+    </component>
 </component-specification>

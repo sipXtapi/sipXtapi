@@ -1,41 +1,49 @@
 <span jwcid="$content$">
-	<form jwcid="searchForm">
-    <span jwcid="@RenderBody"/>
-    <fieldset>
-        <legend>User Search</legend>            
+	<span jwcid="@RenderBody"/>
+    <input type="hidden" jwcid="queryInUse"/>
+	<fieldset>
+		<legend>User Search</legend>
 		<table>
 			<tr>
-				<td><span jwcid="firstNameLabel">First Name:</span></td>
-				<td><input jwcid="firstName"/>
+				<td>
+					<span jwcid="firstNameLabel">First Name:</span>
+				</td>
+				<td>
+					<input jwcid="firstName"/>
 				</td>
 			</tr>
 			<tr>
-				<td><span jwcid="lastNameLabel">Last Name:</span></td>
+				<td>
+					<span jwcid="lastNameLabel">Last Name:</span>
+				</td>
 				<td>
 					<input jwcid="lastName"/>
 				</td>
 			</tr>
 			<tr>
-				<td><span jwcid="extensionLabel">Extension:</span></td>
+				<td>
+					<span jwcid="extensionLabel">Extension:</span>
+				</td>
 				<td>
 					<input jwcid="extension"/>
 				</td>
 			</tr>
 			<tr>
-				<td><span jwcid="displayIdLabel">Display ID:</span></td>
+				<td>
+					<span jwcid="displayIdLabel">Display ID:</span>
+				</td>
 				<td>
 					<input jwcid="displayId"/>
 				</td>
 			</tr>
 		</table>
-        </fieldset>
-		<ul class="component-submit">
-			<li>
-				<input jwcid="cancel" id="user:cancel" value="Cancel"/>
-			</li>
-			<li>
-				<input jwcid="search" id="user:search" value="Search"/>
-			</li>
-		</ul>
-	</form>
+	</fieldset>
+	<ul class="component-submit">
+		<li>
+			<input jwcid="cancel" id="user:cancel" value="Cancel"/>
+		</li>
+		<li>
+			<input jwcid="search" id="user:search" value="Search"/>
+		</li>
+	</ul>
 </span>
