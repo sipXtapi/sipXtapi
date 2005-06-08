@@ -56,7 +56,25 @@ then
     # comment out until (benign?) xml errors are resolved
     #@bin.dir@/sipx-validate-xml @sipxpbx.conf.dir@/topology.xml
     #$Status=$(($Status+$?))
-    exit $Status
+
+    # ENG-131, if DNS IP and Local IP mismatch, code may not find RMI registry 
+    # run test to check
+    if [ 1 -eq `dig --help &>/dev/null; echo $?` ]
+    then 
+        localIp=`get_def_addr`
+        fullHostname=`hostname -f`
+        dnsIp=`dig +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $fullHostname | grep $fullHostname | awk '{print $5 }'`
+        if [ "$localIp" != "$dnsIp" ]
+        then
+            echo "      DNS IP address $dnsIp obtained from running dig command"  1>&2
+            echo "         and local IP: $localIp do not match" 1>&2
+            exit 1
+        fi
+    else
+       echo "dig command not found, skipping DNS resolution" 1>&2
+    fi
+
+    exit 0
 fi
 
 # Needed for Jasper page compiler (possibly for other components as well)
