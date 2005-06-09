@@ -171,7 +171,6 @@
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v11_park_orbit.sql"/>
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v13_music_on_hold.sql"/>
             <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v14_backup.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v15_aa_alias.sql"/>
         </sql>     
     	<echo>ClearDb</echo>
     	<java classname="org.sipfoundry.sipxconfig.ClearDb" classpathref="test.path" fork="true" outputproperty="eatme">

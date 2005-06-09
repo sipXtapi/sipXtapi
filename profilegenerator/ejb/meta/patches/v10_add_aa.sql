@@ -1,3 +1,11 @@
+/* Auto Attendant Alias */
+alter table internal_dialing_rule
+add column auto_attendant_aliases varchar(256);
+
+/* by default all rows represent Park orbits */
+update internal_dialing_rule set auto_attendant_aliases='operator, 0';
+
+/* Auto Attendant */
 create table auto_attendant(
   auto_attendant_id int4 not null primary key,
   name varchar(256) not null,
