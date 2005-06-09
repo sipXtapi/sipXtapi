@@ -12,15 +12,12 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class CallGroup extends AbstractCallSequence {
     private boolean m_enabled;
@@ -103,38 +100,6 @@ public class CallGroup extends AbstractCallSequence {
     }
 
     /**
-     * Activates call group. Remove old lines that are associated with this group. Adds new lines
-     * if group is enabled. Generates profiles and restarts all phones that have been affected by
-     * the changes.
-     */
-    public void activate(PhoneContext phoneContext) {
-        if (!isEnabled()) {
-            return;
-        }
-        // for now - no line support implemented
-        Set affectedPhones = addLines(new NoLine());
-        phoneContext.generateProfilesAndRestart(affectedPhones);
-    }
-
-    /**
-     * Create new lines for all devices associated with users in this call group.
-     * 
-     * @param phoneContext
-     * @param domainName root organization domain name - to create lines URIs
-     * @return collection of phones affected by the changes
-     */
-    private Set addLines(LineSupport lineSupport) {
-        HashSet changedPhones = new HashSet();
-        List calls = getCalls();
-        for (Iterator i = calls.iterator(); i.hasNext();) {
-            UserRing ur = (UserRing) i.next();
-            User user = ur.getUser();
-            changedPhones.addAll(lineSupport.createGroupLines(user));
-        }
-        return changedPhones;
-    }
-
-    /**
      * Create list of aliases that descibe forwarding for this group. All aliases have the form
      * group_name@domain => user_name@domain with the specific q value In addtion alias extension =>
      * group name is added to allow calling to extension
@@ -154,39 +119,5 @@ public class CallGroup extends AbstractCallSequence {
             aliases.add(extensionAlias);
         }
         return aliases;
-    }
-
-    /**
-     * Used to encapsulate the functionality related to creating additional lines required for
-     * proper forwaring calls.
-     * 
-     * There are several strategies dealing with additional lines that we want to try without
-     * changing the basic calling group functionality. LineSupport
-     */
-    interface LineSupport {
-        /**
-         * Create new lines for all devices associated with the in this call group.
-         * 
-         * @return collection of phones affected by the changes
-         */
-        Set createGroupLines(User user);
-    }
-
-    static class NoLine implements LineSupport {
-        public Set createGroupLines(User user_) {
-            return Collections.EMPTY_SET;
-        }
-    }
-
-    static class DedicatedNoVmLine implements LineSupport {
-        // private CoreContext m_coreContext;
-        // private PhoneContext m_phoneContext;
-
-        public Set createGroupLines(User user_) {
-            // TODO: for each user add a dedicated line user(no_vm) on all phones that this user
-            // is registered with
-
-            return new HashSet();
-        }
     }
 }

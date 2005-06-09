@@ -75,13 +75,6 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     public void activateCallGroups() {
-        List callGroups = getCallGroups();
-
-        for (Iterator i = callGroups.iterator(); i.hasNext();) {
-            CallGroup cg = (CallGroup) i.next();
-            cg.activate(m_phoneContext);
-        }
-
         triggerAliasGeneration();
     }
 

@@ -11,21 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
-import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class CallGroupTest extends TestCase {
 
-    /*
-     * Class under test for UserRing insertRing(User)
-     */
     public void testInsertRingUser() {
         User u = new User();
         u.setDisplayId("testUser");
@@ -38,29 +32,6 @@ public class CallGroupTest extends TestCase {
         assertTrue(ring.isFirst());
     }
 
-    public void testActivate() {
-        MockControl control = MockControl.createControl(PhoneContext.class);
-        control.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
-        PhoneContext phoneContext = (PhoneContext) control.getMock();
-        phoneContext.generateProfilesAndRestart(Collections.EMPTY_LIST);
-        control.replay();
-
-        CallGroup cg = new CallGroup();
-        cg.setEnabled(true);
-        cg.activate(phoneContext);
-        control.verify();
-
-        control.reset();
-        // nothing gets called when call group is disabled
-        control.replay();
-        cg.setEnabled(false);
-        cg.activate(phoneContext);
-        control.verify();
-    }
-
-    /*
-     * Class under test for List generateAliases()
-     */
     public void testGenerateAliases() {
         CallGroup group = new CallGroup();
         group.setName("sales");
