@@ -146,6 +146,7 @@
 			<fileset dir="${src.dir}/manual">
 				<include name="**/*.gif" />
 				<include name="**/*.jpg" />
+                <include name="**/*.png" />
 				<include name="**/*.css" />
 			</fileset>
 		</copy>

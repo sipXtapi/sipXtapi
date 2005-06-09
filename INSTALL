@@ -360,24 +360,24 @@ Windows
 
 References
 
-   1. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh
-   2. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-system
-   3. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-jdk
-   4. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#yum
-   5. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#rh-sipx
-   6. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src
-   7. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-dep
-   8. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-env
-   9. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-compile
-  10. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-jboss
-  11. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#src-db
-  12. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#additional
-  13. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#tftp
-  14. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#security
-  15. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run
-  16. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-sipx
-  17. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#run-alone
-  18. file://localhost/home/dkrzemin/sipx/work-main/sipXconfig/doc/src/manual/install.html#windows
+   1. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#rh
+   2. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#rh-system
+   3. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#rh-jdk
+   4. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#yum
+   5. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#rh-sipx
+   6. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#src
+   7. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#src-dep
+   8. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#src-env
+   9. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#src-compile
+  10. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#src-jboss
+  11. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#src-db
+  12. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#additional
+  13. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#tftp
+  14. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#security
+  15. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#run
+  16. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#run-sipx
+  17. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#run-alone
+  18. file://localhost/home/dkrzemin/sipx/main/sipXconfig/doc/src/manual/install.html#windows
   19. http://java.sun.com/j2se/1.4.2/download.html
   20. http://www.mksearch.mkdoc.org/howto/jpackage-fc3/
   21. http://www.sipfoundry.org/pub/sipX/

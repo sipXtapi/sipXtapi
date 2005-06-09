@@ -25,15 +25,6 @@ message.
    a spring to implement some of them. Placing items on this list does not
    however constitute any type of commitment on sipXconfig team.
 
-Simplify database access
-
-   Currently we use mixture of SQL (JDBC) on container managed persistence -
-   it's hard to maintain. Use only method to access database. Standardize on
-   one of the following:
-     * EJB container managed persistence
-     * Java DAO or similar
-     * object persistence framework
-
 Remove or reduce JDOM dependency
 
    We probably do not need to use JDOM: at least not as widely as we currently
@@ -51,42 +42,14 @@ Normalize database
    (instead of keeping in database). However we need to have performance test
    before we try it to change it.
 
-Use HTTPUnit
-
-   Use HTTPUnit for regression and performance testing of the UI.
-
-Define local interfaces for entity beans
-
-   Entity beans are accessed locally only in sipXconfig. In spite of that they
-   have only remote interfaces defined. We could significantly improve the
-   performance of the application, if we replaced the remote interfaces for
-   entity beans with local ones. Even if we do in fact access those beans
-   remotely adding local interfaces would help with majority of the cases where
-   entity beans act as a back end for a facade of session beans (A.K.A advocate
-   beans). The same maybe true about session beans.
-
-Update JBoss [[2]XCF-84]
-
-   Update code to current version of JBoss. Clearly delineate code that depends
-   on  JBoss  server  from  container independent code. Consider removing
-   dependency on JBoss in favor of some lighter weight container.
-
-Plugin API for Support of New Phones [[3]XCF-89]
-
-   Adding support for a new phone meaning "weaving" code into multiple spots.
-   We need to make adding a new phone as simple as loading the code from a jar.
-   This is a large goal.
-
-Replace ProfilePulisher with sipXpublisher Plugin
+Replace ProfilePublisher with sipXpublisher Plugin
 
    ProfilePublisher  handles SIP SUBSCRIBE/NOTIFY messages for event type
    config. sipXpublisher does the same this for MWI (voicemail) and already has
    plugin architecture. Challenge, is one's in java and postgres, other is in
    C++ and IMDB so port won't be clear-cut.
-   Last modified: Mon Nov 29 14:14:05 EST 2004
+   Last modified: Thu Jun 9 15:34:20 EDT 2004
 
 References
 
    1. http://track.sipfoundry.org/secure/BrowseProject.jspa?id=10002&report=roadmap
-   2. http://track.sipfoundry.org/browse/XCF-84
-   3. http://track.sipfoundry.org/browse/XCF-89
