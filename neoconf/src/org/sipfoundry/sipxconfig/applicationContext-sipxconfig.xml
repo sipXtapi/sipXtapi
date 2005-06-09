@@ -314,6 +314,9 @@
     <property name="defaults">
       <ref bean="phoneDefaults"/>
     </property>
+	<property name="sipService">
+		<ref bean="sip"/>
+	</property>
   </bean>
   <bean id="kphone" 
     class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" 

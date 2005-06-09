@@ -44,7 +44,7 @@ public class GenericPhone extends AbstractPhone {
         m_sip = sip;
     }
 
-    public SipService getSip() {
+    public SipService getSipService() {
         return m_sip;
     }
 
