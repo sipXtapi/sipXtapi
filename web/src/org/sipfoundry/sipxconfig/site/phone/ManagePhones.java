@@ -88,7 +88,7 @@ public abstract class ManagePhones extends BasePage
     
     public void generateProfiles(IRequestCycle cycle_) {
         Phone[] selectedPhones = getSelectedPhones();
-        if (selectedPhones.length >= 0) {        
+        if (selectedPhones.length > 0) {        
             Collection phones = Arrays.asList(selectedPhones);
             getPhoneContext().generateProfilesAndRestart(phones);
         }
@@ -112,7 +112,7 @@ public abstract class ManagePhones extends BasePage
     
     public void restart(IRequestCycle cycle_) {
         Phone[] selectedPhones = getSelectedPhones();
-        if (selectedPhones.length >= 0) {        
+        if (selectedPhones.length > 0) {        
             Collection phones = Arrays.asList(selectedPhones);
             getPhoneContext().restart(phones);
         }
