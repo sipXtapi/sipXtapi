@@ -54,8 +54,13 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
         return getHibernateTemplate().loadAll(CallGroup.class);
     }
 
-    public void duplicateCallGroups(Collection ids_) {
-        // TODO Auto-generated method stub
+    public void duplicateCallGroups(Collection ids) {
+        for (Iterator i = ids.iterator(); i.hasNext();) {
+            CallGroup group = loadCallGroup((Integer) i.next());
+            CallGroup groupDup = (CallGroup) group.duplicate();
+            groupDup.setEnabled(false);
+            storeCallGroup(groupDup);
+        }
     }
 
     /**

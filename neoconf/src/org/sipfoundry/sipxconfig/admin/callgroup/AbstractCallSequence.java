@@ -31,6 +31,16 @@ public class AbstractCallSequence extends BeanWithId {
         // empty default constructor
     }
 
+    /**
+     * Deep clone. Hiberate friendly.
+     */
+    protected Object clone() throws CloneNotSupportedException {
+        AbstractCallSequence clone = (AbstractCallSequence) super.clone();
+        clone.m_calls = new ArrayList(m_calls.size());
+        DataCollectionUtil.duplicate(m_calls, clone.m_calls);
+        return clone;
+    }
+
     protected void insertRing(AbstractRing ring) {
         m_calls.add(ring);
         DataCollectionUtil.updatePositions(m_calls);
@@ -49,6 +59,10 @@ public class AbstractCallSequence extends BeanWithId {
             ringToRemove.getId()
         };
         DataCollectionUtil.removeByPrimaryKey(m_calls, keys);
+    }
+
+    protected void clearRings() {
+        m_calls.clear();
     }
 
     public boolean moveRingUp(AbstractRing ring) {
@@ -76,9 +90,10 @@ public class AbstractCallSequence extends BeanWithId {
     }
 
     /**
-     * Generate aliases from the calling list.
-     * All aliases have the following form: identity -> ring_contact
-     * @param identity 
+     * Generate aliases from the calling list. All aliases have the following form: identity ->
+     * ring_contact
+     * 
+     * @param identity
      * @param domain used to calculate proper URI for ring contact
      * @return list of AliasMapping objects
      */

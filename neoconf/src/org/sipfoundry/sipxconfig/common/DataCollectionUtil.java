@@ -142,4 +142,24 @@ public final class DataCollectionUtil {
             updatePositions(c);
         }
     }
+
+    /**
+     * Deep copy for bean collection. Duplicate and not clone is called which makes it hibernate
+     * friendly. (all new objects have UNSAVED id set).
+     * 
+     * We do not want to deal with cloning the collection itself. The caller has to provide a
+     * newly created (or at least empty) destination collection.
+     * 
+     * @param from source collection
+     * @param to destination (empty collection)
+     */
+    public static void duplicate(Collection from, Collection to) {
+        if (to.size() > 0) {
+            throw new IllegalArgumentException("destination collection has to be empty");
+        }
+        for (Iterator i = from.iterator(); i.hasNext();) {
+            BeanWithId bean = (BeanWithId) i.next();
+            to.add(bean.duplicate());
+        }
+    }
 }

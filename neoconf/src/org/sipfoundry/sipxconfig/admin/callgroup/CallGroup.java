@@ -33,6 +33,21 @@ public class CallGroup extends AbstractCallSequence {
         // bean usage only
     }
 
+    /**
+     * We need a deep clone. Each call can only belong to single collection.
+     */
+    protected Object clone() throws CloneNotSupportedException {
+        CallGroup clone = (CallGroup) super.clone();
+        clone.clearRings();
+        for (Iterator i = getCalls().iterator(); i.hasNext();) {
+            UserRing ring = (UserRing) i.next();
+            UserRing ringClone = (UserRing) ring.duplicate();
+            ringClone.setCallGroup(clone);
+            clone.insertRing(ringClone);
+        }
+        return clone;
+    }
+
     public boolean isEnabled() {
         return m_enabled;
     }
@@ -134,8 +149,8 @@ public class CallGroup extends AbstractCallSequence {
 
         List aliases = generateAliases(myIdentity, domainName);
         if (StringUtils.isNotBlank(m_extension)) {
-            AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension, domainName),
-                    myIdentity);
+            AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension,
+                    domainName), myIdentity);
             aliases.add(extensionAlias);
         }
         return aliases;

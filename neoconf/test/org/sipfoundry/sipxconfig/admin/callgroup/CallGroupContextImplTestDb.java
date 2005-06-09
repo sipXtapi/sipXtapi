@@ -87,6 +87,19 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         assertEquals(0, tableUserRing.getRowCount());
     }
 
+    public void testDuplicateCallGroups() throws Exception {
+        List ids = Arrays.asList(new Integer[] {
+            new Integer(1001), new Integer(1002)
+        });
+        m_context.duplicateCallGroups(ids);
+        // call groups table should have twice as many items
+        ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
+        assertEquals(4, tableCallGroup.getRowCount());
+        // and rings table should have twice as many items
+        ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("user_ring");
+        assertEquals(2, tableUserRing.getRowCount());
+    }
+
     public void testClear() throws Exception {
         m_context.clear();
         // make sure the tables are empty

@@ -130,6 +130,30 @@ public class DataCollectionUtilTest extends TestCase {
         assertEquals(new Integer(39), items[39].getPrimaryKey());
     }
 
+    public void testDuplicate() {
+        int size = 5;
+        Collection from = new ArrayList();
+        for (int i = 0; i < size; i++) {
+            BeanWithId bean = new BeanWithId();
+            bean.setUniqueId();
+            from.add(bean);
+        }
+        Collection to = new ArrayList();
+        DataCollectionUtil.duplicate(from, to);
+        assertEquals(size, to.size());
+        for (Iterator i = to.iterator(); i.hasNext();) {
+            BeanWithId clonedBean = (BeanWithId) i.next();
+            assertTrue(clonedBean.isNew());
+        }
+        // check that we cannot do it again
+        try {
+            DataCollectionUtil.duplicate(from, to);
+            fail("should throw illegal argument exception");
+        } catch (IllegalArgumentException e) {
+            // OK
+        }
+    }
+
     static class TestCollectionItem implements DataCollectionItem {
 
         private Integer m_id;

@@ -92,4 +92,30 @@ public class CallGroupTest extends TestCase {
         assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
         assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
     }
+
+    public void testClone() {
+        CallGroup group = new CallGroup();
+        group.setName("sales");
+        group.setExtension("401");
+
+        final int ringsLen = 5;
+        for (int i = 0; i < ringsLen; i++) {
+            User u = new User();
+            u.setDisplayId("testUser" + i);
+            group.insertRing(u);
+        }
+        assertEquals(ringsLen, group.getCalls().size());
+
+        CallGroup clonedGroup = (CallGroup) group.duplicate();
+        assertEquals("sales", clonedGroup.getName());
+        assertEquals("401", clonedGroup.getExtension());
+        List clonedCalls = clonedGroup.getCalls();
+        assertEquals(ringsLen, clonedCalls.size());
+        for (int i = 0; i < ringsLen; i++) {
+            UserRing ring = (UserRing) clonedCalls.get(i);
+            assertEquals("testUser" + i, ring.getUser().getDisplayId());
+            assertSame(clonedGroup, ring.getCallGroup());
+        }
+
+    }
 }
