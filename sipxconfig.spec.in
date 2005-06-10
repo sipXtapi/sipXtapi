@@ -90,7 +90,7 @@ rm -rf $RPM_BUILD_ROOT
 %{phonedir}/profile/tftproot/*
 
 # Install configserver config files, directory only is created by pbx
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755) %{sipxpbxconf}/*
+%config(noreplace) %{sipxpbxconf}/*
 
 %{sipxpbxdata}
 

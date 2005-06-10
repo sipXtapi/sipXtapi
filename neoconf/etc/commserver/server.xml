@@ -100,13 +100,15 @@
       <value>NOTICE</value>
       <description>Handling of phones registering for calls.</description>
     </setting>
-    <setting name="SIP_SDS_LOG_LEVEL">
+    <!-- DISABLE, cannot get permissions right in rpmspec file
+         will go away in 3.2 
+      setting name="SIP_SDS_LOG_LEVEL">
       <label>Software Delivery Server Log Level</label>
       <profileName>sds-config.in</profileName>
       <type refid="loglevel"/>
       <value>NOTICE</value>
       <description>Handling of SUBSCRIBE/NOTIFY messages for configuration (for SIP Softphone only)</description>
-    </setting>
+    </setting -->
     <setting name="SIP_PARK_LOG_LEVEL">
       <label>Park Server Log Level</label>
       <profileName>sipxpark-config.in</profileName>
