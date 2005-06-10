@@ -171,23 +171,11 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
     
     public void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir) {
         if (attendant.isOperator()) {
-            throw new AttendantInUseException("You cannot delete the operator attendant");
+            throw new AttendantInUseException();        
         }
         Collection rules = getRulesUsedByAttendant(attendant);
         if (rules.size() > 0) {
-            StringBuffer msg = new StringBuffer("The attendant is in use by the following "
-                    + "dialing rule(s) and therefore cannot be deleted: ");
-            Iterator irules = rules.iterator();
-            // FIXME for JDK15
-            for (int i = 0; irules.hasNext(); i++) {
-                DialingRule rule = (DialingRule) irules.next();
-                if (i != 0) {
-                    msg.append(", ");
-                }
-                msg.append(rule.getName());
-            }
-            
-            throw new AttendantInUseException(msg.toString());
+            throw new AttendantInUseException(rules);
         }
 
         getHibernateTemplate().delete(attendant);
