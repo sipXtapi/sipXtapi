@@ -18,7 +18,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.phone.DuplicateFieldException;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 /**
  * Tapestry utilities available to web pages 
@@ -62,7 +62,7 @@ public class TapestryContext {
                 m_listener.actionTriggered(component, cycle);
             } catch (ApplicationRuntimeException are) {
                 Throwable cause = are.getCause();
-                if (cause != null && cause.getClass().isAssignableFrom(DuplicateFieldException.class)) {
+                if (cause != null && cause.getClass().isAssignableFrom(UserException.class)) {
                     m_validator.record(new ValidatorException(cause.getMessage()));                    
                 } else {
                     throw are;

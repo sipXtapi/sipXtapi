@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 public class AttendantInUseException extends UserException {
     // TODO: localize messages

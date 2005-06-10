@@ -23,6 +23,7 @@ import net.sf.hibernate.Hibernate;
 import org.apache.commons.collections.map.LinkedMap;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -104,12 +105,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         getHibernateTemplate().flush();
     }
 
-    public void storePhone(Phone phone) {        
+    public void storePhone(Phone phone) {
         PhoneData meta = phone.getPhoneData();
-        checkForDuplicateFields("A phone with this serial number already exists", meta, 
-            "serialNumber", meta.getSerialNumber());
-        checkForDuplicateFields("A phone with this name already exists", meta, 
-                "name", meta.getName());
+        checkForDuplicateFields(new DuplicateSerialNumberException(meta.getSerialNumber()), meta,
+                "serialNumber", meta.getSerialNumber());
+        checkForDuplicateFields(new DuplicateNameException(meta.getName()), meta, "name", meta
+                .getName());
         meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
         getHibernateTemplate().saveOrUpdate(meta);
         Iterator lines = phone.getLines().iterator();
@@ -123,30 +124,43 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             deleteLine(line);
         }
     }
-    
-    void  checkForDuplicateFields(String message, BeanWithId obj, String field, Object value) {
+
+    /**
+     * Throws passed exception if duplicate is found
+     * 
+     * @param exception exception to be thrown
+     * @param obj hibernate entity that we are going to check
+     * @param field name of the field to check
+     * @param value value of the field
+     * 
+     * HACK: this might be not such a good idea, it forces us to encode the names of the DB table
+     * in Java code
+     * 
+     */
+    void checkForDuplicateFields(UserException exception, BeanWithId obj, String field,
+            Object value) {
         if (value == null) {
             return;
         }
-        
+
         String name = obj.getClass().getName();
         String uniqueCheck = "select o.id from " + name + " o where o." + field + " = :value";
         List ids = getHibernateTemplate().findByNamedParam(uniqueCheck, "value", value);
-        
-        // no match 
+
+        // no match
         if (ids.size() == 0) {
-            return;            
+            return;
         }
 
         // detect 1 match, itself
         if (!obj.isNew() && ids.size() == 1) {
             Integer id = (Integer) ids.get(0);
             if (id.equals(obj.getId())) {
-                return;            
+                return;
             }
         }
-        
-        throw new DuplicateFieldException(message);
+
+        throw exception;
     }
 
     public void deletePhone(Phone phone) {
@@ -313,5 +327,21 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         // TODO: move query to .hbm.xml file
         getHibernateTemplate().delete("from LineData line where line.user.id=?", userId,
                 Hibernate.INTEGER);
+    }
+
+    private class DuplicateSerialNumberException extends UserException {
+        private static final String ERROR = "A phone with serial number: {0} already exists.";
+
+        public DuplicateSerialNumberException(String serialNumber) {
+            super(ERROR, serialNumber);
+        }
+    }
+
+    private class DuplicateNameException extends UserException {
+        private static final String ERROR = "A phone with name: {0} already exists.";
+
+        public DuplicateNameException(String name) {
+            super(ERROR, name);
+        }
     }
 }
