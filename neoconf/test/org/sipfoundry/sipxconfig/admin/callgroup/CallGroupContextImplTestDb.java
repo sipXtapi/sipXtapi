@@ -17,6 +17,7 @@ import java.util.List;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
 public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
@@ -70,9 +71,44 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         group.setExtension("202");
         group.setEnabled(true);
         m_context.storeCallGroup(group);
-        // table should be empty now
+        // table should have additional row now - 3
         ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
         assertEquals(3, tableCallGroup.getRowCount());
+    }
+    
+    public void testStoreCallGroupDuplicateName() throws Exception {
+        CallGroup group = new CallGroup();
+        group.setName("sales");
+        group.setLineName("kukuLine");
+        group.setExtension("202");
+        group.setEnabled(true);
+        
+        try {
+            m_context.storeCallGroup(group);
+            fail("NameInUseException should be thrown");
+        } catch (UserException e) {
+            assertTrue(e.getMessage().indexOf("sales") > 0);
+        }
+        // table should have the same number of rows as before
+        ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
+        assertEquals(2, tableCallGroup.getRowCount());
+    }
+    
+    public void testStoreCallGroupDuplicateExtension() throws Exception {
+        CallGroup group = new CallGroup();
+        group.setName("kuku");
+        group.setLineName("kukuLine");
+        group.setExtension("401");
+        group.setEnabled(true);
+        try {
+            m_context.storeCallGroup(group);
+            fail("ExtensionInUseException should be thrown");
+        } catch (UserException e) {
+            assertTrue(e.getMessage().indexOf("401") > 0);
+        }
+        // table should have the same number of rows as before
+        ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
+        assertEquals(2, tableCallGroup.getRowCount());
     }
 
     public void testRemoveCallGroups() throws Exception {

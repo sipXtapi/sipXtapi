@@ -62,7 +62,7 @@ public class TapestryContext {
                 m_listener.actionTriggered(component, cycle);
             } catch (ApplicationRuntimeException are) {
                 Throwable cause = are.getCause();
-                if (cause != null && cause.getClass().isAssignableFrom(UserException.class)) {
+                if (cause instanceof UserException) {
                     m_validator.record(new ValidatorException(cause.getMessage()));                    
                 } else {
                     throw are;

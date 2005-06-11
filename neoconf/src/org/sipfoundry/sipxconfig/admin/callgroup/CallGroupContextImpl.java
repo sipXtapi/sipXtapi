@@ -19,8 +19,10 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.forwarding.GenerateMessage;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Organization;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.orm.hibernate.HibernateTemplate;
@@ -43,6 +45,15 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     public void storeCallGroup(CallGroup callGroup) {
+        // only validate callgroups that are being enabled
+        if (callGroup.isEnabled()) {
+            String name = callGroup.getName();
+            checkDuplicates(callGroup, "callGroupsEnabledWithName", name, new NameInUseException(
+                    name));
+            String extension = callGroup.getExtension();
+            checkDuplicates(callGroup, "callGroupsEnabledWithExtension", extension,
+                    new ExtensionInUseException(extension));
+        }
         getHibernateTemplate().saveOrUpdate(callGroup);
     }
 
@@ -198,6 +209,48 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
             CallGroup callGroup = ring.getCallGroup();
             callGroup.removeRing(ring);
             hibernate.save(callGroup);
+        }
+    }
+
+    /**
+     * Throws exception if query returns other objects than obj. Used to check for duplicates.
+     * 
+     * @param obj object to be checked
+     * @param query to be executed
+     * @param value parameter for the query
+     * @param exception throws if query returns other object than passed in the query
+     */
+    void checkDuplicates(BeanWithId obj, String query, Object value, UserException exception) {
+        List ids = getHibernateTemplate().findByNamedQueryAndNamedParam(query, "value", value);
+
+        // no match
+        if (ids.size() == 0) {
+            return;
+        }
+
+        // detect 1 match, itself
+        if (!obj.isNew() && ids.size() == 1 && obj.equals(ids.get(0))) {
+            return;
+        }
+
+        throw exception;
+    }
+
+    private class ExtensionInUseException extends UserException {
+        private static final String ERROR = "Extension {0} is already used in the system. "
+                + "Please choose another extension before enabling this hunt group.";
+
+        public ExtensionInUseException(String extension) {
+            super(ERROR, extension);
+        }
+    }
+
+    private class NameInUseException extends UserException {
+        private static final String ERROR = "Name {0} is already used in the system. "
+                + "Please choose another name before enabling this hunt group.";
+
+        public NameInUseException(String name) {
+            super(ERROR, name);
         }
     }
 }
