@@ -506,7 +506,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
             boolean fixCredential = false;
 
             try {
-                thisUser = mUserHome.findByPrimaryKey( id );
+                thisUser = mUserHome.findByPrimaryKey( id );                
             }
             catch (FinderException fe) {
                 mCTX.setRollbackOnly();
@@ -517,7 +517,6 @@ public class UserAdvocateBean extends JDBCAwareEJB
                         new String[]{id}),
                         fe);
             }
-
 
             if ( pintoken != null && pintoken.equalsIgnoreCase("e_m_p_t_y") ) {
                 pintoken = "";
@@ -552,8 +551,10 @@ public class UserAdvocateBean extends JDBCAwareEJB
                 thisUser.setDisplayID( displayID );
                 // NOT the pintoken is notpart of the XMLob in DB
                 setUsersPinToken(thisUser, displayID, pintoken);
-
+                
                 // Fix primary line
+                String sipPassword = loadSipPassword(thisUser);
+                fixPrimaryLine( thisUser, true, sipPassword );
                 changedValues[PGSDefinitions.LINE_INFO_CHANGED] = true;
             }
 
@@ -633,7 +634,7 @@ public class UserAdvocateBean extends JDBCAwareEJB
             if ( fixLine ) {
                 fixPrimaryLine( thisUser, fixCredential, null );
             }
-
+            
             return changedValues;
         }
         catch (PDSException e) {
@@ -881,6 +882,30 @@ public class UserAdvocateBean extends JDBCAwareEJB
                                         new Object [] { externalID } ) );
 
         }
+    }
+   
+    private String loadSipPassword(User user) throws Exception {
+        ConfigurationSet cs = getUserConfigurationSet(user);
+        
+        if( null == cs )
+        {
+            logError("No configuration sets for user: " + user.getDisplayID());
+            return null;
+        }
+        
+        String xmlContent = cs.getContent();
+        Document doc = mSaxBuilder.build(new StringReader(xmlContent));        
+        Element e = doc.getRootElement(); // PROFILE
+        e = getElement(e, "line1");
+        e = getElement(e, "container");
+        e = getElement(e, "line1_password");
+        String password = e.getTextTrim();
+        
+        return password;
+    }
+    
+    private Element getElement(Element e, String name) {
+        return e != null ? e.getChild(name) : null;
     }
    
    

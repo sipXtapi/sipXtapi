@@ -414,6 +414,7 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
                                 // confused
                                 String pinTokenTxt = (String) pinTokens.get(userIDTxt);
                                 if (pinTokenTxt == null) {
+                                    logError("Could not find pin token for user : " + userIDTxt);                                    
                                     pinTokenTxt = passTokenTxt;
                                 }                                
                                 Element pintokenElement = new Element("pintoken");
@@ -767,31 +768,19 @@ public class DataSetBuilderBean extends JDBCAwareEJB implements SessionBean,
      */
     private Map getPinTokens() {
         Map pintokens = new HashMap();
-        InitialContext initial;
-        Statement statement = null;
         try {
-            initial = new InitialContext();
-            DataSource dataSource = (DataSource) initial.lookup( "java:/PDSDataSource" );
-            Connection connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            String query = "SELECT DISPLAY_ID, PASSWORD FROM USERS";
-            ResultSet rs = statement.executeQuery(query);
-            while (rs.next()) {
-                String displayId = rs.getString("DISPLAY_ID");
-                String pintoken = rs.getString("PASSWORD");
+            Collection users = mUserHome.findAll();
+            Iterator i = users.iterator();
+            while (i.hasNext()) {
+                User u = (User) i.next();
+                String displayId = u.getDisplayID();
+                String pintoken = u.getPassword();
                 pintokens.put(displayId, pintoken);
             }
-        } catch (NamingException e1) {
-            throw new RuntimeException(e1);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ignore) {                    
-                }
-            }
+        } catch (FinderException fe) {
+            throw new RuntimeException(fe);            
+        } catch (RemoteException re) {
+            throw new RuntimeException(re);            
         }
         
         return pintokens;
