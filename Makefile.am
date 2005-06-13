@@ -76,11 +76,8 @@ rpm : dist sipxproxy.spec
 	md5sum $(PACKAGE)-$(VERSION).tar.gz >$(PACKAGE)-$(VERSION).tar.gz.md5
 
 # RPM Spec file
-# Extract the options to ./configure from config.log and propagate them into the .spec file.
 sipxproxy.spec : sipxproxy.spec.in
-	V="$$( sed -e '/^ *\$$ .*\/configure/!d' -e 's/^.*\/configure *//' config.log )" ; \
-	$(LocalizeSipXconfig) -e "s#@CONFIGURE_OPTIONS@#$$V#" \
-		$(srcdir)/sipxproxy.spec.in > sipxproxy.spec
+	$(LocalizeSipXconfig) $(srcdir)/sipxproxy.spec.in > sipxproxy.spec
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build
 # RPM from
