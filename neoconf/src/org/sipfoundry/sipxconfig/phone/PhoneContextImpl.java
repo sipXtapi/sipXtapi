@@ -214,6 +214,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         List lineMetas = getHibernateTemplate().find(lineQuery);
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData lineMeta = (LineData) lineMetas.get(i);
+            loadPassword(lineMeta);
             // collate by parent object: phoneMetaData
             Phone phone = (Phone) phones.get(lineMeta.getPhoneData().getPrimaryKey());
             if (phone == null) {
@@ -234,6 +235,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
                 phone.getPhoneData());
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData meta = (LineData) lineMetas.get(i);
+            loadPassword(meta);
             phone.addLine(phone.createLine(meta));
         }
 
@@ -261,8 +263,17 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return phone;
     }
 
-    Line loadLine(LineData meta) {
+    /** 
+     * Pull SIP Password from legacy tables. 
+     * This hack can be deleted for sipxconfig 3.1 when pintoken AND password 
+     * are stored in user table 
+     */
+    private void loadPassword(LineData meta) {
         m_coreContext.loadUserPassword(meta.getUser());
+    }
+
+    Line loadLine(LineData meta) {
+        loadPassword(meta);
         return loadPhoneFromFactory(meta.getPhoneData()).createLine(meta);
     }
 
