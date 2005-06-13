@@ -21,8 +21,8 @@ import java.util.Map;
 import net.sf.hibernate.Hibernate;
 
 import org.apache.commons.collections.map.LinkedMap;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
@@ -106,13 +107,16 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public void storePhone(Phone phone) {
+        HibernateTemplate hibernate = getHibernateTemplate();
         PhoneData meta = phone.getPhoneData();
-        checkForDuplicateFields(new DuplicateSerialNumberException(meta.getSerialNumber()), meta,
-                "serialNumber", meta.getSerialNumber());
-        checkForDuplicateFields(new DuplicateNameException(meta.getName()), meta, "name", meta
-                .getName());
+        String serialNumber = meta.getSerialNumber();
+        DaoUtils.checkDuplicates(hibernate, meta, "phoneIdsWithSerialNumber", serialNumber,
+                new DuplicateSerialNumberException(serialNumber));
+        String name = meta.getName();
+        DaoUtils.checkDuplicates(hibernate, meta, "phoneIdsWithName", name,
+                new DuplicateNameException(name));
         meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
-        getHibernateTemplate().saveOrUpdate(meta);
+        hibernate.saveOrUpdate(meta);
         Iterator lines = phone.getLines().iterator();
         while (lines.hasNext()) {
             Line line = (Line) lines.next();
@@ -123,44 +127,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             Line line = (Line) deleted.next();
             deleteLine(line);
         }
-    }
-
-    /**
-     * Throws passed exception if duplicate is found
-     * 
-     * @param exception exception to be thrown
-     * @param obj hibernate entity that we are going to check
-     * @param field name of the field to check
-     * @param value value of the field
-     * 
-     * HACK: this might be not such a good idea, it forces us to encode the names of the DB table
-     * in Java code
-     * 
-     */
-    void checkForDuplicateFields(UserException exception, BeanWithId obj, String field,
-            Object value) {
-        if (value == null) {
-            return;
-        }
-
-        String name = obj.getClass().getName();
-        String uniqueCheck = "select o.id from " + name + " o where o." + field + " = :value";
-        List ids = getHibernateTemplate().findByNamedParam(uniqueCheck, "value", value);
-
-        // no match
-        if (ids.size() == 0) {
-            return;
-        }
-
-        // detect 1 match, itself
-        if (!obj.isNew() && ids.size() == 1) {
-            Integer id = (Integer) ids.get(0);
-            if (id.equals(obj.getId())) {
-                return;
-            }
-        }
-
-        throw exception;
     }
 
     public void deletePhone(Phone phone) {

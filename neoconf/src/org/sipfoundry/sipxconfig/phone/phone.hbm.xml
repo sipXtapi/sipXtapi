@@ -18,6 +18,7 @@
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
     <many-to-one name="folder" column="folder_id" class="org.sipfoundry.sipxconfig.setting.Folder"/>
   </class>
+  
   <!--
   -  L I N E
   -->
@@ -34,4 +35,12 @@
     <many-to-one cascade="all" name="valueStorage" column="storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
   </class>
+  
+  <query name="phoneIdsWithName">
+    <![CDATA[select pd.id from PhoneData pd where pd.name = :value]]>
+  </query>
+  
+  <query name="phoneIdsWithSerialNumber">
+    <![CDATA[select pd.id from PhoneData pd where pd.serialNumber = :value]]>        
+  </query>  
 </hibernate-mapping>
