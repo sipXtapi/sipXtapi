@@ -28,8 +28,8 @@
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="source" expression="phones"/>
-		<binding name="columns">'* Phone,' + 
-			'Lines,Model:phoneData.modelLabel'</binding>
+		<binding name="columns">'* Phone:phoneData.serialNumber,' + 
+			'!Lines,Model:phoneData.modelLabel'</binding>
         <static-binding name="pageSize" value="20"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
