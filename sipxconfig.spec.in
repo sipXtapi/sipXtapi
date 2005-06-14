@@ -114,8 +114,7 @@ fi
 %post
 
 # Upgrade configuration
-sipx-upgrade -p sipxconfig -u --ldir %{_localstatedir} \
-  --cdir %{_sysconfdir}
+sipx-upgrade -p sipxconfig -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
 
 # Start Postgres and create the databases.  Note that we leave Postgres
 # running afterward.
