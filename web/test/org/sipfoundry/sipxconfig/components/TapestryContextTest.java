@@ -56,7 +56,7 @@ public class TapestryContextTest extends TestCase {
     }
 
     public void testTreatUserExceptionAsValidationErrorUserException() {
-        Throwable exception = new UserException("kuku");
+        Throwable exception = new UserException("kuku") {};
 
         MockControl actionControl = MockControl.createControl(IActionListener.class);
         IActionListener action = (IActionListener) actionControl.getMock();

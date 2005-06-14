@@ -27,7 +27,7 @@
         <binding name="validator" expression="beans.validator"/>
     </component>    
     <component id="ok" type="Submit">
-        <binding name="listener" expression="listeners.finish"/>
+        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.finish)"/>
     </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
