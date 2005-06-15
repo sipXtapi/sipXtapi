@@ -15,10 +15,10 @@
     - Point to local DTDs for XHMTL for speed among other advantages
     -->
 	<xmlcatalog id="xhtml-dtd">
-		<dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN" location="xml-catalog/xhtml1-transitional.dtd" />
-		<dtd publicId="-//W3C//ENTITIES Latin 1 for XHTML//EN" location="xml-catalog/xhtml-lat1.ent" />
-		<dtd publicId="-//W3C//ENTITIES Symbols for XHTML//EN" location="xml-catalog/xhtml-symbol.ent" />
-		<dtd publicId="-//W3C//ENTITIES Special for XHTML//EN" location="xml-catalog/xhtml-special.ent" />
+		<dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN" location="src/xml-catalog/xhtml1-transitional.dtd" />
+		<dtd publicId="-//W3C//ENTITIES Latin 1 for XHTML//EN" location="src/xml-catalog/xhtml-lat1.ent" />
+		<dtd publicId="-//W3C//ENTITIES Symbols for XHTML//EN" location="src/xml-catalog/xhtml-symbol.ent" />
+		<dtd publicId="-//W3C//ENTITIES Special for XHTML//EN" location="src/xml-catalog/xhtml-special.ent" />
 	</xmlcatalog>
 
 	<!-- M A I N  T A R G E T -->
