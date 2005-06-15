@@ -12,17 +12,6 @@
   - if you create new users, set rcs_id=2, ug=1, id=5... 
   -->
 <dataset>  
-  <!-- new phone support -->  
-  <table name="line"/>
-  <table name="phone"/>
-  <table name="setting"/>
-  <table name="storage"/>
-  <table name="folder_setting"/>
-  <table name="folder"/>
-  
-  <!-- forwarding -->
-  <table name="ring"/>
-  
   <!-- admin -->
   <table name="backup_plan"/>
   <table name="daily_backup_schedule"/>
@@ -30,10 +19,10 @@
   
   <!-- dial plans related -->  
   <table name="dialing_rule"/>
+  <table name="custom_dialing_rule"/>
   <table name="dial_pattern"/>
   <table name="international_dialing_rule"/>
   <table name="local_dialing_rule"/>
-  <table name="custom_dialing_rule"/>
   <table name="custom_dialing_rule_permission"/>
   <table name="dialing_rule_gateway"/>
   <table name="emergency_dialing_rule"/>
@@ -214,4 +203,16 @@
       <value>2</value>
     </row>
   </table>
+
+  <!-- new phone support -->  
+  <table name="folder"/>
+  <table name="phone"/>
+  <table name="line"/>
+  <table name="setting"/>
+  <table name="storage"/>
+  <table name="folder_setting"/>
+    
+  <!-- forwarding -->
+  <table name="ring"/>
+  
 </dataset>
