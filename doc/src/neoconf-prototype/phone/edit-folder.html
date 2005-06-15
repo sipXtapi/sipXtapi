@@ -9,26 +9,29 @@
 </head>
 
 <body>
-  <h2>Default Settings</h2>
+ <p>&gt; <strong>Default</strong></p>
+  <h2>Edit Folder</h2>
   <p>To provide settings that can be shared across all phones of a particular model.
        Values explicitly set on individual phones will override these values.</p>
 
- <strong>Default</strong>
-
-  <div id="settings-nav">
-    <ul>
-      <li><a href="default-sales.html">Sales</a></li>
-
-      <li><a href="#">Engineering</a></li>
-
-    </ul>
-
-  </div>
-
+			<ul class="component-links">
+				<li>
+					<a href="new-folder.html">Rename</a>
+				</li>
+				<li>
+					<a href="move-folder.html">Move</a>
+				</li>
+				<li>
+					<a href="new-folder.html">New Subfolder</a>
+				</li>
+			</ul>
+ <div id="settings-nav">    
+   <a href="edit-sales-folder.html"><img border="0" src="folder-tree.png"/></a>
+ </div> 
   <div id="settings-content">
-     <p>Click on the type of phone to edit the default settings.</p>
-    <ul>
-      <li><a href=
+     <fieldset>
+     <ul>
+            <li><a href=
       "defaults-phone.html">Cisco ATA 18X</a></li>
 
       <li><a href=
@@ -45,11 +48,8 @@
 
       <li><a href=
       "defaults-phone.html">KPhone</a></li>
-    </ul>
-
-      <ul class="form-actions">
-        <li><button onclick="location.href='phones.html'">Cancel</button></li>
-      </ul>
-  </div><!-- Render time: ~ 119 ms -->
+    </ul>     
+     </fieldset>
+   </div>
 </body>
 </html>

@@ -5,6 +5,17 @@
 		<title>sipXconfig</title>
 		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
 	</head>
+    <script language="JavaScript">
+        function addFolder(form) {
+          folders = form.folder;
+          parent = folders.options[folders.selectedIndex].value;
+          folder = prompt(parent + ' subfolder name:');
+          if (folder != null) {
+              fullname = parent + '/' + folder;
+              folders.options[folders.options.length] = new Option(fullname, folder, true, true);
+          }
+        }
+    </script>
 	<body id="phone">
 		<div class="help">
 			<div class="helpbox">
@@ -54,7 +65,7 @@
 			gravida congue. Proin in sem vestibulum augue accumsan feugiat. 
 			Aenean ut magna. Vivamus sed nibh sed quam viverra ullamcorper. 
 			Phasellus mattis.</p>
-		<form action="#">
+		<form name="phone-data" action="#">
 			<table>
 				<tr>
 					<td>Serial #:</td>
@@ -63,6 +74,26 @@
 							value="32132b8c9f73"/>
 					</td>
 				</tr>
+				<tr>
+					<td>Folder:</td>
+					<td>
+						<select name="folder">
+                            <option>default</option>
+                            <option>Onsite</option>
+                            <option>Onsite/Sales</option>
+                            <option>Onsite/Engineering</option>
+                            <option>Offsite</option>
+                            <option>Offsite/Sales</option>
+                        </select> 
+                        <a href="javascript:addFolder(this.document.forms['phone-data']);">New Folder</a>
+					</td>
+				</tr>
+                <tr>
+                    <td>Optional tags:</td>
+                    <td>
+                        <input type="text" name="tags"/>
+                    </td>
+                </tr>
 				<tr>
 					<td>Alternate Label:</td>
 					<td>
