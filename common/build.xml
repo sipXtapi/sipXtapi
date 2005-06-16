@@ -114,8 +114,6 @@
       <fileset file="${netcomponents.jar}"/>
       <fileset file="${jdbc-driver.jar}"/>
       <fileset file="${saaj.jar}"/>
-      <fileset file="${taglibs-xtags.tld}"/>
-      <fileset file="${taglibs-xtags.jar}"/>
     </copy>
 
     <copy file="${common.jar}" todir="${dest.dir}${sipxconfig.lib.dir}"/>

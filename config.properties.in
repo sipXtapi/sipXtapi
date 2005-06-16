@@ -145,4 +145,4 @@ jta.jar=${top.dir}/lib/jta.jar
 
 # J S P
 taglibs.jar=${top.dir}/lib/taglibs-xtags.jar
-taglibs.tld=${top.dir}/lib/taglibs-xtags.tld
+taglibs.tld=taglibs-xtags.tld

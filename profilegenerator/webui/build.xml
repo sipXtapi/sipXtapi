@@ -62,14 +62,17 @@
       <webinf dir="meta/WEB-INF">
         <exclude name="web.xml" /> <!-- avoid warning about already there -->
       </webinf>
-
+      
+      <webinf dir="${top.dir}/lib">
+        <include name="${taglibs.tld}"/> 
+      </webinf>  
+              
       <!-- IDEALLY: lib file="${profilegen-client.jar}"/ -->
       <lib file="${profilegen-ejb.jar}"/>
       <lib file="${profilegen-tags.jar}"/>
       <lib file="${commserver.jar}"/>
 
       <lib file="${taglibs.jar}"/>
-      <lib file="${taglibs.tld}"/><!-- YES, this goes in the lib -->
       <lib file="${dom4j.jar}"/>
     	
       <!-- 

@@ -23,7 +23,7 @@
     <!-- Apache's xtags -->
     <taglib>
         <taglib-uri>xtags</taglib-uri>
-        <taglib-location>/WEB-INF/lib/taglibs-xtags.tld</taglib-location>
+        <taglib-location>/WEB-INF/taglibs-xtags.tld</taglib-location>
     </taglib>
 
     <!-- A D M I N  &  S U P E R   A C C E S S -->
