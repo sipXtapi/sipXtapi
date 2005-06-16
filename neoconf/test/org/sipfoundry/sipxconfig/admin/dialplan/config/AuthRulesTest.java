@@ -37,7 +37,9 @@ public class AuthRulesTest extends XMLTestCase {
         Document doc = rules.getDocument();
 
         String xml = XmlUnitHelper.asString(doc);
-        assertXMLEqual("<mappings/>", xml);
+        assertXMLEqual(
+                "<mappings xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00\"/>",
+                xml);
     }
 
     public void testGenerate() throws Exception {

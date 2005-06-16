@@ -8,7 +8,7 @@
   -      Betty Boop (in parallel), and then if those fail
   -      to Jane Doe.
   -->
-<items type="alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/alias-00-00'>
+<items type="alias">
     <item>
         <identity>301@example.org</identity>
         <contact>&quot;John Doe&quot;&lt;sip:john.doe@example.org&gt;</contact>

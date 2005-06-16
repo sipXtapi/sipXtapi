@@ -48,6 +48,8 @@ public class AliasServiceImplTest extends XMLTestCase {
     }
 
     public void testGetForwardingAliases() throws Exception {
+        assertFalse(XMLUnit.getControlParser().isNamespaceAware());
+
         List forwardingAliases = createAliasMappings(FORWARDING_DATA);
 
         MockControl mockForwardingContext = MockControl
