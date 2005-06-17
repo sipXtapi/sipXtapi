@@ -17,19 +17,10 @@
 
   <!-- D E F A U L T -->
   <target name="default" depends="jar"/>
+  
 
   <!-- C O M P I L E -->
-  <target name="compile" depends="init" >
-      <javac srcdir="${src.dir}/"
-         destdir="${classes.dir}"
-         classpathref="base.path"
-         debug="${debug}"
-         debuglevel="${debuglevel}"
-         deprecation="on"
-         optimize="${optimize}"
-         includes="**/*.java"
-         excludes="**/Test*.java"/>
-
+  <target name="compile" depends="ant-targets.compile" >
       <rmic base="${classes.dir}" includes="**/*Impl.class" 
           verify="yes" stubversion="1.2" classpathref="base.path" />
   </target>
