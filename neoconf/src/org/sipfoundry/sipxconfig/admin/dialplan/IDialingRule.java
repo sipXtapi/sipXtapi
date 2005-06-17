@@ -42,4 +42,6 @@ public interface IDialingRule {
     public abstract Integer getId();
 
     public abstract boolean isInternal();
+
+    public abstract String[] getTransformedPatterns();
 }

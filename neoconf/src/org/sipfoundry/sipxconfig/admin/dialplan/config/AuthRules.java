@@ -21,6 +21,8 @@ import java.util.Set;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
@@ -76,7 +78,7 @@ public class AuthRules extends XmlFile implements ConfigFile {
             m_gateways.add(gateway);
         }
         Element userMatch = hostMatch.addElement("userMatch");
-        String[] patterns = rule.getPatterns();
+        String[] patterns = rule.getTransformedPatterns();
         for (int i = 0; i < patterns.length; i++) {
             String pattern = patterns[i];
             Element userPattern = userMatch.addElement("userPattern");
@@ -100,7 +102,8 @@ public class AuthRules extends XmlFile implements ConfigFile {
         rule.setDescription(NO_ACCESS_RULE);
         rule.setGateways(gateways);
         rule.setPermissions(Collections.singletonList(Permission.NO_ACCESS));
-        DialPattern matchAll = new DialPattern(".", 0);
+        rule.setCallPattern(new CallPattern("", CallDigits.FIXED_DIGITS));
+        DialPattern matchAll = new DialPattern(".", 0);        
         rule.setDialPatterns(Collections.singletonList(matchAll));
         generate(rule);
     }

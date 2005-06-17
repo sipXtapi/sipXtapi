@@ -56,6 +56,13 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("xxxxxxx", patterns[2]);
     }
 
+    public void testGetTransformedPatterns() {
+        DialingRule rule = getGenerationRule(m_rule);
+        String[] patterns = rule.getTransformedPatterns();
+        assertEquals(1, patterns.length);
+        assertEquals("1xxxxxxx", patterns[0]);
+    }
+
     public void testGetTransforms() {
         DialingRule rule = getGenerationRule(m_rule);
         Transform[] transforms = rule.getTransforms();

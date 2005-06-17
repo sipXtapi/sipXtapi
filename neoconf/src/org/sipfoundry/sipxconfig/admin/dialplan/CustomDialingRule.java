@@ -12,7 +12,10 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
@@ -106,5 +109,16 @@ public class CustomDialingRule extends DialingRule {
      */
     public boolean isInternal() {
         return getGateways().isEmpty();
+    }
+
+    public String[] getTransformedPatterns() {
+        List dialPatterns = getDialPatterns();
+        Set transformedPatterns = new LinkedHashSet();
+        for (Iterator i = dialPatterns.iterator(); i.hasNext();) {
+            DialPattern dp = (DialPattern) i.next();
+            DialPattern tdp = m_callPattern.transform(dp);
+            transformedPatterns.add(tdp.calculatePattern());
+        }
+        return (String[]) transformedPatterns.toArray(new String[transformedPatterns.size()]);
     }
 }

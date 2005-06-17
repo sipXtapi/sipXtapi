@@ -56,5 +56,10 @@ public class LocalRuleTest extends TestCase {
         assertEquals(1, permissions.size());
         assertEquals(Permission.LOCAL_DIALING, permissions.get(0));
     }
-
+    
+    public void testGetTranformedPatters() throws Exception {
+        String[] tps = m_rule.getTransformedPatterns();
+        assertEquals(1,tps.length);
+        assertEquals("xxxxxxx",tps[0]);        
+    }
 }

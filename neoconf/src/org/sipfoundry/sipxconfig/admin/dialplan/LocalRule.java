@@ -46,6 +46,13 @@ public class LocalRule extends DialingRule {
         };
     }
 
+    public String[] getTransformedPatterns() {
+        DialPattern patternShort = new DialPattern(StringUtils.EMPTY, m_externalLen);
+        return new String[] {
+            patternShort.calculatePattern()
+        };
+    }
+
     public Transform[] getTransforms() {
         CallPattern patternNormal = new CallPattern(StringUtils.EMPTY, CallDigits.VARIABLE_DIGITS);
         String user = patternNormal.calculatePattern();

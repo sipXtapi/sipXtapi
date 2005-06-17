@@ -53,4 +53,25 @@ public class CallPattern {
         }
         return m_prefix + digits;
     }
+
+    /**
+     * Transforms dial pattern according to call pattern setting
+     * 
+     * @param from dial pattern to transform
+     * @return resulting dial pattern
+     */
+    public DialPattern transform(DialPattern from) {
+        DialPattern to = new DialPattern();
+        if (m_digits.equals(CallDigits.FIXED_DIGITS)) {
+            to.setPrefix(m_prefix + from.getPrefix());
+        } else {
+            to.setPrefix(m_prefix);
+        }
+        if (m_digits.equals(CallDigits.NO_DIGITS)) {
+            to.setDigits(0);
+        } else {
+            to.setDigits(from.getDigits());
+        }
+        return to;
+    }
 }

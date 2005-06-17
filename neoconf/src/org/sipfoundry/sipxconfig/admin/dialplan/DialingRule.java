@@ -146,4 +146,14 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     public Object getPrimaryKey() {
         return getId();
     }
+    
+    /**
+     * Attempts to apply standard transformations to patterns. It is used when generating authorization rules
+     * For example 9xxxx -> 7{digits} results in 97xxxx
+     * 
+     * Default implementation does not attempt any transformation
+     */
+    public String[] getTransformedPatterns() {
+        return getPatterns();
+    }
 }

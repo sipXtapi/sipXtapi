@@ -52,7 +52,7 @@ public class AuthRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getDescription(), "test rule description");
-        control.expectAndReturn(rule.getPatterns(), new String[] {
+        control.expectAndReturn(rule.getTransformedPatterns(), new String[] {
             "555", "666", "777"
         });
         control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
@@ -94,7 +94,7 @@ public class AuthRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getDescription(), null);
-        control.expectAndReturn(rule.getPatterns(), new String[] {
+        control.expectAndReturn(rule.getTransformedPatterns(), new String[] {
             "555", "666", "777"
         });
         control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
@@ -147,7 +147,7 @@ public class AuthRulesTest extends XMLTestCase {
         MockControl control = MockControl.createControl(IDialingRule.class);
         IDialingRule rule = (IDialingRule) control.getMock();
         control.expectAndReturn(rule.getDescription(), null);
-        control.expectAndReturn(rule.getPatterns(), new String[] {
+        control.expectAndReturn(rule.getTransformedPatterns(), new String[] {
             "555", "666", "777"
         });
         control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {}));

@@ -58,5 +58,5 @@ public class DialPatternTest extends TestCase {
 
         patterns = DialPattern.getPatternsFromList(StringUtils.EMPTY, "bongo");
         assertEquals(0, patterns.length);
-    }
+    }    
 }

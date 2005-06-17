@@ -28,7 +28,6 @@ public class CustomDialingRuleTest extends TestCase {
         "10.2.3.4", "10.4.5.6"
     };
     private CustomDialingRule m_rule;
-    private CallPattern m_callPattern;
     private List m_patternsList;
 
     protected void setUp() throws Exception {
@@ -40,9 +39,6 @@ public class CustomDialingRuleTest extends TestCase {
             dialPatterns[i] = p;
         }
         m_patternsList = Arrays.asList(dialPatterns);
-        m_callPattern = new CallPattern();
-        m_callPattern.setDigits(CallDigits.VARIABLE_DIGITS);
-        m_callPattern.setPrefix("999");
 
         m_rule = new CustomDialingRule();
         m_rule.setDialPatterns(m_patternsList);
@@ -55,7 +51,7 @@ public class CustomDialingRuleTest extends TestCase {
         }
 
         m_rule.setEnabled(true);
-        m_rule.setCallPattern(m_callPattern);
+        m_rule.setCallPattern(new CallPattern("999", CallDigits.VARIABLE_DIGITS));
     }
 
     public void testGetPatterns() {
@@ -83,7 +79,7 @@ public class CustomDialingRuleTest extends TestCase {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setDialPatterns(m_patternsList);
         rule.setEnabled(true);
-        rule.setCallPattern(m_callPattern);
+        rule.setCallPattern(new CallPattern("999", CallDigits.VARIABLE_DIGITS));
 
         String[] patterns = rule.getPatterns();
         assertEquals(PATTERN_COUNT, patterns.length);
@@ -97,5 +93,46 @@ public class CustomDialingRuleTest extends TestCase {
         FullTransform tr = (FullTransform) transforms[0];
         assertEquals("999{vdigits}", tr.getUser());
         assertNull(tr.getHost());
+    }
+
+    public void testGetTransformedPatternsVariable() throws Exception {
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setDialPatterns(m_patternsList);
+        rule.setEnabled(true);
+        rule.setCallPattern(new CallPattern("77", CallDigits.VARIABLE_DIGITS));
+
+        String[] patterns = rule.getTransformedPatterns();
+        assertEquals(PATTERN_COUNT, patterns.length);
+        String suffix = "xx";
+        for (int i = 0; i < patterns.length; i++) {
+            assertEquals("77" + suffix, patterns[i]);
+            suffix = suffix + "x";
+        }
+    }
+
+    public void testGetTransformedPatternsFixed() throws Exception {
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setDialPatterns(m_patternsList);
+        rule.setEnabled(true);
+        rule.setCallPattern(new CallPattern("77", CallDigits.FIXED_DIGITS));
+
+        String[] patterns = rule.getTransformedPatterns();
+        assertEquals(PATTERN_COUNT, patterns.length);
+        String suffix = "xx";
+        for (int i = 0; i < patterns.length; i++) {
+            assertEquals("7791" + suffix, patterns[i]);
+            suffix = suffix + "x";
+        }
+    }
+
+    public void testGetTransformedPatternsNoDigits() throws Exception {
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setDialPatterns(m_patternsList);
+        rule.setEnabled(true);
+        rule.setCallPattern(new CallPattern("77", CallDigits.NO_DIGITS));
+
+        String[] patterns = rule.getTransformedPatterns();
+        assertEquals(1, patterns.length);
+        assertEquals("77", patterns[0]);
     }
 }
