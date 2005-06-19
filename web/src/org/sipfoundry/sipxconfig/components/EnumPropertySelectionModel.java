@@ -13,8 +13,8 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.util.List;
 
-import org.apache.commons.lang.enum.Enum;
-import org.apache.commons.lang.enum.EnumUtils;
+import org.apache.commons.lang.enums.Enum;
+import org.apache.commons.lang.enums.EnumUtils;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
 /**
@@ -32,8 +32,8 @@ public class EnumPropertySelectionModel implements IPropertySelectionModel {
         m_options = options;
     }
 
-    public void setEnumClass(Class enum) {
-        List list = EnumUtils.getEnumList(enum);
+    public void setEnumClass(Class enumeration) {
+        List list = EnumUtils.getEnumList(enumeration);
         m_options = (Enum[]) list.toArray(new Enum[list.size()]);
     }
 

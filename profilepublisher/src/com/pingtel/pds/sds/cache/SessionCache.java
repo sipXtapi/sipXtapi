@@ -689,11 +689,11 @@ public class SessionCache {
         Properties singleValuedSipHeaders = context.getSingleValuedSipHeaders();
 
         // Iterate through all of the sipheader: value lines
-        Enumeration enum = singleValuedSipHeaders.keys();
+        Enumeration enumeration = singleValuedSipHeaders.keys();
 
-        while ( enum.hasMoreElements() ) {
+        while ( enumeration.hasMoreElements() ) {
             Integer attrID = getNextSequenceValue( "ATTRIBUTES_SEQ" );
-            String name = (String) enum.nextElement();
+            String name = (String) enumeration.nextElement();
             String value = singleValuedSipHeaders.getProperty(name);
 
             JDBCStatementHelper.executePreparedUpdate(
@@ -725,9 +725,9 @@ public class SessionCache {
             Properties urlParameters = mvh.getNvPairs();
 
             if (urlParameters != null) {
-                enum = urlParameters.keys();
-                while ( enum.hasMoreElements() ) {
-                    String name = (String)enum.nextElement();
+                enumeration = urlParameters.keys();
+                while ( enumeration.hasMoreElements() ) {
+                    String name = (String)enumeration.nextElement();
                     String value = urlParameters.getProperty(name);
                     Integer multiAttrID = getNextSequenceValue ( "MULTI_ATTRIBUTES_SEQ" );
 

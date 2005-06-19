@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.apache.commons.lang.enum.Enum;
+import org.apache.commons.lang.enums.Enum;
 
 /**
  * All the keys on the phone key pad

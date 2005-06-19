@@ -130,9 +130,9 @@ public class SipMultiValuedHeader {
     public String toString() {
         StringBuffer sb = new StringBuffer(m_primaryValue);
         if ( m_nvPairs != null ) {
-            Enumeration enum = m_nvPairs.propertyNames();
-            while ( enum.hasMoreElements() ) {
-                String name = (String)enum.nextElement();
+            Enumeration enumeration = m_nvPairs.propertyNames();
+            while ( enumeration.hasMoreElements() ) {
+                String name = (String)enumeration.nextElement();
                 sb.append(";" + name + "=" + m_nvPairs.getProperty (name) );
             }
         }

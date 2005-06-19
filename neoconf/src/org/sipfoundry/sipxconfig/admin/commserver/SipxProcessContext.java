@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.List;
 
-import org.apache.commons.lang.enum.Enum;
+import org.apache.commons.lang.enums.Enum;
 
 public interface SipxProcessContext {
     public static class Process extends Enum {

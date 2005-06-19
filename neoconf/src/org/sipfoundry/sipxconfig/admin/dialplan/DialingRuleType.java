@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import org.apache.commons.lang.enum.Enum;
+import org.apache.commons.lang.enums.Enum;
 
 
 public final class DialingRuleType extends Enum {

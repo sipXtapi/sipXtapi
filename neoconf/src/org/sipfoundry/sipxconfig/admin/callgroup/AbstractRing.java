@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 import java.text.MessageFormat;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.enum.Enum;
+import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;

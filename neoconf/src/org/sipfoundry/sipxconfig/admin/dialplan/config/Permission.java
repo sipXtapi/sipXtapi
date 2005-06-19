@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import org.apache.commons.lang.enum.Enum;
+import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 /**

@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
-import org.apache.commons.lang.enum.Enum;
+import org.apache.commons.lang.enums.Enum;
 
 /**
  * Static differences in grandstream models

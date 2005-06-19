@@ -394,10 +394,10 @@ public class ProcessManager
 
     public static void main( String args[] ){
         Hashtable hash = ProcessManager.getInstance().getAllProcessGroups();
-        Enumeration enum = hash.keys();
+        Enumeration enumeration = hash.keys();
         PrintStream out = System.out;
-        while( enum.hasMoreElements() ){
-             SatelliteLocation location = (SatelliteLocation)enum.nextElement();
+        while( enumeration.hasMoreElements() ){
+             SatelliteLocation location = (SatelliteLocation)enumeration.nextElement();
              out.println(" location agent URL is " + location.getAgentURL() );
              Collection processGroups = (Collection)hash.get( location );
              Iterator iterator = processGroups.iterator();

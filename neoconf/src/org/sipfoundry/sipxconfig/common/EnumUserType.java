@@ -20,8 +20,8 @@ import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.UserType;
 
-import org.apache.commons.lang.enum.Enum;
-import org.apache.commons.lang.enum.EnumUtils;
+import org.apache.commons.lang.enums.Enum;
+import org.apache.commons.lang.enums.EnumUtils;
 
 /**
  * EnumUserType Maps a commons-lang <code>Enum</code> to a Hibernate type. From the example on
@@ -87,8 +87,8 @@ public class EnumUserType implements UserType {
                     + returnedClass().getName() + "] but [" + value.getClass() + "]");
         }
 
-        Enum enum = (Enum) value;
-        String enumCode = enum.getName();
+        Enum enumeration = (Enum) value;
+        String enumCode = enumeration.getName();
         st.setString(index, enumCode);
     }
 
