@@ -21,7 +21,8 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -33,6 +34,10 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     public abstract DialPlanContext getDialPlanManager();
 
     public abstract void setDialPlanManager(DialPlanContext manager);
+
+    public abstract GatewayContext getGatewayContext();
+
+    public abstract void setGatewayContext(GatewayContext context);
 
     public abstract Integer getRuleId();
 
@@ -51,7 +56,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     public void pageBeginRender(PageEvent event_) {
         Collection gateways = getGateways();
         if (null == gateways) {
-            gateways = getDialPlanManager().getAvailableGateways(getRuleId());
+            gateways = getGatewayContext().getAvailableGateways(getRuleId());
             setGateways(gateways);
         }
     }
@@ -78,7 +83,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
         if (null == rule) {
             return;
         }
-        List gateways = manager.getGatewayByIds(gatewayIds);
+        List gateways = getGatewayContext().getGatewayByIds(gatewayIds);
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Gateway gateway = (Gateway) i.next();
             rule.addGateway(gateway);

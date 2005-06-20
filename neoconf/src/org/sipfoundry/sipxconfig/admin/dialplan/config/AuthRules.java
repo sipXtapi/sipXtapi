@@ -25,8 +25,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * Authorization rule generator.

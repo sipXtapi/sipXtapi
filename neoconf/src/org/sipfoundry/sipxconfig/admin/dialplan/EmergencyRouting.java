@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * EmergencyRouting

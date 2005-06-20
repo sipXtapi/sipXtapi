@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * EmergencyRuleTest

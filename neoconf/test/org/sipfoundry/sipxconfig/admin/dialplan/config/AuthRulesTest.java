@@ -21,8 +21,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 public class AuthRulesTest extends XMLTestCase {
     private static final int GATEWAYS_LEN = 5;

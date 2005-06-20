@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * GatewaySelectionModel

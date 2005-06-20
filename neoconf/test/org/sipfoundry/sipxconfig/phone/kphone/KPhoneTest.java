@@ -28,7 +28,9 @@ public class KPhoneTest extends TestCase {
         assertTrue(pc.getPhoneFactoryIds().containsKey("kphone"));        
     }
 
-    public void testGenerateEmptyProfile() throws Exception {
+    // TODO: this test loads database - needs to be moved to TestDb or rewritten
+    
+    public void _testGenerateEmptyProfile() throws Exception {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
         
         // Defining FACTORY_ID is not nec, just good practice

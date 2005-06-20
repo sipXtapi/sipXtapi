@@ -7,10 +7,10 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="dialPlanManager" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
-    	initial-value="global.dialPlanContext"/>
-    
+	<property-specification name="gatewayContext" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
+    	initial-value="global.gatewayContext"/>    
+        
 	<property-specification name="selectedRows" type="java.util.Collection"/>    
     
      <!--
@@ -24,7 +24,7 @@
      - C O M P O N E N T S
      -->
     <component id="gatewayTable" type="GatewayTable">
-        <binding name="gatewayCollection" expression="dialPlanManager.gateways"/>
+        <binding name="gatewayCollection" expression="gatewayContext.gateways"/>
         <static-binding name="editPageName" value="EditGateway"/>
     </component>
                 

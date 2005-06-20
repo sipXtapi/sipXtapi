@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.gateway;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 

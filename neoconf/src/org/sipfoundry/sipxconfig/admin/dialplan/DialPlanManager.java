@@ -13,9 +13,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,17 +29,16 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 /**
  * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
-class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware, 
-        DialPlanContext  {
-    
+class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware, DialPlanContext {
+
     private String m_configDirectory;
 
-    private EmergencyRouting m_emergencyRouting = new EmergencyRouting(); 
+    private EmergencyRouting m_emergencyRouting = new EmergencyRouting();
 
     private transient ConfigGenerator m_generator;
 
     private DialingRuleFactory m_ruleFactory;
-    
+
     private CoreContext m_coreContext;
 
     private BeanFactory m_beanFactory;
@@ -60,7 +57,7 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         getHibernateTemplate().save(plan);
         return plan;
     }
-    
+
     public boolean isDialPlanEmpty() {
         boolean empty = getHibernateTemplate().loadAll(DialPlan.class).isEmpty();
         return empty;
@@ -110,12 +107,12 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         DialPlan dialPlan = getDialPlan();
         // unload all rules
         getHibernateTemplate().delete(dialPlan);
-        dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");        
+        dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");
         AutoAttendant operator = getOperator();
         dialPlan.setOperator(operator);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
-    
+
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
@@ -124,16 +121,6 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         DialPlan dialPlan = getDialPlan();
         dialPlan.moveRules(selectedRows, step);
         getHibernateTemplate().saveOrUpdate(dialPlan);
-    }
-
-    public List getGateways() {
-        List gateways = getHibernateTemplate().loadAll(Gateway.class);
-        return gateways;
-    }
-
-    public Gateway getGateway(Integer id) {
-        return (Gateway) getHibernateTemplate().load(Gateway.class, id);
-        
     }
 
     public void storeAutoAttendant(AutoAttendant aa) {
@@ -145,8 +132,9 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, "operator",
                 AutoAttendant.OPERATOR_ID);
 
-        AutoAttendant operator = (AutoAttendant) CoreContextImpl.requireOneOrZero(operatorList, operatorQuery);
-        
+        AutoAttendant operator = (AutoAttendant) CoreContextImpl.requireOneOrZero(operatorList,
+                operatorQuery);
+
         return operator;
     }
 
@@ -157,7 +145,7 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
 
     public AutoAttendant getAutoAttendant(Integer id) {
         return (AutoAttendant) getHibernateTemplate().load(AutoAttendant.class, id);
-        
+
     }
 
     public void deleteAutoAttendantsByIds(Collection attendantIds, String scriptsDir) {
@@ -166,12 +154,12 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
             Integer id = (Integer) i.next();
             AutoAttendant aa = getAutoAttendant(id);
             deleteAutoAttendant(aa, scriptsDir);
-        }        
+        }
     }
-    
+
     public void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir) {
         if (attendant.isOperator()) {
-            throw new AttendantInUseException();        
+            throw new AttendantInUseException();
         }
         Collection rules = getRulesUsedByAttendant(attendant);
         if (rules.size() > 0) {
@@ -184,64 +172,22 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
             script.delete();
         }
     }
-    
+
     public List getRulesUsedByAttendant(AutoAttendant attendant) {
         String query = "from InternalRule r where r.autoAttendant = :attendant";
         List attendants = getHibernateTemplate().findByNamedParam(query, "attendant", attendant);
-        
+
         return attendants;
     }
-    
-    public void storeGateway(Gateway gateway) {
-        getHibernateTemplate().saveOrUpdate(gateway);
-    }
 
     /**
-     * This is for testing only.
-     * TODO: need to find a better way of cleaning database between tests
+     * This is for testing only. TODO: need to find a better way of cleaning database between
+     * tests
      */
     public void clear() {
-        resetToFactoryDefault();       
-        List gateways = getHibernateTemplate().loadAll(Gateway.class);        
-        getHibernateTemplate().deleteAll(gateways);
+        resetToFactoryDefault();
         List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
-        getHibernateTemplate().deleteAll(attendants);        
-    }
-
-    public boolean deleteGateway(Integer id) {
-        Gateway g = getGateway(id);
-        getHibernateTemplate().delete(g);
-        return true;
-    }
-
-    public void deleteGateways(Collection selectedRows) {
-        // remove gateways from rules first
-        List rules = getRules();
-        for (Iterator i = rules.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
-            rule.removeGateways(selectedRows);
-            storeRule(rule);
-        }
-        // remove gateways from the database
-        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            deleteGateway(id);
-        }
-    }
-
-    /**
-     * Returns the list of gateways available for a specific rule
-     * 
-     * @param ruleId id of the rule for which gateways are checked
-     * @return collection of available gateways
-     */
-    public Collection getAvailableGateways(Integer ruleId) {
-        DialingRule rule = getRule(ruleId);
-        if (null == rule) {
-            return Collections.EMPTY_LIST;
-        }
-        List allGateways = getGateways();
-        return rule.getAvailableGateways(allGateways);
+        getHibernateTemplate().deleteAll(attendants);
     }
 
     public ConfigGenerator generateDialPlan() {
@@ -260,7 +206,7 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
             throw new RuntimeException("Activation of Dial Plan incomplete.", e);
         }
     }
-    
+
     public void applyEmergencyRouting() {
         Organization organization = m_coreContext.loadRootOrganization();
         try {
@@ -291,19 +237,10 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware,
         m_configDirectory = configDirectory;
     }
 
-    public List getGatewayByIds(Collection gatewayIds) {
-        List gateways = new ArrayList(gatewayIds.size());
-        for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            gateways.add(getGateway(id));
-        }
-        return gateways;
-    }
-    
     public EmergencyRouting getEmergencyRouting() {
         return m_emergencyRouting;
     }
-    
+
     public void setEmergencyRouting(EmergencyRouting emergencyRouting) {
         m_emergencyRouting = emergencyRouting;
     }

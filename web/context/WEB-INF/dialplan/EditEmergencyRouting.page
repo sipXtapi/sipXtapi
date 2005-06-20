@@ -11,7 +11,11 @@
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>
     
-	<property-specification name="emergencyRouting" 
+	<property-specification name="gatewayContext" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
+    	initial-value="global.gatewayContext"/>    
+
+    <property-specification name="emergencyRouting" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting"
         persistent="yes">
     </property-specification>
@@ -26,7 +30,7 @@
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
     <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.dialplan.GatewaySelectionModel">
-        <set-property name="gateways">dialPlanManager.gateways</set-property>
+        <set-property name="gateways">gatewayContext.gateways</set-property>
     </bean>    
     
     <!--

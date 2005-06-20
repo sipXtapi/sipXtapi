@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * DialingRule At some point it's be replaced by the IDialingRule interface or made abstract.

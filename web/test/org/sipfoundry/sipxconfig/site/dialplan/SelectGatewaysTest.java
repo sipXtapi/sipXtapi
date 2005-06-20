@@ -22,7 +22,8 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 /**
  * SelectGatewaysTest
@@ -47,16 +48,24 @@ public class SelectGatewaysTest extends TestCase {
         
         DialingRule rule = new CustomDialingRule();
         
-        MockControl control = MockControl.createStrictControl(DialPlanContext.class);
-        control.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        DialPlanContext context = (DialPlanContext) control.getMock();
-        context.getRule(rule.getId());
-        control.setReturnValue(rule);
-        control.expectAndReturn(context.getGatewayByIds(gatewaysToAdd), gateways);
-        context.storeRule(rule);
-        control.replay();
+        MockControl dialPlanContextControl = MockControl.createStrictControl(DialPlanContext.class);
+        dialPlanContextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
+        DialPlanContext dialPlanContext = (DialPlanContext) dialPlanContextControl.getMock();
         
-        m_page.setDialPlanManager(context);
+        MockControl contextControl = MockControl.createStrictControl(GatewayContext.class);
+        contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
+        GatewayContext context = (GatewayContext) contextControl.getMock();
+        
+        dialPlanContext.getRule(rule.getId());
+        dialPlanContextControl.setReturnValue(rule);
+        context.getGatewayByIds(gatewaysToAdd);        
+        contextControl.setReturnValue(gateways);
+        dialPlanContext.storeRule(rule);
+        dialPlanContextControl.replay();
+        contextControl.replay();
+        
+        m_page.setDialPlanManager(dialPlanContext);
+        m_page.setGatewayContext(context);
         m_page.setRuleId(rule.getId());
         m_page.selectGateways(gatewaysToAdd);
         
@@ -67,6 +76,7 @@ public class SelectGatewaysTest extends TestCase {
             assertTrue(gatewaysToAdd.contains(g.getId()));
         }
         
-        control.verify();
+        dialPlanContextControl.verify();
+        contextControl.verify();
     }
 }

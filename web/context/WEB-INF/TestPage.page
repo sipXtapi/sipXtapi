@@ -15,6 +15,9 @@
     <property-specification name="callGroupContext" 
     	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" 
 	    initial-value="global.callGroupContext"/>    
+	<property-specification name="gatewayContext" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
+    	initial-value="global.gatewayContext"/>    
 
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>

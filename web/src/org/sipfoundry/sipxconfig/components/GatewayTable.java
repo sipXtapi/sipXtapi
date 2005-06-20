@@ -15,7 +15,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.site.dialplan.EditGateway;
 
 /**

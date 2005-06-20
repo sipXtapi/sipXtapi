@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+
 import junit.framework.TestCase;
 
 public class EmergencyRoutingTest extends TestCase {

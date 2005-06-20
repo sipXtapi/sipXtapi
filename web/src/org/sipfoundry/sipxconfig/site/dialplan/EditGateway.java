@@ -18,8 +18,9 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 /**
  * EditGateway
@@ -39,9 +40,13 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
 
     public abstract void setRuleId(Integer id);
 
+    public abstract DialPlanContext getDialPlanManager();
+    
     public abstract void setDialPlanManager(DialPlanContext dialPlanManager);
 
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract GatewayContext getGatewayContext();
+    
+    public abstract void setGatewayContext(GatewayContext context);    
     
     public abstract String getNextPage();
     
@@ -68,8 +73,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         }
         Integer id = getGatewayId();
         if (null != id) {
-            DialPlanContext manager = getDialPlanManager();
-            gateway = manager.getGateway(id);
+            gateway = getGatewayContext().getGateway(id);
         } else {
             gateway = new Gateway();
         }
@@ -77,12 +81,12 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     }
 
     void saveValid(IRequestCycle cycle) {
-        DialPlanContext manager = getDialPlanManager();
         Gateway gateway = getGateway();
-        manager.storeGateway(gateway);
+        getGatewayContext().storeGateway(gateway);
         // attach gateway to current rule
         Integer ruleId = getRuleId();
         if (null != ruleId) {
+            DialPlanContext manager = getDialPlanManager();
             DialingRule rule = manager.getRule(ruleId);
             rule.addGateway(gateway);
             manager.storeRule(rule);

@@ -19,6 +19,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * LongDistanceRule

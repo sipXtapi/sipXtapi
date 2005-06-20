@@ -12,13 +12,12 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 
 public class Gateway2Id implements IPrimaryKeyConvertor {
-    private DialPlanContext m_manager;
+    private GatewayContext m_context;
     
     public Object getPrimaryKey(Object objValue) {
         Gateway g = (Gateway) objValue;
@@ -27,13 +26,10 @@ public class Gateway2Id implements IPrimaryKeyConvertor {
     
     public Object getValue(Object objPrimaryKey) {
         Integer id = (Integer) objPrimaryKey;
-        return m_manager.getGateway(id);
+        return m_context.getGateway(id);
     }
     
-    public DialPlanContext getManager() {
-        return m_manager;
-    }
-    public void setManager(DialPlanContext manager) {
-        m_manager = manager;
+    public void setContext(GatewayContext context) {
+        m_context = context;
     }
 }

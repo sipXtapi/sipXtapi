@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.Gateway;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 import junit.framework.TestCase;
 

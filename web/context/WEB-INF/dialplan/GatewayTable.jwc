@@ -28,7 +28,7 @@
     
     <!-- P R O P E R T I E S -->    
     <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.admin.dialplan.Gateway"/>
+        type="org.sipfoundry.sipxconfig.gateway.Gateway"/>
     
    	<property-specification name="selections" 
        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
@@ -36,7 +36,7 @@
     <!-- B E A N S -->           
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="gateway2id" class="org.sipfoundry.sipxconfig.components.Gateway2Id" lifecycle="page">
-        <set-property name="manager">page.global.dialPlanContext</set-property>
+        <set-property name="context">page.global.gatewayContext</set-property>
     </bean>    
     
     <!-- C O M P O N E N T S -->           

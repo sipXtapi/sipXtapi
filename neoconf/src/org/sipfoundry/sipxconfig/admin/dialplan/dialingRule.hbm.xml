@@ -28,7 +28,7 @@
     <list name="gateways" table="dialing_rule_gateway" cascade="save-update">
       <key column="dialing_rule_id"/>
       <index column="index"/>
-      <many-to-many class="Gateway" column="gateway_id"/>
+      <many-to-many class="org.sipfoundry.sipxconfig.gateway.Gateway" column="gateway_id"/>
     </list>
     
     <joined-subclass name="CustomDialingRule" table="custom_dialing_rule">

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
-<hibernate-mapping>
+<hibernate-mapping package="org.sipfoundry.sipxconfig.gateway">
 	<!-- 
 	  - Gateway
 	  -->
-	<class name="org.sipfoundry.sipxconfig.admin.dialplan.Gateway" table="gateway">
+	<class name="Gateway" table="gateway">
 		<id name="id" column="gateway_id" type="int" unsaved-value="-1">
 			<generator class="sequence">
 				<param name="sequence">gateway_seq</param>

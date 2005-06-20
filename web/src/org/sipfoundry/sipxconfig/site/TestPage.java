@@ -15,6 +15,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 
@@ -26,12 +27,15 @@ public abstract class TestPage extends BasePage {
     
     public abstract DialPlanContext getDialPlanManager();
     
+    public abstract GatewayContext getGatewayContext();    
+    
     public abstract PhoneContext getPhoneContext();
     
     public abstract CallGroupContext getCallGroupContext();
     
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanManager().clear();
+        getGatewayContext().clear();
     }
     
     public void resetPhoneContext(IRequestCycle cycle_) {

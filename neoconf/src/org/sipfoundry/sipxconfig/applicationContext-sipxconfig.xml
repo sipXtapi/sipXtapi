@@ -58,10 +58,10 @@
         <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/patch.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/common/legacy.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/gateway/gateway.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/legacy/configSet.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phone/phone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/setting/setting.hbm.xml</value>
@@ -582,11 +582,37 @@
       </list>
     </property>
   </bean>
+  
   <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
     <property name="velocityEngine">
       <ref local="velocityEngine"/>
     </property>
   </bean>
+  
+  <!-- 
+    - G A T E W A Y  C O N T E X T
+    -->
+  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
+    <property name="dialPlanContext">
+      <ref bean="dialPlanContext"/>
+    </property>
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+  </bean>
+  
+  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>hibernateInterceptor</value>
+        <value>gatewayContextImpl</value>
+      </list>
+    </property>
+  </bean>
+  
   <!--
   - C A L L G R O U P   C O N T E X T
   -->

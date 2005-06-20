@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+
 import junit.framework.TestCase;
 
 /**
