@@ -11,18 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.Serializable;
-
-import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.setting.Folder;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
  * Database object representing an actualy physical phone you can touch.
  */
-public class PhoneData extends BeanWithId implements Serializable {
+public class PhoneData extends AbstractData {
     
-    public static final String FOLDER_RESOURCE_NAME = "endpoint";
+    public static final String TAG_RESOURCE_NAME = "endpoint";
 
     private String m_name;
 
@@ -32,10 +27,6 @@ public class PhoneData extends BeanWithId implements Serializable {
     
     private String m_modelLabel;
 
-    private ValueStorage m_valueStorage;
-
-    private Folder m_folder;    
-    
     /** BEAN ACCESS ONLY **/
     public PhoneData() {    
     }
@@ -95,21 +86,5 @@ public class PhoneData extends BeanWithId implements Serializable {
      */
     public String getDisplayLabel() {
         return m_name != null ? m_name : m_serialNumber;
-    }
-
-    public ValueStorage getValueStorage() {
-        return m_valueStorage;
-    }
-
-    public void setValueStorage(ValueStorage valueStorage) {
-        m_valueStorage = valueStorage;
-    }
-
-    public Folder getFolder() {
-        return m_folder;
-    }
-
-    public void setFolder(Folder folder) {
-        m_folder = folder;
     }
 }

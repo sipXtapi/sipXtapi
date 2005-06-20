@@ -17,19 +17,19 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 
-public class FolderTest extends TestCase {
+public class TagTest extends TestCase {
 
     private SettingGroup m_root;
     
     private Setting m_apple;
           
     /**
-     * Tests that filter returns decorated settings from folder, not 
+     * Tests that filter returns decorated settings from tag, not 
      * from underlying setting model.
      */
     public void testDecorateWithFilterRunner() {
         seedSimpleSettingGroup();
-        Folder f = new Folder();
+        Tag f = new Tag();
         Setting rootDecorated = f.decorate(m_root);
         Collection settings = FilterRunner.filter(SettingFilter.ALL, rootDecorated);
         assertEquals(4, settings.size());
@@ -39,7 +39,7 @@ public class FolderTest extends TestCase {
         i.next(); // vegetable
         ((Setting) i.next()).setValue(null);
         assertNull(m_apple.getValue());
-        assertEquals(1, f.getFolderSettings().size());
+        assertEquals(1, f.getValues().size());
     }
 
     private void seedSimpleSettingGroup() {

@@ -43,6 +43,7 @@ public class CiscoAtaPhoneTest extends TestCase {
         StringWriter profile = new StringWriter();
         phone.generateProfile(profile);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-ata18x.cfg"));
+        assertNotNull(expected);
         // TODO : Order not preserved, format valid, but not optimal. work in progress
         //assertEquals(expected, profile.toString());
     }

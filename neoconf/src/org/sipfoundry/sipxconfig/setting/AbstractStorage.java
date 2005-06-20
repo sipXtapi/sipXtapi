@@ -11,28 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public abstract class AbstractStorage implements Serializable, Storage {
-
-    private static final long serialVersionUID = 1L;
-
-    private Integer m_id = PhoneContext.UNSAVED_ID;
+public abstract class AbstractStorage extends BeanWithId implements Storage {
 
     private Map m_delegate = new HashMap();
 
-    public Integer getId() {
-        return m_id;
-    }
-
-    public void setId(Integer id) {
-        m_id = id;
-    }
-    
     public Object get(Object key) {
         return m_delegate.get(key);
     }

@@ -24,11 +24,6 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
 
 
-
-/**
- * You need to call 'ant reset-db-patch' which clears a lot of data in your
- * database. before calling running this test. 
- */
 public class PhoneTestDb extends TestCase {
     
     private PhoneContext m_context;
@@ -46,7 +41,6 @@ public class PhoneTestDb extends TestCase {
         e.setFactoryId(PolycomModel.MODEL_300.getModelId());
         e.setSerialNumber("999123456");
         e.setName("unittest-sample phone1");
-        e.setFolder(m_context.loadRootPhoneFolder());
         m_context.storePhone(phone);
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("phone");
@@ -54,11 +48,8 @@ public class PhoneTestDb extends TestCase {
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveEndpointExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[phone_id_1]", e.getId());
-        expectedRds.addReplacementObject("[folder_id]", e.getFolder().getId());
-        expectedRds.addReplacementObject("[null]", null);
-        
-        ITable expected = expectedRds.getTable("phone");
-                
+        expectedRds.addReplacementObject("[null]", null);                      
+        ITable expected = expectedRds.getTable("phone");                
         Assertion.assertEquals(expected, actual);
     }
     
@@ -89,7 +80,7 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1000));
-        Setting setting = p.getSettings().getSetting("up").getSetting("headsetMode");
+        Setting setting = p.getSettings().getSetting("up/headsetMode");
         String newValue = setting.getValue().equals("0") ? "1" : "0"; // toggle
         setting.setValue(newValue);
         m_context.storePhone(p);        
@@ -97,12 +88,13 @@ public class PhoneTestDb extends TestCase {
         
         Phone reloadPhone = m_context.loadPhone(new Integer(1000));               
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/UpdateSettingsExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        ValueStorage vs = reloadPhone.getPhoneData().getValueStorage();
-        assertNotNull(vs);
-        expectedRds.addReplacementObject("[storage_id]", vs.getId());
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);        
+
+        ValueStorage s = reloadPhone.getPhoneData().getValueStorage();
+        assertNotNull(s);
+        expectedRds.addReplacementObject("[storage_id]", s.getId());
 
         IDataSet actual = TestHelper.getConnection().createDataSet();                
         Assertion.assertEquals(expectedRds.getTable("setting"), actual.getTable("setting"));
-    }
+    }    
 }

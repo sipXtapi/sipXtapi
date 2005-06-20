@@ -40,7 +40,7 @@ public class SettingTest extends TestCase {
         seedSimpleSettingGroup();
         assertNull(m_apple.getValue());
         
-        Folder meta = new Folder();
+        Tag meta = new Tag();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
@@ -60,26 +60,21 @@ public class SettingTest extends TestCase {
         assertEquals(0, meta.size());        
     }
     
-    public void testSetHidden() {
+    public void testSetAdvanced() {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isAdvanced());
         
-        Folder meta = new Folder();
-        assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());
+        Tag tag = new Tag();
+        assertNull(tag.get(m_apple.getPath()));
+        assertEquals(0, tag.size());
 
-        Setting copy = meta.decorate(m_root);
+        Setting copy = tag.decorate(m_root);
         Setting m_appleCopy = copy.getSetting("fruit").getSetting("apple");
         m_appleCopy.setAdvanced(true);
         assertTrue(m_appleCopy.isAdvanced());
         
-        assertNotNull(meta.get(m_apple.getPath()));
-        assertEquals(1, meta.size());
-        
-        // if matches default, should clear value
-        m_appleCopy.setAdvanced(false);
-        assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());        
+        // Tag's used to save isAdvanced, but not anymore so this
+        // test is not that exciting, but still worthy of existance.
     }
     
     /**
@@ -89,7 +84,7 @@ public class SettingTest extends TestCase {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isAdvanced());
         
-        Folder meta = new Folder();
+        Tag meta = new Tag();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 

@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 
-public class FolderTestDb extends TestCase {
+public class TagTestDb extends TestCase {
     private SettingDao m_dao;
 
     protected void setUp() throws Exception {
@@ -31,18 +31,18 @@ public class FolderTestDb extends TestCase {
         m_dao = (SettingDao) context.getBean("settingDao");
     }
 
-    public void testGetRootFolder() throws Exception {
+    public void testGetRootTag() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        Folder root = m_dao.loadRootFolder("unittest");
+        Tag root = m_dao.loadRootTag("unittest");
         IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("setting/dbdata/GetRootFolderExpected.xml");
+                .loadDataSetFlat("setting/GetRootTagExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[folder_id]", root.getId());
+        expectedRds.addReplacementObject("[storage_id]", root.getId());
         expectedRds.addReplacementObject("[null]", null);
 
-        ITable expected = expectedRds.getTable("folder");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("folder");
+        ITable expected = expectedRds.getTable("tag");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("tag");
         Assertion.assertEquals(expected, actual);
     }
 
@@ -54,23 +54,23 @@ public class FolderTestDb extends TestCase {
             root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
             root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea"));
 
-            Folder ms = new Folder();
+            Tag ms = new Tag();
             ms.setResource("unittest");
             ms.setLabel("food");
             SettingGroup copy = (SettingGroup) ms.decorate(root);
             copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
             copy.getSetting("vegetable").getSetting("pea").setValue(null);
 
-            m_dao.storeFolder(ms);
+            m_dao.storeTag(ms);
 
             IDataSet expectedDs = TestHelper
-                    .loadDataSetFlat("setting/dbdata/SaveFolderExpected.xml");
+                    .loadDataSetFlat("setting/SaveTagExpected.xml");
             ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-            expectedRds.addReplacementObject("[folder_id]", ms.getId());
+            expectedRds.addReplacementObject("[storage_id]", ms.getId());
 
-            ITable expected = expectedRds.getTable("folder_setting");
+            ITable expected = expectedRds.getTable("setting");
 
-            ITable actual = TestHelper.getConnection().createDataSet().getTable("folder_setting");
+            ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
 
             Assertion.assertEquals(expected, actual);
         } catch (DataIntegrityViolationException e) {
@@ -81,7 +81,7 @@ public class FolderTestDb extends TestCase {
     public void testUpdate() throws Throwable {
         try {
             TestHelper.cleanInsert("ClearDb.xml");
-            TestHelper.cleanInsertFlat("setting/dbdata/UpdateFolderSeed.xml");
+            TestHelper.cleanInsertFlat("setting/UpdateTagSeed.xml");
 
             SettingGroup root = new SettingGroup();
             root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"))
@@ -90,7 +90,7 @@ public class FolderTestDb extends TestCase {
                     .setValue("snow pea");
             root.addSetting(new SettingGroup("dairy")).addSetting(new SettingImpl("milk"));
 
-            Folder ms = m_dao.loadFolder(1);
+            Tag ms = m_dao.loadTag(1);
             Setting copy = ms.decorate(root);
             // should make it disappear
             copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
@@ -98,19 +98,16 @@ public class FolderTestDb extends TestCase {
             // should make it update
             copy.getSetting("vegetable").getSetting("pea").setValue("snap pea");
 
-            // should make it new
-            copy.getSetting("dairy").getSetting("milk").setAdvanced(true);
-
-            assertEquals(2, ms.getFolderSettings().size());
-            m_dao.storeFolder(ms);
+            assertEquals(1, ms.getValues().size());
+            m_dao.storeTag(ms);
 
             IDataSet expectedDs = TestHelper
-                    .loadDataSetFlat("setting/dbdata/UpdateFolderExpected.xml");
+                    .loadDataSetFlat("setting/UpdateTagExpected.xml");
             ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
             expectedRds.addReplacementObject("[null]", null);
-            ITable expected = expectedRds.getTable("folder_setting");
+            ITable expected = expectedRds.getTable("setting");
 
-            ITable actual = TestHelper.getConnection().createDataSet().getTable("folder_setting");
+            ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
 
             Assertion.assertEquals(expected, actual);
         } catch (DataIntegrityViolationException e) {

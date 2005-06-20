@@ -15,7 +15,7 @@
     <property-specification name="editFormSettingName" 
         persistent="yes"
         type="java.lang.String"/>
-    <property-specification name="editFormFolderResource" 
+    <property-specification name="editFormTagResource" 
         persistent="yes"
         type="java.lang.String"/>
     <!-- Transient -->
@@ -31,10 +31,10 @@
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="phone" 
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="phoneFolder"
-        type="org.sipfoundry.sipxconfig.setting.Folder"/>
-    <property-specification name="lineFolder"
-        type="org.sipfoundry.sipxconfig.setting.Folder"/>
+    <property-specification name="phoneTag"
+        type="org.sipfoundry.sipxconfig.setting.Tag"/>
+    <property-specification name="lineTag"
+        type="org.sipfoundry.sipxconfig.setting.Tag"/>
     <property-specification name="editFormSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="editFormSettings" 
@@ -44,9 +44,6 @@
     <!--
      - C O M P O N E N T S
      -->    
-    <component id="phoneDefaultsNavigation" type="PhoneDefaultsNavigation">
-        <binding name="pageLabel" expression="editFormSetting.label"/>
-    </component>        
     <component id="phoneDefaultsNavigationDescription" type="Insert">
         <binding name="value" expression="editFormSetting.description"/>
     </component>        

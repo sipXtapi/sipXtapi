@@ -62,9 +62,7 @@ public abstract class NewPhone extends BasePage implements PageRenderListener {
     }
     
     public void pageBeginRender(PageEvent event_) {
-        // always fresh object
         PhoneData meta = new PhoneData();
-        meta.setFolder(getPhoneContext().loadRootPhoneFolder());
         setPhoneData(meta);
     }
 }

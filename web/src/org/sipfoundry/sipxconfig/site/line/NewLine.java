@@ -56,7 +56,6 @@ public abstract class NewLine extends BasePage {
     }
     
     void saveLine() {
-        getLine().getLineData().setFolder(getPhoneContext().loadRootLineFolder());
         getPhoneContext().storeLine(getLine());
     }
     

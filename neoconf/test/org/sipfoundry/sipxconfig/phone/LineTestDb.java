@@ -25,10 +25,6 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 
-/**
- * You need to call 'ant reset-db-patch' which clears a lot of data in your database. before
- * calling running this test.
- */
 public class LineTestDb extends TestCase {
 
     private PhoneContext m_context;
@@ -51,8 +47,7 @@ public class LineTestDb extends TestCase {
         User user = m_core.loadUserByDisplayId("testuser");
 
         LineData thirdLine = new LineData();
-        thirdLine.setUser(user);
-        thirdLine.setFolder(m_context.loadRootLineFolder());
+        thirdLine.setUser(user);        
         phone.addLine(phone.createLine(thirdLine));
         m_context.storePhone(phone);
 
@@ -83,7 +78,6 @@ public class LineTestDb extends TestCase {
         Line line = phone.createLine(new LineData());
         LineData lineMeta = line.getLineData();
         lineMeta.setUser(user);
-        lineMeta.setFolder(m_context.loadRootLineFolder());
         phone.addLine(line);
         m_context.storePhone(phone);
 
@@ -172,7 +166,6 @@ public class LineTestDb extends TestCase {
 
         Phone newPhone = m_context.newPhone(PolycomModel.MODEL_600.getModelId());
         newPhone.getPhoneData().setSerialNumber("XXXX");
-        newPhone.getPhoneData().setFolder(m_context.loadRootPhoneFolder());
         m_context.storePhone(newPhone);
         Phone loadedPhone = m_context.loadPhone(newPhone.getPhoneData().getId());
         assertEquals(0, loadedPhone.getLines().size());

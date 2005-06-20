@@ -205,12 +205,11 @@
   </table>
 
   <!-- new phone support -->  
-  <table name="folder"/>
+  <table name="tag"/>
   <table name="phone"/>
   <table name="line"/>
   <table name="setting"/>
   <table name="storage"/>
-  <table name="folder_setting"/>
     
   <!-- forwarding -->
   <table name="ring"/>

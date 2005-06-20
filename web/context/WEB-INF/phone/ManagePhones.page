@@ -41,9 +41,6 @@
 	</component>
 	<component id="phoneValues" type="contrib:TableValues">
 	</component>
-    <component id="defaults" type="DirectLink">
-        <binding name="listener" expression="listeners.defaults"/>
-    </component>
     <component id="addPhone" type="DirectLink">
         <binding name="listener" expression="listeners.addPhone"/>
     </component>

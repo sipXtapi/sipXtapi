@@ -19,7 +19,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
+    <page name="PhoneGroups" specification-path="phone/PhoneGroups.page"/>    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
@@ -50,7 +50,6 @@
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>
     <page name="PhoneLines" specification-path="phone/PhoneLines.page"/>
-    <page name="PhoneDefaults" specification-path="phone/PhoneDefaults.page"/>
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>
     <page name="SelectGateways" specification-path="dialplan/SelectGateways.page"/>
@@ -68,7 +67,7 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
-    <component-type type="PhoneDefaultsNavigation" specification-path="phone/PhoneDefaultsNavigation.jwc"/>
+    <component-type type="GroupTable" specification-path="setting/GroupTable.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>

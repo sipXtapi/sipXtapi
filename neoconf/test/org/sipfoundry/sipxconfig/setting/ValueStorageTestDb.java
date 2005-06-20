@@ -38,12 +38,12 @@ public class ValueStorageTestDb extends TestCase {
         
         ValueStorage vs = new ValueStorage();
         SettingGroup copy = (SettingGroup) vs.decorate(root);
-        copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
-        copy.getSetting("vegetable").getSetting("pea").setValue(null);
+        copy.getSetting("fruit/apple").setValue("granny smith");
+        copy.getSetting("vegetable/pea").setValue(null);
         
         m_dao.storeValueStorage(vs);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/dbdata/SaveValueStorageExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveValueStorageExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[storage_id]", vs.getId());        
         
@@ -56,7 +56,7 @@ public class ValueStorageTestDb extends TestCase {
     
     public void testUpdate() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("setting/dbdata/UpdateValueStorageSeed.xml");        
+        TestHelper.cleanInsertFlat("setting/UpdateValueStorageSeed.xml");        
 
         SettingGroup root = new SettingGroup();
         root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
@@ -64,12 +64,12 @@ public class ValueStorageTestDb extends TestCase {
         
         ValueStorage vs = m_dao.loadValueStorage(1);
         Setting copy = vs.decorate(root);
-        copy.getSetting("fruit").getSetting("apple").setValue(null);
-        copy.getSetting("vegetable").getSetting("pea").setValue("snow pea");
+        copy.getSetting("fruit/apple").setValue(null);
+        copy.getSetting("vegetable/pea").setValue("snow pea");
         
         m_dao.storeValueStorage(vs);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/dbdata/UpdateValueStorageExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateValueStorageExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         ITable expected = expectedRds.getTable("setting");
                 

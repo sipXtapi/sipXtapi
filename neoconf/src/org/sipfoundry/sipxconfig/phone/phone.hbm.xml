@@ -16,7 +16,11 @@
     <property name="factoryId" column="factory_id"/>
     <many-to-one cascade="all" name="valueStorage" column="storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-    <many-to-one name="folder" column="folder_id" class="org.sipfoundry.sipxconfig.setting.Folder"/>
+	<list name="tags" table="phone_tag">
+      <key column="phone_id"/>
+      <index column="index"/>
+      <many-to-many class="org.sipfoundry.sipxconfig.setting.Tag" column="storage_id"/>
+    </list>
   </class>
   
   <!--
@@ -31,9 +35,13 @@
     <many-to-one name="phoneData" column="phone_id" class="PhoneData" not-null="true"/>
     <property name="position" column="position"/>
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"/>
-    <many-to-one name="folder" column="folder_id" class="org.sipfoundry.sipxconfig.setting.Folder"/>
     <many-to-one cascade="all" name="valueStorage" column="storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+	<list name="tags" table="line_tag">
+      <key column="line_id"/>
+      <index column="index"/>
+      <many-to-many class="org.sipfoundry.sipxconfig.setting.Tag" column="storage_id"/>
+    </list>
   </class>
   
   <query name="phoneIdsWithName">

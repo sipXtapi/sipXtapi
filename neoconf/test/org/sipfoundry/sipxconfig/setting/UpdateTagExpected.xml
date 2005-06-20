@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
-    <folder 
+    <tag 
 		resource="unittest"
 		label="food"
-		folder_id="[folder_id]"/> 
-    <folder_setting
-		folder_id="[folder_id]"
-		value="granny smith" 
-		hidden="0" 
-		path="/fruit/apple"/> 
+		storage_id="1"/> 
+    <setting 
+		storage_id="1"
+		value="snap pea" 		
+		path="/vegetable/pea"/> 
 </dataset>

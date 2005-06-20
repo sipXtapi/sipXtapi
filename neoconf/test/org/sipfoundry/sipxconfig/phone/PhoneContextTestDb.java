@@ -13,8 +13,10 @@ package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
+import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.Tag;
 
 public class PhoneContextTestDb extends TestCase {
 
@@ -32,7 +34,27 @@ public class PhoneContextTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         m_context.clear();
     }
+    
+    public void testGetRootPhoneTag() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        Tag root = m_context.loadRootPhoneTag();
+        assertNotNull(root);
+        
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("tag");
+        assertEquals(1, actual.getRowCount());
+        assertEquals("endpoint", actual.getValue(0, "resource"));        
+    }
+    
+    public void testGetRootLineTag() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        Tag root = m_context.loadRootLineTag();
+        assertNotNull(root);
 
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("tag");
+        assertEquals(1, actual.getRowCount());
+        assertEquals("line", actual.getValue(0, "resource"));        
+    }
+    
     public void testCheckForDuplicateFieldsOnNew() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
@@ -63,5 +85,4 @@ public class PhoneContextTestDb extends TestCase {
             // ok
         }
     }
-
 }

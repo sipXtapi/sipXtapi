@@ -98,29 +98,28 @@ public class ValueStorageTest extends TestCase {
     }
     
    /**
-    *  ValueStorage that's decorating a Folder, that inturn is decorating a Model  
+    *  ValueStorage that's decorating a Tag, that inturn is decorating a Model  
     */
-    public void testFolderAndValueStorageDecorated() {
+    public void testTagAndValueStorageDecorated() {
         seedSimpleSettingGroup();
         m_apple.setValue("system default");
         
-        Folder f = new Folder();
-        Setting folderDecorated = f.decorate(m_root);
-        folderDecorated.getSetting("fruit").getSetting("apple").setValue("folder default");
+        Tag f = new Tag();
+        Setting tagDecorated = f.decorate(m_root);
+        tagDecorated.getSetting("fruit/apple").setValue("tag default");
         
         ValueStorage vs = new ValueStorage();
-        Setting vsDecorated = vs.decorate(folderDecorated);
-        vsDecorated.getSetting("fruit").getSetting("apple").setValue("actual setting value");
+        Setting vsDecorated = vs.decorate(tagDecorated);
+        vsDecorated.getSetting("fruit/apple").setValue("actual setting value");
                       
-        Setting settingValue = vsDecorated.getSetting("fruit").getSetting("apple");
+        Setting settingValue = vsDecorated.getSetting("fruit/apple");
         assertEquals("actual setting value", settingValue.getValue());
 
-        Setting folderValue = (Setting) f.get(m_apple.getPath());
-        assertEquals("folder default", folderValue.getValue());
-        assertEquals(settingValue.getDefaultValue(), folderValue.getValue());
+        String tagValue = (String) f.get(m_apple.getPath());
+        assertEquals("tag default", tagValue);
+        assertEquals(settingValue.getDefaultValue(), tagValue);
 
         assertEquals("system default", m_apple.getValue());
-        assertEquals(folderValue.getDefaultValue(), m_apple.getValue());
     }
 
     private void seedSimpleSettingGroup() {

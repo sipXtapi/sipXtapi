@@ -19,10 +19,8 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
-import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.setting.Tag;
 
 /**
  * Implements some of the more menial methods of Phone interface 
@@ -91,7 +89,8 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
         if (m_settings == null) {
             m_settings = getSettingModel();
             setDefaults();
-            decorateSettings();
+            Tag rootTag = getPhoneContext().loadRootPhoneTag();
+            m_settings = m_meta.decorate(rootTag, m_settings);
         }
 
         return m_settings;
@@ -102,21 +101,6 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
     }
     
     public abstract Setting getSettingModel();
-    
-    protected void decorateSettings() {
-        ValueStorage valueStorage = m_meta.getValueStorage();
-        if (valueStorage == null) {
-            valueStorage = new ValueStorage();
-            m_meta.setValueStorage(valueStorage);
-        }
-
-        Folder folder = m_meta.getFolder();
-        if (folder != null) {
-            m_settings = (SettingGroup) folder.decorate(m_settings);
-        }
-
-        m_settings = (SettingGroup) valueStorage.decorate(m_settings);        
-    }
     
     public Object getPrimaryKey() {
         return m_meta.getPrimaryKey();

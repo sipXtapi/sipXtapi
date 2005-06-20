@@ -12,10 +12,8 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
-import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.setting.Tag;
 
 public abstract class AbstractLine implements Line, PrimaryKeySource {
 
@@ -79,7 +77,8 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
         if (m_settings == null) {
             m_settings = getSettingModel();
             setDefaults();
-            decorateSettings();
+            Tag rootTag = getPhoneContext().loadRootLineTag();
+            m_settings = m_meta.decorate(rootTag, m_settings);
         }
 
         return m_settings;
@@ -87,21 +86,6 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
     
     protected void setDefaults() {
         getDefaults().setLineDefaults(this, m_meta.getUser());        
-    }
-
-    protected void decorateSettings() {
-        ValueStorage valueStorage = m_meta.getValueStorage();
-        if (valueStorage == null) {
-            valueStorage = new ValueStorage();
-            m_meta.setValueStorage(valueStorage);
-        }
-
-        Folder folder = m_meta.getFolder();
-        if (folder != null) {
-            m_settings = (SettingGroup) folder.decorate(m_settings);
-        }
-
-        m_settings = (SettingGroup) valueStorage.decorate(m_settings);
     }
 
     public int getPosition() {

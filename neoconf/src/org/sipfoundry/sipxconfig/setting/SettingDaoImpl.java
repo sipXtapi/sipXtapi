@@ -29,28 +29,28 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, new Integer(storageId));    
     }
 
-    public void storeFolder(Folder storage) {
+    public void storeTag(Tag storage) {
         getHibernateTemplate().saveOrUpdate(storage);                        
     }
     
-    public Folder loadFolder(int id) {
-        return (Folder) getHibernateTemplate().load(Folder.class, new Integer(id));
+    public Tag loadTag(int id) {
+        return (Tag) getHibernateTemplate().load(Tag.class, new Integer(id));
     }
     
-    public Folder loadRootFolder(String resource) {
-        Folder folder;
+    public Tag loadRootTag(String resource) {
+        Tag tag;
         // Represents the single meta storage id that holds the defaults
         // for all settings groups.
-        String query = "from Folder f where f.parent is null and f.resource = '" + resource + "'";
-        List folders = getHibernateTemplate().find(query);
-        if (folders.size() == 0) {
-            folder = new Folder();
-            folder.setResource(resource);      
-            storeFolder(folder);
+        String query = "from Tag f where f.label = 'Default' and f.resource = '" + resource + "'";
+        List tags = getHibernateTemplate().find(query);
+        if (tags.size() == 0) {
+            tag = new Tag();
+            tag.setResource(resource);      
+            storeTag(tag);
         } else {
-            folder = (Folder) CoreContextImpl.requireOneOrZero(folders, query);
+            tag = (Tag) CoreContextImpl.requireOneOrZero(tags, query);
         }
         
-        return folder;
+        return tag;
     }
 }

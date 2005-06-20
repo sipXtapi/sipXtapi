@@ -24,9 +24,9 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.setting.Folder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.setting.Tag;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.BeanFactory;
@@ -157,9 +157,9 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
         // HACK: Load incase it needs to be deleted
-        return vs != null && vs.getId() == UNSAVED_ID && vs.size() == 0 ? null : vs;
+        return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
     }
-
+    
     public Line loadLine(Integer id) {
         return loadLine((LineData) getHibernateTemplate().load(LineData.class, id));
     }
@@ -247,12 +247,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return getHibernateTemplate().load(c, id);
     }
 
-    public Folder loadRootPhoneFolder() {
-        return m_settingDao.loadRootFolder(PhoneData.FOLDER_RESOURCE_NAME);
+    public Tag loadRootPhoneTag() {
+        return m_settingDao.loadRootTag(PhoneData.TAG_RESOURCE_NAME);
     }
 
-    public Folder loadRootLineFolder() {
-        return m_settingDao.loadRootFolder(LineData.FOLDER_RESOURCE_NAME);
+    public Tag loadRootLineTag() {
+        return m_settingDao.loadRootTag(LineData.TAG_RESOURCE_NAME);
     }
 
     public JobRecord loadJob(Integer id) {
@@ -269,7 +269,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         // not leave hanging references. DB will reject otherwise
         getHibernateTemplate().delete("from LineData");
         getHibernateTemplate().delete("from PhoneData");
-        getHibernateTemplate().delete("from Folder");
+        getHibernateTemplate().delete("from Tag");
         getHibernateTemplate().delete("from ValueStorage");
     }
 

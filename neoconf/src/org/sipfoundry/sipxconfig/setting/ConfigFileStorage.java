@@ -29,7 +29,7 @@ import org.apache.commons.lang.StringUtils;
  * 
  * @see ConfigFileStorage
  */
-public class ConfigFileStorage implements Storage, SettingVisitor {
+public class ConfigFileStorage extends ValueStorage {
     private Map m_file2properties = new HashMap();
 
     private String m_configDirectory;
@@ -88,19 +88,6 @@ public class ConfigFileStorage implements Storage, SettingVisitor {
             File file = new File(m_configDirectory, fileName);
             ConfigFileWriter writer = new ConfigFileWriter(file);
             writer.store(props);
-        }
-    }
-
-    // TODO: remove code duplication - copy of ValueStorage function
-    public void visitSetting(Setting setting) {
-        Setting decorated = new SettingValue(this, setting);
-        setting.getParent().addSetting(decorated);
-    }
-
-    public void visitSettingGroup(Setting group) {
-        Iterator i = group.getValues().iterator();
-        while (i.hasNext()) {
-            ((Setting) i.next()).acceptVisitor(this);
         }
     }
 }

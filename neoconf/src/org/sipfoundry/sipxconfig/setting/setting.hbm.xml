@@ -3,8 +3,8 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.setting">
   <!--
-  - V A L U E  S T O R A G E
-  -->
+    - V A L U E  S T O R A G E
+    -->
   <class name="ValueStorage" table="storage">
     <id name="id" column="storage_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -16,30 +16,14 @@
       <key column="storage_id"/>
       <index column="path" type="string"/>
       <element type="string" column="value" not-null="true"/>
-    </map>
-  </class>
-  
-  <!--
-  - F O L D E R
-  -->
-  <class name="Folder" table="folder">
-    <id name="id" column="folder_id" type="int" unsaved-value="-1">
-      <generator class="sequence">
-        <param name="sequence">folder_seq</param>
-      </generator>
-    </id>
-    <property name="label"/>
-    <property name="resource"/>
-    <many-to-one name="parent" column="parent_id" class="Folder"/>
-    <!-- F O L D E R  S E T T I N G  -->
-    <map name="folderSettings" cascade="all" table="folder_setting">
-      <key column="folder_id"/>
-      <index column="path" type="string"/>
-      <composite-element class="FolderSetting">
-        <parent name="folder"/>
-        <property name="value"/>
-        <property name="advanced" column="hidden"/>
-      </composite-element>
-    </map>
-  </class>
+    </map>    
+    <!--
+      - T A G
+      -->
+	  <joined-subclass name="Tag" table="tag">
+      <key column="storage_id"/>
+      <property name="label"/>
+      <property name="resource"/>
+    </joined-subclass>  	
+  </class>  
 </hibernate-mapping>

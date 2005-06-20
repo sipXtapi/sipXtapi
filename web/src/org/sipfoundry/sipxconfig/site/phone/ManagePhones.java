@@ -81,11 +81,6 @@ public abstract class ManagePhones extends BasePage
         }
     }
     
-    public void defaults(IRequestCycle cycle) {
-        PhoneDefaults page = (PhoneDefaults) cycle.getPage(PhoneDefaults.PAGE);
-        cycle.activate(page);
-    }
-    
     public void generateProfiles(IRequestCycle cycle_) {
         Phone[] selectedPhones = getSelectedPhones();
         if (selectedPhones.length > 0) {        

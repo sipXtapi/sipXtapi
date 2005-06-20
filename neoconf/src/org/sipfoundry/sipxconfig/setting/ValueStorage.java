@@ -15,14 +15,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This represents a link table between several business objects and SettingValues It serves no
- * business purpose but gets around a hibernate and RDBMS mismatch
+ * Basic layer of settings decoration that captures just setting values.
  */
-public class ValueStorage extends AbstractStorage implements SettingVisitor {
-
-    private static final long serialVersionUID = 1L;
-
-    private Folder m_folder;
+public class ValueStorage extends AbstractStorage implements Storage, SettingVisitor {
 
     public Map getValues() {
         return getDelegate();
@@ -30,14 +25,6 @@ public class ValueStorage extends AbstractStorage implements SettingVisitor {
 
     public void setValues(Map delegate) {
         setDelegate(delegate);
-    }
-
-    public Folder getMetaStorage() {
-        return m_folder;
-    }
-
-    public void setMetaStorage(Folder folder) {
-        m_folder = folder;
     }
 
     public Setting decorate(Setting setting) {

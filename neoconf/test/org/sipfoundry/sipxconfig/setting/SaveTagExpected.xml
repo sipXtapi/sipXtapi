@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
+<dataset>
+    <tag 
+		resource="unittest"
+		label="food"
+		storage_id="[storage_id]"/> 
+    <setting
+		storage_id="[storage_id]"
+		value="granny smith" 
+		path="/fruit/apple"/> 
+</dataset>

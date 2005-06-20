@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
-    <folder 
+    <tag 
 		resource="unittest"
 		label="[null]"
-		parent_id="[null]"
-		folder_id="[folder_id]"/> 
+		storage_id="[storage_id]"/> 
 </dataset>

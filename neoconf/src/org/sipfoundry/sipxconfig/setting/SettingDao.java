@@ -19,11 +19,11 @@ public interface SettingDao {
     /** common name found in spring file */
     public static final String CONTEXT_NAME = "settingDao";
 
-    public void storeFolder(Folder meta);
+    public void storeTag(Tag meta);
 
-    public Folder loadRootFolder(String resource);
+    public Tag loadRootTag(String resource);
 
-    public Folder loadFolder(int folderId);
+    public Tag loadTag(int tagId);
 
     public void storeValueStorage(ValueStorage storage);
 

@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
-import org.sipfoundry.sipxconfig.setting.Folder;
+import org.sipfoundry.sipxconfig.setting.Tag;
 
 
 /**
@@ -88,9 +88,9 @@ public interface PhoneContext extends DataObjectSource {
 
     public void deletePhone(Phone phone);
     
-    public Folder loadRootPhoneFolder();
+    public Tag loadRootPhoneTag();
     
-    public Folder loadRootLineFolder();
+    public Tag loadRootLineTag();
     
     public JobRecord loadJob(Integer id);
     
