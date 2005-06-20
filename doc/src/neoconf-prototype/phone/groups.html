@@ -9,14 +9,19 @@
 </head>
 
 <body>
-  <h2>Folders</h2>
-  <p>Folders allow you organize phones into logical groups and share settings between phones
-	in same folder.  Phones can have any number of folders.</p>
-
+  <div class="help">
+  <p>The order of groups is only important when the groups have
+	diffenent values for the same setting. The setting value in the last group has higher
+	precedence.</p>
+  </div>
+  <h2>Groups</h2>
+  <p>Groups allow you organize phones into logical groups and share settings between phones
+	in same group.  Groups cannot contain other groups, however phones can be in any 
+	number of groups which provides for a much more flexible system.</p>
 		<form name="tags" action="defaults.html">
 			<ul class="component-links">
 				<li>
-					<a href="new-folder.html">New Folder</a>
+					<a href="edit-group.html">New Group</a>
 				</li>
 			</ul>
 			<table class="component">
@@ -34,7 +39,7 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="default-folder.html">default</a>
+						<a href="default-group.html">default</a>
 					</td>
 					<td align="center">0</td>
 				</tr>
@@ -43,7 +48,7 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="default-folder.html">Sales</a>
+						<a href="default-group.html">Sales</a>
 					</td>
 					<td align="center"><a href="phones.html">15</a></td>
 				</tr>
@@ -52,7 +57,7 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="default-folder.html">Mark's phones</a>
+						<a href="default-group.html">Mark's phones</a>
 					</td>
 					<td align="center"><a href="phones.html">2</a></td>
 				</tr>
@@ -61,7 +66,7 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="default-folder.html">Engineering</a>
+						<a href="default-group.html">Engineering</a>
 					</td>
 					<td align="center"><a href="phones.html">12</a></td>
 				</tr>
@@ -70,15 +75,21 @@
 						<input type="checkbox" name="id1"/>
 					</td>
 					<td>
-						<a href="default-folder.html">Offsite</a>
+						<a href="default-group.html">Offsite</a>
 					</td>
 					<td align="center"><a href="phones.html">20</a></td>
 				</tr>
 			</table>
 			<ul class="component-submit">
 				<li>
-					<input type="submit" name="" value="Delete" 
-						onclick="confirm('Are you sure you want to delete selected folders.')"/>
+					<input type="button" name="" value="Move Up"/>
+				</li>
+				<li>
+					<input type="button" name="" value="Move Down"/>
+				</li>
+				<li>
+					<input type="button" name="" value="Delete" 
+						onclick="confirm('Are you sure you want to delete selected groups.')"/>
 				</li>
 			</ul>
 		</form>

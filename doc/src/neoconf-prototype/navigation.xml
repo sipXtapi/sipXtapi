@@ -3,11 +3,11 @@
 <menu>
     <item name="phones" href="phone/phones.html" title="Phones">Phones</item>
 	<menu>
-        <item name="folders" href="phone/folders.html" title="Folders">Folders</item>
+        <item name="folders" href="phone/groups.html" title="Groups">Phone Groups</item>
     </menu>
     <item name="users" href="user/users.html" title="Users">Users</item>		
 	<menu>
-        <item name="folders" href="proto-stub.html" title="Folders">Folders</item>
+        <item name="folders" href="proto-stub.html" title="Groups">User Groups</item>
     </menu>
     <item name="admin" href="proto-stub.html" title="Administration">Administration</item>
 	<menu>
