@@ -9,47 +9,37 @@
 </head>
 
 <body>
- <p>&gt; <strong>Default</strong></p>
+ <p><strong>Folder:</strong> <a href="default-folder.html">Default</a></p>
   <h2>Edit Folder</h2>
   <p>To provide settings that can be shared across all phones of a particular model.
        Values explicitly set on individual phones will override these values.</p>
 
-			<ul class="component-links">
-				<li>
-					<a href="new-folder.html">Rename</a>
-				</li>
-				<li>
-					<a href="move-folder.html">Move</a>
-				</li>
-				<li>
-					<a href="new-folder.html">New Subfolder</a>
-				</li>
-			</ul>
- <div id="settings-nav">    
-   <a href="edit-sales-folder.html"><img border="0" src="folder-tree.png"/></a>
- </div> 
+  <div id="settings-nav">     
+ </div>
+ 
   <div id="settings-content">
-     <fieldset>
-     <ul>
-            <li><a href=
-      "defaults-phone.html">Cisco ATA 18X</a></li>
-
-      <li><a href=
-      "defaults-phone.html">Cisco 7940, 7960</a></li>
-
-      <li><a href=
-      "defaults-phone.html">Cisco 7912</a></li>
-
-      <li><a href=
-      "defaults-phone.html">Cisco 7905</a></li>
-
-      <li><a href=
-      "defaults-phone.html">Polycom Soundpoint 300/500/600</a></li>
-
-      <li><a href=
-      "defaults-phone.html">KPhone</a></li>
-    </ul>     
-     </fieldset>
-   </div>
+      <form>
+          <table>
+              <tr>
+                  <td>Name:</td>
+                  <td><input type="text"/></td>
+              </tr>
+          </table>
+			<ul class="form-actions">
+				<li>
+					<input type="button" name="cancel" value="Cancel" 
+						onclick="location.href='default-folder.html'"/>
+				</li>
+				<li>
+					<input type="button" name="apply" value="Apply" 
+						onclick="location.href='default-folder.html'"/>
+				</li>
+				<li>
+					<input type="button" name="save" value="OK" 
+						onclick="location.href='default-folder.html'"/>
+				</li>
+			</ul>                   
+      </form>
+  </div>
 </body>
 </html>

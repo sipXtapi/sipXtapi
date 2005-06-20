@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>sipXconfig</title>
+  <link rel="stylesheet" type="text/css" href=
+  "../sipxconfig.css" />
+</head>
+
+<body>
+  <h2>Folders</h2>
+  <p>Folders allow you organize phones into logical groups and share settings between phones
+	in same folder.  Phones can have any number of folders.</p>
+
+		<form name="tags" action="defaults.html">
+			<ul class="component-links">
+				<li>
+					<a href="new-folder.html">New Folder</a>
+				</li>
+			</ul>
+			<table class="component">
+				<tr class="component-hdr">
+					<th></th>
+					<th>
+						<a href="#">Name</a>
+					</th>
+					<th>
+						<a href="#">Phones</a>
+					</th>
+				</tr>
+				<tr class="odd">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="default-folder.html">default</a>
+					</td>
+					<td align="center">0</td>
+				</tr>
+				<tr class="even">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="default-folder.html">Sales</a>
+					</td>
+					<td align="center"><a href="phones.html">15</a></td>
+				</tr>
+				<tr class="odd">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="default-folder.html">Mark's phones</a>
+					</td>
+					<td align="center"><a href="phones.html">2</a></td>
+				</tr>
+				<tr class="even">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="default-folder.html">Engineering</a>
+					</td>
+					<td align="center"><a href="phones.html">12</a></td>
+				</tr>
+				<tr class="odd">
+					<td>
+						<input type="checkbox" name="id1"/>
+					</td>
+					<td>
+						<a href="default-folder.html">Offsite</a>
+					</td>
+					<td align="center"><a href="phones.html">20</a></td>
+				</tr>
+			</table>
+			<ul class="component-submit">
+				<li>
+					<input type="submit" name="" value="Delete" 
+						onclick="confirm('Are you sure you want to delete selected folders.')"/>
+				</li>
+			</ul>
+		</form>
+      <ul class="form-actions">
+        <li><button onclick="location.href='phones.html'">Cancel</button></li>
+      </ul>
+</body>
+</html>

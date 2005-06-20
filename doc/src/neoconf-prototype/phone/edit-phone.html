@@ -7,12 +7,10 @@
 	</head>
     <script language="JavaScript">
         function addFolder(form) {
-          folders = form.folder;
-          parent = folders.options[folders.selectedIndex].value;
-          folder = prompt(parent + ' subfolder name:');
+          folder = prompt('Folder name:');
           if (folder != null) {
-              fullname = parent + '/' + folder;
-              folders.options[folders.options.length] = new Option(fullname, folder, true, true);
+              folders = form.folder;
+              folders.options[folders.options.length] = new Option(folder, folder, true, true);
           }
         }
     </script>
@@ -80,20 +78,17 @@
 						<select name="folder">
                             <option>default</option>
                             <option>Onsite</option>
-                            <option>Onsite/Sales</option>
-                            <option>Onsite/Engineering</option>
+                            <option>Sales</option>
+                            <option>Engineering</option>
                             <option>Offsite</option>
-                            <option>Offsite/Sales</option>
                         </select> 
                         <a href="javascript:addFolder(this.document.forms['phone-data']);">New Folder</a>
 					</td>
 				</tr>
-                <tr>
-                    <td>Optional tags:</td>
-                    <td>
-                        <input type="text" name="tags"/>
-                    </td>
-                </tr>
+				<tr>
+					  <td>Addtional Folders:</td>
+					  <td><input type="text" name="additional-folders"/></td>
+			    </tr>
 				<tr>
 					<td>Alternate Label:</td>
 					<td>

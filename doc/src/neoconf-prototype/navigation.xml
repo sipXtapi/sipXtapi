@@ -1,11 +1,16 @@
 <?xml version="1.0" standalone="yes"?>
 
 <menu>
+    <item name="phones" href="phone/phones.html" title="Phones">Phones</item>
+	<menu>
+        <item name="folders" href="phone/folders.html" title="Folders">Folders</item>
+    </menu>
+    <item name="users" href="user/users.html" title="Users">Users</item>		
+	<menu>
+        <item name="folders" href="proto-stub.html" title="Folders">Folders</item>
+    </menu>
     <item name="admin" href="proto-stub.html" title="Administration">Administration</item>
 	<menu>
-        <item name="users" href="user/users.html" title="Users">Users</item>		
-        <item name="phones" href="phone/phones.html" title="Phones">Phones</item>
-        <item name="folders" href="folders.html" title="Folders">Folders</item>
 		<item name="administrators" href="proto-stub.html" title="Administrators">Administrators</item>
 		<item name="extensionPools" href="proto-stub.html" title="Extension Pools">Extension Pools</item>
         <item name="dialplans" href="admin/call-groups.html" title="Dial Plans">Call Groups</item>
