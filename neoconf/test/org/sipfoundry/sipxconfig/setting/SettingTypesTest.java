@@ -31,7 +31,7 @@ public class SettingTypesTest extends TestCase {
     protected void setUp() throws Exception {
         XmlModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("setting-types.xml");
-        SettingGroup root = builder.buildModel(in);
+        SettingSet root = builder.buildModel(in);
         group = root.getSetting("group");
     }
 

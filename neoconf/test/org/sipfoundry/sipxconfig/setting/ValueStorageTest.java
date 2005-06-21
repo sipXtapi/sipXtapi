@@ -24,7 +24,7 @@ public class ValueStorageTest extends TestCase {
         }
     };
 
-    private SettingGroup m_root;
+    private SettingSet m_root;
     
     private Setting m_apple;
 
@@ -34,7 +34,7 @@ public class ValueStorageTest extends TestCase {
         ValueStorage settingValues = new ValueStorage();
         settingValues.put(m_apple.getPath(), "granny smith");
         
-        SettingGroup copy = (SettingGroup) settingValues.decorate(m_root);
+        SettingSet copy = (SettingSet) settingValues.decorate(m_root);
         Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
 
         assertEquals("granny smith", appleCopy.getValue());
@@ -45,7 +45,7 @@ public class ValueStorageTest extends TestCase {
     public void testNullSettings() {
         seedSimpleSettingGroup();
 
-        SettingGroup copy = (SettingGroup) new ValueStorage().decorate(m_root);        
+        SettingSet copy = (SettingSet) new ValueStorage().decorate(m_root);        
         Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
         
         assertNull(appleCopy.getValue());
@@ -62,7 +62,7 @@ public class ValueStorageTest extends TestCase {
         m_apple.setValue("granny smith");
         
         ValueStorage storage = new ValueStorage();
-        SettingGroup copy = (SettingGroup) storage.decorate(m_root);
+        SettingSet copy = (SettingSet) storage.decorate(m_root);
         Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
         
         assertEquals("granny smith", appleCopy.getValue());        
@@ -87,7 +87,7 @@ public class ValueStorageTest extends TestCase {
         m_apple.setValue("granny smith");
 
         ValueStorage storage = new ValueStorage();
-        SettingGroup copy = (SettingGroup) storage.decorate(m_root);
+        SettingSet copy = (SettingSet) storage.decorate(m_root);
         copy.getSetting("fruit").getSetting("apple").setValue("macintosh");
         
         
@@ -104,7 +104,7 @@ public class ValueStorageTest extends TestCase {
         seedSimpleSettingGroup();
         m_apple.setValue("system default");
         
-        Tag f = new Tag();
+        Group f = new Group();
         Setting tagDecorated = f.decorate(m_root);
         tagDecorated.getSetting("fruit/apple").setValue("tag default");
         
@@ -123,9 +123,9 @@ public class ValueStorageTest extends TestCase {
     }
 
     private void seedSimpleSettingGroup() {
-        m_root = new SettingGroup();
-        SettingGroup fruit = (SettingGroup)m_root.addSetting(new SettingGroup("fruit"));
+        m_root = new SettingSet();
+        SettingSet fruit = (SettingSet)m_root.addSetting(new SettingSet("fruit"));
         m_apple = fruit.addSetting(new SettingImpl("apple"));
-        m_root.addSetting(new SettingGroup("vegatables"));
+        m_root.addSetting(new SettingSet("vegatables"));
     }   
 }

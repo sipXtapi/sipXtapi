@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
-    <tag 
+    <group_storage 
 		resource="unittest"
-		label="food"
-		storage_id="1"/> 
+		name="food"
+    description="[null]"
+    storage_id="1"/> 
     <setting 
 		storage_id="1"
 		value="snap pea" 		

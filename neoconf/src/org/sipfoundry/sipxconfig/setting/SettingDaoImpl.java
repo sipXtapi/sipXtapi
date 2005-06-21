@@ -31,31 +31,34 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, new Integer(storageId));    
     }
 
-    public void storeTag(Tag storage) {
+    public void storeGroup(Group storage) {
         getHibernateTemplate().saveOrUpdate(storage);                        
     }
     
-    public Tag loadTag(int id) {
-        return (Tag) getHibernateTemplate().load(Tag.class, new Integer(id));
+    public Group loadGroup(int id) {
+        return (Group) getHibernateTemplate().load(Group.class, new Integer(id));
     }
 
-    public Tag loadRootTag(String resource) {
-        Tag tag;
-        String query = "rootTag";
-        Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam(query, RESOURCE_PARAM, resource);
+    public Group loadRootGroup(String resource) {
+        Group tag;
+        String query = "rootGroupByResource";
+        Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam(query, 
+                RESOURCE_PARAM, resource);
         if (tags.size() == 0) {
-            tag = new Tag();
+            tag = new Group();
+            tag.setName("Default");
             tag.setResource(resource);      
-            storeTag(tag);
+            storeGroup(tag);
         } else {
-            tag = (Tag) CoreContextImpl.requireOneOrZero(tags, query);
+            tag = (Group) CoreContextImpl.requireOneOrZero(tags, query);
         }
         
         return tag;
     }
     
-    public Collection getTags(String resource) {
-        Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam("tags", RESOURCE_PARAM, resource);
+    public Collection getGroups(String resource) {
+        Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource", 
+                RESOURCE_PARAM, resource);
         return tags;
     }
 }

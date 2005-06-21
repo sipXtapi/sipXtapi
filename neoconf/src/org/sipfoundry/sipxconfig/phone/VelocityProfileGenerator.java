@@ -19,7 +19,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
-import org.sipfoundry.sipxconfig.setting.SettingGroup;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 /**
  * Baseclass for velocity template generators
@@ -31,7 +31,7 @@ public class VelocityProfileGenerator {
      */
     private static final SettingFilter RECURSIVE_SETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root_, Setting setting) {
-            boolean group = SettingGroup.class.isAssignableFrom(setting.getClass());
+            boolean group = SettingSet.class.isAssignableFrom(setting.getClass());
             return !group;
         }
     };        
@@ -39,7 +39,7 @@ public class VelocityProfileGenerator {
     private static final SettingFilter SETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root, Setting setting) {
             boolean firstLevel = (setting.getParent() == root); 
-            boolean group = SettingGroup.class.isAssignableFrom(setting.getClass());
+            boolean group = SettingSet.class.isAssignableFrom(setting.getClass());
             
             return !group && firstLevel;
         }

@@ -25,7 +25,7 @@ public class SettingBeanAdapterTest extends TestCase {
         adapter = new SettingBeanAdapter(Bird.class);
         adapter.addMapping("wingSpan", "wingSpan");
         
-        birdSettings = new SettingGroup("birds");
+        birdSettings = new SettingSet("birds");
         birdSettings.addSetting(new SettingImpl("wingSpan"));
         adapter.setSetting(birdSettings);
         

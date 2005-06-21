@@ -10,6 +10,9 @@
   -
   - test user id = 4, you can asssociate data with this user
   - if you create new users, set rcs_id=2, ug=1, id=5... 
+  -
+  - Tables are cleared from the bottom up, so be aware of dependencies. 
+  - PGSQL 8.X is more picky than 7.X
   -->
 <dataset>  
   <!-- admin -->
@@ -205,12 +208,14 @@
   </table>
 
   <!-- new phone support -->  
-  <table name="tag"/>
+  <table name="group_storage"/>
   <table name="phone"/>
   <table name="line"/>
   <table name="setting"/>
   <table name="storage"/>
-    
+  <table name="phone_group"/>
+  <table name="line_group"/>
+      
   <!-- forwarding -->
   <table name="ring"/>
   

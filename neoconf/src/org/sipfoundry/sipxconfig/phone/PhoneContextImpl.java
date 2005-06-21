@@ -24,9 +24,9 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.setting.Tag;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.BeanFactory;
@@ -249,12 +249,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return getHibernateTemplate().load(c, id);
     }
 
-    public Tag loadRootGroup() {
-        return m_settingDao.loadRootTag(GROUP_RESOURCE_NAME);
+    public Group loadRootGroup() {
+        return m_settingDao.loadRootGroup(GROUP_RESOURCE_NAME);
     }
     
     public Collection getGroups() {
-        return m_settingDao.getTags(GROUP_RESOURCE_NAME);
+        return m_settingDao.getGroups(GROUP_RESOURCE_NAME);
     }
 
     public JobRecord loadJob(Integer id) {
@@ -271,7 +271,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         // not leave hanging references. DB will reject otherwise
         getHibernateTemplate().delete("from LineData");
         getHibernateTemplate().delete("from PhoneData");
-        getHibernateTemplate().delete("from Tag");
+        getHibernateTemplate().delete("from Group where resource = 'phone'");
         getHibernateTemplate().delete("from ValueStorage");
     }
 

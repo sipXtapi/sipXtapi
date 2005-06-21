@@ -18,21 +18,22 @@
       <element type="string" column="value" not-null="true"/>
     </map>    
     <!--
-      - T A G
+      - G R O U P
       -->
-	  <joined-subclass name="Tag" table="tag">
+	  <joined-subclass name="Group" table="group_storage">
       <key column="storage_id"/>
-      <property name="label"/>
+      <property name="name"/>
+      <property name="description"/>
       <property name="resource"/>
     </joined-subclass>  	
   </class>  
 
-  <query name="rootTag">
-    <![CDATA[from Tag f where f.label = 'Default' and f.resource = :resource]]>
+  <query name="rootGroupByResource">
+    <![CDATA[from Group g where g.name = 'Default' and g.resource = :resource]]>
   </query>  
     
-  <query name="tags">
-    <![CDATA[from Tag f where f.resource = :resource]]>
+  <query name="groupsByResource">
+    <![CDATA[from Group g where g.resource = :resource]]>
   </query>  
     
 </hibernate-mapping>

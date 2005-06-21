@@ -19,17 +19,17 @@ import java.util.LinkedHashMap;
  * Meta information about a group of settings, can contain nested
  * SettingModels.  Order is preserved
  */
-public class SettingGroup extends SettingImpl implements Cloneable {
+public class SettingSet extends SettingImpl implements Cloneable {
     
     private LinkedHashMap m_children = new LinkedHashMap();
         
     /** 
      * Root setting group and bean access only
      */
-    public SettingGroup() {
+    public SettingSet() {
     }
         
-    public SettingGroup(String name) {
+    public SettingSet(String name) {
         super(name);
     }
     
@@ -37,7 +37,7 @@ public class SettingGroup extends SettingImpl implements Cloneable {
      * includes deep copy of all childen 
      */
     public Setting copy() {
-        SettingGroup copy = (SettingGroup) super.copy();
+        SettingSet copy = (SettingSet) super.copy();
         copy.m_children = new LinkedHashMap();
         Iterator i = m_children.values().iterator();
         while (i.hasNext()) {

@@ -31,7 +31,7 @@ public class XmlModelBuilderTest extends TestCase {
 
     public void testSettingPropertySetters() throws IOException {
         InputStream in = getClass().getResourceAsStream("simplemodel.xml");
-        SettingGroup root = m_builder.buildModel(in);
+        SettingSet root = m_builder.buildModel(in);
         Setting group = root.getSetting("group");
         assertEquals("Group Profile Name", group.getProfileName());
         assertEquals("Group Label", group.getLabel());
@@ -46,18 +46,18 @@ public class XmlModelBuilderTest extends TestCase {
 
     public void testReadingGames() throws IOException {
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingGroup games = m_builder.buildModel(in);
+        SettingSet games = m_builder.buildModel(in);
         assertNull(games.getName());
         assertEquals(2, games.getValues().size());
 
-        SettingGroup chess = (SettingGroup) games.getSetting("chess");
+        SettingSet chess = (SettingSet) games.getSetting("chess");
         assertEquals(chess.getName(), "chess");
         assertEquals("The game of chess", chess.getLabel());
         assertEquals(2, chess.getValues().size());
         Iterator orderPreserved = chess.getValues().iterator();
-        SettingGroup colors = (SettingGroup) orderPreserved.next();
+        SettingSet colors = (SettingSet) orderPreserved.next();
         assertEquals(2, colors.getValues().size());
-        SettingGroup pieces = (SettingGroup) orderPreserved.next();
+        SettingSet pieces = (SettingSet) orderPreserved.next();
         assertEquals(6, pieces.getValues().size());
 
         Setting pawn = pieces.getSetting("pawn");
@@ -69,12 +69,12 @@ public class XmlModelBuilderTest extends TestCase {
         assertEquals(3, moves.size());
         assertTrue(moves.contains("diagonal one to take another piece"));
 
-        SettingGroup cards = (SettingGroup) games.getSetting("cards");
+        SettingSet cards = (SettingSet) games.getSetting("cards");
         assertEquals(2, cards.getValues().size());
 
-        SettingGroup suits = (SettingGroup) cards.getSetting("suit");
+        SettingSet suits = (SettingSet) cards.getSetting("suit");
         assertEquals(4, suits.getValues().size());
-        SettingGroup card = (SettingGroup) cards.getSetting("card");
+        SettingSet card = (SettingSet) cards.getSetting("card");
         assertEquals(13, card.getValues().size());
     }
 
@@ -83,17 +83,17 @@ public class XmlModelBuilderTest extends TestCase {
      */
     public void testIteration() throws IOException {
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingGroup games = m_builder.buildModel(in);
+        SettingSet games = m_builder.buildModel(in);
 
         Iterator i = games.getValues().iterator();
         while (i.hasNext()) {
-            assertTrue(i.next().getClass().isAssignableFrom(SettingGroup.class));
+            assertTrue(i.next().getClass().isAssignableFrom(SettingSet.class));
         }
     }
 
     public void testInheritance() throws IOException {
         InputStream in = getClass().getResourceAsStream("genders.xml");
-        SettingGroup root = m_builder.buildModel(in);
+        SettingSet root = m_builder.buildModel(in);
 
         Setting human = root.getSetting("human");
         assertEquals("Human", human.getLabel());

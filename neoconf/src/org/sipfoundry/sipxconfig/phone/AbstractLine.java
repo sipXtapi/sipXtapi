@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.Tag;
 
 public abstract class AbstractLine implements Line, PrimaryKeySource {
 
@@ -77,7 +77,7 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
         if (m_settings == null) {
             m_settings = getSettingModel();
             setDefaults();
-            Tag rootTag = getPhoneContext().loadRootGroup();
+            Group rootTag = getPhoneContext().loadRootGroup();
             m_settings = m_meta.decorate(rootTag, m_settings);
         }
 

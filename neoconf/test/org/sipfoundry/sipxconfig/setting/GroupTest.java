@@ -17,9 +17,9 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 
-public class TagTest extends TestCase {
+public class GroupTest extends TestCase {
 
-    private SettingGroup m_root;
+    private SettingSet m_root;
     
     private Setting m_apple;
           
@@ -29,7 +29,7 @@ public class TagTest extends TestCase {
      */
     public void testDecorateWithFilterRunner() {
         seedSimpleSettingGroup();
-        Tag f = new Tag();
+        Group f = new Group();
         Setting rootDecorated = f.decorate(m_root);
         Collection settings = FilterRunner.filter(SettingFilter.ALL, rootDecorated);
         assertEquals(4, settings.size());
@@ -43,9 +43,9 @@ public class TagTest extends TestCase {
     }
 
     private void seedSimpleSettingGroup() {
-        m_root = new SettingGroup();
-        SettingGroup fruit = (SettingGroup)m_root.addSetting(new SettingGroup("fruit"));
+        m_root = new SettingSet();
+        SettingSet fruit = (SettingSet)m_root.addSetting(new SettingSet("fruit"));
         m_apple = fruit.addSetting(new SettingImpl("apple"));
-        m_root.addSetting(new SettingGroup("vegetables")).addSetting(new SettingImpl("pea"));
+        m_root.addSetting(new SettingSet("vegetables")).addSetting(new SettingImpl("pea"));
     }
 }

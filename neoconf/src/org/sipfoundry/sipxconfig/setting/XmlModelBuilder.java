@@ -51,7 +51,7 @@ public class XmlModelBuilder {
         this(new File(configDirectory));
     }
 
-    public SettingGroup buildModel(File modelFile) {
+    public SettingSet buildModel(File modelFile) {
         FileInputStream is = null;
         try {
             is = new FileInputStream(modelFile);
@@ -65,7 +65,7 @@ public class XmlModelBuilder {
         }
     }
 
-    public SettingGroup buildModel(InputStream is) throws IOException {
+    public SettingSet buildModel(InputStream is) throws IOException {
         Digester digester = new Digester();
 
         // JBoss uses digester and therefore, preloaded, and therefore it's
@@ -74,11 +74,11 @@ public class XmlModelBuilder {
 
         digester.setValidating(false);
         digester.setEntityResolver(m_entityResolver);
-        digester.push(new SettingGroup());
+        digester.push(new SettingSet());
         addSettingTypes(digester, "model/type/");
         
         String groupPattern = "*/group";
-        SettingRuleSet groupRule = new SettingRuleSet(groupPattern, SettingGroup.class);
+        SettingRuleSet groupRule = new SettingRuleSet(groupPattern, SettingSet.class);
         digester.addRuleSet(groupRule);
 
         String settingPattern = "*/setting";
@@ -86,7 +86,7 @@ public class XmlModelBuilder {
         digester.addRuleSet(settingRule);
 
         try {
-            return (SettingGroup) digester.parse(is);
+            return (SettingSet) digester.parse(is);
         } catch (SAXException se) {
             throw new RuntimeException("Could not parse model definition file", se);
         }

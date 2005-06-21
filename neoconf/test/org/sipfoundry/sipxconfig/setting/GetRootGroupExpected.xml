@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
-    <tag 
+    <group_storage 
 		resource="unittest"
-		label="[null]"
+		name="Default"
+    description="[null]"
 		storage_id="[storage_id]"/> 
 </dataset>

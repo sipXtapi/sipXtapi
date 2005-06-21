@@ -21,11 +21,11 @@ public class SettingDaoTestDb extends TestCase {
     public void testSettingGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        SettingGroup root = new SettingGroup();
+        SettingSet root = new SettingSet();
         root.addSetting(new SettingImpl("setting"));
         
         ValueStorage vs = new ValueStorage();
-        SettingGroup copy = (SettingGroup) vs.decorate(root);
+        SettingSet copy = (SettingSet) vs.decorate(root);
         copy.getSetting("setting").setValue("some value");
 
         ApplicationContext context = TestHelper.getApplicationContext();

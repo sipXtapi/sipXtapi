@@ -25,7 +25,7 @@ public class SettingTypeReferencesTest extends TestCase {
     protected void setUp() throws Exception {
         XmlModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("setting-type-references.xml");
-        SettingGroup root = builder.buildModel(in);
+        SettingSet root = builder.buildModel(in);
         group = root.getSetting("group");
     }
     

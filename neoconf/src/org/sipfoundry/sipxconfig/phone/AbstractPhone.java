@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.Tag;
 
 /**
  * Implements some of the more menial methods of Phone interface 
@@ -89,7 +89,7 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
         if (m_settings == null) {
             m_settings = getSettingModel();
             setDefaults();
-            Tag rootTag = getPhoneContext().loadRootGroup();
+            Group rootTag = getPhoneContext().loadRootGroup();
             m_settings = m_meta.decorate(rootTag, m_settings);
         }
 

@@ -15,17 +15,17 @@ import junit.framework.TestCase;
 
 public class SettingTest extends TestCase {
     
-    private SettingGroup m_root;
+    private SettingSet m_root;
     
     private Setting m_apple;
     
     private Setting m_fruit;
 
     private void seedSimpleSettingGroup() {
-        m_root = new SettingGroup();
-        m_fruit = (SettingGroup)m_root.addSetting(new SettingGroup("fruit"));
+        m_root = new SettingSet();
+        m_fruit = (SettingSet)m_root.addSetting(new SettingSet("fruit"));
         m_apple = m_fruit.addSetting(new SettingImpl("apple"));
-        m_root.addSetting(new SettingGroup("vegatables"));
+        m_root.addSetting(new SettingSet("vegatables"));
     }
 
     public void testDefaultValue() {
@@ -40,7 +40,7 @@ public class SettingTest extends TestCase {
         seedSimpleSettingGroup();
         assertNull(m_apple.getValue());
         
-        Tag meta = new Tag();
+        Group meta = new Group();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
@@ -64,7 +64,7 @@ public class SettingTest extends TestCase {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isAdvanced());
         
-        Tag tag = new Tag();
+        Group tag = new Group();
         assertNull(tag.get(m_apple.getPath()));
         assertEquals(0, tag.size());
 
@@ -84,7 +84,7 @@ public class SettingTest extends TestCase {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isAdvanced());
         
-        Tag meta = new Tag();
+        Group meta = new Group();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
@@ -126,9 +126,9 @@ public class SettingTest extends TestCase {
     }
 
     public void test100GroupsWith100Settings() {
-        SettingGroup root = new SettingGroup();
+        SettingSet root = new SettingSet();
         for (int i = 0; i < 100; i++) {
-            SettingGroup model = (SettingGroup) root.addSetting(new SettingGroup(String.valueOf(i)));
+            SettingSet model = (SettingSet) root.addSetting(new SettingSet(String.valueOf(i)));
             for (int j = 0; j < 100; j++) {
                 model.addSetting(new SettingImpl(String.valueOf(j)));                
             }
@@ -139,7 +139,7 @@ public class SettingTest extends TestCase {
     
     public void testMergeChildren() {
         seedSimpleSettingGroup();
-        SettingGroup anotherFruit = new SettingGroup("fruit");
+        SettingSet anotherFruit = new SettingSet("fruit");
         Setting banana = new SettingImpl("banana");
         anotherFruit.addSetting(banana);
         m_root.addSetting(anotherFruit);

@@ -32,12 +32,12 @@ public class ValueStorageTestDb extends TestCase {
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        SettingGroup root = new SettingGroup();
-        root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
-        root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea")); 
+        SettingSet root = new SettingSet();
+        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
+        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea")); 
         
         ValueStorage vs = new ValueStorage();
-        SettingGroup copy = (SettingGroup) vs.decorate(root);
+        SettingSet copy = (SettingSet) vs.decorate(root);
         copy.getSetting("fruit/apple").setValue("granny smith");
         copy.getSetting("vegetable/pea").setValue(null);
         
@@ -58,9 +58,9 @@ public class ValueStorageTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("setting/UpdateValueStorageSeed.xml");        
 
-        SettingGroup root = new SettingGroup();
-        root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
-        root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea")); 
+        SettingSet root = new SettingSet();
+        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
+        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea")); 
         
         ValueStorage vs = m_dao.loadValueStorage(1);
         Setting copy = vs.decorate(root);

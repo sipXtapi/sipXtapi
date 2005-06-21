@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.setting.Tag;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class PhoneContextTestDb extends TestCase {
 
@@ -37,10 +37,10 @@ public class PhoneContextTestDb extends TestCase {
     
     public void testGetRootPhoneTag() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Tag root = m_context.loadRootGroup();
+        Group root = m_context.loadRootGroup();
         assertNotNull(root);
         
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("tag");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("group_storage");
         assertEquals(1, actual.getRowCount());
         assertEquals("phone", actual.getValue(0, "resource"));        
     }

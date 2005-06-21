@@ -23,10 +23,10 @@ import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
-import org.sipfoundry.sipxconfig.setting.Tag;
 
 public abstract class EditPhoneDefaults extends BasePage implements PageRenderListener {
     
@@ -44,13 +44,13 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     
     public abstract void setPhoneFactoryId(String factoryId);
     
-    public abstract Tag getPhoneTag();
+    public abstract Group getPhoneTag();
     
-    public abstract void setPhoneTag(Tag tag);
+    public abstract void setPhoneTag(Group tag);
 
-    public abstract Tag getLineTag();
+    public abstract Group getLineTag();
 
-    public abstract void setLineTag(Tag tag);
+    public abstract void setLineTag(Group tag);
 
     public abstract SettingDao getSettingDao();
     
@@ -104,8 +104,8 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     }
     
     public void apply(IRequestCycle cycle_) {
-        getSettingDao().storeTag(getPhoneTag());
-        getSettingDao().storeTag(getLineTag());
+        getSettingDao().storeGroup(getPhoneTag());
+        getSettingDao().storeGroup(getLineTag());
     }
 
     public void cancel(IRequestCycle cycle) {
@@ -121,11 +121,11 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
         setLineTag(getPhoneContext().loadRootGroup());
         
         Phone phone = getPhoneContext().newPhone(getPhoneFactoryId());
-        phone.getPhoneData().addTag(getPhoneTag());
+        phone.getPhoneData().addGroup(getPhoneTag());
         
         Line line = phone.createLine(new LineData());
         phone.addLine(line);
-        line.getLineData().addTag(getLineTag());
+        line.getLineData().addGroup(getLineTag());
 
         setPhone(phone);
         
@@ -144,7 +144,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
      * for the setting edit form
      */
     private void editSettings() {
-        Tag folder;
+        Group folder;
         Setting rootSettings;
         if (getEditFormTagResource() == PHONE_SETTINGS) {
             folder = getPhoneTag();

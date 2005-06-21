@@ -21,13 +21,13 @@ public interface SettingDao {
     /** common name found in spring file */
     public static final String CONTEXT_NAME = "settingDao";
 
-    public void storeTag(Tag meta);
+    public void storeGroup(Group meta);
     
-    public Collection getTags(String resource);
+    public Collection getGroups(String resource);
 
-    public Tag loadRootTag(String resource);
+    public Group loadRootGroup(String resource);
 
-    public Tag loadTag(int tagId);
+    public Group loadGroup(int tagId);
 
     public void storeValueStorage(ValueStorage storage);
 

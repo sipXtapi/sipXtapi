@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.setting.Tag;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class PhoneTestDriver {
 
@@ -45,7 +45,7 @@ public class PhoneTestDriver {
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         phoneContextControl.expectAndReturn(phoneContext.getSystemDirectory(), sysdir,
                 MockControl.ZERO_OR_MORE);
-        phoneContextControl.expectAndReturn(phoneContext.loadRootGroup(), new Tag(),
+        phoneContextControl.expectAndReturn(phoneContext.loadRootGroup(), new Group(),
                 MockControl.ZERO_OR_MORE);
         
         defaults = new PhoneDefaults();

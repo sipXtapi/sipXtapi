@@ -1,27 +1,27 @@
-create table tag(
+create table group_storage (
   storage_id int4,
   resource varchar(256) not null,
-  label varchar(256),
+  name varchar(256) not null,
+  description varchar(256),
   primary key (storage_id)
 );
 
-create unique index idx_tag_label on tag (label);
+create unique index idx_group_storage_name on group_storage (name);
 
 /* relate phones to tags */
-create table phone_tag (
+create table phone_group (
   storage_id int4 not null,
   phone_id int4 not null,
   index int4 not null,
   primary key (phone_id, storage_id)
 );
 
-create table line_tag (
+create table line_group (
   storage_id int4 not null,
   line_id int4 not null,
   index int4 not null,
   primary key (line_id, storage_id)
 );
-
 
 /* TODO migrate folder storage */
 

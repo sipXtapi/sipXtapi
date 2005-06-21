@@ -8,7 +8,7 @@
 	<property-specification name="groups" 
         type="java.util.Collection"/>
 	<property-specification name="currentRow" 
-		type="org.sipfoundry.sipxconfig.setting.Tag"/>
+		type="org.sipfoundry.sipxconfig.setting.Group"/>
    	<property-specification name="selections" 
        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
    	<property-specification name="idConverter" 

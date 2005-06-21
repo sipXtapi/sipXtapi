@@ -3,9 +3,9 @@
 <dataset>
     <storage 
 		storage_id="1"/> 
-    <tag 
+    <group_storage 
 		resource="unittest"
-		label="food"
+		name="food"
 		storage_id="1"/> 
 	<!-- should disappear -->	
     <setting 

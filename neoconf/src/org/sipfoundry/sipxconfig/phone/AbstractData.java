@@ -16,9 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingVisitor;
-import org.sipfoundry.sipxconfig.setting.Tag;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
@@ -26,23 +26,23 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
  */
 public class AbstractData extends BeanWithId {
 
-    private List m_explicitTags;
+    private List m_explicitGroups;
     
     private ValueStorage m_valueStorage = new ValueStorage();
 
-    public List getTags() {
-        return m_explicitTags;
+    public List getGroups() {
+        return m_explicitGroups;
     }
 
-    public void setTags(List settingSets) {        
-        m_explicitTags = settingSets;
+    public void setGroups(List settingSets) {        
+        m_explicitGroups = settingSets;
     }
     
-    protected Setting decorate(Tag implicitRootTag, Setting settings) {
+    protected Setting decorate(Group implicitRootTag, Setting settings) {
         Setting decorated = implicitRootTag.decorate(settings);
         
-        if (m_explicitTags != null) {
-            Iterator i = m_explicitTags.iterator();
+        if (m_explicitGroups != null) {
+            Iterator i = m_explicitGroups.iterator();
             while (i.hasNext()) {
                 SettingVisitor visitor = (SettingVisitor) i.next(); 
                 decorated.acceptVisitor(visitor);
@@ -58,11 +58,11 @@ public class AbstractData extends BeanWithId {
         return decorated;
     }
     
-    public void addTag(Tag tag) {
-        if (m_explicitTags == null) {
-            m_explicitTags = new ArrayList();
+    public void addGroup(Group tag) {
+        if (m_explicitGroups == null) {
+            m_explicitGroups = new ArrayList();
         }
-        m_explicitTags.add(tag);
+        m_explicitGroups.add(tag);
     }
 
     public ValueStorage getValueStorage() {

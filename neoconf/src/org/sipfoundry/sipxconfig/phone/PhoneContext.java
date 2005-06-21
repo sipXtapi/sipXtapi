@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
-import org.sipfoundry.sipxconfig.setting.Tag;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 
 /**
@@ -88,7 +88,7 @@ public interface PhoneContext extends DataObjectSource {
 
     public void deletePhone(Phone phone);
     
-    public Tag loadRootGroup();
+    public Group loadRootGroup();
     
     public Collection getGroups();
     

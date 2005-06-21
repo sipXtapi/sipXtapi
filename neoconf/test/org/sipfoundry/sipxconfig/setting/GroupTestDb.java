@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 
-public class TagTestDb extends TestCase {
+public class GroupTestDb extends TestCase {
     private SettingDao m_dao;
 
     protected void setUp() throws Exception {
@@ -31,18 +31,18 @@ public class TagTestDb extends TestCase {
         m_dao = (SettingDao) context.getBean("settingDao");
     }
 
-    public void testGetRootTag() throws Exception {
+    public void testGetRootGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        Tag root = m_dao.loadRootTag("unittest");
+        Group root = m_dao.loadRootGroup("unittest");
         IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("setting/GetRootTagExpected.xml");
+                .loadDataSetFlat("setting/GetRootGroupExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[storage_id]", root.getId());
         expectedRds.addReplacementObject("[null]", null);
 
-        ITable expected = expectedRds.getTable("tag");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("tag");
+        ITable expected = expectedRds.getTable("group_storage");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("group_storage");
         Assertion.assertEquals(expected, actual);
     }
 
@@ -50,21 +50,21 @@ public class TagTestDb extends TestCase {
         try {
             TestHelper.cleanInsert("ClearDb.xml");
 
-            SettingGroup root = new SettingGroup();
-            root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"));
-            root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea"));
+            SettingSet root = new SettingSet();
+            root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
+            root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"));
 
-            Tag ms = new Tag();
+            Group ms = new Group();
             ms.setResource("unittest");
-            ms.setLabel("food");
-            SettingGroup copy = (SettingGroup) ms.decorate(root);
+            ms.setName("food");
+            SettingSet copy = (SettingSet) ms.decorate(root);
             copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
             copy.getSetting("vegetable").getSetting("pea").setValue(null);
 
-            m_dao.storeTag(ms);
+            m_dao.storeGroup(ms);
 
             IDataSet expectedDs = TestHelper
-                    .loadDataSetFlat("setting/SaveTagExpected.xml");
+                    .loadDataSetFlat("setting/SaveGroupExpected.xml");
             ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
             expectedRds.addReplacementObject("[storage_id]", ms.getId());
 
@@ -81,16 +81,16 @@ public class TagTestDb extends TestCase {
     public void testUpdate() throws Throwable {
         try {
             TestHelper.cleanInsert("ClearDb.xml");
-            TestHelper.cleanInsertFlat("setting/UpdateTagSeed.xml");
+            TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
 
-            SettingGroup root = new SettingGroup();
-            root.addSetting(new SettingGroup("fruit")).addSetting(new SettingImpl("apple"))
+            SettingSet root = new SettingSet();
+            root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"))
                     .setValue("granny smith");
-            root.addSetting(new SettingGroup("vegetable")).addSetting(new SettingImpl("pea"))
+            root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"))
                     .setValue("snow pea");
-            root.addSetting(new SettingGroup("dairy")).addSetting(new SettingImpl("milk"));
+            root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
-            Tag ms = m_dao.loadTag(1);
+            Group ms = m_dao.loadGroup(1);
             Setting copy = ms.decorate(root);
             // should make it disappear
             copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
@@ -99,10 +99,10 @@ public class TagTestDb extends TestCase {
             copy.getSetting("vegetable").getSetting("pea").setValue("snap pea");
 
             assertEquals(1, ms.getValues().size());
-            m_dao.storeTag(ms);
+            m_dao.storeGroup(ms);
 
             IDataSet expectedDs = TestHelper
-                    .loadDataSetFlat("setting/UpdateTagExpected.xml");
+                    .loadDataSetFlat("setting/UpdateGroupExpected.xml");
             ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
             expectedRds.addReplacementObject("[null]", null);
             ITable expected = expectedRds.getTable("setting");
