@@ -11,19 +11,37 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
-
+import org.sipfoundry.sipxconfig.phone.AbstractData;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Gateway
  */
-public class Gateway extends BeanWithId {
+public class Gateway extends AbstractData {
     private String m_name;
+
     private String m_address;
+
     private String m_description;
 
-    public Gateway() {
-        // empty
+    private Setting m_settings;
+
+    private String m_factoryId;
+
+    private String m_serialNumber;
+
+    /**
+     * @return undecorated model - direct representation of XML model description
+     */
+    public Setting getSettingModel() {
+        return m_settings;
+    }
+
+    /**
+     * @return decorated model - use this to modify phone settings
+     */
+    public Setting getSettings() {
+        return m_settings;
     }
 
     public String getName() {
@@ -48,5 +66,21 @@ public class Gateway extends BeanWithId {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    public String getSerialNumber() {
+        return m_serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        m_serialNumber = serialNumber;
+    }
+
+    public String getFactoryId() {
+        return m_factoryId;
+    }
+
+    public void setFactoryId(String factoryId) {
+        m_factoryId = factoryId;
     }
 }

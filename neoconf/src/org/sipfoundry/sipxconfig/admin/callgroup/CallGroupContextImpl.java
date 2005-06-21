@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -32,8 +31,6 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * Hibernate implementation of the call group context
  */
 public class CallGroupContextImpl extends HibernateDaoSupport implements CallGroupContext {
-    private PhoneContext m_phoneContext;
-
     private CoreContext m_coreContext;
 
     private Orbits m_orbitsGenerator;
@@ -159,10 +156,6 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
     }
 
     public void setOrbitsGenerator(Orbits orbitsGenerator) {

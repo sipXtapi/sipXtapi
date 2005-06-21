@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
 
-import java.io.IOException;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
@@ -28,7 +27,7 @@ public class CiscoAtaPhoneTest extends TestCase {
 
     PhoneTestDriver tester;
     
-    protected void setUp() throws IOException {
+    protected void setUp() {
         phone = new CiscoAtaPhone();
         line = new CiscoAtaLine();
         tester = new PhoneTestDriver(phone, CiscoModel.MODEL_ATA18X.getModelId(), line, 

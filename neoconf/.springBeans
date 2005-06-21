@@ -2,13 +2,20 @@
 <beansProjectDescription>
 	<configs>
 		<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
 			<name>neoconf</name>
 			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
+			<incomplete>false</incomplete>
 			<configs>
+				<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

@@ -57,7 +57,7 @@ public final class TestHelper {
     public static ApplicationContext getApplicationContext() {
         if (s_appContext == null) {
             getSysDirProperties();
-            s_appContext = new ClassPathXmlApplicationContext(TestUtil.APPLICATION_CONTEXT_FILE);
+            s_appContext = new ClassPathXmlApplicationContext(TestUtil.APPLICATION_CONTEXT_FILES);
         }
 
         return s_appContext;

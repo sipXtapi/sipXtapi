@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -35,7 +34,7 @@ public class SipConfigurationTest  extends XMLTestCase {
 
     PhoneTestDriver tester;
     
-    protected void setUp() throws IOException {
+    protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone();
         line = new PolycomLine();

@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
-import java.io.IOException;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
@@ -27,7 +26,7 @@ public class GrandstreamPhoneTest extends TestCase {
 
     PhoneTestDriver tester;
     
-    protected void setUp() throws IOException {
+    protected void setUp() {
         phone = new GrandstreamPhone();
         line = new GrandstreamLine();
         tester = new PhoneTestDriver(phone, GrandstreamModel.MODEL_BUDGETONE.getModelId(), line, 

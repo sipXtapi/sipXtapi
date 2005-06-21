@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.io.IOException;
-
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -28,7 +26,7 @@ public class PolycomPhoneTest extends TestCase {
 
     PhoneTestDriver tester;
     
-    protected void setUp() throws IOException {
+    protected void setUp() {
         phone = new PolycomPhone();
         line = new PolycomLine();
         tester = new PhoneTestDriver(phone, PolycomModel.MODEL_600.getName(), line, 

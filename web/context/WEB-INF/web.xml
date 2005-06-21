@@ -7,7 +7,10 @@
         <param-name>contextConfigLocation</param-name>
         <param-value> /WEB-INF/jmsContext.xml 
             classpath*:/org/sipfoundry/sipxconfig/rmi-sipxconfig.xml 
-            classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml 
+            classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml
+            classpath*:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml
+            classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
             </param-value>
     </context-param>

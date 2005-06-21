@@ -23,19 +23,24 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Common utility methods for unittesting with neoconf.  Somewhat controversial being
- * in codebase, however unittest library is uglier IMHO.
+ * Common utility methods for unittesting with neoconf. Somewhat controversial being in codebase,
+ * however unittest library is uglier IMHO.
  */
 public final class TestUtil {
 
-    public static final String APPLICATION_CONTEXT_FILE = "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml";
-    
-    private TestUtil() {        
+    public static final String[] APPLICATION_CONTEXT_FILES = new String[] {
+        "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml",
+        "org/sipfoundry/sipxconfig/gateway/gateway.beans.xml",
+        "org/sipfoundry/sipxconfig/phone/phone.beans.xml",
+        "org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml"
+    };
+
+    private TestUtil() {
         // empty - to prevent instantiation
     }
 
     /**
-     * The directory that is part of the classpath that a class was loaded from 
+     * The directory that is part of the classpath that a class was loaded from
      */
     public static String getClasspathDirectory(Class testClass) {
         // create file on classpath
@@ -45,39 +50,40 @@ public final class TestUtil {
 
         return classpathDir.getAbsolutePath();
     }
-    
+
     /**
      * Where to direct test output, cleaned on 'ant clean' and ignored by subversion
      */
     public static String getTestOutputDirectory(String project) {
-        return getBuildDirectory(project)  + "/test-results";
+        return getBuildDirectory(project) + "/test-results";
     }
-    
+
     /**
-     * Use ClassLoader.getSystemResource() when you can gets you a stream and can work
-     * from jars, but when you need a filename use this.
-     * Example:
+     * Use ClassLoader.getSystemResource() when you can gets you a stream and can work from jars,
+     * but when you need a filename use this. Example:
+     * 
      * <pre>
-     * # Test file in same directory as JUnit test source file 
-     * String testFile = TestUtil.getTestSourceDirectory(getClass()) + "/test-file";
+     * 
+     *  # Test file in same directory as JUnit test source file 
+     *  String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *  
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
-        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory())
-            .append("/test/")
-            .append(testClass.getPackage().getName().replace('.', '/'));
+        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory()).append("/test/")
+                .append(testClass.getPackage().getName().replace('.', '/'));
         String path = sb.toString();
-        
+
         return path;
     }
 
     public static String getProjectDirectory() {
-        // eclipse        
+        // eclipse
         String userDir = System.getProperty("user.dir");
         // ant
         return System.getProperty("basedir", userDir);
     }
-    
+
     /**
      * Get the directory all autoconf and ant build output gets sent
      */
@@ -101,10 +107,9 @@ public final class TestUtil {
     }
 
     /**
-     * Create a sysdir.properties file in the classpath.  Uses a trick that
-     * will only work if unittests are unjar-ed.  This is infavor of doing
-     * in ant because it avoids setup and works in IDE's like eclipse where
-     * bin.eclipse is the classpath
+     * Create a sysdir.properties file in the classpath. Uses a trick that will only work if
+     * unittests are unjar-ed. This is infavor of doing in ant because it avoids setup and works
+     * in IDE's like eclipse where bin.eclipse is the classpath
      */
     public static void setSysDirProperties(Properties sysProps, String etcDirectory,
             String outputDirectory) {
@@ -122,9 +127,9 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.authorizationRealm", "realm");
         sysProps.setProperty("phoneDefaults.domainName", "sipfoundry.org");
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
-        sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");        
+        sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
     }
-    
+
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
 
         File sysdirPropsFile = new File(classpathDirectory, "sipxconfig.properties");

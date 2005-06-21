@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -42,7 +41,7 @@ public class DailyBackupScheduleTest extends TestCase {
     
     public void testGetTimerDate() {
         assertNotNull(schedule.getTimerDate());
-        DateFormat localTimeFormat = SimpleDateFormat.getTimeInstance(SimpleDateFormat.LONG); 
+        DateFormat localTimeFormat = DateFormat.getTimeInstance(DateFormat.LONG); 
         Calendar midnightLocal = Calendar.getInstance();
         midnightLocal.set(Calendar.HOUR_OF_DAY, 0);
         midnightLocal.set(Calendar.MINUTE, 0);
