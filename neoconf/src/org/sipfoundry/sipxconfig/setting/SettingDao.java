@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.Collection;
+
 /**
  * Database services for setting business objects
  */
@@ -20,6 +22,8 @@ public interface SettingDao {
     public static final String CONTEXT_NAME = "settingDao";
 
     public void storeTag(Tag meta);
+    
+    public Collection getTags(String resource);
 
     public Tag loadRootTag(String resource);
 

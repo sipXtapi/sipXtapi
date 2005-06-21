@@ -88,9 +88,9 @@ public interface PhoneContext extends DataObjectSource {
 
     public void deletePhone(Phone phone);
     
-    public Tag loadRootPhoneTag();
+    public Tag loadRootGroup();
     
-    public Tag loadRootLineTag();
+    public Collection getGroups();
     
     public JobRecord loadJob(Integer id);
     

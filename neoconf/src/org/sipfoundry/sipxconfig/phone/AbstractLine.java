@@ -77,7 +77,7 @@ public abstract class AbstractLine implements Line, PrimaryKeySource {
         if (m_settings == null) {
             m_settings = getSettingModel();
             setDefaults();
-            Tag rootTag = getPhoneContext().loadRootLineTag();
+            Tag rootTag = getPhoneContext().loadRootGroup();
             m_settings = m_meta.decorate(rootTag, m_settings);
         }
 

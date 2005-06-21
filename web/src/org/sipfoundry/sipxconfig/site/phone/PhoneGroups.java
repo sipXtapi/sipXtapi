@@ -11,18 +11,32 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import java.util.Collection;
 
-public class PhoneGroups extends BasePage {
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+
+public abstract class PhoneGroups extends BasePage implements PageRenderListener {
     
     public static final String PAGE = "PhoneGroups";
     
-    public void editPhoneDefaults(IRequestCycle cycle) {
-        EditPhoneDefaults page = (EditPhoneDefaults) cycle.getPage(EditPhoneDefaults.PAGE);
-        String factoryId = (String) TapestryUtils.assertParameter(String.class, cycle.getServiceParameters(), 0);
-        page.editPhoneSettings(factoryId);
-        cycle.activate(page);
+    public abstract void setGroups(Collection groups);
+    
+    public abstract Collection getGroups();
+    
+    public abstract PhoneContext getPhoneContext();
+    
+    public void addGroup(IRequestCycle cycle_) {
     }    
+    
+    public void deleteGroup(IRequestCycle cycle_) {        
+    }
+
+    public void pageBeginRender(PageEvent event_) {
+        PhoneContext context = getPhoneContext();
+        setGroups(context.getGroups());
+    }
 }

@@ -17,8 +17,6 @@ package org.sipfoundry.sipxconfig.phone;
  */
 public class PhoneData extends AbstractData {
     
-    public static final String TAG_RESOURCE_NAME = "endpoint";
-
     private String m_name;
 
     private String m_serialNumber;

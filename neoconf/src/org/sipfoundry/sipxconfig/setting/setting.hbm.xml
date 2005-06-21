@@ -26,4 +26,13 @@
       <property name="resource"/>
     </joined-subclass>  	
   </class>  
+
+  <query name="rootTag">
+    <![CDATA[from Tag f where f.label = 'Default' and f.resource = :resource]]>
+  </query>  
+    
+  <query name="tags">
+    <![CDATA[from Tag f where f.resource = :resource]]>
+  </query>  
+    
 </hibernate-mapping>

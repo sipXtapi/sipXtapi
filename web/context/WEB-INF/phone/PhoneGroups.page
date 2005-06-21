@@ -1,26 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
+	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneGroups">
-    <description>add a description</description>
-    
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="groups" 
+        type="java.util.Collection"/>
+	<property-specification name="currentRow" 
+		type="org.sipfoundry.sipxconfig.setting.Tag"/>
+   	<property-specification name="selections" 
+       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+   	<property-specification name="idConverter" 
+       type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
-    <property-specification name="currentFactoryId"
-        type="java.lang.String"/>
-
-    <component id="phoneModels" type="Foreach">
-        <binding name="source" expression="phoneContext.phoneFactoryIds.keySet()"/>
-        <binding name="value" expression="currentFactoryId"/>
+	<!--
+	  - B E A N S
+	  -->
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+	<!--
+	  - C O M P O N E N T S
+	  -->
+	<component id="groupManagement" type="Form">
+	</component>
+	<component id="tableView" type="contrib:TableView">
+		<binding name="source" expression="groups"/>
+		<binding name="columns">'* Name:group.name'</binding>
+        <static-binding name="pageSize" value="20"/>
+	</component>
+	<component id="tableColumns" type="contrib:TableColumns">
+	</component>
+	<component id="tableRows" type="contrib:TableFormRows">
+		<binding name="row" expression="currentRow"/>
+        <binding name="convertor" expression="idConverter"/>
+		<binding name="class" expression="beans.rowClass.next"/>
+	</component>
+	<component id="tableValues" type="contrib:TableValues">
+	</component>
+    <component id="addGroup" type="DirectLink">
+        <binding name="listener" expression="listeners.addGroup"/>
     </component>
-    <component id="phoneModel" type="Insert">
-        <binding name="value" expression="phoneContext.phoneFactoryIds[currentFactoryId]"/>
+    <!-- Column 1: select phone -->
+    <component id="selectedRow" type="Checkbox">
+        <binding name="selected" expression="selections.selected[currentRow.primaryKey]"/>
     </component>
-    <component id="phoneModelLink" type="DirectLink">
-        <binding name="listener" expression="listeners.editPhoneDefaults"/>
-        <binding name="parameters" expression="currentFactoryId"/>
+    <component id="delete" type="Submit">
+        <binding name="listener" expression="listeners.deleteGroup"/>
     </component>
 </page-specification>

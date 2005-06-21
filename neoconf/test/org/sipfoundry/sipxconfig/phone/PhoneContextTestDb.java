@@ -37,24 +37,14 @@ public class PhoneContextTestDb extends TestCase {
     
     public void testGetRootPhoneTag() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Tag root = m_context.loadRootPhoneTag();
+        Tag root = m_context.loadRootGroup();
         assertNotNull(root);
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("tag");
         assertEquals(1, actual.getRowCount());
-        assertEquals("endpoint", actual.getValue(0, "resource"));        
+        assertEquals("phone", actual.getValue(0, "resource"));        
     }
-    
-    public void testGetRootLineTag() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        Tag root = m_context.loadRootLineTag();
-        assertNotNull(root);
 
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("tag");
-        assertEquals(1, actual.getRowCount());
-        assertEquals("line", actual.getValue(0, "resource"));        
-    }
-    
     public void testCheckForDuplicateFieldsOnNew() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");

@@ -18,8 +18,6 @@ import org.sipfoundry.sipxconfig.common.User;
  */
 public class LineData extends AbstractData {
 
-    public static final String TAG_RESOURCE_NAME = "line";
-
     private User m_user;
     
     private PhoneData m_endpoint;

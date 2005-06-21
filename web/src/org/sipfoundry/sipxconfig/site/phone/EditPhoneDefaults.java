@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -31,7 +30,11 @@ import org.sipfoundry.sipxconfig.setting.Tag;
 
 public abstract class EditPhoneDefaults extends BasePage implements PageRenderListener {
     
-    public static final String PAGE = "EditPhoneDefaults";
+    public static final String PAGE = "EditPhoneDefaults";      
+    
+    private static final int PHONE_SETTINGS = 0;
+    
+    private static final int LINE_SETTITNGS = 1;
     
     public abstract void setPhone(Phone phone);
     
@@ -63,9 +66,9 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     
     public abstract void setEditFormSettingName(String name);
 
-    public abstract void setEditFormTagResource(String resource);
+    public abstract void setEditFormTagResource(int resource);
     
-    public abstract String getEditFormTagResource();
+    public abstract int getEditFormTagResource();
     
     /**
      * Entry point for other pages to edit a phone model's default settings 
@@ -84,13 +87,13 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     }
     
     public void editPhoneSettings(IRequestCycle cycle_) {
-        setEditFormTagResource(PhoneData.TAG_RESOURCE_NAME);
+        setEditFormTagResource(PHONE_SETTINGS);
         setEditFormSettingName(getCurrentNavigationSetting().getName());
         editSettings();        
     }
         
     public void editLineSettings(IRequestCycle cycle_) {
-        setEditFormTagResource(LineData.TAG_RESOURCE_NAME);
+        setEditFormTagResource(LINE_SETTITNGS);
         setEditFormSettingName(getCurrentNavigationSetting().getName());
         editSettings();        
     }
@@ -114,8 +117,8 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
             throw new IllegalArgumentException("phone factory id required");
         }
         // future, edit other meta storages, not just root's
-        setPhoneTag(getPhoneContext().loadRootPhoneTag());
-        setLineTag(getPhoneContext().loadRootLineTag());
+        setPhoneTag(getPhoneContext().loadRootGroup());
+        setLineTag(getPhoneContext().loadRootGroup());
         
         Phone phone = getPhoneContext().newPhone(getPhoneFactoryId());
         phone.getPhoneData().addTag(getPhoneTag());
@@ -128,7 +131,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
         
         String editSettingsName = getEditFormSettingName(); 
         if (editSettingsName == null) {
-            setEditFormTagResource(PhoneData.TAG_RESOURCE_NAME);
+            setEditFormTagResource(PHONE_SETTINGS);
             Iterator nav = getPhoneNavigationSettings().iterator();
             setEditFormSettingName(((Setting) nav.next()).getName());
         }        
@@ -143,7 +146,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     private void editSettings() {
         Tag folder;
         Setting rootSettings;
-        if (getEditFormTagResource().equals(PhoneData.TAG_RESOURCE_NAME)) {
+        if (getEditFormTagResource() == PHONE_SETTINGS) {
             folder = getPhoneTag();
             rootSettings = getPhone().getSettingModel().copy();
         } else {

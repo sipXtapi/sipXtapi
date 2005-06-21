@@ -40,6 +40,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         PhoneContext {
 
+    private static final String GROUP_RESOURCE_NAME = "phone";
+
     private SettingDao m_settingDao;
 
     private BeanFactory m_beanFactory;
@@ -196,8 +198,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public Phone loadPhone(Integer id) {
         Phone phone = loadPhoneFromFactory((PhoneData) getHibernateTemplate().load(
                 PhoneData.class, id));
-        String lineQuery = "from LineData l where l.phoneData = :phone order by l.position asc";
-        List lineMetas = getHibernateTemplate().findByNamedParam(lineQuery, "phone",
+        String lineQuery = "from LineData l where l.phoneData = :phoneData order by l.position asc";
+        List lineMetas = getHibernateTemplate().findByNamedParam(lineQuery, "phoneData",
                 phone.getPhoneData());
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData meta = (LineData) lineMetas.get(i);
@@ -247,12 +249,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return getHibernateTemplate().load(c, id);
     }
 
-    public Tag loadRootPhoneTag() {
-        return m_settingDao.loadRootTag(PhoneData.TAG_RESOURCE_NAME);
+    public Tag loadRootGroup() {
+        return m_settingDao.loadRootTag(GROUP_RESOURCE_NAME);
     }
-
-    public Tag loadRootLineTag() {
-        return m_settingDao.loadRootTag(LineData.TAG_RESOURCE_NAME);
+    
+    public Collection getGroups() {
+        return m_settingDao.getTags(GROUP_RESOURCE_NAME);
     }
 
     public JobRecord loadJob(Integer id) {

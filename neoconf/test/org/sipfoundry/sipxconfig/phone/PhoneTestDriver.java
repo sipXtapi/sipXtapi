@@ -45,9 +45,7 @@ public class PhoneTestDriver {
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         phoneContextControl.expectAndReturn(phoneContext.getSystemDirectory(), sysdir,
                 MockControl.ZERO_OR_MORE);
-        phoneContextControl.expectAndReturn(phoneContext.loadRootPhoneTag(), new Tag(),
-                MockControl.ZERO_OR_MORE);
-        phoneContextControl.expectAndReturn(phoneContext.loadRootLineTag(), new Tag(),
+        phoneContextControl.expectAndReturn(phoneContext.loadRootGroup(), new Tag(),
                 MockControl.ZERO_OR_MORE);
         
         defaults = new PhoneDefaults();

@@ -89,7 +89,7 @@ public abstract class AbstractPhone implements Phone, PrimaryKeySource {
         if (m_settings == null) {
             m_settings = getSettingModel();
             setDefaults();
-            Tag rootTag = getPhoneContext().loadRootPhoneTag();
+            Tag rootTag = getPhoneContext().loadRootGroup();
             m_settings = m_meta.decorate(rootTag, m_settings);
         }
 
