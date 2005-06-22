@@ -11,21 +11,40 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
-import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class GroupForm extends BaseComponent {
+public abstract class EditGroup extends BasePage {
     
-    public abstract Group getGroup();
+    public static final String PAGE = "EditGroup";
     
-    public abstract SettingDao getSettingContext();
+    public abstract void setReturnPage(String page);
     
     public abstract String getReturnPage();
     
     public abstract String getResource();
 
+    public abstract Group getGroup();
+    
+    public abstract void setGroup(Group group);
+    
+    public abstract SettingDao getSettingContext();
+    
+    public void newGroup(String resourceId, String returnPage) {
+        Group group = new Group();
+        group.setResource(resourceId);
+        setGroup(group);
+        setReturnPage(returnPage);
+    }
+    
+    public void editGroup(Integer groupId, String returnPage) {
+        Group group = getSettingContext().loadGroup(groupId);
+        setGroup(group);
+        setReturnPage(returnPage);
+    }
+    
     public void apply(IRequestCycle cycle_) {
         save();
     }
@@ -37,8 +56,7 @@ public abstract class GroupForm extends BaseComponent {
     
     void save() {
         Group group = getGroup();
-        group.setResource(getResource());        
-        getSettingContext().storeGroup(getGroup());
+        getSettingContext().storeGroup(group);
     }
 
     public void cancel(IRequestCycle cycle) {        

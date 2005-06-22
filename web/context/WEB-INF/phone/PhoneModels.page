@@ -26,4 +26,7 @@
         <binding name="listener" expression="listeners.editPhoneDefaults"/>
         <binding name="parameters" expression="currentFactoryId"/>
     </component>
+    <component id="editGroup" type="DirectLink">
+        <binding name="listener" expression="listeners.editGroup"/>
+    </component>
 </page-specification>

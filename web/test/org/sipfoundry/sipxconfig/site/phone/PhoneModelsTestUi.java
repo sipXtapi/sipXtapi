@@ -38,4 +38,18 @@ public class PhoneModelsTestUi extends WebTestCase {
         clickLinkWithText("Polycom SoundPoint IP 300");
         SiteTestHelper.assertNoException(getTester());
     }
+
+    public void testEditGroup() {
+        tester.reset();
+        tester.seedGroup(1);        
+        clickLink("PhoneGroups");
+        clickLinkWithText("seedGroup0");
+        SiteTestHelper.assertNoException(getTester());
+        clickLink("group:edit");
+        SiteTestHelper.assertNoException(getTester());
+        assertFormElementEquals("name", "seedGroup0");
+        clickButton("group:ok");
+        assertLinkPresentWithText("Polycom SoundPoint IP 300");
+    }
+
 }

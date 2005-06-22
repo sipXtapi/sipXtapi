@@ -18,6 +18,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
+import org.sipfoundry.sipxconfig.site.phone.PhoneGroups;
+import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 /**
  * TestPage page
@@ -44,6 +46,12 @@ public abstract class TestPage extends BasePage {
 
     public void resetCallGroupContext(IRequestCycle cycle_) {
         getCallGroupContext().clear();
+    }
+    
+    public void newPhoneGroup(IRequestCycle cycle) {
+        EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
+        page.newGroup("phone", PhoneGroups.PAGE);
+        cycle.activate(page);
     }
     
     public void goToRestartReminderPage(IRequestCycle cycle) {

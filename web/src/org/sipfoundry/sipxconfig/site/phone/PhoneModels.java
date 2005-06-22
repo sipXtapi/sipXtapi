@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 public abstract class PhoneModels extends BasePage {
     
@@ -22,6 +23,12 @@ public abstract class PhoneModels extends BasePage {
     public abstract void setGroupId(Integer id);
     
     public abstract Integer getGroupId();
+    
+    public void editGroup(IRequestCycle cycle) {
+        EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
+        page.editGroup(getGroupId(), PAGE);
+        cycle.activate(page);
+    }
     
     public void editPhoneDefaults(IRequestCycle cycle) {
         EditPhoneDefaults page = (EditPhoneDefaults) cycle.getPage(EditPhoneDefaults.PAGE);

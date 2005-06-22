@@ -28,6 +28,10 @@
     <component id="resetCallGroupContext" type="DirectLink">
         <binding name="listener" expression="listeners.resetCallGroupContext"/>
     </component>    
+    <component id="newPhoneGroup" type="DirectLink">
+        <binding name="listener" expression="listeners.newPhoneGroup"/>
+    </component> 
+   
     <component id="userCallForwarding" type="ExternalLink">
         <static-binding name="page" value="UserCallForwarding"/>
         <static-binding name="parameters" value="4"/>
