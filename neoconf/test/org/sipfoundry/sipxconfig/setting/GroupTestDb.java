@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.sql.BatchUpdateException;
-
 import junit.framework.TestCase;
 
 import org.dbunit.Assertion;
@@ -20,8 +18,8 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.dao.DataIntegrityViolationException;
 
 public class GroupTestDb extends TestCase {
     private SettingDao m_dao;
@@ -35,8 +33,7 @@ public class GroupTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
 
         Group root = m_dao.loadRootGroup("unittest");
-        IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("setting/GetRootGroupExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/GetRootGroupExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[storage_id]", root.getId());
         expectedRds.addReplacementObject("[null]", null);
@@ -47,84 +44,78 @@ public class GroupTestDb extends TestCase {
     }
 
     public void testSave() throws Throwable {
-        try {
-            TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
 
-            SettingSet root = new SettingSet();
-            root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
-            root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"));
+        SettingSet root = new SettingSet();
+        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
+        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"));
 
-            Group ms = new Group();
-            ms.setResource("unittest");
-            ms.setName("food");
-            SettingSet copy = (SettingSet) ms.decorate(root);
-            copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
-            copy.getSetting("vegetable").getSetting("pea").setValue(null);
+        Group ms = new Group();
+        ms.setResource("unittest");
+        ms.setName("food");
+        SettingSet copy = (SettingSet) ms.decorate(root);
+        copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
+        copy.getSetting("vegetable").getSetting("pea").setValue(null);
 
-            m_dao.storeGroup(ms);
+        m_dao.storeGroup(ms);
 
-            IDataSet expectedDs = TestHelper
-                    .loadDataSetFlat("setting/SaveGroupExpected.xml");
-            ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-            expectedRds.addReplacementObject("[storage_id]", ms.getId());
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveGroupExpected.xml");
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[storage_id]", ms.getId());
 
-            ITable expected = expectedRds.getTable("setting");
+        ITable expected = expectedRds.getTable("setting");
 
-            ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
 
-            Assertion.assertEquals(expected, actual);
-        } catch (DataIntegrityViolationException e) {
-            handleDiveException(e);
-        }
+        Assertion.assertEquals(expected, actual);
     }
 
     public void testUpdate() throws Throwable {
-        try {
-            TestHelper.cleanInsert("ClearDb.xml");
-            TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
 
-            SettingSet root = new SettingSet();
-            root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"))
-                    .setValue("granny smith");
-            root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"))
-                    .setValue("snow pea");
-            root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
+        SettingSet root = new SettingSet();
+        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple")).setValue(
+                "granny smith");
+        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea")).setValue(
+                "snow pea");
+        root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
-            Group ms = m_dao.loadGroup(1);
-            Setting copy = ms.decorate(root);
-            // should make it disappear
-            copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
+        Group ms = m_dao.loadGroup(1);
+        Setting copy = ms.decorate(root);
+        // should make it disappear
+        copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
 
-            // should make it update
-            copy.getSetting("vegetable").getSetting("pea").setValue("snap pea");
+        // should make it update
+        copy.getSetting("vegetable").getSetting("pea").setValue("snap pea");
 
-            assertEquals(1, ms.getValues().size());
-            m_dao.storeGroup(ms);
+        assertEquals(1, ms.getValues().size());
+        m_dao.storeGroup(ms);
 
-            IDataSet expectedDs = TestHelper
-                    .loadDataSetFlat("setting/UpdateGroupExpected.xml");
-            ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-            expectedRds.addReplacementObject("[null]", null);
-            ITable expected = expectedRds.getTable("setting");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateGroupExpected.xml");
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[null]", null);
+        ITable expected = expectedRds.getTable("setting");
 
-            ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
 
-            Assertion.assertEquals(expected, actual);
-        } catch (DataIntegrityViolationException e) {
-            handleDiveException(e);
-        }
+        Assertion.assertEquals(expected, actual);
     }
-    
-    /**
-     * TODO: Write Aspect to dump all SQL exception for BatchUpdateExceptions to stderr, this
-     * would be useful to all db unittests
-     */
-    private void handleDiveException(DataIntegrityViolationException e) throws Throwable {
-        Throwable t = e.getCause();
-        if (t instanceof BatchUpdateException) {
-            BatchUpdateException bue = (BatchUpdateException) t;
-            bue.getNextException().printStackTrace();
+
+    public void testDuplicateName() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
+        
+        Group ms = m_dao.loadGroup(1);
+        Group duplicate = new Group();
+        duplicate.setName(ms.getName());
+        duplicate.setResource(ms.getResource());
+        
+        try {
+            m_dao.storeGroup(duplicate);
+            fail();
+        } catch (UserException u) {            
+            assertTrue(true);
         }
-        throw e;
     }
 }

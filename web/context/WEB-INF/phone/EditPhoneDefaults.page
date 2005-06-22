@@ -32,9 +32,9 @@
     <property-specification name="phone" 
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
     <property-specification name="phoneTag"
-        type="org.sipfoundry.sipxconfig.setting.Tag"/>
+        type="org.sipfoundry.sipxconfig.setting.Group"/>
     <property-specification name="lineTag"
-        type="org.sipfoundry.sipxconfig.setting.Tag"/>
+        type="org.sipfoundry.sipxconfig.setting.Group"/>
     <property-specification name="editFormSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="editFormSettings" 

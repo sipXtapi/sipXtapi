@@ -87,4 +87,14 @@ public class PhoneTestHelper {
         }
         SiteTestHelper.home(m_tester);
     }
+    
+    public void seedGroup(int count) {
+        SiteTestHelper.home(m_tester);
+        for (int i = 0; i < count; i++) {
+            m_tester.clickLink("NewPhoneGroup");
+            m_tester.setFormElement("name", "seedGroup" + i);
+            m_tester.clickButton("group:ok");
+            SiteTestHelper.home(m_tester);
+        }
+    }
 }
