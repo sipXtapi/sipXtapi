@@ -12,34 +12,12 @@
   <h2>Groups</h2>
   <p>Groups allow you organize phones into logical groups and share settings between phones
 	in same group.  Phones can be in any number of groups.</p>
-		<form jwcid="groupManagement">
-			<ul class="component-links">
-				<li>
-					<a href="#" id="AddGroup" jwcid="addGroup">Add Group</a>
-				</li>
-			</ul>
-			<table jwcid="tableView" class="component" id="group:list">
-				<tr class="component-hdr">
-					<td width="5"/>
-					<td jwcid="tableColumns"/>
-				</tr>
-				<tr jwcid="tableRows">
-                    <td><span jwcid="selectedRow"/></td>
-					<td jwcid="tableValues"/>                    
-				</tr>
-                <tfoot>
-                    <tr>
-                        <td colspan="4"><span jwcid="@contrib:TableFormPages"/></td>
-                    </tr>
-                </tfoot>
-			</table>
-			<ul class="component-submit">
-				<li>
-					<input id="phone:delete" jwcid="delete" value="Delete"
-                       onclick="return confirm('Are you sure you want to delete selected groups?')"/>
-				</li>
-			</ul>
-		</form>
+		<ul class="component-links">
+			<li>
+				<a href="#" id="AddGroup" jwcid="addGroup">Add Group</a>
+			</li>
+		</ul>
+        <span jwcid="groupTable"/>
 	</div>
 </body>
 </html>

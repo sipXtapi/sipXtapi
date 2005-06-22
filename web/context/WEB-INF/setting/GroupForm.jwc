@@ -8,11 +8,21 @@
     allow-informal-parameters="no">    
     <description>add a description</description>
     
-    <parameter name="resource" type="java.lang.String"/>
+    <parameter name="resource" 
+       type="java.lang.String" 
+       required="yes"
+       direction="auto"/>
+    <parameter name="returnPage" 
+       type="java.lang.String" 
+       required="yes"
+       direction="auto"/>
 
     <property-specification name="group"
         type="org.sipfoundry.sipxconfig.setting.Group"
         initial-value="new org.sipfoundry.sipxconfig.setting.Group()"/>
+    <property-specification name="settingContext"
+        type="org.sipfoundry.sipxconfig.setting.SettingDao"
+        initial-value="page.global.settingDao"/>
     
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>    
     <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
@@ -26,19 +36,16 @@
     <component id="groupForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>
-    <component id="nameLabel" type="FieldLabel">
-        <binding name="field" expression="components.name"/>
-    </component>
-    <component id="name" type="ValidField">
-	    <binding name="value" expression="group.name"/>
-        <binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="Name"/>
+    <component id="itemCommon" type="ItemCommon">
+        <binding name="item" expression="group"/>
+        <static-binding name="useEnabled" value="false"/>
+        <static-binding name="useExtension" value="false"/>
     </component>
     <component id="ok" type="Submit">
-        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.ok)"/>
+        <binding name="listener" expression="page.global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.ok)"/>
     </component>
     <component id="apply" type="Submit">
-        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.apply)"/>
+        <binding name="listener" expression="page.global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.apply)"/>
     </component>
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>

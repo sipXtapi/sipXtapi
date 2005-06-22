@@ -13,10 +13,12 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
+
 /**
  * Database services for setting business objects
  */
-public interface SettingDao {
+public interface SettingDao extends DataObjectSource {
 
     /** common name found in spring file */
     public static final String CONTEXT_NAME = "settingDao";

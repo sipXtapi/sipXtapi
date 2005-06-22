@@ -12,6 +12,7 @@
     
 	<component id="editGroup" type="GroupForm">
         <static-binding name="resource" value="phone"/>
+        <static-binding name="returnPage" value="PhoneGroups"/>
 	</component>
     
 </page-specification>

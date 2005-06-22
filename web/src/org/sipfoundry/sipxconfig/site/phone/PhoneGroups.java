@@ -23,18 +23,18 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     
     public static final String PAGE = "PhoneGroups";
     
+    public static final String EDIT_PHONE_GROUP_PAGE = "EditPhoneGroup";
+    
     public abstract void setGroups(Collection groups);
     
     public abstract Collection getGroups();
     
     public abstract PhoneContext getPhoneContext();
-    
-    public void addGroup(IRequestCycle cycle_) {
+        
+    public void addGroup(IRequestCycle cycle) {
+        cycle.activate(EDIT_PHONE_GROUP_PAGE);
     }    
     
-    public void deleteGroup(IRequestCycle cycle_) {        
-    }
-
     public void pageBeginRender(PageEvent event_) {
         PhoneContext context = getPhoneContext();
         setGroups(context.getGroups());

@@ -2,51 +2,19 @@
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
 	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneGroups">
-	<!--
-	  - P R O P E R T I E S
-	  -->
-	<property-specification name="groups" 
+
+    <property-specification name="groups" 
         type="java.util.Collection"/>
-	<property-specification name="currentRow" 
-		type="org.sipfoundry.sipxconfig.setting.Group"/>
-   	<property-specification name="selections" 
-       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
-   	<property-specification name="idConverter" 
-       type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
-	<!--
-	  - B E A N S
-	  -->
-	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-	<!--
-	  - C O M P O N E N T S
-	  -->
-	<component id="groupManagement" type="Form">
-	</component>
-	<component id="tableView" type="contrib:TableView">
-		<binding name="source" expression="groups"/>
-		<binding name="columns">'* Name:group.name'</binding>
-        <static-binding name="pageSize" value="20"/>
-	</component>
-	<component id="tableColumns" type="contrib:TableColumns">
-	</component>
-	<component id="tableRows" type="contrib:TableFormRows">
-		<binding name="row" expression="currentRow"/>
-        <binding name="convertor" expression="idConverter"/>
-		<binding name="class" expression="beans.rowClass.next"/>
-	</component>
-	<component id="tableValues" type="contrib:TableValues">
-	</component>
+
+    <component id="groupTable" type="GroupTable">
+        <binding name="groups" expression="groups"/>
+    </component>
+    
     <component id="addGroup" type="DirectLink">
         <binding name="listener" expression="listeners.addGroup"/>
     </component>
-    <!-- Column 1: select phone -->
-    <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.primaryKey]"/>
-    </component>
-    <component id="delete" type="Submit">
-        <binding name="listener" expression="listeners.deleteGroup"/>
-    </component>
+
 </page-specification>

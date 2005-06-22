@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.orm.hibernate.HibernateTemplate;
@@ -25,7 +26,7 @@ public final class DaoUtils {
     }
 
     /**
-     * Throws exception if query returns other objects than obj. Used to check for duplicates.
+     * Throws exception if query returns objects other than obj. Used to check for duplicates.
      * 
      * @param hibernate spring hibernate template
      * @param obj object to be checked
@@ -40,7 +41,17 @@ public final class DaoUtils {
         }
         
         List objs = hibernate.findByNamedQueryAndNamedParam(queryName, "value", value);
-
+        checkDuplicates(obj, objs, exception);
+    }
+    
+    /**
+     * Throws exception if list contains objects other than obj. Used to check for duplicates.
+     * 
+     * @param obj object to be checked
+     * @param objs results for query
+     * @param exception throws if query returns other object than passed in the query
+     */
+    public static void checkDuplicates(BeanWithId obj, Collection objs, UserException exception) {
         // no match
         if (objs.size() == 0) {
             return;
@@ -48,11 +59,11 @@ public final class DaoUtils {
 
         // detect 1 match, itself
         if (!obj.isNew() && objs.size() == 1) {
-            Integer found = (Integer) objs.get(0);
+            Integer found = (Integer) objs.iterator().next();
             if (found.equals(obj.getId())) {
                 return;
             }
         }
-        throw exception;
+        throw exception;        
     }
 }

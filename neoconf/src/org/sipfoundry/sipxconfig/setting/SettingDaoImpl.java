@@ -12,8 +12,11 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
@@ -31,8 +34,30 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, new Integer(storageId));    
     }
 
-    public void storeGroup(Group storage) {
-        getHibernateTemplate().saveOrUpdate(storage);                        
+    public void storeGroup(Group group) {
+        checkDuplicates(group);
+        getHibernateTemplate().saveOrUpdate(group);                        
+    }
+    
+    void checkDuplicates(Group group) {
+        String[] params = new String[] {
+            RESOURCE_PARAM,
+            "name"
+        };
+        Object[] values = new Object[] {
+                group.getResource(),
+                group.getName()
+        };
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam("groupIdsWithNameAndResource", params, values);
+        DaoUtils.checkDuplicates(group, objs, new DuplicateGroupException(group.getName()));        
+    }
+    
+    private class DuplicateGroupException extends UserException {
+        private static final String ERROR = "A group with name: {0} already exists.";
+
+        public DuplicateGroupException(String name) {
+            super(ERROR, name);
+        }
     }
     
     public Group loadGroup(int id) {
@@ -60,5 +85,9 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource", 
                 RESOURCE_PARAM, resource);
         return tags;
+    }
+
+    public Object load(Class c, Integer id) {
+        return getHibernateTemplate().load(c, id);
     }
 }

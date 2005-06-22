@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
-	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
-<hibernate-mapping package="org.sipfoundry.sipxconfig.setting">
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd"><hibernate-mapping package="org.sipfoundry.sipxconfig.setting">
   <!--
     - V A L U E  S T O R A G E
     -->
@@ -35,5 +34,9 @@
   <query name="groupsByResource">
     <![CDATA[from Group g where g.resource = :resource]]>
   </query>  
+  
+  <query name="groupIdsWithNameAndResource">
+    <![CDATA[select g.id from Group g where g.resource = :resource and g.name = :name]]>       
+  </query>
     
 </hibernate-mapping>

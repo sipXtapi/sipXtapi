@@ -1,9 +1,27 @@
-<html>
-<head>
-
-</head>
-
-<body>
-   
-</body>
-</html>
+<span jwcid="$content$">
+  <form jwcid="groupManagement">
+    <table jwcid="tableView" class="component" id="group:list">
+      <thead>
+        <tr class="component-hdr">
+          <th width="5"/>
+          <th jwcid="tableColumns"/>
+        </tr>
+      </thead>
+      <tr jwcid="tableRows">
+        <td><span jwcid="selectedRow"/></td>
+        <td jwcid="tableValues"/>
+      </tr>
+      <tfoot>
+        <tr>
+          <td colspan="4"><span jwcid="@contrib:TableFormPages"/></td>
+        </tr>
+      </tfoot>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input id="phone:delete" jwcid="delete" value="Delete"
+          onclick="return confirm('Are you sure you want to delete selected groups?')"/>
+      </li>
+    </ul>
+  </form>
+</span>
