@@ -30,8 +30,8 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         getHibernateTemplate().saveOrUpdate(storage);                        
     }
     
-    public ValueStorage loadValueStorage(int storageId) {
-        return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, new Integer(storageId));    
+    public ValueStorage loadValueStorage(Integer storageId) {
+        return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, storageId);    
     }
 
     public void storeGroup(Group group) {
@@ -60,8 +60,8 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         }
     }
     
-    public Group loadGroup(int id) {
-        return (Group) getHibernateTemplate().load(Group.class, new Integer(id));
+    public Group loadGroup(Integer id) {
+        return (Group) getHibernateTemplate().load(Group.class, id);
     }
 
     public Group loadRootGroup(String resource) {

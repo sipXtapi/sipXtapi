@@ -29,9 +29,9 @@ public interface SettingDao extends DataObjectSource {
 
     public Group loadRootGroup(String resource);
 
-    public Group loadGroup(int tagId);
+    public Group loadGroup(Integer tagId);
 
     public void storeValueStorage(ValueStorage storage);
 
-    public ValueStorage loadValueStorage(int storageId);
+    public ValueStorage loadValueStorage(Integer storageId);
 }

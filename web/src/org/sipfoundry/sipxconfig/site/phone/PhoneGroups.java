@@ -17,6 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public abstract class PhoneGroups extends BasePage implements PageRenderListener {
@@ -33,7 +34,14 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
         
     public void addGroup(IRequestCycle cycle) {
         cycle.activate(EDIT_PHONE_GROUP_PAGE);
-    }    
+    }
+    
+    public void editPhoneGroup(IRequestCycle cycle) {
+        PhoneModels page = (PhoneModels) cycle.getPage(PhoneModels.PAGE);
+        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+        page.setGroupId(groupId);
+        cycle.activate(page);
+    }
     
     public void pageBeginRender(PageEvent event_) {
         PhoneContext context = getPhoneContext();

@@ -81,7 +81,7 @@ public class GroupTestDb extends TestCase {
                 "snow pea");
         root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
-        Group ms = m_dao.loadGroup(1);
+        Group ms = m_dao.loadGroup(new Integer(1));
         Setting copy = ms.decorate(root);
         // should make it disappear
         copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
@@ -106,7 +106,7 @@ public class GroupTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
         
-        Group ms = m_dao.loadGroup(1);
+        Group ms = m_dao.loadGroup(new Integer(1));
         Group duplicate = new Group();
         duplicate.setName(ms.getName());
         duplicate.setResource(ms.getResource());

@@ -9,6 +9,9 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
+    <property-specification name="groupId"
+        type="java.lang.Integer"
+        persistent="yes"/>
     <property-specification name="currentFactoryId"
         type="java.lang.String"/>
 

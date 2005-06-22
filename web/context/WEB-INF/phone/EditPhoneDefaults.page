@@ -15,9 +15,12 @@
     <property-specification name="editFormSettingName" 
         persistent="yes"
         type="java.lang.String"/>
-    <property-specification name="editFormTagResource" 
+    <property-specification name="resourceId" 
         persistent="yes"
-        type="java.lang.String"/>
+        type="int"/>
+    <property-specification name="groupId"
+        type="java.lang.Integer"
+        persistent="yes"/>
     <!-- Transient -->
 	<property-specification name="settingDao" 
 		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
@@ -31,9 +34,7 @@
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     <property-specification name="phone" 
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="phoneTag"
-        type="org.sipfoundry.sipxconfig.setting.Group"/>
-    <property-specification name="lineTag"
+    <property-specification name="group"
         type="org.sipfoundry.sipxconfig.setting.Group"/>
     <property-specification name="editFormSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
