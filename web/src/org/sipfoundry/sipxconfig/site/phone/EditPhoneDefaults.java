@@ -101,7 +101,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     
     public void ok(IRequestCycle cycle) {
         apply(cycle);
-        cycle.activate(ManagePhones.PAGE);        
+        activateReturnPage(cycle);
     }
     
     public void apply(IRequestCycle cycle_) {
@@ -109,7 +109,14 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     }
 
     public void cancel(IRequestCycle cycle) {
-        cycle.activate(ManagePhones.PAGE);
+        activateReturnPage(cycle);
+    }
+    
+    private void activateReturnPage(IRequestCycle cycle) {
+        // TODO: Return to calling page
+        PhoneModels page = (PhoneModels) cycle.getPage(PhoneModels.PAGE);
+        page.setGroupId(getGroupId());
+        cycle.activate(page);
     }
 
     public void pageBeginRender(PageEvent event_) {

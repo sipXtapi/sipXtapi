@@ -17,25 +17,28 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import net.sourceforge.jwebunit.WebTestCase;
 
-public class PhoneModelsTestUi extends WebTestCase {
+public class EditPhoneDefaultsTestUi extends WebTestCase {
+    
     PhoneTestHelper tester;
 
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(PhoneModelsTestUi.class);
+        return SiteTestHelper.webTestSuite(EditPhoneDefaultsTestUi.class);
     }
     
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
         tester = new PhoneTestHelper(getTester());
     }
-
-    public void testDisplay() {
+    
+    public void testBooleanField() {
         tester.reset();
-        tester.seedGroup(1);        
+        tester.seedGroup(1);
         clickLink("PhoneGroups");
         clickLinkWithText("seedGroup0");
-        SiteTestHelper.assertNoException(getTester());
-        clickLinkWithText("Polycom SoundPoint IP 300");
-        SiteTestHelper.assertNoException(getTester());
+        clickLinkWithText("Polycom SoundPoint IP 300");        
+        checkCheckbox("booleanField"); //24HourFormat
+        clickButton("setting:ok");
+        clickLinkWithText("Polycom SoundPoint IP 300");        
+        assertCheckboxSelected("booleanField");
     }
 }
