@@ -31,7 +31,6 @@
   <table name="emergency_dialing_rule"/>
   <table name="internal_dialing_rule"/>
   <table name="long_distance_dialing_rule"/>
-  <table name="gateway"/>
   <table name="auto_attendant"/>
   <table name="attendant_menu_item"/>
   
@@ -212,7 +211,11 @@
   <table name="phone"/>
   <table name="line"/>
   <table name="setting"/>
+  
   <table name="storage"/>
+
+  <table name="gateway"/>
+  
   <table name="phone_group"/>
   <table name="line_group"/>
       

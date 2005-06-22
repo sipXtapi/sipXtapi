@@ -48,4 +48,8 @@
     <patch number="150" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
       args="script=/v15_tag.sql" description="Tag settings support"/>	
   </version>
+  <version number="25">
+    <patch number="250" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v25_gateway_plugin.sql" description="Gateway plugin support"/>	
+  </version>
 </patches>

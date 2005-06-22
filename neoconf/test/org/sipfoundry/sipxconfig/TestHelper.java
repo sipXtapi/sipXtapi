@@ -150,7 +150,12 @@ public final class TestHelper {
     }
 
     public static void cleanInsert(String resource) throws Exception {
-        DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSet(resource));
+        try {
+            DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSet(resource));
+        }
+        catch (SQLException e){
+            throw e.getNextException();
+        }
     }
 
     public static void cleanInsertFlat(String resource) throws Exception {

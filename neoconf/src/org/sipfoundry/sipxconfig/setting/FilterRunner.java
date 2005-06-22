@@ -53,7 +53,10 @@ public final class FilterRunner implements SettingVisitor {
      */
     public static Collection filter(SettingFilter filter, Setting root) {
         FilterRunner runner = new FilterRunner(filter, root);
-        runner.iterateOver(root.getValues());
+        Iterator i = root.getValues().iterator();
+        while (i.hasNext()) {
+            ((Setting) i.next()).acceptVisitor(runner);
+        }
         return runner.m_collection;
     }    
 
@@ -65,14 +68,5 @@ public final class FilterRunner implements SettingVisitor {
 
     public void visitSettingGroup(Setting settingGroup) {
         visitSetting(settingGroup);
-        iterateOver(settingGroup.getValues());
-    }
-    
-    /**  HACK: should be private, avoiding checkstyle error */
-    void iterateOver(Collection values) {
-        Iterator i = values.iterator();
-        while (i.hasNext()) {
-            ((Setting) i.next()).acceptVisitor(this);
-        }
     }
 }

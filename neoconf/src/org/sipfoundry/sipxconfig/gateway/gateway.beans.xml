@@ -12,6 +12,19 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
+    <property name="configDirectory">
+      <value>${sysdir.etc}</value>
+    </property>
+    <property name="factoryIds">
+      <map>
+        <entry key="gwGeneric">
+          <value>Unmanaged gateway</value>
+        </entry>
+        <entry key="gwMediant1000">
+          <value>Audio Codes Mediant 1000</value>
+        </entry>
+      </map>      
+    </property>
   </bean>
   
   <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -23,12 +36,12 @@
         <value>hibernateInterceptor</value>
         <value>gatewayContextImpl</value>
       </list>
-    </property>
+    </property>    
   </bean>
   
-  <bean id="genericGateway" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">    
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">    
   </bean>
   
-  
-  
+  <bean id="gwMediant1000" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" singleton="false">    
+  </bean>
 </beans>

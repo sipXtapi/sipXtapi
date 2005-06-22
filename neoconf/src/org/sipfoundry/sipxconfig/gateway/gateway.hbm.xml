@@ -5,15 +5,24 @@
 	<!-- 
 	  - Gateway
 	  -->
-	<class name="Gateway" table="gateway">
-		<id name="id" column="gateway_id" type="int" unsaved-value="-1">
-			<generator class="sequence">
-				<param name="sequence">gateway_seq</param>
-			</generator>
-		</id>
-		<property name="name"/>
-		<property name="address"/>
-        <property name="description"/>
-	</class>
+  <class name="Gateway" table="gateway" discriminator-value="gwGeneric">
+    <id name="id" column="gateway_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">gateway_seq</param>
+      </generator>
+    </id>
+    <discriminator column="factory_id"/>
+    <property name="name"/>
+    <property name="address"/>
+    <property name="description"/>
+    <property name="serialNumber" column="serial_number"/>
+    <property name="factoryId" column="factory_id" insert="false" update="false"/>
+    <many-to-one cascade="all" name="valueStorage" column="storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    
+    <subclass name="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" discriminator-value="gwMediant1000">
+      
+    </subclass>
+  </class>
     
 </hibernate-mapping>

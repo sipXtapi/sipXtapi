@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -37,10 +36,7 @@ public class ValueStorage extends AbstractStorage implements Storage, SettingVis
         setting.getParent().addSetting(decorated);
     }
 
-    public void visitSettingGroup(Setting group) {
-        Iterator i = group.getValues().iterator();
-        while (i.hasNext()) {
-            ((Setting) i.next()).acceptVisitor(this);
-        }
+    public void visitSettingGroup(Setting group_) {
+        // nothing to do for group
     }
 }

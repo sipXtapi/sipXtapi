@@ -50,6 +50,10 @@ public class SettingSet extends SettingImpl implements Cloneable {
 
     public void acceptVisitor(SettingVisitor visitor) {
         visitor.visitSettingGroup(this);
+        for (Iterator i = m_children.values().iterator(); i.hasNext();) {
+            Setting setting = (Setting) i.next();
+            setting.acceptVisitor(visitor);
+        }
     }
 
     /**
