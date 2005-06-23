@@ -35,6 +35,6 @@ public class MediantGatewayTest extends TestCase {
 
         System.err.println(writer.toString());
         // cursory check for now
-        assertTrue(writer.toString().contains("SNMP"));
+        assertTrue(writer.toString().indexOf("SNMP") >= 0);
     }
 }
