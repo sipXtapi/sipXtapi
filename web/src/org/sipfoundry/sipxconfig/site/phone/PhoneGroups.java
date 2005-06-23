@@ -19,12 +19,11 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 public abstract class PhoneGroups extends BasePage implements PageRenderListener {
     
     public static final String PAGE = "PhoneGroups";
-    
-    public static final String EDIT_PHONE_GROUP_PAGE = "EditPhoneGroup";
     
     public abstract void setGroups(Collection groups);
     
@@ -33,7 +32,9 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     public abstract PhoneContext getPhoneContext();
         
     public void addGroup(IRequestCycle cycle) {
-        cycle.activate(EDIT_PHONE_GROUP_PAGE);
+        EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
+        page.newGroup("phone", PAGE);
+        cycle.activate(page);
     }
     
     public void editPhoneGroup(IRequestCycle cycle) {

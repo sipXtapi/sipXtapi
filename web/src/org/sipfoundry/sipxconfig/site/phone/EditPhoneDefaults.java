@@ -113,7 +113,6 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     }
     
     private void activateReturnPage(IRequestCycle cycle) {
-        // TODO: Return to calling page
         PhoneModels page = (PhoneModels) cycle.getPage(PhoneModels.PAGE);
         page.setGroupId(getGroupId());
         cycle.activate(page);

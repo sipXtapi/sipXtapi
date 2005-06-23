@@ -46,5 +46,8 @@
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.cancel"/>
     </component>
+    <component id="groupLabel" type="GroupLabel">
+        <binding name="group" expression="group"/>
+    </component>    
     
 </page-specification>

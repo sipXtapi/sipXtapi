@@ -70,6 +70,7 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+    <component-type type="GroupLabel" specification-path="setting/GroupLabel.jwc"/>
     <component-type type="GroupTable" specification-path="setting/GroupTable.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>

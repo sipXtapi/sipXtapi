@@ -75,5 +75,7 @@
         <binding name="cancelListener" expression="listeners.cancel"/>
         <binding name="settings" expression="editFormSetting"/>
     </component>
-    
+    <component id="groupLabel" type="GroupLabel">
+        <binding name="group" expression="group"/>
+    </component>    
 </page-specification>
