@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.dialplan;
+package org.sipfoundry.sipxconfig.site.gateway;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.site.dialplan.EditDialRule;
 
 /**
  * List all the gateways, allow adding and deleting gateways

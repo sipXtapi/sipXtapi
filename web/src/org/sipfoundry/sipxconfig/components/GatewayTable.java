@@ -16,7 +16,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.site.dialplan.EditGateway;
+import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 
 /**
  * GatewayTable

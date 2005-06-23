@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.dialplan;
+package org.sipfoundry.sipxconfig.site.gateway;
 
 import java.util.Collection;
 

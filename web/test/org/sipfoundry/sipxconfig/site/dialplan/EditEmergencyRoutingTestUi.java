@@ -15,6 +15,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.gateway.GatewaysTestUi;
 
 /**
  * DialPlanEditTestUi

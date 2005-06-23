@@ -27,6 +27,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.BeanFactoryGlobals;
+import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
+import org.sipfoundry.sipxconfig.site.gateway.GatewaysPanel;
+import org.sipfoundry.sipxconfig.site.gateway.SelectGateways;
 
 /**
  * EditCustomeDialRule

@@ -9,12 +9,13 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.dialplan;
+package org.sipfoundry.sipxconfig.site.gateway;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel;
 
 import junit.framework.TestCase;
 

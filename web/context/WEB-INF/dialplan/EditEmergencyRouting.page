@@ -29,7 +29,7 @@
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
-    <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.dialplan.GatewaySelectionModel">
+    <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel">
         <set-property name="gateways">gatewayContext.gateways</set-property>
     </bean>    
     

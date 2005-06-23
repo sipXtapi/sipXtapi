@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.dialplan;
+package org.sipfoundry.sipxconfig.site.gateway;
 
 import java.util.Arrays;
 
@@ -126,7 +126,7 @@ public class GatewaysTestUi extends WebTestCase {
      * 
      * @param name response after clicking submit button
      */
-    static String[] addGateway(WebTester tester, String name) {
+    public static String[] addGateway(WebTester tester, String name) {
         String[] row = new String[] {name + "Name", name + "Address", name + "Description"};
         if (null != name) {
             tester.setFormElement("gatewayName", row[0]);
@@ -141,7 +141,7 @@ public class GatewaysTestUi extends WebTestCase {
      * Adds number of test gateways to test
      * @param counter number of gateways to add - names gateway0..gateway'count-1' 
      */
-    static void addTestGateways(WebTester tester, int counter) {
+    public static void addTestGateways(WebTester tester, int counter) {
         tester.clickLink("ListGateways");
 
         for (int i = 0; i < counter; i++) {
