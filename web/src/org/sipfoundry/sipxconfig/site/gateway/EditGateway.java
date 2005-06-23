@@ -18,7 +18,6 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
@@ -54,9 +53,8 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     
     private boolean isValid() {
         IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
-        // TextArea validators have to be called explicitly
-        StringSizeValidator descriptionValidator = (StringSizeValidator) getBeans().getBean("descriptionValidator");
-        descriptionValidator.validate(delegate);
+        GatewayForm gatewayForm = (GatewayForm) getComponent("gatewayForm");
+        gatewayForm.validate(delegate);
         return !delegate.getHasErrors();
     }
 
@@ -81,8 +79,15 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     }
 
     void saveValid(IRequestCycle cycle) {
-        Gateway gateway = getGateway();
-        getGatewayContext().storeGateway(gateway);
+        Gateway gateway = getGateway();        
+        GatewayContext gatewayContext = getGatewayContext();
+        if (gateway.isNew()) {
+            Gateway newGateway = gatewayContext.newGateway(gateway.getFactoryId());
+            newGateway.update(gateway);
+            setGateway(newGateway);
+            gateway = newGateway;
+        }
+        gatewayContext.storeGateway(gateway);
         // attach gateway to current rule
         Integer ruleId = getRuleId();
         if (null != ruleId) {

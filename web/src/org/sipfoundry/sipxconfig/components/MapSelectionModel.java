@@ -17,22 +17,31 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
 /**
- * Adapt a collection map to a Tapestry select list model. Map 
- * keys are not used, map values must be strings.
+ * Adapt a collection map to a Tapestry select list model. Map keys are not used, map values must
+ * be strings.
  */
 public class MapSelectionModel implements IPropertySelectionModel {
-    
+
     private LinkedMap m_map;
-  
-    /**
-     * @map if instance of commons LinkedMap, use it directly, otherwise copy into a order-aware map
-     */
+
     public MapSelectionModel(Map map) {
+        setMap(map);
+    }
+
+    public MapSelectionModel() {
+        // empty - enable bean construction
+    }
+
+    /**
+     * @param map if instance of commons LinkedMap, use it directly, otherwise copy into a
+     *        order-aware map
+     */
+    public void setMap(Map map) {
         if (map instanceof LinkedMap) {
             m_map = (LinkedMap) map;
         } else {
             m_map = new LinkedMap();
-            m_map.putAll(map);            
+            m_map.putAll(map);
         }
     }
 

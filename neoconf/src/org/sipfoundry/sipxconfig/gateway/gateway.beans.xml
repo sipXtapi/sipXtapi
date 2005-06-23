@@ -42,6 +42,6 @@
   <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">    
   </bean>
   
-  <bean id="gwMediant1000" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" singleton="false">    
+  <bean id="gwMediant1000" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" singleton="false">
   </bean>
 </beans>

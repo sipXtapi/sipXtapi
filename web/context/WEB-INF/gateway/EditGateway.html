@@ -8,42 +8,7 @@
     <span jwcid="@ErrorMsg"/>    
     <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
         <span jwcid="nextPageHolder"></span>
-        <fieldset>
-        <table>
-            <tbody>
-                <tr>
-                    <td>
-                        <label for="gateway:name">
-                            <span jwcid="gatewayNameLabel">Name</span>:
-                        </label>
-                    </td>
-                    <td>
-                        <input jwcid="gatewayName" id="gateway:name" maxlength="40" type="text" value="boston"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="gateway:address">
-                            <span jwcid="gatewayAddressLabel">Address</span>:
-                        </label>
-                    </td>
-                    <td>
-                        <input jwcid="gatewayAddress" id="gateway:address" maxlength="40" type="text" value="10.1.1.15" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="gateway:description">
-                            <span jwcid="gatewayDescriptionLabel">Description</span>:
-                        </label>
-                    </td>
-                    <td>
-                        <textarea jwcid="gatewayDescription" id="gateway:description" cols="60" rows="5">Default PSTN gateway</textarea>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        </fieldset>
+        <fieldset jwcid="gatewayForm"></fieldset>
         <ul class="form-actions">
             <li>
                 <input id="gateway:save" jwcid="onSave" type="submit" value="Save"/>

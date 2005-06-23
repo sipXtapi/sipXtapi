@@ -40,21 +40,29 @@
       <value>true</value>
     </property>
   </bean>
+  <bean name="serialNumberValidator" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="patternString">
+      <value>^([a-f]|:|\d){12}?$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Please enter exactly 12 hexadecimal digits (0-9 and a-f), for example: 0040214131fa</value>
+    </property>
+  </bean>
+  <bean name="serialNumberValidatorRequired" parent="serialNumberValidator">
+    <property name="required">
+      <value>true</value>
+    </property>
+  </bean>
   <bean name="validSerialNumber"
     class="org.sipfoundry.sipxconfig.components.valid.ToLowerCaseDecorator">
     <property name="delegate">
-      <bean class="org.apache.tapestry.valid.PatternValidator">
-        <property name="required">
-          <value>true</value>
-        </property>
-        <property name="patternString">
-          <value>^([a-f]|:|\d){12}?$</value>
-        </property>
-        <property name="patternNotMatchedMessage">
-          <value>Please enter exactly 12 alphanumeric characters comprised of digits 0-9 or characters a-f, for
-            example: 0040214131fa</value>
-        </property>
-      </bean>      
+      <ref bean="serialNumberValidatorRequired"/>
+    </property>
+  </bean>
+  <bean name="optionalSerialNumber"
+    class="org.sipfoundry.sipxconfig.components.valid.ToLowerCaseDecorator">
+    <property name="delegate">
+      <ref bean="serialNumberValidator"/>
     </property>
   </bean>
   <bean name="validTime" class="org.apache.tapestry.valid.DateValidator">
@@ -76,7 +84,7 @@
   </bean>
   <bean name="validRule" class="org.sipfoundry.sipxconfig.site.dialplan.RuleValidator">
     <property name="gatewaysRequiredMessage">
-      <value>Add at least one gateway before enabling the rule.</value>      
+      <value>Add at least one gateway before enabling the rule.</value>
     </property>
   </bean>
   <bean id="limitedBackupCountModelPart1"

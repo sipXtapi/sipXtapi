@@ -32,56 +32,21 @@
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
-    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>
-    
-    <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
-        <set-property name="component" expression="components.gatewayDescription"/>
-    </bean>
-
     <!--
      - C O M P O N E N T S
      -->
     <component id="nextPageHolder" type="Hidden">
         <binding name="value" expression="nextPage"/>
     </component>
-        
-    <component id="gatewayNameLabel" type="FieldLabel">
-        <binding name="field" expression="components.gatewayName"/>
-    </component>
-    <component id="gatewayName" type="ValidField">
-	    <binding name="value" expression="gateway.name"/>
-    	<binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="Name"/>
-    </component>
     
-    <component id="gatewayAddressLabel" type="FieldLabel">
-        <binding name="field" expression="components.gatewayAddress"/>
+    <component id="gatewayForm" type="GatewayForm">
+        <binding name="gateway" expression="gateway"/>
     </component>
-    <component id="gatewayAddress" type="ValidField">
-	    <binding name="value" expression="gateway.address"/>
-    	<binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="Address"/>
-    </component>
-    
-    <component id="gatewayDescriptionLabel" type="FieldLabel">
-        <binding name="field" expression="components.gatewayDescription"/>
-	    <static-binding name="displayName" value="Description"/>
-    </component>
-    <component id="gatewayDescription" type="TextArea">
-	    <binding name="value" expression="gateway.description"/>
-    </component>
-    
+            
     <component id="onSave" type="Submit">
         <binding name="listener" expression="listeners.save"/>
     </component>
     <component id="onCancel" type="CancelButton">
         <binding name="returnPageName" expression="nextPage"/>
     </component>
-
-    <!--
-	  - A S S E T S
-	  -->	
 </page-specification>
