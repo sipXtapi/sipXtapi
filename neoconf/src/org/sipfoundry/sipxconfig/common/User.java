@@ -13,26 +13,27 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
 
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-
 /**
  * User that logs in, and base info for most lines
+ * 
+ * FIXME: for some reason it cannot be BeanWithId - I suspect that hibernate ID mapping is not
+ * correct for Users table Users.id is string, we map it to integer
  */
 public class User implements PrimaryKeySource, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer m_id = PhoneContext.UNSAVED_ID;
+    private Integer m_id = new Integer(-1);
 
     private String m_firstName;
 
     private Organization m_organization;
 
     private String m_password;
-    
+
     private String m_pintoken;
 
-    private Integer m_ugId = new Integer(1); //default group
+    private Integer m_ugId = new Integer(1); // default group
 
     private Integer m_rcsId = new Integer(2); // 2='Complete User'
 
@@ -107,19 +108,19 @@ public class User implements PrimaryKeySource, Serializable {
     public void setDisplayId(String displayId) {
         m_displayId = displayId;
     }
-    
+
     public String getDisplayName() {
         StringBuffer sb = new StringBuffer();
-        delimAppend(sb, m_firstName, ' ');            
+        delimAppend(sb, m_firstName, ' ');
         delimAppend(sb, m_lastName, ' ');
-        
+
         return sb.length() == 0 ? null : sb.toString();
     }
-    
+
     private void delimAppend(StringBuffer sb, String s, char delim) {
         if (s != null) {
             if (sb.length() != 0) {
-                sb.append(delim);                
+                sb.append(delim);
             }
             sb.append(s);
         }

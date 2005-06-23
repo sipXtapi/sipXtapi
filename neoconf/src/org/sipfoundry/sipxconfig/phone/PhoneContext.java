@@ -25,19 +25,6 @@ public interface PhoneContext extends DataObjectSource {
     
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
         
-    /** 
-     * int value for objects that haven't been saved to database yet
-     * <pre>
-     *   Example:
-     *      public class MyObject {
-     * 
-     *          prviate int id = PhoneDao.UNSAVED_ID
-     *         
-     *           ...
-     * </pre>
-     */
-    public static final Integer UNSAVED_ID = new Integer(-1);
-    
     /**
      * Generate profile on phones in background
      * 
@@ -53,8 +40,6 @@ public interface PhoneContext extends DataObjectSource {
     public void restart(Collection phones);    
 
     public Map getPhoneFactoryIds();
-
-    public void setPhoneFactoryIds(Map phoneIds);
 
     /**
      * Commits the transaction and performs a batch of SQL commands

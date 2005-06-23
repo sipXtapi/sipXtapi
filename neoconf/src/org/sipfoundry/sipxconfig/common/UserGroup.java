@@ -11,25 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * UserGroup - class representing legacy user group
  * We will not attempt to create optimal Hibernate mapping for this object.
  * Just enough to make possible database querying.
  */
-public class UserGroup {
-    private Integer m_id = PhoneContext.UNSAVED_ID;
+public class UserGroup extends BeanWithId {
     private String m_name;
     private Integer m_parentGroupId;    
     private Integer m_rcsId;
-    public Integer getId() {
-        return m_id;
-    }
-    
-    public void setId(Integer id) {
-        m_id = id;
-    }
     
     public String getName() {
         return m_name;

@@ -13,18 +13,14 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
 
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-
 /**
  * Ultimate parent for all objects. Represent the entire configuration for a particular company or
  * organization
  */
-public class Organization implements Serializable {
+public class Organization extends BeanWithId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer m_id = PhoneContext.UNSAVED_ID;
-    
     private String m_name;
     
     private String m_dnsDomain;
@@ -58,18 +54,6 @@ public class Organization implements Serializable {
         m_stereotype = stereotype;
     }
     
-    /**
-     * @return Returns the id.
-     */
-    public Integer getId() {
-        return m_id;
-    }
-    /**
-     * @param id The id to set.
-     */
-    public void setId(Integer id) {
-        m_id = id;
-    }
     /**
      * @return Returns the name.
      */
