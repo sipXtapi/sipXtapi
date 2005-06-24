@@ -26,6 +26,10 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     
     private static final String RESOURCE_PARAM = "resource";
     
+    public void deleteGroup(Group group) {
+        getHibernateTemplate().delete(group);
+    }
+    
     public void storeValueStorage(ValueStorage storage) {
         getHibernateTemplate().saveOrUpdate(storage);                        
     }

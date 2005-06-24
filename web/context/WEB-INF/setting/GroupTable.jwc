@@ -10,7 +10,7 @@
     <description>add a description</description>    
 
     <parameter name="groups" 
-        type="java.util.Collection"
+        type="java.util.List"
         required="yes"
         direction="auto"/>
     <parameter name="viewGroupListener"
@@ -33,7 +33,7 @@
 	</component>
 	<component id="tableView" type="contrib:TableView">
 		<binding name="source" expression="groups"/>
-		<binding name="columns">'* Name:name'</binding>
+		<binding name="columns">'* Name:weight'</binding>
         <static-binding name="pageSize" value="20"/>
 	</component>
 	<component id="tableColumns" type="contrib:TableColumns">
@@ -51,6 +51,9 @@
     </component>
     <!-- Column 2: view group -->
     <component id="NameColumnValue" type="Block"/>
+    <component id="lineNumber" type="Insert">
+        <binding name="value" expression="groups.indexOf(currentRow) + 1"/>
+    </component>
     <component id="viewGroupLink" type="DirectLink">        
         <binding name="listener" expression="viewGroupListener"/>        
         <binding name="parameters" expression="currentRow.primaryKey"/>
@@ -60,6 +63,12 @@
     </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deleteGroup"/>
+    </component>
+    <component id="moveUp" type="Submit">
+        <binding name="listener" expression="listeners.moveUp"/>
+    </component>
+    <component id="moveDown" type="Submit">
+        <binding name="listener" expression="listeners.moveDown"/>
     </component>
     
 </component-specification>

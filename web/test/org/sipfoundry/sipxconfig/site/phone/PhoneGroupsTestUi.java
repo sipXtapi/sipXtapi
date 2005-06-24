@@ -36,9 +36,52 @@ public class PhoneGroupsTestUi extends WebTestCase {
         clickLink("PhoneGroups");
         SiteTestHelper.assertNoException(getTester());
         String[][] table = new String[][] {
-                { "seedGroup0" },                
-                { "seedGroup1" },                
+                { "1. seedGroup0" },                
+                { "2. seedGroup1" },                
             };
-        assertTextInTable("group:list", table[0]);        
+        assertTableRowsEqual("group:list", 1, table);        
+    }
+    
+    public void testMoveGroups() {
+        tester.reset();
+        tester.seedGroup(3);
+        SiteTestHelper.home(getTester());
+        clickLink("PhoneGroups");
+        SiteTestHelper.checkCheckbox(getTester(), "selectedRow", 1);
+
+        // move up
+        clickButton("group:moveUp");
+        SiteTestHelper.assertNoException(getTester());
+        String[][] tableUp = new String[][] {
+                { "1. seedGroup1" },                
+                { "2. seedGroup0" },                
+                { "3. seedGroup2" },                
+            };
+        assertTableRowsEqual("group:list", 1, tableUp);                
+
+        // move down
+        clickButton("group:moveDown");
+        SiteTestHelper.assertNoException(getTester());
+        String[][] tableDown = new String[][] {
+                { "1. seedGroup0" },                
+                { "2. seedGroup1" },                
+                { "3. seedGroup2" },                
+            };
+        assertTableRowsEqual("group:list", 1, tableDown);                
+    }
+    
+    public void testDelete() {
+        tester.reset();
+        tester.seedGroup(3);
+        SiteTestHelper.home(getTester());
+        clickLink("PhoneGroups");
+        SiteTestHelper.checkCheckbox(getTester(), "selectedRow", 1);
+        clickButton("group:delete");
+        SiteTestHelper.assertNoException(getTester());
+        String[][] table = new String[][] {
+                { "1. seedGroup0" },                
+                { "2. seedGroup2" },                
+            };
+        assertTableRowsEqual("group:list", 1, table);                
     }
 }

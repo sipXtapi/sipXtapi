@@ -4,7 +4,7 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneGroups">
 
     <property-specification name="groups" 
-        type="java.util.Collection"/>
+        type="java.util.List"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    

@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -25,9 +25,9 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     
     public static final String PAGE = "PhoneGroups";
     
-    public abstract void setGroups(Collection groups);
+    public abstract void setGroups(List groups);
     
-    public abstract Collection getGroups();
+    public abstract List getGroups();
     
     public abstract PhoneContext getPhoneContext();
         

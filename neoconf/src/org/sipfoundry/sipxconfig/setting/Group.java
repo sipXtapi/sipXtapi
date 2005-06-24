@@ -75,16 +75,17 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     }
 
     /**
-     * byproduct of DataCollectionItem interface, returns weight
+     * byproduct of DataCollectionItem interface, returns weight - 1
      */
     public int getPosition() {
-        return m_weight != null ? m_weight.intValue() : -1;
+        int w = (m_weight != null ? m_weight.intValue() : -1);
+        return w - 1;
     }
 
     /**
-     * byproduct of DataCollectionItem interface, sets weight
+     * byproduct of DataCollectionItem interface, sets weight to position + 1
      */
     public void setPosition(int position) {
-        m_weight = new Integer(position);
+        m_weight = new Integer(position + 1);
     }
 }
