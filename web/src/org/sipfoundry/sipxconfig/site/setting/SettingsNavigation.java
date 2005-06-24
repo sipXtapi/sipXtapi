@@ -17,11 +17,11 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class SettingsNavigation extends BaseComponent {
     public abstract void setTab(String section);
-    
+
     public void activateTab(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
-        
+
         String section = (String) TapestryUtils.assertParameter(String.class, params, 0);
-        setTab(section);                
-    }    
+        setTab(section);
+    }
 }

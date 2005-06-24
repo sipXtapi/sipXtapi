@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.gateway;
 
 import java.io.Writer;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -32,7 +33,7 @@ public class Gateway extends BeanWithId {
     private String m_factoryId;
 
     private String m_serialNumber;
-    
+
     // TODO: is this really needed - only used for config directory now...
     private GatewayContext m_gatewayContext;
 
@@ -42,7 +43,7 @@ public class Gateway extends BeanWithId {
         // generic gateways does not support generating profiles
         throw new UnsupportedOperationException();
     }
-    
+
     /**
      * @return undecorated model - direct representation of XML model description
      */
@@ -56,15 +57,24 @@ public class Gateway extends BeanWithId {
     public Setting getSettings() {
         if (m_settings == null) {
             Setting settings = getSettingModel();
+            if (settings == null) {
+                // it's OK for a gateway not to provide settings
+                return null;
+            }
             if (m_valueStorage == null) {
                 m_valueStorage = new ValueStorage();
             }
-            
+
             m_settings = m_valueStorage.decorate(settings);
-            // TODO do we need setDefaults(); here 
+            // TODO do we need setDefaults(); here
         }
 
         return m_settings;
+    }
+
+    public String getModelName() {
+        Map factoryIds = m_gatewayContext.getFactoryIds();
+        return (String) factoryIds.get(m_factoryId);
     }
 
     public String getName() {
@@ -104,21 +114,21 @@ public class Gateway extends BeanWithId {
     }
 
     public void setFactoryId(String factoryId) {
-        m_factoryId = factoryId;    
+        m_factoryId = factoryId;
     }
-    
+
     public void setValueStorage(ValueStorage valueStorage) {
         m_valueStorage = valueStorage;
     }
-    
+
     public ValueStorage getValueStorage() {
         return m_valueStorage;
     }
-    
+
     public void setGatewayContext(GatewayContext gatewayContext) {
         m_gatewayContext = gatewayContext;
     }
-    
+
     public GatewayContext getGatewayContext() {
         return m_gatewayContext;
     }

@@ -16,32 +16,32 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 /**
- * Meta information about a group of settings, can contain nested
- * SettingModels.  Order is preserved
+ * Meta information about a group of settings, can contain nested SettingModels. Order is
+ * preserved
  */
 public class SettingSet extends SettingImpl implements Cloneable {
-    
+
     private LinkedHashMap m_children = new LinkedHashMap();
-        
-    /** 
+
+    /**
      * Root setting group and bean access only
      */
     public SettingSet() {
     }
-        
+
     public SettingSet(String name) {
         super(name);
     }
-    
+
     /**
-     * includes deep copy of all childen 
+     * includes deep copy of all childen
      */
     public Setting copy() {
         SettingSet copy = (SettingSet) super.copy();
         copy.m_children = new LinkedHashMap();
         Iterator i = m_children.values().iterator();
         while (i.hasNext()) {
-            Setting child = (Setting) i.next();            
+            Setting child = (Setting) i.next();
             copy.addSetting(child.copy());
         }
 
@@ -57,13 +57,12 @@ public class SettingSet extends SettingImpl implements Cloneable {
     }
 
     /**
-     * adds the setting to this group collection along with setting the
-     * group on the setting 
+     * adds the setting to this group collection along with setting the group on the setting
      */
     public Setting addSetting(Setting setting) {
         setting.setParent(this);
-        
-        Setting existingChild = (Setting) m_children.get(setting.getName());            
+
+        Setting existingChild = (Setting) m_children.get(setting.getName());
         m_children.put(setting.getName(), setting);
         if (existingChild != null) {
             Collection grandChildren = existingChild.getValues();
@@ -75,7 +74,7 @@ public class SettingSet extends SettingImpl implements Cloneable {
                 }
             }
         }
-        
+
         return setting;
     }
 
@@ -85,5 +84,19 @@ public class SettingSet extends SettingImpl implements Cloneable {
 
     public Collection getValues() {
         return m_children.values();
+    }
+
+    /**
+     * @param klass returned Setting must be
+     * @return default setting in the set - usually first child
+     */
+    public Setting getDefaultSetting(Class requiredType) {
+        for (Iterator i = getValues().iterator(); i.hasNext();) {
+            Setting setting = (Setting) i.next();
+            if (requiredType.isAssignableFrom(setting.getClass())) {
+                return setting;
+            }
+        }
+        return null;
     }
 }

@@ -7,7 +7,7 @@
     allow-body="yes"
     allow-informal-parameters="yes">
     
-    <description>add a description</description>
+    <description>Displays navigation links for settings object. Clicking link allows for editing one group of settings.</description>
     <!--
     - P A R A M E T E R S
     -->
@@ -15,11 +15,13 @@
         type="org.sipfoundry.sipxconfig.setting.Setting"
         required="yes"
         direction="in">
+        <description>Settings edited - a decorated settings objects should be provided.</description>
     </parameter>
     <parameter name="tab"
         type="java.lang.String"
         required="yes"
         direction="auto">
+        <description>Name of the currently selected tab.</description>
     </parameter>
     <parameter name="heading"
         type="java.lang.String"

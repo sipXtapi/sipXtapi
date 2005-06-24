@@ -129,7 +129,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public Gateway newGateway(String factoryId) {
         Gateway gateway = (Gateway) m_beanFactory.getBean(factoryId, Gateway.class);
-        gateway.setGatewayContext(this);
         return gateway;
     }
 

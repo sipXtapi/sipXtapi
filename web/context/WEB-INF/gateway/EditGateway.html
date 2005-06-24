@@ -4,10 +4,9 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
-	<h2>Gateway Details</h2>        
+	<h2><span key="title">Gateway Details</span></h2>
     <span jwcid="@ErrorMsg"/>    
     <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
-        <span jwcid="nextPageHolder"></span>
         <fieldset jwcid="gatewayForm"></fieldset>
         <ul class="form-actions">
             <li>
@@ -18,6 +17,11 @@
             </li>
 		</ul>
     </form>
+    <span jwcid="renderSettings">
+        <span jwcid="settings"/>
+            <span jwcid="settingDescription"></span>
+        <span jwcid="settingsForm"/>
+    </span>
     </div>
 </body>
 </html>
