@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
  */
 public class AbstractData extends BeanWithId {
 
-    private List m_explicitGroups;
+    private List m_explicitGroups = new ArrayList();
     
     private ValueStorage m_valueStorage = new ValueStorage();
 

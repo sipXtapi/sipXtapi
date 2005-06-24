@@ -253,8 +253,12 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return m_settingDao.loadRootGroup(GROUP_RESOURCE_NAME);
     }
     
-    public Collection getGroups() {
+    public List getGroups() {
         return m_settingDao.getGroups(GROUP_RESOURCE_NAME);
+    }
+
+    public List getGroupsWithoutRoot() {
+        return m_settingDao.getGroupsWithoutRoot(GROUP_RESOURCE_NAME);
     }
 
     public JobRecord loadJob(Integer id) {

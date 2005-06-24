@@ -26,9 +26,17 @@ public class SelectMap {
      * Only keeps the id's for which selected is set
      */
     private Set m_selections = new HashSet();
-
+    
     public boolean getSelected(Object id) {
         return m_selections.contains(id);
+    }
+    
+    public void setAllSelected(Collection ids, boolean selected) {
+        if (selected) {
+            m_selections.addAll(ids);
+        } else {
+            m_selections.removeAll(ids);
+        }        
     }
 
     public void setSelected(Object id, boolean selected) {
@@ -38,7 +46,7 @@ public class SelectMap {
             m_selections.remove(id);
         }
     }
-
+    
     public Collection getAllSelected() {
         return Collections.unmodifiableCollection(m_selections);
     }

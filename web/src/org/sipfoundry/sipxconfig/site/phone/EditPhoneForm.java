@@ -28,10 +28,10 @@ public abstract class EditPhoneForm extends BaseComponent implements PageRenderL
      */
     public abstract void setPhoneSelectionModel(IPropertySelectionModel phoneModels);
      
-    public abstract PhoneContext getPhoneContext();    
-    
+    public abstract PhoneContext getPhoneContext();
+        
     public void pageBeginRender(PageEvent event_) {
         PhoneContext phoneContext = getPhoneContext();
-        setPhoneSelectionModel(new MapSelectionModel(phoneContext.getPhoneFactoryIds()));                
-    }
+        setPhoneSelectionModel(new MapSelectionModel(phoneContext.getPhoneFactoryIds()));
+    }    
 }

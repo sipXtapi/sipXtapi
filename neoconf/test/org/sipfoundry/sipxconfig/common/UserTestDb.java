@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.sql.BatchUpdateException;
-import java.sql.SQLException;
 import java.util.List;
 
 import junit.framework.TestCase;

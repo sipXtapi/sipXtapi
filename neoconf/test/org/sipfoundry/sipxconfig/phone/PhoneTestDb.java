@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.dbunit.Assertion;
@@ -19,6 +21,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
@@ -96,5 +99,42 @@ public class PhoneTestDb extends TestCase {
 
         IDataSet actual = TestHelper.getConnection().createDataSet();                
         Assertion.assertEquals(expectedRds.getTable("setting"), actual.getTable("setting"));
-    }    
+    }
+    
+    public void testAddGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
+        
+        Phone p = m_context.loadPhone(new Integer(1000));
+        List groups = m_context.getGroupsWithoutRoot();
+        p.getPhoneData().addGroup((Group) groups.get(0));
+        m_context.storePhone(p);
+        
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddGroupExpected.xml");
+        IDataSet actual = TestHelper.getConnection().createDataSet();                
+        Assertion.assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));        
+    }
+    
+    public void testRemoveGroupThenAddBackThenAddAnotherGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
+        
+        Phone p = m_context.loadPhone(new Integer(1000));
+        List groups = m_context.getGroupsWithoutRoot();
+        p.getPhoneData().addGroup((Group) groups.get(0));
+        m_context.storePhone(p);
+        p = null;
+        
+        Phone reloaded = m_context.loadPhone(new Integer(1000));
+        reloaded.getPhoneData().getGroups().remove(0);
+        reloaded.getPhoneData().addGroup((Group) groups.get(0));
+        reloaded.getPhoneData().addGroup((Group) groups.get(1));
+        m_context.storePhone(reloaded);
+
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddSecondGroupExpected.xml");
+        IDataSet actual = TestHelper.getConnection().createDataSet();                
+        Assertion.assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));        
+    }
 }

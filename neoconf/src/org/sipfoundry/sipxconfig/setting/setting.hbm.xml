@@ -35,6 +35,10 @@
     <![CDATA[from Group g where g.resource = :resource]]>
   </query>  
   
+  <query name="groupsByResourceWithoutRoot">
+    <![CDATA[from Group g where g.name != 'Default' and g.resource = :resource]]>
+  </query>  
+  
   <query name="groupIdsWithNameAndResource">
     <![CDATA[select g.id from Group g where g.resource = :resource and g.name = :name]]>       
   </query>

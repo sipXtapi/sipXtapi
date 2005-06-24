@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
@@ -25,7 +25,9 @@ public interface SettingDao extends DataObjectSource {
 
     public void storeGroup(Group meta);
     
-    public Collection getGroups(String resource);
+    public List getGroups(String resource);
+    
+    public List getGroupsWithoutRoot(String source);
 
     public Group loadRootGroup(String resource);
 

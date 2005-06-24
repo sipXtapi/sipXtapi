@@ -9,7 +9,7 @@
 		<tr>
 			<td>
                 <label for="phone:serialNumber">
-                    <span jwcid="serialNumberLabel">Serial Number:</span>
+                    <span jwcid="serialNumberLabel">Serial number</span>:
                 </label>
             </td>
 			<td>
@@ -19,7 +19,7 @@
 		<tr>
 			<td>
 				<label for="phone:name">
-					<span jwcid="phoneNameLabel">Alternate Label:</span>
+					<span jwcid="phoneNameLabel">Alternate label</span>:
 				</label>
 			</td>
 			<td>
@@ -29,7 +29,7 @@
 		<tr>
 			<td>
                 <label for="phone:phoneModel">
-                    <span jwcid="phoneModelLabel">Phone Model:</span>
+                    <span jwcid="phoneModelLabel">Phone model</span>:
                 </label>
             </td>
 			<td>
@@ -38,6 +38,17 @@
                 </select>
 			</td>
 		</tr>
+        <tr>
+            <td>
+				<label for="phone:group">Additional groups:</label>
+            </td>
+            <td><select jwcid="@Select" id="phone:group" multiple="true" size="3">
+                  <span jwcid="groups">
+                      <option jwcid="groupOption"/>
+                  </span>
+                </select>
+            </td>
+        </tr>
 	</table>
 </span>
 </body>

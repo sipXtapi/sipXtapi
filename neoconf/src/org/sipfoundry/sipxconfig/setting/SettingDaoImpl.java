@@ -81,10 +81,16 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return tag;
     }
     
-    public Collection getGroups(String resource) {
-        Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource", 
+    public List getGroups(String resource) {
+        List groups = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource", 
                 RESOURCE_PARAM, resource);
-        return tags;
+        return groups;
+    }
+    
+    public List getGroupsWithoutRoot(String resource) {
+        List groups = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResourceWithoutRoot", 
+                RESOURCE_PARAM, resource);
+        return groups;        
     }
 
     public Object load(Class c, Integer id) {

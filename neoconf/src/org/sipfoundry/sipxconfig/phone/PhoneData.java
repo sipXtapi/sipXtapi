@@ -17,6 +17,8 @@ package org.sipfoundry.sipxconfig.phone;
  */
 public class PhoneData extends AbstractData {
     
+    public static final String PHONE_GROUP_RESOURCE = "phone";
+
     private String m_name;
 
     private String m_serialNumber;

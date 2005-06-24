@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
@@ -75,7 +76,9 @@ public interface PhoneContext extends DataObjectSource {
     
     public Group loadRootGroup();
     
-    public Collection getGroups();
+    public List getGroups();
+    
+    public List getGroupsWithoutRoot();
     
     public JobRecord loadJob(Integer id);
     
