@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 <dataset>
-    <storage storage_id="1000"/>
-	<setting 
-		storage_id="1000"
-		path="yaya/yaya"
-		value="phone here"/>
-    <phone serial_number="999123456" 		
-		tag_id="1000"
-		storage_id="1000"
-		phone_id="1000"
-        name="unittest-sample phone1"
-        factory_id="polycom300"/> 
+    <storage 
+      storage_id="1000"/>
+  	<setting 
+	  	storage_id="1000"
+		  path="yaya/yaya"
+  		value="phone here"/>
+    <phone 
+      serial_number="999123456" 		
+	  	tag_id="1000"
+  		storage_id="1000"
+	  	phone_id="1000"
+      name="unittest-sample phone1"
+      factory_id="polycom300"/> 
     <line 
-		line_id="1000" 
-		phone_id="1000"
-		storage_id="[null]"
-		position="0" 
-		user_id="4"/> 
+		  line_id="1000" 
+  		phone_id="1000"
+	  	storage_id="[null]"
+		  position="0" 
+  		user_id="4"/> 
     <line 
-		line_id="1002" 
-		phone_id="1000"
-		storage_id="[null]"
-		position="1" 
-		user_id="4"/> 
+	  	line_id="1002" 
+		  phone_id="1000"
+  		storage_id="[null]"
+	  	position="1" 
+		  user_id="4"/> 
 </dataset>

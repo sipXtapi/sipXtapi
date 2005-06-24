@@ -2,9 +2,9 @@
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
     <storage 
-		storage_id="1"/> 
+  		storage_id="1"/> 
     <setting 
-		storage_id="1"
-		value="snow pea" 
-		path="/vegetable/pea"/> 
+	  	storage_id="1"
+		  value="snow pea" 
+  		path="/vegetable/pea"/> 
 </dataset>

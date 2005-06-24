@@ -6,11 +6,13 @@
     <group_storage
        storage_id="1000"
        resource="phone"
+       weight="1000"
        name="SeedPhoneGroup0"/>
     <storage 
 		  storage_id="1001"/> 
     <group_storage
        storage_id="1001"
+       weight="1001"
        resource="phone"
        name="SeedPhoneGroup1"/>
 </dataset>

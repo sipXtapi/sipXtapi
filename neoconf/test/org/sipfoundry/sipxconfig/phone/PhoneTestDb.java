@@ -128,7 +128,7 @@ public class PhoneTestDb extends TestCase {
         p = null;
         
         Phone reloaded = m_context.loadPhone(new Integer(1000));
-        reloaded.getPhoneData().getGroups().remove(0);
+        reloaded.getPhoneData().getGroups().clear();
         reloaded.getPhoneData().addGroup((Group) groups.get(0));
         reloaded.getPhoneData().addGroup((Group) groups.get(1));
         m_context.storePhone(reloaded);

@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -26,16 +26,16 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
  */
 public class AbstractData extends BeanWithId {
 
-    private List m_explicitGroups = new ArrayList();
+    private Set m_explicitGroups = new TreeSet();
     
     private ValueStorage m_valueStorage = new ValueStorage();
 
-    public List getGroups() {
+    public Set getGroups() {
         return m_explicitGroups;
     }
 
-    public void setGroups(List settingSets) {        
-        m_explicitGroups = settingSets;
+    public void setGroups(Set settingSets) {
+        m_explicitGroups = settingSets;        
     }
     
     protected Setting decorate(Group implicitRootTag, Setting settings) {
@@ -59,9 +59,6 @@ public class AbstractData extends BeanWithId {
     }
     
     public void addGroup(Group tag) {
-        if (m_explicitGroups == null) {
-            m_explicitGroups = new ArrayList();
-        }
         m_explicitGroups.add(tag);
     }
 

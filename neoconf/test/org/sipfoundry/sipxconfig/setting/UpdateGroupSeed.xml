@@ -2,19 +2,20 @@
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
     <storage 
-		storage_id="1"/> 
+		  storage_id="1"/> 
     <group_storage 
-		resource="unittest"
-		name="food"
-		storage_id="1"/> 
+		  resource="unittest"
+      weight="1000"  
+      name="food"
+		  storage_id="1"/> 
 	<!-- should disappear -->	
     <setting 
-		storage_id="1"
-		value="macintosh" 
-		path="/fruit/apple"/> 
+  		storage_id="1"
+	  	value="macintosh" 
+		  path="/fruit/apple"/> 
 	<!-- should update -->
     <setting 
-		storage_id="1"
-		value="snap pea" 
-		path="/vegetable/pea"/> 
+  		storage_id="1"
+	  	value="snap pea" 
+		  path="/vegetable/pea"/> 
 </dataset>

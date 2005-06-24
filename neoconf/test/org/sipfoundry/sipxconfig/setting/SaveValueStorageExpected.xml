@@ -2,9 +2,9 @@
 <!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
 <dataset>
     <storage 
-		storage_id="[storage_id]"/> 
+		  storage_id="[storage_id]"/> 
     <setting 
-		storage_id="[storage_id]"
-		value="granny smith" 
-		path="/fruit/apple"/> 
+		  storage_id="[storage_id]"
+		  value="granny smith" 
+		  path="/fruit/apple"/> 
 </dataset>

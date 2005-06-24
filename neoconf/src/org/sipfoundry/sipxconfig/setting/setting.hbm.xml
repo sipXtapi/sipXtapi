@@ -24,19 +24,28 @@
       <property name="name"/>
       <property name="description"/>
       <property name="resource"/>
+      <property name="weight"/>
     </joined-subclass>  	
   </class>  
 
+  <class name="SettingDaoImpl$GroupWeight" table="group_weight">
+    <id name="weight" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">group_weight_seq</param>
+      </generator>
+    </id>
+  </class>
+
   <query name="rootGroupByResource">
-    <![CDATA[from Group g where g.name = 'Default' and g.resource = :resource]]>
+    <![CDATA[from Group g where g.weight = 0 and g.resource = :resource]]>
   </query>  
     
   <query name="groupsByResource">
-    <![CDATA[from Group g where g.resource = :resource]]>
+    <![CDATA[from Group g where g.resource = :resource order by g.weight]]>
   </query>  
-  
+
   <query name="groupsByResourceWithoutRoot">
-    <![CDATA[from Group g where g.name != 'Default' and g.resource = :resource]]>
+    <![CDATA[from Group g where g.weight != 0 and g.resource = :resource order by g.weight]]>
   </query>  
   
   <query name="groupIdsWithNameAndResource">

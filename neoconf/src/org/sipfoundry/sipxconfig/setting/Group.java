@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import org.sipfoundry.sipxconfig.common.DataCollectionItem;
+
 
 /**
  * User labeled storage of settings.    
@@ -18,13 +20,15 @@ package org.sipfoundry.sipxconfig.setting;
  * @author dhubler
  *
  */
-public class Group extends ValueStorage {
+public class Group extends ValueStorage implements Comparable, DataCollectionItem {
 
     private String m_name;
     
     private String m_description;
 
     private String m_resource;
+    
+    private Integer m_weight;
 
     public String getName() {
         return m_name;
@@ -48,5 +52,39 @@ public class Group extends ValueStorage {
 
     public void setResource(String resource) {
         m_resource = resource;
+    }
+
+    /**
+     * When setting values conflict, the setting with the highest weight wins.
+     * 
+     * @return
+     */
+    public Integer getWeight() {
+        return m_weight;
+    }
+
+    public void setWeight(Integer weight) {
+        m_weight = weight;
+    }
+
+    public int compareTo(Object arg0) {
+        Group b = (Group) arg0;
+        Integer w = m_weight != null ? m_weight : new Integer(-1);
+        
+        return w.compareTo(b.getWeight());
+    }
+
+    /**
+     * byproduct of DataCollectionItem interface, returns weight
+     */
+    public int getPosition() {
+        return m_weight != null ? m_weight.intValue() : -1;
+    }
+
+    /**
+     * byproduct of DataCollectionItem interface, sets weight
+     */
+    public void setPosition(int position) {
+        m_weight = new Integer(position);
     }
 }

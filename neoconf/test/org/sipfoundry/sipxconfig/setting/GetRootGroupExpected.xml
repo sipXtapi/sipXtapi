@@ -4,6 +4,7 @@
     <group_storage 
 		resource="unittest"
 		name="Default"
+    weight="0"  
     description="[null]"
 		storage_id="[storage_id]"/> 
 </dataset>

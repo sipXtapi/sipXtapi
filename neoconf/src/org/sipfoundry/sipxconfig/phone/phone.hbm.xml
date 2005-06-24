@@ -16,11 +16,10 @@
     <property name="factoryId" column="factory_id"/>
     <many-to-one cascade="all" name="valueStorage" column="storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-	  <list name="groups" table="phone_group">
+	  <set name="groups" table="phone_group" sort="natural">
       <key column="phone_id"/>
-      <index column="index"/>
       <many-to-many class="org.sipfoundry.sipxconfig.setting.Group" column="storage_id"/>
-    </list>
+    </set>
   </class>
   
   <!--
@@ -37,11 +36,10 @@
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"/>
     <many-to-one cascade="all" name="valueStorage" column="storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-  	<list name="groups" table="line_group">
+  	<set name="groups" table="line_group" sort="natural">
       <key column="line_id"/>
-      <index column="index"/>
       <many-to-many class="org.sipfoundry.sipxconfig.setting.Group" column="storage_id"/>
-    </list>
+    </set>
   </class>
   
   <query name="phoneIdsWithName">

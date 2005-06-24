@@ -36,8 +36,19 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
 
     public void storeGroup(Group group) {
         checkDuplicates(group);
+        assignWeightToNewGroups(group);
         getHibernateTemplate().saveOrUpdate(group);                        
     }
+    
+    void assignWeightToNewGroups(Group group) {
+        if (group.isNew() && group.getWeight() == null) {
+            GroupWeight weight = new GroupWeight();
+            getHibernateTemplate().save(weight);
+            group.setWeight(weight.getWeight());
+            getHibernateTemplate().delete(weight); // delete not strictly nec.
+        }        
+    }
+
     
     void checkDuplicates(Group group) {
         String[] params = new String[] {
@@ -72,6 +83,7 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         if (tags.size() == 0) {
             tag = new Group();
             tag.setName("Default");
+            tag.setWeight(new Integer(0));
             tag.setResource(resource);      
             storeGroup(tag);
         } else {
@@ -95,5 +107,21 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
 
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
+    }
+    
+    /**
+     * Internal object, only used to generate group weights in DB neutral way
+     */
+    static class GroupWeight {
+        
+        private Integer m_weight = new Integer(-1);
+
+        public Integer getWeight() {
+            return m_weight;
+        }
+
+        public void setWeight(Integer weight) {
+            m_weight = weight;
+        }
     }
 }

@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
 public class GroupTestDb extends TestCase {
+    
     private SettingDao m_dao;
 
     protected void setUp() throws Exception {
@@ -117,5 +118,14 @@ public class GroupTestDb extends TestCase {
         } catch (UserException u) {            
             assertTrue(true);
         }
+    }
+    
+    public void testWeightSequence() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        Group newGroup = new Group();
+        newGroup.setResource("unittest");
+        newGroup.setName("unittest");        
+        m_dao.storeGroup(newGroup);
+        assertNotNull(newGroup.getWeight());
     }
 }
