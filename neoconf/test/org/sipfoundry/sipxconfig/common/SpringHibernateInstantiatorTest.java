@@ -31,24 +31,24 @@ public class SpringHibernateInstantiatorTest extends TestCase {
         assertTrue(context.getBeanDefinitionNames(Gateway.class).length > 1);
     }
 
-    public void testInstantiate() {        
+    public void testInstantiate() {
         Integer id = new Integer(5);
         BeanWithId bean = (BeanWithId) m_instantiator.instantiate(Gateway.class, id);
         assertSame(Gateway.class, bean.getClass());
         assertSame(id, bean.getId());
     }
 
-    public void testInstantiateSubclass() {        
+    public void testInstantiateSubclass() {
         Integer id = new Integer(5);
         BeanWithId bean = (BeanWithId) m_instantiator.instantiate(MediantGateway.class, id);
         assertSame(MediantGateway.class, bean.getClass());
         assertSame(id, bean.getId());
     }
-    
-    public void testInstantiateUnknown() {        
+
+    public void testInstantiateUnknown() {
         Integer id = new Integer(5);
         // there is a good chance we will not have StringUtils in beanFactory
         Object bean = m_instantiator.instantiate(StringUtils.class, id);
         assertNull(bean);
-    }    
+    }
 }

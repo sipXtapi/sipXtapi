@@ -2,9 +2,9 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.gateway">
-	<!-- 
-	  - Gateway
-	  -->
+  <!-- 
+  - Gateway
+  -->
   <class name="Gateway" table="gateway" discriminator-value="gwGeneric">
     <id name="id" column="gateway_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -20,9 +20,6 @@
     <many-to-one cascade="all" name="valueStorage" column="storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
     
-    <subclass name="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" discriminator-value="gwMediant1000">
-      
-    </subclass>
   </class>
-    
+  
 </hibernate-mapping>

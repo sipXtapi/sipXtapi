@@ -47,7 +47,7 @@
   <!--
   - H I B E R N A T E   F A C T O R Y
   -->
-  <bean id="sessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
+  <bean id="sessionFactory" class="org.sipfoundry.sipxconfig.common.DynamicSessionFactoryBean">
     <property name="dataSource">
       <ref local="dataSource"/>
     </property>
