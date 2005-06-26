@@ -86,6 +86,10 @@ public class SettingIniFilter extends FilterWriter {
      * @throws IOException
      */
     private boolean filterSetting(String str) throws IOException {
+        if (m_names2settings == null) {
+            // it's an unknown group - no reason to look for settings
+            return false;
+        }
         Matcher matcher = SETTING.matcher(str);
         if (!matcher.find()) {
             // not a setting line

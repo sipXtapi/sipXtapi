@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,5 +49,7 @@ public interface GatewayContext {
     public Map getFactoryIds();
     
     // TODO: this should be moved to more generic class (phones use this too)
-    public Setting loadModelFile(String manufacturer, String basename); 
+    public Setting loadModelFile(String manufacturer, String basename);
+    
+    public File getModelFile(String manufacturer, String basename);    
 }

@@ -14,10 +14,10 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-
-import junit.framework.TestCase;
 
 public class MediantGatewayTest extends TestCase {
     private GatewayContext m_gatewayContext;
@@ -27,7 +27,7 @@ public class MediantGatewayTest extends TestCase {
                 "gatewayContextImpl");
     }
 
-    public void testGenerateProfiles() {
+    public void testGenerateProfiles() throws Exception {
         MediantGateway gateway = new MediantGateway();
         gateway.setGatewayContext(m_gatewayContext);
         Writer writer = new StringWriter();

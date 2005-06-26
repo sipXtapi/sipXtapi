@@ -116,11 +116,15 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
      * @return new copy of the settings model
      */
     public Setting loadModelFile(String manufacturer, String basename) {
-        File modelDir = new File(m_configDirectory, manufacturer);
-        File modelFile = new File(modelDir, basename);
+        File modelFile = getModelFile(manufacturer, basename);
         XmlModelBuilder builder = new XmlModelBuilder(m_configDirectory);
         SettingSet model = builder.buildModel(modelFile);
         return model.copy();
+    }
+
+    public File getModelFile(String manufacturer, String basename) {
+        File modelDir = new File(m_configDirectory, manufacturer);
+        return new File(modelDir, basename);
     }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {

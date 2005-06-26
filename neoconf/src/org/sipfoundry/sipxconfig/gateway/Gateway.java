@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
@@ -34,12 +35,11 @@ public class Gateway extends BeanWithId {
 
     private String m_serialNumber;
 
-    // TODO: is this really needed - only used for config directory now...
     private GatewayContext m_gatewayContext;
 
     private ValueStorage m_valueStorage;
 
-    public void generateProfiles(Writer writer_) {
+    public void generateProfiles(Writer writer_) throws IOException {
         // generic gateways does not support generating profiles
         throw new UnsupportedOperationException();
     }
