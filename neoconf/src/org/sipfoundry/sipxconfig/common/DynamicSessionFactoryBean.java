@@ -12,12 +12,14 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.MappingException;
 import net.sf.hibernate.cfg.Configuration;
 
-import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -35,8 +37,17 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
 
     private ListableBeanFactory m_beanFactory;
 
+    /**
+     * Collection of bean IDs that representing superclasses of the hierarchy. All beans of the
+     * same type as bean ID will be automatically mapped to the same hibernate table.
+     */
+    private List m_baseClassBeanIds = Collections.EMPTY_LIST;
+
     protected void postProcessConfiguration(Configuration config) throws HibernateException {
-        bindSubclasses(config, Gateway.class);
+        for (Iterator i = m_baseClassBeanIds.iterator(); i.hasNext();) {
+            String baseClassBeanID = (String) i.next();
+            bindSubclasses(config, baseClassBeanID);
+        }
     }
 
     /**
@@ -55,6 +66,30 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
             if (subClass == baseClass) {
                 continue; // skip baseclass which is already mapped
             }
+            String mapping = xmlMapping(baseClass, subClass, beanId);
+            config.addXML(mapping);
+        }
+    }
+
+    /**
+     * Finds all subclasesses of baseClass in the bean factory and binds them to the same table as
+     * base class using bean id as a discriminator value.
+     * 
+     * @param config hibernate config that will be modified
+     * @param baseClassBeanID - bean representing the base class - needs to be already mapped
+     *        statically
+     * @throws MappingException
+     */
+    protected void bindSubclasses(Configuration config, String baseClassBeanId)
+        throws MappingException {
+        Class baseClass = m_beanFactory.getType(baseClassBeanId);
+        String[] beanDefinitionNames = m_beanFactory.getBeanDefinitionNames(baseClass);
+        for (int i = 0; i < beanDefinitionNames.length; i++) {
+            String beanId = beanDefinitionNames[i];
+            if (beanId.equals(baseClassBeanId)) {
+                continue; // skip base class bean needs to be already mapped
+            }
+            Class subClass = m_beanFactory.getType(beanId);
             String mapping = xmlMapping(baseClass, subClass, beanId);
             config.addXML(mapping);
         }
@@ -81,5 +116,9 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
                     + " only works with ListableBeanFactory");
         }
         m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    public void setBaseClassBeanIds(List baseClassBeanIds) {
+        m_baseClassBeanIds = baseClassBeanIds;
     }
 }

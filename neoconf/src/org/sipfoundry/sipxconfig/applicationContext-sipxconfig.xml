@@ -74,6 +74,11 @@
         <!-- prop key="hibernate.show_sql">true</prop -->
       </props>
     </property>
+    <property name="baseClassBeanIds">
+      <list>
+        <value>gwGeneric</value>        
+      </list>      
+    </property>
     <!-- unless otherwise specified property nameLikeThis will be mapped to column name_like_this -->
     <!--property name="namingStrategy">
       <bean class="net.sf.hibernate.cfg.ImprovedNamingStrategy"/>      
