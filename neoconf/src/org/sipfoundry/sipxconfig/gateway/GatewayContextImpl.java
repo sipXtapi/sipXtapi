@@ -79,6 +79,15 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         }
     }
 
+    public void propagateGateways(Collection selectedRows) {
+        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            Gateway g = getGateway(id);
+            g.generateProfiles();            
+        }
+        
+    }
+    
     public List getGatewayByIds(Collection gatewayIds) {
         List gateways = new ArrayList(gatewayIds.size());
         for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
@@ -151,4 +160,5 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
     }
+
 }

@@ -52,6 +52,9 @@
     <property name="gatewayContext">
       <ref local="gatewayContext"/>
     </property>
+    <property name="tftpRoot">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
   </bean>
   
   <bean id="gwMediant1000" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" 

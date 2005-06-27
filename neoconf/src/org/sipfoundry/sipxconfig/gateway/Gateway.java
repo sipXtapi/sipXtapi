@@ -38,6 +38,8 @@ public class Gateway extends BeanWithId {
     private GatewayContext m_gatewayContext;
 
     private ValueStorage m_valueStorage;
+    
+    private String m_tftpRoot;
 
     public void generateProfiles(Writer writer_) throws IOException {
         // generic gateways does not support generating profiles
@@ -75,6 +77,10 @@ public class Gateway extends BeanWithId {
     public String getModelName() {
         Map factoryIds = m_gatewayContext.getFactoryIds();
         return (String) factoryIds.get(m_factoryId);
+    }
+
+    public void generateProfiles() {
+        // do nothing for generic gateways - we do not generate profile for it
     }
 
     public String getName() {
@@ -131,5 +137,13 @@ public class Gateway extends BeanWithId {
 
     public GatewayContext getGatewayContext() {
         return m_gatewayContext;
+    }
+    
+    public String getTftpRoot() {
+        return m_tftpRoot;
+    }
+    
+    public void setTftpRoot(String tftpRoot) {
+        m_tftpRoot = tftpRoot;
     }
 }

@@ -11,14 +11,14 @@
 		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
     	initial-value="global.gatewayContext"/>    
         
-	<property-specification name="selectedRows" type="java.util.Collection"/>    
+	<property-specification name="gatewaysToDelete" type="java.util.Collection"/>    
+	<property-specification name="gatewaysToPropagate" type="java.util.Collection"/>    
     
      <!--
      - B E A N S
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-
     
     <!--
      - C O M P O N E N T S
@@ -37,9 +37,17 @@
     </component>
     
     <component id="deleteButton" type="Submit">
-        <binding name="selected" expression="selectedRows"/>
+        <binding name="selected" expression="gatewaysToDelete"/>
         <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
+        <message-binding name="label" key="button.delete"/>
     </component>
+    
+    <component id="propagateButton" type="Submit">
+        <binding name="selected" expression="gatewaysToPropagate"/>
+        <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
+        <message-binding name="label" key="button.propagate"/>
+    </component>
+    
     
     <component id="gatewaysListForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>

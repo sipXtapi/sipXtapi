@@ -36,6 +36,8 @@ public interface GatewayContext {
 
     public abstract void deleteGateways(Collection selectedRows);
     
+    public void propagateGateways(Collection selectedRows);
+    
     /**
      * Returns the list of gateways available for a specific rule
      * 
@@ -51,5 +53,5 @@ public interface GatewayContext {
     // TODO: this should be moved to more generic class (phones use this too)
     public Setting loadModelFile(String manufacturer, String basename);
     
-    public File getModelFile(String manufacturer, String basename);    
+    public File getModelFile(String manufacturer, String basename);
 }

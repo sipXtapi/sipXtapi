@@ -26,7 +26,8 @@ public abstract class ListGateways extends BasePage {
     // virtual properties
     public abstract GatewayContext getGatewayContext();
 
-    public abstract Collection getSelectedRows();
+    public abstract Collection getGatewaysToDelete();
+    public abstract Collection getGatewaysToPropagate();
 
     /**
      * When user clicks on link to edit a gateway
@@ -40,9 +41,13 @@ public abstract class ListGateways extends BasePage {
     }
 
     public void formSubmit(IRequestCycle cycle_) {
-        Collection selectedRows = getSelectedRows();
+        Collection selectedRows = getGatewaysToDelete();
         if (selectedRows != null) {
             getGatewayContext().deleteGateways(selectedRows);
+        }
+        selectedRows = getGatewaysToPropagate();
+        if (selectedRows != null) {
+            getGatewayContext().propagateGateways(selectedRows);
         }
     }
 }
