@@ -38,11 +38,15 @@ public class AbstractData extends BeanWithId {
         m_explicitGroups = settingSets;        
     }
     
-    protected Setting decorate(Group implicitRootTag, Setting settings) {
+    public Setting decorate(Group implicitRootTag, Setting settings) {
+        return decorate(implicitRootTag, getGroups(), settings);
+    }
+    
+    protected Setting decorate(Group implicitRootTag, Set groups, Setting settings) {
         Setting decorated = implicitRootTag.decorate(settings);
         
-        if (m_explicitGroups != null) {
-            Iterator i = m_explicitGroups.iterator();
+        if (groups != null) {
+            Iterator i = groups.iterator();
             while (i.hasNext()) {
                 SettingVisitor visitor = (SettingVisitor) i.next(); 
                 decorated.acceptVisitor(visitor);
@@ -55,7 +59,7 @@ public class AbstractData extends BeanWithId {
         
         decorated = m_valueStorage.decorate(decorated);
         
-        return decorated;
+        return decorated;    
     }
     
     public void addGroup(Group tag) {

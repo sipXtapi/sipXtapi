@@ -189,5 +189,5 @@ public class LineTestDb extends TestCase {
         ITable after = TestHelper.getConnection().createDataSet().getTable("line");
 
         assertEquals(0, after.getRowCount());
-    }
+    }    
 }

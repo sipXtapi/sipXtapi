@@ -11,7 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Set;
+
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Association between Users and their assigned phones.
@@ -50,5 +54,15 @@ public class LineData extends AbstractData {
 
     public void setPosition(int position) {
         m_position = position;
-    }    
+    }
+    
+    protected Setting decorate(Group implicitRootTag, Set groups_, Setting settings) {
+        // Use phone groups until we can justify lines
+        // having their own groups and work out a reasonable UI
+        Set phoneGroups = getPhoneData().getGroups();
+        Setting decorated = super.decorate(implicitRootTag, phoneGroups, settings);
+        
+        return decorated;        
+    }
+    
 }
