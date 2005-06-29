@@ -31,7 +31,7 @@ public abstract class GroupTable extends BaseComponent {
     public abstract List getGroups();
     
     public abstract SelectMap getSelections();
-
+    
     public IPrimaryKeyConvertor getIdConverter() {
         return new ObjectSourceDataSqueezer(getSettingContext(), Group.class);
     }

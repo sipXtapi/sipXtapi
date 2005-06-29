@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.dbunit.dataset.ITable;
@@ -35,7 +37,7 @@ public class PhoneContextTestDb extends TestCase {
         m_context.clear();
     }
     
-    public void testGetRootPhoneTag() throws Exception {
+    public void testGetRootPhoneGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         Group root = m_context.loadRootGroup();
         assertNotNull(root);
@@ -74,5 +76,16 @@ public class PhoneContextTestDb extends TestCase {
         } catch (UserException e) {
             // ok
         }
+    }
+    
+    public void testGetGroupMemberCountIndexedByGroupId() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
+        
+        Map counts = m_context.getGroupMemberCountIndexedByGroupId();
+        assertEquals(2, counts.size());
+        assertEquals(new Integer(2), counts.get(new Integer(1001)));
+        assertEquals(new Integer(1), counts.get(new Integer(1002)));
+        assertNull(counts.get(new Integer(1003)));        
     }
 }

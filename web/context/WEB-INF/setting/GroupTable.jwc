@@ -13,10 +13,14 @@
         type="java.util.List"
         required="yes"
         direction="auto"/>
+    <parameter name="memberCounts"
+        type="java.util.Map"
+        required="yes"
+        direction="auto"/>
     <parameter name="viewGroupListener"
         type="org.apache.tapestry.IActionListener"
         required="yes"
-        direction="auto"/>   
+        direction="auto"/>
      
 	<property-specification name="currentRow" 
 		type="org.sipfoundry.sipxconfig.setting.Group"/>
@@ -33,7 +37,7 @@
 	</component>
 	<component id="tableView" type="contrib:TableView">
 		<binding name="source" expression="groups"/>
-		<binding name="columns">'* Name:weight'</binding>
+		<binding name="columns">'* Name:weight, !Members'</binding>
         <static-binding name="pageSize" value="20"/>
 	</component>
 	<component id="tableColumns" type="contrib:TableColumns">
@@ -60,6 +64,11 @@
     </component>
     <component id="viewGroupLabel" type="Insert">        
         <binding name="value" expression="currentRow.name"/>
+    </component>
+    <!-- Column 3: view members -->
+    <component id="MembersColumnValue" type="Block"/>
+    <component id="memberCount" type="Insert">
+        <binding name="value" expression="memberCounts[currentRow.primaryKey]"/>
     </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deleteGroup"/>

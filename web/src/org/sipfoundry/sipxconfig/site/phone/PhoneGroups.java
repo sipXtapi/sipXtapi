@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -35,6 +36,12 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup("phone", PAGE);
         cycle.activate(page);
+    }
+    
+    public Map getMemberCounts() {
+        Map memberCount = getPhoneContext().getGroupMemberCountIndexedByGroupId();
+        
+        return memberCount;
     }
     
     public void editPhoneGroup(IRequestCycle cycle) {

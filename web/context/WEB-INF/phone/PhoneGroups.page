@@ -11,6 +11,7 @@
 
     <component id="groupTable" type="GroupTable">
         <binding name="groups" expression="groups"/>
+        <binding name="memberCounts" expression="memberCounts"/>
         <binding name="viewGroupListener" expression="listeners.editPhoneGroup"/>
     </component>
     

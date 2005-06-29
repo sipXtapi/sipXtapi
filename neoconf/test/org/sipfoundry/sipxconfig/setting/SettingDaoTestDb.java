@@ -18,6 +18,13 @@ import org.springframework.context.ApplicationContext;
 
 public class SettingDaoTestDb extends TestCase {
     
+    SettingDao dao;
+    
+    protected void setUp() {
+        ApplicationContext context = TestHelper.getApplicationContext();
+        dao = (SettingDao) context.getBean("settingDao");        
+    }
+    
     public void testSettingGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
@@ -28,8 +35,6 @@ public class SettingDaoTestDb extends TestCase {
         SettingSet copy = (SettingSet) vs.decorate(root);
         copy.getSetting("setting").setValue("some value");
 
-        ApplicationContext context = TestHelper.getApplicationContext();
-        SettingDao dao = (SettingDao) context.getBean("settingDao");
         dao.storeValueStorage(vs);
     }
 }
