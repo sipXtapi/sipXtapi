@@ -31,6 +31,9 @@
     <component id="newPhoneGroup" type="DirectLink">
         <binding name="listener" expression="listeners.newPhoneGroup"/>
     </component> 
+    <component id="toggleNavigation" type="DirectLink">
+        <binding name="listener" expression="listeners.toggleNavigation"/>
+    </component>    
    
     <component id="userCallForwarding" type="ExternalLink">
         <static-binding name="page" value="UserCallForwarding"/>

@@ -52,7 +52,7 @@ public class SiteTestHelper {
      * Go to TestPage.html, includes hack for slow machines.
      */
     public static void home(WebTester tester) {
-        tester.beginAt("/");
+        tester.beginAt("/app?service=page/TestPage");
         login(tester, "", "");
         // HACK! Webunit doesn't appear to fully load page, especialy
         // when the machine you're running it on is slow and you're

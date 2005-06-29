@@ -13,7 +13,18 @@
         <static-binding name="title" value="sipXconfig"/>
     </component>
 
-	<component id="wrapped" type="RenderBody"/>	
+	<component id="wrapped" type="RenderBody"/>
+    
+    <component id="adminNavigation" type="AdminNavigation"/>
+    
+    <component id="renderNavigation" type="Conditional">
+        <binding name="condition" expression="page.visit.navigationVisible"/>
+    </component>
+    
+    <component id="renderContent" type="Any">
+        <binding name="id" expression="(page.visit.navigationVisible)?'content':'_content'"/>
+        <static-binding name="element" value="div"/>        
+    </component>
 
 	<!--
 	  - A S S E T S

@@ -59,4 +59,9 @@ public abstract class TestPage extends BasePage {
         page.setNextPage(PAGE);
         cycle.activate(page);
     }
+    
+    public void toggleNavigation(IRequestCycle cycle_) {
+        Visit visit = (Visit) getVisit();
+        visit.setNavigationVisible(!visit.isNavigationVisible());        
+    }
 }
