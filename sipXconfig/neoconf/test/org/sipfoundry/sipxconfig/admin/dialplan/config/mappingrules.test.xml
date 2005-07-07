@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+
+  <hostMatch>
+    <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_IP_ADDR}</hostPattern>
+
+
+    <userMatch>
+      <userPattern>operator</userPattern>
+      <userPattern>100</userPattern>
+      <userPattern>0</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <userMatch>
+      <userPattern>101</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve%26mailbox%3D{digits}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <userMatch>
+      <userPattern>2xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{vdigits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <userMatch>
+      <userPattern>xxx</userPattern>
+      <permissionMatch>
+        <permission>Voicemail</permission>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&gt;;q=0.1</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+</mappings>

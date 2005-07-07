@@ -1,0 +1,14 @@
+# used in applicationContext-sipxconfig.xml to set system properies
+sip.proxyHost=${PROXY_SERVER_ADDR}
+sip.proxyPort=${PROXY_SERVER_SIP_PORT}
+dataSource.url=jdbc:postgresql://localhost/PDS
+# name changes to anything starting w/sysdir need to be reflected in
+# VersionInfo class as well
+sysdir.etc=@sipxpbx.conf.dir@
+sysdir.log=@sipxpbx.log.dir@
+sysdir.share=@sipxpbx.data.dir@
+sysdir.phone=@sipxconfig.phone.dir@
+sysdir.tmp=@sipxpbx.tmp.dir@
+sysdir.version=@version@
+sysdir.build_number=0000
+sysdir.comment=opendev

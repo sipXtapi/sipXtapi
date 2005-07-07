@@ -1,0 +1,57 @@
+#! /bin/perl
+
+# Read through a credential.xml file, updating the passtokens.
+
+# Usage:	update-passtokens old-credential.xml new-credential.xml
+#
+# Prompts for the passwords for the items in the order they are seen.
+# Requires that old-credential.xml is in standard form, viz.,
+# each data item is on a separate line, realm and userid items precede
+# the passtoken item, </item>s are on a separate line.
+#
+# Requires that "md5sum" be installed.
+
+$input = $ARGV[0] || die "First argument is input file.\n";
+$output = $ARGV[1] || die "Second argument is output file.\n";
+open(IN, $input) || die "Error opening '$input' for input: $!\n";
+open(OUT, ">$output") || die "Error opening '$input' for output: $!\n";
+
+$realm = '';
+$userid = '';
+$password = '';
+
+while (<IN>) {
+    if (m%</item>%) {
+	# Clear the recorded realm and userid.
+	$realm = '';
+	$userid = '';
+    } elsif (m%<realm>(.*)</realm>%) {
+	# Remember the realm for this entry.
+	$realm = $1;
+    } elsif (m%<userid>(.*)</userid>%) {
+	# Remember the userid for this entry.
+	$userid = $1;
+    } elsif (m%<passtoken>.*</passtoken>%) {
+	# Recalculate the passtoken for this entry.
+	# Check that we have a realm and userid.
+	if ($realm eq '' || $userid eq '') {
+	    printf STDERR "Null realm ('$realm') or userid ('$userid') in item when recomputing passtoken at line $.\n";
+	    exit 1;
+	}
+	# Get the password.
+	printf "Password for $userid in $realm (default '$password'): ";
+	chomp($x = <STDIN>);
+	$password = $x || $password;
+	if ($password eq '') {
+	    printf STDERR "Empty password.\n";
+	    exit 1;
+	}
+	# Calculate the new passtoken.
+	$x = `echo -n '$userid:$realm:$password' | md5sum`;
+	$x = (split(' ', $x))[0];
+	# Substitute it in the file.
+	s%<passtoken>.*</passtoken>%<passtoken>$x</passtoken>%;
+    }
+    # Write the (possibly modified) line.
+    print OUT $_;
+}

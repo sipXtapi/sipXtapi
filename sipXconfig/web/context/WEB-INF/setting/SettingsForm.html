@@ -1,0 +1,48 @@
+<span jwcid="$content$">
+	<form jwcid="settingsForm">
+        <table>
+			<span jwcid="settings">
+				<span jwcid="IfGroup">
+				<tr>
+					<td colspan="2">
+						<h3><label jwcid="groupLabel"/></h3>
+						<span jwcid="groupDescription"/>
+					</td>
+				</tr>
+				</span>
+				<span jwcid="IfSetting">
+				<tr>
+					<td nowrap="nowrap">
+						<label class="settingLabel">
+							<span jwcid="settingLabel"/>:
+						</label>
+					</td>
+					<td>
+						<span jwcid="setting"/> 
+					</td>
+                    <td>
+						<span class="settingDefault">(Default: <span jwcid="settingDefault"/>)</span>
+                    </td>
+				</tr>
+				<tr>
+					<td></td>
+					<td colspan="2">
+						<span class="settingDescription" jwcid="settingDescription"/><br/>
+					</td>
+				</tr>
+				</span>
+			</span>
+		</table>
+		<ul class="form-actions">
+			<li>
+				<input jwcid="cancel" id="setting:cancel" value="Cancel"/>
+			</li>
+			<li>
+				<input jwcid="apply" id="setting:apply" value="Apply"/>
+			</li>
+			<li>
+				<input jwcid="ok" id="setting:ok" value="OK"/>
+			</li>
+		</ul>
+	</form>
+</span>

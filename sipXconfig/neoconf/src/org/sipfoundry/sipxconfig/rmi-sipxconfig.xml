@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <!--
+      - R M I  
+      -->
+    <bean name="aliasServiceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="service">
+			<bean class="org.sipfoundry.sipxconfig.admin.forwarding.AliasServiceImpl">
+                <property name="context">
+                    <ref bean="forwardingContext"/>
+                </property>
+            </bean>            
+        </property>
+        <property name="serviceName">
+            <value>ForwardingAliasService</value>
+        </property>
+        <property name="registryPort">
+            <value>2001</value>
+        </property>
+    </bean>
+</beans>

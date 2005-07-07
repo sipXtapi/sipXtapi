@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+
+<jboss>
+    <!-- temporarily disable security for EJBs -->
+    <security-domain>java:/jaas/other</security-domain>
+    <!-- -->
+    
+    <enterprise-beans>
+        <message-driven>
+            <ejb-name>ProjectionFacade</ejb-name>
+            <destination-jndi-name>queue/A</destination-jndi-name>
+		    <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
+        </message-driven>
+        <message-driven>
+            <ejb-name>DataSetBuilderFacade</ejb-name>
+            <destination-jndi-name>queue/B</destination-jndi-name>
+            <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
+        </message-driven>
+        <message-driven>
+            <ejb-name>RestartDevicesFacade</ejb-name>
+            <destination-jndi-name>queue/C</destination-jndi-name>
+            <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
+        </message-driven>
+    </enterprise-beans>
+
+	<container-configurations>
+	    <container-configuration>
+	      <container-name>PGS Message Driven Bean</container-name>
+	      <call-logging>false</call-logging>
+	      <invoker-proxy-binding-name>message-driven-bean</invoker-proxy-binding-name>
+	      <container-interceptors>
+	        <interceptor>org.jboss.ejb.plugins.ProxyFactoryFinderInterceptor</interceptor>
+	        <interceptor>org.jboss.ejb.plugins.LogInterceptor</interceptor>
+	        <interceptor>com.pingtel.pds.pgs.security.MDBInterceptor</interceptor>
+	        <interceptor>org.jboss.ejb.plugins.RunAsSecurityInterceptor</interceptor>
+	        <!-- CMT -->
+	        <interceptor transaction="Container">org.jboss.ejb.plugins.TxInterceptorCMT</interceptor>
+	        <interceptor transaction="Container">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+	        <interceptor transaction="Container" metricsEnabled="true">org.jboss.ejb.plugins.MetricsInterceptor</interceptor>
+	        <interceptor transaction="Container">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+	        <!-- BMT -->
+	        <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+	        <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenTxInterceptorBMT</interceptor>
+	        <interceptor transaction="Bean">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+	        <interceptor transaction="Bean" metricsEnabled="true">org.jboss.ejb.plugins.MetricsInterceptor</interceptor>
+	        <interceptor>org.jboss.resource.connectionmanager.CachedConnectionInterceptor</interceptor>
+	      </container-interceptors>
+	      <instance-pool>org.jboss.ejb.plugins.MessageDrivenInstancePool</instance-pool>
+	      <instance-cache></instance-cache>
+	      <persistence-manager></persistence-manager>
+	      <container-pool-conf>
+	        <MaximumSize>10</MaximumSize>
+	      </container-pool-conf>
+	    </container-configuration>
+
+    <!--  S T A T E L E S S  S E S S I O N  B E A N S  -->
+    <container-configuration>
+      <container-name>Standard Stateless SessionBean</container-name>
+      <security-domain>java:/jaas/other</security-domain>
+    </container-configuration>
+
+
+    <!--  S T A T E F U L  S E S S I O N  B E A N S  -->
+    <container-configuration>
+      <container-name>Standard Stateful SessionBean</container-name>
+      <security-domain>java:/jaas/other</security-domain>
+    </container-configuration>        
+	    
+	</container-configurations>
+	
+</jboss>

@@ -1,0 +1,37 @@
+
+
+This file was generated using the following command.  If you are
+already looking at this from a web browser, then please ignore this
+message.
+
+  cd doc;ant text-doc
+----------------------------------------------------------
+
+                                    README
+
+   This is initial instructions to setup sipXconfig post installation. If
+   you've installed from source, you should add /usr/local/sipx/bin to your
+   PATH environment variable.
+
+Accessing web GUI
+
+   Then you can access the web gui from url: http://localhost:8080/pds
+
+Initial Setup of Domain
+
+   First thing you'll want to do is setup your system with a domain, at login
+   prompt, type the following user name and password
+  user name: installer
+  password : password
+
+   Here's a sample of information on next screen
+ Organization : Acme Corp.
+
+   Unless  your  machine's hostname is 'sipxchange' I suggest using fully
+   qualified hostname here (e.g myhost.acme.com)
+ DNS Domain   : myhostname.acme.com
+ PIN          : ****
+
+   For   more   information,   see   the   sipXconfig   manual  built  in
+   doc/manual/index.html which is text-based web browser friendly.
+   Last modified: Mon Nov 29 14:13:57 EST 2004

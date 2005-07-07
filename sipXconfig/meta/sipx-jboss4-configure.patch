@@ -1,0 +1,40 @@
+--- conf/log4j.xml.orig	2004-12-09 10:05:22.000000000 -0500
++++ conf/log4j.xml	2004-12-09 10:05:55.000000000 -0500
+@@ -25,6 +25,7 @@
+       <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
+       <param name="File" value="${jboss.server.home.dir}/log/server.log"/>
+       <param name="Append" value="false"/>
++      <param name="Threshold" value="INFO"/>
+ 
+       <!-- Rollover at midnight each day -->
+       <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+--- conf/standardjaws.xml.orig	2004-11-28 19:52:25.000000000 -0500
++++ conf/standardjaws.xml	2004-11-28 19:55:23.000000000 -0500
+@@ -13,8 +13,8 @@
+ <!-- $Id: standardjaws.xml,v 1.30 2002/06/27 19:26:28 dsundstrom Exp $ -->
+ 
+ <jaws>
+-   <datasource>java:/DefaultDS</datasource>
+-   <type-mapping>Hypersonic SQL</type-mapping>
++   <datasource>java:/PDSDataSource</datasource>
++   <type-mapping>PostgreSQL 7.2</type-mapping>
+    <debug>false</debug>
+ 
+    <default-entity>
+--- conf/login-config.xml.orig	2004-12-09 13:24:38.000000000 -0500
++++ conf/login-config.xml	2004-12-10 20:12:43.148901048 -0500
+@@ -166,10 +166,11 @@
+        unauthenticatedIdentity="nobody"
+        -->
+        <authentication>
+-          <login-module code = "org.jboss.security.auth.spi.UsersRolesLoginModule"
+-             flag = "required" />
++          <!-- login-module code = "org.jboss.security.ClientLoginModule" flag = "required"/-->
++          <login-module code = "com.pingtel.pds.jbossauth.SIPxchangeLoginModule" flag = "required">
++             <module-option name = "dsJndiName">java:/PDSDataSource</module-option>
++          </login-module>
+        </authentication>
+     </application-policy>
+-
+ </policy>
+ 

@@ -1,0 +1,185 @@
+#!/bin/bash
+
+RemoveAuxils="no"
+RemoveDevels="no"
+RemoveDB="yes"
+RemoveCfg="yes"
+Interactive="yes"
+User=`whoami`
+
+SipxProjects="\
+  sipXpbx \
+  sipXvxml \
+  sipXconfig \
+  sipXproxy \
+  sipXpublisher \
+  sipXregistry \
+  "
+
+SipxLibs="\
+  sipXcommserverLib \
+  sipXcallLib \
+  sipXmediaLib \
+  sipXtackLib \
+  sipXportLib \
+  "
+
+SipxAuxils="\
+  sipx-jboss \
+  cgicc \
+  mod_cplusplus \
+  pcre \
+  sipx-w3c-libwww \
+  xerces-c \
+  "
+
+while [ "$#" -ne 0 ]
+do
+  case ${1} in
+    --auxils)
+      RemoveAuxils="yes"
+      ;;
+
+    --devels)
+      RemoveDevels="yes"
+      ;;
+
+    --nodb)
+      RemoveDB="no"
+      ;;
+
+    --non-interactive)
+      Interactive="no"
+      ;;
+
+    --help | -h)
+      echo "Usage: sipx-uninstall [--auxils] [--devels] [--nodb]"
+      echo
+      echo "       --auxils  Attempts to additionally uninstall auxiliary RPMs"
+      echo "       --devels  Attempts to additionally uninstall sipX*-devel RPMs"
+      echo "       --nodb    Leaves database intact"
+      echo
+      exit 0
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      exit 3
+      ;;
+
+    esac
+    shift #always consume 1
+done
+
+if [ "$User" != "root" ]; then
+  echo "You must be root to uninstall RPMs."
+  echo
+  exit 1
+fi
+
+if [ "$Interactive" = "yes" ]; then
+  echo -n "Looking for installed sipX RPMs... "
+  PortLib=`rpm -qa | grep sipxportlib`
+  if [ -z "$PortLib" ]; then
+    echo "none found."
+  else
+    echo "found."
+  fi
+else
+  PortLib=`rpm -qa | grep sipxportlib`
+fi
+
+if [ -z "$PortLib" ]; then
+  if [ "$Interactive" = "yes" ]; then
+    echo "Cannot find installed sipX RPMs - uninstall aborted"
+  fi
+  exit 2
+fi
+
+if [ "$Interactive" = "yes" ]; then
+  echo
+  echo -n "You are about to uninstall all sipX RPMs"
+  if [ "$RemoveDB" = "yes" ]; then
+    echo " and clear the database."
+    echo
+    echo -n "Do you want to clear the database [y/N]? "
+    read ANSWER
+    case $ANSWER in
+      y | Y)
+      echo "  Database will be cleared as part of uninstall"
+      ;;
+
+      *)
+      RemoveDB="no"
+      echo "  Database will not be cleared as part of uninstall"
+      ;;
+    esac
+  else
+    echo
+  fi
+
+  echo -n "Do you want to remove configuration files [y/N]? "
+  read ANSWER
+
+  case $ANSWER in
+    y | Y)
+      echo "  Configuration files will be removed"
+      ;;
+
+    *)
+      echo "  Configuration files will not be removed"
+      RemoveCfg="no"
+      ;;
+  esac
+
+  echo -n "Do you want to proceed with uninstalling [y/N]? "
+  read ANSWER
+
+  case $ANSWER in
+    y | Y)
+      ;;
+
+    *)
+      exit 1
+      ;;
+  esac
+fi
+
+if [ "$RemoveDB" = "yes" ]; then
+  echo -n "Clearing database... "
+  sipxdbmgr --drop PDS &>/dev/null
+  sipxdbmgr --drop SDS &>/dev/null
+  echo "done"
+fi
+
+echo "Removing sipx RPMs..."
+for Project in $SipxProjects; do
+  Lower=`echo $Project | tr 'A-Z' 'a-z'`
+  echo -n "  Removing $Project... "
+  rpm -e $Lower &>/dev/null
+  echo " done"
+done
+
+for Project in $SipxLibs; do
+  Lower=`echo $Project | tr 'A-Z' 'a-z'`
+  echo -n "  Removing $Project... "
+  if [ "$RemoveDevels" = "yes" ]; then
+    rpm -e ${Lower}-devel
+  fi
+  rpm -e $Lower
+  echo " done"
+done
+
+if [ "$RemoveAuxils" = "yes" ]; then
+  echo -n "Removing auxiliary RPMs..."
+  for Auxil in $SipxAuxils; do
+    rpm -e $Auxil
+  done
+  echo " done"
+fi
+
+if [ "$RemoveCfg" = "yes" ]; then
+  echo "Removing configuration files"
+  rm -rf /etc/sipxpbx/*
+fi
+

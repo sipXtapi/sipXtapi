@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext"
+        initial-value="global.dialPlanContext"/>
+    
+    <property-specification name="ruleId" 
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>    
+    
+    <property-specification name="rule" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
+    </property-specification>    
+
+    <!-- used by removeGateways submit button-->
+	<property-specification name="removeGateways" 
+		type="java.lang.String"/>    
+    
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
+    
+	<component id="common" type="DialingRuleCommon">
+        <binding name="rule" expression="rule"/>
+    </component>
+    
+    <component id="onSave" type="Submit">
+        <binding name="listener" expression="listeners.save"/>
+    </component>
+    <component id="onCancel" type="CancelButton">
+        <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
+    </component>
+    
+    <!-- emergency specific -->
+
+    <component id="emergencyNumberLabel" type="FieldLabel">
+        <binding name="field" expression="components.emergencyNumber"/>
+    </component>
+    <component id="emergencyNumber" type="ValidField">
+        <binding name="value" expression="rule.emergencyNumber"/>
+        <binding name="validator" expression="global.validPhoneRequired"/>
+        <static-binding name="displayName" value="Emergency number"/>
+    </component>
+    
+    <component id="callerSensitiveRoutingLabel" type="FieldLabel">
+        <binding name="field" expression="components.callerSensitiveRouting"/>        
+        <static-binding name="displayName" value="Use caller sensitive forwarding"/>        
+    </component>
+    <component id="callerSensitiveRouting" type="Checkbox">
+        <binding name="selected" expression="rule.useMediaServer"/>
+    </component>
+    
+    <component id="emergencyRoutingLink" type="PageLink">
+        <static-binding name="page" value="EditEmergencyRouting"/>
+    </component>
+    
+    <!-- gateways configuration -->
+    
+    <component id="gatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="rule.gateways"/>
+        <binding name="dialPlanId" expression="rule.id"/>
+        <static-binding name="editPageName" value="EditGateway"/>
+    </component>
+    <component id="addGatewayLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.addGateway"/>
+        <static-binding name="parameters" value="normal"/>
+    </component>
+    <component id="selectGatewayLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.selectGateway"/>
+        <static-binding name="parameters" value="normal"/>
+    </component>
+    <component id="removeGateways" type="Submit">
+        <binding name="selected" expression="removeGateways"/>
+        <static-binding name="tag" value="normal"/>
+    </component>    
+
+    <!--
+	 - A S S E T S
+	 -->	
+</page-specification>

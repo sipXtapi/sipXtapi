@@ -1,0 +1,106 @@
+## Process this file with automake to produce Makefile.in
+
+if BUILDTAPI
+tapi_sources = net/TapiMgr.cpp
+endif
+
+SUBDIRS = . test
+
+## Make these part of optional compile under IF we use
+## GNU tools on windows
+EXTRA_DIST = \
+    resparse/wnt/inet_addr.c \
+    resparse/wnt/writev.c
+
+INCLUDES = \
+	-I$(top_srcdir)/include \
+	-I$(top_builddir)/include \
+	-I$(top_srcdir)/../sipXcallLib/include
+
+lib_LTLIBRARIES = libsipXtack.la
+
+## Libtool version info - update only immediately before a release
+# Current - increment if any interfaces are added, removed, or changed
+version_Current=1
+# Revision - set to 0 if Current was incremented
+#            increment if any implementation has changed
+version_Revision=0
+# Age - set to 0 of any interfaces have been removed
+#       increment if any interfaces have been added
+version_Age=0
+
+libsipXtack_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libsipXtack_la_CXXFLAGS = \
+	@SSL_CXXFLAGS@ \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+
+libsipXtack_la_LIBADD = \
+	@SIPXPORT_LIBS@ \
+	@SSL_LIBS@ \
+	-lresolv
+
+libsipXtack_la_SOURCES =  \
+    ../config/sipxtacklib-buildstamp.h \
+    ../config/sipxtacklib-buildstamp.cpp \
+    net/HttpBody.cpp \
+    net/HttpMessage.cpp \
+    net/HttpRequestContext.cpp \
+    net/HttpServer.cpp \
+    net/MailAttachment.cpp \
+    net/MailMessage.cpp \
+    net/MimeBodyPart.cpp \
+    net/NameValuePair.cpp \
+    net/NameValueTokenizer.cpp \
+    net/NetAttributeTokenizer.cpp \
+    net/NetBase64Codec.cpp \
+    net/NetMd5Codec.cpp \
+    net/SdpBody.cpp \
+    net/SdpCodec.cpp \
+    net/SdpCodecFactory.cpp \
+    net/SipClient.cpp \
+    net/SipConfigServerAgent.cpp \
+    net/SipLine.cpp \
+    net/SipLineCredentials.cpp \
+    net/SipLineEvent.cpp \
+    net/SipLineList.cpp \
+    net/SipLineMgr.cpp \
+    net/SipMessage.cpp \
+    net/SipMessageEvent.cpp \
+    net/SipMessageList.cpp \
+    net/SipNonceDb.cpp \
+    net/SipNotifyStateTask.cpp \
+    net/SipObserverCriteria.cpp \
+    net/SipPimClient.cpp \
+    net/SipProtocolServerBase.cpp \
+    net/SipRefreshMgr.cpp \
+    net/SipRequestContext.cpp \
+    net/SipServerBase.cpp \
+    net/SipSession.cpp \
+    net/SipSrvLookup.cpp \
+    net/SipTcpServer.cpp \
+    net/SipTlsServer.cpp \
+    net/SipTransaction.cpp \
+    net/SipTransactionList.cpp \
+    net/SipUdpServer.cpp \
+    net/SipUserAgentBase.cpp \
+    net/SipUserAgent.cpp \
+    net/SipUserAgentStateless.cpp \
+    net/Url.cpp \
+    resparse/bzero.c \
+    resparse/memset.c \
+    resparse/ns_name.c \
+    resparse/ns_netint.c \
+    resparse/res_comp.c  \
+    resparse/res_copy.c \
+    resparse/res_data.c \
+    resparse/res_free.c \
+    resparse/res_info.c \
+    resparse/res_init.c \
+    resparse/res_mkquery.c \
+    resparse/res_parse.c \
+    resparse/res_print.c \
+    resparse/res_query.c \
+    resparse/res_send.c \
+    $(tapi_sources)

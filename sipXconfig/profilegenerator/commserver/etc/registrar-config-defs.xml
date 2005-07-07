@@ -1,0 +1,117 @@
+<title>Configure SipRegistrar</title>
+<pagehelp>help/commserver/WebHelp/configure_sipregistrar.htm</pagehelp>
+<additionalsettingshelp>help/info/r_1000.htm</additionalsettingshelp>
+
+<refproperties>
+        <ref_property code="r_1011">
+            <name>SIP_REGISTRAR_TCP_PORT</name>
+            <description>IP port for SIP TCP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1012">
+            <name>SIP_REGISTRAR_UDP_PORT</name>
+            <description>IP port for SIP UDP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1004">
+            <name>SIP_REGISTRAR_DOMAIN_NAME</name>
+            <description>Accept REGISTER requests from (host)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1008">
+            <name>SIP_REGISTRAR_MAX_EXPIRES</name>
+            <description>Registrations expire after (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1010">
+            <name>SIP_REGISTRAR_MIN_EXPIRES</name>
+            <description>Receive registrations no more frequently than (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1009">
+            <name>SIP_REGISTRAR_MEDIA_SERVER</name>
+            <description>IP address and port for Media Server requests</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1013">
+            <name>SIP_REGISTRAR_VOICEMAIL_SERVER</name>
+            <description>IP address and port for Voicemail requests</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1014">
+            <name>SIP_REGISTRAR_MWI_SUBSCRIBE.CISCO</name>
+            <description>Automate MWI subscription for Cisco phones</description>
+            <value type="string" visibility="write">
+                <default_value>^CSCO</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1001">
+            <name>SIP_REGISTRAR_AUTHENTICATE_ALGORITHM</name>
+            <description>Algorithm for authentication challenges</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1003">
+            <name>SIP_REGISTRAR_AUTHENTICATE_REALM</name>
+            <description>Realm for authentication challenges</description>
+            <value type="string" visibility="write">
+                <default_value>${SIPXCHANGE_REALM}</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1002">
+            <name>SIP_REGISTRAR_AUTHENTICATE_QOP</name>
+            <description>QoP for incoming authentication credentials</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+         
+        <ref_property code="r_1005">
+            <name>SIP_REGISTRAR_LOG_CONSOLE</name>
+            <description>Enable message log output to console</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1007">
+            <name>SIP_REGISTRAR_LOG_LEVEL</name>
+            <description>Log messages with this (or higher) priority</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="r_1006">
+            <name>SIP_REGISTRAR_LOG_DIR</name>
+            <description>Directory path for message log</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+    </refproperties>

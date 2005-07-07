@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.dialplan.PatternsEditor" 
+    allow-body="no" allow-informal-parameters="no">
+    <!-- P A R A M E T E R S -->
+	<parameter name="patterns" 
+        type="java.util.List" 
+        required="yes" 
+        direction="in">
+    </parameter>
+    
+    <!-- P R O P E R T I E S -->
+    <property-specification name="pattern" type="org.sipfoundry.sipxconfig.admin.dialplan.DialPattern"/>
+    
+    <!-- B E A N S -->
+    <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel" lifecycle="page">
+    	<set-property name="min" expression="4"/>
+	    <set-property name="max" expression="18"/>
+	</bean>    
+    
+    <!-- C O M P O N E N T S -->
+    <component id="foreach" type="Foreach">
+        <binding name="source" expression="patterns"/>
+        <binding name="value" expression="pattern"/>        
+    </component>
+    
+    <component id="prefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.prefix"/>
+    </component>
+    <component id="prefix" type="ValidField">
+        <binding name="value" expression="pattern.prefix"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
+        <static-binding name="displayName" value="Prefix"/>
+    </component>
+    
+    <component id="add" type="LinkSubmit">
+        <binding name="listener" expression="listeners.add"/>
+    </component>
+
+    <component id="delete" type="LinkSubmit">
+        <binding name="listener" expression="listeners.delete"/>
+    </component>
+    
+    <component id="conditionalAdd" type="contrib:FormConditional">
+		<binding name="condition" expression="last"/>
+    </component>
+
+    <component id="conditionalDelete" type="contrib:FormConditional">
+		<binding name="condition" expression="patterns.size > 1"/>
+    </component>
+            
+    <component id="digits" type="PropertySelection">
+        <binding name="value" expression="pattern.digits"/>
+        <binding name="model" expression="beans.digitsModel"/>
+    </component>
+</component-specification>

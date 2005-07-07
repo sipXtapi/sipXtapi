@@ -1,0 +1,465 @@
+
+ <ref_property code="xp_2000">
+    <definition name="PHONESET_AVAILABLE_BEHAVIOR" mobility="false" cardinality="0..1" description="If no answer, phone should">
+       <value name="PHONESET_AVAILABLE_BEHAVIOR" type="enumeration" cardinality="1" visibility="write" description="If no answer, phone should">
+          <default_value>RING</default_value>
+
+          <enum_value>FORWARD_ON_NO_ANSWER</enum_value>
+
+          <enum_value>RING</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2001">
+    <definition name="PHONESET_BUSY_BEHAVIOR" mobility="false" cardinality="0..1" description="When busy, forward calls or play busy signal">
+       <value name="PHONESET_BUSY_BEHAVIOR" type="enumeration" cardinality="1" visibility="write" description="When busy, forward calls or play busy signal">
+          <default_value>BUSY</default_value>
+
+          <enum_value>BUSY</enum_value>
+
+          <enum_value>FORWARD</enum_value>
+
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2002">
+    <definition name="PHONESET_CALL_WAITING_BEHAVIOR" mobility="false" cardinality="0..1" description="If a call is in progress, play call waiting alert or act as busy">
+       <value name="PHONESET_CALL_WAITING_BEHAVIOR" type="enumeration" cardinality="1" visibility="write" description="If a call is in progress, play call waiting alert or act as busy">
+          <default_value>ALERT</default_value>
+
+          <enum_value>ALERT</enum_value>
+
+          <enum_value>BUSY</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2003">
+    <definition name="PHONESET_DND" mobility="false" cardinality="0..1" description="Do Not Disturb">
+       <value name="PHONESET_DND" type="enumeration" cardinality="1" visibility="write" description="Do Not Disturb">
+          <default_value>DISABLE</default_value>
+
+          <enum_value>DISABLE</enum_value>
+
+          <enum_value>ENABLE</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2004">
+    <definition name="PHONESET_DND_METHOD" mobility="false" cardinality="0..1" description="When set to Do Not Disturb">
+       <value name="PHONESET_DND_METHOD" type="enumeration" cardinality="1" visibility="write" description="When set to Do Not Disturb">
+          <default_value>FORWARD_ON_BUSY</default_value>
+
+          <enum_value>FORWARD_ON_BUSY</enum_value>
+
+          <enum_value>FORWARD_ON_NO_ANSWER</enum_value>
+
+          <enum_value>SEND_BUSY</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <!--<ref_property code="xp_2005">
+    <definition name="PHONESET_EXTENSION" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONESET_EXTENSION" type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <ref_property code="xp_2006">
+    <definition name="PHONESET_MSG_WAITING_SUBSCRIBE" mobility="false" cardinality="0..1" description="Subscribe for voicemail NOTIFY msgs from">
+       <value name="PHONESET_MSG_WAITING_SUBSCRIBE" type="string" cardinality="1" visibility="write" description="Subscribe for voicemail NOTIFY msgs from" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2007">
+    <definition name="PHONESET_NO_ANSWER_TIMEOUT" mobility="false" cardinality="0..1" description="Forward on no answer within (seconds)">
+       <value name="PHONESET_NO_ANSWER_TIMEOUT" type="integer" cardinality="1" visibility="write" description="Forward on no answer within (seconds)">
+          <default_value>24</default_value>
+
+          <max_value>30</max_value>
+
+          <min_value>6</min_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2008">
+    <definition name="PHONESET_RINGER" mobility="false" cardinality="0..1" description="Incoming call alert">
+       <value name="PHONESET_RINGER" type="enumeration" cardinality="1" visibility="write" description="Incoming call alert">
+          <default_value>BOTH</default_value>
+
+          <enum_value>AUDIBLE</enum_value>
+
+          <enum_value>BOTH</enum_value>
+
+          <enum_value>VISUAL</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2009">
+    <definition name="PHONESET_VOICEMAIL_RETRIEVE" mobility="false" cardinality="0..1" description="Retrieve voicemail messages from">
+       <value name="PHONESET_VOICEMAIL_RETRIEVE" type="string" cardinality="1" visibility="write" description="Retrieve voicemail messages from" />
+    </definition>
+ </ref_property>
+
+ <!--<ref_property code="xp_2011">
+    <definition name="PHONEBOOK_LDAP_AUTHENTICATE" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONEBOOK_LDAP_AUTHENTICATE" type="enumeration" description="">
+          <default_value>NO</default_value>
+
+          <enum_value>NO</enum_value>
+
+          <enum_value>YES</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2012">
+    <definition name="PHONEBOOK_LDAP_MAXHITS" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONEBOOK_LDAP_MAXHITS" type="integer" description="">
+          <default_value>100</default_value>
+
+          <max_value>200</max_value>
+
+          <min_value>10</min_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2013">
+    <definition name="PHONEBOOK_LDAP_PORT" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONEBOOK_LDAP_PORT" type="integer" description="">
+          <default_value>389</default_value>
+
+          <max_value>65535</max_value>
+
+          <min_value>0</min_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2014">
+    <definition name="PHONEBOOK_LDAP_ROOT" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONEBOOK_LDAP_ROOT" type="string" description="" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2015">
+    <definition name="PHONEBOOK_LDAP_SERVER" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONEBOOK_LDAP_SERVER" type="string" description="" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2016">
+    <definition name="PHONEBOOK_LDAP_USERNODE" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONEBOOK_LDAP_USERNODE" type="string" description="" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2017">
+    <definition name="PHONEBOOK_LDAP_PASSWORD" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONEBOOK_LDAP_PASSWORD" type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <!--<ref_property code="xp_2018">
+    <definition name="SIP_AUTHORIZE_PASSWORD." mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_AUTHORIZE_PASSWORD." type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <!--<ref_property code="xp_2019">
+    <definition name="SIP_AUTHORIZE_USER." mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_AUTHORIZE_USER." type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <ref_property code="xp_2020">
+    <definition name="SIP_FORWARD_ON_BUSY" mobility="false" cardinality="0..1" description="Forward if busy to">
+       <value name="SIP_FORWARD_ON_BUSY" type="string" cardinality="1" visibility="write" description="Forward if busy to" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2021">
+    <definition name="SIP_FORWARD_ON_NO_ANSWER" mobility="false" cardinality="0..1" description="Forward on no answer to">
+       <value name="SIP_FORWARD_ON_NO_ANSWER" type="string" cardinality="1" visibility="write" description="Forward on no answer to" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2022">
+    <definition name="SIP_FORWARD_UNCONDITIONAL" mobility="false" cardinality="0..1" description="Forward all calls to">
+       <value name="SIP_FORWARD_UNCONDITIONAL" type="string" cardinality="1" visibility="write" description="Forward all calls to" />
+    </definition>
+ </ref_property>
+
+ <!--<ref_property code="xp_2023">
+    <definition name="USER_PROFILE" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="USER_PROFILE" type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <!--<ref_property code="xp_2024">
+    <definition name="PHONESET_MYPINGTEL_SERVER" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONESET_MYPINGTEL_SERVER" type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <!--<ref_property code="xp_2025">
+    <definition name="PHONESET_MYPINGTEL_PHONE_ID" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONESET_MYPINGTEL_PHONE_ID" type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <!--<ref_property code="xp_2026">
+    <definition name="PHONESET_MYPINGTEL_USERNAME" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONESET_MYPINGTEL_USERNAME" type="string" description="" />
+    </definition>
+ </ref_property>-->
+
+ <ref_property code="xp_2028">
+    <definition name="USER_DEFAULT_OUTBOUND_LINE" mobility="false" cardinality="0..1" description="Identify outgoing calls with this SIP URL">
+       <value name="USER_DEFAULT_OUTBOUND_LINE" type="string" cardinality="1" visibility="write" description="Identify outgoing calls with this SIP URL" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2029">
+    <definition name="USER_LINE" mobility="false" cardinality="0..N" blank_entries="1" description="Identify an Individual Phone User by Defining a User Line">
+       <value name="USER_LINE" type="container" cardinality="1" visibility="write">
+
+          <value name="URL" type="string" cardinality="1" visibility="write" index="true" sort="alphanum-casesensitive-asc" description="SIP URL">
+             <default_value>4444@</default_value>
+          </value>
+
+          <value name="REGISTRATION" type="enumeration" cardinality="0..1" visibility="write" description="Register with host or provision line as is">
+             <default_value>PROVISION</default_value>
+
+             <enum_value>PROVISION</enum_value>
+
+             <enum_value>REGISTER</enum_value>
+          </value>
+
+          <value name="ALLOW_FORWARDING" type="enumeration" cardinality="0..1" visibility="write" description="Apply rules for call forwarding">
+             <default_value>DISABLE</default_value>
+
+             <enum_value>DISABLE</enum_value>
+
+             <enum_value>ENABLE</enum_value>
+          </value>
+
+          <value name="CREDENTIAL" type="container" cardinality="0..N" visibility="write" blank_entries="1" description="Credentials for Outgoing Calls">
+             <value name="REALM" type="string" cardinality="1" visibility="write" description="Realm">
+             </value>
+
+             <value name="USERID" type="string" cardinality="1" visibility="write" description="User Name">
+             </value>
+
+             <value name="PASSTOKEN" type="digest" cardinality="0..1" visibility="write" description="Password">
+             </value>
+          </value>
+       </value>
+    </definition>
+ </ref_property>
+
+
+ <ref_property code="xp_2030">
+    <definition name="PHONESET_SPEEDDIAL" mobility="false" cardinality="0..N" blank_entries="3" description="Speed Dial Number with its Corresponding Address to Dial, Identifying Label, and Address Type">
+       <value name="PHONESET_SPEEDDIAL" type="container" cardinality="1" visibility="write">
+          <value name="ID" type="integer" cardinality="1" visibility="write" index="true" sort="numeric-asc" description="Speed dial number">
+          </value>
+
+          <value name="LABEL" type="string" cardinality="1" visibility="write" description="Name">
+          </value>
+
+          <value name="TYPE" type="enumeration" cardinality="1" visibility="write" description="Phone number or SIP URL?">
+             <default_value>NUMBER</default_value>
+             <enum_value>URL</enum_value>
+             <enum_value>NUMBER</enum_value>
+          </value>
+
+         <value name="ADDRESS" type="string" cardinality="1" visibility="write" description="Address">
+         </value>
+
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2031">
+    <definition name="ADDITIONAL_USER_PARAMETERS" mobility="false" cardinality="A" description="">
+       <value name="ADDITIONAL_USER_PARAMETERS" type="area" cardinality="1" visibility="write" index="true" description="Additional Settings"/>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_2032">
+    <definition name="PHONESET_FORWARD_UNCONDITIONAL" mobility="false" cardinality="0..1" description="Forward all calls">
+       <value name="PHONESET_FORWARD_UNCONDITIONAL" type="enumeration" cardinality="1" visibility="write" description="Forward all calls">
+          <default_value>DISABLE</default_value>
+
+          <enum_value>DISABLE</enum_value>
+
+          <enum_value>ENABLE</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+
+ <ref_property code="xp_2033">
+    <definition name="PHONESET_SPEEDDIAL_DATASOURCE" mobility="false" cardinality="0..1" description="">
+       <value name="PHONESET_SPEEDDIAL_DATASOURCE" type="enumeration" cardinality="1" visibility="write" description="Save speed dial numbers">
+          <default_value>CONFIG</default_value>
+
+          <enum_value>CONFIG</enum_value>
+
+          <enum_value>LOCAL</enum_value>
+       </value>
+    </definition>
+ </ref_property>
+
+ 	<ref_property code="xp_2034">
+	    <definition name="PHONESET_REMOTE_ID_FORMAT" mobility="false" cardinality="0..1" description="Inbound Caller ID Format">
+	       <value name="PHONESET_REMOTE_ID_FORMAT" type="string" cardinality="1" visibility="write" description="Inbound Caller ID Format"/>
+	    </definition>
+ 	</ref_property>
+
+
+ <ref_property code="xp_10000">
+     <definition name="PERMISSIONS" mobility="false" cardinality="0..1" description="User permissions">
+         <value name="PERMISSIONS" type="container" cardinality="1" visibility="write">
+             <value name="_900Dialing" type="enumeration" cardinality="1" visibility="write" description="User can dial 900 numbers">
+                 <default_value>ENABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+
+             <value name="AutoAttendant" type="enumeration" cardinality="1" visibility="write" description="List user in Auto Attendant">
+                 <default_value>ENABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+
+             <value name="InternationalDialing" type="enumeration" cardinality="1" visibility="write" description="User can dial international numbers">
+                 <default_value>ENABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+
+             <value name="LocalDialing" type="enumeration" cardinality="1" visibility="write" description="User can dial local numbers">
+                 <default_value>ENABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+
+             <value name="LongDistanceDialing" type="enumeration" cardinality="1" visibility="write" description="User can dial long distance numbers">
+                 <default_value>ENABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+
+             <value name="Voicemail" type="enumeration" cardinality="1" visibility="write" description="User has voicemail inbox">
+                 <default_value>ENABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+
+             <value name="ForwardCallsExternal" type="enumeration" cardinality="1" visibility="write" description="User can forward calls to external numbers">
+                 <default_value>DISABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+
+             <value name="RecordSystemPrompts" type="enumeration" cardinality="1" visibility="write" description="User can record system prompts">
+                 <default_value>DISABLE</default_value>
+                 <enum_value>DISABLE</enum_value>
+                 <enum_value>ENABLE</enum_value>
+             </value>
+         </value>
+     </definition>
+ </ref_property>
+
+
+
+    <ref_property code="xp_10001">
+    <definition name="PRIMARY_LINE" mobility="false" cardinality="0..1" blank_entries="1"
+        description="Identify an Individual Phone User by Defining a User's Primary Line">
+       <value name="PRIMARY_LINE" type="container" cardinality="1" visibility="write">
+
+          <value name="URL" type="string" cardinality="1" visibility="write" description="SIP URL">
+             <default_value>4444@</default_value>
+          </value>
+
+          <value name="REGISTRATION" type="enumeration" cardinality="0..1" visibility="write" description="Register with host or provision line as is">
+             <default_value>PROVISION</default_value>
+
+             <enum_value>PROVISION</enum_value>
+
+             <enum_value>REGISTER</enum_value>
+          </value>
+
+          <value name="ALLOW_FORWARDING" type="enumeration" cardinality="0..1" visibility="write" description="Apply rules for call forwarding">
+             <default_value>DISABLE</default_value>
+
+             <enum_value>DISABLE</enum_value>
+
+             <enum_value>ENABLE</enum_value>
+          </value>
+
+          <value name="CREDENTIAL" type="container" cardinality="0..N" visibility="write" blank_entries="1" description="Credentials for Outgoing Calls">
+             <value name="REALM" type="string" cardinality="1" visibility="write" description="Realm">
+             </value>
+
+             <value name="USERID" type="string" cardinality="1" visibility="write" description="User Name">
+             </value>
+
+             <value name="PASSTOKEN" type="digest" cardinality="0..1" visibility="write" description="Password">
+             </value>
+          </value>
+       </value>
+    </definition>
+</ref_property>
+
+<ref_property code="xp_2035">
+    <definition name="PHONESET_MUSIC_ON_HOLD" mobility="false" cardinality="0..1" description="Music on hold">
+       <value name="PHONESET_MUSIC_ON_HOLD" type="enumeration" cardinality="1" visibility="write" description="Music on hold">
+            <default_value>DISABLE</default_value>
+            <enum_value>DISABLE</enum_value>
+            <enum_value>ENABLE</enum_value>
+       </value>
+    </definition>
+</ref_property>
+
+<ref_property code="xp_2036">
+    <definition name="PHONESET_MUSIC_ON_HOLD_SOURCE" mobility="false" cardinality="0..1" description="Music on hold source">
+       <value name="PHONESET_MUSIC_ON_HOLD_SOURCE" type="string" cardinality="1" visibility="write" description="Music on hold source" />
+    </definition>
+</ref_property>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<dataset>
+	<folder
+		folder_id="1"
+		label="default"
+		resource="phone"/>
+	<folder
+		folder_id="2"
+		label="default"
+		resource="line"/>
+	<phone 
+		folder_id="1"
+		serial_number="999123456" 
+		phone_id="1" 
+		name="unittest-sample phone1" 
+		factory_id="polycom300"/>
+	<line 
+		line_id="1" 
+		folder_id="2"
+		phone_id="1" 
+		position="0" 
+		user_id="4"/>
+	<phone 
+		serial_number="999123457" 
+		folder_id="1"
+		phone_id="2" 
+		name="unittest-sample phone2" 
+		factory_id="polycom300"/>		
+	<phone 
+		serial_number="999123458" 
+		folder_id="1"
+		phone_id="3" 
+		name="unittest-sample phone3" 
+		factory_id="polycom300"/>
+	<line 
+		line_id="2" 
+		folder_id="2"
+		phone_id="3" 
+		position="0" 
+		user_id="4"/>	
+	<line 
+		line_id="3" 
+		folder_id="2"
+		phone_id="3" 
+		position="1" 
+		user_id="4"/>			
+</dataset>

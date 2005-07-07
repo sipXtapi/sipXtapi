@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<model name="registration">
+		<label>Registration</label>
+		<meta name="displayName">
+			<label>Display Name</label>
+		</meta>
+		<meta name="address">
+			<label>Address</label>
+			<type>Server</type>
+		</meta>
+		<meta name="label">
+			<label>Label</label>
+		</meta>
+		<meta name="type">
+			<label>Type</label>
+			<enum>
+				<element>public</element>
+				<element>private</element>
+			</enum>
+		</meta>
+	</model>
+</model>
