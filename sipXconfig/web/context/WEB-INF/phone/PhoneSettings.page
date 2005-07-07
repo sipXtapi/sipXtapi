@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneSettings">
+    <!--
+    - P R O P E R T I E S
+    -->
+    <property-specification name="phoneId"
+        type="java.lang.Integer" 
+        persistent="yes"/>
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="parentSettingName"
+        type="java.lang.String"
+        persistent="yes"/>    
+    <property-specification name="parentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+   <!--
+    - C O M P O N E N T S
+    -->
+    <component id="editPhoneNavigation" type="PhoneNavigation">
+        <binding name="phone" expression="phone"/>
+        <binding name="tab" expression="parentSetting.name"/>
+        <binding name="heading" expression="parentSetting.label"/>
+    </component>
+    <component id="settingDescription" type="Insert">
+        <binding name="value" expression="parentSetting.description"/>
+    </component>
+    <component id="settingsForm" type="SettingsForm">
+        <binding name="settings" expression="parentSetting"/>
+        <binding name="cancelListener" expression="listeners.cancel"/>
+        <binding name="okListener" expression="listeners.ok"/>
+        <binding name="applyListener" expression="listeners.apply"/>
+        <binding name="settingRenderer" expression="settingRenderer"/>
+    </component>
+</page-specification>

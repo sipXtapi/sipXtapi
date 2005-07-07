@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|**/classes/**|**/dist/**|test/" kind="src" path="common/src"/>
+	<classpathentry kind="src" path="common/src/test"/>
+	<classpathentry kind="src" path="profilegenerator/authentication/src"/>
+	<classpathentry excluding="test/" kind="src" path="profilegenerator/commserver/src"/>
+	<classpathentry kind="src" path="profilegenerator/commserver/src/test"/>
+	<classpathentry excluding="test/" kind="src" path="profilegenerator/ejb/src"/>
+	<classpathentry kind="src" path="profilegenerator/ejb/src/test"/>
+	<classpathentry kind="src" path="profilegenerator/soap/src"/>
+	<classpathentry excluding="**/.svn/**|**/classes/**|**/dist/**" kind="src" path="profilegenerator/webui/src"/>
+	<classpathentry excluding="test/" kind="src" path="profilepublisher/src"/>
+	<classpathentry kind="src" path="profilepublisher/src/test"/>
+	<classpathentry kind="src" path="profilewriter/src"/>
+	<classpathentry kind="lib" path="lib/axis.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/commons-dbcp.jar"/>
+	<classpathentry kind="lib" path="lib/commons-discovery.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j-full.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-regexp-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/jaxen-core.jar"/>
+	<classpathentry kind="lib" path="lib/jaxen-jdom.jar"/>
+	<classpathentry kind="lib" path="lib/jaxrpc.jar"/>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry sourcepath="/jakarta-log4j/src" kind="lib" path="lib/log4j.jar"/>
+	<classpathentry kind="lib" path="lib/NetComponents.jar"/>
+	<classpathentry kind="lib" path="lib/pgjdbc2.jar"/>
+	<classpathentry kind="lib" path="lib/saaj.jar"/>
+	<classpathentry kind="lib" path="lib/saxpath.jar"/>
+	<classpathentry kind="lib" path="lib/taglibs-xtags.jar"/>
+	<classpathentry kind="lib" path="lib/wsdl4j.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/ext/jboss-j2ee.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/ext/jboss.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/jboss-jaas.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/catalina/common/lib/servlet.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/ext/activation.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/jmxri.jar"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+
+    <!-- Script that allows mailbox owner to change their PIN -->
+
+    <form id="changepin">
+        <field name="pin">
+            <grammar>0|1|2|3|4|5|6|7|8|9</grammar>
+            <prompt timeout="10s">
+                <audio src="..\..\..\..\mediasrv\voicemail\TUI\audio\hari\changepin\pin_prompt.au" />
+            </prompt>
+            <filled>
+                <if cond="pin == '0'">
+                    <goto nextitem="cancel"/>
+                </if>
+            </filled>
+        </field>
+                
+
+        <field name="pin2">
+            <grammar>0|1|2|3|4|5|6|7|8|9</grammar>
+            <prompt timeout="10s">
+                <audio src="..\..\..\..\mediasrv\voicemail\TUI\audio\hari\changepin\pin_reprompt.au" />
+            </prompt>
+            <filled>
+                <if cond="pin2 == '0'">
+                    <goto nextitem="cancel"/>
+                    <elseif cond="pin2==pin" />
+                    <goto nextitem="success"/>
+                    <else/>
+                    <goto nextitem="mismatch"/>
+                </if>
+            </filled>
+        </field>
+    
+
+        <field name="success">
+            <grammar>1</grammar>
+            <prompt timeout="10s">
+                <audio src="..\..\..\..\mediasrv\voicemail\TUI\audio\hari\changepin\pin_changed.au" />
+            </prompt>
+            <filled>
+                <return/>
+            </filled>
+        </field>
+
+        <field name="mismatch">
+            <grammar>1</grammar>
+            <prompt timeout="10s">
+                <audio src="..\..\..\..\mediasrv\voicemail\TUI\audio\hari\changepin\pin_invalid.au" />
+            </prompt>
+            <filled>
+                <clear namelist="pin pin2"/>
+                <goto nextitem="pin"/>
+            </filled>
+        </field>
+
+        <field name="cancel">
+            <grammar>1</grammar>
+            <prompt timeout="10s">
+                <audio src="..\..\..\..\mediasrv\voicemail\TUI\audio\hari\changepin\pin_cancel.au" />
+            </prompt>
+            <filled>
+                <return/>
+            </filled>
+        </field>
+
+    </form>
+</vxml>
+

@@ -1,0 +1,117 @@
+<title>Configure SipStatus</title>
+<pagehelp>help/commserver/WebHelp/configure_sipstatus.htm</pagehelp>
+<additionalsettingshelp>help/info/s_1000.htm</additionalsettingshelp>
+
+<refproperties>
+        <ref_property code="s_1004">
+            <name>SIP_STATUS_DOMAIN_NAME</name>
+            <description>Accept SUBSCRIBE requests from (host)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1013">
+            <name>SIP_STATUS_TCP_PORT</name>
+            <description>IP port for SIP TCP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1014">
+            <name>SIP_STATUS_UDP_PORT</name>
+            <description>IP port for SIP UDP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1006">
+            <name>SIP_STATUS_HTTP_VALID_IPS</name>
+            <description>Accept SUBSCRIBE requests only from</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1007">
+            <name>SIP_STATUS_HTTPS_PORT</name>
+            <description>IP port for HTTPS messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1005">
+            <name>SIP_STATUS_HTTP_PORT</name>
+            <description>IP port for HTTP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1011">
+            <name>SIP_STATUS_MAX_EXPIRES</name>
+            <description>Subscriptions expire after (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1012">
+            <name>SIP_STATUS_MIN_EXPIRES</name>
+            <description>Receive subscriptions no more frequently than (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1001">
+            <name>SIP_STATUS_AUTHENTICATE_ALGORITHM</name>
+            <description>Algorithm for authentication challenges</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1003">
+            <name>SIP_STATUS_AUTHENTICATE_REALM</name>
+            <description>Realm for authentication challenges</description>
+            <value type="string" visibility="write">
+                <default_value>${SIPXCHANGE_REALM}</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1002">
+            <name>SIP_STATUS_AUTHENTICATE_QOP</name>
+            <description>QoP for incoming authentication credentials</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1008">
+            <name>SIP_STATUS_LOG_CONSOLE</name>
+            <description>Enable message log output to console</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1010">
+            <name>SIP_STATUS_LOG_LEVEL</name>
+            <description>Log messages with this (or higher) priority</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="s_1009">
+            <name>SIP_STATUS_LOG_DIR</name>
+            <description>Directory path for message log</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+</refproperties>

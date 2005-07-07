@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<ref_property code="xp_1000">
+    <definition name="PHONESET_CHECK_SYNC" mobility="false" cardinality="0..1" description="">
+
+       <value name="PHONESET_CHECK_SYNC" type="enumeration">
+          <default_value>DISABLE</default_value>
+
+          <enum_value>DISABLE</enum_value>
+
+          <enum_value>ENABLE</enum_value>
+       </value>
+    </definition>
+ </ref_property>-->
+<!--<ref_property code="xp_1001">
+    <definition name="PHONESET_DEFAULT_USER" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONESET_DEFAULT_USER" type="string" />
+    </definition>
+ </ref_property>-->
+<ref_property code="xp_1002">
+   <definition name="PHONESET_DIALPLAN_LENGTH" mobility="false" cardinality="0..1" description="Send dialed numbers automatically after (digits)">
+      <value name="PHONESET_DIALPLAN_LENGTH" type="integer" cardinality="1" visibility="write" description="Send dialed numbers automatically after (digits)">
+         <default_value>4</default_value>
+
+         <max_value>1</max_value>
+
+         <min_value>1</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1003">
+   <definition name="PHONESET_DIGITMAP" mobility="false" cardinality="0..N" blank_entries="1" description="Digitmaps">
+      <value name="PHONESET_DIGITMAP" type="container" cardinality="1" visibility="write">
+         <value name="NUMBER" type="integer" cardinality="1" visibility="write" index="true" sort="alphanum-casesensitive-asc" description="Dial Plan">
+            <max_value>9999999999</max_value>
+
+            <min_value>1</min_value>
+         </value>
+
+         <value name="TARGET" type="string" cardinality="1" visibility="write" description="SIP Address">
+         </value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1004">
+   <definition name="PHONESET_EXTERNAL_IP_ADDRESS" mobility="false" cardinality="0..1" description="Host address outside NAT firewall">
+      <value name="PHONESET_EXTERNAL_IP_ADDRESS" type="string" cardinality="1" visibility="write" description="Host address outside NAT firewall" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1005">
+   <definition name="PHONESET_HTTP_AUTH_DB" mobility="false" cardinality="0..N" blank_entries="1" description="Authorized Phone Users">
+      <value name="PHONESET_HTTP_AUTH_DB" type="container" cardinality="1" visibility="write">
+         <value name="USERID" type="string" cardinality="1" visibility="write" index="true" sort="alphanum-casesensitive-asc" description="User Name">
+            <default_value>admin</default_value>
+         </value>
+
+         <value name="PASSTOKEN" type="digest" cardinality="1" visibility="write" description="Password">
+            <default_value>1234</default_value>
+         </value>
+
+         <value name="REALM" type="string" cardinality="1" visibility="hidden" read_only_value="xpressa" />
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1006">
+   <definition name="PHONESET_HTTP_PORT" mobility="false" cardinality="0..1" description="HTTP port for embedded web server">
+      <value name="PHONESET_HTTP_PORT" type="integer" cardinality="1" visibility="write" description="HTTP port for embedded web server">
+         <default_value>80</default_value>
+
+         <max_value>65535</max_value>
+
+         <min_value>0</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1007">
+   <definition name="PHONESET_HTTP_PROXY_HOST" mobility="false" cardinality="0..1" description="HTTP proxy host name">
+      <value name="PHONESET_HTTP_PROXY_HOST" type="string" cardinality="1" visibility="write" description="HTTP proxy host name" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1008">
+   <definition name="PHONESET_HTTP_PROXY_PORT" mobility="false" cardinality="0..1" description="HTTP proxy port number">
+      <value name="PHONESET_HTTP_PROXY_PORT" type="integer" cardinality="1" visibility="write" description="HTTP proxy port number">
+         <max_value>65535</max_value>
+
+         <min_value>0</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1009">
+   <definition name="PHONESET_LOGO_URL" mobility="false" cardinality="0..1" description="Display graphic on home screen from">
+      <value name="PHONESET_LOGO_URL" type="string" cardinality="1" visibility="write" description="Display graphic on home screen from" />
+   </definition>
+</ref_property>
+
+<!--<ref_property code="xp_1010">
+    <definition name="PHONESET_NETWORK_DUPLEX" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="PHONESET_NETWORK_DUPLEX" type="enumeration" description="">
+          <default_value>HALF</default_value>
+
+          <enum_value>FULL</enum_value>
+
+          <enum_value>HALF</enum_value>
+       </value>
+    </definition>
+ </ref_property>-->
+<ref_property code="xp_1011">
+   <definition name="PHONESET_RTP_PORT_START" mobility="false" cardinality="0..1" description="Starting port for RTP/RTCP packets">
+      <value name="PHONESET_RTP_PORT_START" type="integer" cardinality="1" visibility="write" description="Starting port for RTP/RTCP packets">
+         <default_value>8766</default_value>
+
+         <max_value>65535</max_value>
+
+         <min_value>0</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1012">
+   <definition name="PHONESET_SNMP_TRAP_DESTS" mobility="false" cardinality="0..1" description="Send SNMP trap messages to">
+      <value name="PHONESET_SNMP_TRAP_DESTS" type="string" cardinality="1" visibility="write" description="Send SNMP trap messages to" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1013">
+   <definition name="PHONESET_TIME_DST_RULE" mobility="false" cardinality="0..1" description="Daylight Saving Time (DST) rule">
+      <value name="PHONESET_TIME_DST_RULE" type="enumeration" cardinality="1" visibility="write" description="Daylight Saving Time (DST) rule">
+         <default_value>NORTH_AMERICA</default_value>
+
+         <enum_value>NONE</enum_value>
+
+         <enum_value>NORTH_AMERICA</enum_value>
+
+         <enum_value>WESTERN_EUROPE</enum_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1014">
+   <definition name="PHONESET_TIME_OFFSET" mobility="false" cardinality="0..1" description="Time Zone">
+      <value name="PHONESET_TIME_OFFSET" type="integer" cardinality="1" visibility="write" description="Time Zone">
+         <default_value>-300</default_value>
+
+         <max_value>720</max_value>
+
+         <min_value>-720</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1015">
+   <definition name="PHONESET_TIME_SERVER" mobility="false" cardinality="0..1" description="Time server">
+      <value name="PHONESET_TIME_SERVER" type="string" cardinality="1" visibility="write" description="Time server" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1016">
+   <definition name="PHONESET_TELNET_ACCESS" mobility="false" cardinality="0..1" description="Activate Telnet access">
+      <value name="PHONESET_TELNET_ACCESS" type="enumeration" cardinality="1" visibility="write" description="Activate Telnet access">
+         <default_value>DISABLE</default_value>
+
+         <enum_value>DISABLE</enum_value>
+
+         <enum_value>ENABLE</enum_value>
+      </value>
+   </definition>
+</ref_property>
+
+<!--<ref_property code="xp_1017">
+    <definition name="SIP_ADDRESS" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_ADDRESS" type="string" description="" />
+    </definition>
+ </ref_property>-->
+<!-- Removed as per bug #2338
+
+ <ref_property code="xp_1018">
+    <definition name="SIP_AUTHENTICATE_DB" mobility="false" cardinality="0..N" blank_entries="1" description="Authorized Callers">
+       <value name="SIP_AUTHENTICATE_DB" type="container" cardinality="1" visibility="write">
+          <value name="USER" type="string" cardinality="1" visibility="write" index="true" sort="alphanum-casesensitive-asc" description="User Name"/>
+          <value name="PASSWORD" type="password" cardinality="1" visibility="write" description="Password"/>
+       </value>
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_1019">
+    <definition name="SIP_AUTHENTICATE_REALM" mobility="false" cardinality="0..1" description="Phone realm">
+       <value name="SIP_AUTHENTICATE_REALM" type="string" cardinality="1" visibility="write" description="Phone realm" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_1020">
+    <definition name="SIP_AUTHENTICATE_SCHEME" mobility="false" cardinality="0..1" description="Authentication for incoming calls">
+       <value name="SIP_AUTHENTICATE_SCHEME" type="enumeration" cardinality="1" visibility="write" description="Authentication for incoming calls">
+          <default_value>NONE</default_value>
+
+          <enum_value>BASIC</enum_value>
+
+          <enum_value>DIGEST</enum_value>
+
+          <enum_value>NONE</enum_value>
+       </value>
+    </definition>
+ </ref_property>-->
+<ref_property code="xp_1021">
+   <definition name="SIP_DIRECTORY_SERVERS" mobility="false" cardinality="0..1" description="Location server">
+      <value name="SIP_DIRECTORY_SERVERS" type="string" cardinality="1" visibility="write" description="Location server" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1022">
+   <definition name="SIP_PROXY_SERVERS" mobility="false" cardinality="0..1" description="Route all outbound SIP messages through proxy at">
+      <value name="SIP_PROXY_SERVERS" type="string" cardinality="1" visibility="write" description="Route all outbound SIP messages through proxy at" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1023">
+   <definition name="SIP_REGISTER_PERIOD" mobility="false" cardinality="0..1" description="Send registration messages every (seconds)">
+      <value name="SIP_REGISTER_PERIOD" type="integer" cardinality="1" visibility="write" description="Send registration messages every (seconds)">
+         <default_value>3600</default_value>
+
+         <min_value>60</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<!--<ref_property code="xp_1024">
+    <definition name="SIP_REGISTRY_SERVERS" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_REGISTRY_SERVERS" type="string" description="" />
+    </definition>
+ </ref_property>-->
+<ref_property code="xp_1025">
+   <definition name="SIP_REINVITE_TIMER" mobility="false" cardinality="0..1" description="Send session reinvite messages every (seconds)">
+      <value name="SIP_REINVITE_TIMER" type="integer" cardinality="1" visibility="write" description="Send session reinvite messages every (seconds)">
+         <min_value>15</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1026">
+   <definition name="SIP_TCP_PORT" mobility="false" cardinality="0..1" description="Port for inbound SIP TCP messages">
+      <value name="SIP_TCP_PORT" type="integer" cardinality="1" visibility="write" description="Port for inbound SIP TCP messages">
+         <default_value>5060</default_value>
+
+         <max_value>65535</max_value>
+
+         <min_value>0</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1027">
+   <definition name="SIP_UDP_PORT" mobility="false" cardinality="0..1" description="Port for inbound SIP UDP messages">
+      <value name="SIP_UDP_PORT" type="integer" cardinality="1" visibility="write" description="Port for inbound SIP UDP messages">
+         <default_value>5060</default_value>
+
+         <max_value>65535</max_value>
+
+         <min_value>0</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1028">
+   <definition name="ALLOW_CONSOLE_OUTPUT" mobility="false" cardinality="0..1" description="Activate console logging">
+      <value name="ALLOW_CONSOLE_OUTPUT" type="enumeration" cardinality="1" visibility="write" description="Activate console logging">
+         <default_value>DISABLE</default_value>
+         <enum_value>DISABLE</enum_value>
+         <enum_value>ENABLE</enum_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1029">
+   <definition name="JAVA_OUTPUTSTREAM_REDIRECT" mobility="false" cardinality="0..1" description="Send Java debugging output to">
+      <value name="JAVA_OUTPUTSTREAM_REDIRECT" type="enumeration" cardinality="1" visibility="write" description="Send Java debugging output to">
+         <default_value>null</default_value>
+
+         <enum_value>CONSOLE</enum_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1031">
+   <definition name="PHONESET_LINE" mobility="false" cardinality="0..1" description="Identify This Phone by Defining its Device Line">
+      <value name="PHONESET_LINE" type="container" cardinality="1" visibility="write">
+         <value name="URL" type="string" cardinality="1" visibility="write" description="SIP URL">
+            <default_value>4444@</default_value>
+         </value>
+
+         <value name="REGISTRATION" type="enumeration" cardinality="0..1" visibility="write" description="Register with host or provision line as is">
+            <default_value>PROVISION</default_value>
+
+            <enum_value>PROVISION</enum_value>
+
+            <enum_value>REGISTER</enum_value>
+         </value>
+
+         <value name="ALLOW_FORWARDING" type="enumeration" cardinality="0..1" visibility="write" description="Apply rules for call forwarding">
+            <default_value>DISABLE</default_value>
+
+            <enum_value>DISABLE</enum_value>
+
+            <enum_value>ENABLE</enum_value>
+         </value>
+
+         <value name="CREDENTIAL" type="container" cardinality="0..N" visibility="write" blank_entries="1" description="Credentials for Outgoing Calls">
+            <value name="REALM" type="string" cardinality="1" visibility="write" description="Realm">
+            </value>
+
+            <value name="USERID" type="string" cardinality="1" visibility="write" description="User ID">
+            </value>
+
+            <value name="PASSTOKEN" type="digest" cardinality="0..1" visibility="write" description="Password">
+            </value>
+         </value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1032">
+   <definition name="PHONESET_VERSIONCHECK_PERIOD" mobility="false" cardinality="0..1" description="Check for software updates every (days)">
+      <value name="PHONESET_VERSIONCHECK_PERIOD" type="string" cardinality="1" visibility="write" description="Check for software updates every (days)">
+         <default_value>30</default_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1033">
+   <definition name="PHONESET_VERSIONCHECK_URL" mobility="false" cardinality="0..1" description="Use VersionCheck updater at">
+      <value name="PHONESET_VERSIONCHECK_URL" type="string" cardinality="1" visibility="write" description="Use VersionCheck updater at" />
+   </definition>
+</ref_property>
+
+<!--<ref_property code="xp_1034">
+    <definition name="SIP_PROXY_DOMAIN_NAME" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_PROXY_DOMAIN_NAME" type="string" description="" />
+    </definition>
+ </ref_property>-->
+<!--<ref_property code="xp_1035">
+    <definition name="SIP_PROXY_RECORD_ROUTE" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_PROXY_RECORD_ROUTE" type="enumeration" description="">
+          <default_value>DISABLED</default_value>
+
+          <enum_value>DISABLED</enum_value>
+
+          <enum_value>ENABLED</enum_value>
+       </value>
+    </definition>
+ </ref_property>-->
+<!--<ref_property code="xp_1036">
+    <definition name="SIP_PROXY_TCP_PORT" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_PROXY_TCP_PORT" type="integer" description="">
+          <default_value>5000</default_value>
+       </value>
+    </definition>
+ </ref_property>-->
+<!--<ref_property code="xp_1037">
+    <definition name="SIP_PROXY_UDP_PORT" mobility="false" cardinality="0..1" description="">
+
+
+       <value name="SIP_PROXY_UCP_PORT" type="integer" description="">
+          <default_value>5000</default_value>
+       </value>
+    </definition>
+ </ref_property>-->
+<!--<ref_property code="xp_1038">
+    <definition name="SIP_REQUIRE_USERID_MATCH" mobility="false" cardinality="0..1" description="">
+
+       <value name="SIP_REQUIRE_USERID_MATCH" type="enumeration" description="">
+          <default_value>DISABLED</default_value>
+
+          <enum_value>DISABLED</enum_value>
+
+          <enum_value>ENABLED</enum_value>
+       </value>
+    </definition>
+ </ref_property>-->
+<ref_property code="xp_1039">
+   <definition name="ADDITIONAL_DEVICE_PARAMETERS" mobility="false" cardinality="A" description="">
+      <value name="ADDITIONAL_DEVICE_PARAMETERS" type="area" cardinality="1" visibility="write" index="true" description="Additional Settings" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1040">
+   <definition name="PHONESET_CHECK_SYNC" mobility="false" cardinality="0..1" description="Allow remote restarts">
+      <value name="PHONESET_CHECK_SYNC" type="enumeration" cardinality="1" visibility="write" description="Allow remote restarts">
+         <default_value>DISABLE</default_value>
+
+         <enum_value>DISABLE</enum_value>
+
+         <enum_value>ENABLE</enum_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1041">
+   <definition name="PHONESET_RTP_CODECS" mobility="false" cardinality="0..1" description="Codec priority list">
+      <value name="PHONESET_RTP_CODECS" type="string" cardinality="1" visibility="write" description="Codec priority list" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1042">
+   <definition name="PHONESET_HTTPS_PORT" mobility="false" cardinality="0..1" description="Secure HTTPS port for embedded web server">
+      <value name="PHONESET_HTTPS_PORT" type="integer" cardinality="1" visibility="write" description="Secure HTTPS port for embedded web server">
+         <default_value>443</default_value>
+
+         <max_value>65535</max_value>
+
+         <min_value>0</min_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1043">
+   <definition name="PHONESET_HOME_SCREEN_TITLE" mobility="false" cardinality="0..1" description="Title Bar Content">
+      <value name="PHONESET_HOME_SCREEN_TITLE" type="string" cardinality="1" visibility="write" description="Title Bar Content" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1044">
+   <definition name="PHONESET_RINGDOWN" mobility="false" cardinality="0..1" description="Enable ring down">
+      <value name="PHONESET_RINGDOWN" type="enumeration" cardinality="1" visibility="write" description="Enable ring down">
+        <default_value>DISABLE</default_value>
+        <enum_value>DISABLE</enum_value>
+        <enum_value>IMMEDIATE</enum_value>
+        <enum_value>PROXY</enum_value>
+      </value>
+   </definition>
+</ref_property>
+
+<ref_property code="xp_1045">
+    <definition name="PHONESET_SPLASH_SOUND" mobility="false" cardinality="0..1" description="Play Splash Sound">
+       <value name="PHONESET_SPLASH_SOUND" type="enumeration" cardinality="1" visibility="write" description="Play Splash Sound">
+            <default_value>DISABLE</default_value>
+            <enum_value>DISABLE</enum_value>
+            <enum_value>ENABLE</enum_value>
+       </value>
+    </definition>
+</ref_property>
+
+<ref_property code="xp_1046">
+   <definition name="PHONESET_RINGDOWN_ADDRESS" mobility="false" cardinality="0..1" description="Ring down address">
+      <value name="PHONESET_RINGDOWN_ADDRESS" type="string" cardinality="1" visibility="write" description="Ring down address" />
+   </definition>
+</ref_property>
+
+<ref_property code="xp_10002">
+    <definition name="PHONESET_PREFS_CALL_HANDLING" mobility="false" cardinality="0..1" description="Show Call Handling on Phone top">
+       <value name="PHONESET_PREFS_CALL_HANDLING" type="enumeration" cardinality="1" visibility="write" description="Show Call Handling on Phone top">
+            <default_value>DISABLE</default_value>
+            <enum_value>DISABLE</enum_value>
+            <enum_value>ENABLE</enum_value>
+       </value>
+    </definition>
+</ref_property>
+
+<ref_property code="xp_1047">
+    <definition name="ENCRYPT_PROFILES" mobility="false" cardinality="0..1" description="Encrypt Phone Profiles">
+       <value name="ENCRYPT_PROFILES" type="enumeration" cardinality="1" visibility="write" description="Encrypt Phone Profiles">
+            <default_value>DISABLE</default_value>
+            <enum_value>DISABLE</enum_value>
+            <enum_value>ENABLE</enum_value>
+       </value>
+    </definition>
+</ref_property>
+
+<ref_property code="xp_1048">
+    <definition name="PHONESET_EXPEDITED_IP_TOS" mobility="false" cardinality="0..1" description="Network Layer 3 QoS">
+       <value name="PHONESET_EXPEDITED_IP_TOS" type="string" cardinality="1" visibility="write" description="Network Layer 3 QoS">
+            <default_value>184</default_value>
+       </value>
+    </definition>
+</ref_property>
+
+<ref_property code="xp_1049">
+    <definition name="PHONESET_LOCALE_COUNTRY" mobility="false" cardinality="0..1" description="Device Locale">
+      <value name="PHONESET_LOCALE_COUNTRY" type="string" cardinality="1" visibility="write" description="Device Locale">
+            <default_value>US</default_value>
+      </value>
+    </definition>
+</ref_property>
+

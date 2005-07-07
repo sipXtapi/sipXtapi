@@ -1,0 +1,125 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Configuration Managment for SIP base Phones
+License: LGPL
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXconfig
+
+%define sipxpbxlog %{_localstatedir}/log/sipxpbx
+%define sipxpbxrun %{_localstatedir}/run/sipxpbx
+%define sipxpbxconf %{_sysconfdir}/sipxpbx
+%define sipxpbxdata %{_datadir}/sipxpbx
+
+# Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
+%define phonedir %{_localstatedir}/sipxdata/configserver/phone
+
+
+# Unfortunately because of Java's .so's  TODO: Figure out a way to 
+# tell rpm find-requires to find java's so
+AutoReqProv: no
+
+Source: %name-%version.tar.gz
+
+Requires: sipxtacklib >= 2.8.1
+Requires: sipxcommserverlib >= 2.8.1
+Requires: sipx-jboss >= 4.0
+Requires: postgresql-server >= 7.3
+
+# to serve profile/catalog/apps.  These can be served from
+# tomcat eventually to improve scalability by reducing server
+# depenedency.
+Requires: httpd >= 2.0
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+  Configuring one phone can be a daunting task, configuring a hundred
+phones can be maddening. sipXconfig leverages JBoss, Tomcat, Axis
+SOAP, postgresql and other J2EE technologies to get the job done.
+
+%prep
+%setup -q
+
+%build
+
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+# WARNING: Do use @ SIPX_CONFDIR @ because prefix used and 'make dist'
+# typically does not RPM's prefix
+
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_bindir}
+%attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
+%{_libdir}/lib*.la
+@JBOSS_HOME@/server/@JBOSS_SERVER_CONF@/deploy/*
+@JBOSS_HOME@/server/@JBOSS_SERVER_CONF@/lib/*
+
+# Because of generation of data and profiles
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/applications
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/catalog
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/docroot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
+
+# Default cisco phone config files
+%{phonedir}/profile/tftproot/*
+
+# Install configserver config files, directory only is created by pbx
+%config(noreplace) %{sipxpbxconf}/*
+
+%{sipxpbxdata}
+
+%dir %{_localstatedir}
+
+%pre
+
+# Add user @SIPXPBXUSER@ to the "jboss" group
+if ! /usr/bin/groups @SIPXPBXUSER@ | grep jboss >/dev/null
+then
+  Groups=`/usr/bin/groups @SIPXPBXUSER@ |
+          sed -e 's/^@SIPXPBXUSER@ : //g' -e 's/ /,/g'`
+  /usr/sbin/usermod -G $Groups,jboss @SIPXPBXUSER@
+fi
+
+#TODO: Verify sipxchange user can r/w to jboss's log and deploy scratch dirs
+
+%post
+
+# Start Postgres and create the databases.  Note that we leave Postgres
+# running afterward.
+%{_bindir}/sipxdbmgr --setup >/dev/null
+
+for Database in PDS SDS; do
+  if test "`%{_bindir}/sipxdbmgr --revision $Database`" -eq 0
+  then
+       %{_bindir}/sipxdbmgr --create $Database >/dev/null
+  fi
+done
+
+# Arrange for Postgres to be started every time the system starts up.
+%{_bindir}/sipxdbmgr --install

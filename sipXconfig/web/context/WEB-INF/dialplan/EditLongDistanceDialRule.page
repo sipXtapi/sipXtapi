@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+    
+    <property-specification name="ruleId" 
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>    
+    
+    <property-specification name="rule" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
+    </property-specification>    
+
+    <!-- used by removeGateways submit button-->
+	<property-specification name="removeGateways" 
+		type="java.lang.String"/>
+
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    
+    <bean name="externalLenModel" 
+        class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
+        lifecycle="page">
+    	<set-property name="min" expression="5"/>
+	    <set-property name="max" expression="15"/>
+	</bean>
+    <bean name="permissionTypeModel"     
+            class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
+        lifecycle="page">
+        <set-property name="options" 
+        	expression="@org.sipfoundry.sipxconfig.site.dialplan.EditDialRule@LONG_DISTANCE_PERMISSIONS"/>
+    </bean>
+        
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
+    
+	<component id="common" type="DialingRuleCommon">
+        <binding name="rule" expression="rule"/>
+    </component>
+    
+    <component id="onSave" type="Submit">
+        <binding name="listener" expression="listeners.save"/>
+    </component>
+    <component id="onCancel" type="CancelButton">
+        <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
+    </component>
+    
+    <!-- long distance fields -->
+    
+    <component id="permissionTypeLabel" type="FieldLabel">
+        <binding name="field" expression="components.permissionType"/>
+        <static-binding name="displayName" value="Type"/>
+    </component>
+    <component id="permissionType" type="PropertySelection">
+        <binding name="model" expression="beans.permissionTypeModel"></binding>
+        <binding name="value" expression="rule.permission"></binding>
+    </component>    
+
+    <component id="pstnPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.pstnPrefix"/>
+    </component>
+    <component id="pstnPrefix" type="ValidField">
+        <binding name="value" expression="rule.pstnPrefix"/>
+        <binding name="validator" expression="global.validPhoneRequired"/>
+        <static-binding name="displayName" value="PSTN prefix"/>
+    </component>
+
+    <component id="longDistancePrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.longDistancePrefix"/>
+    </component>
+    <component id="longDistancePrefix" type="ValidField">
+        <binding name="value" expression="rule.longDistancePrefix"/>
+        <binding name="validator" expression="global.validPhoneRequired"/>
+        <static-binding name="displayName" value="Long distance prefix"/>
+    </component>
+    
+    <component id="areaCodesLabel" type="FieldLabel">
+        <binding name="field" expression="components.areaCodes"/>
+    </component>
+    <component id="areaCodes" type="ValidField">
+        <binding name="value" expression="rule.areaCodes"/>
+        <binding name="validator" expression="global.validPhoneSequence"/>
+        <static-binding name="displayName" value="Area codes"/>
+    </component>
+
+    <component id="externalLenLabel" type="FieldLabel">
+        <binding name="field" expression="components.externalLen"/>
+        <static-binding name="displayName" value="External number length"/>
+    </component>
+    <component id="externalLen" type="PropertySelection">
+        <binding name="value" expression="rule.externalLen"/>
+        <binding name="model" expression="beans.externalLenModel"/>
+    </component>
+
+    
+    <!-- gateways configuration -->    
+    <component id="gatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="rule.gateways"/>
+        <binding name="dialPlanId" expression="rule.id"/>
+        <static-binding name="editPageName" value="EditGateway"/>
+    </component>
+    <component id="addGatewayLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.addGateway"/>
+        <static-binding name="parameters" value="normal"/>
+    </component>
+    <component id="selectGatewayLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.selectGateway"/>
+        <static-binding name="parameters" value="normal"/>
+    </component>
+    <component id="removeGateways" type="Submit">
+        <binding name="selected" expression="removeGateways"/>
+        <static-binding name="tag" value="normal"/>
+    </component>    
+
+    <!--
+	 - A S S E T S
+	 -->	
+</page-specification>

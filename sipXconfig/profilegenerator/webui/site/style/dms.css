@@ -1,0 +1,290 @@
+table.bglist th{
+	font-family : Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight : bolder;
+	color : #FFFACD;
+	background-color : #669999;
+}
+
+
+table.bglist tr{
+	background-color : #F0E68C;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #2F4F4F;
+	font-size : 12px;
+	font-weight : bold;
+}
+
+.readonly{
+	background-color : #F0E68C;
+	font-family : Arial, Helvetica, sans-serif;
+	color : blue;
+	font-size : 12px;
+	font-weight : bold;
+}
+
+.groups{
+	background-color : #F0E68C;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #2F4F4F;
+	font-size : 14px;
+	font-weight : bold;
+}
+
+table.bglist {
+	background-color : White;
+
+}
+table.bglist :link{
+	background-color : transparent;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #2F4F4F;
+	font-size : 12px;
+	font-style : normal;
+}
+tr.bgdark :link{
+	background-color : transparent;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #FFFFCC;
+	font-size : 12px;
+	font-style : normal;
+}
+tr.bgmedium :link{
+	background-color : transparent;
+	font-family : Arial, Helvetica, sans-serif;
+	color : Black;
+	font-size : 12px;
+	font-style : normal;
+}
+.formtext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #669999;
+	font-weight: bold;
+	background-color : #FFFFCC;
+}
+h1.dms {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 24px;
+	font-weight: bolder;
+	color: #FFFFFF;
+	background-color : transparent;
+}
+.date {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #FFFFFF;
+	background-color : transparent;
+}
+hr.dms {
+	color: #669999;
+	background-color: #669999;
+	height: 2px;
+	border: 0;
+}
+hr.seperator {
+	color: #669999;
+	background-color: #669999;
+	height: 2px;
+	border: 0;
+ }
+.formtitle {
+	 font-family: Verdana, Arial, Helvetica, sans-serif;
+	 font-size: 18px;
+         text-align: center;
+	 font-weight: bolder;
+	 color: #669999;
+	background-color : #FFFFCC;
+}
+.tabtext {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+	 font-size: 14px;
+	 font-weight: bolder;
+	 color: #669999;
+	background-color : #FFFFCC;
+}
+body.bgdark {
+	background-color: #669999
+}
+table.bglight {
+	background-color: #FFFFCC
+}
+
+table.bgdark {
+	background-color : #669999;
+}
+
+h2.dms {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bolder;
+	color: #FFFFFF;
+	background-color : transparent;
+}
+body.bglight {
+	background-color: #FFFFCC
+}
+h3.dms {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bolder;
+	color: #2F4F4F;
+	background-color : transparent;
+}
+.notetext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: normal;
+	color: #FFFFFF;
+	text-align: justify;
+	background-color : transparent;
+}
+.statustext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: normal;
+	color: #FFFFFF;
+	text-align: justify;
+	background-color : transparent;
+}
+.statustitle {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-align: justify;
+	background-color : transparent;
+}
+h1.list{
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 24px;
+	font-weight: bolder;
+	color: #669999;
+	background-color : transparent;
+}
+h1.about_heading{
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 20px;
+	font-weight: bolder;
+	color: #669999;
+	background-color : transparent;
+}
+tr.listheader{
+	font-family : Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight : bolder;
+	color : #FFFACD;
+	background-color : #669999;
+}
+tr.bglight{
+	background-color : #F0E68C;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #2F4F4F;
+	font-size : 12px;
+	font-style : normal;
+}
+tr.bgdark{
+	background-color : #669999;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #FFFFCC;
+	font-size : 12px;
+	font-style : normal;
+}
+tr.bgmedium{
+	font-family : Arial, Helvetica, sans-serif;
+	background-color : #DCDCDC;
+	font-size : 12px;
+	font-style : normal;
+	color: Black;
+}
+
+TD.list {
+	background-color : transparent;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	color : #2F4F4F;
+	text-align : left;
+}
+.notetextdrk { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold; color: #669999; text-align: justify; background-color : transparent; }
+body {  margin-top: 4px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 2px
+}
+body.blightcmd {
+background-color: #FFFFCC;
+margin-top: 4px;
+margin-right: 0px;
+margin-left: 4px;
+margin-bottom: 0px
+}
+
+.cell_fill_dark {  background-color: #669999}
+
+.welcometext {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #FFFFFF;
+	background-color: #669999;
+}
+
+.errortext_light {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color: Red;
+	background-color : #FFFFCC;
+}
+
+.msgtext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color: #0031CE;
+	background-color : transparent;
+}
+
+table.bglistmargins th{
+	font-family : Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight : bolder;
+	color : #FFFACD;
+	background-color : #669999;
+}
+
+
+table.bglistmargins tr{
+	background-color : #F0E68C;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #2F4F4F;
+	font-size : 12px;
+	font-weight : bold;
+}
+
+table.bglistmargins td{
+	background-color : #F0E68C;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #2F4F4F;
+	font-size : 12px;
+	font-weight : bold;
+	border-right : 1px solid White;
+	border-bottom : 1px solid White;
+}
+
+table.bglistmargins{
+	background-color : White;
+}
+
+table.bglistmargins :link{
+	background-color : transparent;
+	font-family : Arial, Helvetica, sans-serif;
+	color : #2F4F4F;
+	font-size : 12px;
+	font-style : normal;
+}
+#error {
+    font-family :  Arial, Helvetica, sans-serif;
+    font-size : 12px;
+    font-weight : bold;
+    color : #FF0000;
+}

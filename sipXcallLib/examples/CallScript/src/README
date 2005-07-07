@@ -1,0 +1,123 @@
+** CallScript
+
+The program CallScript executes a file of simple commands to make SIP
+calls.  Commands are lines read from standard input.
+
+Lines whose first non-whitespace character is '#' are comment are
+ignored, as are lines that are entirely whitespace.
+
+CallScript is not built by default, but the Makefiles to build it are.
+To build CallScript, first build sipXcallLib with ./configure -enable-tapi,
+then do:
+	make -C sipXcallLib/examples/CallScript/src
+
+The commands to CallScript are:
+
+* call URL
+
+Initiate a call to the specified SIP URL.  Note that this only starts
+the call, it does not wait for the call to connect.
+
+* tones STRING
+
+Emit a sequence of DTMF tones.  STRING is a string of characters
+specifying the tones (0 through 9, *, and #).  A comma (,) can be used
+to represent a 2 second pause in the sequence of DTMF tomes.  This
+command is synchronous.
+
+* file FILE
+
+Starts the asynchronous output of the contents of a WAV file named
+FILE.
+
+* pause MS
+
+MS is the decimal representation of a number of milliseconds to pause.
+
+* pause random MS
+
+Pause a random number of milliseconds between 0 and MS.
+
+* hangup
+
+Disconnect the call.
+
+Currently, CallScript is very stupid.  Among its restrictions are:
+
+- It can make only one call per run.
+- It does not disconnect the call automatically at the end of the run.
+- It does not listen for response from the other end of the call.
+
+** CallScriptDriver.pl
+
+A Perl script that operates many instances of CallScript.
+
+(The file's #! line specifies Perl as "/bin/perl".  If that does not
+work on your system, you will have to specify Perl explicitly.  E.g.,
+"/usr/local/bin/perl CallScriptDriver.pl ...")
+
+Commands can be given as arguments, or read from files which are given
+as arguments.  (Since all commands must contain whitespace and their
+verb does not contain "/", the two cases can be made unambiguous.)
+The commands have similar syntax rules as for CallScript.
+
+Sending CallScriptDriver.pl HUP causes it to shut down gracefully by
+thinking the time limit has expired.  It waits for all outstanding
+jobs to terminate, then prints the run statistics.  Sending it QUIT
+causes it to shut down immediately by sending "kill -KILL" to all
+outstanding jobs, then printing the run statistics.
+
+The commands are:
+
+* jobs NNN
+
+Keep NNN copies of CallScript running at a time.  The default is 1.
+
+* time NNN
+
+After NNN seconds, stop initiating new instances of CallScript and
+then exit when the last CallScript exits.  The default is 24 hours.
+
+* script NNN FFF AAA
+
+Record FFF as a control script for instances of CallScript.  Give it
+relative weight for selection of NNN.  Additional arguments to
+CallScript can be supplied as fourth and later tokens on the line.
+
+* randomize NNN
+
+Inserts an effective "pause random NNN" before executing each job.
+Since CallScriptDriver uses sleep() to implement this, NNN should be a
+multiple of 1000 (1 second).
+
+* program NAME
+
+By default, CallScriptDriver.pl invokes "CallScript" to execute
+scripts.  (It will do a path search.)  This command changes the
+executor to NAME.  NAME must be the name of an executable file.
+
+* noduplicates
+
+By default, a single script can be run by any number of jobs at the
+same time.  If "noduplicates" is specified, a job will not be started
+running the same script as one that is already running.
+
+** log-analyze
+
+Log-analyze can be used to determine the effective number of virtual
+ports used (on the average) during a run of CallScriptDriver.pl.  It
+totals the time spent in "pause random" statements and deducts it from
+the total run time.  Log-analyze has two arguments, the number of jobs
+and the number of seconds for the run.  The run output from
+CallScriptDriver.pl must be the standard input.
+
+** sample scripts
+
+In this directory there are sample scripts for CallScript:
+
+* driver-1
+* driver-2
+* hanging-call
+* leave-message
+* leave-retrieve
+* retrieve-message

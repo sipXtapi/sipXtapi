@@ -1,0 +1,7 @@
+# Script to leave a message on the voicemail system.
+call sip:555@cdhcp139.pingtel.com
+pause 15000
+#file /home/dworley/images/5:11pm.wav
+file /home/dworley/images/AFRAID.wav
+pause 3000
+hangup

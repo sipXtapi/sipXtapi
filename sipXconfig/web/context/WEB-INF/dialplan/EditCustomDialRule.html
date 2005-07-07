@@ -1,0 +1,59 @@
+<html title="Edit Custom Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+        <h2>Custom Dialing Rule</h2>
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="custom:rule:edit">
+        <fieldset>
+        <table>
+            <tbody>
+                <span jwcid="common"/>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+        <legend>Dialed Number</legend>
+        <table>
+            <tbody>
+	        	<span jwcid="patterns"></span>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset>
+        <legend>Required Permissions</legend>
+        	<span jwcid="permissions"></span>
+        </fieldset>
+        <fieldset>
+        <legend>Resulting Call</legend>
+        <table>
+            <tbody><span jwcid="call_pattern"></span></tbody>
+        </table>	
+        </fieldset>
+        <fieldset>
+        <legend>Gateways</legend>
+		<ul class="component-links">
+			<li><a jwcid="addGatewayLink" href="#">Add New Gateway</a></li>        
+			<li><a jwcid="selectGatewayLink" href="#">Add Existing Gateway</a></li>        
+		</ul>        
+        <table jwcid="gatewayTable" class="component"/>
+        <ul class="component-submit">
+            <li>
+                <input jwcid="removeGateways" type="submit" name="" value="Remove"/>
+            </li>
+        </ul>
+        </fieldset>
+        <ul class="form-actions">
+            <li>
+                <input id="rule:save" jwcid="onSave" type="submit" value="Save"/>
+            </li>
+            <li>
+                <input id="rule:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</body>
+</html>

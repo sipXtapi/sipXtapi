@@ -1,0 +1,146 @@
+BODY { 
+      font-family:Arial, Helvetica, sans-serif; 
+      background-color:#ffffcc; 
+      color:#2f4f4f; 
+      margin-bottom:1pt; 
+      margin-top:0pt;  }
+H1 { 
+    font-weight:bold; 
+    font-size:14.0pt; 
+    margin-bottom:2pt; 
+    margin-top:1; 
+    background-color:#669999; 
+    color:#f0e68c; 
+    font-family:Arial, Helvetica, sans-serif;  }
+LI.kadov-H1 { 
+             font-weight:bold; 
+             font-size:14.0pt; 
+             color:#f0e68c; 
+             font-family:Arial, Helvetica, sans-serif;  }
+H2 { 
+    font-weight:bold; 
+    font-size:11.0pt; 
+    color:#669999; 
+    margin-bottom:1pt; 
+    font-family:Arial, Helvetica, sans-serif;  }
+LI.kadov-H2 { 
+             font-weight:bold; 
+             font-size:11.0pt; 
+             color:#669999; 
+             font-family:Arial, Helvetica, sans-serif;  }
+H3 { 
+    font-weight:bold; 
+    font-size:10.0pt; 
+    color:#669999; 
+    margin-bottom:1pt; 
+    font-family:Arial, Helvetica, sans-serif; 
+    margin-top:5pt;  }
+LI.kadov-H3 { 
+             font-weight:bold; 
+             font-size:10.0pt; 
+             color:#669999; 
+             font-family:Arial, Helvetica, sans-serif;  }
+H4 { 
+    font-family:Arial, Helvetica, sans-serif; 
+    color:#669999; 
+    margin-bottom:1pt; 
+    font-size:11pt; 
+    font-weight:bold;  }
+LI.kadov-H4 { 
+             font-family:Arial, Helvetica, sans-serif; 
+             color:#669999; 
+             font-size:11pt;  }
+H5 { 
+    font-weight:bold; 
+    font-size:10.0pt; 
+    font-family:Arial, Helvetica, sans-serif; 
+    color:#2f4f4f;  }
+LI.kadov-H5 { 
+             font-weight:bold; 
+             font-size:10.0pt;  }
+H6 { 
+    font-weight:bold; 
+    font-size:8.0pt; 
+    font-family:Arial, Helvetica, sans-serif; 
+    color:#2f4f4f;  }
+LI.kadov-H6 { 
+             font-weight:bold; 
+             font-size:8.0pt;  }
+P { 
+   font-size:9pt; 
+   font-family:Arial, Helvetica, sans-serif; 
+   background-color:#ffffcc; 
+   color:#2f4f4f; 
+   margin-top:1; 
+   margin-bottom:2pt;  }
+LI.kadov-P { 
+            font-size:9pt; 
+            font-family:Arial, Helvetica, sans-serif; 
+            color:#2f4f4f;  }
+margin-bottom \0030.\0035pt\003b \007d A.expandspot { 
+                                                     color:#008000; 
+                                                     cursor:hand; 
+                                                     font-style:italic; 
+                                                     x-text-underline:off; 
+                                                     x-text-overline:off; 
+                                                     x-text-line-through:off; 
+                                                     text-decoration:none none none;  }
+SPAN.expandtext { 
+                 font-style:italic; 
+                 font-weight:normal; 
+                 color:#ff0000;  }
+A.dropspot { 
+            cursor:hand; 
+            color:#008000; 
+            font-style:italic; 
+            x-text-underline:off; 
+            x-text-overline:off; 
+            x-text-line-through:off; 
+            text-decoration:none none none;  }
+A.glossterm { 
+             color:#800000; 
+             cursor:hand; 
+             font-style:italic; 
+             x-text-underline:off; 
+             x-text-overline:off; 
+             x-text-line-through:off; 
+             text-decoration:none none none;  }
+SPAN.glosstext { 
+                font-style:italic; 
+                font-weight:normal; 
+                color:#0000ff;  }
+OL { 
+    margin-top:0px; 
+    margin-bottom:0px; 
+    font-family:Arial, Helvetica, sans-serif; 
+    color:#2f4f4f;  }
+UL { 
+    margin-top:0px; 
+    margin-bottom:0px; 
+    font-family:Arial, Helvetica, sans-serif; 
+    color:#2f4f4f;  }
+P.remember { 
+            background-color:fafecb; 
+            color:#007f7f; 
+            border-left-style:None; 
+            border-right-style:None; 
+            border-top-style:None; 
+            border-bottom-style:None;  }
+LI.kadov-P-Cremember { 
+                      color:#007f7f;  }
+P.list { 
+        margin-top:1; 
+        margin-bottom:1pt;  }
+LI.kadov-P-Clist {  }
+ol ol { 
+       margin-top:1; 
+       margin-bottom:2px;  }
+ol ul { 
+       margin-top:1; 
+       margin-bottom:2px;  }
+ul ul { 
+       margin-top:1; 
+       margin-bottom:2px;  }
+ul ol { 
+       margin-top:1; 
+       margin-bottom:2px;  }

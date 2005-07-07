@@ -1,0 +1,304 @@
+#!/bin/sh
+##
+##  gen-ssl-keys.sh - generate SSL key and certificate files.
+##
+##  Copyright (c) 2004 SIPfoundry, Inc.
+##  License by SIPfoundry under the LGPL license.
+##  
+##  Copyright (c) 2004 Pingtel Corp.
+##  Licensed to SIPfoundry under a Contributor Agreement.
+##
+##  Derived from:
+##  CCA -- Trivial Client CA management for testing purposes
+##  Copyright (c) 1998-2001 Ralf S. Engelschall, All Rights Reserved. 
+##
+
+myName=`basename $0`
+myDir=`dirname $0`
+
+#   external tools
+openssl="/usr/bin/openssl"
+
+function askfor () {
+    local var="$1"
+    local prompt="$2"
+    local default="$3"
+    local value=""
+
+    until test -n "$value"
+    do
+        echo -n "$prompt [$default] : "
+        read value
+
+        if test -z "$value"
+        then
+            value="$default"
+        fi
+    done
+
+    eval "$var=\"$value\""
+}
+
+#   find some random files
+#   (do not use /dev/random here, because this device 
+#   doesn't work as expected on all platforms)
+randfiles=''
+for file in /var/log/messages /var/adm/messages \
+            /kernel /vmunix /vmlinuz /etc/resolv.conf; do
+    if [ -f $file ]; then
+        if [ ".$randfiles" = . ]; then
+            randfiles="$file"
+        else
+            randfiles="${randfiles}:$file"
+        fi
+    fi
+done
+
+${PAGER:-more} <<EOF
+
+    gen-ssl-keys.sh{T_ME} -- generate SSL key and certificate files.
+    Copyright (c) 2004 SIPfoundry, Inc.
+    Derived from cca.sh:
+    Copyright (c) 1998-2001 Ralf S. Engelschall, All Rights Reserved.
+
+  This script generates all of:
+    - a private key for your server.
+    - a certificate signing request (CSR) for your server
+      based on that key you use to obtain a certificate from 
+      a Certificate Authority.
+    - a self-signed certificate for your server you can use
+      without an outside Certificate Authority.
+
+  See ${myDir}INSTALL.ssl or
+  @datadir@/doc/sipxcommserverlib-@VERSION@/INSTALL.ssl for
+  details on usage.
+
+  This process requires 6 steps:
+    1: Generating RSA private key for CA (1024 bit)
+    2: Generating X.509 certificate signing request for CA
+    3: Generating X.509 certificate for CA signed by itself
+    4: Generating RSA private key for server
+    5: Generating X.509 certificate signing request for server
+    6: Generating X.509 certificate signed by own CA
+
+  We need some information from you to generate the certificates: 
+
+EOF
+
+askfor countryName            "Country Name (2 letter code)" ""
+askfor stateOrProvinceName    "State or Province Name (full name)" ""
+askfor localityName           "Locality Name (eg, city)" ""
+askfor organizationName       "Organization Name (eg, company)" ""
+askfor organizationalUnitName "Organization Unit Name (eg, section)" "VoIP Services"
+askfor commonName_CA          "CA Common Name (DNS name for CA)" ca.`hostname --domain`  
+askfor commonName_server      "Server Common Name (DNS name for Server)" `hostname --fqdn` 
+while test ${commonName_CA} = ${commonName_server}
+do
+   echo "" 1>&2
+   echo "Error: Server Common Name must not be the same as CA name." 1>&2
+   askfor commonName_server      "Server Common Name (DNS name for Server)" `hostname --fqdn` 
+done
+askfor emailAddress_CA        "Email Contact Address for CA (name@example.org)" "root@${commonName_CA}"
+askfor emailAddress_server    "Email Contact Address for Server (name@example.org)" "root@${commonName_server}"
+
+cat <<EOF
+
+Generating custom Certificate Authority (CA)
+______________________________________________________________________
+
+STEP 1: Generating RSA private key for CA (1024 bit)
+
+EOF
+
+cp /dev/null ca.rnd
+echo '01' >ca.ser
+if [ ".$randfiles" != . ]; then
+    $openssl genrsa -rand $randfiles -out ca.key 1024
+else
+    $openssl genrsa -out ca.key 1024
+fi
+if [ $? -ne 0 ]; then
+    echo "${myName}:Error: Failed to generate RSA private key" 1>&2
+    exit 1
+fi
+chmod go= ca.key
+
+echo "______________________________________________________________________"
+echo ""
+echo "STEP 2: Generating X.509 certificate signing request for CA"
+
+
+cat >.cfg <<EOT
+[ req ]
+default_bits                    = 1024
+distinguished_name              = req_DN
+prompt                          = no
+RANDFILE                        = ca.rnd
+[ req_DN ]
+countryName                     = ${countryName}
+stateOrProvinceName             = ${stateOrProvinceName}
+localityName                    = ${localityName}
+0.organizationName              = ${organizationName}
+organizationalUnitName          = ${organizationalUnitName}
+commonName                      = ${commonName_CA}
+emailAddress                    = ${emailAddress_CA}
+EOT
+
+$openssl req -config .cfg -new -key ca.key -out ca.csr
+if [ $? -ne 0 ]; then
+    echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
+    exit 1
+fi
+echo "______________________________________________________________________"
+echo ""
+echo "STEP 3: Generating X.509 certificate for CA signed by itself"
+
+cat >.cfg <<EOT
+#extensions = x509v3
+#[ x509v3 ]
+#subjectAltName   = email:copy
+#basicConstraints = CA:true,pathlen:0
+#nsComment        = "${myName} generated custom CA certificate"
+#nsCertType       = sslCA
+EOT
+
+$openssl x509 -extfile .cfg -req -days 365 -signkey ca.key -in ca.csr -out ca.crt
+if [ $? -ne 0 ]; then
+    echo "${myName}:Error: Failed to generate self-signed CA certificate" 1>&2
+    exit 1
+fi
+echo "______________________________________________________________________"
+echo ""
+echo "Verify..."
+$openssl verify ca.crt > /dev/null
+if [ $? -eq 0 ]; then
+    echo "CA certificate OK" 1>&2
+else
+    echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
+    exit 1
+fi
+#$openssl x509 -text -in ca.crt
+#$openssl rsa -text -in ca.key
+
+echo "CERTIFICATE GENERATION"
+server="server-`cat ca.ser`"
+
+echo ""
+echo "Generating custom server certificate [$server]"
+echo "______________________________________________________________________"
+echo ""
+echo "STEP 4: Generating RSA private key for server (1024 bit)"
+if [ ".$randfiles" != . ]; then
+    $openssl genrsa -rand $randfiles -out $server.key 1024
+else
+    $openssl genrsa -out $server.key 1024
+fi
+if [ $? -ne 0 ]; then
+    echo "${myName}:Error: Failed to generate RSA private key" 1>&2
+    exit 1
+fi
+chmod go= $server.key
+
+echo "______________________________________________________________________"
+echo ""
+echo "STEP 5: Generating X.509 certificate signing request for SERVER"
+cat >.cfg <<EOT
+[ req ]
+default_bits                    = 1024
+distinguished_name              = req_DN
+prompt                          = no
+RANDFILE                        = ca.rnd
+[ req_DN ]
+countryName                     = ${countryName}
+stateOrProvinceName             = ${stateOrProvinceName}
+localityName                    = ${localityName}
+0.organizationName              = ${organizationName}
+organizationalUnitName          = ${organizationalUnitName}
+commonName                      = ${commonName_server}
+emailAddress                    = ${emailAddress_server}
+EOT
+
+$openssl req -config .cfg -new -key $server.key -out $server.csr
+if [ $? -ne 0 ]; then
+    echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
+    exit 1
+fi
+rm -f .cfg
+echo "______________________________________________________________________"
+echo ""
+echo "STEP 6: Generating X.509 certificate signed by own CA"
+
+cat >.cfg <<EOT
+#extensions = x509v3
+#[ x509v3 ]
+#subjectAltName   = email:copy
+#basicConstraints = CA:false,pathlen:0
+EOT
+
+$openssl x509 -extfile .cfg -days 365 -CAserial ca.ser -CA ca.crt -CAkey ca.key -in $server.csr -req -out $server.crt
+if [ $? -ne 0 ]; then
+    echo "${myName}:Error: Failed to generate X.509 certificate" 1>&2
+    exit 1
+fi
+#caname="`$openssl x509 -noout -text -in ca.crt |\
+#         grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
+#servername="`$openssl x509 -noout -text -in $server.crt |\
+#           grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
+#echo "Assembling PKCS#12 package"
+#$openssl pkcs12 -export -in $server.crt -inkey $server.key -certfile ca.crt -name "$servername" -caname "$caname" -out $server.p12
+echo "______________________________________________________________________"
+echo ""
+echo "Verify..."
+$openssl verify -CAfile ca.crt $server.crt > /dev/null
+if [ $? -eq 0 ]; then
+    echo "Server certificate OK" 1>&2
+else
+    echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
+    exit 1
+fi
+rm -f .cfg
+
+${PAGER:-more} <<EOF
+______________________________________________________________________
+Results:
+
+Well Known Certificate Authority method:
+
+   server key:         $server.key
+   server CSR:         $server.csr
+
+To obtain your key from a Certificate Authority, send the $server.csr
+file to your CA for signing.  When you get the response, put the 
+certificate they give you into $server.crt, and then run this command 
+as root in this directory:
+
+
+    @bindir@/ssl-cert/install-cert.sh --server-only $server
+
+______________________________________________________________________
+
+Self-signed CA method:
+
+   CA key:             ca.key
+
+If you are using the self-signed certificate method, then the CA 
+key file should be kept as secure as you can make it.  It is the 
+foundation of all the security provided by SSL.  You do not need 
+regular access to this file, so copying to offline storage would 
+be an appropriate precaution.
+
+   CA certificate:     ca.crt
+   server certificate: $server.crt
+
+The CA and server certificate files are used only if you are using
+the self-signed certificate method.  To install these certificates 
+and the server key on this system, run the following command as root
+in this directory:
+
+    @bindir@/ssl-cert/install-cert.sh $server
+
+These files will expire one year from today; you will need to rerun
+this command to generate new certificates then (or, preferably,
+before then).
+
+EOF

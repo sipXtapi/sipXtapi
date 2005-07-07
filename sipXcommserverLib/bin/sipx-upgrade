@@ -1,0 +1,268 @@
+#!/bin/bash
+
+Action=""
+Project=""
+BinDir=""
+DataDir=""
+SysConfDir=""
+LocalStateDir=""
+
+##--------------- Add calls to your upgrade functions in here -------------
+##
+##  Add a function call to upgrade your project configuration files in
+##  this case statement. Put the relevant shell script inside that function
+##  in the section immediately following the case statement.
+##
+###########################################################################
+
+SipxUpgrade() {
+    case $Project in
+
+        ## Upgrade section of sipXpublisher - add upgrade call here
+        ###################################################################
+        sipxpublisher)
+            UpgradeSubscriptions
+            ;;
+
+        ## Upgrade section of sipXregistry - add upgrade call here
+        ###################################################################
+        sipxregistry)
+            UpgradeRegistry
+            ;;
+
+        ## Upgrade section of sipXproxy - add upgrade call here
+        ###################################################################
+        sipxproxy)
+            UpgradeProxy
+            ;;
+
+        ## Upgrade section of sipXconfig - add upgrade call here
+        ###################################################################
+        sipxconfig)
+            ;;
+
+        ## Upgrade section of sipXvxml - add upgrade call here
+        ###################################################################
+        sipxvxml)
+            ;;
+
+        ## Upgrade section of sipXpbx - add upgrade call here
+        ###################################################################
+        sipxpbx)
+            UpgradePbx
+            ;;
+
+        ## We shouldn't be here
+        *)
+            ;;
+    esac
+}
+
+###########################################################################
+## Add your upgrade functions in here
+##
+##    The following variables are available:
+##
+##          $Version   a version string of a previously  installed project 
+##                     RPM in the format x.y.z
+##          $Major     Major version number x of installed RPM
+##          $Minor     Minor version number y of installed RPM
+##          $Sub       Version number z of installed RPM
+##          $Rel       Release number of installed RPM
+##
+##          $BinDir          %{_bindir} if passed in with --bdir
+##          $DataDir         %{_datadir} if passed in with --ddir
+##          $SysConfDir      %{_sysconfdir} if passed in with --cdir
+##          $LocalStateDir   %{_localstatedir} if passed in with --sdir
+###########################################################################
+
+##########################
+## Upgrade the registry 
+##########################
+UpgradeRegistry() {
+   case $Version in
+       2.6.2 | 2.6.1)
+           # add the namespace to an existing 2.6.x huntgroup file
+           f=${LocalStateDir}/sipxdata/sipdb/huntgroup.xml
+           if test -r $f
+           then
+               cp $f $f.OLD
+               sed 's|<items type="huntgroup">|<items type="huntgroup" xmlns="http://www.sipfoundry.org/sipX/schema/xml/huntgroup-00-00">|' $f.OLD > $f
+           fi
+
+           # add the namespace to an existing 2.6.x alias file
+           f=${LocalStateDir}/sipxdata/sipdb/alias.xml
+           if test -r $f
+           then
+               cp $f $f.OLD
+               sed 's|<items type="alias">|<items type="alias" xmlns="http://www.sipfoundry.org/sipX/schema/xml/alias-00-00">|' $f.OLD > $f
+           fi
+
+           # add the namespace to an existing 2.6.x mappingrules or fallbackrules file
+           for f in ${SysConfDir}/sipxpbx/mappingrules.xml.in \
+                    ${SysConfDir}/sipxpbx/fallbackrules.xml.in
+           do 
+               if test -r $f
+               then
+                   cp $f $f.OLD
+                   sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">|' $f.OLD > $f
+               fi
+           done
+           ;;
+
+        *)
+           ;;
+    esac
+}
+
+##########################
+## Upgrade the proxy 
+##########################
+UpgradeProxy() {
+    case $Version in
+        2.6.2 | 2.6.1)
+            # add the namespace to an existing 2.6.x authrules file
+            f=${SysConfDir}/sipxpbx/authrules.xml.in
+            if test -r $f
+            then
+                cp $f $f.OLD
+                sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' $f.OLD > $f
+            fi
+            ;;
+
+        *)
+            ;;
+    esac
+}
+ 
+##########################
+## Upgrade the subscription database
+##########################
+UpgradeSubscriptions() {
+   case $Version in
+       2.6.2 | 2.6.1)
+           # remove file column, add id column
+           if test -r ${LocalStateDir}/sipxdata/sipdb/subscription.xml
+           then
+               perl -pi -e 's|<file>[^<]*</file>|<id></id>|' ${LocalStateDir}/sipxdata/sipdb/subscription.xml
+           fi
+           ;;
+
+        *)
+           ;;
+    esac
+}
+
+## Upgrade the PBX 
+##########################
+UpgradePbx() {
+    case $Version in
+        2.6.2 | 2.6.1)
+            # add the <ivr-prompt-url> field to an existing modified 2.6.x voicemail.xml.in file
+            if test -r ${SysConfDir}/sipxpbx/voicemail.xml.in.rpmnew
+            then
+                cp ${SysConfDir}/sipxpbx/voicemail.xml.in ${SysConfDir}/sipxpbx/voicemail.xml.in.OLD
+                sed -e '82d;93a\ ' -e '93a\ \ \ \ \ \ \ \ <!--' -e '93a\ \ \ \ \ \ \ \ \ \ \ \ IVR prompt base URL - used by VXML interpreter for' -e '93a\ \ \ \ \ \ \ \ \ \ \ \ retrieving standard prompts.' -e '93a\ \ \ \ \ \ \ \ -->' -e '93a\ \ \ \ \ \ \ \ <ivr-prompt-url>file:///usr/share/www/doc</ivr-prompt-url>' ${SysConfDir}/sipxpbx/voicemail.xml.in.OLD > ${SysConfDir}/sipxpbx/voicemail.xml.in
+                rm -f ${SysConfDir}/sipxpbx/voicemail.xml.in.rpmnew
+            fi
+
+            # if "customautoattendant.wav" exists, rename it to "customautoattendant-internal.wav"
+            if test -r ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant.wav
+            then
+                mv ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant.wav ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant-internal.wav
+            fi
+            ;;
+
+        *)
+            ;;
+    esac
+}
+ 
+##-------------------------------------------------------------------------
+## Support functions
+##-------------------------------------------------------------------------
+
+SipxCheck() {
+    rm -f sipxversion.tmp
+    CheckInst=`rpm -qa | grep ${1}-[0-9]`
+
+    InstVersion=`expr match "$CheckInst" '.*-\([0-9]*.[0-9]*.[0-9]*-[0-9]*\)'`
+    if [ -n ${InstVersion} ]; then
+        echo  ${InstVersion} > /tmp/sipxversion.tmp
+    fi
+}
+
+SipxReadVersion() {
+    Version=""
+    if [ -f /tmp/sipxversion.tmp ]; then
+        Version=`cat /tmp/sipxversion.tmp`
+        SplitVersion "$Version"
+        Version="${Major}.${Minor}.${Sub}"
+    fi
+}
+
+SplitVersion() {
+    Major=0
+    Minor=0
+    Sub=0
+    Rel=0
+    if [ -n "$1" ]; then
+        Major=`expr match "$1" '\([0-9]*\).'`
+        Minor=`expr match "$1" '[0-9]*.\([0-9]*\).'`
+        Sub=`expr match "$1" '[0-9]*.[0-9]*.\([0-9]*\).'`
+        Rel=`expr match "$1" '[0-9]*.[0-9]*.[0-9]*-\([0-9]*\)'`
+    fi
+}
+
+## Handle command line arguments
+while [ "$#" -ne 0 ]
+do
+    case ${1} in
+        -c | --check)
+            Action="Check"
+            ;;
+
+        -u | --upgrade)
+            Action="Upgrade"
+            ;;
+
+        -p | --project)
+            shift
+            Project=${1}
+            ;;    
+
+        --bdir)
+            shift
+            BinDir=${1}
+            ;;
+
+        --ddir)
+            shift
+            DataDir=${1}
+            ;;
+
+        --cdir)
+            shift
+            SysConfDir=${1}
+            ;;
+
+        --sdir)
+            shift
+            LocalStateDir=${1}
+            ;;
+        *)
+        ;;
+    esac
+    shift
+done
+
+if [ -n "$Project" ]; then
+    if [ "$Action" = "Check" ]; then
+        SipxCheck "$Project"
+    else
+        SipxReadVersion
+        if [ -n "$Version" ]; then
+            SipxUpgrade
+        fi
+    fi
+fi

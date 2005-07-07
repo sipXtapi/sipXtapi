@@ -1,0 +1,37 @@
+<html>
+<head>
+<script language="JavaScript">
+    var popupWindow = null;
+    var unloadFlag = false;
+    var saved = false;
+    function MM_openBrWindow(theURL,winName,features)
+    { //v2.0
+        if( popupWindow != null && !popupWindow.closed )
+        {
+            popupWindow.close();
+        }
+        popupWindow = window.open(theURL,winName,features);
+        popupWindow.focus();
+    }
+</script>
+<title>Pingtel Configuration Server</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<frameset rows="71,*" cols="*" frameborder="NO" border="0" framespacing="0">
+  <frame name="topFrame" scrolling="NO" noresize src="iconbar/top.html" >
+  <frameset cols="182,*" frameborder="NO" border="0" framespacing="0" rows="*">
+    <frame name="leftFrame" noresize scrolling="AUTO" src="navigation/nav.jsp">
+    <frameset rows="90,*" cols="*">
+      <frameset rows="40,*" cols="*">
+        <frame src="status/status.jsp" name="status" scrolling="NO">
+        <frame src="command/command.jsp" name="command" scrolling="NO">
+      </frameset>
+      <frame name="mainFrame" src="home/home_graphic.html">
+    </frameset>
+  </frameset>
+</frameset>
+<noframes>
+<body bgcolor="#FFFFFF" text="#000000">
+</body>
+</noframes>
+</html>

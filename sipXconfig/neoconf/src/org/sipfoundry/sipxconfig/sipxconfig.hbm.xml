@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<!--
+	  - please follow the following standards: 
+	  -   o table names singular
+	  -   o primary key should be tablename_id (unless you have a good reason not too)
+      -->
+	<!-- 
+	  - E N D P O I N T 
+	  -->
+	<class name="org.sipfoundry.sipxconfig.phone.PhoneData" table="phone">
+		<id name="id" column="phone_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">phone_seq</param>
+			</generator>
+		</id>
+		<property name="name" column="name"/>
+		<property name="serialNumber" column="serial_number"/>
+		<property name="factoryId" column="factory_id"/>
+		<many-to-one cascade="all" name="valueStorage" column="storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+		<many-to-one name="folder" column="folder_id"
+			class="org.sipfoundry.sipxconfig.setting.Folder"/>
+	</class>
+	<!--
+	  -  L I N E
+	  -->
+	<class name="org.sipfoundry.sipxconfig.phone.LineData" 
+		table="line">
+		<id name="id" column="line_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">line_seq</param>
+			</generator>
+		</id>
+		<many-to-one name="phoneData" column="phone_id" 
+			class="org.sipfoundry.sipxconfig.phone.PhoneData" not-null="true"/>
+		<property name="position" column="position"/>
+		<many-to-one name="user" column="user_id"
+			class="org.sipfoundry.sipxconfig.common.User"/>
+		<many-to-one name="folder" column="folder_id"
+			class="org.sipfoundry.sipxconfig.setting.Folder"/>
+		<many-to-one cascade="all" name="valueStorage" column="storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+	</class>
+	<!--
+	  - V A L U E  S T O R A G E
+	  -->
+	<class name="org.sipfoundry.sipxconfig.setting.ValueStorage" table="storage">
+		<id name="id" column="storage_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">storage_seq</param>
+			</generator>
+		</id>		
+        <!-- S E T T I N G   V A L U E -->
+		<map name="values" cascade="all" table="setting">
+			<key column="storage_id"/>
+			<index column="path" type="string"/>
+			<element type="string" column="value" not-null="true"/>
+	    </map>
+	</class>
+	<!--
+	  - F O L D E R
+	  -->
+	<class name="org.sipfoundry.sipxconfig.setting.Folder" table="folder">
+		<id name="id" column="folder_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">folder_seq</param>
+			</generator>
+		</id>		
+		<property name="label" column="label"/>
+		<property name="resource" column="resource"/>
+		<many-to-one name="parent" column="parent_id"
+			class="org.sipfoundry.sipxconfig.setting.Folder"/>
+        <!-- F O L D E R  S E T T I N G  -->
+		<map name="folderSettings" cascade="all" table="folder_setting">
+			<key column="folder_id"/>
+			<index column="path" type="string"/>
+			<composite-element class="org.sipfoundry.sipxconfig.setting.FolderSetting">
+				<parent name="folder"/>
+				<property name="value" column="value"/>
+				<property name="hidden" column="hidden"/>
+		    </composite-element>
+	    </map>
+	</class>
+	<!--
+	  -  LEGACY DATABASE MODEL 
+	  -  standards do not nec. apply
+	  -->
+	<!--
+	- O R G A N I Z A T I O N
+	-->
+	<class name="org.sipfoundry.sipxconfig.common.Organization" 
+		table="organizations">
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">org_seq</param>
+			</generator>
+		</id>
+		<property name="name" column="name"/>
+		<property name="dnsDomain" column="dns_domain"/>
+		<property name="stereotype" column="stereotype"/>
+	</class>
+	<class name="org.sipfoundry.sipxconfig.phone.JobRecord" table="jobs">
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">job_seq</param>
+			</generator>
+		</id>
+		<property name="type" column="type"/>
+		<property name="status" column="status"/>
+		<property name="startTimeString" column="start_time"/>
+		<property name="details" column="details"/>
+		<property name="progress" column="progress"/>
+		<property name="exceptionMessage" column="exception_message"/>
+	</class>
+	<!-- 
+	- U S E R
+	-->
+	<class name="org.sipfoundry.sipxconfig.common.User" table="users">
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">user_seq</param>
+			</generator>
+		</id>
+		<property name="firstName" column="first_name"/>
+		<many-to-one name="organization" column="org_id" 
+			class="org.sipfoundry.sipxconfig.common.Organization"/>
+		<property name="password" column="password"/>
+		<property name="userGroupId" column="ug_id"/>
+		<property name="rcsId" column="rcs_id"/>
+		<property name="lastName" column="last_name"/>
+		<property name="displayId" column="display_id"/>
+		<property name="extension" column="extension"/>
+		<property name="profileEncryptionKey" column="profile_encryption_key"/>
+	</class>
+    
+    <!--
+     - U S E R   G R O U P
+     -->
+     <class name="org.sipfoundry.sipxconfig.common.UserGroup" table="user_groups">
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">user_group_seq</param>
+			</generator>
+		</id>
+		<property name="rcsId" column="rcs_id"/>
+		<property name="parentGroupId" column="parent_ug_id"/>
+        <property name="name"/>
+     </class>
+</hibernate-mapping>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<model>
+	<group name="Registration">
+		<label>Registration</label>
+		<setting name="SipUri">
+			<label>SIP URI</label>
+			<type>string</type>
+			<value></value>
+			<description>Identifier in SIP address</description>
+		</setting>
+		<setting name="UserName">
+			<label>User name</label>
+			<type>string</type>
+			<value></value>
+			<description>User name sent to SIP Registry server to authenticate 
+				as</description>
+		</setting>
+		<setting name="SipServer">
+			<label>SIP Server</label>
+			<type>string</type>
+			<value></value>
+			<description>If non-empty, all out-going SIP messages will be 
+				delivered to this SIP Proxy Server for the SIP URI. If you send 
+				outgoing SIP messages to another server enter full host 
+				name</description>
+		</setting>
+		<setting name="AutoRegister">
+			<label>Auto Register</label>
+			<type>No, Yes</type>
+			<value>Yes</value>
+			<description>Immediately upon starting, attempt to register with 
+				SIP Server</description>
+		</setting>
+		<setting name="qValue">
+			<label>Q Value</label>
+			<type>string</type>
+			<value></value>
+			<description>From 0.0 to 1.0, if mulitple SIP clients register with 
+				this same SIP address, the incoming calls will be directed to 
+				the highest Q values. Identical Q Values will be called in 
+				unison. See RFC 3263 for more information. </description>
+		</setting>
+	</group>
+</model>

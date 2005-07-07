@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
+	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.EditPhone">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="phone" 
+		type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
+        type="java.lang.Integer" persistent="yes"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+    <!--
+      - B E A N S
+      -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    <!--
+      - C O M P O N E N T S
+      -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    <component id="editPhoneNavigation" type="PhoneNavigation">        
+        <binding name="phone" expression="phone"/>
+        <static-binding name="tab" value="EditPhone"/>
+        <static-binding name="heading" value="Identification"/>
+    </component>
+    <component id="editPhoneForm" type="EditPhoneForm">
+        <binding name="phoneData" expression="phone.phoneData"/>
+        <binding name="validator" expression="beans.validator"/>
+    </component>    
+    <component id="addLine" type="DirectLink">
+        <binding name="listener" expression="listeners.addLine"/>
+        <binding name="parameters" expression="phone.phoneData.id"/>
+    </component>
+    <component id="ok" type="Submit">
+        <binding name="listener" expression="listeners.ok"/>
+    </component>
+    <component id="apply" type="Submit">
+        <binding name="listener" expression="listeners.apply"/>
+    </component>
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="listeners.cancel"/>
+    </component>
+</page-specification>

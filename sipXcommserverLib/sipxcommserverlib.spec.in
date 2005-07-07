@@ -1,0 +1,123 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Common Code for sipX servers
+License: LGPL
+Group: Development/Libraries
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXcommserverLib
+
+Source: %name-%version.tar.gz
+
+Requires: xerces-c >= 2.6.0
+Requires: sipxportlib >= 2.8.1
+Requires: sipxtacklib >= 2.8.1
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+ This project is used to hold code used in common by a number of the
+sipX family servers. It is not intended to be useful as a standalone
+project.
+
+# Install header files
+%package devel
+Requires: %name
+Requires: xerces-c-devel >= 2.6.0
+Requires: sipxportlib-devel >= 2.8.1
+Requires: sipxtacklib-devel >= 2.8.1
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name 
+
+%description devel 
+This project is used to hold code used in common by a number of the
+sipX family servers. It is not intended to be useful as a standalone
+project.
+
+This package contains the neccessary header files and static libraries
+helpful to build projects from the sipX library
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc doc/INSTALL.ssl
+#%doc doc/credential.xml
+#%doc doc/permission.xml
+%attr(755,root,root) %{_bindir}/configpp
+%attr(755,root,root) %{_bindir}/get_def_addr
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/sipdbtest
+%attr(755,root,root) %{_bindir}/sipdbtest.sh
+%attr(755,root,root) %{_bindir}/xsdvalid
+%attr(755,root,root) %{_bindir}/sipx-validate-xml
+%attr(755,root,root) %{_bindir}/sipx-upgrade
+%attr(755,root,root) %{_bindir}/ssl-cert/gen-ssl-keys.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/install-cert.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/check-cert.sh
+%attr(755,root,root) %{_libdir}/libsipXcommserver*.la
+%attr(755,root,root) %{_libdir}/libsipXcommserver.so*
+%attr(755,root,root) %{_datadir}/sipx/schema/urlmap.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/authrules.xsd
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/config.defs
+
+# These should match sipXlib.m4 or at least sent 
+# to configure script
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/log/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/run/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb
+
+################################################################
+### :TODO: - standalone install won't work without this but
+###          if we include it, it we'll conflict with sipXpbx
+################################################################
+#%dir %attr(700,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/sipxpbx/ssl
+
+
+%files devel
+%defattr(644,root,root,755)
+%{_libdir}/libsipXcommserver.a
+%doc %{_datadir}/doc/sipx/%name/*
+%{_includedir}/digitmaps/*
+%{_includedir}/fastdb/*
+%{_includedir}/sipdb/*
+
+%pre
+grep @SIPXPBXUSER@ /etc/group > /dev/null \
+|| /usr/sbin/groupadd @SIPXPBXUSER@ 
+
+grep @SIPXPBXUSER@ /etc/passwd > /dev/null \
+|| /usr/sbin/useradd \
+   -c "sipX PBX service" \
+   -g @SIPXPBXUSER@ \
+   -d %{_sysconfdir}/sipxpbx \
+   -s /bin/bash \
+   @SIPXPBXUSER@

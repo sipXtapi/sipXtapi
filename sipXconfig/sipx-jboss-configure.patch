@@ -1,0 +1,91 @@
+--- JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/jboss.jcml.orig	2005-01-05 08:38:24.000000000 -0500
++++ JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/jboss.jcml	2005-01-04 16:35:00.000000000 -0500
+@@ -64,25 +64,18 @@
+   <!-- ==================================================================== -->
+ 
+   <mbean code="org.jboss.jdbc.JdbcProvider" name="DefaultDomain:service=JdbcProvider">
+-     <attribute name="Drivers">org.hsqldb.jdbcDriver</attribute>
++     <attribute name="Drivers">org.postgresql.Driver</attribute>
+   </mbean>
+ 
+-  <mbean code="org.jboss.jdbc.HypersonicDatabase" name="DefaultDomain:service=Hypersonic">
+-    <attribute name="Port">1476</attribute>
+-    <attribute name="Silent">true</attribute>
+-    <attribute name="Database">default</attribute>
+-    <attribute name="Trace">false</attribute>
+-  </mbean>
+-
+-  <mbean code="org.jboss.jdbc.XADataSourceLoader" name="DefaultDomain:service=XADataSource,name=DefaultDS">
+-    <attribute name="PoolName">DefaultDS</attribute>
++  <mbean code="org.jboss.jdbc.XADataSourceLoader" name="DefaultDomain:service=XADataSource,name=PDSDataSource">
++    <attribute name="PoolName">PDSDataSource</attribute>
+     <attribute name="DataSourceClass">org.jboss.pool.jdbc.xa.wrapper.XADataSourceImpl</attribute>
+     <attribute name="Properties"></attribute>
+-    <attribute name="URL">jdbc:hsqldb:hsql://localhost:1476</attribute>
++    <attribute name="URL">jdbc:postgresql://localhost/PDS</attribute>
+     <attribute name="GCMinIdleTime">1200000</attribute>
+-    <attribute name="JDBCUser">sa</attribute>
++    <attribute name="JDBCUser">postgres</attribute>
+     <attribute name="MaxSize">10</attribute>
+-    <attribute name="Password" />
++    <attribute name="Password"></attribute>
+     <attribute name="GCEnabled">false</attribute>
+     <attribute name="InvalidateOnError">false</attribute>
+     <attribute name="TimestampUsed">false</attribute>
+@@ -115,7 +108,23 @@
+   </mbean>
+ 
+   <!-- Uncomment to add embedded catalina service -->
+-  <mbean code="org.jboss.web.catalina.EmbeddedCatalinaServiceSX" name="DefaultDomain:service=EmbeddedTomcat" />
++     <mbean code="org.jboss.web.catalina.EmbeddedCatalinaServiceSX" 
++         name="DefaultDomain:service=EmbeddedTomcat">
++        <attribute name="Config">
++          <Service name="JBoss-Tomcat">
++             <Connector className="org.apache.catalina.connector.http.HttpConnector"
++                 port="8443" minProcessors="5" maxProcessors="75"
++                 enableLookups="false"
++	         acceptCount="10" debug="0" scheme="https" secure="true">
++               <Factory className="org.apache.catalina.net.SSLServerSocketFactory"
++                 clientAuth="false" protocol="TLS"
++                 keystoreType="PKCS12"
++                 keystoreFile="conf/ssl.pkcs12"
++                 keystorePass="changeit"/>
++             </Connector> 
++          </Service>
++        </attribute>
++    </mbean>
+ 
+   <!-- Uncomment and set file URL to add Jetty service (you can set config more than once)
+   <mbean code="org.jboss.jetty.JettyService" name="DefaultDomain:service=Jetty">
+
+--- JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/auth.conf.orig	2004-09-20 10:14:54.000000000 -0400
++++ JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/auth.conf	2004-09-20 10:15:21.000000000 -0400
+@@ -28,8 +28,7 @@
+     // the case for an unuathenticated web client or MDB. If you want to
+     // allow such users to be authenticated add the property, e.g.,
+     //   unauthenticatedIdentity="nobody"
+-    org.jboss.security.auth.spi.UsersRolesLoginModule required
+-        ;
++    com.pingtel.pds.jbossauth.SIPxchangeLoginModule required dsJndiName="java:/PDSDataSource";
+ 
+ };
+  
+--- JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/jboss.properties.orig	2001-12-29 05:06:24.000000000 -0500
++++ JBoss-2.4.4_Tomcat-4.0.1/jboss/conf/catalina/jboss.properties	2004-09-20 10:28:31.000000000 -0400
+@@ -11,3 +11,6 @@
+ 
+ # Tomcat session Id generation. Uncomment to make Tomcat initial request faster
+ # tomcat.sessionid.randomclass=java.util.Random
++java.security.manager=java.lang.SecurityManager
++java.security.policy=../conf/catalina/server.policy
++pds.debug=false
+\ No newline at end of file
+--- JBoss-2.4.4_Tomcat-4.0.1/jboss/bin/run.sh.orig	2001-12-29 05:06:23.000000000 -0500
++++ JBoss-2.4.4_Tomcat-4.0.1/jboss/bin/run.sh	2004-09-20 10:20:41.000000000 -0400
+@@ -24,5 +24,5 @@
+ JAXP="$JAXP -Djavax.xml.parsers.SAXParserFactory=org.apache.crimson.jaxp.SAXParserFactoryImpl"
+ 
+ echo JBOSS_CLASSPATH=$JBOSS_CLASSPATH
+-java $HOTSPOT $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main $@
++java $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main $@
+ 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<dataset>
+	<jobs 
+		id="1"
+		type="1"
+		status="S"
+		start_time="load start date"
+		details="load details"
+		progress="load progress"
+		exception_message="load exception message"/>
+</dataset>
