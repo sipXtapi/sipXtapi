@@ -1,0 +1,86 @@
+<html title="Edit Internal Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+		<h2>Internal Dialing</h2>            
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="custom:rule:edit">
+        <fieldset>
+        <table>
+            <tbody>
+                <span jwcid="common"/>
+            </tbody>
+        </table>
+        </fieldset>
+
+		<!-- rule type dependent start -->
+        <fieldset>
+            <legend>Details</legend>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="dialplan:localExtensionLen"> 
+                                <span jwcid="extensionLenLabel">Internal station extension length</span>:
+                            </label>
+                        </td>
+                        <td>
+                            <select jwcid="extensionLen" id="dialplan:localExtensionLen" size="1">
+                                <option value="3" selected="selected">3 digits</option>
+                                <option value="4">4 digits</option>
+                                <option value="5">5 digits</option>
+                                <option value="6">6 digits</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:autoAttendant">
+                                <span jwcid="autoAttendantLabel">Auto attendant extension</span>:
+                            </label>
+                        </td>
+                        <td>
+                            <input jwcid="autoAttendant" id="dialplan:autoAttendant" maxlength="40" type="text" 
+                                name="dialplan:autoAttendant" value="100" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:voiceMail">
+                                <span jwcid="voiceMailLabel">Voice mail extension</span>:</label>
+                        </td>
+                        <td>
+                            <input jwcid="voiceMail" id="dialplan:voiceMail" maxlength="40" type="text" 
+                                value="101" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="dialplan:voiceMailPrefix">
+                                <span jwcid="voiceMailPrefixLabel">Voicemail inbox prefix</span>:
+                            </label>
+                        </td>
+                        <td>
+                            <input jwcid="voiceMailPrefix" id="dialplan:voiceMailPrefix" maxlength="40"
+                                type="text" value="8" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+		<!-- rule type dependent end -->
+        
+        <ul class="form-actions">
+            <li>
+                <input id="rule:save" jwcid="onSave" type="submit" value="Save"/>
+            </li>
+            <li>
+                <input id="rule:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<!-- 
+	  - Ring
+	  -->
+	<class name="org.sipfoundry.sipxconfig.admin.forwarding.Ring" table="ring">
+		<id name="id" column="ring_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">ring_seq</param>
+			</generator>
+		</id>
+		<property name="number"/>
+        <property name="position"/>
+		<property name="expiration"/>
+		<property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.forwarding.Ring$UserType"/>
+        <many-to-one name="callSequence" column="user_id" class="org.sipfoundry.sipxconfig.admin.forwarding.CallSequence" not-null="true"/>
+	</class>
+
+	<!--
+      - Call sequence
+      -->  
+	<class name="org.sipfoundry.sipxconfig.admin.forwarding.CallSequence" table="users">
+		<id name="id" column="id" type="int" unsaved-value="-1">
+			<generator class="foreign">
+				<param name="property">user</param>
+			</generator>
+		</id>        
+        <one-to-one name="user" class="org.sipfoundry.sipxconfig.common.User" constrained="true"/>
+        <list name="calls" inverse="true" cascade="all-delete-orphan">
+            <key column="user_id"/>
+            <index column="position"/>
+            <one-to-many class="org.sipfoundry.sipxconfig.admin.forwarding.Ring"/>
+        </list>
+	</class>
+</hibernate-mapping>

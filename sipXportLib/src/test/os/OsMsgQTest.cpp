@@ -1,0 +1,116 @@
+// 
+//
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// $$
+//////////////////////////////////////////////////////////////////////////////
+
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/TestCase.h>
+
+#include <sipxunit/TestUtilities.h>
+#include <os/OsExcept.h>
+#include <os/OsMsgQ.h>
+#include <iostream>
+
+UtlBoolean gMsgReceived;
+
+UtlBoolean msgSendHook(const OsMsg& rOsMsg)
+{
+    gMsgReceived = TRUE;
+
+    return FALSE;
+}
+
+class OsMsgQTest : public CppUnit::TestCase
+{
+    CPPUNIT_TEST_SUITE(OsMsgQTest);
+    CPPUNIT_TEST(testMessageQueue);
+    CPPUNIT_TEST_SUITE_END();
+
+public:
+
+    void testMessageQueue()
+    {
+        OsMsgQ* pMsgQ1;
+        OsMsg* pMsg1;
+        OsMsg* pMsg2;
+        OsMsg* pRecvMsg;
+        
+        pMsgQ1 = new OsMsgQ(OsMsgQ::DEF_MAX_MSGS, OsMsgQ::DEF_MAX_MSG_LEN,
+                       OsMsgQ::Q_PRIORITY, "MQ1");
+
+        pMsg1  = new OsMsg(OsMsg::UNSPECIFIED, 0);
+        pMsg2  = new OsMsg(OsMsg::UNSPECIFIED, 0);
+
+        CPPUNIT_ASSERT(pMsgQ1->isEmpty());
+        CPPUNIT_ASSERT_EQUAL(0, pMsgQ1->numMsgs());
+        CPPUNIT_ASSERT(pMsgQ1->getSendHook() == NULL);
+        pMsgQ1->setSendHook(msgSendHook);
+        CPPUNIT_ASSERT(pMsgQ1->getSendHook() == msgSendHook);
+
+        gMsgReceived = FALSE;
+        OsStatus stat = pMsgQ1->send(*pMsg1);
+        CPPUNIT_ASSERT(gMsgReceived);
+
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        CPPUNIT_ASSERT(!pMsgQ1->isEmpty());
+        CPPUNIT_ASSERT_EQUAL(1, pMsgQ1->numMsgs());
+
+        stat = pMsgQ1->send(*pMsg2);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        CPPUNIT_ASSERT_EQUAL(2, pMsgQ1->numMsgs());
+
+        stat = pMsgQ1->receive(pRecvMsg);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        delete pRecvMsg;
+        CPPUNIT_ASSERT_EQUAL(1, pMsgQ1->numMsgs());
+
+        stat = pMsgQ1->receive(pRecvMsg);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        delete pRecvMsg;
+
+        CPPUNIT_ASSERT_EQUAL(0, pMsgQ1->numMsgs());
+
+        delete pMsg1;
+        delete pMsg2;
+
+#if !defined(_VXWORKS)
+        const char* NameInUseText = "name already in use";
+        try
+        {
+            OsMsgQ* pMsgQ2 = new OsMsgQ(OsMsgQ::DEF_MAX_MSGS,
+                                  OsMsgQ::DEF_MAX_MSG_LEN,
+                                  OsMsgQ::Q_PRIORITY,
+                                  "MQ1");
+            delete pMsgQ2;
+        }
+        catch (const OsExcept* exc)
+        {
+            UtlString txt;
+            //std::cout << "Exception:" << std::endl;
+            //std::cout << "  Major Code: " << exc->getMajorCode() << std::endl;
+            //std::cout << "  Minor Code: " << exc->getMinorCode() << std::endl;
+            txt = exc->getText();
+            CPPUNIT_ASSERT( 0==strncmp( txt, NameInUseText, strlen(NameInUseText) ));
+            //std::cout << "  Text:       " << txt.data()    << std::endl;
+            txt = exc->getContext();
+            //std::cout << "  Context:    " << txt.data() << std::endl;
+            delete exc;
+        }
+#endif
+
+        delete pMsgQ1;
+    }
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(OsMsgQTest);
+
+
+

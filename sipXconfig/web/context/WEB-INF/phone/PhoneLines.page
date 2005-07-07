@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneLines">
+    <description>
+        Manage an phone lines for a phone
+    </description>
+    <!--
+    - P R O P E R T I E S
+    -->
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
+        type="java.lang.Integer" persistent="yes"/>
+    <property-specification name="currentRow"
+        type="org.sipfoundry.sipxconfig.phone.Line"/>
+    <property-specification name="selections"
+        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+	<!--
+	  - B E A N S
+	  -->
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <!--
+    - C O M P O N E N T S
+    -->
+    <component id="editPhoneNavigation" type="PhoneNavigation">
+        <binding name="phone" expression="phone"/>
+        <static-binding name="tab" value="PhoneLines"/>
+        <static-binding name="heading" value="Lines"/>
+    </component>
+    <component id="editLinesForm" type="Form"/>
+    <component id="lineTableView" type="contrib:TableView">
+        <binding name="source" expression="lines"/>
+        <binding name="columns">
+            '* Line:displayLabel'
+        </binding>
+        <static-binding name="pageSize" value="-1"/>
+    </component>
+    <component id="lineColumns" type="contrib:TableColumns">
+    </component>
+    <component id="lineRows" type="contrib:TableRows">
+        <binding name="row" expression="currentRow"/>
+        <binding name="class" expression="beans.rowClass.next"/>
+    </component>
+    <component id="lineValues" type="contrib:TableValues">
+    </component>
+    <component id="selectedRow" type="Checkbox">
+        <binding name="selected" expression="selections.selected[currentRow.lineData.id]"/>
+    </component>
+    <component id="addLineLink" type="DirectLink">
+        <binding name="listener" expression="listeners.addLine"/>
+        <binding name="parameters" expression="phone.phoneData.id"/>
+    </component>
+    <component id="LineColumnValue" type="Block"/>
+    <component id="editLineLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editLine"/>
+        <binding name="parameters" expression="currentRow.lineData.id"/>
+    </component>
+    <component id="lineLabel" type="Insert"> 
+        <binding name="value" expression="currentRow.uri"/>
+    </component>
+    <component id="deleteLine" type="Submit">
+        <binding name="listener" expression="listeners.deleteLine"/>
+    </component>
+    <component id="moveUp" type="Submit">
+        <binding name="listener" expression="listeners.moveLineUp"/>
+    </component>
+    <component id="moveDown" type="Submit">
+        <binding name="listener" expression="listeners.moveLineDown"/>
+    </component>
+    <!--
+    - A S S E T S
+    -->
+    <!-- TODO Find some way to define this globally -->
+    <context-asset name="stylesheet" path="css/sipxconfig.css"/>
+</page-specification>

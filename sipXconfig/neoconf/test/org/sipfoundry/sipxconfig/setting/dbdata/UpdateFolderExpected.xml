@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
+<dataset>
+    <folder 
+		resource="unittest"
+		label="food"
+		folder_id="1"/> 
+    <folder_setting 
+		folder_id="1"
+		value="[null]" 		
+		hidden="true"
+		path="/dairy/milk"/> 
+    <folder_setting 
+		folder_id="1"
+		value="snap pea" 		
+		hidden="false"
+		path="/vegetable/pea"/> 
+</dataset>

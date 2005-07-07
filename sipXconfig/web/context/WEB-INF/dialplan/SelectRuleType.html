@@ -1,0 +1,35 @@
+<html title="Edit Internal Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+	    <h2>Add Dialing Rule</h2>
+        <form jwcid="form" id="custom:rule:edit">
+        <fieldset>
+    	<table>
+            <tbody>
+                <tr>
+                   <td><label for="rule:type">Dialing rule type:</label></td> 
+                    <td>
+                        <select jwcid="ruleTypeSelection" id="rule:type">
+                            <option value="3">Local dialing</option>
+                            <option value="4">International dialing</option>
+                            <option value="5">Long distance dialing</option>
+                            <option value="6">Toll-free dialing</option>
+                            <option value="7" selected="selected">Restricted dialing</option>
+                            <option value="10">Custom</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+		</table>
+        <ul class="form-actions">
+            <li>
+                <input id="selectRule:next" jwcid="next" type="submit" value="Next"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</body>
+</html>

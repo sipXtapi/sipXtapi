@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     IMPORTANT NOTE
+     The startup scripts referenced here are also used (alas, directly)
+     from the sipxpbx.in startup script.  Do not change names or calling
+     parameters without making equivalent changes there.
+     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
+<!-- Set the defaultdir for all processes to SIPX_LOGDIR as the
+     working directory, so that any core files they produce will be put
+     there. -->
+
+<process_definitions>
+    <dependentdelay wait="2" />
+    <workdir location="@localstatedir@/tmp" />
+
+    <!-- =============================================== --> 
+    <!-- LOGFILE FOR PROCESSCGI              -->
+    <!-- =============================================== -->
+    <logfile level="warning">@SIPX_LOGDIR@/processcgi.log</logfile>  
+
+    <!-- ================================ -->
+    <!-- ======== CONFIG SERVER ========= -->
+    <!-- ================================ -->
+    <group name="ConfigServer">
+        <process name="ProfileGenerator">
+            <dependentdelay wait="30" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/profilegenerator.sh" 
+                         parameters=""
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="false" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="false" />
+
+        </process>
+
+        <process name="RMIRegistry">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/rmiregistry.sh"
+                         parameters="" 
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <dependency>ProfileGenerator</dependency>
+        </process>
+
+        <process name="ProfilePublisher">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/profilepublisher.sh" 
+                         parameters=""
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <dependency>ProfileGenerator</dependency>
+        </process>
+
+        <process name="ProfileWriter">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/profilewriter.sh"
+                         parameters=""
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <dependency>ProfileGenerator</dependency>
+        </process>
+    </group>
+
+    <!-- ================================ -->
+    <!-- ======== COMM SERVER =========== -->
+    <!-- ================================ -->
+    <group name="CommServer" >
+        <process name="SIPRegistrar">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/sipregistrar.sh" 
+                         parameters="" 
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="SIPProxy">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/sipproxy.sh" 
+                         parameters="" 
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="SIPAuthProxy">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/sipauthproxy.sh"
+                         parameters="" 
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="SIPStatus">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/sipstatus.sh"
+                         parameters="" 
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+
+    <!-- ================================ -->
+    <!-- ======== MEDIA SERVER ========== -->
+    <!-- ================================ -->
+    <group name="MediaServer" >
+        <process name="MediaServer">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/sipXvxml.sh"
+                         parameters="-config @SIPX_CONFDIR@/mediaserver-config"
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+
+    <!-- ================== -->
+    <!-- ====   Misc   ==== -->
+    <!-- ================== -->
+    <group name="Misc" >
+        <process name="KeepAlive">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/keepalive.sh"
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="false" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="false" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+</process_definitions>

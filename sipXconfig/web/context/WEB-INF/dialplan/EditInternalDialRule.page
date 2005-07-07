@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+
+    <property-specification name="ruleId" 
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>    
+    
+    <property-specification name="rule" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
+    </property-specification>
+    
+    <!-- not used on this page -->
+	<property-specification name="removeGateways" 
+		type="java.lang.String"/>
+    
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>
+    
+    <bean name="extensionLenModel" 
+        class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
+        lifecycle="page">
+    	<set-property name="min" expression="3"/>
+	    <set-property name="max" expression="7"/>
+	</bean>    
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
+    
+	<component id="common" type="DialingRuleCommon">
+        <binding name="rule" expression="rule"/>
+    </component>
+    
+    <component id="extensionLenLabel" type="FieldLabel">
+        <binding name="field" expression="components.extensionLen"/>
+        <static-binding name="displayName" value="Internal station extension length"/>
+    </component>
+    <component id="extensionLen" type="PropertySelection">
+        <binding name="value" expression="rule.localExtensionLen"/>
+        <binding name="model" expression="beans.extensionLenModel"/>
+    </component>
+    
+    <component id="autoAttendantLabel" type="FieldLabel">
+        <binding name="field" expression="components.autoAttendant"/>
+    </component>
+    <component id="autoAttendant" type="ValidField">
+        <binding name="value" expression="rule.autoAttendant"/>
+        <binding name="validator" expression="global.validPhone"/>
+        <static-binding name="displayName" value="Auto attendant extension"/>
+    </component>
+
+    <component id="voiceMailLabel" type="FieldLabel">
+        <binding name="field" expression="components.voiceMail"/>
+    </component>
+    <component id="voiceMail" type="ValidField">
+        <binding name="value" expression="rule.voiceMail"/>
+        <binding name="validator" expression="global.validPhone"/>
+        <static-binding name="displayName" value="Voice mail extension"/>
+    </component>
+        
+    <component id="voiceMailPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.voiceMailPrefix"/>
+    </component>
+    <component id="voiceMailPrefix" type="ValidField">
+        <binding name="value" expression="rule.voiceMailPrefix"/>
+        <binding name="validator" expression="global.validPhone"/>
+        <static-binding name="displayName" value="Voicemail inbox prefix"/>
+    </component>
+
+    <component id="onSave" type="Submit">
+        <binding name="listener" expression="listeners.save"/>
+    </component>
+    <component id="onCancel" type="CancelButton">
+        <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
+    </component>
+    
+    <!--
+	 - A S S E T S
+	 -->	
+</page-specification>

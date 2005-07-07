@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <!--
+      - This file is a dummy that overwrites /WEB-INF/jmsContext.xml when used in test-ui target.      
+      - The real files contains definitions of JNDI resources that are not available during unit testing
+      -->
+</beans>

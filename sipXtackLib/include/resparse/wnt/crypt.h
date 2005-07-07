@@ -1,0 +1,1 @@
+char *crypt(register const char *pw, register const char *salt);

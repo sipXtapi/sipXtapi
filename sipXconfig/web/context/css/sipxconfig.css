@@ -1,0 +1,375 @@
+/*  Legacy colors
+ *    #699  - faded green
+ *    #669999 - yet another faded green 
+ *    #ffc  - faded yellow
+ *    #F0E68C - slightly darker, ugly yellow used as background in tables and forms
+ */
+
+body {
+  font-family:  Verdana, Arial, Helvetica, sans-serif;
+  font-size:    12px;
+  background: #ffc;
+}
+
+h1 { font: 170% }
+
+/*
+ * Legacy green header with underline
+ */ 
+h2 { 
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 24px;
+	font-weight: bolder;
+	color: #669999;
+	width: 23em;
+	padding-bottom: 0.5em;
+	background-color: transparent;
+	border-bottom: solid;
+	border-bottom-width: 2px;
+}
+
+/*
+ * Legacy h3 header
+ */	
+h3 { 
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bolder;
+	color: #669999;
+	background-color : transparent;	
+}
+h4 { font: bold 100% }
+h5 { font: italic 100% }
+h6 { font: small-caps 100% }
+
+dt {
+  font-weight: bold;
+}
+
+dd {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+pre, tt, code, kbd, samp { 
+    color: #009;
+    font-family: monospace; 
+}
+
+legend {
+  color: #000; /* IE this is blue by default */
+  font: bold 80%;
+}
+
+.hack {
+  color: #f60;
+}
+
+ul.tabArea {
+  list-style: none;
+  padding: 2px;
+}
+
+ul.tabArea li {
+  white-space: nowrap;    
+  display: inline;
+  padding: 0 .3em 0 0;  
+  margin: 0;
+}
+
+li.tab a:link, li.tab a:hover, li.tab a:visited {   
+   color: #00f;
+}
+
+li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
+   text-decoration: none;
+   color: #000;
+}
+
+#lastmodified {
+    align: right;
+    font-style: italic;
+}
+
+#banner {
+    background:   #699;
+    width:        100%;
+    padding:      7px;
+    margin:       0 0 0 0;
+}
+
+#banner h1 {
+    margin: 0px;
+    font: 130%;
+    font-style: italic;
+    font-weight: bold;
+    color: #ffc;
+}
+
+#navigation {
+  float : left;
+  background: #699;
+  width: 180px;
+  padding: 2px;
+}
+
+#navigation ul {
+  list-style-type:none;
+  margin: 2px;
+  padding: 5px 5px 5px 5px;
+}
+
+#navigation li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+#navigation li ul li a {
+  font-weight: plain;
+}
+
+#content {
+  margin-left : 182px; /* navigation.width + navigation.padding */
+  padding: 5px 5px 5px 10px;
+}
+
+#settings-nav {
+  width: 11em;
+  float:left;
+}
+
+#settings-nav ul {
+  margin: 2px;
+  padding: 2px;
+  list-style-type:none;
+}
+
+#settings-nav a {
+  white-space: nowrap;    
+}
+
+#settings-content {
+}
+
+#footer {
+    clear : both;
+    padding: .5em 1em .25em 1em;
+    font-size: 10px; 
+    margin-top: 3em;
+    font-style: italic;
+}
+
+.pageLabel {
+    font-weight: bold;
+}
+
+p.message {
+    font-weight: bold;
+    color: #f00;
+}
+
+.settingLabel {
+}
+
+.settingDefault {
+  font-style: italic;
+}
+
+.settingDescription {
+  font-style: 80%;
+  color: #555;
+}
+
+li {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/**
+ * term 'component' is can be assocciated with ui that needs 
+ * a fixed width for aethetics and/or for alignment to other 
+ * fixed width items. 
+ *
+ * Example:
+ *                      
+ *                                        component-links
+ *  +---------------------------------------------------+
+ *  |                                                   | 
+ *  |                                                   | 
+ *  |     table.component or form.component or ...      |
+ *  |                                                   | 
+ *  |                                                   | 
+ *  +---------------------------------------------------+
+ *  component-submit
+ *
+ *  NOTE: techinally component-submit doesn't need to know the 
+ *  width because it's left aligned, but if it changed 
+ *  alignment (e.g. center) then it would
+ */
+
+ul.component-links {
+  width: 40em;
+  list-style-type : none;
+  text-align: right;
+}
+
+ul.component-links li {
+  display: inline;
+  padding-left: 1em; 
+}
+
+ul.component-submit {
+  list-style-type: none;
+  margin: 5px;
+  padding: 0px
+}
+
+ul.component-submit li {
+  white-space: nowrap;        
+  display: inline;
+  margin: 0 5px;
+}
+
+table.component {
+    width: 40em;
+    background: #fff;
+    border-collapse: collapse;
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc;  
+}
+
+table.component thead {
+    background-color: #699;
+}
+
+tr.component-hdr {
+    background-color: #699;
+}
+
+table.component th {
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc;  
+    padding: 3px;
+    white-space: nowrap;        
+}
+
+table.component thead th {
+    border: 1px;
+    border-style : solid;
+    border-color : #ccc;  
+    padding: 3px;
+    white-space: nowrap;        
+    color: #ffc;
+}
+    
+table.component th a {
+    color: #ffc;
+}
+
+table.component td {
+    inset: 3px;
+    white-space: nowrap;    
+    border-collapse: collapse;
+}
+
+ul.component-selection {
+  list-style-type: none;
+  margin: 0px 2px 2px 2px;
+  padding: 0px
+}
+
+ul.component-selection li {
+  display: inline;
+  margin: 0 5px;
+}
+
+ul.component-selection li a {
+  text-decoration: none;
+  font-size: .8em;
+}
+
+tr.even {
+    background: #eee;
+}
+
+tr.odd {
+    background: #fff;
+}
+
+.component-action {
+    font-style: italic;
+}
+
+ul.component-pager {
+  list-style-type:none
+}
+
+ul.component-pager li {
+  display: inline;
+  margin: 0 5px;
+}
+
+div.help {
+  float: right;
+  width: 15em;
+  margin-left: 20px;
+  border-collapse: collapse;
+  border: 1px;
+  border-style : solid;
+  border-color : #ccc;  
+  padding: 5px;
+  background: #fff;
+}
+
+fieldset {
+  border-style: none;
+  font-size: 120%;
+  width: 40em;
+  margin-top: 1em; 
+}
+
+legend {
+  font-size: 120%;
+}
+
+label {
+  padding-right: 1em;
+}
+
+/* enlarged border allows to have uniform background for fieldset and legend 
+   however it does not work well if fieldsets do not have a legend */
+form.with-sections fieldset {
+  border-style: solid !important;
+  border-top-width: 2em;
+  border-color: #F0E68C;
+  background: #F0E68C;
+}
+
+form.with-sections legend {
+  background: #F0E68C;
+}
+
+.page-label {
+  font-weight: bold;
+  margin: 2px;
+  padding: 2px;
+}
+
+ul.form-actions {
+  list-style-type : none;
+  text-align: left;  
+}
+
+ul.form-actions li {
+  display: inline;
+}
+
+.hide {
+  display: none
+}
+
+#user-error {
+  color: #f00;
+}

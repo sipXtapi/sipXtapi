@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsForm"
+    allow-body="no"
+    allow-informal-parameters="no">
+    
+    <description>add a description</description>
+    
+    <parameter name="settings"
+        type="org.sipfoundry.sipxconfig.setting.Setting"
+        required="yes"
+        direction="auto">
+    </parameter>
+    <parameter name="cancelListener"
+        type="org.apache.tapestry.IActionListener"
+        required="yes"
+        direction="in">
+    </parameter>
+    <parameter name="okListener"
+        type="org.apache.tapestry.IActionListener"
+        required="yes"
+        direction="in">
+    </parameter>
+    <parameter name="applyListener"
+        type="org.apache.tapestry.IActionListener"
+        required="yes"
+        direction="in">
+    </parameter>    
+    <parameter name="settingRenderer"
+        type="org.sipfoundry.sipxconfig.setting.SettingRenderer"
+        required="yes"
+        direction="in">
+    </parameter>    
+    <property-specification name="currentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting">
+    </property-specification>
+    
+    <component id="IfGroup" type="Conditional">
+        <binding name="condition" expression="currentSetting.getValues().size() > 0"/>
+    </component>
+    <component id="IfSetting" type="Conditional">
+        <binding name="condition" expression="currentSetting.getValues().size() == 0"/>
+    </component>
+    <component id="settingsForm" type="Form">
+    </component>
+    <component id="settings" type="Foreach">
+        <binding name="source" expression="flattenedSettings"/>
+        <binding name="value" expression="currentSetting"/>
+    </component>
+    <component id="settingLabel" type="Any">
+        <binding name="for" expression="'setting:' + currentSetting.name"/>
+    </component>
+    <component id="settingLabelText" type="Insert">
+        <binding name="value" expression="currentSetting.label"/>
+    </component>
+    <component id="groupLabel" copy-of="settingLabel"/>
+    <component id="settingDefault" type="Insert">
+        <binding name="value" expression="currentSetting.defaultValue"/>
+    </component>    
+    <component id="setting" type="TextField">
+        <binding name="value" expression="currentSetting.value"/>
+        <binding name="hidden" expression="currentRenderProperties.password"/>
+        <binding name="id" expression="'setting:' + currentSetting.name"/>
+    </component>    
+    <component id="settingDescription" type="Insert">
+        <binding name="value" expression="currentSetting.description"/>
+    </component>
+    <component id="groupDescription" copy-of="settingDescription"/>
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="cancelListener"/>
+    </component>
+    <component id="apply" type="Submit">
+        <binding name="listener" expression="applyListener"/>
+    </component>
+    <component id="ok" type="Submit">
+        <binding name="listener" expression="okListener"/>
+    </component>
+</component-specification>

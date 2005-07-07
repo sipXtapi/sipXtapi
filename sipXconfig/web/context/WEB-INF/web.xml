@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+     "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+    <display-name>sipXconfig-web</display-name>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value> /WEB-INF/jmsContext.xml 
+            classpath*:/org/sipfoundry/sipxconfig/rmi-sipxconfig.xml 
+            classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml 
+            classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
+            </param-value>
+    </context-param>
+    <filter>
+        <filter-name>redirect</filter-name>
+        <filter-class>org.apache.tapestry.RedirectFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>redirect</filter-name>
+        <url-pattern>/</url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>
+            org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <servlet>
+        <servlet-name>sipXconfig-web</servlet-name>
+        <servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sipXconfig-web</servlet-name>
+        <url-pattern>/app</url-pattern>
+    </servlet-mapping>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Protected</web-resource-name>
+            <url-pattern>/app/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <!-- for now these are the same roles as in profilegenerator/web.xml -->
+            <!-- we enable access for any logged in user and handle authorization in Border component -->
+            <role-name>SUPER</role-name>
+            <role-name>ADMIN</role-name>
+            <role-name>END_USER</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <login-config>        
+        <auth-method>FORM</auth-method>
+        <realm-name>PGS</realm-name>
+        <form-login-config>
+            <form-login-page>/login.html</form-login-page>
+            <form-error-page>/login_error.html</form-error-page>            
+        </form-login-config>
+    </login-config>
+</web-app>

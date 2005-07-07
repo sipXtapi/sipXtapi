@@ -1,0 +1,63 @@
+
+
+<html>
+    <head>
+        <script src="../script/validate.js"></script>
+        <script language="JavaScript">
+            var validator = new Validate();
+            function formSubmit( form )
+            {
+                var formIsValid = true;
+                if ( form.number.value == "" )
+                {
+                        alert("Please fill in the Dial Plan field");
+                }
+                else if ( form.target.value == "" )
+                {
+                        alert("Please fill in the SIP Address field");
+                }
+                else
+                {
+                    var number = validator.trim(form.number.value);
+                    var target = validator.trim(form.target.value);
+                    var query = location.search.substring(1);
+                    var pos = query.indexOf( "=" );
+                    var rpid = query.substring(pos + 1);
+                    this.opener.top.mainFrame.add_digitmap(number, target,rpid, "false", null );
+                    this.window.close();
+                }
+            }
+            function closeWindow()
+            {
+                this.window.close();
+            }
+        </script>
+        <title>Add Digit Map</title>
+        <link rel="stylesheet" href="../../style/dms.css" type="text/css">
+    </head>
+    <body class="bglight">
+        <p>&nbsp;</p>
+		<p class="formtitle" align="center">Add a New Digit Map</p>
+        <form name="frmSpeedDial">
+            <table width="150" border="0" cellspacing="3" cellpadding="0" align="center">
+                <tr>
+                    <td class="formtext" nowrap>Dial plan</td>
+                    <td>
+                        <input type="text" name="number" size="30">
+                    </td>
+                </tr>
+				<tr>
+                    <td class="formtext" nowrap>SIP Address</td>
+                    <td>
+                        <input type="text" name="target" size="30">
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <div align="center">
+                <input type="button" name="cmdSubmitForm" value="Submit" onclick="formSubmit(this.form)">&nbsp;&nbsp;
+                <input type="button" name="cmdCloseWindow" value="Cancel" onclick="closeWindow()"/>
+            </div>
+        </form>
+    </body>
+</html>
