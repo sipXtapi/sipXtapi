@@ -1,0 +1,109 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "sipXcallLib"=.\sipXcallLib\sipXcallLib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Perforce Project
+    .\sipxcalllib
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sipXmediaLib"=.\sipXmediaLib\sipXmediaLib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Perforce Project
+    .\sipxmedialib
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sipXphone"=.\sipXphone.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Perforce Project
+    .\sipxphone
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sipXcallLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXtackLib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sipXportLib"=.\sipXportLib\sipXportLib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Perforce Project
+    .\sipxportlib
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sipXtackLib"=.\sipXtackLib\sipXtackLib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    Perforce Project
+    .\sipxtacklib
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

@@ -1,0 +1,163 @@
+==============================================================================
+      W I N D O W S   I N S T A L L A T I O N   I N S T R U C T I O N S 
+==============================================================================
+
+Installation & Building
+=======================
+
+For the Windows platform, please ignore installation/build documentation in
+dependant sipX projects (sipXportLib, sipXtackLib, sipXmediaLib, sipXcallLib).
+
+Required Software
+-----------------
+MSVC    - Microsoft Visual C++ v6.0 or better.  You must have service pack 5
+          (or greater).
+J2SDK   - Java2 Software Development Kit
+Ant     - Build tool for Java.
+GLib2   - Low-level core library that forms the basis of GTK+ and GNOME
+PCRE    - Perl Compatible Regular Expression Library
+
+
+Optional Software
+-----------------
+Cppunit - Unit testing framework for C++
+JUnit   - Unit testing framework for Java
+Doxygen - Source Code Documentation System
+
+Installing Glib2
+----------------
+Latest tested version: 2.4.7
+
+You will need the following glib packages/files:
+  glib-2.4.7.zip : glib runtime environment
+  glib-dev-2.4.7.zip : glib developer package
+  libiconv-1.9.1.bin.woe32.zip : GNU libiconv
+  gettext-runtime-0.13.1.zip : GNU gettext runtime for Win32
+  
+You can obtain these from Tor Lillqvist (maintains the Windows port of 
+GLIB/GTK+) by pointing your browser at: 
+   http://www.gimp.org/~tml/gimp/win32/downloads.html
+
+Alternatively, you can download these files from SIPfoundry:
+  http://www.sipfoundry.org/pub/sipXphone/depends/win32/  
+
+Using your favorite archive utility, extract the contents of each file into
+a new glib directory (e.g. "C:\glib").
+
+Next add the glib paths to your MSVC environment (assuming installation into 
+C:\glib):
+
+Additional "Include files":
+   C:\glib\include\glib-2.0
+   C:\glib\lib\glib-2.0\include   
+
+Additional "Library files":
+   C:\glib\lib
+
+In MSVC 6, select "Options" from the "Tools" menu, select the "Directories" 
+tab, and then select either "Include files" or "Library files" from the 
+right-aligned dropdown list.
+
+In MSVC 7, select "Options" from the "Tools" menu, select the "Projects" 
+folder, select "VC++ Directories", and then select either "Include files" or 
+"Library files" from the right-aligned dropdown list.
+
+Installing PCRE
+---------------
+Latest tested version: 4.4
+
+You will need the following PCRE packages/files:  
+  pcre-4.4-bin.exe : PCRE runtime environment
+  pcre-4.4-lib.exe : PCRE development package
+ 
+You can download the directly from gnuwin32 or from SIPfoundry:
+  http://gnuwin32.sourceforge.net/packages/pcre.htm
+  http://www.sipfoundry.org/pub/sipXphone/depends/win32/  
+  
+Install both packages.  Order may not matter, however, installating the runtime
+environment first is known to work.
+
+Next add the PCRE  paths to your MSVC environment (assuming installation into 
+C:\Program Files\GnuWin32):
+
+Additional "Include files":
+   C:\Program Files\GnuWin32\include
+
+Additional "Library files":
+   C:\Program Files\GnuWin32\lib
+
+See "Installing Glib2" for hints on adding include and library paths.
+   
+Installing Java
+---------------
+Latest tested version: 1.4.2_06
+
+Download the J2SE SDK v 1.4.2_06 from Sun:
+  http://java.sun.com/j2se/1.4.2/download.html
+
+Follow the Java installation instructions and add the Java include and 
+library paths to your MSVC environment (assuming installation into 
+C:\j2sdk1.4.2_06):
+
+Additional "Include files":
+    C:\j2sdk1.4.2_06\include
+    C:\j2sdk1.4.2_06\include\win32
+
+Additional "Library files":
+    C:\j2sdk1.4.2_06\lib
+
+See "Installing Glib2" for hints on adding include and library paths.
+   
+Installing Ant
+--------------
+Latest tested version: 1.6.2
+
+You will need the following Ant package:    
+    apache-ant-1.6.2-bin.zip
+
+Download Ant from either Apache Ant or SIPfoundry.org:
+    http://ant.apache.org/index.html
+    http://www.sipfoundry.org/pub/sipXphone/depends/win32/
+       
+Extract the contents of the .zip file into a directory on your file system and 
+update your system environment:
+  1) Define a environment variable named "ANT_HOME" that points to the ant's root 
+     directory.  For example, if you extracted the archive into "C:\", then define
+     ANT_HOME as "C:\apache-ant-1.6.2"
+  2) Add the ant "bin" directory to your PATH (e.g. "C:\apache-ant-1.6.2\bin")
+   
+Building C++ Code
+-----------------
+Open "sipXphone.dsw" in MSVC, verify that "sipXphone" is the default project
+and build.  You should end up building "sipXphone.dll".
+
+Building Java Code
+------------------
+Using a command prompt, cd into the "javacore" directory.  Then type the following:
+    ant -f build-wnt.xml deploy -Dversion=1.2.3 -Dbuild_number=4
+    
+Next, repeat the same command in the "softphone" directory.
+
+Example:
+  cd javacore
+  ant -f build-wnt.xml deploy -Dversion=2.6.0 -Dbuild_number=34
+  cd ..\softphone
+  ant -f build-wnt.xml deploy -Dversion=2.6.0 -Dbuild_number=34
+   
+Launching the softphone
+-----------------------
+Presently, the softphone is most easily run from the development environment by
+running the "sipXphone.bat" batch file in the "softphone\bin" directory.
+
+To launch the softphone from the MSVC IDE, use the following settings:
+
+Executable for debug session:
+  C:\j2sdk1.4.2_06\jre\bin\java.exe
+  (update with your installation path)
+
+Working Directory:
+  softphone\bin
+
+Program Arguments:
+  -ms6700000 -Dsoftphone.library.path=..\..\Debug\sipXphone.dll -Dsoftphone.skin.path=..\meta\Skins\Default -cp ..\..\javacore\lib\javacore.jar;..\lib\softphone.jar;..\..\lib\jtapi13.jar;..\..\jndi1.2.1.jar;..\..\ldap.jar;..\..\junit.jar;..\..\oromatch.jar org.sipfoundry.sipxphone.testbed.TestbedFrame ..\..\Debug\sipXphone.dll
+  (expanded from sipXphone.bat)

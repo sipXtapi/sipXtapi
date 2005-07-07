@@ -1,0 +1,29 @@
+# Automake - Ant bridge
+
+# ANT_FLAGS
+#  -e is to remove extraneous logging to console, not required
+#  -Dtop.build.dir is required if you call ./configure from a different dir
+abs_top_builddir=`cd $(top_builddir) && pwd`
+ANT_FLAGS=-e -Dtop.build.dir=$(abs_top_builddir) -lib \
+          $(top_srcdir)/lib/junit.jar -f $(srcdir)/build.xml
+
+
+all : $(ANT_HOOK)
+	@ANT@ $(ANT_FLAGS)
+
+clean : $(ANT_CLEAN_HOOK)
+	@ANT@ $(ANT_FLAGS) clean
+
+.PHONY: docs
+docs : $(ANT_CLEAN_HOOK)
+	@ANT@ $(ANT_FLAGS) docs
+
+install : $(ANT_INSTALL_HOOK)
+	@ANT@ $(ANT_FLAGS) install
+
+uninstall : $(ANT_INSTALL_HOOK)
+	@ANT@ $(ANT_FLAGS) uninstall
+
+check : $(ANT_CHECK_HOOK)
+	@ANT@ $(ANT_FLAGS) test
+	@ANT@ $(ANT_FLAGS) test-report

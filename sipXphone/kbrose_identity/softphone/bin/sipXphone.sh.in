@@ -1,0 +1,21 @@
+#!/bin/sh
+
+echo "Starting sipXphone  / `uname -s`, please wait..."
+echo "Copyright (C) 2004 SIPfoundry Corporation.  All rights reserved."
+echo "http://www.sipfoundry.org"
+
+runix()
+{
+    @JAVA@ -classpath $CLASSPATH -Dsoftphone.library.path=../lib/libsipXphone.so -Dsoftphone.skin.path=../share/sipxphone/Skins/Default org.sipfoundry.sipxphone.testbed.TestbedFrame
+}
+
+CLASSPATH=@pkgdatadir@
+for jar in @pkgdatalibdir@/*.jar ; do
+   CLASSPATH=$CLASSPATH:$jar
+done
+
+runix
+while [ 2 == $? ]
+do
+  runix
+done
