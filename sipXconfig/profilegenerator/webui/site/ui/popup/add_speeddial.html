@@ -1,0 +1,132 @@
+<html>
+    <head>
+        <script src="../script/validate.js"></script>
+        <script language="JavaScript">
+            var validator = new Validate();
+            function formSubmit( form )
+            {
+                var nFlag = true;
+                var inputs;
+                var parent = String( this.opener.parent.location );
+                if ( parent.indexOf("ui/sipxchange") != -1 )
+                {
+                    inputs = this.opener.top.mainFrame.document.getElementsByTagName('INPUT');
+                }
+                else
+                {
+                    inputs = this.opener.top.mainFrame.mainFrame.document.getElementsByTagName('INPUT');
+                }
+                for ( i = 0; i < inputs.length; i++ )
+                {
+                    if ( inputs[i].id == "sdid" )
+                    {
+                        if ( inputs[i].value == form.id.value )
+                        {
+                            nFlag = false;
+                        }
+                    }
+                }
+                if ( form.id.value == "" || isNaN( validator.trim(form.id.value) )  )
+                {
+                        alert("Please fill in the Speed Dial Number field as an Integer");
+                }
+                else if (validator.trim(form.id.value).length > 9)
+                {
+                    alert("The max number of digits allowed in the Speed Dial Number field is 9");
+                }
+                else if ( nFlag == false )
+                {
+                    var msg = "The speed dial number must be unique.\n" +
+                              "Please choose a different number. ";
+
+                    alert( msg );
+                    form.id.value = "";
+                }
+                else if ( form.label.value == "" )
+                {
+                        alert("Please fill in the Name field");
+                }
+                else if ( form.type.value == ""  )
+                {
+                    alert( "Please select a type from the Phone Number or SIP URL selection box" );
+                }
+                else if ( form.address.value == "" )
+                {
+                    alert("Please fill in the Address field");
+                }
+                else if ( ( form.type.value == "NUMBER" ) &&
+                          (!validator.isPhoneNumber(validator.trim(form.address.value))) )
+                {
+                    var msg = "You have entered an invalid phone number.\n" +
+                              "Only 0-9, space, *, +, -, i and p are valid.\n" +
+                              "Please try again."
+                    alert (msg);
+                }
+                else
+                {
+                    var sdid = validator.trim(form.id.value);
+                    var label = validator.trim(form.label.value);
+                    var type = validator.trim(form.type.value);
+                    var address = validator.trim(form.address.value);
+                    var query = location.search.substring(1);
+                    var pos = query.indexOf( "=" );
+                    var rpid = query.substring(pos + 1);
+                    this.opener.top.mainFrame.add_speeddial(sdid, label, type, address,rpid, "false", null );
+                    this.window.close();
+                }
+            }
+            function closeWindow()
+            {
+                this.window.close();
+            }
+        </script>
+        <title>Add Speed Dial</title>
+        <link rel="stylesheet" href="../../style/dms.css" type="text/css">
+    </head>
+    <body class="bglight">
+        <p>&nbsp;</p>
+		<p class="formtitle" align="center">Add a New Speed Dial Entry</p>
+        <form name="frmSpeedDial">
+            <table width="150" border="0" cellspacing="3" cellpadding="0" align="center">
+                <tr>
+                    <td class="formtext" nowrap>Speed dial number</td>
+                    <td>
+                        <input type="text" name="id" size="10">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>Name</td>
+                    <td>
+                        <input type="text" name="label" size="30">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>Phone number or SIP URL?</td>
+                    <td>
+                        <select name="type" size="2">
+                            <option value="NUMBER">NUMBER</option>
+                            <option value="URL">URL</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>Number/URL</td>
+                    <td>
+                        <input type="text" name="address" size="30">
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td class="formtest">* Special Characters: To include a pause, enter p.&nbsp;&nbsp;
+                    To include an interactive wait, enter i.
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <div align="center">
+                <input type="button" name="cmdSubmitForm" value="Submit" onclick="formSubmit(this.form)">&nbsp;&nbsp;
+                <input type="button" name="cmdCloseWindow" value="Cancel" onclick="closeWindow()"/>
+            </div>
+        </form>
+    </body>
+</html>

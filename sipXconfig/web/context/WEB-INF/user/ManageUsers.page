@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.user.ManageUsers">
+    <description>add a description</description>
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="users" type="java.util.Collection"/>
+	<property-specification name="coreContext" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/> 
+	<!--
+	  - B E A N S
+	  -->
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+	<!--
+	  - C O M P O N E N T S
+	  -->
+	<component id="userManagement" type="Form">
+	</component>
+	<component id="userTable" type="UserTable">
+		<binding name="users" expression="users"/>
+        <binding name="userListener" expression="listeners.editSipPassword"/>
+	</component>
+    <component id="delete" type="Submit">
+        <binding name="listener" expression="listeners.deletePhone"/>
+    </component>
+            
+</page-specification>

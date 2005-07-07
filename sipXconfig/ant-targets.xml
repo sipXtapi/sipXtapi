@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<!--
+  - project file all build.xml's should import
+  -
+  - NOTES:
+  -
+  -  Attempts to define targets w/standard target names, but not authorative
+  -    standard was used.
+  -->
+<project name="ant-targets" default="default" basedir="." >
+
+  <!-- 
+    -  P R O P E R T I E S
+    -
+    - EXTERNAL PROPERTIES DEPENDECIES:
+    -  project.dir          = path relative to ant-targets.xml to project
+    -->
+  <dirname property="ant-targets.basedir" file="${ant.file.ant-targets}"/>
+  <property file="${ant-targets.basedir}/top.build.dir"/>
+  <property file="${top.build.dir}/config.properties"/>
+  <property name="build.dir" value="${top.build.dir}/${project.dir}"/>  
+  <property name="src.dir" value="src" />
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="dist.dir" value="${build.dir}/dist" />
+  <property name="api.dir" value="${top.build.dir}/doc/api/${ant.project.name}" />
+  <property name="test.results.dir" value="${build.dir}/test-results" />
+  <property name="test.classes.dir" value="${build.dir}/tests"/>
+  <property name="clover.dir" value="${build.dir}/clover"/>
+
+  <!-- 
+    - going forward this default will change to just 'test'
+    - until then, projects like neoconf will override this
+    -->
+  <property name="test.src.dir" value="${src.dir}/test"/>
+
+  <import file="dependencies.xml"/>
+
+  <target name="classpath">
+    <echo>${classpath}</echo>
+  </target>
+
+  <!-- Default pattern for unittest naming schema -->
+  <patternset id="test.classes" includes="**/*Test.class" />
+
+  <!--
+    - T A S K   D E F I N I T I O N S
+    - Common task definitions.
+    -->
+  <taskdef resource="checkstyletask.properties"> 
+     <classpath>
+        <pathelement location="${checkstyle.jar}"/>
+
+        <!-- 
+          - antlr that comes w/ant 1.6 is too old, use local 
+          - that came w/checkstyle 
+          -->
+        <pathelement location="${antlr.jar}"/>
+        <pathelement location="${checkstyle-optional.jar}"/>
+     </classpath> 
+   </taskdef> 
+
+
+  <!--
+    - C L O V E R
+    - Unit test coverage tasks and definitions 
+  -->
+  <!-- Added for Clover testing -->
+  <property name="clover.excludes" value=""/>
+
+  <target name="with.clover" if="with.clover"
+         description="Enables code coverage instrumentation">
+    <taskdef resource="clovertasks"/>
+    <mkdir dir="${clover.dir}/db"/>
+    <mkdir dir="${clover.dir}/html"/>
+    <clover-setup initString="${clover.dir}/db/csdb">
+      <files>
+        <exclude name="**/*Test.java"/> 
+        <exclude name="**/*TestDb.java"/> 
+        <exclude name="**/*TestUi.java"/> 
+      </files>
+    </clover-setup> 
+    <property name="clover.html.dir" location="${clover.dir}/html"/>
+  </target>
+
+  <target name="with.clover.enabled" 
+        description="Internal - enabled targets that imply user wants clover on clover">
+    <property name="with.clover" value="on"/>
+  </target>
+
+  <target name="clover.report" depends="with.clover.enabled,with.clover">
+    <clover-report>
+      <current outfile="${clover.html.dir}">
+        <format type="html"/>
+      </current>
+    </clover-report>
+  </target>
+
+  <target name="clover.viewer" depends="with.clover.enabled,with.clover">
+    <clover-view/>
+  </target> 
+ 
+  <!--
+    - I N I T 
+    - Create output directories. 
+    -->
+  <target name="init"
+    description="[internal] create standard output directories">
+    
+    <echo level="verbose">entering ${ant.project.name}</echo>
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${api.dir}" />
+    <mkdir dir="${test.results.dir}"/>
+    <mkdir dir="${test.classes.dir}"/>
+  </target>
+
+
+  <!--
+    - Creates a standard version file 
+    - MUST DEFINE property ${version.file}
+    -->
+  <target name="version.properties" 
+    description="[internal] Generats a properies file w/versioning info">
+
+    <propertyfile file="${version.file}" comment="xpressa build" >
+        <entry  key="version"       value="${xpressa.version}" />
+        <entry  key="buildNumber"   value="${xpressa.build.number}" />
+        <entry  key="built"         value="now"
+                type="date"         pattern="MMM dd yyyy HH:mm:ss" />
+       <entry  key="optionalComment"  value="${xpressa.build.comment}" />
+    </propertyfile>
+  </target>
+
+
+  <!--
+    -  D E F A U L T
+    -->
+
+
+  <!-- 
+   - C O M P I L E 
+   -->
+  <target name="compile" depends="init,with.clover"
+      description="[internal] Compile all files in src directory">
+
+    <javac srcdir="${src.dir}"
+        destdir="${classes.dir}"
+        classpathref="base.path"
+        debug="${debug}"
+        deprecation="${deprecation}"
+        optimize="${optimize}"
+        source="1.4"
+        target="1.4"
+  	    excludes="test/**"/>
+  </target>
+
+
+  <!-- C L E A N -->
+  <target name="clean"
+      description="remove class, distribution and test directories">
+
+    <delete dir="${classes.dir}"/>
+    <delete dir="${test.classes.dir}"/>
+    <delete dir="${test.results.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${clover.dir}"/>
+  </target>
+
+
+  <!-- I N S T A L L -->
+  <target name="install"
+       description="Install java components" />
+
+  <!-- U N I N S T A L L -->
+  <target name="uninstall"
+       description="Un-Install java components">
+    <echo>NOTE: not necessarily a perfect inverse opperation to 'install'</echo>
+  </target>
+
+  
+  <!-- C O M P I L E  T E S T S -->
+  <target name="check.compile.test">
+    <available file="${test.src.dir}" type="dir" property="tests.present"/>
+  </target>
+
+  <target name="compile.test" depends="check.compile.test,compile,init,with.clover" if="tests.present"
+        description="[internal] compile tests">
+
+    <javac srcdir="${test.src.dir}"
+       destdir="${test.classes.dir}"
+       classpathref="base.path"
+       debug="${debug}"
+       deprecation="on"
+       optimize="${optimize}"
+       source="1.4"
+       target="1.4">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+        <pathelement location="${junit.jar}"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- C H E C K S T Y L E -->
+  <!-- set checkstyle.severity property to error|warning|info --> 
+  <!-- we are only failing on errors --> 
+  <target name="check.src.present">
+    <available file="${src.dir}" type="dir" property="src.present"/>
+  </target>
+
+  <target name="style" depends="check.src.present" if="src.present"
+      description="checks code convention violations"> 
+    <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false" 
+        failureproperty="checkstyle.failed" classpathref="base.path"> 
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+      <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/> 
+    </checkstyle>
+    <xslt in="${build.dir}/checkstyle_errors.xml" 
+        out="${build.dir}/checkstyle_errors.html" 
+        style="${top.dir}/meta/checkstyle-noframes-sorted.xsl"/> 
+    <xslt in="${build.dir}/checkstyle_errors.xml"
+      out="${build.dir}/checkstyle_errors.txt"
+      style="${top.dir}/meta/checkstyle-text.xsl"></xslt> 
+    <concat>
+      <fileset file="${build.dir}/checkstyle_errors.txt"/>
+    </concat>
+    <fail if="checkstyle.failed"/> 
+  </target> 
+	
+
+  <!-- J A V A D O C -->
+  <target name="doc" depends="init"
+      description="generate javadocs for src and test code">
+
+    <javadoc sourcepath="${src.dir}" destdir="${api.dir}">
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+      <classpath refid="base.path"/>
+      <classpath path="${junit.jar}"/>	
+    </javadoc>
+  </target>
+
+
+  <path id="test.path">
+    <pathelement location="${clover.jar}"/> 
+    <pathelement path="${classpath}"/>
+    <pathelement location="${classes.dir}"/>
+    <pathelement location="${test.classes.dir}"/>
+    <pathelement location="${src.dir}/test"/> 
+    <pathelement location="${src.dir}"/>
+    <pathelement location="${test.src.dir}"/>
+  </path>
+
+  <!--
+    - U N I T T E S T 
+    -->
+  <target name="test" depends="compile.test"
+       description="run junit tests">
+    <echo level="debug">${classpath}</echo>
+
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+      <classpath refid="test.path"/>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${test.results.dir}">
+        <fileset dir="${test.classes.dir}"> 
+          <patternset refid="test.classes"/>
+        </fileset>
+      </batchtest>
+    </junit>        
+    <fail if="junit.failed"/>   
+  </target>
+
+  <!--
+    - A L L   U N I T T E S T S
+    - This is unittests that generallly take a while to run or
+    - require that your machine is setup, for example database, 
+    - webserver, etc
+    -->
+  <target name="test-all" depends="test"
+       description="run all junit tests">
+  </target>
+
+
+  <!--
+    - U N I T T E S T   R E P O R T
+    -->
+  <target name="test-report" depends="init"
+     description="Generate test results to test-results/junit-noframe.html">
+
+    <junitreport todir="${test.results.dir}">
+
+      <fileset dir="${test.results.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+
+      <!-- Uses ANT embedded XSL file -->
+      <report format="noframes" 
+           todir="${test.results.dir}"/>
+
+    </junitreport>
+  </target>
+
+  <!--
+   - D E F A U L T   T A R G E T   W I T H   D E P E N D E N C I E S
+   -->
+  <target name="default.deps">
+    <antcall target="depend.${ant.project.name}"/>
+  </target>
+
+</project>
+

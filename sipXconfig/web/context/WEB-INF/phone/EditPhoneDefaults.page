@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.EditPhoneDefaults">
+    <description>add a description</description>
+    
+	<!--
+	  - P R O P E R T I E S
+	  -->    
+    <!-- Persistent -->
+    <property-specification name="phoneFactoryId" 
+        persistent="yes"
+        type="java.lang.String"/>
+    <property-specification name="editFormSettingName" 
+        persistent="yes"
+        type="java.lang.String"/>
+    <property-specification name="editFormFolderResource" 
+        persistent="yes"
+        type="java.lang.String"/>
+    <!-- Transient -->
+	<property-specification name="settingDao" 
+		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
+    	initial-value="global.settingDao"/>    
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+    <property-specification name="currentNavigationSetting" 
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="currentEditFormSetting" 
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="phone" 
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneFolder"
+        type="org.sipfoundry.sipxconfig.setting.Folder"/>
+    <property-specification name="lineFolder"
+        type="org.sipfoundry.sipxconfig.setting.Folder"/>
+    <property-specification name="editFormSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="editFormSettings" 
+        type="java.util.Collection"/>    
+    <!-- B E A N S -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <!--
+     - C O M P O N E N T S
+     -->    
+    <component id="phoneDefaultsNavigation" type="PhoneDefaultsNavigation">
+        <binding name="pageLabel" expression="editFormSetting.label"/>
+    </component>        
+    <component id="phoneDefaultsNavigationDescription" type="Insert">
+        <binding name="value" expression="editFormSetting.description"/>
+    </component>        
+    <component id="phoneSettingsLabel" type="Insert">
+        <binding name="value" expression="currentNavigationSetting.label"/>
+    </component>    
+    <component id="phoneSettings" type="Foreach">
+        <binding name="source" expression="phoneNavigationSettings"/>
+        <binding name="value" expression="currentNavigationSetting"/>
+    </component>
+    <component id="lineSettings" type="Foreach">
+        <binding name="source" expression="lineNavigationSettings"/>
+        <binding name="value" expression="currentNavigationSetting"/>
+    </component>
+    <component id="phoneSettingsLink" type="ActionLink">
+        <binding name="listener" expression="listeners.editPhoneSettings"/>
+    </component>    
+    <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
+    </component>    
+    <component id="lineSettingsLink" type="ActionLink">
+        <binding name="listener" expression="listeners.editLineSettings"/>
+    </component>  
+    <!-- Edit form -->  
+    <component id="settingsForm" type="SettingsForm">
+        <binding name="validator" expression="beans.validator"/>
+        <binding name="applyListener" expression="listeners.apply"/>
+        <binding name="okListener" expression="listeners.ok"/>
+        <binding name="cancelListener" expression="listeners.cancel"/>
+        <binding name="settings" expression="editFormSetting"/>
+    </component>
+    
+</page-specification>

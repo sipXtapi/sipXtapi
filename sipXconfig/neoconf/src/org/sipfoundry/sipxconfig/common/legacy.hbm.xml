@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.common">
+  <!--
+  -  LEGACY DATABASE MODEL 
+  -  standards do not nec. apply
+  -->
+  
+  <!--
+  - O R G A N I Z A T I O N
+  -->
+  <class name="Organization" table="organizations">
+    <id name="id" column="id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">org_seq</param>
+      </generator>
+    </id>
+    <property name="name" column="name"/>
+    <property name="dnsDomain" column="dns_domain"/>
+    <property name="stereotype" />
+  </class>
+  <class name="org.sipfoundry.sipxconfig.phone.JobRecord" table="jobs">
+    <id name="id" column="id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">job_seq</param>
+      </generator>
+    </id>
+    <property name="type"/>
+    <property name="status"/>
+    <property name="startTimeString" column="start_time"/>
+    <property name="details"/>
+    <property name="progress"/>
+    <property name="exceptionMessage" column="exception_message"/>
+  </class>
+  
+  <!-- 
+  - U S E R
+  -->
+  <class name="User" table="users">
+    <id name="id" column="id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_seq</param>
+      </generator>
+    </id>
+    <property name="firstName" column="first_name"/>
+    <many-to-one name="organization" column="org_id"
+      class="org.sipfoundry.sipxconfig.common.Organization"/>
+    <property name="pintoken" column="password"/>
+    <property name="userGroupId" column="ug_id"/>
+    <property name="rcsId" column="rcs_id"/>
+    <property name="lastName" column="last_name"/>
+    <property name="displayId" column="display_id"/>
+    <property name="extension"/>
+    <property name="profileEncryptionKey" column="profile_encryption_key"/>
+  </class>
+  
+  <!--
+  - U S E R   G R O U P
+  -->
+  <class name="UserGroup" table="user_groups">
+    <id name="id" column="id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_group_seq</param>
+      </generator>
+    </id>
+    <property name="rcsId" column="rcs_id"/>
+    <property name="parentGroupId" column="parent_ug_id"/>
+    <property name="name"/>
+  </class>
+</hibernate-mapping>

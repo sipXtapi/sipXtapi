@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.SelectGateways">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+    
+	<property-specification name="ruleId"
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>
+    
+    <property-specification name="selectedRows" type="java.util.Collection"/>    
+
+    <property-specification name="gateways" type="java.util.Collection"/>    
+
+    <property-specification name="nextPage" type="java.lang.String"/>    
+            
+     <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="nextPageHolder" type="Hidden">
+        <binding name="value" expression="nextPage"/>
+    </component>
+    
+    <component id="gatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="gateways"/>
+        <static-binding name="editPageName" value="EditGateway"/>
+    </component>
+                
+    <component id="selectButton" type="Submit">
+        <binding name="selected" expression="selectedRows"/>
+        <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
+    </component>
+
+    <component id="cancelButton" type="CancelButton">
+        <binding name="returnPageName" expression="nextPage"/>
+    </component>
+        
+    <component id="gatewaysSelectForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
+</page-specification>

@@ -1,0 +1,28 @@
+# used in applicationContext-sipxconfig.xml to set system properies
+sip.proxyHost=${PROXY_SERVER_ADDR}
+sip.proxyPort=${PROXY_SERVER_SIP_PORT}
+phoneDefaults.outboundProxy=${PROXY_SERVER_ADDR}
+phoneDefaults.outboundProxyPort=${PROXY_SERVER_SIP_PORT}
+# proxy will forward to registry server.
+phoneDefaults.registrationServer=${PROXY_SERVER_ADDR}
+phoneDefaults.registrationServerPort=${PROXY_SERVER_SIP_PORT}
+phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
+phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
+phoneDefaults.domainName=${SIPXCHANGE_DOMAIN_NAME}
+coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
+adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
+dataSource.url=jdbc:postgresql://localhost/PDS
+vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
+vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
+orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
+# name changes to anything starting w/sysdir need to be reflected in
+# VersionInfo class as well
+sysdir.bin=@sipxpbx.bin.dir@
+sysdir.etc=@sipxpbx.conf.dir@
+sysdir.log=@sipxpbx.log.dir@
+sysdir.share=@sipxpbx.data.dir@
+sysdir.phone=@sipxconfig.phone.dir@
+sysdir.tmp=@sipxpbx.tmp.dir@
+sysdir.version=@version@
+sysdir.build_number=0000
+sysdir.comment=opendev

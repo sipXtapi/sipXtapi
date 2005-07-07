@@ -1,0 +1,397 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<indexdata>
+<key name="adding" >
+  <key name="application sets" >
+    <topic name="Application Sets#add_an_application_set" url="list_application_sets.htm#add_an_application_set" />
+  </key>
+  <key name="applications" >
+    <topic name="Applications#add_an_application" url="list_applications.htm#add_an_application" />
+  </key>
+  <key name="device groups" >
+    <topic name="Device Groups#add_a_device_group" url="list_device_groups.htm#add_a_device_group" />
+  </key>
+  <key name="devices" >
+    <topic name="Devices#add_a_device" url="list_devices.htm#add_a_device" />
+  </key>
+  <key name="extension pools" >
+    <topic name="Extension Pools#add_an_extension_pool" url="extension_pools.htm#add_an_extension_pool" />
+  </key>
+  <key name="user groups" >
+    <topic name="User Groups#add_a_user_group" url="list_user_groups.htm#add_a_user_group" />
+  </key>
+  <key name="users" >
+    <topic name="Users#add_a_user" url="list_users.htm#add_a_user" />
+  </key>
+</key>
+<key name="administrators" >
+  <topic name="List Adminstrators" url="list_administrators.htm" />
+  <key name="changing passwords" >
+    <topic name="Administrators#change_a_password" url="list_administrators.htm#change_a_password" />
+  </key>
+  <key name="list of" >
+    <topic name="Administrators#admin" url="list_administrators.htm#admin" />
+  </key>
+</key>
+<key name="application sets" >
+  <topic name="List Application Sets" url="list_application_sets.htm" />
+  <key name="about" >
+    <topic name="Application sets, about" url="application_sets_about.htm" />
+  </key>
+  <key name="adding" >
+    <topic name="Application Sets#add_an_application_set" url="list_application_sets.htm#add_an_application_set" />
+  </key>
+  <key name="applications and" >
+    <topic name="Application Sets#assign_apps_to_set" url="list_application_sets.htm#assign_apps_to_set" />
+  </key>
+  <key name="assigning to user groups" >
+    <topic name="User Groups#assign_apps" url="list_user_groups.htm#assign_apps" />
+  </key>
+  <key name="assigning to users" >
+    <topic name="Users#assign_apps" url="list_users.htm#assign_apps" />
+  </key>
+  <key name="changing applications in" >
+    <topic name="Application Sets#change_application_set_data" url="list_application_sets.htm#change_application_set_data" />
+  </key>
+  <key name="deleting" >
+    <topic name="Application Sets#delete_an_application_set" url="list_application_sets.htm#delete_an_application_set" />
+  </key>
+  <key name="renaming" >
+    <topic name="Application Sets#change_application_set_name" url="list_application_sets.htm#change_application_set_name" />
+  </key>
+</key>
+<key name="applications" >
+  <topic name="List Applications" url="list_applications.htm" />
+  <key name="adding" >
+    <topic name="Applications#add_an_application" url="list_applications.htm#add_an_application" />
+  </key>
+  <key name="application sets and" >
+    <topic name="Application sets, about" url="application_sets_about.htm" />
+  </key>
+  <key name="assigning to user groups" >
+    <topic name="User Groups#assign_apps" url="list_user_groups.htm#assign_apps" />
+  </key>
+  <key name="assigning to users" >
+    <topic name="Users#assign_apps" url="list_users.htm#assign_apps" />
+  </key>
+  <key name="changing data for" >
+    <topic name="Applications#change_application_data" url="list_applications.htm#change_application_data" />
+  </key>
+  <key name="deleting" >
+    <topic name="Applications#delete_an_application" url="list_applications.htm#delete_an_application" />
+  </key>
+  <key name="downloading" >
+    <topic name="Applications#download_application" url="list_applications.htm#download_application" />
+  </key>
+</key>
+<key name="assigning" >
+  <key name="application sets to user groups" >
+    <topic name="User Groups#assign_apps" url="list_user_groups.htm#assign_apps" />
+  </key>
+  <key name="application sets to users" >
+    <topic name="Users#assign_apps" url="list_users.htm#assign_apps" />
+  </key>
+  <key name="applications to a set" >
+    <topic name="Application Sets#assign_apps_to_set" url="list_application_sets.htm#assign_apps_to_set" />
+  </key>
+  <key name="applications to user groups" >
+    <topic name="User Groups#assign_apps" url="list_user_groups.htm#assign_apps" />
+  </key>
+  <key name="applications to users" >
+    <topic name="Users#assign_apps" url="list_users.htm#assign_apps" />
+  </key>
+  <key name="devices to users" >
+    <topic name="Users#assign_a_device_to_a_user" url="list_users.htm#assign_a_device_to_a_user" />
+  </key>
+  <key name="extensions to a pool" >
+    <topic name="Extension Pools#assign_exts" url="extension_pools.htm#assign_exts" />
+  </key>
+</key>
+<key name="configuring" >
+  <key name="device group settings" >
+    <topic name="Device Groups#configure_dgroup_settings" url="list_device_groups.htm#configure_dgroup_settings" />
+  </key>
+  <key name="device settings" >
+    <topic name="Devices#configure_device_settings" url="list_devices.htm#configure_device_settings" />
+  </key>
+  <key name="user group settings" >
+    <topic name="User Groups#configure_ugroup_settings" url="list_user_groups.htm#configure_ugroup_settings" />
+  </key>
+  <key name="user settings" >
+    <topic name="Users#configure_user_settings" url="list_users.htm#configure_user_settings" />
+  </key>
+</key>
+<key name="deleting" >
+  <key name="application sets" >
+    <topic name="Application Sets#delete_an_application_set" url="list_application_sets.htm#delete_an_application_set" />
+  </key>
+  <key name="applications" >
+    <topic name="Applications#delete_an_application" url="list_applications.htm#delete_an_application" />
+  </key>
+  <key name="device groups" >
+    <topic name="Device Groups#delete_a_device_group" url="list_device_groups.htm#delete_a_device_group" />
+  </key>
+  <key name="devices" >
+    <topic name="Devices#delete_a_device" url="list_devices.htm#delete_a_device" />
+  </key>
+  <key name="extension pools" >
+    <topic name="Extension Pools#delete_an_extension_pool" url="extension_pools.htm#delete_an_extension_pool" />
+  </key>
+  <key name="user groups" >
+    <topic name="User Groups#delete_a_user_group" url="list_user_groups.htm#delete_a_user_group" />
+  </key>
+  <key name="users" >
+    <topic name="Users#delete_a_user" url="list_users.htm#delete_a_user" />
+  </key>
+</key>
+<key name="device groups" >
+  <topic name="List Device Groups" url="list_device_groups.htm" />
+  <key name="about" >
+    <topic name="Groups, about" url="user_groups_about.htm" />
+  </key>
+  <key name="adding" >
+    <topic name="Device Groups#add_a_device_group" url="list_device_groups.htm#add_a_device_group" />
+  </key>
+  <key name="changing data" >
+    <topic name="Device Groups#change_device_group_data" url="list_device_groups.htm#change_device_group_data" />
+  </key>
+  <key name="configuring settings" >
+    <topic name="Device Groups#configure_dgroup_settings" url="list_device_groups.htm#configure_dgroup_settings" />
+  </key>
+  <key name="deleting" >
+    <topic name="Device Groups#delete_a_device_group" url="list_device_groups.htm#delete_a_device_group" />
+  </key>
+  <key name="restarting" >
+    <topic name="Device Groups#restart_devices" url="list_device_groups.htm#restart_devices" />
+  </key>
+  <key name="sending profiles to" >
+    <topic name="Device Groups#send_device_group_profiles" url="list_device_groups.htm#send_device_group_profiles" />
+  </key>
+</key>
+<key name="devices" >
+  <topic name="List Devices" url="list_devices.htm" />
+  <key name="about" >
+    <topic name="Devices, about" url="devices_about.htm" />
+  </key>
+  <key name="adding" >
+    <topic name="Devices#add_a_device" url="list_devices.htm#add_a_device" />
+  </key>
+  <key name="assigning to users" >
+    <topic name="Users#assign_a_device_to_a_user" url="list_users.htm#assign_a_device_to_a_user" />
+  </key>
+  <key name="changing data" >
+    <topic name="Devices#change_device_data" url="list_devices.htm#change_device_data" />
+  </key>
+  <key name="changing group assignments" >
+    <topic name="Devices#change_a_devices_group" url="list_devices.htm#change_a_devices_group" />
+  </key>
+  <key name="configuring settings" >
+    <topic name="Devices#configure_device_settings" url="list_devices.htm#configure_device_settings" />
+  </key>
+  <key name="deleting" >
+    <topic name="Devices#delete_a_device" url="list_devices.htm#delete_a_device" />
+  </key>
+  <key name="groups and" >
+    <topic name="Groups, about" url="user_groups_about.htm" />
+  </key>
+  <key name="restarting" >
+    <topic name="Users#restart_devices" url="list_users.htm#restart_devices" />
+  </key>
+  <key name="sending profiles to" >
+    <topic name="Devices#send_device_profiles" url="list_devices.htm#send_device_profiles" />
+  </key>
+</key>
+<key name="downloading applications" >
+  <topic name="Applications#download_application" url="list_applications.htm#download_application" />
+</key>
+<key name="extension pools" >
+  <topic name="Extension Pools" url="extension_pools.htm" />
+  <key name="about" >
+    <topic name="Extension Pools, about" url="extension_pools_about.htm" />
+  </key>
+  <key name="adding" >
+    <topic name="Extension Pools#add_an_extension_pool" url="extension_pools.htm#add_an_extension_pool" />
+  </key>
+  <key name="assigning extensions to" >
+    <topic name="Extension Pools#assign_exts" url="extension_pools.htm#assign_exts" />
+  </key>
+  <key name="deleting" >
+    <topic name="Extension Pools#delete_an_extension_pool" url="extension_pools.htm#delete_an_extension_pool" />
+  </key>
+  <key name="removing extensions from" >
+    <topic name="Extension Pools#remove_exts" url="extension_pools.htm#remove_exts" />
+  </key>
+  <key name="renaming" >
+    <topic name="Extension Pools#change_extension_pool_name" url="extension_pools.htm#change_extension_pool_name" />
+  </key>
+  <key name="reserve extension pool" >
+    <topic name="Reserve extension pool, About" url="extension_pool_reserved.htm" />
+  </key>
+</key>
+<key name="extensions" >
+  <key name="extension pools and" >
+    <topic name="Reserve extension pool, About" url="extension_pool_reserved.htm" />
+  </key>
+  <key name="user identifiers" >
+    <topic name="Users#add_a_user" url="list_users.htm#add_a_user" />
+  </key>
+</key>
+<key name="groups" >
+  <topic name="Groups, about" url="user_groups_about.htm" />
+  <key name="device" >
+    <topic name="Device Groups" url="list_device_groups.htm" />
+  </key>
+  <key name="user" >
+    <topic name="User Groups" url="list_user_groups.htm" />
+  </key>
+</key>
+<key name="Job Status log" >
+  <topic name="Job Status" url="job_status.htm" />
+</key>
+<key name="passwords" >
+  <key name="administrator" >
+    <topic name="Administrators#change_a_password" url="list_administrators.htm#change_a_password" />
+  </key>
+  <key name="user PINs" >
+    <topic name="Users#change_user_data" url="list_users.htm#change_user_data" />
+  </key>
+</key>
+<key name="patches" >
+  <topic name="About Pingtel Configuration Server" url="about_configsrvr.htm" />
+</key>
+<key name="permissions" >
+  <topic name="Users#configure_user_settings" url="list_users.htm#configure_user_settings" />
+</key>
+<key name="Personal Identification Numbers" >
+  <topic name="Users#change_user_data" url="list_users.htm#change_user_data" />
+</key>
+<key name="phones: see devices" >
+  <topic name="Devices, about" url="devices_about.htm" />
+</key>
+<key name="Pingtel Configuration Server" >
+  <topic name="Welcome" url="welcome.htm" />
+  <key name="about" >
+    <topic name="About Pingtel Configuration Server" url="about_configsrvr.htm" />
+  </key>
+</key>
+<key name="pools: extension" >
+  <topic name="Extension Pools, about" url="extension_pools_about.htm" />
+</key>
+<key name="profiles" >
+  <key name="device" >
+    <topic name="Devices#send_device_profiles" url="list_devices.htm#send_device_profiles" />
+  </key>
+  <key name="status report" >
+    <topic name="Job Status" url="job_status.htm" />
+  </key>
+  <key name="user" >
+    <topic name="Users#send_user_profiles" url="list_users.htm#send_user_profiles" />
+  </key>
+</key>
+<key name="reloading applications" >
+  <topic name="Applications#download_application" url="list_applications.htm#download_application" />
+</key>
+<key name="reserve extension pool" >
+  <topic name="Reserve extension pool, About" url="extension_pool_reserved.htm" />
+</key>
+<key name="restarting" >
+  <key name="device group devices" >
+    <topic name="Device Groups#restart_devices" url="list_device_groups.htm#restart_devices" />
+  </key>
+  <key name="devices" >
+    <topic name="Devices#restart_device" url="list_devices.htm#restart_device" />
+  </key>
+  <key name="user devices" >
+    <topic name="Users#restart_devices" url="list_users.htm#restart_devices" />
+  </key>
+  <key name="user group devices" >
+    <topic name="User Groups#restart_devices" url="list_user_groups.htm#restart_devices" />
+  </key>
+</key>
+<key name="sending profiles" >
+  <key name="status report" >
+    <topic name="Job Status" url="job_status.htm" />
+  </key>
+  <key name="to a device" >
+    <topic name="Devices#send_device_profiles" url="list_devices.htm#send_device_profiles" />
+  </key>
+  <key name="to a device group" >
+    <topic name="Device Groups#send_device_group_profiles" url="list_device_groups.htm#send_device_group_profiles" />
+  </key>
+  <key name="to a user" >
+    <topic name="Users#send_user_profiles" url="list_users.htm#send_user_profiles" />
+  </key>
+  <key name="to a user group" >
+    <topic name="User Groups#project_user_group_profiles" url="list_user_groups.htm#project_user_group_profiles" />
+  </key>
+</key>
+<key name="serial number" >
+  <topic name="About Pingtel Configuration Server" url="about_configsrvr.htm" />
+</key>
+<key name="sets" >
+  <topic name="Application sets, about" url="application_sets_about.htm" />
+  <key name="application" >
+    <topic name="Application Sets" url="list_application_sets.htm" />
+  </key>
+</key>
+<key name="user groups" >
+  <topic name="List User Groups" url="list_user_groups.htm" />
+  <key name="adding" >
+    <topic name="User Groups#add_a_user_group" url="list_user_groups.htm#add_a_user_group" />
+  </key>
+  <key name="changing data" >
+    <topic name="User Groups#change_user_group_data" url="list_user_groups.htm#change_user_group_data" />
+  </key>
+  <key name="configuring settings" >
+    <topic name="User Groups#configure_ugroup_settings" url="list_user_groups.htm#configure_ugroup_settings" />
+  </key>
+  <key name="deleting" >
+    <topic name="User Groups#delete_a_user_group" url="list_user_groups.htm#delete_a_user_group" />
+  </key>
+  <key name="sending profiles to" >
+    <topic name="User Groups#project_user_group_profiles" url="list_user_groups.htm#project_user_group_profiles" />
+  </key>
+</key>
+<key name="users" >
+  <topic name="List Users" url="list_users.htm" />
+  <key name="about" >
+    <topic name="Users, about" url="users_about.htm" />
+  </key>
+  <key name="adding" >
+    <topic name="Users#add_a_user" url="list_users.htm#add_a_user" />
+  </key>
+  <key name="assigning applications to" >
+    <topic name="Users#assign_apps" url="list_users.htm#assign_apps" />
+  </key>
+  <key name="assigning devices to" >
+    <topic name="Users#assign_a_device_to_a_user" url="list_users.htm#assign_a_device_to_a_user" />
+  </key>
+  <key name="changing assigned devices" >
+    <topic name="Users#change_a_users_assigned_device" url="list_users.htm#change_a_users_assigned_device" />
+  </key>
+  <key name="changing data" >
+    <topic name="Users#change_user_data" url="list_users.htm#change_user_data" />
+  </key>
+  <key name="changing group assignments" >
+    <topic name="Users#change_a_users_group" url="list_users.htm#change_a_users_group" />
+  </key>
+  <key name="configuring settings" >
+    <topic name="Users#configure_user_settings" url="list_users.htm#configure_user_settings" />
+  </key>
+  <key name="deleting" >
+    <topic name="Users#delete_a_user" url="list_users.htm#delete_a_user" />
+  </key>
+  <key name="groups and" >
+    <topic name="Groups, about" url="user_groups_about.htm" />
+  </key>
+  <key name="sending profiles to" >
+    <topic name="Users#send_user_profiles" url="list_users.htm#send_user_profiles" />
+  </key>
+</key>
+<key name="version numbers" >
+  <topic name="About Pingtel Configuration Server" url="about_configsrvr.htm" />
+</key>
+<key name="welcome" >
+  <topic name="Welcome" url="welcome.htm" />
+</key>
+
+</indexdata>

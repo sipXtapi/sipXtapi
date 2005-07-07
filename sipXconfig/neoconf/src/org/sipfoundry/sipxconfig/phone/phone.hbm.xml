@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.phone">
+  <!-- 
+  - E N D P O I N T 
+  -->
+  <class name="PhoneData" table="phone">
+    <id name="id" column="phone_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">phone_seq</param>
+      </generator>
+    </id>
+    <property name="name"/>
+    <property name="serialNumber" column="serial_number"/>
+    <property name="factoryId" column="factory_id"/>
+    <many-to-one cascade="all" name="valueStorage" column="storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    <many-to-one name="folder" column="folder_id" class="org.sipfoundry.sipxconfig.setting.Folder"/>
+  </class>
+  
+  <!--
+  -  L I N E
+  -->
+  <class name="LineData" table="line">
+    <id name="id" column="line_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">line_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="phoneData" column="phone_id" class="PhoneData" not-null="true"/>
+    <property name="position" column="position"/>
+    <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"/>
+    <many-to-one name="folder" column="folder_id" class="org.sipfoundry.sipxconfig.setting.Folder"/>
+    <many-to-one cascade="all" name="valueStorage" column="storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+  </class>
+  
+  <query name="phoneIdsWithName">
+    <![CDATA[select pd.id from PhoneData pd where pd.name = :value]]>
+  </query>
+  
+  <query name="phoneIdsWithSerialNumber">
+    <![CDATA[select pd.id from PhoneData pd where pd.serialNumber = :value]]>        
+  </query>  
+</hibernate-mapping>

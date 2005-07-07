@@ -1,0 +1,87 @@
+<html>
+<head>
+<title>enterprise_nav.gif</title>
+<meta http-equiv="Content-Type" content="text/html;"/>
+<!-- Fireworks 4.0  Dreamweaver 4.0 target.  Created Thu Aug 08 13:40:35 GMT-0400 (Eastern Daylight Time) 2002-->
+<style type="text/css">
+body {background: #639A9C; color: white;}
+div#topgroup {margin-top: 2em;}
+a {text-decoration: none;}
+a:link {color: white;}
+a:visited {color: white;}
+a:hover {color: #FFCF31;}
+div.group {font: 12pt Arial, Helvetica, Verdana, serif;
+	font-weight: bolder;
+	padding: 4px 0;
+	margin-left: 8px;}
+div.menuitem {font: 9pt Arial, Helvetica, Verdana, serif;
+	margin-left: 8px;
+	padding: 5px 0 8px 10px; }
+
+</style>
+<script language="Javascript">
+
+    function neoconfWaitToLoad( pageToLoad)
+    {
+        top.command.location = '../command/command_blank.html';
+        waitToLoad(pageToLoad);
+    }
+
+    function waitToLoad( pageToLoad )
+    {
+        if( top.mainFrame.saveFlag != null )
+        {
+            if( top.mainFrame.saveFlag == "true" )
+            {
+                top.mainFrame.checkFlag( pageToLoad );
+            }
+            else
+            {
+                top.mainFrame.location = pageToLoad;
+            }
+
+        }
+        else
+        {
+            top.mainFrame.location = pageToLoad;
+        }
+    }
+    function loadPage( pageToLoad )
+    {
+        if(pageToLoad.indexOf("logout") == -1 ){
+                    top.mainFrame.location = pageToLoad;
+                 }
+                 else {
+                    top.location = pageToLoad;
+                }
+    }
+</script>
+</head>
+<body>
+<div id="topgroup" class="group">User Settings</div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../user/list_all_usergroups.jsp')">User Groups</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('redir.jsp?type=user')">Users</a></div>
+<div class="group">Endpoints</div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/ManagePhones')">Phones</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../device/list_all_devicegroups.jsp')">SIPSoftphone Groups</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('redir.jsp?type=device')">SIPSoftphone</a></div>
+<div class="group">Network Services</div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/ListGateways')">Gateways</a></div>
+<div class="group">Administration</div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../administration/list_all_administrators.jsp')">Administrators</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../user/list_all_extpools.jsp?deletepool=false')">Extension Pools</a></div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/EditFlexibleDialPlan')">Dial Plans</a></div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/ManageAttendants')">Auto Attendants</a></div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/EditEmergencyRouting')">Emergency Routing</a></div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/ListCallGroups')">Hunt Groups</a></div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/ListParkOrbits')">Call Park</a></div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/ServerSettings')">Configuration</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../administration/edit_organization.jsp')">Organization Settings</a></div>
+<div class="menuitem"><a href="#" onclick="neoconfWaitToLoad('/sipxconfig/app?service=page/BackupPage')">Backup</a></div>
+<div class="group">Diagnostics</div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../../commserver/registration_details.jsp?location=localhost&sort=uri&index=1&max=50&count=50')">Registrations</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../profile/list_job_status.jsp')">Job Status</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../administration/list_all_services.jsp')">Servers</a></div>
+<div class="menuitem"><a href="#" onclick="waitToLoad('../administration/about.jsp')">About</a></div>
+</body>
+</html>

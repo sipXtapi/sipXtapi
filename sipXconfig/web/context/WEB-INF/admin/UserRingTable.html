@@ -1,0 +1,47 @@
+<span jwcid="$content$">
+    <fieldset>
+    	<legend><span key="legend.ring_table">Call Sequence</span></legend>
+		<ul class="component-links">
+    	    <li>
+        	    <a jwcid="addRow" id="callgroup:addRing" href="../user/search.html"><span key="link.add">Add User</span></a>
+	        </li>
+		</ul>
+		<table jwcid="tableView" id="userring:list" class="component">
+	        <thead>
+	            <tr>
+	                <th/>
+	                <span jwcid="tableColumns"/>
+	            </tr>
+	        </thead>
+	        <tbody>
+	            <span jwcid="sequenceColumnValue">
+                    <span jwcid="ifRenderSequence">
+		                <span jwcid="sequence"></span>
+                    </span>
+                	<span jwcid="ifRenderInitial">
+                        <span jwcid="@InsertText" value="message:text.initiallyCall">Initially call</span>
+                    </span>    
+	            </span>
+	            <span jwcid="expirationColumnValue">
+	                <input jwcid="expiration" maxlength="6" type="text" size="3"></input>
+	            </span>
+	            <span jwcid="tableRows">
+	                <td><span jwcid="selectedRow"/></td>
+					<span jwcid="tableValues"/>
+	            </span>
+	        </tbody>
+		</table>
+	    <ul class="component-submit">
+			<li>
+				<input jwcid="moveUp" type="submit" id="userring:moveUp" name="" value="Move Up"/>
+			</li>
+			<li>
+				<input jwcid="moveDown" type="submit" id="userring:moveDown" name="" value="Move Down"/>
+			</li>
+			<li>
+				<input jwcid="delete" type="submit" id="userring:delete" name="" value="Delete" 
+	            	onclick="return confirm('Are you sure you want to remove selected users from this call group.')"/>
+			</li>
+		</ul>
+	</fieldset>
+</span>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+	<setting
+		storage_id="[storage_id]"		
+		path="/up/headsetMode"
+		value="1"/>
+</dataset>

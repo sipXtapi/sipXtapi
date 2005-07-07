@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="profilepublisher" default="default" basedir="." >
+
+  <property name="project.dir" value="profilepublisher"/>
+  <import file="../ant-targets.xml"/>
+
+  <path id="base.path" >
+    <!-- SIPXCONFIG -->
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${common.jar}"/>
+
+    <!-- IDEALLY: pathelement location="${profilegen-client.jar}"/ -->
+    <pathelement location="${profilegen-ejb.jar}"/>
+
+    <!-- UTIL -->
+    <pathelement location="${jdbc-driver.jar}"/>
+    <pathelement location="${commons-pool.jar}"/>
+    <pathelement location="${commons-dbcp.jar}"/>
+    <pathelement location="${commons-collections.jar}"/>
+
+    <!-- J2EE -->
+  	<pathelement location="${j2ee.jar}"/>
+  	<pathelement location="${jboss.client.lib}/jbosssx-client.jar"/>
+
+    <!-- for style target -->
+    <pathelement location="${jdom.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
+
+  <!-- C O M P I L E -->
+  <target name="compile" depends="ant-targets.compile" >
+     <rmic base="${classes.dir}" includes="**/*Impl.class"
+         verify="yes" stubversion="1.2" classpathref="base.path" />
+  </target>
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="build jar" >
+      <jar jarfile="${dist.dir}/profilepublisher.jar" >
+         <fileset dir="${classes.dir}" >
+           <include name="**/*.class" />
+         </fileset>
+         <fileset file="${buildVersion.properties}"/>
+      </jar>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="jar">
+
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy todir="${dest.dir}${sipxpbx.conf.dir}">
+      <fileset dir="etc">
+        <include name="sds-config.in"/>
+        <include name="sds.props.in"/>
+      </fileset>
+    </copy>
+
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/sds-config.in"
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
+    </replace>
+
+    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/sql"/>
+    <copy todir="${dest.dir}${sipxpbx.data.dir}/sql">
+      <fileset dir="meta/sql" includes="**"/>
+    </copy>
+
+    <copy file="bin/profilepublisher.sh.in" tofile="${dest.dir}${bin.dir}/profilepublisher.sh"/>
+    <replace file="${dest.dir}${bin.dir}/profilepublisher.sh"
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@localstate.dir@" property="localstate.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@lib.dir@" property="lib.dir"/>
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/profilepublisher.sh" perm="ugo+x"/>
+
+    <copy file="${dist.dir}/profilepublisher.jar" todir="${dest.dir}${sipxconfig.lib.dir}"/>
+
+  </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
+
+</project>

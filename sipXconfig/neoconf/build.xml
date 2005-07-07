@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="neoconf" default="default" basedir=".">
+	<property name="sipxconfig.db.pds" value="PDS_TEST"/>
+	<property name="sipxconfig.db.user" value="postgres"/>
+	
+	<property name="test.src.dir" value="test" />
+        <patternset id="test-db.classes" includes="**/*TestDb.class" />
+	<property name="checkstyle.severity" value="error" />
+
+	<property name="project.dir" value="neoconf" />
+	<import file="../ant-targets.xml" />
+
+	<!-- 
+	    - common path unittests will need that interfaces w/sipxconfig lib 
+	    - all spring jars at this point
+	    -->
+	<path id="compile.dependencies">
+		<pathelement location="${saxpath.jar}" />
+		<pathelement location="${jaxen.jar}" />
+		<pathelement location="${j2ee.jar}" />
+		<pathelement location="${commons-lang.jar}" />
+		<pathelement location="${spring.jar}" />
+		<pathelement location="${hibernate.jar}" />
+		<pathelement location="${servlet.jar}" />
+		<pathelement location="${velocity.jar}" />
+		<pathelement location="${commons-digester.jar}"/>
+		<pathelement location="${commons-collections.jar}" />
+		<pathelement location="${commons-io.jar}" />
+	</path>
+
+	<!-- 
+	    - common path unittests will need that interfaces w/sipxconfig lib 
+	    - all spring jars at this point
+	    -->
+	<path id="runtime.dependencies">
+		<pathelement location="${commons-logging.jar}" />
+		<pathelement location="${logkit.jar}" />
+		<pathelement location="${commons-dbcp.jar}" />
+		<pathelement location="${commons-pool.jar}" />
+		<pathelement location="${commons-beanutils.jar}"/>
+		<pathelement location="${aopalliance.jar}" />
+		<pathelement location="${dom4j.jar}" />
+		<pathelement location="${ehcache.jar}" />
+		<pathelement location="${asm.jar}" />
+		<pathelement location="${cglib.jar}" />
+		<pathelement location="${jta.jar}" />
+		<pathelement location="${jdbc-driver.jar}" />
+		<pathelement location="${odmg.jar}" />
+		<pathelement location="${ehcache.jar}" />
+	</path>
+
+	<path id="base.path">
+
+		<path refid="compile.dependencies" />
+
+		<!-- TEST -->
+		<!-- TODO: Separate these from compile dependencies -->
+		<path refid="runtime.dependencies" />
+
+		<!-- TEST -->
+		<pathelement location="${easymock.jar}" />
+		<pathelement location="${easymockclassextension.jar}" />
+		<pathelement location="${dbunit.jar}" />
+		<pathelement location="${p6spy.jar}" />
+        <pathelement location="${xmlunit.jar}"/>
+	</path>
+	<property name="classpath" refid="base.path" />
+
+	<!-- INSTALL -->
+    <target name="install">
+    	<mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+		<copy todir="${dest.dir}${sipxpbx.conf.dir}">
+			<fileset dir="etc">
+				<include name="**/*"/>
+		    </fileset>
+	    </copy>    	
+
+        <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxconfig.properties.in"
+            propertyfile="${top.build.dir}/config.properties">
+            <replacefilter token="@version@" property="version"/>
+            <replacefilter token="@sipxpbx.bin.dir@" property="sipxpbx.bin.dir"/>
+            <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+            <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
+            <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+            <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
+            <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
+            <replacefilter token="@sipxvxml.data.dir@" property="sipxvxml.data.dir"/>
+            <replacefilter token="@sipxpark.audio.dir@" property="sipxpark.audio.dir"/>
+            <replacefilter token="@sipxpbx.backup.dir@" property="sipxpbx.backup.dir"/>
+            <replacefilter token="@www.dir@" property="www.dir"/>
+        </replace>
+    </target>
+	
+	
+	<!-- D E F A U L T -->
+	<target name="default" depends="jar"/>
+    
+    <target name="compile.rmi" depends="compile">
+    	<rmic base="${classes.dir}"
+            verify="yes" stubversion="1.2" classpathref="base.path">
+    		<include name="**/*ServiceImpl.class"/>	
+    	</rmic>
+    </target>
+	
+	<!-- J A R -->
+	<target name="jar" depends="compile.rmi" description="assemble sipxconfig jar library">
+		<jar file="${sipxconfig.jar}">
+			<fileset dir="${classes.dir}"/>
+			<fileset dir="${src.dir}">
+				<include name="**/*.xml"/>
+				<include name="**/*.properties"/>
+			</fileset>
+                        <!-- helpful when turning SQL debugging on -->
+                        <!-- fileset file="${test.src.dir}/spy.properties"/ -->
+	    </jar>
+	</target>
+
+    <target name="test-all" depends="ant-targets.test-all,test-db,test-models"/>
+
+  <!--
+    - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
+    -->
+    <target name="test-db" depends="compile.test, reset-db"
+       description="run junit tests that interact with database">
+
+    	<junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+	      <classpath refid="test.path"/>
+    	  <formatter type="plain"/>
+	      <formatter type="xml"/>
+	      <sysproperty key="basedir" value="${basedir}"/>
+	      <batchtest todir="${test.results.dir}">
+	        <fileset dir="${test.classes.dir}"> 
+	          <patternset refid="test-db.classes"/>
+	        </fileset>
+	      </batchtest>
+    	</junit>
+     	<fail if="junit.failed"/>   
+	</target>
+	
+	<target name="test-models">
+		<xmlvalidate description="validate setting description files">
+			<fileset dir="etc/cisco" includes="**/*.xml"></fileset>
+			<fileset dir="etc/commserver" includes="**/*.xml"></fileset>
+			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
+			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
+			<fileset dir="etc/grandstream" includes="**/*.xml"></fileset>
+			<dtd publicid="-//SIPFoundry//sipXconfig//Model specification 1.0//EN" location="etc/setting.dtd"/>
+		</xmlvalidate>
+	</target>
+  
+    <target name="reset-db" depends="compile.test"
+        description="Resets the test database. Needs to be called before UI and WEB tests.">
+        <property name="sql.dir" location="${top.dir}/profilegenerator/meta/sql"/>
+        <property name="sipxconfig.db.pds.url" value="jdbc:postgresql://localhost/${sipxconfig.db.pds}"/>
+		<exec executable="dropdb" failonerror="false">
+			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds}"/>
+		</exec>
+		<exec executable="createdb" failonerror="true">
+			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds}"/>
+		</exec>        
+        <sql driver="org.postgresql.Driver" url="${sipxconfig.db.pds.url}" userid="${sipxconfig.db.user}" password="" classpathref="base.path">
+            <transaction src="${sql.dir}/profilegen_create.sql"/>
+            <transaction src="${sql.dir}/profilegen_alter.sql"/>
+            <transaction src="${sql.dir}/profilegen_seq.sql"/>
+            <transaction src="${sql.dir}/profilegen_initvalues.sql"/>
+            <!-- temporary until we upgrade DB version-->
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v9_mods.sql"/>
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v10_add_aa.sql"/>
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v11_park_orbit.sql"/>
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v13_music_on_hold.sql"/>
+            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v14_backup.sql"/>
+        </sql>     
+    	<echo>ClearDb</echo>
+    	<java classname="org.sipfoundry.sipxconfig.ClearDb" classpathref="test.path" fork="true" outputproperty="eatme">
+  	      <sysproperty key="basedir" value="${basedir}"/>
+  		</java>
+    </target>
+    
+
+    <!-- HBM 2 DDL -->
+    <!-- generate SQL from java files and hibernate mappings -->
+    <path id="full.classpath">
+        <path refid="base.path"></path>
+        <pathelement path="${classes.dir}"/>
+    </path>
+
+    <taskdef name="schemaexport"
+        classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask" 
+        classpathref="full.classpath"/>
+
+    <target name="hbm2ddl">
+        <schemaexport properties="${top.dir}/meta/hibernate.properties" quiet="no"
+            text="yes" drop="no" delimiter=";" output="${build.dir}/schema-export.sql">
+	         <fileset dir="${src.dir}">
+    	         <include name="**/*.hbm.xml"/>
+        	 </fileset>
+        </schemaexport>
+    </target>
+    
+    <taskdef name="schemaupdate"
+        classname="net.sf.hibernate.tool.hbm2ddl.SchemaUpdateTask" 
+        classpathref="full.classpath"/>
+
+    <target name="hbm2ddl.patch" description="Generate SQL patch to existing database to bring it up to date with hibernate definitions.">
+        <schemaupdate properties="${top.dir}/meta/hibernate.properties" quiet="no"
+            text="yes">
+	         <fileset dir="${src.dir}">
+    	         <include name="**/*.hbm.xml"/>
+        	 </fileset>
+        </schemaupdate>
+    </target>
+    
+</project>
+
+

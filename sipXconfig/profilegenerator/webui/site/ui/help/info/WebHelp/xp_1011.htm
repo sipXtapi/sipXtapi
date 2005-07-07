@@ -1,0 +1,179 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+
+<html>
+
+<!--(==============================================================)-->
+<!--(Document created with RoboEditor. )============================-->
+<!--(==============================================================)-->
+
+<head>
+
+<title>Starting port for RTP/RTCP packets</title>
+
+<!--(Meta)==========================================================-->
+
+<meta name="template" content="template.htt">
+<meta http-equiv=content-type content="text/html; charset=windows-1252">
+<meta name=generator content="RoboHELP by eHelp Corporation - www.ehelp.com">
+<meta name=generator-major-version content=0.1>
+<meta name=generator-minor-version content=1>
+<meta name=filetype content=kadov>
+<meta name=filetype-version content=1>
+<meta name=page-count content=1>
+<meta name=layout-height content=450>
+<meta name=layout-width content=511>
+
+
+<!--(Links)=========================================================-->
+
+ <link rel='stylesheet' href='pingtel1_ns.css'>
+<script type="text/javascript" language="JavaScript" title="WebHelpSplitCss">
+<!--
+if (navigator.appName !="Netscape")
+{   document.write("<link rel='stylesheet' href='pingtel1.css'>");}
+//-->
+</script>
+<style type="text/css">
+<!--
+table.whs1 {x-cell-content-align: top; width: 100%; margin-left: -10px; border-spacing: 1px; border-spacing: 1px;}
+col.whs2 {width: 26.264%;}
+col.whs3 {width: 73.736%;}
+tr.whs4 {x-cell-content-align: top;}
+td.whs5 {padding-right: 10px; padding-left: 10px; border-bottom-style: none; border-right-style: none; border-left-style: none; border-top-style: none;}
+p.whs6 {font-weight: bold;}
+td.whs7 {padding-right: 10px; padding-left: 10px; border-bottom-style: none; border-top-style: none; border-right-style: none;}
+td.whs8 {padding-right: 10px; padding-left: 10px; border-bottom-style: none; border-right-style: none; border-left-style: none;}
+td.whs9 {padding-right: 10px; padding-left: 10px; border-bottom-style: none; border-right-style: none;}
+div.whs10 {width: 100%;  margin-top: 12px;}
+p.whs11 {font-size: 8pt; margin-top: 6pt;}
+-->
+</style>
+<script type="text/javascript" language="JavaScript">
+<!--
+if ((navigator.appName == "Netscape") && (parseInt(navigator.appVersion) == 4))
+{
+  var strNSS = "<style type='text/css'>";
+  strNSS += "table.whs1 {margin-left:1; }";
+  strNSS +="</style>";
+  document.write(strNSS);
+}
+//-->
+</script>
+<script type="text/javascript" language="JavaScript" title="WebHelpInlineScript">
+<!--
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//-->
+</script>
+<style type="text/css">
+<!--
+  div.WebHelpPopupMenu {position:absolute; left:0px; top:0px; z-index:4; visibility:hidden;}
+  p.WebHelpNavBar {text-align:right;}
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="whmsg.js"></script>
+<script type="text/javascript" language="javascript" src="whver.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whproxy.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whutils.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whtopic.js"></script>
+<script type="text/javascript" language="javascript1.2">
+<!--
+if (window.gbWhTopic)
+{
+	if (window.setRelStartPage)
+	{
+	setRelStartPage("info.htm");
+addSearchFormHref("javascript:document.ehelpform.submit()");
+
+	}
+}
+else
+	document.location.reload();
+//-->
+</script>
+</head>
+
+<!--(Body)==========================================================-->
+
+
+<body>
+
+<script type="text/javascript" language="javascript1.2">
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(4);
+//-->
+</script>
+<h1>Starting port for RTP/RTCP packets</h1>
+
+<p>Pingtel phones use a consecutively numbered pair of ports to receive 
+ audio media and control information for each concurrent connection. RTP 
+ (Real-time Transport Protocol) packets carry audio media, while RTCP (Real-time 
+ Control Protocol) packets carry control information. With this setting, 
+ you define the starting port in the RTP/RTCP pair of ports.</p>
+
+<p>Because a Pingtel phone can maintain multiple concurrent connections, 
+ several consecutively numbered ports may be identified when you set this 
+ parameter. For example, to maintain five connections, this setting indicates 
+ the first of ten ports: <br>
+(1 RTP port + 1 RTCP port) x 5 connections = 10 ports.</p>
+
+<p>This setting also applies to devices that make calls through a packet-based 
+ firewall.</p>
+
+<!--(Table)=========================================================-->
+<table x-use-null-cells cellspacing="1" width="100%" class="whs1">
+<col class="whs2">
+<col class="whs3">
+
+<tr valign="top" class="whs4">
+<td width="26.264%" class="whs5">
+<p class="whs6">Parameter name</td>
+<td width="73.736%" class="whs7">
+<p>PHONESET_RTP_PORT_START</td></tr>
+
+<tr valign="top" class="whs4">
+<td width="26.264%" class="whs8">
+<p class="whs6">Type</td>
+<td width="73.736%" class="whs9">
+<p>Integer</td></tr>
+
+<tr valign="top" class="whs4">
+<td width="26.264%" class="whs8">
+<p class="whs6">Default if blank</td>
+<td width="73.736%" class="whs9">
+<p>8766</td></tr>
+
+<tr valign="top" class="whs4">
+<td colspan="1" rowspan="1" width="26.264%" class="whs8">
+<p class="whs6">Device Category</td>
+<td colspan="1" rowspan="1" width="73.736%" class="whs9">
+<p>Firewall</td></tr>
+</table>
+
+<div placeholder id="footer" class="whs10">
+ <p class="whs11">Copyright &#169 
+ 2004 Pingtel Corp. All rights reserved.</p>
+</div>
+<script type="text/javascript" language="javascript1.2">
+<!--
+if (window.autoSync)
+	autoSync(0);
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+//-->
+</script>
+<form method="POST" action="http://www.helpcommunity.com/ehelpapi.asp?cmd=WebSave" name="ehelpform" target="_top" style="display:'none';">
+<input type="hidden" name="data" value="2A0D02220000005374617274696E6720706F727420666F72205254502F52544350207061636B65747311020000000012020000000013020D00000050726F706572747920496E666F150208000000696E666F2E68746D1703730100003C3F786D6C2076657273696F6E3D22312E30223F3E0D0A3C21444F43545950452053595354454D20226568656C706F70742E647464223E0D0A3C46494C452D4F5054494F4E532046494C452D56455253494F4E3D2232222046494C452D4B45593D2262613134363733625F326562385F343638365F383165325F323138373937616161656465223E0D0A3C2F46494C452D4F5054494F4E533E0D0A3C4548454C502D4F5054494F4E5320464F524D41542D56455253494F4E3D22312E30223E0D0A203C4F5054494F4E5320454E41424C45443D224E4F2220454D4245444445443D2259455322204D41494E2D57494E444F572D4F4E4C593D224E4F2220434F4D4D554E4954592D4E4F544946593D224E4F222046495253542D504147453D224E4F542D534554223E0D0A203C2F4F5054494F4E533E0D0A203C425554544F4E2D4C4142454C3E5765625365617263680D0A203C2F425554544F4E2D4C4142454C3E0D0A3C2F4548454C502D4F5054494F4E533E18010400000002000000702A">
+</form>
+</body>
+
+</html>

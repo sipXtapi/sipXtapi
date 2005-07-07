@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="deploy" default="default" basedir=".">
+
+  <property name="project.dir" value="profilegenerator/deploy"/>
+  <import file="../../ant-targets.xml"/>
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="ear"/>
+
+  <target name="init">
+    <mkdir dir="${dist.dir}" />
+  </target>
+   
+  <!-- E A R -->
+  <target name="ear" depends="init">
+    <ear destfile="${profilegenerator.ear}"
+           appxml="meta/META-INF/application.xml">
+
+      <!-- APPLICATIONS -->
+      <fileset file="${profilegenerator.war}"/>
+      <fileset file="${profilegen-ejb.jar}"/>
+      <fileset file="${profilegen-soap.war}"/>
+      	
+      <!-- COMMON LIBRARY -->
+      <fileset file="${commserver.jar}"/>
+      <fileset file="${profilegen-patch.jar}"/>
+      <fileset file="${common.jar}"/>
+      <fileset file="${sipxconfig.jar}"/>
+      <fileset file="${jdom.jar}"/>
+      <fileset file="${jaxen.jar}"/>
+      <fileset file="${saxpath.jar}"/>
+      <fileset file="${regexp.jar}"/>
+    </ear>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="ear" description="Deploy into JBoss container!!!">
+      <copy file="${jdbc-driver.jar}" todir="${dest.dir}${jboss.server.lib}"/>
+      <copy file="meta/postgres-ds.xml" todir="${dest.dir}${jboss.container.deploy}"/>
+      <copy file="bin/profilegenerator.sh.in" tofile="${dest.dir}${bin.dir}/profilegenerator.sh"/>
+      <replace file="${dest.dir}${bin.dir}/profilegenerator.sh"
+          propertyfile="${top.build.dir}/config.properties">
+        <replacefilter token="@jboss.home@" property="jboss.home"/>
+        <replacefilter token="@jboss.server.conf@" property="jboss.server.conf"/>
+        <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+        <replacefilter token="@bin.dir@" property="bin.dir"/>
+        <replacefilter token="@localstate.dir@" property="localstate.dir"/>
+        <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+      </replace>
+      <chmod file="${dest.dir}${bin.dir}/profilegenerator.sh" perm="ugo+x" />
+
+      <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+      <copy todir="${dest.dir}${sipxpbx.conf.dir}">
+        <fileset dir="etc">
+          <include name="pgs.props.in"/>
+          <include name="topology.xml.in"/>
+        </fileset>
+      </copy>
+
+      <mkdir dir="${dest.dir}${sipxpbx.data.dir}/sql"/>
+      <copy todir="${dest.dir}${sipxpbx.data.dir}/sql">
+        <fileset dir="../meta/sql" includes="**"/>
+      </copy>
+
+      <mkdir dir="${dest.dir}${sipxpbx.data.dir}/devicedefs"/>
+      <copy todir="${dest.dir}${sipxpbx.data.dir}/devicedefs">
+        <fileset dir="../meta/devicedefs" includes="**"/>
+      </copy>
+
+      <copy file="${profilegenerator.ear}" todir="${dest.dir}${jboss.container.deploy}"/>
+  </target>
+
+  <!-- STUB -->
+  <target name="test"/>
+  <target name="test-db"/>
+  <target name="test-all"/>
+
+  <target name="doc"/>
+
+</project>
+

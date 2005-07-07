@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsNavigation"
+    allow-body="yes"
+    allow-informal-parameters="yes">
+    
+    <description>add a description</description>
+    <!--
+    - P A R A M E T E R S
+    -->
+    <parameter name="settings"
+        type="org.sipfoundry.sipxconfig.setting.Setting"
+        required="yes"
+        direction="in">
+    </parameter>
+    <parameter name="tab"
+        type="java.lang.String"
+        required="yes"
+        direction="auto">
+    </parameter>
+    <parameter name="heading"
+        type="java.lang.String"
+        required="yes"
+        direction="in">
+    </parameter>    
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="currentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <!--
+      - B E A N S
+      -->
+    <bean name="tabs" class="org.sipfoundry.sipxconfig.components.Tabs" lifecycle="request">
+        <set-property name="activeTab" expression="tab"/>
+    </bean>
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="heading" type="Insert">
+        <binding name="value" expression="heading"/>
+    </component>            
+    <component id="settingsTabs" type="Foreach">
+        <binding name="source" expression="settings.values"/>
+        <binding name="value" expression="currentSetting"/>
+    </component>
+    <component id="settingsTab" type="DirectLink">
+        <binding name="listener" expression="listeners.activateTab"/>
+        <binding name="parameters" expression="currentSetting.name"/>
+        <binding name="class" expression="beans.tabs.getTabClass(currentSetting.name)"/>
+        <binding name="id" expression="'link:' + currentSetting.name"/>
+    </component>
+    <component id="settingsTabLabel" type="Insert">
+        <binding name="value" expression="currentSetting.label"/>
+    </component>
+</component-specification>

@@ -1,0 +1,47 @@
+<!-- 
+  - Patches.currentVersion - should be set to the version of the newly created database.
+  -    it is only taken into account when a new database is initialized (see: createDatabaseVersionRecord)
+  -
+  - All patches for DB version number (inclusive) or newer are taken into account when patching.
+  - Patches that were already applied have records in the PATCHES table, and thus are skipped during updates.
+  -
+  - currentVersion should be incremented every time patches content is moved into database creation
+  -->
+<patches currentVersion="8">
+  <!-- from 2.6 to 2.8 -->
+  <version number="8">
+    <patch number="80" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v8_mods.sql"
+      description="Object model changes to support phone plugin architecture"/>
+    <patch number="81" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v8_mods_2.sql" description="Call forwarding support"/>
+  </version>
+  
+  <!-- from 2.8 to 3.0 -->
+  <version number="9">
+    <patch number="90" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v9_mods.sql" description="Call groups support"/>
+  </version>
+  <version number="10">
+    <patch number="100" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v10_add_aa.sql" description="Auto attendant support"/>
+    <patch number="101" class="com.pingtel.pds.pgs.patch.LegacyNotifierPatch"
+      description="Add operator, the default attendant"/>
+  </version>
+  <version number="11">
+    <patch number="110" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v11_park_orbit.sql" description="Call parking support"/>
+  </version>
+  <version number="12">
+    <patch number="120" class="com.pingtel.pds.pgs.patch.LegacyNotifierPatch"
+      description="Create default dial plan rules if none exist"/>
+  </version>
+  <version number="13">
+    <patch number="130" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v13_music_on_hold.sql" description="Music on hold support"/>
+  </version>
+  <version number="14">
+    <patch number="140" class="com.pingtel.pds.pgs.patch.DatabaseScriptProcessor"
+      args="script=/v14_backup.sql" description="Backup plan support"/>
+  </version>
+</patches>

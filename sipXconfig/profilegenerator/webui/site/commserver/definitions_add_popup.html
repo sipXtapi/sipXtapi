@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>Add Definition</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style/dms.css" type="text/css">
+<SCRIPT src="script/jsFunctions.js"></SCRIPT>
+<SCRIPT src="script/validate.js"></SCRIPT>
+<script language="JavaScript">
+    var validator = new Validate();
+    function formSubmit( form )
+    {
+        var nFlag = true;
+        var inputs = this.opener.parent.mainFrame.document.getElementsByTagName('INPUT');
+        for ( i = 0; i < inputs.length; i++ )
+        {
+            if ( inputs[i].name == form.definition.value )
+            {
+                nFlag = false;
+            }
+
+        }
+        if ( form.definition.value == ""  )
+        {
+                alert("Please fill in the Setting field");
+        }
+        else if ( nFlag == false )
+        {
+            var msg = "Error: " +  form.definition.value + " already exists.";
+            alert( msg );
+        }
+        else
+        {
+            var definition = validator.trim(form.definition.value);
+            var defvalue = validator.trim(form.defvalue.value);
+
+           // TBD - Need to check for well formedness - if there is '${', there should be corresponding '}'
+            this.opener.parent.mainFrame.add_definition(definition, defvalue );
+            this.window.close();
+
+        }
+    }
+</script>
+</head>
+
+<body class="bglight">
+<p>&nbsp;</p>
+<p class="formtitle" align="center">Add a New Global Definition</p>
+        <form name="frmDefinition">
+            <table width="150" border="0" cellspacing="3" cellpadding="0" align="center">
+                <tr>
+                    <td class="formtext" nowrap>Setting</td>
+                    <td><input type="text" name="definition" size="30"></td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>Value</td>
+                    <td><input type="text" name="defvalue" size="30">
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <div align="center">
+                <input type="button" name="cmdSubmitForm" value="Submit" onclick="formSubmit(this.form)">&nbsp;&nbsp;
+                <input type="button" name="cmdCloseWindow" value="Cancel" onclick="closeWindow()"/>
+            </div>
+        </form>
+</body>
+</html>

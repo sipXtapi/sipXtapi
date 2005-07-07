@@ -1,0 +1,82 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+        http://track.sipfoundry.org/browse?XCF
+
+
+Release Notes - sipXconfig - Version 2.6.2
+
+** Bug
+    * [XCF-36] - config server will not run on an isolated Network
+    * [XCF-52] - incorect DTD referenced in profilegenerator/ejb/meta/MET-INF/ejb-jar.xml
+    * [XCF-61] - if JBOSS_HOME defined, use it or fail
+    * [XCF-72] - Permission of various .in files in $SIPX_HOME to be
+                 changed to allow write access to sipxchange
+    * [XCF-73] - Null Error when trying to project profiles for a device
+    * [XCF-90] - Configserver takes a very very long time, when you send
+                 profiles for a user who has a Cisco7940 device assigned to
+                 him.
+    * [XCF-102] - mappingrules.xml not accessible from UI
+    * [XCF-103] - sipXconfig 2.6.1 rpm should require JBoss 2.4.4
+    * [XCF-128] - After upgrade to 2.6 FCS, config server wont let me log in as superadmin
+    * [XCF-129] - Unable to add new device
+
+** New Feature
+    * [XCF-54] - Separate voicemail ui from end user phone config ui
+
+
+Release Notes - sipXconfig - Version 2.6.1
+
+** Bug
+    * [XCF-7] - Web page error "null" pushing user profiles
+    * [XCF-10] - About: Version is null
+    * [XCF-15] - Exception while saving user (or creating new user)
+    * [XCF-16] - Java security exception while trying to send profiles
+    * [XCF-23] - Services page is dead
+    * [XCF-28] - Provide a mechanism to automatically start postgres (or atleast document the procedure to start it)
+    * [XCF-31] - Cannot delete Applications
+    * [XCF-35] - hardcoded path to java in rpm
+    * [XCF-37] - sipconfig rpm fails to install as the sqp script paths are inccorect
+    * [XCF-39] - User login, saving any page, get error message, save ok
+    * [XCF-40] - compile warning: Trying to override old definition
+    * [XCF-41] - Fedora RPM dependency issue for postgres
+    * [XCF-42] - Clean up output messages in sipXconfig rpm install
+    * [XCF-44] - Process Page broken to start/stop services
+    * [XCF-47] - Registrations doesn't seem to be displaying registrations
+    * [XCF-55] - Remove the need to drop DB when domain name is changed
+    * [XCF-57] - Unassigning a device gives a page error "null"
+    * [XCF-59] - Better protection from "Error Null" by moving response.sendRedirect
+    * [XCF-60] - tftp support for cisco phones
+    * [XCF-70] - Profiles not being pushed for Cisco Devices.
+    * [XCF-72] - Permission of various .in files in $SIPX_HOME to be changed to allow write access to sipxchange
+    * [XCF-73] - Null Error when trying to project profiles for a device
+    * [XCF-74] - cannot change domain name if Cisco phones are defined
+
+** New Feature
+    * [XCF-2] - Troubleshooting sections
+    * [XCF-58] - Add support for 7905 & 7912 in the Config
+    * [XCF-66] - Change "Pingte-xpressa_strongarm_vxworks" to "xpressa"
+
+** Task
+    * [XCF-34] - sipXpbx/etc/resourcemap.xml.in
+
+** Improvement
+    * [XCF-53] - allow credentials to be independant of SIP URI
+    * [XCF-65] - configuring domain name and realm name during initialization
+
+
+Release Notes - sipXconfig - Version 2.5.2
+
+** Bug
+    * [XCF-6] - 'make dist' failing
+    * [XCF-12] - have to click on logout.jsp before logging in first time
+
+** Improvement
+    * [XCF-5] - Clean up code to remove all warnings.
+
+Release Notes - sipXconfig - Version 2.5.1
+
+** Bug
+    * [XCF-4] - won't build with sipXportLib
+
+

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <group name="ciscoAta18x">
+    <group name="port">
+      <label>Port Configuration</label>
+      <setting name="UID">
+        <value></value>
+        <description>User ID</description>
+      </setting>
+      <setting name="PWD">
+        <type><string password="yes"/></type>
+        <value></value>
+        <description>Password</description>
+      </setting>
+      <setting name="DisplayName">
+        <value></value>
+        <description>Display name for Caller ID</description>
+      </setting>
+      <setting name="LoginID">
+        <value></value>
+        <description>Authentication ID (if device UseLoginID = 1)</description>
+      </setting>
+    </group>
+  </group>
+  <group name="cisco7905" copy-of="ciscoAta18x">
+    <group name="port">
+      <setting name="ShortName">
+        <value></value>
+        <description>Display name for LCD screen</description>
+      </setting>
+    </group>
+  </group>
+  <group name="cisco7912" copy-of="cisco7905"/>
+</model>
