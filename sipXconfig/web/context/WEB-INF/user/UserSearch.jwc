@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserSearch"
+    allow-body="yes"
+    allow-informal-parameters="no">
+    <description>user search criteria form + action button</description>
+    <!--
+      - P A R A M E T E R S
+      -->
+	<parameter name="cancelListener" 
+        type="org.apache.tapestry.IActionListener" 
+        required="yes" 
+        direction="in">
+    </parameter>    
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="coreContext" 
+    	type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="page.global.coreContext"/>
+	<property-specification name="user" 
+		type="org.sipfoundry.sipxconfig.common.User"/>   
+	<property-specification name="users" 
+		type="java.util.List"/>
+    <!--
+      - B E A N S
+      -->
+    <bean name="validator" class="org.apache.tapestry.valid.ValidationDelegate"/>    
+    <!--
+      - C O M P O N E N T S
+      -->
+    <component id="searchForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    <component id="displayIdLabel" type="FieldLabel">
+        <binding name="field" expression="components.displayId"/>
+	    <static-binding name="displayName" value="User ID"/>
+    </component>
+    <component id="displayId" type="TextField">
+	    <binding name="value" expression="user.displayId"/>
+    </component>
+    <component id="firstNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.firstName"/>
+	    <static-binding name="displayName" value="First Name"/>
+    </component>
+    <component id="firstName" type="TextField">
+	    <binding name="value" expression="user.firstName"/>
+    </component>
+    <component id="lastNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.lastName"/>
+	    <static-binding name="displayName" value="Last Name"/>
+    </component>
+    <component id="lastName" type="TextField">
+	    <binding name="value" expression="user.lastName"/>
+    </component>
+    <component id="extensionLabel" type="FieldLabel">
+        <binding name="field" expression="components.extension"/>
+	    <static-binding name="displayName" value="Extension"/>
+    </component>
+    <component id="extension" type="TextField">
+	    <binding name="value" expression="user.extension"/>
+    </component>
+    <component id="search" type="Submit">
+        <binding name="listener" expression="listeners.search"/>
+    </component>
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="cancelListener"/>
+    </component>    
+</component-specification>

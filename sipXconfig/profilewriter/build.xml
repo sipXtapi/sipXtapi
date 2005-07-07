@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="profilewriter" default="default" basedir="." >
+
+  <property name="project.dir" value="profilewriter"/>
+  <import file="../ant-targets.xml"/>
+
+  <path id="base.path" >
+      <pathelement location="${jdom.jar}" />
+      <pathelement location="${log4j.jar}"/>
+      <pathelement location="${common.jar}"/>
+      <pathelement location="${netcomponents.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
+
+  <!-- C O M P I L E -->
+  <target name="compile" depends="init" >
+      <javac srcdir="${src.dir}/"
+         destdir="${classes.dir}"
+         classpathref="base.path"
+         debug="${debug}"
+         debuglevel="${debuglevel}"
+         deprecation="on"
+         optimize="${optimize}"
+         includes="**/*.java"
+         excludes="**/Test*.java"/>
+
+      <rmic base="${classes.dir}" includes="**/*Impl.class" 
+          verify="yes" stubversion="1.2" classpathref="base.path" />
+  </target>
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="assemble profilewriter jar" >
+     <jar jarfile="${dist.dir}/profilewriter.jar">
+         <fileset dir="${classes.dir}" includes="**"/>
+         <fileset file="${buildVersion.properties}"/>
+     </jar>
+  </target>
+
+
+  <!-- I N S T A L L -->
+  <target name="install">
+
+    <!-- startup scripts -->
+    <mkdir dir="${dest.dir}${bin.dir}"/>
+    <copy file="bin/profilewriter.sh.in" tofile="${dest.dir}${bin.dir}/profilewriter.sh"/>
+    <replace file="${dest.dir}${bin.dir}/profilewriter.sh" 
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@localstate.dir@" property="localstate.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/profilewriter.sh" perm="ugo+x"/>
+
+    <!-- web system -->
+    <copy file="${dist.dir}/profilewriter.jar" todir="${dest.dir}${sipxconfig.lib.dir}"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/applications"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/catalog"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
+
+    <!-- Cisco 79XX support -->
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot">
+      <fileset dir="etc">
+        <include name="SIPDefault.cnf"/>
+        <include name="syncinfo.xml"/>
+      </fileset>
+    </copy>
+
+    <!-- 
+      - So running config server can create files here 
+      -  Didn't use chown command because ant-optional is not available
+      -  from jpackage.org and so not using this one command make install
+      -  java from yum much easier.
+      -->
+    <exec executable="chown">
+    	<arg line="-R ${sipxpbx.user} ${dest.dir}${sipxconfig.phone.dir}"/>
+    </exec>  	
+    <chmod perm="775" dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" type="dir"/>
+
+    <!-- configuration -->
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy file="etc/profilewriter.props.in.in" 
+        tofile="${dest.dir}${sipxpbx.conf.dir}/profilewriter.props.in" />
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/profilewriter.props.in" 
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
+    </replace>
+
+  </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
+
+</project>
+
+

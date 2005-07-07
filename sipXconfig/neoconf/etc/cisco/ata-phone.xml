@@ -1,0 +1,523 @@
+<?xml version="1.0"?>
+<model>
+  <group name="ata">
+    <group name="network">
+      <label>Network Parameters</label>
+      <setting name="UIPassword">
+        <type>0 or string (max 9)</type>
+        <value>0</value>
+        <description>Password for HTTP configuration interface (0 = disabled).</description>
+      </setting>
+      <setting name="UseTFTP">
+        <type>0, 1</type>
+        <value>1</value>
+        <description>If 1, use TFTP server for ATA configuration.</description>
+      </setting>
+      <setting name="TftpURL">
+        <type>string</type>
+        <value>0</value>
+        <description>Specify IP address or URL of the TFTP server.</description>
+      </setting>
+      <setting name="CfgInterval">
+        <type>60 to 4294967295</type>
+        <value>3600</value>
+        <description>Specify IP address or URL of the TFTP server.</description>
+      </setting>
+      <setting name="DHCP">
+        <type>0, 1</type>
+        <value>1</value>
+        <description>If 1, enable DHCP.</description>
+      </setting>
+      <setting name="StaticIP">
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>Statically assigned IP address.</description>
+      </setting>
+      <setting name="StaticRoute">
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>Statically assigned default router IP address.</description>
+      </setting>
+      <setting name="StaticNetMask">
+        <type>IP address</type>
+        <value>255.255.255.0</value>
+        <description>Statically assigned IP subnet mask.</description>
+      </setting>
+      <setting name="DNS1IP">
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>Statically assigned primary DNS server address.</description>
+      </setting>
+      <setting name="DNS2IP">
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>Statically assigned secondary DNS server address.</description>
+      </setting>
+      <setting name="NTPIP">
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>Statically assigned NTP server IP address.</description>
+      </setting>
+      <setting name="AltNTPIP">
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>Statically assigned alternate NTP server IP address.</description>
+      </setting>
+      <setting name="OpFlags">
+        <type>bitmap</type>
+        <value>0x2</value>
+        <description>Various operational features (see ATA administration guide).</description>
+      </setting>
+      <setting name="VLANSetting">
+        <type>bitmap</type>
+        <value>0x0000002b</value>
+        <description>VLAN-related settings (see ATA administration guide).</description>
+      </setting>
+      <setting name="TOS">
+        <type>bitmap</type>
+        <value>0x000068B8</value>
+        <description>Type of Service configuration (see ATA administration guide).</description>
+      </setting>
+      <setting name="L2KeepAlive">
+        <type>positive integer</type>
+        <value>0</value>
+        <description>(no documentation found)</description>
+      </setting>
+      <setting name="NATIP">
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>WAN IP address of the attached router/NAT (SIP behind a NAT).</description>
+      </setting>
+      <setting name="NatServer">
+        <type>IP address or FQDN format</type>
+        <value>0</value>
+        <description>Server to which dummy UDP packets are sent to maintain a NAT translation for a session.</description>
+      </setting>
+      <setting name="NatTimer">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Operational parameters for NAT (see ATA administration guide).</description>
+      </setting>
+    </group>
+    <group name="sip">
+      <label>SIP Parameters</label>
+      <setting name="UseLoginID">
+        <type>0, 1</type>
+        <value>0</value>
+        <description>Use 0 = UID, 1 = LoginID as the authentication ID.</description>
+      </setting>
+      <setting name="SIPRegOn">
+        <type>0, 1</type>
+        <value>0</value>
+        <description>Enable SIP registration.</description>
+      </setting>
+      <setting name="SIPRegInterval">
+        <type>1 to 86400</type>
+        <value>3600</value>
+        <description>SIP registration renewal interval in seconds.</description>
+      </setting>
+      <setting name="Proxy">
+        <type>string (max 31)</type>
+        <value>0</value>
+        <description>Proxy or registrar address (0 = disabled).</description>
+      </setting>
+      <setting name="SecProxy">
+        <type>string (max 31)</type>
+        <value>0</value>
+        <description>Backup proxy address (0 = disabled).</description>
+      </setting>
+      <setting name="SecProxyTimeOut">
+        <type>30 to 4294967295</type>
+        <value>0</value>
+        <description>Timeout before failing back to primary proxy server (0 = not until backup fails).</description>
+      </setting>
+      <setting name="SipOutBoundProxy">
+        <label>OutBoundProxy</label>
+        <type>string (max 31)</type>
+        <value>0</value>
+        <description>SIP proxy server to which all outgoing SIP requests are sent.</description>
+      </setting>
+      <setting name="SIPPort">
+        <type>1 to 65535</type>
+        <value>5060</value>
+        <description>The port for SIP requests.</description>
+      </setting>
+      <setting name="MediaPort">
+        <type>2 to 65534 (even)</type>
+        <value>16384</value>
+        <description>The base port for RTP media.</description>
+      </setting>
+      <setting name="MAXRedirect">
+        <type>0 to 10</type>
+        <value>5</value>
+        <description>Maximum number of forwards for a call.</description>
+      </setting>
+      <setting name="MsgRetryLimits">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Configure retry limits (see ATA administration guide)</description>
+      </setting>
+      <setting name="SessionTimer">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Configure SIP session timer (see ATA administration guide)</description>
+      </setting>
+      <setting name="SessionInterval">
+        <type>60 to 86400</type>
+        <value>1800</value>
+        <description>Interval between SIP session refreshes (seconds).</description>
+      </setting>
+      <setting name="MinSessionInterval">
+        <type>60 to 86400</type>
+        <value>1800</value>
+        <description>Minimum required interval between SIP session refreshes.</description>
+      </setting>
+    </group>
+    <group name="tone">
+      <label>Tone Parameters</label>
+      <setting name="DialTone">
+        <type>string</type>
+        <value>2,31538,30831,1380,1740,1,0,0,1000</value>
+        <description>Dial tone format (see ATA administration guide).</description>
+      </setting>
+      <setting name="BusyTone">
+        <type>string</type>
+        <value>2,30467,28959,1191,1513,0,4000,4000,0</value>
+        <description>Busy tone format (see ATA administration guide).</description>
+      </setting>
+      <setting name="ReorderTone">
+        <type>string</type>
+        <value>2,30467,28959,1191,1513,0,2000,2000,0</value>
+        <description>Reorder tone format (see ATA administration guide).</description>
+      </setting>
+      <setting name="RingBackTone">
+        <type>string</type>
+        <value>2,30831,30467,1943,2111,0,16000,32000,0</value>
+        <description>Ring-back tone format (see ATA administration guide).</description>
+      </setting>
+      <setting name="CallWaitTone">
+        <type>string</type>
+        <value>1,30831,0,5493,0,0,2400,2400,4800</value>
+        <description>Call-waiting tone format (see ATA administration guide).</description>
+      </setting>
+      <setting name="RingOnOffTime">
+        <type>string</type>
+        <value>2,4,25</value>
+        <description>Ringer cadence pattern (see ATA administration guide).</description>
+      </setting>
+    </group>
+    <group name="audio">
+      <label>Audio Parameters</label>
+      <setting name="RxCodec">
+        <type>0 - 3, 6</type>
+        <value>2</value>
+        <description>Receiving-audio codec preference (see ATA administration guide).</description>
+      </setting>
+      <setting name="TxCodec">
+        <type>0 - 3, 6</type>
+        <value>2</value>
+        <description>Transmitting-audio codec preference (see ATA administration guide).</description>
+      </setting>
+      <setting name="AudioMode">
+        <type>bitmap</type>
+        <value>0x00000011</value>
+        <description>Audio operating mode (see ATA administration guide).</description>
+      </setting>
+      <setting name="NumTxFrames">
+        <type>1 - 6</type>
+        <value>2</value>
+        <description>Default RTP packet size in frames per packet.</description>
+      </setting>
+    </group>
+    <group name="service">
+      <label>Service Parameters</label>
+      <setting name="CallFeatures">
+        <type>bitmap</type>
+        <value>0xffffffff</value>
+        <description>Call feature settings (see ATA administration guide).</description>
+      </setting>
+      <setting name="PaidFeatures">
+        <type>bitmap</type>
+        <value>0xffffffff</value>
+        <description>Call feature settings (see ATA administration guide).</description>
+      </setting>
+      <setting name="CallCmd">
+        <type>string (max 248)</type>
+        <value>Af;AH;BS;NA;CS;NA;Df;EB;Ff;EP;Kf;EFh;HH;Jf;AFh;HQ;I*67;gA*82;fA#90v#;OI;H#72v#;bA#74v#;cA#75v#;dA#73;eA*67;gA*82;fA*70;iA*69;DA*99;xA;Uh;GQ;</value>
+        <description>Call command control table (see ATA administration guide).</description>
+      </setting>
+      <setting name="FeatureTimer">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Timing values for telephone features (see ATA administration guide).</description>
+      </setting>
+      <setting name="FeatureTimer2">
+        <type>bitmap</type>
+        <value>0x0000001e</value>
+        <description>Timing values for ATA features (see ATA administration guide).</description>
+      </setting>
+      <setting name="SigTimer">
+        <type>bitmap</type>
+        <value>0x01418064</value>
+        <description>Various timeout values (see ATA administration guide).</description>
+      </setting>
+      <setting name="TimeZone">
+        <type>integer</type>
+        <value>17</value>
+        <description>Timezone offset in hours (see ATA administration guide).</description>
+      </setting>
+      <setting name="ConnectMode">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Call signaling protocol control (see ATA administration guide).</description>
+      </setting>
+      <setting name="CallerIdMethod">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Timing values for telephone features (see ATA administration guide).</description>
+      </setting>
+      <setting name="IPDialPlan">
+        <type>0 to 2</type>
+        <value>1</value>
+        <description>Allow IP-like destination address in DialPlan (see ATA administration guide).</description>
+      </setting>
+      <setting name="DialPlan">
+        <type>string (max 199)</type>
+        <value>*St4-|#St4-|911|1&gt;#t8.r9t2-|0&gt;#t811.rat4-|^1t4&gt;#.-</value>
+        <description>The programmable dial plan (see ATA administration guide).</description>
+      </setting>
+      <setting name="DialPlanEx">
+        <type>string (max 499)</type>
+        <value>0</value>
+        <description>The programmable dial plan (see ATA administration guide).</description>
+      </setting>
+      <setting name="ACRDN">
+        <type>string (max 8)</type>
+        <value>0</value>
+        <description>Anonymous call rejection directory number.</description>
+      </setting>
+    </group>
+    <group name="debug">
+      <label>Debug Parameters</label>
+      <setting name="TraceFlags">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Set trace features for diagnostic use.</description>
+      </setting>
+      <setting name="NPrintf">
+        <type>extended IP address</type>
+        <value>0</value>
+        <description>Set host for debugging messages.</description>
+      </setting>
+      <setting name="SyslogCtrl">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Turn on specific syslog traces.</description>
+      </setting>
+      <setting name="SyslogIP">
+        <type>extended IP address</type>
+        <value>0.0.0.0.514</value>
+        <description>Syslog server address.</description>
+      </setting>
+    </group>
+    <group name="upgrade">
+      <label>Software Upgrade</label>
+      <setting name="upgradecode">
+        <label>Software image</label>
+        <type>string</type>
+        <value>none</value>
+        <description>Name of software image in TFTP directory.</description>
+      </setting>
+      <setting name="imageid">
+        <label>Image ID</label>
+        <type>string</type>
+        <value>0</value>
+        <description>Image ID of software image in TFTP directory.</description>
+      </setting>
+      <setting name="tftpip">
+        <label>TFTP Server IP address</label>
+        <type>IP address</type>
+        <value>0.0.0.0</value>
+        <description>IP address of the tftp server.</description>
+      </setting>
+    </group>
+  </group>
+  <group name="cisco7905" copy-of="ata">
+	<group name="network">
+      <setting name="TOS">
+        <type>bitmap</type>
+        <value>0x000068B8</value>
+        <description>Type of Service configuration (see ATA administration guide).</description>
+      </setting>
+   </group>
+    <group name="tone">
+      <setting name="DialTone2">
+        <type>string</type>
+        <value>1,30467,0,5970,0,0,480,480,1920</value>
+        <description>Alert tone format (see ATA administration guide).</description>
+      </setting>
+    </group>
+    <group name="upgradelogo">
+      <label>Software Upgrade</label>
+      <setting name="upgradecode">
+        <label>Logo filename</label>
+        <type>string</type>
+        <value>none</value>
+        <description>Name of logo file in TFTP directory.</description>
+      </setting>
+      <setting name="imageid">
+        <label>Image ID</label>
+        <type>string</type>
+        <value>0</value>
+        <description>Logo image version number.</description>
+      </setting>
+      <setting name="tftpip">
+        <label>TFTP Server IP address</label>
+        <type>IP address</type>
+        <value>0</value>
+        <description>IP address of the tftp server.</description>
+      </setting>
+    </group>
+    <group name="caller">
+      <label>Caller Preferences</label>
+      <setting name="ServicesUrl">
+        <type>string</type>
+        <value>0</value>
+        <description>URL to contact for XML Services.</description>
+      </setting>
+      <setting name="DirectoriesUrl">
+        <type>string</type>
+        <value>0</value>
+        <description>URL to contact for Directory Services.</description>
+      </setting>
+      <setting name="CallForwardNumber">
+        <type>string</type>
+        <value>0</value>
+        <description>Phone number to forward all calls.</description>
+      </setting>
+      <setting name="VoiceMailNumber">
+        <type>string</type>
+        <value>0</value>
+        <description>Phone number to access voice mail.</description>
+      </setting>
+      <setting name="TimeFormat">
+        <type>string</type>
+        <value>h:ia</value>
+        <description>Time display format on LCD screen.</description>
+      </setting>
+      <setting name="DateFormat">
+        <type>string</type>
+        <value>m-d-y</value>
+        <description>Date display format on LCD screen.</description>
+      </setting>
+      <setting name="DoNotDisturb">
+        <type>boolean</type>
+        <value>0</value>
+        <description>Activate Do Not Disturb feature.</description>
+      </setting>
+      <setting name="BlockCallerId">
+        <type>boolean</type>
+        <value>0</value>
+        <description>Enable blocking of outgoing Caller ID.</description>
+      </setting>
+      <setting name="CallWaiting">
+        <type>boolean</type>
+        <value>0</value>
+        <description>Enable call waiting for every call.</description>
+      </setting>
+      <setting name="AttendedTransfer">
+        <type>boolean</type>
+        <value>1</value>
+        <description>Enable attended call transfer.</description>
+      </setting>
+      <setting name="BlindTransfer">
+        <type>boolean</type>
+        <value>1</value>
+        <description>Enable blind call transfer.</description>
+      </setting>
+      <setting name="Conference">
+        <type>boolean</type>
+        <value>1</value>
+        <description>Enable 3-way conference.</description>
+      </setting>
+      <setting name="BlockAnonymous">
+        <type>boolean</type>
+        <value>0</value>
+        <description>Activate blocking of anonymous incoming call.</description>
+      </setting>
+      <setting name="AutoLookUp">
+        <type>boolean</type>
+        <value>0</value>
+        <description>Enable automatic phone number lookup when dialing.</description>
+      </setting>
+      <setting name="ForwardToVMDelay">
+        <type>integer</type>
+        <value>20</value>
+        <description>Number of seconds before forwarding to VoiceMailNumber.</description>
+      </setting>
+      <setting name="CallPrefGuiShow">
+        <type>bitmap</type>
+        <value>0xffffffff</value>
+        <description>Control whether a call preference option is displayed.</description>
+      </setting>
+      <setting name="CallPrefGuiSet">
+        <type>bitmap</type>
+        <value>0xffffffff</value>
+        <description>Control whether a call preference option can be set by user.</description>
+      </setting>
+    </group>
+  </group>
+  <group name="cisco7912" copy-of="cisco7905"/>
+  <group name="ciscoata18x" copy-of="ata">
+	<group name="network">
+      <setting name="TOS">
+        <type>bitmap</type>
+        <value>0x0000A8B8</value>
+        <description>Type of Service configuration (see ATA administration guide).</description>
+      </setting>
+    </group>
+    <group name="tone">
+      <setting name="AlertTone">
+        <type>string</type>
+        <value>1,30467,0,5970,0,0,480,480,1920</value>
+        <description>Alert tone format (see ATA administration guide).</description>
+      </setting>
+      <setting name="SITone">
+        <type>string</type>
+        <value>2,30467,28959,1191,1513,0,2000,2000,0</value>
+        <description>Special information tone format (see ATA administration guide).</description>
+      </setting>
+    </group>
+    <group name="audio">
+      <setting name="LBRCodec">
+        <type>0, 3, 6</type>
+        <value>0</value>
+        <description>Available low-bit-rate codecs (see ATA administration guide).</description>
+      </setting>
+      <setting name="FXSInputLevel">
+        <type>-9 to 2 dB</type>
+        <value>-1</value>
+        <description>Input level control of the FXS ports.</description>
+      </setting>
+      <setting name="FXSOutputLevel">
+        <type>-9 to 2 dB</type>
+        <value>-4</value>
+        <description>Output level control of the FXS ports.</description>
+      </setting>
+    </group>
+    <group name="service">
+      <setting name="Polarity">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Line polarity of FXS ports (see ATA administration guide).</description>
+      </setting>
+    </group>
+    <group name="debug">
+      <setting name="TraceFlags">
+        <type>bitmap</type>
+        <value>0x00000000</value>
+        <description>Set trace features for diagnostic use.</description>
+      </setting>
+    </group>
+  </group>
+</model>

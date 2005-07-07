@@ -1,0 +1,26 @@
+<html title="List Gateways">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+	<h2>Gateways</h2>        
+    <div class="help">
+		<b>Quick Links</b>
+		<ul>
+			<li><a jwcid="dialPlansLink" id="dialPlans	" href="ListDialplans.html">Dial Plans</a></li>
+		</ul>
+	</div>
+	<ul class="component-links">
+		<li><a jwcid="addGatewayLink" id="addGateway" href="EditGateway.html">Add Gateway</a></li>        
+	</ul>        
+    <form jwcid="gatewaysListForm" id="list:gateway:form">
+		<span jwcid="gatewayTable"></span>
+		<ul class="component-submit">
+			<li><input jwcid="deleteButton" type="submit" id="list:gateway:delete" 
+            	value="Delete" onclick="return confirm('Are you sure you want to remove selected gateways?')"/></li>
+		</ul>
+    </form>
+	</div>
+</body>
+</html>

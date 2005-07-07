@@ -1,0 +1,143 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+
+<html>
+
+<!--(==============================================================)-->
+<!--(Document created with RoboEditor. )============================-->
+<!--(==============================================================)-->
+
+<head>
+
+<title>Reserved extension pool, About</title>
+
+<!--(Meta)==========================================================-->
+
+<meta name="template" content="template.htt">
+<meta http-equiv=content-type content="text/html; charset=windows-1252">
+<meta name=generator content="RoboHELP by eHelp Corporation - www.ehelp.com">
+<meta name=generator-major-version content=0.1>
+<meta name=generator-minor-version content=1>
+<meta name=filetype content=kadov>
+<meta name=filetype-version content=1>
+<meta name=page-count content=1>
+<meta name=layout-height content=456>
+<meta name=layout-width content=441>
+<meta name=x-ignored-words content="Corp;followup;IDs">
+
+
+<!--(Links)=========================================================-->
+
+ <link rel='stylesheet' href='pingtel1_ns.css'>
+<script type="text/javascript" language="JavaScript" title="WebHelpSplitCss">
+<!--
+if (navigator.appName !="Netscape")
+{   document.write("<link rel='stylesheet' href='pingtel1.css'>");}
+//-->
+</script>
+<style type="text/css">
+<!--
+div.whs1 {width: 100%; }
+-->
+</style>
+<script type="text/javascript" language="JavaScript" title="WebHelpInlineScript">
+<!--
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//-->
+</script>
+<style type="text/css">
+<!--
+  div.WebHelpPopupMenu {position:absolute; left:0px; top:0px; z-index:4; visibility:hidden;}
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="whmsg.js"></script>
+<script type="text/javascript" language="javascript" src="whver.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whproxy.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whutils.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whtopic.js"></script>
+</head>
+
+<!--(Body)==========================================================-->
+
+
+<body>
+
+<script type="text/javascript" language="javascript1.2">
+<!--
+if (window.gbWhTopic)
+{
+	if (window.addTocInfo)
+	{
+	addTocInfo("Pingtel Configuration Server\nAdministration\nExtension pools\nAbout the reserved extension pool");
+addButton("show",BTN_TEXT,"Show","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	if (window.setRelStartPage)
+	{
+	setRelStartPage("configsrvr.htm");
+
+		autoSync(0);
+		sendSyncInfo();
+		sendAveInfoOut();
+	}
+}
+else
+	document.location.reload();
+//-->
+</script>
+<h1>About the reserved extension pool</h1>
+
+<p><a href="extension_pools_about.htm">About extension pools</a></p>
+
+<p><a href="extension_pools.htm">Work with extension pools</a></p>
+
+<p>When you install SIPxchange, one extension pool is created automatically. 
+ The purpose of this extension pool, named &quot;reserved,&quot; is to 
+ assure that certain extensions, which you may have set up in some system 
+ outside of the Configuration Server, are not used to identify users.</p>
+
+<p>For example, the Media Server's Auto Attendant and Voicemail applications 
+ each have an identifying numeric address, which you configure in the list 
+ of system-wide dial plans. If you assign addresses of 100 and 101, respectively, 
+ to the Auto Attendant and Voicemail, these values should not be inadvertently 
+ assigned to some other user.</p>
+
+<p>To assure that certain numeric identifiers, such as the Auto Attendant 
+ and Voicemail extensions, remain unique, you add those extensions to the 
+ reserved extension pool. Each time you <a href="list_users.htm#add_a_user">create 
+ a user</a>, the values you supply for the User ID and the extension are 
+ compared to the extensions in the reserved pool.</p>
+
+<p><span style="font-style: italic;"><I>Tip</I></span>: Even if your User IDs 
+ are numeric only, you may wish to add one or more extensions to the reserved 
+ extension pool.</p>
+
+<div placeholder id="footer" class="whs1">
+ <p class=copyright
+	style="margin-top: 6pt; font-size: 8pt;"><span style="font-size: 8pt;"><font size=1 style="font-size:8pt;">Copyright 
+ &#169 2004 
+ Pingtel Corp. All rights reserved.</font></span></p>
+</div>
+<script type="text/javascript" language="javascript1.2">
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+//-->
+</script>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+<html title="List Call Parking Extensions">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+<div jwcid="@Border">
+    <h2>Call Parking</h2>        
+	<ul class="component-links">
+		<li><a jwcid="addLink" id="callgroups:add" href="edit-call-group.html">Add Extension</a></li>
+	</ul>                
+    <form jwcid="form" id="orbits:form">
+    	<table jwcid="tableView" id="orbits:list" class="component">
+            <thead>
+                <tr>
+                   <th></th>
+                   <th jwcid="tableColumns"/>
+                </tr>
+            </thead>
+            <tbody>
+				<span jwcid="NameColumnValue">
+					<span jwcid="editRowLink"><span jwcid="nameText"/></span>
+				</span>
+                <span jwcid="tableRows">
+                    <td><span jwcid="selectedRow"/></td>
+					<span jwcid="tableValues"/>
+                </span>                
+            </tbody>
+		</table>
+		<ul class="component-submit">
+			<li>
+				<input type="submit" jwcid="delete" id="orbits:delete" value="Delete" 
+                	onclick="return confirm('Are you sure you want to delete selected call groups?')"/>
+			</li>
+		</ul>
+	    <h3>Activation</h3>
+		<ul class="component-submit">
+			<li>
+				<input type="submit" jwcid="activate" id="orbits:activate" value="Activate"/>
+			</li>
+		</ul>    	
+	</form>                    
+</div>
+</body>    
+</html>

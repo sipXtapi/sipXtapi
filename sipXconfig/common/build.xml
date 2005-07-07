@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="common" default="default" basedir="." >
+
+  <!-- Note: 
+  	There are some tests that are broken in this project: a pattern for them is **/Test*.class
+  	All new tests (**/*Test.class) have to be functional at all times.
+  -->
+  	
+  <property name="project.dir" value="common"/>
+  <import file="../ant-targets.xml"/>
+
+  <path id="base.path" >
+    <!-- SIPXCONFIG -->
+    <pathelement location="${jdbc-driver.jar}"/> <!-- for tests only -->
+    <pathelement path="${neoconf.jar}" />
+
+    <!-- UTIL -->
+    <pathelement location="${jdom.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+
+    <!-- J2EE -->
+    <pathelement location="${j2ee.jar}"/>
+    <pathelement location="${servlet.jsp.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar"/>
+
+  <!-- I N I T -->
+  <target name="init" depends="ant-targets.init">
+  </target>
+
+  <!-- C O M P I L E  /  R M I -->
+  <target name="compile" depends="ant-targets.compile">
+    <rmic base="${classes.dir}" includes="**/*Impl.class" 
+         verify="yes" stubversion="1.2" classpathref="base.path" />
+  </target>
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="PDS interface jar file">
+    <jar jarfile="${dist.dir}/common.jar">
+      <fileset dir="${classes.dir}" >
+          <include name="**/*.class" />
+      </fileset>
+      <fileset file="meta/xml/propertygrouplink.xml" />
+    </jar>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="jar">
+
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy file="etc/security.policy" todir="${dest.dir}${sipxpbx.conf.dir}"/>
+
+    <mkdir dir="${dest.dir}${bin.dir}"/>
+    <copy file="bin/install-ssl-keystore.sh.in" tofile="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"/>
+    <replace file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"
+         propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@install_sh@" value="${install_sh}"/>
+      <replacefilter token="@openssl@" value="${openssl}"/>
+      <replacefilter token="@jboss.server@" value="${jboss.server}"/>
+      <replacefilter token="@sipxpbx.user@" value="${sipxpbx.user}"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh" perm="ugo+x"/>
+
+    <mkdir dir="${dest.dir}${bin.dir}"/>
+    <copy file="bin/rmiregistry.sh.in" tofile="${dest.dir}${bin.dir}/rmiregistry.sh"/>
+    <replace file="${dest.dir}${bin.dir}/rmiregistry.sh"
+         propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/rmiregistry.sh" perm="ugo+x"/>
+
+    <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>
+    <mkdir dir="${dest.dir}${sipxpbx.run.dir}"/>
+
+    <copy file="bin/sipxdbmgr.in" tofile="${dest.dir}${bin.dir}/sipxdbmgr"/>
+    <replace file="${dest.dir}${bin.dir}/sipxdbmgr"
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/sipxdbmgr" perm="ugo+x"/>
+
+    <mkdir dir="${dest.dir}${sipxconfig.lib.dir}"/>
+    <copy todir="${dest.dir}${sipxconfig.lib.dir}">
+      <fileset file="${axis.jar}"/>
+      <fileset file="${commons-collections.jar}"/>
+      <fileset file="${commons-dbcp.jar}"/>
+      <fileset file="${commons-discovery.jar}"/>
+      <fileset file="${commons-logging.jar}"/>
+      <fileset file="${commons-pool.jar}"/>
+      <fileset file="${dom4j.jar}"/>
+      <fileset file="${jakarta-regexp.jar}"/>
+      <fileset file="${jaxen.jar}"/>
+      <fileset file="${saxpath.jar}"/>
+      <fileset file="${jaxrpc.jar}"/>
+      <fileset file="${jdom.jar}"/>
+      <fileset file="${log4j.jar}"/>
+      <fileset file="${netcomponents.jar}"/>
+      <fileset file="${jdbc-driver.jar}"/>
+      <fileset file="${saaj.jar}"/>
+      <fileset file="${taglibs-xtags.tld}"/>
+      <fileset file="${taglibs-xtags.jar}"/>
+    </copy>
+
+    <copy file="${common.jar}" todir="${dest.dir}${sipxconfig.lib.dir}"/>
+
+  </target>
+
+  <!-- STUBS -->
+  <target name="style"/>
+
+</project>

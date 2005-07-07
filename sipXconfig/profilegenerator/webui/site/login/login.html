@@ -1,0 +1,81 @@
+<html>
+<head>
+<title>Configuration Server</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style/dms.css" type="text/css">
+<script language="JavaScript" type="text/javascript">
+var today;
+    function myDate()
+    {
+        today = new Date();
+        return today.toLocaleDateString();
+    }
+    function MM_openBrWindow(theURL,winName,features)
+    { //v2.0
+        var popupWindow = window.open(theURL,winName,features);
+        popupWindow.focus();
+    }
+    function checkLocation()
+    {
+        if ( parent.frames[1] != null )
+        {
+            top.location = "logout.jsp";
+        }
+        else if ( window.opener != null )
+        {
+            this.window.close();
+            opener.top.location = "logout.jsp";
+        }
+    }
+</script>
+</head>
+<body class="bgdark" onLoad="checkLocation();document.login.j_username.focus()">
+<div id="Layer1" style="position:absolute; left:0px; top:0px; width:1306px; height:78px; z-index:1"><img src="../image/logo.gif" width="305" height="71" alt="logo"><img src="../image/pingtelbar.gif" width="1000" height="71" border="0" alt="bar">
+</div>
+<div id="Layer2" style="position:absolute; left:0px; top:94px; width:327px; height:31px; z-index:2"><h1 class="dms">Configuration Server </h1></div>
+<div id="Layer3" style="position:absolute; left:344px; top:96px; width:381px; height:30px; z-index:3" align="right" class="date">
+  <script type="text/javascript">document.write(myDate())</script>
+</div>
+
+ <br><br><br><br><br><br><br><br><br>
+  <form action="j_security_check" method="post" name="login">
+  <table width="400" border="0" cellspacing="3" cellpadding="6" align="center" class="bglight" >
+    <tr>
+      <td>&nbsp;</td>
+      <td class="formtitle">
+        <div align="center">Login</div>
+      </td>
+      <td align="right">
+            <a href="#" onClick="MM_openBrWindow('help/WebHelp/login.htm','popup','scrollbars,menubar,location=no,resizable,width=750,height=500')" class="formtext">Help</a>
+        </td>
+    </tr>
+	<tr><td colspan="3"><hr></td></tr>
+  </table>
+  <table width="400" align="center" border="0" class="bglight">
+    <tr>
+      <td colspan="2" class="formtext">
+        <div align="right">User Name</div>
+      </td>
+      <td colspan="2">
+        <input type="text" name="j_username">
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="formtext">
+        <div align="right">Password</div>
+      </td>
+      <td colspan="2">
+        <input type="password" name="j_password">
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" height="60">&nbsp;</td>
+      <td height="60">
+        <input type="submit" name="Submit" value="Submit">
+      </td>
+      <td height="60">&nbsp;</td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>

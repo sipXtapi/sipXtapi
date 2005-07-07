@@ -1,0 +1,93 @@
+<title>Configure SipAuthProxy</title>
+<pagehelp>help/commserver/WebHelp/configure_sipauthproxy.htm</pagehelp>
+<additionalsettingshelp>help/info/a_1000.htm</additionalsettingshelp>
+
+<refproperties>
+        <ref_property code="a_1004">
+            <name>SIP_AUTHPROXY_HOST_ALIASES</name>
+            <description>SipAuthProxy address aliases</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1008">
+            <name>SIP_AUTHPROXY_ROUTE_NAME</name>
+            <description>SipAuthProxy DNS SRV name</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1010">
+            <name>SIP_AUTHPROXY_TCP_PORT</name>
+            <description>IP port for SIP TCP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1011">
+            <name>SIP_AUTHPROXY_UDP_PORT</name>
+            <description>IP port for SIP UDP messages</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1009">
+            <name>SIP_AUTHPROXY_STALE_TCP_TIMEOUT</name>
+            <description>Retain inactive SIP TCP connections (seconds)</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1001">
+            <name>SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM</name>
+            <description>Algorithm for authentication challenges</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1003">
+            <name>SIP_AUTHPROXY_AUTHENTICATE_REALM</name>
+            <description>Realm for authentication challenges</description>
+            <value type="string" visibility="write">
+                <default_value>${SIPXCHANGE_REALM}</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1002">
+            <name>SIP_AUTHPROXY_AUTHENTICATE_QOP</name>
+            <description>QoP for incoming authentication credentials</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1005">
+            <name>SIP_AUTHPROXY_LOG_CONSOLE</name>
+            <description>Enable message log output to console</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1007">
+            <name>SIP_AUTHPROXY_LOG_LEVEL</name>
+            <description>Log messages with this (or higher) priority</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+
+        <ref_property code="a_1006">
+            <name>SIP_AUTHPROXY_LOG_DIR</name>
+            <description>Directory path for message log</description>
+            <value type="string" visibility="write">
+                <default_value>MD5</default_value>
+            </value>
+        </ref_property>
+    </refproperties>

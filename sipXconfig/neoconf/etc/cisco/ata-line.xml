@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<model>
+	<group name="ciscoata18x">
+		<group name="port">
+			<label>Port Configuration</label>
+			<setting name="UID">
+				<type>string</type>
+				<value></value>
+				<description>User ID</description>
+			</setting>
+			<setting name="PWD">
+				<type>string</type>
+				<value></value>
+				<description>Password</description>
+			</setting>
+			<setting name="DisplayName">
+				<type>string</type>
+				<value></value>
+				<description>Display name for Caller ID</description>
+			</setting>
+			<setting name="LoginID">
+				<type>string</type>
+				<value></value>
+				<description>Authentication ID (if device UseLoginID = 1)</description>
+			</setting>
+		</group>
+	</group>
+	<group name="cisco7905" copy-of="ciscoata18x">
+		<setting name="ShortName">
+			<type>string</type>
+			<value></value>
+			<description>Display name for LCD screen</description>
+		</setting>
+	</group>
+	<group name="cisco7912" copy-of="cisco7905"/>
+</model>

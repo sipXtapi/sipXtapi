@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<group name="human">
+		<group name="eat">
+			<setting name="hamburger"/>
+			<group name="fruit">
+				<setting name="apple"/>
+			</group>
+		</group>
+	</group>
+	<group name="man" copy-of="/human">
+		<setting name="shave">
+			<value>face</value>
+		</setting>
+	</group>
+	<group name="woman" copy-of="/human">
+		<setting name="shave">
+			<value>legs</value>
+		</setting>
+		<setting name="giveBirth"/>
+	</group>
+</model>

@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<!--
+      -  S Y S T E M  D I R E C T O R I E S
+	  -  evaluates system directory variables e.g. ${sysdir.*} in this file
+	  --> 
+	<bean id="sipxconfig.properties" class="org.springframework.core.io.ClassPathResource">
+		<constructor-arg index="0"><value>sipxconfig.properties</value></constructor-arg>
+	</bean>
+	<bean id="sysdir" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<ref bean="sipxconfig.properties"></ref>			
+		</property>
+	</bean>
+    <!-- This is used in unit test environment only: we change dataSource.url using this mechanism -->
+    <bean id="overrider" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+		<property name="location">
+			<ref bean="sipxconfig.properties"></ref>			
+		</property>        
+    </bean>
+	<!--
+       - P O S T G R E S
+       -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close">
+		<property name="driverClassName">
+			<value>org.postgresql.Driver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:postgresql://localhost/PDS</value>
+		</property>
+		<property name="username">
+			<value>postgres</value>
+		</property>
+	</bean>    
+	<!--
+       - T R A N S A C T I O N  S U P P O R T
+       -->
+	<bean id="transactionManager" 
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref local="dataSource"/>
+		</property>
+	</bean>
+	<!--
+      - H I B E R N A T E   F A C T O R Y
+      -->
+	<bean id="sessionFactory" 
+		class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref local="dataSource"/>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>org/sipfoundry/sipxconfig/sipxconfig.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/callgroup/parkOrbit.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/dialplan/gateway.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
+                <value>org/sipfoundry/sipxconfig/legacy/configSet.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect"> 
+					net.sf.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.query.substitutions">true=1 false=0</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+	<!--
+      - H I B E R N A T E   S E S S I O N
+      -->
+	<bean id="hibernateInterceptor" 
+		class="org.springframework.orm.hibernate.HibernateInterceptor">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+	<!--
+	  - V E L O C I T Y
+	  -->
+	<bean id="velocityEngine" 
+	  class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+	  <property name="resourceLoaderPath"><value>file:${sysdir.etc}</value></property>          
+	</bean>
+	<!--
+      -  S E T T I N G  D A O  I M P L
+	  -->
+	<bean id="settingDaoImpl" 
+		class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+	<!--
+      -  S E T T I N G  D A O 
+	  -->
+	<bean id="settingDao" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.setting.SettingDao</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>settingDaoImpl</value>
+			</list>
+		</property>
+	</bean>
+	<!--
+      - C O R E  C O N T E X T   I M P L
+      -->    
+    <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>        
+    </bean>
+	<!--
+      - C O R E  C O N T E X T
+      -->
+	<bean id="coreContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.common.CoreContext</value>
+		</property>
+		<property name="interceptorNames">
+		<list>
+				<value>hibernateInterceptor</value>
+				<value>coreContextImpl</value>
+			</list>
+		</property>
+	</bean>
+    
+    <!-- 
+      - L E G A C Y   C O N T E X T
+      -->
+      
+	<bean id="legacyContextImpl" class="org.sipfoundry.sipxconfig.legacy.LegacyContextImpl" 
+        autowire="byType">
+    </bean>
+	<bean id="legacyContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.legacy.LegacyContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>legacyContextImpl</value>
+			</list>
+		</property>        
+    </bean>
+      
+	<!-- 
+      - B A C K U P   C O N T E X T           
+      -->
+	<bean id="backupContext" class="org.sipfoundry.sipxconfig.admin.BackupContextImpl">
+        <constructor-arg index="0" type="java.lang.String">
+            <value>${sysdir.bin}</value>         
+        </constructor-arg>
+	</bean>
+      
+	<!--
+      - F O R W A R D I N G  C O N T E X T
+      -->
+
+	<!-- autowire is used here to enable injecting JMS Template in application context, but not in JUnit context -->    
+	<bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl" 
+        autowire="byType">
+        <property name="coreContext">
+            <ref bean="coreContextImpl"/>
+        </property>
+        <property name="legacyContext">
+            <ref bean="legacyContextImpl"/>
+        </property>
+    </bean>
+
+	<bean id="forwardingContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>forwardingContextImpl</value>
+			</list>
+		</property>
+    </bean>
+    <!-- 
+	  - S I P 
+	  -->
+	<bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl"/>
+	<bean id="jobQueue" class="org.sipfoundry.sipxconfig.phone.JobQueue" singleton="true"/>
+	<bean id="jobManager" 
+		class="org.sipfoundry.sipxconfig.phone.JobManagerImpl">
+		<property name="phoneContext">
+			<ref bean="phoneContext"/>
+		</property>
+		<property name="jobQueue">
+			<ref bean="jobQueue"/>
+		</property>
+	</bean>
+	<!--
+      - P H O N E  C O N T E X T   I M P L
+      -->
+	<bean id="phoneContextImpl" 
+		class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
+		<property name="coreContext">
+			<ref local="coreContext"/>
+		</property>
+        <property name="legacyContext">
+            <ref bean="legacyContext"/>
+        </property>
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+        <property name="settingDao">
+            <ref bean="settingDaoImpl"/>            
+        </property>
+		<property name="jobQueue">
+			<ref bean="jobQueue"/>
+		</property>
+		<property name="systemDirectory">
+			<value>${sysdir.etc}</value>
+		</property>                
+		<property name="phoneFactoryIds">
+			<map>
+                <!-- Register new phone models here, order is important -->
+				<entry key="kphone">
+					<value>KPhone</value>
+				</entry>
+				<entry key="polycom300">
+					<value>Polycom SoundPoint IP 300</value>
+				</entry>
+				<entry key="polycom500">
+					<value>Polycom SoundPoint IP 500</value>
+				</entry>
+				<entry key="polycom600">
+					<value>Polycom SoundPoint IP 600</value>
+				</entry>
+				<entry key="cisco7960">
+					<value>Cisco IP 7960</value>
+				</entry>
+				<entry key="cisco7940">
+					<value>Cisco IP 7940</value>
+				</entry>
+				<entry key="cisco7912">
+					<value>Cisco IP 7912</value>
+				</entry>
+				<entry key="cisco7905">
+					<value>Cisco IP 7905</value>
+				</entry>
+				<entry key="ata18x">
+					<value>Cisco ATA 186/188</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<!--
+      - P H O N E  C O N T E X T
+      -->
+	<bean id="phoneContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.phone.PhoneContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>phoneContextImpl</value>
+			</list>
+		</property>
+	</bean>
+	<!--
+	  - P H O N E  M O D E L S
+	  -->
+    <!-- Define new phone models here, order is not important -->
+	<bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false">  
+		<property name="webDirectory">
+			<!-- 
+  			  - this is directory for a preferred place for serving 
+			  - phone configuration profiles for http access
+			  -    http://host:8090/phone/profile/docroot/, 
+			  -->
+			<value>${sysdir.phone}/profile/docroot</value>
+		</property>
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+	</bean>
+	<bean id="kphoneLine" class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" singleton="false"/>
+	<!-- POLYCOM -->
+	<bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="sipService">
+			<ref local="sip"/>
+		</property>
+	</bean>
+	<bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
+	<bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" parent="polycom300" singleton="false"/>
+	<bean id="polycomLine" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomLine" singleton="false"/>
+        <!-- Cisco 7940, 7960 -->
+	<bean id="cisco7960" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.phone}/profile/tftproot</value>
+		</property>
+        </bean>
+	<bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" parent="cisco7960" singleton="false"/>
+	<bean id="ciscoLine" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpLine" singleton="false"/>
+	<bean id="cisco7905" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false">
+		<property name="velocityEngine">
+			<ref bean="velocityEngine"/>
+		</property>
+		<property name="tftpRoot">
+			<value>${sysdir.phone}/profile/tftproot</value>
+		</property>
+        </bean>
+	<bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" parent="cisco7960" singleton="false"/>
+	<bean id="ciscoata18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"/>
+	
+	<!--
+	  - D I A L   P L A N S
+	  - TODO: move to separate file
+	  -->
+    <bean id="dialRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory"/>
+    
+    <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule" singleton="false">
+        <property name="name">
+            <value>Internal</value>
+        </property>
+        <property name="description">
+            <value>Default internal dialing plan</value>
+        </property>
+        <property name="enabled">
+        	<value>true</value>
+        </property>
+        <property name="voiceMail">
+            <value>101</value>
+        </property>
+        <property name="voiceMailPrefix">
+            <value>8</value>
+        </property>
+    </bean>
+    
+    <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule" singleton="false">
+        <property name="name">
+			<value>Emergency</value>            
+        </property>
+        <property name="description">
+            <value>Emergency dialing plan</value>
+        </property>
+        <property name="enabled">
+        	<value>true</value>
+        </property>
+		<property name="optionalPrefix">
+			<value>9</value>
+		</property>
+        <property name="emergencyNumber">
+        	<value>911</value>
+        </property>
+    </bean>
+
+    <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" singleton="false">
+        <property name="name">
+			<value>Long Distance</value>            
+        </property>
+        <property name="description">
+            <value>Long distance dialing plan</value>
+        </property>
+        <property name="enabled">
+        	<value>false</value>
+        </property>
+        <property name="pstnPrefix">
+        	<value>9</value>
+        </property>        
+        <property name="longDistancePrefix">
+        	<value>1</value>
+        </property>        
+        <property name="externalLen">
+        	<value>10</value>
+        </property>        
+    </bean>
+
+    <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule" singleton="false">
+        <property name="name">
+			<value>Toll free</value>            
+        </property>
+        <property name="description">
+            <value>Toll free dialing</value>
+        </property>
+        <property name="areaCodes">
+            <value>800, 877, 888</value>
+        </property>
+        <property name="permission">
+            <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.TOLL_FREE_DIALING"
+			      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        </property>
+    </bean>
+    
+    <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule" singleton="false">
+        <property name="name">
+			<value>Restricted</value>            
+        </property>
+        <property name="description">
+            <value>Restricted dialing</value>
+        </property>
+        <property name="areaCodes">
+            <value>900</value>
+        </property>
+        <property name="permission">
+            <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.RESTRICTED_DIALING"
+			      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        </property>
+    </bean>
+
+    <bean id="defaultInternationalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule" singleton="false">
+        <property name="name">
+			<value>International</value>            
+        </property>
+        <property name="description">
+            <value>International dialing</value>
+        </property>
+        <property name="internationalPrefix">
+            <value>011</value>
+        </property>
+    </bean>
+
+    <bean id="defaultLocalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LocalRule" singleton="false">
+        <property name="name">
+			<value>Local</value>            
+        </property>
+        <property name="description">
+            <value>Local dialing</value>
+        </property>
+        <property name="enabled">
+        	<value>false</value>
+        </property>
+        <property name="pstnPrefix">
+        	<value>9</value>
+        </property>        
+        <property name="externalLen">
+        	<value>7</value>
+        </property>        
+    </bean>
+
+    <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" singleton="false">
+    	<property name="rules">
+        	<list>
+                <ref bean="defaultEmergencyRule"></ref>
+                <ref bean="defaultInternationalRule"></ref>
+                <ref bean="defaultInternalRule"></ref>
+                <ref bean="defaultLocalRule"></ref>
+                <ref bean="defaultLongDistanceRule"></ref>
+                <ref bean="defaultRestrictedRule"></ref>
+                <ref bean="defaultTollFreeRule"></ref>
+            </list>
+        </property>
+    </bean>
+		
+	<!--
+      - D I A L P L A N  C O N T E X T
+      -->
+    <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+        <property name="coreContext">
+            <ref bean="coreContext"></ref>
+        </property>
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+    	<property name="ruleFactory">
+            <ref bean="dialRuleFactory"></ref>
+        </property>
+        <property name="configDirectory">
+			<value>${sysdir.etc}</value>            
+        </property>
+    </bean>
+    
+	<bean id="dialPlanContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>dialPlanContextImpl</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
+		<property name="velocityEngine">
+			<ref local="velocityEngine"/>
+		</property>
+	</bean>
+    <!--
+      - C A L L G R O U P   C O N T E X T
+      -->
+	<bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl" autowire="byType">
+        <property name="coreContext">
+            <ref bean="coreContextImpl"/>
+        </property>        
+		<property name="phoneContext">
+			<ref bean="phoneContextImpl"/>
+		</property>
+    </bean>
+    
+	<bean id="callGroupContext" 
+		class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+				<value>callGroupContextImpl</value>
+			</list>
+		</property>
+	</bean>
+</beans>

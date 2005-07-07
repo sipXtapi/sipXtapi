@@ -1,0 +1,235 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+
+<html>
+
+<!--(==============================================================)-->
+<!--(Document created with RoboEditor. )============================-->
+<!--(==============================================================)-->
+
+<head>
+
+<title>Manage Dial Plans</title>
+
+<!--(Meta)==========================================================-->
+
+<meta name="template" content="template.htt">
+<meta http-equiv=content-type content="text/html; charset=windows-1252">
+<meta name=generator content="RoboHELP by eHelp Corporation - www.ehelp.com">
+<meta name=generator-major-version content=0.1>
+<meta name=generator-minor-version content=1>
+<meta name=filetype content=kadov>
+<meta name=filetype-version content=1>
+<meta name=page-count content=1>
+<meta name=layout-height content=1137>
+<meta name=layout-width content=467>
+<meta name=x-ignored-words content="Corp;followup;PIDs">
+
+
+<!--(Links)=========================================================-->
+
+ <link rel='stylesheet' href='pingtel1_ns.css'>
+<script type="text/javascript" language="JavaScript" title="WebHelpSplitCss">
+<!--
+if (navigator.appName !="Netscape")
+{   document.write("<link rel='stylesheet' href='pingtel1.css'>");}
+//-->
+</script>
+<style type="text/css">
+<!--
+img_whs1 {border-style: none; border: none; width: 17px; height: 12px; float: none;}
+ul.whs2 {list-style: disc;}
+p.whs3 {font-style: normal;}
+img_whs4 {border-style: none; border: none; float: none; width: 17px; height: 12px;}
+ol.whs5 {list-style: decimal;}
+div.whs6 {width: 100%;  margin-top: 12px;}
+-->
+</style>
+<script type="text/javascript" language="JavaScript" title="WebHelpInlineScript">
+<!--
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//-->
+</script>
+<style type="text/css">
+<!--
+  div.WebHelpPopupMenu {position:absolute; left:0px; top:0px; z-index:4; visibility:hidden;}
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="whmsg.js"></script>
+<script type="text/javascript" language="javascript" src="whver.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whproxy.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whutils.js"></script>
+<script type="text/javascript" language="javascript1.2" src="whtopic.js"></script>
+</head>
+
+<!--(Body)==========================================================-->
+
+
+<body>
+
+<script type="text/javascript" language="javascript1.2">
+<!--
+if (window.gbWhTopic)
+{
+	if (window.addTocInfo)
+	{
+	addTocInfo("Pingtel Comm Server\nConfiguration\nDial Plans");
+addButton("show",BTN_TEXT,"Show","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	if (window.setRelStartPage)
+	{
+	setRelStartPage("configsrvr.htm");
+
+		autoSync(0);
+		sendSyncInfo();
+		sendAveInfoOut();
+	}
+}
+else
+	document.location.reload();
+//-->
+</script>
+<h1><a name=top></a>Manage Dial Plans</h1>
+
+<p>You define dial plans to establish how your SIPxchange IP voice system 
+ will route incoming and outgoing calls. You configure the system-wide 
+ dial plans on this page.</p>
+
+<p><a href="#Dial">Dial plan info</a></p>
+
+<p><a href="#Configure">Configure dial plans</a></p>
+
+<p><span style="font-style: italic;"><I>Tip</I></span>: To review suggestions 
+ for phone digit maps that are based on your current system dial plans, 
+ click View Digit Maps at the top of the page.</p>
+
+<h2><img src="pingtel_bullet.gif" x-maintain-ratio="TRUE" width="17px" height="12px" border="0" class="img_whs1"> <a name=Dial></a>Dial plan info</h2>
+
+<h4>Internal station numbering format &nbsp;</h4>
+
+<p>You identify Internal station numbers, or extensions, by defining their 
+ length and format. The dial plan for an internal number consists of:</p>
+
+<ul type="disc" class="whs2">
+	
+	<li class=kadov-p><p>one or more digits, optionally restricted to a 
+ possible range<br>
+	To specify a digit in a range, supply [digit-digit]</p></li>
+	
+	<li class=kadov-p><p>one or more wildcard digits<br>
+	To specify a wildcard, supply x. </p></li>
+</ul>
+
+<p>For example, if your dial plan is [4-6]xxx, then a dialed number that 
+ begins with 4, 5, or 6, and that is four digits in length, &nbsp;will 
+ match.</p>
+
+<p>The default format is [1-7]xx.</p>
+
+<h4>Prefix for Direct Inward Dialing (DID) &nbsp;</h4>
+
+<p>If your SIPxchange IP voice system uses DID numbers, you set this prefix 
+ to the constant digits that get combined with an internal extension to 
+ produce a full DID number. </p>
+
+<p>For example, if your DID number prefix is 7818543, you supply 7818543. 
+ If the format of your internal station numbers is [1-7]xx, then extension 
+ 678 will correspond to DID number 781 854 3678.</p>
+
+<p class="whs3">By default, no value is set.</p>
+
+<p><span style="font-style: italic;"><I>Reminder</I></span>: You only define a 
+ DID prefix if you use DID numbering.</p>
+
+<h4>To call the Auto Attendant, dial &nbsp;</h4>
+
+<p>Identifies the system extension reserved for the Auto Attendant. The 
+ default is 100.</p>
+
+<h4>To retrieve Voicemail, dial &nbsp;</h4>
+
+<p>Identifies the system extension reserved for Voicemail. The default 
+ is 101.</p>
+
+<h4>Prefix for dialing PSTN calls &nbsp;</h4>
+
+<p>You identify outbound calls that must be routed through an IP-to-PSTN 
+ gateway by establishing a dial plan prefix. The default for dialing PSTN 
+ calls is 9. </p>
+
+<h4>Prefix for dialing an extension's Voicemail inbox &nbsp;</h4>
+
+<p>To route calls directly to an extension's Voicemail inbox, you supply 
+ a prefix. The default is 8.</p>
+
+<h4>Prefix for dialing international calls </h4>
+
+<p>You identify international calls by establishing a dial plan prefix. 
+ The default for dialing international calls is 011.</p>
+
+<h2><img src="pingtel_bullet.gif" x-maintain-ratio="TRUE" width="17px" height="12px" border="0" class="img_whs4"> <a name=Configure></a>Configure dial plans</h2>
+
+<p><span style="font-style: italic;"><I>Tip</I></span>: If your SIPxchange installation 
+ has complicated call routing needs, you may not be able to use this procedure 
+ to configure your dial plans. Please contact Pingtel’s TAC for more information.</p>
+
+<p>To configure system-wide dial plans:</p>
+
+<ol type="1" class="whs5">
+	
+	<li class=kadov-p
+		class=kadov-p>Click <span style="font-weight: bold;"><B>Configuration 
+ </B></span>in the left column.</li>
+	
+	<li class=kadov-p
+		class=kadov-p>Find Dial Plans on the list of services.</li>
+	
+	<li class=kadov-p
+		class=kadov-p>Click the icon in the <span style="font-weight: bold;"><B>Configure 
+ </B></span>column for Dial Plans. A new page lists current values.</li>
+	
+	<li class=kadov-p
+		class=kadov-p>You define dial plans by making changes directly 
+ in the text boxes.</li>
+	
+	<li class=kadov-p
+		class=kadov-p>Click <span style="font-weight: bold;"><B>Save</B></span> 
+ when you complete your edits.</li>
+</ol>
+
+<p>Your new settings do not take effect until you <a href="operate_services.htm#restart">restart</a>.</p>
+
+<p><span style="font-style: italic;"><I>Tip</I></span>: To review suggestions 
+ for phone digit maps that are based on your current system dial plans, 
+ click <span style="font-weight: bold;"><B>View Digit Maps</B></span> at the top 
+ of the page.</p>
+
+<div placeholder id="footer" class="whs6">
+ <p class=copyright
+	style="margin-top: 6pt; font-size: 8pt;">Copyright &#169 
+ 2004 Pingtel Corp. All rights reserved.</p>
+</div>
+<script type="text/javascript" language="javascript1.2">
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+//-->
+</script>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE jboss-web PUBLIC "-//JBoss//DTD Web Application 2.3V2//EN" "http://www.jboss.org/j2ee/dtd/jboss-web_3_2.dtd">
+
+<jboss-web>
+  <security-domain>java:/jaas/other</security-domain>
+
+    <ejb-ref>
+        <ejb-ref-name>ejb/Organization</ejb-ref-name>
+		<jndi-name>Organization</jndi-name>
+    </ejb-ref>
+  <ejb-ref>
+    <ejb-ref-name>ejb/ReferenceDataAdvocate</ejb-ref-name>
+    <jndi-name>ReferenceDataAdvocate</jndi-name>
+  </ejb-ref>
+
+  <ejb-ref>
+    <ejb-ref-name>ejb/UserAdvocate</ejb-ref-name>
+    <jndi-name>UserAdvocate</jndi-name>
+  </ejb-ref>
+
+  <ejb-ref>
+    <ejb-ref-name>ejb/PhoneTypeAdvocate</ejb-ref-name>
+    <jndi-name>PhoneTypeAdvocate</jndi-name>
+ </ejb-ref>
+
+</jboss-web>
+
+
