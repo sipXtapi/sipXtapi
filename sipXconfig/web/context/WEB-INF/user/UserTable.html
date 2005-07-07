@@ -1,0 +1,27 @@
+<span jwcid="$content$">
+	<table jwcid="userTable" id="user:criteria" class="component">
+        <span jwcid="DisplayIDColumnValue">                    
+            <span jwcid="displayIdAsLinkConditional">
+                <a href="#" jwcid="displayIdLink"><span jwcid="displayId"/></a>
+            </span>
+            <span jwcid="displayIdAsTextConditional">
+                <span jwcid="displayIdAsText"/>
+            </span>
+        </span>
+		<tr class="component-hdr">
+			<td width="5"/>
+			<td jwcid="userColumns"/>
+		</tr>
+		<tr jwcid="userRows">
+			<td>
+				<span jwcid="selectedRow"/>
+			</td>
+			<td jwcid="userValues"/>
+		</tr>
+        <tfoot>
+            <tr>
+                <td colspan="5"><span jwcid="@contrib:TableFormPages"/></td>
+            </tr>
+        </tfoot>
+	</table>
+</span>

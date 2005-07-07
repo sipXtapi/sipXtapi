@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.apache.tapestry.BaseComponent" 
+    allow-body="no" allow-informal-parameters="no">
+    <!-- P A R A M E T E R S -->
+	<parameter name="exception" 
+        type="org.sipfoundry.sipxconfig.admin.dialplan.RoutingException" 
+        required="yes" 
+        direction="in">
+    </parameter>
+    
+    <parameter name="deleteListener"
+    	type="org.apache.tapestry.IActionListener"
+    	required="yes"
+    	direction="in"
+    />
+    
+    <parameter name="gateways"
+    	type="java.util.List"
+    	required="yes"
+    	direction="in"
+    />
+    
+    <!-- P R O P E R T I E S -->
+    
+    <!-- B E A N S -->
+    <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel">
+        <set-property name="gateways">gateways</set-property>
+    </bean>    
+    
+    <!-- C O M P O N E N T S -->
+    <component id="deleteException" type="DirectLink">
+        <binding name="listener" expression="deleteListener"/>
+        <binding name="parameters" expression="exception.id"/>
+    </component>
+    
+    <component id="callersLabel" type="FieldLabel">
+        <binding name="field" expression="components.callers"/>
+        <static-binding name="displayName" value="Numbers list"/>
+    </component>
+    <component id="callers" type="TextArea">
+        <binding name="value" expression="exception.callers"/>
+    </component>
+    
+    <component id="externalNumberLabel" type="FieldLabel">
+        <binding name="field" expression="components.externalNumber"/>
+    </component>
+    <component id="externalNumber" type="ValidField">
+        <binding name="value" expression="exception.externalNumber"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
+        <static-binding name="displayName" value="External emergency number"/>
+    </component>
+
+    <component id="gatewaysLabel" type="FieldLabel">
+        <binding name="field" expression="components.gateways"/>
+        <static-binding name="displayName" value="Gateway"/>
+    </component>
+    <component id="gateways" type="PropertySelection">
+        <binding name="value" expression="exception.gateway"/>
+        <binding name="model" expression="beans.gatewayModel"/>
+    </component>
+</component-specification>

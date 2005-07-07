@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+  - P H O N E  C O N T E X T   I M P L
+  -->
+  <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
+    <property name="coreContext">
+      <ref bean="coreContext"/>
+    </property>
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="settingDao">
+      <ref bean="settingDaoImpl"/>
+    </property>
+    <property name="jobQueue">
+      <ref bean="jobQueue"/>
+    </property>
+    <property name="systemDirectory">
+      <value>${sysdir.etc}</value>
+    </property>
+    <property name="phoneFactoryIds">
+      <map>
+        <!-- Register new phone models here, order is preserved -->
+        <entry key="polycom300">
+          <value>Polycom SoundPoint IP 300</value>
+        </entry>
+        <entry key="polycom500">
+          <value>Polycom SoundPoint IP 500</value>
+        </entry>
+        <entry key="polycom600">
+          <value>Polycom SoundPoint IP 600</value>
+        </entry>
+        <entry key="cisco7960">
+          <value>Cisco IP 7960</value>
+        </entry>
+        <entry key="cisco7940">
+          <value>Cisco IP 7940</value>
+        </entry>
+        <entry key="cisco7912">
+          <value>Cisco IP 7912</value>
+        </entry>
+        <entry key="cisco7905">
+          <value>Cisco IP 7905</value>
+        </entry>
+        <entry key="ciscoAta18x">
+          <value>Cisco ATA 186/188</value>
+        </entry>
+        <entry key="grandstreamBudgeTone">
+          <value>Grandstream BudgeTone</value>
+        </entry>
+        <entry key="grandstreamHandyTone">
+          <value>Grandstream HandyTone</value>
+        </entry>
+        <entry key="kphone">
+          <value>KPhone</value>
+        </entry>
+      </map>
+    </property>
+  </bean>
+  <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.phone.PhoneDefaults"/>
+  <!--
+  - P H O N E  C O N T E X T
+  -->
+  <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.phone.PhoneContext</value>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>hibernateInterceptor</value>
+        <value>phoneContextImpl</value>
+      </list>
+    </property>
+  </bean>
+  <!--
+  - P H O N E  M O D E L S
+  -->
+  <!-- Define new phone models here, order is not important -->
+  <bean id="genericPhone"
+    class="org.sipfoundry.sipxconfig.phone.GenericPhone" 
+    singleton="false">
+    <property name="webDirectory">
+      <!-- 
+      - this is directory for a preferred place for serving 
+      - phone configuration profiles for http access
+      -    http://host:8090/phone/profile/docroot/, 
+      -->
+      <value>${sysdir.phone}/profile/docroot</value>
+    </property>
+    <property name="tftpRoot">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+    <property name="velocityEngine">
+      <ref bean="velocityEngine"/>
+    </property>        
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>
+    </property>
+	<property name="sipService">
+		<ref bean="sip"/>
+	</property>
+  </bean>
+  <bean id="kphone" 
+    class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" 
+    singleton="false"
+    parent="genericPhone">
+  </bean>
+  <bean id="kphoneLine" 
+    class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" 
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
+    <!-- POLYCOM -->
+  <bean id="polycom300" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
+    singleton="false" 
+    parent="genericPhone">
+  </bean>
+  <bean id="polycom500" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
+    parent="polycom300" 
+    singleton="false"/>
+  <bean id="polycom600" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
+    parent="polycom300" 
+    singleton="false"/>
+  <bean id="polycomLine" 
+    class="org.sipfoundry.sipxconfig.phone.polycom.PolycomLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
+  <!-- Cisco 7940, 7960 -->
+  <bean id="cisco7960" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" 
+    singleton="false" 
+    parent="genericPhone">
+  </bean>
+  <bean id="cisco7940" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" 
+    parent="cisco7960"
+    singleton="false"/>
+  <bean id="ciscoIpLine" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
+  <bean id="cisco7905" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" 
+    singleton="false" 
+    parent="genericPhone">
+  </bean>
+  <bean id="cisco7912" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" 
+    parent="cisco7905"
+    singleton="false"/>
+  <bean id="ciscoAta18x" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone"
+    parent="cisco7905" 
+    singleton="false"/>
+  <bean id="ciscoAtaLine" 
+    class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
+  <!-- Grandstream BudgeTone, HandyTone -->
+  <bean id="grandstreamBudgeTone"
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone" 
+    singleton="false"
+    parent="genericPhone">
+  </bean>
+  <bean id="grandstreamHandyTone"
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone"
+    parent="grandstreamBudgeTone" 
+    singleton="false"/>
+  <bean id="grandstreamLine" 
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamLine"
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
+  
+  <!-- 
+  - S I P 
+  -->
+  <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl"/>
+  <bean id="jobQueue" class="org.sipfoundry.sipxconfig.phone.JobQueue" singleton="true"/>
+  <bean id="jobManager" class="org.sipfoundry.sipxconfig.phone.JobManagerImpl">
+    <property name="phoneContext">
+      <ref bean="phoneContext"/>
+    </property>
+    <property name="jobQueue">
+      <ref bean="jobQueue"/>
+    </property>
+  </bean>
+  
+</beans>
+      

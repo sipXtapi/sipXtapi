@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <group name="SYSTEM">
+    <label>System</label>
+    <setting name="DisableSNMP">
+      <label>SNMP</label>
+      <type>
+        <boolean>
+          <true><value>0</value></true>
+          <false><value>1</value></false>
+        </boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="DNSPriServerIP">
+      <label>Primary DNS Server</label>
+      <type>
+        <ipaddr required="yes"/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="SyslogServerIP" advanced="yes">
+      <label>Syslog Server</label>
+      <type>
+        <ipaddr/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="EnableSyslog" advanced="yes">
+      <label>Syslog</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="Voice_Engine">
+    <label>Voice Engine</label>
+    <profileName>Voice Engine</profileName>
+    <setting name="IdlePCMPattern">
+      <type>
+        <integer/>
+      </type>
+      <value>255</value>
+    </setting>
+  </group>
+</model>

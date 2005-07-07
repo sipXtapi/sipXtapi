@@ -1,0 +1,118 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2005 SIPfoundry Inc.
+ * Licensed by SIPfoundry under the LGPL license.
+ * 
+ * Copyright (C) 2005 Pingtel Corp.
+ * Licensed to SIPfoundry under a Contributor Agreement.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.admin;
+
+import java.io.File;
+import java.util.List;
+import java.util.Timer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.legacy.LegacyNotifyService;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+
+/**
+ * Backup provides Java interface to backup scripts
+ */
+public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener {
+
+    private static final Log LOG = LogFactory.getLog(AdminContextImpl.class);
+
+    private String m_binDirectory;
+
+    private String m_backupDirectory;
+    
+    private Timer m_timer;
+    
+    public String getBackupDirectory() {
+        return m_backupDirectory;
+    }
+
+    public void setBackupDirectory(String backupDirectory) {
+        m_backupDirectory = backupDirectory;
+    }
+
+    public String getBinDirectory() {
+        return m_binDirectory;
+    }
+
+    public void setBinDirectory(String binDirectory) {
+        m_binDirectory = binDirectory;
+    }
+
+    public BackupPlan getBackupPlan() {        
+        List plans = getHibernateTemplate().loadAll(BackupPlan.class);
+        BackupPlan plan = (BackupPlan) CoreContextImpl
+                .requireOneOrZero(plans, "all backup plans");
+
+        // create a new one if one doesn't exists, otherwise
+        // risk having 2 or more in database
+        if (plan == null) {
+            plan = new BackupPlan();
+            storeBackupPlan(plan);
+        }
+        return plan;
+    }
+    
+    public void requirePatch(Integer patchId) {
+        Patch patch = (Patch) getHibernateTemplate().get(Patch.class, patchId);
+        String description = "Required patch with id " + patchId;
+        if (patch == null) {
+            throw new PatchNotAppliedException(description + " was not applied");
+        }
+
+        if (patch.getStatus() == Patch.FAILURE) {
+            throw new PatchNotAppliedException(description + " was not successfully applied");
+        }
+    }
+
+
+    public void storeBackupPlan(BackupPlan plan) {
+        getHibernateTemplate().saveOrUpdate(plan);
+        resetTimer(plan);
+    }
+    
+    public File[] performBackup(BackupPlan plan) {
+        return plan.perform(m_backupDirectory, m_binDirectory);
+    }
+
+    /**
+     * start backup timers after app is initialized
+     */
+    public void onApplicationEvent(ApplicationEvent event) {
+        // No need to register listener, all beans that implments listener interface are 
+        // automatically registered
+        if (event instanceof ApplicationInitializedEvent) {
+            try {
+                requirePatch(new Integer(LegacyNotifyService.BACKUP));            
+                resetTimer(getBackupPlan());
+            } catch (PatchNotAppliedException nonFatal) {
+                // database has not been migrated, no backup plan could possible
+                // be started. This is expected on when upgrading from systems below 
+                // 3.0
+                LOG.info("Backup plan not started." + nonFatal.getMessage());
+            }
+        }
+    }
+
+    private void resetTimer(BackupPlan plan) {
+        if (m_timer != null) {
+            m_timer.cancel();
+        }
+        m_timer = new Timer(false); // deamon, dies with main thread
+        plan.schedule(m_timer, m_backupDirectory, m_binDirectory); 
+    }
+}

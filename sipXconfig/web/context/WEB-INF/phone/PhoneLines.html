@@ -1,0 +1,59 @@
+<html title="Activate Dial Plan">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+		<span jwcid="editPhoneNavigation">
+                Phones can register with multiple identities with different registration servers or even 
+                same registration server. For example if you want to recieve calls for both jsmith@mycompany.com, 
+                and sales@mycompany.com with the same registration server and you wanted to recieve calls 
+                from snowboarder113@fwd.com, you would enter all that information here.
+        </span>
+        <div id="settings-content">
+			<form jwcid="editLinesForm">
+				<ul class="component-links">
+					<li>
+						<a href="#" id="AddUser" jwcid="addLineLink">Add Line</a>
+					</li>
+				</ul>
+				<table id="line:list" jwcid="lineTableView" class="component">
+                <span jwcid="LineColumnValue">
+                    <a href="#" jwcid="editLineLink"><span jwcid="lineLabel">address of record</span></a>
+                </span>
+				<tr class="component-hdr">
+					<td width="5"/>
+					<td jwcid="lineColumns"/>
+				</tr>
+				<tr jwcid="lineRows">
+                    <td><span jwcid="selectedRow"/></td>
+					<td jwcid="lineValues"/>                    
+				</tr>
+				</table>
+				<ul class="component-submit">
+					<li>
+						<submit id="line:delete" jwcid="deleteLine" value="Delete"/>
+					</li>
+					<li>
+						<submit id="line:moveUp" jwcid="moveUp" value="Move Up"/>
+					</li>
+					<li>
+						<submit id="line:moveDown" jwcid="moveDown" value="Move Down"/>
+					</li>
+				</ul>
+			<ul class="form-actions">
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="Cancel"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.apply" value="Apply"/>
+				</li>
+				<li>
+                    <input type="submit" jwcid="@Submit" listener="ognl:listeners.ok" value="OK"/>
+				</li>
+			</ul>                     
+			</form>
+        </div>
+	</div>
+</body>
+</html>

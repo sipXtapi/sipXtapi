@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>sipXconfig</title>
+		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<div jwcid="@Border">
+			<h2>Backup</h2>
+			<p jwcid="ifInitialDescription">To backup system configuration 
+				select backup options and press <em>Backup Now</em> button. You 
+				can perform partial backup by leaving some options 
+				unselected.<br/> Backup files are available for download once 
+				backup is completed.<br/></p>
+			<p jwcid="ifResultsPresent"> Backup completed sucessfully. Please 
+				download archived data by clicking on the links below.                 
+
+                <div class="help"> <p>Click on each link to download all the 
+				files.<br/> Backup files should be stored on media or a machine 
+				other than the sipX server.</p> <p>In order to restore the 
+				data, transfer the backup files to the sipX server and put them 
+				in the relative folder, either backup-configs or 
+				backup-mailstore.<br/> To restore the configuration and 
+				database information type <strong>restore-configs.sh</strong> 
+				at a command line prompt, restoring files from the fs.tar.gz 
+				and pds.tar.gz files.<br/> To restore voicemail data type 
+				<strong>restore-mailstore.sh</strong> at a command line prompt, 
+				restoring files from the previous mailstore.tar.gz file.</p> 
+				</div>                 
+                <ul> 
+                    <li jwcid="results"> 
+                        <span jwcid="link"><span jwcid="linkText"/></span> 
+                    </li> 
+                </ul>
+                </p>
+			<span jwcid="errors"/>
+			<form jwcid="form">
+				<fieldset>
+					<legend>Files</legend>
+					<table>
+						<tbody>
+							<tr>
+								<td>
+									<input jwcid="checkConfigs" type="checkbox" 
+										id="backup:check:configs" 
+										checked="checked"/>
+									<label for="backup:check:configs"> 
+										Configuration files</label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<input jwcid="checkDatabase" 
+										type="checkbox" 
+										id="backup:check:database" 
+										checked="checked"/>
+									<label for="backup:check:database">Profiles 
+										database</label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<input jwcid="checkVoicemail" 
+										type="checkbox" 
+										id="backup:check:voicemail" 
+										checked="checked"/>
+									<label for="backup:check:voicemail"> 
+										Voicemail</label>
+								</td>
+							</tr>
+							<tr>
+								<td>Number of backups to keep: 
+                                    <select jwcid="limitCount"/> <br/> 
+                                <span class="settingDescription">After limit is 
+									reached, the oldest backup will be deleted 
+									as each new backup is performed.</span> 
+									</td>
+							</tr>
+						</tbody>
+					</table>
+				</fieldset>
+				<ul class="form-actions">
+					<li>
+						<input jwcid="backup" id="backup:now" type="button" 
+							name="save" value="Backup Now"/>
+					</li>
+				</ul>
+				<fieldset>
+					<legend>Schedule</legend>
+                    <p>Backups are stored in "/var/sipxdata/backups" in a sub-directory 
+                        whose name coresponds to the date and time the backup was made. 
+                        It is recommended you use NFS or similiar mechanism to mount this 
+                        directory to a different machine on your network or at least
+                        have the "/var" directory on a different harddisk partition.</p>
+                            <span jwcid="schedules">
+									<input jwcid="dailyScheduleEnabled" type="checkbox"/>
+									<select jwcid="dailyScheduledDay"/>
+									<input jwcid="dailyScheduledTime"/>
+                                    </span>
+    <ul class="form-actions">
+	    <li><input jwcid="ok" id="backup:ok" type="submit" value="OK"/></li>
+    </ul>
+				</fieldset>
+			</form>
+		</div>
+	</body>
+</html>

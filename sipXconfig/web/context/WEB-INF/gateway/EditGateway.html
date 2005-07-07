@@ -1,0 +1,27 @@
+<html title="Edit Gateway">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+	<h2><span key="title">Gateway Details</span></h2>
+    <span jwcid="@ErrorMsg"/>    
+    <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
+        <fieldset jwcid="gatewayForm"></fieldset>
+        <ul class="form-actions">
+            <li>
+                <input id="gateway:save" jwcid="onSave" type="submit" value="Save"/>
+            </li>
+            <li>
+                <input id="gateway:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    <span jwcid="renderSettings">
+        <span jwcid="settings"/>
+            <span jwcid="settingDescription"></span>
+        <span jwcid="settingsForm"/>
+    </span>
+    </div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.gateway.ListGateways">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="gatewayContext" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
+    	initial-value="global.gatewayContext"/>    
+        
+	<property-specification name="gatewaysToDelete" type="java.util.Collection"/>    
+	<property-specification name="gatewaysToPropagate" type="java.util.Collection"/>    
+    
+     <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="gatewayTable" type="GatewayTable">
+        <binding name="gatewayCollection" expression="gatewayContext.gateways"/>
+        <static-binding name="editPageName" value="EditGateway"/>
+    </component>
+                
+    <component id="addGatewayLink" type="DirectLink">
+        <binding name="listener" expression="listeners.addGateway"/>
+    </component>
+
+    <component id="dialPlansLink" type="PageLink">
+        <static-binding name="page" value="EditFlexibleDialPlan"/>
+    </component>
+    
+    <component id="deleteButton" type="Submit">
+        <binding name="selected" expression="gatewaysToDelete"/>
+        <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
+        <message-binding name="label" key="button.delete"/>
+    </component>
+    
+    <component id="propagateButton" type="Submit">
+        <binding name="selected" expression="gatewaysToPropagate"/>
+        <binding name="tag" expression="components.gatewayTable.selections.allSelected"/>
+        <message-binding name="label" key="button.propagate"/>
+    </component>
+    
+    
+    <component id="gatewaysListForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
+
+    <!--
+	  - A S S E T S
+	  -->	
+</page-specification>

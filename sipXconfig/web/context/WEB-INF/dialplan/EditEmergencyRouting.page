@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditEmergencyRouting">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+    
+	<property-specification name="gatewayContext" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
+    	initial-value="global.gatewayContext"/>    
+
+    <property-specification name="emergencyRouting" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting"
+        persistent="yes">
+    </property-specification>
+    
+    <property-specification name="exceptionsMap" type="org.apache.tapestry.form.ListEditMap"/>
+    
+    <property-specification name="exceptionItem" type="org.sipfoundry.sipxconfig.admin.dialplan.RoutingException"/>
+    
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
+    <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel">
+        <set-property name="gateways">gatewayContext.gateways</set-property>
+    </bean>    
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.formSubmit"/>
+    </component>
+    
+    <component id="errors" type="ErrorMsg"/>
+    
+    <component id="gatewaysLink" type="PageLink">
+        <static-binding name="page" value="ListGateways"/>
+    </component>
+
+    <component id="addExceptionLink" type="LinkSubmit">
+        <binding name="listener" expression="listeners.addException"/>
+    </component>
+        
+    <component id="gatewaysLabel" type="FieldLabel">
+        <binding name="field" expression="components.gateways"/>
+        <static-binding name="displayName" value="Gateway"/>
+    </component>
+    <component id="gateways" type="PropertySelection">
+        <binding name="value" expression="emergencyRouting.defaultGateway"/>
+        <binding name="model" expression="beans.gatewayModel"/>
+    </component>
+    
+    <component id="externalNumberLabel" type="FieldLabel">
+        <binding name="field" expression="components.externalNumber"/>
+    </component>
+    <component id="externalNumber" type="ValidField">
+        <binding name="value" expression="emergencyRouting.externalNumber"/>
+        <binding name="validator" expression="global.validPhoneRequired"/>
+        <static-binding name="displayName" value="External emergency number"/>
+    </component>
+
+	<component id="exceptions" type="ListEdit">
+        <binding name="source" expression="exceptionsMap.keys"/>
+        <binding name="value" expression="exceptionsMap.key"/>
+        <binding name="listener" expression="listeners.synchronizeExceptionItem"/>
+    </component>
+    
+	<component id="exception" type="RoutingExceptionEditor">
+        <binding name="deleteListener" expression="listeners.deleteException"/>
+        <binding name="exception" expression="exceptionItem"/>
+        <binding name="gateways" expression="dialPlanManager.gateways"/>
+    </component>
+    
+    <component id="apply" type="Submit">
+        <binding name="listener" expression="listeners.apply"/>
+    </component>
+</page-specification>

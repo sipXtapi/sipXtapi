@@ -1,0 +1,84 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlaceCall", "examples\PlaceCall\PlaceCall.vcproj", "{B3A8FA91-7043-4C08-92B7-38BF89CE9F7F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F} = {BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReceiveCall", "examples\ReceiveCall\ReceiveCall.vcproj", "{838BF317-6BBB-4D8B-A070-0FC90E4DEE47}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F} = {BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "sipXcallLib.vcproj", "{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmediaLib\sipXmediaLib.vcproj", "{FD83D656-82BC-4765-A6FF-666A7D91BC64}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib.vcproj", "{5F85520E-C3C0-404C-9EFA-2C96DBD0F258}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\sipXtackLib\sipXtackLib.vcproj", "{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi", "sipXtapi.vcproj", "{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0} = {4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}
+		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258} = {5F85520E-C3C0-404C-9EFA-2C96DBD0F258}
+		{FD83D656-82BC-4765-A6FF-666A7D91BC64} = {FD83D656-82BC-4765-A6FF-666A7D91BC64}
+		{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26} = {A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapiTest", "sipXtapiTest.vcproj", "{EEECD383-F3B6-4E88-BC92-36EF366F1F6C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F} = {BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{B3A8FA91-7043-4C08-92B7-38BF89CE9F7F}.Debug.ActiveCfg = Debug|Win32
+		{B3A8FA91-7043-4C08-92B7-38BF89CE9F7F}.Debug.Build.0 = Debug|Win32
+		{B3A8FA91-7043-4C08-92B7-38BF89CE9F7F}.Release.ActiveCfg = Release|Win32
+		{B3A8FA91-7043-4C08-92B7-38BF89CE9F7F}.Release.Build.0 = Release|Win32
+		{838BF317-6BBB-4D8B-A070-0FC90E4DEE47}.Debug.ActiveCfg = Debug|Win32
+		{838BF317-6BBB-4D8B-A070-0FC90E4DEE47}.Debug.Build.0 = Debug|Win32
+		{838BF317-6BBB-4D8B-A070-0FC90E4DEE47}.Release.ActiveCfg = Release|Win32
+		{838BF317-6BBB-4D8B-A070-0FC90E4DEE47}.Release.Build.0 = Release|Win32
+		{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}.Debug.ActiveCfg = Debug|Win32
+		{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}.Debug.Build.0 = Debug|Win32
+		{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}.Release.ActiveCfg = Release|Win32
+		{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}.Release.Build.0 = Release|Win32
+		{FD83D656-82BC-4765-A6FF-666A7D91BC64}.Debug.ActiveCfg = Debug|Win32
+		{FD83D656-82BC-4765-A6FF-666A7D91BC64}.Debug.Build.0 = Debug|Win32
+		{FD83D656-82BC-4765-A6FF-666A7D91BC64}.Release.ActiveCfg = Release|Win32
+		{FD83D656-82BC-4765-A6FF-666A7D91BC64}.Release.Build.0 = Release|Win32
+		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258}.Debug.ActiveCfg = Debug|Win32
+		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258}.Debug.Build.0 = Debug|Win32
+		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258}.Release.ActiveCfg = Release|Win32
+		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258}.Release.Build.0 = Release|Win32
+		{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}.Debug.ActiveCfg = Debug|Win32
+		{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}.Debug.Build.0 = Debug|Win32
+		{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}.Release.ActiveCfg = Release|Win32
+		{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}.Release.Build.0 = Release|Win32
+		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}.Debug.ActiveCfg = Debug|Win32
+		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}.Debug.Build.0 = Debug|Win32
+		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}.Release.ActiveCfg = Release|Win32
+		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}.Release.Build.0 = Release|Win32
+		{EEECD383-F3B6-4E88-BC92-36EF366F1F6C}.Debug.ActiveCfg = Debug|Win32
+		{EEECD383-F3B6-4E88-BC92-36EF366F1F6C}.Debug.Build.0 = Debug|Win32
+		{EEECD383-F3B6-4E88-BC92-36EF366F1F6C}.Release.ActiveCfg = Release|Win32
+		{EEECD383-F3B6-4E88-BC92-36EF366F1F6C}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

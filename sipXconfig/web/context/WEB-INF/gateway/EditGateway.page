@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.gateway.EditGateway">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="gateway" 
+		type="org.sipfoundry.sipxconfig.gateway.Gateway"/>
+
+	<property-specification name="gatewayId" 
+		type="java.lang.Integer"
+    	persistent="yes"/>
+    
+	<property-specification name="ruleId" 
+		type="java.lang.Integer"
+    	persistent="yes"/>
+
+	<property-specification name="dialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+    
+	<property-specification name="gatewayContext" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
+    	initial-value="global.gatewayContext"/>    
+    
+    <property-specification name="nextPage" type="java.lang.String" persistent="yes"/>
+    
+    <property-specification name="currentSettingSetName"
+        type="java.lang.String"
+        persistent="yes"
+    	/>
+        
+    <property-specification name="currentSettingSet" type="org.sipfoundry.sipxconfig.setting.SettingSet"/>    
+                
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="gatewayForm" type="GatewayForm">
+        <binding name="gateway" expression="gateway"/>
+    </component>
+            
+    <component id="onSave" type="Submit">
+        <binding name="listener" expression="listeners.save"/>
+    </component>
+    <component id="onCancel" type="CancelButton">
+        <binding name="returnPageName" expression="nextPage"/>
+    </component>
+    
+    <component id="settings" type="SettingsNavigation">
+        <message-binding name="heading" key="section.settings"/>
+        <binding name="settings" expression="gateway.settings"/>
+        <binding name="tab" expression="currentSettingSetName"/>        
+    </component>
+    <component id="settingDescription" type="Insert">
+        <binding name="value" expression="currentSettingSet.description"/>
+    </component>
+    <component id="settingsForm" type="SettingsForm">
+        <binding name="settings" expression="currentSettingSet"/>
+        <binding name="cancelListener" expression="listeners.cancel"/>
+        <binding name="applyListener" expression="listeners.apply"/>
+        <binding name="validator" expression="beans.validator"/>
+    </component>
+    
+    <component id="renderSettings" type="Conditional">
+        <binding name="condition" expression="gateway.settings != null"/>
+    </component>
+</page-specification>

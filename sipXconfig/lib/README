@@ -1,0 +1,13 @@
+NOTES:
+
+ - jars w/o version numbers are generaly APIs and only contain
+   interfaces. Otherwise all jars should contain jar version
+   numbers.
+   
+ - jasper-runtime and jasper-compiler are only included for
+   unittesting with jetty.  Attempts to use jars from tomcat
+   5.0 failed complaining of multiple instances for commons
+   logger which may be resolved with more effort. Eventhough
+   web application does not use JSPs, from what I saw in 
+   jetty:WebApplicationContext.java:428, loading the jasper jsp
+   servlet cannot be turned off.

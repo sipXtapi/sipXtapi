@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- 
+    - G A T E W A Y  C O N T E X T
+    -->
+  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
+    <property name="dialPlanContext">
+      <ref bean="dialPlanContext"/>
+    </property>
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="configDirectory">
+      <value>${sysdir.etc}</value>
+    </property>
+    <property name="factoryIds">
+      <map>
+        <entry key="gwGeneric">
+          <value>Unmanaged gateway</value>
+        </entry>
+        <entry key="gwMediant1000">
+          <value>Audio Codes Mediant 1000</value>
+        </entry>
+      </map>      
+    </property>
+  </bean>
+  
+  <!-- springInstantiator will force hibernate to create new objects through Spring -->
+  <bean id="springInstantiator" class="org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator"/>
+  
+  <bean id="springHibernateInterceptor" parent="hibernateInterceptor">
+    <property name="entityInterceptorBeanName">
+      <value>springInstantiator</value>
+    </property>    
+  </bean>
+  
+  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>springHibernateInterceptor</value>
+        <value>gatewayContextImpl</value>
+      </list>
+    </property>    
+  </bean>
+  
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">
+    <property name="gatewayContext">
+      <ref local="gatewayContext"/>
+    </property>
+    <property name="tftpRoot">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+  
+  <bean id="gwMediant1000" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" 
+    singleton="false" parent="gwGeneric">
+  </bean>
+</beans>

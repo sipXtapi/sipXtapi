@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd"><hibernate-mapping package="org.sipfoundry.sipxconfig.setting">
+  <!--
+    - V A L U E  S T O R A G E
+    -->
+  <class name="ValueStorage" table="storage">
+    <id name="id" column="storage_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">storage_seq</param>
+      </generator>
+    </id>
+    <!-- S E T T I N G   V A L U E -->
+    <map name="values" cascade="all" table="setting">
+      <key column="storage_id"/>
+      <index column="path" type="string"/>
+      <element type="string" column="value" not-null="true"/>
+    </map>    
+    <!--
+      - G R O U P
+      -->
+	  <joined-subclass name="Group" table="group_storage">
+      <key column="storage_id"/>
+      <property name="name"/>
+      <property name="description"/>
+      <property name="resource"/>
+      <property name="weight"/>
+    </joined-subclass>  	
+  </class>  
+
+  <class name="SettingDaoImpl$GroupWeight" table="group_weight">
+    <id name="weight" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">group_weight_seq</param>
+      </generator>
+    </id>
+  </class>
+
+  <query name="rootGroupByResource">
+    <![CDATA[from Group g where g.weight = 0 and g.resource = :resource]]>
+  </query>  
+    
+  <query name="groupsByResource">
+    <![CDATA[from Group g where g.resource = :resource order by g.weight]]>
+  </query>  
+
+  <query name="groupsByResourceWithoutRoot">
+    <![CDATA[from Group g where g.weight != 0 and g.resource = :resource order by g.weight]]>
+  </query>  
+  
+  <query name="groupIdsWithNameAndResource">
+    <![CDATA[select g.id from Group g where g.resource = :resource and g.name = :name]]>       
+  </query>
+    
+</hibernate-mapping>

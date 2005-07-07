@@ -1,0 +1,283 @@
+#!/bin/bash
+
+# Script to perform various Postgres utility functions for sipX.
+
+# Establish the default action to perform, which is USAGE, so the user gets
+# a usage message if we cannot determine what we are supposed to do.
+Action=USAGE
+# $Service will be the name of the Postgres service.  The user can
+# specify it via the POSTGRES_SERVICE environment variable.
+Service=${POSTGRES_SERVICE-}
+
+# This function determines the correct service name for Postgres.
+determineServiceName()
+{
+    # If the user has already specified $Service, do not modify it.
+    if test -z "$Service"
+    then
+        if [ -f /etc/init.d/rhdb ]
+        then
+	    # Red Hat Enterprise uses the name rhdb.
+            Service=rhdb
+        else
+	    # Most other distributions use the name postgresql.
+            Service=postgresql
+        fi
+    fi
+}
+
+# First, determine the correct service name.
+determineServiceName
+
+# Process the arguments.
+while [ $# -ne 0 ]
+do
+    case ${1} in
+
+        -s|--setup)
+        Action=SETUP
+        ;;
+
+        -c|--create)
+        Action=CREATE
+        ;;
+
+        -h|--help)
+        Action=USAGE
+        ;;
+
+        -d|--drop)
+        Action=DROP
+        ;;
+
+        -r|--revision)
+        Action=REVISION
+        ;;
+
+        --status)
+        Action=STATUS
+        ;;
+
+        --install)
+        Action=INSTALL
+        ;;
+
+	# Invalid options.
+	-*)
+	Action=USAGE
+	echo "Invalid option: ${1}" >&2
+	break
+	;;
+
+	# Non-option arguments specify the database name, and there
+	# should be only one of them.
+        *)
+        if test -z "$Database"
+        then
+            Database="${1}"
+        else
+            echo "Too many arguments: ${1}"
+            Action=USAGE
+            break
+        fi
+        ;;
+    esac
+
+    shift #always consume 1
+done
+
+# Perform the selected action.
+
+if test "$Action" = "SETUP"
+then
+  # Set up the server.
+
+  /etc/init.d/$Service stop >2 /dev/null
+
+  # Custom
+  if test -z $PGDATA
+  then
+      # Debian/Gentoo
+      if test -d /var/lib/postgresql/data
+      then
+          PGDATA=/var/lib/postgresql/data
+      else
+          # Redhat
+          PGDATA=/var/lib/pgsql/data
+      fi
+  fi
+
+  # Postgres db is initialized on startup on Redhat, but not on other
+  # distros so unless we put a "if distro=rh"  we need to init here
+  if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
+  then
+      su - postgres -c "initdb --pgdata=$PGDATA"
+  fi
+
+  # Create back up file (possibly) requiring update
+  if [ ! -f $PGDATA/pg_hba.conf-sipx.bak ]
+  then
+     cp $PGDATA/pg_hba.conf $PGDATA/pg_hba.conf.sipx.bak
+  fi
+
+  # Will allow this script to add user. Need to be listed before
+  # other permission or it will not take affect
+  if test `grep -c '^local *all *all *trust\b*$' \
+          $PGDATA/pg_hba.conf` -eq 0
+  then
+     echo "local all all trust" > $PGDATA/pg_hba.conf.tmp
+     cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
+     mv $PGDATA/pg_hba.conf.tmp $PGDATA/pg_hba.conf
+  fi
+
+  # Will allow jboss to connect. Need to be listed before
+  # other permission or it will not take affect
+  if test `grep -c '^host *all *all *127.0.0.1 *255.255.255.255 *trust\b*$' \
+          $PGDATA/pg_hba.conf` -eq 0
+  then
+     echo "host all all 127.0.0.1 255.255.255.255 trust" > $PGDATA/pg_hba.conf.tmp
+     cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
+     mv $PGDATA/pg_hba.conf.tmp $PGDATA/pg_hba.conf
+  fi
+
+  # Open up tcpid connections
+  sed -i-sipx.bak -e 's/\#tcpip_socket\s=\sfalse/tcpip_socket = true/g' \
+          $PGDATA/postgresql.conf
+  chown postgres:postgres $PGDATA/postgresql.conf
+
+  # Postmaster to allow connections
+  echo "-i" > $PGDATA/postmaster.opts.default
+  chmod 664 $PGDATA/postmaster.opts.default
+  chown postgres:postgres $PGDATA/postmaster.opts.default
+
+  /etc/init.d/$Service start
+
+  # If user doesn't exist in postgres' db create it, blindly dropping
+  # then blindly creating fails when PDS or SDS dbs already exists
+  if test `psql -U postgres -c \
+         "select 'yes' from pg_user where usename='@sipxconfig.db.user@';" \
+         -d template1 | grep -c yes` -eq 0
+  then
+    createuser -U postgres --no-adduser --createdb @sipxconfig.db.user@
+  fi
+
+  exit 0
+
+elif test "$Action" = CREATE && test $Database = PDS
+then
+    # Create a database.
+
+    createdb -U @sipxconfig.db.user@ --encoding=UNICODE $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_create.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_alter.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_seq.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilegen_initvalues.sql $Database
+
+    exit 0
+
+elif test "$Action" = CREATE && test $Database = SDS
+then
+
+    createdb -U @sipxconfig.db.user@ --encoding=UNICODE $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilepub_create.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilepub_alter.sql $Database
+    psql -U @sipxconfig.db.user@ -f @sipxpbx.data.dir@/sql/profilepub_seq.sql $Database
+
+    exit 0
+
+elif test "$Action" = REVISION && ! test -z $Database
+then
+    # Get the revision number of the database.
+    # Currently, the only revision numbers are 1 (meaning the database
+    # exists) and 0 (meaning it doesn't).
+
+    if psql -l -U postgres | grep "$Database" >/dev/null
+    then
+        # until we have a db query to get revision, existance of db
+        # means first revision
+        echo "1"
+    else
+        # zero means no database
+        echo "0"
+    fi
+
+    exit 0
+   
+elif test "$Action" = DROP && ! test -z $Database
+then
+    # Delete a database.
+
+    dropdb -U @sipxconfig.db.user@ $Database
+
+    exit 0
+
+elif test "$Action" = STATUS
+then
+    # Test whether Postgres is running, in exactly the same manner as
+    # /etc/init.d/$Service, or "service $Service status" on Red Hat
+    # distributions.
+
+    # Return the same return code as the script does.
+    exec /etc/init.d/$Service status
+
+elif test "$Action" = INSTALL
+then
+    # Arrange for Postgres to be started automatically in runlevels 3
+    # and 5.
+    # Check if we can use chkconfig.
+    if [ -f /sbin/chkconfig ]
+    then
+        # We have to specify the runlevels because the default set of
+        # runlevels for Postgres is empty.
+        /sbin/chkconfig --level 35 $Service on
+    else
+        # The user will have to do it manually.
+        echo chkconfig does not exist.
+        echo You need to create /etc/rc?.d/{S85,K15}$Service
+        echo to start $Service for runlevels 3 and 5.
+    fi
+
+    exit 0
+fi
+
+# The only remaining possiblity is outputting the usage message.
+
+cat <<USAGE
+Usage: sipxdbmgr [-s|--setup]
+                 [-c|--create] [PDS|SDS]
+                 [-d|--drop] [PDS|SDS]
+                 [-r|--revision] [PDS|SDS]
+                 [--status]
+                 [--install]
+
+Performs utility functions on sipxpbx's Postgres database.
+
+Options are:
+
+      --create       Create all tables in database, If db exists, it must 
+                     be dropped first. 
+
+      --setup        Setup postgresql for communicating with sipx
+
+      --drop         Drop tables in given database (w/o warning or confirmation!)
+
+      --revision     Return revision of database
+
+      --status       Test whether Postgres is running.
+
+      --install      Arrange for Postgres to be started automatically
+                     in runlevels 3 and 5.
+
+Notable Environment Variables:
+
+    POSTGRES_SERVICE   a guess is made to determine the name for the
+                       Postgres service.
+                       If the guess incorrect, set this to the name of
+                       the script in /etc/init.d that starts/stops
+                       the Postgres database.  The possibilities that
+                       we are aware of are "postgresql" and "rhdb".
+USAGE
+
+# Give an error exit, as all erroneous inputs are converted into
+# Action=USAGE and eventually get here.
+exit 1

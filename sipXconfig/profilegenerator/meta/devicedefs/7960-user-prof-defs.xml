@@ -1,0 +1,208 @@
+ <ref_property code="cs_1022">
+ 	<definition name="line3" mobility="false" cardinality="0..1"
+ 		description="Phone line 3">
+
+ 		<value name="container" type="container" cardinality="1" visibility="write">
+
+ 			<value name="line3_name" type="string" cardinality="1" visibility="write"
+ 				description="line3_name (Line identity)"/>
+
+ 			<value name="line3_shortname" type="string" cardinality="0..1" visibility="write"
+ 				description="line3_shortname (LCD Display name)"/>
+
+ 			<value name="line3_authname" type="string" cardinality="0..1" visibility="write"
+ 				description="line3_authname (Authentication name)"/>
+
+ 			<value name="line3_password" type="password" cardinality="0..1" visibility="write"
+ 				description="line3_password (Authentication password)"/>
+
+ 			<value name="line3_displayname" type="string" cardinality="0..1" visibility="write"
+ 				description="line3_displayname (Caller ID name)"/>
+
+ 		</value>
+
+ 	</definition>
+
+ </ref_property>
+
+
+
+ <ref_property code="cs_1023">
+ 	<definition name="line4" mobility="false" cardinality="0..1"
+ 		description="Phone line 4">
+
+ 		<value name="container" type="container" cardinality="1" visibility="write">
+
+ 			<value name="line4_name" type="string" cardinality="1" visibility="write"
+ 				description="line4_name (Line identity)"/>
+
+ 			<value name="line4_shortname" type="string" cardinality="0..1" visibility="write"
+ 				description="line4_shortname (LCD Display name)"/>
+
+ 			<value name="line4_authname" type="string" cardinality="0..1" visibility="write"
+ 				description="line4_authname (Authentication name)"/>
+
+ 			<value name="line4_password" type="password" cardinality="0..1" visibility="write"
+ 				description="line4_password (Authentication password)"/>
+
+ 			<value name="line4_displayname" type="string" cardinality="0..1" visibility="write"
+ 				description="line4_displayname (Caller ID name)"/>
+
+ 		</value>
+
+ 	</definition>
+
+ </ref_property>
+
+
+
+
+
+ <ref_property code="cs_1024">
+ 	<definition name="line5" mobility="false" cardinality="0..1"
+ 		description="Phone line 5">
+
+ 		<value name="container" type="container" cardinality="1" visibility="write">
+
+ 			<value name="line5_name" type="string" cardinality="1" visibility="write"
+ 				description="line5_name (Line identity)"/>
+
+ 			<value name="line5_shortname" type="string" cardinality="0..1" visibility="write"
+ 				description="line5_shortname (LCD Display name)"/>
+
+ 			<value name="line5_authname" type="string" cardinality="0..1" visibility="write"
+ 				description="line5_authname (Authentication name)"/>
+
+ 			<value name="line5_password" type="password" cardinality="0..1" visibility="write"
+ 				description="line5_password (Authentication password)"/>
+
+ 			<value name="line5_displayname" type="string" cardinality="0..1" visibility="write"
+ 				description="line5_displayname (Caller ID name)"/>
+
+
+ 		</value>
+
+ 	</definition>
+
+ </ref_property>
+
+
+ <ref_property code="cs_1025">
+ 	<definition name="line6" mobility="false" cardinality="0..1"
+ 		description="Phone line 6">
+
+ 		<value name="container" type="container" cardinality="1" visibility="write">
+
+ 			<value name="line6_name" type="string" cardinality="1" visibility="write"
+ 				description="line6_name (Line identity)"/>
+
+ 			<value name="line6_shortname" type="string" cardinality="0..1" visibility="write"
+ 				description="line6_shortname (LCD Display name)"/>
+
+ 			<value name="line6_authname" type="string" cardinality="0..1" visibility="write"
+ 				description="line6_authname (Authentication name)"/>
+
+ 			<value name="line6_password" type="password" cardinality="0..1" visibility="write"
+ 				description="line6_password (Authentication password)"/>
+
+ 			<value name="line6_displayname" type="string" cardinality="0..1" visibility="write"
+ 				description="line6_displayname (Caller ID name)"/>
+
+
+ 		</value>
+
+ 	</definition>
+
+ </ref_property>
+
+<ref_property code="cs_1088">
+
+    <definition name="proxy3" mobility="false" cardinality="0..1"
+    	description="Proxy server used by phone line 3">
+
+
+		<value name="container" type="container" cardinality="1" visibility="write">
+			<value name="proxy3_address" type="string" visibility="write" cardinality="1"
+				description="proxy3_address (SIP Proxy server IP address)" />
+
+			<value name="proxy3_port" type="integer" visibility="write" cardinality="0..1"
+                description="proxy3_address_port (SIP Proxy server port)">
+				<default_value>5060</default_value>
+				<max_value>65536</max_value>
+				<min_value>0</min_value>
+			</value>
+       	</value>
+
+    </definition>
+
+ </ref_property>
+
+
+<ref_property code="cs_1090">
+
+    <definition name="proxy4" mobility="false" cardinality="0..1"
+    	description="Proxy server used by phone line 4">
+
+
+		<value name="container" type="container" cardinality="1" visibility="write">
+			<value name="proxy4_address" type="string" visibility="write" cardinality="1"
+				description="proxy4_address (SIP Proxy server IP address)" />
+
+			<value name="proxy4_port" type="integer" visibility="write" cardinality="0..1"
+                description="proxy4_address_port (SIP Proxy server port)">
+				<default_value>5060</default_value>
+				<max_value>65536</max_value>
+				<min_value>0</min_value>
+			</value>
+       	</value>
+
+    </definition>
+
+ </ref_property>
+
+
+
+ <ref_property code="cs_1092">
+
+    <definition name="proxy5" mobility="false" cardinality="0..1"
+    	description="Proxy server used by phone line 5">
+
+
+		<value name="container" type="container" cardinality="1" visibility="write">
+			<value name="proxy5_address" type="string" visibility="write" cardinality="1"
+				description="proxy5_address (SIP Proxy server IP address)" />
+
+			<value name="proxy5_port" type="integer" visibility="write" cardinality="0..1"
+                description="proxy5_address_port (SIP Proxy server port)">
+				<default_value>5060</default_value>
+				<max_value>65536</max_value>
+				<min_value>0</min_value>
+			</value>
+       	</value>
+
+    </definition>
+
+ </ref_property>
+
+
+ <ref_property code="cs_1094">
+
+    <definition name="proxy6" mobility="false" cardinality="0..1"
+    	description="Proxy server used by phone line 6">
+
+
+		<value name="container" type="container" cardinality="1" visibility="write">
+			<value name="proxy6_address" type="string" visibility="write" cardinality="1"
+				description="proxy6_address (SIP Proxy server IP address)" />
+
+			<value name="proxy6_port" type="integer" visibility="write" cardinality="0..1"
+                description="proxy6_address_port (SIP Proxy server port)">
+				<default_value>5060</default_value>
+				<max_value>65536</max_value>
+				<min_value>0</min_value>
+			</value>
+       	</value>
+
+    </definition>
+
+ </ref_property>

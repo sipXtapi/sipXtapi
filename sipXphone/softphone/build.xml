@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- $Id: build.xml,v 1.12 2001/04/19 17:55:36 starksm Exp $ -->
+
+<project name="softphone" default="jar" basedir="." >
+
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/softphone"/>
+
+  <import file="${top.src.dir}/ant-targets.xml"/>
+
+  <property name="version.file" value="${classes.dir}/ixpressa-version.properties"/>
+
+  <path id="base.path" >
+      <pathelement location="${javacore.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+
+    <jar jarfile="${softphone.jar}">
+
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+        <include name="**/*.properties" />
+      </fileset>
+
+      <fileset dir="meta/jar">
+        <include name="**/*"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+    -->
+  <target name="install">
+
+    <!-- BINARIES/LIB/SCRIPTS -->
+    <mkdir dir="${sipxphone.lib.dir}"/>
+    <copy file="${softphone.jar}" todir="${sipxphone.lib.dir}"/>
+    <copy file="bin/sipXphone.sh.in" tofile="${bindir}/sipXphone.sh"/>
+    <replace file="${bindir}/sipXphone.sh" 
+         propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@JAVA@" property="java"/>
+      <replacefilter token="@pkgdatalibdir@" property="sipxphone.lib.dir"/>
+      <replacefilter token="@pkgdatadir@" property="sipxphone.data.dir"/>
+      <replacefilter token="@bindir@" property="bindir"/>
+    </replace>
+    <chmod file="${bindir}/sipXphone.sh" perm="ugo+x" />
+
+    <!-- SETTINGS/DATA -->
+    <copy todir="${sipxphone.data.dir}">
+      <fileset dir="meta" includes="xpressa.pem,audioSplash.wav,ringTone.wav"/>
+      <fileset dir="meta/jar" includes="testbed.properties,testbedimages.properties"/>
+    </copy>
+
+    <!-- SKINS -->
+    <mkdir dir="${sipxphone.lib.dir}/Skins"/>
+    <copy todir="${sipxphone.data.dir}/Skins">
+      <fileset dir="meta/Skins"/>
+    </copy>
+    
+  </target>
+
+</project>

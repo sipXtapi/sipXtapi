@@ -1,0 +1,55 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+</head>
+<body>
+<span jwcid="$content$">    
+    <span jwcid="errors"/>
+    <table>
+		<tr>
+			<td>
+                <label for="phone:serialNumber">
+                    <span jwcid="serialNumberLabel">Serial number</span>:
+                </label>
+            </td>
+			<td>
+				<input jwcid="serialNumber" id="phone:serialNumber"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label for="phone:name">
+					<span jwcid="phoneNameLabel">Alternate label</span>:
+				</label>
+			</td>
+			<td>
+				<input jwcid="phoneName" id="phone:name"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+                <label for="phone:phoneModel">
+                    <span jwcid="phoneModelLabel">Phone model</span>:
+                </label>
+            </td>
+			<td>
+				<select jwcid="phoneModel" id="phone:phoneModel" size="1">
+                    <option>--- select one ---</option>
+                </select>
+			</td>
+		</tr>
+        <tr>
+            <td>
+				<label for="phone:group">Additional groups:</label>
+            </td>
+            <td><select jwcid="@Select" id="phone:group" multiple="true" size="3">
+                  <span jwcid="groups">
+                      <option jwcid="groupOption"/>
+                  </span>
+                </select>
+            </td>
+        </tr>
+	</table>
+</span>
+</body>
+</html>

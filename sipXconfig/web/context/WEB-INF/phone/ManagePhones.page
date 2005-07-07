@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
+	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.ManagePhones">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="phones" type="java.util.Collection"/>
+	<property-specification name="currentRow" 
+		type="org.sipfoundry.sipxconfig.phone.Phone"/>
+	<property-specification name="currentLine" 
+		type="org.sipfoundry.sipxconfig.phone.Line"/>
+   	<property-specification name="selections" 
+       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+   	<property-specification name="idConverter" 
+       type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+	<!--
+	  - B E A N S
+	  -->
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+	<!--
+	  - C O M P O N E N T S
+	  -->
+	<component id="phoneManagement" type="Form">
+	</component>
+	<component id="phoneTableView" type="contrib:TableView">
+		<binding name="source" expression="phones"/>
+		<binding name="columns">'* Phone:phoneData.serialNumber,' + 
+			'!Lines,Model:phoneData.modelLabel'</binding>
+        <static-binding name="pageSize" value="20"/>
+	</component>
+	<component id="phoneColumns" type="contrib:TableColumns">
+	</component>
+	<component id="phoneRows" type="contrib:TableFormRows">
+		<binding name="row" expression="currentRow"/>
+        <binding name="convertor" expression="idConverter"/>
+		<binding name="class" expression="beans.rowClass.next"/>
+	</component>
+	<component id="phoneValues" type="contrib:TableValues">
+	</component>
+    <component id="addPhone" type="DirectLink">
+        <binding name="listener" expression="listeners.addPhone"/>
+    </component>
+    <!-- Column 1: select phone -->
+    <component id="selectedRow" type="Checkbox">
+        <binding name="selected" expression="selections.selected[currentRow.primaryKey]"/>
+    </component>
+    <!-- Column 2: edit phone -->
+    <component id="PhoneColumnValue" type="Block"/>
+    <component id="editPhoneLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editPhone"/>
+        <binding name="parameters" expression="currentRow.primaryKey"/>
+    </component>
+    <component id="phoneLabel" type="Insert"> 
+        <binding name="value" expression="currentRow.phoneData.displayLabel"/>
+    </component>
+    <!-- Column 3: edit lines -->
+    <component id="LinesColumnValue" type="Block"/>
+    <component id="editLines" type="Foreach">
+        <binding name="source" expression="currentRow.lines"/>
+        <binding name="value" expression="currentLine"/>
+    </component>
+    <component id="lineLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editLine"/>
+        <binding name="parameters" expression="currentLine.primaryKey"/>
+    </component>
+    <component id="lineLabel" type="Insert">
+        <binding name="value" expression="currentLine.lineData.displayLabel"/>
+    </component>    
+    <component id="sendProfiles" type="Submit">
+        <binding name="listener" expression="listeners.generateProfiles"/>
+    </component>
+    <component id="restart" type="Submit">
+        <binding name="listener" expression="listeners.restart"/>
+    </component>
+    <component id="delete" type="Submit">
+        <binding name="listener" expression="listeners.deletePhone"/>
+    </component>
+</page-specification>

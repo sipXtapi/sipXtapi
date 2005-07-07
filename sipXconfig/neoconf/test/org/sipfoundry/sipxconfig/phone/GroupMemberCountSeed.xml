@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+	<!--
+	  -    phone1   { group1 }
+	  -    phone2   { group1, group2 }
+	  -    phone3   no groups 
+	  -->
+    <phone serial_number="000000000001" 		
+		phone_id="1001"
+        name="unittest-sample phone1"
+        factory_id="polycom300"/> 
+    <phone serial_number="000000000002" 		
+		phone_id="1002"
+        name="unittest-sample phone2"
+        factory_id="polycom300"/> 
+    <phone serial_number="000000000003" 		
+		phone_id="1003"
+        name="unittest-sample phone3"
+        factory_id="polycom300"/> 
+    <storage 
+		  storage_id="1001"/> 
+    <group_storage
+       storage_id="1001"
+       resource="phone"
+       weight="1001"
+       name="SeedPhoneGroup1"/>
+    <storage 
+		  storage_id="1002"/> 
+    <group_storage
+       storage_id="1002"
+       weight="1002"
+       resource="phone"
+       name="SeedPhoneGroup2"/>	   
+    <!-- link phones to groups -->
+	<phone_group 
+		storage_id="1001"
+		phone_id="1001"/>
+	<phone_group 
+		storage_id="1001"
+		phone_id="1002"/>
+	<phone_group 
+		storage_id="1002"
+		phone_id="1002"/>
+</dataset>

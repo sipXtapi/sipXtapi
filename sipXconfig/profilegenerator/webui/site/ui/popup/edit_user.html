@@ -1,0 +1,156 @@
+<html>
+    <head>
+        <script src="../script/validate.js"></script>
+        <script language="JavaScript">
+            var validator = new Validate();
+
+            function getValues()
+            {
+                var form = document.frmEditUser;
+                var div = this.opener.mainFrame.mainFrame.document.getElementById("edit_user");
+                var children = div.childNodes;
+                for ( i = 0; i < children.length; i++ )
+                {
+                    if ( children[i].id == "user_displayid" )
+                    {
+                        form.displayid.value = children[i].value;
+                    }
+                    else if ( children[i].id == "user_firstname" )
+                    {
+                        form.firstname.value = children[i].value;
+                    }
+                    else if ( children[i].id == "user_lastname" )
+                    {
+                        form.lastname.value = children[i].value;
+                    }
+                }
+            }
+            function formSubmit( form )
+            {
+                if ( form.displayid.value == "" )
+                {
+                        alert("Please fill in the User ID field");
+                }
+                else if( !validator.isUserId( validator.trim(form.displayid.value) ) )
+                {
+                    var msg = "You have entered an invalid User ID.\n" +
+                              "Only alphanumeric and _ characters are allowed.\n" +
+                              "Please try again.";
+                    alert( msg );
+                }
+                /* else if( !validator.isLegalName( form.firstname.value ) )
+                {
+                    var msg = "You have entered an invalid User ID.\n" +
+                              "&,< and > are not allowed.\n" +
+                              "Please try again.";
+                    alert( msg );
+                }
+                else if( !validator.isLegalName( form.lastname.value ) )
+                {
+                    var msg = "You have entered an invalid User ID.\n" +
+                              "&,< and > are not allowed.\n" +
+                              "Please try again.";
+                    alert( msg );
+                } */
+                else if ( form.password.value != form.password2.value )
+                {
+                    alert( "Your password fields do not match.\n" +
+                        "Please try again." );
+                    form.password.value = "";
+                    form.password2.value = "";
+                }
+                else if ( isNaN ( form.password.value ) &&
+                    form.password.value != "" )
+                {
+                    formIsValid = false;
+                    alert( "Your PIN must be an integer.\n" +
+                        "Please try again." );
+                    form.password.value = "";
+                    form.password2.value = "";
+                    return;
+                }
+                else if( form.password.value == "" )
+                {
+                    var msg = "PIN has been left blank. \n" +
+                        "Are you sure?";
+                    if( confirm(msg) )
+                    {
+                        var displayid = validator.trim(form.displayid.value);
+                        var firstname = validator.trim(form.firstname.value);
+                        var lastname = validator.trim(form.lastname.value);
+                        var password = validator.trim(form.password.value);
+                        if ( password == null )
+                        {
+                            password = "";
+                        }
+                        this.opener.top.mainFrame.replace_user(displayid, firstname, lastname, password);
+                        this.window.close();
+                    }
+                }
+                else
+                {
+                    var displayid = validator.trim(form.displayid.value);
+                    var firstname = validator.trim(form.firstname.value);
+                    var lastname = validator.trim(form.lastname.value);
+                    var password = validator.trim(form.password.value);
+                    if ( password == null )
+                    {
+                        password = "";
+                    }
+                    this.opener.top.mainFrame.replace_user(displayid, firstname, lastname, password);
+                    this.window.close();
+                }
+            }
+            function closeWindow()
+            {
+                this.window.close();
+            }
+        </script>
+        <title>Edit User</title>
+        <link rel="stylesheet" href="../../style/dms.css" type="text/css">
+    </head>
+    <body class="bglight" onload="getValues()">
+        <p>&nbsp;</p>
+                <p class="formtitle" align="center">Edit User</p>
+        <form name="frmEditUser">
+            <table width="150" border="0" cellspacing="3" cellpadding="0" align="center">
+                <tr>
+                    <td class="formtext" nowrap>User ID</td>
+                    <td>
+                        <input type="text" name="displayid" size="30">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>First Name</td>
+                    <td>
+                        <input type="text" name="firstname" size="30">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>Last Name</td>
+                    <td>
+                        <input type="text" name="lastname" size="30">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>PIN</td>
+                    <td>
+                        <input type="password" name="password" size="30">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formtext" nowrap>Confirm PIN</td>
+                    <td>
+                        <input type="password" name="password2" size="30">
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <div align="center">
+                <p class="formtext"><font color="red">*If a PIN is not entered, it will be set to blank.</font></p>
+                <input type="button" name="cmdSubmitForm" value="Submit" onclick="formSubmit(this.form)">&nbsp;&nbsp;
+                <input type="button" name="cmdCloseWindow" value="Cancel" onclick="closeWindow()" />
+            </div>
+       </form>
+    </body>
+</html>

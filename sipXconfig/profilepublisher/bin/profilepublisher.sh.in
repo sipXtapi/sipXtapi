@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# Copyright (C) 2004 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2004 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
+
+# Startup Script for Software Delivery Service
+# Check for SUN(tm) JVM w/ HotSpot support
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+CONFIG_DEFS="@sipxpbx.conf.dir@/config.defs"
+jars=@sipxconfig.lib.dir@
+
+CONFIG_FILES="\
+  @sipxpbx.conf.dir@/sds.props \
+  @sipxpbx.conf.dir@/sipxconfig.properties \
+  @sipxpbx.conf.dir@/sds-config \
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bin.dir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+if [ ${Action} = CONFIGTEST ]
+then
+    # Add configuration checks here
+    exit $Status
+fi
+
+CLASSPATH=@sipxpbx.conf.dir@
+for jar in ${jars}/*.jar ; do
+   CLASSPATH=$CLASSPATH:$jar
+done
+
+LIB_HOME=@sipxpbx.data.dir@
+PDS_DEBUG=-Dpds.debug=false
+
+echo $$ > @sipxpbx.run.dir@/profilepublisher.pid
+
+# Production command line
+JavaCmd=`@bin.dir@/sipx-config --java`
+exec $JavaCmd $HOTSPOT $PROFILEPUBLISHER_OPTS -classpath $CLASSPATH $PDS_DEBUG -Djava.rmi.server.codebase="file:${jars}/profilepublisher.jar file:${jars}/common.jar file:${jars}/pgjdbc2.jar" -Dsds.props="@sipxpbx.conf.dir@/sds.props" -Djava.security.policy="file:@sipxpbx.conf.dir@/security.policy" -Djava.library.path=@lib.dir@ -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Djava.naming.provider.url="localhost:1099" com.pingtel.pds.sds.SoftwareDeliveryServer $@

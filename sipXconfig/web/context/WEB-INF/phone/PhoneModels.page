@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneModels">
+    <description>add a description</description>
+    
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+    <property-specification name="groupId"
+        type="java.lang.Integer"
+        persistent="yes"/>
+    <property-specification name="currentFactoryId"
+        type="java.lang.String"/>
+	<property-specification name="settingContext" 
+		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
+    	initial-value="global.settingDao"/>    
+    <property-specification name="group"
+        type="org.sipfoundry.sipxconfig.setting.Group"/>
+
+    <component id="phoneModels" type="Foreach">
+        <binding name="source" expression="phoneContext.phoneFactoryIds.keySet()"/>
+        <binding name="value" expression="currentFactoryId"/>
+    </component>
+    <component id="phoneModel" type="Insert">
+        <binding name="value" expression="phoneContext.phoneFactoryIds[currentFactoryId]"/>
+    </component>
+    <component id="phoneModelLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editPhoneDefaults"/>
+        <binding name="parameters" expression="currentFactoryId"/>
+    </component>
+    <component id="editGroup" type="DirectLink">
+        <binding name="listener" expression="listeners.editGroup"/>
+    </component>
+    <component id="groupLabel" type="GroupLabel">
+        <binding name="group" expression="group"/>
+    </component>    
+</page-specification>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+
+<jboss>
+    <!-- temporarily disable security for EJBs -->
+    <security-domain>java:/jaas/other</security-domain>
+    <!-- -->
+    
+    <enterprise-beans>
+        <entity>
+            <ejb-name>CoreSoftware</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>CSProfileDetail</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>User</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>Device</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>Organization</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>DeviceType</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>ConfigurationSet</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>RefConfigurationSet</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>RefProperty</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+        
+        <entity>
+            <ejb-name>DeviceGroup</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+
+        <entity>
+            <ejb-name>Manufacturer</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+            
+        <entity>
+            <ejb-name>UserGroup</ejb-name>
+            <configuration-name>Optimistic CMP EntityBean</configuration-name>
+        </entity>
+                    
+        <message-driven>
+            <ejb-name>ProjectionFacade</ejb-name>
+            <destination-jndi-name>queue/A</destination-jndi-name>
+		    <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
+        </message-driven>
+        <message-driven>
+            <ejb-name>DataSetBuilderFacade</ejb-name>
+            <destination-jndi-name>queue/B</destination-jndi-name>
+            <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
+        </message-driven>
+        <message-driven>
+            <ejb-name>RestartDevicesFacade</ejb-name>
+            <destination-jndi-name>queue/C</destination-jndi-name>
+            <configuration-name>PGS Message Driven Bean</configuration-name>
+            <security-identity>
+                <run-as-principal>SDS</run-as-principal>
+            </security-identity>
+        </message-driven>
+    </enterprise-beans>
+
+	<container-configurations>
+	    <container-configuration extends="Singleton Message Driven Bean">
+	        <container-name>PGS Message Driven Bean</container-name>
+	    </container-configuration>
+ 
+        <container-configuration extends="Standard CMP EntityBean">
+      	    <container-name>Optimistic CMP EntityBean</container-name>
+      	    <locking-policy>org.jboss.ejb.plugins.lock.JDBCOptimisticLock</locking-policy>
+        </container-configuration>    
+	</container-configurations>
+	
+</jboss>

@@ -1,0 +1,91 @@
+<html title="Long Distance Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+		<h2>Long Distance Dialing</h2>            
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="long:rule:edit">
+        <fieldset jwcid="common"/>
+        <fieldset>
+	    <legend>Details</legend>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="dialplan:pstnPrefix">
+                            <span jwcid="permissionTypeLabel">Type</span>:
+                        </label>
+                    </td>
+                    <td>
+                        <select jwcid="permissionType" id="dialplan:externalLen" size="1">
+                            <option value="3" selected="selected">Long Distance</option>
+                            <option value="4">Toll free</option>
+                            <option value="5">Restricted</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:pstnPrefix">
+                            <span jwcid="pstnPrefixLabel">PSTN Calls Prefix</span>:
+                        </label>
+                    </td>
+                    <td>
+                        <input jwcid="pstnPrefix" id="dialplan:pstnPrefix" maxlength="40" type="text" value="9" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:longDistancePrefix">
+                            <span jwcid="longDistancePrefixLabel">Long Distance Calls Prefix</span>
+                        </label>
+                    </td>
+                    <td>
+                        <input jwcid="longDistancePrefix" id="dialplan:longDistancePrefix" maxlength="40" type="text" value="1" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:areaCodes">
+                            <span jwcid="areaCodesLabel">Area Codes</span>:
+                        </label>
+                    </td>
+                    <td>
+                        <input jwcid="areaCodes" id="dialplan:areaCodes" maxlength="40" type="text" value="618, 789, 508, 978" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dialplan:externalLen">
+                            <span jwcid="externalLenLabel">External Number Length</span>
+                        </label>
+                    </td>
+                    <td>
+                        <select jwcid="externalLen" id="dialplan:externalLen" size="1">
+                            <option value="3" selected="selected">7 digits</option>
+                            <option value="4">6 digits</option>
+                            <option value="5">7 digits</option>
+                            <option value="6">8 digits</option>
+                            <option value="6">9 digits</option>
+                            <option value="6">10 digits</option>
+                        </select>
+                    </td>                                             
+                </tr>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset jwcid="gatewaysPanel"/>
+        <ul class="form-actions">
+            <li>
+                <input id="rule:save" jwcid="onSave" type="submit" value="Save"/>
+            </li>
+            <li>
+                <input id="rule:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
+            </li>
+		</ul>
+    </form>
+    </div>
+</body>
+</html>
