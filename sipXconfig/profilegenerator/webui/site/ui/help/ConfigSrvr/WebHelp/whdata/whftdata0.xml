@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<ftstdata>
+<topic name="About Pingtel Configuration Server" url="about_configsrvr.htm" />
+<topic name="Application sets, about" url="application_sets_about.htm" />
+<topic name="Devices, about" url="devices_about.htm" />
+<topic name="Reserved extension pool, About" url="extension_pool_reserved.htm" />
+<topic name="Extension Pools" url="extension_pools.htm" />
+<topic name="Extension Pools, about" url="extension_pools_about.htm" />
+<topic name="Job Status" url="job_status.htm" />
+<topic name="Administrators" url="list_administrators.htm" />
+<topic name="Application Sets" url="list_application_sets.htm" />
+<topic name="Applications" url="list_applications.htm" />
+<topic name="Device Groups" url="list_device_groups.htm" />
+<topic name="Devices" url="list_devices.htm" />
+<topic name="User Groups" url="list_user_groups.htm" />
+<topic name="Users" url="list_users.htm" />
+<topic name="Groups, about" url="user_groups_about.htm" />
+<topic name="Users, about" url="users_about.htm" />
+<topic name="Welcome" url="welcome.htm" />
+
+</ftstdata>  

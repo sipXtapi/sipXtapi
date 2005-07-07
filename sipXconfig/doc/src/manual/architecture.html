@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>Architecture</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="architecture">
+
+<h1>Configuration Server Architectural Design</h1>
+
+<p>The purpose of this document is to give a high level description of
+the components and technologies that make up the Configuration Server.</p>
+
+<h3>Product Description</h3>
+
+<p>The Configuration Server is a management tool designed to automate
+and simplify the provisioning and operation of a network of SIP
+phones.  Pingtel (and other manufacturers) phones can be configured on
+an individual basis, however this is impractical for large
+installations. </p>
+
+<h2>The Configuration Server Components</h2>
+
+<p><img src="images/server-information-flow.gif"/><br/>
+Figure 1 - Configuration Server Context Diagram</p>
+
+<p>The Configuration Server is composed of several processes or
+components.  It was designed in this manner to improve robustness and
+to allow the different components to run on separate hosts to improve
+scalability.</p>
+
+<p>Configuration Server Components below describes the main
+responsibilities of each component.</p>
+
+<ol>
+
+  <li><strong>Profile Generation Server (PGS)</strong> - Provides
+interfaces for users and external systems to interact with SIPxchange.
+
+<ul>
+
+  <li>Managing the organization and administration of business objects
+such as users, devices, user groups, applications, etc.</li>
+
+  <li>The generation of device profiles.</li>
+      
+  <li>Installation and management of phone applications. </li>
+      
+  <li>Servicing requests from PPS.</li>
+      
+  <li>Configuration of the Comm. Server services.</li>
+      
+  <li>Allows the administrators to stop, start and restart the other
+SIPxchange servers.</li>
+      
+  <li>The PGS produces datasets that are used to provision the other
+SIPxchange servers (credentials, permissions, etc.)</li>
+
+  <li>Downloading Pingtel xpression applications from Pingtel into
+customers own SIPxchange installations.</li>
+
+</ul>
+</li>
+      
+  <li><strong>Profile Writer Server (PWS)</strong> - The profile
+writer manages the writing of the device profiles onto various Content
+Delivery Servers.</li>
+
+  <li><strong>Profile Publisher Server (PPS)</strong> (formerly
+Software Delivery Server - SDS) - provides the SIP client
+functionality annd manages enrollments, notifications and profile
+retrieval.</li>
+
+  <li><strong>Content Delivery Servers (CDS)</strong> - The CDS
+servers are off-the-shelf servers that the phones use to retrieve the
+profiles from.  We currently support HTTP(S) using Apache and TFTP
+using the Linux TFTP server.</li>
+      
+</ol>
+
+<h3>Profile Generation Server (PGS)</h3>
+
+<p><img src="images/profilegenerator-design.gif"/></p>
+
+<p>Figure 2 - PGS Component Design shows the layers that exist in the
+PGS.  They can be thought of in terms of tiers.  There are the
+presentation, business and integration and persistence tiers.</p>
+
+<h4>Presentation Tier</h4>
+
+<p>The presentation tier provides user interfaces which provide access
+to and displays views of the business objects in the PGS.  The primary
+user interface is the Web UI.  It allows administrators and end users
+to interact with the Configuration Server.  End users typically use it
+to change the SIPxchange PIN, load applications onto their phones, add
+speed dials, etc.  Administrators use the Web UI to create users,
+devices, configure settings for users and devices, send profiles to
+devices, startup and shut down the other SIPxchange servers, etc.</p>
+
+<p>The Web UI can be split into two halves, the presentation and logic
+layers.  The logic layer is responsible for forwarding users requests
+to the Enterprise JavaBeans (in the Business tier) and handling their
+responses.  Most of this layer is implemented in a JSP custom tag
+library (see ?Javaserver Pages Tag Libraries? listed in the Other
+resources) to reduce JSP scriptlet code and to increase
+reusability.</p>
+
+<p>The presentation of view half of the presentation tier is
+implemented in XSLT (see ?XSL Transformation (XSLT) version 1.0?
+listed in the Other resources).  The XSLT engine takes XML generated
+by the custom tag library handlers and converts it to XHTML using our
+XSLT stylesheets.  The XSLT layer provides three purposes.  Firstly it
+provides a very precise demarcation of presentation and controller
+logic which allows us to modify the lower layers without affecting the
+presentation.  Secondly it allows us the possibility of supporting
+other User Agents such as WAP by just supplying a second set of
+stylesheets.</p>
+
+<p>Lastly we are able to re-use parts of the presentation logic by
+just using different stylesheets.  An example of this is the end user
+call handling page and the administrator user details page use the
+same back-end logic but use different stylesheets.</p>
+
+<p>The SOAP interface is provided to allow other system to perform
+operations on the PGS in much the same way that humans can use the Web
+UI.  We use the Apache Axis SOAP engine to provide the transport
+functionality.  SOAP service adaptor classes contain the logic to
+delegate the SOAP requests (such as creating or deleting a user) to
+the Enterprise JavaBeans.  The service adaptor classes are typically
+very small (tens of lines), all of the processing is delegated to the
+business tier.</p>
+
+<h4>Business and Integration Tier</h4>
+
+<p>The heart of the PGS is the Enterprise JavaBeans (EJ Beans).  They
+contain the main application logic.  EJ Beans were selected for this
+purpose as they provide inbuilt thread synchronization, transaction
+management, object/relational persistence management and declarative
+security all of which are used extensively.</p>
+
+<p>The JBoss EJB container was selected, as it is open source (Lesser
+GPL) and had an integrated Servlet container (Tomcat).  There are
+three types of EJ Bean used in the business tier:</p>
+
+<ul>
+
+  <li><strong>Session Beans.</strong> These act as controller objects
+that perform business logic.  They act as Session Facades and provide
+very low coupling between the presentation tier and the business
+tier.</li>
+      
+  <li><strong>Entity Beans.</strong> They can be thought of as
+providing a level of indirection between the raw database records and
+the Session Beans.  The EJ Bean container provides all of the
+functionality for persisting the Entity Beans to and from the
+database.</li>
+      
+  <li><strong>Message Driven Beans</strong> as Message Facades and
+delegate their work to the Session Beans.  Their purpose is to make
+the processing asynchronous.  Some of the processing in the
+Configuration Server may take several minutes (e.g. projecting large
+numbers of devices? profiles) and we don?t want the user interfaces to
+block while this is happening.  The MDB are very small.</li>
+
+</ul>
+      
+<p>It is also worth mentioning that the EJ Bean spec allows us to use
+various vendors RDBMS implementations without code modification.  The
+PGS originally used Oracle but we now use PostgreSQL, largely because
+it is open source and therefore license free.</p>
+
+<h3>Profile Writer Server PWS</h3>
+
+<img src="images/profilewriter-design.gif"/>
+
+<p>Figure 3 - Profile Writer Design</p>
+
+<p>The Profile Writer is a relatively simple process which takes
+requests from the PGS to store and delete profiles and informs the PPS
+when these events occur.  Figure 3 - Profile Writer Design shows the
+basic design of the PW.  Requests (remote method invocations) are
+received over RMI from the PGS.  Currently only two methods are used,
+write and delete profile.</p>
+
+<p>The main thread is responsible for handing incoming requests over
+RMI, it places Command (based on the Command pattern) objects on a
+queue for the worker thread to process.  All synchronization between
+these threads is done on this queue.  The worker thread is used to
+write/delete profiles and to send method calls over RMI to the
+PPS.</p>
+
+<p>When the PW gets a request to write a profile it determines what
+type of device the profile belongs to (Pingtel or Cisco) and then uses
+this information to decide which CDS to put the profile on.  The
+profile is sent as a byte stream via one of the method parameters.
+Using RMI enables us to put the PGS and PW on separate servers if
+required.  Once the PW has written the profile to the appropriate CDS
+it informs the PPS (using RMI) that a new profile is available.  For
+Pingtel devices the PPS will then send a SIP NOTIFY message to the
+device who this profile belongs to if that device has previously
+enrolled with the PPS.  For Cisco devices the PPS sends a NOTIFY /
+check-sync message to the device and the device will reboot (which
+causes it to fetch the new profile from the TFTP CDS).</p>
+
+<h3>Profile Publisher Server (PPS)</h3>
+
+<img src="images/profilepublisher-design.gif"/>
+
+<p>Figure 4 - Context Diagram shows the architecture of the
+ProfilePublisher.  The main application logic is contained in the Java
+Code shown at the top.  This code is responsible for:</p>
+
+<ul>
+
+  <li>(Re)Enrolling (Pingtel only) devices upon receipt of SIP
+SUBSCRIBE messages.  A subscription context is put in the PPS database
+for each enrolled device profile type (user, device and
+application)</li>
+       
+  <li>Removing expired enrollments.  All enrollments have a defined
+enrollment period, after this time the device is un-enrolled from the
+PPS.</li>
+      
+  <li>Sending SIP NOTIFY messages to enrolled devices.  This occurs
+when a device first enrolls with the PPS and whenever the PPS is told
+about the availability of a new profile from the Profile Writer.</li>
+      
+  <li>Sending SIP NOTIFY (check sync) messages to both Pingtel and
+Cisco devices.  This happens when the user requests that devices
+reboot from the user interface either explicitly or implicitly when
+profiles are generated for Cisco devices</li>
+      
+  <li>The SIP Stack is the same SIP stack that we use in other parts
+of the Pingtel products.  The PPS uses the Java Native Interface (JNI)
+to interact with it.</li>
+</ul>
+
+
+<img src="profilepublisher-detail-design.gif"/>
+
+<p>Figure 5 - PPS Design shows more details of the Java Code shown in
+Figure 4 - PPS Context Diagram.  The main thread handles remote method
+invocations from the Profile Writer, creating and en-queuing Command
+objects onto the command queue.  The Profile Listener Worker thread
+de-queues these command objects from the command queue and executes
+them.</p>
+
+<p>These command objects are based around notifying devices that they
+have new profiles or should restart.  The command objects use the SIP
+stack via JNI to send SIP messages to devices.  The command pattern
+provides extensibility so as new uses are found for the PPS new
+command classes can be added.</p>
+
+<p>The Subscription Listener thread registers with the SIP stack for
+interest in SUBSCRIBE messages.  When it receives those it creates or
+updates a subscription context in the PPS database.  This subscription
+context is used extensively by the Command objects to find out where
+to send SIP messages.  The RDBMS is used as the means of
+synchronization between the Profile Worker Listener (Command objects),
+Subscription Listener and Housekeeper threads. </p>
+
+<p>The Housekeeper thread is used to reap expired enrollments from the
+PPS database.  It wakes up periodically and deletes old records. </p>
+
+<h3>Content Delivery Servers CDS</h3>
+
+<p>The CDS are off the shelf servers which the devices use to fetch
+their profiles.  We currently support TFTP (used by the Cisco 79XX)
+and HTTP (used by the Pingtel phones).</p>
+
+
+<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Wed Oct  6 15:34:20 EDT 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

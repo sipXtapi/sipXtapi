@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="test">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/sipXconfig-neoconf">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/bsf-2.3.0.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.2.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/commons-lang/commons-lang-2.0-src/src" kind="var" path="SIPX_CONFIG/lib/commons-lang-2.0.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.0.4.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.2.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-1.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="LIB_SRC/httpunit/src.zip" kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-2.5.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/ognl/src.zip" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.3.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="JBOSS_HOME/server/sipx/lib/javax.servlet.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="LIB_SRC/jwebunit/src.zip" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-1.1.3.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="LIB_SRC/tapestry/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/tapestry/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="LIB_SRC/hibernate/src.zip" kind="var" path="SIPX_CONFIG/lib/hibernate-2.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="LIB_SRC/jetty/src.zip" kind="var" path="SIPX_CONFIG/lib/jetty-4.2.23.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="JBOSS_HOME/server/sipx/lib/javax.servlet.jsp.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-io-1.0.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/dom4j/src.zip" kind="var" path="SIPX_CONFIG/lib/dom4j-1.5.2.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/xstream/src.zip" kind="var" path="SIPX_CONFIG/lib/xstream-1.1.2.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/xmlunit/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

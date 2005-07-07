@@ -1,0 +1,21 @@
+# used in applicationContext-sipxconfig.xml to set system properies
+sip.proxyHost=${PROXY_SERVER_ADDR}
+sip.proxyPort=${PROXY_SERVER_SIP_PORT}
+dataSource.url=jdbc:postgresql://localhost/PDS
+vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
+vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
+orbitsGenerator.audioDirectory=@sipxparkserver.audio.dir@
+# polycom 500 and 600 inherit polycom 300 settings 
+polycom300.outboundProxyAddress=${PROXY_SERVER_ADDR}
+polycom300.tftpRoot=@sipxconfig.phone.dir@/profile/tftproot
+# name changes to anything starting w/sysdir need to be reflected in
+# VersionInfo class as well
+sysdir.bin=@sipxpbx.bin.dir@
+sysdir.etc=@sipxpbx.conf.dir@
+sysdir.log=@sipxpbx.log.dir@
+sysdir.share=@sipxpbx.data.dir@
+sysdir.phone=@sipxconfig.phone.dir@
+sysdir.tmp=@sipxpbx.tmp.dir@
+sysdir.version=@version@
+sysdir.build_number=0000
+sysdir.comment=opendev

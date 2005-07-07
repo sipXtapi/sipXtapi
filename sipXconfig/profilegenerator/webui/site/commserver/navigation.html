@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>NavigationBar</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+body {background: #639A9C; color: white;}
+div#topgroup {margin-top: 2px;}
+a {text-decoration: none;}
+a:link {color: white;}
+a:visited {color: white;}
+a:hover {color: #FFCF31;}
+div.group {font: 12pt Arial, Helvetica, Verdana, serif;
+    font-weight: bolder;
+    padding: 4px 0;
+    margin-left: 8px;}
+div.menuitem {font: 9pt Arial, Helvetica, Verdana, serif;
+    margin-left: 8px;
+    padding: 6px 0 8px 5px; }
+
+</style>
+</head>
+
+<body>
+<div id="topgroup" class="group"><br>Commserver</div>
+<div class="menuitem"><a href="globaldefinitions.jsp" target="mainFrame">Manage 
+  Global Definitions</a></div>
+<div class="menuitem"><a href="serverconfig.jsp?servername=proxy" target="mainFrame">Configure SipProxy</a></div>
+<div class="menuitem"><a href="serverconfig.jsp?servername=authproxy" target="mainFrame">Configure SipAuthProxy</a></div>
+<div class="menuitem"><a href="serverconfig.jsp?servername=registrar" target="mainFrame">Configure SipRegistrar</a></div>
+<div class="menuitem"><a href="serverconfig.jsp?servername=statusserver" target="mainFrame">Configure SipStatus</a></div>
+</body>
+</html>

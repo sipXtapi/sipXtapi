@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<model>
+	<group name="General">
+		<label>General</label>
+		<setting name="TrayIcon">
+			<label>Tray Icon</label>
+			<type>0, 1</type>
+			<value>No</value>
+			<description>Yes or No, Show KPhone as a tray icon when 
+				minimized</description>
+		</setting>
+	</group>
+</model>

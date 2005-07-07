@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<group name="group">
+		<profileName>Group Profile Name</profileName>
+		<label>Group Label</label>
+		<description>Group Description</description>
+		<setting name="setting">
+			<profileName>Setting Profile Name</profileName>
+    		<label>Setting Label</label>
+    		<description>Setting Description</description>
+		</setting>
+    </group>
+</model>

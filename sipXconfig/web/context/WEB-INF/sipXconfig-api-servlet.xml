@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">            
+        <property name="mappings">
+            <props>
+                <prop key="/*">resourceController</prop>
+            </props>
+        </property>
+    </bean>
+	<bean id="resourceController" class="org.sipfoundry.sipxconfig.resource.ResourceController">	
+		<property name="supportedMethods">
+			<value>GET,POST,DELETE,PUT</value>
+		</property>
+		<property name="resourceContext">
+			<value>resourceContext</value>
+		</property>
+        <property name="resourceHandlers">
+            <props>
+                <prop key="/user">manageUsersResource</prop>
+                <prop key="/user/*">userResource</prop>
+            </props>
+        </property>		
+	</bean>
+	<bean id="resourceContext" class="org.sipfoundry.sipxconfig.resource.ResourceContext" singleton="false">
+		<property name="translator">
+			<ref bean="xstream"/>
+	    </property>
+    </bean>
+	<bean id="xstream" class="org.sipfoundry.sipxconfig.resource.XStreamTranslator"/>
+	<bean id="manageUsersResource" class="org.sipfoundry.sipxconfig.site.user.ManageUsersResource">
+		<property name="coreContext">
+			<ref bean="coreContext"/>
+		</property>
+	</bean>
+	<bean id="userResource" class="org.sipfoundry.sipxconfig.site.user.UserResource" parent="manageUsersResource"/>
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+        <property name="basename"><value>views</value></property>
+    </bean>
+</beans>

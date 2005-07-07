@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.legacy">
+    <class name="ConfigSet" table="CONFIG_SETS" discriminator-value="0">
+		<id name="id" column="ID" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">CONFIG_SET_SEQ</param>
+			</generator>
+		</id>
+        
+        <discriminator column="PROFILE_TYPE" type="int"/>
+        <property name="content" column="CONTENT"/>        
+        
+        <subclass name="UserConfigSet" discriminator-value="2">
+        </subclass>        
+    </class>    
+    <sql-query name="findConfigSetsForUser">
+        <return class="UserConfigSet" alias="cs"/>
+        <![CDATA[
+        select {cs.*} from CONFIG_SETS {cs}, USER_CS_ASSOC assoc
+        	where {cs}.PROFILE_TYPE=2 AND {cs}.ID=assoc.CS_ID AND assoc.USRS_ID=:userId
+        ]]>
+    </sql-query>
+    <sql-query name="findConfigSetsForUserGroup">
+        <return class="UserConfigSet" alias="cs"/>
+        <![CDATA[
+		select {cs.*} from CONFIG_SETS {cs}, UG_CS_ASSOC assoc
+			where {cs}.PROFILE_TYPE=2 AND {cs}.ID=assoc.CS_ID AND assoc.UG_ID=:userGroupId
+        ]]>
+    </sql-query>
+</hibernate-mapping>

@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<indexdata>
+<key name="Auto Attendant system extension" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="Comm Server" >
+  <topic name="Welcome" url="welcome.htm" />
+</key>
+<key name="configuring" >
+  <key name="dial plans" >
+    <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  </key>
+  <key name="Global Definitions" >
+    <topic name="Manage Global Definitions" url="global_definitions.htm" />
+  </key>
+  <key name="SipAuthProxy" >
+    <topic name="Configure SipAuthProxy" url="configure_sipauthproxy.htm" />
+  </key>
+  <key name="SipProxy" >
+    <topic name="Configure SipProxy" url="configure_sipproxy.htm" />
+  </key>
+  <key name="SipRegistrar" >
+    <topic name="Configure SipRegistrar" url="configure_sipregistrar.htm" />
+  </key>
+  <key name="SipStatus" >
+    <topic name="Configure SipStatus" url="configure_sipstatus.htm" />
+  </key>
+</key>
+<key name="Dial Plans" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  <key name="Auto Attendant system extension" >
+    <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  </key>
+  <key name="internal station numbering format" >
+    <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  </key>
+  <key name="prefix for dialing a Voicemail inbox directly" >
+    <topic name="Manage Dial Plans#top" url="dial_plans.htm#top" />
+  </key>
+  <key name="prefix for dialing international calls" >
+    <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  </key>
+  <key name="prefix for dialing PSTN calls" >
+    <topic name="Manage Dial Plans#Dial" url="dial_plans.htm#Dial" />
+  </key>
+  <key name="prefix for Direct Inward Dialing (DID)" >
+    <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  </key>
+  <key name="Voicemail system extension" >
+    <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  </key>
+</key>
+<key name="digit maps" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="Direct Inward Dialing (DID) prefix" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="emergency gateways" >
+  <topic name="Manage Gateways" url="gateways.htm" />
+</key>
+<key name="gateways" >
+  <topic name="Manage Gateways" url="gateways.htm" />
+  <key name="emergency" >
+    <topic name="Manage Gateways" url="gateways.htm" />
+  </key>
+  <key name="IP-to-PSTN" >
+    <topic name="Manage Gateways" url="gateways.htm" />
+  </key>
+  <key name="regular" >
+    <topic name="Manage Gateways" url="gateways.htm" />
+  </key>
+</key>
+<key name="Global Definitions" >
+  <topic name="Manage Global Definitions" url="global_definitions.htm" />
+</key>
+<key name="internal station numbering format" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="international call prefix" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="IP-to-PSTN gateways" >
+  <topic name="Manage Gateways" url="gateways.htm" />
+</key>
+<key name="managing" >
+  <key name="dial plans" >
+    <topic name="Manage Dial Plans" url="dial_plans.htm" />
+  </key>
+  <key name="gateways" >
+    <topic name="Manage Gateways" url="gateways.htm" />
+  </key>
+  <key name="Global Definitions" >
+    <topic name="Manage Global Definitions" url="global_definitions.htm" />
+  </key>
+</key>
+<key name="Message Waiting Indication (MWI)" >
+  <topic name="Configure SipStatus" url="configure_sipstatus.htm" />
+</key>
+<key name="phone digit maps" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="Pingtel Comm Server" >
+  <topic name="Welcome" url="welcome.htm" />
+</key>
+<key name="PSTN call prefix" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="restart services" >
+  <topic name="Services#restart" url="operate_services.htm#restart" />
+</key>
+<key name="routine IP-to-PSTN gateways" >
+  <topic name="Manage Gateways" url="gateways.htm" />
+</key>
+<key name="services" >
+  <topic name="Services" url="operate_services.htm" />
+  <key name="refreshing status list" >
+    <topic name="Services#refresh" url="operate_services.htm#refresh" />
+  </key>
+  <key name="restarting" >
+    <topic name="Services#restart" url="operate_services.htm#restart" />
+  </key>
+  <key name="reviewing status of" >
+    <topic name="Services#review" url="operate_services.htm#review" />
+  </key>
+  <key name="starting" >
+    <topic name="Services#start" url="operate_services.htm#start" />
+  </key>
+  <key name="status" >
+    <topic name="Operate Services" url="operate_services.htm" />
+  </key>
+  <key name="stopping" >
+    <topic name="Services#stop" url="operate_services.htm#stop" />
+  </key>
+</key>
+<key name="SipAuthProxy" >
+  <topic name="Configure SipAuthProxy" url="configure_sipauthproxy.htm" />
+</key>
+<key name="SipProxy" >
+  <topic name="Configure SipProxy" url="configure_sipproxy.htm" />
+</key>
+<key name="SipRegistrar" >
+  <topic name="Configure SipRegistrar" url="configure_sipregistrar.htm" />
+</key>
+<key name="SipStatus" >
+  <topic name="Configure SipStatus" url="configure_sipstatus.htm" />
+</key>
+<key name="specifying" >
+  <key name="gateways" >
+    <topic name="Manage Gateways" url="gateways.htm" />
+  </key>
+</key>
+<key name="start services" >
+  <topic name="Operate Services" url="operate_services.htm" />
+</key>
+<key name="stop services" >
+  <topic name="Operate Services" url="operate_services.htm" />
+</key>
+<key name="system-wide settings" >
+  <topic name="Manage Global Definitions" url="global_definitions.htm" />
+</key>
+<key name="Voicemail system extension" >
+  <topic name="Manage Dial Plans" url="dial_plans.htm" />
+</key>
+<key name="welcome" >
+  <topic name="Welcome" url="welcome.htm" />
+</key>
+
+</indexdata>

@@ -1,0 +1,53 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+    	<div class="help">
+        Note: restart only works if phones can successfully register, otherwise you
+        will need to restart phones manually
+        </div>
+        <h2>Phones</h2>
+		<form jwcid="phoneManagement">
+			<ul class="component-links">
+				<li>
+					<a href="#" id="PhoneDefaults" jwcid="defaults">Default Group Settings</a>
+				</li>
+				<li>
+					<a href="#" id="AddPhone" jwcid="addPhone">Add Phone</a>
+				</li>
+			</ul>
+			<table jwcid="phoneTableView" class="component" id="phone:list">
+                <span jwcid="PhoneColumnValue">
+                    <a href="#" jwcid="editPhoneLink"><span jwcid="phoneLabel">serial number</span></a>
+                </span>
+                <span jwcid="LinesColumnValue">
+                    <span jwcid="editLines">
+                        <a href="#" jwcid="lineLink"><span jwcid="lineLabel">line</span></a>
+                    </span>
+                </span>
+				<tr class="component-hdr">
+					<td width="5"/>
+					<td jwcid="phoneColumns"/>
+				</tr>
+				<tr jwcid="phoneRows">
+                    <td><span jwcid="selectedRow"/></td>
+					<td jwcid="phoneValues"/>                    
+				</tr>
+			</table>
+			<ul class="component-submit">
+				<li>
+					<input id="phone:sendProfiles" jwcid="sendProfiles" value="Send Profiles"/>
+				</li>
+				<li>
+					<input id="phone:restart" jwcid="restart" value="Restart"/>
+				</li>
+				<li>
+					<input id="phone:delete" jwcid="delete" value="Delete"/>
+				</li>
+			</ul>
+		</form>
+	</div>
+</body>
+</html>
