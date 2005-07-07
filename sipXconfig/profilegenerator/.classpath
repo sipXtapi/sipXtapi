@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="test/" kind="src" path="authentication/src"/>
+	<classpathentry kind="src" path="authentication/src/test"/>
+	<classpathentry excluding="test/" kind="src" path="commserver/src"/>
+	<classpathentry kind="src" path="commserver/src/test"/>
+	<classpathentry excluding="test/" kind="src" path="ejb/src"/>
+	<classpathentry kind="src" path="ejb/src/test"/>
+	<classpathentry kind="src" path="soap/src"/>
+	<classpathentry kind="src" path="webui/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/dom4j-full.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j.jar"/>
+	<classpathentry kind="src" path="/sipXconfig-common"/>
+	<classpathentry kind="var" path="JBOSS_HOME/catalina/common/lib/servlet.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/ext/jboss-j2ee.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jdom.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/ext/jboss.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/jboss-jaas.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-regexp-1.3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/ext/activation.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/jboss/lib/jmxri.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlunit1.0.jar"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

@@ -1,0 +1,2 @@
+# Switches for build loop for automated build machines
+--with-apache-modules=$Destination/apache/modules

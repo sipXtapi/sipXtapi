@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="common" default="jar" basedir="." >
+  <!-- Note: 
+  	There are some tests that are broken in this project: a pattern for them is **/Test*.class
+  	All new tests (**/*Test.class) have to be functional at all times.
+  -->
+  <patternset id="test.classes">
+  	<include name="**/*Test.class"/>
+  </patternset>
+  	
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/common"/>
+
+  <import file="../ant-targets.xml"/>
+
+  <path id="base.path" >
+    <!-- UTIL -->
+    <pathelement location="${jdom.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+
+    <!-- J2EE -->
+    <pathelement location="${jboss.lib}/ext/jboss-j2ee.jar"/>
+    <pathelement location="${tomcat.lib}/servlet.jar"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- I N I T -->
+  <target name="init" depends="ant-targets.init">
+  </target>
+
+  <!-- V E R S I O N -->
+  <target name="version" depends="init">
+    <copy file="meta/buildVersion.properties.in" tofile="${buildVersion.properties}"/>
+    <replace file="${buildVersion.properties}" 
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@version@" property="version"/>
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
+      <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
+    </replace>
+  </target>
+
+  <!-- C O M P I L E  /  R M I -->
+  <target name="compile" depends="ant-targets.compile">
+    <rmic base="${classes.dir}" includes="**/*Impl.class" 
+         verify="yes" stubversion="1.2" classpathref="base.path" />
+  </target>
+
+  <!-- J A R -->
+  <target name="jar" depends="version,compile" description="PDS interface jar file">
+    <jar jarfile="${dist.dir}/common.jar">
+      <fileset dir="${classes.dir}" >
+          <include name="**/*.class" />
+      </fileset>
+      <fileset file="meta/xml/propertygrouplink.xml" />
+    </jar>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="jar">
+
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy file="etc/security.policy" todir="${dest.dir}${sipxpbx.conf.dir}"/>
+
+    <mkdir dir="${dest.dir}${bin.dir}"/>
+    <copy file="bin/startrmireg.sh.in" tofile="${dest.dir}${bin.dir}/startrmireg.sh"/>
+    <replace file="${dest.dir}${bin.dir}/startrmireg.sh"
+         propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/startrmireg.sh" perm="ugo+x"/>
+
+    <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>
+    <mkdir dir="${dest.dir}${sipxpbx.run.dir}"/>
+
+    <copy file="bin/sipxdbmgr.in" tofile="${dest.dir}${bin.dir}/sipxdbmgr"/>
+    <replace file="${dest.dir}${bin.dir}/sipxdbmgr"
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/sipxdbmgr" perm="ugo+x"/>
+
+    <copy file="bin/install-ssl-keystore.sh.in" tofile="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"/>
+    <replace file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh"
+        propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@tomcat.home@" property="tomcat.home"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/ssl-cert/install-ssl-keystore.sh" perm="ugo+x"/>
+
+    <mkdir dir="${dest.dir}${sipxconfig.lib.dir}"/>
+    <copy todir="${dest.dir}${sipxconfig.lib.dir}">
+      <fileset dir="${top.dir}/lib">
+        <include name="axis.jar"/>
+        <include name="commons-collections.jar"/>
+        <include name="commons-dbcp.jar"/>
+        <include name="commons-discovery.jar"/>
+        <include name="commons-logging.jar"/>
+        <include name="commons-pool.jar"/>
+        <include name="dom4j-full.jar"/>
+        <include name="jakarta-regexp-1.3.jar"/>
+        <include name="jaxen-core.jar"/>
+        <include name="jaxen-jdom.jar"/>
+        <include name="jaxrpc.jar"/>
+        <include name="jdom.jar"/>
+        <include name="log4j.jar"/>
+        <include name="NetComponents.jar"/>
+        <include name="pgjdbc2.jar"/>
+        <include name="saaj.jar"/>
+        <include name="saxpath.jar"/>
+        <include name="taglibs-xtags.tld"/>
+        <include name="taglibs-xtags.jar"/>
+      </fileset>
+    </copy>
+
+    <copy file="${common.jar}" todir="${dest.dir}${sipxconfig.lib.dir}"/>
+
+  </target>
+
+</project>

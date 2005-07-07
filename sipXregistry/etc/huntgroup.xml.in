@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<items type="huntgroup">
+  <!-- The following is an example huntgroup entry
+  <item>
+    <identity>sales@${SIPXCHANGE_DOMAIN_NAME}</identity>
+  </item>
+   -->
+</items>

@@ -1,0 +1,66 @@
+# Use delay-compressed logfiles
+compress
+delaycompress
+
+# Keep 14 days of logs
+daily
+rotate 14
+
+# It's OK if the files aren't there
+missingok
+
+# Now we list the files
+
+/var/log/sipxpbx/apacheauth.log {
+}
+
+/var/log/sipxpbx/dbmonitor.log {
+}
+
+/var/log/sipxpbx/error_log {
+}
+
+/var/log/sipxpbx/http_access_log {
+}
+
+/var/log/sipxpbx/httpd-access_log {
+}
+
+/var/log/sipxpbx/httpd_error_log {
+}
+
+/var/log/sipxpbx/mediaserver.log {
+}
+
+/var/log/sipxpbx/mediaserver_cgi.log {
+}
+
+/var/log/sipxpbx/processcgi.log {
+}
+
+/var/log/sipxpbx/replicationcgi.log {
+}
+
+/var/log/sipxpbx/sds.log {
+}
+
+/var/log/sipxpbx/sipauthproxy.log {
+}
+
+/var/log/sipxpbx/sipproxy.log {
+}
+
+/var/log/sipxpbx/sipregistrar.log {
+}
+
+/var/log/sipxpbx/sipstatus.log {
+}
+
+/var/log/sipxpbx/ssl_request_log {
+}
+
+/var/log/sipxpbx/vxmlengine.log {
+}
+
+/var/log/sipxpbx/watchdog.log {
+}

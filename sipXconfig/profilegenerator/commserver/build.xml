@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="commserver" default="jar" basedir=".">
+
+  <patternset id="test.classes">
+     <include name="**/*Test.class"/>
+  </patternset>
+
+  <property name="top.build.dir" value="${basedir}/../.."/>
+  <property name="build.dir" value="${top.build.dir}/profilegenerator/commserver"/>
+
+  <import file="../../ant-targets.xml"/>
+
+  <path id="base.path">
+    <!-- SIPXCONFIG -->
+    <pathelement location="${common.jar}"/>
+
+    <!-- UTIL -->
+    <pathelement location="${jdom.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+
+    <!-- J2EE -->
+    <fileset dir="${tomcat.common.lib}" includes="**/servlet.jar"/>
+  	
+	  <!-- TEST -->
+	  <!-- TODO: we need a separate classpath for tests -->
+	  <pathelement location="${xmlunit.jar}"/>  	
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="build jar" >
+    <jar jarfile="${commserver.jar}" >
+     <fileset dir="${classes.dir}" >
+       <include name="**/*.class" />
+     </fileset>
+    </jar>
+  </target>
+
+  <target name="install">
+
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy todir="${dest.dir}${sipxpbx.conf.dir}">
+      <fileset dir="etc">
+        <include name="*.xml"/>
+        <include name="*.xslt"/>
+      </fileset>
+    </copy>
+
+  </target>
+
+</project>
+

@@ -1,0 +1,40 @@
+<watchdog>
+   <settings>
+      <health check_period="15" />
+      <processxmlpath location="@SIPX_CONFDIR@" />
+      <email execute="blat - -from &quot;@SIPXPBXUSER@@pingtel.com&quot; -name &quot;@SIPXPBXUSER@@pingtel.com&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
+   </settings>
+   <monitor>
+      <process name="KeepAlive" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="SIPRegistrar" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="SIPProxy" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="SIPAuthProxy" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="SIPStatus" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="RMIRegistry" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="ProfilePublisher" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="ProfileWriter" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="ProfileGenerator" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+      <process name="MediaServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
+         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
+      </process>
+   </monitor>
+   <logfile level="notice">@SIPX_LOGDIR@/watchdog.log</logfile>
+</watchdog>

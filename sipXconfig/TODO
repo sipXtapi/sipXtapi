@@ -1,0 +1,20 @@
+* change package names to org.sipfoundry
+
+* Use xdoclet
+
+* Upgrade to Jboss 3.2.X or 4.0 if it's released by then. Quick
+attempts to deploy using 3.2.X resulted in the following issues:
+
+   - Accessor methods on CMP beans must have get and sets
+
+   - getID and setID would have to change to getId to match
+     ejb-jar.xml definitions along with a few other camel-case method
+     names
+
+   - Various findXXX methods complain about not being defined
+
+   - ConfigurationSet.setContent(String) gave complaints about have
+     wrong function argument but it appeared correct.
+
+
+

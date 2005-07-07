@@ -1,0 +1,388 @@
+
+This file was generated using the following command.  If you are
+already looking at this from web browser, then please ignore this
+message.
+
+  lynx -dump doc/src/manual/install.html > INSTALL
+
+----------------------------------------------------------
+
+                                 Installation
+
+    1. [1]For Redhat Users
+         1. [2]System Installation
+         2. [3]Installing dependencies with up2date
+         3. [4]Installing Java RPM
+         4. [5]Installing RPMs from SIPfoundry
+    2. [6]Installing From Source and Non-Redhat Users
+         1. [7]Dependencies
+         2. [8]Environment Variables
+         3. [9]Compile and Installation
+         4. [10]JBOSS Setup
+         5. [11]Postgres Database Setup
+    3. [12]Optional Setup
+         1. [13]TFTP Setup for Cisco 79xx
+    4. [14]Security
+    5. [15]Running
+         1. [16]Running with other sipX servers
+         2. [17]Running Standalone
+    6. [18]Windows
+
+For Redhat Users
+
+   These instructions apply to Enterprise and Fedora systems unless
+   explicitly noted
+
+  System Installation
+
+    1. Install Redhat from CDs. You can select any set of packages
+       including the minimum set of packages labeled "router
+       configuration" in the Redhat installer process
+    2. When prompted for firewall support, select "no firewall support"
+       or open up the following ports in your iptables: 80, 8080, 8090,
+       8091, 5060 and 5090
+
+  Installing dependencies with up2date
+
+   Fedora users may experience periodic connection errors using using
+   up2date but usually if you're persistent you can get through executing
+   up2date repeatedly. If you do not use up2date, I recommend installing
+   Postgres and apache while installing your system, or use the Redhat
+   package manager to install those RPMs for you.
+     * Run up2date for the first time and follow instructions to setup
+       properly up2date operation.
+     * Run up2date -u to make your system is up to date.
+     * Run up2date on the following packages:
+
+        Postgres
+                up2date rh-postgresql-server *Enterprise Users Only
+                up2date postgresql-server *Fedora Users Only
+
+        Apache 2 webserver
+                up2date httpd
+
+  Installing Java RPM
+
+     * j2sdk 1.4 or greater available by opening your webbrowser to this
+       URL:
+       [19]http://java.sun.com/j2se/1.4.2/download.html
+
+  Installing RPMs from SIPfoundry
+
+   SIPfoundry will make the following rpms available. After downloading,
+   you can install these by typing the command rpm -iv packagename.rpm.
+   It's often helpful to list more than one rpm at a time to fulfill rpm
+   interpackage dependencies. RPMs listed here are in proper order to
+   install individually.
+
+   Available from sipfoundry.org
+     * sipx-jboss-2.4.10-2.noarch.rpm
+     * sipxportlib
+     * sipxtacklib
+     * sipxcommserverlib
+     * sipxconfig
+     * sipxproxy
+     * sipxregistry
+     * sipxpublisher
+     * sipxvxml
+     * sipxpbx
+
+Installing From Source and Non-Redhat Users
+
+   Install the following software packages. Follow the installation
+   instructions for your OS. If there is any special installation
+   instructions, they will be noted.
+
+  Dependencies
+
+   sipXportLib (same version sipXconfig)
+          [20]http://www.sipfoundry.org/sipXportLib
+
+   sipXtackLib (same version sipXconfig)
+          [21]http://www.sipfoundry.org/sipXtack
+
+   sipXcommserverLib (same version sipXconfig)
+          [22]http://www.sipfoundry.org/sipXcommserverLib
+
+   sipXpbx (same version sipXconfig)
+          [23]http://www.sipfoundry.org/sipXpbx
+
+   Java SDK 1.4 (tested w/1.4.2.03)
+          [24]http://java.sun.com
+
+   postgres 7.3 (tested with 7.3.4)
+          [25]http://www.postgresql.org/
+
+   JBoss 2.4.4 with Tomcat 4.0.1 (exactly this version!)
+          [26]http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat
+          -4.0.1.zip
+
+   Ant 1.6 (tested with 1.6.1)
+          [27]http://ant.apache.org/
+
+  Environment Variables
+
+   Set the following environment variables:
+
+   JAVA_HOME
+          to where you installed java. This setting is just used to
+          compile. After installation the sipx-config --jdk is used to
+          find java dynamically. That means you can upgrade your java and
+          not break your installation
+
+       Example:
+           export JAVA_HOME=/usr/java/j2sdk1.4.2_03
+
+
+   ANT_HOME
+          where you unzipped (e.g. installed) ant
+
+       Example:
+            export ANT_HOME=~/apache-ant-1.6.2
+
+
+   JBOSS_HOME
+          where you unzipped JBoss
+
+       Example:
+          export JBOSS_HOME=~/JBoss-2.4.10_Tomcat-4.0.6
+
+
+  Compiling and Installation
+
+   If you've obtained your source from subversion, and not from a tar
+   file, run this command:
+  autoreconf -if
+
+   Now compile and install sipXconfig by running this command:
+     ./configure
+     make
+     make install
+
+  JBOSS Setup
+
+   After unzipping JBoss
+    1. run this patch and copy this file
+      patch -d ${JBOSS_HOME} -p1 < sipx-jboss-configure.patch
+      cp meta/ssl.pkcs12 ${JBOSS_HOME}/catalina/conf
+    2. be sure user running sipxpbx (most cases sipxchange) has full r/w
+       access to all files and directories in ${JBOSS_HOME}
+
+   You also need to patch Jasper class loader in Tomcat servlet container
+   that is bundled with this version of JBoss
+    1. Checkout Tomcat 4.0.1 source
+      export CVSROOT=:pserver:anoncvs@cvs.apache.org:/home/cvspublic
+      cvs login [anoncvs]
+      cvs co -r tomcat_401 jakarta-tomcat-4.0
+    2. Patch sources
+      patch -d /path/to/tomcat -p0 < meta/tomcat_401.diff
+    3. Prepare Tomcat build environment.
+       BUILDING.txt file contains detailed description of the entire
+       building process. Since we just need to build jasper module we can
+       use simplified approach.
+       Create a build.properties file by copying a sample properties
+       file:
+      cd /path/to/tomcat
+      cp build.properties.sample build.properties
+       and modify servlet.lib property in a newly created file to point
+       to your Tomcat lib directory
+      servlet.lib=${JBOSS_HOME}/catalina/common/lib
+       Verify that you have set the path correctly:
+      cd /path/to/tomcat
+      ant detect | grep servlet.jar
+       You should see:
+      [echo] servlet.jar.present=true
+    4. Compile Jasper
+      cd /path/to/tomcat/jasper
+      ant
+       Build creates 2 jar file. Only jasper-compiler.jar has to be
+       copied to Tomcat installation.
+      cp /path/to/tomcat/build/lib/jasper-compiler.jar ${JBOSS_HOME}/catalina/l
+ib/jasper-compiler.jar
+
+  Postgresql Database Setup
+
+   Postgres needs to always be running on your system. If you've
+   installed sipXconfig from RPM, you shouldn't have to do this.
+
+   To start Postgres on Redhat 9 or Fedora systems run this command.
+      service postgresql start
+
+
+   To start Postgres on Enterprise 3 systems run this command.
+      service rhdb start
+
+
+   It's recommended you should have Postgres start automatically when
+   your machine restarts (usually in runlevels 3 and 5).
+
+   Fedora and Redhat 9 users should run this command:
+      chkconfig postgresql on
+
+   Redhat Enterprise 3 users should run this command:
+      chkconfig rhdb on
+
+   Edit Postgres config files to work. This will open up TCP connections
+   and allow localhost to connect to Postgres
+     /usr/local/sipx/bin/sipxdbmgr --setup
+     /usr/local/sipx/bin/sipxdbmgr --create PDS
+     /usr/local/sipx/bin/sipxdbmgr --create SDS
+
+Security
+
+   Set up an SSL key using the instructions in
+   sipXcommserverLib/doc/INSTALL.ssl or
+   /usr/share/doc/sipxcommserverlib-version/INSTALL.ssl.
+
+Optional Setup
+
+  TFTP Setup for Cisco 79xx phones
+
+   Most Cisco phones in the 79xx series use a tftp server to serve phone
+   configuration information and firmware upgrades. You must install a
+   tftp server and map the tftp root directory to:
+   var/sipxdata/configserver/phone/profile/tftproot. Consult phone vendor
+   documentation for recommended TFTP servers but below is a set of known
+   tftp server setups that work.
+
+    On Fedora or Red Hat Enterprise
+
+   Run the following commands
+  up2date tftp-server
+  ${EDITOR} /etc/xinetd.d/tftp
+
+   make the following edits, if you've installed via RPM, then {where you
+   installed sipXconfig} is empty:
+   disable  = no
+   server_args  = -s {where you installed sipXconfig}/var/sipxdata/configserver
+/phone/profile/tftproot
+
+   Run the following commands for your edits to take affect
+  # ensure tftp server is not already running
+  ps aux | grep tftp
+
+  # if so, stop it
+  kill -15 {tftp pid}
+
+  # restart xinit.d that in turn will start tftp on demand
+  service xinet.d restart
+
+    On Gentoo
+
+   Run the following commands
+  emerge net-misc/tftp-hpa
+  ${EDITOR} /etc/conf.d/in.tftpd
+
+   make the following edits
+  INTFTPD_PATH="{where you installed sipXconfig}/var/sipxdata/configserver/phon
+e/profile/tftproot"
+
+   then run the following command
+  /etc/init.d/in.tftp start
+
+Running
+
+  Running with other sipX servers
+
+   This is the normal configuration. It's where all the sipx servers like
+   the proxy, status server, mediaserver, etc. are running on the same
+   machine. In this case you will want to follow the instructions in the
+   sipXpbx project for starting the sipxpbx service. This will control
+   the starting and stopping of the necessary components of the
+   configuration system. The sipXproxy will direct SIP messages to the
+   Profile Publisher automatically. If you are using another SIP proxy
+   other than the sipXproxy, or running the sipXproxy on another machine,
+   follow next section "Running Standalone".
+
+  Running Standalone
+
+   This is when you are running just the sipXconfig server on one
+   machine. You can follow the instructions for running with all the
+   other sipX servers after making the following configurations changes:
+
+   Directing SIP message directly to sipXconfig's Profile Publisher.
+          To direct SIP messages to the ProfilePublisher, a job normally
+          done by the sipXproxy, edit file: etc/sipxpbx/config.defs and
+          set following setting to read the following values:
+
+    CONFIG_SERVER_SIP_PORT=5060
+
+   Only start sipXconfig related services
+          Edit config file : etc/sipxpbx/ProcessDefinitions.xml and
+          remove sections
+
+
+          <group name="CommServer" >
+          ...
+          </group>
+
+          <group name="MediaServer" >
+          ...
+          </group>
+
+Windows
+
+   Currently there is no support for windows but here is a list of steps
+   towards supporting Windows. Please submit your findings and patches
+   back to mailing list
+    1. edit config.properties.in and replace all variables with @VAR@
+       symbol with where you have dependencies installed
+    2. Run ant then ant install on all the build.xml files in these
+       directories and in this order:
+         1. common
+         2. profilegenerator
+         3. profilewriter
+         4. profilepublisher
+    3. Compiling the Profile Publisher's SIP agent w/ MSVC 6
+       First, see the INSTALL instructions in sipXportLib on adding glib
+       and pcre to the MSVC 6 environment. Next, you must add Java's JNI
+       include and library paths to your MSVC 6 environment following the
+       same process.
+       Assuming that you installed the SDK in C:\Program
+       Files\Java\j2sdk1.4.2_03 you will need to add the following:
+
+        Additional Includes:
+                C:\Program Files\Java\j2sdk1.4.2_03\include
+                C:\Program Files\Java\j2sdk1.4.2_03\include\win32
+
+        Additional Libs:
+                C:\Program Files\Java\j2sdk1.4.2_03\lib
+
+    4. Write a series of batch scripts that mimic what these scripts do
+       or use Cygwin to start your system:
+         1. startrmiregistry.sh
+         2. profilewriter.sh
+         3. profilegenerator.sh
+         4. profilepublisher.sh
+
+   Last modified: Fri Jan 7 12:21:33 EST 2005
+
+References
+
+   1. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#rh
+   2. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#rh-system
+   3. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#rh-dep
+   4. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#rh-jdk
+   5. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#rh-sipx
+   6. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#src
+   7. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#src-dep
+   8. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#src-env
+   9. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#src-compile
+  10. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#src-jboss
+  11. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#src-db
+  12. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#optional
+  13. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#tftp
+  14. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#security
+  15. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#run
+  16. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#run-sipx
+  17. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#run-alone
+  18. file://localhost/home/dhubler/work/2.6/sipXconfig/doc/src/manual/install.html#windows
+  19. http://java.sun.com/j2se/1.4.2/download.html
+  20. http://www.sipfoundry.org/sipXportLib
+  21. http://www.sipfoundry.org/sipXtack
+  22. http://www.sipfoundry.org/sipXcommserverLib
+  23. http://www.sipfoundry.org/sipXpbx
+  24. http://java.sun.com/
+  25. http://www.postgresql.org/
+  26. http://prdownloads.sourceforge.net/jboss/JBoss-2.4.4_Tomcat-4.0.1.zip
+  27. http://ant.apache.org/

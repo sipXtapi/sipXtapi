@@ -1,0 +1,90 @@
+
+INCLUDES = -I$(top_srcdir)/include @PCRE_CXXFLAGS@
+
+SUBDIRS = sipxunit
+
+## All tests under this GNU variable should run relatively quickly
+## and of course require no setup
+TESTS = testsuite
+
+check_PROGRAMS = testsuite sandbox
+
+testsuite_LDFLAGS = \
+    @PCRE_LDFLAGS@
+
+## To load source in gdb for libsipXport.la, type the 'share' at the
+## gdb console just before stepping into function in sipXportLib
+testsuite_LDADD = \
+    sipxunit/libsipXunit.la \
+    -lcppunit \
+    ../libsipXport.la \
+    @PCRE_LIBS@ \
+    $(GLIB_LIBS)
+
+testsuite_CXXFLAGS = -fno-gcse -O0 $(GLIB_CFLAGS)
+
+testsuite_SOURCES = \
+    utl/UtlContainableTestStub.cpp \
+    utl/UtlContainableTestStub.h \
+    utl/UtlVoidPtr.cpp \
+    utl/UtlInt.cpp \
+    utl/UtlStringTest.cpp \
+    utl/UtlStringTest.h \
+    utl/UtlStringTest_ConstructiveManipulators.cpp \
+    utl/UtlStringTest_DestructiveManipulators.cpp \
+    utl/UtlStringTest_NonMutating.cpp \
+    utl/UtlSList.cpp \
+    utl/UtlSListIteratorTest.cpp \
+    utl/UtlDList.cpp \
+    utl/UtlDListIterator.cpp \
+    utl/UtlSortedList.cpp \
+    utl/UtlSortedListIteratorTest.cpp \
+    utl/UtlHashMap.cpp \
+    utl/UtlHashMapIterator.cpp \
+    utl/UtlRegex.cpp \
+    utl/UtlHashBag.cpp \
+    utl/UtlHashBagIterator.cpp \
+    utl/UtlRegex.cpp \
+    utl/UtlTokenizerTest.cpp \
+    os/OsTestUtilities.cpp \
+    os/OsTestUtilities.h \
+    os/OsNameDbTest.cpp \
+    os/OsCallbackTest.cpp \
+    os/OsTimerTaskTest.cpp \
+    os/OsTimeTest.cpp \
+    os/OsTimerTest.cpp \
+    os/OsEventTest.cpp \
+    os/OsLockTest.cpp \
+    os/OsMsgQTest.cpp \
+    os/OsMutexTest.cpp \
+    os/OsSemTest.cpp \
+    os/OsSocketTest.cpp \
+    os/OsConfigDbTest.cpp \
+    os/OsFileIteratorTest.cpp \
+    os/OsFileSystemTest.cpp \
+    os/OsFileTest.cpp \
+    os/OsPathTest.cpp \
+    os/OsDirTest.cpp \
+    os/OsProcessIteratorTest.cpp \
+    os/OsProcessTest.cpp \
+    os/OsProcessMgrTest.cpp
+
+
+# [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
+# debugging or when developing a new unittest. As courtesy remove all
+# unittests before checking in, although forgetting to has no ill
+# effects. To build and run:
+#
+#   cd src/test
+#   make sandbox
+#   libtool -mode=execute gdb ./sandbox
+#
+sandbox_LDFLAGS = $(testsuite_LDFLAGS)
+sandbox_LDADD = $(testsuite_LDADD)
+sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
+sandbox_SOURCES = \
+    os/OsProcessMgrTest.cpp
+
+
+EXTRA_DIST= \
+    sipXportTest.dsp

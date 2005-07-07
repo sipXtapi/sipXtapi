@@ -1,0 +1,81 @@
+## Process this file with automake to produce Makefile.in
+INSTALL=@INSTALL@
+
+pkgconfdir = @SIPX_CONFDIR@
+
+pkgconf_DATA = \
+    root.vxml.in \
+    forwardmessage.vxml.in \
+    login.vxml.in \
+    login_no_autoattendant.vxml.in \
+    savemessage.vxml.in \
+    savemessage_no_operator.vxml.in \
+    autoattendant.vxml.in \
+	 mime.types
+
+pbxconf_files = \
+    WatchDog.xml.in \
+    ProcessDefinitions.xml.in \
+    resourcemap.xml.in \
+    voicemail.xml.in.in
+
+wwwconf_files = \
+    httpd.conf.in \
+    httpd-sipxchange-common-ssl.conf.in.in \
+    httpd-sipxchange-common.conf.in.in \
+    httpd-sipxchange-configserver.conf.in.in \
+    httpd-sipxchange-mediaserver.conf.in.in \
+    httpd-sipxchange-mediaserver-ssl.conf.in.in
+
+EXTRA_DIST = \
+	$(pkgconf_DATA) \
+	$(pbxconf_files) \
+	$(wwwconf_files) \
+	sipxchange
+
+edit = sed \
+        -e 's,@APACHE2_HTTPD\@,@APACHE2_HTTPD@,g' \
+        -e 's,@APACHE2_MOD\@,@APACHE2_MOD@,g' \
+        -e 's,@JBOSS_HOME\@,$(JBOSS_HOME),g' \
+        -e 's,@SIPX_CONFDIR\@,$(sysconfdir)/sipxpbx,g' \
+        -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
+        -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
+        -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \
+        -e 's,@SIPX_RUNDIR\@,@SIPX_RUNDIR@,g' \
+        -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
+        -e 's,@SIPX_DBDIR\@,@SIPX_DBDIR@,g' \
+        -e 's,@SIPX_VXMLDATADIR\@,@SIPX_VXMLDATADIR@,g' \
+        -e 's,@SIPX_CONFIGPHONEDIR\@,@SIPX_CONFIGPHONEDIR@,g' \
+        -e 's,@wwwdir\@,@wwwdir@,g' \
+        -e 's,@libdir\@,$(libdir),g' \
+        -e 's,@localstatedir\@,$(localstatedir),g' \
+        -e 's,@bindir\@,$(bindir),g'
+
+if DO_RPMBUILD
+RPM_INSTALL=rpm-install
+else
+RPM_INSTALL=
+endif
+
+install-exec-hook :
+
+install-data-hook : $(RPM_INSTALL)
+	@for f in $(pbxconf_files) $(wwwconf_files); \
+	do \
+	  target=`basename $$f .in`; \
+	  $(edit) $(srcdir)/$$f > $$target; \
+	  tgtdir=`dirname $(sysconfdir)/sipxpbx/$$target`; \
+	  if [ -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$target ]; \
+	  then \
+		echo "Using existing $(sysconfdir)/sipxpbx/$$target"; \
+	  else \
+		echo ""; echo "Installing default $(sysconfdir)/sipxpbx/$$target"; \
+		$(INSTALL) -D -m 644 $$target $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
+	  fi; \
+	done
+
+.PHONY : rpm-install
+rpm-install:
+	echo "RPM install of logrotate file"
+	$(INSTALL) -d $(DESTDIR)$(sysconfdir)/logrotate.d
+	$(INSTALL) -D -m 644 $(srcdir)/sipxchange $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange

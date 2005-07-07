@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<destinations>
+   <dialplans>
+      <dialplan>
+         <name>internalextensions</name>
+         <value>[1-7]xx</value>
+         <description>Internal station numbering format</description>
+         
+      </dialplan>
+      <dialplan>
+         <name>did</name>
+         <value />
+         <description>Prefix for Direct Inward Dialing (DID)</description>
+         
+      </dialplan>
+      <dialplan>
+         <name>autoattendant</name>
+         <value>100</value>
+         <description>To call the Auto Attendant, dial</description>
+         
+      </dialplan>
+      <dialplan>
+         <name>retrievevoicemail</name>
+         <value>101</value>
+         <description>To retrieve Voicemail, dial</description>
+         
+      </dialplan>
+      <dialplan>
+         <name>pstnprefix</name>
+         <value>9</value>
+         <description>Prefix for dialing PSTN calls</description>
+         
+      </dialplan>
+      <dialplan>
+         <name>vmprefixfromextension</name>
+         <value>8</value>
+         <description>Prefix for dialing an extension's Voicemail inbox</description>
+         
+      </dialplan>
+      <dialplan>
+         <name>intldialprefix</name>
+         <value>011</value>
+         <description>Prefix for dialing international calls</description>
+         
+      </dialplan>
+      
+   </dialplans>
+   <gateways />
+   
+</destinations>
+

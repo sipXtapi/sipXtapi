@@ -1,0 +1,34 @@
+<html>
+<head>
+<script language="JavaScript">
+function closeWindow()
+{
+	self.opener.parent.mainFrame.location.reload();
+	window.close();
+}
+function changeCategory(value) {
+    var docRoot = mainFrame.document.getElementsByTagName("*");
+    for ( var i = 0; i < docRoot.length; i++ ) {
+        if ( docRoot[i].nodeName == 'DIV' && docRoot[i].id.indexOf( "cat_" ) != -1 ) {
+            docRoot[i].style.display = 'none';
+         }
+    }
+    mainFrame.document.getElementById(value).style.display = '';
+
+}
+
+</script>
+<title>Download Applications</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<frameset rows="90,*,46" frameborder="NO" border="0"
+    framespacing="0" cols="*">
+  <frame name="topFrame" scrolling="NO" noresize src="downloadapps_top.jsp" >
+  <frame name="mainFrame" src="downloadapps.jsp">
+  <frame name="bottomFrame" src="downloadapps_close.html" scrolling="NO" noresize>
+</frameset>
+<noframes> 
+<body bgcolor="#FFFFFF" text="#000000">
+</body>
+</noframes> 
+</html>

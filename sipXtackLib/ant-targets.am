@@ -1,0 +1,27 @@
+# Automake - Ant adapter
+# ANT_FLAGS
+#  -e is to remove extraneous logging to console, not required
+#  -Dtop.build.dir is required if you call ./configure from a different dir
+abs_top_builddir=`cd $(top_builddir) && pwd`
+ANT_FLAGS=-e -Dtop.build.dir=$(abs_top_builddir) -lib $(top_srcdir)/lib -f $(srcdir)/build.xml
+
+all : all-ant
+
+.PHONY: all-ant
+all-ant :
+	@ANT@ $(ANT_FLAGS)
+
+clean :
+	@ANT@ $(ANT_FLAGS) clean
+
+.PHONY: doc
+doc :
+	@ANT@ $(ANT_FLAGS) doc
+
+install :
+	@ANT@ $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) install
+
+# There's probably a better way to do this via TESTS and
+# TEST_ENVIRONEMENT, but I need more time to research this
+check :
+	@ANT@ $(ANT_FLAGS) test

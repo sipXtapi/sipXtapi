@@ -1,0 +1,384 @@
+#!/bin/sh
+#
+# chkconfig: 35 90 10
+# description: The SIPxchange watchdog starts up all other SIPxchange         \
+#              processes and ensures that they are operating properly. It     \
+#              restarts them if they exit unexpectedly, and notifies the      \
+#              administrator of the failure. Additionally, it handles user    \
+#              commands to start, stop, and restart SIPxchange processes.
+# processname: watchdog
+# pidfile: @SIPX_RUNDIR@/sipxpbx.pid
+#
+# Copyright (C) 2004 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2004 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+#
+
+# This is an interactive program; we need the current locale.
+[ -f /etc/profile.d/lang.sh ] && . /etc/profile.d/lang.sh
+
+if [ "$LANG" = "ja" -o "$LANG" = "ja_JP.eucJP" ]; then
+    # We can't Japanese on normal console at boot time.
+    # So, force to set LANG=C
+    if [ "$TERM" = "linux" ] ; then
+        LANG=C
+    fi
+fi
+
+## Source function library.
+
+# Set up correctly depending on the distribution
+if [ ! -f /etc/redhat-release ]
+then
+  # Non-Redhat (Gentoo, Debian, and perhaps others)
+  echo_success() 
+  {
+      echo success
+  }
+  echo_failure() 
+  {
+      echo failure
+  }
+  . /etc/init.d/functions.sh
+
+  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+
+else
+  # Redhat 
+  . /etc/init.d/functions
+
+  HTTP_DAEMON_START="daemon @APACHE2_HTTPD@"
+  
+fi
+
+# Source configuration
+. @SIPX_CONFDIR@/config.defs
+
+# :TODO: This should somehow be syncronized with what's in 
+#        the ProcessDefinitions.xml and Watchdog.xml
+sipxchange_processes=(
+    keepalive
+    sipauthproxy
+    sipproxy
+    sipregistrar
+    sipXvxml
+    sipstatus
+    profilegenerator
+    profilepublisher
+    profilewriter
+    rmiregistry
+)
+
+# Low-level start function.
+# Unfortunately, $? will never report failure as su will always succeed.
+# Therefore we wait after the fork and see if the .pid file was created
+start() { # process-name  process-wd  process-command
+        proc_name=$1; shift
+        proc_wd=$1; shift
+        proc_cmd=$*
+        cd $proc_wd || return 1
+        
+        echo -n $"Starting $proc_name: "
+
+        # The "-" option to su which used to be used below is supposed
+        # to clear the environment, but it does not on RH Linux 9 and
+        # RHE Linux 3.  This causes the wrapper scripts for the
+        # components to attempt to source $BASH_ENV, which is usually
+        # ~root/.bashrc at this point, and usually results in a
+        # permission error.  So we unset BASH_ENV manually here.
+        unset BASH_ENV
+
+        iam=`whoami`
+        if [ $iam = @SIPXPBXUSER@ ]
+        then
+            ( exec $proc_cmd ) < /dev/null &
+        elif [ $iam = root ]
+        then
+
+            # Remove "-" because (as the above comment mentions) it wasn't
+            # doing what it is advertised as doing AND because on Gentoo
+            # it would quietly fail to even launch the processes.
+            su @SIPXPBXUSER@ -c "$proc_cmd" < /dev/null &
+
+        else
+            echo "You must be able to start as @SIPXPBXUSER@" 1>&2
+            echo_failure
+            exit 1
+        fi
+
+        for ticks in 3 2 1 0 
+        do
+           sleep 1
+           test -e @SIPX_RUNDIR@/$proc_name.pid && break || echo -n "."
+        done
+
+        if [ -e @SIPX_RUNDIR@/$proc_name.pid ]
+        then
+            echo_success
+        else
+            STATUS=1
+            echo_failure
+        fi
+
+        echo
+        return $STATUS
+}
+
+
+# Low-level stop function.
+stop() {
+   proc_name=$1; shift
+
+   echo -n "  Stop: $proc_name "
+   STATUS=0
+
+   if [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
+   then
+      echo -n "(Not started) "
+   else
+       PID=`cat @SIPX_RUNDIR@/$proc_name.pid 2> /dev/null`
+
+       if [ ! -e /proc/$PID ]
+       then
+          echo -n "(Started but not running) "
+       else
+          kill $PID 2> /dev/null
+          for ticks in 3 2 1 0 
+          do
+             sleep 1
+             test -e /proc/$PID && break || echo -n "."
+          done
+          if [ -e /proc/$PID ]
+          then
+              echo -n "(killing) "
+              kill -9 $PID 2> /dev/null
+              for ticks in 3 2 1 0 
+              do
+                 sleep 1
+                 test -e /proc/$PID && break || echo -n "."
+              done
+          fi
+   
+          if [ -e /proc/$PID ]
+          then
+              STATUS=1
+          else
+              STATUS=0
+              rm -f @SIPX_RUNDIR@/$proc_name.pid
+          fi
+       fi
+   fi
+
+   if [ $STATUS -eq 0 ]
+   then
+       echo_success
+       echo ""
+   else
+       echo_failure
+       echo ""
+   fi
+}
+
+# Shut down SIPxchange services
+stop_sipxchange () {
+
+    # Iterate through the list of processes, above killing each one        
+    for process in ${sipxchange_processes[@]}
+    do
+        stop $process
+    done
+    
+    echo_success
+    echo
+}
+
+# High-level stop function.
+# Stops the watchdog process (running as sipxchange), and the
+# SIPxchange services
+do_stop() {
+
+   echo "Stopping sipXpbx: "
+
+   echo -n "Stopping apache: "
+   @APACHE2_HTTPD@ -k stop -f @SIPX_CONFDIR@/httpd.conf
+
+   stop watchdog
+
+   stop_sipxchange
+
+   # The following line is so that the GUI
+   # detects a successful shutdown properly
+   true
+}
+
+# High-level start function.
+# Starts the watchdog process (running as sipxchange), which starts
+# the SIPxchange services
+do_start() {
+        ### Verify that the hostname for this machine a fully qualified
+        ### before starting SIPxchange
+        if check-fqdn -q
+        then
+            cat <<EOF 1>&2
+    Host must have a fully qualified hostname.
+EOF
+            echo_failure
+            exit 1
+        fi
+
+        ### Verify that the prerequisites for running sipX are OK.
+
+        # Check to see that SSL is configured.
+        if ! [ -e @SIPX_CONFDIR@/ssl/ssl.key -a -e @SIPX_CONFDIR@/ssl/ssl.crt ]
+        then
+            cat <<EOF 1>&2
+    SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
+
+    See instructions in @datadir@/doc/sipxcommserverlib-@VERSION@/INSTALL.ssl
+EOF
+            echo_failure
+            exit 1
+        elif ! @bindir@/ssl-cert/check-cert.sh --fail 5 @SIPX_CONFDIR@/ssl/ssl.crt
+   then
+            ## certificate is about to or has expired
+            ## let it try to come up anyway so that at least phones can work 
+            ## but print an error
+            cat <<EOF 1>&2
+
+    See instructions in @datadir@/doc/sipxcommserverlib-@VERSION@/INSTALL.ssl
+EOF
+        fi
+
+   # Check that Postgres is running.
+   if ! @SIPX_BINDIR@/sipxdbmgr --status >/dev/null
+   then
+       cat <<EOF 1>&2
+    Postgres database not running.  Did you install the sipxconfig RPM?
+EOF
+            echo_failure
+            exit 1
+   fi
+
+        ### Clean up various temporary files and locks.
+
+        # Clean up IMDB and all its dependent files.
+        @bindir@/autodel @SIPXPBXUSER@
+
+        # Remove the named semaphores.
+        rm -f @SIPX_TMPDIR@/imdb.*
+
+        # Remove the watchdog's temporary files.
+        rm -f @SIPX_TMPDIR@/processAlias.dat @SIPX_TMPDIR@/locked.lck
+        
+        ### Regenerate derived configuration files from their .in's.
+
+        @bindir@/httpd-sipxchange-config.sh
+
+        ### Start the programs.
+
+        # Allow core files to be generated for debugging. This feature
+        # is turned off by default and should only be used by
+        # developers. Uncomment this to allow core files but beware
+        # that core files use lots of disk space.
+        ulimit -c ${SIPX_CORELIMIT:-0}
+
+        # Start up the watchdog
+        # Start the watchdog with SIPX_LOGDIR as the working directory,
+        # so that any core files it produces will be put there.
+        start watchdog @SIPX_LOGDIR@ @bindir@/watchdog.sh
+
+        # Wait for keepalive to prime the IMDB, as the CGIs need them
+        echo -n " Waiting for keepalive to start: "
+        for seconds in `seq 20 -1 0`
+        do
+            test -e @SIPX_RUNDIR@/keepalive.pid && break
+            [ $seconds == 0 ] && break
+            echo -n "$seconds "
+            sleep 1
+        done
+        [ $seconds == 0 ] && echo_failure || echo_success
+        echo
+        
+        sleep 1
+        echo -n "Starting httpd: "
+        ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL \
+            && echo_success || echo_failure
+        
+}
+
+## display the status of a process
+status() { # process-name
+   proc_name=$1
+
+   echo -n "Checking $proc_name: "
+   if [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
+   then
+      echo "[Not Started] "
+   else
+       PID=`cat @SIPX_RUNDIR@/$proc_name.pid 2> /dev/null`
+
+       if [ -e /proc/$PID ]
+       then
+          echo_success; echo ''
+       else
+          echo_failure; echo ''
+       fi
+   fi
+}
+
+do_status() {
+
+    # Iterate through the list of processes, display the status of each one
+    for process in watchdog ${sipxchange_processes[@]}
+    do
+        status $process
+    done
+}
+
+CHECKER_FILE=/etc/sip-vet.db
+
+# export SIPXCHANGE_HOME=@SIPX_CONFDIR@
+export PATH=$PATH:@bindir@
+# . $SIPXCHANGE_HOME/.bash_profile
+
+# See how we were called.
+case "$1" in
+  start)
+        ### Verify that the SIPxchange services are not already running.
+        if [ -e @SIPX_RUNDIR@/watchdog.pid ]
+        then
+            echo "   Found @SIPX_RUNDIR@/watchdog.pid - checking for running watchdog process"
+            runningdog=`cat @SIPX_RUNDIR@/watchdog.pid 2>/dev/null`
+            if [ -n "$runningdog" -a -e /proc/$runningdog ]
+            then
+                echo -n " The sipX watchdog may already be running. Try stop or restart."
+                echo_failure
+                echo
+            else
+                # stale pid file found? - do stop just in case
+                echo " watchdog not found - running restart to clean locks."
+                do_stop
+                do_start
+            fi
+        else
+            do_start
+        fi
+        ;;
+  stop)
+        do_stop
+        ;;
+  status)
+        do_status
+        ;;
+  restart)
+        do_stop
+        do_start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|status|restart}"
+        exit 1
+esac
+
+exit $?

@@ -1,0 +1,132 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  1
+
+Summary:  SIP PBX
+License:  LGPL
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   SIPfoundry
+Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
+Url:      http://www.sipfoundry.org/sipXpbx
+
+Source:   %name-%version.tar.gz
+
+Requires: expat >= 1.95
+Requires: httpd >= 2.0.46
+Requires: mod_cplusplus >= 1.2
+Requires: cgicc >= 3.2.2
+Requires: mod_ssl
+
+Requires: sipxregistry >= 2.6.2
+Requires: sipxproxy >= 2.6.2
+Requires: sipxpublisher >= 2.6.2
+Requires: sipxvxml >= 2.6.2
+Requires: sipxconfig >= 2.6.2
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%define apache2_mod @APACHE2_MOD@
+
+%description
+The sipXpbx project is a comprehansive small/medium scale Enterprise SIP PBX. It combines:
+
+ * Call routing sipXproxy
+ * sipXregistry registry/redirect server,
+ * the subscribe/notify framework and message waiting indication package from sipXpublisher,
+ * Media Server sipXvxml with auto-attendant and voice mail applications,
+ * PBX and phone configuration support from sipXconfig.
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+#%docdir doc
+%attr(755,root,root) %{_bindir}/blat
+%attr(755,root,root) %{_bindir}/autodel
+%attr(755,root,root) %{_bindir}/check-fqdn
+%attr(755,root,root) %{_bindir}/watchdog
+%attr(755,root,root) %{_bindir}/watchdog.sh
+%attr(755,root,root) %{_bindir}/keepalive.sh
+%attr(755,root,root) %{_bindir}/sipx-snapshot
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/backup-configs.sh
+%attr(755,root,root) %{_bindir}/backup-mailstore.sh
+%attr(755,root,root) %{_bindir}/restore-configs.sh
+%attr(755,root,root) %{_bindir}/restore-mailstore.sh
+
+%attr(755,root,root) %{apache2_mod}/libmod_sipxauth.so
+
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
+%attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
+
+%attr(755,root,root) %{_datadir}/www/cgi-bin/processmonitor/process.cgi
+%attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
+%attr(755,root,root) %{_datadir}/www/cgi-bin/replication/replication.cgi
+
+# The configuration directory needs to be writeable because
+# config files are generated from templates via config.defs
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/WatchDog.xml
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ProcessDefinitions.xml
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/resourcemap.xml
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
+
+%config %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/httpd-sipxchange-config.sh
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mime.types
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-mediaserver-ssl.conf.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-mediaserver.conf.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-configserver.conf.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd.conf
+
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/root.vxml.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardmessage.vxml.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/login.vxml.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/login_no_autoattendant.vxml.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/savemessage.vxml.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/savemessage_no_operator.vxml.in
+%config %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/autoattendant.vxml.in
+
+%config %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
+
+%config %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc
+
+%pre
+
+
+%post
+
+# Arrange for sipX to be started every time the system starts up.
+# It starts in runlevels 3 and 5.
+# Check if we can use chkconfig.
+if which chkconfig >/dev/null 2>&1
+then
+    chkconfig --add sipxpbx
+else
+    # The user will have to do it manually.
+    echo chkconfig does not exist.
+    echo You need to create /etc/rc?.d/{S90,K10}sipxpbx
+    echo to start sipxpbx for runlevels 3 and 5.
+fi

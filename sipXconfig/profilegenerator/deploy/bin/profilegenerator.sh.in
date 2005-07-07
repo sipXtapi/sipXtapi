@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Startup Script for Profile Generator Service
+# Check for SUN(tm) JVM w/ HotSpot support
+
+CONFIG_DEFS="@sipxpbx.conf.dir@/config.defs"
+
+CONFIG_FILES="\
+  @sipxpbx.conf.dir@/pgs.props
+  @sipxpbx.conf.dir@/topology.xml
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bin.dir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+# Needed for Jasper page compiler (possibly for other components as well)
+export JAVA_HOME=`@bin.dir@/sipx-config --jdk`
+
+# Needed for @jboss.home@/bin/run.sh
+export PATH=${JAVA_HOME}/bin:$PATH
+
+echo $$ > @sipxpbx.run.dir@/profilegenerator.pid
+
+# Production command line
+cd @jboss.home@/bin
+
+# portions extracted from jboss's run.sh, stopped trying to 
+# run jboss's startup script because too hard to kill by
+# pid
+export JBOSS_CLASSPATH=${JAVA_HOME}/lib/tools.jar:run.jar:../lib/crimson.jar
+# assume modern jdk
+HOTSPOT="-server"
+JAXP=-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.crimson.jaxp.DocumentBuilderFactoryImpl
+JAXP="$JAXP -Djavax.xml.parsers.SAXParserFactory=org.apache.crimson.jaxp.SAXParserFactoryImpl"
+
+exec java $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main catalina $@

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE property_group_link
+[    <!ELEMENT property_group_link ( manufacturer*)>
+   <!ELEMENT manufacturer ( device_type*)>
+   <!ATTLIST manufacturer
+                               name ID #REQUIRED >
+   <!ELEMENT device_type ( ref_property_group*)>
+   <!ATTLIST device_type
+                               model CDATA #REQUIRED>
+   <!ELEMENT ref_property_group ( ref_property*)>
+   <!ATTLIST ref_property_group
+                               name CDATA #REQUIRED
+                               usertype ( admin | user | application ) #REQUIRED>
+   <!ELEMENT ref_property ( #PCDATA )>
+   <!ATTLIST ref_property
+                                code CDATA #REQUIRED
+                                level ( leaf | group | both ) #REQUIRED
+                                visible-for ( user | device ) #REQUIRED
+   >]>
+
+<!-- !!!!!!!!!!! Next assignable property = xp_1050 -->
+
+<property_group_link>
+   <manufacturer name="pingtel">
+       <device_type model="common">
+
+            <ref_property_group name="Permissions" usertype="admin">
+                <ref_property code="xp_10000" level="both" visible-for="user"/> <!-- PERMISSIONS -->
+            </ref_property_group>
+
+            <ref_property_group name="Network" usertype="admin">
+                <ref_property code="xp_2009" level="both" visible-for="user" /> <!-- PHONESET_VOICEMAIL_RETRIEVE -->
+                <ref_property code="xp_2006" level="both" visible-for="user" /> <!-- PHONESET_MSG_WAITING_SUBSCRIBE-->
+                <ref_property code="xp_1012" level="both" visible-for="device" /> <!-- PHONESET_SNMP_TRAP_DESTS -->
+                <ref_property code="xp_1006" level="both" visible-for="device" /> <!-- PHONESET_HTTP_PORT -->
+                <ref_property code="xp_1042" level="both" visible-for="device" /> <!-- PHONESET_HTTPS_PORT-->
+                <ref_property code="xp_1040" level="both" visible-for="device" /> <!-- PHONESET_CHECK_SYNC-->
+                <ref_property code="xp_1041" level="both" visible-for="device" /> <!-- PHONESET_RTP_CODECS-->
+                <ref_property code="xp_1048" level="both" visible-for="device" /> <!-- PHONESET_EXPEDITED_IP_TOS-->
+            </ref_property_group>
+
+           <ref_property_group name="Call Handling" usertype="admin">
+               <ref_property code="xp_2003" level="both" visible-for="user" /> <!-- PHONESET_DND-->
+               <ref_property code="xp_2004" level="both" visible-for="user" /> <!-- PHONESET_DND_METHOD-->
+               <ref_property code="xp_2000" level="both" visible-for="user" /> <!-- PHONESET_AVAILABLE_BEHAVIOR-->
+               <ref_property code="xp_2007" level="both" visible-for="user" /> <!-- PHONESET_NO_ANSWER_TIMEOUT-->
+               <ref_property code="xp_2021" level="both" visible-for="user" /> <!-- SIP_FORWARD_ON_NO_ANSWER-->
+               <ref_property code="xp_2002" level="both" visible-for="user" /> <!-- PHONESET_CALL_WAITING_BEHAVIOR-->
+               <ref_property code="xp_2001" level="both" visible-for="user" /> <!-- PHONESET_BUSY_BEHAVIOR-->
+               <ref_property code="xp_2020" level="both" visible-for="user" /> <!-- SIP_FORWARD_ON_BUSY-->
+               <ref_property code="xp_2032" level="both" visible-for="user" /> <!-- PHONESET_FORWARD_UNCONDITIONAL-->
+               <ref_property code="xp_2022" level="both" visible-for="user" /> <!-- SIP_FORWARD_UNCONDITIONAL-->
+               <ref_property code="xp_2008" level="both" visible-for="user" /> <!-- PHONESET_RINGER-->
+               <ref_property code="xp_2034" level="both" visible-for="user" /> <!-- PHONESET_REMOTE_ID_FORMAT-->
+               <ref_property code="xp_2035" level="both" visible-for="user" /> <!-- PHONESET_MUSIC_ON_HOLD-->
+               <ref_property code="xp_2036" level="both" visible-for="user" /> <!-- PHONESET_MUSIC_ON_HOLD_SOURCE-->
+           </ref_property_group>
+
+           <ref_property_group name="Call Handling" usertype="user">
+               <ref_property code="xp_2003" level="both" visible-for="user" /> <!-- PHONESET_DND-->
+               <ref_property code="xp_2000" level="both" visible-for="user" /> <!-- PHONESET_AVAILABLE_BEHAVIOR-->
+               <ref_property code="xp_2007" level="both" visible-for="user" /> <!-- PHONESET_NO_ANSWER_TIMEOUT-->
+               <ref_property code="xp_2021" level="both" visible-for="user" /> <!-- SIP_FORWARD_ON_NO_ANSWER-->
+               <ref_property code="xp_2002" level="both" visible-for="user" /> <!-- PHONESET_CALL_WAITING_BEHAVIOR-->
+               <ref_property code="xp_2001" level="both" visible-for="user" /> <!-- PHONESET_BUSY_BEHAVIOR-->
+               <ref_property code="xp_2020" level="both" visible-for="user" /> <!-- SIP_FORWARD_ON_BUSY-->
+               <ref_property code="xp_2032" level="both" visible-for="user" /> <!-- PHONESET_FORWARD_UNCONDITIONAL-->
+               <ref_property code="xp_2022" level="both" visible-for="user" /> <!-- SIP_FORWARD_UNCONDITIONAL-->
+               <ref_property code="xp_2008" level="both" visible-for="user" /> <!-- PHONESET_RINGER-->
+            </ref_property_group>
+
+           <ref_property_group name="Calling Out" usertype="admin">
+               <ref_property code="xp_1002" level="both" visible-for="device" /> <!-- PHONESET_DIALPLAN_LENGTH-->
+               <ref_property code="xp_1003" level="both" visible-for="device" /> <!-- PHONESET_DIGITMAP-->
+               <ref_property code="xp_1021" level="both" visible-for="device" /> <!-- SIP_DIRECTORY_SERVERS-->
+               <ref_property code="xp_1044" level="both" visible-for="device" /> <!-- PHONESET_RINGDOWN-->
+               <ref_property code="xp_1046" level="both" visible-for="device" /> <!-- PHONESET_RINGDOWN_ADDRESS-->
+           </ref_property_group>
+
+           <ref_property_group name="Phone Top" usertype="admin">
+               <ref_property code="xp_1009" level="both" visible-for="device" /> <!-- PHONESET_LOGO_URL-->
+               <ref_property code="xp_1015" level="both" visible-for="device" /> <!-- PHONESET_TIME_SERVER-->
+               <ref_property code="xp_1013" level="both" visible-for="device" /> <!-- PHONESET_TIME_DST_RULE-->
+               <ref_property code="xp_1014" level="both" visible-for="device" /> <!-- PHONESET_TIME_OFFSET-->
+               <ref_property code="xp_1043" level="both" visible-for="device" /> <!-- PHONESET_HOME_SCREEN_TITLE-->
+               <ref_property code="xp_1045" level="both" visible-for="device" /> <!-- PHONSET_SPASH_SOUND -->
+               <ref_property code="xp_10002" level="both" visible-for="device" /> <!-- PHONESET_PREFS_CALL_HANDLING -->
+               <ref_property code="xp_1049" level="both" visible-for="device" /> <!-- PHONESET_LOCALE_COUNTRY-->
+           </ref_property_group>
+
+           <ref_property_group name="Firewall" usertype="admin">
+               <ref_property code="xp_1004" level="both" visible-for="device" /> <!-- PHONESET_EXTERNAL_IP_ADDRESS-->
+               <ref_property code="xp_1011" level="both" visible-for="device" /> <!-- PHONESET_RTP_PORT_START-->
+               <ref_property code="xp_1007" level="both" visible-for="device" /> <!-- PHONESET_HTTP_PROXY_HOST-->
+               <ref_property code="xp_1008" level="both" visible-for="device" /> <!-- PHONESET_HTTP_PROXY_PORT-->
+           </ref_property_group>
+
+           <ref_property_group name="Lines" usertype="admin">
+               <ref_property code="xp_2028" level="both" visible-for="user" /> <!-- USER_DEFAULT_OUTBOUND_LINE-->
+               <ref_property code="xp_10001" level="leaf" visible-for="user" /> <!-- PRIMARY_LINE-->
+               <ref_property code="xp_1031" level="leaf" visible-for="device" /> <!-- PHONESET_LINE-->
+               <ref_property code="xp_2029" level="both" visible-for="user" /> <!-- USER_LINE-->
+           </ref_property_group>
+
+           <ref_property_group name="Security" usertype="admin">
+               <ref_property code="xp_1005" level="both" visible-for="device" /> <!-- PHONESET_HTTP_AUTH_DB-->
+               <!--<ref_property code="xp_1020" level="both" visible-for="" />
+               <ref_property code="xp_1019" level="both" visible-for="" />
+               <ref_property code="xp_1018" level="both" visible-for="" />-->
+               <ref_property code="xp_1016" level="both" visible-for="device" /> <!-- PHONESET_TELNET_ACCESS-->
+               <ref_property code="xp_1047" level="both" visible-for="device" /> <!-- ENCRYPT_PROFILES-->               
+           </ref_property_group>
+
+           <ref_property_group name="SIP servers" usertype="admin">
+               <ref_property code="xp_1022" level="both" visible-for="device" /> <!-- SIP_PROXY_SERVERS-->
+               <ref_property code="xp_1026" level="both" visible-for="device" /> <!-- SIP_TCP_PORT-->
+               <ref_property code="xp_1027" level="both" visible-for="device" /> <!-- SIP_UDP_PORT-->
+               <ref_property code="xp_1023" level="both" visible-for="device" /> <!-- SIP_REGISTER_PERIOD-->
+               <ref_property code="xp_1025" level="both" visible-for="device" /> <!-- SIP_REINVITE_TIMER-->
+           </ref_property_group>
+
+           <ref_property_group name="Diagnostics" usertype="admin">
+               <ref_property code="xp_1028" level="both" visible-for="device" /> <!-- ALLOW_CONSOLE_OUTPUT-->
+               <ref_property code="xp_1029" level="both" visible-for="device" /> <!-- JAVA_OUTPUTSTREAM_REDIRECT-->
+           </ref_property_group>
+
+           <ref_property_group name="Updates" usertype="admin">
+               <ref_property code="xp_1032" level="both" visible-for="device" /> <!-- PHONESET_VERSIONCHECK_PERIOD-->
+               <ref_property code="xp_1033" level="both" visible-for="device" /> <!-- PHONESET_VERSIONCHECK_URL-->
+           </ref_property_group>
+
+           <ref_property_group name="Speed Dial" usertype="admin">
+               <ref_property code="xp_2033" level="both" visible-for="user" /> <!-- PHONESET_SPEEDDIAL_DATASOURCE-->
+               <ref_property code="xp_2030" level="both" visible-for="user" /> <!-- PHONESET_SPEEDDIAL-->
+           </ref_property_group>
+
+           <ref_property_group name="Speed Dial" usertype="user">
+               <ref_property code="xp_2030" level="both" visible-for="user" /> <!-- PHONESET_SPEEDDIAL-->
+           </ref_property_group>
+
+           <ref_property_group name="Additional Settings" usertype="admin">
+               <ref_property code="xp_1039" level="both" visible-for="device" /> <!-- ADDITIONAL_DEVICE_PARAMETERS-->
+               <ref_property code="xp_2031" level="both" visible-for="user" /> <!-- ADDITIONAL_USER_PARAMETERS-->
+           </ref_property_group>
+
+           <ref_property_group name="Application" usertype="application">
+               <ref_property code="xp_3000" level="both" visible-for="user" /> <!-- USER-->
+           </ref_property_group>
+       </device_type>
+       <device_type model="xpressa_strongarm_vxworks"/>
+       <device_type model="ixpressa_x86_win32"/>
+   </manufacturer>
+
+   <manufacturer name="cisco">
+
+       <device_type model="common">
+
+            <ref_property_group name="Network" usertype="admin">
+                <ref_property code="cs_1015" level="both" visible-for="device" />  <!--dtmf_avt_payload -->
+                <ref_property code="cs_1016" level="both" visible-for="device" />  <!--dtmf_db_level -->
+                <ref_property code="cs_1017" level="both" visible-for="device" />  <!--dtmf_inband -->
+                <ref_property code="cs_1018" level="both" visible-for="device" />  <!--dtmf_outofband -->
+                <ref_property code="cs_1050" level="both" visible-for="user" />  <!--messages_uri -->
+                <ref_property code="cs_1051" level="both" visible-for="device" />  <!--network_media_type -->
+                <ref_property code="cs_1053" level="both" visible-for="device" />  <!--preferred_codec -->
+                <ref_property code="cs_1059" level="both" visible-for="device" />  <!--sntp_mode -->
+                <ref_property code="cs_1060" level="both" visible-for="device" />  <!--sntp_server -->
+                <ref_property code="cs_1068" level="both" visible-for="device" />  <!--tos_media -->
+                <ref_property code="cs_1072" level="both" visible-for="device" />  <!--enable_vad -->
+                <ref_property code="cs_1077" level="both" visible-for="device" />  <!--network_port2_type -->
+                <ref_property code="cs_1103" level="both" visible-for="device" />  <!--dyn_dns_addr_1 -->
+                <ref_property code="cs_1104" level="both" visible-for="device" />  <!--dyn_dns_addr_2 -->
+                <ref_property code="cs_1105" level="both" visible-for="device" />  <!--dyn_tftp_addr -->
+            </ref_property_group>
+
+           <ref_property_group name="Calling Out" usertype="admin">
+               <ref_property code="cs_1115" level="both" visible-for="device" />  <!--dial_template -->
+           </ref_property_group>
+
+            <ref_property_group name="Call Handling" usertype="admin">
+                <ref_property code="cs_1000" level="both" visible-for="user" /> <!--anonymous_call_block-->
+                <ref_property code="cs_1108" level="both" visible-for="user" /> <!--remote_party_id-->
+                <ref_property code="cs_1002" level="both" visible-for="user" /> <!--callerid_blocking-->
+                <ref_property code="cs_1069" level="both" visible-for="user" /> <!--call_waiting-->
+                <ref_property code="cs_1070" level="both" visible-for="device" /> <!--cnf_join_enable-->
+                <ref_property code="cs_1102" level="both" visible-for="user" /> <!--dnd_control-->
+                <ref_property code="cs_1110" level="both" visible-for="device" /> <!--semi_attended_transfer -->
+           </ref_property_group>
+
+
+            <ref_property_group name="Phone Top" usertype="admin">
+                <ref_property code="cs_1001" level="both" visible-for="user" />  <!--autocomplete-->
+                <ref_property code="cs_1063" level="both" visible-for="device" />  <!--time_format_24hr -->
+                <ref_property code="cs_1100" level="both" visible-for="device" />  <!--date_format -->
+                <ref_property code="cs_1064" level="both" visible-for="device" />  <!--time_zone -->
+                <ref_property code="cs_1004" level="both" visible-for="device" />  <!--dst_auto_adjust -->
+                <ref_property code="cs_1005" level="both" visible-for="device" />  <!--dst_offset -->
+                <ref_property code="cs_1006" level="both" visible-for="device" />  <!--dst_start_day -->
+                <ref_property code="cs_1007" level="both" visible-for="device" />  <!--dst_start_day_of_week -->
+                <ref_property code="cs_1008" level="both" visible-for="device" />  <!--dst_start_month -->
+                <ref_property code="cs_1009" level="both" visible-for="device" />  <!--dst_start_time -->
+                <ref_property code="cs_1010" level="both" visible-for="device" />  <!--dst_start_week_of_month -->
+                <ref_property code="cs_1011" level="both" visible-for="device" />  <!--dst_stop_day -->
+                <ref_property code="cs_1012" level="both" visible-for="device" />  <!--dst_stop_day_of_week -->
+                <ref_property code="cs_1071" level="both" visible-for="device" />  <!--dst_stop_month -->
+                <ref_property code="cs_1013" level="both" visible-for="device" />  <!--dst_stop_time -->
+                <ref_property code="cs_1014" level="both" visible-for="device" />  <!--dst_stop_week_of_month -->
+                <ref_property code="cs_1052" level="both" visible-for="device" />  <!--phone_label -->
+                <ref_property code="cs_1107" level="both" visible-for="device" />  <!--logo_url -->
+            </ref_property_group>
+
+
+            <ref_property_group name="Firewall" usertype="admin">
+                <ref_property code="cs_1074" level="both" visible-for="device" /> <!--nat_address -->
+                <ref_property code="cs_1075" level="both" visible-for="device" /> <!--nat_enable -->
+                <ref_property code="cs_1076" level="both" visible-for="device" /> <!--nat_received_processing -->
+                <ref_property code="cs_1106" level="both" visible-for="device" />  <!--http_proxy_addr -->
+            </ref_property_group>
+
+
+            <ref_property_group name="Lines" usertype="admin">
+                <ref_property code="cs_1020" level="leaf" visible-for="user" /> <!--line1 -->
+                <ref_property code="cs_1055" level="both" visible-for="user" />  <!--proxy1 -->
+                <ref_property code="cs_1021" level="both" visible-for="user" /> <!--line2 -->
+                <ref_property code="cs_1086" level="both" visible-for="user" />  <!--proxy2 -->
+                <ref_property code="cs_1022" level="both" visible-for="user" /> <!--line3 -->
+                <ref_property code="cs_1088" level="both" visible-for="user" />  <!--proxy3 -->
+                <ref_property code="cs_1023" level="both" visible-for="user" /> <!--line4 -->
+                <ref_property code="cs_1090" level="both" visible-for="user" />  <!--proxy4 -->
+                <ref_property code="cs_1024" level="both" visible-for="user" /> <!--line5 -->
+                <ref_property code="cs_1092" level="both" visible-for="user" />  <!--proxy5 -->
+                <ref_property code="cs_1025" level="both" visible-for="user" /> <!--line6 -->
+                <ref_property code="cs_1094" level="both" visible-for="user" />  <!--proxy6 -->
+            </ref_property_group>
+
+
+            <ref_property_group name="Security" usertype="admin">
+                <ref_property code="cs_1080" level="both" visible-for="device" /> <!--phone_password -->
+                <ref_property code="cs_1081" level="both" visible-for="device" /> <!--phone_prompt -->
+                <ref_property code="cs_1112" level="both" visible-for="device" /> <!--telnet_level -->
+            </ref_property_group>
+
+            <ref_property_group name="SIP servers" usertype="admin">
+                <ref_property code="cs_1054" level="both" visible-for="device" />  <!--proxy_register -->
+                <ref_property code="cs_1078" level="both" visible-for="device" />  <!--outbound_proxy -->
+                <ref_property code="cs_1082" level="both" visible-for="device" />  <!--proxy_backup -->
+                <ref_property code="cs_1084" level="both" visible-for="device" />  <!--proxy_emergency -->
+                <ref_property code="cs_1098" level="both" visible-for="device" />  <!--user_info -->
+                <ref_property code="cs_1057" level="both" visible-for="device" />  <!--sip_retx -->
+                <ref_property code="cs_1058" level="both" visible-for="device" />  <!--sip_invite_retx -->
+                <ref_property code="cs_1065" level="both" visible-for="device" />  <!--timer_invite_expires -->
+                <ref_property code="cs_1097" level="both" visible-for="device" />  <!--timer_register_expires -->
+                <ref_property code="cs_1066" level="both" visible-for="device" />  <!--timer_t1 -->
+                <ref_property code="cs_1067" level="both" visible-for="device" />  <!--timer_t2 -->
+                <ref_property code="cs_1096" level="both" visible-for="device" />  <!--start_media_port -->
+                <ref_property code="cs_1073" level="both" visible-for="device" />  <!--end_media_port -->
+                <ref_property code="cs_1099" level="both" visible-for="device" />  <!--voip_control_port -->
+            </ref_property_group>
+
+            <ref_property_group name="Updates" usertype="admin">
+                <ref_property code="cs_1019" level="both" visible-for="device" /> <!--image_version -->
+                <ref_property code="cs_1061" level="both" visible-for="device" /> <!--sync -->
+                <ref_property code="cs_1062" level="both" visible-for="device" /> <!--tftp_cfg_dir -->
+            </ref_property_group>
+
+
+            <ref_property_group name="Services" usertype="admin">
+                <ref_property code="cs_1101" level="both" visible-for="user" />  <!--directory_url -->
+                <ref_property code="cs_1111" level="both" visible-for="user" />  <!--services_url -->
+            </ref_property_group>
+
+           <ref_property_group name="Additional Settings" usertype="admin">
+               <ref_property code="cs_1113" level="both" visible-for="device" /> <!-- additional_device_settings-->
+               <ref_property code="cs_1114" level="both" visible-for="user" /> <!-- additional_user_settings-->
+           </ref_property_group>
+
+       </device_type>
+
+       <device_type model="7960"/>
+       <device_type model="7940"/>
+
+   </manufacturer>
+
+</property_group_link>

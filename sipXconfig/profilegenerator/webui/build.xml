@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="webui" default="war" basedir=".">
+
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/../.."/>
+  <property name="build.dir" value="${top.build.dir}/profilegenerator/webui"/>
+
+  <import file="../../ant-targets.xml"/>
+
+  <path id="base.path">
+    <!-- SIPXCONFIG -->
+    <pathelement location="${common.jar}"/>
+    <pathelement location="${commserver.jar}"/>
+    <!-- IDEALLY:  pathelement location="${profilegen-client.jar}"/ -->
+    <pathelement location="${profilegen-ejb.jar}"/>
+
+    <!-- UTIL -->
+    <pathelement location="${jdom.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${regexp.jar}"/>
+
+    <!-- J2EE -->
+    <pathelement location="${jboss.lib}/jmxri.jar"/>
+    <pathelement location="${tomcat.lib}/servlet.jar"/>
+    <pathelement location="${jboss.ext}/jboss-j2ee.jar"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <target name="init" depends="ant-targets.init" >
+    <mkdir dir="${dist.dir}/war-root" />
+  </target>
+
+  <!-- J S P  J A R -->
+  <target name="jar" depends="compile" description="build jsp tags jar" >
+    <jar jarfile="${profilegen-tags.jar}" >
+       <fileset dir="${classes.dir}" >
+           <exclude name="com/pingtel/pds/pgs/beans/**"/>
+       </fileset>
+
+       <fileset dir="src">
+          <include name="**/*.properties"/>
+       </fileset>
+
+    	<fileset dir="meta">
+          <include name="META-INF/**"/>
+       </fileset>
+    </jar>
+  </target>
+
+  <!-- W A R -->
+  <target name="war" depends="jar">
+    <war destfile="${profilegenerator.war}"
+          webxml="meta/WEB-INF/web.xml"
+          basedir="${dist.dir}/war-root">
+
+      <fileset dir="site"/>
+
+
+      <webinf dir="meta/WEB-INF">
+        <exclude name="web.xml" /> <!-- avoid warning about already there -->
+      </webinf>
+
+      <!-- IDEALLY: lib file="${profilegen-client.jar}"/ -->
+      <lib file="${profilegen-ejb.jar}"/>
+      <lib file="${profilegen-tags.jar}"/>
+      <lib file="${commserver.jar}"/>
+
+      <lib file="${taglibs.jar}"/>
+      <lib file="${taglibs.tld}"/><!-- YES, this goes in the lib -->
+      <lib file="${dom4j.jar}"/>
+
+      <!-- 
+        - WARNING: This must be kept upto sync with what's included in
+        -   ear file. You can append more jars in value attribute
+        -->
+      <manifest>
+        <attribute name="Class-Path" value="${manifest.classpath}"/>
+      </manifest>
+
+      <classes dir="meta/resources">
+        <include name="*.properties"/>
+      </classes>
+
+      <classes dir="${classes.dir}">
+        <include name="com/pingtel/pds/pgs/beans/**/*.class" />
+      </classes>
+    	
+    </war>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="war">
+    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/xslt"/>
+    <copy todir="${dest.dir}${sipxpbx.data.dir}/xslt">
+      <fileset dir="site/xslt"/>
+    </copy>
+  </target>
+
+</project>
+

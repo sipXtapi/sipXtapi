@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Common environment variables used by the in memory database (IMDB)
+#export SIPX_DB_VAR_PATH=@localstatedir@
+#export SIPX_DB_CFG_PATH=@SIPX_DBDIR@
+
+echo $$ > @SIPX_RUNDIR@/watchdog.pid
+
+exec @bindir@/watchdog $@

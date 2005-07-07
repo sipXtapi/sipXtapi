@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo $$ > @sipxpbx.run.dir@/rmiregistry.pid
+
+JdkHome=`@bin.dir@/sipx-config --jdk`
+exec $JdkHome/bin/rmiregistry -J-Dsun.rmi.loader.logLevel=VERBOSE -J-Djava.security.policy=@sipxpbx.conf.dir@/security.policy 2001

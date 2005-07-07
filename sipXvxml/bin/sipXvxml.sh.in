@@ -1,0 +1,34 @@
+#!/bin/bash
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/mediaserver-config \
+  @SIPX_CONFDIR@/voicemail.xml \
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+# Create the voicemail directories if they do not already exist.
+mkdir -p @SIPX_VXMLDATADIR@/autoattendant/ui/adminui
+mkdir -p @SIPX_VXMLDATADIR@/autoattendant/vxml
+mkdir -p @SIPX_VXMLDATADIR@/mailstore
+mkdir -p @SIPX_VXMLDATADIR@/prompts
+mkdir -p @SIPX_VXMLDATADIR@/voicemail/ui/adminui
+mkdir -p @SIPX_VXMLDATADIR@/voicemail/vxml
+
+echo $$ > @SIPX_RUNDIR@/sipXvxml.pid
+
+exec @bindir@/sipXvxml $@
+

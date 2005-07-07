@@ -1,0 +1,337 @@
+#!/bin/sh
+###
+### Capture a sipXpbx configuration for reporting purposes
+###
+
+# Add /sbin to the end of PATH, because often if the user is not
+# running as root or if he su'ed to root, /sbin will not be in the
+# PATH, and ifconfig can't be found.  But put /sbin at the end of PATH
+# in case the user prefers a different ifconfig that is already in the
+# PATH.
+PATH=$PATH:/sbin
+
+Action=SNAPSHOT
+DoWebFiles=NO
+SaveCredentials=NO
+SaveLogs=NO
+DeleteLogs=NO
+Tar=YES
+ToFile=
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+
+        -b|--backup)
+            Action=BACKUP
+            SaveCredentials=YES
+            DoWebFiles=YES    
+            ;;
+
+        -w|--www)
+            DoWebFiles=YES    
+            ;;
+
+        -l|--logs)
+            SaveLogs=YES
+            ;;
+
+        -d|--delete-logs)
+            SaveLogs=YES
+            DeleteLogs=YES
+            ;;
+
+        -n|--notar)
+            Tar=NO
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ -z "${ToFile}" ]
+            then
+                ToFile=${1}
+            else
+                echo "Too many arguments supplied: $@" 1>&2
+                Action=USAGE
+                break
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1 argument
+done
+
+# Set the working file tree.
+# Since the destination location may not be able to hold the uncompressed
+# data, place it in a recognized temporary location.
+Work=${TMPDIR:-/tmp}/sipxcfg.$$
+if [ ${Tar} = YES ]
+then
+  # Set default ToFile if necessary.
+  ToFile=${ToFile:-"sipx-configuration.tar.gz"}
+else
+  # If Tar = NO, we copy the files directly to their destination.
+  Work=${ToFile:-${Work}}
+fi
+
+if [ ${Action} = USAGE ]
+then
+  cat <<USAGE
+
+Usage:
+    
+    sipx-snapshot [ -w | --www ]
+                  [ -b | --backup ]
+                  [ -l | --logs ]
+                  [ -d | --delete-logs ]
+                  [ -n | --notar ]
+                  [ <to-file-name> ]
+
+    Collects important sipXpbx configuration information
+    and saves it as a gzipped tar file named <to-file-name>
+    The default name is 'sipx-configuration.tar.gz'.
+
+    This is used for two purposes; recording configuration 
+    information to accompany a problem report, and to back up
+    the configuration data.   In the default case, only the actual
+    'running' configuration files are saved and all password 
+    information is removed from the credentials file.
+
+    The --www switch causes the Apache configuration files to
+    be included in the snapshot.
+
+    When --backup switch is used, all configuration files
+    (including the apache files) and the templates from which 
+    they are constructed are saved so that restoring is easy; 
+    just untar the file from the system root directory (/).  
+    In this case, the credentials information is saved in the backup.
+
+    The --logs switch causes the sipX and Apache logs to be included
+    in the snapshot.  Beware that the logs can be very large on production
+    systems.  The --delete-logs switch deletes the log files after they
+    are included in the snapshot.  --delete-logs should only be used if
+    sipX is not running.
+
+    The --notar switch prevents the saved files from being tar'ed, and they
+    remain in a file tree that mirrors the originals.
+
+    The default output file name is sipx-configuration.tar.gz.
+    If --notar is specified, the default output file tree is /tmp/sipxcfg.\$\$.
+
+USAGE
+    exit
+fi
+
+# Establish the work directory, which will mirror the parts of the
+# file system that we are interested in, with $Work correspondign to /.
+rm -rf $Work
+mkdir  $Work 
+
+# File into which to record random system configuration information.
+SystemConfig=${Work}/SystemConfig
+
+# Assemble the list of files to record.
+
+# These files are always recorded.
+cat > $Work.config-files <<EOF
+@SIPX_CONFDIR@/authproxy-config
+@SIPX_CONFDIR@/authrules.xml
+@SIPX_CONFDIR@/destinations.xml
+@SIPX_CONFDIR@/forwardingrules.xml
+@SIPX_CONFDIR@/fallbackrules.xml
+@SIPX_CONFDIR@/mappingrules.xml
+@SIPX_CONFDIR@/proxy-config
+@SIPX_CONFDIR@/registrar-config
+@SIPX_CONFDIR@/status-config
+@SIPX_CONFDIR@/status-plugin.xml
+@SIPX_CONFDIR@/sds-config
+@SIPX_CONFDIR@/resourcemap.xml
+@SIPX_CONFDIR@/mediaserver-config
+@SIPX_CONFDIR@/voicemail.xml
+@SIPX_CONFDIR@/authexception.xml
+@SIPX_CONFDIR@/config.defs
+@SIPX_CONFDIR@/WatchDog.xml
+@SIPX_DBDIR@/alias.xml
+@SIPX_DBDIR@/huntgroup.xml
+@SIPX_DBDIR@/ext_alias.xml
+@SIPX_DBDIR@/extension.xml
+@SIPX_DBDIR@/permission.xml
+@SIPX_DBDIR@/credential.xml
+@SIPX_DBDIR@/registration.xml
+@SIPX_DBDIR@/subscription.xml
+EOF
+
+# These files are recorded if --backup is specified.
+if [ ${Action} = BACKUP ]
+then
+  cat >> $Work.config-files <<EOF
+@SIPX_CONFDIR@/authproxy-config.in
+@SIPX_CONFDIR@/authrules.xml.in
+@SIPX_CONFDIR@/forwardingrules.xml.in
+@SIPX_CONFDIR@/mappingrules2.xml.in
+@SIPX_CONFDIR@/mappingrules.xml.in
+@SIPX_CONFDIR@/proxy-config.in
+@SIPX_CONFDIR@/registrar-config.in
+@SIPX_CONFDIR@/status-config.in
+@SIPX_CONFDIR@/status-plugin.xml.in
+@SIPX_CONFDIR@/sds-config.in
+@SIPX_CONFDIR@/resourcemap.xml
+@SIPX_CONFDIR@/mediaserver-config.in
+@SIPX_CONFDIR@/voicemail.xml.in
+@wwwdir@/conf/httpd-sipxchange-common.conf.in
+@wwwdir@/conf/httpd-sipxchange-common-ssl.conf.in
+@wwwdir@/conf/httpd-sipxchange-configserver-pw.conf.in
+@wwwdir@/conf/httpd-sipxchange-configserver-pw-ssl.conf.in
+@wwwdir@/conf/httpd-sipxchange-mediaserver.conf.in
+@wwwdir@/conf/httpd-sipxchange-mediaserver-ssl.conf.in
+EOF
+fi
+
+# These files are recorded if --backup or --www is specified.
+if [ ${Action} = BACKUP -o $DoWebFiles = YES ]
+then
+  cat >> $Work.config-files <<EOF
+@wwwdir@/conf/httpd-sipxchange-common.conf
+@wwwdir@/conf/httpd-sipxchange-common-ssl.conf
+@wwwdir@/conf/httpd-sipxchange-configserver-pw.conf
+@wwwdir@/conf/httpd-sipxchange-configserver-pw-ssl.conf
+@wwwdir@/conf/httpd-sipxchange-mediaserver.conf
+@wwwdir@/conf/httpd-sipxchange-mediaserver-ssl.conf
+EOF
+fi
+
+# These files are recorded if --logs is specified, and deleted if
+# --delete-logs is specified.
+if [ ${SaveLogs} = YES ]
+then
+  cat > $Work.log-files <<EOF
+@SIPX_LOGDIR@/dbmonitor.log
+@SIPX_LOGDIR@/mediaserver.log
+@SIPX_LOGDIR@/sipauthproxy.log
+@SIPX_LOGDIR@/sipproxy.log
+@SIPX_LOGDIR@/sipregistrar.log
+@SIPX_LOGDIR@/sipstatus.log
+@SIPX_LOGDIR@/vxmlengine.log
+@SIPX_LOGDIR@/watchdog.log
+EOF
+  cat < $Work.log-files >> $Work.config-files
+fi
+
+# Record miscellaneous information about the host.
+
+cat /dev/null  > ${SystemConfig}
+hostname      >> ${SystemConfig}
+date -u       >> ${SystemConfig}
+echo $0       >> ${SystemConfig}
+echo ""       >> ${SystemConfig}
+
+echo ======== ifconfig >> ${SystemConfig}
+ifconfig      >> ${SystemConfig}
+echo ""       >> ${SystemConfig}
+
+locale=""
+full_locale=`hostname --fqdn | tr A-Z a-z`
+
+while [ -n "$full_locale" ]
+do
+    locale="$full_locale $locale"
+    full_locale=`echo $full_locale | sed 's/^[^.]*\.//; s/^[^.]*$//'`
+done
+
+for d in $locale
+do
+  echo ======== DNS SRV $d >> ${SystemConfig}
+  dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.$d _sip._udp.$d \
+  | sort -u -r \
+  >> ${SystemConfig}
+  echo "" >> ${SystemConfig}
+done
+
+# Get configuration information on sipX components
+for component in pbx config proxy registry publisher vxml commserverlib calllib medialib tacklib portlib
+do
+  if test -x @bindir@/sipx${component}-config
+  then
+      @bindir@/sipx${component}-config --all >> ${SystemConfig}
+  else
+      echo Missing: @bindir@/sipx${component}-config >>   ${SystemConfig}
+      echo Missing: @bindir@/sipx${component}-config 1>&2 ${SystemConfig}
+  fi
+done
+
+# Execute system monitoring commands
+for command in \
+    "ps -efww" \
+    "netstat -ap --ip" \
+    "top n 1 b" \
+    "vmstat 10 2" \
+    "free" \
+    "df"
+do
+  echo ======== $command
+  $command
+  echo ""
+done >> ${SystemConfig}
+
+for file in `sort -u $Work.config-files`
+do
+  copyFile=`basename ${file}`
+  copyDir=${Work}`dirname ${file}`
+  if [ -f ${file} ]
+  then
+    test -d ${copyDir} || mkdir -p ${copyDir}
+    if [ ${SaveCredentials} = NO -a `basename ${file}` = credentials.xml ]
+    then
+      sed < ${file} > ${copyDir}/${copyFile} \
+          -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|'
+    else
+      cp --preserve ${file} ${copyDir}/${copyFile}
+    fi
+  else
+    echo Missing: ${file} >> ${SystemConfig}
+    echo Missing: ${file} 1>&2
+  fi
+done
+
+if [ ${Action} = BACKUP ]
+then
+  test -d ${Work}/var/backups || mkdir -p ${Work}/var/backups
+  su - postgres -c "vacuumdb --all --analyze; pg_dump -f ${Work}/var/backups/sipxcsdb.tar -F t PDS"
+fi
+
+if [ ${Tar} = YES ]
+then
+  # Tar the entire directory tree and compress it.
+  # (Writing this pipe explicitly allows us to use tar's that do not understand
+  # the -z option.)
+  tar cf - -C ${Work} . | gzip >${ToFile}
+  # Remove the temporary files.
+  rm -rf $Work
+
+  echo "Configuration saved in '${ToFile}'"
+else
+  echo "Configuration saved in '${Work}'"
+fi
+
+# Delete the log files, if requested.
+if [ ${DeleteLogs} = YES ]
+then
+  rm $( cat $Work.log-files )
+  echo "Log files deleted"
+fi
+
+# Remove the temporary files.
+rm -rf $Work.config-files $Work.log-files

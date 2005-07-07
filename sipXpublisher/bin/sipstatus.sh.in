@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Copyright (c) 2002 Pingtel Corp.
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/status-config \
+  @SIPX_CONFDIR@/status-plugin.xml \
+  "
+
+# Common environment variables used by the in memory database (IMDB)
+#export SIPX_DB_VAR_PATH=@localstatedir@
+#export SIPX_DB_CFG_PATH=@localstatedir@/sipxdata/sipdb
+#export SIPX_DB_ETC_PATH=@SIPX_CONFDIR@
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+echo $$ > @SIPX_RUNDIR@/sipstatus.pid
+
+exec @bindir@/sipstatus $@

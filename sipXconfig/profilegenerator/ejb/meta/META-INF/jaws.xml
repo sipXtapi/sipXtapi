@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaws debug="true">
+    <datasource>PDSDataSource</datasource>
+    <type-mapping>Oracle8</type-mapping>
+
+    <default-entity>
+       <create-table>false</create-table>
+       <remove-table>false</remove-table>
+       <tuned-updates>true</tuned-updates>
+       <read-only>false</read-only>
+       <time-out>300</time-out>
+       <select-for-update>false</select-for-update>
+    </default-entity>
+
+    <!-- This section provides optional object-to-relational mapping descriptions -->
+
+    <enterprise-beans>
+        <entity>
+            <ejb-name>RefProperty</ejb-name>
+            <table-name>REF_PROPERTIES</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+                <column-name>NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>profileType</field-name>
+                <column-name>PROFILE_TYPE</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>code</field-name>
+                <column-name>CODE</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>content</field-name>
+                <column-name>CONTENT</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByDeviceType</name>
+                <query>, PHONE_TYPE_RP_ASSOC assoc
+                WHERE ID=assoc.REF_PROP_ID
+                AND assoc.PT_ID= {0}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByDeviceTypeAndProfileType</name>
+                <query>, PHONE_TYPE_RP_ASSOC assoc
+                WHERE ID=assoc.REF_PROP_ID
+                AND assoc.PT_ID= {0}
+                AND PROFILE_TYPE ={1}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByRefConfigurationSetID</name>
+                <query>, CS_PROPERTY_PERMISSIONS csrp
+                WHERE ID=csrp.REF_PROP_ID
+                AND csrp.RCS_ID={0}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+        <entity>
+            <ejb-name>Application</ejb-name>
+            <table-name>APPLICATIONS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+                <column-name>NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>refPropertyID</field-name>
+                <column-name>REF_PROP_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>url</field-name>
+                <column-name>URL</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>organizationID</field-name>
+                <column-name>ORG_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>deviceTypeID</field-name>
+                <column-name>PT_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>description</field-name>
+                <column-name>DESCRIPTION</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByApplicationGroupID</name>
+                <query>, APP_AG_ASSOC
+                WHERE APP_AG_ASSOC.ag_id = {0}
+                AND id = APP_AG_ASSOC.apps_id</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByUrl</name>
+                <query>URL = {0}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+
+        <entity>
+            <ejb-name>CoreSoftware</ejb-name>
+            <table-name>CORE_SOFTWARE_DETAILS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>installedDate</field-name>
+                <column-name>INSTALLED_DATE</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>description</field-name>
+                <column-name>DESCRIPTION</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>version</field-name>
+                <column-name>VERSION</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+                <column-name>NAME</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByDeviceType</name>
+                <query>, PHONE_TYPE_CSD_ASSOC
+                WHERE   CORE_SOFTWARE_DETAILS.id = PHONE_TYPE_CSD_ASSOC.csd_id
+                AND     PHONE_TYPE_CSD_ASSOC.pt_id = {0}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+        <entity>
+            <ejb-name>CSProfileDetail</ejb-name>
+            <table-name>CS_PROFILE_DETAILS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>profileType</field-name>
+                <column-name>PROFILE_TYPE</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>fileName</field-name>
+                <column-name>FILE_NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>renderClassName</field-name>
+                <column-name>RENDER_CLASS</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>projectionClassName</field-name>
+                <column-name>PROJECTION_CLASS</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>coreSoftwareDetailsID</field-name>
+                <column-name>CSD_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>xsltURL</field-name>
+                <column-name>XSLT_URL</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByCoreSoftwareAndProfileType</name>
+                <query>CSD_ID={0} AND PROFILE_TYPE ={1}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByDeviceType</name>
+                <query>, PHONE_TYPE_CSD_ASSOC WHERE
+                PHONE_TYPE_CSD_ASSOC.CSD_ID = CSD_ID AND
+                PHONE_TYPE_CSD_ASSOC.pt_id = {0}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+        <entity>
+            <ejb-name>User</ejb-name>
+            <table-name>USERS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>refConfigSetID</field-name>
+                <column-name>RCS_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>organizationID</field-name>
+                <column-name>ORG_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>firstName</field-name>
+                <column-name>FIRST_NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>lastName</field-name>
+                <column-name>LAST_NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>userGroupID</field-name>
+                <column-name>UG_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>password</field-name>
+                <column-name>PASSWORD</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>displayID</field-name>
+                <column-name>DISPLAY_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>extension</field-name>
+                <column-name>EXTENSION</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>profileEncryptionKey</field-name>
+                <column-name>PROFILE_ENCRYPTION_KEY</column-name>
+            </cmp-field>
+            <finder>
+                <name>findAdministratorsByOrganizationID</name>
+                <!-- Custom Finder Method to find users with ADMIN or SUPER roles (Users table is implied in the FROM section of the query) -->
+                <query>, USER_ROLES WHERE USER_ROLES.USRS_ID = USERS.ID AND USERS.ORG_ID={0} AND ( (USER_ROLES.ROLES_NAME = 'ADMIN') OR (USER_ROLES.ROLES_NAME = 'SUPER') )</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByAlias</name>
+                <!-- Custom Finder Method -->
+                <query>, ALIASES WHERE ALIASES.USER_ID = USERS.ID AND ALIASES.ALIAS={0}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByDisplayIDOrExtension</name>
+                <query>DISPLAY_ID = {0} OR EXTENSION = {0}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+        <entity>
+            <ejb-name>Device</ejb-name>
+            <table-name>LOGICAL_PHONES</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>organizationID</field-name>
+                <column-name>ORG_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>shortName</field-name>
+                <column-name>SHORT_NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>coreSoftwareDetailsID</field-name>
+                <column-name>CSD_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>deviceGroupID</field-name>
+                <column-name>PG_ID</column-name>
+            </cmp-field>
+    	    <cmp-field>
+                <field-name>refConfigSetID</field-name>
+                <column-name>RCS_ID</column-name>
+            </cmp-field>
+    	    <cmp-field>
+                <field-name>description</field-name>
+                <column-name>DESCRIPTION</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>userID</field-name>
+                <column-name>USRS_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>deviceTypeID</field-name>
+                <column-name>PT_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>serialNumber</field-name>
+                <column-name>SERIAL_NUMBER</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByPhoneID</name>
+                <query>, PHONE_LOG_PHONE_ASSOC P WHERE ID=P.LOG_PN_ID AND P.PHN_ID={0}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+        <entity>
+            <ejb-name>Organization</ejb-name>
+            <table-name>ORGANIZATIONS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+                <column-name>NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>parentID</field-name>
+                <column-name>PARENT_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>dnsDomain</field-name>
+                <column-name>DNS_DOMAIN</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>stereotype</field-name>
+                <column-name>STEREOTYPE</column-name>
+            </cmp-field>
+        </entity>
+
+        <entity>
+            <ejb-name>DeviceType</ejb-name>
+            <table-name>PHONE_TYPES</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>manufacturerID</field-name>
+                <column-name>MANU_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>model</field-name>
+                <column-name>MODEL</column-name>
+            </cmp-field>
+        </entity>
+
+        <entity>
+            <ejb-name>ConfigurationSet</ejb-name>
+            <table-name>CONFIG_SETS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>refConfigSetID</field-name>
+                <column-name>RCS_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>profileType</field-name>
+                <column-name>PROFILE_TYPE</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>content</field-name>
+                <column-name>CONTENT</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByUserIDAndProfileType</name>
+                <!-- Custom Finder Method to find ConfigSets for user -->
+                <query>, USER_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.USRS_ID={0} AND PROFILE_TYPE = {1}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByLogicalPhoneID</name>
+                <!-- Custom Finder Method to find ConfigSets for LogicalPhone -->
+                <query>, LOG_PHONE_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.LOG_PN_ID={0}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByDeviceGroupID</name>
+                <!-- Custom Finder Method to find ConfigSets for DeviceGroup -->
+                <query>, PNG_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.PG_ID={0}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByUserGroupIDAndProfileType</name>
+                <!-- Custom Finder Method to find ConfigSets for UserGroup -->
+                <query>, UG_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.UG_ID={0} AND PROFILE_TYPE = {1}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByUserID</name>
+                <!-- Custom Finder Method to find ConfigSets for user -->
+                <query>, USER_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.USRS_ID={0}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByUserGroupID</name>
+                <!-- Custom Finder Method to find ConfigSets for UserGroup -->
+                <query>, UG_CS_ASSOC ASSOC WHERE CONFIG_SETS.ID=ASSOC.CS_ID AND ASSOC.UG_ID={0}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+        <entity>
+            <ejb-name>RefConfigurationSet</ejb-name>
+            <table-name>REF_CONFIG_SETS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+                <column-name>NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>organizationID</field-name>
+                <column-name>ORG_ID</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByNameAndOrganization</name>
+                <query>NAME={0} AND ORG_ID={1}</query>
+                <order></order>
+            </finder>
+        </entity>
+
+        <entity>
+            <ejb-name>DeviceGroup</ejb-name>
+            <table-name>PHONE_GROUPS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                <field-name>id</field-name>
+                <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>organizationID</field-name>
+                <column-name>ORG_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+                <column-name>NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>refConfigSetID</field-name>
+                <column-name>RCS_ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>parentID</field-name>
+                <column-name>PARENT_PG_ID</column-name>
+            </cmp-field>
+            <finder>
+                <name>findTopGroups</name>
+                <query>PARENT_PG_ID IS NULL</query>
+                <order></order>
+            </finder>
+        </entity>
+
+	    <entity>
+    		<ejb-name>Manufacturer</ejb-name>
+    		<table-name>MANUFACTURERS</table-name>
+    		<create-table>false</create-table>
+    		<remove-table>false</remove-table>
+    		<tuned-updates>true</tuned-updates>
+    		<read-only>false</read-only>
+    		<time-out>300</time-out>
+            <cmp-field>
+    			<field-name>id</field-name>
+    			<column-name>ID</column-name>
+    		</cmp-field>
+    		<cmp-field>
+    			<field-name>name</field-name>
+    			<column-name>NAME</column-name>
+    		</cmp-field>
+    	</entity>
+
+    	<entity>
+    		<ejb-name>UserGroup</ejb-name>
+    		<table-name>USER_GROUPS</table-name>
+    		<create-table>false</create-table>
+    		<remove-table>false</remove-table>
+    		<tuned-updates>true</tuned-updates>
+    		<read-only>false</read-only>
+    		<time-out>300</time-out>
+            <cmp-field>
+    			<field-name>id</field-name>
+    			<column-name>ID</column-name>
+    		</cmp-field>
+    		<cmp-field>
+    			<field-name>name</field-name>
+    			<column-name>NAME</column-name>
+    		</cmp-field>
+    		<cmp-field>
+    			<field-name>parentID</field-name>
+    			<column-name>PARENT_UG_ID</column-name>
+    		</cmp-field>
+            <cmp-field>
+                <field-name>organizationID</field-name>
+                <column-name>ORG_ID</column-name>
+            </cmp-field>
+    	    <cmp-field>
+                <field-name>refConfigSetID</field-name>
+                <column-name>RCS_ID</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByOrganizationIDAndName</name>
+                <query>ORG_ID={0} AND NAME={1}</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findTopGroups</name>
+                <query>PARENT_UG_ID IS NULL</query>
+                <order></order>
+            </finder>
+    	</entity>
+
+        <entity>
+            <ejb-name>ApplicationGroup</ejb-name>
+            <table-name>APPLICATION_GROUPS</table-name>
+            <create-table>false</create-table>
+            <remove-table>false</remove-table>
+            <tuned-updates>true</tuned-updates>
+            <read-only>false</read-only>
+            <time-out>300</time-out>
+            <cmp-field>
+                    <field-name>id</field-name>
+                    <column-name>ID</column-name>
+            </cmp-field>
+            <cmp-field>
+                    <field-name>name</field-name>
+                    <column-name>NAME</column-name>
+            </cmp-field>
+            <cmp-field>
+                    <field-name>organizationID</field-name>
+                    <column-name>ORG_ID</column-name>
+            </cmp-field>
+            <finder>
+                <name>findByUserID</name>
+                <query>, USER_AG_ASSOC
+                WHERE USER_AG_ASSOC.USRS_ID = {0}
+                AND USER_AG_ASSOC.AG_ID = ID</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByUserGroupID</name>
+                <query>, USER_GROUP_AG_ASSOC
+                WHERE USER_GROUP_AG_ASSOC.UG_ID = {0}
+                AND USER_GROUP_AG_ASSOC.AG_ID = ID</query>
+                <order></order>
+            </finder>
+            <finder>
+                <name>findByApplicationID</name>
+                <query>, APP_AG_ASSOC
+                WHERE APP_AG_ASSOC.APPS_ID = {0}
+                AND APP_AG_ASSOC.AG_ID = ID</query>
+                <order></order>
+            </finder>
+    	</entity>
+
+    </enterprise-beans>
+</jaws>

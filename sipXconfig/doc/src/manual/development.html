@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <title>sipXconfig Development</title>
+  <link rel="stylesheet" type="text/css" href="manual.css"/>
+
+</head>
+<body id="development">
+
+<h1>Development</h1>
+
+<h2>Sourcecode Layout JavaDocs</h2>
+<dl>
+
+  <!--
+    - These links are only valid after manual is generated
+    - (unless top.build.dir=top.dir)
+    -->
+  <dt>./common/</dt>
+  <dd><a href="../api/common/index.html">javadoc</a> - common code between all configuration modules</dd>
+
+   <dt>./profilewriter/</dt>
+   <dd><a href="../api/profilewriter/index.html">javadoc</a> - Profile Writer Java Source</dd>
+
+   <dt>./profilepublisher/</dt>
+   <dd><a href="../api/profilepublisher/index.html">javadoc</a> - Profile Publisher Java Source</dd>
+
+
+   <dt>./profilegenerator/ejb/</dt>
+   <dd><a href="../api/ejb/index.html">javadoc</a> - EJB Java Source most of the business logic of the configuration system</dd>
+
+   <dt>./profilegenerator/commserver/</dt>
+   <dd><a href="../api/commserver/index.html">javadoc</a> - Java source to edit configuration files for the sipXproxy, sipXregistry and sipXpublisher</dd>
+
+   <dt>./profilegenerator/authentication</dt>
+   <dd><a href="../api/authentication/index.html">javadoc</a> - EJB plugin for JBoss handle user authention into the website and SOAP</dd>
+
+   <dt>./profilegenerator/soap</dt>
+   <dd><a href="../api/soap/index.html">javadoc</a> - Java source for WAR service that allows SOAP based acess to user line, device, and credential adding, deleting and editing</dd>
+
+   <dt>./profilegenerator/webui</dt>
+   <dd><a href="../api/webui/index.html">javadoc</a> - JSP Pages, custom tags, web page logic for web based admin and web user admin WAR file.</dd>
+       
+   <dt>./profilegenerator/deploy</dt>
+   <dd>Assembles pieces of Profile Generator to create one EAR file that gets installed into JBoss.</dd>
+
+   <dt>./sipagent-jni</dt>
+   <dd>C++ JNI code to glue Profile Publisher to sipXtack for SIP based SUBSCRIBE/NOTIFY support for profile information</dd>
+
+</dl>
+
+
+<h2>Remote debugging of sipXconfig components</h2>
+
+<p>It is possible to configure sipXconfig java applications for remote debugging (JDWP). "Remote" in this context means that java 
+debugger attaches to process started by sipX watchdog, and not by the debugger.
+Debugger can actually run on the same machine as sipX services.
+</p>
+<p>
+While it's not strictly required, the first step should be building java code with debug information:
+</p>
+<pre>
+mkdir debug
+cd debug
+JAVAC_DEBUG=on JAVAC_OPTIMIZED=off ../configure
+make
+make install
+</pre>
+
+To launch the program in the debugging mode you need to specify debug mode and communication port for the debugger.
+Pass the following options to java:
+
+<pre>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5432</pre>
+
+<p>
+In the example above we use port 5432. 
+You can use other ports as long as the number you pass to java application is the same as the number you pass to the debugger. 
+</p>
+<p>
+Depending on which component you want to debug modify profilegenerator.sh, profilewriter.sh or profilepublisher.sh. 
+Please note that although profilegenerator scripts starts JBoss it bypasses <code>$JBOSS_HOME/jboss/bin/run.sh</code> script and
+calls java directly.<br/>
+For example, to debug profilegenerator replace the java launching command at the end of profilegenerator.sh with 
+the following:
+</p>
+<pre>
+JAVA_DEBUG_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=5432,suspend=n"
+exec java $JAVA_DEBUG_OPTS $HOTSPOT -mx256m $JAXP -classpath $JBOSS_CLASSPATH org.jboss.Main catalina $@
+</pre>
+<p>
+Once the process is running you can attach your favorite debugger. If you use jdb, your command line should look like that:
+</p>
+
+<pre>$JAVA_HOME/bin/jdb -connect com.sun.jdi.SocketAttach:hostname=localhost,port=5432</pre>
+<p>
+Other debuggers and IDEs are also supported. Information on how to configure your favorite IDE can be usually 
+found under <em>Remote Java Debugging</em> in user manual.
+</p>
+
+<span id="lastmodified">
+<!-- hhmts start -->
+Last modified: Sun Oct 10 21:47:15 EDT 2004
+<!-- hhmts end -->
+</span>
+
+</body>
+</html>

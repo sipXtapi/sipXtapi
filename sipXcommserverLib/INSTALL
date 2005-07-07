@@ -1,0 +1,16 @@
+Required Software
+====================
+sipXportLib 2.5 or better
+  http://www.sipfoundry.org/sipXportLib
+
+sipXtackLib 2.5 or better
+  http://www.sipfoundry.org/sipXtack
+
+Installation
+=====================
+
+./configure
+make
+make check
+make install
+

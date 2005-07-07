@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Common environment variables used by the in memory database (IMDB)
+#export SIPX_DB_VAR_PATH=@localstatedir@
+#export SIPX_DB_ETC_PATH=@localstatedir@/sipxdata/sipdb
+
+echo $$ > @SIPX_RUNDIR@/keepalive.pid
+
+exec @bindir@/sipdbtest keepalive processinfo

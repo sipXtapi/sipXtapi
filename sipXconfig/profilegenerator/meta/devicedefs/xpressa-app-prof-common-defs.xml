@@ -1,0 +1,88 @@
+
+ <ref_property code="xp_3000">
+    <definition name="USER" mobility="false" cardinality="0..N" description="">
+
+
+       <value name="URL" type="string" cardinality="1" visibility="write" index="true" description="" />
+    </definition>
+ </ref_property>
+
+<!--ef_property code="xp_3001">
+    <definition name="CORE" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3002">
+    <definition name="PHONEBOOK" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3003">
+    <definition name="CALLLOG" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3004">
+    <definition name="SPEEDDIAL" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3005">
+    <definition name="DIALBYURL" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3006">
+    <definition name="VOLUMEADJUST" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3007">
+    <definition name="PREFERENCE" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3008">
+    <definition name="CONFERENCE" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3009">
+    <definition name="TRANSFER" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property>
+
+ <ref_property code="xp_3010">
+    <definition name="VERSIONCHECK" mobility="false" cardinality="0..1">
+
+
+       <value name="URL" type="string" />
+    </definition>
+ </ref_property> -->

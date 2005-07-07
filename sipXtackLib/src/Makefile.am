@@ -1,0 +1,77 @@
+## Process this file with automake to produce Makefile.in
+
+SUBDIRS = . test
+
+## Make these part of optional compile under IF we use
+## GNU tools on windows
+EXTRA_DIST = \
+    resparse/wnt/inet_addr.c \
+    resparse/wnt/writev.c
+
+INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include 
+
+lib_LTLIBRARIES = libsipXtack.la
+
+libsipXtack_la_CXXFLAGS = $(GLIB_CFLAGS) \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+
+libsipXtack_la_SOURCES =  \
+    net/HttpBody.cpp \
+    net/HttpMessage.cpp \
+    net/HttpRequestContext.cpp \
+    net/HttpServer.cpp \
+    net/MailAttachment.cpp \
+    net/MailMessage.cpp \
+    net/MimeBodyPart.cpp \
+    net/NameValuePair.cpp \
+    net/NameValueTokenizer.cpp \
+    net/NetAttributeTokenizer.cpp \
+    net/NetBase64Codec.cpp \
+    net/NetMd5Codec.cpp \
+    net/SdpBody.cpp \
+    net/SdpCodec.cpp \
+    net/SdpCodecFactory.cpp \
+    net/SipClient.cpp \
+    net/SipConfigServerAgent.cpp \
+    net/SipLine.cpp \
+    net/SipLineCredentials.cpp \
+    net/SipLineEvent.cpp \
+    net/SipLineList.cpp \
+    net/SipLineMgr.cpp \
+    net/SipMessage.cpp \
+    net/SipMessageEvent.cpp \
+    net/SipMessageList.cpp \
+    net/SipNonceDb.cpp \
+    net/SipNotifyStateTask.cpp \
+    net/SipObserverCriteria.cpp \
+    net/SipProtocolServerBase.cpp \
+    net/SipRefreshMgr.cpp \
+    net/SipServerBase.cpp \
+    net/SipSession.cpp \
+    net/SipSrvLookup.cpp \
+    net/SipTcpServer.cpp \
+    net/SipTlsServer.cpp \
+    net/SipTransaction.cpp \
+    net/SipTransactionList.cpp \
+    net/SipUdpServer.cpp \
+    net/SipUserAgentBase.cpp \
+    net/SipUserAgent.cpp \
+    net/SipUserAgentStateless.cpp \
+    net/Url.cpp \
+    resparse/bzero.c \
+    resparse/memset.c \
+    resparse/ns_name.c \
+    resparse/ns_netint.c \
+    resparse/res_comp.c  \
+    resparse/res_copy.c \
+    resparse/res_data.c \
+    resparse/res_free.c \
+    resparse/res_info.c \
+    resparse/res_init.c \
+    resparse/res_mkquery.c \
+    resparse/res_parse.c \
+    resparse/res_print.c \
+    resparse/res_query.c \
+    resparse/res_send.c 
+

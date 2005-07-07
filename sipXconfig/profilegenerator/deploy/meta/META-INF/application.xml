@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE application PUBLIC '-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN' 'http://localhost:8090/phone/dtd/application_1_3.dtd'>
+
+<application>
+   <display-name>Pingtel Generation Server</display-name>
+   <module>
+      <web>
+         <web-uri>profilegenerator.war</web-uri>
+         <context-root>/pds</context-root>
+      </web>
+   </module>
+    <module>
+      <web>
+         <web-uri>profilegen-soap.war</web-uri>
+         <context-root>/pds/soap</context-root>
+      </web>
+   </module>
+   <module>
+      <ejb>profilegen-ejb.jar</ejb>
+   </module>
+</application>

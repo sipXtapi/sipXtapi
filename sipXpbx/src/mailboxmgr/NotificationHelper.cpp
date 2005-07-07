@@ -1,0 +1,203 @@
+// 
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// $$
+//////////////////////////////////////////////////////////////////////////////
+// SYSTEM INCLUDES
+
+// APPLICATION INCLUDES
+#include "os/OsFS.h"
+#include "os/OsLock.h"
+#include "os/OsSysLog.h"
+#include "net/Url.h"
+#include "net/MailMessage.h"
+#include "mailboxmgr/NotificationHelper.h"
+#include "mailboxmgr/PlayMessagesCGI.h"
+
+// DEFINES
+// STATIC INITIALIZERS
+NotificationHelper* NotificationHelper::spInstance = NULL;
+OsMutex             NotificationHelper::sLockMutex (OsMutex::Q_FIFO);
+
+NotificationHelper*
+NotificationHelper::getInstance()
+{
+    // Critical Section here
+    OsLock lock( sLockMutex );
+
+    // See if this is the first time through for this process
+    // Note that this being null => pgDatabase is also null
+    if ( spInstance == NULL )
+    {   // Create the singleton class for clients to use
+        spInstance = new NotificationHelper();
+    }
+    return spInstance;
+}
+
+NotificationHelper::NotificationHelper()
+{}
+
+NotificationHelper::~NotificationHelper()
+{}
+
+OsStatus 
+NotificationHelper::send (
+    const UtlString& rMailboxIdentity,
+    const UtlString& rSMTPServer,
+    const Url&      mediaserverUrl,
+    const UtlString& rContact,
+    const UtlString& rFrom,
+    const UtlString& rReplyTo,
+    const UtlString& rDate,
+    const UtlString& rDurationMSecs,
+    const UtlString& wavFileName,
+    const char*     pAudioData,
+    const int&      rAudioDatasize,
+    const UtlBoolean& rAttachmentEnabled) const
+{
+    OsStatus status = OS_SUCCESS;
+
+    // For forwarded messages, duration = aggregate of duration of different 
+    // messages that make up the forwarded message.
+    // Skip duration for forwarded messages in this release (1.1).
+    UtlString durationText = "" ;
+    if( !wavFileName.contains("-FW") )
+    {
+        int iDuration = atoi(rDurationMSecs);
+        if( iDuration > 0 )
+        {
+			// Convert to seconds
+			iDuration = iDuration / 1000;
+
+			char temp[10];
+			if( iDuration >= 3600 )
+			{
+				// Retrieve the hour.
+				int hours = iDuration / 3600  ;
+				iDuration = iDuration - (hours * 3600);
+				sprintf( temp, "%02d", hours );
+				durationText = UtlString( temp ) + ":" ;
+			}
+
+			if( iDuration >= 60 )
+			{
+				// Retrieve the hour.
+				int mins = iDuration / 60  ;
+				iDuration = iDuration - (mins * 60);
+				sprintf( temp, "%02d", mins );
+
+				durationText += UtlString( temp ) + ":" ;
+			}
+			else
+			{
+				durationText += "00:" ;
+			}
+
+			// append the seconds
+			sprintf( temp, "%02d", iDuration );
+			durationText += temp;
+        }
+        else
+        {
+            durationText = UtlString("00:00") ;
+        }
+    }
+
+    UtlString strFrom = "Unknown" ;
+    if( !rFrom.isNull() && rFrom.length() > 0)
+        strFrom = rFrom ;
+    UtlString subject = "New Voicemail from " + strFrom ;
+
+    UtlString rawMessageId = wavFileName(0, wavFileName.first('-'));
+
+    UtlString plainBodyText, htmlBodyText;
+
+    MailMessage message ( "Voicemail Notification Service", rReplyTo, rSMTPServer );
+
+    // Now formulate a new deleteMessage URL
+    Url deleteVoicemailUrl = mediaserverUrl;
+    deleteVoicemailUrl.removeParameters();
+    deleteVoicemailUrl.setPath ("/cgi-bin/voicemail/mediaserver.cgi");
+    deleteVoicemailUrl.setHeaderParameter("action", "movemsg");
+    deleteVoicemailUrl.setHeaderParameter("fromweb", "yes");
+    deleteVoicemailUrl.setHeaderParameter("fromfolder", "inbox");
+    deleteVoicemailUrl.setHeaderParameter("tofolder", "deleted");
+    deleteVoicemailUrl.setHeaderParameter(rawMessageId, "yes");
+    deleteVoicemailUrl.setHeaderParameter("maintainstatus", "yes");
+    deleteVoicemailUrl.setHeaderParameter("mailbox", rMailboxIdentity);
+
+    // Now formulate a new show mailbox URL
+    Url showMailboxUrl = mediaserverUrl;
+    showMailboxUrl.removeParameters();
+    showMailboxUrl.setPath ("/cgi-bin/voicemail/mediaserver.cgi");
+    showMailboxUrl.setHeaderParameter("action", "playmsg");
+    showMailboxUrl.setHeaderParameter("category", "inbox");
+    showMailboxUrl.setHeaderParameter("nextblockhandle", "-1");
+    showMailboxUrl.setHeaderParameter("from", "web");
+    showMailboxUrl.setHeaderParameter("fromweb", "yes");
+
+    // Now formulate the play message URL. This will update the MWI status too.
+    Url playVoicemailUrl = mediaserverUrl;
+    playVoicemailUrl.removeParameters();
+    playVoicemailUrl.setPath ("/cgi-bin/voicemail/mediaserver.cgi");
+    playVoicemailUrl.setHeaderParameter("action", "updatestatus");
+    playVoicemailUrl.setHeaderParameter("category", "inbox");
+    playVoicemailUrl.setHeaderParameter("messageidlist", wavFileName );
+    playVoicemailUrl.setHeaderParameter("fromweb", "yes");
+    playVoicemailUrl.setHeaderParameter("emaillink", "yes");
+
+    UtlString playMessageLink        = playVoicemailUrl.toString();
+    UtlString deleteMessageLink      = deleteVoicemailUrl.toString();
+    UtlString showMailboxLink        = showMailboxUrl.toString();
+
+    plainBodyText += "On " + rDate + ", " + strFrom + " left new voicemail. Duration " +
+        durationText + "\n";
+    plainBodyText += "Listen to message " + playMessageLink + "\n";
+    plainBodyText += "Show Voicemail Inbox "   + showMailboxLink + "\n";
+    plainBodyText += "Delete message " + deleteMessageLink + "\n";
+
+    // Format the html text if supported by the browser
+    htmlBodyText = 
+        (UtlString)"<HTML>\n" + 
+                  "<HEAD>\n" +
+                  "<TITLE>Voicemail Notification</TITLE>\n" + 
+                  "</HEAD>\n<BODY>";
+    htmlBodyText += 
+        "<p>On " + rDate + ", " + strFrom + " left new voicemail. Duration " +
+        durationText + "</p>";
+    htmlBodyText += 
+        "<p><a href=\"" + playMessageLink + "\">Listen to message</p>\n";
+    htmlBodyText += 
+        "<p><a href=\"" + showMailboxLink + "\">Show Voicemail Inbox</a>\n";
+    htmlBodyText += 
+        "<p><a href=\"" + deleteMessageLink + "\">Delete message</a>\n";
+    htmlBodyText += 
+        (UtlString)"</BODY>\n" +
+				  "</HTML>";
+
+    if ( rAttachmentEnabled == TRUE )
+    {
+        unsigned char* unsignedAudioData = (unsigned char*) pAudioData;
+        message.Attach( unsignedAudioData, rAudioDatasize, wavFileName);
+    }
+
+    message.Body( plainBodyText , htmlBodyText );
+    message.Subject( subject );
+    message.To( rContact, rContact );
+    UtlString response = message.Send();
+    if ( !response.isNull() )
+    {
+        if( response.length() > 0 )
+        {
+            response = "Notification Helper: " + response ;
+            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR, response.data());
+            OsSysLog::flush(); 
+        }
+    }
+    return status;
+}
