@@ -266,7 +266,7 @@ void Webutil::unescapeChars(UtlString& strNumber)
 	tempString.remove(0);
 	tempString.append(modifiedString );
 	modifiedString.remove(0);
-	replaceAll( tempString, modifiedString , quote , '"');
+	replaceAll( tempString, modifiedString , quote , "\"");
 	
    strNumber.remove(0);
 	strNumber.append(modifiedString);
