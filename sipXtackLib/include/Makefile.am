@@ -38,6 +38,7 @@ nobase_include_HEADERS =  \
     net/SipClient.h \
     net/SipDialog.h \
     net/SipDialogMgr.h \
+    net/SipDialogMonitor.h \
     net/SipDialogEvent.h \
     net/SipConfigServerAgent.h \
     net/SipLineCredentials.h \
@@ -80,6 +81,11 @@ nobase_include_HEADERS =  \
     net/TapiMgr.h \
     net/Url.h \
     net/version.h \
+    net/XmlRpcBody.h \
+    net/XmlRpcDispatch.h \
+    net/XmlRpcMethod.h \
+    net/XmlRpcRequest.h \
+    net/XmlRpcResponse.h \
     resparse/bzero.h \
     resparse/ns_name.h \
     resparse/poll.h \

@@ -48,6 +48,7 @@ libsipXtack_la_SOURCES =  \
     net/HttpMessage.cpp \
     net/HttpRequestContext.cpp \
     net/HttpServer.cpp \
+    net/HttpService.cpp \
     net/MailAttachment.cpp \
     net/MailMessage.cpp \
     net/MimeBodyPart.cpp \
@@ -64,6 +65,7 @@ libsipXtack_la_SOURCES =  \
     net/SipConfigServerAgent.cpp \
     net/SipDialog.cpp \
     net/SipDialogMgr.cpp \
+    net/SipDialogMonitor.cpp \
     net/SipDialogEvent.cpp \
     net/SipLine.cpp \
     net/SipLineCredentials.cpp \
@@ -103,6 +105,11 @@ libsipXtack_la_SOURCES =  \
     net/SipUserAgent.cpp \
     net/SipUserAgentStateless.cpp \
     net/Url.cpp \
+    net/XmlRpcBody.cpp \
+    net/XmlRpcDispatch.cpp \
+    net/XmlRpcMethod.cpp \
+    net/XmlRpcRequest.cpp \
+    net/XmlRpcResponse.cpp \
     resparse/bzero.c \
     resparse/memset.c \
     resparse/ns_name.c \

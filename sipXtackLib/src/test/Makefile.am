@@ -26,7 +26,8 @@ testsuite_SOURCES = \
     net/SipPublishContentMgrTest.cpp \
     net/SipSubcriptionMgrTest.cpp \
     net/SipUserAgentTest.cpp \
-    net/UrlTest.cpp
+    net/UrlTest.cpp \
+    net/XmlRpcTest.cpp
 
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
