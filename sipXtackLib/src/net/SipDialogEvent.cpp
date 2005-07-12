@@ -10,7 +10,6 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsWriteLock.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
@@ -260,7 +259,7 @@ const UtlContainableType Dialog::getContainableType() const
 
 // Constructor
 SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
-   : mRWMutex(OsRWMutex::Q_PRIORITY)
+   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    remove(0);
    append(DIALOG_EVENT_CONTENT_TYPE);
@@ -271,7 +270,7 @@ SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
 }
 
 SipDialogEvent::SipDialogEvent(const char* bodyBytes)
-   : mRWMutex(OsRWMutex::Q_PRIORITY)
+   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    remove(0);
    append(DIALOG_EVENT_CONTENT_TYPE);
@@ -442,7 +441,7 @@ SipDialogEvent::operator=(const SipDialogEvent& rhs)
 /* ============================ ACCESSORS ================================= */
 void SipDialogEvent::insertDialog(Dialog* dialog)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    if (mDialogs.insert(dialog) != NULL)   
    {                 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::insertDialog Dialog = %p", 
@@ -453,25 +452,27 @@ void SipDialogEvent::insertDialog(Dialog* dialog)
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::insertDialog Dialog = %p failed", 
                     dialog);
    }
+   mLock.release();
 }
 
 
 Dialog* SipDialogEvent::removeDialog(Dialog* dialog)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlContainable *foundValue;
    foundValue = mDialogs.remove(dialog);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::removeDialog Dialog = %p", 
                  foundValue);                 
 
+   mLock.release();
    return (Dialog *) foundValue;
 }
 
 
 Dialog* SipDialogEvent::getDialog(UtlString& callId)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlHashMapIterator dialogIterator(mDialogs);
    Dialog* pDialog;
    UtlString foundValue;
@@ -484,6 +485,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId)
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::getDialog found Dialog = %p for callId %s", 
                        pDialog, callId.data());                 
             
+         mLock.release();
          return pDialog;
       }
    }     
@@ -491,13 +493,13 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId)
    OsSysLog::add(FAC_SIP, PRI_WARNING, "SipDialogEvent::getDialog could not found the Dialog for callId = %s", 
                  callId.data());                 
             
+   mLock.release();
    return NULL;
 }
 
 
 UtlBoolean SipDialogEvent::isEmpty()
 {
-   OsWriteLock lock(mRWMutex);
    return (mDialogs.isEmpty());
 }
 
@@ -515,20 +517,22 @@ int SipDialogEvent::getLength() const
 
 Dialog* SipDialogEvent::getFirstDialog()
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlHashMapIterator dialogIterator(mDialogs);
    Dialog* pDialog = (Dialog *) dialogIterator();
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::getFirstDialog Dialog = %p", 
                  pDialog);                 
             
+   mLock.release();
    return pDialog;
 }
 
 
 void SipDialogEvent::getAllDialogs(UtlHashMap& dialogs)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    mDialogs.copyInto(dialogs);
+   mLock.release();
 }
 
 
@@ -548,7 +552,7 @@ void SipDialogEvent::buildBody() const
    dialogEvent += UtlString(dialogEventBuffer);
   
    // Dialog elements
-   OsWriteLock lock(((SipDialogEvent*)this)->mRWMutex);
+   ((SipDialogEvent*)this)->mLock.acquire();
    UtlHashMapIterator dialogIterator(mDialogs);
    Dialog* pDialog;
    while (pDialog = (Dialog *) dialogIterator())
@@ -681,6 +685,7 @@ void SipDialogEvent::buildBody() const
 
    // End of dialog-info element
    dialogEvent += UtlString("</dialog-info>\n");
+   ((SipDialogEvent*)this)->mLock.release();
   
    ((SipDialogEvent*)this)->mBody = dialogEvent;
    ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();

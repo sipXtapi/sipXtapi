@@ -10,7 +10,6 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsWriteLock.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
@@ -122,7 +121,7 @@ const UtlContainableType Resource::getContainableType() const
 SipResourceList::SipResourceList(const UtlBoolean state,
                                  const char* uri,
                                  const char* type)
-   : mRWMutex(OsRWMutex::Q_PRIORITY)
+   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    remove(0);
    append(RESOURCE_LIST_CONTENT_TYPE);
@@ -142,7 +141,7 @@ SipResourceList::SipResourceList(const UtlBoolean state,
 }
 
 SipResourceList::SipResourceList(const char* bodyBytes, const char* type)
-   : mRWMutex(OsRWMutex::Q_PRIORITY)
+   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    remove(0);
    append(RESOURCE_LIST_CONTENT_TYPE);
@@ -209,7 +208,7 @@ SipResourceList::operator=(const SipResourceList& rhs)
 /* ============================ ACCESSORS ================================= */
 void SipResourceList::insertResource(Resource* resource)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    if (mResources.insert(resource) != NULL)   
    {                 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertResource Resource = %p", 
@@ -220,25 +219,27 @@ void SipResourceList::insertResource(Resource* resource)
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertResource Resource = %p failed", 
                     resource);
    }
+   mLock.release();
 }
 
 
 Resource* SipResourceList::removeResource(Resource* resource)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlContainable *foundValue;
    foundValue = mResources.remove(resource);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeResource Resource = %p", 
                  foundValue);                 
 
-   return (Resource *) foundValue;
+   mLock.release();
+    return (Resource *) foundValue;
 }
 
 
 Resource* SipResourceList::getResource(UtlString& resourceUri)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlHashMapIterator resourceIterator(mResources);
    Resource* pResource;
    UtlString foundValue;
@@ -251,25 +252,26 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getResource found Resource = %p for resourceUri %s", 
                        pResource, resourceUri.data());                 
             
+         mLock.release();
          return pResource;
       }
    }     
           
-   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipResourceList::getDResource could not found the Resource for resourceUri = %s", 
+   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipResourceList::getResource could not found the Resource for resourceUri = %s", 
                  resourceUri.data());                 
             
+   mLock.release();
    return NULL;
 }
 
 UtlBoolean SipResourceList::isEmpty()
 {
-   OsWriteLock lock(mRWMutex);
    return (mResources.isEmpty());
 }
 
 void SipResourceList::insertEvent(UtlContainable* event)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    if (mEvents.insert(event) != NULL)   
    {                 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertEvent Event = %p", 
@@ -280,18 +282,20 @@ void SipResourceList::insertEvent(UtlContainable* event)
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertEvent Event = %p failed", 
                     event);
    }
+   mLock.release();
 }
 
 
 UtlContainable* SipResourceList::removeEvent(UtlContainable* event)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlContainable *foundValue;
    foundValue = mEvents.remove(event);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeEvent Event = %p", 
                  foundValue);                 
 
+   mLock.release();
    return foundValue;
 }
 
@@ -334,7 +338,7 @@ void SipResourceList::buildBody() const
    resourceList += UtlString(resourceListBuffer);
    
    // Resource elements
-   OsWriteLock lock(((SipResourceList*)this)->mRWMutex);
+   ((SipResourceList*)this)->mLock.acquire();
    UtlHashMapIterator resourceIterator(mResources);
    Resource* pResource;
    while (pResource = (Resource *) resourceIterator())
@@ -367,6 +371,7 @@ void SipResourceList::buildBody() const
 
    // End of list element
    resourceList += UtlString("</list>\n");
+   ((SipResourceList*)this)->mLock.release();
   
    ((SipResourceList*)this)->mBody = resourceList;
    ((SipResourceList*)this)->bodyLength = resourceList.length();

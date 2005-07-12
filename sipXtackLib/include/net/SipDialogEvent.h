@@ -18,7 +18,7 @@
 #include <net/HttpBody.h>
 #include <net/Url.h>
 #include <os/OsDateTime.h>
-#include <os/OsRWMutex.h>
+#include <os/OsBSem.h>
 
 // DEFINES
 // MACROS
@@ -310,7 +310,7 @@ class SipDialogEvent : public HttpBody
    UtlHashMap mDialogs;
 
     //! reader/writer lock for synchronization
-    OsRWMutex mRWMutex;
+    OsBSem mLock;
 
    //! Disabled copy constructor
    SipDialogEvent(const SipDialogEvent& rSipDialogEvent);

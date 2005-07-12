@@ -10,7 +10,6 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsWriteLock.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
@@ -125,7 +124,7 @@ const UtlContainableType Tuple::getContainableType() const
 
 // Constructor
 SipPresenceEvent::SipPresenceEvent(const char* entity, const char*bodyBytes)
-   : mRWMutex(OsRWMutex::Q_PRIORITY)
+   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    remove(0);
    append(PRESENCE_EVENT_CONTENT_TYPE);
@@ -237,7 +236,7 @@ SipPresenceEvent::operator=(const SipPresenceEvent& rhs)
 /* ============================ ACCESSORS ================================= */
 void SipPresenceEvent::insertTuple(Tuple* tuple)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    if (mTuples.insert(tuple) != NULL)   
    {                 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::insertTuple Tuple = %p", 
@@ -248,25 +247,27 @@ void SipPresenceEvent::insertTuple(Tuple* tuple)
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceEvent::insertTuple Tuple = %p failed", 
                     tuple);
    }
+   mLock.release();
 }
 
 
 Tuple* SipPresenceEvent::removeTuple(Tuple* tuple)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlContainable *foundValue;
    foundValue = mTuples.remove(tuple);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::removeTuple Tuple = %p", 
                  foundValue);                 
 
+   mLock.release();
    return (Tuple *) foundValue;
 }
 
 
 Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
 {
-   OsWriteLock lock(mRWMutex);
+   mLock.acquire();
    UtlHashMapIterator tupleIterator(mTuples);
    Tuple* pTuple;
    UtlString foundValue;
@@ -279,6 +280,7 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::getTuple found Tuple = %p for tupleId %s", 
                        pTuple, tupleId.data());                 
             
+         mLock.release();
          return pTuple;
       }
    }     
@@ -286,12 +288,12 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
    OsSysLog::add(FAC_SIP, PRI_WARNING, "SipPresenceEvent::getTuple could not found the Tuple for tupleId = %s", 
                  tupleId.data());                 
             
+   mLock.release();
    return NULL;
 }
 
 UtlBoolean SipPresenceEvent::isEmpty()
 {
-   OsWriteLock lock(mRWMutex);
    return (mTuples.isEmpty());
 }
 
@@ -320,7 +322,7 @@ void SipPresenceEvent::buildBody() const
    PresenceEvent += UtlString(PresenceEventBuffer);
  
    // Tuple elements
-   OsWriteLock lock(((SipPresenceEvent*)this)->mRWMutex);
+   ((SipPresenceEvent*)this)->mLock.acquire();
    UtlHashMapIterator tupleIterator(mTuples);
    Tuple* pTuple;
    while (pTuple = (Tuple *) tupleIterator())
@@ -365,6 +367,7 @@ void SipPresenceEvent::buildBody() const
 
    // End of Tuple-info element
    PresenceEvent += UtlString("</presence>\n");
+   ((SipPresenceEvent*)this)->mLock.release();
 
    ((SipPresenceEvent*)this)->mBody = PresenceEvent;
    ((SipPresenceEvent*)this)->bodyLength = PresenceEvent.length();

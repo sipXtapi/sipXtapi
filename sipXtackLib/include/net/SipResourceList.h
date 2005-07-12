@@ -20,7 +20,7 @@
 #include <net/SipDialogEvent.h>
 #include <net/SipPresenceEvent.h>
 #include <os/OsDateTime.h>
-#include <os/OsRWMutex.h>
+#include <os/OsBSem.h>
 
 // DEFINES
 // MACROS
@@ -230,7 +230,7 @@ class SipResourceList : public HttpBody
    UtlString mEventType;
 
     //! reader/writer lock for synchronization
-    OsRWMutex mRWMutex;
+    OsBSem mLock;
 
    //! Variable for resource element
    UtlHashMap mResources;
