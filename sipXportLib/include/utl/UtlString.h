@@ -212,7 +212,7 @@ public:
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
 
-    /// Check for a null terminated value in this stringn
+    /// Check for a null terminated value in this string.
     UtlBoolean contains(const char *) const;
     /**<
      * This is equivalent to ( index(str) != UTL_NOT_FOUND )
