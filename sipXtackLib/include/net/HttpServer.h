@@ -35,6 +35,7 @@ class HttpMessage;
 class HttpBody;
 class OsServerSocket;
 class HttpRequestContext;
+class HttpService;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -97,6 +98,8 @@ public:
     void addRequestProcessor(const char* fileUrl, void (*requestProcessor)(const HttpRequestContext& requestContext,
                 const HttpMessage& request, HttpMessage*& response));
 
+    void addHttpService(const char* fileUrl, HttpService* service);
+
     void setPasswordDigest(const char* user, const char* password,
                            UtlString& userPasswordDigest);
 
@@ -149,6 +152,8 @@ protected:
             void (*&requestProcessor)(const HttpRequestContext& requestContext,
                 const HttpMessage& request, HttpMessage*& response));
 
+    UtlBoolean findHttpService(const char* fileUri, HttpService*& service);
+
     void loadValidIpAddrList();
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -166,6 +171,7 @@ private:
    OsConfigDb * mpNonceDb;
    UtlString mRealm;
    UtlHashMap mRequestProcessorMethods;
+   UtlHashMap mHttpServices;
 
         UtlHashBag mValidIpAddrList;
 

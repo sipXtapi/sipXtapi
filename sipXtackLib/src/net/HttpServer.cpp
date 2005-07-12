@@ -36,8 +36,10 @@
 #include <os/OsServerSocket.h>
 #include <os/OsConnectionSocket.h>
 #include <os/OsConfigDb.h>
+#include <utl/UtlVoidPtr.h>
 #include <net/HttpMessage.h>
 #include <net/HttpServer.h>
+#include <net/HttpService.h>
 #include <net/HttpBody.h>
 #include <net/MimeBodyPart.h>
 #include <net/HttpRequestContext.h>
@@ -563,10 +565,19 @@ void HttpServer::processRequest(const HttpMessage& request,
             {
                 requestProcessorPtr(requestContext, request, response);
             }
-            // Use the default request processor
             else
             {
-                processFileRequest(requestContext, request, response);
+                // Check to see whether there is a service for this URI
+                HttpService* pService = NULL;
+                if (findHttpService(uriFileName.data(), pService))
+                {
+                    pService->processRequest(requestContext, request, response);
+                }
+                else
+                {
+                    // Use the default request processor
+                    processFileRequest(requestContext, request, response);
+                }
             }
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "HTTP %s %s mapped to: %s",
                           method.data(), uriFileName.data(), mappedUriFileName.data());
@@ -1411,6 +1422,13 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
     mRequestProcessorMethods.insertKeyAndValue(name, value);
 }
 
+void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
+{
+    UtlString* name = new UtlString(fileUrl);
+    UtlVoidPtr* value = new UtlVoidPtr(service);
+    mHttpServices.insertKeyAndValue(name, value);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 void HttpServer::setPasswordDigest(const char* user, const char* password,
@@ -1506,6 +1524,21 @@ UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
     }
 
     return(requestProcessor != NULL);
+}
+
+UtlBoolean HttpServer::findHttpService(const char* fileUri, HttpService*& pService)
+{
+    UtlString uriCollectable(fileUri);
+    UtlInt* processorCollectable;
+
+    processorCollectable =
+        (UtlInt*) mHttpServices.findValue(&uriCollectable);
+    if(processorCollectable)
+    {
+        pService = (HttpService *) processorCollectable->getValue();
+    }
+
+    return(pService != NULL);
 }
 
 UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& mappedUri)
