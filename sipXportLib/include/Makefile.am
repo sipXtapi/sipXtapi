@@ -98,8 +98,10 @@ nobase_include_HEADERS =  \
     xmlparser/tinystr.h \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
+    utl/UtlBool.h \
     utl/UtlContainable.h \
     utl/UtlContainer.h \
+    utl/UtlDateTime.h \
     utl/UtlDList.h \
     utl/UtlDListIterator.h \
     utl/UtlDefs.h \

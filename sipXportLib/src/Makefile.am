@@ -38,6 +38,8 @@ libsipXport_la_CXXFLAGS = \
 libsipXport_la_SOURCES =  \
     ../config/sipxportlib-buildstamp.h \
     ../config/sipxportlib-buildstamp.cpp \
+    utl/UtlBool.cpp \
+    utl/UtlDateTime.cpp \
     utl/UtlVoidPtr.cpp \
     utl/UtlHistogram.cpp \
     utl/UtlInt.cpp \
