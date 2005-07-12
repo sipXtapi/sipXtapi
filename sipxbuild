@@ -1,0 +1,625 @@
+#!/bin/bash
+
+## Build each project.  No specific knowledge about
+## any project should be listed here. This does a full build
+## of all projects, but more importantly this enforces each
+## project adheres to the standard set forth
+
+Staging=""
+Clean=""
+BuildReturn=0
+FailFast=no
+Sudo=""
+Check=CHECK
+Deps=DEPS
+
+# Overrides ../configure commmand line 
+# may be added to by the meta/${BuildLabel}.configure-switches file
+ConfigureSwitches=""
+
+# Export is nec. to allow projects to use variable in their
+# ConfigureSwitchFile
+export Destination=""
+
+echo "" > build.err
+
+## Correct build order
+ProjectsInOrder() {
+    if [ "$Deps" != "NODEPS" ]
+    then
+        make -f dependencies $* | grep -v "make:"
+    else
+        echo $*
+    fi
+}
+
+## All known projects
+CommunityProjects="\
+   sipXportLib \
+   sipXtackLib \
+   sipXmediaLib \
+   sipXcallLib \
+   sipXcommserverLib \
+   sipXpublisher \
+   sipXregistry \
+   sipXproxy \
+   sipXconfig \
+   sipXvxml \
+   sipXpbx
+"
+
+## RPMs to be built at this time.
+RpmProjects="\
+   sipXportLib \
+   sipXtackLib \
+   sipXmediaLib \
+   sipXcallLib \
+   sipXcommserverLib \
+   sipXpublisher \
+   sipXregistry \
+   sipXproxy \
+   sipXconfig \
+   sipXvxml \
+   sipXpbx \
+"
+
+## In order to build other RPMs, these
+## RPMs need to be installed, along with
+## their *-devel RPMs.
+RpmLibraryProjects="\
+    sipXportLib \
+    sipXtackLib \
+    sipXmediaLib \
+    sipXcallLib \
+    sipXcommserverLib \
+"
+
+## Allow projects to specify custom configure switches.  This is
+## not to be abused, projects should not require complex configure switches
+## for standard operation for optimal usablity.
+setConfigureSwitches()
+{
+    ConfigureSwitches=""
+    for bl in `echo ${BuildLabel} | sed 's/,/ /g'`
+    do
+        ConfigureSwitchFile="meta/${bl}.configure-switches"
+        if [ -f ${ConfigureSwitchFile} ]
+        then
+            SwitchExpression=`sed 's/^#.*//' ${ConfigureSwitchFile}`
+
+           ## by evaluating the expression, switches can use variable
+           ## from this script file
+           ##
+           ## Andy: The orginal line was
+           ## Switch=`eval "echo $SwitchExpression"`
+           ## and that didn't work for me - may have to be put back in
+           ## to evaluate variables in the switches
+            Switch=$SwitchExpression
+            
+            ConfigureSwitches="$ConfigureSwitches $Switch"
+        else
+            echo "Build label '$bl' not defined - no file '${ConfigureSwitchFile}' found." 1>&2
+        fi
+    done
+}
+
+## I N C R E M E N T A L
+incrementalBuild()
+{
+    Project=$1
+    ## echo to stderr to help decipher warnings and errors between projects
+    echo "Starting incremental build of $Project" >&2
+
+    Success=false
+    echo "Building $Project"
+    pushd $Project || return 1
+
+    setConfigureSwitches 
+
+    if autoreconf --install --force
+    then
+        mkbuilddir build
+        cd build
+        if ../configure $ConfigureSwitches --prefix $Destination
+        then
+            if make -s 
+            then
+                if test $Check != CHECK || make check
+                then
+                    if $Sudo make -s install
+                    then
+                        Success=true
+                    fi
+                fi
+            fi
+        fi
+    fi
+    popd
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project built successfully"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project failed to build!!!"
+        echo ""
+        return 1
+    fi
+}
+
+## D I S T R I B U T I O N
+distributionBuild()
+{
+    Project=$1
+    ## echo to stderr to help decipher warnings and errors between projects
+    echo "Starting distribution build of $Project" >&2
+
+    Success=false
+    echo "Building $Project distribution"
+    pushd $Project || return 1
+
+    setConfigureSwitches 
+
+    if autoreconf --force --install
+    then
+        mkbuilddir build
+        cd build
+        if ../configure $ConfigureSwitches --prefix $Destination
+        then
+            if make -s dist
+            then
+
+                # extract tarball into staging dir
+                TarBall=`find -maxdepth 1 -name "*.tar.gz" -printf "%f\n"`
+                TarDir=`echo $TarBall | sed -e 's/.tar.gz//g'`
+                tar -xvzf $TarBall --directory=$Staging
+    
+                # standard make/install
+                pushd $Staging/$TarDir
+                # override install dir for apache modules to avoid need for sudo
+                if ./configure $ConfigureSwitches --prefix $Destination
+                then
+                    if make -s
+                    then
+                        if test $Check != CHECK || make check
+                        then
+                            if $Sudo make -s install
+                            then
+                                Success=true
+                            fi
+                        fi
+                    fi
+                fi
+                popd
+            fi
+        fi
+    fi
+    popd
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project built successfully"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project failed to build!!!"
+        echo ""
+        return 1
+    fi
+}
+
+# Remove RPM
+rpmClean()
+{
+    Project=$1
+
+    Success=true
+
+    # This is a general rule that should be true. If not may need to maintain
+    # legend from project name to rpm package name
+    RpmPackage=`echo $Project | tr A-Z a-z`
+
+    if ! test -z `rpm -qa $RpmPackage-debug | tr -d [:space:]`
+    then
+        if ! $Sudo rpm -e $RpmPackage-debug
+        then 
+            Success=false
+        fi
+    fi 
+
+    if ! test -z `rpm -qa $RpmPackage-devel | tr -d [:space:]`
+    then
+        if ! $Sudo rpm -e $RpmPackage-devel
+        then 
+            Success=false
+        fi
+    fi 
+
+    if ! test -z `rpm -qa $RpmPackage | tr -d [:space:]`
+    then
+        if ! $Sudo rpm -e $RpmPackage
+        then 
+            Success=false
+        fi
+    fi 
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project rpms removed"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project rpms failed to be removed"
+        echo ""
+        return 1
+    fi
+}
+
+##  Make and install RPM
+rpmBuild()
+{
+    Project=$1
+    ## echo to stderr to help decipher warnings and errors between projects
+    echo "Starting RPM build of $Project" >&2
+
+    # This is a general rule that should be true. If not may need to maintain
+    # legend from project name to rpm package name
+    RpmPackage=`echo $Project | tr A-Z a-z`
+
+    Success=false
+    echo "Building $Project RPM"
+    pushd $Project || return 1
+
+    setConfigureSwitches
+
+    if [ ! -f SVN-VERSION ]; then
+        if [ -d .svn ]; then
+            svnversion . > SVN-VERSION
+        else 
+            echo "unknown" > SVN-VERSION
+        fi
+    fi
+    padrevision .
+
+    if autoreconf --force --install
+    then
+        mkbuilddir build
+        cd build
+        if ../configure $ConfigureSwitches
+        then
+            if make -s rpm
+            then
+            
+                ## Upgrade will install if RPM was not previsously installed
+                if [ `echo $RpmLibraryProjects | grep -c $Project` -ne 0 ]
+                then 
+                    RpmFiles=`ls $RpmPackage*.rpm | grep -v "\.src"`
+                    
+                    ## Upgrade will install if RPM was not previsously installed
+                    if $Sudo rpm -i $RpmFiles
+                    then
+                        Success=true
+                    fi
+                else
+                    Success=true
+                fi
+                if [ "$Success" = "true" ]; then
+                    if [ "$Check" = "CHECK" ]; then
+                        Success=false
+
+                        if make -s
+                            then
+                            if make check
+                            then
+                                Success=true
+                            fi
+                        fi
+                    fi
+                fi
+            fi
+        fi
+    fi
+    popd
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project built successfully"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project failed to build!!!"
+        echo ""
+        return 1
+    fi
+}
+
+
+## C L E A N
+cleanBuild()
+{
+    echo "Cleaning $Project"
+    pushd $1 || return 1
+    rm -rf autom4te.cache config.h.in configure aclocal.m4 build
+    find -name Makefile.in -exec rm '{}' \;
+    popd
+}
+
+
+## Send message to stderr, and log it for reporting at end and
+## mark a flag that overall build failed
+builderr()
+{
+    echo "$1" >&2
+    ## Test if we're doing an incremental build and we're in the first try. Don't
+    ## set error condition on first try, only after retry.
+    if [ "$Action" = "INCREMENTAL" ]; then
+      if [ "$Retry" = "no" ]; then
+        echo "Not setting error condition on first try"
+        return
+      fi
+    fi
+    echo "$1" >> build.err
+    BuildReturn=-1
+    if test x"$FailFast" = xyes
+    then
+      exit -1
+    fi
+}
+
+
+## Makes a directory and optionally clean it
+##
+mkbuilddir()
+{
+    if ! test -d $1
+    then
+        mkdir -p $1
+    fi
+}
+
+padrevision()
+{
+    Dir=$1
+
+    cat $Dir/SVN-VERSION | sed -e 's/^\([0-9]*\).*/\1/' > $Dir/SVN-VERSION.raw
+    cat $Dir/SVN-VERSION.raw | sed -e '/^[0-9]\{6\}$/s/\(.*\)/\1/; 
+                                       /^[0-9]\{5\}$/s/\(.*\)/0\1/; 
+                                       /^[0-9]\{4\}$/s/\(.*\)/00\1/; 
+                                       /^[0-9]\{3\}$/s/\(.*\)/000\1/; 
+                                       /^[0-9]\{2\}$/s/\(.*\)/0000\1/; 
+                                       /^[0-9]\{1\}$/s/\(.*\)/00000\1/'> $Dir/SVN-VERSION
+    rm $Dir/SVN-VERSION.raw 
+}
+
+## Optionally load env. specific to building
+## Use BUILD_HOME_DIR because sudo's "~/" is not right
+RCFILE=${BUILD_HOME_DIR:=~}/.sipxbuildrc
+if [ -f $RCFILE ]
+then
+    source $RCFILE
+fi
+
+## Main program loop
+Action=INCREMENTAL
+
+while [ "$#" -ne 0 ]
+do
+    case ${1} in
+        -d|--distribution)
+        Action=DISTRIBUTION
+        ;;
+
+        -r|--rpm)
+        Action=RPM
+        ;;
+
+        -c|--clean)
+        Action=CLEAN
+        ;;
+
+        -rc|--rpmclean)
+        Action=RPMCLEAN
+        ;;
+
+        -f|--failfast)
+        FailFast=yes
+        ;;
+
+        -p|--projects)
+        shift
+        Projects=${1}
+        ;;
+
+        -nc|--no-check)
+        Check=NOCHECK
+        ;;
+
+        -nd|--no-deps)
+        Deps=NODEPS
+        ;;
+
+        -x|--exec)
+        Action=EXEC
+        shift
+        break
+        ;;
+
+        -s|--sudo)
+        Sudo="sudo"
+        ;;
+
+        -l|--label)
+            shift
+            BuildLabel="${BuildLabel},${1}"
+        ;;
+
+        -*)
+        Action=HELP
+        ;;
+
+        *)
+        if [ "$Destination"x = ""x ]
+        then
+            Destination=${1}
+        else
+            echo "Too many arguments: ${1}"
+            Action=HELP
+        fi
+        ;;
+    esac
+
+    shift #always consume 1
+done
+
+if [ -z "$Destination" -a -n "$SIPX_INSTALLDIR" ]
+then
+    Destination=$SIPX_INSTALLDIR
+fi
+
+if [ -z "$Projects" ]
+then
+    case $ACTION in
+        RPM*)
+            Projects=$RpmProjects
+            ;;
+        *)
+            Projects=$CommunityProjects
+            ;;
+    esac
+fi
+
+if test "$Action" = "INCREMENTAL" && ! test -z "$Destination"
+then
+    mkbuilddir 
+
+    for Project in `ProjectsInOrder $Projects`; do
+        Retry="no"
+        if ! incrementalBuild $Project
+        then
+            Retry="yes"
+            cleanBuild $Project
+            incrementalBuild $Project
+        fi
+    done
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "DISTRIBUTION" && ! test -z $Destination
+then
+    mkbuilddir $Destination
+    Staging="$Destination/var/tmp"
+    mkbuilddir $Staging
+
+    for Project in `ProjectsInOrder $Projects`; do
+        distributionBuild $Project
+    done
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "RPM"
+then
+
+    for Project in `ProjectsInOrder $RpmProjects`; do
+        rpmBuild $Project
+    done
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "RPMCLEAN"
+then
+    # need to reverse because of interproject 
+    # dependencies
+    Reverse=""
+    for Project in `ProjectsInOrder $RpmProjects`; do
+        Reverse="$Project $Reverse"
+    done
+
+    for Project in $Reverse; do
+        rpmClean $Project
+    done
+
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "CLEAN"
+then
+    for Project in `ProjectsInOrder $Projects`; do
+        cleanBuild $Project
+    done
+    exit 0
+elif test "$Action" = "EXEC"
+then
+    for Project in `ProjectsInOrder $Projects`; do
+        pushd $Project > /dev/null
+*        "$@"
+        popd > /dev/null
+    done
+    exit 0
+fi
+
+cat <<USAGE
+
+Usage:
+
+    ./sipxbuild [-d|--distribution] 
+                [-c|--clean] 
+                [-s|--sudo]
+                [-f|--failfast] 
+                [-p|--projects {projects}]
+                [-nc|--no-check]
+                [-rc|--rpmclean]
+                [-x|--exec]
+                [-r|--rpm]
+                [-l|--label <label> ]...
+                [{destination directory}]
+
+Options are:
+     none              Incmrementally build every project. Must have rw access 
+                       to destination directory. destination is required.
+
+     --distribution    Calls 'make dist' to builds tarballs. Destination
+                       directory is required but no files are installed or
+                       modified in that directory. destination is required.
+
+     --clean           Deletes all output and generated files including
+                       files generated by autoconf and automake. This
+                       does *not* delete any installed files however.
+
+     --sudo            Sudo when installing packages
+
+     --failfast        Stop after first build error
+
+     --projects        Space delimitted list of projects to operate on.
+                       Example: -projects "sipXportLib sipXtackLib"
+
+     --no-deps         Build exactly the specified targets; do not build the 
+                       projects it depends on.
+
+     --no-check        Does not run unit tests. 
+                       WARNING: If Douglas finds out you didn't run unit tests 
+                       before you checked your code in, he's going to put tacks 
+                       on your chair.
+
+     --exec            Execute remaining portion of commandline after changing the
+                       current directory into the project's root directory. 
+                       Examples:
+                           sipxbuild -x pwd | xargs grep -rl SomeString
+                           sipxbuild -x svn status
+
+     --rpm             Build and install RPMs.
+
+     --rpmclean        Remove RPMs
+
+     --label           Set one or more build labels. The build looks for a 
+                       meta/{label}.configure-switches file in each project
+                       and uses these switches if the file is found.
+                       Multiple labels may be specified by multiple uses of this
+                       option (-l foo -l bar) or by using comma (but not space)
+                       separated values ( --label foo,bar ).
+                       The labels default to the environment variable $BuildLabel 
+                       if it is defined.
+
+USAGE
+
+exit
