@@ -160,6 +160,20 @@ sub hash_div {
     return $h;
 }
 
+# The 32-bit FNV hash, truncated to 24 bits.
+sub hash_fnv {
+    use integer;
+    my($s) = @_;
+    my($h, $i);
+    my($p) = 0x193;
+
+    $h = 2_166_136_261 & 0xFFFFFF;
+    for ($i = 0; $i < length($s); $i++) {
+	$h = (($h ^ ord(substr($s, $i, 1))) * $p) & 0xFFFFFF;
+    }
+    return $h;
+}
+
 # Calculate the liklihood of a z-score.
 sub z_stat {
     my($z) = @_;
