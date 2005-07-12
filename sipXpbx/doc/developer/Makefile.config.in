@@ -35,17 +35,17 @@ WD=@SIPX_CONFDIR@/WatchDog.xml
 no-config-server:
 	mv $(WD) $(WD).tmp
 	sed <$(WD).tmp >$(WD) \
-	    -e '/^[ 	]*<process name="RMIRegistry"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
-	    -e '/^[ 	]*<process name="ProfilePublisher"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
-	    -e '/^[ 	]*<process name="ProfileWriter"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
-	    -e '/^[ 	]*<process name="ProfileGenerator"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
+	    -e $'/^[ \t]*<process name="RMIRegistry"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
+	    -e $'/^[ \t]*<process name="ProfilePublisher"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
+	    -e $'/^[ \t]*<process name="ProfileWriter"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
+	    -e $'/^[ \t]*<process name="ProfileGenerator"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
 	rm $(WD).tmp
 
 # Prevent the Watchdog from automatically running the media server.
 no-media-server:
 	mv $(WD) $(WD).tmp
 	sed <$(WD).tmp >$(WD) \
-	    -e '/^[ 	]*<process name="MediaServer"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
+	    -e $'/^[ \t]*<process name="MediaServer"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
 	rm $(WD).tmp
 
 # Install test certificate files so Apache can do SSL.
@@ -122,14 +122,14 @@ install-sipXvxml-no-setuid:
 	rm -f $(SIPXVXML).tmp
 	mv $(START_FILE) $(START_FILE).tmp
 	sed <$(START_FILE).tmp >$(START_FILE) \
-	    -e 's/^\([ 	]*chown .*\/sipXvxml[ 	]*\)$$/#\1/' \
-	    -e 's/^\([ 	]*chmod .*\/sipXvxml[ 	]*\)$$/#\1/'
+	    -e $'s/^\\([ \t]*chown .*\\/sipXvxml[ \t]*\\)$$/#\\1/' \
+	    -e $'s/^\\([ \t]*chmod .*\\/sipXvxml[ \t]*\\)$$/#\\1/'
 	rm $(START_FILE).tmp
 
 # Check that there is no inconsistency in the dynamic libraries that all the
 # binaries link to.
 check-libraries:
 	sipXpbx/doc/developer/check-libraries \
-		@bindir@/{sipXvxml,sipauthproxy,sipdbtest,sipproxy,sipregistrar,sipstatus,watchdog} \
-		@APACHE2_HTTPD@ \
-		@APACHE2_MOD@/{libmod_cplusplus.so,libmod_sipxauth.so}
+	    @bindir@/{sipXvxml,sipauthproxy,sipdbtest,sipproxy,sipregistrar,sipstatus,watchdog} \
+	    @APACHE2_HTTPD@ \
+	    @APACHE2_MOD@/{libmod_cplusplus.so,libmod_sipxauth.so}
