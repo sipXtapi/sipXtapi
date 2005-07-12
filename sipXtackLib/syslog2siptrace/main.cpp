@@ -241,7 +241,23 @@ void getMessageData(UtlString& content,
         }
         else
         {
+            // Get the method.
             sipMsg.getRequestMethod(&method);
+
+            // If it is a re-INVITE, make that clear.
+            if (method.compareTo("INVITE", UtlString::ignoreCase) == 0)
+            {
+               Url to;
+               sipMsg.getToUrl(to);
+               UtlString toTag;
+               to.getFieldParameter("tag", toTag);
+               if (!toTag.isNull())
+               {
+                  method = "re-INVITE";
+               }
+            }
+               
+            // Prepend FAILED if it is a failed transmission.
             if (failed)
             {
                method = "FAILED " + method;
