@@ -5,14 +5,12 @@
     <column>enabled</column>
     <column>name</column>
     <column>extension</column>
-    <column>lineName</column>
     <column>description</column>
     <row>
       <value>1001</value>
       <value>true</value>
       <value>sales</value>      
       <value>401</value>
-      <value>sales.sipx.1001</value>
       <value>something, something, something</value>
     </row>
     <row>
@@ -20,7 +18,6 @@
       <value>false</value>
       <value>eng</value>      
       <value>401</value>
-      <value>eng.sipx.1002</value>
       <value>something else</value>
     </row>
   </table>    
@@ -37,7 +34,7 @@
       <value>45</value>
       <value>If no response</value>
       <value>1002</value>
-      <value>4</value>
+      <value>1000</value>
     </row>
   </table>
 </dataset>

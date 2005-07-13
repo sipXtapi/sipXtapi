@@ -32,7 +32,6 @@
     <property name="name"/>
     <property name="extension"/>
     <property name="description"/>
-    <property name="lineName" unique="true"/>
     <list name="calls" inverse="true" cascade="all-delete-orphan">
       <key column="call_group_id"/>
       <index column="position"/>

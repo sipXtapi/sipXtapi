@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.LoginPage">
+
+    <description>Page that displays login form</description>
+        
+    <property-specification name="loginContext" 
+    	type="org.sipfoundry.sipxconfig.login.LoginContext" 
+    	initial-value="global.loginContext"/>
+    
+    <property-specification name="callback" type="org.apache.tapestry.callback.ICallback" persistent="yes"/>
+    
+	<property-specification name="userName" type="java.lang.String"/>
+    
+	<property-specification name="password" type="java.lang.String"/>    
+    
+    <!-- B E A N S -->
+    
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>    
+    
+    <!-- C O M P O N E N T S -->
+    <component id="shell" type="Shell">
+        <binding name="stylesheet" expression="assets.stylesheet"/>
+        <message-binding name="title" key="title"/>
+    </component>
+    
+    <component id="form" type="Form">
+        <binding name="listener" expression="listeners.login"/>
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    
+    <component id="labelUserName" type="FieldLabel">
+        <binding name="field" expression="components.userName"/>
+    </component>
+    <component id="userName" type="ValidField">
+        <binding name="value" expression="userName"/>
+        <binding name="validator" expression="beans.nameValidator"/>
+        <message-binding name="displayName" key="label.userName"/>
+    </component>
+    
+    <component id="labelPassword" type="FieldLabel">
+        <binding name="field" expression="components.password"/>
+        <message-binding name="displayName" key="label.password"/>
+    </component>
+    <component id="password" type="TextField">
+        <binding name="value" expression="password"/>
+        <binding name="hidden" expression="true"/>
+    </component>
+    
+    <!-- A S S E T S -->
+	<context-asset name="stylesheet" path="css/sipxconfig.css"/>
+</page-specification>

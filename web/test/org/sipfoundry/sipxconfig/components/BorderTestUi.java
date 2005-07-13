@@ -50,4 +50,16 @@ public class BorderTestUi extends WebTestCase {
         assertElementPresent("_content");
     }
 
+    
+    public void testLogout() {
+        // display navigation and click logout link
+        clickLink("toggleNavigation");
+        clickLink("link.logout");
+        
+        // login form should be visible
+        SiteTestHelper.assertNoException(getTester());
+        assertFormPresent("login:form");
+        SiteTestHelper.assertNoUserError(getTester());
+    }
+    
 }

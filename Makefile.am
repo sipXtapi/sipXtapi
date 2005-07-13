@@ -14,7 +14,7 @@ if SIPAGENT
 SIPAGENT_OPT = sipagent-jni
 endif
 
-SUBDIRS = . bin neoconf common profilegenerator profilepublisher profilewriter $(SIPAGENT_OPT) web $(doc_SUBDIRS)
+SUBDIRS = . bin neoconf $(SIPAGENT_OPT) web $(doc_SUBDIRS)
 RELEASE = 2
 
 EXTRA_DIST = \
@@ -34,14 +34,10 @@ EXTRA_DIST = \
     SVN-VERSION \
     LICENSE \
     config.properties.in \
-    common \
     neoconf \
     sipxconfig.spec \
     web \
     meta \
-    profilegenerator \
-    profilewriter \
-    profilepublisher \
     profilepub_sipagent.dsp \
     lib
 

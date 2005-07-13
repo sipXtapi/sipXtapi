@@ -6,23 +6,23 @@
 		  phone_id="1000"
       name="unittest-sample phone1"
       factory_id="polycom300"
-		  storage_id="[null]"/> 
+		  value_storage_id="[null]"/> 
     <line 
   		line_id="[line_id]" 
 	  	phone_id="1000"
 		  position="2" 
-  		user_id="4"
-	  	storage_id="[null]"/> 
+  		user_id="1000"
+	  	value_storage_id="[null]"/> 
     <line 
 		  line_id="1000" 
   		phone_id="1000"
 	  	position="0" 
-		  user_id="4"
-  		storage_id="[null]"/> 
+		  user_id="1000"
+  		value_storage_id="[null]"/> 
     <line 
 	  	line_id="1001" 
 		  phone_id="1000"
   		position="1" 
-	  	user_id="4"
-		  storage_id="[null]"/> 
+	  	user_id="1000"
+		  value_storage_id="[null]"/> 
 </dataset>

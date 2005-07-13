@@ -89,8 +89,6 @@ public interface PhoneContext extends DataObjectSource {
 
     public String getSystemDirectory();
 
-    public String getDnsDomain();
-
     public void deleteLinesForUser(Integer userId);
     
     /**

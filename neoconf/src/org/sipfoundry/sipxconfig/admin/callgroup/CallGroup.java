@@ -23,7 +23,6 @@ public class CallGroup extends AbstractCallSequence {
     private boolean m_enabled;
     private String m_name;
     private String m_extension;
-    private String m_lineName;
     private String m_description;
 
     public CallGroup() {
@@ -59,14 +58,6 @@ public class CallGroup extends AbstractCallSequence {
 
     public void setExtension(String extension) {
         m_extension = extension;
-    }
-
-    public String getLineName() {
-        return m_lineName;
-    }
-
-    public void setLineName(String lineName) {
-        m_lineName = lineName;
     }
 
     public String getName() {

@@ -77,7 +77,7 @@ public class DialPlanContextTestDb extends TestCase {
         
         ITable internal = set.getTable("internal_dialing_rule");
         assertEquals(1, internal.getRowCount());
-        assertEquals("operator, 0", internal.getValue(0,"auto_attendant_aliases"));
+        assertEquals("operator, 0", internal.getValue(0,"aa_aliases"));
     }
 
     public void testDuplicateRules() throws Exception {

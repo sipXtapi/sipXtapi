@@ -26,8 +26,6 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
     
     public static final String COMPONENT = "UserTable";
     
-    private IPrimaryKeyConvertor m_idConverter;
-    
     /** REQUIRED PROPERTY */
     public abstract SelectMap getSelections();
 
@@ -47,12 +45,11 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
         if (getSelections() == null) {
             setSelections(new SelectMap());            
         }
-        CoreContext context = getCoreContext();
-        m_idConverter = new ObjectSourceDataSqueezer(context, User.class);
     }
     
     public IPrimaryKeyConvertor getIdConverter() {
-        return m_idConverter;
+        CoreContext context = getCoreContext();
+        return new ObjectSourceDataSqueezer(context, User.class);
     }
 }
 

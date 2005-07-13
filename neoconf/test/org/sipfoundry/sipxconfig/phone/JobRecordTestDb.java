@@ -48,8 +48,8 @@ public class JobRecordTestDb extends TestCase {
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[job_id]", job.getId());        
         
-        ITable expected = expectedRds.getTable("jobs");                
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("jobs");
+        ITable expected = expectedRds.getTable("job");                
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("job");
         
         Assertion.assertEquals(expected, actual);                
     }
@@ -58,7 +58,7 @@ public class JobRecordTestDb extends TestCase {
     public void testLoadJob() throws Exception {
         TestHelper.cleanInsertFlat("phone/JobRecordSeed.xml");
         
-        JobRecord job = m_phoneContext.loadJob(new Integer(1));
+        JobRecord job = m_phoneContext.loadJob(new Integer(1000));
         assertEquals("load details", job.getDetails());
         assertEquals("load exception message", job.getExceptionMessage());
         assertEquals("load progress", job.getProgress());

@@ -12,13 +12,13 @@
       </generator>
     </id>
     <property name="name"/>
-    <property name="serialNumber" column="serial_number"/>
-    <property name="factoryId" column="factory_id"/>
-    <many-to-one cascade="all" name="valueStorage" column="storage_id"
+    <property name="serialNumber"/>
+    <property name="factoryId"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 	  <set name="groups" table="phone_group" sort="natural">
       <key column="phone_id"/>
-      <many-to-many class="org.sipfoundry.sipxconfig.setting.Group" column="storage_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
   </class>
   
@@ -32,13 +32,13 @@
       </generator>
     </id>
     <many-to-one name="phoneData" column="phone_id" class="PhoneData" not-null="true"/>
-    <property name="position" column="position"/>
+    <property name="position"/>
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"/>
-    <many-to-one cascade="all" name="valueStorage" column="storage_id"
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
   	<set name="groups" table="line_group" sort="natural">
       <key column="line_id"/>
-      <many-to-many class="org.sipfoundry.sipxconfig.setting.Group" column="storage_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
   </class>
   

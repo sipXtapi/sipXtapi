@@ -1,0 +1,116 @@
+<!--
+  - Manages the database creation, droping and upgrading. File is processed
+  - by ANT and thus format compilies with ANT project files.
+  -->
+<project name="database" basedir=".">
+  <property name="sipxconfig.db.name" value="SIPXCONFIG"/>
+  <property name="sipxconfig.db.user" value="postgres"/>
+  <property name="sipxconfig.db.password" value=""/>
+  <property name="sql.dir" location="${basedir}"/>
+  <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
+  
+  <target name="patches">
+      <!-- ANT BUG: sql task has issues when output=absolute file path -->
+      <sipx-sql print="yes" output="patches.properties" showheaders="no">
+        select name || '=true' from patch;
+        select 'version' || version || '=true' from version_history;
+      </sipx-sql>    
+      <loadproperties srcfile="patches.properties"/>
+  </target>
+
+  <target name="drop" description="drops database!">
+    <exec executable="dropdb">
+      <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}"/>
+    </exec>    
+  </target>
+
+  <target name="createdb" description="creates database void of schema">
+    <exec executable="createdb">
+      <arg line="-U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}"/>
+    </exec>
+  </target>
+  
+  <!-- 
+    - NOTE: Creating a database runs all the patches.  Before shipping, update schema.sql
+    - then remove upgrade-schema0 from dependencies
+    -->
+  <target name="create" depends="createdb,schema,patches,upgrade-schema0"
+    description="create database with schema">    
+  </target>  
+
+  <target name="upgrade" description="applied all patched that need to be applied"
+    depends="patches,upgrade-schema0,initialize"/>
+    
+  <target name="upgrade-schema0" description="upgrade from version 0" unless="version1"
+    depends="" />
+	
+  <target name="initialize" depends="dial-plans,default-phone-group">
+  </target>
+  
+  <target name="schema" unless="schema">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema.sql"/>
+    </sipx-sql>
+  </target>  
+  
+  <!--
+    - Upgrading from 1 to 2
+    -->
+  <target name="user_groups" unless="user_groups">
+    <db-patch patch="user_groups"/>
+  </target>
+	
+  <!--
+    - Database initialization
+    --> 
+  <target name="dial-plans" unless="dial-plans">
+    <java-patch patch="dial-plans"/>
+  </target>
+	
+  <target name="default-phone-group" unless="default-phone-group">
+    <java-patch patch="default-phone-group"/>
+  </target>
+	  
+  <!--
+    - SUPPORT UTILITIES
+    -->
+  <!-- Run SQL on SIPXCONFIG database and update patch list if successful -->  
+  <macrodef name="db-patch">
+    <attribute name="patch"/>
+    <sequential>
+      <sipx-sql>
+        <transaction src="${sql.dir}/@{patch}.sql"/>
+      </sipx-sql>
+      <mark-patch-applied patch="@{patch}"/>    
+    </sequential>
+  </macrodef>
+      
+  <!-- patch list as successful -->  
+  <macrodef name="mark-patch-applied">
+    <attribute name="patch"/>
+    <sequential>
+    <sipx-sql>
+      insert into patch (name) values ('@{patch}');
+    </sipx-sql>  
+    <property name="@{patch}" value="true"/>
+    </sequential>
+  </macrodef>
+
+  <!-- Run SQL on SIPXCONFIG database -->  
+  <presetdef name="sipx-sql">
+    <sql driver="org.postgresql.Driver" 
+        url="${sipxconfig.db.url}" 
+        userid="${sipxconfig.db.user}" 
+        password="${sipxconfig.db.password}"/>
+  </presetdef>
+
+  <macrodef name="java-patch">
+    <attribute name="patch"/>
+    <sequential>
+      <java classname="org.sipfoundry.sipxconfig.admin.PatchRunner" output="/dev/null">
+        <arg value="@{patch}"/>
+      </java>
+    </sequential>
+  </macrodef>
+  
+</project>

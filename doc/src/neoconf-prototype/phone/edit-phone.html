@@ -20,17 +20,18 @@
 					nisl ac velit.</p>
 			</div>
 		</div>
-		<ul class="tabArea">
-			<li class="tab active"><a href="edit-phone.html">Device 
-				Identification</a></li>
-            <li class="gap">|</li>
-			<li class="tab"><a href="lines.html">Lines</a></li>
-            <li class="gap">|</li>
-			<li class="tab"><a href="call-handling.html">Call Handling</a></li>            
-		</ul>
 		<p><span class="page-label">Phone:</span> Joe's work phone/Polycom 
 			Soundpoint&reg; IP 300</p>
 		<h2>Device Identification</h2>
+    <div id="settings-nav">
+		<ul>
+			<li><a href="edit-phone.html">Device 
+				Identification</a></li>
+			<li><a href="lines.html">Lines</a></li>
+			<li><a href="call-handling.html">Call Handling</a></li>            
+		</ul>
+    </div>
+    <div id="settings-content">
 		<p>Serial number is a unique id for this device. Generally it's the 
 			phone's MAC address</p>
 		<form name="phone-data" action="#">
@@ -43,23 +44,22 @@
 					</td>
 				</tr>
 				<tr>
+					<td>Alternate Label:</td>
+					<td>
+						<input type="text" name="alternateLabel" 
+							value="Joe's work phone"/>
+					</td>
+				</tr>
+				<tr>
 					<td valign="top">Groups:</td>
 					<td valign="top">
-						<select name="group" size="3" multiple="true">
-                            <option>default</option>
+						<select name="group" size="3" multiple="multiple">
                             <option>Onsite</option>
                             <option>Sales</option>
                             <option>Engineering</option>
                             <option>Offsite</option>
                         </select> 
                         <a href="edit-group.html">New Group</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Alternate Label:</td>
-					<td>
-						<input type="text" name="alternateLabel" 
-							value="Joe's work phone"/>
 					</td>
 				</tr>
 			</table>
@@ -77,5 +77,6 @@
 				</li>
 			</ul>
 		</form>
+    </div>
 	</body>
 </html>

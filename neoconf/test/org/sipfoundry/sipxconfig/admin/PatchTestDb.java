@@ -11,9 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import junit.framework.TestCase;
-
+import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
+
+import junit.framework.TestCase;
 
 public class PatchTestDb extends TestCase {
 
@@ -23,16 +24,13 @@ public class PatchTestDb extends TestCase {
         m_adminContext = (AdminContext) TestHelper.getApplicationContext().getBean(
                 AdminContext.CONTEXT_BEAN_NAME);
     }
-    
-    public void testPatchRequired() throws Exception {
+
+    public void testApplyPatch() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("admin/seedPatchRequired.xml");
+        m_adminContext.setPatchApplied("test-patch");
         
-        try {
-            m_adminContext.requirePatch(new Integer(2000));
-            fail();
-        } catch (PatchNotAppliedException expected) {
-            assertTrue(true);
-        }        
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("patch");
+        assertEquals(1, actual.getRowCount());
+        assertEquals("test-patch", actual.getValue(0, "name"));        
     }
 }

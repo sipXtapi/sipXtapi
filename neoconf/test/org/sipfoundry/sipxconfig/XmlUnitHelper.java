@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -29,9 +30,11 @@ import junit.framework.Assert;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.io.DOMWriter;
+import org.dom4j.io.SAXReader;
 
 /**
  * Collection of utility function to XMLUnit and DOM4J testing with XMLUnit
@@ -113,5 +116,16 @@ public abstract class XmlUnitHelper {
         StreamResult result = new StreamResult(out);
         transformer.transform(xmlSource, result);
     }
-
+    
+    /**
+     * Loads XML document from class resource
+     * @param klass - for locating the file - pass this.class
+     * @param name name of the file in the same directory as klass
+     * @return newly read DOM4J document
+     */
+    public static Document loadDocument(Class klass, String name) throws DocumentException {
+        InputStream stream = klass.getResourceAsStream(name);
+        SAXReader reader = new SAXReader();
+        return reader.read(stream);
+    }
 }

@@ -38,12 +38,16 @@ public abstract class ManageUsers extends BasePage
         cycle.activate(page);
     }
     
-    public void editSipPassword(IRequestCycle cycle) {
+    public void editUser(IRequestCycle cycle) {
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, 
                 cycle.getServiceParameters(), 0);        
-        EditSipPassword editPwd = (EditSipPassword) cycle.getPage(EditSipPassword.PAGE);
-        editPwd.setUserId(userId);
-        cycle.activate(editPwd);
+        EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
+        page.editUser(userId, PAGE);
+        cycle.activate(page);        
+    }
+    
+    public void deleteUsers(IRequestCycle cycle_) {
+        // TODO : use select map
     }
     
     public void pageBeginRender(PageEvent event_) {

@@ -1,5 +1,0 @@
--- This script creates the Database sequences needed for the SDS.
-CREATE SEQUENCE CONTEXTS_SEQ;
-CREATE SEQUENCE ATTRIBUTES_SEQ;
-CREATE SEQUENCE MULTI_ATTRIBUTES_SEQ;
-

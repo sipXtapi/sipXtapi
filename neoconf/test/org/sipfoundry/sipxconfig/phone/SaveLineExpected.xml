@@ -5,6 +5,6 @@
 		line_id="[line_id]" 
 		phone_id="1000"
 		position="0" 
-		user_id="4"
-		storage_id="[null]"/> 
+		user_id="1000"
+		value_storage_id="[null]"/> 
 </dataset>

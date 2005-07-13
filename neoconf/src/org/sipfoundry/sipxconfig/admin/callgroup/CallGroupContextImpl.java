@@ -17,13 +17,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
-import org.sipfoundry.sipxconfig.admin.forwarding.GenerateMessage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
-import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.springframework.jms.core.JmsOperations;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -35,7 +34,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     private Orbits m_orbitsGenerator;
 
-    private JmsOperations m_jms;
+    private SipxProcessContext m_processContext;
 
     public CallGroup loadCallGroup(Integer id) {
         return (CallGroup) getHibernateTemplate().load(CallGroup.class, id);
@@ -83,26 +82,18 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
         template.deleteAll(orbits);
     }
 
-    public void activateCallGroups() {
-        triggerAliasGeneration();
-    }
-
     /**
      * Sends notification to progile generator to trigger alias generation
      */
-    private void triggerAliasGeneration() {
-        // make profilegenerator to propagate new aliases
-        if (null != m_jms) {
-            m_jms.send(new GenerateMessage(GenerateMessage.TYPE_ALIAS));
-        }
+    public void activateCallGroups() {
+        m_processContext.generate(DataSet.ALIAS);
     }
 
     /**
      * Generate aliases for all call groups
      */
     public List getAliases() {
-        Organization org = m_coreContext.loadRootOrganization();
-        final String dnsDomain = org.getDnsDomain();
+        final String dnsDomain = m_coreContext.getDomainName();
         List callGroups = getCallGroups();
         List allAliases = new ArrayList();
         for (Iterator i = callGroups.iterator(); i.hasNext();) {
@@ -148,18 +139,6 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
         } catch (IOException e) {
             new RuntimeException("Activating call parking configuration failed.", e);
         }
-    }
-
-    public void setJms(JmsOperations jms) {
-        m_jms = jms;
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
-
-    public void setOrbitsGenerator(Orbits orbitsGenerator) {
-        m_orbitsGenerator = orbitsGenerator;
     }
 
     public String getDefaultMusicOnHold() {
@@ -222,5 +201,18 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
         public NameInUseException(String name) {
             super(ERROR, name);
         }
+    }
+
+    // trivial setters
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    public void setOrbitsGenerator(Orbits orbitsGenerator) {
+        m_orbitsGenerator = orbitsGenerator;
+    }
+
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
     }
 }

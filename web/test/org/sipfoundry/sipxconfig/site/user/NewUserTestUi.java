@@ -15,35 +15,39 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 
 
 public class NewUserTestUi extends WebTestCase {
 
-    private PhoneTestHelper m_helper;
-    
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(NewUserTestUi.class);
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        m_helper = new PhoneTestHelper(tester);
-        m_helper.reset();
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(getTester());
+        tester.clickLink("resetCoreContext");
     }
     
     public void testListUsers() throws Exception {
         SiteTestHelper.home(tester);
         clickLink("NewUser"); 
-//        setFormElement("userId", "new-user-test");
-//        setFormElement("firstName", "NewUserFname");
-//        setFormElement("lastName", "NewUserLname");
-//        setFormElement("extension", "993");
-//        setFormElement("pin", "1234");
-//        setFormElement("pinConfirm", "1234");
-//        clickButton("user:save");
-        
-        SiteTestHelper.assertNoException(tester);        
+        setFormElement("userId", "new-user-test");
+        setFormElement("firstName", "NewUserFname");
+        setFormElement("lastName", "NewUserLname");
+        setFormElement("extension", "993");
+        setFormElement("pintoken", "1234");
+        clickButton("user:save");
+        SiteTestHelper.assertNoUserError(tester);
+        SiteTestHelper.assertNoException(tester);
+
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        String[][] table = new String[][] {
+                { SiteTestHelper.ADMIN, "", "", ""},                
+                { "new-user-test" , "NewUserFname", "NewUserLname", "993"}
+            };
+        assertTableRowsEqual("user:list", 1, table);                        
     }
 }

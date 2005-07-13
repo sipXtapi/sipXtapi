@@ -22,7 +22,7 @@
       - Call sequence
       -->  
 	<class name="CallSequence" table="users">
-		<id name="id" column="id" type="int" unsaved-value="-1">
+		<id name="id" column="user_id" type="int" unsaved-value="-1">
 			<generator class="foreign">
 				<param name="property">user</param>
 			</generator>

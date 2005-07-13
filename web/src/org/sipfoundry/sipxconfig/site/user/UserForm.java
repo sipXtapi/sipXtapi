@@ -14,7 +14,5 @@ package org.sipfoundry.sipxconfig.site.user;
 import org.apache.tapestry.BaseComponent;
 
 public abstract class UserForm extends BaseComponent {
-    
-    public abstract String getConfirmPin();    
-
+        
 }

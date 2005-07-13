@@ -61,7 +61,7 @@ public class PhoneTestDriver {
         user.setDisplayId("juser");
         user.setFirstName("Joe");
         user.setLastName("User");
-        user.setPassword("1234");
+        user.setSipPassword("1234");
 
         this.phone = phone;
         PhoneData meta = new PhoneData(factoryId);

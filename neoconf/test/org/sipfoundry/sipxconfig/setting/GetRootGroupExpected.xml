@@ -6,5 +6,5 @@
 		name="Default"
     weight="0"  
     description="[null]"
-		storage_id="[storage_id]"/> 
+		group_id="[group_id]"/> 
 </dataset>

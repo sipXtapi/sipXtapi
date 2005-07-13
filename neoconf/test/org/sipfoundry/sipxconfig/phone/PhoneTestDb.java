@@ -58,6 +58,7 @@ public class PhoneTestDb extends TestCase {
     
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
         
         Phone p = m_context.loadPhone(new Integer(1000));
@@ -95,14 +96,15 @@ public class PhoneTestDb extends TestCase {
 
         ValueStorage s = reloadPhone.getPhoneData().getValueStorage();
         assertNotNull(s);
-        expectedRds.addReplacementObject("[storage_id]", s.getId());
+        expectedRds.addReplacementObject("[value_storage_id]", s.getId());
 
         IDataSet actual = TestHelper.getConnection().createDataSet();                
-        Assertion.assertEquals(expectedRds.getTable("setting"), actual.getTable("setting"));
+        Assertion.assertEquals(expectedRds.getTable("setting_value"), actual.getTable("setting_value"));
     }
     
     public void testAddGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
         

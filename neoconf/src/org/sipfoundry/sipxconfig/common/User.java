@@ -11,31 +11,19 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.io.Serializable;
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 
 /**
- * User that logs in, and base info for most lines
- * 
- * FIXME: for some reason it cannot be BeanWithId - I suspect that hibernate ID mapping is not
- * correct for Users table Users.id is string, we map it to integer
+ * Can be user that logs in, can be superadmin, can be user for phone line
  */
-public class User implements PrimaryKeySource, Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private Integer m_id = new Integer(-1);
+public class User extends BeanWithGroups {
 
     private String m_firstName;
 
-    private Organization m_organization;
-
-    private String m_password;
+    private String m_sipPassword;
 
     private String m_pintoken;
-
-    private Integer m_ugId = new Integer(1); // default group
-
-    private Integer m_rcsId = new Integer(2); // 2='Complete User'
 
     private String m_lastName;
 
@@ -43,22 +31,12 @@ public class User implements PrimaryKeySource, Serializable {
 
     private String m_extension;
 
-    private String m_profileEncryptionKey;
-
     public String getPintoken() {
         return m_pintoken;
     }
 
     public void setPintoken(String pintoken) {
         m_pintoken = pintoken;
-    }
-
-    public Integer getId() {
-        return m_id;
-    }
-
-    public void setId(Integer id) {
-        m_id = id;
     }
 
     public String getFirstName() {
@@ -69,28 +47,12 @@ public class User implements PrimaryKeySource, Serializable {
         m_firstName = firstName;
     }
 
-    public String getPassword() {
-        return m_password;
+    public String getSipPassword() {
+        return m_sipPassword;
     }
 
-    public void setPassword(String password) {
-        m_password = password;
-    }
-
-    public Integer getUserGroupId() {
-        return m_ugId;
-    }
-
-    public void setUserGroupId(Integer ugId) {
-        m_ugId = ugId;
-    }
-
-    public Integer getRcsId() {
-        return m_rcsId;
-    }
-
-    public void setRcsId(Integer rcsId) {
-        m_rcsId = rcsId;
+    public void setSipPassword(String password) {
+        m_sipPassword = password;
     }
 
     public String getLastName() {
@@ -118,7 +80,7 @@ public class User implements PrimaryKeySource, Serializable {
     }
 
     private void delimAppend(StringBuffer sb, String s, char delim) {
-        if (s != null) {
+        if (StringUtils.isNotBlank(s)) {
             if (sb.length() != 0) {
                 sb.append(delim);
             }
@@ -134,23 +96,26 @@ public class User implements PrimaryKeySource, Serializable {
         m_extension = extension;
     }
 
-    public String getProfileEncryptionKey() {
-        return m_profileEncryptionKey;
-    }
+    public String getUri(String domainName) {
+        StringBuffer uri = new StringBuffer();
 
-    public void setProfileEncryptionKey(String profileEncryptionKey) {
-        m_profileEncryptionKey = profileEncryptionKey;
-    }
+        delimAppend(uri, m_firstName, ' ');
+        delimAppend(uri, m_lastName, ' ');
 
-    public Organization getOrganization() {
-        return m_organization;
-    }
+        boolean needsWrapping = uri.length() > 0;
 
-    public void setOrganization(Organization organization) {
-        m_organization = organization;
-    }
+        if (needsWrapping) {
+            uri.append("<");
+        }
 
-    public Object getPrimaryKey() {
-        return getId();
+        uri.append("sip:");
+        uri.append(m_displayId);
+        uri.append("@" + domainName);
+
+        if (needsWrapping) {
+            uri.append(">");
+        }
+
+        return uri.toString();
     }
 }

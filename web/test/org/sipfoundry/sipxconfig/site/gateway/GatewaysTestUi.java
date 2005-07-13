@@ -108,7 +108,8 @@ public class GatewaysTestUi extends WebTestCase {
         assertTextPresent("Enter at most");
         setFormElement("gatewayDescription", new String(descriptionOk));
         tester.clickButton("gateway:save");
-        // we should get not error this time
+        SiteTestHelper.assertNoException(tester);
+        // we should not get error this time
         assertTablePresent("list:gateway");        
     }
 

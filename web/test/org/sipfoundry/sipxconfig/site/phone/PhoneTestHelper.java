@@ -30,8 +30,6 @@ public class PhoneTestHelper {
     
     public LineData[] line;
     
-    public User[] user;
-    
     private WebTester m_tester;
     
     public PhoneTestHelper(WebTester tester) {
@@ -44,14 +42,6 @@ public class PhoneTestHelper {
         SiteTestHelper.assertNoException(m_tester);
     }
     
-    public void seedUser() {
-        // hack, use the user created in neoconf db unittests, assumes those
-        // tests have been run prior to running unittes.  should be possible
-        // to call Add User in JSP web interface
-        user = new User[] { new User() };
-        user[0].setDisplayId("testuser");
-    }
-
     public void seedPhone(int count) {
         SiteTestHelper.home(m_tester);
         endpoint = new PhoneData[count];
@@ -68,7 +58,7 @@ public class PhoneTestHelper {
     }
     
     public void seedLine(int count) {
-        seedUser();
+        SiteTestHelper.seedUser(m_tester);
         seedPhone(1);
         SiteTestHelper.home(m_tester);
         m_tester.clickLink("ManagePhones");        
@@ -77,7 +67,9 @@ public class PhoneTestHelper {
         line = new LineData[count];
         for (int i = 0; i < line.length; i++) {
             line[0] = new LineData();
-            line[0].setUser(user[0]);
+            User testUser = new User();
+            testUser.setDisplayId(SiteTestHelper.TEST_USER);
+            line[0].setUser(testUser);
             line[0].setPhoneData(endpoint[0]);
             m_tester.clickLink("AddUser");        
             m_tester.clickButton("user:search");

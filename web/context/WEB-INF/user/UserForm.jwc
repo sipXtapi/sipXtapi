@@ -17,6 +17,8 @@
       -->
     <property-specification name="confirmPin" 
         type="java.lang.String"/>
+    <property-specification name="confirmSipPassword" 
+        type="java.lang.String"/>
     <!--
       - B E A N S 
       -->
@@ -28,10 +30,7 @@
     	<set-property name="required" expression="false"/>
 	</bean>
     <bean name="pinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
-	</bean>
-    <bean name="pinConfirmValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
+    	<set-property name="required" expression="true"/>
 	</bean>
     <!--
       - C O M P O N E N T S
@@ -49,7 +48,7 @@
 	    <static-binding name="displayName" value="First Name"/>
     </component>
     <component id="firstName" type="TextField">
-	    <binding name="value" expression="user.lastName"/>
+	    <binding name="value" expression="user.firstName"/>
     </component>
     <component id="lastNameLabel" type="FieldLabel">
         <binding name="field" expression="components.lastName"/>
@@ -66,22 +65,20 @@
     	<binding name="validator" expression="beans.extensionValidator"/>
 	    <static-binding name="displayName" value="Extension"/>
     </component>
-    <component id="pinLabel" type="FieldLabel">
-        <binding name="field" expression="components.pin"/>
+    <component id="pintokenLabel" type="FieldLabel">
+        <binding name="field" expression="components.pintoken"/>
     </component>
-    <component id="pin" type="ValidField">
-        <binding name="hidden" expression="true"/>
-	    <binding name="value" expression="user.password"/>
+    <component id="pintoken" type="ValidField">
+	    <binding name="value" expression="user.pintoken"/>
     	<binding name="validator" expression="beans.pinValidator"/>
 	    <static-binding name="displayName" value="PIN"/>
     </component>
-    <component id="pinConfirmLabel" type="FieldLabel">
-        <binding name="field" expression="components.pinConfirm"/>
+    <component id="sipPasswordLabel" type="FieldLabel">
+        <binding name="field" expression="components.sipPassword"/>
+	    <static-binding name="displayName" value="SIP Password"/>
     </component>
-    <component id="pinConfirm" type="ValidField">
-        <binding name="hidden" expression="true"/>
-	    <binding name="value" expression="confirmPin"/>
-    	<binding name="validator" expression="beans.pinConfirmValidator"/>
-	    <static-binding name="displayName" value="PIN (confirm)"/>
+    <component id="sipPassword" type="TextField">
+	    <binding name="value" expression="user.sipPassword"/>
     </component>
+    
 </component-specification>

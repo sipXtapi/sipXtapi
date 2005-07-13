@@ -15,12 +15,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.legacy.LegacyContext;
-import org.springframework.jms.core.JmsOperations;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -29,9 +28,10 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * 
  */
 public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext {
-    private JmsOperations m_jms;
     private CoreContext m_coreContext;
-    private LegacyContext m_legacyContext;
+    
+    private SipxProcessContext m_processContext;
+    
 
     /**
      * Looks for a call sequence associated with a given user.
@@ -49,15 +49,15 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public void saveCallSequence(CallSequence callSequence) {
-        saveCallSequence(callSequence, true);
+        saveCallSequence(callSequence, false);
     }
 
     private void saveCallSequence(CallSequence callSequence, boolean notify) {
         getHibernateTemplate().update(callSequence);
-        // notify profilegenerator if jms has been configured
-        if (notify && null != m_jms) {
-            m_jms.send(new GenerateMessage(GenerateMessage.TYPE_ALIAS));
-            m_jms.send(new GenerateMessage(GenerateMessage.TYPE_AUTH_EXCEPTIONS));
+        if (notify) {
+            // Notify commserver of ALIAS and AUTH_EXCEPTIONS
+            m_processContext.generate(DataSet.ALIAS);
+            m_processContext.generate(DataSet.AUTH_EXCEPTION);
         }
     }
 
@@ -86,21 +86,22 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         List sequences = loadAllCallSequences();
         for (Iterator i = sequences.iterator(); i.hasNext();) {
             CallSequence sequence = (CallSequence) i.next();
-            aliases.addAll(sequence.generateAliases());
+            aliases.addAll(sequence.generateAliases(m_coreContext.getDomainName()));
         }
         return aliases;
     }
 
     public List getForwardingAuthExceptions() {
         List aliases = new ArrayList();
-        List sequences = loadAllCallSequences();
+        List sequences = loadAllCallSequences();        
         for (Iterator i = sequences.iterator(); i.hasNext();) {
             CallSequence sequence = (CallSequence) i.next();
             User user = sequence.getUser();
-            if (m_legacyContext.checkUserPermission(user, Permission.FORWARD_CALLS_EXTERNAL)) {
+            if (m_coreContext.checkUserPermission(user, Permission.FORWARD_CALLS_EXTERNAL)) {
                 aliases.addAll(sequence.generateAuthExceptions());
             }
         }
+        
         return aliases;
     }
 
@@ -110,22 +111,15 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
      * @return list of CallSequence objects
      */
     private List loadAllCallSequences() {
-        Organization organization = m_coreContext.loadRootOrganization();
-        String ringsForUser = "from CallSequence cs where cs.user.organization = :organization";
-        List sequences = getHibernateTemplate().findByNamedParam(ringsForUser, "organization",
-                organization);
+        List sequences = getHibernateTemplate().find("from CallSequence cs");
         return sequences;
-    }
-
-    public void setJms(JmsOperations jms) {
-        m_jms = jms;
     }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
-
-    public void setLegacyContext(LegacyContext legacyContext) {
-        m_legacyContext = legacyContext;
-    }
+    
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
+    }    
 }

@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.common;
 import junit.framework.TestCase;
 
 public class UserTest extends TestCase {
-    
+
     public void testGetDisplayName() {
         User u = new User();
         assertNull(u.getDisplayName());
@@ -26,4 +26,19 @@ public class UserTest extends TestCase {
         assertEquals("First Last", u.getDisplayName());
     }
 
+    public void testGetUri() {
+        User user = new User();
+        user.setDisplayId("displayId");
+        String uri = user.getUri("mycomp.com");
+
+        assertEquals("sip:displayId@mycomp.com", uri);
+
+        user.setLastName("Last");
+        uri = user.getUri("mycomp.com");
+        assertEquals("Last<sip:displayId@mycomp.com>", uri);
+
+        user.setFirstName("First");
+        uri = user.getUri("mycomp.com");
+        assertEquals("First Last<sip:displayId@mycomp.com>", uri);
+    }
 }

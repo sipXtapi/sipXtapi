@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.Visit;
 
 /**
  * UserCallForwarding
@@ -61,10 +62,15 @@ public abstract class UserCallForwarding extends BasePage implements IExternalPa
     }
 
     public void pageBeginRender(PageEvent event_) {
+        Integer userId = getUserId();
+        if (null == userId) {
+            Visit visit = (Visit) getVisit();
+            userId = visit.getUserId();
+            setUserId(userId);
+        }
         CallSequence callSequence = getCallSequence();
         if (null == callSequence) {
             ForwardingContext forwardingContext = getForwardingContext();
-            Integer userId = getUserId();
             callSequence = forwardingContext.getCallSequenceForUserId(userId);
             setCallSequence(callSequence);
         }

@@ -47,7 +47,7 @@ public abstract class AddUserRing extends BasePage implements PageRenderListener
 
         for (Iterator i = selections.getAllSelected().iterator(); i.hasNext();) {
             Integer userId = (Integer) i.next();
-            User user = getCoreContext().loadUser(userId.intValue());
+            User user = getCoreContext().loadUser(userId);
             callGroup.insertRing(user);
         }
 

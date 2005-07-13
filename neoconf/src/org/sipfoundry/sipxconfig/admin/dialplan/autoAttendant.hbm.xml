@@ -11,15 +11,16 @@
 		<property name="name"/>
 		<property name="extension"/>
 		<property name="prompt"/>
-		<property name="systemId" column="system_id"/>
-        <property name="description"/>
+		<property name="systemId"/>
+    <property name="description"/>
 		<map name="menuItems" cascade="all" table="attendant_menu_item" order-by="dialpad_key asc">
 			<key column="auto_attendant_id"/>
 			<index column="dialpad_key" type="org.sipfoundry.sipxconfig.common.DialPad$UserType"/>
     	    <composite-element class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem">
-    		    <property name="action" type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction$UserType"/>
-	    	    <property name="parameter"/>
-            </composite-element>
+            <!-- explicit column names, default prepended 'element_' -->
+    		    <property name="action" column="action" type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction$UserType"/>
+	    	    <property name="parameter" column="parameter"/>
+          </composite-element>
 	    </map>
 	</class>
 </hibernate-mapping>

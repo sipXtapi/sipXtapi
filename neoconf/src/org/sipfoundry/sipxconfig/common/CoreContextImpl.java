@@ -22,21 +22,20 @@ import net.sf.hibernate.expression.Criterion;
 import net.sf.hibernate.expression.Expression;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.legacy.LegacyContext;
-import org.sipfoundry.sipxconfig.legacy.UserConfigSet;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-/**
- * CoreContextImpl
- */
-public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext {
+public class CoreContextImpl extends HibernateDaoSupport implements CoreContext {
 
     private static final char LIKE_WILDCARD = '%';
     
+    private SipxProcessContext m_processContext;
+    
     private String m_authorizationRealm;
     
-    private LegacyContext m_legacyContext;
-
+    private String m_domainName;
+    
     public CoreContextImpl() {
         super();
     }
@@ -45,56 +44,41 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
         return m_authorizationRealm;
     }
     
-    public void setLegacyContext(LegacyContext legacyContext) {
-        m_legacyContext = legacyContext;
-    }
-
     public void setAuthorizationRealm(String authorizationRealm) {
         m_authorizationRealm = authorizationRealm;
     }
+    
+    public String getDomainName() {
+        return m_domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        m_domainName = domainName;
+    }
 
     public void saveUser(User user) {
-        // Currently only 1 organization (except brief instance when installer user exists)
-        if (user.getOrganization() == null) {
-            user.setOrganization(loadRootOrganization());
-        }
-        
-        getHibernateTemplate().saveOrUpdate(user);        
+        getHibernateTemplate().saveOrUpdate(user);
+        m_processContext.generateAll();
     }
     
     public void deleteUser(User user) {
-        getHibernateTemplate().delete(user);        
+        getHibernateTemplate().delete(user);
+        m_processContext.generateAll();        
     }
 
-    public User loadUser(int id) {
-        User user = (User) getHibernateTemplate().load(User.class, new Integer(id));
-        loadUserPassword(user);
+    public User loadUser(Integer id) {
+        User user = (User) getHibernateTemplate().load(User.class, id);
         
         return user;
     }
     
     public User loadUserByDisplayId(String displayId) {
+        // TODO: move query to mapping file
         String query = "from User u where u.displayId = '" + displayId + "'";
         List users = getHibernateTemplate().find(query);
         User user = (User) requireOneOrZero(users, query);
-        loadUserPassword(user);
         
         return user;
-    }
-    
-    /**
-     * Load SIP Password from config set, if password is used, this must
-     * be called on user first.  This is somewhat of a hack but disappears
-     * for v3.2
-     */
-    public void loadUserPassword(User user) {
-        // pull from config set until password is store in user table
-        if (user != null) {
-            UserConfigSet cfg = m_legacyContext.getConfigSetForUser(user);
-            if (cfg != null) {
-                user.setPassword(cfg.getClearTextPassword());
-            }
-        }        
     }
     
     public List loadUserByTemplateUser(User template) {
@@ -116,16 +100,13 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
                 ors.add(Expression.ilike("displayId", template.getDisplayId() + LIKE_WILDCARD));
             }
             
-            Criterion normalUsers = Expression.isNotNull("userGroupId");
-            if (ors.isEmpty()) {
-                criteria.add(normalUsers);
-            } else {
+            if (ors.size() > 0) {
                 Criterion templateExpression = (Criterion) ors.get(0);
                 for (int i = 1; i < ors.size(); i++) {
                     Criterion next = (Criterion) ors.get(i);
                     templateExpression = Expression.or(templateExpression, next);
                 }
-                criteria.add(Expression.and(normalUsers, templateExpression));                
+                criteria.add(templateExpression);
             }
                         
             return criteria.list();
@@ -133,6 +114,10 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
             throw getHibernateTemplate().convertHibernateAccessException(e);
         }
     }
+    
+    public List loadUsers() {
+        return getHibernateTemplate().loadAll(User.class);
+    }    
 
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
@@ -151,8 +136,9 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
      * @throws IllegalStateException if more than one item in collection. In general
      */
     public static Object requireOneOrZero(Collection c, String query) {
-        if (c.size() > 2) {
+        if (c.size() > 2) {            
             // DatabaseCorruptionExection ?
+            // TODO: move error string construction to new UnexpectedQueryResult(?) class, enable localization
             StringBuffer error = new StringBuffer().append("read ").append(c.size())
                     .append(" and expected zero or one. query=").append(query);
             throw new IllegalStateException(error.toString());
@@ -161,8 +147,17 @@ public class CoreContextImpl  extends HibernateDaoSupport implements CoreContext
         
         return (i.hasNext() ? c.iterator().next() : null);
     }    
-       
-    public Organization loadRootOrganization() {
-        return (Organization) getHibernateTemplate().load(Organization.class, new Integer(1));        
+    
+    public void clear() {
+        getHibernateTemplate().delete("from User");        
     }
+    
+    public boolean checkUserPermission(User user_, Permission p_) {
+        // TODO: implementation needed
+        return false;
+    }
+    
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
+    }        
 }

@@ -14,13 +14,15 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 import java.util.Arrays;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
-public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
+public class CallGroupContextImplTestDb extends TestCase {
 
     private CallGroupContext m_context;
 
@@ -28,6 +30,7 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
         TestHelper.cleanInsert("admin/callgroup/CallGroupSeed.xml");
     }
 
@@ -37,7 +40,6 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         assertTrue(callGroup.isEnabled());
         assertEquals("sales", callGroup.getName());
         assertEquals("401", callGroup.getExtension());
-        assertEquals("sales.sipx.1001", callGroup.getLineName());
     }
 
     public void testGetCallGroups() throws Exception {
@@ -48,7 +50,6 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
         assertTrue(callGroup.isEnabled());
         assertEquals("sales", callGroup.getName());
         assertEquals("401", callGroup.getExtension());
-        assertEquals("sales.sipx.1001", callGroup.getLineName());
     }
 
     public void testLoadUserRing() throws Exception {
@@ -67,7 +68,6 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
     public void testStoreCallGroup() throws Exception {
         CallGroup group = new CallGroup();
         group.setName("kuku");
-        group.setLineName("kukuLine");
         group.setExtension("202");
         group.setEnabled(true);
         m_context.storeCallGroup(group);
@@ -79,7 +79,6 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
     public void testStoreCallGroupDuplicateName() throws Exception {
         CallGroup group = new CallGroup();
         group.setName("sales");
-        group.setLineName("kukuLine");
         group.setExtension("202");
         group.setEnabled(true);
         
@@ -97,7 +96,6 @@ public class CallGroupContextImplTestDb extends TestHelper.TestCaseDb {
     public void testStoreCallGroupDuplicateExtension() throws Exception {
         CallGroup group = new CallGroup();
         group.setName("kuku");
-        group.setLineName("kukuLine");
         group.setExtension("401");
         group.setEnabled(true);
         try {

@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.util.List;
-
 import junit.framework.TestCase;
 
 import org.dbunit.Assertion;
@@ -24,6 +22,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 public class UserTestDb extends TestCase {
 
     private CoreContext m_core;
+    
+    private Integer userId = new Integer(1000);
 
     protected void setUp() throws Exception {
         m_core = (CoreContext) TestHelper.getApplicationContext().getBean(
@@ -32,20 +32,11 @@ public class UserTestDb extends TestCase {
 
     public void testLoadUser() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        User user = m_core.loadUser(4);
-        assertEquals(new Integer(4), user.getPrimaryKey());
-        assertEquals(new Integer(4), user.getId());
-    }
-
-    public void testLoadUserByTemplateUser() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserSearchSeed.xml");
-
-        User template = new User();
-        template.setDisplayId("userseed");
-        List users = m_core.loadUserByTemplateUser(template);
-
-        assertEquals(6, users.size());
+        TestHelper.insertFlat("common/TestUserSeed.xml");
+        
+        User user = m_core.loadUser(userId);
+        assertEquals(userId, user.getPrimaryKey());
+        assertEquals(userId, user.getId());
     }
 
     public void testSave() throws Exception {
@@ -55,8 +46,8 @@ public class UserTestDb extends TestCase {
         user.setFirstName("FirstName");
         user.setLastName("LastName");
         user.setPintoken("password");
+        user.setSipPassword("sippassword");
         user.setExtension("1234");
-        user.setOrganization(m_core.loadRootOrganization());
         m_core.saveUser(user);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveUserExpected.xml");
@@ -69,6 +60,5 @@ public class UserTestDb extends TestCase {
                 "select * from users where display_id='userid'");
 
         Assertion.assertEquals(expected, actual);
-
     }
 }

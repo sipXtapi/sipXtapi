@@ -11,38 +11,60 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.RedirectException;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
+import org.sipfoundry.sipxconfig.site.Home;
+import org.sipfoundry.sipxconfig.site.LoginPage;
+import org.sipfoundry.sipxconfig.site.Visit;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
+    
+    /**
+     * When true - page does not require login
+     */
+    public abstract boolean isLoginRequired();
+    
     /**
      * When true - only SUPER can see the pages, when false END_USER is accepted as well as admin
      */
     public abstract boolean isRestricted();
 
-    public void pageValidate(PageEvent event) {
-        HttpServletRequest request = event.getRequestCycle().getRequestContext().getRequest();
-        if (!checkAuthorization(request)) {
-            throw new RedirectException("/sipxconfig/login_error.html");
+    public void pageValidate(PageEvent event_) {
+        if (!isLoginRequired()) {
+            return;
+        }
+
+        IPage page = getPage();
+        Visit visit = getVisit();        
+        if (visit.getUserId() == null) {
+            redirectToLogin(page);
+        }
+        if (!visit.isAdmin() && isRestricted()) {
+            // probably we should have a different page for that
+            throw new PageRedirectException(Home.PAGE);
         }
     }
 
-    /**
-     * True is user is allowed to see the page, false otherwise
-     * 
-     * @param request servlet request used to check user's role
-     */
-    boolean checkAuthorization(HttpServletRequest request) {
-        if (request.isUserInRole("SUPER")) {
-            return true;
-        }
-        if (!isRestricted() && request.isUserInRole("END_USER")) {
-            return true;
-        }
-        return false;
+    public void logout(IRequestCycle cycle) {
+        Visit visit = getVisit();
+        visit.logout();
+        cycle.activate(Home.PAGE);        
+    }
+    
+    protected void redirectToLogin(IPage page) {
+        ICallback callback = new PageCallback(page.getPageName());
+        LoginPage loginPage = (LoginPage) page.getRequestCycle().getPage(LoginPage.PAGE);
+        loginPage.setCallback(callback);
+        throw new PageRedirectException(loginPage);
+    }
+    
+    protected Visit getVisit() {
+        return (Visit) getPage().getVisit();
     }
 }

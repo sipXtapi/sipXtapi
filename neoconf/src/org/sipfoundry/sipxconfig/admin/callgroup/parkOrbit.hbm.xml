@@ -6,15 +6,13 @@
 	  - Default background music
 	  -->
     <class name="BackgroundMusic" table="park_orbit"  discriminator-value="H" polymorphism="explicit">
-		<id name="id" column="park_orbit_id" type="int" unsaved-value="-1">
-			<generator class="sequence">
-				<param name="sequence">park_orbit_seq</param>
-			</generator>
-		</id>
-        
-        <discriminator column="orbit_type" type="character" force="true"/>
-        
-		<property name="music" column="music_on_hold"/>
+  		<id name="id" column="park_orbit_id" type="int" unsaved-value="-1">
+	  		<generator class="sequence">
+		  		<param name="sequence">park_orbit_seq</param>
+			  </generator>
+		  </id>        
+      <discriminator column="orbit_type" type="character" force="true"/>        
+		  <property name="music"/>
     	<property name="enabled"/>        
     </class>
 
@@ -24,18 +22,16 @@
       - hibernate returns ParkOrbit objects even if querying for BackgroundMusic only
 	  -->
     <class name="ParkOrbit" table="park_orbit" discriminator-value="P" polymorphism="explicit">
-		<id name="id" column="park_orbit_id" type="int" unsaved-value="-1">
-			<generator class="sequence">
-				<param name="sequence">park_orbit_seq</param>
-			</generator>
-		</id>
-        
-        <discriminator column="orbit_type" type="character" force="true"/>
-        
-		<property name="music" column="music_on_hold"/>
+			<id name="id" column="park_orbit_id" type="int" unsaved-value="-1">
+				<generator class="sequence">
+					<param name="sequence">park_orbit_seq</param>
+				</generator>
+			</id>	        
+	    <discriminator column="orbit_type" type="character" force="true"/>        
+   		<property name="music"/>
     	<property name="enabled"/>    
     	<property name="name"/>
-        <property name="extension"/>
+      <property name="extension"/>
 	    <property name="description"/>
 	</class>
     

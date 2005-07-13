@@ -67,7 +67,7 @@
       <property name="localExtensionLen"/>
       <property name="voiceMail"/>
       <property name="voiceMailPrefix"/>
-      <property name="aaAliases" column="auto_attendant_aliases"/>
+      <property name="aaAliases"/>
     </joined-subclass>
     
     <joined-subclass name="InternationalRule" table="international_dialing_rule">

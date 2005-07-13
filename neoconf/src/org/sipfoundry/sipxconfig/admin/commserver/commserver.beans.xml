@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName" default-dependency-check="objects">
+  <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer">
+    <property name="configDirectory">
+      <value>${sysdir.etc}</value>
+    </property>
+  </bean>
+  
+  <bean id="sipxProcessContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+    <property name="configDirectory">
+      <value>${sysdir.etc}</value>
+    </property>
+    <property name="replicationManager">
+      <bean class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>
+    </property>
+  </bean>
+  
+  <bean id="backgroundTaskInterceptor" class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor"/>
+  
+  <bean id="sipxProcessContext" class="org.springframework.aop.framework.ProxyFactoryBean" dependency-check="none">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext</value>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+        <value>sipxProcessContextImpl</value>
+      </list>
+    </property>
+  </bean>
+    
+  <bean id="extensionDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions"/>
+  <bean id="aliasDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"/>  
+  <bean id="credentialDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials"/>
+  <bean id="permissionDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions"/>
+  <bean id="authexceptionDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.AuthExceptions"/>
+</beans>
