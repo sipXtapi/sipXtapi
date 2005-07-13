@@ -17,6 +17,7 @@ public class BackgroundTaskQueueTest extends TestCase {
     public void testQueue() throws Exception {
         BackgroundTaskQueue queue = new BackgroundTaskQueue();
         final Thread testThread = Thread.currentThread();
+        queue.suspend();
 
         final StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < 5; i++) {
@@ -29,10 +30,10 @@ public class BackgroundTaskQueueTest extends TestCase {
             queue.addTask(task);
         }
 
-        // give it a chance to do something
-        while (!queue.isEmpty()) {
-            Thread.yield();
-        }
+        assertEquals("", buffer.toString());
+
+        queue.resume();
+        queue.yieldTillEmpty();
 
         assertEquals("AAAAA", buffer.toString());
     }
@@ -57,9 +58,7 @@ public class BackgroundTaskQueueTest extends TestCase {
         }
 
         // give it a chance to do something
-        while (!queue.isEmpty()) {
-            Thread.yield();
-        }
+        queue.yieldTillEmpty();
 
         assertEquals("AAA", buffer.toString());
     }

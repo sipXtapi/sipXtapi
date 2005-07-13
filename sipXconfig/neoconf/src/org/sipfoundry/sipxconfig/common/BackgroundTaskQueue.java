@@ -21,7 +21,7 @@ public class BackgroundTaskQueue {
     private static final Log LOG = LogFactory.getLog(BackgroundTaskQueue.class);
 
     private final Buffer m_queue = BufferUtils.blockingBuffer(new BoundedFifoBuffer());
-    private Thread m_worker;
+    private Worker m_worker = new Worker();
 
     public void addTask(Runnable task) {
         m_queue.add(task);
@@ -37,30 +37,71 @@ public class BackgroundTaskQueue {
     }
 
     private synchronized void startWorker() {
-        if (m_worker != null) {
-            return;
+        if (!m_worker.isAlive()) {
+            m_worker.start();
         }
-        m_worker = new Worker();
-        m_worker.start();
     }
 
+    /**
+     * This is one of the methods that can be used to actively wait till queue is empty Do not use
+     * it unless you need it in testing.
+     */
+    void yieldTillEmpty() {
+        while (!m_queue.isEmpty()) {
+            Thread.yield();
+        }
+    }
+
+    /**
+     * It's not going to suspend currently executed task. However the next task in the queue will
+     * wait till resume is called.
+     */
+    void suspend() {
+        m_worker.setSuspend(true);
+    }
+
+    void resume() {
+        m_worker.setSuspend(false);
+    }
+
+    /**
+     * Worker thread - simple background worker. Takes one task from queue, executes it, takes
+     * next task etc.
+     */
     private class Worker extends Thread {
+        private boolean m_suspend;
+
         public Worker() {
             super("BackgroundTaskQueue - WorkerThread");
             // do not stop JVM from dying
             setDaemon(true);
         }
 
+        public synchronized void setSuspend(boolean suspend) {
+            m_suspend = suspend;
+            if (!m_suspend) {
+                notify();
+            }
+        }
+
         public void run() {
-            while (true) {
-                Runnable task = removeTask();
-                try {
-                    task.run();
-                } catch (Exception e) {
-                    LOG.error("Exception in background task.", e);
+            try {
+                while (true) {
+                    synchronized (this) {
+                        if (m_suspend) {
+                            wait();
+                        }
+                    }
+                    Runnable task = removeTask();
+                    try {
+                        task.run();
+                    } catch (Exception e) {
+                        LOG.error("Exception in background task.", e);
+                    }
                 }
+            } catch (InterruptedException e) {
+                LOG.error("Background task thread exiting due to exception.", e);
             }
         }
     }
-
 }
