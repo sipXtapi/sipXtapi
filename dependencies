@@ -1,5 +1,9 @@
 # this is used by sipxbuild to compute a correct build order
 
+.PHONY: sipXbuild
+sipXbuild :
+	@echo sipXbuild
+
 .PHONY: sipXportLib
 sipXportLib :
 	@echo sipXportLib
