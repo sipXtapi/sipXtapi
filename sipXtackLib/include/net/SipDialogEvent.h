@@ -25,12 +25,49 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define MAX_CHAR_SIZE 1024
 
 #define DIALOG_EVENT_CONTENT_TYPE "application/dialog-info+xml"
 #define DIALOG_EVENT_TYPE "dialog"
 
-#define DIALOG_INFO_XMLNS "urn:ietf:params:xml:ns:dialog-info"
+#define BEGIN_DIALOG_INFO "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\""
+#define END_DIALOG_INFO "</dialog-info>\n"
+
+#define VERSION_EQUAL " version="
+#define STATE_EQUAL " state="
+#define ENTITY_EQUAL " entity="
+
+#define DOUBLE_QUOTE "\""
+#define END_BRACKET ">"
+#define END_LINE ">\n"
+
+#define BEGIN_DIALOG "<dialog id="
+#define CALL_ID_EQUAL " call-id="
+#define LOCAL_TAG_EQUAL " local-tag="
+#define REMOTE_TAG_EQUAL " remote-tag="
+#define DIRECTION_EQUAL " direction="
+#define END_DIALOG "</dialog>\n"
+
+#define BEGIN_STATE "<state"
+#define EVENT_EQUAL " event="
+#define CODE_EQUAL " code="
+#define END_STATE "</state>\n"
+
+#define BEGIN_DURATION "<duration>"
+#define END_DURATION "</duration>\n"
+
+#define BEGIN_LOCAL "<local>\n"
+#define END_LOCAL "</local>\n"
+
+#define BEGIN_REMOTE "<remote>\n"
+#define END_REMOTE "</remote>\n"
+
+#define BEGIN_IDENTITY "<identity"
+#define DISPLAY_EQUAL " display="
+#define END_IDENTITY "</identity>\n"
+
+#define BEGIN_TARTGET "<target uri=\""
+#define END_TARGET "\"/>\n"
+
 
 #define STATE_TRYING "trying"
 #define STATE_EARLY "early"

@@ -539,18 +539,32 @@ void SipDialogEvent::getAllDialogs(UtlHashMap& dialogs)
 void SipDialogEvent::buildBody() const
 {
    UtlString dialogEvent;
-   char dialogEventBuffer[MAX_CHAR_SIZE];
-   char tempBuffer[MAX_CHAR_SIZE];
+   UtlString singleLine;
+   char version[20];
+   char durationBuffer[20];
 
    // Construct the xml document of dialog event
    dialogEvent = UtlString(XML_VERSION_1_0);
 
    // Dialog Information Structure
+   dialogEvent.append(BEGIN_DIALOG_INFO);
+
    Url entityUri(mEntity);
-   sprintf(dialogEventBuffer, "<dialog-info xmlns=\"%s\" version=\"%d\" state=\"%s\" entity=\"%s\">\n",
-           DIALOG_INFO_XMLNS, mVersion, mDialogState.data(), entityUri.toString().data());
-   dialogEvent += UtlString(dialogEventBuffer);
-  
+   sprintf(version, "%d", mVersion);
+
+   dialogEvent.append(VERSION_EQUAL);
+   singleLine = DOUBLE_QUOTE + UtlString(version) + DOUBLE_QUOTE;
+   dialogEvent += singleLine;
+   
+   dialogEvent.append(STATE_EQUAL);
+   singleLine = DOUBLE_QUOTE + mDialogState + DOUBLE_QUOTE;
+   dialogEvent += singleLine;
+
+   dialogEvent.append(ENTITY_EQUAL);
+   singleLine = DOUBLE_QUOTE + entityUri.toString() + DOUBLE_QUOTE;
+   dialogEvent += singleLine;
+   dialogEvent.append(END_LINE);
+ 
    // Dialog elements
    ((SipDialogEvent*)this)->mLock.acquire();
    UtlHashMapIterator dialogIterator(mDialogs);
@@ -560,62 +574,68 @@ void SipDialogEvent::buildBody() const
       UtlString id, callId, localTag, remoteTag, direction;
       pDialog->getDialog(id, callId, localTag, remoteTag, direction);
 
-      sprintf(dialogEventBuffer, "<dialog id=\"%s\"", id.data());
+      dialogEvent.append(BEGIN_DIALOG);
+      singleLine = DOUBLE_QUOTE + id + DOUBLE_QUOTE;
+      dialogEvent += singleLine;
       if (!callId.isNull())
       {
-         sprintf(tempBuffer, " call-id=\"%s\"", callId.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         dialogEvent.append(CALL_ID_EQUAL);
+         singleLine = DOUBLE_QUOTE + callId + DOUBLE_QUOTE;
+         dialogEvent += singleLine;
       }
 
       if (!localTag.isNull())
       {
-         sprintf(tempBuffer, " local-tag=\"%s\"", localTag.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         dialogEvent.append(LOCAL_TAG_EQUAL);
+         singleLine = DOUBLE_QUOTE + localTag + DOUBLE_QUOTE;
+         dialogEvent += singleLine;
       }
 
       if (!remoteTag.isNull())
       {
-         sprintf(tempBuffer, " remote-tag=\"%s\"", remoteTag.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         dialogEvent.append(REMOTE_TAG_EQUAL);
+         singleLine = DOUBLE_QUOTE + remoteTag + DOUBLE_QUOTE;
+         dialogEvent += singleLine;
       }
    
       if (!direction.isNull())
       {
-         sprintf(tempBuffer, " direction=\"%s\"", direction.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         dialogEvent.append(DIRECTION_EQUAL);
+         singleLine = DOUBLE_QUOTE + direction + DOUBLE_QUOTE;
+         dialogEvent += singleLine;
       }
-      strcat(dialogEventBuffer, ">\n");
-      dialogEvent += UtlString(dialogEventBuffer);
+      dialogEvent.append(END_LINE);
 
       // State element
       UtlString state, event, code;
       pDialog->getState(state, event, code);
-      sprintf(dialogEventBuffer, "<state");
+
+      dialogEvent.append(BEGIN_STATE);
       if (!event.isNull())
       {
-         sprintf(tempBuffer, " event=\"%s\"", event.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         dialogEvent.append(EVENT_EQUAL);
+         singleLine = DOUBLE_QUOTE + event + DOUBLE_QUOTE;
+         dialogEvent += singleLine;
       }
 
       if (!code.isNull())
       {
-         sprintf(tempBuffer, " code=\"%s\"", code.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         dialogEvent.append(CODE_EQUAL);
+         singleLine = DOUBLE_QUOTE + code + DOUBLE_QUOTE;
+         dialogEvent += singleLine;
       }
 
       // End of state element
-      sprintf(tempBuffer, ">%s</state>\n", state.data());
-      strcat(dialogEventBuffer, tempBuffer);
-      dialogEvent += UtlString(dialogEventBuffer);
+      singleLine = END_BRACKET + state + END_STATE;
+      dialogEvent += singleLine;
 
       // Duration element
-      int duration = pDialog->getDuration();
-      
+      int duration = pDialog->getDuration();      
       if (duration !=0)
       {
          duration = OsDateTime::getSecsSinceEpoch() - pDialog->getDuration();
-         sprintf(tempBuffer, "<duration>%d</duration>\n", duration);
-         dialogEvent += UtlString(tempBuffer);     
+         sprintf(durationBuffer, "%d", duration);
+         dialogEvent += BEGIN_DURATION + UtlString(durationBuffer) + END_DURATION;     
       }
       
       // Local element
@@ -623,76 +643,75 @@ void SipDialogEvent::buildBody() const
       pDialog->getLocalIdentity(identity, displayName);
       pDialog->getLocalTarget(target);
 
-      sprintf(dialogEventBuffer, "<local>\n");
+      dialogEvent.append(BEGIN_LOCAL);
       if (!identity.isNull())
       {
-         strcat(dialogEventBuffer, "<identity");
+         dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
             NameValueTokenizer::frontBackTrim(&displayName, "\"");
-            sprintf(tempBuffer, " display=\"%s\"", displayName.data());
-            strcat(dialogEventBuffer, tempBuffer);
+            dialogEvent.append(DISPLAY_EQUAL);
+            singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
+            dialogEvent += singleLine;
          }
          
-         sprintf(tempBuffer, ">%s</identity>\n", identity.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         singleLine = END_BRACKET + identity + END_IDENTITY;
+         dialogEvent += singleLine;
       }
 
       if (!target.isNull() && target.compareTo("sip:") != 0)
       {
-         sprintf(tempBuffer, "<target uri=\"%s\"/>\n", target.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         singleLine = BEGIN_TARTGET + target + END_TARGET;
+         dialogEvent += singleLine;
       }
 
       // End of local element
-      sprintf(tempBuffer, "</local>\n");
-      strcat(dialogEventBuffer, tempBuffer);
-      dialogEvent += UtlString(dialogEventBuffer);
+      dialogEvent.append(END_LOCAL);
 
       // Remote element
       pDialog->getRemoteIdentity(identity, displayName);
       pDialog->getRemoteTarget(target);
 
-      sprintf(dialogEventBuffer, "<remote>\n");
+      dialogEvent.append(BEGIN_REMOTE);
       if (!identity.isNull())
       {
-         strcat(dialogEventBuffer, "<identity");
+         dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
             NameValueTokenizer::frontBackTrim(&displayName, "\"");
-            sprintf(tempBuffer, " display=\"%s\"", displayName.data());
-            strcat(dialogEventBuffer, tempBuffer);
+            dialogEvent.append(DISPLAY_EQUAL);
+            singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
+            dialogEvent += singleLine;
          }
    
-         sprintf(tempBuffer, ">%s</identity>\n", identity.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         singleLine = END_BRACKET + identity + END_IDENTITY;
+         dialogEvent += singleLine;
       }
       
       if (!target.isNull() && target.compareTo("sip:") != 0)
       {
-         sprintf(tempBuffer, "<target uri=\"%s\"/>\n", target.data());
-         strcat(dialogEventBuffer, tempBuffer);
+         singleLine = BEGIN_TARTGET + target + END_TARGET;
+         dialogEvent += singleLine;
       }
 
       // End of remote element
-      sprintf(tempBuffer, "</remote>\n");
-      strcat(dialogEventBuffer, tempBuffer);
-      dialogEvent += UtlString(dialogEventBuffer);
+      dialogEvent.append(END_REMOTE);  
 
       // End of dialog element
-      dialogEvent += UtlString("</dialog>\n");
+      dialogEvent.append(END_DIALOG);  
    }
 
    // End of dialog-info element
-   dialogEvent += UtlString("</dialog-info>\n");
+   dialogEvent.append(END_DIALOG_INFO);  
+   
    ((SipDialogEvent*)this)->mLock.release();
   
    ((SipDialogEvent*)this)->mBody = dialogEvent;
    ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::getBytes Dialog content = \n%s", 
-                 dialogEvent.data());                 
-   
+                 dialogEvent.data());
+  
    // Increment the version number
    ((SipDialogEvent*)this)->mVersion++;
 }
