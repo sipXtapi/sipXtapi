@@ -49,8 +49,4 @@
   <query name="phoneIdsWithSerialNumber">
     <![CDATA[select pd.id from PhoneData pd where pd.serialNumber = :value]]>        
   </query>  
-  
-  <query name="groupMemberCountIndexedByGroupId">
-	<![CDATA[select g.id, count(*) from PhoneData o join o.groups g group by g.id]]>
-  </query>
 </hibernate-mapping>

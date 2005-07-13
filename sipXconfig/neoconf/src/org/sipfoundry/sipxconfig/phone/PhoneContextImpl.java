@@ -294,23 +294,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
                 Hibernate.INTEGER);
     }
 
-    public Map getGroupMemberCountIndexedByGroupId() {
-        List l = getHibernateTemplate().findByNamedQuery("groupMemberCountIndexedByGroupId");
-        Map members = asMap(l);
-        
-        return members;
-    }
-    
-    private Map asMap(List l) {
-        Map m = new HashMap(l.size());
-        for (int i = 0; i < l.size(); i++) {
-            Object[] row = (Object[]) l.get(i);
-            m.put(row[0], row[1]);
-        }
-        
-        return m;        
-    }
-
     private class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A phone with serial number: {0} already exists.";
 

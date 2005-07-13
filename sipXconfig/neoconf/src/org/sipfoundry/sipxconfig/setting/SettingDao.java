@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
@@ -38,4 +39,11 @@ public interface SettingDao extends DataObjectSource {
     public void storeValueStorage(ValueStorage storage);
 
     public ValueStorage loadValueStorage(Integer storageId);
+    
+    /**
+     * Get the number of members in each group
+     * 
+     * @return map {groupId as Integer, count as Integer} 
+     */
+    public Map getGroupMemberCountIndexedByGroupId(Class groupOwner);
 }

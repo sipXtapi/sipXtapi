@@ -159,5 +159,9 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext 
     
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
-    }        
+    }
+    
+    public List getUserGroups() {
+        return null;
+    }
 }
