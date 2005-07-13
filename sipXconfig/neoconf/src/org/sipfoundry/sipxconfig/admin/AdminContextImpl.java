@@ -12,24 +12,27 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Timer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
+
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
-import org.sipfoundry.sipxconfig.legacy.LegacyNotifyService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Backup provides Java interface to backup scripts
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener {
-
-    private static final Log LOG = LogFactory.getLog(AdminContextImpl.class);
 
     private String m_binDirectory;
 
@@ -67,19 +70,6 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         return plan;
     }
     
-    public void requirePatch(Integer patchId) {
-        Patch patch = (Patch) getHibernateTemplate().get(Patch.class, patchId);
-        String description = "Required patch with id " + patchId;
-        if (patch == null) {
-            throw new PatchNotAppliedException(description + " was not applied");
-        }
-
-        if (patch.getStatus() == Patch.FAILURE) {
-            throw new PatchNotAppliedException(description + " was not successfully applied");
-        }
-    }
-
-
     public void storeBackupPlan(BackupPlan plan) {
         getHibernateTemplate().saveOrUpdate(plan);
         resetTimer(plan);
@@ -93,18 +83,10 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
      * start backup timers after app is initialized
      */
     public void onApplicationEvent(ApplicationEvent event) {
-        // No need to register listener, all beans that implments listener interface are 
+        // No need to register listener, all beans that implement listener interface are 
         // automatically registered
         if (event instanceof ApplicationInitializedEvent) {
-            try {
-                requirePatch(new Integer(LegacyNotifyService.BACKUP));            
-                resetTimer(getBackupPlan());
-            } catch (PatchNotAppliedException nonFatal) {
-                // database has not been migrated, no backup plan could possible
-                // be started. This is expected on when upgrading from systems below 
-                // 3.0
-                LOG.info("Backup plan not started." + nonFatal.getMessage());
-            }
+            resetTimer(getBackupPlan());
         }
     }
 
@@ -115,4 +97,29 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_timer = new Timer(false); // deamon, dies with main thread
         plan.schedule(m_timer, m_backupDirectory, m_binDirectory); 
     }
+    
+    public void setPatchApplied(String patch) {
+        getHibernateTemplate().execute(new ApplyPatch(patch));
+    }
+
+    class ApplyPatch implements HibernateCallback {
+        
+        private String m_patch;
+        
+        ApplyPatch(String patch) {
+            m_patch = patch;
+        }
+        
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Connection connection = session.connection();
+            Statement statement = connection.createStatement();
+            try {
+                statement.executeUpdate("insert into patch (name) values ('" + m_patch + "')");
+            } finally {
+                JdbcUtils.closeStatement(statement);
+            }
+            return null;
+        }        
+    }
+
 }

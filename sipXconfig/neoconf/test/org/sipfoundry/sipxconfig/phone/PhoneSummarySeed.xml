@@ -10,7 +10,7 @@
 		line_id="1000" 
 		phone_id="1000" 
 		position="0" 
-		user_id="4"/>
+		user_id="1000"/>
 	<phone 
 		serial_number="999123457" 
 		phone_id="2" 
@@ -25,10 +25,10 @@
 		line_id="1001" 
 		phone_id="1002" 
 		position="0" 
-		user_id="4"/>	
+		user_id="1000"/>	
 	<line 
 		line_id="1002" 
 		phone_id="1002" 
 		position="1" 
-		user_id="4"/>			
+		user_id="1000"/>			
 </dataset>

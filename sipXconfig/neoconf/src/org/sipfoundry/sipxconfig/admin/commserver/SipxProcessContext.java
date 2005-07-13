@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.List;
 
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 
 public interface SipxProcessContext {
     public static class Process extends Enum {
@@ -34,4 +35,8 @@ public interface SipxProcessContext {
     };
 
     void restart(Process process);
+    
+    void generate(DataSet dataSet);
+
+    void generateAll();
 }

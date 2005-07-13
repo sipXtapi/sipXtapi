@@ -40,7 +40,7 @@ public class EditLineTestUi extends WebTestCase {
     public void testEditLine() {
         m_helper.seedLine(1);
         clickLink("ManagePhones");        
-        clickLinkWithText(m_helper.user[0].getDisplayId());
+        clickLinkWithText(SiteTestHelper.TEST_USER);
         SiteTestHelper.assertNoException(tester);
     }
     

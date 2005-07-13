@@ -21,6 +21,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
+    <page name="EditUser" specification-path="user/EditUser.page"/>    
     <page name="EditGroup" specification-path="setting/EditGroup.page"/>    
     <page name="PhoneModels" specification-path="phone/PhoneModels.page"/>    
     <page name="PhoneGroups" specification-path="phone/PhoneGroups.page"/>    
@@ -43,7 +44,6 @@
     <page name="EditGateway" specification-path="gateway/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
-    <page name="EditSipPassword" specification-path="user/EditSipPassword.page"/>    
     <page name="Home" specification-path="Home.page"/>
     <page name="ListCallGroups" specification-path="admin/ListCallGroups.page"/>    
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
@@ -72,6 +72,7 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+    <component-type type="UserPortalNavigation" specification-path="user_portal/UserPortalNavigation.jwc"/>
     <component-type type="AdminNavigation" specification-path="common/AdminNavigation.jwc"/>
     <component-type type="GatewayForm" specification-path="gateway/GatewayForm.jwc"/>
     <component-type type="GroupLabel" specification-path="setting/GroupLabel.jwc"/>

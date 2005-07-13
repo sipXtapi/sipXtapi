@@ -21,7 +21,6 @@ import java.util.Map;
 import net.sf.hibernate.Hibernate;
 
 import org.apache.commons.collections.map.LinkedMap;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -51,8 +50,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     private JobQueue m_jobQueue;
 
     private String m_systemDirectory;
-
-    private CoreContext m_coreContext;
 
     private Map m_modelCache = new HashMap();
 
@@ -182,7 +179,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         List lineMetas = getHibernateTemplate().find(lineQuery);
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData lineMeta = (LineData) lineMetas.get(i);
-            loadPassword(lineMeta);
             // collate by parent object: phoneMetaData
             Phone phone = (Phone) phones.get(lineMeta.getPhoneData().getPrimaryKey());
             if (phone == null) {
@@ -203,7 +199,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
                 phone.getPhoneData());
         for (int i = 0; i < lineMetas.size(); i++) {
             LineData meta = (LineData) lineMetas.get(i);
-            loadPassword(meta);
             phone.addLine(phone.createLine(meta));
         }
 
@@ -231,17 +226,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return phone;
     }
 
-    /** 
-     * Pull SIP Password from legacy tables. 
-     * This hack can be deleted for sipxconfig 3.1 when pintoken AND password 
-     * are stored in user table 
-     */
-    private void loadPassword(LineData meta) {
-        m_coreContext.loadUserPassword(meta.getUser());
-    }
-
     Line loadLine(LineData meta) {
-        loadPassword(meta);
         return loadPhoneFromFactory(meta.getPhoneData()).createLine(meta);
     }
 
@@ -276,7 +261,9 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         getHibernateTemplate().delete("from LineData");
         getHibernateTemplate().delete("from PhoneData");
         getHibernateTemplate().delete("from Group where resource = 'phone'");
-        getHibernateTemplate().delete("from ValueStorage");
+        // deleted automatically?
+        //getHibernateTemplate().delete("from ValueStorage");
+        flush();
     }
 
     public String getSystemDirectory() {
@@ -285,14 +272,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     public void setSystemDirectory(String systemDirectory) {
         m_systemDirectory = systemDirectory;
-    }
-
-    public String getDnsDomain() {
-        return m_coreContext.loadRootOrganization().getDnsDomain();
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
     }
 
     public Setting getSettingModel(String filename) {
@@ -304,6 +283,20 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             m_modelCache.put(filename, model);
         }
         return model;
+    }
+    
+    public boolean applyPatch(String patch) {
+        boolean applied = false;
+        if ("default-phone-group".equals(patch)) {
+            Group phoneGroup = new Group();
+            phoneGroup.setName("Default");
+            phoneGroup.setWeight(new Integer(0));
+            phoneGroup.setResource(PhoneData.PHONE_GROUP_RESOURCE);      
+            m_settingDao.storeGroup(phoneGroup);
+            applied = true;
+        }
+        
+        return applied;
     }
 
     public void deleteLinesForUser(Integer userId) {

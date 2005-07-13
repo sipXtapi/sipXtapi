@@ -2,15 +2,13 @@
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
 	<users 
-		id="[user_id]"
+		user_id="[user_id]"
 		first_name="FirstName"
 		last_name="LastName"
-		org_id="1"
-		password="password"
-		ug_id="1"
-		rcs_id="2"
-		display_id="userid"
+		pintoken="password"
+		sip_password="sippassword"
+    display_id="userid"
+    value_storage_id="[null]"
 		extension="1234"
-		profile_encryption_key="[null]"
 		/>
 </dataset>

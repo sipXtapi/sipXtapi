@@ -30,7 +30,7 @@ JdkHome=""
 
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
-JavaVersions='(1.4|1.5)'
+JavaVersions="1\.[456]"
 
 # List of all sipx projects
 Projects="\
@@ -55,7 +55,7 @@ testJava()
     if [ $Action = "JAVA" ]
     then
         CommandCandidate=$JavaPath/$JavaExecutable
-        if [ `$CommandCandidate -version 2>&1 | egrep -c '$JavaVersions'` -eq 0 ]
+        if $CommandCandidate -version 2>&1 | grep "$JavaVersions" >/dev/null
         then
             JavaCommand=$CommandCandidate
             return 0
@@ -77,8 +77,15 @@ testJava()
 
 findJava()
 {
+    # Gentoo
+    JavaConfig=`java-config --jdk 2>/dev/null`
+    if [ -n "${JavaConfig}" ]
+    then
+ 
+        testJava $JavaConfig
+
     # If explict setting of location of java does not work, die
-    if [ -n "${JAVA_HOME}" ]
+    elif [ -n "${JAVA_HOME}" ]
     then
 
         testJava ${JAVA_HOME}

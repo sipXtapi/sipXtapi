@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
+
 
 /**
  * CoreContext
@@ -23,19 +25,23 @@ public interface CoreContext extends DataObjectSource {
     
     public static final Integer UNSAVED_ID = new Integer(-1);
 
-    public Organization loadRootOrganization();
-    
     public void saveUser(User user);
     
     public void deleteUser(User user);
 
-    public void loadUserPassword(User user);
-
-    public User loadUser(int id);
+    public User loadUser(Integer id);
+    
+    public List loadUsers();
     
     public List loadUserByTemplateUser(User template);
 
     public User loadUserByDisplayId(String displayId);
     
     public String getAuthorizationRealm();
+    
+    public String getDomainName();
+    
+    public void clear();
+    
+    public boolean checkUserPermission(User user, Permission p);
 }

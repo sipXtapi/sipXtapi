@@ -60,8 +60,8 @@
   </table>
   <table name="emergency_dialing_rule">
     <column>emergency_dialing_rule_id</column>
-    <column>optionalprefix</column>
-    <column>emergencynumber</column>
+    <column>optional_prefix</column>
+    <column>emergency_number</column>
     <row>
       <value>28</value>
       <null/>
@@ -71,9 +71,9 @@
   <table name="internal_dialing_rule">
     <column>internal_dialing_rule_id</column>
     <column>auto_attendant_id</column>
-    <column>localextensionlen</column>
+    <column>local_extension_len</column>
     <column>voicemail</column>
-    <column>voicemailprefix</column>
+    <column>voicemail_prefix</column>
     <column>auto_attendant_aliases</column>
     <row>
       <value>30</value>
@@ -85,7 +85,7 @@
   </table>
   <table name="international_dialing_rule">
     <column>international_dialing_rule_id</column>
-    <column>internationalprefix</column>
+    <column>international_prefix</column>
     <row>
       <value>29</value>
       <value>011</value>
@@ -93,8 +93,8 @@
   </table>
   <table name="local_dialing_rule">
     <column>local_dialing_rule_id</column>
-    <column>externallen</column>
-    <column>pstnprefix</column>
+    <column>external_len</column>
+    <column>pstn_prefix</column>
     <row>
       <value>31</value>
       <value>7</value>
@@ -103,11 +103,11 @@
   </table>
   <table name="long_distance_dialing_rule">
     <column>international_dialing_rule_id</column>
-    <column>areacodes</column>
-    <column>externallen</column>
-    <column>longdistanceprefix</column>
+    <column>area_codes</column>
+    <column>external_len</column>
+    <column>long_distance_prefix</column>
     <column>permission</column>
-    <column>pstnprefix</column>
+    <column>pstn_prefix</column>
     <row>
       <value>32</value>
       <value/>

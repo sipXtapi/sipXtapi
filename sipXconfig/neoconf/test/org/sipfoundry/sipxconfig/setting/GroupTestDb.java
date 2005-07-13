@@ -36,7 +36,7 @@ public class GroupTestDb extends TestCase {
         Group root = m_dao.loadRootGroup("unittest");
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/GetRootGroupExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[storage_id]", root.getId());
+        expectedRds.addReplacementObject("[group_id]", root.getId());
         expectedRds.addReplacementObject("[null]", null);
 
         ITable expected = expectedRds.getTable("group_storage");
@@ -62,11 +62,11 @@ public class GroupTestDb extends TestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveGroupExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[storage_id]", ms.getId());
+        expectedRds.addReplacementObject("[group_id]", ms.getId());
 
-        ITable expected = expectedRds.getTable("setting");
+        ITable expected = expectedRds.getTable("setting_value");
 
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
 
         Assertion.assertEquals(expected, actual);
     }
@@ -96,9 +96,9 @@ public class GroupTestDb extends TestCase {
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateGroupExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
-        ITable expected = expectedRds.getTable("setting");
+        ITable expected = expectedRds.getTable("setting_value");
 
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
 
         Assertion.assertEquals(expected, actual);
     }

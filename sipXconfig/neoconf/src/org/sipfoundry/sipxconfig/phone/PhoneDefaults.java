@@ -118,7 +118,7 @@ public class PhoneDefaults {
                 settings.setAuthorizationId(user.getDisplayId());
                 settings.setUserId(user.getDisplayId());
                 settings.setDisplayName(user.getDisplayName());
-                settings.setPassword(user.getPassword());
+                settings.setPassword(user.getSipPassword());
                 settings.setAuthorizationRealm(m_authorizationRealm);
             }
         }

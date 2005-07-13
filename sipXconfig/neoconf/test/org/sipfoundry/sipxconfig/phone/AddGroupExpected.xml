@@ -2,6 +2,6 @@
 <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 <dataset>
     <phone_group
-		  storage_id="1000" 		
+		  group_id="1000" 		
 		  phone_id="1000"/> 
 </dataset>

@@ -6,7 +6,7 @@
     <column>name</column>
     <column>extension</column>
     <column>description</column>
-    <column>music_on_hold</column>
+    <column>music</column>
     <column>orbit_type</column>
     <row>
       <value>1001</value>

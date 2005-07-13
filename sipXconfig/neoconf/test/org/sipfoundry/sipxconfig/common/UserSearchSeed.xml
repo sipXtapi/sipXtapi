@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
-	<users org_id="1" display_id="userseed1" password="x" id="5" rcs_id="2" ug_id="1"/>
-	<users org_id="1" display_id="userseed2" password="x" id="6" rcs_id="2" ug_id="1"/>
-	<users org_id="1" display_id="userseed3" password="x" id="7" rcs_id="2" ug_id="1"/>
-	<users org_id="1" display_id="userseed4" password="x" id="8" rcs_id="2" ug_id="1"/>
-	<users org_id="1" display_id="userseed5" password="x" id="9" rcs_id="2" ug_id="1"/>
-	<users org_id="1" display_id="userseed6" password="x" id="10" rcs_id="2" ug_id="1"/>
-	<!-- these shouldn't be found -->
-	<users org_id="1" display_id="usersee-nofind" password="x" id="11" rcs_id="2" ug_id="1"/>
-	<users org_id="1" display_id="nofind-userseed" password="x" id="12" rcs_id="2" ug_id="1"/>
-	<users org_id="1" display_id="u s e r s e e d" password="x" id="13" rcs_id="2" ug_id="1"/>
+	<users display_id="userseed1" pintoken="x" user_id="1001"/>
+	<users display_id="userseed2" pintoken="x" user_id="1002"/>
+	<users display_id="userseed3" pintoken="x" user_id="1003"/>
+	<users display_id="userseed4" pintoken="x" user_id="1004"/>
+	<users display_id="userseed5" pintoken="x" user_id="1005"/>
+	<users display_id="userseed6" pintoken="x" user_id="1006"/>
+	<users display_id="usersee-nofind" pintoken="x" user_id="1007"/>
+	<users display_id="nofind-userseed" pintoken="x" user_id="1008"/>
+	<users display_id="u s e r s e e d" pintoken="x" user_id="1009"/>
 </dataset>

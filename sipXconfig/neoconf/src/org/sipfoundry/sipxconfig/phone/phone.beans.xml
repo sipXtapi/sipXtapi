@@ -6,9 +6,6 @@
   - P H O N E  C O N T E X T   I M P L
   -->
   <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
-    <property name="coreContext">
-      <ref bean="coreContext"/>
-    </property>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>

@@ -26,7 +26,6 @@ Source: %name-%version.tar.gz
 
 Requires: sipxtacklib >= 2.9.0
 Requires: sipxcommserverlib >= 2.9.0
-Requires: sipx-jboss >= 4.0
 Requires: postgresql-server >= 7.3
 
 # to serve profile/catalog/apps.  These can be served from
@@ -75,19 +74,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}
 %attr(755,root,root) %{_libdir}/libpublish-sipagent.so*
 %{_libdir}/lib*.la
-@JBOSS_HOME@/server/@JBOSS_SERVER_CONF@/deploy/*
-@JBOSS_HOME@/server/@JBOSS_SERVER_CONF@/lib/*
 
 # Because of generation of data and profiles
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/applications
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/catalog
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/docroot
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
-
-# Default cisco phone config files
-%{phonedir}/profile/tftproot/*
 
 # Install configserver config files, directory only is created by pbx
 %config(noreplace) %{sipxpbxconf}/*
@@ -98,34 +90,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 
-# Check for upgrade
-sipx-upgrade -p sipxconfig -c 
-
-# Add user @SIPXPBXUSER@ to the "jboss" group
-if ! /usr/bin/groups @SIPXPBXUSER@ | grep jboss >/dev/null
-then
-  Groups=`/usr/bin/groups @SIPXPBXUSER@ |
-          sed -e 's/^@SIPXPBXUSER@ : //g' -e 's/ /,/g'`
-  /usr/sbin/usermod -G $Groups,jboss @SIPXPBXUSER@
-fi
-
-#TODO: Verify sipxchange user can r/w to jboss's log and deploy scratch dirs
-
 %post
 
-# Upgrade configuration
-sipx-upgrade -p sipxconfig -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
-
-# Start Postgres and create the databases.  Note that we leave Postgres
-# running afterward.
-%{_bindir}/sipxdbmgr --setup >/dev/null
-
-for Database in PDS SDS; do
-  if test "`%{_bindir}/sipxdbmgr --revision $Database`" -eq 0
-  then
-       %{_bindir}/sipxdbmgr --create $Database >/dev/null
-  fi
-done
-
-# Arrange for Postgres to be started every time the system starts up.
-%{_bindir}/sipxdbmgr --install
+sipxconfig.sh --setup

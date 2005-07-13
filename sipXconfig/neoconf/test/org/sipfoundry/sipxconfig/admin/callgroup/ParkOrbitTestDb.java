@@ -94,6 +94,6 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
         assertEquals(newMusic, m_context.getDefaultMusicOnHold());
         
         ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(newMusic, orbitTable.getValue(2, "music_on_hold"));
+        assertEquals(newMusic, orbitTable.getValue(2, "music"));
     }
 }

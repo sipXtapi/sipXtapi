@@ -12,14 +12,14 @@
 				<param name="sequence">backup_plan_seq</param>
 			</generator>
 		</id>
-        <property name="limitedCount" column="limited_count"/>
+        <property name="limitedCount"/>
         <property name="configs"/>
         <property name="voicemail"/>
-		<!-- database is a reserved sql word -->
+		    <!-- database is a reserved sql word -->
         <property name="database" column="dbase"/>
-		<bag name="schedules" inverse="true" table="daily_backup_schedule" cascade="all">
+    		<bag name="schedules" inverse="true" table="daily_backup_schedule" cascade="all">
 		    <key column="backup_plan_id"/>
-			<one-to-many class="DailyBackupSchedule"/>		
+			<one-to-many class="DailyBackupSchedule" />		
 		</bag>
 	</class>
 
@@ -33,8 +33,8 @@
 			</generator>
 		</id>        
         <property name="enabled"/>
-        <property name="timeOfDay" column="time_of_day"/>
-        <property name="scheduledDay" column="scheduled_day" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType"/>
-		<many-to-one name="backupPlan" class="BackupPlan" column="backup_plan_id"/>
+        <property name="timeOfDay"/>
+        <property name="scheduledDay" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType"/>
+		<many-to-one name="backupPlan" column="backup_plan_id" class="BackupPlan"/>
 	</class>
 </hibernate-mapping>

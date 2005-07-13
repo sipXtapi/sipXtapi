@@ -23,6 +23,7 @@ public class EditCallGroupTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.seedUser(getTester());
         SiteTestHelper.home(getTester());
         //clickLink("resetCallGroupContext");
         clickLink("NewCallGroup");

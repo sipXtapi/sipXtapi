@@ -45,11 +45,11 @@ public class ValueStorageTestDb extends TestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveValueStorageExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[storage_id]", vs.getId());        
+        expectedRds.addReplacementObject("[value_storage_id]", vs.getId());        
         
-        ITable expected = expectedRds.getTable("setting");
+        ITable expected = expectedRds.getTable("setting_value");
                 
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
         
         Assertion.assertEquals(expected, actual);        
     }
@@ -71,9 +71,9 @@ public class ValueStorageTestDb extends TestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateValueStorageExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        ITable expected = expectedRds.getTable("setting");
+        ITable expected = expectedRds.getTable("setting_value");
                 
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
         
         Assertion.assertEquals(expected, actual);        
     }   

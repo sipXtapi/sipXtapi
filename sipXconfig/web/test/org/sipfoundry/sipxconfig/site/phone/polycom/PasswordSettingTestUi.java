@@ -41,7 +41,7 @@ public class PasswordSettingTestUi extends WebTestCase {
         m_helper.seedPhone(1);
         m_helper.seedLine(1);
         clickLink("ManagePhones");        
-        clickLinkWithText(m_helper.user[0].getDisplayId());
+        clickLinkWithText(SiteTestHelper.TEST_USER);
         clickLinkWithText("Registration");
         Element passwordField = getDialog().getElement("setting:auth.password");        
         assertEquals("password", passwordField.getAttribute("type"));

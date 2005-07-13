@@ -77,10 +77,7 @@ sipxchange_processes=(
     sipXvxml
     sipxpark
     sipstatus
-    profilegenerator
-    profilepublisher
-    profilewriter
-    rmiregistry
+    sipxconfig
 )
 
 # Low-level start function.

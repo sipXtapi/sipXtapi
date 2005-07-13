@@ -15,21 +15,17 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
 /**
  * Gateway
  */
-public class Gateway extends BeanWithId {
+public class Gateway extends BeanWithSettings {
     private String m_name;
 
     private String m_address;
 
     private String m_description;
-
-    private Setting m_settings;
 
     private String m_factoryId;
 
@@ -37,41 +33,11 @@ public class Gateway extends BeanWithId {
 
     private GatewayContext m_gatewayContext;
 
-    private ValueStorage m_valueStorage;
-    
     private String m_tftpRoot;
 
     public void generateProfiles(Writer writer_) throws IOException {
         // generic gateways does not support generating profiles
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @return undecorated model - direct representation of XML model description
-     */
-    public Setting getSettingModel() {
-        return null;
-    }
-
-    /**
-     * @return decorated model - use this to modify phone settings
-     */
-    public Setting getSettings() {
-        if (m_settings == null) {
-            Setting settings = getSettingModel();
-            if (settings == null) {
-                // it's OK for a gateway not to provide settings
-                return null;
-            }
-            if (m_valueStorage == null) {
-                m_valueStorage = new ValueStorage();
-            }
-
-            m_settings = m_valueStorage.decorate(settings);
-            // TODO do we need setDefaults(); here
-        }
-
-        return m_settings;
     }
 
     public String getModelName() {
@@ -121,14 +87,6 @@ public class Gateway extends BeanWithId {
 
     public void setFactoryId(String factoryId) {
         m_factoryId = factoryId;
-    }
-
-    public void setValueStorage(ValueStorage valueStorage) {
-        m_valueStorage = valueStorage;
-    }
-
-    public ValueStorage getValueStorage() {
-        return m_valueStorage;
     }
 
     public void setGatewayContext(GatewayContext gatewayContext) {

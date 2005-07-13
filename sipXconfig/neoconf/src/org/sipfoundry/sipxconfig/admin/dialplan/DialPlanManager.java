@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
-import org.sipfoundry.sipxconfig.common.Organization;
+import org.sipfoundry.sipxconfig.common.Patch;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -29,7 +29,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 /**
  * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
-class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware, DialPlanContext {
+class DialPlanManager extends HibernateDaoSupport 
+        implements BeanFactoryAware, DialPlanContext, Patch {
 
     private String m_configDirectory;
 
@@ -208,10 +209,9 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware, D
     }
 
     public void applyEmergencyRouting() {
-        Organization organization = m_coreContext.loadRootOrganization();
         try {
             EmergencyRoutingRules rules = new EmergencyRoutingRules();
-            rules.generate(m_emergencyRouting, organization.getDnsDomain());
+            rules.generate(m_emergencyRouting, m_coreContext.getDomainName());
             rules.writeToFile(m_configDirectory);
         } catch (IOException e) {
             throw new RuntimeException("Application of emergency routing rules failed.", e);
@@ -252,5 +252,13 @@ class DialPlanManager extends HibernateDaoSupport implements BeanFactoryAware, D
     public Object load(Class c, Integer id) {
         Object o = getHibernateTemplate().load(c, id);
         return o;
+    }
+    
+    public boolean applyPatch(String patch) {
+        if (patch.equals("dial-plans")) {
+            resetToFactoryDefault();
+            return true;
+        }
+        return false;
     }
 }

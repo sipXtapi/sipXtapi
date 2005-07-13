@@ -18,6 +18,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -62,7 +63,7 @@ public abstract class XmlFile {
             return writer.toString();
         } catch (IOException e) {
             // ignore when writing to string
-            // TODO: log
+            LogFactory.getLog(XmlFile.class).error("Ignoring exception", e);
             return "";
         }
     }

@@ -32,7 +32,8 @@ public final class TestUtil {
         "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml",
         "org/sipfoundry/sipxconfig/gateway/gateway.beans.xml",
         "org/sipfoundry/sipxconfig/phone/phone.beans.xml",
-        "org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml"
+        "org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml",
+        "org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml"
     };
 
     private TestUtil() {
@@ -126,7 +127,7 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", "realm");
         sysProps.setProperty("phoneDefaults.domainName", "sipfoundry.org");
-        sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/PDS_TEST");
+        sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
     }
 

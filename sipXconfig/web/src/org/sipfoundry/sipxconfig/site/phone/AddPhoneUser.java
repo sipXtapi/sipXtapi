@@ -63,7 +63,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
         Iterator usersIds = selections.getAllSelected().iterator();
         while (usersIds.hasNext()) {
             Integer userId = (Integer) usersIds.next();
-            User user = getCoreContext().loadUser(userId.intValue());            
+            User user = getCoreContext().loadUser(userId);            
             Line line = phone.createLine(new LineData());            
             line.getLineData().setUser(user);
             phone.addLine(line);

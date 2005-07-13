@@ -6,17 +6,18 @@
 		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
 	</head>
 	<body id="registration">
-        	<div class="tabArea">
-				<a class="tab active" href="edit-user.html">User</a>
-				<a class="tab" href="phones.html">Phones</a>
-			</div>
-			<p><span class="page-label">Line:</span> 160@wallyco.com</p>
-		<div id="component">
 			<div class="help">Here will be hints on what fields to set if you want 
 				to get started right away and what fields you can ignore unless 
 				you know what you are doing. This text will be specific to the 
 				phone model and can even be specific to other settings.</div>
 			<h2>User</h2>
+    <div id="settings-nav">
+		<ul>
+			<li><a href="edit-user.html">User Information</a></li>
+			<li><a href="permissions.html">Permissions</a></li>
+		</ul>
+    </div>
+    <div id="settings-content">
 			<p>If you are configuring the phone itself from
                 outside this system, be sure to enter the same information
                 in this form as you do on the phone, including the password,
@@ -60,6 +61,16 @@
 							<input type="text" name="extension"/>
 						</td>
 					</tr>
+				<tr>
+					<td valign="top">Groups:</td>
+					<td valign="top">
+						<select name="group" size="3" multiple="multiple">
+                            <option>Sales</option>
+                            <option>Engineering</option>
+                        </select> 
+                        <a href="edit-group.html">New Group</a>
+					</td>
+				</tr>
 				</table>
 				<ul class="form-actions">
 					<li>
@@ -75,7 +86,6 @@
 					</li>
 				</ul>
 			</form>
-		</div>
-		<hr/>
+    </div>
 	</body>
 </html>

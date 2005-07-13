@@ -41,7 +41,7 @@ public class LineSettingsTestUi extends WebTestCase {
         m_helper.seedLine(1);
         
         clickLink("ManagePhones");        
-        clickLinkWithText(m_helper.user[0].getDisplayId());
+        clickLinkWithText(SiteTestHelper.TEST_USER);
         // NOTE: Polycom only setting 
         clickLinkWithText("Registration");
         SiteTestHelper.assertNoException(tester);

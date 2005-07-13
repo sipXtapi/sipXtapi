@@ -23,14 +23,14 @@
     <!-- ======== CONFIG SERVER ========= -->
     <!-- ================================ -->
     <group name="ConfigServer">
-        <process name="ProfileGenerator">
+        <process name="ConfigServer">
             <dependentdelay wait="30" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
 
             <start control="true">
-                <execute command="@bindir@/profilegenerator.sh" 
+                <execute command="@bindir@/sipxconfig.sh" 
                          parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
@@ -43,68 +43,6 @@
 
         </process>
 
-        <process name="RMIRegistry">
-            <dependentdelay wait="2" />
-            <stdout file="/dev/null" />
-            <stderr file="/dev/null" />
-            <stdin  file="" />
-
-            <start control="true">
-                <execute command="@bindir@/rmiregistry.sh"
-                         parameters="" 
-                         defaultdir="@SIPX_LOGDIR@" />
-            </start>
-
-            <!-- If no execute, then kill -->
-            <stop control="false" />
-
-            <!-- If no execute, then stop-start -->
-            <restart control="false" />
-
-            <dependency>ProfileGenerator</dependency>
-        </process>
-
-        <process name="ProfilePublisher">
-            <dependentdelay wait="2" />
-            <stdout file="/dev/null" />
-            <stderr file="/dev/null" />
-            <stdin  file="" />
-
-            <start control="true">
-                <execute command="@bindir@/profilepublisher.sh" 
-                         parameters=""
-                         defaultdir="@SIPX_LOGDIR@" />
-            </start>
-
-            <!-- If no execute, then kill -->
-            <stop control="false" />
-
-            <!-- If no execute, then stop-start -->
-            <restart control="false" />
-
-            <dependency>ProfileGenerator</dependency>
-        </process>
-
-        <process name="ProfileWriter">
-            <dependentdelay wait="2" />
-            <stdout file="/dev/null" />
-            <stderr file="/dev/null" />
-            <stdin  file="" />
-
-            <start control="true">
-                <execute command="@bindir@/profilewriter.sh"
-                         parameters=""
-                         defaultdir="@SIPX_LOGDIR@" />
-            </start>
-
-            <!-- If no execute, then kill -->
-            <stop control="false" />
-
-            <!-- If no execute, then stop-start -->
-            <restart control="false" />
-
-            <dependency>ProfileGenerator</dependency>
-        </process>
     </group>
 
     <!-- ================================ -->

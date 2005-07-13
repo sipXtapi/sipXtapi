@@ -36,9 +36,9 @@ public class RestartReminderTestUi extends WebTestCase {
         
         clickButton("restart:save");
 
-        // since there is not topology.xml file we should get an error message
-        assertTextPresent("topology.xml");
-        assertTextPresent("RuntimeException");
+        // should be back at the test page
+        assertLinkPresent(RestartReminder.PAGE);
+        // there will be some exceptions in the log - topology file is not found
     }
     
     public void testRestartLater() {

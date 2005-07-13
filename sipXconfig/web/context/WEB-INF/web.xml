@@ -5,11 +5,12 @@
     <display-name>sipXconfig-web</display-name>
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value> /WEB-INF/jmsContext.xml 
-            classpath*:/org/sipfoundry/sipxconfig/rmi-sipxconfig.xml 
+        <param-value>
             classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml
             classpath*:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml
+            classpath*:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml
             classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/login/login.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
             </param-value>
@@ -39,25 +40,4 @@
     <session-config>
         <session-timeout>120</session-timeout>
     </session-config>
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Protected</web-resource-name>
-            <url-pattern>/app/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <!-- for now these are the same roles as in profilegenerator/web.xml -->
-            <!-- we enable access for any logged in user and handle authorization in Border component -->
-            <role-name>SUPER</role-name>
-            <role-name>ADMIN</role-name>
-            <role-name>END_USER</role-name>
-        </auth-constraint>
-    </security-constraint>
-    <login-config>        
-        <auth-method>FORM</auth-method>
-        <realm-name>PGS</realm-name>
-        <form-login-config>
-            <form-login-page>/login.html</form-login-page>
-            <form-error-page>/login_error.html</form-error-page>            
-        </form-login-config>
-    </login-config>
 </web-app>

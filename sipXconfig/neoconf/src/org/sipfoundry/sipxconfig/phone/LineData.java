@@ -14,13 +14,14 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Association between Users and their assigned phones.
  */
-public class LineData extends AbstractData {
+public class LineData extends BeanWithGroups {
 
     private User m_user;
     

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<configs>
+		<config>src/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
 	</configs>
@@ -12,9 +14,11 @@
 			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
 			<incomplete>false</incomplete>
 			<configs>
+				<config>src/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
 			</configs>
 		</configSet>

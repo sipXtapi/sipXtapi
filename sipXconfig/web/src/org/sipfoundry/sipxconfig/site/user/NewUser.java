@@ -33,7 +33,6 @@ public abstract class NewUser extends BasePage implements PageRenderListener {
         if (TapestryUtils.isValid(this)) {
             CoreContext core = getCoreContext();
             User user = getUser();
-            user.setOrganization(core.loadRootOrganization());
             core.saveUser(user);
 
             cycle.activate(ManageUsers.PAGE);

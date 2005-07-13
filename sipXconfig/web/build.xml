@@ -1,205 +1,201 @@
-<project name="web" default="default" basedir="." >
- 
-	<property name="test.src.dir" value="test" />
-	<property name="checkstyle.severity" value="error" />
+<project name="web" default="default" basedir=".">
+  <property name="test.src.dir" value="test" />
+  <property name="checkstyle.severity" value="error" />
+  <property name="project.dir" value="web" />
+  <import file="../ant-targets.xml" />
+  <property name="test.war" value="${test.classes.dir}/war" />
+  <patternset id="test-ui.classes" includes="**/*TestUi.class" /> 
 
-	<property name="project.dir" value="web" />
-	<import file="../ant-targets.xml" />
+  <!-- 
+            - common path unittests will need that interfaces w/sipxconfig lib 
+            - all spring jars at this point
+            -->
+  <path id="compile.dependencies">
+    <pathelement path="${sipxconfig.jar}" />
+    <pathelement path="${spring.jar}" />
+    <pathelement path="${hibernate.jar}" />
+    <pathelement path="${servlet.jar}" />
+    <pathelement path="${tapestry.jar}" />
+    <pathelement path="${tapestry-contrib.jar}" />
+    <pathelement path="${ognl.jar}" />
+  </path>
+  <!-- 
+            - common path unittests will need that interfaces w/sipxconfig lib 
+            - all spring jars at this point
+            -->
+  <path id="runtime.dependencies">
+    <pathelement path="${aopalliance.jar}" />
+    <pathelement path="${asm.jar}" />
+    <pathelement path="${bsf.jar}" />
+    <pathelement path="${cglib.jar}" />
+    <pathelement path="${commons-beanutils.jar}" />
+    <pathelement path="${commons-codec.jar}" />
+    <pathelement path="${commons-collections.jar}" />
+    <pathelement path="${commons-dbcp.jar}" />
+    <pathelement path="${commons-digester.jar}" />
+    <pathelement path="${commons-fileupload.jar}" />
+    <pathelement path="${commons-io.jar}" />
+    <pathelement path="${commons-lang.jar}" />
+    <pathelement path="${commons-logging.jar}" />
+    <pathelement path="${commons-pool.jar}" />
+    <pathelement path="${dom4j.jar}" />
+    <pathelement path="${ehcache.jar}" />
+    <pathelement path="${jakarta-oro.jar}" />
+    <pathelement path="${jasper-compiler.jar}" />
+    <pathelement path="${jasper-runtime.jar}" />
+    <pathelement path="${javassist.jar}" />
+    <pathelement path="${jaxen.jar}" />
+    <pathelement path="${jdbc-driver.jar}" />
+    <pathelement path="${jta.jar}" />
+    <pathelement path="${log4j.jar}" />
+    <pathelement path="${logkit.jar}" />
+    <pathelement path="${odmg.jar}" />
+    <pathelement path="${saxpath.jar}" />
+    <pathelement path="${servlet.jsp.jar}" />
+    <pathelement path="${velocity.jar}" />
+  </path>
+
+  <path id="base.path">
+    <path refid="compile.dependencies" />
+    <!-- TODO: Separate these from compile dependencies -->
+    <path refid="runtime.dependencies" />
+    <!-- TEST -->
+    <pathelement path="${commons-digester.jar}" />
+    <pathelement path="${easymock.jar}" />
+    <pathelement path="${httpunit.jar}" />
+    <pathelement path="${jwebunit.jar}" />
+    <pathelement path="${jetty.jar}" />
+    <pathelement path="${servlet.jsp.jar}" />
+    <pathelement path="${jasper-runtime.jar}" />
+    <pathelement path="${jasper-compiler.jar}" />
+    <pathelement path="${tidy.jar}" />
+    <pathelement path="${commons-codec.jar}" />
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <target name="init" depends="ant-targets.init">
+    <mkdir dir="${dist.dir}/war-root" />
+  </target>
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="war" />
+  <!-- W A R -->
+  <!-- FIXME: Remove dependency on compile.test -->	
+  <target name="war" depends="compile,compile.test" 
+    description="assemble sipxconfig for tapestry war">
+    <war warfile="${sipxconfig.war}" webxml="context/WEB-INF/web.xml" 
+      basedir="${dist.dir}/war-root">
+      <!-- not sure this is nec. -->
+      <fileset dir="context">
+        <exclude name="WEB-INF/*" />
+      </fileset>
+      <webinf dir="context/WEB-INF">
+        <!-- avoid warning about already there -->
+        <exclude name="web.xml" />
+      </webinf>
+      <classes dir="${classes.dir}" />
+      <classes dir="${src.dir}">
+        <include name="**/*.xml" />
+        <include name="**/*.properties" />
+      </classes>
+      <classes dir="etc">
+        <include name="*.xml" />
+        <include name="*.properties" />
+      </classes>
+    </war>
+  </target>
+		
+  <target name="install" depends="war" 
+    description="Copy war file into lib dir and web related configuration files">
+
+  	<!-- Jetty standalone -->
+  	<!-- startup script -->
+    <copy file="bin/sipxconfig.sh.in" 
+      tofile="${dest.dir}${bin.dir}/sipxconfig.sh" />
+    <replace file="${dest.dir}${bin.dir}/sipxconfig.sh" 
+      propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir" 
+        />
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir" />
+      <replacefilter token="@bin.dir@" property="bin.dir" />
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir" />
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/sipxconfig.sh" perm="ugo+x" />
+    <!-- config -->
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />
+    <copy todir="${dest.dir}${sipxpbx.conf.dir}">
+      <fileset dir="etc">
+        <include name="sipxconfig-jetty.xml" />
+      </fileset>
+    </copy>
+  	
+    <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+      <fileset file="${sipxconfig.war}"/>
+      <fileset file="${tapestry.jar}" />
+      <fileset file="${tapestry-contrib.jar}" />
+      <fileset file="${ognl.jar}" />
+    </copy>
+  </target>	
 	
-	<property name="test.war" value="${test.classes.dir}/war"/>
-
-    <patternset id="test-ui.classes" includes="**/*TestUi.class" />
-
-	<!-- 
-	    - common path unittests will need that interfaces w/sipxconfig lib 
-	    - all spring jars at this point
-	    -->
-	<path id="compile.dependencies">
-		<pathelement path="${sipxconfig.jar}" />		
-		<pathelement path="${spring.jar}" />
-		<pathelement path="${hibernate.jar}" />
-		<pathelement path="${servlet.jar}" />
-	</path>
-
-	<!-- 
-	    - common path unittests will need that interfaces w/sipxconfig lib 
-	    - all spring jars at this point
-	    -->
-	<path id="runtime.dependencies">
-		<pathelement path="${commons-logging.jar}" />
-		<pathelement path="${commons-beanutils.jar}"/>
-		<pathelement path="${commons-dbcp.jar}" />
-		<pathelement path="${commons-pool.jar}" />
-		<pathelement path="${aopalliance.jar}" />
-		<pathelement path="${dom4j.jar}" />
-		<pathelement path="${commons-collections.jar}" />
-		<pathelement path="${ehcache.jar}" />
-		<pathelement path="${cglib.jar}" />
-		<pathelement path="${jta.jar}" />
-		<pathelement path="${jdbc-driver.jar}" />
-		<pathelement path="${odmg.jar}" />
-		<pathelement path="${velocity.jar}" />
-		<pathelement path="${commons-io.jar}" />
-		<!-- TAPESTRY -->
-		<pathelement path="${tapestry.jar}" />
-		<pathelement path="${tapestry-contrib.jar}" />
-		<pathelement path="${ognl.jar}" />
-		<pathelement path="${javassist.jar}" />
-		<pathelement path="${bsf.jar}" />
-		<pathelement path="${jakarta-oro.jar}" />
-		<pathelement path="${commons-lang.jar}" />
-	</path>
-
-	<path id="base.path">
-		<path refid="compile.dependencies" />
-		<!-- TODO: Separate these from compile dependencies -->
-		<path refid="runtime.dependencies" />
-		<!-- TEST -->
-        <pathelement path="${commons-digester.jar}"/>      
-		<pathelement path="${easymock.jar}" />
-		<pathelement path="${httpunit.jar}"/>
-		<pathelement path="${jwebunit.jar}"/>
-		<pathelement path="${jetty.jar}"/>
-        <pathelement path="${servlet.jsp.jar}"/>
-        <pathelement path="${jasper-runtime.jar}"/>
-        <pathelement path="${jasper-compiler.jar}"/>
-        <pathelement path="${tidy.jar}"/>
-        <pathelement path="${commons-codec.jar}"/>
-	</path>
-    
-	<property name="classpath" refid="base.path" />
-
-	<target name="init" depends="ant-targets.init">
-		<mkdir dir="${dist.dir}/war-root" />
-	</target>
-
-	<!-- D E F A U L T -->
-	<target name="default" depends="war"/>	
-
-	<!-- W A R -->
-	<target name="war" depends="compile" description="assemble sipxconfig for tapestry war">
-
-		<war warfile="${sipxconfig.war}" webxml="context/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
-
-            <!-- not sure this is nec. -->
-	        <fileset dir="context">
-				<exclude name="WEB-INF/*"/>
-			</fileset>
-
-			<webinf dir="context/WEB-INF">
-				<!-- avoid warning about already there -->
-				<exclude name="web.xml" />
-			</webinf>
-
-			<classes dir="${classes.dir}" />
-			<classes dir="${src.dir}">
-				<include name="**/*.xml" />
-				<include name="**/*.properties" />
-			</classes>
-			<classes dir="etc">
-				<include name="*.xml" />
-				<include name="*.properties" />
-			</classes>
-
-			<lib file="${sipxconfig.jar}" />
-
-			<lib file="${spring.jar}" />
-			<lib file="${asm.jar}" />
-			<lib file="${hibernate.jar}" />
-			<lib file="${odmg.jar}" />
-			<lib file="${ehcache.jar}" />
-			<lib file="${jdbc-driver.jar}" />
-			<lib file="${logkit.jar}" />
-			<lib file="${velocity.jar}" />
-			<lib file="${commons-logging.jar}" />
-			<lib file="${commons-dbcp.jar}" />
-			<lib file="${commons-pool.jar}" />
-			<lib file="${commons-digester.jar}" />
-			<lib file="${commons-collections.jar}" />
-			<lib file="${commons-beanutils.jar}" />
-			<lib file="${commons-lang.jar}" />			
-			<lib file="${commons-codec.jar}" />			
-			<lib file="${commons-fileupload.jar}" />
-			<lib file="${commons-io.jar}" />
-			<lib file="${aopalliance.jar}" />
-			<lib file="${dom4j.jar}" />
-            <lib file="${saxpath.jar}" />
-			<lib file="${jaxen.jar}" />
-			<lib file="${cglib.jar}" />
-			<lib file="${jta.jar}" />
-			<lib file="${tapestry.jar}" />
-			<lib file="${tapestry-contrib.jar}" />
-			<lib file="${ognl.jar}" />
-			<lib file="${javassist.jar}" />
-			<lib file="${bsf.jar}" />
-			<lib file="${jakarta-oro.jar}" />
-			<lib file="${log4j.jar}" />			
-			<lib file="${tapestry.tld}" />
-		</war>
-	</target>
-
-	<target name="install" depends="war"
-	   description="Copy war file into Jboss deploy directory">
-
-		<copy todir="${dest.dir}${jboss.container.deploy}" file="${sipxconfig.war}"/>
-
-	</target>
-	
-	<target name="run" depends="test-war"
-  	     description="Runs Jetty on current code, development purpose only">
-           <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
-               <classpath refid="base.path"/>
-               <classpath refid="test.path"/>
-               <classpath location="${junit.jar}"/>
-               <classpath location="${xerces.jar}"/>
-               <sysproperty key="basedir" value="${basedir}"/>
-           </java>
-           <input>Press Enter/Return key to shutdown web server...</input>
-	</target>
-
-        <target name="test-all" depends="ant-targets.test-all,test-ui"/>
-
-	<target name="test-war" depends="compile.test,war" description="Creates a war file for unittests">
-        <property name="test.systemRoot" location="${test.results.dir}/artifical-system-root"/>
-        
-		<delete dir="${test.war}"/>
-		<unwar src="${sipxconfig.war}" dest="${test.war}"/>
-		<!-- generates sipxconfig.properties that has test oriented values -->
-		<java classname="org.sipfoundry.sipxconfig.site.SiteTestHelper"
-		  	     failonerror="true">
-		  <sysproperty key="basedir" value="${basedir}"/>
-          <classpath path="${classpath}"/>
-          <classpath location="${junit.jar}"/>
-          <classpath refid="test.path"/>
-          <classpath location="${test.classes.dir}"/>
-		  <arg value="${test.war}/WEB-INF/classes"/>
-          <arg value="${test.systemRoot}"/>       
-   	      <arg value="${test.results.dir}"/>
-		</java>
-        <copy todir="${test.systemRoot}/etc">
-            <fileset dir="${top.dir}/neoconf/etc"/>
-        </copy>      
-        <copy todir="${test.war}/WEB-INF" file="etc/jmsContext.xml" overwrite="true"/>
-	</target>
-
+  <target name="run" depends="test-war" 
+    description="Runs Jetty on current code, development purpose only">
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
+      <!-- classpath refid="base.path" /-->
+      <classpath refid="test.path" />
+      <classpath location="${junit.jar}" />
+      <classpath location="${xerces.jar}" />
+      <classpath location="${log4j.jar}" />
+      <sysproperty key="basedir" value="${basedir}" />
+    </java>
+  	<echo/>
+    <echo>Web UI available at URL:</echo>
+  	<echo>  http://localhost:9999/sipxconfig/app?service=page/TestPage</echo>
+  	<echo/>
+    <input>Press Enter/Return key to shutdown web server...</input>
+  </target>
+  <target name="test-all" depends="ant-targets.test-all,test-ui" />
+  <target name="test-war" depends="compile.test,war" 
+    description="Creates a war file for unittests">
+    <property name="test.systemRoot" 
+      location="${test.results.dir}/artifical-system-root" />
+    <delete dir="${test.war}" />
+    <unwar src="${sipxconfig.war}" dest="${test.war}" />
+    <!-- generates sipxconfig.properties that has test oriented values -->
+    <java classname="org.sipfoundry.sipxconfig.site.SiteTestHelper" 
+      failonerror="true">
+      <sysproperty key="basedir" value="${basedir}" />
+      <classpath path="${classpath}" />
+      <classpath location="${junit.jar}" />
+      <classpath refid="test.path" />
+      <classpath location="${test.classes.dir}" />
+      <arg value="${test.war}/WEB-INF/classes" />
+      <arg value="${test.systemRoot}" />
+      <arg value="${test.results.dir}" />
+    </java>
+    <copy todir="${test.systemRoot}/etc">
+      <fileset dir="${top.dir}/neoconf/etc" />
+    </copy>
+  </target>
   <!-- 
     - U N I T T E S T   W E B   U I
     -->
-  <target name="test-ui" depends="test-war"
-       description="run junit tests for web interface">
-    
-    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
-      <classpath refid="test.path"/>
-      <formatter type="plain"/>
-      <formatter type="xml"/>
-      <sysproperty key="basedir" value="${basedir}"/>
+  <target name="test-ui" depends="test-war" 
+    description="run junit tests for web interface">
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" 
+      failureproperty="junit.failed">
+      <classpath refid="test.path" />
+      <formatter type="plain" />
+      <formatter type="xml" />
+      <sysproperty key="basedir" value="${basedir}" />
       <batchtest todir="${test.results.dir}">
-        <fileset dir="${test.classes.dir}"> 
-          <patternset refid="test-ui.classes"/>
+        <fileset dir="${test.classes.dir}">
+          <patternset refid="test-ui.classes" />
         </fileset>
       </batchtest>
-    </junit>        
-    <fail if="junit.failed"/>   
+    </junit>
+    <fail if="junit.failed" />
   </target>
-
 </project>

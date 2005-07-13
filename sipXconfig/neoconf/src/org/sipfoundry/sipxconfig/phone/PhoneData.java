@@ -11,11 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+
 
 /**
  * Database object representing an actualy physical phone you can touch.
  */
-public class PhoneData extends AbstractData {
+public class PhoneData extends BeanWithGroups {
     
     public static final String PHONE_GROUP_RESOURCE = "phone";
 

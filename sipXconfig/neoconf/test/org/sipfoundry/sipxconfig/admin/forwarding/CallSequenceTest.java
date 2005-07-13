@@ -17,7 +17,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.common.Organization;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -27,10 +26,7 @@ public class CallSequenceTest extends TestCase {
     private User m_user;
 
     protected void setUp() throws Exception {
-        Organization organization = new Organization();
-        organization.setDnsDomain("sipfoundry.org");
         m_user = new User();
-        m_user.setOrganization(organization);
         m_user.setDisplayId("abc");
     }
 
@@ -45,7 +41,7 @@ public class CallSequenceTest extends TestCase {
         sequence.setUser(m_user);
         sequence.setCalls(rings);
 
-        List aliases = sequence.generateAliases();
+        List aliases = sequence.generateAliases("sipfoundry.org");
         assertEquals(N, aliases.size());
         for (Iterator i = aliases.iterator(); i.hasNext();) {
             AliasMapping a = (AliasMapping) i.next();
@@ -77,7 +73,7 @@ public class CallSequenceTest extends TestCase {
     public void testGenerateAliasesEmpty() {
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
-        List list = sequence.generateAliases();
+        List list = sequence.generateAliases("sipfoundry.org");
         assertEquals(0, list.size());
     }
 

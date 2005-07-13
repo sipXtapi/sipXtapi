@@ -49,67 +49,6 @@ AC_DEFUN([CHECK_CPPUNIT],
 ])
 
 
-# ============ J B O S S  =======================
-AC_DEFUN([CHECK_JBOSS_HOME],
-[
-   AC_ARG_VAR(JBOSS_HOME, [JBoss home directory])
-
-   if test x_"${JBOSS_HOME}" == x_
-   then
-       LOCAL_JBOSS_HOME=`ls -dr /usr/local/jboss* 2> /dev/null | head -n 1`
-       OPT_JBOSS_HOME=`ls -dr /opt/jboss* 2> /dev/null | head -n 1`
-       testdirs="$LOCAL_JBOSS_HOME $OPT_JBOSS_HOME"
-   else
-       testdirs="$JBOSS_HOME"
-   fi
-
-   for dir in $testdirs; do
-       j2ee_jar=$dir/client/jboss-j2ee.jar
-       AC_CHECK_FILE([$j2ee_jar],
-       [
-           JBOSS_HOME=$dir
-           found_jboss="yes"
-       ],)
-       if test x_$found_jboss = x_yes; then
-           break
-       fi
-   done
-
-   if test x_$found_jboss != x_yes; then
-       AC_MSG_ERROR([JBoss not installed. Set JBOSS_HOME env.
-           variable to directory containing JBoss. It should end in
-           something similiar to jboss-4.0.0])
-   fi
-
-   AC_ARG_VAR(JBOSS_SERVER_CONF, [JBoss server configuration directory])
-
-   if test x_"${JBOSS_SERVER_CONF}" == x_
-   then
-       testconfs="sipx default"
-   else
-       testconfs="$JBOSS_SERVER_CONF"
-   fi
-
-   for testconf in $testconfs
-   do
-     if test -r ${JBOSS_HOME}/server/$testconf/conf
-     then
-       jboss_conf=$testconf
-       break
-     fi
-   done
-
-   if test x_"$jboss_conf" != x_
-   then
-      AC_MSG_RESULT(using $jboss_conf)
-                JBOSS_SERVER_CONF=$jboss_conf
-   else
-      AC_MSG_ERROR([JBoss server configuration not found - checked $testconfs. Set JBOSS_SERVER_CONF env. \
-           variable, so that $JBOSS_HOME/server/\$JBOSS_SERVER_CONF points to a valid JBOSS configuration \
-           (there should be conf and deploy directories in it.). ])
-   fi
-])
-
 # ============ T O M C A T  =======================
 AC_DEFUN([CHECK_TOMCAT_HOME],
 [

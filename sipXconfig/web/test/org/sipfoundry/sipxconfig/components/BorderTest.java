@@ -11,61 +11,111 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.easymock.MockControl;
-
 import junit.framework.TestCase;
 
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.PageRedirectException;
+import org.sipfoundry.sipxconfig.site.Visit;
+
 public class BorderTest extends TestCase {
-    private HttpServletRequest createRequestMock(boolean isSuper, boolean isEndUSer) {
-        MockControl control = MockControl.createControl(HttpServletRequest.class);
-        control.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        HttpServletRequest request = (HttpServletRequest) control.getMock();
-        request.isUserInRole("SUPER");
-        control.setReturnValue(isSuper, 2);
-        request.isUserInRole("END_USER");
-        control.setReturnValue(isEndUSer, 2);
-        control.replay();
-        return request;
-    }
 
-    public void testAdmin() {
-        HttpServletRequest request = createRequestMock(true, true);
-
-        Border restricted = new RestrictedBorder();
-        assertTrue(restricted.checkAuthorization(request));
-        Border normal = new UnrestrictedBorder();
-        assertTrue(normal.checkAuthorization(request));
-    }
-
-    public void testEndUser() {
-        HttpServletRequest request = createRequestMock(false, true);
-
-        Border restricted = new RestrictedBorder();
-        assertFalse(restricted.checkAuthorization(request));
-        Border normal = new UnrestrictedBorder();
-        assertTrue(normal.checkAuthorization(request));
-    }
-
-    public void testWithoutRole() {
-        HttpServletRequest request = createRequestMock(false, false);
-
-        Border restricted = new RestrictedBorder();
-        assertFalse(restricted.checkAuthorization(request));
-        Border normal = new UnrestrictedBorder();
-        assertFalse(normal.checkAuthorization(request));
-    }
-
-    static class RestrictedBorder extends Border {
-        public boolean isRestricted() {
-            return true;
+    public void testLogin() {
+        Border restricted = new MockBorder(true, true, new Visit());
+        try {
+            restricted.pageValidate(null);
+            fail("should redirect");
+        } catch (PageRedirectException e) {
+            assertEquals("LoginPage", e.getTargetPageName());
         }
     }
 
-    static class UnrestrictedBorder extends Border {
+    public void testLoginNotRequired() {
+        Border nologin = new MockBorder(true, false, new Visit());
+        nologin.pageValidate(null);
+    }
+
+    public void testRestricted() {
+        Border restricted = new MockBorder(true, true, new MockVisit(false));
+
+        try {
+            restricted.pageValidate(null);
+            fail("should redirect to login page");
+        } catch (PageRedirectException e) {
+            assertEquals("Home", e.getTargetPageName());
+        }
+    }
+
+    public void testRestrictedAdmin() {
+        Border restricted = new MockBorder(true, true, new MockVisit(true));
+
+        try {
+            restricted.pageValidate(null);
+        } catch (PageRedirectException e) {
+            fail("unexpected expected");
+        }
+    }
+
+    public void testUnrestricted() {
+        Border unrestricted = new MockBorder(false, true, new MockVisit(false));
+
+        try {
+            unrestricted.pageValidate(null);
+        } catch (PageRedirectException e) {
+            fail("unexpected expected");
+        }
+    }
+
+    public void testUnrestrictedAdmin() {
+        Border unrestricted = new MockBorder(false, true, new MockVisit(true));
+
+        try {
+            unrestricted.pageValidate(null);
+        } catch (PageRedirectException e) {
+            fail("unexpected expected");
+        }
+    }
+
+    private static class MockVisit extends Visit {
+        private final boolean m_admin;
+
+        MockVisit(boolean admin) {
+            m_admin = admin;
+        }
+
+        public Integer getUserId() {
+            return new Integer(5);
+        }
+
+        public boolean isAdmin() {
+            return m_admin;
+        }
+    }
+
+    private static class MockBorder extends Border {
+        private final boolean m_restricted;
+        private final boolean m_loginRequired;
+        private final Visit m_visit;
+
+        MockBorder(boolean restricted, boolean loginRequired, Visit visit) {
+            m_restricted = restricted;
+            m_loginRequired = loginRequired;
+            m_visit = visit;
+        }
+
+        public boolean isLoginRequired() {
+            return m_loginRequired;
+        }
+
         public boolean isRestricted() {
-            return false;
+            return m_restricted;
+        }
+
+        protected Visit getVisit() {
+            return m_visit;
+        }
+
+        protected void redirectToLogin(IPage page) {
+            throw new PageRedirectException("LoginPage");
         }
     }
 }

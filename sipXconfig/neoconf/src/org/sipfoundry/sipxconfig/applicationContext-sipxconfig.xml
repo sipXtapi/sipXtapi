@@ -29,7 +29,7 @@
       <value>org.postgresql.Driver</value>
     </property>
     <property name="url">
-      <value>jdbc:postgresql://localhost/PDS</value>
+      <value>jdbc:postgresql://localhost/SIPXCONFIG</value>
     </property>
     <property name="username">
       <value>postgres</value>
@@ -57,12 +57,10 @@
         <value>org/sipfoundry/sipxconfig/admin/callgroup/parkOrbit.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/patch.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/common/legacy.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/common/common.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/gateway/gateway.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/legacy/configSet.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phone/phone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/setting/setting.hbm.xml</value>
       </list>
@@ -80,9 +78,9 @@
       </list>      
     </property>
     <!-- unless otherwise specified property nameLikeThis will be mapped to column name_like_this -->
-    <!--property name="namingStrategy">
-      <bean class="net.sf.hibernate.cfg.ImprovedNamingStrategy"/>      
-    </property-->
+    <property name="namingStrategy">
+      <bean class="org.sipfoundry.sipxconfig.common.ImprovedNamingStrategy"/>      
+    </property>
   </bean>
   <!--
   - H I B E R N A T E   S E S S I O N
@@ -127,9 +125,9 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
-    <property name="legacyContext">
-      <ref bean="legacyContext"/>
-    </property>
+    <property name="processContext">
+      <ref bean="sipxProcessContext"/>
+    </property>    
   </bean>
   <!--
   - C O R E  C O N T E X T
@@ -142,25 +140,6 @@
       <list>
         <value>hibernateInterceptor</value>
         <value>coreContextImpl</value>
-      </list>
-    </property>
-  </bean>
-  
-  <!-- 
-  - L E G A C Y   C O N T E X T
-  -->
-  
-  <bean id="legacyContextImpl" class="org.sipfoundry.sipxconfig.legacy.LegacyContextImpl"
-    autowire="byType">
-  </bean>
-  <bean id="legacyContext" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.legacy.LegacyContext</value>
-    </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>legacyContextImpl</value>
       </list>
     </property>
   </bean>
@@ -197,9 +176,9 @@
     <property name="coreContext">
       <ref bean="coreContextImpl"/>
     </property>
-    <property name="legacyContext">
-      <ref bean="legacyContextImpl"/>
-    </property>
+    <property name="processContext">
+      <ref bean="sipxProcessContext"></ref>
+    </property>    
   </bean>
   
   <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -237,6 +216,9 @@
     <property name="orbitsGenerator">
       <ref bean="orbitsGenerator"/>
     </property>
+    <property name="processContext">
+      <ref bean="sipxProcessContext"></ref>
+    </property>
   </bean>
   
   <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -249,21 +231,5 @@
         <value>callGroupContextImpl</value>
       </list>
     </property>
-  </bean>
-  
-  <!-- 
-  - C O M M S E R V E R S
-  -->
-  <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer">
-    <property name="configDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
-  </bean>
-  
-  <bean id="sipxProcessContext"
-    class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
-    <property name="configDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
-  </bean>
+  </bean>  
 </beans>

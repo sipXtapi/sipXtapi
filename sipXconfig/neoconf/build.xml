@@ -2,7 +2,7 @@
 <!--  -->
 
 <project name="neoconf" default="default" basedir=".">
-	<property name="sipxconfig.db.pds" value="PDS_TEST"/>
+	<property name="sipxconfig.db.pds" value="SIPXCONFIG_TEST"/>
 	<property name="sipxconfig.db.user" value="postgres"/>
 	
 	<property name="test.src.dir" value="test" />
@@ -27,6 +27,7 @@
 		<pathelement location="${velocity.jar}" />
 		<pathelement location="${commons-digester.jar}"/>
 		<pathelement location="${commons-collections.jar}" />
+                <pathelement location="${commons-codec.jar}" />
 		<pathelement location="${commons-io.jar}" />
 	</path>
 
@@ -91,6 +92,53 @@
             <replacefilter token="@sipxpbx.backup.dir@" property="sipxpbx.backup.dir"/>
             <replacefilter token="@www.dir@" property="www.dir"/>
         </replace>
+
+    <!-- copy jars and war -->
+    <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+      <fileset file="${sipxconfig.jar}" />
+      <fileset file="${jetty.jar}" />
+      <fileset file="${servlet.jar}" />
+      <fileset file="${xerces.jar}" />
+      <fileset file="${xml-apis.jar}" />
+      <fileset file="${ant.jar}"/> 	
+      <fileset file="${ant-launcher.jar}"/> 	
+      <fileset file="${j2ee.jar}" />
+      <fileset file="${spring.jar}" />
+      <fileset file="${asm.jar}" />
+      <fileset file="${hibernate.jar}" />
+      <fileset file="${odmg.jar}" />
+      <fileset file="${ehcache.jar}" />
+      <fileset file="${jdbc-driver.jar}" />
+      <fileset file="${logkit.jar}" />
+      <fileset file="${velocity.jar}" />
+      <fileset file="${commons-logging.jar}" />
+      <fileset file="${servlet.jsp.jar}" />
+      <fileset file="${jasper-compiler.jar}" />
+      <fileset file="${jasper-runtime.jar}" />
+      <fileset file="${commons-dbcp.jar}" />
+      <fileset file="${commons-pool.jar}" />
+      <fileset file="${commons-digester.jar}" />
+      <fileset file="${commons-collections.jar}" />
+      <fileset file="${commons-beanutils.jar}" />
+      <fileset file="${commons-lang.jar}" />
+      <fileset file="${commons-codec.jar}" />
+      <fileset file="${commons-fileupload.jar}" />
+      <fileset file="${commons-io.jar}" />
+      <fileset file="${aopalliance.jar}" />
+      <fileset file="${dom4j.jar}" />
+      <fileset file="${saxpath.jar}" />
+      <fileset file="${jaxen.jar}" />
+      <fileset file="${cglib.jar}" />
+      <fileset file="${jta.jar}" />
+      <fileset file="${javassist.jar}" />
+      <fileset file="${bsf.jar}" />
+      <fileset file="${jakarta-oro.jar}" />
+      <fileset file="${log4j.jar}" />
+    </copy>
+
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"/>
+
     </target>
 	
 	
@@ -150,7 +198,7 @@
 		</xmlvalidate>
 	</target>
   
-    <target name="reset-db" depends="compile.test"
+    <target name="reset-db"
         description="Resets the test database. Needs to be called before UI and WEB tests.">
         <property name="sql.dir" location="${top.dir}/profilegenerator/meta/sql"/>
         <property name="sipxconfig.db.pds.url" value="jdbc:postgresql://localhost/${sipxconfig.db.pds}"/>
@@ -161,23 +209,11 @@
 			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds}"/>
 		</exec>        
         <sql driver="org.postgresql.Driver" url="${sipxconfig.db.pds.url}" userid="${sipxconfig.db.user}" password="" classpathref="base.path">
-            <transaction src="${sql.dir}/profilegen_create.sql"/>
-            <transaction src="${sql.dir}/profilegen_alter.sql"/>
-            <transaction src="${sql.dir}/profilegen_seq.sql"/>
-            <transaction src="${sql.dir}/profilegen_initvalues.sql"/>
+            <transaction src="etc/database/schema.sql"/>
             <!-- temporary until we upgrade DB version-->
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v9_mods.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v10_add_aa.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v11_park_orbit.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v13_music_on_hold.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v14_backup.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v15_tag.sql"/>
-            <transaction src="${top.dir}/profilegenerator/ejb/meta/patches/v25_gateway_plugin.sql"/>
+            <!-- list db patches here -->
+            <transaction src="etc/database/user_groups.sql"/>
         </sql>     
-    	<echo>ClearDb</echo>
-    	<java classname="org.sipfoundry.sipxconfig.ClearDb" classpathref="test.path" fork="true" outputproperty="eatme">
-  	      <sysproperty key="basedir" value="${basedir}"/>
-  		</java>
     </target>
     
 
@@ -193,8 +229,12 @@
         classpathref="full.classpath"/>
 
     <target name="hbm2ddl">
-        <schemaexport properties="${top.dir}/meta/hibernate.properties" quiet="no"
-            text="yes" drop="no" delimiter=";" output="${build.dir}/schema-export.sql">
+        <schemaexport 
+        	properties="${top.dir}/meta/hibernate.properties" 
+        	quiet="no" text="yes" 
+        	drop="no" delimiter=";" 
+        	namingStrategy="org.sipfoundry.sipxconfig.common.ImprovedNamingStrategy"
+        	output="${build.dir}/schema-export.sql">
 	         <fileset dir="${src.dir}">
     	         <include name="**/*.hbm.xml"/>
         	 </fileset>

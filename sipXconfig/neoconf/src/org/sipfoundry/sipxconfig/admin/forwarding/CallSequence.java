@@ -47,8 +47,7 @@ public class CallSequence extends AbstractCallSequence {
         return ring;
     }
 
-    public List generateAliases() {        
-        String domain = m_user.getOrganization().getDnsDomain();
+    public List generateAliases(String domain) {        
         String identity = m_user.getDisplayId() + "@" + domain;
         return generateAliases(identity, domain);
     }

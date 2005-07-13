@@ -16,7 +16,7 @@ AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
-AC_CONFIG_SRCDIR([common/src/com/pingtel/pds/common/PDSException.java])
+AC_CONFIG_SRCDIR([neoconf/src/org/sipfoundry/sipxconfig/common/User.java])
 
 AC_ARG_ENABLE(sipagent,
  [ --disable-sipagent    Do not try to compile sipagent jni, requires sipXtackLib],
@@ -93,16 +93,11 @@ AM_CONDITIONAL(DOC,false)
 CHECK_JNI
 CHECK_ANT
 CHECK_CLOVER
-CHECK_JBOSS_HOME
 
 AC_CONFIG_FILES([
     Makefile
     config/sipXcommon.mak
-    common/Makefile
     bin/Makefile
-    profilewriter/Makefile
-    profilepublisher/Makefile
-    profilegenerator/Makefile
     neoconf/Makefile
     web/Makefile
     sipagent-jni/Makefile

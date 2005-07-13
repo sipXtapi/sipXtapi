@@ -51,6 +51,6 @@ public class EditPhoneTestUi extends WebTestCase {
 
     public void testAddLine() {
         clickLink("AddLine");
-        assertElementPresent("user:criteria");
+        assertElementPresent("user:list");
     }
 }

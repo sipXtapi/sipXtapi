@@ -40,7 +40,7 @@ public class AddPhoneUserTestUi extends WebTestCase {
      * does not actually add user
      */
     public void testUserSearch() {
-        m_helper.seedUser();
+        SiteTestHelper.seedUser(getTester());
         m_helper.seedPhone(1);
         clickLink("ManagePhones");        
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());

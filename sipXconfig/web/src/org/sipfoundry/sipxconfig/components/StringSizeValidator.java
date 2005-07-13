@@ -48,7 +48,10 @@ import org.apache.tapestry.valid.ValidationConstraint;
  * 
  */
 public class StringSizeValidator {
-    public static final int DEFAULT_MAX_LEN = 256;
+    
+    /** should be less than or equals DB field length */
+    public static final int DEFAULT_MAX_LEN = 255;
+    
     private static final String ERROR = "Enter at most {0} characters for {1}";
 
     private IFormComponent m_component;

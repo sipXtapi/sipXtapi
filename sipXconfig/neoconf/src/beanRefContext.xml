@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="servicelayer-context"
+    class="org.springframework.context.support.ClassPathXmlApplicationContext">
+    <constructor-arg>
+      <list>
+        <value>classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/login/login.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml</value>
+      </list>
+    </constructor-arg>
+  </bean>
+</beans>

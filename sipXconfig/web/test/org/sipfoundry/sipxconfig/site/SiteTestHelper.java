@@ -32,12 +32,21 @@ import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebResponse;
 
 public class SiteTestHelper {
+    
+    /** 
+     * Same displayId that TestPage creates. thought of referencing static variable
+     * but may pull in unnec. dependencies 
+     */
+    public static final String TEST_USER = "testuser";
+    
+    public static final String ADMIN = "superadmin";
+
     private static String s_buildDir;
 
     private static String s_baseUrl;
 
     private static String s_artificialSystemRoot;
-
+    
     public static Test webTestSuite(Class webTestClass) {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(webTestClass);
@@ -53,7 +62,7 @@ public class SiteTestHelper {
      */
     public static void home(WebTester tester) {
         tester.beginAt("/app?service=page/TestPage");
-        login(tester, "", "");
+        tester.clickLink("login");
         // HACK! Webunit doesn't appear to fully load page, especialy
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
@@ -72,8 +81,8 @@ public class SiteTestHelper {
         try {
             if (tester.getDialog().hasForm("login:form")) {
                 WebForm form = tester.getDialog().getForm();
-                form.setParameter("j_username", username);
-                form.setParameter("j_password", password);
+                form.setParameter("userName", username);
+                form.setParameter("password", password);
                 form.submit();
             }
         } catch (IOException e) {
@@ -232,5 +241,11 @@ public class SiteTestHelper {
         respField.set(dialog, response);
         
         Assert.assertSame(tester.getDialog().getResponse(), response);
+    }
+
+    public static void seedUser(WebTester tester) {
+        home(tester);
+        tester.clickLink("resetCoreContext");
+        tester.clickLink("seedTestUser");
     }
 }

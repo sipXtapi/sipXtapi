@@ -10,4 +10,13 @@
          https://localhost:8091/cgi-bin/processmonitor/process.cgi
       </agent_url>
    </location>
+   <location id="Primary CommServer">
+      <component id="CommServer1"  type="comm-server" />         
+      <replication_url>
+         https://192.168.0.27:8091/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://192.168.0.27:8091/cgi-bin/processmonitor/process.cgi
+      </agent_url>
+   </location>  
 </topology>
