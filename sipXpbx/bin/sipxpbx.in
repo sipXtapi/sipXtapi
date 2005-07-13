@@ -347,25 +347,6 @@ EOF
     fi
     finish_check $ssl_status
 
-    ## Check that Postgres is running.
-    start_check "database process"
-    @SIPX_BINDIR@/sipxdbmgr --status >> ${steperrfile}.db 2>&1 
-    db_status=$?
-    cat ${steperrfile}.db >> ${steperrfile}
-    if [ $db_status -eq 0 ]
-    then
-        # status script returned success - check for 'stopped'
-        if ! grep -v stopped ${steperrfile}.db
-        then
-            db_status=1
-            cat <<EOF >> ${steperrfile}
-    Postgres database not running.  Did you install the sipxconfig RPM?
-EOF
-        fi
-    fi
-#    rm -f ${steperrfile}.db
-    finish_check $db_status
-
     # Iterate through the processes and let each shell script do its own checks 
     for process in ${sipxchange_processes[@]}
     do

@@ -85,9 +85,6 @@ cp    $Basename.key @SIPX_CONFDIR@/ssl/ssl.key || exit 1
 chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/ssl.key || exit 1
 chmod 0600          @SIPX_CONFDIR@/ssl/ssl.key || exit 1
 
-# install the jboss keystore copy
-@bindir@/ssl-cert/install-ssl-keystore.sh @SIPX_CONFDIR@/ssl/ssl || exit 1
-
 if [ $InstallCA = TRUE ]
 then
 
