@@ -15,7 +15,15 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 public class BackgroundTaskInterceptor implements MethodInterceptor {
-    private BackgroundTaskQueue m_queue = new BackgroundTaskQueue();
+    private final BackgroundTaskQueue m_queue; 
+    
+    public BackgroundTaskInterceptor() {
+        this(new BackgroundTaskQueue());
+    }
+    
+    public BackgroundTaskInterceptor(BackgroundTaskQueue queue) {
+        m_queue = queue;
+    }
 
     public Object invoke(MethodInvocation invocation) throws Throwable {
         InvocationTask task = new InvocationTask(invocation);
@@ -39,15 +47,6 @@ public class BackgroundTaskInterceptor implements MethodInterceptor {
                 }
                 throw new RuntimeException(e);
             }
-        }
-    }
-
-    /**
-     * Use only for testing. There is no guarantee if it ever returns.
-     */
-    void yieldTillEmpty() {
-        while (!m_queue.isEmpty()) {
-            Thread.yield();
         }
     }
 }

@@ -11,25 +11,29 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.springframework.aop.framework.ProxyFactory;
-
 import junit.framework.TestCase;
+
+import org.springframework.aop.framework.ProxyFactory;
 
 public class BackgroundTaskInterceptorTest extends TestCase {
     private StringBuffer m_buffer;
+    private BackgroundTaskQueue m_queue;
 
     protected void setUp() throws Exception {
         m_buffer = new StringBuffer();
+        m_queue = new BackgroundTaskQueue();
     }
 
     public interface TestInterface {
-        void doSomething();
+        void doSomething() throws Exception;
     }
 
-    public void testProxy() {
-        BackgroundTaskInterceptor interceptor = new BackgroundTaskInterceptor();
+    public void testProxy() throws Exception {
+        BackgroundTaskInterceptor interceptor = new BackgroundTaskInterceptor(m_queue);
+        m_queue.suspend();
+
         TestInterface target = new TestInterface() {
-            public void doSomething() {
+            public void doSomething() throws Exception {
                 m_buffer.append("x");
             }
         };
@@ -39,24 +43,13 @@ public class BackgroundTaskInterceptorTest extends TestCase {
         TestInterface proxy = (TestInterface) pf.getProxy();
         proxy.doSomething();
         proxy.doSomething();
-        // this may fail if our thread has been preempted - I need to figure out a better way of
-        // testing this
 
-        // FIXME : Failing when called from ant script, not from eclipse
-        try {
-            assertEquals("", m_buffer.toString());
-        } catch (Throwable t) {
-            System.err.println("FIXME!!!");
-        }            
+        assertEquals("", m_buffer.toString());
 
-        interceptor.yieldTillEmpty();
+        m_queue.resume();
 
-        // FIXME : Failing when called from ant script, not from eclipse
-        try {
-            assertEquals("xx", m_buffer.toString());
-        } catch (Throwable t) {
-            System.err.println("FIXME!!!");
-        }
+        m_queue.yieldTillEmpty();
+
+        assertEquals("xx", m_buffer.toString());
     }
-
 }
