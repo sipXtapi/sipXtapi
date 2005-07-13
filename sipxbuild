@@ -8,7 +8,7 @@
 Staging=""
 Clean=""
 BuildReturn=0
-FailFast=no
+FailFast=NO
 Sudo=""
 Check=CHECK
 Deps=DEPS
@@ -108,7 +108,7 @@ incrementalBuild()
 {
     Project=$1
     ## echo to stderr to help decipher warnings and errors between projects
-    echo "Starting incremental build of $Project" >&2
+    echo "===================== Starting incremental build of $Project" >&2
 
     Success=false
     echo "Building $Project"
@@ -353,18 +353,17 @@ builderr()
     echo "$1" >&2
     ## Test if we're doing an incremental build and we're in the first try. Don't
     ## set error condition on first try, only after retry.
-    if [ "$Action" = "INCREMENTAL" ]; then
-      if [ "$Retry" = "no" ]; then
-        echo "Not setting error condition on first try"
+    if [ "$Action" = "INCREMENTAL" -a  "$FailFast" = "NO" ]; then
+        echo "Not setting error condition on first try" 1>&2
         return
-      fi
     fi
     echo "$1" >> build.err
     BuildReturn=-1
-    if test x"$FailFast" = xyes
+    if test x"$FailFast" = xYES
     then
       exit -1
     fi
+    return $BuildReturn
 }
 
 
@@ -423,12 +422,13 @@ do
         ;;
 
         -f|--failfast)
-        FailFast=yes
+        FailFast=YES
         ;;
 
         -p|--projects)
         shift
-        Projects=${1}
+        newProjects=`echo ${1} | sed 's/,/ /g'`
+        Projects="$Projects $newProjects"
         ;;
 
         -nc|--no-check)
@@ -489,30 +489,54 @@ then
     esac
 fi
 
-if test "$Action" = "INCREMENTAL" && ! test -z "$Destination"
+if test "$Action" = "INCREMENTAL" 
 then
+    if test -z "$Destination"
+    then
+        echo "Must specify <destination>" 1>&2
+        exit 1
+    fi
     mkbuilddir 
 
-    for Project in `ProjectsInOrder $Projects`; do
-        Retry="no"
+    for Project in `ProjectsInOrder $Projects`; 
+    do
+      if [ -d $Project ]
+      then
         if ! incrementalBuild $Project
         then
-            Retry="yes"
+            echo "Clean and retry build of $Project" 1>&2
+            echo "Clean and retry build of $Project" >> build.err
             cleanBuild $Project
             incrementalBuild $Project
         fi
+      else
+          echo "$Project missing (skipped) " 1>&2
+          echo "$Project missing (skipped) " >> build.err
+      fi
     done
 
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "DISTRIBUTION" && ! test -z $Destination
+elif test "$Action" = "DISTRIBUTION" 
 then
+    if test -z "$Destination"
+    then
+        echo "Must specify <destination>" 1>&2
+        exit 1
+    fi
+
     mkbuilddir $Destination
     Staging="$Destination/var/tmp"
     mkbuilddir $Staging
 
     for Project in `ProjectsInOrder $Projects`; do
+      if [ -d $Project ]
+      then
         distributionBuild $Project
+      else
+          echo "$Project missing (skipped) " 1>&2
+          echo "$Project missing (skipped) " >> build.err
+      fi
     done
 
     cat build.err
@@ -521,7 +545,13 @@ elif test "$Action" = "RPM"
 then
 
     for Project in `ProjectsInOrder $RpmProjects`; do
+      if [ -d $Project ]
+      then
         rpmBuild $Project
+      else
+          echo "$Project missing (skipped) " 1>&2
+          echo "$Project missing (skipped) " >> build.err
+      fi
     done
 
     cat build.err
@@ -536,7 +566,13 @@ then
     done
 
     for Project in $Reverse; do
+      if [ -d $Project ]
+      then
         rpmClean $Project
+      else
+          echo "$Project missing (skipped) " 1>&2
+          echo "$Project missing (skipped) " >> build.err
+      fi
     done
 
 
@@ -545,15 +581,27 @@ then
 elif test "$Action" = "CLEAN"
 then
     for Project in `ProjectsInOrder $Projects`; do
+      if [ -d $Project ]
+      then
         cleanBuild $Project
+      else
+          echo "$Project missing (skipped) " 1>&2
+          echo "$Project missing (skipped) " >> build.err
+      fi
     done
     exit 0
 elif test "$Action" = "EXEC"
 then
     for Project in `ProjectsInOrder $Projects`; do
+      if [ -d $Project ]
+      then
         pushd $Project > /dev/null
 *        "$@"
         popd > /dev/null
+      else
+          echo "$Project missing (skipped) " 1>&2
+          echo "$Project missing (skipped) " >> build.err
+      fi
     done
     exit 0
 fi
@@ -567,6 +615,7 @@ Usage:
                 [-s|--sudo]
                 [-f|--failfast] 
                 [-p|--projects {projects}]
+                [-nd|--no-deps]
                 [-nc|--no-check]
                 [-rc|--rpmclean]
                 [-x|--exec]
@@ -575,26 +624,41 @@ Usage:
                 [{destination directory}]
 
 Options are:
-     none              Incmrementally build every project. Must have rw access 
+     none              Incrementally build every project. Must have rw access 
                        to destination directory. destination is required.
+                       In an incremental build, if a project build fails, the
+                       default action is to clean it an retry the build; it
+                       is only considered a failure if this second attempt
+                       fails (see --failfast).
 
      --distribution    Calls 'make dist' to builds tarballs. Destination
                        directory is required but no files are installed or
-                       modified in that directory. destination is required.
+                       modified in that directory.
 
      --clean           Deletes all output and generated files including
-                       files generated by autoconf and automake. This
-                       does *not* delete any installed files however.
+                       files generated by autoconf and automake.  However, 
+                       this does *not* delete any installed files.
 
      --sudo            Sudo when installing packages
 
-     --failfast        Stop after first build error
+     --failfast        Stop after first build error, leaving any remaining projects
+                       unbuilt.  In an incremental build, this also disables the
+                       automatic clean and retry.
 
-     --projects        Space delimitted list of projects to operate on.
-                       Example: -projects "sipXportLib sipXtackLib"
+     --projects        Space or comman delimited list of projects to operate on;
+                       this option may be specified multiple times.
+                       Example: --projects "sipXpbx sipXphone".
+                            or  --projects sipXpbx,sipXphone
+                            or  -p sipXpbx -p sipXphone
+                       If this is not specified, then all available projects
+                       are built (the absence of a project causes a warning 
+                       on standard error, but is not considered an error).  
+                       When building, any dependencies are also built, so 
+                       specifying 'sipXtackLib' would automatically
+                       also build 'sipXportLib' (to disable, use --no-deps).
 
      --no-deps         Build exactly the specified targets; do not build the 
-                       projects it depends on.
+                       projects they depend on.
 
      --no-check        Does not run unit tests. 
                        WARNING: If Douglas finds out you didn't run unit tests 
@@ -617,7 +681,7 @@ Options are:
                        Multiple labels may be specified by multiple uses of this
                        option (-l foo -l bar) or by using comma (but not space)
                        separated values ( --label foo,bar ).
-                       The labels default to the environment variable $BuildLabel 
+                       The labels default to the environment variable \$BuildLabel 
                        if it is defined.
 
 USAGE
