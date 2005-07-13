@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
 	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneGroups">
+<page-specification class="org.sipfoundry.sipxconfig.site.user.UserGroups">
 
     <property-specification name="groups" 
         type="java.util.List"/>
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	initial-value="global.phoneContext"/>    
-	<property-specification name="settingContext" 
-		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
-    	initial-value="global.settingDao"/>    
+	<property-specification name="coreContext" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/>    
 
     <component id="groupTable" type="GroupTable">
         <binding name="groups" expression="groups"/>
         <binding name="memberCounts" expression="memberCounts"/>
-        <binding name="viewGroupListener" expression="listeners.editPhoneGroup"/>
+        <binding name="viewGroupListener" expression="listeners.editUserGroup"/>
     </component>
     
     <component id="addGroup" type="DirectLink">

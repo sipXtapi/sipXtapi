@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.phone;
+package org.sipfoundry.sipxconfig.site.user;
 
 import java.util.List;
 import java.util.Map;
@@ -18,23 +18,24 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.site.phone.PhoneModels;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
-public abstract class PhoneGroups extends BasePage implements PageRenderListener {
+public abstract class UserGroups extends BasePage  implements PageRenderListener {
     
-    public static final String PAGE = "PhoneGroups";
+    public static final String PAGE = "UserGroups";
     
     public abstract void setGroups(List groups);
     
     public abstract List getGroups();
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract CoreContext getCoreContext();
     
-    public abstract SettingDao getSettingContext();
+    public abstract SettingDao getSettingDao();
         
     public void addGroup(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
@@ -43,7 +44,7 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     }
     
     public Map getMemberCounts() {
-        Map memberCount = getSettingContext().getGroupMemberCountIndexedByGroupId(PhoneData.class);
+        Map memberCount = getSettingDao().getGroupMemberCountIndexedByGroupId(User.class);
         
         return memberCount;
     }
@@ -56,7 +57,7 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     }
     
     public void pageBeginRender(PageEvent event_) {
-        PhoneContext context = getPhoneContext();
-        setGroups(context.getGroups());
+        CoreContext context = getCoreContext();
+        setGroups(context.getUserGroups());
     }
 }

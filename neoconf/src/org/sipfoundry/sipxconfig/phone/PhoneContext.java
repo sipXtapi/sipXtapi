@@ -90,11 +90,4 @@ public interface PhoneContext extends DataObjectSource {
     public String getSystemDirectory();
 
     public void deleteLinesForUser(Integer userId);
-    
-    /**
-     * Get the number of members in each group
-     * 
-     * @return map {groupId as Integer, count as Integer} 
-     */
-    public Map getGroupMemberCountIndexedByGroupId();
 }

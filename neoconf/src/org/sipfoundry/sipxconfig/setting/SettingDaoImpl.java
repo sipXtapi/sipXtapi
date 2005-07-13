@@ -12,7 +12,9 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -103,7 +105,26 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
     }
+
+    public Map getGroupMemberCountIndexedByGroupId(Class groupOwner) {
+        String query = "select g.id, count(*) from " + groupOwner.getName() 
+            + " o join o.groups g group by g.id";
+        List l = getHibernateTemplate().find(query);
+        Map members = asMap(l);
+        
+        return members;
+    }
     
+    private Map asMap(List l) {
+        Map m = new HashMap(l.size());
+        for (int i = 0; i < l.size(); i++) {
+            Object[] row = (Object[]) l.get(i);
+            m.put(row[0], row[1]);
+        }
+        
+        return m;        
+    }
+
     /**
      * Internal object, only used to generate group weights in DB neutral way
      */

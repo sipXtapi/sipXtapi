@@ -40,4 +40,8 @@
     </set>
   </class>
   
+  <query name="userGroupMemberCountIndexedByGroupId">
+	<![CDATA[select g.id, count(*) from User o join o.groups g group by g.id]]>
+  </query>
+
 </hibernate-mapping>

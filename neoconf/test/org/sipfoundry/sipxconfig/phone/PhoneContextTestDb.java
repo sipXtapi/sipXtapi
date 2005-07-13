@@ -19,14 +19,20 @@ import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class PhoneContextTestDb extends TestCase {
 
     private PhoneContext m_context;
+    
+    private SettingDao m_settingContext;
 
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
+        
+        m_settingContext = (SettingDao) TestHelper.getApplicationContext().getBean(
+                SettingDao.CONTEXT_NAME);
     }
 
     public void testClear() throws Exception {
@@ -37,16 +43,6 @@ public class PhoneContextTestDb extends TestCase {
         m_context.clear();
     }
     
-    public void testGetRootPhoneGroup() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        Group root = m_context.loadRootGroup();
-        assertNotNull(root);
-        
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("group_storage");
-        assertEquals(1, actual.getRowCount());
-        assertEquals("phone", actual.getValue(0, "resource"));        
-    }
-
     public void testCheckForDuplicateFieldsOnNew() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
@@ -82,7 +78,7 @@ public class PhoneContextTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
         
-        Map counts = m_context.getGroupMemberCountIndexedByGroupId();
+        Map counts = m_settingContext.getGroupMemberCountIndexedByGroupId(PhoneData.class);
         assertEquals(2, counts.size());
         assertEquals(new Integer(2), counts.get(new Integer(1001)));
         assertEquals(new Integer(1), counts.get(new Integer(1002)));
