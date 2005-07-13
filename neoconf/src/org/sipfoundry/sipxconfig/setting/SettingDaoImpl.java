@@ -80,21 +80,12 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     }
 
     public Group loadRootGroup(String resource) {
-        Group tag;
         String query = "rootGroupByResource";
         Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam(query, 
                 RESOURCE_PARAM, resource);
-        if (tags.size() == 0) {
-            tag = new Group();
-            tag.setName("Default");
-            tag.setWeight(new Integer(0));
-            tag.setResource(resource);      
-            storeGroup(tag);
-        } else {
-            tag = (Group) CoreContextImpl.requireOneOrZero(tags, query);
-        }
+        Group group = (Group) CoreContextImpl.requireOneOrZero(tags, query);
         
-        return tag;
+        return group;
     }
     
     public List getGroups(String resource) {

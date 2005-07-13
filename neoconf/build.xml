@@ -70,7 +70,7 @@
 	<property name="classpath" refid="base.path" />
 
 	<!-- INSTALL -->
-    <target name="install">
+    <target name="install" depends="jar">
     	<mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
 		<copy todir="${dest.dir}${sipxpbx.conf.dir}">
 			<fileset dir="etc">
@@ -144,16 +144,9 @@
 	
 	<!-- D E F A U L T -->
 	<target name="default" depends="jar"/>
-    
-    <target name="compile.rmi" depends="compile">
-    	<rmic base="${classes.dir}"
-            verify="yes" stubversion="1.2" classpathref="base.path">
-    		<include name="**/*ServiceImpl.class"/>	
-    	</rmic>
-    </target>
-	
+    	
 	<!-- J A R -->
-	<target name="jar" depends="compile.rmi" description="assemble sipxconfig jar library">
+	<target name="jar" depends="compile" description="assemble sipxconfig jar library">
 		<jar file="${sipxconfig.jar}">
 			<fileset dir="${classes.dir}"/>
 			<fileset dir="${src.dir}">
@@ -212,6 +205,7 @@
             <transaction src="etc/database/schema.sql"/>
             <!-- temporary until we upgrade DB version-->
             <!-- list db patches here -->
+            <transaction src="etc/database/initialization_task.sql"/>
             <transaction src="etc/database/user_groups.sql"/>
         </sql>     
     </target>

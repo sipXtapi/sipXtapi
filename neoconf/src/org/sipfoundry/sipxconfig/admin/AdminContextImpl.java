@@ -12,21 +12,14 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Timer;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
@@ -98,28 +91,15 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         plan.schedule(m_timer, m_backupDirectory, m_binDirectory); 
     }
     
-    public void setPatchApplied(String patch) {
-        getHibernateTemplate().execute(new ApplyPatch(patch));
+    
+    public String[] getInitializationTasks() {
+        List l = getHibernateTemplate().findByNamedQuery("taskNames");
+        return (String[]) l.toArray(new String[l.size()]);
     }
-
-    class ApplyPatch implements HibernateCallback {
-        
-        private String m_patch;
-        
-        ApplyPatch(String patch) {
-            m_patch = patch;
-        }
-        
-        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-            Connection connection = session.connection();
-            Statement statement = connection.createStatement();
-            try {
-                statement.executeUpdate("insert into patch (name) values ('" + m_patch + "')");
-            } finally {
-                JdbcUtils.closeStatement(statement);
-            }
-            return null;
-        }        
+    
+    public void deleteInitializationTask(String task) {        
+        getHibernateTemplate().delete("from " + InitializationTask.class.getName() 
+                + " t where t.task = '" + task + "'");
     }
-
 }
+

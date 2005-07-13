@@ -1,6 +1,20 @@
 <!--
   - Manages the database creation, droping and upgrading. File is processed
   - by ANT and thus format compilies with ANT project files.
+  -
+  - How to add a database patch:
+  -   1. add sql commands to a file called X in this directory, where X is any
+  -      value you choose
+  -   2. define a target X by copying a patch in section for the database version
+  -      in defined at the top of schema.sql
+  -   3. Add sql file reference to build.xml (this may go away)
+  -
+  - How to initialize tables beyond simple SQL.
+  -   1. Add this to you SQL patch file
+  -
+  -       insert into initialization_task (name) values ('Z');
+  - 
+  -   2. Follow instruction in InitializationTask.java
   -->
 <project name="database" basedir=".">
   <property name="sipxconfig.db.name" value="SIPXCONFIG"/>
@@ -16,8 +30,17 @@
         select 'version' || version || '=true' from version_history;
       </sipx-sql>    
       <loadproperties srcfile="patches.properties"/>
+  	  <delete file="patches.properties"/>  	  
   </target>
-
+	
+  <target name="tasks" description="sets flag if any initialization needs to be done">
+    <sipx-sql print="yes" output="tasks.properties" showheaders="no">
+      select 'initialize=true' from initialization_task having count(*) > 1;
+    </sipx-sql>    
+    <loadproperties srcfile="tasks.properties"/>
+    <delete file="tasks.properties"/>  	  
+  </target>
+	
   <target name="drop" description="drops database!">
     <exec executable="dropdb">
       <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}"/>
@@ -32,20 +55,21 @@
   
   <!-- 
     - NOTE: Creating a database runs all the patches.  Before shipping, update schema.sql
-    - then remove upgrade-schema0 from dependencies
+    - then remove version0 from dependencies. 
     -->
-  <target name="create" depends="createdb,schema,patches,upgrade-schema0"
+  <target name="create" depends="createdb,schema,patches,version0,initialize"
     description="create database with schema">    
   </target>  
 
   <target name="upgrade" description="applied all patched that need to be applied"
-    depends="patches,upgrade-schema0,initialize"/>
-    
-  <target name="upgrade-schema0" description="upgrade from version 0" unless="version1"
-    depends="" />
-	
-  <target name="initialize" depends="dial-plans,default-phone-group">
+    depends="patches,version0,initialize"/>
+    	
+  <target name="initialize" depends="tasks" if="initialize">
+    <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null"/>
   </target>
+	
+  <target name="version0" description="upgrade from version 0" unless="version1"
+    depends="initialization_task,user_groups" />	
   
   <target name="schema" unless="schema">
     <sipx-sql>
@@ -53,22 +77,22 @@
     </sipx-sql>
   </target>  
   
-  <!--
-    - Upgrading from 1 to 2
+  <!-- 
+     Migration Targets Legend
+    
+     version0 to version1 - development database to intial version, this can be deleted
+                              when all patches are migrated into schema.sql because migration
+                              will be solved by a separate process and we're not supporting
+                              upgrading from a develepment database.
+    -->	
+   <!--
+    - version0 patches
     -->
+  <target name="initialization_task" unless="initialization_task">
+    <db-patch patch="initialization_task"/>
+  </target>
   <target name="user_groups" unless="user_groups">
     <db-patch patch="user_groups"/>
-  </target>
-	
-  <!--
-    - Database initialization
-    --> 
-  <target name="dial-plans" unless="dial-plans">
-    <java-patch patch="dial-plans"/>
-  </target>
-	
-  <target name="default-phone-group" unless="default-phone-group">
-    <java-patch patch="default-phone-group"/>
   </target>
 	  
   <!--
@@ -103,14 +127,5 @@
         userid="${sipxconfig.db.user}" 
         password="${sipxconfig.db.password}"/>
   </presetdef>
-
-  <macrodef name="java-patch">
-    <attribute name="patch"/>
-    <sequential>
-      <java classname="org.sipfoundry.sipxconfig.admin.PatchRunner" output="/dev/null">
-        <arg value="@{patch}"/>
-      </java>
-    </sequential>
-  </macrodef>
   
 </project>
