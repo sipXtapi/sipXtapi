@@ -255,7 +255,7 @@ public:
             "<methodName>addExtension</methodName>\n"
             "<params>\n"
             "<param>\n"
-            "<value><string>acd@pingtel.com</string></value>\n"
+            "<value>acd@pingtel.com</value>\n"
             "</param>\n"
             "<param>\n"
             "<value><int>162</int></value>\n"

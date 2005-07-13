@@ -369,7 +369,7 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
                      else
                      {
                         // Default case for string
-                        paramValue = valueNode->FirstChild()->Value();
+                        paramValue = subNode->FirstChild()->Value();
                         if (!method->addParam(index, &paramValue, response))
                         {
                            // Wrong param and return the fault response immediately
@@ -468,7 +468,7 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                               else
                               {
                                  // default for string
-                                 paramValue = valueElement->FirstChild()->Value();
+                                 paramValue = memberValue->FirstChild()->Value();
                                  pMembers->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
                               }
                            }
@@ -559,7 +559,7 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                            else
                            {
                               // default for string
-                              paramValue = arrayElement->FirstChild()->Value();
+                              paramValue = valueNode->FirstChild()->Value();
                               pList->insert(new UtlString(paramValue));
                            }
                         }

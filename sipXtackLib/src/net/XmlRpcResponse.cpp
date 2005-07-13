@@ -467,7 +467,7 @@ bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
                               else
                               {
                                  // default for string
-                                 paramValue = valueElement->FirstChild()->Value();
+                                 paramValue = memberValue->FirstChild()->Value();
                                  members->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
                               }
                            }
@@ -556,7 +556,7 @@ bool XmlRpcResponse::parseArray(TiXmlNode* subNode, UtlSList* array)
                            else
                            {
                               // default for string
-                              paramValue = arrayElement->FirstChild()->Value();
+                              paramValue = valueNode->FirstChild()->Value();
                               array->insert(new UtlString(paramValue));
                            }
                         }
