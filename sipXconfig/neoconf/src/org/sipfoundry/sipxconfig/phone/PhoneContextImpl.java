@@ -22,6 +22,7 @@ import net.sf.hibernate.Hibernate;
 
 import org.apache.commons.collections.map.LinkedMap;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -30,6 +31,8 @@ import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate.HibernateTemplate;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -37,7 +40,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
-        PhoneContext {
+        PhoneContext, ApplicationListener {
 
     private static final String GROUP_RESOURCE_NAME = "phone";
 
@@ -285,20 +288,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return model;
     }
     
-    public boolean applyPatch(String patch) {
-        boolean applied = false;
-        if ("default-phone-group".equals(patch)) {
-            Group phoneGroup = new Group();
-            phoneGroup.setName("Default");
-            phoneGroup.setWeight(new Integer(0));
-            phoneGroup.setResource(PhoneData.PHONE_GROUP_RESOURCE);      
-            m_settingDao.storeGroup(phoneGroup);
-            applied = true;
-        }
-        
-        return applied;
-    }
-
     public void deleteLinesForUser(Integer userId) {
         // TODO: move query to .hbm.xml file
         getHibernateTemplate().delete("from LineData line where line.user.id=?", userId,
@@ -336,5 +325,22 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         public DuplicateNameException(String name) {
             super(ERROR, name);
         }
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof InitializationTask) {
+            InitializationTask task = (InitializationTask) event;
+            if ("default-phone-group".equals(task.getTask())) {
+                createDefaultPhoneGroup();
+            }            
+        }
+    }
+    
+    void createDefaultPhoneGroup() {
+        Group phoneGroup = new Group();
+        phoneGroup.setName("Default");
+        phoneGroup.setWeight(new Integer(0));
+        phoneGroup.setResource(PhoneData.PHONE_GROUP_RESOURCE);      
+        m_settingDao.storeGroup(phoneGroup);        
     }
 }

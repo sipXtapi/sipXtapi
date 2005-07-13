@@ -56,6 +56,7 @@
         <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/callgroup/parkOrbit.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/admin.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
@@ -69,7 +70,7 @@
       <props>
         <prop key="hibernate.dialect"> net.sf.hibernate.dialect.PostgreSQLDialect</prop>
         <prop key="hibernate.query.substitutions">true=1 false=0</prop>
-        <!-- prop key="hibernate.show_sql">true</prop -->
+        <!-- prop key="hibernate.show_sql">true</prop-->
       </props>
     </property>
     <property name="baseClassBeanIds">

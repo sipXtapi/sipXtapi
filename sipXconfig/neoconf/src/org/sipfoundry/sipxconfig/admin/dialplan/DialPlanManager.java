@@ -21,16 +21,18 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
-import org.sipfoundry.sipxconfig.common.Patch;
+import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
 class DialPlanManager extends HibernateDaoSupport 
-        implements BeanFactoryAware, DialPlanContext, Patch {
+        implements BeanFactoryAware, DialPlanContext, ApplicationListener {
 
     private String m_configDirectory;
 
@@ -254,11 +256,12 @@ class DialPlanManager extends HibernateDaoSupport
         return o;
     }
     
-    public boolean applyPatch(String patch) {
-        if (patch.equals("dial-plans")) {
-            resetToFactoryDefault();
-            return true;
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof InitializationTask) {
+            InitializationTask dbEvent = (InitializationTask) event;            
+            if (dbEvent.getTask().equals("dial-plans")) {
+                resetToFactoryDefault();
+            }
         }
-        return false;
     }
 }

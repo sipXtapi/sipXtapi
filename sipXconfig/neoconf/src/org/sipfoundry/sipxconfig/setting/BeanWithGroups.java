@@ -35,7 +35,10 @@ public class BeanWithGroups extends BeanWithSettings {
     }
     
     protected Setting decorate(Group implicitRootTag, Set groups, Setting settings) {
-        Setting decorated = implicitRootTag.decorate(settings);
+        Setting decorated = settings;
+        if (implicitRootTag != null) {
+            decorated = implicitRootTag.decorate(decorated);
+        }
         
         if (groups != null) {
             Iterator i = groups.iterator();

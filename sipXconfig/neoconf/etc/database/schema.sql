@@ -5,7 +5,12 @@ create table version_history(
   version int4 not null primary key,
   applied date not null
 );
+
+/**
+ *   CHANGE VERSION HERE ----------------------------> X <------------------ 
+ */
 insert into version_history (version, applied) values (0, now());
+
 create table patch(
   name varchar(32) not null primary key
 );

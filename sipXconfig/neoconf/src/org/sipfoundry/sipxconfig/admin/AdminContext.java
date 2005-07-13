@@ -24,8 +24,10 @@ public interface AdminContext {
     public File[] performBackup(BackupPlan plan);
     
     /** 
-     * After successfully returning from Patch.applyPatch, PatchRunner calls this
-     * to mark patch has been applied
+     * After successfully sending event to application to perform a database
+     * related task, remove task from initialization task table.
      */
-    public void setPatchApplied(String patch);
+    public void deleteInitializationTask(String task);
+    
+    public String[] getInitializationTasks();
 }
