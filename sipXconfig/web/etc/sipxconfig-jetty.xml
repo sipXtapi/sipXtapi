@@ -25,7 +25,7 @@
       <Call name="add">
         <Arg>
           <New class="org.mortbay.log.OutputStreamLogSink">
-            <Set name="filename"><SystemProperty name="sipxpbx.log.dir"/>/sipxconfig.log</Set>
+            <Set name="filename"><SystemProperty name="jetty.log.dir"/>/sipxconfig.log</Set>
             <Set name="retainDays">90</Set>
             <Set name="append">true</Set>
             <Set name="logLabels">true</Set>
@@ -61,7 +61,7 @@
   <Set name="rootWebApp">sipxconfig</Set>
   <Call name="addWebApplication">
     <Arg>/sipxconfig</Arg>
-    <Arg><SystemProperty name="sipxconfig.lib.dir"/>/sipxconfig.war</Arg>
+    <Arg><SystemProperty name="jetty.lib.dir"/>/sipxconfig.war</Arg>
   </Call>
 
 </Configure>
