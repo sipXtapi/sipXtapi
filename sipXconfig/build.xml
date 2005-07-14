@@ -8,7 +8,9 @@
   <property name="project.dir" value="."/>
   <import file="subant-targets.xml"/>
 
-  <target name="uninstall" description="Undo the installation, only partial uninstall, the more tempermental areas">
+  <target name="install" depends="remove-jars,subant-targets.install"/>
+
+  <target name="remove-jars" description="Remove all jars from lib dir">
     <delete>
       <fileset dir="${dest.dir}${sipxpbx.data.dir}/lib">
         <include name="*.jar"/>
