@@ -108,8 +108,7 @@
   <target name="install" depends="war" 
     description="Copy war file into lib dir and web related configuration files">
 
-  	<!-- Jetty standalone -->
-  	<!-- startup script -->
+    <!-- startup script -->
     <copy file="bin/sipxconfig.sh.in" 
       tofile="${dest.dir}${bin.dir}/sipxconfig.sh" />
     <replace file="${dest.dir}${bin.dir}/sipxconfig.sh" 
@@ -124,6 +123,17 @@
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/sipxconfig.sh" perm="ugo+x" />
+
+    <mkdir dir="${dest.dir}${bin.dir}/ssl-cert"/>
+    <copy file="bin/create-ssl-truststore.sh.in" 
+      tofile="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" />
+    <replace file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" 
+      propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@openssl@" property="openssl"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" perm="ugo+x" />
+
     <!-- config -->
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />
     <copy todir="${dest.dir}${sipxpbx.conf.dir}">
