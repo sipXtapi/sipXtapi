@@ -39,8 +39,8 @@ public class Credentials extends DataSetGenerator {
         item.addElement("uri").setText(user.getUri(domainName));
         item.addElement("realm").setText(realm);
         item.addElement("userid").setText(user.getDisplayId());
-        item.addElement("passtoken").setText(user.getSipPassword());
-        item.addElement("pintoken").setText(user.getPintoken());
+        item.addElement("passtoken").setText(user.getSipPasswordHash(realm));
+        item.addElement("pintoken").setText(user.getPintokenHash(realm));
         item.addElement("authtype").setText("DIGEST");
     }
 }

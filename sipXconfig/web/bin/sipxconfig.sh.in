@@ -141,7 +141,7 @@ onWebUi() {
 
     createAuthoritiesTruststore
     
-    JavaOpts="-server $JAVA_OPTS"
+    JavaOpts="-server $SIPXCONFIG_OPTS"
 
     # Used in sipxconfig-jetty.xml only
     SystemProps="\

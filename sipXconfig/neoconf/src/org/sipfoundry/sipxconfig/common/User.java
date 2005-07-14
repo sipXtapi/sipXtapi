@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 
@@ -39,6 +40,14 @@ public class User extends BeanWithGroups {
         m_pintoken = pintoken;
     }
 
+    public String getPintokenHash(String realm) {
+        String password = (String) ObjectUtils.defaultIfNull(m_pintoken, StringUtils.EMPTY);
+        if (password.length() == Md5Encoder.LEN) {
+            return password;
+        }
+        return Md5Encoder.digestPassword(m_displayId, realm, password);
+    }
+
     public String getFirstName() {
         return m_firstName;
     }
@@ -49,6 +58,11 @@ public class User extends BeanWithGroups {
 
     public String getSipPassword() {
         return m_sipPassword;
+    }
+
+    public String getSipPasswordHash(String realm) {
+        String password = (String) ObjectUtils.defaultIfNull(m_sipPassword, StringUtils.EMPTY);
+        return Md5Encoder.digestPassword(m_displayId, realm, password);
     }
 
     public void setSipPassword(String password) {
