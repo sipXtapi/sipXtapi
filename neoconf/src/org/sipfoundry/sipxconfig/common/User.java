@@ -11,8 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 
 /**
@@ -131,5 +135,15 @@ public class User extends BeanWithGroups {
         }
 
         return uri.toString();
+    }
+
+    public List getAliases(String domainName) {
+        if (StringUtils.isBlank(m_extension)) {
+            return Collections.EMPTY_LIST;
+        }
+        final String identity = AliasMapping.createUri(m_extension, domainName);
+        final String contact = getUri(domainName);
+        AliasMapping mapping = new AliasMapping(identity, contact);
+        return Collections.singletonList(mapping);
     }
 }

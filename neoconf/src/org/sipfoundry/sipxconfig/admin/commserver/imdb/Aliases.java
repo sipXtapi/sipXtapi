@@ -33,10 +33,13 @@ public class Aliases extends DataSetGenerator {
     }
 
     protected void addItems(Element items) {
-        List forwardingAliases = m_forwardingContext.getForwardingAliases();
-        List callGroupAliases = m_callGroupContext.getAliases();
-        forwardingAliases.addAll(callGroupAliases);
-        for (Iterator i = forwardingAliases.iterator(); i.hasNext();) {
+        addAliases(items, m_callGroupContext.getAliases());
+        addAliases(items, m_forwardingContext.getForwardingAliases());
+        addAliases(items, getCoreContext().getUserAliases());
+    }
+
+    void addAliases(Element items, List aliases) {
+        for (Iterator i = aliases.iterator(); i.hasNext();) {
             AliasMapping alias = (AliasMapping) i.next();
             Element item = addItem(items);
             Element identity = item.addElement("identity");

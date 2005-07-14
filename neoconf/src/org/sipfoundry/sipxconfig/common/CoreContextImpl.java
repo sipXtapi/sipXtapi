@@ -164,4 +164,14 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext 
     public List getUserGroups() {
         return null;
     }
+
+    public List getUserAliases() {
+        List aliases = new ArrayList();
+        List users = loadUsers();
+        for (Iterator i = users.iterator(); i.hasNext();) {
+            User user = (User) i.next();
+            aliases.addAll(user.getAliases(m_domainName));
+        }
+        return aliases;
+    }
 }

@@ -46,4 +46,6 @@ public interface CoreContext extends DataObjectSource {
     public boolean checkUserPermission(User user, Permission p);
     
     public List getUserGroups();
+
+    public List getUserAliases();
 }
