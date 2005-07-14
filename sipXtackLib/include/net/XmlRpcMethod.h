@@ -34,16 +34,19 @@
  * A XmlRpcMethod is a dynamically loaded object that is invoked by the XmlRpcDispatch
  * during the runtime.
  *
- * This class is the abstract base from which all XML-RPC methods must inherit. Four
+ * This class is the abstract base from which all XML-RPC methods must inherit. Two
  * methods must be implemented by the subclasses:
  * 
- * - get() is for XmlRpcDispatch to instantiate the subclass during the runtime
+ * - get() is for XmlRpcDispatch to instantiate the subclass during the runtime. It
+ * is not a singleton class. The XmlRpcMethod derived objects will be deleted after
+ * each use.
  * 
- * - addParam() is for XmlRpcDispatch to pass the atomic param from incmoing
- * XmlRpcRequest to service.
+ * - execute() is for XmlRpcDispatch to execute the XML-RPC request and send back
+ * the XmlRpcResponse to the client side.
  * 
- * All the param types must be UtlContainable. Here is the mapping between XML-RPC
- * types to UtlContainable types:
+ * All the params in the XML-RPC request are stored in a UtlSList and passed to
+ * the service in execute(). All the param values are stored in UtlContainable
+ * types. The mapping between XML-RPC value types and UtlContainable types are:
  * 
  * <i4> or <int> is UtlInt.
  * <boolean> is UtlBool.
@@ -54,9 +57,6 @@
  * 
  * <double> and <base64> are currently not supported.
  * 
- * - execute() is for XmlRpcDispatch to execute the XML-RPC request and send back
- * the XmlRpcResponse to the client side
- *
  */
 
 class XmlRpcMethod
@@ -81,14 +81,10 @@ public:
    /// Destructor
    virtual ~XmlRpcMethod();
 
-   /// Add a param. Subclasses must provide a definition for this method.
-   virtual bool addParam(int index, ///< index position of the param in the request
-                         UtlContainable* value, ///< value for the param
-                         XmlRpcResponse& faultResponse ///< fault response if return is false
-                         ) = 0;
-
    /// Execute the method. Subclasses must provide a definition for this method.
    virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params, ///< request param list
+                        void* userDate, ///< user data
                         XmlRpcResponse& response, ///< request response
                         ExecutionStatus status) = 0; ///< execution status
 

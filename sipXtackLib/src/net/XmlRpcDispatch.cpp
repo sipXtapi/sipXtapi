@@ -26,6 +26,48 @@
 #include "net/XmlRpcDispatch.h"
 
 
+XmlRpcMethodContainer::XmlRpcMethodContainer()
+{
+    mpUserData = NULL;
+    mpMethod = NULL;
+}
+XmlRpcMethodContainer::~XmlRpcMethodContainer()
+{
+}
+
+
+int XmlRpcMethodContainer::compareTo(const UtlContainable *b) const
+{
+   return ((mpUserData == ((XmlRpcMethodContainer *)b)->mpUserData) &&
+           (mpMethod == ((XmlRpcMethodContainer *)b)->mpMethod));
+}
+
+
+unsigned int XmlRpcMethodContainer::hash() const
+{
+    return (unsigned int) mpUserData;
+}
+
+
+static UtlContainableType DB_ENTRY_TYPE = "XmlRpcMethod";
+
+const UtlContainableType XmlRpcMethodContainer::getContainableType() const
+{
+    return DB_ENTRY_TYPE;
+}
+
+void XmlRpcMethodContainer::setData(XmlRpcMethod::Get* method, void* userData)
+{
+   mpMethod = method;
+   mpUserData = userData;
+}
+   
+void XmlRpcMethodContainer::getData(XmlRpcMethod::Get*& method, void*& userData)
+{
+   method = mpMethod;
+   userData = mpUserData;
+}
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -130,14 +172,30 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    pRequestBody->getBytes(&bodyString, &bodyLength);
    
    XmlRpcResponse responseBody;
-   
-   XmlRpcMethod* methodCall = NULL;
-   parseXmlRpcRequest(bodyString, methodCall, responseBody);
+   XmlRpcMethodContainer* methodContainer = NULL;
+   UtlSList params;
+   parseXmlRpcRequest(bodyString, methodContainer, params, responseBody);
    
    XmlRpcMethod::ExecutionStatus status;
-   if (methodCall)
+   if (methodContainer)
    {
-      methodCall->execute(requestContext, responseBody, status);
+      XmlRpcMethod::Get* methodGet;
+      void* userData;
+      methodContainer->getData(methodGet, userData);
+      XmlRpcMethod* method = methodGet();
+      method->execute(requestContext,
+                      params, 
+                      userData,
+                      responseBody,
+                      status);
+      
+      // Delete the instance of the method                
+      if (method)
+      {
+         delete method;
+      }
+      
+      // Clean up the memory allocated in param
    }
 
    if (status == XmlRpcMethod::OK)
@@ -158,10 +216,16 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
 
 /* ============================ ACCESSORS ================================= */
 
-void XmlRpcDispatch::addMethod(const char* methodName, XmlRpcMethod::Get* method)
+void XmlRpcDispatch::addMethod(const char* methodName, XmlRpcMethod::Get* method, void* userData)
 {
    mLock.acquire();
-   mMethods.insertKeyAndValue(new UtlString(methodName), (UtlVoidPtr*) method);
+   UtlString name(methodName);
+   if (mMethods.findValue(&name) == NULL)
+   {
+      XmlRpcMethodContainer *methodContainer = new XmlRpcMethodContainer();
+      methodContainer->setData(method, userData);
+      mMethods.insertKeyAndValue(new UtlString(methodName), methodContainer);
+   }
    mLock.release();
 }
 
@@ -181,7 +245,8 @@ void XmlRpcDispatch::removeMethod(const char* methodName)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
-                                        XmlRpcMethod*& method,
+                                        XmlRpcMethodContainer*& methodContainer,
+                                        UtlSList& params,
                                         XmlRpcResponse& response)
 {
    bool result = false;
@@ -215,10 +280,9 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
          {
             // Check whether the method exists or not. If not, send back a fault response
             UtlString methodCall = methodNode->FirstChild()->Value();
-            XmlRpcMethod::Get* methodGet = (XmlRpcMethod::Get*) mMethods.findValue(&methodCall);
-            if (methodGet)
+            methodContainer = (XmlRpcMethodContainer*) mMethods.findValue(&methodCall);
+            if (methodContainer)
             {
-               method = methodGet();
                TiXmlNode* paramsNode = rootNode->FirstChild("params");
                
                if (paramsNode)
@@ -232,7 +296,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
                      
                      if (subNode)
                      {
-                        result = parseValue(method, subNode, index, response);
+                        result = parseValue(subNode, index, params, response);
                         if (!result)
                         {
                            break;
@@ -266,9 +330,9 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
-                                TiXmlNode* subNode,
+bool XmlRpcDispatch::parseValue(TiXmlNode* subNode,
                                 int index,
+                                UtlSList& params,
                                 XmlRpcResponse& response)
 {
    bool result = true;
@@ -279,12 +343,7 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
    if (valueNode)
    {
       paramValue = valueNode->FirstChild()->Value();
-      UtlInt value(atoi(paramValue));
-      if (!method->addParam(index, &value, response))
-      {
-         // Wrong param and return the fault response immediately
-         result = false;
-      }
+      params.insertAt(index, new UtlInt(atoi(paramValue)));
    }
    else
    {         
@@ -292,12 +351,7 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
       if (valueNode)
       {
          paramValue = valueNode->FirstChild()->Value();
-         UtlInt value(atoi(paramValue));
-         if (!method->addParam(index, &value, response))
-         {
-            // Wrong param and return the fault response immediately
-            result = false;
-         }
+         params.insertAt(index, new UtlInt(atoi(paramValue)));
       }
       else
       {
@@ -305,12 +359,7 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
          if (valueNode)
          {
             paramValue = valueNode->FirstChild()->Value();
-            UtlBool value((atoi(paramValue)==1));
-            if (!method->addParam(index, &value, response))
-            {
-               // Wrong param and return the fault response immediately
-               result = false;
-            }
+            params.insertAt(index, new UtlBool((atoi(paramValue)==1)));
          }
          else
          {
@@ -319,11 +368,7 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
             if (valueNode)
             {
                paramValue = valueNode->FirstChild()->Value();
-               if (!method->addParam(index, &paramValue, response))
-               {
-                  // Wrong param and return the fault response immediately
-                  result = false;
-               }
+               params.insertAt(index, new UtlString(paramValue));
             }
             else
             {
@@ -332,11 +377,7 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
                if (valueNode)
                {
                   paramValue = valueNode->FirstChild()->Value(); // need to change to UtlDateTime
-                  if (!method->addParam(index, &paramValue, response))
-                  {
-                     // Wrong param and return the fault response immediately
-                     result = false;
-                  }
+                  params.insertAt(index, new UtlString(paramValue));
                }
                else
                {
@@ -346,11 +387,7 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
                   {
                      UtlHashMap* members = NULL;
                      parseStruct(valueNode, members);
-                     if (!method->addParam(index, (UtlContainable*)members, response))
-                     {
-                        // Wrong param and return the fault response immediately
-                        result = false;
-                     }
+                     params.insertAt(index, members);
                   }
                   else
                   {
@@ -360,21 +397,13 @@ bool XmlRpcDispatch::parseValue(XmlRpcMethod*& method,
                      {
                         UtlSList* array = NULL;
                         parseArray(valueNode, array);
-                        if (!method->addParam(index, (UtlContainable*)array, response))
-                        {
-                           // Wrong param and return the fault response immediately
-                           result = false;
-                        }
-                     }
+                        params.insertAt(index, array);
+                    }
                      else
                      {
                         // Default case for string
                         paramValue = subNode->FirstChild()->Value();
-                        if (!method->addParam(index, &paramValue, response))
-                        {
-                           // Wrong param and return the fault response immediately
-                           result = false;
-                        }
+                        params.insertAt(index, new UtlString(paramValue));
                      }
                   }                     
                }               

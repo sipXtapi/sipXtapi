@@ -32,12 +32,7 @@ public:
    /// Get the instance of this method.
    static AddExtension* get()
       {
-         if ( spInstance == NULL )
-         {
-            spInstance = new AddExtension();
-         }
-
-         return spInstance;   
+         return (new AddExtension());
       };
 
    /// Destructor
@@ -45,99 +40,101 @@ public:
       {
       };
 
-   bool addParam(int index, UtlContainable* value, XmlRpcResponse& faultResponse)
+   bool execute(const HttpRequestContext& context, UtlSList& params, void* userData, XmlRpcResponse& response, XmlRpcMethod::ExecutionStatus status)
       {
 #ifdef PRINT_OUT
-         printf("index = %d\n", index);
-         UtlString paramType(value->getContainableType());
-         if (paramType.compareTo("UtlInt") == 0)
+         for (int i = 0; i < params.entries(); i++)
          {
-            UtlInt* paramValue = (UtlInt *)value;
-            printf("value = %d\n", paramValue->getValue());
-         }
-         
-         if (paramType.compareTo("UtlString") == 0)
-         {
-            UtlString* paramValue = (UtlString *)value;
-            printf("value = %s\n", paramValue->data());
-         }
-
-         if (paramType.compareTo("UtlSList") == 0)
-         {
-            UtlSList* list = (UtlSList *)value;
-            UtlSListIterator iterator(*list);
-            UtlContainable* pObject;
-            while(pObject = iterator())
+            printf("index = %d\n", i);
+            
+            UtlContainable *value = params.at(i);
+            UtlString paramType(value->getContainableType());
+            if (paramType.compareTo("UtlInt") == 0)
             {
-               UtlString elementType(pObject->getContainableType());
-               if (elementType.compareTo("UtlInt") == 0)
+               UtlInt* paramValue = (UtlInt *)value;
+               printf("value = %d\n", paramValue->getValue());
+            }
+            
+            if (paramType.compareTo("UtlString") == 0)
+            {
+               UtlString* paramValue = (UtlString *)value;
+               printf("value = %s\n", paramValue->data());
+            }
+   
+            if (paramType.compareTo("UtlSList") == 0)
+            {
+               UtlSList* list = (UtlSList *)value;
+               UtlSListIterator iterator(*list);
+               UtlContainable* pObject;
+               while(pObject = iterator())
                {
-                  UtlInt* paramValue = (UtlInt *)pObject;
-                  printf("value = %d\n", paramValue->getValue());
-               }
-               
-               if (elementType.compareTo("UtlString") == 0)
-               {
-                  UtlString* paramValue = (UtlString *)pObject;
-                  printf("value = %s\n", paramValue->data());
+                  UtlString elementType(pObject->getContainableType());
+                  if (elementType.compareTo("UtlInt") == 0)
+                  {
+                     UtlInt* paramValue = (UtlInt *)pObject;
+                     printf("value = %d\n", paramValue->getValue());
+                  }
+                  
+                  if (elementType.compareTo("UtlString") == 0)
+                  {
+                     UtlString* paramValue = (UtlString *)pObject;
+                     printf("value = %s\n", paramValue->data());
+                  }
                }
             }
-         }
-
-         if (paramType.compareTo("UtlHashMap") == 0)
-         {
-            UtlHashMap* map = (UtlHashMap *)value;
-            UtlHashMapIterator iterator(*map);
-            UtlString* pName;
-            while(pName = (UtlString *)iterator())
+   
+            if (paramType.compareTo("UtlHashMap") == 0)
             {
-               printf("name = %s\n", pName->data());
-               
-               UtlContainable* pObject = map->findValue(pName);
-               UtlString elementType(pObject->getContainableType());
-               if (elementType.compareTo("UtlInt") == 0)
+               UtlHashMap* map = (UtlHashMap *)value;
+               UtlHashMapIterator iterator(*map);
+               UtlString* pName;
+               while(pName = (UtlString *)iterator())
                {
-                  UtlInt* paramValue = (UtlInt *)pObject;
-                  printf("value = %d\n", paramValue->getValue());
-               }
-               
-               if (elementType.compareTo("UtlString") == 0)
-               {
-                  UtlString* paramValue = (UtlString *)pObject;
-                  printf("value = %s\n", paramValue->data());
-               }
-               
-               if (elementType.compareTo("UtlSList") == 0)
-               {
-                  UtlSList* list = (UtlSList *)pObject;
-                  UtlSListIterator iterator(*list);
-                  UtlContainable* pList;
-                  while(pList = iterator())
+                  printf("name = %s\n", pName->data());
+                  
+                  UtlContainable* pObject = map->findValue(pName);
+                  UtlString elementType(pObject->getContainableType());
+                  if (elementType.compareTo("UtlInt") == 0)
                   {
-                     UtlString elementType(pList->getContainableType());
-                     if (elementType.compareTo("UtlInt") == 0)
+                     UtlInt* paramValue = (UtlInt *)pObject;
+                     printf("value = %d\n", paramValue->getValue());
+                  }
+                  
+                  if (elementType.compareTo("UtlString") == 0)
+                  {
+                     UtlString* paramValue = (UtlString *)pObject;
+                     printf("value = %s\n", paramValue->data());
+                  }
+                  
+                  if (elementType.compareTo("UtlSList") == 0)
+                  {
+                     UtlSList* list = (UtlSList *)pObject;
+                     UtlSListIterator iterator(*list);
+                     UtlContainable* pList;
+                     while(pList = iterator())
                      {
-                        UtlInt* paramValue = (UtlInt *)pList;
-                        printf("value = %d\n", paramValue->getValue());
-                     }
-                     
-                     if (elementType.compareTo("UtlString") == 0)
-                     {
-                        UtlString* paramValue = (UtlString *)pList;
-                        printf("value = %s\n", paramValue->data());
+                        UtlString elementType(pList->getContainableType());
+                        if (elementType.compareTo("UtlInt") == 0)
+                        {
+                           UtlInt* paramValue = (UtlInt *)pList;
+                           printf("value = %d\n", paramValue->getValue());
+                        }
+                        
+                        if (elementType.compareTo("UtlString") == 0)
+                        {
+                           UtlString* paramValue = (UtlString *)pList;
+                           printf("value = %s\n", paramValue->data());
+                        }
                      }
                   }
                }
             }
          }
-#endif         
-         return true;
-      };
-
-   bool execute(const HttpRequestContext& context, XmlRpcResponse& response, XmlRpcMethod::ExecutionStatus status)
-      {
+#endif
          status = XmlRpcMethod::OK;
-         UtlString responseText("method call \"AddExtension\" successful");
+         UtlString responseText("method call \"");
+         responseText.append(UtlString((char*)userData));
+         responseText.append("\" successful");
          response.setResponse(&responseText);
          return true;
       };
@@ -145,10 +142,7 @@ public:
 private:
    AddExtension() {};
 
-   static AddExtension* spInstance;
 };
-
-AddExtension* AddExtension::spInstance = 0;
 
 /**
  * Unit test for XmlRpc
@@ -330,9 +324,10 @@ public:
 
          UtlString requestContent(ref);
          XmlRpcResponse response;
-         XmlRpcMethod* method;
+         XmlRpcMethodContainer* method;
+         UtlSList params;
 
-         bool result = dispatch.parseXmlRpcRequest(requestContent, method, response);
+         bool result = dispatch.parseXmlRpcRequest(requestContent, method, params, response);
          CPPUNIT_ASSERT(result == false);
 
          XmlRpcBody *responseBody = response.getBody();
@@ -344,19 +339,23 @@ public:
          CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
 
          XmlRpcResponse newResponse;
-         dispatch.addMethod("addExtension", (XmlRpcMethod::Get *)AddExtension::get);
-         result = dispatch.parseXmlRpcRequest(requestContent, method, newResponse);
+         char* userData = "AddExtension"; 
+         dispatch.addMethod("addExtension", (XmlRpcMethod::Get *)AddExtension::get, (void*)userData);
+         result = dispatch.parseXmlRpcRequest(requestContent, method, params, newResponse);
          CPPUNIT_ASSERT(result == true);
          
          HttpRequestContext context;
          XmlRpcMethod::ExecutionStatus status = XmlRpcMethod::OK;
-         AddExtension* pAddExtension = AddExtension::get();
-         pAddExtension->execute(context, newResponse, status);
+         XmlRpcMethod::Get* methodGet;
+         void* user;
+         method->getData(methodGet, user);
+         XmlRpcMethod* addEx = methodGet();
+         addEx->execute(context, params, userData, newResponse, status);
 
          responseBody = newResponse.getBody();
 
          responseBody->getBytes(&body, &length);
-         //printf("body = \n%s\n", body.data());
+         printf("body = \n%s\n", body.data());
 
          CPPUNIT_ASSERT(strcmp(body.data(), successResponse) == 0);
       }

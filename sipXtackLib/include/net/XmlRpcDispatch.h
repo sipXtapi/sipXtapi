@@ -31,6 +31,34 @@
 
 // FORWARD DECLARATIONS
 
+// Private class to contain XmlRpcMethod and user data for each methodName
+class XmlRpcMethodContainer : public UtlContainable
+{
+public:
+   XmlRpcMethodContainer();
+
+   virtual ~XmlRpcMethodContainer();
+
+   virtual UtlContainableType getContainableType() const;
+
+   virtual unsigned int hash() const;
+
+   int compareTo(const UtlContainable *b) const;
+   
+   void setData(XmlRpcMethod::Get* method, void* userData);
+   
+   void getData(XmlRpcMethod::Get*& method, void*& userData);
+
+private:
+
+   void* mpUserData;
+   XmlRpcMethod::Get* mpMethod;
+    
+   //! DISALLOWED accidental copying
+   XmlRpcMethodContainer(const XmlRpcMethodContainer& rXmlRpcMethodContainer);
+   XmlRpcMethodContainer& operator=(const XmlRpcMethodContainer& rhs);
+};
+
 /**
  * A XmlRpcDispatch is a object that monitors the incoming
  * XML-RPC requests, parses XmlRpcRequest messages, invokes the correct
@@ -70,7 +98,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    /// Add a method to the RPC dispatch
-   void addMethod(const char* methodName, XmlRpcMethod::Get* method);
+   void addMethod(const char* methodName, XmlRpcMethod::Get* method, void* userData);
 
    /// Remove a method from the RPC dispatch by name
    void removeMethod(const char* methodName);
@@ -83,13 +111,16 @@ protected:
    friend class XmlRpcTest;
    
    /// Parse the XML-RPC request
-   bool parseXmlRpcRequest(UtlString& requestContent, XmlRpcMethod*& method, XmlRpcResponse& response);
+   bool parseXmlRpcRequest(UtlString& requestContent,
+                           XmlRpcMethodContainer*& method,
+                           UtlSList& params,
+                           XmlRpcResponse& response);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    /// Parse a value in the XML-RPC request
-   bool parseValue(XmlRpcMethod*& method, TiXmlNode* valueNode, int index, XmlRpcResponse& response);
+   bool parseValue(TiXmlNode* valueNode, int index, UtlSList& params, XmlRpcResponse& response);
 
    /// Parse an array in the XML-RPC request
    bool parseArray(TiXmlNode* valueNode, UtlSList*& array);
