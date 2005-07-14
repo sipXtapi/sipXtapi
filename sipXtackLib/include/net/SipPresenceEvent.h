@@ -25,12 +25,27 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define MAX_CHAR_SIZE 1024
 
 #define PRESENCE_EVENT_CONTENT_TYPE "application/pidf+xml"
 #define PRESENCE_EVENT_TYPE "presence"
 
-#define PRESENCE_XMLNS "urn:ietf:params:xml:ns:pidf"
+#define BEGIN_PRESENCE "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\""
+#define END_PRESENCE "</presence>\n"
+
+#define PRESENTITY_EQUAL " entity="
+
+#define BEGIN_TUPLE "<tuple id="
+#define END_TUPLE "</tuple>\n"
+
+#define BEGIN_STATUS "<status>\n"
+#define END_STATUS "</status>\n"
+
+#define BEGIN_BASIC "<basic>"
+#define END_BASIC "</basic>\n"
+
+#define BEGIN_CONTACT "<contact>"
+#define END_CONTACT "</contact>\n"
+
 
 #define STATUS_OPEN "open"
 #define STATUS_CLOSE "close"

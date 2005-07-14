@@ -20,6 +20,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define DOUBLE_QUOTE "\""
+#define END_BRACKET ">"
+#define END_LINE ">\n"
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -145,7 +148,7 @@ SipPresenceEvent::SipPresenceEvent(const char* entity, const char*bodyBytes)
 SipPresenceEvent::~SipPresenceEvent()
 {
    // Clean up all the tuple elements
-   if (mTuples.isEmpty())
+   if (!mTuples.isEmpty())
    {
       mTuples.destroyAll();
    }
@@ -310,17 +313,18 @@ int SipPresenceEvent::getLength() const
 void SipPresenceEvent::buildBody() const
 {
    UtlString PresenceEvent;
-   char PresenceEventBuffer[MAX_CHAR_SIZE];
-   char tempBuffer[MAX_CHAR_SIZE];
+   UtlString singleLine;
 
    // Construct the xml document of Tuple event
    PresenceEvent = UtlString(XML_VERSION_1_0);
 
-   // Tuple Information Structure
-   sprintf(PresenceEventBuffer, "<presence xmlns=\"%s\" entity=\"%s\">\n",
-           PRESENCE_XMLNS, mEntity.data());
-   PresenceEvent += UtlString(PresenceEventBuffer);
- 
+   // Presence Structure
+   PresenceEvent.append(BEGIN_PRESENCE);
+   PresenceEvent.append(PRESENTITY_EQUAL);
+   singleLine = DOUBLE_QUOTE + mEntity + DOUBLE_QUOTE;
+   PresenceEvent += singleLine;
+   PresenceEvent.append(END_LINE);
+    
    // Tuple elements
    ((SipPresenceEvent*)this)->mLock.acquire();
    UtlHashMapIterator tupleIterator(mTuples);
@@ -331,16 +335,18 @@ void SipPresenceEvent::buildBody() const
       UtlString tupleId;
       pTuple->getTupleId(tupleId);
 
-      sprintf(PresenceEventBuffer, "<tuple id=\"%s\">\n", tupleId.data());
-      PresenceEvent += UtlString(PresenceEventBuffer);
-
+      PresenceEvent.append(BEGIN_TUPLE);
+      singleLine = DOUBLE_QUOTE + tupleId + DOUBLE_QUOTE;
+      PresenceEvent += singleLine;
+      PresenceEvent.append(END_LINE);
+      
       // Status element
       UtlString status;
       pTuple->getStatus(status);
-      sprintf(PresenceEventBuffer, "<status>\n<basic>");
-      sprintf(tempBuffer, "%s</basic>\n</status>\n", status.data());
-      strcat(PresenceEventBuffer, tempBuffer);
-      PresenceEvent += UtlString(PresenceEventBuffer);
+      PresenceEvent.append(BEGIN_STATUS);
+      singleLine = BEGIN_BASIC + status + END_BASIC;
+      PresenceEvent += singleLine;
+      PresenceEvent.append(END_STATUS);
       
       // Contact element
       UtlString contact;
@@ -348,25 +354,17 @@ void SipPresenceEvent::buildBody() const
       pTuple->getContact(contact, priority);
       if (!contact.isNull())
       {
-         sprintf(PresenceEventBuffer, "<contact");
-         if (priority != 0.0)
-         {
-            sprintf(tempBuffer, " priority=\"%.3f\">%s</contact>\n", priority, contact.data());
-         }
-         else
-         {
-            sprintf(tempBuffer, ">%s</contact>\n", contact.data());
-         }
-         strcat(PresenceEventBuffer, tempBuffer);
-         PresenceEvent += UtlString(PresenceEventBuffer);
+         singleLine = BEGIN_CONTACT + contact + END_CONTACT;
+         PresenceEvent += singleLine;
       }
 
       // End of Tuple element
-      PresenceEvent += UtlString("</tuple>\n");
+      PresenceEvent.append(END_TUPLE);
    }
 
-   // End of Tuple-info element
-   PresenceEvent += UtlString("</presence>\n");
+   // End of presence structure
+   PresenceEvent.append(END_PRESENCE);
+   
    ((SipPresenceEvent*)this)->mLock.release();
 
    ((SipPresenceEvent*)this)->mBody = PresenceEvent;

@@ -161,13 +161,13 @@ SipResourceList::SipResourceList(const char* bodyBytes, const char* type)
 SipResourceList::~SipResourceList()
 {
    // Clean up all the resource elements
-   if (mResources.isEmpty())
+   if (!mResources.isEmpty())
    {
       mResources.destroyAll();
    }
 
    // Clean up all the event elements
-   if (mEvents.isEmpty())
+   if (!mEvents.isEmpty())
    {
       mEvents.destroyAll();
    }
@@ -325,17 +325,30 @@ int SipResourceList::getLength() const
 void SipResourceList::buildBody() const
 {
    UtlString resourceList;
-   char resourceListBuffer[MAX_CHAR_SIZE];
-   char tempBuffer[MAX_CHAR_SIZE];
+   UtlString singleLine;
+   char version[20];
 
    // Construct the xml document of resource list
    resourceList = UtlString(XML_VERSION_1_0);
 
    //  Information Structure
    Url listUri(mListUri);
-   sprintf(resourceListBuffer, "<list xmlns=\"%s\" uri=\"%s\" version=\"%d\" fullState=\"%s\">\n",
-           RESOURCE_LIST_XMLNS, listUri.toString().data(), mVersion, mFullState.data());
-   resourceList += UtlString(resourceListBuffer);
+   resourceList.append(BEGIN_LIST);
+
+   resourceList.append(URI_EQUAL);
+   singleLine = DOUBLE_QUOTE + listUri.toString() + DOUBLE_QUOTE;
+   resourceList += singleLine;
+
+   sprintf(version, "%d", mVersion);
+
+   resourceList.append(VERSION_EQUAL);
+   singleLine = DOUBLE_QUOTE + UtlString(version) + DOUBLE_QUOTE;
+   resourceList += singleLine;
+   
+   resourceList.append(FULL_STATE_EQUAL);
+   singleLine = DOUBLE_QUOTE + mFullState + DOUBLE_QUOTE;
+   resourceList += singleLine;
+   resourceList.append(END_LINE);
    
    // Resource elements
    ((SipResourceList*)this)->mLock.acquire();
@@ -347,30 +360,37 @@ void SipResourceList::buildBody() const
       pResource->getResourceUri(uriStr);
 
       Url uri(uriStr);
-      sprintf(resourceListBuffer, "<resource uri=\"%s\">\n", uri.toString().data());
-      resourceList += UtlString(resourceListBuffer);
+      resourceList.append(BEGIN_RESOURCE);
+      singleLine = DOUBLE_QUOTE + uri.toString() + DOUBLE_QUOTE;
+      resourceList += singleLine;
+      resourceList.append(END_LINE);
 
       // Name element
       UtlString name;
       pResource->getName(name);
       if (!name.isNull())
       {
-         sprintf(resourceListBuffer, "<name>%s</name>\n", name.data());
+         singleLine = BEGIN_CONTACT + name + END_CONTACT;
+         resourceList += singleLine;
       }
-      resourceList += UtlString(resourceListBuffer);
 
       UtlString id, state;
       pResource->getInstance(id, state);
-      sprintf(resourceListBuffer, "<instance id=\"%s\" state=\"%s\"/>\n",
-              id.data(), state.data());
-      resourceList += UtlString(resourceListBuffer);
+      resourceList.append(BEGIN_INSTANCE);
+      singleLine = DOUBLE_QUOTE + id + DOUBLE_QUOTE;
+      resourceList += singleLine;
+      resourceList.append(STATE_EQUAL);
+      singleLine = DOUBLE_QUOTE + state + DOUBLE_QUOTE;
+      resourceList += singleLine;
+      resourceList.append(END_LINE);
 
       // End of resource element
-      resourceList += UtlString("</resource>\n");
+      resourceList.append(END_RESOURCE);
    }
 
    // End of list element
-   resourceList += UtlString("</list>\n");
+   resourceList.append(END_LIST);
+   
    ((SipResourceList*)this)->mLock.release();
   
    ((SipResourceList*)this)->mBody = resourceList;

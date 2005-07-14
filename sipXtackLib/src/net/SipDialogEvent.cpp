@@ -289,7 +289,7 @@ SipDialogEvent::SipDialogEvent(const char* bodyBytes)
 SipDialogEvent::~SipDialogEvent()
 {
    // Clean up all the dialog elements
-   if (mDialogs.isEmpty())
+   if (!mDialogs.isEmpty())
    {
       mDialogs.destroyAll();
    }

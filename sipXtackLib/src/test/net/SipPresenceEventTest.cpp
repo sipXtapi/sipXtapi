@@ -38,7 +38,7 @@ public:
             "<status>\n"
             "<basic>open</basic>\n"
             "</status>\n"
-            "<contact priority=\"1.000\">tel:+0123456789</contact>\n"
+            "<contact>tel:+0123456789</contact>\n"
             "</tuple>\n"
             "</presence>\n"
             ;
@@ -57,6 +57,7 @@ public:
          int bodyLength;
        
          presenceEvent.getBytes(&bodyString, &bodyLength);
+         //printf("body = \n%s\n", bodyString.data());
 
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
@@ -74,7 +75,7 @@ public:
             "<status>\n"
             "<basic>open</basic>\n"
             "</status>\n"
-            "<contact priority=\"1.000\">tel:+0123456789</contact>\n"
+            "<contact>tel:+0123456789</contact>\n"
             "</tuple>\n"
             "</presence>\n"
             ;
@@ -85,6 +86,7 @@ public:
          int bodyLength;
        
          body.getBytes(&bodyString, &bodyLength);
+         //printf("body = \n%s\n", bodyString.data());
        
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
