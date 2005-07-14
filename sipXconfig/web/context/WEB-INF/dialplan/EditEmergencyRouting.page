@@ -78,7 +78,7 @@
 	<component id="exception" type="RoutingExceptionEditor">
         <binding name="deleteListener" expression="listeners.deleteException"/>
         <binding name="exception" expression="exceptionItem"/>
-        <binding name="gateways" expression="dialPlanManager.gateways"/>
+        <binding name="gateways" expression="gatewayContext.gateways"/>
     </component>
     
     <component id="apply" type="Submit">
