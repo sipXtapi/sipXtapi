@@ -39,7 +39,7 @@
  * 
  * - get() is for XmlRpcDispatch to instantiate the subclass during the runtime. It
  * is not a singleton class. The XmlRpcMethod derived objects will be deleted after
- * each use.
+ * each use in XmlRpcDispatch.
  * 
  * - execute() is for XmlRpcDispatch to execute the XML-RPC request and send back
  * the XmlRpcResponse to the client side.
@@ -84,9 +84,9 @@ public:
    /// Execute the method. Subclasses must provide a definition for this method.
    virtual bool execute(const HttpRequestContext& requestContext, ///< request context
                         UtlSList& params, ///< request param list
-                        void* userDate, ///< user data
+                        void* userData, ///< user data
                         XmlRpcResponse& response, ///< request response
-                        ExecutionStatus status) = 0; ///< execution status
+                        ExecutionStatus& status) = 0; ///< execution status
 
 /* ============================ MANIPULATORS ============================== */
 
