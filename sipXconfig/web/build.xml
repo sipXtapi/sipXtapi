@@ -53,6 +53,8 @@
     <pathelement path="${saxpath.jar}" />
     <pathelement path="${servlet.jsp.jar}" />
     <pathelement path="${velocity.jar}" />
+    <pathelement path="${xerces.jar}" />
+    <pathelement path="${xml-apis.jar}" />
   </path>
 
   <path id="base.path">
@@ -117,6 +119,7 @@
       <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir" 
         />
       <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir" />
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir" />    	
       <replacefilter token="@bin.dir@" property="bin.dir" />
       <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir" />
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
@@ -152,11 +155,10 @@
 	
   <target name="run" depends="test-war" 
     description="Runs Jetty on current code, development purpose only">
-    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
-      <!-- classpath refid="base.path" /-->
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
+      <classpath refid="base.path" />
       <classpath refid="test.path" />
       <classpath location="${junit.jar}" />
-      <classpath location="${xerces.jar}" />
       <classpath location="${log4j.jar}" />
       <sysproperty key="basedir" value="${basedir}" />
     </java>
@@ -189,6 +191,7 @@
       <fileset dir="${top.dir}/neoconf/etc" />
     </copy>
   </target>
+
   <!-- 
     - U N I T T E S T   W E B   U I
     -->

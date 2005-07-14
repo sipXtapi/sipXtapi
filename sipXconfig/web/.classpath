@@ -21,14 +21,14 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/ognl/src.zip" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/servlet.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>
 	<classpathentry sourcepath="LIB_SRC/jwebunit/src.zip" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-1.1.3.jar"/>
 	<classpathentry sourcepath="LIB_SRC/tapestry/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.3.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/tapestry/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.3.jar"/>
 	<classpathentry sourcepath="LIB_SRC/hibernate/src.zip" kind="var" path="SIPX_CONFIG/lib/hibernate-2.1.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/jetty/src.zip" kind="var" path="SIPX_CONFIG/lib/jetty-4.2.24.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/jetty/src.zip" kind="var" path="SIPX_CONFIG/lib/jetty-5.1.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jsp.jar"/>
