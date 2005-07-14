@@ -40,7 +40,7 @@ public:
       {
       };
 
-   bool execute(const HttpRequestContext& context, UtlSList& params, void* userData, XmlRpcResponse& response, XmlRpcMethod::ExecutionStatus status)
+   bool execute(const HttpRequestContext& context, UtlSList& params, void* userData, XmlRpcResponse& response, XmlRpcMethod::ExecutionStatus& status)
       {
 #ifdef PRINT_OUT
          for (int i = 0; i < params.entries(); i++)
@@ -355,7 +355,7 @@ public:
          responseBody = newResponse.getBody();
 
          responseBody->getBytes(&body, &length);
-         printf("body = \n%s\n", body.data());
+         //printf("body = \n%s\n", body.data());
 
          CPPUNIT_ASSERT(strcmp(body.data(), successResponse) == 0);
       }

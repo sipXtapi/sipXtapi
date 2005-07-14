@@ -128,6 +128,12 @@ private:
    /// Parse a struct in the XML-RPC request
    bool parseStruct(TiXmlNode* valueNode, UtlHashMap*& memebers);
 
+   /// Clean up the memory in a struct
+   void cleanUp(UtlHashMap* members);
+   
+   /// Clean up the memory in an array
+   void cleanUp(UtlSList* array);
+   
    /// Http server for handling the HTTP POST request  
    HttpServer* mpHttpServer;
    

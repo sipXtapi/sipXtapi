@@ -18,6 +18,8 @@
 #include <utl/UtlInt.h>
 #include <utl/UtlBool.h>
 #include <utl/UtlDateTime.h>
+#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlSListIterator.h>
 #include <os/OsServerSocket.h>
 #include <os/OsSSLServerSocket.h>
 #include <net/HttpServer.h>
@@ -195,7 +197,8 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
          delete method;
       }
       
-      // Clean up the memory allocated in param
+      // Clean up the memory allocated in params
+      cleanUp(&params);
    }
 
    if (status == XmlRpcMethod::OK)
@@ -603,6 +606,60 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
    }
    
    return result;
+}
+
+void XmlRpcDispatch::cleanUp(UtlHashMap* map)
+{
+   UtlHashMapIterator iterator(*map);
+   UtlString* pName;
+   UtlContainable *value;
+   while (pName = (UtlString *) iterator())
+   {
+      value = map->findValue(pName);
+      UtlString paramType(value->getContainableType());
+      if (paramType.compareTo("UtlHashMap") == 0)
+      {
+         cleanUp((UtlHashMap *)value);
+      }
+      else
+      {
+         if (paramType.compareTo("UtlSList") == 0)
+         {
+            cleanUp((UtlSList *)value);
+         }
+         else
+         {
+            delete value;
+         }
+      }
+      
+      delete pName;
+   }
+}
+
+void XmlRpcDispatch::cleanUp(UtlSList* array)
+{
+   UtlSListIterator iterator(*array);
+   UtlContainable *value;
+   while (value = iterator())
+   {
+      UtlString paramType(value->getContainableType());
+      if (paramType.compareTo("UtlHashMap") == 0)
+      {
+         cleanUp((UtlHashMap *)value);
+      }
+      else
+      {
+         if (paramType.compareTo("UtlSList") == 0)
+         {
+            cleanUp((UtlSList *)value);
+         }
+         else
+         {
+            delete value;
+         }
+      }
+   }
 }
 
 /* ============================ FUNCTIONS ================================= */
