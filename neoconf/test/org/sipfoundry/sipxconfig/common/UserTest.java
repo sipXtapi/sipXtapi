@@ -41,4 +41,61 @@ public class UserTest extends TestCase {
         uri = user.getUri("mycomp.com");
         assertEquals("First Last<sip:displayId@mycomp.com>", uri);
     }
+
+    public void testGetPintokenHash() throws Exception {
+        User user = new User();
+        user.setDisplayId("displayId");
+        user.setPintoken("xxx");
+        String hash = Md5Encoder.digestPassword("displayId", "sipfoundry.org", "xxx");
+
+        assertEquals(hash, user.getPintokenHash("sipfoundry.org"));
+    }
+
+    public void testGetPintokenHashEmpty() throws Exception {
+        User user = new User();
+        user.setDisplayId("displayId");
+        user.setPintoken(null);
+        String hash = Md5Encoder.digestPassword("displayId", "sipfoundry.org", "");
+
+        assertEquals(hash, user.getPintokenHash("sipfoundry.org"));
+    }
+
+    public void testGetPintokenHashMd5() throws Exception {
+        User user = new User();
+        user.setDisplayId("displayId");
+        String hash = Md5Encoder.digestPassword("displayId", "sipfoundry.org", "");
+        user.setPintoken(hash);
+
+        assertEquals(hash, user.getPintokenHash("sipfoundry.org"));
+    }
+
+    public void testGetSipPasswordHash() throws Exception {
+        User user = new User();
+        user.setDisplayId("displayId");
+        user.setSipPassword("xxx");
+        String hash = Md5Encoder.digestPassword("displayId", "sipfoundry.org", "xxx");
+
+        assertEquals(hash, user.getSipPasswordHash("sipfoundry.org"));
+    }
+
+    public void testGetSipPasswordHashEmpty() throws Exception {
+        User user = new User();
+        user.setDisplayId("displayId");
+        user.setSipPassword(null);
+        String hash = Md5Encoder.digestPassword("displayId", "sipfoundry.org", "");
+
+        assertEquals(hash, user.getSipPasswordHash("sipfoundry.org"));
+    }
+
+    public void testGetSipPasswordHashMd5() throws Exception {
+        User user = new User();
+        user.setDisplayId("displayId");
+        String hash = Md5Encoder.digestPassword("displayId", "sipfoundry.org", "");
+        user.setSipPassword(hash);
+
+        String newHash = Md5Encoder.digestPassword("displayId", "sipfoundry.org", hash);
+
+        assertFalse(hash.equals(newHash));
+        assertEquals(newHash, user.getSipPasswordHash("sipfoundry.org"));
+    }
 }
