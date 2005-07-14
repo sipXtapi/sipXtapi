@@ -59,7 +59,6 @@ public class JettyTestSetup extends TestSetup {
 
         String war = SiteTestHelper.getBuildDirectory() + "/tests/war";
         m_server.addWebApplication("/sipxconfig", war);
-        m_server.addRealm(new JettyUserRealm());
         m_server.start();
     }
 

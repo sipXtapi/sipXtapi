@@ -26,6 +26,7 @@ Args=""
 : ${ServiceDir:=/etc/init.d}
 : ${SubstituteUser:=su}
 : ${Chown:=chown}
+: ${LogDir:=@sipxpbx.log.dir@}
 
 Database=SIPXCONFIG
 
@@ -142,9 +143,11 @@ onWebUi() {
     
     JavaOpts="-server $JAVA_OPTS"
 
-    # Used in sipxconfig-jetty.xml,
-    # TODO Find a better way w/o specifying props on command line
-    SystemProps="-Dsipxconfig.lib.dir=@sipxconfig.lib.dir@"
+    # Used in sipxconfig-jetty.xml only
+    SystemProps="\
+        -Djetty.lib.dir=@sipxconfig.lib.dir@ \
+        -Djetty.log.dir=${LogDir} \
+        -Dorg.apache.commons.logging.LogFactory=org.mortbay.log.Factory"
 
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
