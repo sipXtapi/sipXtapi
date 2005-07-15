@@ -27,8 +27,9 @@
 		<pathelement location="${velocity.jar}" />
 		<pathelement location="${commons-digester.jar}"/>
 		<pathelement location="${commons-collections.jar}" />
-                <pathelement location="${commons-codec.jar}" />
+    <pathelement location="${commons-codec.jar}" />
 		<pathelement location="${commons-io.jar}" />
+    <pathelement location="${xmlrpc.jar}" />
 	</path>
 
 	<!-- 
@@ -134,6 +135,7 @@
       <fileset file="${bsf.jar}" />
       <fileset file="${jakarta-oro.jar}" />
       <fileset file="${log4j.jar}" />
+      <fileset file="${xmlrpc.jar}" />
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>

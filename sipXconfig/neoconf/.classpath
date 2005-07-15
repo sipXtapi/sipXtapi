@@ -38,5 +38,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/logkit-1.0.1.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/easymockclassextension/src.zip" kind="var" path="SIPX_CONFIG/lib/easymockclassextension-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/xmlrpc/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlrpc-2.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
