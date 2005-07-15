@@ -106,6 +106,15 @@ private:
    /// Parse a struct in the XML-RPC response
    bool parseStruct(TiXmlNode* valueNode, UtlHashMap* memebers);
 
+   // Clean up the memory in a UtlContainable
+   void cleanUp(UtlContainable* value);
+   
+   /// Clean up the memory in a struct
+   void cleanUp(UtlHashMap* members);
+   
+   /// Clean up the memory in an array
+   void cleanUp(UtlSList* array);
+   
    /// XML-RPC body
    XmlRpcBody* mpResponseBody;
 

@@ -34,6 +34,7 @@ XmlRpcResponse::XmlRpcResponse()
 {
    mFaultCode = ILL_FORMED_CONTENTS_FAULT_CODE;
    mFaultString = ILL_FORMED_CONTENTS_FAULT_STRING;
+   mResponseValue = NULL;
 
    // Start to construct the XML-RPC body
    mpResponseBody = new XmlRpcBody();
@@ -47,6 +48,18 @@ XmlRpcResponse::XmlRpcResponse(const XmlRpcResponse& rXmlRpcResponse)
 // Destructor
 XmlRpcResponse::~XmlRpcResponse()
 {
+   // Clean up the memory in mResponseValue
+   if (mResponseValue)
+   {
+      cleanUp(mResponseValue);
+      mResponseValue = NULL;
+   }
+   
+   if (mpResponseBody)
+   {
+      delete mpResponseBody;
+      mpResponseBody = NULL;
+   }
 }
 
 bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
@@ -297,6 +310,13 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
 {
    bool result = false;
 
+   // Clean up the memory in mResponseValue
+   if (mResponseValue)
+   {
+      cleanUp(mResponseValue);
+      mResponseValue = NULL;
+   }
+   
    UtlString paramValue;
                   
    // four-byte signed integer
@@ -548,6 +568,80 @@ bool XmlRpcResponse::parseArray(TiXmlNode* subNode, UtlSList* array)
    }
    
    return result;
+}
+
+void XmlRpcResponse::cleanUp(UtlContainable* value)
+{
+   UtlString paramType(value->getContainableType());
+   if (paramType.compareTo("UtlHashMap") == 0)
+   {
+      cleanUp((UtlHashMap *)value);
+   }
+   else
+   {
+      if (paramType.compareTo("UtlSList") == 0)
+      {
+         cleanUp((UtlSList *)value);
+      }
+      else
+      {
+         delete value;
+      }
+   }   
+}
+
+void XmlRpcResponse::cleanUp(UtlHashMap* map)
+{
+   UtlHashMapIterator iterator(*map);
+   UtlString* pName;
+   UtlContainable *value;
+   while (pName = (UtlString *) iterator())
+   {
+      value = map->findValue(pName);
+      UtlString paramType(value->getContainableType());
+      if (paramType.compareTo("UtlHashMap") == 0)
+      {
+         cleanUp((UtlHashMap *)value);
+      }
+      else
+      {
+         if (paramType.compareTo("UtlSList") == 0)
+         {
+            cleanUp((UtlSList *)value);
+         }
+         else
+         {
+            delete value;
+         }
+      }
+      
+      delete pName;
+   }
+}
+
+void XmlRpcResponse::cleanUp(UtlSList* array)
+{
+   UtlSListIterator iterator(*array);
+   UtlContainable *value;
+   while (value = iterator())
+   {
+      UtlString paramType(value->getContainableType());
+      if (paramType.compareTo("UtlHashMap") == 0)
+      {
+         cleanUp((UtlHashMap *)value);
+      }
+      else
+      {
+         if (paramType.compareTo("UtlSList") == 0)
+         {
+            cleanUp((UtlSList *)value);
+         }
+         else
+         {
+            delete value;
+         }
+      }
+   }
 }
 
 /* ============================ FUNCTIONS ================================= */
