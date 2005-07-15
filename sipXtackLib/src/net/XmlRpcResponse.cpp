@@ -176,29 +176,8 @@ bool XmlRpcResponse::setResponse(UtlContainable* value)
    mpResponseBody->append(BEGIN_RESPONSE);   
    mpResponseBody->append(BEGIN_PARAMS);   
    mpResponseBody->append(BEGIN_PARAM);  
-
-   UtlString paramType(value->getContainableType());
-   UtlString paramValue; 
-        
-   if (paramType.compareTo("UtlInt") == 0)
-   {
-      char temp[10];
-      UtlInt* pValue = (UtlInt *)value;
-      sprintf(temp, "%d", pValue->getValue());
-      paramValue = BEGIN_INT + UtlString(temp) + END_INT;
-      result = true;
-   }
-   else
-   {
-      if (paramType.compareTo("UtlString") == 0)
-      {
-         UtlString* pValue = (UtlString *)value;
-         paramValue = BEGIN_STRING + *pValue + END_STRING;
-         result = true;
-      }
-   }
-            
-   mpResponseBody->append(paramValue);        
+   
+   result = mpResponseBody->addValue(value);        
    
    mpResponseBody->append(END_PARAM);
    mpResponseBody->append(END_PARAMS);   

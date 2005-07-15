@@ -12,12 +12,6 @@
 
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
-#include <os/OsDateTime.h>
-#include <utl/UtlInt.h>
-#include <utl/UtlBool.h>
-#include <utl/UtlDateTime.h>
-#include <utl/UtlSListIterator.h>
-#include <utl/UtlHashMapIterator.h>
 #include "net/XmlRpcRequest.h"
 
 // EXTERNAL FUNCTIONS
@@ -140,7 +134,7 @@ bool XmlRpcRequest::addParam(UtlContainable* value)
    bool result = false;
    mpRequestBody->append(BEGIN_PARAM);  
 
-   result = addValue(value);
+   result = mpRequestBody->addValue(value);
    
    mpRequestBody->append(END_PARAM);
         
@@ -154,142 +148,6 @@ bool XmlRpcRequest::addParam(UtlContainable* value)
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-bool XmlRpcRequest::addValue(UtlContainable* value)
-{
-   bool result = false;
-
-   UtlString paramType(value->getContainableType());
-   UtlString paramValue; 
-
-   // UtlInt
-   char temp[10];
-   if (paramType.compareTo("UtlInt") == 0)
-   {
-      UtlInt* pValue = (UtlInt *)value;
-      sprintf(temp, "%d", pValue->getValue());
-      paramValue = BEGIN_INT + UtlString(temp) + END_INT;
-      result = true;
-   }
-   else
-   {
-      // UtlBool
-      if (paramType.compareTo("UtlBool") == 0)
-      {
-         UtlBool* pValue = (UtlBool *)value;
-         if (pValue->getValue())
-         {
-            sprintf(temp, "1");
-         }
-         else
-         {
-            sprintf(temp, "0");
-         }
-               
-         paramValue = BEGIN_BOOLEAN + UtlString(temp) + END_BOOLEAN;
-         result = true;
-      }
-      else
-      {
-         // UtlString
-         if (paramType.compareTo("UtlString") == 0)
-         {
-            UtlString* pValue = (UtlString *)value;
-            paramValue = BEGIN_STRING + *pValue + END_STRING;
-            result = true;
-         }
-         else
-         {
-            // UtlDateTime
-            if (paramType.compareTo("UtlDateTime") == 0)
-            {
-               UtlDateTime* pTime = (UtlDateTime *)value;
-               OsDateTime time;
-               pTime->getTime(time);
-               UtlString isoTime;
-               time.getIsoTimeStringZ(isoTime);               
-               paramValue = BEGIN_TIME + isoTime + END_TIME;
-               result = true;
-            }
-            else
-            {
-               // UtlHashMap
-               if (paramType.compareTo("UtlHashMap") == 0)
-               {
-                  result = addStruct((UtlHashMap *)value);
-               }
-               else
-               {
-                  // UtlSList
-                  if (paramType.compareTo("UtlSList") == 0)
-                  {
-                     result = addArray((UtlSList *)value);
-                  }
-                  else
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                   "XmlRpcRequest::addValue unspported type = %s\n", paramType.data());                     
-                  }                     
-               }
-            }
-         }
-      }
-   }
-            
-   mpRequestBody->append(paramValue);
-   return result;
-}
-
-
-bool XmlRpcRequest::addArray(UtlSList* array)
-{
-   bool result = false;
-   mpRequestBody->append(BEGIN_ARRAY);
-   
-   UtlSListIterator iterator(*array);
-   UtlContainable* pObject;
-   while (pObject = iterator())
-   {
-      result = addValue(pObject);
-      if (!result)
-      {
-         break;
-      }
-   }
-   
-   mpRequestBody->append(END_ARRAY);
-   return result;
-}
-
-bool XmlRpcRequest::addStruct(UtlHashMap* members)
-{
-   bool result = false;
-   mpRequestBody->append(BEGIN_STRUCT);
-   
-   UtlHashMapIterator iterator(*members);
-   UtlString* pName;
-   UtlContainable* pObject;
-   UtlString structName;
-   while (pName = (UtlString *)iterator())
-   {
-      mpRequestBody->append(BEGIN_MEMBER);
-
-      structName = BEGIN_NAME + *pName + END_NAME;
-      mpRequestBody->append(structName); 
-      
-      pObject = members->findValue(pName);
-      result = addValue(pObject);
-      if (!result)
-      {
-         break;
-      }
-      
-      mpRequestBody->append(END_MEMBER);
-   }
-   
-   mpRequestBody->append(END_STRUCT);
-   return result;
-}
-
 
 
 /* ============================ FUNCTIONS ================================= */

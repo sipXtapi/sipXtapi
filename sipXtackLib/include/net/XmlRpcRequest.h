@@ -110,15 +110,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   /// Add a value to the XML-RPC request
-   bool addValue(UtlContainable* value);
-
-   /// Add an array to the XML-RPC request
-   bool addArray(UtlSList* array); ///< array of elements
-
-   /// Add a struct to the XML-RPC request
-   bool addStruct(UtlHashMap* members); ///< struct of members
-
    /// Url for the XML-RPC request
    Url mUrl;
    /**<

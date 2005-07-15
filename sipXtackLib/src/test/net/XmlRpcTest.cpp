@@ -153,6 +153,7 @@ class XmlRpcTest : public CppUnit::TestCase
    CPPUNIT_TEST(testXmlRpcRequestCreation);
    CPPUNIT_TEST(testXmlRpcRequestParse);
    CPPUNIT_TEST(testXmlRpcResponseParse);
+   CPPUNIT_TEST(testXmlRpcResponseSetting);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -450,6 +451,63 @@ public:
 
          result = response.parseXmlRpcResponse(successContent2);
          CPPUNIT_ASSERT(result == true);
+      }
+
+
+   void testXmlRpcResponseSetting()
+      {
+         const char *ref =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodResponse>\n"
+            "<params>\n"
+            "<param>\n"
+            "<value>\n"
+            "<struct>\n"
+            "<member>\n"
+            "<name>acd@pingtel.com</name>\n"
+            "<value>\n"
+            "<array>\n"
+            "<data>\n"
+            "<value><string>160@pingtel.com</string></value>\n"
+            "<value><string>167@pingtel.com</string></value>\n"
+            "<value><int>1000</int></value>\n"
+            "<value><boolean>1</boolean></value>\n"
+            "</data>\n"
+            "</array>\n"
+            "</value>\n"
+            "</member>\n"
+            "</struct>\n"
+            "</value>\n"
+            "</param>\n"
+            "</params>\n"
+            "</methodResponse>\n"
+            ;
+
+         Url url;
+         XmlRpcResponse response;
+         
+         UtlString stringValue("acd@pingtel.com");
+
+         UtlSList list;
+         UtlString array1("160@pingtel.com");
+         list.insert(&array1);
+         UtlString array2("167@pingtel.com");
+         list.insert(&array2);
+         UtlInt array3(1000);
+         list.insert(&array3);
+         UtlBool array4(true);
+         list.insert(&array4);
+         
+         UtlHashMap members;
+         members.insertKeyAndValue(&stringValue, &list);
+         response.setResponse(&members);         
+
+         UtlString responseBody;
+         int length;
+         response.getBody()->getBytes(&responseBody, &length);
+         //printf("body = \n%s\n", responseBody.data()); 
+
+         CPPUNIT_ASSERT(strcmp(responseBody.data(), ref) == 0);
       }
 
 };

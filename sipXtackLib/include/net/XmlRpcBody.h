@@ -109,6 +109,14 @@ class XmlRpcBody : public HttpBody
                          int* length ///< the number of bytes written (not including the null terminator
                          ) const;
 
+   /// Add a value to the XML-RPC content
+   bool addValue(UtlContainable* value);
+
+   /// Add an array to the XML-RPC content
+   bool addArray(UtlSList* array); ///< array of elements
+
+   /// Add a struct to the XML-RPC content
+   bool addStruct(UtlHashMap* members); ///< struct of members
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
