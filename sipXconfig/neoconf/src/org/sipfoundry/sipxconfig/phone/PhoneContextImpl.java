@@ -42,7 +42,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         PhoneContext, ApplicationListener {
 
-    private static final String GROUP_RESOURCE_NAME = "phone";
+    private static final String GROUP_RESOURCE_ID = "phone";
 
     private SettingDao m_settingDao;
 
@@ -238,15 +238,15 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     }
 
     public Group loadRootGroup() {
-        return m_settingDao.loadRootGroup(GROUP_RESOURCE_NAME);
+        return m_settingDao.loadRootGroup(GROUP_RESOURCE_ID);
     }
     
     public List getGroups() {
-        return m_settingDao.getGroups(GROUP_RESOURCE_NAME);
+        return m_settingDao.getGroups(GROUP_RESOURCE_ID);
     }
 
     public List getGroupsWithoutRoot() {
-        return m_settingDao.getGroupsWithoutRoot(GROUP_RESOURCE_NAME);
+        return m_settingDao.getGroupsWithoutRoot(GROUP_RESOURCE_ID);
     }
 
     public JobRecord loadJob(Integer id) {
@@ -314,16 +314,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         if (event instanceof InitializationTask) {
             InitializationTask task = (InitializationTask) event;
             if ("default-phone-group".equals(task.getTask())) {
-                createDefaultPhoneGroup();
+                m_settingDao.createRootGroup(GROUP_RESOURCE_ID);
             }            
         }
-    }
-    
-    void createDefaultPhoneGroup() {
-        Group phoneGroup = new Group();
-        phoneGroup.setName("Default");
-        phoneGroup.setWeight(new Integer(0));
-        phoneGroup.setResource(PhoneData.PHONE_GROUP_RESOURCE);      
-        m_settingDao.storeGroup(phoneGroup);        
     }
 }

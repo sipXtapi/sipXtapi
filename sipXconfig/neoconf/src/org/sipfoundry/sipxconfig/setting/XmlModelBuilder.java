@@ -58,7 +58,7 @@ public class XmlModelBuilder {
             return buildModel(is);
 
         } catch (IOException e) {
-            throw new RuntimeException("Cannot parse polycom model definitions file "
+            throw new RuntimeException("Cannot parse model definitions file "
                     + modelFile.getPath(), e);
         } finally {
             IOUtils.closeQuietly(is);

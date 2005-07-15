@@ -38,7 +38,12 @@
         <binding name="listener" expression="listeners.resetCoreContext"/>
     </component>      
     <component id="newPhoneGroup" type="DirectLink">
-        <binding name="listener" expression="listeners.newPhoneGroup"/>
+        <binding name="listener" expression="listeners.newGroup"/>
+        <static-binding name="parameters" value="phone"/>
+    </component> 
+    <component id="newUserGroup" type="DirectLink">
+        <binding name="listener" expression="listeners.newGroup"/>
+        <static-binding name="parameters" value="user"/>
     </component> 
     <component id="toggleNavigation" type="DirectLink">
         <binding name="listener" expression="listeners.toggleNavigation"/>

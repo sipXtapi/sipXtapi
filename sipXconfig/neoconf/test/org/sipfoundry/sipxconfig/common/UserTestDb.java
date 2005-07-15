@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 import org.dbunit.Assertion;
@@ -60,5 +62,13 @@ public class UserTestDb extends TestCase {
                 "select * from users where display_id='userid'");
 
         Assertion.assertEquals(expected, actual);
+    }
+    
+    public void testUserGroups() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        User user = m_core.loadUser(new Integer(1001));
+        Set groups = user.getGroups();
+        assertEquals(1, groups.size());
     }
 }

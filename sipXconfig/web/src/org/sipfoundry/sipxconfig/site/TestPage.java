@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
-import org.sipfoundry.sipxconfig.site.phone.PhoneGroups;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 /**
@@ -77,9 +76,10 @@ public abstract class TestPage extends BasePage {
         visit.logout();
     }
 
-    public void newPhoneGroup(IRequestCycle cycle) {
+    public void newGroup(IRequestCycle cycle) {
+        String resource = (String) TapestryUtils.assertParameter(String.class, cycle.getServiceParameters(), 0);
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
-        page.newGroup("phone", PhoneGroups.PAGE);
+        page.newGroup(resource, PAGE);
         cycle.activate(page);
     }
 

@@ -27,8 +27,6 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext"
         initial-value="page.global.phoneContext"/>
-    <property-specification name="currentGroup"
-        type="org.sipfoundry.sipxconfig.setting.Group"/>
     <!--
       - B E A N S 
       -->
@@ -36,9 +34,6 @@
     	<set-property name="required" expression="false"/>
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
-    <bean name="groupSelections" class="org.sipfoundry.sipxconfig.components.SelectionCollection">
-        <set-property name="collection" expression="phoneData.groups"/>
-    </bean>
     <!--
       - C O M P O N E N T S
       -->
@@ -69,13 +64,9 @@
         <binding name="model" expression="phoneSelectionModel"/>
         <binding name="value" expression="phoneData.factoryId"/>
     </component>
-    <component id="groups" type="Foreach">
-        <binding name="source" expression="phoneContext.groupsWithoutRoot"/>        
-        <binding name="value" expression="currentGroup"/>
-    </component>
-    <component id="groupOption" type="Option">
-        <binding name="selected" expression="beans.groupSelections.selected[currentGroup]"/>
-        <binding name="label" expression="currentGroup.name"/>
+    <component id="groupSelect" type="GroupSelect">
+        <binding name="groups" expression="phoneContext.groupsWithoutRoot"/>
+        <binding name="values" expression="phoneData.groups"/>
     </component>
     
 </component-specification>

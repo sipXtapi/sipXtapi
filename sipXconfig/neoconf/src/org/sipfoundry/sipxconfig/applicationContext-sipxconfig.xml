@@ -70,7 +70,7 @@
       <props>
         <prop key="hibernate.dialect"> net.sf.hibernate.dialect.PostgreSQLDialect</prop>
         <prop key="hibernate.query.substitutions">true=1 false=0</prop>
-        <!-- prop key="hibernate.show_sql">true</prop-->
+        <!-- prop key="hibernate.show_sql">true</prop -->
       </props>
     </property>
     <property name="baseClassBeanIds">
@@ -129,6 +129,12 @@
     <property name="processContext">
       <ref bean="sipxProcessContext"/>
     </property>    
+    <property name="settingDao">
+      <ref bean="settingDao"/>
+    </property>
+    <property name="systemDirectory">
+      <value>${sysdir.etc}</value>
+    </property>
   </bean>
   <!--
   - C O R E  C O N T E X T

@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.site.phone;
 import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.phone.LineData;
+import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 /**
@@ -81,12 +81,6 @@ public class PhoneTestHelper {
     }
     
     public void seedGroup(int count) {
-        SiteTestHelper.home(m_tester);
-        for (int i = 0; i < count; i++) {
-            m_tester.clickLink("NewPhoneGroup");
-            m_tester.setFormElement("name", "seedGroup" + i);
-            m_tester.clickButton("group:ok");
-            SiteTestHelper.home(m_tester);
-        }
+        SiteTestHelper.seedGroup(m_tester, "NewPhoneGroup", count);
     }
 }

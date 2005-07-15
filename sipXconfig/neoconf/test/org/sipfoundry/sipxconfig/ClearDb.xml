@@ -24,14 +24,15 @@
   <table name="internal_dialing_rule"/>
   <table name="long_distance_dialing_rule"/>
   
-  <!-- users -->
-  <table name="users"/>
-  <table name="user_ring"/>
-
-  <!-- settings -->  
+    <!-- settings -->  
   <table name="value_storage"/>
   <table name="group_storage"/>
   <table name="setting_value"/>  
+    
+  <!-- users -->
+  <table name="users"/>
+  <table name="user_ring"/>
+  <table name="user_group"/>
     
   <!-- phone -->  
   <table name="job"/>

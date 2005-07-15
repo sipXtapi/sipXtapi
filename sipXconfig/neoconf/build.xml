@@ -189,6 +189,7 @@
 			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
 			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
 			<fileset dir="etc/grandstream" includes="**/*.xml"></fileset>
+			<fileset file="etc/user-settings.xml"/>
 			<dtd publicid="-//SIPFoundry//sipXconfig//Model specification 1.0//EN" location="etc/setting.dtd"/>
 		</xmlvalidate>
 	</target>

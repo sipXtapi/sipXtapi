@@ -37,6 +37,7 @@ public class EditPhoneGroupTestUi extends WebTestCase {
         setFormElement("description", "test description text");
         clickButton("group:ok");
         SiteTestHelper.assertNoException(getTester());
+        clickLink("PhoneGroups");
         String[][] table = new String[][] {
             { "editPhoneGroupTestUi" },                
         };
