@@ -56,10 +56,13 @@ public class ConfigFileStorage extends ValueStorage {
         }
     }
 
+    /**
+     * Remove is called when setting is set to default value.
+     */
     public Object remove(Setting setting) {
         try {
             Properties properties = loadForFile(setting);
-            return properties.remove(setting.getName());
+            return properties.put(setting.getName(), setting.getValue());
         } catch (IOException e) {
             return StringUtils.EMPTY;
         }
