@@ -8,6 +8,9 @@
 	<property-specification name="coreContext" 
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>    
+	<property-specification name="settingContext" 
+		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
+    	initial-value="global.settingDao"/>    
 
     <component id="groupTable" type="GroupTable">
         <binding name="groups" expression="groups"/>

@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 
 /**
@@ -45,7 +47,16 @@ public interface CoreContext extends DataObjectSource {
     
     public boolean checkUserPermission(User user, Permission p);
     
+    public Group loadRootUserGroup();
+    
+    public List getUserGroupsWithoutRoot();
+
     public List getUserGroups();
+    
+    /**
+     * Model of all user settings
+     */
+    public Setting getUserSettingsModel();
 
     public List getUserAliases();
 }

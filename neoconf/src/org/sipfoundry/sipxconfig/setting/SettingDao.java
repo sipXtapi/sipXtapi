@@ -32,6 +32,8 @@ public interface SettingDao extends DataObjectSource {
     
     public List getGroupsWithoutRoot(String source);
 
+    public void createRootGroup(String resource);
+
     public Group loadRootGroup(String resource);
 
     public Group loadGroup(Integer tagId);

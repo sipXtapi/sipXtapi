@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -24,17 +25,30 @@ import net.sf.hibernate.expression.Expression;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class CoreContextImpl extends HibernateDaoSupport implements CoreContext {
+public class CoreContextImpl extends HibernateDaoSupport 
+        implements CoreContext, ApplicationListener {
 
     private static final char LIKE_WILDCARD = '%';
     
+    private static final String USER_GROUP_RESOURCE_ID = "user";
+        
     private SipxProcessContext m_processContext;
     
     private String m_authorizationRealm;
     
     private String m_domainName;
+    
+    private SettingDao m_settingDao;
+    
+    private File m_systemDirectory;
     
     public CoreContextImpl() {
         super();
@@ -161,8 +175,42 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext 
         m_processContext = processContext;
     }
     
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof InitializationTask) {
+            InitializationTask task = (InitializationTask) event;
+            if (task.getTask().equals("default-user-group")) {
+                m_settingDao.createRootGroup(USER_GROUP_RESOURCE_ID);
+            }
+        }
+    }       
+        
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
+    }    
+    
+    public void setSystemDirectory(String systemDirectory) {
+        m_systemDirectory = new File(systemDirectory);
+    }
+    
+    public Group loadRootUserGroup() {
+        return m_settingDao.loadRootGroup(USER_GROUP_RESOURCE_ID);
+    }
+    
     public List getUserGroups() {
-        return null;
+        return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
+    }
+
+    public List getUserGroupsWithoutRoot() {
+        return m_settingDao.getGroupsWithoutRoot(USER_GROUP_RESOURCE_ID);
+    }
+
+    public Setting getUserSettingsModel() {
+        // if you decide to cache model, return a copy of model
+        XmlModelBuilder builder = new XmlModelBuilder(m_systemDirectory);
+        File userSettingsFile = new File(m_systemDirectory, "user-settings.xml");
+        Setting model = builder.buildModel(userSettingsFile);
+        return model;
     }
 
     public List getUserAliases() {

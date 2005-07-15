@@ -248,4 +248,20 @@ public class SiteTestHelper {
         tester.clickLink("resetCoreContext");
         tester.clickLink("seedTestUser");
     }
+    
+    /**
+     * Create a new group, user or phone
+     * 
+     * @param pageLinkId From the TestPage, what link to click to get to new group page
+     */
+    public static void seedGroup(WebTester tester, String pageLinkId, int count) {
+        SiteTestHelper.home(tester);
+        for (int i = 0; i < count; i++) {
+            tester.clickLink(pageLinkId);
+            tester.setFormElement("name", "seedGroup" + i);
+            tester.clickButton("group:ok");
+            SiteTestHelper.home(tester);
+        }
+    }
+    
 }

@@ -34,14 +34,10 @@
     <property name="extension"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-  	<set name="groups" table="line_group" sort="natural">
-      <key column="line_id"/>
+  	<set name="groups" table="user_group" sort="natural">
+      <key column="user_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
   </class>
-  
-  <query name="userGroupMemberCountIndexedByGroupId">
-	<![CDATA[select g.id, count(*) from User o join o.groups g group by g.id]]>
-  </query>
 
 </hibernate-mapping>

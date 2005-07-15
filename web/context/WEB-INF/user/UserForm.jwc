@@ -11,7 +11,7 @@
 	<parameter name="user" 
 		type="org.sipfoundry.sipxconfig.common.User" 
     	required="yes"
-    	direction="auto"/>    
+    	direction="auto"/>        
     <!--
       - P R O P E R T I E S
       -->
@@ -19,6 +19,9 @@
         type="java.lang.String"/>
     <property-specification name="confirmSipPassword" 
         type="java.lang.String"/>
+    <property-specification name="coreContext"
+        type="org.sipfoundry.sipxconfig.common.CoreContext"
+        initial-value="page.global.coreContext"/>
     <!--
       - B E A N S 
       -->
@@ -79,6 +82,10 @@
     </component>
     <component id="sipPassword" type="TextField">
 	    <binding name="value" expression="user.sipPassword"/>
+    </component>
+    <component id="groupSelect" type="GroupSelect">
+        <binding name="groups" expression="coreContext.userGroupsWithoutRoot"/>
+        <binding name="values" expression="user.groups"/>
     </component>
     
 </component-specification>

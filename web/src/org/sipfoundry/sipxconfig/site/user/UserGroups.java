@@ -21,9 +21,10 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.site.phone.PhoneModels;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
+import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class UserGroups extends BasePage  implements PageRenderListener {
     
@@ -35,24 +36,25 @@ public abstract class UserGroups extends BasePage  implements PageRenderListener
     
     public abstract CoreContext getCoreContext();
     
-    public abstract SettingDao getSettingDao();
+    public abstract SettingDao getSettingContext();
         
     public void addGroup(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
-        page.newGroup("phone", PAGE);
+        page.newGroup("user", PAGE);
         cycle.activate(page);
     }
     
     public Map getMemberCounts() {
-        Map memberCount = getSettingDao().getGroupMemberCountIndexedByGroupId(User.class);
+        Map memberCount = getSettingContext().getGroupMemberCountIndexedByGroupId(User.class);
         
         return memberCount;
     }
     
-    public void editPhoneGroup(IRequestCycle cycle) {
-        PhoneModels page = (PhoneModels) cycle.getPage(PhoneModels.PAGE);
+    public void editUserGroup(IRequestCycle cycle) {
+        GroupSettings page = (GroupSettings) cycle.getPage(GroupSettings.PAGE);
         Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
-        page.setGroupId(groupId);
+        Setting model = getCoreContext().getUserSettingsModel();
+        page.editGroup(groupId, model, PAGE);
         cycle.activate(page);
     }
     

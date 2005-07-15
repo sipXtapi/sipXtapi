@@ -35,10 +35,10 @@
 	
   <target name="tasks" description="sets flag if any initialization needs to be done">
     <sipx-sql print="yes" output="tasks.properties" showheaders="no">
-      select 'initialize=true' from initialization_task having count(*) > 1;
+      select 'initialize=true' from initialization_task having count(*) > 0;
     </sipx-sql>    
     <loadproperties srcfile="tasks.properties"/>
-    <delete file="tasks.properties"/>  	  
+    <delete file="tasks.properties"/>
   </target>
 	
   <target name="drop" description="drops database!">
@@ -65,11 +65,12 @@
     depends="patches,version0,initialize"/>
     	
   <target name="initialize" depends="tasks" if="initialize">
+  	<echo>initialize=${initialize}</echo>
     <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null"/>
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups" />	
+    depends="initialization_task,user_groups,default-user-group" />	
   
   <target name="schema" unless="schema">
     <sipx-sql>
@@ -94,7 +95,13 @@
   <target name="user_groups" unless="user_groups">
     <db-patch patch="user_groups"/>
   </target>
-	  
+  <!-- embedded sql only ok if sql not required for test db -->
+  <target name="default-user-group" unless="default-user-group">
+    <sipx-sql>
+      	insert into initialization_task (name) values ('default-user-group');
+    </sipx-sql>
+  	<mark-patch-applied patch="default-user-group"/>
+  </target>	  
   <!--
     - SUPPORT UTILITIES
     -->
