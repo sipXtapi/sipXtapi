@@ -49,6 +49,7 @@ libsipXtack_la_SOURCES =  \
     net/HttpRequestContext.cpp \
     net/HttpServer.cpp \
     net/HttpService.cpp \
+    net/LinePresenceMonitor.cpp \
     net/MailAttachment.cpp \
     net/MailMessage.cpp \
     net/MimeBodyPart.cpp \
@@ -104,6 +105,7 @@ libsipXtack_la_SOURCES =  \
     net/SipUserAgentBase.cpp \
     net/SipUserAgent.cpp \
     net/SipUserAgentStateless.cpp \
+    net/StateChangeNotifier.cpp \
     net/Url.cpp \
     net/XmlRpcBody.cpp \
     net/XmlRpcDispatch.cpp \
