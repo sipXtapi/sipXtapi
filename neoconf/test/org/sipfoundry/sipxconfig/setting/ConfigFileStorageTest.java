@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 
 public class ConfigFileStorageTest extends TestCase {
     static String CONFIG_FILE = "test-config.in";
+    
+    private static final String DEFAULT_VALUE = "83.51";
 
     private String m_configDirectory;
 
@@ -39,15 +41,16 @@ public class ConfigFileStorageTest extends TestCase {
         m_andorra = new SettingImpl();
         m_andorra.setProfileName(CONFIG_FILE);
         m_andorra.setName("Andorra");
+        m_andorra.setValue(DEFAULT_VALUE);
     }
 
     public void testGet() {
 
-        assertEquals("83.51", m_storage.getValue(m_andorra));
+        assertEquals(DEFAULT_VALUE, m_storage.getValue(m_andorra));
     }
 
     public void testPut() throws Exception {
-        String newValue = "99.999";
+        String newValue = "99.999";        
         m_storage.setValue(m_andorra, newValue);
         assertEquals(newValue, m_storage.getValue(m_andorra));
 
@@ -65,19 +68,28 @@ public class ConfigFileStorageTest extends TestCase {
         }
         assertTrue("Setting not found", found);
     }
-
+    
     public void testRemove() throws Exception {
+        // remove should reset the setting to default value
+        String newValue = "99.999";        
+        m_storage.setValue(m_andorra, newValue);
+        assertEquals(newValue, m_storage.getValue(m_andorra));
+        m_storage.flush();
         m_storage.remove(m_andorra);
         m_storage.flush();
+
         BufferedReader reader = new BufferedReader(new FileReader(new File(m_configDirectory,
                 CONFIG_FILE)));
-        // need to implement remove
-        /*
+
+        boolean found = false;
         while (reader.ready()) {
             String line = reader.readLine();
-            assertFalse(line.startsWith(m_andorra.getName()));
+            if (line.startsWith(m_andorra.getName())) {
+                assertTrue(line.endsWith(DEFAULT_VALUE));
+                found = true;
+            }
         }
-        */
+        assertTrue("Setting not found", found);
     }
 
 }
