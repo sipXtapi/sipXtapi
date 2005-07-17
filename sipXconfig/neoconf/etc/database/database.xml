@@ -53,6 +53,9 @@
     </exec>
   </target>
   
+  <target name="unittest-reset" depends="drop,createdb,schema,version0" 
+    description="Resets database for unittesting"/>
+  
   <!-- 
     - NOTE: Creating a database runs all the patches.  Before shipping, update schema.sql
     - then remove version0 from dependencies. 
@@ -95,7 +98,6 @@
   <target name="user_groups" unless="user_groups">
     <db-patch patch="user_groups"/>
   </target>
-  <!-- embedded sql only ok if sql not required for test db -->
   <target name="default-user-group" unless="default-user-group">
     <sipx-sql>
       	insert into initialization_task (name) values ('default-user-group');
@@ -132,7 +134,8 @@
     <sql driver="org.postgresql.Driver" 
         url="${sipxconfig.db.url}" 
         userid="${sipxconfig.db.user}" 
-        password="${sipxconfig.db.password}"/>
+        password="${sipxconfig.db.password}"
+        classpath="${jdbc-driver.jar}"/>
   </presetdef>
   
 </project>
