@@ -140,6 +140,7 @@
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"/>
+    <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>	
 
     </target>
 	
@@ -196,21 +197,12 @@
   
     <target name="reset-db"
         description="Resets the test database. Needs to be called before UI and WEB tests.">
-        <property name="sql.dir" location="${top.dir}/profilegenerator/meta/sql"/>
-        <property name="sipxconfig.db.pds.url" value="jdbc:postgresql://localhost/${sipxconfig.db.pds}"/>
-		<exec executable="dropdb" failonerror="false">
-			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds}"/>
-		</exec>
-		<exec executable="createdb" failonerror="true">
-			<arg line=" -U ${sipxconfig.db.user} ${sipxconfig.db.pds}"/>
-		</exec>        
-        <sql driver="org.postgresql.Driver" url="${sipxconfig.db.pds.url}" userid="${sipxconfig.db.user}" password="" classpathref="base.path">
-            <transaction src="etc/database/schema.sql"/>
-            <!-- temporary until we upgrade DB version-->
-            <!-- list db patches here -->
-            <transaction src="etc/database/initialization_task.sql"/>
-            <transaction src="etc/database/user_groups.sql"/>
-        </sql>     
+		<subant target="unittest-reset">
+			<!-- THIS PROPERTY VERY IMPORTANT -->
+			<property name="sipxconfig.db.name" value="SIPXCONFIG_TEST" />
+			<property name="jdbc-driver.jar" value="${jdbc-driver.jar}" />			
+			<filelist dir="etc/database" files="database.xml" />
+		</subant>
     </target>
     
 
