@@ -60,7 +60,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    /// Set the state value.
-   virtual void setStatus(const Url& aor, const Status value);
+   virtual bool setStatus(const Url& aor, const Status value);
 
    OsStatus subscribe(LinePresenceBase* line);
 

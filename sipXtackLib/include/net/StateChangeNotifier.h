@@ -61,7 +61,7 @@ public:
    virtual ~StateChangeNotifier();
 
    /// Set the status value. Subclasses must provide a definition for this method.
-   virtual void setStatus(const Url& aor, const Status value) = 0;
+   virtual bool setStatus(const Url& aor, const Status value) = 0;
 
 /* ============================ MANIPULATORS ============================== */
 

@@ -69,7 +69,7 @@ public:
    /**
     * Return the presence / line state information for this line.
     */
-   virtual unsigned int getState(void) = 0;
+   virtual bool getState(ePresenceStateType type) = 0;
 
 /* ============================ INQUIRY =================================== */
 

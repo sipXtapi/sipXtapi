@@ -82,8 +82,10 @@ LinePresenceMonitor::operator=(const LinePresenceMonitor& rhs)
 }
 
 /* ============================ ACCESSORS ================================= */
-void LinePresenceMonitor::setStatus(const Url& aor, const Status value)
+bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
 {
+   bool result = false;
+   
    mLock.acquire();
    UtlString contact = aor.toString();
    LinePresenceBase* line = (LinePresenceBase *) mSubscribeMap.findValue(&contact);
@@ -92,31 +94,51 @@ void LinePresenceMonitor::setStatus(const Url& aor, const Status value)
       // Set the state value in LinePresenceBase
       if (value == StateChangeNotifier::ON_HOOK)
       {
-         line->updateState(LinePresenceBase::ON_HOOK, true);
+         if (!line->getState(LinePresenceBase::ON_HOOK))
+         {
+            line->updateState(LinePresenceBase::ON_HOOK, true);
+            result = true;
+         }
       }
       else
       {
          if (value == StateChangeNotifier::OFF_HOOK)
          {
-            line->updateState(LinePresenceBase::ON_HOOK, false);
+            if (line->getState(LinePresenceBase::ON_HOOK))
+            {
+               line->updateState(LinePresenceBase::ON_HOOK, false);
+               result = true;
+            }
          }
          else
          {
             if (value == StateChangeNotifier::RINGING)
             {
-               line->updateState(LinePresenceBase::ON_HOOK, false);
+               if (line->getState(LinePresenceBase::ON_HOOK))
+               {
+                  line->updateState(LinePresenceBase::ON_HOOK, false);
+                  result = true;
+               }
             }
             else
             {
                if (value == StateChangeNotifier::PRESENT)
                {
-                  line->updateState(LinePresenceBase::PRESENT, true);
+                  if (!line->getState(LinePresenceBase::PRESENT))
+                  {
+                     line->updateState(LinePresenceBase::PRESENT, true);
+                     result = true;
+                  }
                }
                else
                {
                   if (value == StateChangeNotifier::AWAY)
                   {
-                     line->updateState(LinePresenceBase::PRESENT, false);
+                     if (line->getState(LinePresenceBase::PRESENT))
+                     {
+                        line->updateState(LinePresenceBase::PRESENT, false);
+                        result = false;
+                     }
                   }                  
                }
             }
@@ -125,6 +147,8 @@ void LinePresenceMonitor::setStatus(const Url& aor, const Status value)
    }
       
    mLock.release();
+   
+   return result;
 }
 
 OsStatus LinePresenceMonitor::subscribe(LinePresenceBase* line)
