@@ -87,7 +87,7 @@ public class SettingSet extends SettingImpl implements Cloneable {
     }
 
     /**
-     * @param klass returned Setting must be
+     * @param requiredType returned Setting must be
      * @return default setting in the set - usually first child
      */
     public Setting getDefaultSetting(Class requiredType) {

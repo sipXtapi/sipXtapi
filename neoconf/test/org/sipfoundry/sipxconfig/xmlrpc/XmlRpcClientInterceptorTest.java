@@ -12,6 +12,9 @@
 package org.sipfoundry.sipxconfig.xmlrpc;
 
 
+import java.util.Hashtable;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.springframework.aop.framework.ProxyFactory;
@@ -45,5 +48,9 @@ public class XmlRpcClientInterceptorTest extends TestCase {
         assertEquals("xxxxx", result);
         int len = proxy.calculateTest(new String[] {"a", "cc", "ddd"});
         assertEquals(6,len);
+        
+        Map xx = new Hashtable();
+        xx.put("name", new Integer(5));
+        proxy.create(xx);
     }
 }

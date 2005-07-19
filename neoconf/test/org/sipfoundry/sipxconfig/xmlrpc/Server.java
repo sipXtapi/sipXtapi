@@ -1,8 +1,10 @@
 package org.sipfoundry.sipxconfig.xmlrpc;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.apache.xmlrpc.WebServer;
+
 
 /**
  * Simple XML RPC server used for test
@@ -35,5 +37,9 @@ public class Server {
             len += ((String) names.get(i)).length();
         }
         return len;
+    }
+    
+    public Hashtable create(Hashtable map) {
+        return map;
     }
 }
