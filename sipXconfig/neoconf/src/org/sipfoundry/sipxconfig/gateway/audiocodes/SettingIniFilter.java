@@ -32,8 +32,8 @@ public class SettingIniFilter extends FilterWriter {
     private Map m_names2groups;
     private Map m_names2settings;
 
-    public SettingIniFilter(Writer out, Setting root) {
-        super(out);
+    public SettingIniFilter(Writer outWriter, Setting root) {
+        super(outWriter);
         m_names2groups = createNames2Settings(root);
     }
 

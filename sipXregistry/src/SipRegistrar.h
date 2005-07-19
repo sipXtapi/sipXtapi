@@ -16,11 +16,13 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "net/SipServerBase.h"
-#include "os/OsBSem.h"
 #include "os/OsDefs.h"
+#include "os/OsBSem.h"
 #include "os/OsRWMutex.h"
+#include "net/SipServerBase.h"
+#include "utl/PluginHooks.h"
 #include "SipImpliedSubscriptions.h"
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -90,6 +92,7 @@ private:
    UtlBoolean mRegistrarThreadInitialized;
 
    SipImpliedSubscriptions* mSipImpliedSubscriptions;
+   PluginHooks* mSipRegisterHooks;
 
    UtlString mMinExpiresTime;
    UtlString mRegistryCacheFileName;
@@ -105,20 +108,21 @@ private:
    UtlString mlocalDomainHost;
 
 
-   SipRegistrar(SipUserAgent* sipUserAgent,
-                SipImpliedSubscriptions* sipImpliedSubscriptions,
-                int maxExpiresTime,
-                const UtlString& defaultDomain,
-                const UtlString& domainAliases,
-                const UtlString& defaultMinExpiresTime,
-                const UtlBoolean& useCredentialDB,
-                const UtlString& defaultAuthAlgorithm,
-                const UtlString& defaultAuthQop,
-                const UtlString& defaultRealm,
-                const UtlString& configDir,
-                const UtlString& mediaServer,
-                const UtlString& voicemailServer,
-                const char* configFileName);
+   SipRegistrar( SipUserAgent* sipUserAgent,
+                 SipImpliedSubscriptions* sipImpliedSubscriptions,
+                 PluginHooks* sipRegisterHooks,
+                 int maxExpiresTime,
+                 const UtlString& defaultDomain,
+                 const UtlString& domainAliases,
+                 const UtlString& defaultMinExpiresTime,
+                 const UtlBoolean& useCredentialDB,
+                 const UtlString& defaultAuthAlgorithm,
+                 const UtlString& defaultAuthQop,
+                 const UtlString& defaultRealm,
+                 const UtlString& configDir,
+                 const UtlString& mediaServer,
+                 const UtlString& voicemailServer,
+                 const char* configFileName);
 
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();

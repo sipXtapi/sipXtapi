@@ -88,7 +88,7 @@ public abstract class SettingsForm extends BaseComponent {
     /**
      * Render setting if it's not advanced (hidden) or if show advanced is set
      * @param setting
-     * @return
+     * @return true if setting should be rendered
      */
     public boolean renderSetting(Setting setting) {
         return !setting.isAdvanced() || getShowAdvanced();

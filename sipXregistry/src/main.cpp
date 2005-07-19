@@ -306,7 +306,7 @@ main(int argc, char* argv[] )
       else
       {
          osPrintf("usage: %s [-v] [-i]\nwhere:\n -v provides the software version\n"
-                  " -i start the server in an interactive made\n",
+                  " -i start the server in an interactive mode\n",
                   argv[0]);
          return(1);
       }
@@ -334,23 +334,6 @@ main(int argc, char* argv[] )
    configDb.loadFromFile(fileName) ;
    initSysLog(&configDb) ;
 
-#if 0
-   UrlMapping mMaps;
-   UtlString retStr;
-
-   mMaps.convertRegularExpression("\\x\\y\\z", retStr);
-   retStr.remove(0);
-   mMaps.convertRegularExpression("\\xy\\z", retStr);
-   retStr.remove(0);
-   mMaps.convertRegularExpression("x\\y\\z", retStr);
-   retStr.remove(0);
-   mMaps.convertRegularExpression("\\x\\y\\..", retStr);
-   retStr.remove(0);
-   mMaps.convertRegularExpression("\\xxxx\\y\\z", retStr);
-   retStr.remove(0);
-   mMaps.convertRegularExpression("\\x\\?\\z", retStr);
-   retStr.remove(0);
-#endif /* 0 */
 
    // Fetch Pointer to the OsServer task object, note that
    // object uses the IMDB so it is important to shut this thread

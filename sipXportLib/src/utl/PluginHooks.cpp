@@ -21,9 +21,6 @@
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
-const char* PluginHook::FactoryMethodName = "getHook";
-
 // CONSTANTS
 #define HOOK_LIB_PREFIX "_HOOK_LIBRARY."
 
@@ -36,15 +33,18 @@ const char* PluginHook::FactoryMethodName = "getHook";
 /// ConfiguredHook is the container used to hold each PluginHook.
 /**
  * ConfiguredHook inherits from UtlString so that it will be a
- * UtlContainable and will be identifiable by its configured name.
+ * UtlContainable and will be identifiable by its configured prefix name.
  */
 class ConfiguredHook : public UtlString
 {
 public:
 
    // load the library for a hook and use its factory to get a new instance.
-   ConfiguredHook(const UtlString& hookName, const UtlString& libName )
-      : UtlString(hookName),
+   ConfiguredHook(const UtlString& hookPrefix,
+                  const UtlString& hookFactoryName,
+                  const UtlString& libName
+                  )
+      : UtlString(hookPrefix),
         hook(NULL)
       {
          OsSharedLibMgrBase* sharedLibMgr = OsSharedLibMgr::getOsSharedLibMgr();
@@ -54,14 +54,14 @@ public:
             PluginHook::Factory factory;
             
             if (OS_SUCCESS == sharedLibMgr->getSharedLibSymbol(libName.data(),
-                                                               PluginHook::FactoryMethodName,
+                                                               hookFactoryName,
                                                                (void*&)factory
                                                                )
                 )
             {
                // Use the factory to get an instance of the hook
                // and tell the new instance its own name.
-               hook = factory(hookName); 
+               hook = factory(hookPrefix); 
 
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "PluginHooks created '%s' from '%s'",
@@ -72,7 +72,7 @@ public:
             {
                OsSysLog::add(FAC_KERNEL, PRI_ERR,
                              "PluginHooks: factory '%s' not found in library '%s' for '%s'",
-                             PluginHook::FactoryMethodName, libName.data(), data()
+                             hookFactoryName.data(), libName.data(), data()
                              );
 
             }
@@ -123,7 +123,6 @@ public:
             myConfigName.append(*this);
             myConfigName.append('.');
             
-         
             if (OS_SUCCESS == configDb.getSubHash(myConfigName, myConfig))
             {
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
@@ -148,8 +147,11 @@ private:
 };
 
 
-PluginHooks::PluginHooks(const UtlString& hookPrefix)
-   : mPrefix(hookPrefix)
+PluginHooks::PluginHooks(const char* hookFactoryName, // the prefix name for the OsConfigDb values
+                         const char* hookPrefix       // the prefix name for the OsConfigDb values
+                         )
+   : mFactory(hookFactoryName),
+     mPrefix(hookPrefix)
 {
 }
 
@@ -207,7 +209,7 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                           "PluginHooks: loading '%s'", hookName.data()
                           );
-            thisHook = new ConfiguredHook(hookName, hookLibrary);
+            thisHook = new ConfiguredHook(hookName, mFactory, hookLibrary);
          }
 
          // put the hook onto the list of active hooks

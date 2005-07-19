@@ -33,9 +33,10 @@ class PluginHook;
  * configuration parameters specific to each hook from the program that
  * uses them.
  *
- * All PluginHook classes must implement two methods to configure the hook
+ * All PluginHook classes must implement three methods to configure the hook
  * into the component:
- * - The extern "C" getHook factory routine
+ * - An extern "C" factory routine
+ * - The constructor for its class, which must ultimately derive from PluginHook
  * - The readConfig method used to pass configuration data to the hook (this decouples hook
  *   configuration from the component configuration).
  *
@@ -43,35 +44,32 @@ class PluginHook;
  * the program should invoke on the hook, and all those methods must be virtual.
  *
  * @see PluginHooks for details of how a hook is configured into a program,
- * and PluginIterator for how hooks are invoked.
+ * and PluginIterator for how hooks are invoked by the calling component.
  *
  */
 class PluginHook
 {
   public:
 
-   /// Name of the factory method to be called when the libary is loaded (must be "getHook")
-   static const char* FactoryMethodName;   
-
    typedef PluginHook* (*Factory)(const UtlString& hookName);
    /**<
-    * The getHook uses external C linkage to support dynamic loading of PluginHook objects.
+    * The Factory uses external C linkage to support dynamic loading of PluginHook objects.
     *
     * In addition to the class derived from this base, a hook must implement a
-    * factory routine with extern "C" linkage so that the OsSharedLib mechanism
+    * Factory routine with extern "C" linkage so that the OsSharedLib mechanism
     * can look it up in the dynamically loaded library (looking up C++ symbols
-    * is problematic because of name mangling).  The factory routine looks like:
+    * is problematic because of name mangling).  The Factory routine looks like:
     * @code
     * class ExampleHook;
     *
-    * extern "C" ExampleHook* getHook(const UtlString& name)
+    * extern "C" ExampleHook* getExampleHook(const UtlString& name)
     * {
     *   return new ExampleHook;
     * }
     *
     * class ExampleHook : public PluginHook
     * {
-    *    friend ExampleHook* getHook(const UtlString& name);
+    *    friend ExampleHook* getExampleHook(const UtlString& name);
     *   ...
     * private:
     *    ExampleHook(const UtlString& name);

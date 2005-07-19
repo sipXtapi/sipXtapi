@@ -473,7 +473,7 @@ SEARCH_INCLUDES       = YES
 # contain include files that are not input files but should be processed by 
 # the preprocessor. 
 
-INCLUDE_PATH          = 
+INCLUDE_PATH          = @top_srcdir@/meta/doc
 
 # The PREDEFINED tag can be used to specify one or more macro names that 
 # are defined before the preprocessor is started (similar to the -D option of 
@@ -503,7 +503,7 @@ TAGFILES              = \
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
 # a tag file that is based on the input files it reads. 
 
-GENERATE_TAGFILE      = @PACKAGE@.tag
+GENERATE_TAGFILE      = @PACKAGE@/@PACKAGE@.tag
 
 # If the ALLEXTERNALS tag is set to YES all external classes will be listed 
 # in the class index. If set to NO only the inherited external classes 

@@ -133,10 +133,6 @@ SOURCE=.\src\SipRegistrar.h
 
 SOURCE=.\src\SipRegistrarServer.h
 # End Source File
-# Begin Source File
-
-SOURCE=.\src\version.h
-# End Source File
 # End Group
 # Begin Group "Resource Files"
 

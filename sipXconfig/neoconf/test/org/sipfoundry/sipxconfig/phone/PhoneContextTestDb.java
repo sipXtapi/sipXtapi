@@ -15,10 +15,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class PhoneContextTestDb extends TestCase {

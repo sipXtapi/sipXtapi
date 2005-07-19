@@ -32,13 +32,13 @@ import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebResponse;
 
 public class SiteTestHelper {
-    
-    /** 
-     * Same displayId that TestPage creates. thought of referencing static variable
-     * but may pull in unnec. dependencies 
+
+    /**
+     * Same displayId that TestPage creates. thought of referencing static variable but may pull
+     * in unnec. dependencies
      */
     public static final String TEST_USER = "testuser";
-    
+
     public static final String ADMIN = "superadmin";
 
     private static String s_buildDir;
@@ -46,7 +46,7 @@ public class SiteTestHelper {
     private static String s_baseUrl;
 
     private static String s_artificialSystemRoot;
-    
+
     public static Test webTestSuite(Class webTestClass) {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(webTestClass);
@@ -63,7 +63,7 @@ public class SiteTestHelper {
     public static void home(WebTester tester) {
         tester.beginAt("/app?service=page/TestPage");
         tester.clickLink("login");
-        // HACK! Webunit doesn't appear to fully load page, especialy
+        // HACK: Webunit doesn't appear to fully load page, especialy
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
         // to get webunit to catch up.
@@ -72,10 +72,8 @@ public class SiteTestHelper {
     }
 
     /**
-     * Login - form based loging for our pages You can change which user names are passwords are
-     * valid in JettyUserRealm
+     * Login - form based loging for our pages.
      * 
-     * @see JettyUserRealm
      */
     public static void login(WebTester tester, String username, String password) {
         try {
@@ -103,15 +101,14 @@ public class SiteTestHelper {
             throw e;
         }
     }
-    
-    
+
     /**
-     * Works only for pages that use "user:error:text" id to display user errors.
-     * All pages with ErrorMsg component belong to this category.
+     * Works only for pages that use "user:error:text" id to display user errors. All pages with
+     * ErrorMsg component belong to this category.
      */
     public static void assertNoUserError(WebTester tester) {
         Element element = tester.getDialog().getElement("user:error");
-        if( null != element ) {
+        if (null != element) {
             Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
         }
     }
@@ -158,20 +155,19 @@ public class SiteTestHelper {
 
         return s_buildDir;
     }
-    
+
     /**
-     * Get the root directory mimicking an installed sipx system. Useful when web pages
-     * need to reference files from other sipx projects.  Unittest should copy in seed test
-     * files.
+     * Get the root directory mimicking an installed sipx system. Useful when web pages need to
+     * reference files from other sipx projects. Unittest should copy in seed test files.
      */
     public static String getArtificialSystemRootDirectory() {
-        if( null == s_artificialSystemRoot ) {
-            s_artificialSystemRoot = TestUtil.getTestOutputDirectory("web") + "/artifical-system-root"; 
+        if (null == s_artificialSystemRoot) {
+            s_artificialSystemRoot = TestUtil.getTestOutputDirectory("web")
+                    + "/artifical-system-root";
         }
         return s_artificialSystemRoot;
     }
-    
-        
+
     /**
      * Create a dir if it doesn't exists and deletes all contents if it does exist
      */
@@ -179,33 +175,32 @@ public class SiteTestHelper {
         File dir = new File(directory);
         if (!dir.exists()) {
             dir.mkdirs();
-        } else {        
+        } else {
             try {
                 FileUtils.cleanDirectory(dir);
             } catch (IOException ioe) {
                 throw new RuntimeException("Could not clean directory " + directory, ioe);
             }
         }
-        
+
         return directory;
     }
 
     /**
-     * Write out sipxconfig.properties for testing
-     * arg 0 - any path in the testing classpath
-     * arg 1 - path to artificial root directory
-     * arg 2 - where output is generated   
+     * Write out sipxconfig.properties for testing arg 0 - any path in the testing classpath arg 1 -
+     * path to artificial root directory arg 2 - where output is generated
      */
     public static void main(String[] args) {
         Properties sysProps = new Properties();
         s_artificialSystemRoot = args[0];
-        
+
         String systemDirectory = cleanDirectory(args[1]);
         String etcDirectory = systemDirectory + "/etc";
         sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
-        sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
-                
+        sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory
+                + "/parkserver/music");
+
         // generates sipxconfig.properties in classpath (arg 0)
         TestUtil.setSysDirProperties(sysProps, etcDirectory, args[2]);
         TestUtil.saveSysDirProperties(sysProps, args[0]);
@@ -220,8 +215,8 @@ public class SiteTestHelper {
      * 
      * In addition to that we need to make JWebUnit happy: it does not know we submitted form
      * request independently, we need to reinject the response back into the dialog. I could not
-     * find any reasonable way of doing that, so I used reflection to set private field.
-     * I guess being able to test more pages is the most important factor here.
+     * find any reasonable way of doing that, so I used reflection to set private field. I guess
+     * being able to test more pages is the most important factor here.
      * 
      * There is no guarantee that it will work with new version of Tapestry or JWebUnit
      * 
@@ -233,13 +228,13 @@ public class SiteTestHelper {
         WebForm form = dialog.getForm();
         form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
         WebResponse response = form.submitNoButton();
-    
-        // set response directry in current JWebUnit object 
+
+        // set response directry in current JWebUnit object
         Class klass = dialog.getClass();
         Field respField = klass.getDeclaredField("resp");
         respField.setAccessible(true);
         respField.set(dialog, response);
-        
+
         Assert.assertSame(tester.getDialog().getResponse(), response);
     }
 
@@ -248,7 +243,7 @@ public class SiteTestHelper {
         tester.clickLink("resetCoreContext");
         tester.clickLink("seedTestUser");
     }
-    
+
     /**
      * Create a new group, user or phone
      * 
@@ -263,5 +258,5 @@ public class SiteTestHelper {
             SiteTestHelper.home(tester);
         }
     }
-    
+
 }

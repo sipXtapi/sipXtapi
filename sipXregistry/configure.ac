@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(sipXregistry, 2.9.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXregistry, 2.9, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
@@ -66,6 +66,6 @@ AC_CONFIG_FILES([doc/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
+AC_CONFIG_FILES([include/Makefile])
 
 AC_OUTPUT
-

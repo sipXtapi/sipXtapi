@@ -43,7 +43,7 @@ public:
          configuration.set("NOHOOKS_OTHERPARAM", "DummyValue");
 
          // there are no hooks configured for this prefix
-         PluginHooks testPlugins("NOHOOKS_PASSED");
+         PluginHooks testPlugins("getTestHook", "NOHOOKS_PASSED");
          testPlugins.readConfig(configuration);
 
          PluginIterator shouldBeEmpty(testPlugins);
@@ -68,7 +68,7 @@ public:
          configuration.set("ONEHOOK_TEST_HOOK_LIBRARY.Only",
                            PLUGIN_LIB_DIR "libtestpluginA.so");
 
-         PluginHooks testPlugins("ONEHOOK_TEST");
+         PluginHooks testPlugins("getTestHook", "ONEHOOK_TEST");
          testPlugins.readConfig(configuration);
 
          PluginIterator plugin(testPlugins);
@@ -108,7 +108,7 @@ public:
          configuration.set("READCONFIG_TEST.Only.VALUE1", "FirstValue");
          configuration.set("READCONFIG_TEST.Only.VALUE2", "SecondValue");
 
-         PluginHooks testPlugins("READCONFIG_TEST");
+         PluginHooks testPlugins("getTestHook", "READCONFIG_TEST");
          testPlugins.readConfig(configuration);
 
          PluginIterator plugin(testPlugins);
@@ -158,7 +158,7 @@ public:
          configuration.set("TWO_INST_TEST.Second.VALUE", "SecondValue");
 
          // load up the hooks
-         PluginHooks testPlugins("TWO_INST_TEST");
+         PluginHooks testPlugins("getTestHook", "TWO_INST_TEST");
          testPlugins.readConfig(configuration);
          PluginIterator plugin(testPlugins);
          
@@ -217,11 +217,11 @@ public:
          configuration.set("TWO_TYPE2.Second.VALUE", "SecondValue");
 
          // load the first hook type
-         PluginHooks test1Plugins("TWO_TYPE1");
+         PluginHooks test1Plugins("getTestHook", "TWO_TYPE1");
          test1Plugins.readConfig(configuration);
          
          // load the second hook type
-         PluginHooks test2Plugins("TWO_TYPE2");
+         PluginHooks test2Plugins("getTestHook", "TWO_TYPE2");
          test2Plugins.readConfig(configuration);
 
          // create iterators for both hook types
@@ -263,7 +263,7 @@ public:
 
    void testReconfigure()
       {
-         PluginHooks testPlugins("RECONFIG_TEST");
+         PluginHooks testPlugins("getTestHook", "RECONFIG_TEST");
          
          const UtlString ValueKey("VALUE");
 

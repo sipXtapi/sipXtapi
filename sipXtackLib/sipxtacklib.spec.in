@@ -9,7 +9,7 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXtackLib
 
-Requires: sipxportlib >= 2.9.0
+Requires: sipxportlib >= 2.9
 # TODO: Figure out how to require jre OR jdk
 # Requires: j2re >= 1.4
 Requires: j2sdk >= 1.4
@@ -31,7 +31,7 @@ class. This project depends upon the sipXportLib OS abstraction layer.
 # Install header files
 %package devel
 Requires: %name
-Requires: sipxportlib-devel >= 2.9.0
+Requires: sipxportlib-devel >= 2.9
 
 Group: Development/Libraries
 Vendor: SIPfoundry

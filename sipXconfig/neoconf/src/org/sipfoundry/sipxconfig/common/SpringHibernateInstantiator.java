@@ -59,7 +59,7 @@ public class SpringHibernateInstantiator implements Interceptor, BeanFactoryAwar
     }
 
     /**
-     * @see net.sf.hibernate.Interceptor#onDelete(Object, Serializable id, Object[], String[],
+     * @see net.sf.hibernate.Interceptor#onDelete(Object, Serializable, Object[], String[],
      *      Type[])
      */
     public void onDelete(Object entity_, Serializable id_, Object[] state_,

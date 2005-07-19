@@ -18,8 +18,9 @@
 // APPLICATION INCLUDES
 #include "os/OsServerTask.h"
 #include "net/SipNonceDb.h"
-#include "SipImpliedSubscriptions.h"
 #include "utl/UtlHashMap.h"
+#include "utl/PluginHooks.h"
+#include "SipImpliedSubscriptions.h"
 
 // DEFINES
 // MACROS
@@ -31,6 +32,7 @@
 // FORWARD DECLARATIONS
 class SipMessage;
 class SipUserAgent;
+class PluginHooks;
 
 /**
  * The Registrar Server is responsible for registering and unregistering
@@ -43,20 +45,11 @@ class SipRegistrarServer : public OsServerTask
 public:
     /**
      * Initialized the Registration Server
-     *
-     * @param SipUserAgent
-     * @param SipImpliedSubscriptions
-     * @param defaultRegistryPeriod
-     * @param minExpiresTime
-     * @param defaultDomain
-     * @param useCredentialDB
-     * @param realm
-     *
-     * @return
      */
     UtlBoolean initialize(
         SipUserAgent* SipUserAgent,
         SipImpliedSubscriptions* sipImpliedSubscriptions,
+        PluginHooks* sipRegisterHooks,
         int defaultRegistryPeriod,
         const UtlString& minExpiresTime,
         const UtlString& defaultDomain,
@@ -101,6 +94,7 @@ protected:
     SipNonceDb mNonceDb;
     long mNonceExpiration;
     SipImpliedSubscriptions* mImpliedSubscriptions;
+    PluginHooks* mpSipRegisterHooks;
 
     /**
      *

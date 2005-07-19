@@ -7,6 +7,7 @@ sipregistrar_LDADD = \
 
 sipregistrar_CXXFLAGS = \
 	-I$(top_builddir)/config \
+	-I$(top_srcdir)/include \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
@@ -28,6 +29,7 @@ sipregistrar_SOURCES =  \
     SipRedirectServer.cpp \
     SipRedirector.cpp \
     SipRegistrar.cpp \
+    SipRegisterHooks.h \
     SipRegistrarServer.cpp \
     RedirectResumeMsg.h \
     RedirectSuspend.h \
@@ -41,5 +43,4 @@ sipregistrar_SOURCES =  \
     SipRedirectServer.h \
     SipRegistrar.h \
     SipRegistrarServer.h \
-    SipRedirector.h \
-    version.h
+    SipRedirector.h

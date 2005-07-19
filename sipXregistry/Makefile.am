@@ -3,7 +3,7 @@ include $(top_builddir)/config/sipXcommon.mak
 
 INSTALL=@INSTALL@
 
-unconditional_SUBDIRS = . src bin meta etc
+unconditional_SUBDIRS = . include src bin meta etc
 
 include $(srcdir)/config/sipXprojtop.mak
 

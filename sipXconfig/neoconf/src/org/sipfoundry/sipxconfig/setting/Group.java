@@ -57,7 +57,7 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     /**
      * When setting values conflict, the setting with the highest weight wins.
      * 
-     * @return
+     * @return setting weight
      */
     public Integer getWeight() {
         return m_weight;

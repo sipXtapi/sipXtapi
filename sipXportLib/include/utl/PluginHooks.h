@@ -8,8 +8,8 @@
 #ifndef _PLUGINHOOKS_H_
 #define _PLUGINHOOKS_H_
 
-
 // SYSTEM INCLUDES
+#include "utl/UtlSortedList.h"
 #include "utl/UtlSortedListIterator.h"
 
 // APPLICATION INCLUDES
@@ -20,21 +20,21 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-class Plugin;
-
 // FORWARD DECLARATIONS
+class PluginHook;
 class PluginIterator;
+class OsConfigDb;
 
 /**
  * A PluginHooks object is used to add dynamically loaded libraries (a "plugin") to a program
  * at run time.  The module to be loaded must implement a class derived from
  * the PluginHook abstract class.
  *
- * An object of this class manages all the configured plugin hooks for a program
- * that are identified by an OsConfigDb prefix string passed to the PluginHooks
- * constructor:
+ * An object of this class manages all the configured plugin hooks for a program.
+ * A class of plugin hooks is identified by a factory routine name used to obtain
+ * a hook instance from the dynamic library, and an OsConfigDb prefix string:
  * @code
- * PluginHooks ActionEventHooks("ACTION_EVENT"); // events to be called for each Action
+ * PluginHooks ActionEventHooks("getFooAction", ACTION_EVENT"); // to be called for each Action
  * @endcode
  *
  * The libraries are loaded and configured by the readConfig method:
@@ -48,7 +48,9 @@ class PluginHooks
 {
   public:
    /// Construct a manager for a set of hooks.
-   PluginHooks(const UtlString& hookPrefix ///< the prefix name for the OsConfigDb values
+   PluginHooks(const char* hookFactoryName, ///< the prefix name for the OsConfigDb values
+               const char* hookPrefix       ///< the prefix name for the OsConfigDb values
+               
                );
 
    ~PluginHooks();
@@ -108,6 +110,7 @@ class PluginHooks
   protected:
    friend class PluginIterator;
 
+   UtlString      mFactory;         ///< the factory routine name for this hook class
    UtlString      mPrefix;          ///< the prefix name for the OsConfigDb values
    UtlSortedList  mConfiguredHooks; ///< the list of configured hooks.
 };

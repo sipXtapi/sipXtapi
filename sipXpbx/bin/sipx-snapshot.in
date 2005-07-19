@@ -219,6 +219,9 @@ cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@/httpd-sipxchange-common.conf
 @SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf
 @SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf
+/etc/host.conf
+/etc/resolv.conf
+/etc/hosts
 EOF
 
 # These files are recorded if --logs is specified, and deleted if
@@ -262,6 +265,15 @@ echo ""                 >> ${SystemConfig}
 echo    "sipXpbx User:" >> ${SystemConfig}
 grep @SIPXPBXUSER@ /etc/passwd >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
+echo "SELinux:"                 >> ${SystemConfig}
+if selinuxenabled               >> ${SystemConfig} 2>&1
+then
+    echo -n "   Enabled; mode=" >> ${SystemConfig}
+    getenforce                  >> ${SystemConfig}
+else
+    echo    "   Disabled"       >> ${SystemConfig}
+fi 
+echo ""                         >> ${SystemConfig}
 echo "SSL Configuration:" >> ${SystemConfig}
 ls -l @SIPX_CONFDIR@/ssl/ >> ${SystemConfig}
 echo ""                   >> ${SystemConfig}
@@ -275,7 +287,6 @@ do
       @bindir@/sipx${component}-config --all >> ${SystemConfig}
   else
       echo Missing: @SIPX_BINDIR@/sipx${component}-config >>   ${SystemConfig}
-      echo Missing: @SIPX_BINDIR@/sipx${component}-config 1>&2 ${SystemConfig}
   fi
 done
 
@@ -323,6 +334,15 @@ do
   >> ${SystemConfig}
 done
 
+# Get any firewall or other tricky IP manipulations
+echo "" >> ${SystemConfig}
+echo "======== IPTables:"       >> ${SystemConfig}
+for t in nat filter mangle
+do
+  echo "=== $t table:"            >> ${SystemConfig}
+  iptables --table $t --list --verbose --numeric --line-numbers >> ${SystemConfig}
+done
+
 # Execute system monitoring commands
 for command in \
     "ps -efww" \
@@ -354,7 +374,6 @@ then
       cp --archive ${file} ${copyDir}/${copyFile}
     else
       echo Missing: ${file} >> ${SystemConfig}
-      echo Missing: ${file} 1>&2
     fi
   done
 

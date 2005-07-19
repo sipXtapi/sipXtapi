@@ -23,7 +23,7 @@ import org.springframework.context.ApplicationEvent;
  */
 public class ApplicationInitializedEvent extends ApplicationEvent {
 
-    public ApplicationInitializedEvent(Object source) {
-        super(source);
+    public ApplicationInitializedEvent(Object src) {
+        super(src);
     }
 }

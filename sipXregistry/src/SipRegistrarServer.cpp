@@ -14,11 +14,12 @@
 
 
 // APPLICATION INCLUDES
-#include "utl/UtlRegex.h"
 #include "os/OsDateTime.h"
 #include "os/OsQueuedEvent.h"
 #include "os/OsTimer.h"
 #include "os/OsEventMsg.h"
+#include "utl/UtlRegex.h"
+#include "utl/PluginHooks.h"
 #include "net/SipUserAgent.h"
 #include "net/NetMd5Codec.h"
 #include "net/NameValueTokenizer.h"
@@ -28,6 +29,7 @@
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
 #include "SipRegistrarServer.h"
+#include "RegisterHook.h"
 
 // DEFINES
 // MACROS
@@ -68,6 +70,7 @@ UtlBoolean
 SipRegistrarServer::initialize(
     SipUserAgent* SipUserAgent,
     SipImpliedSubscriptions* sipImpliedSubscriptions,
+    PluginHooks* sipRegisterHooks,
     int defaultRegistryPeriod,
     const UtlString& minExpiresTime,
     const UtlString& defaultDomain,
@@ -130,7 +133,9 @@ SipRegistrarServer::initialize(
     }
 
     mIsCredentialDB = useCredentialDB;
-
+    mImpliedSubscriptions = sipImpliedSubscriptions;
+    mpSipRegisterHooks = sipRegisterHooks;
+    
     if ( SipUserAgent )
     {
         mSipUserAgent = SipUserAgent;
@@ -143,11 +148,10 @@ SipRegistrarServer::initialize(
     return TRUE;
 }
 
-/// applyRegisterToDirectory
+/// Apply valid changes to the database
 ///
 /// Checks the message against the database, and if it is allowed by
 /// those checks, applies the requested changes.
-/// @return RegisterStatus, which governs the response message type
 SipRegistrarServer::RegisterStatus
 SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                                              ,const SipMessage& registerMessage
@@ -156,7 +160,7 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
     RegisterStatus returnStatus = REGISTER_SUCCESS;
     UtlBoolean removeAll = FALSE;
     UtlBoolean isExpiresheader = FALSE;
-    int longestExpiration; // for implied subscription duration
+    int longestExpiration = -1; // for duration passed to hooks
     int commonExpires = -1;
 
     // get the expires header from the register message
@@ -169,7 +173,6 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
     {
         commonExpires = mDefaultRegistryPeriod;
     }
-    longestExpiration = commonExpires;
 
     // get the header 'to' field from the register
     // message and construct a URL with it
@@ -242,9 +245,10 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                         // expires value not a valid base 10 number
                         returnStatus = REGISTER_INVALID_REQUEST;
                         OsSysLog::add( FAC_SIP, PRI_WARNING,
-                               "SipRegistrarServer::applyRegisterToDirectory - invalid expires parameter value '%s'\n",
-                               expireStr.data()
-                               );
+                                      "SipRegistrarServer::applyRegisterToDirectory"
+                                      " invalid expires parameter value '%s'\n",
+                                      expireStr.data()
+                                      );
                     }
                 }
 
@@ -415,14 +419,15 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                         returnStatus = REGISTER_QUERY;
                     }
                 }
-                // Only persist the xml and do implied subscriptions
-                //   if this was a good registration
+                
+                // Only persist the xml and do hooks if this was a good registration
                 if ( REGISTER_SUCCESS == returnStatus )
                 {
                     // something changed - garbage collect and persist the database
                     int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
                     imdb->cleanAndPersist( oldestTimeToKeep );
 
+                    // :TODO: move this into a hook
                     if ( longestExpiration > 0 ) // registration inserted or extended?
                     {
                         // This included at least one actual registration, so see if there are
@@ -430,6 +435,13 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                         mImpliedSubscriptions->checkAndSend( registerMessage, longestExpiration
                                                             ,mNonceDb, mSipUserAgent
                                                             );
+                    }
+                
+                    PluginIterator hooks(*mpSipRegisterHooks);
+                    RegisterHook* hook;
+                    while(hook = static_cast<RegisterHook*>(hooks.next()))
+                    {
+                       hook->takeAction(registerMessage, longestExpiration, mSipUserAgent );
                     }
                 }
             }
@@ -856,10 +868,14 @@ SipRegistrarServer::isValidDomain(
 
     if ( mValidDomains.contains(&lookupDomain) )
     {
-        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isValidDomain(%s) VALID\n",lookupDomain.data()) ;
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                      "SipRegistrarServer::isValidDomain(%s) VALID\n",
+                      lookupDomain.data()) ;
         return TRUE;
     }
-    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isValidDomain(%s) INVALID\n",lookupDomain.data()) ;
+    OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                  "SipRegistrarServer::isValidDomain(%s) INVALID\n",
+                  lookupDomain.data()) ;
     return FALSE;
 }
 
@@ -867,3 +883,16 @@ SipRegistrarServer::~SipRegistrarServer()
 {
    mValidDomains.destroyAll();
 }
+
+void RegisterHook::takeAction( const SipMessage&   registerMessage  
+                              ,const unsigned int  registrationDuration 
+                              ,SipUserAgent*       sipUserAgent
+                              )
+{
+   assert(false);
+   
+   OsSysLog::add(FAC_SIP, PRI_ERR,
+                 "RegisterHook::takeAction not resolved by configured hook"
+                 );
+}
+

@@ -11,7 +11,7 @@ Url:      http://www.sipfoundry.org/sipXpublisher
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 2.9.0
+Requires: sipxcommserverlib >= 2.9
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -23,7 +23,7 @@ a simple XML plugin configuration file.
 
 %package devel
 Requires: %name
-Requires: sipxcommserverlib-devel >= 2.9.0
+Requires: sipxcommserverlib-devel >= 2.9
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 
@@ -79,6 +79,3 @@ sipx-upgrade -p sipxpublisher -c
 
 %post
 sipx-upgrade -p sipxpublisher -u --sdir %{_localstatedir} --cdir %{_sysconfdir}
-
-
-

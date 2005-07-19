@@ -38,7 +38,7 @@ public class PhoneTestDriver {
     
     public PhoneDefaults defaults;
 
-    public PhoneTestDriver(GenericPhone phone, String factoryId, AbstractLine line, String lineFactoryId) {
+    public PhoneTestDriver(GenericPhone _phone, String factoryId, AbstractLine _line, String lineFactoryId) {
         
         phoneContextControl = MockControl.createNiceControl(PhoneContext.class);
         phoneContext = (PhoneContext) phoneContextControl.getMock();
@@ -53,9 +53,9 @@ public class PhoneTestDriver {
         defaults.setOutboundProxy("proxy.sipfoundry.org");
         defaults.setRegistrationServer("registrar.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
-        phone.setDefaults(defaults);
-        line.setDefaults(defaults);
-        phone.setTftpRoot(TestHelper.getTestDirectory());
+        _phone.setDefaults(defaults);
+        _line.setDefaults(defaults);
+        _phone.setTftpRoot(TestHelper.getTestDirectory());
         
         user = new User();
         user.setDisplayId("juser");
@@ -63,32 +63,32 @@ public class PhoneTestDriver {
         user.setLastName("User");
         user.setSipPassword("1234");
 
-        this.phone = phone;
+        this.phone = _phone;
         PhoneData meta = new PhoneData(factoryId);
         meta.setSerialNumber(serialNumber);
-        phone.setPhoneContext(phoneContext);
-        phone.setPhoneData(meta);
+        _phone.setPhoneContext(phoneContext);
+        _phone.setPhoneData(meta);
         
-        phone.setVelocityEngine(TestHelper.getVelocityEngine());            
+        _phone.setVelocityEngine(TestHelper.getVelocityEngine());            
 
-        this.line = line;
-        line.setPhone(phone);
-        line.setLineData(new LineData());
+        this.line = _line;
+        _line.setPhone(_phone);
+        _line.setLineData(new LineData());
 
         // for alls to phone.newLine
-        line.setPhone(phone);
-        line.setLineData(new LineData());
-        phoneContextControl.expectAndReturn(phoneContext.newLine(lineFactoryId), line);
+        _line.setPhone(_phone);
+        _line.setLineData(new LineData());
+        phoneContextControl.expectAndReturn(phoneContext.newLine(lineFactoryId), _line);
 
-        LineData lineMeta = line.getLineData();
+        LineData lineMeta = _line.getLineData();
         lineMeta.setUser(user);
-        phone.addLine(line);
+        _phone.addLine(_line);
 
         sipControl = MockControl.createStrictControl(SipService.class);
         sip = (SipService) sipControl.getMock();
-        sip.sendCheckSync(line);
+        sip.sendCheckSync(_line);
         sipControl.replay();
-        phone.setSipService(sip);
+        _phone.setSipService(sip);
 
         phoneContextControl.replay();
     }

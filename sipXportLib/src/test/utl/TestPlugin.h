@@ -22,7 +22,7 @@
 class TestPlugin;
 
 
-extern "C" TestPlugin* getHook(const UtlString& name);
+extern "C" TestPlugin* getTestHook(const UtlString& name);
 
 /**
  * TestPlugin defines the interface for plugins to the PluginHooksTest.
@@ -45,8 +45,10 @@ public:
 
    static const char* LibraryName;   
 
+   static const char* FactoryName;   
+
 private:
-   friend TestPlugin* getHook(const UtlString& name);
+   friend TestPlugin* getTestHook(const UtlString& name);
    
    /// The constructor is called from getHook factory method.
    TestPlugin(const UtlString& hookName);

@@ -40,6 +40,8 @@
  */
 const char* TestPlugin::LibraryName = LIBRARY_NAME;
 
+const char* TestPlugin::FactoryName = "getTestHook";
+
 /// Read (or re-read) whatever configuration the hook requires.
 void TestPlugin::readConfig( OsConfigDb& configDb )
 {
@@ -102,7 +104,7 @@ TestPlugin::~TestPlugin()
    mConfiguration.destroyAll();
 }
 
-extern "C" TestPlugin* getHook(const UtlString& name)
+extern "C" TestPlugin* getTestHook(const UtlString& name)
 {
    return new TestPlugin(name);
 }

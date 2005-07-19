@@ -170,8 +170,8 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
 
    UtlString bodyString;
    int bodyLength;
-   const HttpBody* pRequestBody = request.getBody();
-   pRequestBody->getBytes(&bodyString, &bodyLength);
+   const HttpBody* requestBody = request.getBody();
+   requestBody->getBytes(&bodyString, &bodyLength);
    
    XmlRpcResponse responseBody;
    XmlRpcMethodContainer* methodContainer = NULL;
@@ -204,9 +204,11 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    if (status == XmlRpcMethod::OK)
    {
       // Send the response back
-      response->setBody(responseBody.getBody());
+      responseBody.getBody()->getBytes(&bodyString, &bodyLength);
+      
+      response->setBody(new HttpBody(bodyString.data(), bodyLength));
       response->setContentType(CONTENT_TYPE_TEXT_XML);
-      response->setContentLength(responseBody.getBody()->getLength());
+      response->setContentLength(bodyLength);
    }
    else
    {

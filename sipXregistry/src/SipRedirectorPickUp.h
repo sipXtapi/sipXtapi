@@ -52,7 +52,7 @@ class SipRedirectorPickUpTask;
  *    orbits.xml.
  * [extension]
  *    When [extension] is listed in orbits.xml, redirects to
- *    [extension]@SIP_REGISTRAR_ORBIT_SERVER.
+ *    "[extension]@SIP_REGISTRAR_ORBIT_SERVER".
  *
  * More information on their processing and usage can be found in
  * ../doc/Redirection.txt.

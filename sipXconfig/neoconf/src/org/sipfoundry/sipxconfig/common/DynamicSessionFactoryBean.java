@@ -76,7 +76,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      * base class using bean id as a discriminator value.
      * 
      * @param config hibernate config that will be modified
-     * @param baseClassBeanID - bean representing the base class - needs to be already mapped
+     * @param baseClassBeanId - bean representing the base class - needs to be already mapped
      *        statically
      * @throws MappingException
      */
