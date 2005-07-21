@@ -29,6 +29,7 @@
   <property name="test.classes.dir" value="${build.dir}/tests"/>
   <property name="clover.dir" value="${build.dir}/clover"/>
 
+
   <!-- 
     - going forward this default will change to just 'test'
     - until then, projects like neoconf will override this
@@ -249,7 +250,7 @@
 
   <path id="test.path">
     <pathelement location="${clover.jar}"/> 
-    <pathelement path="${classpath}"/>
+    <path refid="base.path"/>
     <pathelement location="${classes.dir}"/>
     <pathelement location="${test.classes.dir}"/>
     <pathelement location="${src.dir}/test"/> 

@@ -206,43 +206,6 @@
     </target>
     
 
-    <!-- HBM 2 DDL -->
-    <!-- generate SQL from java files and hibernate mappings -->
-    <path id="full.classpath">
-        <path refid="base.path"></path>
-        <pathelement path="${classes.dir}"/>
-    </path>
-
-    <taskdef name="schemaexport"
-        classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask" 
-        classpathref="full.classpath"/>
-
-    <target name="hbm2ddl">
-        <schemaexport 
-        	properties="${top.dir}/meta/hibernate.properties" 
-        	quiet="no" text="yes" 
-        	drop="no" delimiter=";" 
-        	namingStrategy="org.sipfoundry.sipxconfig.common.ImprovedNamingStrategy"
-        	output="${build.dir}/schema-export.sql">
-	         <fileset dir="${src.dir}">
-    	         <include name="**/*.hbm.xml"/>
-        	 </fileset>
-        </schemaexport>
-    </target>
-    
-    <taskdef name="schemaupdate"
-        classname="net.sf.hibernate.tool.hbm2ddl.SchemaUpdateTask" 
-        classpathref="full.classpath"/>
-
-    <target name="hbm2ddl.patch" description="Generate SQL patch to existing database to bring it up to date with hibernate definitions.">
-        <schemaupdate properties="${top.dir}/meta/hibernate.properties" quiet="no"
-            text="yes">
-	         <fileset dir="${src.dir}">
-    	         <include name="**/*.hbm.xml"/>
-        	 </fileset>
-        </schemaupdate>
-    </target>
-    
 </project>
 
 
