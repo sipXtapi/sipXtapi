@@ -29,7 +29,7 @@
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
 #include "SipRegistrarServer.h"
-#include "RegisterHook.h"
+#include "registry/RegisterHook.h"
 
 // DEFINES
 // MACROS

@@ -29,7 +29,8 @@ Summary: Internal documentation for %name
 Requires: sipxcommserverlib-devel >= 2.9
 
 %description devel
-Internal class documentation for the registry classes
+Internal class documentation for the registry classes, and the include files that define
+hook interfaces.
 
 %prep
 %setup -q
@@ -74,6 +75,7 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %doc %{_datadir}/doc/sipx/%name/*
+%{_includedir}/registry/*
 
 
 %pre

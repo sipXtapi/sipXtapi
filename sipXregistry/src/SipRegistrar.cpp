@@ -22,7 +22,7 @@
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
 #include "SipRegistrar.h"
-#include "RegisterHook.h"
+#include "registry/RegisterHook.h"
 #include "SipRedirectServer.h"
 #include "SipRegistrarServer.h"
 
