@@ -107,6 +107,7 @@ setConfigureSwitches()
 incrementalBuild()
 {
     Project=$1
+    AllowRetry=$2
     ## echo to stderr to help decipher warnings and errors between projects
     echo "===================== Starting incremental build of $Project" >&2
 
@@ -143,6 +144,15 @@ incrementalBuild()
         return 0
     else
         builderr "ERROR : $Project failed to build!!!"
+
+    	## Test if we're doing an incremental build and we're in the first try. Don't
+    	## set error condition on first try, only after retry.
+    	if [ "$AllowRetry" = "allow-retry" ]; then
+    	    echo "Not setting error condition on first try" 1>&2
+    	else
+    	    BuildReturn=-1
+    	fi
+
         echo ""
         return 1
     fi
@@ -351,19 +361,11 @@ cleanBuild()
 builderr()
 {
     echo "$1" >&2
-    ## Test if we're doing an incremental build and we're in the first try. Don't
-    ## set error condition on first try, only after retry.
-    if [ "$Action" = "INCREMENTAL" -a  "$FailFast" = "NO" ]; then
-        echo "Not setting error condition on first try" 1>&2
-        return
-    fi
     echo "$1" >> build.err
-    BuildReturn=-1
     if test x"$FailFast" = xYES
     then
       exit -1
     fi
-    return $BuildReturn
 }
 
 
@@ -502,7 +504,7 @@ then
     do
       if [ -d $Project ]
       then
-        if ! incrementalBuild $Project
+        if ! incrementalBuild $Project allow-retry
         then
             echo "Clean and retry build of $Project" 1>&2
             echo "Clean and retry build of $Project" >> build.err
@@ -610,7 +612,7 @@ cat <<USAGE
 
 Usage:
 
-    ./sipxbuild [-d|--distribution] 
+        ./build [-d|--distribution] 
                 [-c|--clean] 
                 [-s|--sudo]
                 [-f|--failfast] 
@@ -668,8 +670,8 @@ Options are:
      --exec            Execute remaining portion of commandline after changing the
                        current directory into the project's root directory. 
                        Examples:
-                           sipxbuild -x pwd | xargs grep -rl SomeString
-                           sipxbuild -x svn status
+                           build -x pwd | xargs grep -rl SomeString
+                           build -x svn status
 
      --rpm             Build and install RPMs.
 
