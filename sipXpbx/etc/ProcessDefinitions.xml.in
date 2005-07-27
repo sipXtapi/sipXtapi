@@ -11,7 +11,7 @@
      there. -->
 
 <process_definitions>
-    <dependentdelay wait="2" />
+    <dependentdelay wait="0" />
     <workdir location="@localstatedir@/tmp" />
 
     <!-- =============================================== --> 
@@ -24,7 +24,7 @@
     <!-- ================================ -->
     <group name="ConfigServer">
         <process name="ConfigServer">
-            <dependentdelay wait="30" />
+            <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
@@ -50,7 +50,7 @@
     <!-- ================================ -->
     <group name="CommServer" >
         <process name="SIPRegistrar">
-            <dependentdelay wait="2" />
+            <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
@@ -71,7 +71,7 @@
         </process>
 
         <process name="SIPProxy">
-            <dependentdelay wait="2" />
+            <dependentdelay wait="1" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
@@ -92,7 +92,7 @@
         </process>
 
         <process name="SIPAuthProxy">
-            <dependentdelay wait="2" />
+            <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
@@ -113,7 +113,7 @@
         </process>
 
         <process name="SIPStatus">
-            <dependentdelay wait="2" />
+            <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
@@ -139,7 +139,7 @@
     <!-- ================================ -->
     <group name="MediaServer" >
         <process name="MediaServer">
-            <dependentdelay wait="2" />
+            <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
@@ -160,7 +160,7 @@
         </process>
 
         <process name="ParkServer">
-            <dependentdelay wait="2" />
+            <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
@@ -186,7 +186,7 @@
     <!-- ================== -->
     <group name="Misc" >
         <process name="KeepAlive">
-            <dependentdelay wait="2" />
+            <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />

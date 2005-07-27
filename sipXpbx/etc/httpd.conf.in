@@ -543,7 +543,7 @@ LogFormat "%{User-agent}i" agent
 # define per-<VirtualHost> access logfiles, transactions will be
 # logged therein and *not* in this file.
 #
-CustomLog @SIPX_LOGDIR@/http_access_log common
+CustomLog @SIPX_LOGDIR@/httpd_access_log common
 
 #
 # If you would like to have agent and referer logfiles, uncomment the
@@ -556,7 +556,7 @@ CustomLog @SIPX_LOGDIR@/http_access_log common
 # If you prefer a single logfile with access, agent, and referer information
 # (Combined Logfile Format) you can use the following directive.
 #
-#CustomLog @SIPX_LOGDIR@/http_access_log combined
+#CustomLog @SIPX_LOGDIR@/httpd_access_log combined
 
 #
 # ServerTokens

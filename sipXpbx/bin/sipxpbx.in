@@ -70,14 +70,14 @@ ulimit -c ${SIPX_CORELIMIT:-0}
 # the ProcessDefinitions.xml and Watchdog.xml
 sipxchange_processes=(
     watchdog
-    keepalive
-    sipauthproxy
     sipproxy
-    sipregistrar
+    sipxconfig
     sipXvxml
     sipxpark
     sipstatus
-    sipxconfig
+    sipregistrar
+    sipauthproxy
+    keepalive
 )
 
 # Low-level start function.
@@ -137,55 +137,66 @@ start() { # process-name
 stop() {
    proc_name=$1; shift
 
-   echo -n "  Stop: $proc_name "
+   echo -n "  Stopping: $proc_name "
    STATUS=0
 
    pidFile=@SIPX_RUNDIR@/$proc_name.pid
    if [ ! -r ${pidFile} ]
    then
-      echo -n "(Not started) "
+      echo "(Not started) "
    else
        PID=`cat ${pidFile} 2> /dev/null`
 
        if [ ! -e /proc/$PID ]
        then
-          echo -n "(Started but not running) "
+          echo "(Started but not running) "
           rm -f ${pidFile}
        else
+          echo ""
           kill $PID 2> /dev/null
+       fi
+   fi
+}
+
+stopCheck() {
+   proc_name=$1; shift
+
+   STATUS=0
+
+   pidFile=@SIPX_RUNDIR@/$proc_name.pid
+   if [ -r ${pidFile} ]
+   then
+       echo -n "  Confirm Stop: $proc_name "
+       PID=`cat ${pidFile} 2> /dev/null`
+
+       if [ -e /proc/$PID ]
+       then
           for ticks in 3 2 1 0 
           do
              sleep 1
-             test -e /proc/$PID && break || echo -n "."
+             test -e /proc/$PID && echo -n "." || break
           done
           if [ -e /proc/$PID ]
           then
-              echo -n "(killing) "
               kill -9 $PID 2> /dev/null
               for ticks in 3 2 1 0 
               do
                  sleep 1
-                 test -e /proc/$PID && break || echo -n "."
+                 test -e /proc/$PID && echo -n "." || break
               done
           fi
-   
-          if [ -e /proc/$PID ]
-          then
-              STATUS=1
-          else
-              STATUS=0
-              rm -f ${pidFile}
-          fi
        fi
-   fi
+          
+       if [ -e /proc/$PID ]
+       then
+           echo_failure
+           echo ""
+       else
+           echo_success
+           echo ""
+       fi
 
-   if [ $STATUS -eq 0 ]
-   then
-       echo_success
-       echo ""
-   else
-       echo_failure
-       echo ""
+       rm -f ${pidFile}
    fi
 }
 
@@ -230,6 +241,10 @@ stop_sipxchange () {
     for process in ${sipxchange_processes[@]}
     do
         stop $process
+    done
+    for process in ${sipxchange_processes[@]}
+    do
+        stopCheck $process
     done
     
     echo_success
@@ -370,11 +385,11 @@ EOF
 # SIPxchange services
 do_stop() {
 
-   echo "Stopping sipXpbx: "
-
    echo -n "Stopping apache: "
    @APACHE2_HTTPD@ -k stop -f @SIPX_CONFDIR@/httpd.conf
    echo
+
+   echo "Stopping sipXpbx: "
 
    stop_sipxchange
 
@@ -404,6 +419,7 @@ do_start() {
 
         ### Start the programs.
 
+        echo ""
         echo "Starting sipXpbx: "
 
         # Ensure that sipXvxml is owned by root and
@@ -443,7 +459,7 @@ status() { # process-name
    echo -n "Checking $proc_name: "
    if [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
    then
-      echo "[Not Started] "
+      echo "[Not Running] "
    else
        PID=`cat @SIPX_RUNDIR@/$proc_name.pid 2> /dev/null`
 

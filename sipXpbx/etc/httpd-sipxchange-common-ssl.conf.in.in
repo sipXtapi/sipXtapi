@@ -45,8 +45,8 @@ SetEnvIf User-Agent ".*Mozilla*" \\
 
     Include @SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf
 
-    ErrorLog @SIPX_LOGDIR@/error_log
-    TransferLog @SIPX_LOGDIR@/httpd-access_log
+    ErrorLog @SIPX_LOGDIR@/httpd_error_log
+    TransferLog @SIPX_LOGDIR@/httpd_access_log
 
     <Files ~ "\.(cgi|shtml|phtml|php3?)\$">
         SSLOptions +StdEnvVars
@@ -55,7 +55,7 @@ SetEnvIf User-Agent ".*Mozilla*" \\
         SSLOptions +StdEnvVars
     </Directory>
 
-    CustomLog @SIPX_LOGDIR@/ssl_request_log \\
+    CustomLog @SIPX_LOGDIR@/httpd_access_log \\
               "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 </VirtualHost>
 
