@@ -24,6 +24,7 @@
 #include <net/XmlRpcResponse.h>
 #include <net/XmlRpcDispatch.h>
 
+//#define PRINT_OUT 1
 
 class AddExtension : public XmlRpcMethod
 {
@@ -154,6 +155,7 @@ class XmlRpcTest : public CppUnit::TestCase
    CPPUNIT_TEST(testXmlRpcRequestParse);
    CPPUNIT_TEST(testXmlRpcResponseParse);
    CPPUNIT_TEST(testXmlRpcResponseSetting);
+   CPPUNIT_TEST(testIllFormattedXmlRpcRequest);   
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -286,9 +288,42 @@ public:
             "</struct>\n"
             "</value>\n"
             "</param>\n"
+            "<param>\n"
+            "<value>\n"
+            "<struct>\n"
+            "<member>\n"
+            "<name>tcp-port</name>\n"
+            "<value><int>5150</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>rtp-port</name>\n"
+            "<value><int>9100</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>upd-port</name>\n"
+            "<value><int>5150</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>server-name</name>\n"
+            "<value>sipxacd</value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>object-class</name>\n"
+            "<value>acd-server</value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>agent-state-server-port</name>\n"
+            "<value><int>8101</int></value>\n"
+            "</member>\n"
+            "</struct>\n"
+            "</value>\n"
+            "</param>\n"
             "</params>\n"
             "</methodCall>\n"
             ;
+            
+         const char *ref1 =
+            "<?xml version=\"1.0\"?><methodCall><methodName>addExtension</methodName><params><param><value><struct><member><name>tcp-port</name><value><int>5150</int></value></member><member><name>rtp-port</name><value><int>9100</int></value></member><member><name>upd-port</name><value><int>5150</int></value></member><member><name>server-name</name><value>sipxacd</value></member><member><name>object-class</name><value>acd-server</value></member><member><name>agent-state-server-port</name><value><int>8101</int></value></member></struct></value></param></params></methodCall>";
 
          const char *faultResponse =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -336,7 +371,7 @@ public:
          UtlString body;
          int length;
          responseBody->getBytes(&body, &length);
-
+         
          CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
 
          XmlRpcResponse newResponse;
@@ -352,6 +387,7 @@ public:
          method->getData(methodGet, user);
          XmlRpcMethod* addEx = methodGet();
          addEx->execute(context, params, userData, newResponse, status);
+         dispatch.cleanUp(&params);
 
          responseBody = newResponse.getBody();
 
@@ -510,6 +546,146 @@ public:
          CPPUNIT_ASSERT(strcmp(responseBody.data(), ref) == 0);
       }
 
+   void testIllFormattedXmlRpcRequest()
+      {
+         const char *ref1 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodCall>\n"
+            "<methodName>addExtension</methodName>\n"
+            "<params>\n"
+            "<param>\n"
+            "<value></value>\n"
+            "</param>\n"
+            "<param>\n"
+            "<value><int></int></value>\n"
+            "</param>\n"
+            "</params>\n"
+            "</methodCall>\n"
+            ;
+
+         const char *ref2 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodCall>\n"
+            "<methodName>addExtension</methodName>\n"
+            "<params>\n"
+            "<param>\n"
+            "<value>\n"
+            "<array>\n"
+            "<data>\n"
+            "<value><string>160@pingtel.com</string></value>\n"
+            "<value><string>167@pingtel.com</string></value>\n"
+            "<value><int></int></value>\n"
+            "<value><boolean>1</boolean></value>\n"
+            "</data>\n"
+            "</array>\n"
+            "</value>\n"
+            "</param>\n"
+            "</params>\n"
+            "</methodCall>\n"
+            ;
+
+         const char *ref3 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodCall>\n"
+            "<methodName>addExtension</methodName>\n"
+            "<params>\n"
+            "<param>\n"
+            "<value>\n"
+            "<struct>\n"
+            "<member>\n"
+            "<name>tcp-port</name>\n"
+            "<value><int>5150</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>rtp-port</name>\n"
+            "<value><int></int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>upd-port</name>\n"
+            "<value><int>5150</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>server-name</name>\n"
+            "<value></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>object-class</name>\n"
+            "<value></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>agent-state-server-port</name>\n"
+            "<value><int>8101</int></value>\n"
+            "</member>\n"
+            "</struct>\n"
+            "</value>\n"
+            "</param>\n"
+            "</params>\n"
+            "</methodCall>\n"
+            ;
+            
+         const char *faultResponse =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodResponse>\n"
+            "<fault>\n"
+            "<value>\n"
+            "<struct>\n"
+            "<member>\n"
+            "<name>faultCode</name>\n"
+            "<value><int>-5</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>faultString</name>\n"
+            "<value><string>Empty param value</string></value>\n"
+            "</member>\n"
+            "</struct>\n"
+            "</value>\n"
+            "</fault>\n"
+            "</methodResponse>\n"
+            ;
+
+         XmlRpcDispatch dispatch(8200, false, "/RPC2");
+
+         UtlString requestContent1(ref1);
+         XmlRpcResponse response1;
+         XmlRpcMethodContainer* method;
+         UtlSList params;
+
+         char* userData = "AddExtension"; 
+         dispatch.addMethod("addExtension", (XmlRpcMethod::Get *)AddExtension::get, (void*)userData);
+         bool result = dispatch.parseXmlRpcRequest(requestContent1, method, params, response1);
+         CPPUNIT_ASSERT(result == false);
+         dispatch.cleanUp(&params);
+
+         XmlRpcBody *responseBody = response1.getBody();
+
+         UtlString body;
+         int length;
+         responseBody->getBytes(&body, &length);
+
+         CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
+
+         UtlString requestContent2(ref2);
+         XmlRpcResponse response2;
+         result = dispatch.parseXmlRpcRequest(requestContent2, method, params, response2);
+         CPPUNIT_ASSERT(result == false);
+         dispatch.cleanUp(&params);
+
+         responseBody = response2.getBody();
+         responseBody->getBytes(&body, &length);
+
+         CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
+
+         UtlString requestContent3(ref3);
+         XmlRpcResponse response3;
+         result = dispatch.parseXmlRpcRequest(requestContent3, method, params, response3);
+         CPPUNIT_ASSERT(result == false);
+         dispatch.cleanUp(&params);
+
+         responseBody = response3.getBody();
+         responseBody->getBytes(&body, &length);
+
+         CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(XmlRpcTest);

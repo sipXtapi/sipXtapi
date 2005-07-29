@@ -11,13 +11,16 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <utl/UtlSListIterator.h>
 #include <net/LinePresenceMonitor.h>
+#include <net/SipRefreshManager.h>
+#include <net/SipSubscribeClient.h>
+#include <net/XmlRpcRequest.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define DEFAULT_REFRESH_INTERVAL      180000
-#define DEFAULT_GROUP_NAME   "acd@pingtel.com"
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -27,28 +30,48 @@
 
 // Constructor
 LinePresenceMonitor::LinePresenceMonitor(int userAgentPort,
-                                         UtlString& domainName)
+                                         UtlString& domainName,
+                                         UtlString& groupName,
+                                         bool local,
+                                         Url& remoteServer)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    // Bind the SIP user agent to a port and start it up
    mpUserAgent = new SipUserAgent(userAgentPort, userAgentPort);
    mpUserAgent->start();
-
-   // Create the Sip Dialog Monitor
-   mpDialogMonitor = new SipDialogMonitor(mpUserAgent,
-                                          domainName,
-                                          userAgentPort,
-                                          DEFAULT_REFRESH_INTERVAL);
    
-   // Add itself to the dialog monitor for state change notification
-   mpDialogMonitor->addStateChangeNotifier("Line_Presence_Monitor", this);
+   mGroupName = groupName;
+   mLocal = local;
+
+   if (mLocal)
+   {
+      // Create a local Sip Dialog Monitor
+      mpDialogMonitor = new SipDialogMonitor(mpUserAgent,
+                                             domainName,
+                                             userAgentPort,
+                                             DEFAULT_REFRESH_INTERVAL,
+                                             false);
+      
+      // Add itself to the dialog monitor for state change notification
+      mpDialogMonitor->addStateChangeNotifier("Line_Presence_Monitor", this);
+   }
+   else
+   {
+      // Create the SIP Subscribe Client
+      mpRefreshMgr = new SipRefreshManager(*mpUserAgent, mDialogManager); // Component for refreshing the subscription
+      mpRefreshMgr->start();
+   
+      mpSipSubscribeClient = new SipSubscribeClient(*mpUserAgent, mDialogManager, *mpRefreshMgr);
+      mpSipSubscribeClient->start();
+      
+      mRemoteServer = remoteServer;
+   }
 }
 
 
 // Destructor
 LinePresenceMonitor::~LinePresenceMonitor()
 {
-
    // Shut down the sipUserAgent
    mpUserAgent->shutdown(FALSE);
 
@@ -61,12 +84,15 @@ LinePresenceMonitor::~LinePresenceMonitor()
    
    if (mpDialogMonitor)
    {
+      // Remove itself to the dialog monitor
+      mpDialogMonitor->removeStateChangeNotifier("Line_Presence_Monitor");
+
       delete mpDialogMonitor;
    }
    
-   if (!mSubscribeMap.isEmpty())
+   if (!mSubscribeList.isEmpty())
    {
-      mSubscribeMap.destroyAll();
+      mSubscribeList.destroyAll();
    }
 }
 
@@ -88,7 +114,8 @@ bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
    
    mLock.acquire();
    UtlString contact = aor.toString();
-   LinePresenceBase* line = (LinePresenceBase *) mSubscribeMap.findValue(&contact);
+   UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mSubscribeList.findValue(&contact));
+   LinePresenceBase* line = (LinePresenceBase *) container->getValue();
    if (line)
    {
       // Set the state value in LinePresenceBase
@@ -156,20 +183,41 @@ OsStatus LinePresenceMonitor::subscribe(LinePresenceBase* line)
    OsStatus result = OS_FAILED;
    mLock.acquire();
    Url* lineUrl = line->getAddress();
-   UtlString groupName(DEFAULT_GROUP_NAME);
    
-   if(mpDialogMonitor->addExtension(groupName, *lineUrl))
+   if (mLocal)
    {
-      result = OS_SUCCESS;
+      if(mpDialogMonitor->addExtension(mGroupName, *lineUrl))
+      {
+         result = OS_SUCCESS;
+      }
+      else
+      {
+         result = OS_FAILED;
+      }
    }
    else
    {
-      result = OS_FAILED;
+      // Use XML-RPC to communicate with the sipX dialog monitor
+      XmlRpcRequest request(mRemoteServer, "addExtension");
+      
+      request.addParam(&mGroupName);
+      UtlString contact = lineUrl->toString();
+      request.addParam(&contact);
+
+      XmlRpcResponse response;
+      if (request.execute(response))
+      {
+         result = OS_SUCCESS;
+      }
+      else
+      {
+         result = OS_FAILED;
+      }      
    }
    
    // Insert the line to the Subscribe Map
-   mSubscribeMap.insertKeyAndValue(new UtlString(lineUrl->toString()),
-                                   (UtlVoidPtr *) line);
+   mSubscribeList.insertKeyAndValue(new UtlString(lineUrl->toString()),
+                                   new UtlVoidPtr(line));
 
    mLock.release();
    
@@ -181,25 +229,77 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
    OsStatus result = OS_FAILED;
    mLock.acquire();
    Url* lineUrl = line->getAddress();
-   UtlString groupName(DEFAULT_GROUP_NAME);
    
-   if (mpDialogMonitor->removeExtension(groupName, *lineUrl))
+   if (mLocal)
    {
-      result = OS_SUCCESS;
+      if (mpDialogMonitor->removeExtension(mGroupName, *lineUrl))
+      {
+         result = OS_SUCCESS;
+      }
+      else
+      {
+         result = OS_FAILED;
+      }
    }
    else
    {
-      result = OS_FAILED;
+      // Use XML-RPC to communicate with the sipX dialog monitor
+      XmlRpcRequest request(mRemoteServer, "removeExtension");
+      
+      request.addParam(&mGroupName);
+      UtlString contact = lineUrl->toString();
+      request.addParam(&contact);
+
+      XmlRpcResponse response;
+      if (request.execute(response))
+      {
+         result = OS_SUCCESS;
+      }
+      else
+      {
+         result = OS_FAILED;
+      }      
    }
       
-   // Insert the line to the Subscribe Map
+   // Remove the line from the Subscribe Map
    UtlString contact(lineUrl->toString());
-   mSubscribeMap.destroy(&contact);
+   mSubscribeList.destroy(&contact);
    
    mLock.release();
    return result;
 }
 
+OsStatus LinePresenceMonitor::subscribe(UtlSList& list)
+{
+   OsStatus result = OS_FAILED;
+   mLock.acquire();
+   UtlSListIterator iterator(list);
+   LinePresenceBase* line;
+   while (line = dynamic_cast <LinePresenceBase *> (iterator()))
+   {
+      subscribe(line);
+   }
+
+   mLock.release();
+   
+   return result;
+}
+
+OsStatus LinePresenceMonitor::unsubscribe(UtlSList& list)
+{
+   OsStatus result = OS_FAILED;
+   mLock.acquire();
+   UtlSListIterator iterator(list);
+   LinePresenceBase* line;
+   while (line = dynamic_cast <LinePresenceBase *> (iterator()))
+   {
+      unsubscribe(line);
+   }
+
+   mLock.release();
+   
+   return result;
+}
 
 /* ============================ INQUIRY =================================== */
 

@@ -25,6 +25,8 @@ nobase_include_HEADERS =  \
     cp/sipXmediaFactoryImpl.h \
     cp/CpMediaInterfaceFactory.h \
     cp/DialogEventPublisher.h \
+    cp/PresenceDialInServer.h \
+    cp/SipPresenceMonitor.h \
     ptapi/PtAddessCapabilities.h \
     ptapi/PtAddress.h \
     ptapi/PtAddressEvent.h \

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PresenceDialIn>
+  <signInFeatureCode>*88</signInFeatureCode>
+  <signOutFeatureCode>*86</signOutFeatureCode>
+  <signInConfirmationAudio>/usr/local/sipx/var/sipxdata/presenceserver/confirmation.wav</signInConfirmationAudio>
+  <signOutConfirmationAudio>/usr/local/sipx/var/sipxdata/presenceserver/na_dialtone.wav</signOutConfirmationAudio>
+  <errorAudio>/usr/local/sipx/var/sipxdata/presenceserver/na_busy.wav</errorAudio>  
+</PresenceDialIn>

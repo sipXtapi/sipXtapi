@@ -48,6 +48,8 @@ libsipXcall_la_SOURCES = \
     cp/CpMediaInterfaceFactoryInterface.cpp \
     cp/sipXmediaFactoryImpl.cpp \
     cp/DialogEventPublisher.cpp \
+    cp/PresenceDialInServer.cpp \
+    cp/SipPresenceMonitor.cpp \
     ptapi/PtAddessCapabilities.cpp \
     ptapi/PtAddress.cpp \
     ptapi/PtAddressForwarding.cpp \

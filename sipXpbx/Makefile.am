@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_builddir)/config/sipXcommon.mak
 
-unconditional_SUBDIRS = . include src bin etc sipXpark
+unconditional_SUBDIRS = . include src bin etc sipXpark sipXpresence sipXdialog
 
 include $(srcdir)/config/sipXprojtop.mak
 

@@ -120,7 +120,7 @@ protected:
 private:
 
    /// Parse a value in the XML-RPC request
-   bool parseValue(TiXmlNode* valueNode, int index, UtlSList& params, XmlRpcResponse& response);
+   bool parseValue(TiXmlNode* valueNode, int index, UtlSList& params);
 
    /// Parse an array in the XML-RPC request
    bool parseArray(TiXmlNode* valueNode, UtlSList*& array);

@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.57)
-AC_INIT(sipXpbx, 2.9, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXpbx, 2.9.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
@@ -98,6 +98,16 @@ AC_CONFIG_FILES([sipXpark/src/Makefile])
 AC_CONFIG_FILES([sipXpark/etc/Makefile])
 AC_CONFIG_FILES([sipXpark/bin/Makefile])
 AC_CONFIG_FILES([sipXpark/doc/Makefile])
+AC_CONFIG_FILES([sipXpresence/Makefile])
+AC_CONFIG_FILES([sipXpresence/src/Makefile])
+AC_CONFIG_FILES([sipXpresence/etc/Makefile])
+AC_CONFIG_FILES([sipXpresence/bin/Makefile])
+AC_CONFIG_FILES([sipXpresence/doc/Makefile])
+AC_CONFIG_FILES([sipXdialog/Makefile])
+AC_CONFIG_FILES([sipXdialog/src/Makefile])
+AC_CONFIG_FILES([sipXdialog/etc/Makefile])
+AC_CONFIG_FILES([sipXdialog/bin/Makefile])
+AC_CONFIG_FILES([sipXdialog/doc/Makefile])
 
 AM_CONDITIONAL(DO_RPMBUILD, test x$enable_rpmbuild = xyes)
 

@@ -70,6 +70,7 @@
 
 
 #define STATE_TRYING "trying"
+#define STATE_PROCEEDING "proceeding"
 #define STATE_EARLY "early"
 #define STATE_CONFIRMED "confirmed"
 #define STATE_TERMINATED "terminated"

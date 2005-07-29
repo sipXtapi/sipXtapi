@@ -41,10 +41,11 @@
 /**
  * A SipDialogMonitor is an object that is used for monitoring the on/off hook
  * status of all the SIP user agents for the given extensions based on the dialog
- * events. When the dialog event changes, this information will be stored in a
- * NOTIFIER so that other clients can subcribe for the same information. If a
- * StateChangeNotifier is registered with SipDialogMonitor, the state change will
- * also be sent out via the StateChangeNotifier.
+ * events. When the dialog event changes, this information will be composed in a
+ * resource list and stored in a NOTIFIER so that other clients can subcribe for
+ * the same information based on the resource list. If a StateChangeNotifier is
+ * registered with SipDialogMonitor, the state change will also be sent out via
+ * the StateChangeNotifier.
  *
  */
 
@@ -58,7 +59,8 @@ class SipDialogMonitor
                                                */
                     UtlString& domainName,   ///< sipX domain name
                     int hostPort,            ///< Host port
-                    int refreshTimeout);     ///< refresh timeout for SUBSCRIBEs
+                    int refreshTimeout,      ///< refresh timeout for SUBSCRIBEs
+                    bool toBePublished);     ///< option to publish for other subscriptions
 
    virtual ~SipDialogMonitor();
 
@@ -77,7 +79,7 @@ class SipDialogMonitor
   protected:
 
    /// Add the contact and dialog event to the subscribe list
-   void addDialogEvent(UtlString* contact, SipDialogEvent* dialogEvent);
+   void addDialogEvent(UtlString& contact, SipDialogEvent* dialogEvent);
 
    /// Publish the dialog event package to the resource list
    void publishContent(UtlString& contact, SipDialogEvent* dialogEvent);
@@ -107,6 +109,7 @@ class SipDialogMonitor
    UtlString mDomainName;
    UtlString mContact;
    int mRefreshTimeout;
+   bool mToBePublished;
    
    OsBSem mLock;
    

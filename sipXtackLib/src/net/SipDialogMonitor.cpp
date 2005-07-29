@@ -35,7 +35,8 @@
 SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
                                    UtlString& domainName,
                                    int hostPort,
-                                   int refreshTimeout)
+                                   int refreshTimeout,
+                                   bool toBePublished)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    mpUserAgent = userAgent;
@@ -48,6 +49,7 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
    url.setHostPort(hostPort);
    mContact = url.toString();
    mRefreshTimeout = refreshTimeout;
+   mToBePublished = toBePublished;
    
    // Create the SIP Subscribe Client
    mpRefreshMgr = new SipRefreshManager(*mpUserAgent, mDialogManager); // Component for refreshing the subscription
@@ -56,13 +58,16 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
    mpSipSubscribeClient = new SipSubscribeClient(*mpUserAgent, mDialogManager, *mpRefreshMgr);
    mpSipSubscribeClient->start();  
 
-   // Create the SIP Subscribe Server
-   mpSubscriptionMgr = new SipSubscriptionMgr(mDialogMgr); // Component for holding the subscription data
+   if (mToBePublished)
+   {
+      // Create the SIP Subscribe Server
+      mpSubscriptionMgr = new SipSubscriptionMgr(mDialogMgr); // Component for holding the subscription data
 
-   mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
+      mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
                                               *mpSubscriptionMgr, mPolicyHolder);
-   mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE);
-   mpSubscribeServer->start();
+      mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE);
+      mpSubscribeServer->start();
+   }
 }
 
 // Destructor
@@ -111,33 +116,33 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    mLock.acquire();
    
    // Check whether the group has already existed. If not, create one.
-   SipResourceList* pList = (SipResourceList *)mMonitoredLists.findValue(&groupName);
-   if (pList == NULL)
+   SipResourceList* list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
+   if (list == NULL)
    {
-      UtlString* pListName = new UtlString(groupName);
-      pList = new SipResourceList((UtlBoolean)TRUE, pListName->data(), DIALOG_EVENT_TYPE);
+      UtlString* listName = new UtlString(groupName);
+      list = new SipResourceList((UtlBoolean)TRUE, listName->data(), DIALOG_EVENT_TYPE);
       
-      mMonitoredLists.insertKeyAndValue(pListName, pList);
+      mMonitoredLists.insertKeyAndValue(listName, list);
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addExtension insert listName %s and object %p to the resource list",
-                    groupName.data(), pList);   
+                    groupName.data(), list);   
    }
 
    // Check whether the contact has already being added to the group
    UtlString resourceId;
    contactUrl.getIdentity(resourceId);
-   Resource* pResource = pList->getResource(resourceId);
-   if (pResource == NULL)
+   Resource* resource = list->getResource(resourceId);
+   if (resource == NULL)
    {
-      pResource = new Resource(resourceId);
+      resource = new Resource(resourceId);
       
       UtlString userName;
       contactUrl.getDisplayName(userName);
-      pResource->setName(userName);
+      resource->setName(userName);
       
       UtlString id;
       NetMd5Codec::encode(resourceId, id);
-      pResource->setInstance(id, STATE_PENDIND);
-      pList->insertResource(pResource);
+      resource->setInstance(id, STATE_PENDIND);
+      list->insertResource(resource);
       
       // Send out the SUBSCRIBE
       OsSysLog::add(FAC_LOG, PRI_DEBUG,
@@ -180,7 +185,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
                     resourceId.data());
    }
 
-   pList->buildBody();
+   list->buildBody();
    
    mLock.release();
    return result;
@@ -191,8 +196,8 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    bool result = false;
    mLock.acquire();
    // Check whether the group has existed or not. If not, return false.
-   SipResourceList* pList = (SipResourceList *)mMonitoredLists.findValue(&groupName);
-   if (pList == NULL)
+   SipResourceList* list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
+   if (list == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::removeExtension group %s does not exist",
                     groupName.data());   
@@ -202,11 +207,11 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       // Check whether the contact has existed or not
       UtlString resourceId;
       contactUrl.getIdentity(resourceId);
-      Resource* pResource = pList->getResource(resourceId);
-      if (pResource)
+      Resource* resource = list->getResource(resourceId);
+      if (resource)
       {
-         pResource = pList->removeResource(pResource);
-         delete pResource;
+         resource = list->removeResource(resource);
+         delete resource;
          
          result = true;
       }
@@ -222,125 +227,118 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    return result;   
 }
 
-void SipDialogMonitor::addDialogEvent(UtlString* contact, SipDialogEvent* dialogEvent)
+void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialogEvent)
 {
-   int numOldContents;
-   HttpBody* oldContent[1];           
-   
-   if (mDialogEventList.find(contact) == NULL)
+   if (mDialogEventList.find(&contact) == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent adding the dialogEvent %p for contact %s",
-                    dialogEvent, contact->data());
+                    dialogEvent, contact.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent dialogEvent %p for contact %s already exists, just update the content.",
-                    dialogEvent, contact->data());
+                    dialogEvent, contact.data());
                     
       // Get the object from the dialog event list
+      UtlContainable* oldKey;
       UtlContainable* foundValue;
-      mDialogEventList.removeKeyAndValue(contact, foundValue);
-      SipDialogEvent* pOldDialogEvent = (SipDialogEvent *) foundValue;
+      oldKey = mDialogEventList.removeKeyAndValue(&contact, foundValue);
+      delete oldKey;
+      SipDialogEvent* oldDialogEvent = dynamic_cast <SipDialogEvent *> (foundValue);
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent remove the dialogEvent %p for contact %s",
-                    pOldDialogEvent, contact->data()); 
+                    oldDialogEvent, contact.data()); 
 
-      // Unpublish the old content to the subscribe server
-      if (!mSipPublishContentMgr.unpublish(contact->data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, numOldContents, oldContent))
+      if (oldDialogEvent)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::addDialogEvent DialogEvent for contact %s was not successfully unpublished to the subscribe server",
-                       contact->data());
-      }
-      
-      if (pOldDialogEvent)
-      {
-         delete pOldDialogEvent;
+         delete oldDialogEvent;
       }
    }
          
    // Modify the entity
-   dialogEvent->setEntity(contact->data());   
+   dialogEvent->setEntity(contact.data());   
    dialogEvent->buildBody();
    
    // Insert it into the dialog event list
-   mDialogEventList.insertKeyAndValue(contact, dialogEvent);
+   mDialogEventList.insertKeyAndValue(new UtlString(contact), dialogEvent);
    
-                    
-   // Publish the content to the subscribe server
-   if (!mSipPublishContentMgr.publish(contact->data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&dialogEvent, 1, numOldContents, oldContent))
+   if (mToBePublished)
    {
-      UtlString dialogContent;
-      int length;
-      
-      dialogEvent->getBytes(&dialogContent, &length);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::addDialogEvent DialogEvent %s\n was not successfully published to the subscribe server",
-                    dialogContent.data());
+      // Publish the content to the resource list
+      publishContent(contact, dialogEvent);
    }
-
-   // Publish the content to the resource list
-   publishContent(*contact, dialogEvent);
    
    // Notify the state change
-   notifyStateChange(*contact, dialogEvent);
+   notifyStateChange(contact, dialogEvent);
 }
 
 
 void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialogEvent)
 {
-
+   bool contentChanged;
+   
    // Loop through all the resource lists
    UtlHashMapIterator iterator(mMonitoredLists);
-   UtlString* pListUri;
-   SipResourceList* pList;
-   Resource* pResource;
+   UtlString* listUri;
+   SipResourceList* list;
+   Resource* resource;
    UtlString id, state;
-   while (pListUri = (UtlString *) iterator())
+   while (listUri = dynamic_cast <UtlString *> (iterator()))
    {
-      pList = (SipResourceList *) mMonitoredLists.findValue(pListUri);
+      contentChanged = false;
+      
+      list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::publishContent listUri %s list %p",
-                    pListUri->data(), pList); 
+                    listUri->data(), list); 
 
       // Search for the contact in this list
-      pResource = pList->getResource(contact);
-      if (pResource)
+      resource = list->getResource(contact);
+      if (resource)
       {
-         pResource->getInstance(id, state);
+         resource->getInstance(id, state);
          
          if (dialogEvent->isEmpty())
          {
-            pResource->setInstance(id, STATE_TERMINATED);
+            resource->setInstance(id, STATE_TERMINATED);
          }
          else
          {
-            Dialog* pDialog = dialogEvent->getFirstDialog();
+            Dialog* dialog = dialogEvent->getFirstDialog();
             
             UtlString state, event, code;
-            pDialog->getState(state, event, code);
+            dialog->getState(state, event, code);
             
             if (state.compareTo(STATE_TERMINATED) == 0)
             {
-               pResource->setInstance(id, STATE_TERMINATED);
+               resource->setInstance(id, STATE_TERMINATED);
             }
             else
             {     
-               pResource->setInstance(id, STATE_ACTIVE);
+               resource->setInstance(id, STATE_ACTIVE);
             }
          }
          
-         pList->buildBody();
+         list->buildBody();
+         contentChanged = true;
       }
-      else
+      
+      if (contentChanged)
       {
-         UtlString name;
-         pList->getListUri(name);
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::publishContent contact %s is not in the resource list %s",
-                       contact.data(), name.data());
-      }        
+         int numOldContents;
+         HttpBody* oldContent[1];           
+   
+         // Publish the content to the subscribe server
+         if (!mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&list, 1, numOldContents, oldContent))
+         {
+            UtlString dialogContent;
+            int length;
+            
+            list->getBytes(&dialogContent, &length);
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::publishContent DialogEvent %s\n was not successfully published to the subscribe server",
+                          dialogContent.data());
+         }
+      }
    }
-
-
-
-
 }
 
 void SipDialogMonitor::subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
@@ -389,11 +387,10 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
       notifyBody->getBytes(&messageContent, &bodyLength);
       
       // Parse the content and store it in a SipDialogEvent object
-      SipDialogEvent* pSipDialogEvent = new SipDialogEvent(messageContent);
+      SipDialogEvent* sipDialogEvent = new SipDialogEvent(messageContent);
       
       // Add the SipDialogEvent object to the hash table
-      UtlString* pContact = new UtlString(contact);
-      addDialogEvent(pContact, pSipDialogEvent);
+      addDialogEvent(contact, sipDialogEvent);
    }
    else
    {
@@ -424,13 +421,15 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
 
    // Loop through the notifier list
    UtlHashMapIterator iterator(mStateChangeNotifiers);
-   UtlString* pListUri;
+   UtlString* listUri;
+   UtlVoidPtr* container;
    StateChangeNotifier* notifier;
    Url contactUrl(contact);
    mLock.acquire();
-   while (pListUri = (UtlString *) iterator())
+   while (listUri = dynamic_cast <UtlString *> (iterator()))
    {
-      notifier = (StateChangeNotifier *) mStateChangeNotifiers.findValue(pListUri);
+      container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
+      notifier = (StateChangeNotifier *) container->getValue();
 
       if (dialogEvent->isEmpty())
       {
@@ -438,10 +437,10 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
       }
       else
       {
-         Dialog* pDialog = dialogEvent->getFirstDialog();
+         Dialog* dialog = dialogEvent->getFirstDialog();
             
          UtlString state, event, code;
-         pDialog->getState(state, event, code);
+         dialog->getState(state, event, code);
             
          if (state.compareTo(STATE_CONFIRMED) == 0)
          {
