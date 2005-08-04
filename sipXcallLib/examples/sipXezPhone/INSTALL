@@ -10,7 +10,7 @@ If you have questions or problems, please consult the latest version of this
 document and the sipX dev mailing list.  The sipX-dev mailing list is searchable -
 please search before posting your question.
 
-  http://scm.sipfoundry.org/rep/sipXcallLib/main/examples/sipXezPhone/INSTALL
+  http://scm.sipfoundry.org/rep/sipX/main/sipXcallLib/examples/sipXezPhone/INSTALL
   http://www.sipfoundry.org/sipXcallLib/
   http://list.sipfoundry.org/mailman/listinfo/sipx-dev
 
@@ -48,10 +48,10 @@ Using subversion from the command line, get the needed SIPFoundry projects
 by running the following from the command line.
 For example:
   cd \sipfoundry
-  svn checkout http://scm.sipfoundry.org/rep/sipXportLib/main sipXportLib
-  svn checkout http://scm.sipfoundry.org/rep/sipXtackLib/main sipXtackLib
-  svn checkout http://scm.sipfoundry.org/rep/sipXmediaLib/main sipXmediaLib
-  svn checkout http://scm.sipfoundry.org/rep/sipXcallLib/main sipXcallLib
+  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXportLib sipXportLib
+  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXtackLib sipXtackLib
+  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXmediaLib sipXmediaLib
+  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXcallLib sipXcallLib
   
   The sipXezPhone code and the Visual Studio project files are located in the "sipXcallLib\examples\sipXezPhone" directory.
 
