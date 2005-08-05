@@ -230,6 +230,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\HttpService.cpp">
+			</File>
+			<File
 				RelativePath="src\resparse\wnt\inet_addr.c">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -354,6 +357,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\NameValuePairInsensitive.cpp">
 			</File>
 			<File
 				RelativePath="src\net\NameValueTokenizer.cpp">
@@ -818,6 +824,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\SipDialog.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipDialogEvent.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipDialogMgr.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipDialogMonitor.cpp">
+			</File>
+			<File
 				RelativePath="src\net\SipLine.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1070,6 +1088,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\SipPresenceEvent.cpp">
+			</File>
+			<File
 				RelativePath="src\net\SipProtocolServerBase.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1091,6 +1112,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\SipPublishContentMgr.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipPublishServer.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipPublishServerEventStateCompositor.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipRefreshManager.cpp">
+			</File>
+			<File
 				RelativePath="src\net\SipRefreshMgr.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1110,6 +1143,12 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\SipRequestContext.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipResourceList.cpp">
 			</File>
 			<File
 				RelativePath="src\net\SipServerBase.cpp">
@@ -1173,6 +1212,18 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\SipSubscribeClient.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipSubscribeServer.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipSubscribeServerEventHandler.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipSubscriptionMgr.cpp">
 			</File>
 			<File
 				RelativePath="src\net\SipTcpServer.cpp">
@@ -1343,6 +1394,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\StateChangeNotifier.cpp">
+			</File>
+			<File
 				RelativePath="src\net\TapiMgr.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1404,6 +1458,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcResponse.cpp">
 			</File>
 		</Filter>
 		<Filter
