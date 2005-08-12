@@ -1197,6 +1197,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\os\OsStunAgentTask.cpp">
+			</File>
+			<File
 				RelativePath=".\src\os\OsStunDatagramSocket.cpp">
 			</File>
 			<File
