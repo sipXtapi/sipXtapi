@@ -1,20 +1,27 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlaceCall", "examples\PlaceCall\PlaceCall.vcproj", "{B3A8FA91-7043-4C08-92B7-38BF89CE9F7F}"
 	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
 		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F} = {BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReceiveCall", "examples\ReceiveCall\ReceiveCall.vcproj", "{838BF317-6BBB-4D8B-A070-0FC90E4DEE47}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F} = {BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "sipXcallLib.vcproj", "{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}"
 	ProjectSection(ProjectDependencies) = postProject
+		{FD83D656-82BC-4765-A6FF-666A7D91BC64} = {FD83D656-82BC-4765-A6FF-666A7D91BC64}
+		{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0} = {4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmediaLib\sipXmediaLib.vcproj", "{FD83D656-82BC-4765-A6FF-666A7D91BC64}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258} = {5F85520E-C3C0-404C-9EFA-2C96DBD0F258}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib.vcproj", "{5F85520E-C3C0-404C-9EFA-2C96DBD0F258}"
@@ -23,13 +30,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\sipXtackLib\sipXtackLib.vcproj", "{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258} = {5F85520E-C3C0-404C-9EFA-2C96DBD0F258}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi", "sipXtapi.vcproj", "{BD0EDA3F-BFE6-4E1D-8639-5ACF75A7977F}"
 	ProjectSection(ProjectDependencies) = postProject
-		{4CAAFDC5-D1C5-4988-937F-9B26A3160FF0} = {4CAAFDC5-D1C5-4988-937F-9B26A3160FF0}
-		{5F85520E-C3C0-404C-9EFA-2C96DBD0F258} = {5F85520E-C3C0-404C-9EFA-2C96DBD0F258}
-		{FD83D656-82BC-4765-A6FF-666A7D91BC64} = {FD83D656-82BC-4765-A6FF-666A7D91BC64}
 		{A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26} = {A9EFE09D-4311-4A9C-8AFB-2DFC2F0CDD26}
 	EndProjectSection
 EndProject
