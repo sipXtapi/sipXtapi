@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <type id="on-off">
+    <boolean>
+      <true><value>on</value></true>
+      <false><value>off</value></false>
+    </boolean>
+  </type>
+  <group name="snom">
+    <group name="line">
+      <label>Line</label>
+      <setting name="user_active">
+	    <label>Line active</label>
+	    <type refid="on-off"/>
+	    <value>on</value>
+	    <description>Active (registered) line or not.</description>
+      </setting>
+      <setting name="user_realname">
+	    <label>Displayname</label>
+	    <type><string/></type>
+	    <value></value>
+	    <description>Caller ID value.</description>
+      </setting>
+      <setting name="user_name">
+	    <label>Account</label>
+	    <type><string required="yes"/></type>
+	    <value></value>
+	    <description>Number or name which is used for registration.</description>
+      </setting>
+      <setting name="user_host">
+	    <label>Registrar</label>
+	    <type><string required="yes"/></type>
+	    <value></value>
+	    <description>FQDN name of the domain or registrar.</description>
+      </setting>
+      <setting name="user_pname">
+	    <type><string/></type>
+	    <label>Authentication Username</label>
+	    <value></value>
+	    <description>Username for the authentication if it differs from username.</description>
+      </setting>
+      <setting name="user_pass">
+	    <label>Password</label>
+	    <type><string required="yes"/></type>
+	    <value></value>
+	    <description>Password for authentication against the server.</description>
+      </setting>
+    </group>
+  </group>
+  <group name="snom360" copy-of="snom"/>
+  <group name="snom320" copy-of="snom"/>
+</model>

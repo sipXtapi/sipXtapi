@@ -21,6 +21,12 @@
     <property name="phoneFactoryIds">
       <map>
         <!-- Register new phone models here, order is preserved -->
+	<entry key="snom360">
+	  <value>Snom 360</value>
+	</entry>
+	<entry key="snom320">
+	  <value>Snom 320</value>
+	</entry>
         <entry key="polycom300">
           <value>Polycom SoundPoint IP 300</value>
         </entry>
@@ -107,6 +113,24 @@
   </bean>
   <bean id="kphoneLine" 
     class="org.sipfoundry.sipxconfig.phone.kphone.KPhoneLine" 
+    singleton="false">
+    <property name="defaults">
+      <ref bean="phoneDefaults"/>      
+    </property>
+  </bean>
+    <!-- Snom -->
+  <bean id="snom360" 
+    class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone"
+    singleton="false"
+    parent="genericPhone">
+  </bean>
+  <bean id="snom320" 
+    class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone"
+    singleton="false"
+    parent="genericPhone">
+  </bean>
+  <bean id="SnomLine" 
+    class="org.sipfoundry.sipxconfig.phone.snom.SnomLine"
     singleton="false">
     <property name="defaults">
       <ref bean="phoneDefaults"/>      
