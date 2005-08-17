@@ -1,13 +1,11 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 #ifndef SIPXTAPI_EXCLUDE
 
 // SYSTEM INCLUDES
@@ -53,27 +51,46 @@ void TapiMgr::setTapiLineCallback(sipxLineEventCallbackFn fp)
     sipxLineEventCallbackPtr = fp;
 }
 
+void TapiMgr::setTapiCallback(sipxEventCallbackFn fp)
+{
+    sipxEventCallbackPtr = fp;
+}
+
 void TapiMgr::fireCallEvent(const void*          pSrc,
                        const char*		    szCallId,
                        SipSession*          pSession,
 				       const char*          szRemoteAddress,                   
-				       SIPX_CALLSTATE_MAJOR eMajorState,
-				       SIPX_CALLSTATE_MINOR eMinorState)
+				       SIPX_CALLSTATE_EVENT eMajorState,
+				       SIPX_CALLSTATE_CAUSE eMinorState,
+                       void*                pEventData)
 {
     if (sipxCallEventCallbackPtr)
     {
-        (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress, eMajorState, eMinorState);
+        (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress, 
+                                    (SIPX_CALLSTATE_MAJOR)(int)eMajorState, (SIPX_CALLSTATE_MINOR)(int)eMinorState, pEventData);
     }
     return;
 }
 
 void TapiMgr::fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
-                        SIPX_LINE_EVENT_TYPE_MAJOR major)
+                        SIPX_LINESTATE_EVENT event,
+                        SIPX_LINESTATE_CAUSE cause)
 {
     if (sipxLineEventCallbackPtr)
     {
-        (*sipxLineEventCallbackPtr)(pSrc, szLineIdentifier, major);
+        (*sipxLineEventCallbackPtr)(pSrc, szLineIdentifier,
+                                    (SIPX_LINE_EVENT_TYPE_MAJOR)(int)event,
+                                    (SIPX_LINE_EVENT_TYPE_MINOR)(int)cause);
     }
 }
-#endif
+
+void TapiMgr::fireEvent(const void* pSrc, const SIPX_EVENT_CATEGORY event, void *pInfo)
+{
+    if (sipxEventCallbackPtr)
+    {
+        (*sipxEventCallbackPtr)(pSrc, event, pInfo);
+    }
+}
+
+#endif /* SIPXTAPI_EXCLUDE */

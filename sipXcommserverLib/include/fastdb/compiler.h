@@ -112,6 +112,7 @@ struct dbStrLiteral {
 
 
 class dbUserFunction;
+class dbExprNodeSegment;
 
 class FASTDB_DLL_ENTRY dbExprNode { 
     friend class dbExprNodeSegment;

@@ -16,6 +16,7 @@ import java.io.Writer;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 /**
  * Gateway
@@ -32,6 +33,8 @@ public class Gateway extends BeanWithSettings {
     private String m_serialNumber;
 
     private GatewayContext m_gatewayContext;
+    
+    private ModelFilesContext m_modelFilesContext;
 
     private String m_tftpRoot;
 
@@ -93,15 +96,19 @@ public class Gateway extends BeanWithSettings {
         m_gatewayContext = gatewayContext;
     }
 
-    public GatewayContext getGatewayContext() {
-        return m_gatewayContext;
-    }
-    
     public String getTftpRoot() {
         return m_tftpRoot;
     }
     
     public void setTftpRoot(String tftpRoot) {
         m_tftpRoot = tftpRoot;
+    }
+    
+    public void setModelFilesContext(ModelFilesContext modelFileContext) {
+        m_modelFilesContext = modelFileContext;
+    }
+    
+    public ModelFilesContext getModelFilesContext() {
+        return m_modelFilesContext;
     }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -29,11 +30,27 @@ public class CoreContextImplTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
-    public void testSearchByDisplayId() throws Exception {
+    public void testLoadByUserName() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        assertNotNull(core.loadUserByUserName("userseed5"));
+        assertNull(core.loadUserByUserName("wont find this guy"));
+    }
+
+    public void testLoadByExtension() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        User user = core.loadUserByExtension("5");
+        assertNotNull(user);
+        assertEquals("userseed5", user.getUserName());
+        assertNull(core.loadUserByExtension("666"));
+    }
+
+    public void testSearchByUserName() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
-        template.setDisplayId("userseed");
+        template.setUserName("userseed");
         List users = core.loadUserByTemplateUser(template);
 
         assertEquals(6, users.size());
@@ -78,5 +95,12 @@ public class CoreContextImplTestDb extends TestCase {
 
         userAliases = core.getUserAliases();
         assertEquals(1, userAliases.size());
+    }
+    
+    public void testClear() throws Exception {
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        core.clear();
+        ITable t = TestHelper.getConnection().createDataSet().getTable("users");
+        assertEquals(0, t.getRowCount());
     }
 }

@@ -107,7 +107,7 @@ public:
 
     //! Helper utility to build a basic server with default behavior
     static SipSubscribeServer* buildBasicServer(SipUserAgent& userAgent,
-                                                const char* eventType);
+                                                const char* eventType = NULL);
 
     //! Default Dialog constructor
     SipSubscribeServer(SipUserAgent& defaultUserAgent,
@@ -192,6 +192,9 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
+
+    //! Inquire if the given event type is enabled in the server
+    UtlBoolean isEventTypeEnabled(const UtlString& eventType);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

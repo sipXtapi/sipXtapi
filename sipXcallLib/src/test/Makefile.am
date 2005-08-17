@@ -1,5 +1,9 @@
 INCLUDES = -I$(top_srcdir)/include
 
+if BUILDTAPI
+SUBDIRS = tapi
+endif
+
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
 TESTS = testsuite

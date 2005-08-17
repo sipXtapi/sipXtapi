@@ -1,15 +1,14 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 #ifndef _CpPhoneMediaInterface_h_
 #define _CpPhoneMediaInterface_h_
+#ifndef SIPXMEDIA_EXCLUDE
 
 // SYSTEM INCLUDES
 //#include <>
@@ -53,8 +52,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   CpPhoneMediaInterface(int startRtpPort = 8766, 
-                         int lastRtpPort = 8800,
+   CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFactoryImpl,
                          const char* publicAddress = NULL, 
                          const char* localAddress = NULL,
                          int numCodecs = 0, 
@@ -65,12 +63,16 @@ public:
                          int iStunKeepAlivePeriodSecs = 28);
      //:Default constructor
 
-   CpPhoneMediaInterface(const CpPhoneMediaInterface& rCpPhoneMediaInterface);
-     //:Copy constructor
-
+  protected:
    virtual
    ~CpPhoneMediaInterface();
      //:Destructor
+  public:
+
+   /**
+    * public interface for destroying this media interface
+    */ 
+   void release();
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -88,7 +90,14 @@ public:
 
    virtual OsStatus setConnectionDestination(int connectionId,
                                              const char* rtpHostAddress, 
-                                             int rtpPort);
+                                             int rtpPort,
+                                             int rtcpPort);
+
+   virtual OsStatus addAlternateDestinations(int connectionId,
+                                             unsigned char cPriority,
+                                             const char* rtpHostAddress, 
+                                             int port,
+                                             bool bRtp) ;
 
    virtual OsStatus startRtpSend(int connectionId, 
                                  int numCodecs,
@@ -170,12 +179,16 @@ public:
    virtual OsMsgQ* getMsgQ();
      //:Returns the flowgraph's message queue
 
+   virtual OsStatus getPrimaryCodec(int connectionId, UtlString& codec, int *payloadType);
+     //:Returns primary codec for the connection
+
 
 /* ============================ INQUIRY =================================== */
 
    virtual UtlBoolean isSendingRtp(int connectionId);
    virtual UtlBoolean isReceivingRtp(int connectionId);
    virtual UtlBoolean isDestinationSet(int connectionId);   
+   virtual UtlBoolean canAddParty() ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -186,8 +199,6 @@ private:
     CpPhoneMediaConnection* removeMediaConnection(int connecctionId);
     OsStatus doDeleteConnection(CpPhoneMediaConnection* mediaConnection);
 
-   int mNextRtpPort;
-   int mLastRtpPort;
    UtlString mRtpReceiveHostAddress; // Advertized as place to send RTP/RTCP
    UtlString mLocalAddress; // On which ports are bound
    MpCallFlowGraph* mpFlowGraph;
@@ -197,8 +208,12 @@ private:
    int mExpeditedIpTos;
    UtlString mStunServer ;
    int mStunRefreshPeriodSecs ;
+
+   // Disabled copy constructor
+   CpPhoneMediaInterface(const CpPhoneMediaInterface& rCpPhoneMediaInterface);
+
 };
 
 /* ============================ INLINE METHODS ============================ */
-
+#endif // #ifndef SIPXMEDIA_EXCLUDE
 #endif  // _CpPhoneMediaInterface_h_

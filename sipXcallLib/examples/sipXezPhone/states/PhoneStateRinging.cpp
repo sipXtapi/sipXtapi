@@ -1,13 +1,9 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -27,19 +23,26 @@ extern sipXezPhoneApp* thePhoneApp;
 // STATIC VARIABLE INITIALIZATIONS
 // MACRO CALLS
 
-PhoneStateRinging::PhoneStateRinging(SIPX_CALL hCall)
+PhoneStateRinging::PhoneStateRinging(SIPX_CALL hCall) : 
+    mbPlayingTone(false)
 {
    mhCall = hCall;
 }
 
 PhoneStateRinging::~PhoneStateRinging(void)
 {
-   sipxCallStopTone(mhCall);
+#ifdef VOICE_ENGINE
+    if (mbPlayingTone)
+        sipxCallPlayFileStop(sipXmgr::getInstance().getCurrentCall());
+#else
+    if (mbPlayingTone)
+        sipxCallStopTone(mhCall);
+#endif
 }
 
 PhoneState* PhoneStateRinging::OnFlashButton()
 {
-   return (new PhoneStateAccepted(mhCall));
+    return (new PhoneStateAccepted(mhCall));
 }
 
 PhoneState* PhoneStateRinging::Execute()
@@ -50,10 +53,25 @@ PhoneState* PhoneStateRinging::Execute()
     sipxCallGetRemoteID(mhCall, szIncomingNumber, 256);
     wxString incomingNumber(szIncomingNumber);
 
-    thePhoneApp->setStatusMessage(incomingNumber);  
+    thePhoneApp->setStatusMessage(incomingNumber);
 
+#ifdef VOICE_ENGINE
+    if (SIPX_RESULT_SUCCESS == sipxCallPlayFileStart(sipXmgr::getInstance().getCurrentCall(), "res/ringTone.raw", true, true, false))
+    {
+        mbPlayingTone  = true;
+    }
+#else
     SIPX_RESULT result;
     result = sipxCallStartTone(sipXmgr::getInstance().getCurrentCall(), ID_TONE_RINGTONE, true, false); 
+    if (SIPX_RESULT_SUCCESS == result)
+    {
+        mbPlayingTone = true;
+    }
+    else
+    {
+        mbPlayingTone = false;
+    }
+#endif
 
     return this;
 }

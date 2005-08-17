@@ -17,14 +17,6 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 
     SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
 
-    AC_ARG_ENABLE(tapi,
-                 [  --enable-tapi           Compile TAPI code ],
-                 enable_tapi=yes)
-
-    if test x$enable_tapi != xyes; then
-        SF_CXX_C_FLAGS="$SF_CXX_C_FLAGS -DSIPXTAPI_EXCLUDE"
-    fi
-
     SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
     CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
     CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS -Wnested-externs -Wmissing-declarations -Wmissing-prototypes"
@@ -77,12 +69,14 @@ AC_DEFUN([SFAC_INIT_FLAGS],
                  enable_buildnumber=yes)
 ])
 
+
 ## Check to see that we are using the minimum required version of automake
 AC_DEFUN([SFAC_AUTOMAKE_VERSION],[
    AC_MSG_CHECKING(for automake version >= $1)
    sf_am_version=`automake --version | head -n 1 | awk '/^automake/ {print $NF}'`
    AX_COMPARE_VERSION( [$1], [le], [$sf_am_version], AC_MSG_RESULT( $sf_am_version is ok), AC_MSG_ERROR( found $sf_am_version - you must upgrade automake ))
 ])
+
 
 ## sipXportLib 
 # SFAC_LIB_PORT attempts to find the sf portability library and include
@@ -111,8 +105,8 @@ AC_DEFUN([SFAC_LIB_PORT],
     SIPXPORTINC=$foundpath
     AC_SUBST(SIPXPORTINC)
 
-    CFLAGS="-I$SIPXPORTINC $GLIB_CFLAGS $PCRE_CFLAGS $CFLAGS"
-    CXXFLAGS="-I$SIPXPORTINC $GLIB_CFLAGS $PCRE_CXXFLAGS $CXXFLAGS"
+    CFLAGS="-I$SIPXPORTINC $PCRE_CFLAGS $CFLAGS"
+    CXXFLAGS="-I$SIPXPORTINC $PCRE_CXXFLAGS $CXXFLAGS"
 
     SFAC_ARG_WITH_LIB([libsipXport.la],
             [sipxportlib],
@@ -134,7 +128,7 @@ AC_DEFUN([SFAC_LIB_PORT],
 
 
 ## sipXtackLib 
-# SFAC_LIB_STACK attempts to find the sf portability library and include
+# SFAC_LIB_STACK attempts to find the sf networking library and include
 # files by looking in /usr/[lib|include], /usr/local/[lib|include], and
 # relative paths.
 #
@@ -230,6 +224,7 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     AC_SUBST(SIPXMEDIA_LDFLAGS, ["-L$SIPXMEDIALIB"])
 ]) # SFAC_LIB_MEDIA
 
+
 ## Optionally compile in the GIPS library in the media subsystem
 # (sipXmediaLib project) and executables that link it in
 # Conditionally use the GIPS audio libraries
@@ -239,6 +234,8 @@ AC_DEFUN([CHECK_GIPS],
       [  --with-gips       Compile the media subsystem with the GIPS audio libraries
 ],
       compile_with_gips=yes)
+
+   AC_REQUIRE([SFAC_SIPX_TAPI])
 
    AC_MSG_CHECKING(if compile with gips)
 
@@ -270,6 +267,19 @@ AC_DEFUN([CHECK_GIPS],
       CPPFLAGS="$CPPFLAGS $GIPS_CPPFLAGS -I$GIPSINC"
       # GIPS needs to be at the end of the list
       #LIBS="$LIBS $GIPS_OBJS"
+
+      #Check for enabling voice engine if compiling with GIPS
+      AC_ARG_ENABLE(tapi,
+                 [  --enable-gipsve         Link to GIPS voice engine if --with-gips is set ],
+                 enable_gipsve=yes)
+      AC_MSG_CHECKING(if linking to gips voice engine)
+      if test x$compile_with_gips = xyes
+      then
+        AC_MSG_RESULT(yes)
+        GIPS_CPPFLAGS="$GIPS_CPPFLAGS -DSIPXMEDIA_EXCLUDE"
+      else
+        AC_MSG_RESULT(no)
+      fi
    else
       AC_MSG_RESULT(not compiling in gips)
    fi
@@ -377,7 +387,6 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
 ]) # SFAC_LIB_COMMSERVER
 
 
-
 ##  Generic find of an include
 #   Fed from AC_DEFUN([SFAC_INCLUDE_{module name here}],
 #
@@ -441,10 +450,12 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
     fi
 ]) # SFAC_ARG_WITH_LIB
 
+
 AC_DEFUN([SFAC_SRCDIR_EXPAND], 
 [
     abs_srcdir=`cd $srcdir && pwd`
 ])
+
 
 AC_DEFUN([SFAC_FEATURE_SIP_TLS],
 [
@@ -461,4 +472,51 @@ AC_DEFUN([SFAC_FEATURE_SIP_TLS],
    fi
 ])
 
-  
+
+AC_DEFUN([SFAC_SIPX_TAPI],
+[
+    AC_ARG_ENABLE(tapi,
+                 [  --enable-tapi           Compile TAPI code ],
+                 enable_tapi=yes)
+
+    if test x$enable_tapi != xyes; then
+        SF_CXX_C_FLAGS="-DSIPXTAPI_EXCLUDE"
+        CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS"
+        CFLAGS="$CFLAGS $SF_CXX_C_FLAGS"
+    fi
+
+   AM_CONDITIONAL(BUILDTAPI, test x$enable_tapi = xyes)
+
+   AC_MSG_CHECKING([Building sipXtapi])
+   AC_MSG_RESULT(${enable_tapi})
+])
+
+
+AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
+[
+   AC_REQUIRE([SFAC_SIPX_TAPI])
+   AC_REQUIRE([CHECK_WXWIDGETS])
+
+   AC_ARG_ENABLE(sipx-ezphone, 
+                 [  --enable-sipx-ezphone    build the sipXezPhone example application (no)],
+                 [], [enable_sipx_ezphone=no])
+   AC_MSG_CHECKING([Building sipXezPhone])
+
+   # If sipx-ezphone is requested, check for its prerequisites.
+   if test x$enable_sipx_ezphone = xyes
+   then
+       if test x$enable_tapi != xyes
+       then
+	   AC_MSG_ERROR([sipXtapi is required for sipXezPhone (--enable-tapi)])
+	   enable_sipx_ezphone=no
+       elif test x$enable_wxwidgets != xyes
+       then
+	   AC_MSG_ERROR([wxWidgets is required for sipXezPhone])
+	   enable_sipx_ezphone=no
+       fi
+   fi
+
+   AM_CONDITIONAL(BUILDEZPHONE, test x$enable_sipx_ezphone = xyes)
+
+   AC_MSG_RESULT(${enable_sipx_ezphone})
+])

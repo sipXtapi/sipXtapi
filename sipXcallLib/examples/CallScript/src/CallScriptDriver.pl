@@ -79,7 +79,7 @@ if (!$nonrandom) {
     for ($i = 0; $i <= $#script_weights; $i++) {
         $total_weight += $script_weights[$i];
     }
-    die "No scripts have been specified.\n" if $total_weight <= 0;
+    die "Total weight is not positive: $total_weight\n" if $total_weight <= 0;
     $cut_point = 0;
     for ($i = 0; $i < $#script_weights; $i++) {
         $cut_point += $script_weights[$i] / $total_weight;

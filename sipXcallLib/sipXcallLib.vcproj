@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="sipXcallLib"
+	ProjectGUID="{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
 	SccProjectName="Perforce Project"
 	SccLocalPath=".">
 	<Platforms>
@@ -22,8 +23,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\sipXmediaLib\include,..\gips\include"
-				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\gips\include"
+				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;HAVE_GIPS;SIPXMEDIA_EXCLUDE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -41,7 +42,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Release\sipXcallLib.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -74,8 +76,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\sipXmediaLib\include,..\gips\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\gips\include"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;HAVE_GIPS;SIPXMEDIA_EXCLUDE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -93,7 +95,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\sipXcallLib.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -283,44 +286,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\cp\CpMediaInterfaceFactory.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
+				RelativePath=".\src\cp\CpMediaInterfaceFactory.cpp">
 			</File>
 			<File
-				RelativePath="src\cp\CpMediaInterfaceFactoryInterface.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
+				RelativePath=".\src\cp\CpMediaInterfaceFactoryImpl.cpp">
 			</File>
 			<File
 				RelativePath="src\cp\CpMultiStringMessage.cpp">
@@ -363,24 +332,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\cp\CpPhoneMediaInterface.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
+				RelativePath=".\src\cp\CpPhoneMediaInterface.cpp">
 			</File>
 			<File
 				RelativePath="src\cp\CpStringMessage.cpp">
@@ -1803,26 +1755,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\cp\sipXmediaFactoryImpl.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="src\tao\TaoAdaptor.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -2351,10 +2283,13 @@
 				RelativePath="include\cp\CpMediaInterface.h">
 			</File>
 			<File
-				RelativePath="include\cp\CpMediaInterfaceFactory.h">
+				RelativePath=".\include\cp\CpMediaInterfaceFactory.h">
 			</File>
 			<File
-				RelativePath="include\cp\CpMediaInterfaceFactoryInterface.h">
+				RelativePath=".\include\cp\CpMediaInterfaceFactoryFactory.h">
+			</File>
+			<File
+				RelativePath=".\include\cp\CpMediaInterfaceFactoryImpl.h">
 			</File>
 			<File
 				RelativePath="include\cp\CpMultiStringMessage.h">
@@ -2610,9 +2545,6 @@
 			</File>
 			<File
 				RelativePath="include\cp\SipConnection.h">
-			</File>
-			<File
-				RelativePath="include\cp\sipXmediaFactoryImpl.h">
 			</File>
 			<File
 				RelativePath="include\tao\TaoAdaptor.h">

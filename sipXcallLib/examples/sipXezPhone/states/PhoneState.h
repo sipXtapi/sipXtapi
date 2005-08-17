@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _PhoneState_h_
 #define _PhoneState_h_
 
@@ -44,21 +40,11 @@ public:
     */
    virtual ~PhoneState();
 
-   virtual PhoneState* OnDial(const wxString phoneNumber)   { return this; }
-   virtual PhoneState* OnRinging(const SIPX_CALL hCall)                 { return this; }
-   virtual PhoneState* OnRemoteAlerting()       { return this; }
-   virtual PhoneState* OnRemoteBusy()           { return this; }
-   virtual PhoneState* OnFlashButton()          { return this; }
-   virtual PhoneState* OnConnected()            { return this; }
-   virtual PhoneState* OnDisconnected(const SIPX_CALL hCall);
-   virtual PhoneState* OnOutgoingCallRejected() { return this; }
-   virtual PhoneState* OnError()          { return this; }
-   virtual PhoneState* OnHoldButton()       { return this; }
-   virtual PhoneState* OnTransferRequested(const wxString phoneNumber)   { return this; }
-   virtual PhoneState* OnTransferComplete(const bool bFailure) { return this; }
-   virtual PhoneState* OnOffer(const SIPX_CALL hCall);
 
-   virtual PhoneState* Execute() { return NULL; };
+   virtual PhoneState* OnOffer(const SIPX_CALL hCall);
+   virtual PhoneState* OnRemoteBusy();
+   virtual PhoneState* OnDisconnected(const SIPX_CALL hCall);
+
 
 
 /* ============================ MANIPULATORS ============================== */

@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,12 +20,9 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext,
         BeanFactoryAware {
@@ -36,8 +32,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     private BeanFactory m_beanFactory;
 
     private Map m_factoryIds;
-
-    private String m_configDirectory;
 
     public GatewayContextImpl() {
         super();
@@ -117,25 +111,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         getHibernateTemplate().deleteAll(gateways);
     }
 
-    /**
-     * Loads settings model from XML file
-     * 
-     * The full path of the model file is: systemEtcDurectory/manufacturere/basename
-     * 
-     * @return new copy of the settings model
-     */
-    public Setting loadModelFile(String manufacturer, String basename) {
-        File modelFile = getModelFile(manufacturer, basename);
-        XmlModelBuilder builder = new XmlModelBuilder(m_configDirectory);
-        SettingSet model = builder.buildModel(modelFile);
-        return model.copy();
-    }
-
-    public File getModelFile(String manufacturer, String basename) {
-        File modelDir = new File(m_configDirectory, manufacturer);
-        return new File(modelDir, basename);
-    }
-
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
@@ -156,9 +131,4 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
-
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
-    }
-
 }

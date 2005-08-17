@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -89,7 +89,3 @@ void UtlIterator::invalidate()
    mpMyContainer = NULL;
    // it may be that more is needed in the subclasses, but this provides the failsafe
 }
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-/* ============================ FUNCTIONS ================================= */

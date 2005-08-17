@@ -1,13 +1,9 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -22,15 +18,15 @@
 // STATIC VARIABLE INITIALIZATIONS
 // MACROS
 BEGIN_EVENT_TABLE(DialPadButton, wxBitmapButton)
-    EVT_LEFT_DOWN(DialPadButton::OnMouseDown)
-    EVT_LEFT_UP(DialPadButton::OnMouseUp)
+   EVT_LEFT_DOWN(DialPadButton::OnMouseDown)
+   EVT_LEFT_UP(DialPadButton::OnMouseUp)
 END_EVENT_TABLE()
 
 // Constructor
 DialPadButton::DialPadButton(wxWindow* parent, int id, const wxBitmap& bitmap, const wxPoint& pos, const wxSize& size, const enum TONE_ID toneId, const char charVal) :
    wxBitmapButton(parent, id, bitmap, pos, size, 0),
-   mCharVal(charVal),
-   mToneId(toneId)
+   mToneId(toneId),
+   mCharVal(charVal)
 {
 }
 

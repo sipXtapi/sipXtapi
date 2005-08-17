@@ -745,7 +745,7 @@ int main(int argc, char *argv[])
    SipUserAgent *userAgent =
       new SipUserAgent(port, 
                        port,
-                       -1,
+                       PORT_NONE,
                        NULL, // public IP address (nopt used in proxy)
                        NULL, // default user (not used in proxy)
                        NULL, // default SIP address (not used in proxy)

@@ -11,9 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -31,13 +32,17 @@ public interface CoreContext extends DataObjectSource {
     
     public void deleteUser(User user);
 
+    public void deleteUsers(Collection users);
+
     public User loadUser(Integer id);
     
     public List loadUsers();
     
     public List loadUserByTemplateUser(User template);
 
-    public User loadUserByDisplayId(String displayId);
+    public User loadUserByUserName(String userName);
+
+    public User loadUserByExtension(String extension);
     
     public String getAuthorizationRealm();
     
@@ -59,4 +64,8 @@ public interface CoreContext extends DataObjectSource {
     public Setting getUserSettingsModel();
 
     public List getUserAliases();
+
+    public void setProcessContext(SipxProcessContext processContext);
+
+    public SipxProcessContext getProcessContext();
 }

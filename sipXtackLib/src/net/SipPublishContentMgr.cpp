@@ -455,6 +455,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
 
     unlock();
 
+    contentTypes.destroyAll();
     return(foundContent);
 }
 
@@ -477,11 +478,22 @@ void SipPublishContentMgr::getStats(int& numDefaultContent,
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-UtlBoolean SipPublishContentMgr::buildContentTypesContainer(const char* acceptHeaderValue, 
+UtlBoolean
+SipPublishContentMgr::buildContentTypesContainer(const char* acceptHeaderValue, 
                                                  UtlHashMap& contentTypes)
 {
+    // TODO: need to parse the comma delimited mime types
+
     UtlBoolean containsMimetypes = FALSE;
     // Parse the accept header value and add a string for each mime type
+    // For each mime type
+    //while(mimeType = parsed from acceptHeaderValue)
+    //{
+
+    // Add a string to the list to contain the MIME type
+    //    contentTypes.insert(new UtlString(mimeType));
+    //    containsMimetypes = TRUE;
+    //}
     
     return(containsMimetypes);
 }
@@ -497,4 +509,3 @@ void SipPublishContentMgr::unlock()
 }
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -29,7 +29,9 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXtack_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+libsipXtack_la_LDFLAGS = \
+	-version-info ${version_Current}:${version_Revision}:${version_Age} \
+	@SSL_LDFLAGS@
 
 libsipXtack_la_CXXFLAGS = \
 	@SSL_CXXFLAGS@ \
@@ -39,7 +41,7 @@ libsipXtack_la_CXXFLAGS = \
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
 	@SSL_LIBS@ \
-	-lresolv
+	-lresolv -lstdc++
 
 libsipXtack_la_SOURCES =  \
     ../config/sipxtacklib-buildstamp.h \
@@ -63,11 +65,12 @@ libsipXtack_la_SOURCES =  \
     net/SdpCodec.cpp \
     net/SdpCodecFactory.cpp \
     net/SipClient.cpp \
+    net/SipContactDb.cpp \
     net/SipConfigServerAgent.cpp \
     net/SipDialog.cpp \
+    net/SipDialogEvent.cpp \
     net/SipDialogMgr.cpp \
     net/SipDialogMonitor.cpp \
-    net/SipDialogEvent.cpp \
     net/SipLine.cpp \
     net/SipLineCredentials.cpp \
     net/SipLineEvent.cpp \
@@ -84,18 +87,19 @@ libsipXtack_la_SOURCES =  \
     net/SipProtocolServerBase.cpp \
     net/SipPublishContentMgr.cpp \
     net/SipPublishServer.cpp \
-    net/SipPublishServerEventStateMgr.cpp \
     net/SipPublishServerEventStateCompositor.cpp \
+    net/SipPublishServerEventStateMgr.cpp \
     net/SipRefreshMgr.cpp \
     net/SipRefreshManager.cpp \
     net/SipRequestContext.cpp \
     net/SipResourceList.cpp \
+    net/SipServerBroker.cpp \
     net/SipServerBase.cpp \
     net/SipSession.cpp \
     net/SipSrvLookup.cpp \
     net/SipSubscribeClient.cpp \
-    net/SipSubscribeServerEventHandler.cpp \
     net/SipSubscribeServer.cpp \
+    net/SipSubscribeServerEventHandler.cpp \
     net/SipSubscriptionMgr.cpp \
     net/SipTcpServer.cpp \
     net/SipTlsServer.cpp \

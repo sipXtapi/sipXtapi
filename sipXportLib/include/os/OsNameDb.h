@@ -1,13 +1,11 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsNameDb_h_
 #define _OsNameDb_h_
@@ -41,10 +39,6 @@ class OsNameDb
 public:
 
 /* ============================ CREATORS ================================== */
-
-   virtual
-   ~OsNameDb();
-     //:Destructor
 
    static OsNameDb* getNameDb(void);
      //:Return a pointer to the singleton object, creating it if necessary
@@ -93,11 +87,15 @@ protected:
      // that gcc doesn't complain that the class only defines a private
      // constructor and has no friends.
 
+   virtual
+      ~OsNameDb();
+   //:Destructor
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    static OsNameDb* spInstance;     // pointer to the single instance of the
                                     //  OsNameDb class
-   static OsBSem    sLock;          // semaphore used to ensure that there is
+   static OsBSem*   spLock;         // semaphore used to ensure that there is
                                     //  only one instance of this class
    UtlHashMap mDict;          // hash table used to store the name/value
                                     //  mappings

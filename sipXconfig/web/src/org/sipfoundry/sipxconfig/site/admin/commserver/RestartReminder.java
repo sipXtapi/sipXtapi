@@ -48,7 +48,7 @@ public abstract class RestartReminder extends BasePage {
         SipxProcessContext processContext = getSipxProcessContext();
         for (Iterator i = procsToRestart.iterator(); i.hasNext();) {
             Process p = (Process) i.next();
-            processContext.restart(p);
+            processContext.manageService(p, SipxProcessContext.Command.RESTART);
         }
     }
 }

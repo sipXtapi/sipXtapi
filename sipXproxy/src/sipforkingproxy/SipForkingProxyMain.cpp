@@ -570,10 +570,22 @@ main(int argc, char* argv[])
     osPrintf("SIP_PROXY_DOMAIN_NAME : %s\n", domainName.data());
 
     proxyUdpPort = configDb.getPort("SIP_PROXY_UDP_PORT") ;
+    if (!portIsValid(proxyUdpPort))
+    {
+       proxyUdpPort = 5060;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_UDP_PORT : %d", proxyUdpPort);
     proxyTcpPort = configDb.getPort("SIP_PROXY_TCP_PORT") ;
+    if (!portIsValid(proxyTcpPort))
+    {
+       proxyTcpPort = 5060;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_TCP_PORT : %d", proxyTcpPort);
     proxyTlsPort = configDb.getPort("SIP_PROXY_TLS_PORT") ;
+    if (!portIsValid(proxyTlsPort))
+    {
+       proxyTlsPort = 5061;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_TLS_PORT : %d", proxyTlsPort);
 
     configDb.get("SIP_PROXY_RECORD_ROUTE", proxyRecordRoute);

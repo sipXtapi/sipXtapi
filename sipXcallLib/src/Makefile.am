@@ -1,7 +1,13 @@
 ## Process this file with automake to produce Makefile.in
 
 if BUILDTAPI
-tapi_sources = tapi/sipXtapi.cpp tapi/sipXtapiEvents.cpp tapi/sipXtapiInternal.cpp tapi/SipXHandleMap.cpp tapi/SipXtapiEventDispatcher.cpp
+tapi_sources =\
+  tapi/sipXtapi.cpp \
+  tapi/sipXtapiEvents.cpp \
+  tapi/sipXtapiInternal.cpp \
+  tapi/SipXHandleMap.cpp \
+  tapi/SipXMessageObserver.cpp
+
 tapi_dist = tapi
 endif
 
@@ -9,7 +15,7 @@ EXTRA_DIST = $(tapi_dist)
 
 SUBDIRS = . test 
 
-INCLUDES = -I$(top_srcdir)/include 
+INCLUDES = -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libsipXcall.la
 
@@ -26,7 +32,7 @@ version_Age=0
 libsipXcall_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXcall_la_LIBADD = \
-	@SIPXMEDIA_LIBS@
+	@SIPXMEDIA_LIBS@ @SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
 
 libsipXcall_la_SOURCES = \
     ../config/sipxcalllib-buildstamp.h \
@@ -45,7 +51,7 @@ libsipXcall_la_SOURCES = \
     cp/CpStringMessage.cpp \
     cp/SipConnection.cpp \
     cp/CpMediaInterfaceFactory.cpp \
-    cp/CpMediaInterfaceFactoryInterface.cpp \
+    cp/CpMediaInterfaceFactoryImpl.cpp \
     cp/sipXmediaFactoryImpl.cpp \
     cp/DialogEventPublisher.cpp \
     cp/PresenceDialInServer.cpp \
@@ -123,14 +129,14 @@ libsipXcall_la_SOURCES = \
     tao/TaoTerminalConnectionListener.cpp \
     tao/TaoTransportAgent.cpp \
     tao/TaoTransportTask.cpp \
-    ps/linux/PsHookswDevLinux.cpp \
-    ps/linux/PsLampDevLinux.cpp \
     ps/PsButtonInfo.cpp \
     ps/PsButtonTask.cpp \
     ps/PsHookswDev.cpp \
+    ps/linux/PsHookswDevLinux.cpp \
     ps/PsHookswTask.cpp \
     ps/PsKeybdDev.cpp \
     ps/PsLampDev.cpp \
+    ps/linux/PsLampDevLinux.cpp \
     ps/PsLampInfo.cpp \
     ps/PsLampTask.cpp \
     ps/PsMsg.cpp \
@@ -144,6 +150,4 @@ libsipXcall_la_SOURCES = \
     ps/PsTaoMicrophone.cpp \
     ps/PsTaoRinger.cpp \
     ps/PsTaoSpeaker.cpp \
-    ps/wnt/PsHookswDevWnt.cpp \
-    ps/wnt/PsLampDevWnt.cpp \
     $(tapi_sources)

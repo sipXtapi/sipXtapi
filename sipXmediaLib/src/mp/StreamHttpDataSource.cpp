@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
@@ -19,7 +17,6 @@
 #include "os/OsDateTime.h"
 #include "os/OsConnectionSocket.h"
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -567,11 +564,5 @@ UtlBoolean DataCallbackProc(char* pData,
       iTrueLength = atoi(pValue) ;
    }
      
-   if (iLength != iTrueLength)
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "DataCallbackProc short read: ilength (%d) != iTrueLength (%d)",
-                    iLength, iTrueLength);
-   }
    return pSource->deliverData(pData, iLength, iTrueLength) ;
 }

@@ -1,18 +1,16 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
  
 
 // SYSTEM INCLUDES
+#include "os/OsDefs.h"
 #include <assert.h>
-#include <stdio.h>
 
 // APPLICATION INCLUDES
 #include <cp/CpCallManager.h>
@@ -202,6 +200,10 @@ void CpCallManager::getEventSubTypeString(EventSubTypes type,
 
       case CP_CONSULT_TRANSFER:
         typeString = "CP_CONSULT_TRANSFER";
+        break;
+
+      case CP_CONSULT_TRANSFER_ADDRESS:
+          typeString = "CP_CONSULT_TRANSFER_ADDRESS";
         break;
 
       case CP_TRANSFER_CONNECTION:
@@ -400,25 +402,25 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
 {
     OsLock lock(mManagerMutex);
     char buffer[256];
-    //UtlString thisHost;
-    //OsSocket::getHostIp(&thisHost);
+    UtlString thisHost;
+    OsSocket::getHostIp(&thisHost);
     long epochTime = OsDateTime::getSecsSinceEpoch();
     mCallNum++;
     
     // callID prefix shouldn't have an @
     UtlString utlCallIdPrefix(callIdPrefix);
 
-    utlCallIdPrefix.replace('@', '_');
+    utlCallIdPrefix.replace('@', '_');    
     if (UtlBoolean(true) == mLocalAddress.contains("@"))
     {
-       sprintf(buffer, "%s-%ld-%d-%s", utlCallIdPrefix.data(), epochTime, mCallNum, mLocalAddress.data());
+       sprintf(buffer, "%s-%ld-%d-%s", utlCallIdPrefix.data(), epochTime, mCallNum, thisHost.data());
     }
     else
     {
-       sprintf(buffer, "%s-%ld-%d@%s", utlCallIdPrefix.data(), epochTime, mCallNum, mLocalAddress.data());
+       sprintf(buffer, "%s-%ld-%d@%s", utlCallIdPrefix.data(), epochTime, mCallNum, thisHost.data());
     }
-    callId->remove(0);
-    callId->append(buffer);
+    *callId = buffer ;
+    callId->replace(':', '_') ;
 }
 
 CpCall* CpCallManager::findCall(const char* callId)

@@ -269,7 +269,7 @@ OsStatus getAttributeValue (
             UtlString& value )
 {
     OsStatus result = OS_SUCCESS;
-    TiXmlNode* configNode = node.FirstChild( key );
+    TiXmlNode* configNode = (TiXmlNode*)node.FirstChild( key );
 
     if ( (configNode != NULL) && (configNode->Type() == TiXmlNode::ELEMENT) )
     {

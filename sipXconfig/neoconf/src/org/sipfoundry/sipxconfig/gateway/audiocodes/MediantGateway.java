@@ -28,7 +28,7 @@ public class MediantGateway extends Gateway {
     public static final String MANUFACTURER = "audiocodes";
 
     public Setting getSettingModel() {
-        return getGatewayContext().loadModelFile(MANUFACTURER, "mediant-gateway.xml");
+        return getModelFilesContext().loadModelFile(MANUFACTURER, "mediant-gateway.xml");
     }
 
     /**
@@ -55,7 +55,7 @@ public class MediantGateway extends Gateway {
         BufferedReader iniReader = null;
         try {
             SettingIniFilter iniWriter = new SettingIniFilter(writer, getSettings());
-            File iniTemplate = getGatewayContext().getModelFile(MANUFACTURER, "mp104.ini");
+            File iniTemplate = getModelFilesContext().getModelFile(MANUFACTURER, "mp104.ini");
             iniReader = new BufferedReader(new FileReader(iniTemplate));
             while (iniReader.ready()) {
                 String line = iniReader.readLine();

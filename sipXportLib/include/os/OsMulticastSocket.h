@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsMulticastSocket_h_
 #define _OsMulticastSocket_h_
@@ -38,8 +36,10 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsMulticastSocket(int multicastPort = 0 , const char* multicastHostName = NULL,
-                        int localHostPort = 0, const char* localHostName = NULL);
+   OsMulticastSocket(int multicastPort = PORT_DEFAULT,
+                     const char* multicastHostName = NULL,
+                     int localHostPort = PORT_DEFAULT,
+                     const char* localHostName = NULL);
 
   virtual
    ~OsMulticastSocket();

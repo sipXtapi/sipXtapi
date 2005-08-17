@@ -1,13 +1,9 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -15,6 +11,7 @@
 #include "stdwx.h"
 #include "sipXezPhoneApp.h"
 #include "sipXezPhoneFrame.h"
+#include "sipXezPhoneSettings.h"
 
 
 // EXTERNAL FUNCTIONS
@@ -42,28 +39,49 @@ sipXezPhoneApp* thePhoneApp;
 // Application initialization
 bool sipXezPhoneApp::OnInit()
 {
-   thePhoneApp = this;
-   // create a new frame
-   mpFrame = new sipXezPhoneFrame( APPLICATION_TITLE, wxDefaultPosition, wxSize(255,378) );
+    // check the command line arguements
+    if (argc > 0)
+    {
+        // loop through command line args
+        for (int i = 0; i < argc; i++)
+        {
+            if (strcmp(argv[i], "-test") == 0)
+            {
+                sipXezPhoneSettings::getInstance().setTestMode(true);
+            }
+        }
+    }
+    
+    thePhoneApp = this;
+    // create a new frame
+    mpFrame = new sipXezPhoneFrame( "sipXezPhone", wxDefaultPosition, wxSize(255,378) );
 
-   // set the icon
-   wxIcon icon("res/sipXezPhone.ico", wxBITMAP_TYPE_ICO);
-   mpFrame->SetIcon(icon);
+    // set the icon
+    // this icon type doesn't seem to work in Linux
+    #ifdef _WIN32
+        wxIcon icon("res/sipXezPhone.ico", wxBITMAP_TYPE_ICO);
+        mpFrame->SetIcon(icon);
+    #endif
 
-   // show the frame and put it on top
-   mpFrame->Show( TRUE );
-   SetTopWindow( mpFrame );
+    // show the frame and put it on top
+    mpFrame->Show( TRUE );
+    SetTopWindow( mpFrame );
 
    return TRUE;
 }
 
 void sipXezPhoneApp::addLogMessage(const UtlString message)
 {
+#ifdef _WIN32 // appending to a scrollable window causes
+              // a crash on Linux, if the call originates
+              // from a thread other than the main
+              // UI thread
    wxWindow* pLogWindow = wxWindow::FindWindowById(IDR_CALLERID_BOX, GetTopWindow());
    if (pLogWindow)
    {
       ((wxTextCtrl*)pLogWindow)->AppendText(message.data());
    }
+#endif
 }
 
 void sipXezPhoneApp::setStatusMessage(const wxString& message)
@@ -92,14 +110,13 @@ sipXezPhoneFrame& sipXezPhoneApp::getFrame() const
     return *mpFrame;
 }
 
-void sipXezPhoneApp::setTitleMessage(const char* const szMessage) const
+
+#if !defined(_WIN32)
+// Dummy definition of JNI_LightButton() to prevent the reference in
+// sipXcallLib from producing an error.
+void JNI_LightButton(long)
 {
-    if (mpFrame)
-    {
-        UtlString sTitle;
-        
-        sTitle = APPLICATION_TITLE + UtlString("-") + UtlString(szMessage);
-        mpFrame->SetTitle(sTitle.data());
-    }
-    return;
+
 }
+
+#endif /* !defined(_WIN32) */

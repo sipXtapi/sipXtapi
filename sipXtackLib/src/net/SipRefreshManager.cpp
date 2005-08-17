@@ -89,13 +89,13 @@ void RefreshDialogState::toString(UtlString& dumpString)
     sprintf(numBuf, "%d", mExpirationPeriodSeconds);
     dumpString.append(numBuf);
     dumpString.append("\n\tmPendingStartTime: ");
-    sprintf(numBuf, "%d", mPendingStartTime);
+    sprintf(numBuf, "%ld", mPendingStartTime);
     dumpString.append(numBuf);
     dumpString.append("\n\tmExpiration: ");
-    sprintf(numBuf, "%d", mExpiration);
+    sprintf(numBuf, "%ld", mExpiration);
     dumpString.append(numBuf);
     dumpString.append("\n\tmpLastRequest: ");
-    sprintf(numBuf, "%P", mpLastRequest);
+    sprintf(numBuf, "%p", mpLastRequest);
     dumpString.append(numBuf);
     dumpString.append("\n\tmRequestState: ");
     UtlString stateString;
@@ -107,7 +107,7 @@ void RefreshDialogState::toString(UtlString& dumpString)
     dumpString.append("\n\tmFailedResponseText: ");
     dumpString.append(mFailedResponseText ? mFailedResponseText : "");
     dumpString.append("\n\tmpRefreshTimer: ");
-    sprintf(numBuf, "%P", mpRefreshTimer);
+    sprintf(numBuf, "%p", mpRefreshTimer);
     dumpString.append(numBuf);
 }
 
@@ -503,7 +503,7 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
             }
 
             // Normal timer fire, time to refresh
-            else if(eventData != NULL ||
+            else if(eventData != 0 ||
                ((OsTimer*)eventData) == state->mpRefreshTimer)
             {
                 // Clean up the timer and notifier
@@ -690,7 +690,6 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                 int responseCode = sipMessage->getResponseStatusCode();
                 UtlString responseText;
                 sipMessage->getResponseStatusText(&responseText);
-                int now = OsDateTime::getSecsSinceEpoch();
 
                 // Update the expiration members
                 int expirationPeriod = 0;
@@ -980,9 +979,8 @@ void SipRefreshManager::setRefreshTimer(RefreshDialogState& state,
                   nextResendSeconds);
 
     OsMsgQ* incomingQ = getMessageQueue();
-    OsQueuedEvent* queuedEvent = new OsQueuedEvent(*incomingQ,
+    OsTimer* resendTimer = new OsTimer(incomingQ,
         (int)&state);
-    OsTimer* resendTimer = new OsTimer(*queuedEvent);
     state.mpRefreshTimer = resendTimer;
     OsTime timerTime(nextResendSeconds, 0);
     resendTimer->oneshotAfter(timerTime);                
@@ -1037,14 +1035,8 @@ void SipRefreshManager::deleteTimerAndEvent(OsTimer* timer)
 {
     if(timer)
     {
-        OsQueuedEvent* notifier = (OsQueuedEvent*) timer->getNotifier();
         delete timer;
         timer = NULL;
-        if(notifier)
-        {
-            delete notifier;
-            notifier = NULL;
-        }
     }
 }
 

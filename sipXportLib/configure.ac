@@ -18,6 +18,7 @@ AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for libraries.
+CHECK_LIBRT
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -49,14 +50,6 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 
 CHECK_CPPUNIT
 
-## Check to see that we are using the minimum required version of glib-2
-## and set up the CFLAGS and LDFLAGS for it
-AM_PATH_GLIB_2_0( [2.2.0],
-  AC_MSG_RESULT(found glib2),
-  AC_MSG_ERROR(glib2 is required),
-  gthread
-)
-
 CHECK_PCRE
 CHECK_SSL
 
@@ -82,5 +75,3 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
-
-

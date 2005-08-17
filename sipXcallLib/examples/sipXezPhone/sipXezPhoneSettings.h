@@ -1,13 +1,9 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _sipXezPhoneSettings_h
 #define _sipXezPhoneSettings_h
 
@@ -78,6 +74,11 @@ public:
     void setProxyServer(const UtlString& proxyServer) {mProxyServer = proxyServer;}
 
     /**
+    * Mutator for mStunServer.
+    */
+    void setStunServer(const UtlString& stunServer) {mStunServer = stunServer;}
+
+    /**
     * Accessor for mIdentity.
     */
     const UtlString& getIdentity() {return mIdentity;}
@@ -98,9 +99,14 @@ public:
     const UtlString& getRealm() {return mRealm;}
 
     /**
-    * Accessor for mRealm
+    * Accessor for mProxyServer
     */
     const UtlString& getProxyServer() {return mProxyServer;}
+
+    /**
+    * Accessor for mStunServer
+    */
+    const UtlString& getStunServer() {return mStunServer;}
 
     /**
     * get the "Speaker" volume - can be 1 - 10
@@ -143,6 +149,48 @@ public:
     void setUseRport(const bool useRport);
 
     /**
+    * Sets a boolean value indicating whether or not to enable AEC
+    */
+    void setEnableAEC(const bool bEnable) {mbEnableAEC = bEnable;}
+
+    /**
+    * Gets a boolean value indicating whether or not AEC is enable
+    */
+    bool getEnableAEC() {return mbEnableAEC;}
+
+    /**
+    * Sets a boolean value indicating whether or not to enable 
+    * out-of-band DTMF tones
+    */
+    void setEnableOOBDTMF(const bool bEnable) {mbEnableOutOfBandDTMF = bEnable;}
+
+    /**
+    * Gets a boolean value indicating whether or not OOB DTMF is enabled
+    */
+    bool getEnableOOBDTMF() {return mbEnableOutOfBandDTMF;}
+
+    /**
+    * Sets a boolean value indicating whether or not to enable 
+    * SRTP
+    */
+    void setEnableSRTP(const bool bEnable) {mbEnableSRTP = bEnable;}
+
+    /**
+    * Gets a boolean value indicating whether or not SRTP
+    */
+    bool getEnableSRTP() {return mbEnableSRTP;}
+
+    /**
+    * Sets the codec preference
+    */
+    void setCodecPref(const int pref) {mCodecPreference = pref;}
+
+    /**
+    * Returns the codec preference
+    */
+    int getCodecPref() {return mCodecPreference;}
+
+    /**
     * Implementation of the IStateTransitions::OnDial method.
     */
     PhoneState* OnDial(const wxString phoneNumber);
@@ -156,9 +204,20 @@ public:
     * Accessor for the list of recent numbers.
     */
     UtlDList& getRecentNumberList();
+    
+    /**
+     * Setting the test mode enables the "Test" menu.
+     * Test mode can be activated by adding "-test" to the command arguements.
+     */
+    void setTestMode(bool bOn);
+    
+    /**
+     *
+     */
+    bool getTestMode();
 
 
-    wxColor getBackgroundColor();
+    wxColor getBackgroundColor() const;
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */
@@ -215,6 +274,11 @@ private:
    UtlString mProxyServer;
 
    /**
+    * The STUN server.
+    */ 
+   UtlString mStunServer;
+   
+   /**
     * A config db object for storing / loading settings.
     */
    OsConfigDb configDb;
@@ -242,10 +306,36 @@ private:
    UtlDList mRecentNumbers;
    
    /** 
-    *
+    * Enable the Rport setting of the SipUserAgent.
     */
    bool mUseRport;
+   
+   /**
+    * Turning on test mode enables the "Test" menu
+    */
+   bool mTestMode;
+
+   /**
+    * Enable echo cancellation
+    */
+   bool mbEnableAEC;
+
+   /**
+    * Enable out-of-band DTMF tones
+    */
+   bool mbEnableOutOfBandDTMF;
+
+   /**
+    * Enable out-of-band DTMF tones
+    */
+   bool mbEnableSRTP;
+
+   /**
+    * Codec preference
+    */
+   int mCodecPreference;
 
 };
 
-#endif 
+#endif
+

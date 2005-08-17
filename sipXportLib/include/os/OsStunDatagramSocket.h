@@ -1,13 +1,10 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _OsStunDatagramSocket_h_
 #define _OsStunDatagramSocket_h_
@@ -22,10 +19,12 @@
 
 // DEFINES
 #define STUN_TIMEOUT_RESPONSE_MS                500  /**< Wait at most 500ms for a stun response    */
-#define STUN_INITIAL_REFRESH_REPORT_THRESHOLD   2    /**< First complain after failing N times */
+#define STUN_INITIAL_REFRESH_REPORT_THRESHOLD   5    /**< First complain after failing N times */
 #define STUN_REFRESH_REPORT_THRESHOLD           120  /**< After success, complain after N times */
 #define STUN_ABORT_THRESHOLD                    60   /**< Abort after failing to keep-alive N times 
                                                           if we never succeeded. */
+#define STUN_FAILURE_REFRESH_PERIOD_SECS        1    /**< How often to retry under error */
+
 #define STUN_MSG_TYPE        (OsMsg::USER_START + 1) /**< Stun Msg type/Id */
 
 
@@ -70,21 +69,27 @@ public:
      *        method and include the host/port at sent time.
      * @param remoteHostName Hostname of remote host for a connection-like use
      *        of OsDatagramSocket.
-     * @param localHostPort Local port number for the socket, 0 to autoselect
+     * @param localHostPort Local port number for the socket,
+     *        PORT_DEFAULT to autoselect
      * @param localHostName Local host name for the socket (e.g. which interface
      *        to bind on.
      * @param bEnableStun Enable stun for this socket instance.
      * @param szStunServer Default stun server
      * @param iRefreshPeriodInSecs How often to refresh the stun binding 
      *        (keep alive).
+     * @param pNotification Optional notification event that is signaled upon
+     *        the initial successful stun response or on failure (did not 
+     *        receive a stun response within (STUN_ABORT_THRESHOLD * 
+     *        STUN_TIMEOUT_RESPONSE_MS).
      */
     OsStunDatagramSocket(int remoteHostPort, 
                          const char* remoteHostName, 
-                         int localHostPort = 0, 
+                         int localHostPort = PORT_DEFAULT,
                          const char* localHostName = NULL,
                          bool bEnableStun = TRUE,
                          const char* szStunServer = "larry.gloo.net",
-                         int iRefreshPeriodInSec = 28) ;
+                         int iRefreshPeriodInSec = 28,
+                         OsNotification* pNotification = NULL) ;
 
     /**
      * Standard Destructor
@@ -184,6 +189,32 @@ public:
      */
     virtual int readStunPacket(char* buffer, int bufferLength, const OsTime& rTimeout) ;
 
+
+    /**
+     * Add an alternate destination to this OsStunDatagramSocket.  Alternate 
+     * destinations are tested by sending stun packets.  If a stun response is
+     * received and the priority is greater than what has already been selected
+     * then that address is used.
+     * 
+     * @param szAddress IP address of the alternate destination
+     * @param iPort port number of the alternate destination
+     * @param cPriority priority of the alternate where a higher number 
+     *        indicates a higher priority.
+     */
+    virtual void addAlternateDestination(const char* szAddress, int iPort, unsigned char cPriority) ;
+
+   /**
+    * Sets as notification event that is signaled upon the next successful 
+    * stun response or on failure (did not receive a stun response within 
+    * (STUN_ABORT_THRESHOLD * STUN_TIMEOUT_RESPONSE_MS).  If a notification
+    * event was previous set either by calling this method or via the 
+    * constructor, it will be overridden.  If the initial STUN success/failure
+    * state has already been determined, this method is undefined.
+    *
+    * @param pNotification Notification event signaled on success or failure.
+    */ 
+   virtual void setNotifier(OsNotification* pNotification) ;
+
 /* ============================ ACCESSORS ================================= */
 
    /**
@@ -209,9 +240,34 @@ protected:
      */ 
     void setStunAddress(const UtlString& address, const int iPort) ;
 
+    /**
+     * Report that a stun attempt failed.
+     */
+    void markStunFailure() ;
+
+
+    /**
+     * Report that a stun attempt succeeded.
+     */
+    void markStunSuccess() ;
+
+
+    /**
+     * Reset the destination address for this OsStunDatagramSocket.  This
+     * method is called by the OsStunAgentTask when a better address is 
+     * found via STUN/ICE.
+     *
+     * @param address The new destination address
+     * @param port The new destination port
+     * @param priority Priority of the destination address
+     */
+    void setDestinationAddress(const UtlString& address, int iPort, unsigned char cPriority) ;    
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     int mKeepAlivePeriod ;      /**< Keep alive/refresh period */
+    int mCurrentKeepAlivePeriod;/**< Current keep alive period -- may be 
+                                     accelerated under error conditions */
     UtlString mStunServer ;     /**< stun server name */
     int mStunPort ;             /**< port reported by stun process */
     UtlString mStunAddress ;    /**< ip address reported by stun process */
@@ -220,8 +276,12 @@ private:
     bool mbEnabled ;            /**< Is stun enabled? */
     int mStunRefreshErrors ;    /**< Number of consecutive STUN refresh errors */
     OsStunAgentTask* pStunAgent;/**< Reference to the stun agent task */
-    OsEvent* mpStunNotifyEvent; /**< Notified when a STUN response is processed */
     bool mbTransparentStunRead ;/**< Block until a non-stun packet is read */
+    UtlString mDestAddress;     /**< Destination address */
+    int miDestPort ;            /**< Destination port */
+    unsigned char mcDestPriority ; /**< Priority of destination address / port. */
+    OsNotification* mpNotification ; /** Notify on initial success or failure */
+    
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -281,4 +341,3 @@ protected:
 
 
 #endif  // _OsStunDatagramSocket_h_
-

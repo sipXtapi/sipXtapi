@@ -1,18 +1,15 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "glib.h"
-#include "glib/glist.h"
-
 #include "utl/UtlContainable.h"
 #include "utl/UtlSortedList.h"
 #include "os/OsLock.h"
@@ -44,41 +41,23 @@ UtlContainable* UtlSortedList::insert(UtlContainable* obj)
 {
    OsLock take(mContainerLock);
    
-   mpList = g_list_insert_before(mpList, findNode(g_list_first(mpList), POSITION, obj), obj);
+   UtlLink::listBefore(this, findNode(head(), POSITION, obj), obj);
    return obj; 
 }
 
 // Remove the designated object by equality
 UtlContainable* UtlSortedList::remove(const UtlContainable* obj)
 {
-   GList*      listNode;
+   UtlLink*      listNode;
    UtlContainable*  removed = NULL;
     
    OsLock take(mContainerLock);
    
-   listNode = findNode(g_list_first(mpList), EXACTLY, obj);
-   if (listNode != NULL)
+   listNode = findNode(head(), EXACTLY, obj);
+   if (listNode)
    {
       removed = (UtlContainable*)listNode->data;
       removeLink(listNode);
-   }
-
-   return removed;
-}
-
-// Remove the object at position index
-UtlContainable* UtlSortedList::removeAt(const size_t index)
-{
-   GList* nthNode;
-   UtlContainable* removed = NULL;
-
-   OsLock take(mContainerLock);
-   
-   nthNode = g_list_nth(mpList, index);
-   if (nthNode)
-   {
-      removed = (UtlContainable*)nthNode->data;
-      removeLink(nthNode);
    }
 
    return removed;
@@ -89,12 +68,12 @@ UtlContainable* UtlSortedList::removeAt(const size_t index)
 // Find the first occurence of the designated object by equality.
 UtlContainable* UtlSortedList::find(const UtlContainable* obj) const 
 {
-   GList*          listNode;
+   UtlLink*          listNode;
    UtlContainable* matchNode = NULL;
     
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   listNode = findNode(g_list_first(mpList), EXACTLY, obj);
+   listNode = findNode(head(), EXACTLY, obj);
    if (listNode != NULL)
    {
       matchNode = (UtlContainable*)listNode->data;
@@ -111,17 +90,19 @@ size_t UtlSortedList::index(const UtlContainable* obj) const
 {
    size_t          index = UTL_NOT_FOUND;
    size_t          thisIndex;
-   GList*          listNode;
-   UtlContainable* listElement = NULL;
-    
+   UtlLink*        listNode;
+   unsigned        keyHash = obj->hash();
+   
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   for (listNode = g_list_first(mpList), thisIndex = 0;
+   for (listNode = head(), thisIndex = 0;
         listNode && index == UTL_NOT_FOUND;
-        listNode = g_list_next(listNode), thisIndex++)
+        listNode = listNode->next(), thisIndex++)
    {
-      listElement = (UtlContainable*)listNode->data;
-      if(listElement && listElement->compareTo(obj) == 0)
+      if (   listNode->data                      // there is an object (for safety sake)
+          && listNode->hash == keyHash           // quick test for possible equality
+          && listNode->data->compareTo(obj) == 0 // real (but slower) test for equality
+          )
       {
          index = thisIndex;
       }
@@ -134,15 +115,15 @@ size_t UtlSortedList::index(const UtlContainable* obj) const
 size_t UtlSortedList::occurrencesOf(const UtlContainable* containableToMatch) const 
 {
    int count = 0;
-   GList* listNode;
+   UtlLink* listNode;
    UtlContainable* visitNode = NULL;
    int             comparison;
 
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   for (listNode = g_list_first(mpList), comparison = 0;
+   for (listNode = head(), comparison = 0;
         comparison <= 0 && listNode;
-        listNode = g_list_next(listNode)
+        listNode = listNode->next()
         )
    {
       visitNode = (UtlContainable*)listNode->data;
@@ -165,11 +146,11 @@ UtlContainableType UtlSortedList::getContainableType() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Return the first GList node to find.
-GList* UtlSortedList::findNode(GList* start, MatchType match, const UtlContainable* obj) const
+// Return the first UtlLink node to find.
+UtlLink* UtlSortedList::findNode(UtlLink* start, MatchType match, const UtlContainable* obj) const
 {
-   GList*          listNode;
-   GList*          foundNode;
+   UtlLink*        listNode;
+   UtlLink*        foundNode;
    UtlContainable* listElement;
    int             comparison = 0;
    
@@ -177,12 +158,13 @@ GList* UtlSortedList::findNode(GList* start, MatchType match, const UtlContainab
 
    for (listNode = start, foundNode = NULL;
         !foundNode && listNode;
-        listNode = g_list_next(listNode)
+        listNode = listNode->next()
         )
    {
       listElement = (UtlContainable*)listNode->data;
       if (listElement)
       {
+         // we can't use the hash as a shortcut here because we need the order too
          comparison = listElement->compareTo(obj);
          if ( comparison >= 0 )
          {
@@ -195,6 +177,5 @@ GList* UtlSortedList::findNode(GList* start, MatchType match, const UtlContainab
    {
       foundNode = NULL; 
    }
-
    return foundNode;
 }

@@ -115,6 +115,10 @@ SOURCE=.\src\test\net\SipDialogEventTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\net\SipContactDbTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\net\SipDialogTest.cpp
 # End Source File
 # Begin Source File

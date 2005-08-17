@@ -18,6 +18,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -32,24 +33,42 @@ public class User extends BeanWithGroups {
 
     private String m_lastName;
 
-    private String m_displayId;
+    private String m_userName;
 
     private String m_extension;
-
+    
+    /** 
+     * Return the pintoken, which is the hash of the user's PIN.
+     * The PIN itself is private to the user.  To keep the PIN secure, we don't store it.
+     */
     public String getPintoken() {
+        // for robustness, return an empty string rather than null
+        if (m_pintoken == null) {
+            m_pintoken = new String();
+        }
+        
         return m_pintoken;
     }
 
+    /**
+     * Set the pintoken, which is the hash of the user's PIN.
+     * This method is only for prevent the pintoken from being nulluse by Hibernate.  Call setPin to change the PIN.
+     */
     public void setPintoken(String pintoken) {
         m_pintoken = pintoken;
     }
 
-    public String getPintokenHash(String realm) {
-        String password = (String) ObjectUtils.defaultIfNull(m_pintoken, StringUtils.EMPTY);
-        if (password.length() == Md5Encoder.LEN) {
-            return password;
-        }
-        return Md5Encoder.digestPassword(m_displayId, realm, password);
+    /**
+     * Set the PIN, protecting it under a security realm.
+     * The PIN is private to the user.  To keep the PIN secure, we don't store it.
+     * Instead we store the "pintoken", which is a hash of the PIN.
+     * 
+     * @param pin PIN
+     * @param realm security realm
+     */
+    public void setPin(String pin, String realm) {
+        String pin2 = (String) ObjectUtils.defaultIfNull(pin, StringUtils.EMPTY);   // handle null pin
+        setPintoken(Md5Encoder.digestPassword(m_userName, realm, pin2));
     }
 
     public String getFirstName() {
@@ -66,7 +85,7 @@ public class User extends BeanWithGroups {
 
     public String getSipPasswordHash(String realm) {
         String password = (String) ObjectUtils.defaultIfNull(m_sipPassword, StringUtils.EMPTY);
-        return Md5Encoder.digestPassword(m_displayId, realm, password);
+        return Md5Encoder.digestPassword(m_userName, realm, password);
     }
 
     public void setSipPassword(String password) {
@@ -81,12 +100,12 @@ public class User extends BeanWithGroups {
         m_lastName = lastName;
     }
 
-    public String getDisplayId() {
-        return m_displayId;
+    public String getUserName() {
+        return m_userName;
     }
 
-    public void setDisplayId(String displayId) {
-        m_displayId = displayId;
+    public void setUserName(String userName) {
+        m_userName = userName;
     }
 
     public String getDisplayName() {
@@ -127,7 +146,7 @@ public class User extends BeanWithGroups {
         }
 
         uri.append("sip:");
-        uri.append(m_displayId);
+        uri.append(m_userName);
         uri.append("@" + domainName);
 
         if (needsWrapping) {
@@ -145,5 +164,18 @@ public class User extends BeanWithGroups {
         final String contact = getUri(domainName);
         AliasMapping mapping = new AliasMapping(identity, contact);
         return Collections.singletonList(mapping);
+    }
+    
+    /**
+     * Check if a user has a specific permission
+     */
+    public boolean hasPermission(Permission permission) {        
+        Setting setting = getSettings().getSetting(permission.getSettingPath());
+        if (setting == null) {
+            throw new IllegalArgumentException("Setting " 
+                    + permission.getName() + " does not exist in user setting model");
+        }
+        boolean enabled = Permission.isEnabled(setting.getValue());        
+        return enabled;
     }
 }

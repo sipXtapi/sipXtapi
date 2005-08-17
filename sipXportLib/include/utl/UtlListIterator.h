@@ -1,11 +1,10 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _UtlListIterator_h_
 #define _UtlListIterator_h_
@@ -13,9 +12,8 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
+#include "utl/UtlLink.h"
 #include "utl/UtlIterator.h"
-
-#include "glib.h"
 
 // DEFINES
 // MACROS
@@ -94,7 +92,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    GList* mpCurrentNode;
+    UtlLink* mpCurrentNode;
 
     friend class UtlList;
 
@@ -103,11 +101,11 @@ protected:
      * removed from the container.  The iterator must ensure that the element
      * for the removed node is not returned by any subsequent call.
      */
-    virtual void removing(const GList* node);
+    virtual void removing(const UtlLink* node);
 
 
-    static const GList  NOWHERE;
-    static GList const* OFF_LIST_END;
+    static const UtlLink*  NOWHERE;
+    static UtlLink const* OFF_LIST_END;
     
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

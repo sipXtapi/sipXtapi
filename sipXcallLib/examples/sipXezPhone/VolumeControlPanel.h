@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _volumecontrolpanel_h_
 #define _volumecontrolpanel_h_
 
@@ -46,12 +42,12 @@ public:
    /**
     * Event handler for the speaker slider control.
     */
-   void OnSpeakerSlider(wxScrollEvent& event);
+   void OnSpeakerSlider(wxEvent& event);
 
    /**
     * Event handler for the microphone gain slider control.
     */
-   void OnMicrophoneSlider(wxScrollEvent& event);
+   void OnMicrophoneSlider(wxEvent& event);
 
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */

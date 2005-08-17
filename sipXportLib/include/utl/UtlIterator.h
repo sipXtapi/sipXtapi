@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlIterator_h_
 #define _UtlIterator_h_
@@ -82,7 +82,7 @@ protected:
     friend class UtlContainer;
 
     /******************************************************************
-     * :NOTE:
+     * @par Removing Method - Variable Signature.
      *
      * All iterators must have a 'removing' method so that they can be notified
      * by the container when an element is removed.

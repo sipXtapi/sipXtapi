@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 /* This code was taken from a program I wrote some time ago. It parses a string
  * for whitespace and quotes much like a shell would. Characters enclosed in

@@ -27,7 +27,7 @@ public class CallSequenceTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_user = new User();
-        m_user.setDisplayId("abc");
+        m_user.setUserName("abc");
     }
 
     public void testGenerateAliases() {

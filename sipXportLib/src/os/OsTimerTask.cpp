@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -68,11 +66,25 @@ OsTimerTask* OsTimerTask::getTimerTask(void)
    return spInstance;
 }
 
+// Destroy the singleton instance of the sys timer
+void OsTimerTask::destroyTimer(void)
+{
+    sLock.acquire();
+    if (spInstance)
+    {
+        delete spInstance ;
+        spInstance = NULL ;
+    }
+    sLock.release();
+}
+
+
+
 // Destructor
 OsTimerTask::~OsTimerTask()
 {
    delete mpTimerSubsys;
-   spInstance = NULL;
+   mpTimerSubsys = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -136,7 +148,7 @@ void OsTimerTask::stopTimer(OsTimer& rTimer)
 
 // Default constructor (called only indirectly via getTimerTask())
 OsTimerTask::OsTimerTask(void)
-:  OsServerTask("OsTimer", NULL, TIMER_MAX_REQUEST_MSGS
+:  OsServerTask("OsTimer-%d", NULL, TIMER_MAX_REQUEST_MSGS
 #ifdef __pingtel_on_posix__
                 , 5 // high priority so that we get reasonable clock heartbeats for media
 #endif

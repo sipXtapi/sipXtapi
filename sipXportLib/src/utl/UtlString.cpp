@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -1001,8 +999,7 @@ UtlString::operator const char*() const
 }
 
 
-// Returns a hash value. the algorithm is according to
-// g_string_hash() in glib.
+// Returns a hash value.
 unsigned UtlString::hash() const
 {
     // Need to use data() in case mpData is null
@@ -1132,8 +1129,8 @@ int UtlString::compareTo(const char * compareStr) const
     }
     else
     {
-        // osPrintf("Utlstring::compareTo  NULL String\n");
-        compareFlag = 1;
+       // compareStr == NULL means it represents the null string.
+       compareFlag = mSize > 0 ? 1 : 0;
     }
 
     return(compareFlag);
@@ -1141,7 +1138,7 @@ int UtlString::compareTo(const char * compareStr) const
 
 
 // Compare this object to the specified string with option of forcing
-// either a case insensitive compare of a case sensitive compare.
+// either a case insensitive compare or a case sensitive compare.
 int UtlString::compareTo(UtlString const * compareStr, CompareCase type) const
 {
     int compareFlag = -1;

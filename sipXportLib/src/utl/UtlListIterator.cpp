@@ -1,11 +1,10 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -20,16 +19,15 @@
 // CONSTANTS
 
 /*
- * The NOWHERE GList node is used when the iterator steps off the end
- * of the list (g_list_next returns NULL); mpCurrentNode is set to point
+ * The NOWHERE UtlLink is used when the iterator steps off the end
+ * of the list [next() returns NULL]; mpCurrentNode is set to point
  * to this special stub empty list (using OFF_LIST_END for clarity).
  * If mpCurrentNode were left equal to NULL, then a subsequent call to
  * the iterator would return the first element on the list, because NULL
  * designates the state "before the first element".
  */
-const GList UtlListIterator::NOWHERE = {NULL,NULL,NULL};
-GList const* UtlListIterator::OFF_LIST_END = &NOWHERE;
-                                              
+const UtlLink*  UtlListIterator::NOWHERE = new UtlLink;
+UtlLink const* UtlListIterator::OFF_LIST_END = NOWHERE;
                                               
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -87,8 +85,8 @@ UtlContainable* UtlListIterator::operator()()
       UtlContainer::releaseIteratorConnectionLock();
 
       mpCurrentNode = (mpCurrentNode == NULL
-                       ? g_list_first(myList->mpList)
-                       : g_list_next(mpCurrentNode)
+                       ? myList->head()
+                       : mpCurrentNode->next()
                        );
 
       if(mpCurrentNode) // not end of list
@@ -98,7 +96,7 @@ UtlContainable* UtlListIterator::operator()()
       else
       {
          // reset position so that subsequent calls will also return end of list
-         mpCurrentNode = const_cast<GList*>(OFF_LIST_END);
+         mpCurrentNode = const_cast<UtlLink*>(OFF_LIST_END);
       }
    }
    else
@@ -142,7 +140,7 @@ UtlContainable* UtlListIterator::toLast()
       OsLock container(myList->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      mpCurrentNode = g_list_last(myList->mpList);
+      mpCurrentNode = myList->tail();
       last = static_cast<UtlContainable*>(mpCurrentNode ? mpCurrentNode->data : NULL);
    }
    else
@@ -196,7 +194,7 @@ UtlBoolean UtlListIterator::atLast() const
       OsLock container(myList->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
       
-      isAtLast = (mpCurrentNode && mpCurrentNode == g_list_last(myList->mpList));
+      isAtLast = (mpCurrentNode && mpCurrentNode == myList->tail());
    }
    else
    {
@@ -214,12 +212,12 @@ UtlBoolean UtlListIterator::atLast() const
  * removed from the container.  The iterator must ensure that the removed
  * element is not returned by any subsequent call.
  */
-void UtlListIterator::removing(const GList* node)
+void UtlListIterator::removing(const UtlLink* node)
 {
    // The caller already holds the mContainerLock.
    if (mpCurrentNode == node)
    {
-      mpCurrentNode = g_list_previous(node);
+      mpCurrentNode = node->prev();
    }
 }
 

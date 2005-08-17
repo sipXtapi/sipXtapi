@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 
@@ -126,12 +124,12 @@ void NameValueTokenizer::frontBackTrim(UtlString* string, const char* whiteSpace
 }
 
 UtlBoolean NameValueTokenizer::getSubField(const char* textField,
-                     int textFieldLength,
-                     int subFieldIndex,
-                     const char* subFieldSeparators,
-                     const char*& subFieldPtr,
-                     int& subFieldLength,
-                     int* lastCharIndex)
+                                           int textFieldLength,
+                                           int subFieldIndex,
+                                           const char* subFieldSeparators,
+                                           const char*& subFieldPtr,
+                                           int& subFieldLength,
+                                           int* lastCharIndex)
 {
     UtlBoolean found = FALSE;
     if(textField)
@@ -203,21 +201,21 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
 }
 
 UtlBoolean NameValueTokenizer::getSubField(const char* textField,
-                     int subFieldIndex,
-                     const char* subFieldSeparators,
-                     UtlString* subFieldText,
-                     int* lastCharIndex)
+                                           int subFieldIndex,
+                                           const char* subFieldSeparators,
+                                           UtlString* subFieldText,
+                                           int* lastCharIndex)
 {
     int subFieldLength = 0;
     const char* subFieldPtr = NULL;
 
     UtlBoolean found = getSubField(textField,
-                    -1, // stop at null (i.e. '\0')
-                    subFieldIndex,
-                    subFieldSeparators,
-                    subFieldPtr,
-                    subFieldLength,
-                    lastCharIndex);
+                                   -1, // stop at null (i.e. '\0')
+                                   subFieldIndex,
+                                   subFieldSeparators,
+                                   subFieldPtr,
+                                   subFieldLength,
+                                   lastCharIndex);
 
     if(subFieldPtr && subFieldLength > 0)
     {
@@ -234,67 +232,67 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
 }
 
 UtlBoolean NameValueTokenizer::getNextPair(char separator, UtlString* name,
-                                          UtlString* value)
+                                           UtlString* value)
 {
-    UtlBoolean nameFound = 0;
-    name->remove(0);
-    value->remove(0);
+   UtlBoolean nameFound = 0;
+   name->remove(0);
+   value->remove(0);
 
-    int nextLineOffset;
+   int nextLineOffset;
 
-    // Find the end of the line and the begining of the next
-    int lineLength = findNextLineTerminator(&textPtr[bytesConsumed],
-                                                textLen - bytesConsumed,
-                                                &nextLineOffset);
+   // Find the end of the line and the begining of the next
+   int lineLength = findNextLineTerminator(&textPtr[bytesConsumed],
+                                           textLen - bytesConsumed,
+                                           &nextLineOffset);
 
-    // Did not find an end of line, assume the rest of the text is the line
-    if(lineLength < 0)
-    {
-        lineLength = textLen - bytesConsumed;
-    }
+   // Did not find an end of line, assume the rest of the text is the line
+   if(lineLength < 0)
+   {
+      lineLength = textLen - bytesConsumed;
+   }
 
-    // Add a header field
-    if(lineLength > 0)
-    {
-        // Find the name value delimiter
-        int nameEnd = 0;
-        while(nameEnd < lineLength &&
+   // Add a header field
+   if(lineLength > 0)
+   {
+      // Find the name value delimiter
+      int nameEnd = 0;
+      while(nameEnd < lineLength &&
             textPtr[bytesConsumed + nameEnd] != separator)
-        {
-            nameEnd++;
-        }
+      {
+         nameEnd++;
+      }
 
-        if(nameEnd > 0)
-        {
-            name->append(&textPtr[bytesConsumed], nameEnd);
-            nameFound = 1;
-        }
+      if(nameEnd > 0)
+      {
+         name->append(&textPtr[bytesConsumed], nameEnd);
+         nameFound = 1;
+      }
 
-        // Get rid of the white space
-        while(nameEnd + 1 < lineLength &&
+      // Get rid of the white space
+      while(nameEnd + 1 < lineLength &&
             (textPtr[bytesConsumed + nameEnd + 1] == ' ' ||
-            textPtr[bytesConsumed + nameEnd + 1] == '\t'))
-        {
-            nameEnd++;
-        }
+             textPtr[bytesConsumed + nameEnd + 1] == '\t'))
+      {
+         nameEnd++;
+      }
 
-        nameEnd++;
-        if(nameEnd < lineLength)
-        {
-            value->append(&textPtr[bytesConsumed + nameEnd],
-                lineLength - nameEnd);
-        }
-    }
+      nameEnd++;
+      if(nameEnd < lineLength)
+      {
+         value->append(&textPtr[bytesConsumed + nameEnd],
+                       lineLength - nameEnd);
+      }
+   }
 
-    if(nextLineOffset > 0)
-    {
-        bytesConsumed += nextLineOffset;
-    }
-    else
-    {
-        bytesConsumed += lineLength;
-    }
-    return(nameFound);
+   if(nextLineOffset > 0)
+   {
+      bytesConsumed += nextLineOffset;
+   }
+   else
+   {
+      bytesConsumed += lineLength;
+   }
+   return(nameFound);
 }
 
 
@@ -312,13 +310,13 @@ NameValueTokenizer::operator=(const NameValueTokenizer& rhs)
 
 int NameValueTokenizer::getProcessedIndex()
 {
-    return(bytesConsumed);
+   return(bytesConsumed);
 }
 
 /* ============================ INQUIRY =================================== */
 UtlBoolean NameValueTokenizer::isAtEnd()
 {
-    return(bytesConsumed >= textLen);
+   return(bytesConsumed >= textLen);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

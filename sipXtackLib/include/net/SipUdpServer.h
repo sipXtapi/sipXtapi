@@ -1,13 +1,10 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _SipUdpServer_h_
 #define _SipUdpServer_h_
@@ -29,6 +26,7 @@
 // FORWARD DECLARATIONS
 class SipUserAgent;
 class OsStunDatagramSocket ;
+class OsNotification ;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -44,7 +42,9 @@ public:
        const char* natPingUrl = "",
        int natPingFrequency = 0,
        const char* natPingMethod = "PING",
-       int udpReadBufferSize = -1);
+       int udpReadBufferSize = -1,
+       UtlBoolean bUseNextAvailablePort = FALSE,
+       const char* szBoundIp = NULL);
      //:Default constructor
 
 
@@ -53,47 +53,54 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-    int run(void* pArg);
 
-    UtlBoolean startListener();
+    int run(void* pArg);
 
     void shutdownListener();
 
-    void enableStun(const char* szStunServer, int refreshPeriodInSecs) ;
+    void enableStun(const char* szStunServer, 
+                    const char* szLocalIp, 
+                    int refreshPeriodInSecs, 
+                    OsNotification* pNotification) ;
       //:Enable stun lookups for UDP signaling
       // Use a NULL szStunServer to disable
 
     UtlBoolean sendTo(const SipMessage& message,
                      const char* address,
-                     int port);
+                     int port,
+                     const char* szLocalSipIp = NULL);
 
 /* ============================ ACCESSORS ================================= */
 
     void printStatus();
 
-    int getServerPort() ;
+    int getServerPort(const char* szLocalIp = NULL) ;
 
-    UtlBoolean getStunAddress(UtlString* pIpAddress, int* pPort) ;
+    UtlBoolean getStunAddress(UtlString* pIpAddress,
+                              int* pPort,
+                              const char* szLocalIp = NULL) ;
 
 /* ============================ INQUIRY =================================== */
 
-    virtual UtlBoolean isOk();
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    OsSocket* buildClientSocket(int hostPort, const char* hostAddress);
+    OsSocket* buildClientSocket(int hostPort,
+                                const char* hostAddress,
+                                const char* localIp);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    int serverPort;
-    OsStunDatagramSocket* serverSocket;
-    SipClient* server;
     UtlString mNatPingUrl;
     int mNatPingFrequencySeconds;
     UtlString mNatPingMethod;
     UtlString mStunServer ;
     int mStunRefreshSecs ;
+    OsStatus createServerSocket(const char* localIp,
+                                 int& localPort,
+                                 const UtlBoolean& bUseNextAvailablePort,
+                                 int udpReadBufferSize);
 
     SipUdpServer(const SipUdpServer& rSipUdpServer);
     //: disable Copy constructor

@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _Buttonpanel_h_
 #define _Buttonpanel_h_
 
@@ -44,17 +40,22 @@ public:
    /**
     * Handset Button event handler
     */
-   void OnHandsetClick(wxCommandEvent& event);
+   void OnHandsetClick(wxEvent& event);
 
    /**
     * Hold Button event handler
     */
-   void OnHoldButton(wxCommandEvent& event);
+   void OnHoldButton(wxEvent& event);
 
    /**
     * Transfer Button event handler.
     */
-   void OnTransferButton(wxCommandEvent& event);
+   void OnTransferButton(wxEvent& event);
+   
+   /**
+    * Mute button event hander
+    */
+   void OnMuteButton(wxEvent& event);
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */
@@ -68,21 +69,23 @@ private:
    DECLARE_EVENT_TABLE()
         wxGridSizer* mpGridSizer;
 
-        /**
-         * The handset button accepts the call, when the state is ringing.  If the
-         * state is connected, the handset button disconnects the call.
-         */
-        wxBitmapButton* mpButtonHandset;
+    /**
+    * The handset button accepts the call, when the state is ringing.  If the
+    * state is connected, the handset button disconnects the call.
+    */
+    wxBitmapButton* mpButtonHandset;
 
-        /**
-         * Puts the call on hold.
-         */
-        wxBitmapButton* mpButtonHold;
+    /**
+    * Puts the call on hold.
+    */
+    wxBitmapButton* mpButtonHold;
 
-        /**
-         * Transfers a call (blind transfer right now).
-         */
+    /**
+    * Transfers a call (blind transfer right now).
+    */
     wxBitmapButton* mpButtonTransfer;
+    
+    wxBitmapButton* mpButtonMute;
 };
 
 

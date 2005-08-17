@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsSysSoftTimer_h_
 #define _OsSysSoftTimer_h_
@@ -31,11 +29,11 @@
    /* Solaris gethrtime() returns nanoseconds */
    #define TICKS_PER_SECOND ((pt_tick_t) 1000000000)
    #define TICKS_PER_MSEC   ((pt_tick_t) 1000000)
-#elif defined(__linux__)
+#elif defined(__pingtel_on_posix__)
    #include <sys/time.h>
    #include <unistd.h>
    typedef long long pt_tick_t;
-   /* to be defined in OsSysSoftTimer.cpp in #ifdef __linux__ */
+   /* to be defined in OsSysSoftTimer.cpp in #ifdef __pingtel_on_posix__ */
    pt_tick_t pt_get_ticks(void);
    /* gettimeofday() has microsecond precision */
    #define TICKS_PER_SECOND ((pt_tick_t) 1000000)

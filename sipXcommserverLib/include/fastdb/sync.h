@@ -1183,6 +1183,7 @@ class FASTDB_DLL_ENTRY dbSmallBuffer {
     }
 };
 
+class dbThreadPool;
 
 class FASTDB_DLL_ENTRY dbPooledThread { 
   private:

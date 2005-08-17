@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -123,6 +121,24 @@ OsStatus OsSysLog::setOutputFile(const int minFlushPeriod,
       rc = OS_UNSPECIFIED ;
    
    return rc ;
+}
+
+
+OsStatus OsSysLog::setCallbackFunction(OsSysLogCallback pCallback)
+{
+   OsStatus rc = OS_SUCCESS ;
+
+   if (spOsSysLogTask != NULL)
+   {
+      OsSysLogMsg msgSetCallback(OsSysLogMsg::SET_CALLBACK, (void*) pCallback);
+      spOsSysLogTask->postMessage(msgSetCallback);
+   }
+   else
+   {
+      rc = OS_UNSPECIFIED;
+   }
+
+   return rc;
 }
 
 

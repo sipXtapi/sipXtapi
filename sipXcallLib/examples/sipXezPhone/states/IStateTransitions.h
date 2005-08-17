@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _IStateTransitions_h_
 #define _IStateTransitions_h_
 
@@ -34,19 +30,22 @@ class IStateTransitions
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   virtual PhoneState* OnDial(const wxString phoneNumber) = 0;
-   virtual PhoneState* OnRinging(const SIPX_CALL hCall)                 = 0;
-   virtual PhoneState* OnRemoteAlerting()       = 0;
-   virtual PhoneState* OnRemoteBusy()           = 0;
-   virtual PhoneState* OnFlashButton()          = 0;
-   virtual PhoneState* OnConnected()            = 0;
-   virtual PhoneState* OnDisconnected(const SIPX_CALL hCall)    = 0;
-   virtual PhoneState* OnOutgoingCallRejected() = 0;
-   virtual PhoneState* OnError() = 0;
-   virtual PhoneState* OnHoldButton() = 0;
-   virtual PhoneState* OnTransferRequested(const wxString phoneNumber) = 0;
-   virtual PhoneState* OnTransferComplete(const bool bFailure) = 0;
-   virtual PhoneState* OnOffer(const SIPX_CALL hCall) = 0;
+   virtual PhoneState* OnDial(const wxString phoneNumber) {return NULL;}
+   virtual PhoneState* OnRinging(const SIPX_CALL hCall)                 {return NULL;}
+   virtual PhoneState* OnRemoteAlerting()       {return NULL;}
+   virtual PhoneState* OnRemoteBusy()           {return NULL;}
+   virtual PhoneState* OnFlashButton()          {return NULL;}
+   virtual PhoneState* OnHoldButton()           {return NULL;}
+   virtual PhoneState* OnConnected()            {return NULL;}
+   virtual PhoneState* OnDisconnected(const SIPX_CALL hCall)    {return NULL;}
+   virtual PhoneState* OnOutgoingCallRejected() {return NULL;}
+   virtual PhoneState* OnError() {return NULL;}
+   virtual PhoneState* OnTransferRequested(const wxString phoneNumber) {return NULL;}
+   virtual PhoneState* OnTransferComplete(const bool bFailure) {return NULL;}
+   virtual PhoneState* OnOffer(const SIPX_CALL hCall) {return NULL;}
+   virtual PhoneState* OnConnectedInactive() {return NULL;}
+   virtual PhoneState* OnLocalHoldRequested() {return NULL;}
+   virtual PhoneState* Execute() {return NULL;}
 
 
 /* ============================ MANIPULATORS ============================== */
@@ -59,4 +58,5 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 };
+
 #endif

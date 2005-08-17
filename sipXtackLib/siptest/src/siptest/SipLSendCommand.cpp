@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -96,7 +92,7 @@ int SipLSendCommand::execute(int argc, char* argv[])
         int hostPort = atoi(argv[4]);
 
         FILE* sipMessageFile = fopen(argv[1], "r");
-                if(sipMessageFile && hostPort > 0 && !hostAddress.isNull() &&
+                if(sipMessageFile && portIsValid(hostPort) && !hostAddress.isNull() &&
             (protocol.compareTo("TCP") == 0 || protocol.compareTo("UDP") == 0))
                 {
                         //printf("opened file: \"%s\"\n", argv[1]);
@@ -137,7 +133,7 @@ int SipLSendCommand::execute(int argc, char* argv[])
                         printf("send file: \"%s\" does not exist\n", argv[1]);
                         commandStatus = CommandProcessor::COMMAND_FAILED;
                 }
-        else if(hostPort <= 0)
+        else if (!portIsValid(hostPort))
         {
                         printf("Invalid destination port: %s\n", argv[4]);
                         commandStatus = CommandProcessor::COMMAND_FAILED;

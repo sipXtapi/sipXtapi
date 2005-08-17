@@ -64,7 +64,7 @@ Voice-Message: 0/0 (0/0)\r\n";
 
        UtlString eventName("message-summary");
        UtlString mwiMimeType("application/simple-message-summary");
-       SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
+       SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, 0, "127.0.0.1" );
        userAgent->start();
        SipSubscribeServer* subServer = 
            SipSubscribeServer::buildBasicServer(*userAgent, 
@@ -134,7 +134,8 @@ Voice-Message: 0/0 (0/0)\r\n";
                                                        SIP_PROTOCOL_VERSION);
        mwiSubscribeRequest.setContactField(aor);
 
-       userAgent->send(mwiSubscribeRequest);
+       UtlBoolean bRet(userAgent->send(mwiSubscribeRequest));
+       CPPUNIT_ASSERT(bRet);
 
        // We should get a 202 response and a NOTIFY request in the queue
        OsTime messageTimeout(5, 0);  // 5 seconds
@@ -142,6 +143,7 @@ Voice-Message: 0/0 (0/0)\r\n";
        const SipMessage* subscribeResponse = NULL;
        const SipMessage* notifyRequest = NULL;
        incomingClientMsgQueue.receive(osMessage, messageTimeout);
+       CPPUNIT_ASSERT(osMessage);
        int msgType = osMessage->getMsgType();
        int msgSubType = osMessage->getMsgSubType();
        CPPUNIT_ASSERT(msgType == OsMsg::PHONE_APP);
@@ -376,6 +378,14 @@ Voice-Message: 0/0 (0/0)\r\n";
        // scope
        userAgent->removeMessageObserver(incomingClientMsgQueue);
        userAgent->removeMessageObserver(incomingClientMsgQueue);
+       
+
+       userAgent->shutdown(TRUE);
+       delete userAgent;
+       userAgent = NULL;
+       
+       delete subServer;
+       subServer = NULL;
    }
 
 };

@@ -12,9 +12,6 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
-    <property name="configDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
     <property name="factoryIds">
       <map>
         <entry key="gwGeneric">
@@ -26,16 +23,7 @@
       </map>      
     </property>
   </bean>
-  
-  <!-- springInstantiator will force hibernate to create new objects through Spring -->
-  <bean id="springInstantiator" class="org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator"/>
-  
-  <bean id="springHibernateInterceptor" parent="hibernateInterceptor">
-    <property name="entityInterceptorBeanName">
-      <value>springInstantiator</value>
-    </property>    
-  </bean>
-  
+    
   <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
@@ -51,6 +39,9 @@
   <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">
     <property name="gatewayContext">
       <ref local="gatewayContext"/>
+    </property>
+    <property name="modelFilesContext">
+      <ref bean="modelFilesContext"/>      
     </property>
     <property name="tftpRoot">
       <value>${sysdir.phone}/profile/tftproot</value>

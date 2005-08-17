@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -20,6 +18,8 @@
 #include "os/OsLock.h"
 #include "os/OsEvent.h"
 #include "utl/UtlVoidPtr.h"
+#include "utl/UtlHashMapIterator.h"
+
 #ifndef _WIN32
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -32,6 +32,14 @@
 OsMutex OsStunAgentTask::sLock(OsMutex::Q_FIFO) ;
 OsStunAgentTask* OsStunAgentTask::spInstance = NULL ;
 
+typedef struct CONNECTIVITY_INFO
+{
+    OsStunDatagramSocket* pSocket ;
+    UtlString             address ;
+    int                   iPort ;
+    OsDateTime            lastSent ;
+} CONNECTIVITY_INFO ;
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -39,7 +47,7 @@ OsStunAgentTask* OsStunAgentTask::spInstance = NULL ;
 
 OsStunAgentTask::OsStunAgentTask()
     : OsServerTask("OsStunAgentTask-%d")
-    , mNotifyMapLock(OsMutex::Q_FIFO)
+    , mMapsLock(OsMutex::Q_FIFO)
 {
 
 }
@@ -48,6 +56,29 @@ OsStunAgentTask::~OsStunAgentTask()
 {
     // Wait for the thread to shutdown
     waitUntilShutDown() ;
+
+    UtlVoidPtr* pValue = NULL;
+    while (pValue = (UtlVoidPtr*) mTimerPool.first())
+    {        
+        OsTimer* pTimer = (OsTimer*) pValue->getValue() ;
+        if (pTimer)
+        {
+            delete pTimer ;
+        }
+        mTimerPool.destroy(pValue) ;
+    }
+    
+    UtlHashMapIterator iterator(mResponseMap);
+    UtlVoidPtr* pKey = NULL;
+    while (pKey = (UtlVoidPtr*)iterator())
+    {
+        pValue = (UtlVoidPtr*)iterator.value();
+        if (pValue)
+        {
+            delete pValue->getValue();
+        }
+    }
+    mResponseMap.destroyAll();
 }
 
 
@@ -125,7 +156,9 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                     for (int i=0; i<16; i++)
                     {
                         respMsg.msgHdr.id.octet[i] = msg.msgHdr.id.octet[i];
-                    }
+                    }                  
+
+                    // TODO Send Error if changed port/ip requested
 
                     respMsg.hasMappedAddress = true;
                     respMsg.mappedAddress.ipv4.port = htons(rMsg.getReceivedPort()) ;
@@ -165,22 +198,50 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                     UtlString address ;
                     int iPort ;
 
-                    // TODO: Validate that we actually have a mapped address
-                    mappedAddress=htonl (msg.mappedAddress.ipv4.addr) ;
-                    address = inet_ntoa (*((in_addr*)&mappedAddress)) ;
-                    iPort = msg.mappedAddress.ipv4.port ;
+                    if (msg.msgHdr.id.octet[0] == 0x00) 
+                    {
+                        // Discovery Response
+                        mappedAddress=htonl (msg.mappedAddress.ipv4.addr) ;
+                        address = inet_ntoa (*((in_addr*)&mappedAddress)) ;
+                        iPort = msg.mappedAddress.ipv4.port ;
 
-                    pSocket->setStunAddress(address, iPort) ;
-                    signalStunOutcome(pSocket, true) ;
+                        pSocket->setStunAddress(address, iPort) ;
+                        signalStunOutcome(pSocket, true) ;
+                    }
+                    else
+                    {
+                        // Connectivity Response
+                        OsLock lock(mMapsLock) ;
+                                        
+                        UtlString key ;
+                        char cTemp[3] ;
+                        for (int i=0; i<16; i++)
+                        {
+                            sprintf(cTemp, "%2X", msg.msgHdr.id.octet[i]) ;
+                            key.append(cTemp) ;
+                        }
+
+                        UtlVoidPtr* pValue = (UtlVoidPtr*) mConnectivityMap.findValue(&key) ;
+                        if (pValue)
+                        {
+                            CONNECTIVITY_INFO* pInfo = (CONNECTIVITY_INFO*) pValue->getValue() ;
+                            pSocket->setDestinationAddress(pInfo->address, pInfo->iPort, msg.msgHdr.id.octet[0]) ;
+                            mConnectivityMap.destroy(&key) ;
+                            delete pInfo ;
+                        }
+                    }
                 }
                 break ;
             case BindErrorResponseMsg:
                 {                    
-                    pSocket->setStunAddress(NULL, -1) ;
+                    UtlString empty ;
+                    pSocket->setStunAddress(empty, -1) ;
                     signalStunOutcome(pSocket, false) ;
                 }
                 break ;
             case SharedSecretRequestMsg:
+                    // TODO Send Error
+                    break ;
             case SharedSecretResponseMsg:
             case SharedSecretErrorResponseMsg:
                 break ;
@@ -201,69 +262,113 @@ UtlBoolean OsStunAgentTask::handleSynchronize(OsRpcMsg& rMsg)
 
 UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg) 
 {
+    OsLock lock(mMapsLock) ;
     OsStunDatagramSocket* pSocket ;
     OsStatus rc ;
 
     // Pull out socket
     rc = rMsg.getUserData((int&) pSocket) ;
-    assert(rc == OS_SUCCESS) ;
+    assert(rc == OS_SUCCESS) ;    
 
     // Refresh the socket
     if ((rc == OS_SUCCESS) && pSocket)
     {
-        pSocket->refreshStunBinding() ;
+        UtlVoidPtr key(pSocket) ;
+        UtlVoidPtr* pValue = (UtlVoidPtr*) mResponseMap.findValue(&key) ;
+        if (pValue)
+        {
+            // We were waiting for a response -- timeout failure
+            signalStunOutcome(pSocket, false) ;
+        }
+        else
+        {
+            // Refresh attempt
+            pSocket->refreshStunBinding() ;
+        }        
     }
 
     return true ;
 }
 
 
-UtlBoolean OsStunAgentTask::sendStunRequest(OsStunDatagramSocket* pSocket,
-                                            const UtlString& stunServer,
-                                            int stunPort,
-                                            OsEvent* pNotify) 
+UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSocket,
+                                                     const UtlString& stunServer,
+                                                     int stunPort) 
 {    
-    OsLock lock(mNotifyMapLock) ;
+    OsLock lock(mMapsLock) ;
 
     assert(pSocket) ;
-    assert(stunPort > 0) ;
+    assert(portIsValid(stunPort)) ;
     assert(stunServer.length() > 0) ;
-    if (pSocket && (stunPort > 0) && (stunServer.length() > 0))
-    {        
-        // Remove any existing maps
-        UtlVoidPtr* pKey = new UtlVoidPtr(pSocket) ;
-        assert(pKey) ;
-        if (pKey)
-        {
-            mNotifyMap.destroy(pKey) ;
 
-            // Add new binding
-            if (pNotify)
+    if (pSocket && portIsValid(stunPort) && (stunServer.length() > 0))
+    {
+        // Send the STUN request -- the OsStunQueryAgent will handle the 
+        // response
+        UtlString serverAddress ;
+        if (OsSocket::getHostIpByName(stunServer, &serverAddress) && 
+                OsSocket::isIp4Address(serverAddress))
+        {
+            StunMessage reqMsg ;
+            memset(&reqMsg, 0, sizeof(StunMessage)) ;
+
+            // Set Msg Type
+            reqMsg.msgHdr.msgType = BindRequestMsg;
+
+            // Add randomness to transaction id
+            for ( int i=0; i<16; i=i+4 ) 
+            {            
+                int r = (rand()<<16) + rand() ;
+                reqMsg.msgHdr.id.octet[i+0]= r>>0;
+                reqMsg.msgHdr.id.octet[i+1]= r>>8;
+                reqMsg.msgHdr.id.octet[i+2]= r>>16;
+                reqMsg.msgHdr.id.octet[i+3]= r>>24;
+            }
+
+            // The first byte is used to communicate status back to the agent.
+            // A value of zero indicates that this is a normal stun discovery 
+            // request.
+            reqMsg.msgHdr.id.octet[0] = 0x00 ;
+            reqMsg.hasChangeRequest = 1 ;
+            reqMsg.changeRequest.value = 2 ;  // Change port when replying
+
+            char buf[STUN_MAX_MESSAGE_SIZE];
+            int len = STUN_MAX_MESSAGE_SIZE;
+            len = reqMsg.encodeMessage(buf, len);            
+
+            if (pSocket->write(buf, len, serverAddress, stunPort) <= 0)
             {
-                UtlVoidPtr* pValue = new UtlVoidPtr(pNotify) ;
-                assert(pValue) ;
-                if (pValue)
-                {
-                    mNotifyMap.insertKeyAndValue(pKey, pValue) ;
-                }
-                else
-                {
-                    delete pKey ;
-                }
+                signalStunOutcome(pSocket, false) ;
             }
             else
             {
-                delete pKey ;
-            }
+                OsTime timeout(0, STUN_TIMEOUT_RESPONSE_MS * OsTime::USECS_PER_MSEC) ;
+                OsQueuedEvent* pQueuedEvent ;
+                OsTimer* pTimer ;
+
+                UtlVoidPtr* pValue = (UtlVoidPtr*) mTimerPool.last() ;
+                if (pValue)
+                {
+                    pTimer = (OsTimer*) pValue->getValue() ;
+                    mTimerPool.destroy(pValue);
+                    pQueuedEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
+                    if (pQueuedEvent)
+                    {
+                        pQueuedEvent->setUserData((int) pSocket) ;
+                    }
+                }
+                else
+                {
+                    pTimer = new OsTimer(getMessageQueue(), (int) pSocket) ;
+                    pQueuedEvent = (OsQueuedEvent*)pTimer->getNotifier();
+                }
+
+                OsTime reportFailureAfter(OsTime(0, 500)) ;                
+                pTimer->oneshotAfter(timeout) ;
+                mResponseMap.insertKeyAndValue(new UtlVoidPtr(pSocket), new UtlVoidPtr(pTimer)) ;
+            }                
         }
-        
-        // Force a refresh
-        OsStunQueryAgent agent;
-        if (agent.setServer(stunServer, stunPort))
-        {
-            agent.sendStunRequest(pSocket) ;
-        }
-        else 
+        else
         {
             signalStunOutcome(pSocket, false) ;
         }
@@ -273,12 +378,74 @@ UtlBoolean OsStunAgentTask::sendStunRequest(OsStunDatagramSocket* pSocket,
 }
 
 
+UtlBoolean OsStunAgentTask::sendStunConnectivityRequest(OsStunDatagramSocket* pSocket,
+                                                        const UtlString& stunServer,
+                                                        int iStunPort,
+                                                        unsigned char cPriority)
+{
+    UtlString serverAddress ;
+    int i ;
+
+    if (OsSocket::getHostIpByName(stunServer, &serverAddress) && 
+            OsSocket::isIp4Address(serverAddress))
+    {
+        StunMessage reqMsg ;
+        memset(&reqMsg, 0, sizeof(StunMessage)) ;
+
+        // Set Msg Type
+        reqMsg.msgHdr.msgType = BindRequestMsg;
+
+        // Add randomness to transaction id
+        for (i=0; i<16; i=i+4) 
+        {            
+            int r = (rand()<<16) + rand() ;
+            reqMsg.msgHdr.id.octet[i+0]= r>>0;
+            reqMsg.msgHdr.id.octet[i+1]= r>>8;
+            reqMsg.msgHdr.id.octet[i+2]= r>>16;
+            reqMsg.msgHdr.id.octet[i+3]= r>>24;
+        }
+
+        // The first byte is used to communicate status back to the agent.
+        // A value of zero indicates that this is a normal stun discovery 
+        // request.  Anything else suggest a connectivity check.
+        reqMsg.msgHdr.id.octet[0] = cPriority ;
+
+        char buf[STUN_MAX_MESSAGE_SIZE];
+        int len = STUN_MAX_MESSAGE_SIZE;
+        len = reqMsg.encodeMessage(buf, len);
+
+        // Store info on the connectivity request
+        UtlString key ;
+        char cTemp[3] ;
+        for (i=0; i<16; i++)
+        {
+            sprintf(cTemp, "%2X", reqMsg.msgHdr.id.octet[i]) ;
+            key.append(cTemp) ;
+        }
+
+        CONNECTIVITY_INFO* pInfo = new CONNECTIVITY_INFO ;
+        pInfo->address = stunServer ;        
+        pInfo->iPort = iStunPort ;
+        pInfo->pSocket = pSocket ;
+        OsDateTime::getCurTime(pInfo->lastSent) ;
+
+        mMapsLock.acquire() ;
+        mConnectivityMap.insertKeyAndValue(new UtlString(key), new UtlVoidPtr(pInfo)) ;
+        mMapsLock.release() ;
+
+        pSocket->write(buf, len, serverAddress, iStunPort) ;
+    }
+
+    return TRUE ;
+}
+
+
 void OsStunAgentTask::synchronize() 
 {
     OsLock lock(sLock) ;
 
-    if (isStarted())
-    {
+    if (isStarted() && (getCurrentTask() != this))
+    {        
         // Send an event to ourself and wait for that message to be processed.
         OsEvent event ;
         OsRpcMsg msg(SYNC_MSG_TYPE, 0, event) ;
@@ -290,13 +457,45 @@ void OsStunAgentTask::synchronize()
 }
 
 
-void OsStunAgentTask::removeNotify(OsStunDatagramSocket* pSocket) 
+void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket) 
 {
-    OsLock lock(mNotifyMapLock) ;
+    OsLock lock(mMapsLock) ;
 
-    // Remove contents if it exists
+    // Remove contents response map and null out the timer
     UtlVoidPtr key(pSocket) ;
-    mNotifyMap.destroy(&key) ;
+    UtlVoidPtr* pValue ;
+    pValue = (UtlVoidPtr*) mResponseMap.findValue(&key) ;
+    if ((pValue) && pValue->getValue())
+    {
+        OsTimer* pTimer = (OsTimer*) pValue->getValue() ;
+        pTimer->stop() ;
+        OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
+        if (pEvent)
+        {
+            pEvent->setUserData(0) ; 
+            if (!mTimerPool.find(&UtlVoidPtr(pTimer)))       
+            {
+                mTimerPool.insert(new UtlVoidPtr(pTimer)) ;    
+            }
+        }
+    }
+    mResponseMap.destroy(&key) ;
+    mResponseMap.insertKeyAndValue(new UtlVoidPtr(pSocket), NULL) ;
+    
+    // Remove contents from Connectivity Map
+    UtlHashMapIterator itor(mConnectivityMap) ;
+    UtlString* pKey ;
+    while (pKey = (UtlString*) itor())
+    {
+        UtlVoidPtr* pValue = (UtlVoidPtr*) mConnectivityMap.findValue(pKey) ;
+        CONNECTIVITY_INFO* pInfo = (CONNECTIVITY_INFO*) pValue->getValue() ;
+
+        if (pInfo->pSocket == pSocket)
+        {
+            mConnectivityMap.destroy(pKey) ;
+            delete pInfo ;
+        }
+    }
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -308,24 +507,42 @@ void OsStunAgentTask::removeNotify(OsStunDatagramSocket* pSocket)
 
 void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket, 
                                         UtlBoolean bSuccess) 
-{
-    OsLock lock(mNotifyMapLock) ;
+{    
+    OsLock lock(mMapsLock) ;
 
+    // Remove from waiting response map
     UtlVoidPtr key(pSocket) ;
-    UtlVoidPtr* pValue = (UtlVoidPtr*) mNotifyMap.findValue(&key) ;
+    UtlVoidPtr* pValue = (UtlVoidPtr*) mResponseMap.findValue(&key) ;
     if (pValue)
     {
-        OsEvent* pNotify = (OsEvent*) pValue->getValue() ;
-        if (pNotify)
+        OsTimer* pTimer = (OsTimer*) pValue->getValue() ;
+        if (pTimer)
         {
-            pNotify->signal(bSuccess) ;
-        }
+            pTimer->stop() ;
+            OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
+            if (pEvent)
+            {
+                pEvent->setUserData(0) ;        
+                if (!mTimerPool.find(&UtlVoidPtr(pTimer)))       
+                {
+                    mTimerPool.insert(new UtlVoidPtr(pTimer)) ;
+                }
+            }
+       }
     }
-    mNotifyMap.destroy(&key) ;
+    mResponseMap.destroy(&key) ;
+   
+    // Signal Socket
+    if (bSuccess)
+    {
+        pSocket->markStunSuccess() ;
+    }
+    else
+    {
+        pSocket->markStunFailure() ;
+    }
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

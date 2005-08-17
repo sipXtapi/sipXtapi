@@ -6,25 +6,35 @@
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserForm"
     allow-body="no"
     allow-informal-parameters="no">    
-    <description>add a description</description>
+    <description>UserForm shows/edits a User</description>
     
 	<parameter name="user" 
 		type="org.sipfoundry.sipxconfig.common.User" 
     	required="yes"
-    	direction="auto"/>        
+    	direction="auto"/>    
+        
     <!--
       - P R O P E R T I E S
       -->
+    
+    <!-- not yet implemented -->
     <property-specification name="confirmPin" 
         type="java.lang.String"/>
+    
+    <!-- not yet implemented -->
     <property-specification name="confirmSipPassword" 
         type="java.lang.String"/>
+    
     <property-specification name="coreContext"
         type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
+    
+    <property-specification name="pin" type="java.lang.String"/>
+
     <!--
       - B E A N S 
       -->
+    
     <bean name="userIdValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
     	<set-property name="required" expression="true"/>
 	    <set-property name="minimumLength" expression="1"/>
@@ -35,27 +45,29 @@
     <bean name="pinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
     	<set-property name="required" expression="true"/>
 	</bean>
+     
     <!--
       - C O M P O N E N T S
       -->
+    
     <component id="userIdLabel" type="FieldLabel">
         <binding name="field" expression="components.userId"/>
     </component>
     <component id="userId" type="ValidField">
-	    <binding name="value" expression="user.displayId"/>
+	    <binding name="value" expression="user.userName"/>
     	<binding name="validator" expression="beans.userIdValidator"/>
-	    <static-binding name="displayName" value="Display ID"/>
+	    <message-binding name="displayName" key="label.userId"/>
     </component>
     <component id="firstNameLabel" type="FieldLabel">
         <binding name="field" expression="components.firstName"/>
-	    <static-binding name="displayName" value="First Name"/>
+	    <message-binding name="displayName" key="label.firstName"/>
     </component>
     <component id="firstName" type="TextField">
 	    <binding name="value" expression="user.firstName"/>
     </component>
     <component id="lastNameLabel" type="FieldLabel">
         <binding name="field" expression="components.lastName"/>
-	    <static-binding name="displayName" value="Last Name"/>
+	    <message-binding name="displayName" key="label.lastName"/>
     </component>
     <component id="lastName" type="TextField">
 	    <binding name="value" expression="user.lastName"/>
@@ -66,19 +78,18 @@
     <component id="extension" type="ValidField">
 	    <binding name="value" expression="user.extension"/>
     	<binding name="validator" expression="beans.extensionValidator"/>
-	    <static-binding name="displayName" value="Extension"/>
+	    <message-binding name="displayName" key="label.extension"/>
     </component>
-    <component id="pintokenLabel" type="FieldLabel">
-        <binding name="field" expression="components.pintoken"/>
-    </component>
-    <component id="pintoken" type="ValidField">
-	    <binding name="value" expression="user.pintoken"/>
-    	<binding name="validator" expression="beans.pinValidator"/>
-	    <static-binding name="displayName" value="PIN"/>
+	<component id="pin" type="ConfirmPassword">
+        <binding name="password" expression="pin"/>
+        <message-binding name="passwordDisplayName" key="label.pin"/>
+        <message-binding name="confirmPasswordDisplayName" key="label.pin2"/>
+        <message-binding name="passwordMismatchMessage" key="message.pinMismatch"/>
+        <binding name="passwordValidator" expression="beans.pinValidator"/>
     </component>
     <component id="sipPasswordLabel" type="FieldLabel">
         <binding name="field" expression="components.sipPassword"/>
-	    <static-binding name="displayName" value="SIP Password"/>
+	    <message-binding name="displayName" key="label.sipPassword"/>
     </component>
     <component id="sipPassword" type="TextField">
 	    <binding name="value" expression="user.sipPassword"/>

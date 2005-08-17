@@ -1,19 +1,18 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
  
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include <cp/Connection.h>
+#include <cp/CpGhostConnection.h>
 #include <cp/CpMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpCall.h>
@@ -56,7 +55,8 @@ Connection::Connection(CpCallManager* callMgr,
                        const char* forwardUnconditionalUrl,
                        int busyBehavior, const char* forwardOnBusyUrl,
                        int forwardOnNoAnswerSeconds) 
-   : callIdMutex(OsMutex::Q_FIFO)
+   : mConnectionId(-1)
+   , callIdMutex(OsMutex::Q_FIFO)
    , mDeleteAfter(OsTime::OS_INFINITY)
 {
 #ifdef TEST_PRINT
@@ -86,7 +86,7 @@ Connection::Connection(CpCallManager* callMgr,
 
     mRemoteIsCallee = FALSE;
 	mRemoteRequestedHold = FALSE;
-    remoteRtpPort = -1;
+    remoteRtpPort = PORT_NONE;
     sendCodec = -1;
     receiveCodec = -1;
     mLocalConnectionState = CONNECTION_IDLE;
@@ -107,8 +107,10 @@ Connection::Connection(CpCallManager* callMgr,
 	mpListeners = new TaoObjectMap();
 
 #ifndef SIPXTAPI_EXCLUDE
-    m_eLastMajor = (SIPX_CALLSTATE_MAJOR) -1 ;
-    m_eLastMinor = (SIPX_CALLSTATE_MINOR) -1 ;
+    m_eLastMajor = (SIPX_CALLSTATE_EVENT) -1 ;
+    m_eLastMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
+    m_eLastAudioMajor = (SIPX_CALLSTATE_EVENT) -1 ;
+    m_eLastAudioMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
 #endif
 
     mpCallManager->getNewSessionId(this) ;
@@ -124,9 +126,8 @@ Connection::Connection(CpCallManager* callMgr,
 
 // Copy constructor
 Connection::Connection(const Connection& rConnection) 
-    : callIdMutex(OsMutex::Q_FIFO)
-    , UtlString(rConnection)   
-
+    : UtlString(rConnection)   
+    , callIdMutex(OsMutex::Q_FIFO)
 {
 	mpListenerCnt = rConnection.mpListenerCnt;
 	mpListeners = rConnection.mpListeners;
@@ -143,10 +144,6 @@ Connection::~Connection()
     } else
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection destructed: call is Null\n");
 #endif
-
-	// DO NOT DELETE THE FLOWGRAPH
-	// It is owned by the Call
-   if(mpMediaInterface) mpMediaInterface->deleteConnection(mConnectionId);
 
    if (	mpListenerCnt )
    {
@@ -169,6 +166,27 @@ Connection::~Connection()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void Connection::prepareForSplit() 
+{
+    if ((mpMediaInterface) && (mConnectionId != -1))
+    {
+        mpMediaInterface->deleteConnection(mConnectionId) ;
+    }
+
+    mpCall = NULL ;
+    mpMediaInterface = NULL ;
+    mConnectionId = -1 ;
+}
+
+
+void Connection::prepareForJoin(CpCall* pNewCall, CpMediaInterface* pNewMediaInterface) 
+{
+    mpCall = pNewCall ;
+    mpMediaInterface = pNewMediaInterface ;
+    mpMediaInterface->createConnection(mConnectionId) ;
+}
+
 
 void Connection::setState(int newState, int isLocal, int newCause, int termState)
 {
@@ -435,9 +453,15 @@ void Connection::markForDeletion()
 }
 
 
+void Connection::setMediaInterface(CpMediaInterface* pMediaInterface) 
+{
+    mpMediaInterface = pMediaInterface ;
+}
+
+
 #ifndef SIPXTAPI_EXCLUDE
 
-UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_MAJOR eFrom, SIPX_CALLSTATE_MAJOR eTo)
+UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo)
 {
     UtlBoolean bValid = TRUE ;
 
@@ -449,6 +473,8 @@ UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_MAJOR eFrom, SIPX_CAL
         case DESTROYED:
             bValid = FALSE ;
             break ;
+        default:
+            break;
     }
 
     // Make sure a local focus change doesn't kick off an established event
@@ -462,38 +488,34 @@ UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_MAJOR eFrom, SIPX_CAL
 
 
 
-void Connection::fireSipXEvent(SIPX_CALLSTATE_MAJOR eMajor, SIPX_CALLSTATE_MINOR eMinor) 
+void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CAUSE causeCode, void* pEventData) 
 {
     UtlString callId ;
     UtlString remoteAddress ;
     SipSession session ;
+    UtlBoolean bDuplicateAudio =
+            (eventCode == CALLSTATE_AUDIO_EVENT && causeCode == m_eLastAudioMinor) ? TRUE : FALSE;
 
     // Avoid sending duplicate events
-    if ((   (eMajor != m_eLastMajor) || (eMinor != m_eLastMinor)) && 
-            validStateTransition(m_eLastMajor, eMajor))
+    if ((   (eventCode != m_eLastMajor) || (causeCode != m_eLastMinor)) && 
+            validStateTransition(m_eLastMajor, eventCode) && !bDuplicateAudio)
     {
-        m_eLastMajor = eMajor ;
-        m_eLastMinor = eMinor ;
+        if (eventCode != CALLSTATE_AUDIO_EVENT)
+        {
+            m_eLastMajor = eventCode;
+            m_eLastMinor = causeCode;
+        }
+        else
+        {
+            m_eLastAudioMajor = eventCode;
+            m_eLastAudioMinor = causeCode;
+        }
 
         getCallId(&callId) ;
         getRemoteAddress(&remoteAddress);
         getSession(session) ;
 
-        TapiMgr::getInstance().fireCallEvent(mpCallManager, callId.data(), &session, remoteAddress.data(), eMajor, eMinor) ;
-
-        if (eMajor == DISCONNECTED)
-        {
-            // Fire off a destroyed event after the disconnect if the parent callId 
-            // doesn't match the actual connection call id (conference cases).
-            UtlString parentCallId ;
-            mpCall->getCallId(parentCallId) ;
-            if (parentCallId.compareTo(callId) != 0)
-            {
-                TapiMgr::getInstance().fireCallEvent(mpCallManager, callId.data(), &session, remoteAddress.data(), DESTROYED, DESTROYED_NORMAL) ;
-                m_eLastMajor = DESTROYED ;
-                m_eLastMinor = DESTROYED_NORMAL ;
-            }
-        }
+        TapiMgr::getInstance().fireCallEvent(mpCallManager, callId.data(), &session, remoteAddress.data(), eventCode, causeCode, pEventData) ;
     }
 }
 #endif
@@ -598,6 +620,12 @@ UtlBoolean Connection::remoteRequestedHold()
 UtlBoolean Connection::isMarkedForDeletion() const
 {
    return !mDeleteAfter.isInfinite() ;
+}
+
+
+UtlBoolean Connection::isHeld() const
+{
+    return mFarEndHoldState == TERMCONNECTION_HELD ;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -750,7 +778,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 		callId += TAOMESSAGE_DELIMITER + mLocalAddress;		// arg[1], localAddress
 
 		UtlString remoteAddress;
-		getRemoteAddress(&remoteAddress, TRUE);
+		getRemoteAddress(&remoteAddress);
 
 		if (remoteAddress.isNull())							// arg[2], remote address
 			callId += TAOMESSAGE_DELIMITER + (UtlString)"UNKNOWN";	// not available yet
@@ -868,10 +896,8 @@ void Connection::setOfferingTimer(int milliSeconds)
     CpMultiStringMessage* offeringExpiredMessage = 
         new CpMultiStringMessage(CpCallManager::CP_OFFERING_EXPIRED,
                     callId.data(), remoteAddr.data());
-    OsQueuedEvent* queuedEvent = 
-        new OsQueuedEvent(*(mpCallManager->getMessageQueue()), 
+	OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()), 
 			(int)offeringExpiredMessage);
-	OsTimer* timer = new OsTimer(*queuedEvent);
 	// Convert from mSeconds to uSeconds
 	OsTime timerTime(milliSeconds / 1000, milliSeconds % 1000);
 	timer->oneshotAfter(timerTime);
@@ -884,6 +910,11 @@ void Connection::setOfferingTimer(int milliSeconds)
 	remoteAddr.remove(0);
 }
 
+CpMediaInterface* Connection::getMediaInterfacePtr()
+{
+    return mpMediaInterface;
+}
+
 void Connection::setRingingTimer(int seconds)
 {
     UtlString callId;
@@ -893,10 +924,8 @@ void Connection::setRingingTimer(int seconds)
     CpMultiStringMessage* offeringExpiredMessage = 
         new CpMultiStringMessage(CpCallManager::CP_RINGING_EXPIRED,
                     callId.data(), remoteAddr.data());
-    OsQueuedEvent* queuedEvent = 
-        new OsQueuedEvent(*(mpCallManager->getMessageQueue()), 
+	OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()), 
 			(int)offeringExpiredMessage);
-	OsTimer* timer = new OsTimer(*queuedEvent);
 
 #ifdef TEST_PRINT
     osPrintf("Setting ringing timeout in %d seconds\n",

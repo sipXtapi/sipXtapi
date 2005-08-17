@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.orm.hibernate.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
  * Utilities for Hibernate DAOs

@@ -1,14 +1,13 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+
 
 // SYSTEM INCLUDES
 
@@ -31,7 +30,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-HttpBody::HttpBody(const char* bytes, int length, const char* contentType)
+HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
+    bodyLength(0)
 {
    for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
    {
@@ -63,7 +63,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType)
 
             if(data()[boundaryIndex] == '=')
             {
-                append(&data()[boundaryIndex + 1]);
+                mMultipartBoundary.append(&data()[boundaryIndex + 1]);
                 NameValueTokenizer::frontTrim(&mMultipartBoundary, " \t");
                 int whiteSpaceIndex = mMultipartBoundary.first(' ');
                 if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);

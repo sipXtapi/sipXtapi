@@ -1,13 +1,10 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _SdpBody_h_
 #define _SdpBody_h_
@@ -331,7 +328,9 @@ class SdpBody : public HttpBody
    void getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                            int& numCodecsInCommon,
                            SdpCodec**& codecsInCommonArray,
-                           UtlString& rtpAddress, int& rtpPort) const;
+                           UtlString& rtpAddress, 
+                           int& rtpPort,
+                           int& rtcpPort) const;
    ///< It is assumed that the best are matches are first in the body.
 
 
@@ -352,8 +351,7 @@ class SdpBody : public HttpBody
                                      UtlString& rUnicastIp, 
                                      int& rUnicastPort, 
                                      UtlString& rCandidateIp, 
-                                     int& rCandidatePort) ;
-
+                                     int& rCandidatePort) const ;
 
 ///@}
 

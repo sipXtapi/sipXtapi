@@ -1,11 +1,10 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _UtlHashMapIterator_h_
 #define _UtlHashMapIterator_h_
@@ -25,6 +24,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class UtlContainable;
+class UtlPair;
 
 /**
  * UtlHashMapIterator allows developers to iterate (walks through) the
@@ -99,8 +99,6 @@ class UtlHashMapIterator : public UtlIterator
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   static const size_t BEFORE_FIRST;
-
    friend class UtlHashMap;
 
    /**
@@ -108,27 +106,19 @@ class UtlHashMapIterator : public UtlIterator
     * removed from the container.  The iterator must ensure that the element
     * for the removed node is not returned by any subsequent call.
     */
-   virtual void removing(const UtlContainable* key);
+   virtual void removing(const UtlPair* key);
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
-   void UtlHashMapIterator::init(const UtlHashMap* hashMap);
-   
+   void UtlHashMapIterator::init();
 
-   void UtlHashMapIterator::flush();
-   
-
-   static void UtlHashMapIterator::fillInContainables(gpointer key,
-                                                      gpointer value,
-                                                      gpointer user_data
-                                                      );
-   
-
-   size_t           mPosition;
-   size_t           mIteratorSize;
-   UtlContainable** mpContainables;
+   size_t   mPosition;      ///< current bucket number [0..numberOfBuckets-1]
+   UtlPair* mpCurrentPair;  ///< current UtlPair within the bucket, or BEFORE_FIRST
+   bool     mPairIsValid;   /**< true if mpCurrentPair is the valid current position
+                             * The only time this is false is when the UtlContainable
+                             * at the current position was removed while it was current. */
 
    // no copy constructor
    UtlHashMapIterator(UtlHashMapIterator&);

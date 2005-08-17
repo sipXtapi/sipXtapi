@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsTimerTask_h_
 #define _OsTimerTask_h_
@@ -47,6 +45,9 @@ public:
 
    static OsTimerTask* getTimerTask(void);
      //:Return a pointer to the timer task, creating it if necessary
+
+   static void destroyTimer(void);
+     //: Destroy the singleton instance of the sys timer
 
    virtual
    ~OsTimerTask();

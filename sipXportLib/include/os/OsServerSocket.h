@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsServerSocket_h_
 #define _OsServerSocket_h_
@@ -38,15 +36,19 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsServerSocket(int connectionQueueSize, int serverPort=-1);
+   OsServerSocket(int connectionQueueSize,
+                  int serverPort=PORT_DEFAULT,
+                  const char* szBindAddr = NULL);
 
    //:Constructor to set up TCP socket server
    // Sets the socket connection queue and starts listening on the
    // port for requests to connect.
    // 
-   //!param: connectionQueueSize - The maximum number of outstanding connection requests which are allowed before subsequent requests are turned away.
-   //!param: serverPort - The port on which the server will listen to accept connection requests.  -1 (default) means let OS pick port.
-
+   //!param: connectionQueueSize - The maximum number of outstanding
+   // connection requests which are allowed before subsequent requests
+   // are turned away.
+   //!param: serverPort - The port on which the server will listen to
+   // accept connection requests.  PORT_DEFAULT means let OS pick port.
    
    OsServerSocket& operator=(const OsServerSocket& rhs);
      //:Assignment operator
@@ -86,6 +88,7 @@ public:
 protected:
    int socketDescriptor;
    int localHostPort;
+   UtlString mLocalIp;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

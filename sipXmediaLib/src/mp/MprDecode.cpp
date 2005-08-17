@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 #define DEBUG_DECODING
 #undef DEBUG_DECODING
 
@@ -19,6 +17,7 @@
 #endif /* WIN32 ] */
 
 #if defined(_VXWORKS) || defined(__pingtel_on_posix__) /* [ */
+#include <sys/types.h>
 #include <netinet/in.h>
 #endif /* _VXWORKS || __pingtel_on_posix__ ] */
 
@@ -348,6 +347,19 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    osPrintf("MprDecode::handleSelectCodecs(%d codec%s):\n",
       numCodecs, ((1 == numCodecs) ? "" : "s"));
 #endif
+   if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+   {
+      for (i=0; i<numCodecs; i++) {
+         pCodec = pCodecs[i];
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprDecode::handleSelectCodecs "
+                       "pCodecs[%d]->getCodecType() = %d, "
+                       "pCodecs[%d]->getCodecPayloadFormat() = %d",
+                       i, pCodec->getCodecType(),
+                       i, pCodec->getCodecPayloadFormat());
+            }
+   }
+
    // Check to see if all codecs in pCodecs can be handled by codecs
    // in mpCurrentCodecs.
    for (i=0; i<numCodecs; i++) {

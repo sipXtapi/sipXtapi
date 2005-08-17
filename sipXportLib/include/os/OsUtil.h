@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsUtil_h_
 #define _OsUtil_h_
@@ -46,6 +44,7 @@ public:
       PLATFORM_TCAS6=6,
       PLATFORM_TCAS7=7,
       PLATFORM_TCAS8=8,
+      PLATFORM_MACOSX=97,
       PLATFORM_SOLARIS=98,
       PLATFORM_LINUX=99,
       PLATFORM_WIN32=100

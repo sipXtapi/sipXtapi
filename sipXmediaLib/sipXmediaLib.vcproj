@@ -3,8 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="sipXmediaLib"
-	ProjectGUID="{6276121C-97A0-42E7-8D7A-355489A7F8DB}"
-	RootNamespace="sipXmediaLib"
+	ProjectGUID="{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
 	SccProjectName="Perforce Project"
 	SccLocalPath=".">
 	<Platforms>
@@ -23,8 +22,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,..\gips\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS;HAVE_GIPS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -42,9 +41,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\sipXmediaLib.lib"
-				SuppressStartupBanner="TRUE"
-				IgnoreAllDefaultLibraries="TRUE"
-				IgnoreDefaultLibraryNames=""/>
+				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -78,8 +75,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,..\gips\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
+				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;DISABLE_MEM_POOLS;HAVE_GIPS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"

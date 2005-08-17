@@ -1,16 +1,14 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _WINDOWSADAPTERINFO_H
-        #define WINDOWSADAPTERINFO
+#define _WINDOWSADAPTERINFO_H
 
 #define MAX_ADAPTERS 20  //if you have more than 20 adapters, something is wrong with you. :)
 

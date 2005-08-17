@@ -519,6 +519,7 @@ class FASTDB_DLL_ENTRY dbFieldDescriptor {
     ~dbFieldDescriptor();
 };
 
+class dbTable;
 
 /**
  * Table descriptor

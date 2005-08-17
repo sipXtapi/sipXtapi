@@ -1,26 +1,24 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _UtlList_h_
 #define _UtlList_h_
 
 //#define GLIST_SANITY_TEST
-#ifdef GLIST_SANITY_TEST
+#ifdef LIST_SANITY_TEST
 # include "assert.h"
 #endif
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
+#include "utl/UtlLink.h"
 #include "utl/UtlContainer.h"
-
-#include "glib.h"
 
 // DEFINES
 // MACROS
@@ -33,22 +31,30 @@
 class UtlContainable ;
 
 /**
- * UtlSList is a singularly linked list designed to contain any number
- * of UtlContainable derived object.  The list may contain non-like objects 
+ * UtlList is a base class for lists designed to contain any number
+ * of objects derived from the UtlContainable class.  Like any UtlContainer, a
+ * UtlList may contain objects of different UtlContainableType
  * (e.g. UtlInts and UtlVoidPtrs), however, sorting and comparison behavior
- * may be non-obvious.
+ * may be non-obvious or undefined, so this is not recommended.
  * 
  * Most list accessors and inquiry methods are performed by equality as 
- * opposed to by referencing (pointers).  For example, a list.contains(obj) 
- * call will loop through all of the list objects and test equality by calling
- * the isEquals(...) method.  A  list.containsReference(obj) call will search 
- * for a pointer match.
+ * opposed to by reference.  That is, the comparisons between UtlContainable
+ * objects are made using the UtlContainable::isEqual or UtlContainable::compareTo
+ * methods, so for example, two different UtlInt* values (having different pointer
+ * values) would compare as equal if they both contained the same integer value.
+ *
+ * Some methods are concerned with references; these compare the actual UtlContainable*
+ * pointer values, so for example list.containsReference(obj) call will search 
+ * for a pointer match with each UtlContainable* on the list, matching only when
+ * the value of the 'obj' pointer is found.
  * 
- * @see UtlSListIterator
- * @see UtlContainer
- * @see UtlContainable
+ * @see UtlContainable for the methods that must be implemented by a class for its
+ * objects to be stored in any UtlContainer.
+ *
+ * Like other UtlContainer classes, UtlList is itself a UtlContainable, so one can have
+ * lists of lists and other complex structures.  
  */
-class UtlList : public UtlContainer
+class UtlList : public UtlContainer, public UtlChain                                               
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -58,9 +64,7 @@ public:
 // this base class cannot be instantiated directly - the constructor is protected
 
 // Destructor
-   virtual UtlList::~UtlList();
-   
-
+    virtual ~UtlList();
 
 /* ============================ MANIPULATORS ============================== */
    
@@ -69,7 +73,7 @@ public:
      * 
      * @return the first object if successful, otherwise null
      */
-    virtual UtlContainable* get() ;  
+    UtlContainable* get() ;  
 
     /**
      * Removed the designated object by reference
@@ -77,12 +81,19 @@ public:
      *
      * @return the object if successful, otherwise null
      */
-    virtual UtlContainable* removeReference(const UtlContainable* obj);    
+    UtlContainable* removeReference(const UtlContainable* obj);    
 
     /**
      * Remove the designated object by equality (as opposed to by reference).
      */
     virtual UtlContainable* remove(const UtlContainable* object) = 0;
+
+    /**
+     * Remove the object at (zero-based) location N.
+     *
+     * @return the object removed from the list, or NULL if there was no object at index N
+     */
+    UtlContainable* removeAt(const size_t N);
 
     /**
      * Removes the designated objects from the list and frees the object 
@@ -93,12 +104,12 @@ public:
     /**
      * Removes all elements from the list and deletes each one.
      */
-    virtual void destroyAll();
+    void destroyAll();
 
     /**
      * Removes all elements from the list without freeing the objects.
      */
-    virtual void removeAll();
+    void removeAll();
 
 /* ============================ ACCESSORS ================================= */
 
@@ -166,7 +177,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    GList* mpList;
+
 
     /**
      * The UtlList constructor is protected - only subclasses may be instantiated
@@ -178,7 +189,7 @@ protected:
     /**
      * notifyIteratorsOfRemove - called before removing any element in the collection
      */
-    void notifyIteratorsOfRemove(GList* element);
+    void notifyIteratorsOfRemove(UtlLink* element);
 
     /**
      * removeLink is used internally to manipulate the links.
@@ -190,13 +201,13 @@ protected:
      * removed element, passing the new value.  This means the that current position
      * update is always done the same way no matter what routine did the removing.
      */
-    virtual void removeLink(GList* toBeRemoved);
+    virtual void removeLink(UtlLink* toBeRemoved);
 
-#ifdef GLIST_SANITY_TEST
-#  define GLIST_SANITY_CHECK { if (!sanityCheck()){ assert(FALSE); } }
+#ifdef LIST_SANITY_TEST
+#  define LIST_SANITY_CHECK { if (!sanityCheck()){ assert(FALSE); } }
     bool sanityCheck() const;
 #else
-#  define GLIST_SANITY_CHECK /* sanityCheck() */
+#  define LIST_SANITY_CHECK /* sanityCheck() */
 #endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

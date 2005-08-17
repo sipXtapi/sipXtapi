@@ -2,27 +2,27 @@
 www.sourceforge.net/projects/tinyxml
 Original file by Yves Berquin.
 
-This software is provided 'as-is', without any express or implied
-warranty. In no event will the authors be held liable for any
+This software is provided 'as-is', without any express or implied 
+warranty. In no event will the authors be held liable for any 
 damages arising from the use of this software.
 
-Permission is granted to anyone to use this software for any
-purpose, including commercial applications, and to alter it and
+Permission is granted to anyone to use this software for any 
+purpose, including commercial applications, and to alter it and 
 redistribute it freely, subject to the following restrictions:
 
-1. The origin of this software must not be misrepresented; you must
-not claim that you wrote the original software. If you use this
-software in a product, an acknowledgment in the product documentation
+1. The origin of this software must not be misrepresented; you must 
+not claim that you wrote the original software. If you use this 
+software in a product, an acknowledgment in the product documentation 
 would be appreciated but is not required.
 
 2. Altered source versions must be plainly marked as such, and
 must not be misrepresented as being the original software.
 
-3. This notice may not be removed or altered from any source
+3. This notice may not be removed or altered from any source 
 distribution.
 */
 
-#include "xmlparser/tinyxml.h"
+#include "tinyxml.h"
 
 
 #ifndef TIXML_USE_STL
@@ -30,7 +30,10 @@ distribution.
 #ifndef TIXML_STRING_INCLUDED
 #define TIXML_STRING_INCLUDED
 
-//#pragma warning( disable : 4514 )
+#ifdef _MSC_VER
+#pragma warning( disable : 4530 )
+#pragma warning( disable : 4786 )
+#endif
 
 #include <assert.h>
 
@@ -44,18 +47,20 @@ distribution.
 class TiXmlString
 {
   public :
-    // TiXmlString constructor, based on a string
-    TiXmlString (const char * instring);
+    // TiXmlString constructor, based on a string, mark explicit to force
+	// us to find unnecessary casting.
+    explicit TiXmlString (const char * instring);
 
     // TiXmlString empty constructor
     TiXmlString ()
     {
         allocated = 0;
         cstring = NULL;
+        current_length = 0;
     }
 
     // TiXmlString copy constructor
-    TiXmlString (const TiXmlString& copy);
+    explicit TiXmlString (const TiXmlString& copy);
 
     // TiXmlString destructor
     ~ TiXmlString ()
@@ -72,7 +77,10 @@ class TiXmlString
     }
 
     // Return the length of a TiXmlString
-    unsigned length () const;
+    size_t length () const
+	{
+		return ( allocated ) ? current_length : 0;
+	}
 
     // TiXmlString = operator
     void operator = (const char * content);
@@ -84,23 +92,24 @@ class TiXmlString
     TiXmlString& operator += (const char * suffix)
     {
         append (suffix);
-        return *this;
+		return *this;
     }
 
     // += operator. Maps to append
     TiXmlString& operator += (char single)
     {
         append (single);
-        return *this;
+		return *this;
     }
 
     // += operator. Maps to append
     TiXmlString& operator += (TiXmlString & suffix)
     {
         append (suffix);
-        return *this;
+		return *this;
     }
     bool operator == (const TiXmlString & compare) const;
+    bool operator == (const char* compare) const;
     bool operator < (const TiXmlString & compare) const;
     bool operator > (const TiXmlString & compare) const;
 
@@ -109,11 +118,6 @@ class TiXmlString
     {
         return length () ? false : true;
     }
-
-    // Checks if a TiXmlString contains only whitespace (same rules as isspace)
-    // Not actually used in tinyxml. Conflicts with a C macro, "isblank",
-    // which is a problem. Commenting out. -lee
-//    bool isblank () const;
 
     // single char extraction
     const char& at (unsigned index) const
@@ -131,8 +135,8 @@ class TiXmlString
     // find a char in a string from an offset. Return TiXmlString::notfound if not found
     unsigned find (char tofind, unsigned offset) const;
 
-    /*  Function to reserve a big amount of data when we know we'll need it. Be aware that this
-        function clears the content of the TiXmlString if any exists.
+    /*	Function to reserve a big amount of data when we know we'll need it. Be aware that this
+		function clears the content of the TiXmlString if any exists.
     */
     void reserve (unsigned size)
     {
@@ -142,32 +146,35 @@ class TiXmlString
             allocated = size;
             cstring = new char [size];
             cstring [0] = 0;
+            current_length = 0;
         }
     }
 
-    // [] operator
+    // [] operator 
     char& operator [] (unsigned index) const
     {
         assert( index < length ());
         return cstring [index];
     }
 
-    // Error value for find primitive
-    enum {  notfound = 0xffffffff,
+    // Error value for find primitive 
+    enum {	notfound = 0xffffffff,
             npos = notfound };
 
-    void append (const char *str, int len );
+    void append (const char *str, size_t len );
 
   protected :
 
     // The base string
     char * cstring;
     // Number of chars allocated
-    unsigned allocated;
+    size_t allocated;
+    // Current string size
+    size_t current_length;
 
     // New size computation. It is simplistic right now : it returns twice the amount
     // we need
-    unsigned assign_new_size (unsigned minimum_to_allocate)
+    size_t assign_new_size (size_t minimum_to_allocate)
     {
         return minimum_to_allocate * 2;
     }
@@ -179,6 +186,7 @@ class TiXmlString
             delete [] cstring;
         cstring = NULL;
         allocated = 0;
+        current_length = 0;
     }
 
     void append (const char *suffix );
@@ -189,18 +197,27 @@ class TiXmlString
         append (suffix . c_str ());
     }
 
-    // append for a single char. This could be improved a lot if needed
+    // append for a single char.
     void append (char single)
     {
-        char smallstr [2];
-        smallstr [0] = single;
-        smallstr [1] = 0;
-        append (smallstr);
+        if ( cstring && current_length < (allocated-1) )
+		{
+			cstring[ current_length ] = single;
+			++current_length;
+			cstring[ current_length ] = 0;
+		}
+		else
+		{
+			char smallstr [2];
+			smallstr [0] = single;
+			smallstr [1] = 0;
+			append (smallstr);
+		}
     }
 
 } ;
 
-/*
+/* 
    TiXmlOutStream is an emulation of std::ostream. It is based on TiXmlString.
    Only the operators that we need for TinyXML have been developped.
 */
@@ -224,6 +241,10 @@ public :
     }
 } ;
 
-#endif  // TIXML_STRING_INCLUDED
-#endif  // TIXML_USE_STL
+#ifdef _MSC_VER
+#pragma warning( default : 4530 )
+#pragma warning( default : 4786 )
+#endif
 
+#endif	// TIXML_STRING_INCLUDED
+#endif	// TIXML_USE_STL

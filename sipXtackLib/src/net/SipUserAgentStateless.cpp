@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -96,7 +94,7 @@ UtlBoolean SipUserAgentStateless::send(SipMessage& message,
         message.getLastVia(&sendAddress, &sendPort, &sendProtocol, &receivedPort,
             &receivedSet, &maddrSet, &receivedPortSet);
         if(receivedPortSet && receivedSet &&
-            receivedPort > 0)
+            portIsValid(receivedPort))
         {
             sendPort = receivedPort;
         }
@@ -136,7 +134,10 @@ UtlBoolean SipUserAgentStateless::sendTo(SipMessage& message,
 
     if(sendAddress && *sendAddress && mpUdpServer)
     {
-        if(sendPort <= 0) sendPort = SIP_PORT;
+        if (!portIsValid(sendPort))
+        {
+           sendPort = SIP_PORT;
+        }
 
         sendOk = mpUdpServer->sendTo(message, sendAddress, sendPort);
     }

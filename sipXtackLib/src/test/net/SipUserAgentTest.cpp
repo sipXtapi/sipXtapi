@@ -1,11 +1,7 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
 
 // Author: Scott Zuk
@@ -127,7 +123,7 @@ public:
                                                 ,5091
                                                 ,NULL     // default publicAddress
                                                 ,NULL     // default defaultUser
-                                                ,NULL     // default defaultSipAddress
+                                                ,"127.0.0.1"     // default defaultSipAddress
                                                 ,NULL     // default sipProxyServers
                                                 ,NULL     // default sipDirectoryServers
                                                 ,NULL     // default sipRegistryServers
@@ -154,13 +150,15 @@ public:
          }
 
          sipUA->shutdown(TRUE);
+         lineMgr->requestShutdown();
+         refreshMgr->requestShutdown();
 
          CPPUNIT_ASSERT(sipUA->isShutdownDone());
 
          delete sipUA;
          delete refreshMgr;
          delete lineMgr;
-         delete OsTimerTask::getTimerTask();
+         OsTimerTask::destroyTimer();
          OsStunAgentTask::releaseInstance();
 
          int numThreads = getNumThreads(myPID);
@@ -198,7 +196,7 @@ public:
                                                 ,5091
                                                 ,NULL     // default publicAddress
                                                 ,NULL     // default defaultUser
-                                                ,NULL     // default defaultSipAddress
+                                                ,"127.0.0.1"     // default defaultSipAddress
                                                 ,NULL     // default sipProxyServers
                                                 ,NULL     // default sipDirectoryServers
                                                 ,NULL     // default sipRegistryServers
@@ -225,6 +223,8 @@ public:
          }
 
          sipUA->shutdown(FALSE);
+         lineMgr->requestShutdown();
+         refreshMgr->requestShutdown();
 
          while(!sipUA->isShutdownDone())
          {
@@ -235,7 +235,7 @@ public:
          delete sipUA;
          delete refreshMgr;
          delete lineMgr;
-         delete OsTimerTask::getTimerTask();
+         OsTimerTask::destroyTimer();
          OsStunAgentTask::releaseInstance();
 
          int numThreads = getNumThreads(myPID);
@@ -246,4 +246,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipUserAgentTest);
-

@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <time.h>
 #include <sys/time.h>
@@ -15,6 +11,11 @@
 /* This function comes from librt.so. We would prefer not to need that library
  * but the RTCP code uses clock_gettime(). Rather than rewrite that code, we
  * just implement clock_gettime() using gettimeofday(). */
+
+#ifdef __MACH__
+/* we don't even have the typedef on OS X */
+typedef int clockid_t;
+#endif
 
 int clock_gettime(clockid_t clock_id, struct timespec * tp)
 {

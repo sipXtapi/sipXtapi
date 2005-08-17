@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 /*
  * Issues:      1. RTP Timestamp via VxWorks.
@@ -23,8 +21,10 @@
 #elif defined(_VXWORKS)
 #include <timers.h>
 #elif defined(__pingtel_on_posix__)
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <time.h>
+#include <sys/time.h>
 #define ERROR (-1)
 #endif
 
@@ -216,14 +216,20 @@ void CReceiverReport::SetLastRcvdSRTime(unsigned long aulNTPTimestamp[])
     // Load Least Significant word with microseconds
     dCurrentUSeconds = stLocalTime.millitm * MILLI2MICRO;
 
+#elif defined(__pingtel_on_posix__)
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    dCurrentSeconds = tv.tv_sec;
+    dCurrentUSeconds = tv.tv_usec;
+
 #else
     struct timespec stLocalTime;
 
     // Make a call to VxWorks to get this timestamp
-    if (clock_gettime (CLOCK_REALTIME, &stLocalTime) == ERROR)
+    if (clock_gettime(CLOCK_REALTIME, &stLocalTime) == ERROR)
     {
-        osPrintf("**** FAILURE **** LoadTimestamps() -"
-                                                " clock_gettime failure\n");
+        osPrintf("**** FAILURE **** LoadTimestamps() - clock_gettime failure\n");
         stLocalTime.tv_sec = 0;
         stLocalTime.tv_nsec = 0;
     }
@@ -981,14 +987,20 @@ unsigned long CReceiverReport::LoadReportTimes(
         dRRTransmitTime +=
             (double)(((double)stLocalTime.millitm * MILLI2MICRO) / MICRO2SEC);
 
+#elif defined(__pingtel_on_posix__)
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    dRRTransmitTime = (double) tv.tv_sec;
+    dRRTransmitTime += tv.tv_usec / MICRO2SEC;
+
 #else
         struct timespec stLocalTime;
 
         // Make a call to VxWorks to get this timestamp
         if (clock_gettime (CLOCK_REALTIME, &stLocalTime) == ERROR)
         {
-            osPrintf("**** FAILURE **** LoadTimestamps() -"
-                                                  " clock_gettime failure\n");
+            osPrintf("**** FAILURE **** LoadTimestamps() - clock_gettime failure\n");
             stLocalTime.tv_sec = 0;
             stLocalTime.tv_nsec = 0;
         }

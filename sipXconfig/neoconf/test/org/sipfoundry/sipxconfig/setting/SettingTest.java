@@ -14,32 +14,32 @@ package org.sipfoundry.sipxconfig.setting;
 import junit.framework.TestCase;
 
 public class SettingTest extends TestCase {
-    
+
     private SettingSet m_root;
-    
-    private Setting m_apple;
-    
-    private Setting m_fruit;
+
+    private SettingImpl m_apple;
+
+    private SettingImpl m_fruit;
 
     private void seedSimpleSettingGroup() {
         m_root = new SettingSet();
-        m_fruit = (SettingSet)m_root.addSetting(new SettingSet("fruit"));
-        m_apple = m_fruit.addSetting(new SettingImpl("apple"));
+        m_fruit = (SettingSet) m_root.addSetting(new SettingSet("fruit"));
+        m_apple = (SettingImpl) m_fruit.addSetting(new SettingImpl("apple"));
         m_root.addSetting(new SettingSet("vegatables"));
     }
 
     public void testDefaultValue() {
         seedSimpleSettingGroup();
-        assertEquals("/fruit/apple", m_apple.getPath());        
+        assertEquals("/fruit/apple", m_apple.getPath());
         m_apple.setValue("granny smith");
         assertEquals("granny smith", m_apple.getValue());
         assertEquals("granny smith", m_apple.getDefaultValue());
-    }    
-    
+    }
+
     public void testSetValue() {
         seedSimpleSettingGroup();
         assertNull(m_apple.getValue());
-        
+
         Group meta = new Group();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
@@ -50,79 +50,79 @@ public class SettingTest extends TestCase {
         assertNull(m_apple.getValue());
         assertEquals("macintosh", m_appleCopy.getValue());
         assertEquals(null, m_apple.getDefaultValue());
-        
+
         assertNotNull(meta.get(m_apple.getPath()));
         assertEquals(1, meta.size());
-        
+
         // if matches default, should clear value
         m_appleCopy.setValue(null);
         assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());        
+        assertEquals(0, meta.size());
     }
-    
+
     public void testSetAdvanced() {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isAdvanced());
-        
+
         Group tag = new Group();
         assertNull(tag.get(m_apple.getPath()));
         assertEquals(0, tag.size());
 
         Setting copy = tag.decorate(m_root);
-        Setting m_appleCopy = copy.getSetting("fruit").getSetting("apple");
-        m_appleCopy.setAdvanced(true);
-        assertTrue(m_appleCopy.isAdvanced());
-        
+        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+        m_apple.setAdvanced(true);
+        assertTrue(appleCopy.isAdvanced());
+
         // Tag's used to save isAdvanced, but not anymore so this
         // test is not that exciting, but still worthy of existance.
     }
-    
+
     /**
      * If both are set, will it know to keep meta, if both are cleared, will it know to loose meta
      */
     public void testSetValueAndSetHidden() {
         seedSimpleSettingGroup();
         assertFalse(m_apple.isAdvanced());
-        
+
         Group meta = new Group();
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
         Setting copy = meta.decorate(m_root);
-        Setting m_appleCopy = copy.getSetting("fruit").getSetting("apple");
-        m_appleCopy.setAdvanced(true);
-        m_appleCopy.setValue("macintosh");
-        assertTrue(m_appleCopy.isAdvanced());
-        assertEquals("macintosh", m_appleCopy.getValue());
-        
+        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+        m_apple.setAdvanced(true);
+        appleCopy.setValue("macintosh");
+        assertTrue(appleCopy.isAdvanced());
+        assertEquals("macintosh", appleCopy.getValue());
+
         assertNotNull(meta.get(m_apple.getPath()));
         assertEquals(1, meta.size());
-        
+
         // if matches default, should clear value
-        m_appleCopy.setValue(null);
-        m_appleCopy.setAdvanced(false);
+        appleCopy.setValue(null);
+        m_apple.setAdvanced(false);
         assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());        
+        assertEquals(0, meta.size());
     }
-    
+
     public void testGetSettingViaRelativePath() {
         seedSimpleSettingGroup();
-        assertSame(m_root, m_fruit.getSetting(".."));        
-        assertSame(m_root, m_apple.getSetting("../.."));        
+        assertSame(m_root, m_fruit.getSetting(".."));
+        assertSame(m_root, m_apple.getSetting("../.."));
     }
-    
+
     public void testGetSettingViaAbsoluePath() {
         seedSimpleSettingGroup();
-        assertSame(m_root, m_fruit.getSetting("/"));        
-        assertSame(m_root, m_fruit.getSetting("//"));        
-        assertSame(m_fruit, m_apple.getSetting("/fruit"));        
-        assertSame(m_apple, m_root.getSetting("/fruit/apple"));        
+        assertSame(m_root, m_fruit.getSetting("/"));
+        assertSame(m_root, m_fruit.getSetting("//"));
+        assertSame(m_fruit, m_apple.getSetting("/fruit"));
+        assertSame(m_apple, m_root.getSetting("/fruit/apple"));
     }
-    
+
     public void testGetSettingAbsoluteAndRelativePath() {
         seedSimpleSettingGroup();
-        assertSame(m_fruit, m_root.getSetting("/fruit/../fruit"));        
-        assertSame(m_root, m_apple.getSetting("../../fruit//"));        
+        assertSame(m_fruit, m_root.getSetting("/fruit/../fruit"));
+        assertSame(m_root, m_apple.getSetting("../../fruit//"));
     }
 
     public void test100GroupsWith100Settings() {
@@ -130,13 +130,13 @@ public class SettingTest extends TestCase {
         for (int i = 0; i < 100; i++) {
             SettingSet model = (SettingSet) root.addSetting(new SettingSet(String.valueOf(i)));
             for (int j = 0; j < 100; j++) {
-                model.addSetting(new SettingImpl(String.valueOf(j)));                
+                model.addSetting(new SettingImpl(String.valueOf(j)));
             }
             assertEquals(100, model.getValues().size());
         }
         assertEquals(100, root.getValues().size());
     }
-    
+
     public void testMergeChildren() {
         seedSimpleSettingGroup();
         SettingSet anotherFruit = new SettingSet("fruit");

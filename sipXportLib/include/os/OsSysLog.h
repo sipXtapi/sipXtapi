@@ -1,13 +1,10 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _OsSysLog_h_
 #define _OsSysLog_h_
@@ -91,6 +88,12 @@ typedef enum tagOsSysLogPriority
   //!enumcode: LOG_EMERG - System is unusable.  The worst possible error
   //           where the system will ultimately fail.
   //           Example: Memory corrupted; closing down.
+
+// Signature for a callback function that takes three parameters: priority,
+// source Id of the generating module, and the message itself.
+typedef void (*OsSysLogCallback)(const char* szPriority,
+                                 const char* szSource,
+                                 const char* szMsg);
 
 
 // FORWARD DECLARATIONS
@@ -234,6 +237,13 @@ public:
      //       maxInMemoryLogEntries defined in the call to
      //       OsSysLog::initialize(maxInMemoryLogEntries).
      //!param logfile - The full qualified path the the target log file.
+
+   static OsStatus setCallbackFunction(OsSysLogCallback pCallback);
+     //:Set a callback function to collect logging results.
+     //
+     //!param pCallback - Pointer to a callback function that takes three
+     //                   strings as parameters: Logging priority, source
+     //                   of log entry, and the entry itself
 
    static OsStatus addOutputSocket(const char* remoteHost);
      //:Add an output socket to the list of output targets.

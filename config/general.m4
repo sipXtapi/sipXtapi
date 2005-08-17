@@ -86,7 +86,7 @@ AC_DEFUN([CHECK_JDK],
 
     TRY_JAVA_HOME=`ls -dr /usr/java/* 2> /dev/null | head -n 1`
     for dir in $JAVA_HOME $JDK_HOME /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
-        AC_PATH_PROG(jar, tools.jar, ,$dir/lib)
+        AC_PATH_PROG(jar, dt.jar, ,$dir/lib)
         if test x$jar != x; then
             found_jdk="yes";
             JAVA_HOME=$dir
@@ -95,7 +95,7 @@ AC_DEFUN([CHECK_JDK],
     done
 
     if test x_$found_jdk != x_yes; then
-        AC_MSG_ERROR([Cannot find tools.jar in expected location. You may try setting the JAVA_HOME environment variable if you haven't already done so])
+        AC_MSG_ERROR([Cannot find dt.jar in expected location. You may try setting the JAVA_HOME environment variable if you haven't already done so])
     fi
 
     AC_SUBST(JAVA, [$JAVA_HOME/jre/bin/java])
@@ -166,7 +166,7 @@ AC_DEFUN([CHECK_SSL],
 [   AC_ARG_WITH(openssl,
                 [--with-openssl=PATH to openssl source directory],
                 [openssl_path=$withval],
-                [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr /"]
+                [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
     AC_PATH_PROG([OPENSSL],[openssl])
     AC_MSG_CHECKING([for openssl includes])
@@ -202,7 +202,7 @@ AC_DEFUN([CHECK_SSL],
     AC_MSG_CHECKING([for openssl libraries])
     found_ssl_lib="no";
     for dir in $openssl_path ; do
-        if test -f "$dir/lib/libssl.so"; then
+        if test -f "$dir/lib/libssl.so" -o "$dir/lib/libssl.a"; then
             found_ssl_lib="yes";
             ssllibdir="$dir/lib"
             break;
@@ -251,6 +251,29 @@ AC_DEFUN([CHECK_SSL],
     AC_SUBST(SSL_CFLAGS,"$SSL_CFLAGS")
     AC_SUBST(SSL_CXXFLAGS,"$SSL_CFLAGS")
 ])
+
+
+# ============ L I B R T  =========================
+AC_DEFUN([CHECK_LIBRT],
+[
+   AC_MSG_CHECKING([for librt])
+
+   rt_found="no"
+   for dir in /lib /usr/lib /usr/local/lib; do
+      if test -f "$dir/librt.so.1"; then
+        rt_found="yes"
+        break;
+      fi
+   done
+   if test x_$rt_found = x_yes; then
+        AC_SUBST(RT_LIBS,"-lrt")
+	AC_MSG_RESULT([-lrt])
+   else
+        AC_SUBST(RT_LIBS,"")
+        AC_MSG_RESULT([not needed])
+   fi
+])
+
 
 # ============ X E R C E S ==================
 AC_DEFUN([CHECK_XERCES],
@@ -649,7 +672,7 @@ AC_DEFUN([CHECK_PCRE],
 
     # Check for pcre.h in the specified include directory if any, and a number
     # of other likely places.
-    for dir in $includeval /usr/local/include /usr/local/pcre/include /usr/include /usr/include/pcre; do
+    for dir in $includeval /usr/local/include /usr/local/pcre/include /usr/include /usr/include/pcre /sw/include; do
         if test -f "$dir/pcre.h"; then
             found_pcre_include="yes";
             includeval=$dir
@@ -659,7 +682,7 @@ AC_DEFUN([CHECK_PCRE],
 
     # Check for libpcre.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib; do
+    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /sw/lib; do
         if test -f "$dir/libpcre.so" -o -f "$dir/libpcre.a"; then
             found_pcre_lib="yes";
             libval=$dir
@@ -676,8 +699,8 @@ AC_DEFUN([CHECK_PCRE],
             AC_MSG_ERROR(Cannot find libpcre.so or libpcre.a libraries - looked in $libval)
         else
             ## Test for version
-            pcre_ver=`/usr/bin/pcre-config --version`
-            AX_COMPARE_VERSION([$pcre_ver],[ge],[4.5])
+            pcre_ver=`pcre-config --version`
+            AX_COMPARE_VERSION([$pcre_ver],[ge],[4.2])
 
             if test "x_$ax_compare_version" = "x_false"; then
                AC_MSG_ERROR(Found pcre version $pcre_ver)
@@ -734,7 +757,6 @@ AC_SUBST(enable_dot)
 AC_SUBST(enable_html_docs)
 AC_SUBST(enable_latex_docs)
 ])
-
 
 
 dnl @synopsis AX_COMPARE_VERSION(VERSION_A, OP, VERSION_B, [ACTION-IF-TRUE], [ACTION-IF-FALSE])
@@ -922,3 +944,58 @@ AC_DEFUN(CHECK_VA_LIST,
       AC_MSG_RESULT(no)
   fi
 ])
+
+
+# ==================== wxWidgets  =========================
+AC_DEFUN([CHECK_WXWIDGETS],
+[
+    AC_MSG_CHECKING([for wxWidgets])
+    AC_PATH_PROG([WXWIDGETS_CONFIG],wx-config)
+
+    if test "x_$WXWIDGETS_CONFIG" != "x_"
+    then
+        wxCflags=`$WXWIDGETS_CONFIG --cflags`
+        AC_SUBST(WXWIDGETS_CFLAGS,$wxCflags)
+        wxCXXflags=`$WXWIDGETS_CONFIG --cxxflags`
+        AC_SUBST(WXWIDGETS_CXXFLAGS,$wxCXXflags)
+        wxlibs=`$WXWIDGETS_CONFIG --libs`
+        AC_SUBST(WXWIDGETS_LIBS,$wxlibs)
+        wxver=`$WXWIDGETS_CONFIG --version`
+
+        AC_MSG_CHECKING([wxWidgets revision])
+        AC_MSG_RESULT([found version $wxver])
+
+        enable_wxwidgets=yes
+    else
+        enable_wxwidgets=no
+        AC_MSG_WARN([no wx-config found - wxWidgets disabled])
+    fi
+])dnl
+
+
+# ==================== named ====================
+# Find the installed executable of named/bind.
+AC_DEFUN([CHECK_NAMED],
+[
+    AC_ARG_WITH(named,
+                [--with-named=PATH the named/bind executable],
+                [named_program=$withval],
+                [named_program=""],
+	             )
+
+    if test x_$named_program != x_; then
+      AC_MSG_RESULT([Using named from --with-named $named_program])
+      AC_SUBST(NAMED_PROGRAM, $named_program)
+    else
+      AC_PATH_PROG([NAMED_PROGRAM], [named], 
+                   [named],
+                   [$PATH:/sbin:/usr/sbin:/usr/local/sbin]
+                   )
+    fi
+    
+    if ! test -x $NAMED_PROGRAM; then
+        AC_MSG_WARN([Cannot execute $NAMED_PROGRAM.  Tests that require it will not be executed.])
+        NAMED_PROGRAM=""
+    fi
+])
+

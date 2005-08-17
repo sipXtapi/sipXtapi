@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.57)
-AC_INIT(sipXpbx, 2.9.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXpbx, 2.9, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
@@ -50,13 +50,6 @@ AC_TYPE_SIGNAL
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
-
-AM_PATH_GLIB_2_0
-if ! test x"$no_glib" = x
-then
-  AC_MSG_ERROR(GLib2 required)
-fi
-
 
 CHECK_APACHE2
 CHECK_MODCPLUSPLUS

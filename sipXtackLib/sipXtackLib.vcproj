@@ -3,7 +3,6 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="sipXtackLib"
-	ProjectGUID="{55F35B2C-20C6-4AB8-BA2F-67F1DBC5F095}"
 	SccProjectName="Perforce Project"
 	SccLocalPath=".">
 	<Platforms>
@@ -23,8 +22,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXcallLib\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;SIP_STACK_VERSION=\&quot;2.5.2\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXcallLib\include"
+				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;2.5.2\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;DISABLE_MEM_POOLS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -75,8 +74,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXcallLib\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;SIP_STACK_VERSION=\&quot;2.5.2\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXcallLib\include,..\..\sipXportLib\include,..\..\sipXcallLib\include"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;2.5.2\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;DISABLE_MEM_POOLS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -824,16 +823,67 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\net\SipDialog.cpp">
+				RelativePath="src\net\SipContactDb.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\net\SipDialogEvent.cpp">
+				RelativePath="src\net\SipDialog.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\net\SipDialogMgr.cpp">
-			</File>
-			<File
-				RelativePath=".\src\net\SipDialogMonitor.cpp">
+				RelativePath="src\net\SipDialogMgr.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="src\net\SipLine.cpp">
@@ -1124,7 +1174,13 @@
 				RelativePath=".\src\net\SipRefreshManager.cpp">
 			</File>
 			<File
-				RelativePath="src\net\SipRefreshMgr.cpp">
+				RelativePath=".\src\net\SipRequestContext.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\SipResourceList.cpp">
+			</File>
+			<File
+				RelativePath="src\net\SipServerBase.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -1145,13 +1201,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\net\SipRequestContext.cpp">
-			</File>
-			<File
-				RelativePath=".\src\net\SipResourceList.cpp">
-			</File>
-			<File
-				RelativePath="src\net\SipServerBase.cpp">
+				RelativePath="src\net\SipServerBroker.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -1214,6 +1264,7 @@
 				</FileConfiguration>
 			</File>
 			<File
+<<<<<<< .working
 				RelativePath=".\src\net\SipSubscribeClient.cpp">
 			</File>
 			<File
@@ -1226,6 +1277,92 @@
 				RelativePath=".\src\net\SipSubscriptionMgr.cpp">
 			</File>
 			<File
+=======
+				RelativePath="src\net\SipSubscribeClient.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\net\SipSubscribeServer.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\net\SipSubscribeServerEventHandler.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\net\SipSubscriptionMgr.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+>>>>>>> .merge-right.r3114
 				RelativePath="src\net\SipTcpServer.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1512,6 +1649,9 @@
 				RelativePath="include\net\NameValuePair.h">
 			</File>
 			<File
+				RelativePath=".\include\net\NameValuePairInsensitive.h">
+			</File>
+			<File
 				RelativePath="include\net\NameValueTokenizer.h">
 			</File>
 			<File
@@ -1569,6 +1709,15 @@
 				RelativePath="include\net\SipConfigServerAgent.h">
 			</File>
 			<File
+				RelativePath="include\net\SipContactDb.h">
+			</File>
+			<File
+				RelativePath="include\net\SipDialog.h">
+			</File>
+			<File
+				RelativePath="include\net\SipDialogMgr.h">
+			</File>
+			<File
 				RelativePath="include\net\SipLine.h">
 			</File>
 			<File
@@ -1608,16 +1757,37 @@
 				RelativePath="include\net\SipProtocolServerBase.h">
 			</File>
 			<File
+				RelativePath="include\net\SipPublishContentMgr.h">
+			</File>
+			<File
+				RelativePath="include\net\SipRefreshManager.h">
+			</File>
+			<File
 				RelativePath="include\net\SipRefreshMgr.h">
 			</File>
 			<File
 				RelativePath="include\net\SipServerBase.h">
 			</File>
 			<File
+				RelativePath="include\net\SipServerBroker.h">
+			</File>
+			<File
 				RelativePath="include\net\SipSession.h">
 			</File>
 			<File
 				RelativePath="include\net\SipSrvLookup.h">
+			</File>
+			<File
+				RelativePath="include\net\SipSubscribeClient.h">
+			</File>
+			<File
+				RelativePath="include\net\SipSubscribeServer.h">
+			</File>
+			<File
+				RelativePath="include\net\SipSubscribeServerEventHandler.h">
+			</File>
+			<File
+				RelativePath="include\net\SipSubscriptionMgr.h">
 			</File>
 			<File
 				RelativePath="include\net\SipTcpServer.h">

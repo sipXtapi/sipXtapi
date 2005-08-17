@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlDefs_h_
 #define _UtlDefs_h_
@@ -21,6 +19,10 @@
 
 #ifndef TRUE
 #define TRUE (1==1)
+#endif
+
+#ifndef NULL
+#define NULL 0
 #endif
 
 #define UTL_NOT_FOUND ((size_t)-1)

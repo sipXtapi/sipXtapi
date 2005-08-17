@@ -14,10 +14,15 @@ package org.sipfoundry.sipxconfig.setting.type;
 import java.util.Collections;
 import java.util.Map;
 
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.ObjectUtils;
 
 public class EnumSetting implements SettingType {
+    private static final Converter CONVERTER = new IntegerConverter();
+    
     private Map m_enums = new LinkedMap();
 
     public EnumSetting() {
@@ -33,5 +38,22 @@ public class EnumSetting implements SettingType {
 
     public Map getEnums() {
         return Collections.unmodifiableMap(m_enums);
+    }
+    
+    public boolean isRequired() {
+        return false;
+    }
+
+    /**
+     * At the moment we do not know if enumeration values are integers or strings.
+     * The naive implementation tries to coerce the value to integer, if that fails strings are used.
+     */
+    public Object convertToTypedValue(Object value) {
+        try {
+            return CONVERTER.convert(Integer.class, value);
+            
+        } catch (ConversionException e) {
+            return value;
+        }
     }
 }

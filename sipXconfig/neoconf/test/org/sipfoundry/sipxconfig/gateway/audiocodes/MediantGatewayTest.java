@@ -18,18 +18,23 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 public class MediantGatewayTest extends TestCase {
     private GatewayContext m_gatewayContext;
+    private ModelFilesContext m_modelFilesContext;
 
     protected void setUp() throws Exception {
         m_gatewayContext = (GatewayContext) TestHelper.getApplicationContext().getBean(
                 "gatewayContextImpl");
+        m_modelFilesContext = (ModelFilesContext) TestHelper.getApplicationContext().getBean(
+                "modelFilesContext");
     }
 
     public void testGenerateProfiles() throws Exception {
         MediantGateway gateway = new MediantGateway();
         gateway.setGatewayContext(m_gatewayContext);
+        gateway.setModelFilesContext(m_modelFilesContext);
         Writer writer = new StringWriter();
         gateway.generateProfiles(writer);
 

@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipTlsServer_h_
 #define _SipTlsServer_h_
@@ -36,7 +34,9 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   SipTlsServer(int sipPort = SIP_TLS_PORT, SipUserAgent* userAgent = NULL);
+   SipTlsServer(int sipPort = SIP_TLS_PORT, 
+                SipUserAgent* userAgent = NULL,
+                UtlBoolean bUseNextAvailablePort = FALSE);
      //:Default constructor
 
 
@@ -52,7 +52,6 @@ public:
     //: The the local server port for this server
 
 /* ============================ INQUIRY =================================== */
-    virtual UtlBoolean isOk();
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

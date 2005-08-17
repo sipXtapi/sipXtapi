@@ -1,16 +1,12 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // System includes
-#include <stdio.h>
+#include "os/OsDefs.h"
 #include <getopt.h>
 #if defined(_WIN32)
 #   include <windows.h>
@@ -56,7 +52,7 @@ enum
 } Feedback = Quiet;
 
 const char* LogFile = "musicserver.log";
-const char* Playfile = "home/mardy/src/sipX/sipXcallLib/examples/musicServer/default.wav";
+const char* Playfile = "default.wav";
 
 void initLogger(char* argv[])
 {
@@ -210,34 +206,33 @@ int main(int argc, char* argv[])
     UtlString localAddress;
     OsSocket::getHostIp(&localAddress);
     CallManager callManager(FALSE,
-                           NULL,
-                           TRUE,                              // early media in 180 ringing
-                           &codecFactory,
-                           RTP_START_PORT,                    // rtp start
-                           RTP_START_PORT + (2*MAX_CONNECTIONS), // rtp end
-                           localAddress,
-                           localAddress,
-                           &userAgent, 
-                           0,                                 // sipSessionReinviteTimer
-                           NULL,                              // mgcpStackTask
-                           NULL,                              // defaultCallExtension
-                           Connection::RING,                  // availableBehavior
-                           NULL,                              // unconditionalForwardUrl
-                           -1,                                // forwardOnNoAnswerSeconds
-                           NULL,                              // forwardOnNoAnswerUrl
-                           Connection::BUSY,                  // busyBehavior
-                           NULL,                              // sipForwardOnBusyUrl
-                           NULL,                              // speedNums
-                           CallManager::SIP_CALL,             // phonesetOutgoingCallProtocol
-                           4,                                 // numDialPlanDigits
-                           CallManager::NEAR_END_HOLD,        // holdType
-                           5000,                              // offeringDelay
-                           "",                                // pLocal
-                           CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
-                           QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
-                           MAX_CONNECTIONS,                   // maxCalls
-                           NULL);                             // CpMediaInterfaceFactory
-
+                            NULL,
+                            TRUE,                              // early media in 180 ringing
+                            &codecFactory,
+                            RTP_START_PORT,                    // rtp start
+                            RTP_START_PORT + (2*MAX_CONNECTIONS), // rtp end
+                            localAddress,
+                            localAddress,
+                            &userAgent, 
+                            0,                                 // sipSessionReinviteTimer
+                            NULL,                              // mgcpStackTask
+                            NULL,                              // defaultCallExtension
+                            Connection::RING,                  // availableBehavior
+                            NULL,                              // unconditionalForwardUrl
+                            -1,                                // forwardOnNoAnswerSeconds
+                            NULL,                              // forwardOnNoAnswerUrl
+                            Connection::BUSY,                  // busyBehavior
+                            NULL,                              // sipForwardOnBusyUrl
+                            NULL,                              // speedNums
+                            CallManager::SIP_CALL,             // phonesetOutgoingCallProtocol
+                            4,                                 // numDialPlanDigits
+                            CallManager::NEAR_END_HOLD,        // holdType
+                            5000,                              // offeringDelay
+                            "",                                // pLocal
+                            CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
+                            QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
+                            MAX_CONNECTIONS,                   // maxCalls
+                            NULL);                             // CpMediaInterfaceFactory
 
 
     // Create a listener (application) to deal with call

@@ -28,14 +28,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class TestUtil {
 
-    public static final String[] APPLICATION_CONTEXT_FILES = new String[] {
-        "org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml",
-        "org/sipfoundry/sipxconfig/gateway/gateway.beans.xml",
-        "org/sipfoundry/sipxconfig/phone/phone.beans.xml",
-        "org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml",
-        "org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml"
-    };
-
     private TestUtil() {
         // empty - to prevent instantiation
     }

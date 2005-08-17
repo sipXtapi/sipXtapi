@@ -1,13 +1,10 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _UtlContainable_h_
 #define _UtlContainable_h_
@@ -44,39 +41,101 @@ public:
      */
     virtual ~UtlContainable();
 
-/* ============================ MANIPULATORS ============================== */
-
-/* ============================ ACCESSORS ================================= */
-
-    /**
-     * Calculate a unique hash code for this object.  If the equals
-     * operator returns true for another object, then both of those
-     * objects must return the same hashcode.
-     */
-    virtual unsigned hash() const = 0 ;
-
     /**
      * Get the ContainableType for a UtlContainable derived class.
      */
     virtual UtlContainableType getContainableType() const = 0 ;
 
-/* ============================ INQUIRY =================================== */
+    /// Calculate a hash code for this object.
+    virtual unsigned hash() const = 0 ;
+    /**<
+     * The hash method should return a value that is a function of the key used to
+     * locate the object.  As much as possible, hash values should be uniformly
+     * distributed over the range of legal unsigned values.
+     * 
+     * \par Requirements
+     * if A.isEqual(B) then A.hash() must == B.hash()
+     */
 
-    /**
-     * Compare the this object to another like-objects.  Results for 
-     * designating a non-like object are undefined.
+    /// Provides a hash function that uses the object pointer as the hash value.
+    unsigned directHash() const;
+    /**<
+     * This may be used by any UtlContainable class for which generating a value hash
+     * is difficult or not meaningful.  Note that pointer values, since they are not
+     * uniformly distributed, probably make poor hash codes so this should not be used
+     * normally.  @see stringHash
+     *
+     * To use this, define your hash function as just:<pre>
+     * unsigned int Foo::hash() const
+     * {
+     * return directHash();
+     * }
+     * </pre>
+     *
+     * If you use directHash as the hash method, you probably want to
+     * use pointer comparison as the compareTo method:<pre>
+     * int Foo::compareTo(UtlContainable const* inVal) const
+     * {
+     *    int result ; 
+     * 
+     *    if (inVal->isInstanceOf(Foo::TYPE))
+     *    {
+     *       result = ((unsigned) this) - ((unsigned) (Foo*) inVal);
+     *    }
+     *    else
+     *    {
+     *       result = -1; 
+     *    }
+     *
+     *    return result;
+     * }
+     * </pre>
+     */
+    
+    /// Provides a hash function appropriate for null-terminated string values.
+    static unsigned stringHash(char const* value);
+    /**<
+     * To use this, define your hash function as just:<pre>
+     * Foo hash()
+     * {
+     * return stringHash(value);
+     * }
+     * </pre>
+     */
+
+    /// Compare the this object to another object. 
+    virtual int compareTo(UtlContainable const *) const = 0  ;    
+    /**<
+     * Results of comparison to an object not of the same UtlContainableType
+     * may be undefined.
      *
      * @returns 0 if equal, < 0 if less then and >0 if greater.
+     *
+     * \par Requirements
+     * - if A.compareTo(B) == 0 then B.compareTo(A) must be == 0
+     * - if A.compareTo(B) < 0 then B.compareTo(A) must be > 0
+     * - if A.compareTo(B) > 0 then B.compareTo(A) must be < 0
+     * - if A.compareTo(B) < 0 and B.compareTo(C) < 0 then A.compareTo(C) must be < 0
+     * etc.
+     * 
+     * Results for comparing with a non-like object are undefined,
+     * other than that it must return non-equal.
+     * Note that a copy of an object might not compare equal to the
+     * original, unless the definition of its type requires it.
      */
-    virtual int compareTo(UtlContainable const *) const = 0  ;    
 
-    /**
-     * Test this object to another like-object for equality.  Results for
-     * non-like objects are undefined.
+    /// Test this object to another object for equality.
+    virtual UtlBoolean isEqual(UtlContainable const *) const;
+    /**<
+     * Results for objects not of the same UtlContainableType may be undefined.
+     *
+     * A default implementation of this is provided that should be adequate for any
+     * UtlContainableType.
      */
-    virtual UtlBoolean isEqual(UtlContainable const *) const;    
 
-    /**
+    /// Determine if this object is of the specified UtlContainableType.
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const ; 
+    /**<
      * Determine if this object is an instance of the designated runtime
      * class identifer.  For example:
      * <pre>
@@ -86,7 +145,6 @@ public:
      * }
      * </pre>
      */
-    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const ; 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

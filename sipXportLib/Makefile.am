@@ -46,4 +46,3 @@ sipxportlib.spec : sipxportlib.spec.in
 # RPM from
 dist-hook: sipxportlib.spec
 	cp sipxportlib.spec $(distdir)
-

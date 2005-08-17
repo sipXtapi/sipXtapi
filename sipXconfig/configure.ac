@@ -45,11 +45,6 @@ then
   AC_HEADER_STDC
   AC_HEADER_SYS_WAIT
   AC_CHECK_HEADERS([arpa/inet.h fcntl.h malloc.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
-  AM_PATH_GLIB_2_0
-  if ! test x"$no_glib" = x
-  then
-    AC_MSG_ERROR(GLib2 required)
-  fi
 
   # Checks for typedefs, structures, and compiler characteristics.
   AC_HEADER_STDBOOL
@@ -111,5 +106,5 @@ AC_OUTPUT
 # autoconf variables like datadir, localstatedir, etc are not resolved
 # until make time, so here we get a jump start on this mainly for ANT
 # purist that don't do make and got right int ant
-make config.properties
+make build.properties
 

@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _CpGhostConnection_h_
 #define _CpGhostConnection_h_
@@ -17,6 +15,7 @@
 
 // APPLICATION INCLUDES
 #include <cp/Connection.h>
+#include <net/SipContactDb.h>
 
 // DEFINES
 // MACROS
@@ -100,10 +99,6 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    virtual UtlBoolean getRemoteAddress(UtlString* remoteAddress) const;
-   //: get Connection address
-   //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
-
-   virtual UtlBoolean getRemoteAddress(UtlString* remoteAddress, UtlBoolean leaveFieldParametersIn) const;
    //: get Connection address
    //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
 

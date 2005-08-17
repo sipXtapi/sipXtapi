@@ -1,21 +1,21 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlContainer_h_
 #define _UtlContainer_h_
 
 // SYSTEM INCLUDES
 #include <stdlib.h> 
-#include "glib.h"
 
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
+#include "utl/UtlLink.h"
 #include "utl/UtlContainable.h"
 #include "utl/UtlIterator.h"
 #include "os/OsBSem.h"
@@ -193,14 +193,14 @@ protected:
      *   ->invalidate when this UtlContainer is being deleted
      * see sIteratorConnectionLock
      */
-    GList* mpIteratorList; 
+    UtlChain mIteratorList; 
 
     static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     /// This lock prevent container/iterator deadlocks
-    static OsBSem sIteratorConnectionLock;
+    static OsBSem* spIteratorConnectionLock;
     /**<
      * UtlContainer/UtlIterator locking strategy
      *

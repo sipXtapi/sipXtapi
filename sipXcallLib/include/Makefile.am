@@ -4,7 +4,13 @@
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 if BUILDTAPI
-tapi_headers = tapi/sipXtapi.h tapi/sipXtapiEvents.h tapi/SipXtapiEventDispatcher.h
+tapi_headers = \
+    tapi/SipXHandleMap.h \
+    tapi/SipXMessageObserver.h \
+    tapi/SipXtapiEventDispatcher.h \
+    tapi/sipXtapi.h \
+    tapi/sipXtapiEvents.h \
+    tapi/sipXtapiInternal.h
 endif
 
 nobase_include_HEADERS =  \
@@ -16,17 +22,45 @@ nobase_include_HEADERS =  \
     cp/CpGhostConnection.h \
     cp/CpIntMessage.h \
     cp/CpMediaInterface.h \
+    cp/CpMediaInterfaceFactory.h \
+    cp/CpMediaInterfaceFactoryFactory.h \
+    cp/CpMediaInterfaceFactoryImpl.h \
     cp/CpMultiStringMessage.h \
     cp/CpPeerCall.h \
     cp/CpPhoneMediaInterface.h \
     cp/CpStringMessage.h \
-    cp/SipConnection.h \
-    cp/CpMediaInterfaceFactoryInterface.h \
-    cp/sipXmediaFactoryImpl.h \
-    cp/CpMediaInterfaceFactory.h \
     cp/DialogEventPublisher.h \
     cp/PresenceDialInServer.h \
+    cp/SipConnection.h \
     cp/SipPresenceMonitor.h \
+    cp/sipXmediaFactoryImpl.h \
+    ps/PsButtonId.h \
+    ps/PsButtonInfo.h \
+    ps/PsButtonTask.h \
+    ps/PsHookswDev.h \
+    ps/PsHookswTask.h \
+    ps/PsKeybdDev.h \
+    ps/PsLampDev.h \
+    ps/PsLampId.h \
+    ps/PsLampInfo.h \
+    ps/PsLampTask.h \
+    ps/PsMsg.h \
+    ps/PsPhoneTask.h \
+    ps/PsTaoButton.h \
+    ps/PsTaoComponent.h \
+    ps/PsTaoComponentGroup.h \
+    ps/PsTaoDisplay.h \
+    ps/PsTaoHookswitch.h \
+    ps/PsTaoLamp.h \
+    ps/PsTaoMicrophone.h \
+    ps/PsTaoRinger.h \
+    ps/PsTaoSpeaker.h \
+    ps/linux/PsHookswDevLinux.h \
+    ps/linux/PsKeybdDevLinux.h \
+    ps/linux/PsLampDevLinux.h \
+    ps/wnt/PsHookswDevWnt.h \
+    ps/wnt/PsKeybdDevWnt.h \
+    ps/wnt/PsLampDevWnt.h \
     ptapi/PtAddessCapabilities.h \
     ptapi/PtAddress.h \
     ptapi/PtAddressEvent.h \
@@ -110,33 +144,6 @@ nobase_include_HEADERS =  \
     tao/TaoTerminalConnectionListener.h \
     tao/TaoTransportAgent.h \
     tao/TaoTransportTask.h \
-    ps/linux/PsHookswDevLinux.h \
-    ps/linux/PsKeybdDevLinux.h \
-    ps/linux/PsLampDevLinux.h \
-    ps/PsButtonId.h \
-    ps/PsButtonInfo.h \
-    ps/PsButtonTask.h \
-    ps/PsHookswDev.h \
-    ps/PsHookswTask.h \
-    ps/PsKeybdDev.h \
-    ps/PsLampDev.h \
-    ps/PsLampId.h \
-    ps/PsLampInfo.h \
-    ps/PsLampTask.h \
-    ps/PsMsg.h \
-    ps/PsPhoneTask.h \
-    ps/PsTaoButton.h \
-    ps/PsTaoComponent.h \
-    ps/PsTaoComponentGroup.h \
-    ps/PsTaoDisplay.h \
-    ps/PsTaoHookswitch.h \
-    ps/PsTaoLamp.h \
-    ps/PsTaoMicrophone.h \
-    ps/PsTaoRinger.h \
-    ps/PsTaoSpeaker.h \
-    ps/wnt/PsHookswDevWnt.h \
-    ps/wnt/PsKeybdDevWnt.h \
-    ps/wnt/PsLampDevWnt.h \
     $(tapi_headers)
 
 noinst_HEADERS = \
@@ -144,4 +151,3 @@ noinst_HEADERS = \
     test/mp/MyPlayerListenerHistoryKeeper.h \
     test/mp/MyPlayerListenerPoller.h \
     test/mp/MyStreamQueueHistoryKeeper.h 
-    

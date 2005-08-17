@@ -48,6 +48,7 @@ public class SelectGatewaysTest extends TestCase {
         }
         
         DialingRule rule = new CustomDialingRule();
+        rule.setUniqueId();
         
         MockControl dialPlanContextControl = MockControl.createStrictControl(DialPlanContext.class);
         dialPlanContextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);

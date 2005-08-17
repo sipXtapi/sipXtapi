@@ -55,7 +55,8 @@ public final class FilterRunner implements SettingVisitor {
         FilterRunner runner = new FilterRunner(filter, root);
         Iterator i = root.getValues().iterator();
         while (i.hasNext()) {
-            ((Setting) i.next()).acceptVisitor(runner);
+            Setting s = (Setting) i.next(); 
+            s.acceptVisitor(runner);
         }
         return runner.m_collection;
     }    

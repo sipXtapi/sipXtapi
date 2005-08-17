@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -120,7 +118,7 @@ PtStatus PtProvider::createProvider(const char* login, const char* password,
                         osPrintf("WARNING - PtProvider::createProvider: using invalid host, replaced with %s\n", host.data());
                 }
 
-                if (port == 0)
+                if (!portIsValid(port))
                         port = DEF_TAO_LISTEN_PORT;
         }
         else

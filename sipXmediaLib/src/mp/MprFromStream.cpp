@@ -1,20 +1,18 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
 
 #ifdef __pingtel_on_posix__
-#include <malloc.h>
+#include <stdlib.h>
 #endif
 
 // APPLICATION INCLUDES

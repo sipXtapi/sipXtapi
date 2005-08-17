@@ -88,6 +88,4 @@ public interface PhoneContext extends DataObjectSource {
     public void clear();
 
     public String getSystemDirectory();
-
-    public void deleteLinesForUser(Integer userId);
 }

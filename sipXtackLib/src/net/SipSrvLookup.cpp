@@ -1,753 +1,1064 @@
-/*
-* Expands a SIP domain name into a list of suitable servers, in the
-* following order:
-*  (0) IP address
-*  (1) SRV records      (negative preferences starting at -65536)
-*  (3) A and RR records (assigned a preference of 65536)
-*
-* Based on DomainSearch by Christian Zahl (1996);
-*   Cleaned up by Henning Schulzrinne, 1997-07-13;
-*   Extended to handle SRV records and port, 1998-08-03
-*
-* Copyright 1998-1999 by Columbia University; all rights reserved 
-*/
+//
+//
+// Copyright (C) 2005 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Rewritten based on DomainSearch by Christian Zahl, and SipSrvLookup
+// by Henning Schulzrinne.
+//
+// $$
+//////////////////////////////////////////////////////////////////////////////
 
 #if defined(_WIN32)
-#	include "resparse/wnt/sysdep.h"
-#	include <resparse/wnt/netinet/in.h>
-#	include <resparse/wnt/arpa/nameser.h>
-#	include <resparse/wnt/resolv/resolv.h>
-#	include <winsock2.h>
+#       include "resparse/wnt/sysdep.h"
+#       include <resparse/wnt/netinet/in.h>
+#       include <resparse/wnt/arpa/nameser.h>
+#       include <resparse/wnt/resolv/resolv.h>
+#       include <winsock.h>
+extern "C" {
+#       include "resparse/wnt/inet_aton.h"       
+}
 #elif defined(_VXWORKS)
-#	include <netdb.h>
-#	include <netinet/in.h>
+#       include <netdb.h>
+#       include <netinet/in.h>
 /* Use local lnameser.h for info missing from VxWorks version --GAT */
 /* lnameser.h is a subset of resparse/wnt/arpa/nameser.h                */
-#	include <resolv/nameser.h>
-#	include <resparse/vxw/arpa/lnameser.h>
+#       include <resolv/nameser.h>
+#       include <resparse/vxw/arpa/lnameser.h>
 /* Use local lresolv.h for info missing from VxWorks version --GAT */
 /* lresolv.h is a subset of resparse/wnt/resolv/resolv.h               */
-#	include <resolv/resolv.h>
-#	include <resparse/vxw/resolv/lresolv.h>
+#       include <resolv/resolv.h>
+#       include <resparse/vxw/resolv/lresolv.h>
 /* #include <sys/socket.h> used sockLib.h instead --GAT */
-#	include <sockLib.h>
-#	include <resolvLib.h>
-#	include <resparse/vxw/hd_string.h>
+#       include <sockLib.h>
+#       include <resolvLib.h>
+#       include <resparse/vxw/hd_string.h>
 #elif defined(__pingtel_on_posix__)
-#	include <arpa/inet.h>
-#	include <netinet/in.h>
-#	include <sys/socket.h>
-#	include <resolv.h>
-#	include <netdb.h>
+#       include <arpa/inet.h>
+#       include <netinet/in.h>
+#       include <sys/socket.h>
+#       include <resolv.h>
+#       include <netdb.h>
 #else
-#	error Unsupported target platform.
+#       error Unsupported target platform.
 #endif
 
-#include <stdlib.h>   /* qsort() --GAT */
-#include <assert.h>
-
-#include <stdio.h>
 #include <sys/types.h>
 
-#if HAVE_ARPA_NAMESER_COMPAT_H
-#include <resparse/arpa/nameser_compat.h> /* T_SRV, etc., on recent BIND */
-#endif
-
+// Standard C includes.
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 
-/* #include "resparse/pthread.h" For testing, ignore threading --GAT */
-
-#include "resparse/rr.h"       /* from resparse package --GAT */
-#include "os/OsSysLog.h"
-#include "net/SipMessage.h"
+// Application includes.
+#include "os/OsSocket.h"
+#include "os/OsLock.h"
 #include "net/SipSrvLookup.h"
 
-#ifdef _VXWORKS
-extern "C" int enetIsLinkActive(void);
-#endif
+#include "os/OsSysLog.h"
+#include "resparse/rr.h"
 
-//#define SRV_DEBUG
-#undef SRV_DEBUG
-#define RES_SEARCH res_search
+// The space allocated for returns from res_query.
+#define DNS_RESPONSE_SIZE 4096
 
-/*
- * Use a mutex lock to protect MT-unsafe res_search().
- * Since all occurences of res_search are called from within
- * servers() the lock is set and unset in that function.
+// The initial value of OptionCodeCNAMELImit.
+#define DEFAULT_CNAME_LIMIT 5
+
+// Forward references
+
+// All of these functions are made forward references here rather than
+// being protected methods in SipSrvLookup.h because some of them
+// require #include "resparse/rr.h", which ultimately includes
+// /usr/include/arpa/nameser_compat.h, which #defines STATUS, which is
+// used in other places in our code for other purposes.
+
+/**
+ * @name Server List
+ *
+ * These methods maintain a list of servers and their properties that have
+ * been found so far during the current search.
+ * The list is a malloc'ed array of pointers to server_t's, and is
+ * represented by a pointer to the array, a count of the allocated length
+ * of the array, and a count of the number of entries in the array that
+ * are used.
  */
-OsMutex SipSrvLookup::sLock(OsMutex::Q_PRIORITY |
-                            OsMutex::DELETE_SAFE |
-                            OsMutex::INVERSION_SAFE);
+///@{
 
-/*
- * Insert host if address if not a duplicate.  Update preference if lower
- * one found.
+/// Initialize the variables pointing to the list of servers found thus far.
+static void server_list_initialize(server_t*& list,
+                                   int& list_length_allocated,
+                                   int& list_length_used);
+
+///@}
+
+/// Insert records into the list for a server address.
+static void server_insert_addr(
+   /// List control variables.
+   server_t*& list,
+   int& list_length_allocated,
+   int& list_length_used,
+   /// Components of the server_t.
+   const char *host,
+   ///< (copied)
+   OsSocket::SocketProtocolTypes type,
+   struct sockaddr_in sin,
+   unsigned int priority,
+   unsigned int weight);
+/**<
+ * If type is UNKNOWN (meaning no higher-level process has specified
+ * the transport to this server, server_insert_addr may insert two
+ * records, one for UDP and one for TCP.
  */
-server_t* SipSrvLookup::server_insert(server_t *server, 
-                                      const char *host, 
-                                      enum OsSocket::SocketProtocolTypes type,
-                                      struct sockaddr_in sin, 
-                                      int preference, 
-                                      int weight, 
-                                      int *entries)
+
+/**
+ * Add server_t to the end of a list of server addresses.
+ * Calculates sorting score.
+ */
+static void server_insert(
+   /// List control variables.
+   server_t*& list,
+   int& list_length_allocated,
+   int& list_length_used,
+   /// Components of the server_t.
+   const char *host,
+   ///< (copied)
+   OsSocket::SocketProtocolTypes type,
+   struct sockaddr_in sin,
+   unsigned int priority,
+   unsigned int weight);
+
+/**
+ * Look up SRV records for a domain name, and from them find server
+ * addresses to insert into the list of servers.
+ */
+static void lookup_SRV(server_t*& list,
+                       int& list_length_allocated,
+                       int& list_length_used,
+                       const char *domain,
+                       ///< domain name
+                       const char *service,
+                       ///< "sip" or "sips"
+                       const char *proto_string,
+                       ///< protocol string for DNS lookup
+                       OsSocket::SocketProtocolTypes proto_code
+                       ///< protocol code for result list
+   );
+
+/**
+ * Look up A records for a domain name, and insert them into the list
+ * of servers.
+ */
+static void lookup_A(server_t*& list,
+                     int& list_length_allocated,
+                     int& list_length_used,
+                     const char *domain,
+                     ///< domain name
+                     OsSocket::SocketProtocolTypes proto_code,
+                     /**< protocol code for result list
+                      *   UNKNOWN means both UDP and TCP are acceptable
+                      *   SSL must be set explicitly. */
+                     res_response* in_response,
+                     ///< current DNS response, or NULL
+                     int port,
+                     ///< port
+                     unsigned int priority,
+                     ///< priority
+                     unsigned int weight
+                     ///< weight
+   );
+/**<
+ * If in_response is non-NULL, use it as an initial source of A records.
+ *
+ * @returns TRUE if one or more addresses were added to the list.
+ */
+
+/// Perform a DNS query and parse the results.  Follows CNAME records.
+static void res_query_and_parse(const char* in_name,
+                                ///< domain name to look up
+                                int type,
+                                ///< RR type to look up
+                                res_response* in_response,
+                                /**< response structure to
+                                 *   look in before calling
+                                 *   res_query, or NULL */
+                                const char*& out_name,
+                                ///< canonical name for in_name
+                                res_response*& out_response
+                                ///< response structure containing RRs
+   );
+/**<
+ * Performs a DNS query for a particular type of RR on a given name,
+ * doing all the work to follow CNAMEs.  The 'in_name' and 'type'
+ * arguments specify the RRs to look for.  If 'in_response' is not NULL,
+ * it is the results of some previous search for the same name, for
+ * a different type of RR, which might contain RRs for this search.
+ *
+ * @return out_response is a pointer to a response structure, or NULL.
+ * If non-NULL, the RRs of the required type (if any) are in out_response
+ * (in either the answer section or the additional section), under the name
+ * out_name.
+ *
+ * The caller is responsible for freeing out_name if it is non-NULL
+ * and != in_name.  The caller is responsible for freeing out_response if it
+ * is non-NULL and != in_response.
+ */
+
+/**
+ * Search for an RR with 'name' and 'type' in the answer and additional
+ * sections of a DNS response.
+ *
+ * @return pointer to rdata structure for the first RR founr, or NULL.
+ */
+static union u_rdata* look_for(res_response* response,
+                               ///< response to look in
+                               const char* name,
+                               ///< domain name
+                               int type
+                               ///< RR type
+   );
+
+/// Function to compare two server entries.
+static int server_compare(const void* a, const void* b);
+/**<
+ * Compares two server_t's which represent two servers.
+ * Used by qsort to sort the list of server entries into preference
+ * order.  The sort rules are that the first (smallest) element is:
+ * # Lowest priority
+ * # Highest weighting score
+ * Transport type (UDP, TCP, etc.) is ignored.
+ *
+ * @returns Integer comparison result as needed by qsort.
+ */
+
+static void sort_answers(res_response* response);
+
+static int rr_compare(const void* a, const void* b);
+
+/**
+ * The array of option values.
+ *
+ * Set the initial values.
+ */
+int SipSrvLookup::options[OptionCodeLast+1] = {
+   0,                           // OptionCodeNone
+   0,                           // OptionCodeFirst
+   0,                           // OptionCodeIgnoreSRV
+   0,                           // OptionCodeIgnoreNAPTR
+   0,                           // OptionCodeSortAnswers
+   0,                           // OptionCodePrintAnswers
+   DEFAULT_CNAME_LIMIT,         // OptionCodeCNAMELimit
+   0,                           // OptionCodeNoDefaultTCP
+   0,                           // OptionCodeLast
+};
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/// Get the list of server entries for SIP domain name 'domain'.
+server_t* SipSrvLookup::servers(const char* domain,
+                                ///< SIP domain name or host name
+                                const char* service,
+                                ///< "sip" or "sips"
+                                enum OsSocket::SocketProtocolTypes socketType,
+                                ///< types of transport
+                                int port
+                                ///< port number from URI, or PORT_NONE
+   )
 {
-  int i;
+   server_t* list;
+   int list_length_allocated;
+   int list_length_used = 0;
+   struct sockaddr_in in;
 
-  for (i = 0; i < *entries; i++) {
-    if (server[i].sin.sin_addr.s_addr == sin.sin_addr.s_addr
-        && server[i].sin.sin_port == sin.sin_port
-        && server[i].type == type) {
-      if (preference < server[i].preference)
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSrvLookup::servers domain = '%s', service = '%s', "
+                 "socketType = %d, port = %d",
+                 domain, service, socketType, port);
+
+   // Initialize the list of servers.
+   server_list_initialize(list, list_length_allocated, list_length_used);
+
+   // Seize the lock.
+   OsLock lock(sMutex);
+
+   // Case 0: Eliminate contradictory combinations of service and type.
+   if ((strcmp(service, "sip") == 0 && socketType == OsSocket::SSL_SOCKET) ||
+       (strcmp(service, "sips") == 0 &&
+        (socketType == OsSocket::TCP || socketType == OsSocket::UDP)))
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipSrvLookup::servers Incompatible service '%s' and "
+                    "socketType %d",
+                    service, socketType);
+      /* Add no elements to the list. */
+   }
+   else
+   // Case 1: Domain name is a numeric IP address.
+   if (inet_aton(domain, &in.sin_addr))
+   {
+      in.sin_family = AF_INET;
+      // Set up the port number.
+      // If port was specified in the URI, that is the port to use.
+      // Otherwise, if the service is sips, use 5061.  Otherwise use 5060.
+      in.sin_port = htons(portIsValid(port) ? port :
+                          strcmp(service, "sips") == 0 ? 5061 :
+                          5060);
+      // Set the transport if it is not already set for SIPS.
+      if (socketType == OsSocket::UNKNOWN &&
+          strcmp(service, "sips") == 0)
       {
-        server[i].preference = preference;
-        server[i].weight = weight;
+         socketType = OsSocket::SSL_SOCKET;
       }
-      break;
-    }
-  }
-  /* no matching entry found, thus insert */
-  if (i == *entries) {
-    (*entries)++;
-    server = (server_t *) (server ? realloc(server, sizeof(server_t) * (*entries)) :
-                    malloc(sizeof(server_t)));
-    server[i].host = host ? strdup(host) : NULL;
-    server[i].sin  = sin;
-    server[i].type = type;
-    server[i].preference = preference;
-    server[i].weight = weight;
-  }
-  return server;
-} /* server_insert */
-
-
-/*
- * Sort function:  by preference (lowest first) and then weight (highest
- * first).  For equal preference, UDP wins.
- */
-int SipSrvLookup::server_sort(const server_t *s1, const server_t *s2)
-{
-    int compare = 0;
-
-    // compare preferences
-    if (s1->preference > s2->preference)
-    {
-        compare = 1;
-    }
-    else if (s1->preference < s2->preference)
-    {
-        compare = -1;
-    }
-    // preferences equal, compare weights
-    else if (s1->weight < s2->weight)
-    {
-        compare = 1;
-    }
-    else if (s1->weight > s2->weight)
-    {
-        compare = -1;
-    }
-    // preferences and weights are equal, compare types
-    else if (s1->type == s2->type) 
-    {
-        // all things are equal
-        compare = 0;
-    }
-    // TCP is the lowest priority
-    else if(s1->type == OsSocket::TCP)
-    {
-        compare = 1;
-    }
-    else if(s2->type == OsSocket::TCP)
-    {
-        compare = -1;
-    }
-    // TLS is the highest priority
-    else if(s1->type == OsSocket::SSL_SOCKET)
-    {
-        compare = -1;
-    }
-    else if(s2->type == OsSocket::SSL_SOCKET)
-    {
-        compare = 1;
-    }
-
-    return compare;
-} /* server_sort */
-
-/*
-* Find the address of a host with domain name 'domain' and add it to the
-* address list.
-*/
-server_t* SipSrvLookup::server_addr(server_t *server, 
-                                    const char *domain,
-                                    const char *service,
-                                    enum OsSocket::SocketProtocolTypes type,
-                                    int port,
-                                    int preference,
-                                    int weight,
-                                    int *entries,
-                                    int depth,
-                                    UtlBoolean doCnameQuery)
-{
-  struct hostent *h;
-  char msg[PACKETSZ];
-#if defined(_VXWORKS)  /* needed for call to resolvGetHostByName --GAT */
-  char buf[512];
-#endif
-  s_rr **rr;
-  res_response *res;
-  struct sockaddr_in sin;
-  unsigned int i;
-  UtlBoolean foundAddress = FALSE;
-
-#ifdef SRV_DEBUG
-  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                "SipSrvLookup::server_addr("
-                " domain = '%s', type = %d, port = %d, preference = %d, weight = %d,"
-                "  depth = %d, doCnameQuery = %s",
-                domain, type, port, preference, weight,
-                depth, doCnameQuery ? "TRUE" : "FALSE");
-#endif
-
-  /* Allow nesting to 5 levels. */
-  if (depth > 5) return server;
-  sin.sin_family = AF_INET;
-  sin.sin_port = htons(port);
-
-  /* Query for any CNAMEs and recurse.
-   * Only do the CNAME query if doCnameQuery is TRUE.  This flag is used to avoid
-   * CNAME lookups for SRV target hosts which, according to RFC 2782, MUST NOT
-   * be aliases.
-   */
-  if (!foundAddress &&
-      doCnameQuery &&
-      (RES_SEARCH(domain, C_IN, T_CNAME, (unsigned char *)msg, sizeof (msg)) != -1) &&
-      ((res = res_parse((char *)&msg)) != NULL)) {
-
-    if (res->header.ancount > 0)
-      foundAddress = TRUE;
-
-    rr = res->answer;
-    for (i = 0; i < res->header.ancount; i++) {
-      if ((rr[i]->type == T_CNAME)
-          && (rr[i]->rclass == C_IN))
-        server = server_addr(server, rr[i]->rdata.string, service, type, port,
-                             preference, weight, entries, depth + 1, doCnameQuery);
-    }
-    res_free(res);
-  }
-
-  /*
-   * Try A records next if no CNAME.
-   */
-  if (!foundAddress &&
-      (RES_SEARCH(domain, C_IN, T_A, (unsigned char *)msg, sizeof (msg)) != -1) &&
-      ((res = res_parse((char *)&msg)) != NULL)) {
-
-    if (res->header.ancount > 0)
-      foundAddress = TRUE;
-
-    rr = res->answer;
-    for (i = 0; i < res->header.ancount; i++) {
-      if ((rr[i]->type == T_A)
-          && (rr[i]->rclass == C_IN)) 
+      server_insert_addr(list, list_length_allocated, list_length_used,
+                         domain, socketType, in, 0, 0);
+   }
+   else
+   {
+      // Case 2: SRV records exist for this domain.
+      // (Only used if no port is specified in the URI.)
+      if (port <= 0 && !options[OptionCodeIgnoreSRV])
       {
-        sin.sin_addr = rr[i]->rdata.address;
-         
-        if(type == OsSocket::UNKNOWN)
-        {
-           if (0 == strcmp(service, "sip"))
-           {
-            // The type is unspecified and A records do not specify
-            // the protocol, so add one for each
-            server = server_insert(server, rr[i]->name, OsSocket::UDP,
-                       sin, preference, weight, entries);
-            server = server_insert(server, rr[i]->name, OsSocket::TCP,
-                                   sin, preference, weight, entries);
-           }
-#ifdef SIP_TLS
-           else if (0 == strcmp(service, "sips"))
-           {
-            // this needs to be conditional on the service
-            server = server_insert(server, rr[i]->name, OsSocket::SSL_SOCKET,
-                                   sin, preference, weight, entries);
-           }
-#endif
-           else
-           {
-              OsSysLog::add(FAC_SIP, PRI_CRIT,
-                            "SipSrvLookup::server_add unsupported service '%s'"
-                            , service);
-           }
-        }
-        else
-        {
-            server = server_insert(server, rr[i]->name, type,
-                       sin, preference, weight, entries);
-        }
-//////////////////////////////////////////////////////////////////
-
+         // If UDP transport is acceptable.
+         if ((socketType == OsSocket::UNKNOWN ||
+              socketType == OsSocket::UDP) &&
+             strcmp(service, "sips") != 0)
+         {
+            lookup_SRV(list, list_length_allocated, list_length_used,
+                       domain, service, "udp", OsSocket::UDP);
+         }
+         // If TCP transport is acceptable.
+         if ((socketType == OsSocket::UNKNOWN ||
+              socketType == OsSocket::TCP) &&
+             strcmp(service, "sips") != 0)
+         {
+            lookup_SRV(list, list_length_allocated, list_length_used,
+                       domain, service, "tcp", OsSocket::TCP);
+         }
       }
-    }
-    res_free(res);
-  }
-
-  /*
-   * If that fails, try gethostbyname (this also uses local resources
-   *   such as NIS or /etc/hosts).
-   */
-#ifdef SRV_DEBUG
-  if (!foundAddress) {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSrvLookup::server_addr() calling gethostbyname('%s')",
-             domain);
-  }
-#endif
-  if (!foundAddress &&
-#if defined(_WIN32) || defined(__pingtel_on_posix__)
-      ((h = gethostbyname (domain)) != NULL) &&
-#elif defined(_VXWORKS)
-      ((h = resolvGetHostByName (domain, buf, sizeof(buf))) != NULL) &&
-#else
-#    error need function to resolve DNA a record look
-#endif
-      (h->h_addrtype == AF_INET)) {
-    for (i = 0; h->h_addr_list[i] != NULL; i++) {
-      sin.sin_addr = *(struct in_addr *)(h->h_addr_list[i]); 
-      server = server_insert(server, h->h_name, type,
-                 sin, preference, weight, entries);
-    }
-  }
-  return server;
-} /* server_addr */
-
-
-/*
-* Add to address list for 'domain'.  First, try for SRV RRs, then A RRs.
-* Update 'entries' with number of entries.
-*/
-server_t* SipSrvLookup::server_hosts(const char *domain, 
-                                     const char *service, 
-                                     enum OsSocket::SocketProtocolTypes type, 
-                                     int port,
-                                     int *entries)
-{
-  char msg[PACKETSZ];
-  char *name = NULL;
-
-  s_rr **rr;
-  res_response *res;
-  unsigned int i;
-  server_t *server = NULL;
-  struct sockaddr_in sin;
-  UtlBoolean foundAddress = FALSE;
-
-  /*
-   * Check if the domain is just a numeric IP address.
-   */
-  if ((sin.sin_addr.s_addr = inet_addr(domain)) != OS_INVALID_INET_ADDRESS)
-  {
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(abs(port));
-    if (   (OsSocket::UDP == type)
-        || (OsSocket::UNKNOWN == type && 0 != strcmp(service, "sips")) // don't add UDP for sips:
-        )
-    {
-      server = server_insert(server, domain, OsSocket::UDP, sin, 0, 0, entries);
-    }
-    if (   (OsSocket::TCP == type)
-        || (OsSocket::UNKNOWN == type && 0 != strcmp(service, "sips")) // don't add TCP for sips:
-        ) 
-    {
-      server = server_insert(server, domain, OsSocket::TCP, sin, 0, 0, entries);
-    }
-#ifdef SIP_TLS
-    if (   (OsSocket::SSL_SOCKET == type)
-        || (OsSocket::UNKNOWN    == type && 0 == strcmp(service, "sips")))
-    {
-      server = server_insert(server, domain, OsSocket::SSL_SOCKET, sin, 0, 0, entries);
-    }
-#endif
-#   ifdef SRV_DEBUG
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSrvLookup::server_hosts IP-only resolved for"
-                  " type = %d, service = %s, port = %d",
-                  type, service, port);
-#   endif
-
-    return server;
-  }
-
-  /*
-   * Look for SRV records for the servce type in the domain, first UDP, then TCP.
-   */
-#ifdef SRV_DEBUG
-     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSrvLookup::server_hosts("
-                   "  domain = '%s', type = %d, service = %s, port = %d)",
-                   domain, type, service, port);
-#endif
-
-  //+20 padding for format string in sprintf
-  name = new char[strlen(service)+strlen(domain)+20]; 
-
-  /* UDP for unknown port */
-  if (   (   (OsSocket::UNKNOWN == type && 0 != strcmp(service, "sips")) // don't support UDP w/TLS
-          || OsSocket::UDP == type)
-      && port <= 0) {
-    res = NULL;
-
-    /* New-style (RFC 2782) format */
-    sprintf(name, "_%s._udp.%s", service, domain);
-    if (RES_SEARCH(name, C_IN, T_SRV, (unsigned char *)msg, sizeof (msg)) != -1) {
-      res = res_parse((char *)&msg);
-    }
-
-    if (res != NULL) {
-      rr = res->answer;
-      for (i = 0; i < res->header.ancount; i++) {
-        if ((rr[i]->type == T_SRV) && (rr[i]->rclass == C_IN) &&
-            (strcasecmp(name, rr[i]->name) == 0)) {
-#ifdef SRV_DEBUG
-          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSrvLookup::server_hosts() - Received SRV record %d"
-                        "  target='%s', port=%d, pri=%d, weight=%d, type=DGRAM",
-                        i, rr[i]->rdata.srv.target, rr[i]->rdata.srv.port,
-                   rr[i]->rdata.srv.priority, rr[i]->rdata.srv.weight);
-#endif
-          foundAddress = TRUE;
-          /* Check the "additional data" section for a corresponding A record */
-          if (lookup_addr_in_addl_info(&sin, res, rr[i]->rdata.srv.target,
-                                       rr[i]->rdata.srv.port)) {
-            server = server_insert(server, rr[i]->rdata.srv.target, OsSocket::UDP,
-                                   sin, rr[i]->rdata.srv.priority - 65536,
-                                   (int)(rr[i]->rdata.srv.weight * rand()),
-                                   entries);
-          }
-          else {
-            server = server_addr(server, rr[i]->rdata.srv.target, service,
-                                 OsSocket::UDP, rr[i]->rdata.srv.port,
-                                 rr[i]->rdata.srv.priority - 65536, 
-                                 (int)(rr[i]->rdata.srv.weight * rand()),
-                                 entries,
-                                 0, FALSE);
-          }
-        }
+      // Case 3: Look for A records.
+      // (Only used for non-numeric addresses for which SRV lookup did not
+      // produce any addresses.  This includes if an explicit port was given.)
+      if (list_length_used == 0)
+      {
+         lookup_A(list, list_length_allocated, list_length_used,
+                  domain,
+                  // Default the transport for "sips".
+                  (socketType == OsSocket::UNKNOWN &&
+                   strcmp(service, "sips") == 0) ?
+                  OsSocket::SSL_SOCKET : socketType,
+                  // must do a query.
+                  NULL,
+                  // Default the port if it is not already set.
+                  (portIsValid(port) ? port :
+                   strcmp(service, "sips") == 0 ? 5061 :
+                   5060),
+                  // Set the priority and weight to 0.
+                  0, 0);
       }
-      res_free(res);
-    }
-  }
+   }
 
-  /* TCP */
-  // don't care if UDP SRV records are found, if the type == unknown/any we need
-  // to lookup TCP as well
-  if (   (   OsSocket::UNKNOWN == type
-          || OsSocket::TCP     == type
-          )
-      && port <= 0)
-  {
-    res = NULL;
+   // Sort the list of servers found by priority and score.
+   qsort(list, list_length_used, sizeof (server_t), server_compare);
 
-    /* New-style (RFC 2782) format */
-    sprintf(name, "_%s._tcp.%s", service, domain);
-    if (RES_SEARCH(name, C_IN, T_SRV, (unsigned char *)msg, sizeof (msg)) != -1) {
-      res = res_parse((char *)&msg);
-    }
+   // Add ending empty element to list (after sorting the real entries).
+   server_insert(list, list_length_allocated, list_length_used,
+                 NULL, OsSocket::UNKNOWN, in, 0, 0);
 
-    if (res != NULL) {
-      rr = res->answer;
-      for (i = 0; i < res->header.ancount; i++) {
-        if ((rr[i]->type == T_SRV) && (rr[i]->rclass == C_IN) &&
-            (strcasecmp(name, rr[i]->name) == 0)) {
-#ifdef SRV_DEBUG
-          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSrvLookup::server_hosts() - rcvd SRV %d"
-                        "  target='%s', port=%d, pri=%d, weight=%d, type=STREAM\n",
-                        i, rr[i]->rdata.srv.target, rr[i]->rdata.srv.port,
-                        rr[i]->rdata.srv.priority, rr[i]->rdata.srv.weight);
-#endif
-          foundAddress = TRUE;
-          /* Check the "additional data" section for a corresponding A record */
-          if (lookup_addr_in_addl_info(&sin, res, rr[i]->rdata.srv.target,
-                                       rr[i]->rdata.srv.port)) {
-            server = server_insert(server, rr[i]->rdata.srv.target, OsSocket::TCP,
-                                   sin, rr[i]->rdata.srv.priority - 65536,
-                                   (int)(rr[i]->rdata.srv.weight * rand()),
-                                   entries);
-          }
-          else {
-            server = server_addr(server, rr[i]->rdata.srv.target, service,
-                                 OsSocket::TCP, rr[i]->rdata.srv.port,
-                                 rr[i]->rdata.srv.priority - 65536, 
-                                 (int)(rr[i]->rdata.srv.weight * rand()),
-                                 entries,
-                                 0, FALSE);
-          }
-        }
+   // Return the list of servers.
+   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   {
+      // Debugging print of list of servers.
+      for (int j = 0; j < list_length_used; j++)
+      {
+         if (list[j].isValidServerT())
+         {
+            UtlString host;
+            list[j].getHostNameFromServerT(host);
+            UtlString ip_addr;
+            list[j].getIpAddressFromServerT(ip_addr);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipSrvLookup::servers host = '%s', IP addr = '%s', "
+                          "port = %d, weight = %u, score = %f, "
+                          "priority = %u, proto = %d",
+                          host.data(), ip_addr.data(),
+                          list[j].getPortFromServerT(),
+                          list[j].getWeightFromServerT(),
+                          list[j].getScoreFromServerT(),
+                          list[j].getPriorityFromServerT(),
+                          list[j].getProtocolFromServerT());
+         }
       }
-      res_free(res);
-    }
-  }
-
-#ifdef SIP_TLS
-  /* TLS */
-  // don't care if UDP or TCP SRV records are found, if the type == unknown/any we need
-  // to lookup TLS as well
-    if (   (   type == OsSocket::UNKNOWN
-            || type == OsSocket::SSL_SOCKET)
-         && port <= 0
-        ) 
-    {
-        res = NULL;
-
-        sprintf(name, "_sips._tcp.%s", domain);
-        if (RES_SEARCH(name, C_IN, T_SRV, (unsigned char *)msg, sizeof (msg)) != -1) {
-          res = res_parse((char *)&msg);
-        }
-
-        if (res != NULL) {
-          rr = res->answer;
-          for (i = 0; i < res->header.ancount; i++) {
-            if ((rr[i]->type == T_SRV) && (rr[i]->rclass == C_IN) &&
-                (strcasecmp(name, rr[i]->name) == 0)) {
-#ifdef SRV_DEBUG
-              OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                            "SipSrvLookup::server_hosts() - Received SRV record %d"
-                            "  target='%s', port=%d, pri=%d, weight=%d, type=TLS",
-                            i, rr[i]->rdata.srv.target, rr[i]->rdata.srv.port,
-                            rr[i]->rdata.srv.priority, rr[i]->rdata.srv.weight);
-#endif
-              foundAddress = TRUE;
-              /* Check the "additional data" section for a corresponding A record */
-              if (lookup_addr_in_addl_info(&sin, res, rr[i]->rdata.srv.target,
-                                           rr[i]->rdata.srv.port)) {
-                server = server_insert(server, rr[i]->rdata.srv.target, OsSocket::SSL_SOCKET,
-                                       sin, rr[i]->rdata.srv.priority - 65536,
-                                       (int)(rr[i]->rdata.srv.weight * rand()),
-                                       entries);
-              }
-              else {
-                server = server_addr(server, rr[i]->rdata.srv.target, service,
-                                     OsSocket::SSL_SOCKET, rr[i]->rdata.srv.port,
-                                     rr[i]->rdata.srv.priority - 65536, 
-                                     (int)(rr[i]->rdata.srv.weight * rand()),
-                                     entries,
-                                     0, FALSE);
-              }
-            }
-          }
-          res_free(res);
-        }
-    }
-
-#endif
-
-  /*
-   * Finally, we take any host with that name, but give it the lowest
-   * preference. We use UDP first, then TCP.
-   */
-  if (!foundAddress) 
-  {
-    int savEntries;
-
-    savEntries = *entries;
-    server = server_addr(server, domain, service, type,  
-                         abs(port), 65536, 0, entries, 0, TRUE);
-
-    if (*entries > savEntries)
-      foundAddress = TRUE;
-  }
-
-  if (!foundAddress &&
-      type == OsSocket::TCP) {
-    server = server_addr(server, domain, service, OsSocket::TCP,
-                         abs(port), 65536, 0, entries, 0, TRUE);
-  }
-  
-  if (name)
-      delete [] name;
-
-  return server;
-} /* server_hosts */
-
-
-/*
-* External interface; return list of server entries for 'domain', with
-* last entry having a host value of NULL.  The service is a protocol
-* such as 'sip' or 'rtsp'.  The 'port' argument is used when the DNS
-* entry doesn't contain one.  A negative number indicates the default
-* port.  (This is indicated explicitly since SRV records are skipped
-* unless the default port is used.) The 'type' restricts whether UDP or
-* TCP addresses are sought.  If 0 both are used.
-*/
-
-server_t* SipSrvLookup::servers(const char *domain, 
-                                const char *service, 
-                                enum OsSocket::SocketProtocolTypes socketType, 
-                                int port)
-{
-  enum OsSocket::SocketProtocolTypes type = socketType;
-
-  struct sockaddr_in sin;
-  server_t *server = NULL;
-  int entries = 0;
-
-# ifdef _VXWORKS
-  // $$$ (rschaaf)
-  // ToDo: We should extend the OS abstraction layer with a method to
-  //       determine whether the network interface is available.
-  // Don't attempt to query the DNS server if we know that the network
-  // is unavailable.
-  if (enetIsLinkActive())
-  {
-# endif
-     memset(&sin, '\0', sizeof(sin));
-
-     sLock.acquire();   /* start of critical section */
-
-     server = server_hosts(domain, service, type, port, &entries);
-     qsort(server, entries, sizeof(server_t),
-           (int (*)(const void*, const void*)) server_sort);
-
-     /* insert terminator */
-     server = server_insert(server, NULL, OsSocket::UNKNOWN, sin, 0, 0, &entries);  
-  
-     sLock.release();   /* end of critical section */
-
-     UtlString typeStr;
-     SipMessage::convertProtocolEnumToString(type, typeStr);
-     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                   "SipSrvLookup::servers(domain='%s', service='%s', type=%s, port=%d) returned %d entries",
-                   domain, service, typeStr.data(), port, entries);
-# ifdef _VXWORKS
-  }
-# endif
-
-  return server;
-} /* servers */
-
-/*
- * Search the additional info returned with the response
- * for the specified address (A) record.
- * Returns 1 if the A record is found; otherwise returns 0
- */
-UtlBoolean SipSrvLookup::lookup_addr_in_addl_info(struct sockaddr_in *sin,
-  void *opaque_response, char *name, int port)
-{
-  
-  res_response *response = (res_response *) opaque_response;
-
-  unsigned int i;
-  s_rr **rr;
-
-#ifdef SRV_DEBUG
-  OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSrvLookup::lookup_addr_in_addl_info: DNS Response:"
-                "  qdcount=%d, ancount=%d, nscount=%d, arcount=%d",
-                response->header.qdcount, response->header.ancount,
-                response->header.nscount, response->header.arcount);
-#endif
-
-  if (response && response->header.arcount > 0) {
-    rr = response->additional;
-
-    for (i = 0; i < response->header.arcount; i++) {
-
-#ifdef SRV_DEBUG
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipSrvLookup::lookup_addr_in_addl_info name=%s, arcount=%d"
-                    " %d: name='%s', type=%d (%s), class=%d (%s)",
-                     name, response->header.arcount,
-                     i, rr[i]->name,
-                     rr[i]->type,   rr[i]->type == T_A ? "T_A" : "",
-                     rr[i]->rclass, rr[i]->rclass == C_IN ? "C_IN" : "");
-#endif
-
-      if ((rr[i]->type == T_A) &&
-          (rr[i]->rclass == C_IN) &&
-          (strcasecmp(name, rr[i]->name) == 0)) {
-        sin->sin_addr = rr[i]->rdata.address;
-        sin->sin_family = AF_INET;
-        sin->sin_port = htons(abs(port));
-        return 1;
-      }
-    }
-  }
-
-  /* if we made it to here, we didn't find the address record */
-  return 0;
+   }
+   return list;
 }
 
-//! Inquire if this is a valid SRV record
-UtlBoolean SipSrvLookup::isValidServerT(server_t& srvRecord)
+/// Set an option value.
+void SipSrvLookup::setOption(OptionCode option, int value)
 {
-    return(srvRecord.host != NULL);
-}
+   // Seize the lock, to ensure atomic effect.
+   OsLock lock(sMutex);
 
-//! Accessor for host name
-void SipSrvLookup::getHostNameFromServerT(server_t& srvRecord,
-                                  UtlString& hostName)
-{
-    hostName = srvRecord.host ? srvRecord.host : "";
-}
-
-//! Accessor for host IP address
- void SipSrvLookup::getIpAddressFromServerT(server_t& srvRecord,
-                                  UtlString& hostName)
-{
-    OsSocket::inet_ntoa_pt(srvRecord.sin.sin_addr, hostName);
-}
-
-//! Accessor for port
-int SipSrvLookup::getPortFromServerT(server_t& srvRecord)
-{
-    return(ntohs(srvRecord.sin.sin_port));
-}
-
-//! Accessor for weight
-int SipSrvLookup::getWeightFromServerT(server_t& srvRecord)
-{
-    return(srvRecord.weight);
-}
-
-//! Accessor for preference
-int SipSrvLookup::getPreferenceFromServerT(server_t& srvRecord)
-{
-    return(srvRecord.preference);
-}
-
-//! Accessor for protocol
-enum OsSocket::SocketProtocolTypes SipSrvLookup::getProtocolFromServerT(server_t& srvRecord)
-{
-    return(srvRecord.type);
-}
-
-//! Initializer for server_t
-void SipSrvLookup::initServerT(server_t& srvRecord)
-{
-    srvRecord.host = NULL;
-}
-
-// destructor for server_t
-void SipSrvLookup::freeServerT(server_t* srvRecordArray)
-{
-    // remove the memory for each of the entries
-    for (int i=0; srvRecordArray[i].host != NULL; i++)
-    {
-        // remove the host string first
-        free(srvRecordArray[i].host);
-    }
-    free(srvRecordArray);
+   options[option] = value;
 }
 
 //! Sets the DNS SRV times.  Defaults: timeout=5, retries=4
 void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 {
-    assert(initialTimeoutInSecs > 0) ;
-    assert(retries > 0) ;
+   if (initialTimeoutInSecs > 0)
+   {
+      _res.retrans = initialTimeoutInSecs;
+   }
 
-    if (initialTimeoutInSecs > 0)
+   if (retries > 0)
+   {
+      _res.retry = retries;
+   }
+}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+/*
+ * Lock to protect the resolver routines, which cannot tolerate multithreaded
+ * use.
+ */
+OsMutex SipSrvLookup::sMutex(OsMutex::Q_PRIORITY |
+                             OsMutex::DELETE_SAFE |
+                             OsMutex::INVERSION_SAFE);
+
+// Initialize the variables pointing to the list of servers found thus far.
+void server_list_initialize(server_t*& list,
+                            int& list_length_allocated,
+                            int& list_length_used)
+{
+   list_length_allocated = 2;
+   list = new server_t[list_length_allocated];
+   list_length_used = 0;
+}
+
+// Add server_t to the end of a list of server addresses.
+void server_insert_addr(server_t*& list,
+                        int& list_length_allocated,
+                        int& list_length_used,
+                        const char* host,
+                        OsSocket::SocketProtocolTypes type,
+                        struct sockaddr_in sin,
+                        unsigned int priority,
+                        unsigned int weight)
+{
+   if (type != OsSocket::UNKNOWN)
+   {
+      // If the transport is specified, just insert the record.
+      server_insert(list, list_length_allocated, list_length_used,
+                    host, type, sin, priority, weight);
+   }
+   else
+   {
+      // If the transport is not specified, insert a UDP record.
+      server_insert(list, list_length_allocated, list_length_used,
+                    host, OsSocket::UDP, sin, priority, weight);
+      // If specified, insert a TCP record.
+      if (!SipSrvLookup::getOption(SipSrvLookup::OptionCodeNoDefaultTCP))
+      {
+         server_insert(list, list_length_allocated, list_length_used,
+                       host, OsSocket::TCP, sin, priority, weight);
+      }
+   }
+}
+
+// Add server_t to the end of a list of server addresses.
+void server_insert(server_t*& list,
+                   int& list_length_allocated,
+                   int& list_length_used,
+                   const char* host,
+                   OsSocket::SocketProtocolTypes type,
+                   struct sockaddr_in sin,
+                   unsigned int priority,
+                   unsigned int weight)
+{
+   // Make sure there is room in the list.
+   if (list_length_used == list_length_allocated)
+   {
+      // Allocate the new list.
+      int new_length = 2 * list_length_allocated;
+      server_t* new_list = new server_t[new_length];
+      // Copy all the elements binarily, to avoid the overhead of
+      // duplicating all the host strings.
+      bcopy((char*) list, (char*) new_list,
+            list_length_used * sizeof (server_t));
+      // Erase the host pointers in the old list.
+      for (int i = 0; i < list_length_used; i++)
+      {
+         list[i].host = NULL;
+      }
+      // Free the old list.
+      delete[] list;
+      // Replace the old list with the new one.
+      list = new_list;
+      list_length_allocated = new_length;
+   }
+
+   // Copy the element into the list.
+   list[list_length_used].host =
+      host != NULL ? strdup(host) : NULL;
+   list[list_length_used].type = type;
+   list[list_length_used].sin = sin;
+   list[list_length_used].priority = priority;
+   list[list_length_used].weight = weight;
+   // Construct the score.
+   // Why we construct it this way is described in
+   // sipXtackLib/doc/developer/scores/README.
+   if (weight == 0)
+   {
+      // If weight is 0, set score to infinity.
+      list[list_length_used].score = 1000;
+   }
+   else
+   {
+      int i = rand();
+      // If random number is 0, change it to 1, so log() doesn't have a problem.
+      if (i == 0)
+      {
+         i = 1;
+      }
+      list[list_length_used].score = - log(((float) i) / RAND_MAX) / weight;
+   }
+
+   // Increment the count of elements in the list.
+   list_length_used++;
+}
+
+/*
+ * Look up SRV records for a domain name, and from them find server
+ * addresses to insert into the list of servers.
+ */
+void lookup_SRV(server_t*& list,
+                int& list_length_allocated,
+                int& list_length_used,
+                const char* domain,
+                ///< domain name
+                const char* service,
+                ///< "sip" or "sips"
+                const char* proto_string,
+                ///< protocol string for DNS lookup
+                OsSocket::SocketProtocolTypes proto_code
+                ///< protocol code for result list
+   )
+{
+   // To hold the return of res_query_and_parse.
+   res_response* response;
+   const char* canonical_name;
+
+   // Construct buffer to hold the key string for the lookup:
+   //    _service._protocol.domain
+   // 5 bytes suffices for the added components and the ending NUL.
+   char* lookup_name = (char*) malloc(strlen(service) + strlen(proto_string) +
+                                      strlen(domain) + 5);
+
+   // Construct the domain name to search on.
+   sprintf(lookup_name, "_%s._%s.%s", service, proto_string, domain);
+
+   // Make the query and parse the response.
+   res_query_and_parse(lookup_name, T_SRV, NULL, canonical_name, response);
+   if (response != NULL)
+   {
+       unsigned int i;
+      // For each answer that is an SRV record for this domain name.
+
+      // Search the answer list of RRs.
+      for (i = 0; i < response->header.ancount; i++)
+      {
+         if (response->answer[i]->rclass == C_IN &&
+             response->answer[i]->type == T_SRV &&
+             // Note we look for the canonical name now.
+             strcasecmp(canonical_name, response->answer[i]->name) == 0)
+         {
+            // Call lookup_A to get the A records for the target host
+            // name.  Give it the pointer to our current response,
+            // because it might have the A records.  If not, lookup_A
+            // will do a DNS lookup to get them.
+            lookup_A(list, list_length_allocated, list_length_used,
+                     response->answer[i]->rdata.srv.target, proto_code,
+                     response,
+                     response->answer[i]->rdata.srv.port,
+                     response->answer[i]->rdata.srv.priority,
+                     response->answer[i]->rdata.srv.weight);
+         }
+      }
+      // Search the additional list of RRs.
+      for (i = 0; i < response->header.arcount; i++)
+      {
+         if (response->additional[i]->rclass == C_IN &&
+             response->additional[i]->type == T_SRV &&
+             // Note we look for the canonical name now.
+             strcasecmp(canonical_name, response->additional[i]->name) == 0)
+         {
+            // Call lookup_A to get the A records for the target host
+            // name.  Give it the pointer to our current response,
+            // because it might have the A records.  If not, lookup_A
+            // will do a DNS lookup to get them.
+            lookup_A(list, list_length_allocated, list_length_used,
+                     response->additional[i]->rdata.srv.target, proto_code,
+                     response,
+                     response->additional[i]->rdata.srv.port,
+                     response->additional[i]->rdata.srv.priority,
+                     response->additional[i]->rdata.srv.weight);
+         }
+      }
+   }
+
+   // Free the result of res_parse.
+   if (response != NULL)
+   {
+      res_free(response);
+   }
+   if (canonical_name != NULL && canonical_name != lookup_name)
+   {
+      free((void*) canonical_name);
+   }
+   free((void*) lookup_name);
+}
+
+/*
+ * Look up A records for a domain name, and insert them into the list
+ * of servers.
+ */
+void lookup_A(server_t*& list,
+              int& list_length_allocated,
+              int& list_length_used,
+              const char* domain,
+              ///< domain name
+              OsSocket::SocketProtocolTypes proto_code,
+              ///< protocol code for result list
+              res_response* in_response,
+              ///< current DNS response, or NULL
+              int port,
+              ///< port
+              unsigned int priority,
+              ///< priority
+              unsigned int weight
+              ///< weight
+   )
+{
+   // To hold the return of res_query_and_parse.
+   res_response* response;
+   const char* canonical_name;
+
+   // Make the query and parse the response.
+   res_query_and_parse(domain, T_A, in_response, canonical_name, response);
+
+   // Search the list of RRs.
+   // For each answer that is an SRV record for this domain name.
+   if (response != NULL)
+   {
+       unsigned int i;
+      // Search the answer list.
+      for (i = 0; i < response->header.ancount; i++)
+      {
+         if (response->answer[i]->rclass == C_IN &&
+             response->answer[i]->type == T_A &&
+             // Note we look for the canonical name now.
+             strcasecmp(canonical_name, response->answer[i]->name) == 0)
+         {
+            // An A record has been found.
+            // Assemble the needed information and add it to the server list.
+            struct sockaddr_in sin;
+            sin.sin_addr = response->answer[i]->rdata.address;
+            sin.sin_family = AF_INET;
+            sin.sin_port = htons(port);
+            server_insert_addr(list, list_length_allocated,
+                               list_length_used,
+                               (const char*) domain,
+                               proto_code, sin, priority, weight);
+         }
+      }
+      // Search the additional list.
+      for (i = 0; i < response->header.arcount; i++)
+      {
+         if (response->additional[i]->rclass == C_IN &&
+             response->additional[i]->type == T_A &&
+             // Note we look for the canonical name now.
+             strcasecmp(canonical_name, response->additional[i]->name) == 0)
+         { 
+            // An A record has been found.
+            // Assemble the needed information and add it to the server list.
+            struct sockaddr_in sin;
+            sin.sin_addr = response->additional[i]->rdata.address;
+            sin.sin_family = AF_INET;
+            sin.sin_port = htons(port);
+            server_insert_addr(list, list_length_allocated,
+                               list_length_used,
+                               (const char*) domain,
+                               proto_code, sin, priority, weight);
+         }
+      }
+   }
+   
+   // Free the result of res_parse if necessary.
+   if (response != NULL && response != in_response)
+   {
+      res_free(response);
+   }
+   if (canonical_name != NULL && canonical_name != domain)
+   {
+      free((void*) canonical_name);
+   }
+}
+
+// Perform a DNS query and parse the results.  Follows CNAME records.
+void res_query_and_parse(const char* in_name,
+                         int type,
+                         res_response* in_response,
+                         const char*& out_name,
+                         res_response*& out_response
+   )
+{
+   // The number of CNAMEs we have followed.
+   int cname_count = 0;
+   // The response currently being examined.
+   res_response* response = in_response;
+   // The name currently being examined.
+   const char* name = in_name;
+   // TRUE if 'response' was a lookup for 'name' and 'type'.
+   UtlBoolean response_for_this_name = FALSE;
+   // Buffer into which to read DNS replies.
+   char answer[DNS_RESPONSE_SIZE];
+   union u_rdata* p;
+   
+   // Loop until we find a reason to exit.  Each turn around the loop does
+   // another DNS lookup.
+   while (1)
+   {
+      // While response != NULL and there is a CNAME record for name
+      // in response.
+      while (response != NULL &&
+             (p = look_for(response, name, T_CNAME)) != NULL)
+      {
+         cname_count++;
+         if (cname_count > SipSrvLookup::getOption(SipSrvLookup::OptionCodeCNAMELimit))
+         {
+            break;
+         }
+         // If necessary, free the current 'name'.
+         if (name != in_name)
+         {
+            free((void*) name);
+         }
+         // Copy the canonical name from the CNAME record into 'name', so
+         // we can still use it after freeing 'response'.
+         name = strdup(p->string);
+         // Remember that we are now looking for a name that was not the one
+         // that we searched for to produce this response.  Hence, if we don't
+         // find any RRs for it, that is not authoritative and we have to do
+         // another DNS query.
+         response_for_this_name = FALSE;
+         // Go back and check whether the result name of the CNAME is listed
+         // in this response.
+      }
+      // This response does not contain a CNAME for 'name'.  So it is either
+      // a final response that gives us the RRs we are looking for, or
+      // we need to do a lookup on 'name'.
+
+      // Check whether the response was for this name, or contains records
+      // of the type we are looking for.  If either, then any records we
+      // are looking for are in this response, so we can return.
+      if (response_for_this_name ||
+          (response != NULL && look_for(response, name, type) != NULL))
+      {
+         break;
+      }
+
+      // We must do another lookup.
+      // Start by freeing 'response' if we need to.
+      if (response != in_response)
+      {
+         res_free(response);
+      }
+      response = NULL;
+      // Now, 'response' will be from a query for 'name'.
+      response_for_this_name = TRUE;
+      // Debugging print.
+      if (SipSrvLookup::getOption(SipSrvLookup::OptionCodePrintAnswers))
+      {
+         printf("res_query(\"%s\", class = %d, type = %d)\n",
+                name, C_IN, type);
+      }
+      // Use res_query, not res_search, so defaulting rules are not
+      // applied to the domain.
+      if (res_query(name, C_IN, type,
+                    (unsigned char*) answer, sizeof (answer)) == -1)
+      {
+         // res_query failed, return.
+         break;
+      }
+      response = res_parse((char*) &answer);
+      if (response == NULL)
+      {
+         // res_parse failed, return.
+         break;
+      }
+      // If requested for testing purposes, sort the query and print it.
+      // Sort first, so we see how sorting came out.
+      if (SipSrvLookup::getOption(SipSrvLookup::OptionCodeSortAnswers))
+      {
+         sort_answers(response);
+      }
+      if (SipSrvLookup::getOption(SipSrvLookup::OptionCodePrintAnswers))
+      {
+         res_print(response);
+      }
+      // Now that we have a fresh DNS query to analyze, go back and check it
+      // for a CNAME for 'name' and then for records of the requested type.
+   }   
+
+   // Final processing:  Copy the working name and response to the output
+   // variables.
+   out_name = name;
+   out_response = response;
+}
+
+union u_rdata* look_for(res_response* response, const char* name,
+                        int type)
+{
+    unsigned i;
+
+   for (i = 0; i < response->header.ancount; i++)
+   {
+      if (response->answer[i]->rclass == C_IN &&
+          response->answer[i]->type == type &&
+          strcasecmp(name, response->answer[i]->name) == 0)
+      {
+         return &response->answer[i]->rdata;
+      }
+   }
+   for (i = 0; i < response->header.arcount; i++)
+   {
+      if (response->additional[i]->rclass == C_IN &&
+          response->additional[i]->type == type &&
+          strcasecmp(name, response->additional[i]->name) == 0)
+      {
+         return &response->additional[i]->rdata;
+      }
+   }
+   return NULL;
+}
+
+// Function to compare two server entries.
+int server_compare(const void* a, const void* b)
+{
+    int result = 0;
+    const server_t* s1 = (const server_t*) a;
+    const server_t* s2 = (const server_t*) b;
+
+    /* First compare priorities.  Lower priority values are preferred, and
+     * should go at the beginning of the list, and so should be returned
+     * as less-than.
+     */
+    if (s1->priority > s2->priority)
     {
-        _res.retrans = initialTimeoutInSecs;
+        result = 1;
+    }
+    else if (s1->priority < s2->priority)
+    {
+        result = -1;
+    }
+    // Next compare the scores derived from the weights.
+    // With the new scheme for computing scores, lower score values should
+    // sort to the beginning of the list, that is, should compare less thn
+    // higher scores.
+    // See sipXtackLib/doc/developer/scores/README for details.
+    else if (s1->score < s2->score)
+    {
+        result = -1;
+    }
+    else if (s1->score > s2->score)
+    {
+        result = 1;
+    }
+    // Compare the transport type, so UDP is favored over TCP.
+    // That means that TCP must be larger than UDP.
+    else if (s1->type == OsSocket::TCP && s2->type != OsSocket::TCP)
+    {
+        result = 1;
+    }
+    else if (s1->type != OsSocket::TCP && s2->type == OsSocket::TCP)
+    {
+        result = -1;
     }
 
-    if (retries > 0)
-    {
-	    _res.retry = retries;
-    }
+    return result;
+}
+
+/* //////////////////////////// server_t ///////////////////////////////// */
+
+/// Initializer for server_t
+server_t::server_t() :
+   host(NULL)
+{
+}
+
+// Copy constructor for server_t
+server_t::server_t(const server_t& rserver_t) :
+   host(rserver_t.host != NULL ? strdup(rserver_t.host) : NULL),
+   type(rserver_t.type),
+   sin(rserver_t.sin),
+   priority(rserver_t.priority),
+   weight(rserver_t.weight),
+   score(rserver_t.score)
+{
+}
+
+// Assignment operator for server_t
+server_t& server_t::operator=(const server_t& rhs)
+{
+   // Handle the assignment-to-self case.
+   if (this == &rhs)
+   {
+      return *this;
+   }
+
+   // Copy the host strign, if present.
+   host = rhs.host != NULL ? strdup(rhs.host) : NULL;
+   // Copy the other fields.
+   type = rhs.type;
+   sin = rhs.sin;
+   priority = rhs.priority;
+   weight = rhs.weight;
+   score = rhs.score;
+
+   return *this;
+}
+
+/// Destructor for server_t
+server_t::~server_t()
+{
+   // All that needs to be done is free the host string, if any.
+   if (host != NULL)
+   {
+      free(host);
+   }
+}
+
+/// Inquire if this is a valid SRV record
+UtlBoolean server_t::isValidServerT()
+{
+   // Entry is valid if host is not NULL.
+   return host != NULL;
+}
+
+/// Accessor for host name
+void server_t::getHostNameFromServerT(UtlString& hostName)
+{
+   hostName = (host != NULL) ? host : "";
+}
+
+/// Accessor for host IP address
+void server_t::getIpAddressFromServerT(UtlString& hostName)
+{
+   OsSocket::inet_ntoa_pt(sin.sin_addr, hostName);
+}
+
+/// Accessor for port
+int server_t::getPortFromServerT()
+{
+   return ntohs(sin.sin_port);
+}
+
+/// Accessor for weight
+unsigned int server_t::getWeightFromServerT()
+{
+   return weight;
+}
+
+/// Accessor for score
+float server_t::getScoreFromServerT()
+{
+   return score;
+}
+
+/// Accessor for priority
+unsigned int server_t::getPriorityFromServerT()
+{
+   return priority;
+}
+
+/// Accessor for protocol
+enum OsSocket::SocketProtocolTypes
+server_t::getProtocolFromServerT()
+{
+   return type;
+}
+
+/**
+ * Post-process the results of res_parse by sorting the lists of "answer" and
+ * "additional" RRs, so that responses are reproducible.  (named tends to
+ * rotate multiple answer RRs to the same query.)
+ */
+static void sort_answers(res_response* response)
+{
+   qsort((void*) response->answer, response->header.ancount,
+         sizeof (s_rr*), rr_compare);
+   qsort((void*) response->additional, response->header.arcount,
+         sizeof (s_rr*), rr_compare);
+}
+
+/**
+ * Function to compare two RRs for qsort.
+ *
+ * I was hoping to sort records by TTL values, but Bind cleverly gives all
+ * answers the same TTL (the minimum of the lot).  So we have to sort by
+ * address (for A records) or port/target (for SRV records).
+ */
+static int rr_compare(const void* a, const void* b)
+{
+   int t;
+
+   // a and b are pointers to entries in the array of s_rr*'s.
+   // Get the pointers to the s_rr's:
+   s_rr* a_rr = *(s_rr**) a;
+   s_rr* b_rr = *(s_rr**) b;
+
+   // Compare on type.
+   t = a_rr->type - b_rr->type;
+   if (t != 0)
+   {
+      return t;
+   }
+
+   // Case on type.
+   switch (a_rr->type)
+   {
+   case T_SRV:
+      // Compare on target.
+      t = strcmp(a_rr->rdata.srv.target, b_rr->rdata.srv.target);
+      if (t != 0)
+      {
+         return t;
+      }
+      // Compare on port.
+      if (a_rr->rdata.srv.port < b_rr->rdata.srv.port)
+      {
+         return -1;
+      }
+      else if (a_rr->rdata.srv.port > b_rr->rdata.srv.port)
+      {
+         return 1;
+      }
+      // Give up.
+      return 0;
+
+   case T_A:
+      // Compare on address.
+      return memcmp((const void*) &a_rr->rdata.address,
+                    (const void*) &b_rr->rdata.address,
+                    sizeof (struct sockaddr));
+
+   default:
+      return 0;
+   }
 }

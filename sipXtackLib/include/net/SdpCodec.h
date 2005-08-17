@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SdpCodec_h_
 #define _SdpCodec_h_
@@ -37,6 +35,13 @@
 #define MIME_SUBTYPE_IPCMA "EG711A"
 #define MIME_SUBTYPE_IPCMWB "IPCMWB"
 #define MIME_SUBTYPE_ILBC "ILBC"
+#define MIME_SUBTYPE_ISAC "ISAC"
+
+// Bandwidth requirements for SDP Codecs
+#define SDP_CODEC_BANDWIDTH_VARIABLE 0
+#define SDP_CODEC_BANDWIDTH_LOW      1
+#define SDP_CODEC_BANDWIDTH_NORMAL   2
+#define SDP_CODEC_BANDWIDTH_HIGH     3
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -111,12 +116,15 @@ public:
 
          // Range for 3rd party add in codec types
         SDP_CODEC_3RD_PARTY_START = 256,
+#ifdef HAVE_GIPS /* [ */
         SDP_CODEC_GIPS_PCMA  = 257,
         SDP_CODEC_GIPS_PCMU  = 258,
         SDP_CODEC_GIPS_IPCMA = 259,
         SDP_CODEC_GIPS_IPCMU = 260,
         SDP_CODEC_GIPS_IPCMWB = 261,
         SDP_CODEC_GIPS_ILBC = 262,
+        SDP_CODEC_GIPS_ISAC = 263,
+#endif /* HAVE_GIPS ] */
         SDP_CODEC_3RD_PARTY_END = 511
     };
 
@@ -139,7 +147,8 @@ public:
            int preferredPacketLength = 20000, // micro seconds
            int numChannels = 1,
            const char* formatSpecificData = "",
-           const int CPUCost = SDP_CODEC_CPU_LOW);
+           const int CPUCost = SDP_CODEC_CPU_LOW,
+           const int BWCost = SDP_CODEC_BANDWIDTH_NORMAL);
      //:Default constructor
 
    SdpCodec(const SdpCodec& rSdpCodec);
@@ -205,6 +214,10 @@ public:
    //:Get the CPU cost for this codec.
    //!returns SDP_CODEC_CPU_HIGH or SDP_CODEC_CPU_LOW
 
+   int getBWCost() const;
+   //:Get the bandwidth cost for this codec.
+   //!returns SDP_CODEC_BANDWIDTH_HIGH, SDP_CODEC_BANDWIDTH_NORMAL or SDP_CODEC_BANDWIDTH_LOW
+
 
 /* ============================ INQUIRY =================================== */
 
@@ -227,6 +240,7 @@ private:
     int mNumChannels;
     int mPacketLength; // micro seconds
     int mCPUCost; // relative cost of a SDP codec
+    int mBWCost;
 
 };
 

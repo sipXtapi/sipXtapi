@@ -15,12 +15,13 @@
 		<setting name="shave">
 			<value>face</value>
 		</setting>
+		<setting name="reason" hidden="yes"/>
 	</group>
 	<group name="woman" copy-of="/human">
 		<label>Woman</label>
 		<setting name="shave">
 			<value>legs</value>
 		</setting>
-		<setting name="giveBirth"/>
+		<setting name="giveBirth" advanced="yes"/>
 	</group>
 </model>

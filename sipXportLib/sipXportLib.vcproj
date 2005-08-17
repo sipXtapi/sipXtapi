@@ -3,7 +3,6 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="sipXportLib"
-	ProjectGUID="{ABFD2AD0-01D2-4405-A5AD-46DA2274E42F}"
 	SccProjectName="Perforce Project"
 	SccLocalPath=".">
 	<Platforms>
@@ -22,8 +21,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				AdditionalIncludeDirectories="include,include\glib,..\..\sipXportLib\include,..\..\sipXcallLib\include"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -42,8 +41,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\sipXportLib.lib"
-				SuppressStartupBanner="TRUE"
-				IgnoreAllDefaultLibraries="TRUE"/>
+				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -77,8 +75,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				AdditionalIncludeDirectories="include,include\glib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -126,7 +124,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="src\os\Wnt\getWindowsDNSServers.c">
+				RelativePath="src\os\Wnt\getWindowsDNSServers.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1029,6 +1027,27 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\os\OsPtrMsg.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\os\OsQueuedEvent.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1197,13 +1216,67 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\os\OsStunAgentTask.cpp">
+				RelativePath="src\os\OsStunAgentTask.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\os\OsStunDatagramSocket.cpp">
+				RelativePath="src\os\OsStunDatagramSocket.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\os\OsStunQueryAgent.cpp">
+				RelativePath="src\os\OsStunQueryAgent.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="src\os\OsSysLog.cpp">
@@ -1899,6 +1972,27 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\utl\UtlLink.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\utl\UtlList.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2192,6 +2286,27 @@
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="src\utl\XmlContent.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -2299,9 +2414,6 @@
 				RelativePath="include\os\OsMsgQ.h">
 			</File>
 			<File
-				RelativePath=".\include\os\shared\OsMsgQShared.h">
-			</File>
-			<File
 				RelativePath="include\os\OsMulticastSocket.h">
 			</File>
 			<File
@@ -2344,6 +2456,9 @@
 				RelativePath="include\os\OsProtectEventMgr.h">
 			</File>
 			<File
+				RelativePath="include\os\OsPtrMsg.h">
+			</File>
+			<File
 				RelativePath="include\os\OsQueuedEvent.h">
 			</File>
 			<File
@@ -2378,6 +2493,15 @@
 			</File>
 			<File
 				RelativePath="include\os\OsStatus.h">
+			</File>
+			<File
+				RelativePath="include\os\OsStunAgentTask.h">
+			</File>
+			<File
+				RelativePath="include\os\OsStunDatagramSocket.h">
+			</File>
+			<File
+				RelativePath="include\os\OsStunQueryAgent.h">
 			</File>
 			<File
 				RelativePath="include\os\OsSyncBase.h">

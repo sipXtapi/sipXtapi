@@ -38,7 +38,7 @@ public:
     const char* contact;
     const char* qvalue;       
     int4 cseq;
-    int4 expires;           // Absolute expiratoin time secs since 1/1/1970
+    int4 expires;           // Absolute expiration time, secs since 1/1/1970
     TYPE_DESCRIPTOR (
       ( KEY(np_identity, INDEXED),
         KEY(callid, HASHED),

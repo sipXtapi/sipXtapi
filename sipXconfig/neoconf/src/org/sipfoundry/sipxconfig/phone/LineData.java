@@ -11,12 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingVisitor;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 /**
  * Association between Users and their assigned phones.
@@ -38,7 +41,7 @@ public class LineData extends BeanWithGroups {
     }
 
     public String getDisplayLabel() {
-        return m_user.getDisplayId();
+        return m_user.getUserName();
     }
 
     public PhoneData getPhoneData() {
@@ -61,9 +64,37 @@ public class LineData extends BeanWithGroups {
         // Use phone groups until we can justify lines
         // having their own groups and work out a reasonable UI
         Set phoneGroups = getPhoneData().getGroups();
-        Setting decorated = super.decorate(implicitRootTag, phoneGroups, settings);
+        Setting decorated = traditionalDecorate(implicitRootTag, phoneGroups, settings);
         
         return decorated;        
     }
     
+    public Setting decorate(Group implicitRootTag, Setting settings) {
+        return decorate(implicitRootTag, getGroups(), settings);
+    }
+    
+    protected Setting traditionalDecorate(Group implicitRootTag, Set groups, Setting settings) {
+        Setting decorated = settings;
+        if (implicitRootTag != null) {
+            decorated = implicitRootTag.decorate(decorated);
+        }
+        
+        if (groups != null) {
+            Iterator i = groups.iterator();
+            while (i.hasNext()) {
+                SettingVisitor visitor = (SettingVisitor) i.next(); 
+                decorated.acceptVisitor(visitor);
+            }
+        }
+        
+        ValueStorage valueStorage = getValueStorage();
+        if (valueStorage == null) {
+            valueStorage = new ValueStorage();
+            setValueStorage(valueStorage);
+        }
+        
+        decorated = valueStorage.decorate(decorated);
+        
+        return decorated;    
+    }    
 }

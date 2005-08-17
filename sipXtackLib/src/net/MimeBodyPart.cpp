@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -15,6 +13,7 @@
 #include <utl/UtlDListIterator.h>
 #include <net/MimeBodyPart.h>
 #include <net/HttpMessage.h>
+#include <net/NameValuePair.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -46,6 +45,21 @@ MimeBodyPart::MimeBodyPart(const HttpBody* parent, int parentBodyStartIndex, int
             
            int parsedBytes = HttpMessage::parseHeaders(bodyBytes, rawBodyLength,
                     mNameValues);
+
+           // search the part headers for a Content-Type
+           NameValuePair* partType;
+           UtlDListIterator partHeaders(mNameValues);
+           for( partType = static_cast<NameValuePair*>(partHeaders());
+                partType && partType->compareTo(HTTP_CONTENT_TYPE_FIELD, UtlString::ignoreCase);
+                partType = static_cast<NameValuePair*>(partHeaders())
+               )
+           {
+           }
+           if (partType)
+           {
+              // the content-type of the part is stored in the parent UtlString
+              append(partType->getValue());
+           }
             mParentBodyStartIndex = parentBodyStartIndex + parsedBytes;
             mBodyLength = mRawBodyLength - parsedBytes;
        }

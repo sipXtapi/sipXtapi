@@ -38,7 +38,6 @@ Release Notes - sipXportLib - Version 2.6.1
 ** Improvement
     * [XPL-55] - ./configure options to allow PCRE include and lib dirs to be in different places
 
-
 Release Notes - sipXpbx - Version 2.5.2
 
 ** Bug

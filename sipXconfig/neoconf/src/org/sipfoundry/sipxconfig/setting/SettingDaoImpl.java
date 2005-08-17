@@ -16,10 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Use hibernate to perform database operations
@@ -28,6 +30,8 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     
     private static final String RESOURCE_PARAM = "resource";
     
+    private SipxProcessContext m_processContext;
+
     public void deleteGroup(Group group) {
         getHibernateTemplate().delete(group);
     }
@@ -43,7 +47,12 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     public void storeGroup(Group group) {
         checkDuplicates(group);
         assignWeightToNewGroups(group);
-        getHibernateTemplate().saveOrUpdate(group);                        
+        getHibernateTemplate().saveOrUpdate(group);
+        
+        // FIXME : HACK, will refactor to use hibernate event model 
+        if ("user".equals(group.getResource())) {
+            m_processContext.generate(DataSet.PERMISSION);
+        }            
     }
     
     void assignWeightToNewGroups(Group group) {
@@ -148,4 +157,9 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
             m_weight = weight;
         }
     }
+
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
+    }
+    
 }

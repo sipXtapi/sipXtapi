@@ -1,13 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -16,7 +12,6 @@
 #include <os/OsProcess.h>
 #include <os/OsProcessMgr.h>
 
-#include <iostream>
 #include <sipxunit/TestUtilities.h>
 
 class OsProcessMgrTest : public CppUnit::TestCase
@@ -67,13 +62,13 @@ public:
         CPPUNIT_ASSERT_EQUAL_MESSAGE("2nd alias state", PROCESS_STARTED, 
             processManager.getAliasState(MyPing2));
         
-        std::cout << "Waiting 2 secs before killing process MyPing1...\n";
+        //std::cout << "Waiting 2 secs before killing process MyPing1...\n";
         OsTask::delay(2000);
       
         stat = processManager.stopProcess(MyPing1);
         CPPUNIT_ASSERT_MESSAGE("Killed 1st process", stat == OS_SUCCESS);
 
-        std::cout << "Waiting 2 secs before killing process MyPing2...\n";
+        //std::cout << "Waiting 2 secs before killing process MyPing2...\n";
         OsTask::delay(2000);
         
         stat = processManager.stopProcess(MyPing2);

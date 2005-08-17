@@ -1,19 +1,15 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "..\stdwx.h"
-#include "..\sipXmgr.h"
+#include "../stdwx.h"
+#include "../sipXmgr.h"
 #include "PhoneStateMachine.h"
 #include "PhoneStateIdle.h"
 #include "utl/UtlSListIterator.h"
@@ -55,12 +51,15 @@ void PhoneStateMachine::setState(const PhoneState* pState)
 {
         if (mpState && mpState != pState)
         {
-           // delete old state
+           if (pState)
+           {
+               // delete old state
                 delete mpState;
                 // transition to new state
-            mpState = (PhoneState*) pState;
-            // execute it
+                mpState = (PhoneState*) pState;
+                // execute it
                 mpState->Execute();
+           }
         }
 }
 
@@ -226,24 +225,6 @@ PhoneState* PhoneStateMachine::OnError()
    return NULL; // the state machine should only return state pointers from the getState method
 }
 
-PhoneState* PhoneStateMachine::OnHoldButton()
-{
-   if (mpState)
-   {
-      // notify listeners that a HoldButton transition is about to occur
-      UtlSListIterator iterator(mObservers);
-      PhoneStateMachineObserver* pObserver;
-      while (pObserver = (PhoneStateMachineObserver*)iterator())
-      {
-          pObserver->OnHoldButton();
-      }
-
-      // set the state
-      setState(mpState->OnHoldButton());
-   }
-   return NULL; // the state machine should only return state pointers from the getState method
-}
-
 PhoneState* PhoneStateMachine::OnTransferRequested(const wxString phoneNumber)
 {
    if (mpState)
@@ -296,6 +277,61 @@ PhoneState* PhoneStateMachine::OnOffer(SIPX_CALL hCall)
       setState(mpState->OnOffer(hCall));
    }
     return NULL; // the state machine should only return state pointers from the getState methods
+}
+
+PhoneState* PhoneStateMachine::OnHoldButton()
+{
+   if (mpState)
+   {
+      // notify listeners that a OutgoingCallRejected transition is about to occur
+      UtlSListIterator iterator(mObservers);
+      PhoneStateMachineObserver* pObserver;
+      while (pObserver = (PhoneStateMachineObserver*)iterator())
+      {
+          pObserver->OnHoldButton();
+      }
+
+      // set the state
+      setState(mpState->OnHoldButton());
+   }
+   return NULL; // the state machine should only return state pointers from the getState method
+}
+
+PhoneState* PhoneStateMachine::OnLocalHoldRequested()
+{
+   if (mpState)
+   {
+      // notify listeners that a OnLocalHoldRequested transition is about to occur
+      UtlSListIterator iterator(mObservers);
+      PhoneStateMachineObserver* pObserver;
+      while (pObserver = (PhoneStateMachineObserver*)iterator())
+      {
+          pObserver->OnLocalHoldRequested();
+      }
+
+      // set the state
+      setState(mpState->OnLocalHoldRequested());
+   }
+   return NULL; // the state machine should only return state pointers from the getState method
+}
+
+
+PhoneState* PhoneStateMachine::OnConnectedInactive()
+{
+   if (mpState)
+   {
+      // notify listeners that a OnConnectedInactive transition is about to occur
+      UtlSListIterator iterator(mObservers);
+      PhoneStateMachineObserver* pObserver;
+      while (pObserver = (PhoneStateMachineObserver*)iterator())
+      {
+          pObserver->OnConnectedInactive();
+      }
+
+      // set the state
+      setState(mpState->OnConnectedInactive());
+   }
+   return NULL; // the state machine should only return state pointers from the getState method
 }
 
 void PhoneStateMachine::addObserver(const PhoneStateMachineObserver* pObserver)

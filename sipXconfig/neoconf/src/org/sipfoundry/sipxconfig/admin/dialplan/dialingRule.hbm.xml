@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" 
-	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
-<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan" default-lazy="false">
   <class name="DialPlan" table="dial_plan">
     <id name="id" column="dial_plan_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -34,21 +34,21 @@
     <joined-subclass name="CustomDialingRule" table="custom_dialing_rule">
       <key column="custom_dialing_rule_id"/>
       <component name="callPattern" class="CallPattern">
-        <property name="digits"
+        <property name="digits" column="call_pattern_digits"
           type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType"/>
-        <property name="prefix"/>
+        <property name="prefix" column="call_pattern_prefix"/>
       </component>
       <list name="dialPatterns" table="dial_pattern">
         <key column="custom_dialing_rule_id"/>
         <index column="index"/>
         <composite-element class="DialPattern">
-          <property name="prefix"/>
-          <property name="digits"/>
+          <property name="prefix" column="element_prefix"/>
+          <property name="digits" column="element_digits"/>
         </composite-element>
       </list>
       <bag name="permissions" table="custom_dialing_rule_permission">
         <key column="custom_dialing_rule_id"/>
-        <element type="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission$UserType"
+        <element type="org.sipfoundry.sipxconfig.common.Permission$UserType"
           column="permission"/>
       </bag>
     </joined-subclass>
@@ -87,7 +87,7 @@
       <property name="externalLen"/>
       <property name="longDistancePrefix"/>
       <property name="permission"
-        type="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission$UserType"/>
+        type="org.sipfoundry.sipxconfig.common.Permission$UserType"/>
       <property name="pstnPrefix"/>
     </joined-subclass>
     

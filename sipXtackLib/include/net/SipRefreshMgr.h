@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef SIPREFRESHMGR_H
 #define SIPREFRESHMGR_H
@@ -28,6 +26,7 @@
     #include "tapi/sipXtapiEvents.h"
     #include "tapi/sipXtapiInternal.h"
 #endif 
+#include "net/SipLine.h"
 
 
 // DEFINES
@@ -42,6 +41,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipUserAgent;
+class SipLineMgr;
 
 class SipRefreshMgr : public OsServerTask
 {
@@ -124,6 +124,12 @@ public:
     
     void unSubscribeAll();
       //:Unsubscribe all
+      
+    void setLineMgr(SipLineMgr* const lineMgr);
+    //: Sets a pointer to the line manager
+    
+    SipLineMgr* const getLineMgr() const;
+    //: Gets the line manager pointer
 
     UtlBoolean newSubscribeMsg( SipMessage& message );
 
@@ -141,6 +147,9 @@ public:
       //: Get the nat mapped address (if available)
 
 protected:
+    SipLineMgr* mpLineMgr;
+    // the line manager object that uses this refresh manager
+    
     // MsgType categories defined for use by the system
     enum RefreshMsgTypes
     {
@@ -241,18 +250,29 @@ protected:
         UtlString& contact,
         const UtlString& lineId = "",
         Url* pPreferredContactUri = NULL);
-
+        
+    void removeAllFromRequestList(SipMessage* response);
+    //: Removes all prior request records for this response
+    //: from the SipMessageLists (mRegisterList & mSubscribeList)
+    
+    void removeAllFromRequestList(SipMessage* response, SipMessageList* pRequestList);
+    //: Removes all prior request records for this response
+    //: from the passed-in SipMessageList
+    
     UtlBoolean isExpiresZero(SipMessage* pRequest) ;
       //: Is the expires field set to zero for the specified msg?
       
+      
+      
+      
 #ifndef SIPXTAPI_EXCLUDE
-    void fireSipXLineEvent(const UtlString& lineId, const SIPX_LINE_EVENT_TYPE_MAJOR eMajor);
+    void fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause);
     //: event firing method used to notify sipXtapi of line events       
     
-    SIPX_LINE_EVENT_TYPE_MAJOR getLastLineEvent(const UtlString& lineId);
+    SIPX_LINESTATE_EVENT getLastLineEvent(const UtlString& lineId);
     //: holding on to the last known line event type 
     
-    void setLastLineEvent(const UtlString& lineId, const SIPX_LINE_EVENT_TYPE_MAJOR eMajor);
+    void setLastLineEvent(const UtlString& lineId, const SIPX_LINESTATE_EVENT eMajor);
     //: sets the last line event type 
     
     UtlHashMap* mpLastLineEventMap;

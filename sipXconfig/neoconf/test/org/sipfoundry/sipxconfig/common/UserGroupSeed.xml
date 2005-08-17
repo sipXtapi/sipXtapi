@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 <dataset>
-    <users display_id="user1" 		
+    <users user_name="user1" 		
 		    user_id="1001"
         pintoken="1234"/> 
     <value_storage 

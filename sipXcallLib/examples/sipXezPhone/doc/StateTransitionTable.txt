@@ -7,63 +7,35 @@ State           Transition Event        Next State
 IDLE
                 OnDial                  DIALING
                 OnRinging               RINGING
-		*OnOffer
 
 DIALING
+                OnRemoteAlerting        REMOTE_ALERTING
+                OnRemoteBusy            REMOTE_BUSY
                 OnFlashButton           IDLE
                 OnConnected             CONNECTED
                 OnDisconnected          IDLE
-		*OnOffer		
 
 REMOTE_ALERTING
+                OnFlashButton           IDLE
                 OnConnected             CONNECTED
                 OnDisconnected          IDLE
-		*OnOffer		
 
 REMOTE_BUSY
-                OnDisconnected          IDLE
-		*OnOffer			
+                OnFlashButton           IDLE
 
 CONNECTED
-		OnTransferRequested	TRANSFER_REQUESTED
-		OnHoldButton		CALL_HELD
                 OnFlashButton           DISCONNECT_REQUESTED
                 OnDisconnected          IDLE
-		*OnOffer			
 
 DISCONNECT_REQUESTED
-		OnFlashButton		IDLE
                 OnDisconnected          IDLE
-		*OnOffer			
 
 RINGING
                 OnConnected             CONNECTED
-                OnFlashButton           ACCEPTED
+                OnFlashButton           CALL_REJECT
                 OnDisconnected          IDLE
-		*OnOffer			
-
-ACCEPTED
-		OnConnected		CONNECTED
-                OnDisconnected          IDLE
-		*OnOffer			
-
-CALL_HELD
-		OnHoldButton		CONNECTED
-		OnFlashButton		DISCONNECT_REQUESTED
-                OnDisconnected          IDLE
-		*OnOffer			
-
-TRANSFERING
-                OnDisconnected          IDLE
-		*OnOffer			
-
-TRANSFER_REQUESTED
-                OnDisconnected          IDLE
-		*OnOffer			
 
 OUTGOING_CALL_REJECT
-                OnDisconnected          IDLE
-		*OnOffer			
+                OnOutgoingCallRejected  IDLE
 
-
-*OnOffer - the OnOffer event handlers do not directly cause a state change.  The call is either accepted or rejected during this event handler.  Accepting the call will cause subsequent state changes.
+ERROR

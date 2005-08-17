@@ -16,21 +16,18 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.MappingException;
-import net.sf.hibernate.cfg.Configuration;
-
+import org.hibernate.cfg.Configuration;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.orm.hibernate.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 
 public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implements
         BeanFactoryAware {
     public static final String HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            + "<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD//EN\" "
-            + "   \"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd\">";
+            + "<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" "
+            + "   \"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd\">";
     public static final String MAPPING_PATTERN = "<hibernate-mapping>"
             + "<subclass name=\"{0}\" extends=\"{1}\" discriminator-value=\"{2}\"/>"
             + "</hibernate-mapping>";
@@ -43,7 +40,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      */
     private List m_baseClassBeanIds = Collections.EMPTY_LIST;
 
-    protected void postProcessConfiguration(Configuration config) throws HibernateException {
+    protected void postProcessConfiguration(Configuration config) {
         for (Iterator i = m_baseClassBeanIds.iterator(); i.hasNext();) {
             String baseClassBeanID = (String) i.next();
             bindSubclasses(config, baseClassBeanID);
@@ -56,10 +53,9 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      * 
      * @param config hibernate config that will be modified
      * @param baseClass base class - needs to be already mapped statically
-     * @throws MappingException
      */
-    protected void bindSubclasses(Configuration config, Class baseClass) throws MappingException {
-        String[] beanDefinitionNames = m_beanFactory.getBeanDefinitionNames(baseClass);
+    protected void bindSubclasses(Configuration config, Class baseClass) {
+        String[] beanDefinitionNames = m_beanFactory.getBeanNamesForType(baseClass);
         for (int i = 0; i < beanDefinitionNames.length; i++) {
             String beanId = beanDefinitionNames[i];
             Class subClass = m_beanFactory.getType(beanId);
@@ -78,12 +74,10 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      * @param config hibernate config that will be modified
      * @param baseClassBeanId - bean representing the base class - needs to be already mapped
      *        statically
-     * @throws MappingException
      */
-    protected void bindSubclasses(Configuration config, String baseClassBeanId)
-        throws MappingException {
+    protected void bindSubclasses(Configuration config, String baseClassBeanId) {
         Class baseClass = m_beanFactory.getType(baseClassBeanId);
-        String[] beanDefinitionNames = m_beanFactory.getBeanDefinitionNames(baseClass);
+        String[] beanDefinitionNames = m_beanFactory.getBeanNamesForType(baseClass);
         for (int i = 0; i < beanDefinitionNames.length; i++) {
             String beanId = beanDefinitionNames[i];
             if (beanId.equals(baseClassBeanId)) {

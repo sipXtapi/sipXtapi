@@ -1,13 +1,12 @@
 //
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsDatagramSocket_h_
 #define _OsDatagramSocket_h_
@@ -38,7 +37,8 @@ public:
 
 /* ============================ CREATORS ================================== */
    OsDatagramSocket(int remoteHostPort, const char* remoteHostName,
-                        int localHostPort = 0, const char* localHostName = NULL);
+                    int localHostPort = PORT_DEFAULT,
+                    const char* localHostName = NULL);
 
   virtual
    ~OsDatagramSocket();

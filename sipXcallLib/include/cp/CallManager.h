@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _CallManager_h_
 #define _CallManager_h_
@@ -18,6 +16,7 @@
 // APPLICATION INCLUDES
 #include <cp/CpCallManager.h>
 #include <cp/Connection.h>
+#include <cp/CpMediaInterfaceFactoryImpl.h>
 #include <net/QoS.h>
 
 #include <tao/TaoObjectMap.h>
@@ -125,24 +124,39 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_TYPE eContactType = AUTO) ;
+                             CONTACT_ID contactId = 0) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
         const char* originalCallControllerTerminalId, const char* consultAddressUrl,
         UtlString& targetCallControllerAddress, UtlString& targetCallConsultAddress);
     virtual void drop(const char* callId);
-    virtual PtStatus transfer(const char* callId, const char* transferToUrl,
+    virtual PtStatus transfer_blind(const char* callId, const char* transferToUrl,
                           UtlString* targetCallId,
                           UtlString* targetConnectionAddress = NULL);
     // Blind transfer
 
     virtual PtStatus transfer(const char* targetCallId, const char* originalCallId);
     // Consultative transfer
-
     // The couple targetCallId & targetConnectionAddress return/define
     // the transfer target connection in the resulting new transfer
     // target call
+
+    PtStatus transfer(const char* sourceCallId, 
+                      const char* sourceAddress, 
+                      const char* targetCallId,
+                      const char* targetAddress) ;
+    //: Transfer an individual participant from one end point to another using 
+    //: REFER w/replaces.
+
+
+    virtual PtStatus split(const char* szSourceCallId,
+                           const char* szSourceAddress,
+                           const char* szTargetCallId) ;
+    //: Split szSourceAddress from szSourceCallId and join it to the specified 
+    //: target call id.  The source call/connection MUST be on hold prior
+    //: to initiating the split/join.
+
 
     virtual void toneStart(const char* callId, int toneId, UtlBoolean local, UtlBoolean remote);
     virtual void toneStop(const char* callId);
@@ -249,8 +263,16 @@ public:
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.
 
-    virtual void enableStun(const char* szStunServer, int iKeepAlivePeriodSecs) ;
+    virtual void enableStun(const char* szStunServer, 
+                            int iKeepAlivePeriodSecs, 
+                            OsNotification *pNotification = NULL) ;
     //:Enable STUN for NAT/Firewall traversal
+    
+    virtual void sendInfo(const char* callId, 
+                           const char* szContentType,
+                           const size_t nContenLength,
+                           const char*  szContent);
+   //: Sends an INFO message to the other party(s) on the call
 
 /* ============================ ACCESSORS ================================= */
    /**
@@ -337,7 +359,17 @@ public:
 
    virtual CpMediaInterfaceFactory* getMediaInterfaceFactory() ;
      //: Gets the media interface factory used by the call manager
+     
+   virtual int getMediaConnectionId(const char* szCallId, const char* remoteAddress, void** ppInstData = NULL);
+   //: Gets the Media Connection ID
+   //: @param szCallId The call-id string of the call with which the connection id is associated
+   //: @param remoteAddress The remote address of the call's connection, with which the connection id is associated
+   //: @param ppInstData Reserved for future use.
 
+   virtual UtlBoolean canAddConnection(const char* szCallId);
+   //: Can a new connection be added to the specified call?  This method is 
+   //: delegated to the media interface.
+   
 /* ============================ INQUIRY =================================== */
    int getTotalNumberOutgoingCalls() { return mnTotalOutgoingCalls;}
    int getTotalNumberIncomingCalls() { return mnTotalIncomingCalls;}
@@ -392,7 +424,7 @@ private:
 
     UtlString mStunServer ;
     int       mStunKeepAlivePeriodSecs ;
-    CpMediaInterfaceFactory* mpMediaFactory ;
+    CpMediaInterfaceFactory* mpMediaFactory;
 
     // Private accessors
     void pushCall(CpCall* call);
@@ -416,10 +448,23 @@ private:
                         const char* metaEventCallIds[] = NULL,
                         UtlBoolean assumeFocusIfNoInfocusCall = TRUE);
 
-    void doConnect(const char* callId, const char* addressUrl, const char* szDesiredConnectionCallId, CONTACT_TYPE eType = AUTO) ;
+    void doConnect(const char* callId,
+                   const char* addressUrl,
+                   const char* szDesiredConnectionCallId,
+                   CONTACT_ID contactId = 0) ;
+    void doSendInfo(const char* callId, 
+                           const char* szContentType,
+                           UtlString   sContent);
+    //:Called by the handleMessage method, this method posts a message to the Call object's
+    //:message handler, passing along the content type and content.  
 
-    void releaseEvent(const char* callId,
-                     OsProtectEventMgr* eventMgr,
+    void doEnableStun(const char* szStunServer, 
+                      int iKeepAlivePeriodSecs, 
+                      OsNotification* pNotification) ;
+    //:Enable STUN for NAT/Firewall traversal                           
+
+    void releaseEvent(const char* callId, 
+                     OsProtectEventMgr* eventMgr, 
                      OsProtectedEvent* dtmfEvent);
 
            CallManager(const CallManager& rCallManager);

@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlSList_h_
 #define _UtlSList_h_
@@ -16,7 +14,6 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlList.h"
-#include "glib.h"
 
 // DEFINES
 // MACROS
@@ -67,12 +64,15 @@ public:
      */
     virtual UtlContainable* append(UtlContainable* obj) ;
 
-    /**
-     * Insert the designated containable object at the designated position.
+    /// Insert the designated containable object at the designated position.
+    virtual UtlContainable* insertAt(size_t N,           ///< zero-based position obj should be
+                                     UtlContainable* obj ///< object to insert at N
+                                     );
+    /**<
+     * It is an error to specify N > entries()
      *
-     * @return the object if successful, otherwise null
+     * @return obj if successful, NULL if N > entries
      */
-    virtual UtlContainable* insertAt(size_t pos, UtlContainable* obj) ;
 
     /**
      * Inserts the designated containable object at the end postion (tailer).
@@ -130,7 +130,7 @@ protected:
     /**
      * insertAfter is used by UtlListIterator::insertAfterPoint
      */
-    virtual UtlContainable* insertAfter(GList* afterNode, UtlContainable* object);
+    virtual UtlContainable* insertAfter(UtlLink* afterNode, UtlContainable* object);
     
 
     static const UtlContainableType TYPE;

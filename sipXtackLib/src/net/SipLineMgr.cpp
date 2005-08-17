@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 
@@ -36,13 +34,13 @@
 #include "net/SipUserAgent.h"
 #include "net/SipMessage.h"
 #include "net/NetMd5Codec.h"
+#include "net/TapiMgr.h"
+#include "net/SipRefreshMgr.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC INITIALIZERS
-SipLineList SipLineMgr::sLineList;
-SipLineList SipLineMgr::sTempLineList;
 
 //#define TEST_PRINT 1
 //////////////////////////////////////////////////////////////////////
@@ -74,8 +72,11 @@ SipLineMgr::SipLineMgr(const char* authenticationScheme) :
 
 SipLineMgr::~SipLineMgr()
 {
-    if(mpRefreshMgr)
-        mpRefreshMgr= NULL;
+    waitUntilShutDown();
+
+    // Do not delete the refresh manager as it was
+    // created in another context and we do not know
+    // who else may be using it
 }
 
 void
@@ -150,7 +151,7 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
                 if( (responseCode>= SIP_2XX_CLASS_CODE && responseCode < SIP_3XX_CLASS_CODE ))
                 {
                     //set line state to correct
-                    //line->setState(SipLine::LINE_STATE_REGISTERED);
+                    line->setState(SipLine::LINE_STATE_REGISTERED);
                     SipLineEvent lineEvent(line, SipLineEvent::SIP_LINE_EVENT_SUCCESS,"","",responseCode,sipResponseText);
                     queueMessageToObservers(lineEvent);
 
@@ -238,6 +239,7 @@ void
 SipLineMgr::deleteLine(const Url& identity)
 {
     SipLine *line = NULL;
+    SipLine *pDeleteLine = NULL ;
 
     line = sLineList.getLine(identity) ;
     if (line == NULL)
@@ -247,11 +249,16 @@ SipLineMgr::deleteLine(const Url& identity)
        return;
     }
 
-    if (line->getState() != SipLine::LINE_STATE_PROVISIONED )
+    if (line->getState() == SipLine::LINE_STATE_REGISTERED )
     {
         //add to temporary list - needed if chanllenged for credentials
         addToTempList(line);
-        disableLine(identity);
+        disableLine(identity, 0, identity.toString());
+    }
+    else
+    {
+        removeFromList(line);
+        pDeleteLine = line ;
     }
 
     // notify the observers that the line was deleted
@@ -260,9 +267,25 @@ SipLineMgr::deleteLine(const Url& identity)
 
     syslog(FAC_LINE_MGR, PRI_INFO, "deleted line: %s",
             identity.toString().data()) ;
+    
+    if (pDeleteLine)
+    {
+        delete pDeleteLine ;
+    }
+}
 
+void SipLineMgr::lineHasBeenUnregistered(const Url& identity)
+{
+    SipLine *line = NULL;
+
+    line = sLineList.getLine(identity) ;
+    if (line == NULL)
+    {
+        syslog(FAC_LINE_MGR, PRI_ERR, "unable to delete line (not found): %s",
+                identity.toString().data()) ;
+       return;
+    }
     removeFromList(line);
-    line = NULL;
 }
 
 UtlBoolean
@@ -277,39 +300,23 @@ SipLineMgr::enableLine(const Url& identity)
         return FALSE;
     }
 
-    SipLineEvent lineEvent(line, SipLineEvent::SIP_LINE_EVENT_LINE_ENABLED);
-    queueMessageToObservers(lineEvent);
+    //SipLineEvent lineEvent(line, SipLineEvent::SIP_LINE_EVENT_LINE_ENABLED);
+    //queueMessageToObservers(lineEvent);
 
-    
-    if ( line->getState() != SipLine::LINE_STATE_TRYING )
+    line->setState(SipLine::LINE_STATE_TRYING);
+    Url canonical = line->getCanonicalUrl();
+    Url preferredContact ;
+    Url* pPreferredContact = NULL ;
+
+    if (line->getPreferredContactUri(preferredContact))
     {
-        line->setState(SipLine::LINE_STATE_REGISTERED);
-        Url canonical = line->getCanonicalUrl();
-        Url preferredContact ;
-        Url* pPreferredContact = NULL ;
+        pPreferredContact = &preferredContact ;
+    }
 
-        if (line->getPreferredContactUri(preferredContact))
-        {
-            pPreferredContact = &preferredContact ;
-        }
-        else if (line->getContactType() == LINE_CONTACT_NAT_MAPPED)
-        {
-            UtlString ipAddress ;
-            int iPort ;
-
-            if (mpRefreshMgr->getNatMappedAddress(&ipAddress, &iPort))
-            {
-                preferredContact.setHostAddress(ipAddress) ;
-                preferredContact.setHostPort(iPort) ;
-                pPreferredContact = &preferredContact ;
-            }
-        }
-
-        if (!mpRefreshMgr->newRegisterMsg(canonical, line->getLineId(), -1, pPreferredContact))
-        {
-            //duplicate ...call reregister
-            mpRefreshMgr->reRegister(identity);
-        }
+    if (!mpRefreshMgr->newRegisterMsg(canonical, line->getLineId(), -1, pPreferredContact))
+    {
+        //duplicate ...call reregister
+        mpRefreshMgr->reRegister(identity);
     }
     line = NULL;
 
@@ -332,8 +339,12 @@ SipLineMgr::disableLine(
         syslog(FAC_LINE_MGR, PRI_ERR, "unable to disable line (not found): %s",
                 identity.toString().data()) ;
     }
-
-    mpRefreshMgr->unRegisterUser(identity, onStartup, lineId);
+    
+    if (line->getState() == SipLine::LINE_STATE_REGISTERED ||
+        line->getState() == SipLine::LINE_STATE_TRYING)
+    {
+        mpRefreshMgr->unRegisterUser(identity, onStartup, lineId);
+    }
 
     SipLineEvent lineEvent(line, SipLineEvent::SIP_LINE_EVENT_LINE_DISABLED);
     queueMessageToObservers(lineEvent);
@@ -1026,7 +1037,7 @@ void SipLineMgr::addToList(SipLine *line)
 
 void SipLineMgr::removeFromList(SipLine *line)
 {
-    sLineList.remove(new SipLine(*line));
+    sLineList.remove(line);
 }
 void SipLineMgr::addToTempList(SipLine *line)
 {
@@ -1035,7 +1046,7 @@ void SipLineMgr::addToTempList(SipLine *line)
 
 void SipLineMgr::removeFromTempList(SipLine *line)
 {
-    sTempLineList.remove(new SipLine(*line));
+    sTempLineList.remove(line);
 }
 
 void SipLineMgr::setDefaultContactUri(const Url& contactUri)
@@ -1356,45 +1367,6 @@ SipLineMgr::getCanonicalUrlForLine(
     return retVal;
 }
 
-
-UtlBoolean
-SipLineMgr::setContactTypeForLine(const Url& identity, 
-                                  LINE_CONTACT_TYPE eContactType) 
-{
-    UtlBoolean retVal = FALSE;
-    SipLine *line = NULL;
-    if (! (line = sLineList.getLine(identity)) )
-    {
-        osPrintf("ERROR::SipLineMgr::getUserForLine() - No Line for this Url \n");
-    } 
-    else
-    {
-        line->setContactType(eContactType) ;
-        retVal = TRUE ;
-    }
-    return retVal;
-}
-
-
-UtlBoolean 
-SipLineMgr::getContactTypeForLine(const Url& identity, 
-                                  LINE_CONTACT_TYPE& eContactType) const
-{
-    UtlBoolean retVal = FALSE;
-    SipLine *line = NULL;
-    if (! (line = sLineList.getLine(identity)) )
-    {
-        osPrintf("ERROR::SipLineMgr::getUserForLine() - No Line for this Url \n");
-    } 
-    else
-    {
-        eContactType = line->getContactType() ;
-        retVal = TRUE ;
-    }
-    return retVal;
-}
-
-
 // Delete all line definitions from the specified configuration db.
 void
 SipLineMgr::purgeLines( OsConfigDb *pConfigDb )
@@ -1495,19 +1467,6 @@ SipLineMgr::loadLine(
                 }
                 line.setCallHandling(bAllowForwarding) ;
 
-                // Get contact type
-                strKey = strSubKey ;
-                strKey.append(LINE_PARAM_CONTACT_TYPE) ;
-                if ((pConfigDb->get(strKey, strValue)) &&
-                        strValue.compareTo(LINE_CONTACT_TYPE_LOCAL, UtlString::ignoreCase)==0)
-                {
-                    line.setContactType(LINE_CONTACT_LOCAL) ;
-                } 
-                else
-                {
-                    line.setContactType(LINE_CONTACT_NAT_MAPPED) ;
-                }
-                
                 // Get Registration (Default is Provision)
                 strKey = strSubKey ;
                 strKey.append(LINE_PARAM_REGISTRATION) ;
@@ -1587,18 +1546,6 @@ void SipLineMgr::storeLine(OsConfigDb* pConfigDb, UtlString strSubKey, SipLine l
             pConfigDb->set(strKey, LINE_ALLOW_FORWARDING_ENABLE) ;
         else
             pConfigDb->set(strKey, LINE_ALLOW_FORWARDING_DISABLE) ;
-
-        // Store line contact type
-        strKey = strSubKey ;
-        strKey.append(LINE_PARAM_CONTACT_TYPE) ;
-        if (line.getContactType() == LINE_CONTACT_LOCAL)
-        {
-            pConfigDb->set(strKey, LINE_CONTACT_TYPE_LOCAL) ;
-        }
-        else
-        {
-            pConfigDb->set(strKey, LINE_CONTACT_TYPE_NAT_MAPPED) ;
-        }
 
         int noOfCredentials = line.GetNumOfCredentials();
                 if (noOfCredentials > 0)

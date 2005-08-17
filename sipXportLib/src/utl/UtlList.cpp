@@ -1,17 +1,13 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "glib.h"
-#include "glib/glist.h"
-
 #include "utl/UtlContainable.h"
 #include "utl/UtlListIterator.h"
 #include "utl/UtlList.h"
@@ -30,7 +26,6 @@ const UtlContainableType UtlList::TYPE = "UtlList";
 
 // Constructor
 UtlList::UtlList()
-   : mpList(NULL)
 {
 }
 
@@ -42,14 +37,14 @@ UtlList::~UtlList()
    
    OsLock take(mContainerLock);
       
-   GLIST_SANITY_CHECK;
+   LIST_SANITY_CHECK;
 
    invalidateIterators();
 
    UtlContainer::releaseIteratorConnectionLock();
 
-   GList* node;
-   while((node = g_list_first(mpList)))
+   UtlLink* node;
+   while((node = head()))
    {
       removeLink(node);
    }
@@ -63,10 +58,10 @@ UtlContainable* UtlList::get()
 {
    OsLock take(mContainerLock);
    
-   GLIST_SANITY_CHECK;
+   LIST_SANITY_CHECK;
    UtlContainable* firstElement = NULL;
 
-   GList* firstNode = g_list_first(mpList);
+   UtlLink* firstNode = head();
     
    if(firstNode)
    {
@@ -84,14 +79,14 @@ UtlContainable* UtlList::removeReference(const UtlContainable* containableToMatc
 {
    UtlContainable* foundElement = NULL;
 
-   GList* foundNode = NULL;
-   GList* listNode;
+   UtlLink* foundNode = NULL;
+   UtlLink* listNode;
 
    OsLock take(mContainerLock);
    
-   GLIST_SANITY_CHECK;
+   LIST_SANITY_CHECK;
 
-   for(listNode = g_list_first(mpList); listNode && !foundElement; listNode = g_list_next(listNode))
+   for(listNode = head(); listNode && !foundElement; listNode = listNode->next())
    {
       if((UtlContainable*) listNode->data == containableToMatch)
       {
@@ -109,20 +104,20 @@ UtlContainable* UtlList::removeReference(const UtlContainable* containableToMatc
 }
 
 
-void UtlList::removeLink(GList* toBeRemoved)
+void UtlList::removeLink(UtlLink* toBeRemoved)
 {
    // The caller already holds the mContainerLock.
 
-   GList*            listNode = NULL;
-   UtlListIterator* foundIterator;
+   UtlLink*         listNode = NULL;
+   UtlListIterator* eachIterator;
    
-   for (listNode = g_list_first(mpIteratorList); listNode; listNode = g_list_next(listNode))
+   for (listNode = mIteratorList.head(); listNode; listNode = listNode->next())
    {
-      foundIterator = (UtlListIterator*)listNode->data;
-      foundIterator->removing(toBeRemoved);
+      eachIterator = (UtlListIterator*)listNode->data;
+      eachIterator->removing(toBeRemoved);
    }
 
-   mpList = g_list_delete_link(mpList, toBeRemoved);
+   toBeRemoved->detachFrom(this);
 }
 
 
@@ -149,12 +144,12 @@ UtlBoolean UtlList::destroy(UtlContainable* obj)
 // Removes and delete all elements
 void UtlList::destroyAll()
 {
-   GList* node;
+   UtlLink* node;
 
    OsLock take(mContainerLock);
    
-   GLIST_SANITY_CHECK;
-   while((node = g_list_first(mpList)))
+   LIST_SANITY_CHECK;
+   while((node = head()))
    {
       UtlContainable* theObject = (UtlContainable*)node->data;
       removeLink(node);
@@ -166,15 +161,37 @@ void UtlList::destroyAll()
 }
 
 
-// Remove all elements, but do not free the objects
-void UtlList::removeAll()
+// Remove the object at position index
+UtlContainable* UtlList::removeAt(const size_t N)
 {
-   GList* node;
+   UtlContainable* removed = NULL;
 
    OsLock take(mContainerLock);
    
-   GLIST_SANITY_CHECK;
-   while((node = g_list_first(mpList)))
+   UtlLink* link;
+   size_t n;
+   for (n = 0, link = head(); link && n < N; link = link->next(), n++)
+   {
+   }
+   if (link)
+   {
+      removed = (UtlContainable*)link->data;
+      removeLink(link);
+   }
+
+   return removed;
+}
+
+
+// Remove all elements, but do not free the objects
+void UtlList::removeAll()
+{
+   UtlLink* node;
+
+   OsLock take(mContainerLock);
+   
+   LIST_SANITY_CHECK;
+   while((node = head()))
    {
       removeLink(node);
    }
@@ -187,7 +204,7 @@ UtlContainable* UtlList::first() const
 {
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   GList* firstNode = g_list_first(mpList);
+   UtlLink* firstNode = head();
    
    return firstNode ? (UtlContainable*) firstNode->data : NULL;
 }
@@ -198,7 +215,7 @@ UtlContainable* UtlList::last() const
 {
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   GList* lastNode = g_list_last(mpList);
+   UtlLink* lastNode = tail();
 
    return lastNode ? (UtlContainable*) lastNode->data : NULL;
 }
@@ -208,8 +225,13 @@ UtlContainable* UtlList::last() const
 UtlContainable* UtlList::at(size_t N) const 
 {
    OsLock take(const_cast<OsBSem&>(mContainerLock));
-   
-   return ((UtlContainable*) g_list_nth_data(mpList, N));
+
+   size_t n;
+   UtlLink* link;
+   for (n = 0, link = head(); link && n < N; link = link->next(), n++)
+   {
+   }
+   return link ? (UtlContainable*)link->data : NULL;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -219,14 +241,19 @@ size_t UtlList::entries() const
 {
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   return g_list_length(mpList);
+   size_t count;
+   UtlLink* node;
+   for (count = 0, node = head(); node; count++, node=node->next())
+   {
+   }
+   return count;
 }
 
 
 // Return true of the container is empty.
 UtlBoolean UtlList::isEmpty() const 
 {
-   return entries() == 0; 
+   return !head(); 
 }
 
 
@@ -240,12 +267,12 @@ UtlBoolean UtlList::contains(const UtlContainable* object) const
 // Return true if the list contains the designated object reference .
 UtlBoolean UtlList::containsReference(const UtlContainable* containableToMatch) const 
 {
-   GList* listNode;
+   UtlLink* listNode;
    UtlBoolean isMatch = FALSE;
 
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   for(listNode = g_list_first(mpList); listNode && !isMatch; listNode = g_list_next(listNode))
+   for(listNode = head(); listNode && !isMatch; listNode = listNode->next())
    {
       if((UtlContainable*)listNode->data == containableToMatch)
       {
@@ -267,17 +294,17 @@ UtlContainableType UtlList::getContainableType() const
 #ifdef GLIST_SANITY_TEST
 bool UtlList::sanityCheck() const
 {
-   GList* thisNode;
-   GList* prevNode;
+   UtlLink* thisNode;
+   UtlLink* prevNode;
    
    // The caller already holds the mContainerLock.
 
-   for ( ( prevNode=NULL, thisNode=g_list_first(mpList) );
+   for ( ( prevNode=NULL, thisNode=head() );
          thisNode;
-         ( prevNode=thisNode, thisNode=g_list_next(thisNode) )
+         ( prevNode=thisNode, thisNode=thisNode->next() )
         )
    {
-      if (g_list_previous(thisNode) != prevNode)
+      if (thisNode->prev() != prevNode)
       {
          return FALSE;
       }

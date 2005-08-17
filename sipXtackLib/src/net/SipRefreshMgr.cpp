@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <stdlib.h>
 #include <limits.h>
@@ -29,6 +27,8 @@
 #include "os/OsRWMutex.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
+#include "net/SipLine.h"
+#include "net/SipLineMgr.h"
 #include "net/SipRefreshMgr.h"
 #include "net/SipMessageEvent.h"
 #include "net/NameValueTokenizer.h"
@@ -51,6 +51,10 @@
 //////////////////////////////////////////////////////////////////////
 SipRefreshMgr::SipRefreshMgr():
     OsServerTask("SipRefreshMgr-%d"),
+    mpLineMgr(NULL),
+#ifndef SIPXTAPI_EXCLUDE
+    mpLastLineEventMap(NULL),
+#endif
     mRegisterListMutexR(OsRWMutex::Q_FIFO),
     mRegisterListMutexW(OsRWMutex::Q_FIFO),
     mSubscribeListMutexR(OsRWMutex::Q_FIFO),
@@ -58,15 +62,29 @@ SipRefreshMgr::SipRefreshMgr():
     mIsStarted(FALSE),
     mObserverMutex(OsRWMutex::Q_FIFO),
     mUAReadyMutex(OsRWMutex::Q_FIFO),
-#ifndef SIPXTAPI_EXCLUDE
-    mpLastLineEventMap(NULL),
-#endif
     mMyUserAgent(NULL)  
 {
 }
 
 SipRefreshMgr::~SipRefreshMgr()
-{}
+{ 
+    waitUntilShutDown();
+
+#ifndef SIPXTAPI_EXCLUDE
+    if (mpLastLineEventMap)
+    {
+        mpLastLineEventMap->destroyAll() ;
+        delete mpLastLineEventMap ;
+    }
+#endif
+
+    UtlHashBagIterator itor(mMessageObservers) ;
+    while (SipObserverCriteria* pObserver = (SipObserverCriteria*) itor())
+    {
+        mMessageObservers.remove(pObserver) ;
+        delete pObserver ;
+    }
+}
 
 /*===================================================================*/
 //INITIALIZED
@@ -316,13 +334,13 @@ SipRefreshMgr::getFromAddress(
     {
         protocol->remove(0);
         // TCP only
-        if ( mTcpPort > 0 && mUdpPort <= 0 )
+        if ( portIsValid(mTcpPort) && !portIsValid(mUdpPort) )
         {
             protocol->append(SIP_TRANSPORT_TCP);
             *port = mTcpPort;
         }
         // UDP only
-        else if ( mUdpPort > 0 && mTcpPort <= 0 )
+        else if ( portIsValid(mUdpPort) && !portIsValid(mTcpPort) )
         {
             protocol->append(SIP_TRANSPORT_UDP);
             *port = mUdpPort;
@@ -335,7 +353,7 @@ SipRefreshMgr::getFromAddress(
         // TCP & UDP on standard port
         else
         {
-            *port = 0;
+            *port = PORT_NONE;
         }
 
         // If there is an address configured use it
@@ -375,11 +393,6 @@ void SipRefreshMgr::reRegisterAll()
     iteratorHandle = tempList.getIterator();
     while ((listMessage = (SipMessage*) tempList.getSipMessageForIndex(iteratorHandle)))
     {
-#ifdef TEST_PRINT
-        osPrintf("SipRefreshMgr::reRegisterAll calling rescheduleRequest()\n");
-#endif
-        //sendRequest(*listMessage , SIP_REGISTER_METHOD);
-
         rescheduleRequest(listMessage, 1 , SIP_REGISTER_METHOD, DEFAULT_PERCENTAGE_TIMEOUT, TRUE);
     }
     tempList.releaseIterator(iteratorHandle);
@@ -400,16 +413,8 @@ void SipRefreshMgr::reRegister( const Url& fromUrl)
         newMsg.resetTransport() ;
 
         addToRegisterList(&newMsg);
-        UtlBoolean bRemovedOk = removeFromRegisterList(oldMsg);
 
-        if (sendRequest(newMsg , SIP_REGISTER_METHOD) != OS_SUCCESS)
-            removeFromRegisterList(&newMsg);
-            
-        if (bRemovedOk)
-        {
-            delete oldMsg;
-            oldMsg = NULL;
-        }
+        sendRequest(newMsg , SIP_REGISTER_METHOD);
     }
 }
 
@@ -456,14 +461,15 @@ SipRefreshMgr::unRegisterUser (
                                     0);
 
         regMessage->removeHeader(SIP_EXPIRES_FIELD,0);
-        if (sendRequest(*regMessage , SIP_REGISTER_METHOD) != OS_SUCCESS)
-            removeFromRegisterList(regMessage);
+        sendRequest(*regMessage , SIP_REGISTER_METHOD);
 
-    } else
+    }
+    else
     {
         SipMessage sipMsg;
         if ( isDuplicateRegister(fromUrl, sipMsg) )
         {
+            Url Uri = fromUrl;
             //dont set a common expires - then you need to send * in contact field
             //sipMsg.setExpiresField(0);
             UtlString contactField;
@@ -472,9 +478,12 @@ SipRefreshMgr::unRegisterUser (
             contact.setFieldParameter(SIP_EXPIRES_FIELD,"0");
             sipMsg.setContactField(contact.toString());
             sipMsg.removeHeader(SIP_EXPIRES_FIELD,0);
+            #ifndef SIPXTAPI_EXCLUDE
+                fireSipXLineEvent(Uri, lineId.data(), LINESTATE_UNREGISTERING, LINESTATE_UNREGISTERING_NORMAL);
+            #endif
             
-            // NO - do it NOW!
-            //rescheduleRequest(&sipMsg, 1 , SIP_REGISTER_METHOD , DEFAULT_PERCENTAGE_TIMEOUT,TRUE);
+            // clear out any pending register requests
+            this->removeAllFromRequestList(&sipMsg);
             sendRequest(sipMsg, SIP_REGISTER_METHOD);
             addToRegisterList(&sipMsg);
         }
@@ -556,67 +565,45 @@ SipRefreshMgr::sendRequest (
         syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to send %s message (send failed):\nto: %s",
                 method, toField.data()) ;
                 
-#ifndef SIPXTAPI_EXCLUDE
-            int sequenceNum = 0;
-            UtlString tmpMethod;
-            Url url;
-            UtlString lineId;
-            request.getFromUrl(url);
-            url.getIdentity(lineId);
-            lineId = "sip:" + lineId; 
-            if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 && !isExpiresZero(&request)) 
-            {
-                fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_REGISTER_FAILED);
-            }
-            else if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 && isExpiresZero(&request)) 
-            {
-                fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_UNREGISTER_FAILED);
-            }
-#endif 
-        
-        // send event to upper layer.
-        // check if it was unregister, if so remove from list
-        // we were unregistering
-        if (bIsUnregOrUnsub)
+        UtlString tmpMethod;
+        Url url;
+        UtlString lineId;
+        request.getToUrl(url);
+        url.getIdentity(lineId);
+        lineId = "sip:" + lineId; 
+        if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 && !isExpiresZero(&request)) 
         {
-            //reschedule only if expires value is not zero otherwise it means we just did an unregister
-            if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 )
+            if (getLineMgr())
             {
-                UtlString fromUri;
-                request.getFromUri(&fromUri);
-                SipMessage *msgInList = mRegisterList.isSameFrom( Url(fromUri) );
-                if ( msgInList )
-                {
-                    UtlBoolean bRemovedOk = removeFromRegisterList(msgInList);
-                    if (bRemovedOk)
-                    {
-                        delete msgInList;
-                        msgInList = NULL;
-                    }
-                }
-            } 
-            else
-            {
-                removeFromSubscribeList(&request);
-            }
-        } else // REGISTER
-        {
-            // @JC Added Comments: create a message on the queue with a quarter
-            // lease period timeout if the timer triggers and we've not received
-            // a good response from the server within FAILED_PERCENTAGE_TIMEOUT
-            // secs resubscribe
-            SipMessage* message = new SipMessage( request );
-            if ( request.getResponseListenerData() )
-            {
-                message->setResponseListenerData( request.getResponseListenerData() );
+                mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_FAILED);
             }
 
-            // Report error to observers
-            SipMessageEvent eventMsg( message );
-            eventMsg.setMessageStatus( SipMessageEvent::TRANSPORT_ERROR );
-            message = NULL;
-            sendToObservers( eventMsg, &request );           
+#ifndef SIPXTAPI_EXCLUDE
+            fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_COULD_NOT_CONNECT);
+#endif 
         }
+        else if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 && isExpiresZero(&request)) 
+        {
+#ifndef SIPXTAPI_EXCLUDE
+            fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTER_FAILED, LINESTATE_UNREGISTER_FAILED_COULD_NOT_CONNECT);
+#endif 
+        }
+        
+        // @JC Added Comments: create a message on the queue with a quarter
+        // lease period timeout if the timer triggers and we've not received
+        // a good response from the server within FAILED_PERCENTAGE_TIMEOUT
+        // secs resubscribe
+        SipMessage* message = new SipMessage( request );
+        if ( request.getResponseListenerData() )
+        {
+            message->setResponseListenerData( request.getResponseListenerData() );
+        }
+
+        // Report error to observers
+        SipMessageEvent eventMsg( message );
+        eventMsg.setMessageStatus( SipMessageEvent::TRANSPORT_ERROR );
+        message = NULL;
+        sendToObservers( eventMsg, &request );           
     }
     else
     {
@@ -626,18 +613,18 @@ SipRefreshMgr::sendRequest (
             request.getCSeqField(&sequenceNum, &tmpMethod);
             Url url;
             UtlString lineId;
-            request.getFromUrl(url);
+            request.getToUrl(url);
             url.getIdentity(lineId);
             lineId = "sip:" + lineId; 
             if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 && !isExpiresZero(&request)) 
             {
-                fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_REGISTERING);
+                fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
             }
             else if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 && isExpiresZero(&request)) 
             {
-                fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_UNREGISTERING);
+
             }
-#endif    
+#endif // #ifndef SIPXTAPI_EXCLUDE
         retval = OS_SUCCESS;
     }
 
@@ -707,7 +694,8 @@ SipRefreshMgr::rescheduleRequest(
             }
         }
         defaultTime = mDefaultRegistryPeriod;
-    } else // Subscribe
+    }
+    else // Subscribe
     {
         OsReadLock readlock(mSubscribeListMutexR);
         listMessage = mSubscribeList.getDuplicate(request);
@@ -754,8 +742,6 @@ SipRefreshMgr::rescheduleRequest(
     else
         addToSubscribeList(request);
     
-    
-
     // There will always be a copy - if there is no copy then don't reschedule 
     // because reregister may have removed the copy deliberately.
     if ( secondsFromNow > 0 )
@@ -781,8 +767,11 @@ SipRefreshMgr::rescheduleRequest(
 
         // Make a copy for the timer
         SipMessage* timerRegisterMessage = new SipMessage(*request);
-        OsQueuedEvent* queuedEvent = new OsQueuedEvent(mIncomingQ, (int)timerRegisterMessage);
-        OsTimer* timer = new OsTimer(*queuedEvent);
+
+        OsTimer* timer = new OsTimer(&mIncomingQ, (int)timerRegisterMessage);
+
+        int maxSipTransactionTimeSecs = 
+            (mMyUserAgent->getSipStateTransactionTimeout()/1000);
 
         secondsFromNow = (secondsFromNow * percentage)/100;
 
@@ -799,7 +788,7 @@ SipRefreshMgr::rescheduleRequest(
             if ( secondsFromNow < MIN_REFRESH_TIME_SECS )
             {
                 secondsFromNow = MIN_REFRESH_TIME_SECS;
-            } 
+            }
             else if ( secondsFromNow > defaultTime )
             {
                 secondsFromNow = (defaultTime * percentage)/100;
@@ -813,22 +802,7 @@ SipRefreshMgr::rescheduleRequest(
         OsTime timerTime(secondsFromNow, 0);        
         timer->oneshotAfter(timerTime);
     }
-
-    if (listMessage)
-    {
-        UtlBoolean bRemovedOk = FALSE;
-
-        if ( methodStr.compareTo(SIP_REGISTER_METHOD) == 0 )
-            bRemovedOk = removeFromRegisterList(listMessage);
-        else
-            bRemovedOk = removeFromSubscribeList(listMessage);
-
-        if (bRemovedOk)
-        {
-            delete listMessage;
-            listMessage = NULL;
-        }
-    }
+    return;
 }
 
 
@@ -838,100 +812,120 @@ SipRefreshMgr::processResponse(
     SipMessage *request)
 {
     SipMessage* response = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
-    // int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 
-    UtlBoolean sendEventToUpperlayer = TRUE;
-
-#ifdef TEST_PRINT
-    osPrintf("SipUserAgent::processResponse\n");
-#endif
+    UtlBoolean sendEventToUpperlayer = FALSE;
 
     UtlString method;
     request->getRequestMethod( &method) ;
-
+    
     // ensure that this is a response first
     if ( response->isResponse() )
     {
         int responseCode = response->getResponseStatusCode();
-//         osPrintf("Received response code: %d\n", responseCode);
 
         if ( request && responseCode < SIP_2XX_CLASS_CODE )
-        {   // provisional response codes - Ignore these
-#ifdef TEST_PRINT
-            osPrintf("SipUserAgent::processResponse ignoring provisional response code: %d\n", responseCode);
-#endif
-        } else if ( (request != NULL) && 
-                    ( (responseCode >= SIP_2XX_CLASS_CODE) && 
-                      (responseCode < SIP_3XX_CLASS_CODE) ) )
-        {   // Success Class response 2XX
+        {   
+            // provisional response codes
+            sendEventToUpperlayer = TRUE;
+        }
+        else if ( ( (responseCode >= SIP_2XX_CLASS_CODE) && 
+                    (responseCode < SIP_3XX_CLASS_CODE) ) )
+        {
+            // Success Class response 2XX
             processOKResponse(response, request );
-        } else if ( (request == NULL) && ( responseCode >= SIP_OK_CODE ) )
-        {            
-#ifdef TEST_PRINT
-//            UtlString msgBody;
-//            int len;
-//            Response->getBytes(&msgBody, &len);
-//            osPrintf("Could not find original request for response:\n%s%%%%END%%%%\n", msgBody.data());
-#endif
-            sendEventToUpperlayer = FALSE;
-        } else if (request != NULL) // Error, try again after default times later
+        }
+        else  // failure case 
         {
             // unregister/unsubscribe?
             if ( isExpiresZero(request) )
             {
-                UtlString method;
-                request->getRequestMethod( &method) ;
                 // reschedule only if expires value id not zero otherwise 
                 // it means we just did an unregister
                 if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
                 {
-#ifndef SIPXTAPI_EXCLUDE
+                    #ifndef SIPXTAPI_EXCLUDE
                         Url url;
                         UtlString lineId;
-                        request->getFromUrl(url);
+                        request->getToUrl(url);
                         url.getIdentity(lineId);
                         lineId = "sip:" + lineId; 
-                        fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_UNREGISTER_FAILED);
-#endif 
-                    removeFromRegisterList(request);
+                        if (responseCode == 401 || responseCode == 403 || responseCode == 407)
+                        {
+                            fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTER_FAILED, LINESTATE_UNREGISTER_FAILED_NOT_AUTHORIZED);
+                        }
+                        else if (responseCode == 408)
+                        {
+                            fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTER_FAILED, LINESTATE_UNREGISTER_FAILED_TIMEOUT);
+                        }
+                        else
+                        {
+                            fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTER_FAILED, LINESTATE_CAUSE_UNKNOWN);
+                        }
+                    #endif // #ifndef SIPXTAPI_EXCLUDE
                 }
-                else
-                {
-                    removeFromSubscribeList(request);
-                }
-                sendEventToUpperlayer = FALSE;
+                sendEventToUpperlayer = TRUE;
             }
-            else
+            else // it is a register or subscribe
             {
-#ifndef SIPXTAPI_EXCLUDE
                 if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
                 {
                     Url url;
                     UtlString lineId;
-                    request->getFromUrl(url);
+                    request->getToUrl(url);
                     url.getIdentity(lineId);
+                    
+                    if (getLineMgr())
+                    {
+                        mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_FAILED);
+                    }
+#ifndef SIPXTAPI_EXCLUDE
                     lineId = "sip:" + lineId; 
-                    fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_REGISTER_FAILED);
-                }
+                    if (responseCode == 401 || responseCode == 403 || responseCode == 407)
+                    {
+                        fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_NOT_AUTHORIZED);
+                    }
+                    else if (responseCode == 408)
+                    {
+                        fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_TIMEOUT);
+                    }
+                    else
+                    {
+                        fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_CAUSE_UNKNOWN);
+                    }
 #endif 
+                }
                 rescheduleAfterTime(request, FAILED_PERCENTAGE_TIMEOUT);
             }
         }
-        else
+    }
+    else
+    {
+        if (getLineMgr())
         {
-#ifndef SIPXTAPI_EXCLUDE
-                Url url;
-                UtlString lineId;
-                request->getFromUrl(url);
-                url.getIdentity(lineId);
-                lineId = "sip:" + lineId; 
-                fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_REGISTER_FAILED);
-#endif 
-            sendEventToUpperlayer = FALSE;
+            Url url;
+            UtlString lineId;
+            request->getToUrl(url);
+            url.getIdentity(lineId);
+            
+            mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_FAILED);
         }
+#ifndef SIPXTAPI_EXCLUDE
+            Url url;
+            UtlString lineId;
+            request->getToUrl(url);
+            url.getIdentity(lineId);
+            lineId = "sip:" + lineId; 
+            fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_CAUSE_UNKNOWN);
+#endif 
+    }
 
-        if ( sendEventToUpperlayer )
-            sendToObservers(eventMessage, request);
+    if ( sendEventToUpperlayer )
+    {
+        sendToObservers(eventMessage, request);
+    }
+    else
+    {
+        this->removeAllFromRequestList(response);
     }
 }
 
@@ -943,7 +937,7 @@ SipRefreshMgr::processOKResponse(
     int responseRefreshPeriod = -1;
     if ( !response->getExpiresField(&responseRefreshPeriod) )
     {   
-        // this method expires looks at the request/response pair
+        // this method looks at the request/response pair
         // the response may have multiple contacts so it searched
         // for the expires header corresponding to the request
         parseContactFields( response, request, responseRefreshPeriod );
@@ -954,11 +948,6 @@ SipRefreshMgr::processOKResponse(
         // to get expires value @JC whi request 2 times
         parseContactFields( request, request, requestRefreshPeriod );
     }
-
-#ifdef TEST_PRINT
-    osPrintf("SipUserAgent::processResponce 200 ok - expiresRequest %d  expiresResponse %d\n", 
-             requestRefreshPeriod, responseRefreshPeriod );
-#endif
 
     //get to To Tag from the 200 ok response and add it to the request
     UtlString toAddr;
@@ -972,18 +961,22 @@ SipRefreshMgr::processOKResponse(
 
     if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
     {
-        //reschedule only if expires value id not zero otherwise it means we just did an unregister
+        //reschedule only if expires value != 0, otherwise it means we just did an unregister
         if ( requestRefreshPeriod == 0 )
         {
 #ifndef SIPXTAPI_EXCLUDE
                 Url url;
                 UtlString lineId;
-                request->getFromUrl(url);
+                request->getToUrl(url);
                 url.getIdentity(lineId);
                 lineId = "sip:" + lineId; 
-                fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_UNREGISTERED);
+                fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTERED, LINESTATE_UNREGISTERED_NORMAL);
 #endif 
-            removeFromRegisterList(request);
+                // if its an unregister, remove all related messasges 
+                // from the appropriate request list
+                response->setCSeqField(-1, method);
+                this->removeAllFromRequestList(response);
+                // TODO - should also destroy the timer now
         } 
         else if ( responseRefreshPeriod > 0 )
         {
@@ -994,12 +987,11 @@ SipRefreshMgr::processOKResponse(
 #ifndef SIPXTAPI_EXCLUDE
                 Url url;
                 UtlString lineId;
-                request->getFromUrl(url);
+                request->getToUrl(url);
                 url.getIdentity(lineId);            
                 lineId = "sip:" + lineId; 
-                fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_REGISTERED);
+                fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL);
 #endif 
-
             rescheduleRequest(request, responseRefreshPeriod, SIP_REGISTER_METHOD);
         }
         else // could not find expires in 200 ok response , reschedule after default time
@@ -1012,8 +1004,13 @@ SipRefreshMgr::processOKResponse(
         // reschedule according to expires value
         if ( requestRefreshPeriod == 0 )
         {
-            removeFromSubscribeList(request);
-        } else if ( responseRefreshPeriod > 0 )
+                // if its an unregister, remove all related messasges 
+                // from the appropriate request list
+                response->setCSeqField(-1, method);
+                this->removeAllFromRequestList(response);
+                // TODO - should also destroy the timer now
+        }
+        else if ( responseRefreshPeriod > 0 )
         {
             if ( !toTag.isNull() )
             {
@@ -1024,12 +1021,16 @@ SipRefreshMgr::processOKResponse(
                 request, 
                 responseRefreshPeriod, 
                 SIP_SUBSCRIBE_METHOD);
-        } else // could not find expires in 200 ok response , reschedule after default time
-        {   // copying from response (this is why we set the To Field
+        }
+        else 
+        {
+            // could not find expires in 200 ok response , reschedule after default time   
+            // copying from response (this is why we set the To Field
             request->setToFieldTag(toTag);
             rescheduleAfterTime(request);
         }
     }
+    return;
 }
 
 void 
@@ -1038,18 +1039,25 @@ SipRefreshMgr::parseContactFields(
     SipMessage* requestMessage, 
     int &serverRegPeriod)
 {
-    // get the request contact value ...so that we can find out 
+    // get the request contact uri ...so that we can find out 
     // the expires subfield value for this contact from the list 
     // of contacts returned by the registration server
-    UtlString requestContactValue;
-    requestMessage->getContactEntry(0 , &requestContactValue);
-
+    UtlString requestContactEntry;
+    requestMessage->getContactEntry(0 , &requestContactEntry);
+    Url requestContactUrl(requestContactEntry);
+    UtlString requestContactIdentity;
+    requestContactUrl.getIdentity(requestContactIdentity);
+    
     UtlString contactField;
     int indexContactField = 0;
 
     while ( registerResponse->getContactEntry(indexContactField , &contactField) )
     {
-        if ( strstr(contactField, requestContactValue ) != NULL )
+        Url returnedContact(contactField);
+        UtlString returnedIdentity;
+        returnedContact.getIdentity(returnedIdentity);
+        
+        if ( returnedIdentity.compareTo(requestContactIdentity) == 0 )
         {
             UtlString subfieldText;
             int subfieldIndex = 0;
@@ -1169,18 +1177,19 @@ SipRefreshMgr::registerUrl(
         1,
         registerPeriod >= 0 ? registerPeriod : mDefaultRegistryPeriod );
 
-
-    // Add pto the register list
+    // Add to the register list
     addToRegisterList(regMessage);
     
-
     // If the user agent is not started, then queue it.  Once the
     // UA is started, it will kick off those registrations.
     if ( isUAStarted() )
     {       
         if (sendRequest(*regMessage , SIP_REGISTER_METHOD) != OS_SUCCESS)
+        {
+            // if we couldn't send, go ahead and remove the register request from the list
             removeFromRegisterList(regMessage);
-
+            regMessage = 0;
+        }
     }
     else
     {        
@@ -1191,6 +1200,7 @@ SipRefreshMgr::registerUrl(
                 contactUrl, registerCallId.data()) ;
     }
 
+    delete regMessage;
 }
 
 
@@ -1217,78 +1227,23 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
         sipMsg->getCallIdField(&callid);
         sipMsg->getCSeqField(&cseq, &method);        
 
-#ifdef TEST_PRINT
-        if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
-        {
-            int len ;
-            UtlString bytes ;
-
-            osPrintf("** handleMessage cseq=%d, method=%s, callid=%s\n", cseq, method.data(), callid.data()) ;
-            sipMsg->getBytes(&bytes, &len) ;
-            osPrintf("%s\n", bytes.data()) ;            
-            mRegisterList.printDebugTable() ;             
-        }
-#endif
-
         // if transport error and no response from remote machine. Unable to send to remote host
         if ( !sipMsg->isResponse() && messageType == SipMessageEvent::TRANSPORT_ERROR )
         {            
             SipMessage * msgInList = NULL;
-            UtlBoolean bRemovedOk = FALSE;
             
             // Log Failures
             syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to send %s (transport):\ncallid=%s",
                     method.data(), callid.data()) ;
 
-            if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
-            {
-                //remove using call id instead of from field because the from in
-                //startup unregister is same as the actual register request.
-
-               SipMessage *pTmpMessage = mRegisterList.isSameCallId(callid);
-
-                // make a copy in case the message in list is removed
-                if ( pTmpMessage )
-                    msgInList = new SipMessage(*pTmpMessage);
-            }
-            else
-            {
-                //remove using call id instead of from field because the from in
-                //startup unregister is same as the actual register request.
-                SipMessage *pTmpMessage = mSubscribeList.isSameCallId(callid);
-
-                // make a copy in case the message in list is removed
-                if ( pTmpMessage )
-                    msgInList = new SipMessage(*pTmpMessage);
-            }
-
-            
             //reschedule only if expires value is not zero otherwise it means we just did an unregister
-            if ( isExpiresZero(sipMsg) ) 
-            {                
-                if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
-                { 
-                    bRemovedOk = removeFromRegisterList(msgInList);
-                } 
-                else
-                {
-                    bRemovedOk = removeFromSubscribeList(msgInList);
-                }
-            } 
-            else
+            if ( !isExpiresZero(sipMsg) )
             {
                sendToObservers(eventMessage, msgInList);
                     
                // try again after default time out
                rescheduleAfterTime(msgInList, FAILED_PERCENTAGE_TIMEOUT);
             }
-
-            if (msgInList && bRemovedOk)
-            {
-                delete msgInList;
-                msgInList = NULL;
-            }
-
             messageProcessed = TRUE;
         }
         // If this is a response,
@@ -1332,36 +1287,21 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                         // Find the request which goes with this response
                         SipMessage* request = mRegisterList.getRequestFor(sipMsg);
 
-                        UtlBoolean bRemovedOk = removeFromRegisterList(request);
-                        
                         // increment the CSeq number in the stored request
                         request->incrementCSeqNumber();
                         addToRegisterList(request);
                         
-                        // Clean up
-                        if (bRemovedOk)
-                        {
-                            delete request;
-                            request = NULL;
-                        }
                         retryWithAuthentication = TRUE;
                     } 
                     else if ( strcmp(method.data(), SIP_SUBSCRIBE_METHOD) == 0 )
                     {
                         // Find the request which goes with this response
                         SipMessage* request = mSubscribeList.getRequestFor(sipMsg);
-                        UtlBoolean bRemovedOk = removeFromSubscribeList(request);
 
                         //increment the CSeq number in the stored request
                         request->incrementCSeqNumber();
                         addToSubscribeList(request);
 
-                        // Clean up
-                        if (bRemovedOk)
-                        {
-                            delete request;
-                            request = NULL;
-                        }
                         retryWithAuthentication = TRUE;
                     }
                 }
@@ -1400,7 +1340,6 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
             }
         }//end if isresponse
 
-
         messageProcessed = TRUE;
     } 
     else if ( (msgType == OsMsg::OS_EVENT) && (msgSubType == OsEventMsg::NOTIFY) )
@@ -1408,12 +1347,10 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
         // A timer expired
         SipMessage* sipMessage;
         OsTimer* timer;
-        OsQueuedEvent* notifier;
         int protocolType;
 
         ((OsEventMsg&)eventMessage).getUserData((int&)sipMessage);
         ((OsEventMsg&)eventMessage).getEventData((int&)timer);
-        notifier = (OsQueuedEvent*) timer->getNotifier();
 
         if ( timer )
         {
@@ -1421,11 +1358,6 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
             timer = NULL;
         }
 
-        if ( notifier )
-        {
-            delete notifier;
-            notifier = NULL;
-        }
 
         if ( sipMessage )
         {
@@ -1438,25 +1370,6 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
             syslog(FAC_REFRESH_MGR, PRI_DEBUG, "timeout for %s:\ncallid=%s",
                     method.data(), callId.data())  ;
                     
-#ifndef SIPXTAPI_EXCLUDE
-                int sequenceNum = 0;
-                UtlString tmpMethod;
-                Url url;
-                UtlString lineId;
-                sipMessage->getFromUrl(url);
-                url.getIdentity(lineId);
-                lineId = "sip:" + lineId; 
-                if ( tmpMethod.compareTo(SIP_REGISTER_METHOD) == 0 && !isExpiresZero(sipMessage)) 
-                {
-                    fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_REGISTER_FAILED);
-                }
-                else if ( tmpMethod.compareTo(SIP_REGISTER_METHOD) == 0 && isExpiresZero(sipMessage)) 
-                {
-                    fireSipXLineEvent(lineId.data(), SIPX_LINE_EVENT_UNREGISTER_FAILED);
-                }
-#endif
-                    
-
 #ifdef TEST_PRINT
             int len = 0 ;
             UtlString bytes ;
@@ -1493,9 +1406,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                         // msg
                         if ( num >= listNum )
                         {                            
-                            if (sendRequest(*sipMessage, SIP_REGISTER_METHOD) != OS_SUCCESS)
-                                removeFromRegisterList(sipMessage);
-
+                            sendRequest(*sipMessage, SIP_REGISTER_METHOD);
                         }
                     }
                     else
@@ -1517,9 +1428,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                         // msg
                         if ( num >= listNum )
                         {                            
-                            if (sendRequest(*sipMessage, SIP_SUBSCRIBE_METHOD) != OS_SUCCESS)
-                                removeFromSubscribeList(sipMessage);
-
+                            sendRequest(*sipMessage, SIP_SUBSCRIBE_METHOD);
                         }
                     }
                     else
@@ -1635,7 +1544,6 @@ void SipRefreshMgr::reSubscribeAll()
     iteratorHandle = tempList.getIterator();
     while ((listMessage = (SipMessage*) tempList.getSipMessageForIndex(iteratorHandle)))
     {
-        //removeFromSubscribeList(listMessage);
         rescheduleRequest(listMessage, 1 , SIP_SUBSCRIBE_METHOD, DEFAULT_PERCENTAGE_TIMEOUT ,TRUE);
     }
     tempList.releaseIterator(iteratorHandle);
@@ -1735,8 +1643,9 @@ SipRefreshMgr::newSubscribeMsg( SipMessage& sipMessage )
             if (isUAStarted())
             {
                 if (sendRequest( sipMessage, SIP_SUBSCRIBE_METHOD ) != OS_SUCCESS)
+                {
                     removeFromSubscribeList(&sipMessage);
-
+                }
             }
             else
             {
@@ -1838,8 +1747,6 @@ SipRefreshMgr::removeFromRegisterList(SipMessage* message)
 {
     UtlBoolean bRemovedOk = FALSE;
 
-    OsReadLock readlock(mRegisterListMutexR);
-    OsWriteLock writeLock(mRegisterListMutexW);
 #ifdef TEST_PRINT
     osPrintf("**********************************************\n");
     osPrintf("Removing message from register list: %X\n",message);
@@ -2013,7 +1920,7 @@ SipRefreshMgr::getContactField(
         {
             tempContact = host ;
             // Only include port number if non-standard
-            if ((port != 5060) && (port != 0))
+            if ((port != 5060) && (port != PORT_NONE))
             {
                 char cPort[32] ;
                 sprintf(cPort, "%d", port) ;
@@ -2098,20 +2005,42 @@ const int SipRefreshMgr::getSubscribeTimeout()
 
 #ifndef SIPXTAPI_EXCLUDE
 
-void SipRefreshMgr::fireSipXLineEvent(const UtlString& lineId, const SIPX_LINE_EVENT_TYPE_MAJOR eMajor) 
+void SipRefreshMgr::fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause) 
 {
     // Avoid sending duplicate events
-    if (eMajor != getLastLineEvent(lineId))
+    if (event != getLastLineEvent(lineId))
     {
-        setLastLineEvent(lineId.data(), eMajor);
+        if (event == LINESTATE_REGISTERED)
+        {
+            if (getLineMgr())
+            {
+                mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_REGISTERED);
+            }
+        }
+        else if (event == LINESTATE_UNREGISTERED)
+        {
+            if (getLineMgr())
+            {
+                mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_DISABLED);
+            }
+        }
+        setLastLineEvent(lineId.data(), event);
 
-        TapiMgr::getInstance().fireLineEvent(this, lineId.data(), eMajor);
+        TapiMgr::getInstance().fireLineEvent(this, lineId.data(), event, cause);
+        
+        if (event == LINESTATE_UNREGISTERED)
+        {
+            if (getLineMgr())
+            {
+                mpLineMgr->lineHasBeenUnregistered(url);
+            }
+        }        
     }
 }
 
-SIPX_LINE_EVENT_TYPE_MAJOR SipRefreshMgr::getLastLineEvent(const UtlString& lineId)
+SIPX_LINESTATE_EVENT SipRefreshMgr::getLastLineEvent(const UtlString& lineId)
 {
-    SIPX_LINE_EVENT_TYPE_MAJOR lastLineEvent = SIPX_LINE_EVENT_UNKNOWN;
+    SIPX_LINESTATE_EVENT lastLineEvent = LINESTATE_UNKNOWN;
     UtlInt* lastEvent = NULL;
     
     if (!mpLastLineEventMap)
@@ -2121,12 +2050,12 @@ SIPX_LINE_EVENT_TYPE_MAJOR SipRefreshMgr::getLastLineEvent(const UtlString& line
     lastEvent = dynamic_cast<UtlInt*>(mpLastLineEventMap->find(&lineId));   
     if (lastEvent)
     {
-        lastLineEvent = (SIPX_LINE_EVENT_TYPE_MAJOR)lastEvent->getValue();
+        lastLineEvent = (SIPX_LINESTATE_EVENT)lastEvent->getValue();
     }
     return lastLineEvent;
 }
  
-void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINE_EVENT_TYPE_MAJOR eMajor)
+void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINESTATE_EVENT eMajor)
 {
     if (!mpLastLineEventMap)
     {
@@ -2137,5 +2066,64 @@ void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINE_EV
     return;
 }
 
-#endif
+#endif // #ifndef SIPXTAPI_EXCLUDE
 
+void SipRefreshMgr::removeAllFromRequestList(SipMessage* response)
+{
+    OsReadLock readlock(mRegisterListMutexR);
+    OsWriteLock writeLock(mRegisterListMutexW);
+    UtlString methodName;
+    int seqNum = 0;
+    
+    response->getCSeqField(&seqNum, &methodName);
+    if (methodName.compareTo(SIP_REGISTER_METHOD) == 0)
+    {
+        removeAllFromRequestList(response, &mRegisterList);
+    }
+    else if (methodName.compareTo(SIP_SUBSCRIBE_METHOD) == 0)
+    {
+        removeAllFromRequestList(response, &mSubscribeList);
+    }
+
+#ifdef TEST_PRINT
+    osPrintf("** removeFromRegisterList\n") ;
+    mRegisterList.printDebugTable() ;
+#endif
+}
+
+void SipRefreshMgr::removeAllFromRequestList(SipMessage* response, SipMessageList* pRequestList)
+{
+    SipMessage* listMessage = NULL;
+    int iteratorHandle = pRequestList->getIterator();
+    UtlString methodName;
+    int seqNum = 0;
+    
+    response->getCSeqField(&seqNum, &methodName);
+    
+    while ((listMessage = (SipMessage*) pRequestList->getSipMessageForIndex(iteratorHandle)))
+    {
+        int requestSeqNum = 0;
+        UtlString dummy;
+        listMessage->getCSeqField(&requestSeqNum, &dummy);
+        if (response->isSameSession(listMessage) && (seqNum == -1 || requestSeqNum <= seqNum) )
+        {
+            mRegisterList.releaseIterator(iteratorHandle);
+            mRegisterList.remove(listMessage);
+            delete listMessage;
+            listMessage = NULL;
+            iteratorHandle = pRequestList->getIterator();
+        }
+    }
+    pRequestList->releaseIterator(iteratorHandle);
+}
+
+void SipRefreshMgr::setLineMgr(SipLineMgr* const lineMgr)
+{
+    mpLineMgr = lineMgr;
+    return;
+}
+
+SipLineMgr* const SipRefreshMgr::getLineMgr() const
+{
+    return mpLineMgr;
+}

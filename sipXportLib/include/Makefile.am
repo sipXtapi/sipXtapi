@@ -3,11 +3,13 @@
 # projects
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
-nobase_include_HEADERS =  \
+nobase_include_HEADERS = \
+    os/HostAdapterAddress.h \
     os/fstream \
     os/iostream \
     os/istream \
     os/linux/host_address.h \
+    os/linux/AdapterInfo.h \
     os/linux/OsBSemLinux.h \
     os/linux/OsCSemLinux.h \
     os/linux/OsDateTimeLinux.h \
@@ -60,6 +62,7 @@ nobase_include_HEADERS =  \
     os/OsProcessMgr.h \
     os/OsProtectEvent.h \
     os/OsProtectEventMgr.h \
+	os/OsPtrMsg.h \
     os/OsQueuedEvent.h \
     os/OsReadLock.h \
     os/OsRpcMsg.h \
@@ -91,6 +94,7 @@ nobase_include_HEADERS =  \
     os/shared/OsMsgQShared.h \
     os/shared/OsSysSoftTimer.h \
     os/shared/OsTimerMessage.h \
+    os/OsStunAgentTask.h \
     os/OsStunQueryAgent.h \
     os/OsStunAgentTask.h \
     os/OsStunDatagramSocket.h \
@@ -99,6 +103,7 @@ nobase_include_HEADERS =  \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
     utl/UtlBool.h \
+    utl/UtlLink.h \
     utl/UtlContainable.h \
     utl/UtlContainer.h \
     utl/UtlDateTime.h \
@@ -147,4 +152,3 @@ EXTRA_DIST= \
     os/wnt/OsTaskWnt.h \
     os/wnt/OsUtilWnt.h \
     os/wnt/WIndowsAdapterInfo.h 
-

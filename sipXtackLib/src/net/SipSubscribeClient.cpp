@@ -372,7 +372,7 @@ void SipSubscribeClient::endAllSubscriptions()
 
                 // Indicate that the subscription was terminated
                 (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
-                    clientState->mState == SUBSCRIPTION_INITIATED ? earlyDialogHandle : NULL,
+                    clientState->mState == SUBSCRIPTION_INITIATED ? earlyDialogHandle.data() : NULL,
                     clientState->mState == SUBSCRIPTION_SETUP ? dialogKey->data() : NULL,
                     clientState->mpApplicationData,
                     -1, // no response code

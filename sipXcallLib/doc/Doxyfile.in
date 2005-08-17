@@ -315,7 +315,7 @@ HTML_OUTPUT           = @PACKAGE@
 # each generated HTML page. If it is left blank doxygen will generate a 
 # standard header.
 
-HTML_HEADER           = 
+HTML_HEADER           = @srcdir@/header.html
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for 
 # each generated HTML page. If it is left blank doxygen will generate a 
@@ -473,7 +473,7 @@ SEARCH_INCLUDES       = YES
 # contain include files that are not input files but should be processed by 
 # the preprocessor. 
 
-INCLUDE_PATH          = @top_srcdir@/meta/doc
+INCLUDE_PATH          = 
 
 # The PREDEFINED tag can be used to specify one or more macro names that 
 # are defined before the preprocessor is started (similar to the -D option of 

@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsSysLogTask_h_
 #define _OsSysLogTask_h_
@@ -105,6 +103,7 @@ protected:
    UtlBoolean mLogChanged;        // Has the log changed/need flushing?
    OsTimer*  mpTimer;            // Timer responsible for flushing log
    OsSocket* mpSockets[MAX_SOCKET_TARGETS] ; // Output sockets
+   OsSysLogCallback mpCallback;  // Callback function 
    OsRWMutex mRWMutex;           // Guards log data
    OsTime    mpLastReopen ;      // Time of last reopen (unbounded only)
    int       mOptions ;          // Instance-specific options
@@ -128,6 +127,8 @@ protected:
      //:Process setting the flush period
    OsStatus processFlushLog(OsEvent* pEvent); 
      //:Process flushing the actual log.
+   OsStatus processSetCallback(OsSysLogCallback pCallback);
+     //:Process setting a callback function
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

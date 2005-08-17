@@ -1,16 +1,12 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <stdio.h>
+#include "os/OsDefs.h"
 
 // APPLICATION INCLUDES
 #include "tao/TaoTransportAgent.h"
@@ -242,7 +238,7 @@ long TaoTransportAgent::getLastTouchedTime() const
 
 int TaoTransportAgent::getHostPort() const
 {
-        int port = 0;
+        int port = PORT_NONE;
         if(mpSocket)
         {
                 port = mpSocket->getRemoteHostPort();

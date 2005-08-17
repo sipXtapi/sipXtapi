@@ -1,13 +1,10 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _Connection_h_
 #define _Connection_h_
@@ -22,6 +19,7 @@
 #  include <tapi/sipXtapiEvents.h>
 #  include <tapi/sipXtapiInternal.h>
 #endif
+#include <net/SipContactDb.h>
 
 
 // DEFINES
@@ -31,6 +29,7 @@
 // MACROS
 #ifdef SIPXTAPI_EXCLUDE
 #  define fireSipXEvent(XX, YY) ;
+#  define fireSipXEvent(XX, YY, ZZ) ;
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -38,33 +37,6 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
-/**
- * ADDRESS_TYPE is an enumeration of possible address type for use with
- * SIP contacts and SDP connection information.
- */
-typedef enum
-{
-    LOCAL,      /**< Local address for a particular interface */
-    NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
-    RELAY,      /**< Relay address (e.g. TURN)                */
-    CONFIG,     /**< Manually configured address              */
-
-    AUTO = -1,  /**< auto select */
-} CONTACT_TYPE ;
-
-
-/**
- * The CONTACT_ADDRESS structure includes contact information (ip and port),
- * address source type, and interface.
- */
-typedef struct 
-{
-    CONTACT_TYPE eContactType ;   /**< Address type/source */
-    char*        cInterface[32] ; /**< Source interface    */
-    char         cIpAddress[32] ; /**< IP Address          */
-    int          iPort ;      /**< Port                */
-} CONTACT_ADDRESS ;
 
 // FORWARD DECLARATIONS
 class CpCallManager;
@@ -225,11 +197,14 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+   virtual void prepareForSplit() ;
+   virtual void prepareForJoin(CpCall* pNewCall, CpMediaInterface* pNewMediaInterface) ;
+
    virtual void forceHangUp(int connectionState = CONNECTION_DISCONNECTED)
    {
 	   setState(connectionState, CONNECTION_REMOTE);
 #ifndef SIPXTAPI_EXCLUDE
-       fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
+       fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
 #endif 
    }
 
@@ -283,6 +258,10 @@ public:
 
    virtual UtlBoolean processMessage(OsMsg& eventMessage,
                                     UtlBoolean callInFocus, UtlBoolean onHook) = 0;
+                                    
+   virtual UtlBoolean sendInfo(UtlString contentType, UtlString sContent){ return false; }
+   //:Virtual method signature and default implementation for sendInfo - this should be overridden by
+   //:SipConnection.
 
 	OsStatus addTaoListener(OsServerTask* pListener,
 									char* callId = NULL,
@@ -296,9 +275,15 @@ public:
     void markForDeletion() ;
       //: Is this connection marked for deletion?
 
+    void setMediaInterface(CpMediaInterface* pMediaInterface) ;
+      //:Set the media interface for this connection
+      
+    CpMediaInterface* getMediaInterfacePtr();
+      //:Gets the media interface pointer for this connection.
+
 #ifndef SIPXTAPI_EXCLUDE
-    UtlBoolean validStateTransition(SIPX_CALLSTATE_MAJOR eFrom, SIPX_CALLSTATE_MAJOR eTo) ;
-    void fireSipXEvent(SIPX_CALLSTATE_MAJOR eMajor, SIPX_CALLSTATE_MINOR eMinor) ;
+    UtlBoolean validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo) ;
+    void fireSipXEvent(SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor, void *pEventData=NULL) ;
 #endif
 
 /* ============================ ACCESSORS ================================= */
@@ -322,10 +307,6 @@ public:
    // Caller in a call specific
 
    virtual UtlBoolean getRemoteAddress(UtlString* remoteAddress) const = 0;
-   //: get Connection address
-   //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
-
-   virtual UtlBoolean getRemoteAddress(UtlString* remoteAddress, UtlBoolean leaveFieldParametersIn) const = 0;
    //: get Connection address
    //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
 
@@ -361,6 +342,9 @@ public:
     UtlBoolean isMarkedForDeletion() const ;
       //: Determines if this connection has been marked for deletion and
       //: should be purged from the call.
+
+    UtlBoolean isHeld() const ;
+      //:Is this connection on remote hold (not sending or receiving audio)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -412,6 +396,7 @@ protected:
 
 	UtlString remoteRtpAddress;
 	int remoteRtpPort;
+    int remoteRtcpPort;
 	int sendCodec;
 	int receiveCodec;
 	
@@ -444,8 +429,10 @@ private:
     OsTime   mDeleteAfter ;    // Instructs the call to delete this connection
                               // after this time period (time since boot)
 #ifndef SIPXTAPI_EXCLUDE
-    SIPX_CALLSTATE_MAJOR m_eLastMajor ; 
-    SIPX_CALLSTATE_MINOR m_eLastMinor ; 
+    SIPX_CALLSTATE_EVENT m_eLastMajor ; 
+    SIPX_CALLSTATE_CAUSE m_eLastMinor ; 
+    SIPX_CALLSTATE_EVENT m_eLastAudioMajor;
+    SIPX_CALLSTATE_CAUSE m_eLastAudioMinor;
 #endif
 
 

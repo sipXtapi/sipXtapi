@@ -61,7 +61,7 @@ public class CallGroupContextImplTestDb extends TestCase {
         assertEquals(45, ring.getExpiration());
         assertEquals(AbstractRing.Type.DELAYED, ring.getType());
         assertEquals(0, ring.getPosition());
-        assertEquals("testuser", ring.getUser().getDisplayId());
+        assertEquals("testuser", ring.getUser().getUserName());
 
     }
 

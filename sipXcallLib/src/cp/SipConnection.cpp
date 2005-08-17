@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 
 // SYSTEM INCLUDES
@@ -26,7 +24,10 @@
 #include <net/SdpCodecFactory.h>
 #include <net/Url.h>
 #include <net/SipSession.h>
+#include <net/NetBase64Codec.h>
+#ifndef SIPXMEDIA_EXCLUDE
 #include <mp/dtmflib.h>
+#endif
 #include <cp/SipConnection.h>
 #include <cp/CpMediaInterface.h>
 #include <cp/CallManager.h>
@@ -35,6 +36,7 @@
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpIntMessage.h>
 #include "ptapi/PtCall.h"
+#include <net/TapiMgr.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -54,7 +56,7 @@
 // Constructor
 SipConnection::SipConnection(const char* outboundLineAddress,
                              UtlBoolean isEarlyMediaFor180Enabled,
-                                                         CpCallManager* callMgr,
+                             CpCallManager* callMgr,
                              CpCall* call,
                              CpMediaInterface* mediaInterface,
                              //UiContext* callUiContext,
@@ -65,71 +67,73 @@ SipConnection::SipConnection(const char* outboundLineAddress,
                              const char* forwardUnconditionalUrl,
                              int busyBehavior,
                              const char* forwardOnBusyUrl)
-    : Connection(callMgr, call, mediaInterface, offeringDelayMilliSeconds,
-           availableBehavior, forwardUnconditionalUrl,
-           busyBehavior, forwardOnBusyUrl)
-    , mIsEarlyMediaFor180(TRUE)
+                             : Connection(callMgr, call, mediaInterface, offeringDelayMilliSeconds,
+                             availableBehavior, forwardUnconditionalUrl,
+                             busyBehavior, forwardOnBusyUrl)
+                             , inviteFromThisSide(0)
+                             , mIsEarlyMediaFor180(TRUE)
+                             , mContactId(0)
 {
-   sipUserAgent = sipUA;
-   inviteMsg = NULL;
-   mReferMessage = NULL;
-   lastLocalSequenceNumber = 0;
-   lastRemoteSequenceNumber = -1;
-   reinviteState = ACCEPT_INVITE;
-   mIsEarlyMediaFor180 = isEarlyMediaFor180Enabled;
+    sipUserAgent = sipUA;
+    inviteMsg = NULL;
+    mReferMessage = NULL;
+    lastLocalSequenceNumber = 0;
+    lastRemoteSequenceNumber = -1;
+    reinviteState = ACCEPT_INVITE;
+    mIsEarlyMediaFor180 = isEarlyMediaFor180Enabled;
 
-   // Build a from tag
-   int fromTagInt = rand();
-   char fromTagBuffer[60];
-   sprintf(fromTagBuffer, "%dc%d", call->getCallIndex(), fromTagInt);
-   mFromTag = fromTagBuffer;
+    // Build a from tag
+    int fromTagInt = rand();
+    char fromTagBuffer[60];
+    sprintf(fromTagBuffer, "%dc%d", call->getCallIndex(), fromTagInt);
+    mFromTag = fromTagBuffer;
 
-   if(outboundLineAddress)
-   {
-       mFromUrl = outboundLineAddress;
+    if(outboundLineAddress)
+    {
+        mFromUrl = outboundLineAddress;
 
-       // Before adding the from tag, construct the local contact with the
-       // device's NAT friendly contact information (getContactUri).  The host
-       // and port from that replaces the public address or record host and
-       // port.  The UserId and URL parameters should be retained.
-       UtlString contactHostPort;
-       UtlString address;
-       Url tempUrl(mFromUrl);
-       sipUserAgent->getContactUri(&contactHostPort);
-       Url hostPort(contactHostPort);
-       hostPort.getHostAddress(address);
-       tempUrl.setHostAddress(address);
-       tempUrl.setHostPort(hostPort.getHostPort());
-       tempUrl.toString(mLocalContact);
+        // Before adding the from tag, construct the local contact with the
+        // device's NAT friendly contact information (getContactUri).  The host
+        // and port from that replaces the public address or record host and
+        // port.  The UserId and URL parameters should be retained.
+        UtlString contactHostPort;
+        UtlString address;
+        Url tempUrl(mFromUrl);
+        sipUserAgent->getContactUri(&contactHostPort);
+        Url hostPort(contactHostPort);
+        hostPort.getHostAddress(address);
+        tempUrl.setHostAddress(address);
+        tempUrl.setHostPort(hostPort.getHostPort());
+        tempUrl.toString(mLocalContact);
 
-       // Set the from tag in case this is an outbound call
-       // If this is an in bound call, the from URL will get
-       // over written by the To field from the SIP request
-       mFromUrl.setFieldParameter("tag", mFromTag);
-   }
+        // Set the from tag in case this is an outbound call
+        // If this is an in bound call, the from URL will get
+        // over written by the To field from the SIP request
+        mFromUrl.setFieldParameter("tag", mFromTag);
+    }
 
-   mDefaultSessionReinviteTimer = sessionReinviteTimer;
-   mSessionReinviteTimer = 0;
+    mDefaultSessionReinviteTimer = sessionReinviteTimer;
+    mSessionReinviteTimer = 0;
 
 #ifdef TEST_PRINT
-   osPrintf("SipConnection::mDefaultSessionReinviteTimer = %d\n",
-       mDefaultSessionReinviteTimer);
+    osPrintf("SipConnection::mDefaultSessionReinviteTimer = %d\n",
+        mDefaultSessionReinviteTimer);
 #endif
 
-   mIsReferSent = FALSE;
-   mIsAcceptSent = FALSE;
+    mIsReferSent = FALSE;
+    mIsAcceptSent = FALSE;
 
-   mbCancelling = FALSE;        // this is the flag that indicates CANCEL is sent
-                                                        // but no response has been received  if set to TRUE
+    mbCancelling = FALSE;        // this is the flag that indicates CANCEL is sent
+    // but no response has been received  if set to TRUE
 
-   // State variable which indicates an action to
-   // perform after hold has completed.
-   mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
+    // State variable which indicates an action to
+    // perform after hold has completed.
+    mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
 #ifdef TEST_PRINT
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: %s\n", callId.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: %s\n", callId.data());
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: call is Null\n");
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: call is Null\n");
 #endif
 
 }
@@ -146,16 +150,16 @@ SipConnection::~SipConnection()
 #ifdef TEST_PRINT
     if (mpCall) {
         mpCall->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: %s\n", callId.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: %s\n", callId.data());
     } else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: call is Null\n");
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: call is Null\n");
 #endif
 
-        if(inviteMsg)
-        {
-                delete inviteMsg;
-                inviteMsg = NULL;
-        }
+    if(inviteMsg)
+    {
+        delete inviteMsg;
+        inviteMsg = NULL;
+    }
     if(mReferMessage)
     {
         delete mReferMessage;
@@ -163,9 +167,9 @@ SipConnection::~SipConnection()
     }
 #ifdef TEST_PRINT
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", callId.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", callId.data());
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
 #endif
 }
 
@@ -175,10 +179,10 @@ SipConnection::~SipConnection()
 SipConnection&
 SipConnection::operator=(const SipConnection& rhs)
 {
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
+    if (this == &rhs)            // handle the assignment to self case
+        return *this;
 
-   return *this;
+    return *this;
 }
 
 
@@ -191,8 +195,7 @@ UtlBoolean SipConnection::dequeue(UtlBoolean callInFocus)
     if(getState() == CONNECTION_QUEUED)
     {
         int tagNum = -1;
-        proceedToRinging(inviteMsg, sipUserAgent, tagNum, //callInFocus,
-            mLineAvailableBehavior, mpMediaInterface);
+        proceedToRinging(inviteMsg, sipUserAgent, tagNum, mLineAvailableBehavior);
 
         setState(CONNECTION_ALERTING, CONNECTION_LOCAL);
         /** SIPXTAPI: TBD **/
@@ -207,175 +210,176 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
                                                         SipUserAgent& sipUa,
                                                         SdpCodecFactory* codecFactory)
 {
-   UtlBoolean createConnection = FALSE;
-   UtlString method;
-   sipMsg->getRequestMethod(&method);
-   UtlString toField;
-   UtlString address;
-   UtlString protocol;
-   int port;
-   UtlString user;
-   UtlString userLabel;
-   UtlString tag;
-   sipMsg->getToAddress(&address, &port, &protocol, &user, &userLabel, &tag);
+    UtlBoolean createConnection = FALSE;
+    UtlString method;
+    sipMsg->getRequestMethod(&method);
+    UtlString toField;
+    UtlString address;
+    UtlString protocol;
+    int port;
+    UtlString user;
+    UtlString userLabel;
+    UtlString tag;
+    sipMsg->getToAddress(&address, &port, &protocol, &user, &userLabel, &tag);
 
-   // Dangling or delated ACK
-   if(method.compareTo(SIP_ACK_METHOD) == 0)
-   {
-      // Ignore it and do not create a connection
-      createConnection = FALSE;
-   }
+    // Dangling or delated ACK
+    if(method.compareTo(SIP_ACK_METHOD) == 0)
+    {
+        // Ignore it and do not create a connection
+        createConnection = FALSE;
+    }
 
-   // INVITE to create a connection
-   //if to tag is already set then return 481 error
-   else if(method.compareTo(SIP_INVITE_METHOD) == 0 && tag.isNull())
-   {
-      // Assume the best case, as this will be checked
-      // again before the call is answered
-      UtlBoolean atLeastOneCodecSupported = TRUE;
-      if(codecFactory == NULL ||
-          codecFactory->getCodecCount() == 0)
-          atLeastOneCodecSupported = TRUE;
+    // INVITE to create a connection
+    //if to tag is already set then return 481 error
+    else if(method.compareTo(SIP_INVITE_METHOD) == 0 && tag.isNull())
+    {
+        // Assume the best case, as this will be checked
+        // again before the call is answered
+        UtlBoolean atLeastOneCodecSupported = TRUE;
+        if(codecFactory == NULL ||
+            codecFactory->getCodecCount() == 0)
+            atLeastOneCodecSupported = TRUE;
 
-      // Verify that we have some RTP codecs in common
-      else
-      {
-          // Get the SDP and findout if there are any
-          // codecs in common
-          UtlString rtpAddress;
-          int rtpPort;
-          const SdpBody* bodyPtr = sipMsg->getSdpBody();
-          if(bodyPtr)
-          {
-              int numMatchingCodecs = 0;
-              SdpCodec** matchingCodecs = NULL;
-              bodyPtr->getBestAudioCodecs(*codecFactory,
-                                          numMatchingCodecs,
-                                          matchingCodecs,
-                                                                  rtpAddress, rtpPort);
-              if(numMatchingCodecs > 0)
-              {
-                  // Need to cleanup the codecs
-                  for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-                  {
-                      delete matchingCodecs[codecIndex];
-                      matchingCodecs[codecIndex] = NULL;
-                  }
-                  delete[] matchingCodecs;
-                  atLeastOneCodecSupported = TRUE;
-              }
-              else
-              {
-                  atLeastOneCodecSupported = FALSE;
+        // Verify that we have some RTP codecs in common
+        else
+        {
+            // Get the SDP and findout if there are any
+            // codecs in common
+            UtlString rtpAddress;
+            int rtpPort;
+            int rtcpPort;
+            const SdpBody* bodyPtr = sipMsg->getSdpBody();
+            if(bodyPtr)
+            {
+                int numMatchingCodecs = 0;
+                SdpCodec** matchingCodecs = NULL;
+                bodyPtr->getBestAudioCodecs(*codecFactory,
+                    numMatchingCodecs,
+                    matchingCodecs,
+                    rtpAddress, rtpPort, rtcpPort);
+                if(numMatchingCodecs > 0)
+                {
+                    // Need to cleanup the codecs
+                    for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+                    {
+                        delete matchingCodecs[codecIndex];
+                        matchingCodecs[codecIndex] = NULL;
+                    }
+                    delete[] matchingCodecs;
+                    atLeastOneCodecSupported = TRUE;
+                }
+                else
+                {
+                    atLeastOneCodecSupported = FALSE;
 
-                  // Send back a bad media error
-                  // There are no codecs in common
-                  SipMessage badMediaResponse;
-                  badMediaResponse.setInviteBadCodecs(sipMsg, &sipUa);
-                  sipUa.send(badMediaResponse);
-              }
+                    // Send back a bad media error
+                    // There are no codecs in common
+                    SipMessage badMediaResponse;
+                    badMediaResponse.setInviteBadCodecs(sipMsg, &sipUa);
+                    sipUa.send(badMediaResponse);
+                }
 
-          }
+            }
 
-          // Assume that SDP will be sent in ACK
-          else
-              atLeastOneCodecSupported = TRUE;
-      }
+            // Assume that SDP will be sent in ACK
+            else
+                atLeastOneCodecSupported = TRUE;
+        }
 
-      if(atLeastOneCodecSupported)
-      {
-          // Create a new connection
-          createConnection = TRUE;
-      }
-      else
-      {
-          createConnection = FALSE;
+        if(atLeastOneCodecSupported)
+        {
+            // Create a new connection
+            createConnection = TRUE;
+        }
+        else
+        {
+            createConnection = FALSE;
 #ifdef TEST_PRINT
-          osPrintf("SipConnection::requestShouldCreateConnection FALSE INVITE with no supported RTP codecs\n");
+            osPrintf("SipConnection::requestShouldCreateConnection FALSE INVITE with no supported RTP codecs\n");
 #endif
-      }
-   }
+        }
+    }
 
-   // NOTIFY for REFER
-   // a non-existing transaction.
-   else if(method.compareTo(SIP_NOTIFY_METHOD) == 0)
-   {
-      UtlString eventType;
-      sipMsg->getEventField(eventType);
-      eventType.toLower();
-      int typeIndex = eventType.index(SIP_EVENT_REFER);
-      if(typeIndex >=0)
-      {
-          // Send a bad callId/transaction message
-          SipMessage badTransactionMessage;
-          badTransactionMessage.setBadTransactionData(sipMsg);
-          sipUa.send(badTransactionMessage);
-      }
-      // All other NOTIFY events are ignored
-      createConnection = FALSE;
-   }
+    // NOTIFY for REFER
+    // a non-existing transaction.
+    else if(method.compareTo(SIP_NOTIFY_METHOD) == 0)
+    {
+        UtlString eventType;
+        sipMsg->getEventField(eventType);
+        eventType.toLower();
+        int typeIndex = eventType.index(SIP_EVENT_REFER);
+        if(typeIndex >=0)
+        {
+            // Send a bad callId/transaction message
+            SipMessage badTransactionMessage;
+            badTransactionMessage.setBadTransactionData(sipMsg);
+            sipUa.send(badTransactionMessage);
+        }
+        // All other NOTIFY events are ignored
+        createConnection = FALSE;
+    }
 
-   else if(method.compareTo(SIP_REFER_METHOD) == 0)
-   {
-      createConnection = TRUE;
-   }
+    else if(method.compareTo(SIP_REFER_METHOD) == 0)
+    {
+        createConnection = TRUE;
+    }
 
-   // All other methods: this is part of
-   // a non-existing transaction.
-   else
-   {
-      // Send a bad callId/transaction message
-      SipMessage badTransactionMessage;
-      badTransactionMessage.setBadTransactionData(sipMsg);
-      sipUa.send(badTransactionMessage);
-      createConnection = FALSE;
-   }
+    // All other methods: this is part of
+    // a non-existing transaction.
+    else
+    {
+        // Send a bad callId/transaction message
+        SipMessage badTransactionMessage;
+        badTransactionMessage.setBadTransactionData(sipMsg);
+        sipUa.send(badTransactionMessage);
+        createConnection = FALSE;
+    }
 
-   return createConnection;
+    return createConnection;
 }
 
 UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
-                                                OsMsg& eventMessage,
-                                                SdpCodecFactory* codecFactory)
+                                                 OsMsg& eventMessage,
+                                                 SdpCodecFactory* codecFactory)
 {
     UtlBoolean createConnection = FALSE;
-        int msgType = eventMessage.getMsgType();
-        int msgSubType = eventMessage.getMsgSubType();
-        const SipMessage* sipMsg = NULL;
-        int messageType;
+    int msgType = eventMessage.getMsgType();
+    int msgSubType = eventMessage.getMsgSubType();
+    const SipMessage* sipMsg = NULL;
+    int messageType;
 
-        if(msgType == OsMsg::PHONE_APP &&
-                msgSubType == CallManager::CP_SIP_MESSAGE)
-        {
-                sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
-                messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
+    if(msgType == OsMsg::PHONE_APP &&
+        msgSubType == CallManager::CP_SIP_MESSAGE)
+    {
+        sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
+        messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 #ifdef TEST_PRINT
-                osPrintf("SipConnection::messageType: %d\n", messageType);
+        osPrintf("SipConnection::messageType: %d\n", messageType);
 #endif
 
         switch(messageType)
         {
-                    // This is a request which failed to get sent
-            case SipMessageEvent::TRANSPORT_ERROR:
-            case SipMessageEvent::SESSION_REINVITE_TIMER:
-            case SipMessageEvent::AUTHENTICATION_RETRY:
+            // This is a request which failed to get sent
+        case SipMessageEvent::TRANSPORT_ERROR:
+        case SipMessageEvent::SESSION_REINVITE_TIMER:
+        case SipMessageEvent::AUTHENTICATION_RETRY:
+            // Ignore it and do not create a connection
+            createConnection = FALSE;
+            break;
+
+        default:
+            // Its a SIP Response
+            if(sipMsg->isResponse())
+            {
                 // Ignore it and do not create a connection
                 createConnection = FALSE;
-                break;
-
-            default:
-                // Its a SIP Response
-                if(sipMsg->isResponse())
-                {
-                    // Ignore it and do not create a connection
-                   createConnection = FALSE;
-                }
-                // Its a SIP Request
-                else
-                {
-                   createConnection = SipConnection::requestShouldCreateConnection(sipMsg, sipUa, codecFactory);
-                }
-                break;
+            }
+            // Its a SIP Request
+            else
+            {
+                createConnection = SipConnection::requestShouldCreateConnection(sipMsg, sipUa, codecFactory);
+            }
+            break;
         }
 
         if(!createConnection)
@@ -405,99 +409,94 @@ UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
 CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& request)
 {
     CONTACT_TYPE contactType = mContactType ;
+    char szAdapter[256];
+    UtlString localAddress;
+    getLocalAddress(&localAddress);
 
-    if (contactType  == AUTO)
+    getContactAdapterName(szAdapter, localAddress.data());
+
+    UtlString requestUriHost ;
+    int requestUriPort ;
+    UtlString strUri ;
+    request.getRequestUri(&strUri) ;
+    Url requestUri(strUri) ;
+
+    requestUri.getHostAddress(requestUriHost) ;
+    requestUriPort = requestUri.getHostPort() ;
+    if (!portIsValid(requestUriPort))
     {
-        UtlString requestUriHost ;
-        UtlString checkHost ;
-        int requestUriPort ;
-        int checkPort ;
-        UtlString strUri ;
-        request.getRequestUri(&strUri) ;
-        Url requestUri(strUri) ;
+        requestUriPort = 5060 ;
+    }
 
-        requestUri.getHostAddress(requestUriHost) ;
-        requestUriPort = requestUri.getHostPort() ;
-        if (requestUriPort == 0)
-        {
-            requestUriPort = 5060 ;
-        }
+    CONTACT_ADDRESS config_contact;
+    CONTACT_ADDRESS stun_contact;
+    CONTACT_ADDRESS local_contact;
+    
+    if (sipUserAgent->getContactDb().getRecordForAdapter(config_contact, szAdapter, CONFIG) &&
+        (strcmp(config_contact.cIpAddress, requestUriHost) == 0) &&
+        (requestUriPort == (!portIsValid(config_contact.iPort) ? 5060 : config_contact.iPort)))
+    {
+        mContactId = config_contact.id;
+        contactType = CONFIG ;
+    }
+    else if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact, szAdapter, NAT_MAPPED) &&
+        (strcmp(stun_contact.cIpAddress, requestUriHost) == 0) &&
+        (requestUriPort == (!portIsValid(stun_contact.iPort) ? 5060 : stun_contact.iPort)))
 
-        if (    sipUserAgent->getConfiguredPublicAddress(&checkHost, &checkPort) &&
-                (strcmp(checkHost, requestUriHost) == 0) &&
-                (requestUriPort == ((checkPort == 0) ? 5060 : checkPort)))
+    {
+        mContactId = stun_contact.id;
+        contactType = NAT_MAPPED ;
+    }
+    else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, szAdapter, LOCAL) &&
+        (strcmp(local_contact.cIpAddress, requestUriHost) == 0) &&
+        (requestUriPort == (!portIsValid(local_contact.iPort) ? 5060 : local_contact.iPort)))
 
-        {
-            contactType = CONFIG ;
-        }
-        else if (sipUserAgent->getNatMappedAddress(&checkHost, &checkPort) &&
-                (strcmp(checkHost, requestUriHost) == 0) &&
-                (requestUriPort == ((checkPort == 0) ? 5060 : checkPort)))
-
-        {
-            contactType = NAT_MAPPED ;
-        }
-        else if (sipUserAgent->getLocalAddress(&checkHost, &checkPort) &&
-                (strcmp(checkHost, requestUriHost) == 0) &&
-                (requestUriPort == ((checkPort == 0) ? 5060 : checkPort)))
-
-        {
-            contactType = LOCAL ;
-        }
+    {
+        mContactId = local_contact.id;
+        contactType = LOCAL ;
     }
 
     return contactType ;
 }
 
 
-void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType) const
+void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType)
 {
-    UtlBoolean bSet = FALSE  ;
     UtlString useIp ;
-    int       usePort ;
-
-    if (eType == RELAY)
+    
+    if ((mContactId == 0) && inviteMsg)
     {
-        // Relay is not supported yet -- default to AUTO for now.
-        eType = AUTO  ;
+        CONTACT_TYPE cType;
+
+        cType = selectCompatibleContactType(*inviteMsg);
+        mContactType = cType; 
     }
-
-    // Use configured address first
-    if ((eType == AUTO) || (eType == CONFIG))
+    
+    // get the Contact DB id that was set during 
+    // selectCompatibleContacts
+    CONTACT_ADDRESS* pContact = sipUserAgent->getContactDb().find(mContactId);   
+    if (pContact == NULL)
     {
-        if (sipUserAgent->getConfiguredPublicAddress(&useIp, &usePort))
+        if ((eType == AUTO) || (eType == NAT_MAPPED) || (eType == RELAY))
         {
-            pContactUrl->setHostAddress(useIp) ;
-            pContactUrl->setHostPort(usePort) ;
-            bSet = TRUE ;
+            pContact = sipUserAgent->getContactDb().findByType(NAT_MAPPED);
+        }
+
+        if (pContact == NULL)
+        {
+            pContact = sipUserAgent->getContactDb().findByType(LOCAL);
         }
     }
 
-    // Use NAT_MAPPED next
-    if (!bSet && ((eType == AUTO) || (eType == NAT_MAPPED)))
+    if (pContact)
     {
-        if (sipUserAgent->getNatMappedAddress(&useIp, &usePort))
-        {
-            pContactUrl->setHostAddress(useIp) ;
-            pContactUrl->setHostPort(usePort) ;
-            bSet = TRUE ;
-        }
-    }
-
-    // Lastly, use local
-    if (!bSet)
-    {
-        if (sipUserAgent->getLocalAddress(&useIp, &usePort))
-        {
-            pContactUrl->setHostAddress(useIp) ;
-            pContactUrl->setHostPort(usePort) ;
-            bSet = TRUE ;
-        }
+        pContactUrl->setHostAddress(pContact->cIpAddress) ;
+        pContactUrl->setHostPort(pContact->iPort) ;
     }
 }
 
 void SipConnection::buildLocalContact(Url fromUrl,
-                                      UtlString& localContact) const
+                                      UtlString& localContact) 
 {
     UtlString contactHostPort;
     UtlString address;
@@ -522,7 +521,7 @@ void SipConnection::buildLocalContact(Url fromUrl,
     contactUrl.toString(localContact);
 }
 
-void SipConnection::buildLocalContact(UtlString& localContact) const
+void SipConnection::buildLocalContact(UtlString& localContact)
 {
     UtlString contactHostPort;
     UtlString address;
@@ -548,222 +547,278 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                const char* originalCallConnection,
                                UtlBoolean requestQueuedCall)
 {
-        UtlBoolean dialOk = FALSE;
-        SipMessage sipInvite;
+    UtlBoolean dialOk = FALSE;
+    SipMessage sipInvite;
     const char* callerDisplayName = NULL;
-        int receiveRtpPort;
+    int receiveRtpPort;
     int receiveRtcpPort;
-        UtlString rtpAddress;
-        UtlString dummyFrom;
+    UtlString rtpAddress;
+    UtlString dummyFrom;
     UtlString fromAddress;
     UtlString goodToAddress;
     int cause = CONNECTION_CAUSE_NORMAL;
 
-        if(getState() == CONNECTION_IDLE)
-        {
+    if(getState() == CONNECTION_IDLE && mpMediaInterface != NULL)
+    {
         // Create a new connection in the media flowgraph
         mpMediaInterface->createConnection(mConnectionId);
         mpMediaInterface->setContactType(mConnectionId, mContactType) ;
         SdpCodecFactory supportedCodecs;
         mpMediaInterface->getCapabilities(mConnectionId,
-                                    rtpAddress,
-                                    receiveRtpPort,
-                                    receiveRtcpPort,
-                                    supportedCodecs);
+            rtpAddress,
+            receiveRtpPort,
+            receiveRtcpPort,
+            supportedCodecs);
 
-      mRemoteIsCallee = TRUE;
-      setCallId(callId);
+        mRemoteIsCallee = TRUE;
+        setCallId(callId);
 
-      lastLocalSequenceNumber++;
+        lastLocalSequenceNumber++;
 
-      buildFromToAddresses(dialString, "xxxx", callerDisplayName,
-                           dummyFrom, goodToAddress);
+        buildFromToAddresses(dialString, "xxxx", callerDisplayName,
+            dummyFrom, goodToAddress);
 
-      // The local address is always set
-      mFromUrl.toString(fromAddress);
+        // The local address is always set
+        mFromUrl.toString(fromAddress);
 #ifdef TEST_PRINT
-      osPrintf("Using To address: \"%s\"\n", goodToAddress.data());
+        osPrintf("Using To address: \"%s\"\n", goodToAddress.data());
 #endif
 
-      { //memory scope
-         // Get the codecs
-         int numCodecs;
-         SdpCodec** rtpCodecsArray = NULL;
-         supportedCodecs.getCodecs(numCodecs, rtpCodecsArray);
+        { //memory scope
+            // Get the codecs
+            int numCodecs;
+            SdpCodec** rtpCodecsArray = NULL;
+            supportedCodecs.getCodecs(numCodecs, rtpCodecsArray);
 
 #ifdef TEST_PRINT
-         UtlString codecsString;
-         supportedCodecs.toString(codecsString);
-         osPrintf("SipConnection::dial codecs:\n%s\n",
-                  codecsString.data());
+            UtlString codecsString;
+            supportedCodecs.toString(codecsString);
+            osPrintf("SipConnection::dial codecs:\n%s\n",
+                codecsString.data());
 #endif
 
-         // Prepare to receive the codecs
-         mpMediaInterface->startRtpReceive(mConnectionId,
-                                           numCodecs,
-                                           rtpCodecsArray);
+            // Prepare to receive the codecs
+            mpMediaInterface->startRtpReceive(mConnectionId,
+                numCodecs,
+                rtpCodecsArray);
 
-         // Create a contact using the host & port from the
-         // SipUserAgent and the display name and userId from
-         // the from URL.
+            // Create a contact using the host & port from the
+            // SipUserAgent and the display name and userId from
+            // the from URL.
 
-         // Create and send an INVITE
-         sipInvite.setInviteData(fromAddress.data(), goodToAddress.data(),
+            // Create and send an INVITE
+            sipInvite.setInviteData(fromAddress.data(), goodToAddress.data(),
                 NULL, mLocalContact.data(), callId, rtpAddress.data(),
                 receiveRtpPort, receiveRtcpPort, lastLocalSequenceNumber,
                 numCodecs, rtpCodecsArray, mDefaultSessionReinviteTimer);
 
-         // Free up the codecs and the array
-         for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
-         {
-            delete rtpCodecsArray[codecIndex];
-            rtpCodecsArray[codecIndex] = NULL;
-         }
-         delete[] rtpCodecsArray;
-         rtpCodecsArray = NULL;
-      }
-      // Set caller preference if caller wants queueing or campon
-      if(requestQueuedCall)
-      {
-         sipInvite.addRequestDisposition(SIP_DISPOSITION_QUEUE);
-      }
+            // Free up the codecs and the array
+            for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
+            {
+                delete rtpCodecsArray[codecIndex];
+                rtpCodecsArray[codecIndex] = NULL;
+            }
+            delete[] rtpCodecsArray;
+            rtpCodecsArray = NULL;
+        }
+        
+        #ifndef SIPXTAPI_EXCLUDE
+            if (callController && callController[0] != '\0')
+            {
+                fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_TRANSFER) ;
+            }
+        #endif
 
-      // Set the requested by field (BYE Also style transfer)
-      if(callController && originalCallConnection == NULL)
-      {
-         UtlString requestedByField(callController);
-         const char* alsoTags = strchr(dialString, '>');
-         int uriIndex = requestedByField.index('<');
-         if(uriIndex < 0)
-         {
-            requestedByField.insert(0, '<');
-            requestedByField.append('>');
-         }
-         if(alsoTags)
-         {
-            alsoTags++;
-            requestedByField.append(alsoTags);
-         }
-         sipInvite.setRequestedByField(requestedByField.data());
-         cause = CONNECTION_CAUSE_TRANSFER;
-      }
+        // Set caller preference if caller wants queueing or campon
+        if(requestQueuedCall)
+        {
+            sipInvite.addRequestDisposition(SIP_DISPOSITION_QUEUE);
+        }
 
-      // Set the header fields for REFER style transfer INVITE
-      /*else*/ if(callController && originalCallConnection)
-      {
-         mOriginalCallConnectionAddress = originalCallConnection;
-         sipInvite.setReferredByField(callController);
-         cause = CONNECTION_CAUSE_TRANSFER;
-      }
+        // Set the requested by field (BYE Also style transfer)
+        if(callController && originalCallConnection == NULL)
+        {
+            UtlString requestedByField(callController);
+            const char* alsoTags = strchr(dialString, '>');
+            int uriIndex = requestedByField.index('<');
+            if(uriIndex < 0)
+            {
+                requestedByField.insert(0, '<');
+                requestedByField.append('>');
+            }
+            if(alsoTags)
+            {
+                alsoTags++;
+                requestedByField.append(alsoTags);
+            }
+            sipInvite.setRequestedByField(requestedByField.data());
+            cause = CONNECTION_CAUSE_TRANSFER;
+        }
 
-      // Save a copy of the invite
-      inviteMsg = new SipMessage(sipInvite);
-      inviteFromThisSide = TRUE;
-      setCallerId();
+        // Set the header fields for REFER style transfer INVITE
+        /*else*/ if(callController && originalCallConnection)
+        {
+            mOriginalCallConnectionAddress = originalCallConnection;
+            sipInvite.setReferredByField(callController);
+            cause = CONNECTION_CAUSE_TRANSFER;
+        }
 
-      setState(Connection::CONNECTION_ESTABLISHED, Connection::CONNECTION_LOCAL);
+        // Save a copy of the invite
+        inviteMsg = new SipMessage(sipInvite);
+        inviteFromThisSide = TRUE;
+        setCallerId();
 
-      if(!goodToAddress.isNull() && sipUserAgent->send(sipInvite))
-      {
-         setState(CONNECTION_INITIATED, CONNECTION_REMOTE, cause);
+        setState(Connection::CONNECTION_ESTABLISHED, Connection::CONNECTION_LOCAL);
+
+        if(!goodToAddress.isNull() && send(sipInvite))
+        {
+            setState(CONNECTION_INITIATED, CONNECTION_REMOTE, cause);
 #ifdef TEST_PRINT
-         osPrintf("INVITE sent successfully\n");
+            osPrintf("INVITE sent successfully\n");
 #endif
-         setState(CONNECTION_OFFERING, CONNECTION_REMOTE, cause);
-         dialOk = TRUE;
-         fireSipXEvent(REMOTE_OFFERING, REMOTE_OFFERING_NORMAL) ;
-      }
-      else
-      {
+            setState(CONNECTION_OFFERING, CONNECTION_REMOTE, cause);
+            dialOk = TRUE;
+            fireSipXEvent(CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL) ;
+        }
+        else
+        {
 #ifdef TEST_PRINT
-         osPrintf("INVITE send failed\n");
+            osPrintf("INVITE send failed\n");
 #endif
-         setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-         fireSipXEvent(DISCONNECTED, DISCONNECTED_BADADDRESS) ;
-         // Failed to send a message for transfer
-         if(callController && !goodToAddress.isNull())
-         {
-            // Send back a status to the original call
-            UtlString originalCallId;
-            mpCall->getOriginalCallId(originalCallId);
-            CpMultiStringMessage transfereeStatus(CallManager::CP_TRANSFEREE_CONNECTION_STATUS,
-                                                  originalCallId.data(),
-                                                  mOriginalCallConnectionAddress.data(),
-                                                  NULL, NULL, NULL,
-                                                  CONNECTION_FAILED, SIP_REQUEST_TIMEOUT_CODE);
+            setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BADADDRESS) ;
+            // Failed to send a message for transfer
+            if(callController && !goodToAddress.isNull())
+            {
+                // Send back a status to the original call
+                UtlString originalCallId;
+                mpCall->getOriginalCallId(originalCallId);
+                CpMultiStringMessage transfereeStatus(CallManager::CP_TRANSFEREE_CONNECTION_STATUS,
+                    originalCallId.data(),
+                    mOriginalCallConnectionAddress.data(),
+                    NULL, NULL, NULL,
+                    CONNECTION_FAILED, SIP_REQUEST_TIMEOUT_CODE);
 #ifdef TEST_PRINT
-            osPrintf("SipConnection::dial posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s\n",
-                     originalCallId.data());
+                osPrintf("SipConnection::dial posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s\n",
+                    originalCallId.data());
 #endif
-            mpCallManager->postMessage(transfereeStatus);
-         }
+                mpCallManager->postMessage(transfereeStatus);
+            }
 
-      }
-   }
+        }
+    }
 
-   return(dialOk);
+    return(dialOk);
 }
 
+UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
+{
+    bool bRet = false;
+
+
+    SipMessage sipInfoMessage;
+    UtlString fromAddress;
+    UtlString toAddress;
+    UtlString callId;
+    UtlString uri ;
+
+    mToUrl.getUri(uri) ;
+    getFromField(&fromAddress);
+    getRemoteAddress(&toAddress);
+    getCallId(&callId);
+    sipInfoMessage.setRequestData(SIP_INFO_METHOD, uri, fromAddress, toAddress, callId);
+    sipInfoMessage.setContactField(mLocalContact.data());
+    sipInfoMessage.setContentType(contentType.data());
+    sipInfoMessage.setContentLength(sContent.length());
+    HttpBody* pBody = new HttpBody(sContent.data(), sContent.length());
+    sipInfoMessage.setBody(pBody);
+    sipInfoMessage.setCSeqField(lastLocalSequenceNumber++, SIP_INFO_METHOD);
+
+    if(send(sipInfoMessage, sipUserAgent->getMessageQueue()))
+    {
+        bRet = true;
+    }
+    else
+    {
+#ifndef SIPXTAPI_EXCLUDE
+        // With sipX TAPI, send network error event.
+        SIPX_INFOSTATUS_INFO info;
+
+        memset((void*) &info, 0, sizeof(SIPX_INFOSTATUS_INFO));
+
+        info.event = INFOSTATUS_NETWORK_ERROR;
+        info.nSize = sizeof(SIPX_INFOSTATUS_INFO);
+        info.hInfo = 0;
+        info.szResponseText = (const char*)"INFO: network error";
+        TapiMgr::getInstance().fireEvent(this->mpCallManager,
+                                         EVENT_CATEGORY_INFO_STATUS, &info);
+#endif /* SIPXTAPI_EXCLUDE */
+    }
+
+    //delete pBody; // DONT delete here!  body is deleted by HttpMessage class
+    return bRet;
+}
 
 UtlBoolean SipConnection::answer()
 {
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "Entering SipConnection::answer inviteMsg=0x%08x ", (int)inviteMsg);
+        "Entering SipConnection::answer inviteMsg=0x%08x ", (int)inviteMsg);
 #endif
 
-        UtlBoolean answerOk = FALSE;
+    UtlBoolean answerOk = FALSE;
     const SdpBody* sdpBody = NULL;
     UtlString rtpAddress;
-        int receiveRtpPort;
+    int receiveRtpPort;
     int receiveRtcpPort;
     SdpCodecFactory supportedCodecs;
 
 
     int currentState = getState();
-        if(inviteMsg && !inviteFromThisSide &&
+    if( mpMediaInterface != NULL &&
+        inviteMsg && !inviteFromThisSide &&
         (currentState == CONNECTION_ALERTING ||
-         currentState == CONNECTION_OFFERING ||
-         currentState == CONNECTION_INITIATED ||
-         currentState == CONNECTION_IDLE))
-        {
+        currentState == CONNECTION_OFFERING ||
+        currentState == CONNECTION_INITIATED ||
+        currentState == CONNECTION_IDLE))
+    {
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
 
         // Get supported codecs
         mpMediaInterface->getCapabilities(mConnectionId,
-                                    rtpAddress,
-                                    receiveRtpPort,
-                                    receiveRtcpPort,
-                                    supportedCodecs);
+            rtpAddress,
+            receiveRtpPort,
+            receiveRtcpPort,
+            supportedCodecs);
 
         getInitialSdpCodecs(inviteMsg, supportedCodecs,
-                            numMatchingCodecs, matchingCodecs,
-                            remoteRtpAddress, remoteRtpPort);
+            numMatchingCodecs, matchingCodecs,
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
 
 
         sdpBody = inviteMsg->getSdpBody();
-                if(numMatchingCodecs <= 0 && sdpBody)
-                {
+        if(numMatchingCodecs <= 0 && sdpBody)
+        {
 #ifdef TEST_PRINT
-                   osPrintf("No matching codecs rejecting call\n");
+            osPrintf("No matching codecs rejecting call\n");
 #endif
 
-                   // No common codecs send INVITE error response
-                   SipMessage sipResponse;
-                   sipResponse.setInviteBadCodecs(inviteMsg, sipUserAgent);
-                   sipUserAgent->send(sipResponse);
+            // No common codecs send INVITE error response
+            SipMessage sipResponse;
+            sipResponse.setInviteBadCodecs(inviteMsg, sipUserAgent);
+            send(sipResponse);
 
-                   setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_RESOURCES_NOT_AVAILABLE);
-                   fireSipXEvent(DISCONNECTED, DISCONNECTED_RESOURCES) ;
-                }
+            setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_RESOURCES_NOT_AVAILABLE);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_RESOURCES) ;
+        }
 
-                // Compatable codecs send OK response
-                else
-                {
+        // Compatable codecs send OK response
+        else
+        {
             // Respond with an OK
 #ifdef TEST_PRINT
-                        osPrintf("Sending INVITE OK\n");
+            osPrintf("Sending INVITE OK\n");
 #endif
 
             // There was no SDP in the INVITE, so give them all of
@@ -791,73 +846,95 @@ UtlBoolean SipConnection::answer()
             // Get Media Capabilties (need to call again because rtp
             // addresses and ports may have changed)
             mpMediaInterface->getCapabilities(mConnectionId,
-                                    rtpAddress,
-                                    receiveRtpPort,
-                                    receiveRtcpPort,
-                                    supportedCodecs);
+                rtpAddress,
+                receiveRtpPort,
+                receiveRtcpPort,
+                supportedCodecs);
 
             // Build response
-                        SipMessage sipResponse;
+            SipMessage sipResponse;
 
-                        sipResponse.setInviteOkData(inviteMsg, rtpAddress.data(),
-                   receiveRtpPort, receiveRtcpPort, numMatchingCodecs,
-                   matchingCodecs, mDefaultSessionReinviteTimer,
-                   mLocalContact.data());
+            sipResponse.setInviteOkData(inviteMsg, rtpAddress.data(),
+                receiveRtpPort, receiveRtcpPort, numMatchingCodecs,
+                matchingCodecs, mDefaultSessionReinviteTimer,
+                mLocalContact.data());
 
             // Send a INVITE OK response
-                        if(!sipUserAgent->send(sipResponse))
-                        {
-                           OsSysLog::add(FAC_CP, PRI_DEBUG,
-                                         "SipConnection::answer: INVITE OK failed: %s",
-                                         remoteRtpAddress.data());
-                           OsSysLog::add(FAC_CP, PRI_DEBUG,
-                                         "SipConnection::answer: CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL");
-                           //phoneSet->setStatusDisplay(displayMsg);
-                           setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL);
-                           fireSipXEvent(DISCONNECTED, DISCONNECTED_NETWORK) ;
-                        }
-                        else
-                        {
-                                setState(CONNECTION_ESTABLISHED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL);
-                fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
-                                answerOk = TRUE;
+            if(!send(sipResponse))
+            {
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::answer: INVITE OK failed: %s",
+                    remoteRtpAddress.data());
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::answer: CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL");
+                //phoneSet->setStatusDisplay(displayMsg);
+                setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NETWORK) ;
+            }
+            else
+            {
+                setState(CONNECTION_ESTABLISHED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL);
+                if (mTerminalConnState == PtTerminalConnection::HELD)
+                {
+                    fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD);
+                }
+                else
+                {
+                    fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE);
+                }
+                
+                answerOk = TRUE;
 
-                            // Setup media channel
+                // Setup media channel
 #ifdef TEST_PRINT
                 osPrintf("Setting up flowgraph receive\n");
 #endif
+                // Start receiving media
+                SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
+                mpMediaInterface->startRtpReceive(mConnectionId,
+                    numMatchingCodecs, matchingCodecs);
 
                 // if we have a send codec chosen Start sending media
                 if(numMatchingCodecs > 0)
                 {
-                   mpMediaInterface->setConnectionDestination(mConnectionId,
-                                                              remoteRtpAddress.data(),
-                                                              remoteRtpPort);
-                   // Set up the remote RTP sockets
+                    mpMediaInterface->setConnectionDestination(mConnectionId,
+                        remoteRtpAddress.data(),
+                        remoteRtpPort,
+                        remoteRtcpPort);
+                    // Set up the remote RTP sockets
 #ifdef TEST_PRINT
-                   osPrintf("RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
+                    osPrintf("RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
 #endif
 
-                   if(remoteRtpPort > 0)
-                   {
-                      //SdpCodec sndCodec((SdpCodec::SdpCodecTypes)
-                      //    sendCodec);
-                      mpMediaInterface->startRtpSend(mConnectionId,
-                                                     numMatchingCodecs, matchingCodecs);
-                   }
-                }
+                    if(remoteRtpPort > 0)
+                    {
+                        //SdpCodec sndCodec((SdpCodec::SdpCodecTypes)
+                        //    sendCodec);
+                        mpMediaInterface->startRtpSend(mConnectionId,
+                            numMatchingCodecs, matchingCodecs);
 
-               // Start receiving media
-               SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
-                           mpMediaInterface->startRtpReceive(mConnectionId,
-                                                             numMatchingCodecs, matchingCodecs);
-#ifdef TEST_PRINT
-               osPrintf("RECEIVING RTP\n");
-#endif
-
-               inviteMsg->getAllowField(mAllowedRemote);
+#ifndef SIPXTAPI_EXCLUDE
+                        // If sipX TAPI, fire audio start event
+                        UtlString codecName;
+                        SIPX_AUDIO_CODEC tapiCodec;
+                        if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
+                                                              codecName, 
+                                                              &tapiCodec.iPayloadType) == OS_SUCCESS)
+                        {
+                            strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                            fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                         }
+#endif /* SIPXTAPI_EXCLUDE */
+                    }
                 }
+
+#ifdef TEST_PRINT
+                osPrintf("RECEIVING RTP\n");
+#endif
+
+                inviteMsg->getAllowField(mAllowedRemote);
+            }
+        }
 
         // Free up the codec copies and array
         for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
@@ -867,14 +944,14 @@ UtlBoolean SipConnection::answer()
         }
         delete[] matchingCodecs;
         matchingCodecs = NULL;
-        }
+    }
 
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "Leaving SipConnection::answer inviteMsg=0x%08x ", (int)inviteMsg);
+    OsSysLog::add(FAC_SIP, PRI_WARNING,
+        "Leaving SipConnection::answer inviteMsg=0x%08x ", (int)inviteMsg);
 #endif
 
-        return(answerOk);
+    return(answerOk);
 }
 
 UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
@@ -884,8 +961,8 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
 #ifdef TEST_PRINT
     osPrintf("SipConnection::accept ringingTimeOutSeconds=%d\n", ringingTimeOutSeconds);
 #endif
-    if(inviteMsg && !inviteFromThisSide &&
-        getState(cause) == CONNECTION_OFFERING)
+    if(mpMediaInterface != NULL && inviteMsg && 
+        !inviteFromThisSide && getState(cause) == CONNECTION_OFFERING)
     {
         UtlString rtpAddress;
         int receiveRtpPort;
@@ -904,65 +981,64 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
         // we should return a 481 response.
         if (inviteMsg->getReplacesData(replaceCallId, replaceToTag, replaceFromTag))
         {
-           SipMessage badTransaction;
-           badTransaction.setBadTransactionData(inviteMsg);
-           sipUserAgent->send(badTransaction);
+            SipMessage badTransaction;
+            badTransaction.setBadTransactionData(inviteMsg);
+            send(badTransaction);
 #ifdef TEST_PRINT
-           osPrintf("SipConnection::accept - CONNECTION_FAILED, cause BUSY : 754\n");
+            osPrintf("SipConnection::accept - CONNECTION_FAILED, cause BUSY : 754\n");
 #endif
-           setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-           fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
+            setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
         }
         else
         {
-           mpMediaInterface->getCapabilities(mConnectionId,
-                                             rtpAddress,
-                                             receiveRtpPort,
-                                             receiveRtcpPort,
-                                             supportedCodecs);
+            mpMediaInterface->getCapabilities(mConnectionId,
+                rtpAddress,
+                receiveRtpPort,
+                receiveRtcpPort,
+                supportedCodecs);
 
-           // Get the codecs if SDP is provided
-           getInitialSdpCodecs(inviteMsg,
-                               supportedCodecs,
-                               numMatchingCodecs, matchingCodecs,
-                               remoteRtpAddress, remoteRtpPort);
+            // Get the codecs if SDP is provided
+            getInitialSdpCodecs(inviteMsg,
+                supportedCodecs,
+                numMatchingCodecs, matchingCodecs,
+                remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
 
-           // Try to setup for early receipt of media.
-           if(numMatchingCodecs > 0)
-           {
-               SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
-               mpMediaInterface->startRtpReceive(mConnectionId,
-                   numMatchingCodecs, matchingCodecs);
-           }
-           ringingSent = TRUE;
-           proceedToRinging(inviteMsg, sipUserAgent, -1, //dummy tagNum, callInFocus,
-               mLineAvailableBehavior, mpMediaInterface);
+            // Try to setup for early receipt of media.
+            if(numMatchingCodecs > 0)
+            {
+                SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
+                mpMediaInterface->startRtpReceive(mConnectionId,
+                        numMatchingCodecs, matchingCodecs);
+            }
+            ringingSent = TRUE;
+            proceedToRinging(inviteMsg, sipUserAgent, -1, mLineAvailableBehavior);
 
-           // Keep track of the fact that this is a transfer
-           if(cause != CONNECTION_CAUSE_TRANSFER)
-           {
-               cause = CONNECTION_CAUSE_NORMAL;
-           }
-           setState(CONNECTION_ALERTING, CONNECTION_LOCAL, cause);
-           fireSipXEvent(ALERTING, ALERTING_NORMAL) ;
+            // Keep track of the fact that this is a transfer
+            if(cause != CONNECTION_CAUSE_TRANSFER)
+            {
+                cause = CONNECTION_CAUSE_NORMAL;
+            }
+            setState(CONNECTION_ALERTING, CONNECTION_LOCAL, cause);
+            fireSipXEvent(CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL) ;
 
-           // If forward on no answer is enabled set the timer
-           if(ringingTimeOutSeconds > 0 )
-           {
-               // Set a timer to post a message to this call
-               // to timeout the ringing and forward
-               setRingingTimer(ringingTimeOutSeconds);
-           }
+            // If forward on no answer is enabled set the timer
+            if(ringingTimeOutSeconds > 0 )
+            {
+                // Set a timer to post a message to this call
+                // to timeout the ringing and forward
+                setRingingTimer(ringingTimeOutSeconds);
+            }
 
-           // Free up the codec copies and array
-           for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-           {
-               delete matchingCodecs[codecIndex];
-               matchingCodecs[codecIndex] = NULL;
-           }
-           delete[] matchingCodecs;
-           matchingCodecs = NULL;
-       }
+            // Free up the codec copies and array
+            for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+            {
+                delete matchingCodecs[codecIndex];
+                matchingCodecs[codecIndex] = NULL;
+            }
+            delete[] matchingCodecs;
+            matchingCodecs = NULL;
+        }
     }
 
     return(ringingSent);
@@ -973,78 +1049,78 @@ UtlBoolean SipConnection::reject()
     UtlBoolean responseSent = FALSE;
     if(inviteMsg && !inviteFromThisSide)
     {
-       int state = getState();
+        int state = getState();
         if (state == CONNECTION_OFFERING)
-       {
-           UtlString replaceCallId;
-           UtlString replaceToTag;
-           UtlString replaceFromTag;
+        {
+            UtlString replaceCallId;
+            UtlString replaceToTag;
+            UtlString replaceFromTag;
 
-           // Make sure that this isn't part of a transfer.  If we find a
-           // REPLACES header, then we shouldn't accept the call, but rather
-           // we should return a 481 response.
-           if (inviteMsg->getReplacesData(replaceCallId, replaceToTag, replaceFromTag))
-           {
-              SipMessage badTransaction;
-              badTransaction.setBadTransactionData(inviteMsg);
-              responseSent = sipUserAgent->send(badTransaction);
+            // Make sure that this isn't part of a transfer.  If we find a
+            // REPLACES header, then we shouldn't accept the call, but rather
+            // we should return a 481 response.
+            if (inviteMsg->getReplacesData(replaceCallId, replaceToTag, replaceFromTag))
+            {
+                SipMessage badTransaction;
+                badTransaction.setBadTransactionData(inviteMsg);
+                responseSent = send(badTransaction);
 #ifdef TEST_PRINT
-              osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 825\n");
+                osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 825\n");
 #endif
-              setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-              fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
-           }
-           else
-           {
-              SipMessage busyMessage;
-              busyMessage.setInviteBusyData(inviteMsg);
-              responseSent = sipUserAgent->send(busyMessage);
+                setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
+            }
+            else
+            {
+                SipMessage busyMessage;
+                busyMessage.setInviteBusyData(inviteMsg);
+                responseSent = send(busyMessage);
 #ifdef TEST_PRINT
-              osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 833\n");
+                osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 833\n");
 #endif
-              setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-              fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
-           }
-       }
-       else if (state == CONNECTION_ALERTING)
-       {
-           SipMessage terminateMessage;
-           terminateMessage.setRequestTerminatedResponseData(inviteMsg);
-           responseSent = sipUserAgent->send(terminateMessage);
+                setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
+            }
+        }
+        else if (state == CONNECTION_ALERTING)
+        {
+            SipMessage terminateMessage;
+            terminateMessage.setRequestTerminatedResponseData(inviteMsg);
+            responseSent = send(terminateMessage);
 #ifdef TEST_PRINT
-           osPrintf("SipConnection::reject - CONNECTION_DISCONNECTED, cause CONNECTION_CAUSE_CANCELLED : 845\n");
+            osPrintf("SipConnection::reject - CONNECTION_DISCONNECTED, cause CONNECTION_CAUSE_CANCELLED : 845\n");
 #endif
-           setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
-           fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
-       }
+            setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;           
+        }
     }
     return(responseSent);
 }
 
 UtlBoolean SipConnection::redirect(const char* forwardAddress)
 {
-     UtlBoolean redirectSent = FALSE;
+    UtlBoolean redirectSent = FALSE;
     if(inviteMsg && !inviteFromThisSide &&
         (getState() == CONNECTION_OFFERING ||
         getState() == CONNECTION_ALERTING))
     {
-                UtlString targetUrl;
-                UtlString dummyFrom;
-                const char* callerDisplayName = NULL;
-                const char* targetCallId = NULL;
-                buildFromToAddresses(forwardAddress, targetCallId, callerDisplayName,
-                        dummyFrom, targetUrl);
+        UtlString targetUrl;
+        UtlString dummyFrom;
+        const char* callerDisplayName = NULL;
+        const char* targetCallId = NULL;
+        buildFromToAddresses(forwardAddress, targetCallId, callerDisplayName,
+            dummyFrom, targetUrl);
         // Send a redirect message
         SipMessage redirectResponse;
         redirectResponse.setForwardResponseData(inviteMsg,
-                                                targetUrl.data());
-        redirectSent = sipUserAgent->send(redirectResponse);
+            targetUrl.data());
+        redirectSent = send(redirectResponse);
         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_REDIRECTED);
         setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL, CONNECTION_CAUSE_REDIRECTED);
-        fireSipXEvent(DISCONNECTED, DISCONNECTED_REDIRECTED) ;
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_REDIRECTED) ;
 
-                targetUrl = OsUtil::NULL_OS_STRING;
-                dummyFrom = OsUtil::NULL_OS_STRING;
+        targetUrl = OsUtil::NULL_OS_STRING;
+        dummyFrom = OsUtil::NULL_OS_STRING;
     }
     return(redirectSent);
 }
@@ -1057,57 +1133,54 @@ UtlBoolean SipConnection::hangUp()
 UtlBoolean SipConnection::hold()
 {
     UtlBoolean messageSent = FALSE;
-    // If the call is connected and
-    // we are not in the middle of a SIP transaction
-        //SDUA - fix resend problem with no sdp  - correction already in main
-        if(inviteMsg && getState() == CONNECTION_ESTABLISHED &&
-                reinviteState == ACCEPT_INVITE &&
-                mTerminalConnState!=PtTerminalConnection::HELD)
-       {
+    // If the call is connected and we are not in the middle of a SIP transaction
+    if(mpMediaInterface != NULL && 
+            inviteMsg && getState() == CONNECTION_ESTABLISHED &&
+            reinviteState == ACCEPT_INVITE &&
+            mTerminalConnState!=PtTerminalConnection::HELD)
+    {
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
-        //int numCodecs = mpMediaInterface->getNumCodecs(mConnectionId);
-        //SdpCodec* rtpCodecs = new SdpCodec[numCodecs];
         SdpCodecFactory supportedCodecs;
         mpMediaInterface->getCapabilities(mConnectionId,
-                                          rtpAddress,
-                                          receiveRtpPort,
-                                          receiveRtcpPort,
-                                          supportedCodecs);
+            rtpAddress,
+            receiveRtpPort,
+            receiveRtcpPort,
+            supportedCodecs);
         int numCodecs = 0;
         SdpCodec** codecsArray = NULL;
         supportedCodecs.getCodecs(numCodecs, codecsArray);
 
-         // Build an INVITE with the RTP address in the SDP of 0.0.0.0
-#ifdef TEST_PRINT
-           osPrintf("SipConnection::hold\n");
-#endif
-         SipMessage holdMessage;
-         holdMessage.setReinviteData(inviteMsg,
-                                    mRemoteContact,
-                                    mLocalContact.data(),
-                                    inviteFromThisSide,
-                                    mRouteField,
-                                    "0.0.0.0",
-                                    receiveRtpPort,
-                                    receiveRtcpPort,
-                                    ++lastLocalSequenceNumber,
-                                    numCodecs,
-                                    codecsArray,
-                                    mDefaultSessionReinviteTimer);
+        // Build an INVITE with the RTP address in the SDP of 0.0.0.0
+        SipMessage holdMessage;
+        holdMessage.setReinviteData(inviteMsg,
+            mRemoteContact,
+            mLocalContact.data(),
+            inviteFromThisSide,
+            mRouteField,
+            "0.0.0.0",
+            receiveRtpPort,
+            receiveRtcpPort,
+            ++lastLocalSequenceNumber,
+            numCodecs,
+            codecsArray,
+            mDefaultSessionReinviteTimer);
 
-        if(inviteMsg) delete inviteMsg;
+        if(inviteMsg) 
+        {
+            delete inviteMsg;
+        }
         inviteMsg = new SipMessage(holdMessage);
         inviteFromThisSide = TRUE;
 
-        if(sipUserAgent->send(holdMessage))
+        if(send(holdMessage))
         {
             messageSent = TRUE;
+
             // Disallow INVITEs while this transaction is taking place
             reinviteState = REINVITING;
-                        mFarEndHoldState = TERMCONNECTION_HOLDING;
-//            mpMediaInterface->stopRtpSend(mConnectionId); // do not stop the media send until the response is OK
+            mFarEndHoldState = TERMCONNECTION_HOLDING;
         }
 
         // Free up the codec copies and array
@@ -1137,13 +1210,12 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
     UtlBoolean messageSent = FALSE;
     // If the call is connected and
     // we are not in the middle of a SIP transaction
-
-        //SDUA - fix resend problem with no sdp  - correction already in main
-        if(inviteMsg && getState() == CONNECTION_ESTABLISHED &&
-       reinviteState == ACCEPT_INVITE &&
-       (mTerminalConnState == PtTerminalConnection::HELD ||
-         (forceReInvite &&
-          mTerminalConnState == PtTerminalConnection::TALKING)))
+    if(mpMediaInterface != NULL && 
+            inviteMsg && getState() == CONNECTION_ESTABLISHED &&
+            reinviteState == ACCEPT_INVITE &&
+            (mTerminalConnState == PtTerminalConnection::HELD ||
+            (forceReInvite &&
+            mTerminalConnState == PtTerminalConnection::TALKING)))
 
     {
         UtlString rtpAddress;
@@ -1151,34 +1223,34 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
         int receiveRtcpPort;
         SdpCodecFactory supportedCodecs;
         mpMediaInterface->getCapabilities(mConnectionId,
-                                          rtpAddress,
-                                          receiveRtpPort,
-                                          receiveRtcpPort,
-                                          supportedCodecs);
+            rtpAddress,
+            receiveRtpPort,
+            receiveRtcpPort,
+            supportedCodecs);
 
         int numCodecs = 0;
         SdpCodec** rtpCodecs = NULL;
         supportedCodecs.getCodecs(numCodecs, rtpCodecs);
 
-           // Build an INVITE with the RTP address in the SDP
-           // as the real address
+        // Build an INVITE with the RTP address in the SDP
+        // as the real address
 #ifdef TEST_PRINT
-           osPrintf("SipConnection::offHold rtpAddress: %s\n",
-               rtpAddress.data());
+        osPrintf("SipConnection::offHold rtpAddress: %s\n",
+            rtpAddress.data());
 #endif
-         SipMessage offHoldMessage;
-         offHoldMessage.setReinviteData(inviteMsg,
-                                        mRemoteContact,
-                                        mLocalContact.data(),
-                                        inviteFromThisSide,
-                                        mRouteField,
-                                        rtpAddress.data(),
-                                        receiveRtpPort,
-                                        receiveRtcpPort,
-                                        ++lastLocalSequenceNumber,
-                                        numCodecs,
-                                        rtpCodecs,
-                                        mDefaultSessionReinviteTimer);
+        SipMessage offHoldMessage;
+        offHoldMessage.setReinviteData(inviteMsg,
+            mRemoteContact,
+            mLocalContact.data(),
+            inviteFromThisSide,
+            mRouteField,
+            rtpAddress.data(),
+            receiveRtpPort,
+            receiveRtcpPort,
+            ++lastLocalSequenceNumber,
+            numCodecs,
+            rtpCodecs,
+            mDefaultSessionReinviteTimer);
 
         // Free up the codec copies and array
         for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
@@ -1196,7 +1268,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
         inviteMsg = new SipMessage(offHoldMessage);
         inviteFromThisSide = TRUE;
 
-        if(sipUserAgent->send(offHoldMessage))
+        if(send(offHoldMessage))
         {
             messageSent = TRUE;
             // Disallow INVITEs while this transaction is taking place
@@ -1214,7 +1286,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
                     mpCall->setCallType(CpCall::CP_NORMAL_CALL);
                 }
                 setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, CONNECTION_CAUSE_UNHOLD);
-                fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
+                // fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
             }
         }
     }
@@ -1222,10 +1294,10 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
 }
 
 UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
-                                                           const char* transferControllerAddress,
-                                   const char* targetCallId)
+                                               const char* transferControllerAddress,
+                                               const char* targetCallId)
 {
-        UtlBoolean ret = FALSE;
+    UtlBoolean ret = FALSE;
 
     mIsReferSent = FALSE;
 #ifdef TEST_PRINT
@@ -1242,20 +1314,22 @@ UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
     {
         // If the transferee (the party at the other end of this
         // connection) supports the REFER method
-                const char* callerDisplayName = NULL;
+        const char* callerDisplayName = NULL;
 
-                // If blind transfer
-                {
-                    UtlString targetUrl;
-                        UtlString dummyFrom;
-                        buildFromToAddresses(dialString, targetCallId, callerDisplayName,
-                                dummyFrom, targetUrl);
+        // If blind transfer
+        {
+            UtlString targetUrl;
+            UtlString dummyFrom;
+            buildFromToAddresses(dialString, targetCallId, callerDisplayName,
+                dummyFrom, targetUrl);
             dialString = targetUrl;
-                        //alsoUri.append(";token1");
-                }
+            //alsoUri.append(";token1");
+        }
 
         if(isMethodAllowed(SIP_REFER_METHOD))
         {
+            fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_INITIATED) ;
+
             mTargetCallConnectionAddress = dialString;
             mTargetCallId = targetCallId;
 
@@ -1270,7 +1344,6 @@ UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
                 hold();
                 ret = TRUE;
             }
-
             else
             {
                 // Send a REFER to tell the transferee to
@@ -1279,44 +1352,49 @@ UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
 
                 ret = mIsReferSent;
             }
-        }
-
-        // Use the old BYE Also method of transfer
+        }        
         else
         {
+
+            fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
+#if 0
+            // Use the old BYE Also method of transfer
             doHangUp(dialString.data(),
-                                                  transferControllerAddress);
+                transferControllerAddress);
             mTargetCallConnectionAddress = dialString;
-                        ret = TRUE;
+            ret = TRUE;
+#endif
+            
         }
+
     }
     return(ret);
 }
 
 void SipConnection::doBlindRefer()
 {
-                    // Send a REFER message
-                SipMessage referRequest;
-                lastLocalSequenceNumber++;
+    // Send a REFER message
+    SipMessage referRequest;
+    lastLocalSequenceNumber++;
 
-                referRequest.setReferData(inviteMsg,
-                inviteFromThisSide,
-                lastLocalSequenceNumber,
-                mRouteField.data(),
-                mLocalContact.data(),
-                mRemoteContact.data(),
-                mTargetCallConnectionAddress.data(),
-                // The following keeps the target call id on the
-                // transfer target the same as the consultative call
-                //mTargetCallId);
-                // The following does not set the call Id on the xfer target
-                "");
+    referRequest.setReferData(inviteMsg,
+        inviteFromThisSide,
+        lastLocalSequenceNumber,
+        mRouteField.data(),
+        mLocalContact.data(),
+        mRemoteContact.data(),
+        mTargetCallConnectionAddress.data(),
+        // The following keeps the target call id on the
+        // transfer target the same as the consultative call
+        //mTargetCallId);
+        // The following does not set the call Id on the xfer target
+        "");
 
-                mIsReferSent = sipUserAgent->send(referRequest);
+    mIsReferSent = send(referRequest);
 }
 
 UtlBoolean SipConnection::targetCallBlindTransfer(const char* dialString,
-                                                           const char* transferControllerAddress)
+                                                  const char* transferControllerAddress)
 {
     // This should never get here
     unimplemented("SipConnection::targetCallBlindTransfer");
@@ -1340,7 +1418,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
 #endif
     // If this call and connection received a REFER request
     if(mpCall->getCallType() ==
-          CpCall::CP_TRANSFEREE_ORIGINAL_CALL &&
+        CpCall::CP_TRANSFEREE_ORIGINAL_CALL &&
         mReferMessage)
     {
         UtlString transferMethod;
@@ -1349,16 +1427,16 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
         // REFER type transfer
         if(transferMethod.compareTo(SIP_REFER_METHOD) == 0)
         {
-                        int num;
-                        UtlString method;
-                        mReferMessage->getCSeqField(&num , &method);
+            int num;
+            UtlString method;
+            mReferMessage->getCSeqField(&num , &method);
 
-                        UtlString event;
-                        event.append(SIP_EVENT_REFER);
-                        event.append(";cseq=");
-                        char buff[50];
-                        sprintf(buff,"%d", num);
-                        event.append(buff);
+            UtlString event;
+            event.append(SIP_EVENT_REFER);
+            event.append(";cseq=");
+            char buff[50];
+            sprintf(buff,"%d", num);
+            event.append(buff);
 
             // Generate an appropriate NOTIFY message to indicate the
             // outcome
@@ -1367,11 +1445,11 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             HttpBody* body = NULL;
             lastLocalSequenceNumber++;
             referNotify.setNotifyData(mReferMessage,
-                                      lastLocalSequenceNumber,
-                                      mRouteField,
-                                      NULL,
-                                      event,
-                                      "id");
+                lastLocalSequenceNumber,
+                mRouteField,
+                NULL,
+                event,
+                "id");
             if(callState == CONNECTION_ESTABLISHED)
             {
                 //transferResponse.setReferOkData(mReferMessage);
@@ -1406,15 +1484,15 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             referNotify.setBody(body);
 
             // Add the content type for the body
-                    referNotify.setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
+            referNotify.setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
 
-                    // Add the content length
+            // Add the content length
             int len;
             UtlString bodyString;
-                    body->getBytes(&bodyString, &len);
-                    referNotify.setContentLength(len);
+            body->getBytes(&bodyString, &len);
+            referNotify.setContentLength(len);
 
-            referResponseSent = sipUserAgent->send(referNotify);
+            referResponseSent = send(referNotify);
 
             // Only delete if this is a final notify
             if(callState != CONNECTION_ALERTING && mReferMessage)
@@ -1436,7 +1514,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             {
                 transferResponse.setReferFailedData(mReferMessage);
             }
-            referResponseSent = sipUserAgent->send(transferResponse);
+            referResponseSent = send(transferResponse);
             if(mReferMessage) delete mReferMessage;
             mReferMessage = NULL;
         }
@@ -1454,157 +1532,161 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
 UtlBoolean SipConnection::doHangUp(const char* dialString,
                                    const char* callerId)
 {
-   int cause;
-   // always get remote connection state
-   int currentState = getState(0, cause);
-   UtlBoolean hangUpOk = FALSE;
-   const char* callerDisplayName = NULL;
-   SipMessage sipRequest;
-   UtlString alsoUri;
+    int cause;
+    // always get remote connection state
+    int currentState = getState(0, cause);
+    UtlBoolean hangUpOk = FALSE;
+    const char* callerDisplayName = NULL;
+    SipMessage sipRequest;
+    UtlString alsoUri;
 
-   // If blind transfer
-   if(dialString && *dialString)
-   {
-      UtlString dummyFrom;
-      buildFromToAddresses(dialString, callerId, callerDisplayName,
-                           dummyFrom, alsoUri);
-   }
+    // If blind transfer
+    if(dialString && *dialString)
+    {
+        UtlString dummyFrom;
+        buildFromToAddresses(dialString, callerId, callerDisplayName,
+            dummyFrom, alsoUri);
+    }
 
-   // Tell the other end that we are hanging up
-   // Need to send SIP CANCEL if we are the caller
-   // and the callee connection state is not finalized
-   if(mRemoteIsCallee &&
-      currentState != CONNECTION_FAILED &&
-      currentState != CONNECTION_ESTABLISHED &&
-      currentState != CONNECTION_DISCONNECTED &&
-      currentState != CONNECTION_UNKNOWN)
-   {
-      // We are the caller, cancel the incomplete call
-      // Send a CANCEL
-      //sipRequest = new SipMessage();
+    // Tell the other end that we are hanging up
+    // Need to send SIP CANCEL if we are the caller
+    // and the callee connection state is not finalized
+    if(mRemoteIsCallee &&
+        currentState != CONNECTION_FAILED &&
+        currentState != CONNECTION_ESTABLISHED &&
+        currentState != CONNECTION_DISCONNECTED &&
+        currentState != CONNECTION_UNKNOWN)
+    {
+        // We are the caller, cancel the incomplete call
+        // Send a CANCEL
+        //sipRequest = new SipMessage();
 
-      // We are calling and the call is not setup yet so
-      // cancel.  If we get a subsequent OK, we need to send
-      // a BYE.
-      if(inviteFromThisSide)
-      {
-         sipRequest.setCancelData(inviteMsg);
-         mLastRequestMethod = SIP_CANCEL_METHOD;
+        // We are calling and the call is not setup yet so
+        // cancel.  If we get a subsequent OK, we need to send
+        // a BYE.
+        if(inviteFromThisSide)
+        {
+            sipRequest.setCancelData(inviteMsg);
+            mLastRequestMethod = SIP_CANCEL_METHOD;
 
-         // If this was a canceled transfer INVITE, send back a status
-         if(!mOriginalCallConnectionAddress.isNull())
-         {
-            UtlString originalCallId;
-            mpCall->getOriginalCallId(originalCallId);
-            CpMultiStringMessage transfereeStatus(CallManager::CP_TRANSFEREE_CONNECTION_STATUS,
-                                                  originalCallId.data(),
-                                                  mOriginalCallConnectionAddress.data(),
-                                                  NULL, NULL, NULL,
-                                                  CONNECTION_FAILED, SIP_REQUEST_TIMEOUT_CODE);
+            // If this was a canceled transfer INVITE, send back a status
+            if(!mOriginalCallConnectionAddress.isNull())
+            {
+                UtlString originalCallId;
+                mpCall->getOriginalCallId(originalCallId);
+                CpMultiStringMessage transfereeStatus(CallManager::CP_TRANSFEREE_CONNECTION_STATUS,
+                    originalCallId.data(),
+                    mOriginalCallConnectionAddress.data(),
+                    NULL, NULL, NULL,
+                    CONNECTION_FAILED, SIP_REQUEST_TIMEOUT_CODE);
 #ifdef TEST_PRINT
-            osPrintf("SipConnection::processResponse posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s\n",
-                     originalCallId.data());
+                osPrintf("SipConnection::processResponse posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s\n",
+                    originalCallId.data());
 #endif
-            mpCallManager->postMessage(transfereeStatus);
+                mpCallManager->postMessage(transfereeStatus);
 
-         }
-      }
+            }
+        }
 
-      // Someone is calling us and we are hanging up before the
-      // call is setup.  This is not likely to occur and I am
-      // not sure what the right thing to do here CANCEL or BYE.
-      else
-      {
-         lastLocalSequenceNumber++;
+        // Someone is calling us and we are hanging up before the
+        // call is setup.  This is not likely to occur and I am
+        // not sure what the right thing to do here CANCEL or BYE.
+        else
+        {
+            lastLocalSequenceNumber++;
 #ifdef TEST_PRINT
-         osPrintf("doHangup BYE route: %s\n", mRouteField.data());
+            osPrintf("doHangup BYE route: %s\n", mRouteField.data());
+#endif
+            sipRequest.setByeData(inviteMsg,
+                mRemoteContact,
+                inviteFromThisSide,
+                lastLocalSequenceNumber,
+                mRouteField.data(),
+                alsoUri.data(),
+                mLocalContact.data());
+
+            mLastRequestMethod = SIP_BYE_METHOD;
+        }
+
+        if(send(sipRequest))
+        {
+#ifdef TEST_PRINT
+
+            if(inviteFromThisSide)
+                osPrintf("unsetup call CANCEL message sent\n");
+            else
+                osPrintf("unsetup call BYE message sent\n");
+#endif
+            // Lets try not setting this to disconected until
+            // we get the response or a timeout
+            //setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
+
+            // However we need something to indicate that the call
+            // is being cancelled to handle a race condition when the callee responds with 200 OK
+            // before it receives the Cancel.
+            mbCancelling = TRUE;
+
+            hangUpOk = TRUE;
+        }
+    }
+
+    // We are the Caller or callee
+    else if(currentState == CONNECTION_ESTABLISHED)
+    {
+        // the call is connected
+        // Send a BYE
+        //sipRequest = new SipMessage();
+        //UtlString directoryServerUri;
+        //if(!inviteFromThisSide)
+        //{
+        //UtlString dirAddress;
+        //UtlString dirProtocol;
+        //int dirPort;
+
+        //sipUserAgent->getDirectoryServer(0, &dirAddress,
+        //        &dirPort, &dirProtocol);
+        //SipMessage::buildSipUrl(&directoryServerUri,
+        //    dirAddress.data(), dirPort, dirProtocol.data());
+        //}
+        lastLocalSequenceNumber++;
+
+#ifdef TEST_PRINT
+        osPrintf("setup call BYE route: %s remote contact: %s\n",
+            mRouteField.data(), mRemoteContact.data());
 #endif
         sipRequest.setByeData(inviteMsg,
-                               mRemoteContact,
-                               inviteFromThisSide,
-                               lastLocalSequenceNumber,
-                               mRouteField.data(),
-                               alsoUri.data(),
-                               mLocalContact.data());
+            mRemoteContact,
+            inviteFromThisSide,
+            lastLocalSequenceNumber,
+            mRouteField.data(),
+            alsoUri.data(),
+            mLocalContact.data());
 
-         mLastRequestMethod = SIP_BYE_METHOD;
-      }
+        mLastRequestMethod = SIP_BYE_METHOD;
+        if (!send(sipRequest))
+        {
+            // If sending the BYE failed, we will receive no response to end
+            // the connection.  So we have to generate it here, as we cannot
+            // allow the inability to send a BYE to make it impossible to
+            // disconnect a call.
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "SipConnection::doHangUp: Sending BYE failed.  "
+                "Terminating connection.");
+            setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL);
+        }
 
-      if(sipUserAgent->send(sipRequest))
-      {
-#ifdef TEST_PRINT
+        hangUpOk = TRUE;
+    }
 
-         if(inviteFromThisSide)
-            osPrintf("unsetup call CANCEL message sent\n");
-         else
-            osPrintf("unsetup call BYE message sent\n");
-#endif
-         // Lets try not setting this to disconected until
-         // we get the response or a timeout
-         //setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
+    if (mpMediaInterface != NULL)
+    {
+        mpMediaInterface->stopRtpSend(mConnectionId);
+        mpMediaInterface->stopRtpReceive(mConnectionId);
+        fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+    }
 
-         // However we need something to indicate that the call
-         // is being cancelled to handle a race condition when the callee responds with 200 OK
-         // before it receives the Cancel.
-         mbCancelling = TRUE;
-
-         hangUpOk = TRUE;
-      }
-   }
-
-   // We are the Caller or callee
-   else if(currentState == CONNECTION_ESTABLISHED)
-   {
-      // the call is connected
-      // Send a BYE
-      //sipRequest = new SipMessage();
-      //UtlString directoryServerUri;
-      //if(!inviteFromThisSide)
-      //{
-      //UtlString dirAddress;
-      //UtlString dirProtocol;
-      //int dirPort;
-
-      //sipUserAgent->getDirectoryServer(0, &dirAddress,
-      //        &dirPort, &dirProtocol);
-      //SipMessage::buildSipUrl(&directoryServerUri,
-      //    dirAddress.data(), dirPort, dirProtocol.data());
-      //}
-      lastLocalSequenceNumber++;
-
-#ifdef TEST_PRINT
-      osPrintf("setup call BYE route: %s remote contact: %s\n",
-               mRouteField.data(), mRemoteContact.data());
-#endif
-      sipRequest.setByeData(inviteMsg,
-                            mRemoteContact,
-                            inviteFromThisSide,
-                            lastLocalSequenceNumber,
-                            mRouteField.data(),
-                            alsoUri.data(),
-                            mLocalContact.data());
-
-      mLastRequestMethod = SIP_BYE_METHOD;
-      if (!sipUserAgent->send(sipRequest))
-      {
-         // If sending the BYE failed, we will receive no response to end
-         // the connection.  So we have to generate it here, as we cannot
-         // allow the inability to send a BYE to make it impossible to
-         // disconnect a call.
-         OsSysLog::add(FAC_CP, PRI_DEBUG,
-                       "SipConnection::doHangUp: Sending BYE failed.  "
-                       "Terminating connection.");
-         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
-         fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL);
-      }
-
-      hangUpOk = TRUE;
-   }
-
-   mpMediaInterface->stopRtpSend(mConnectionId);
-   mpMediaInterface->stopRtpReceive(mConnectionId);
-
-   return(hangUpOk);
+    return(hangUpOk);
 }
 
 void SipConnection::buildFromToAddresses(const char* dialString,
@@ -1614,86 +1696,86 @@ void SipConnection::buildFromToAddresses(const char* dialString,
                                          UtlString& goodToAddress) const
 {
     UtlString sipAddress;
-        int sipPort;
-        UtlString sipProtocol;
+    int sipPort;
+    UtlString sipProtocol;
 
     fromAddress.remove(0);
     goodToAddress.remove(0);
 
-                // Build a From address
-                sipUserAgent->getFromAddress(&sipAddress, &sipPort, &sipProtocol);
-                SipMessage::buildSipUrl(&fromAddress, sipAddress.data(),
-                        sipPort, sipProtocol.data(), callerId, callerDisplayName,
-            mFromTag.data());
+    // Build a From address
+    sipUserAgent->getFromAddress(&sipAddress, &sipPort, &sipProtocol);
+    SipMessage::buildSipUrl(&fromAddress, sipAddress.data(),
+        sipPort, sipProtocol.data(), callerId, callerDisplayName,
+        mFromTag.data());
 
-                // Check the to Address
-                UtlString toAddress;
-                UtlString toProtocol;
-                UtlString toUser;
-                UtlString toUserLabel;
+    // Check the to Address
+    UtlString toAddress;
+    UtlString toProtocol;
+    UtlString toUser;
+    UtlString toUserLabel;
 
-                int toPort;
+    int toPort;
 
 #ifdef TEST_PRINT
-                osPrintf("SipConnection::dial got dial string: \"%s\"\n",
-                        dialString);
+    osPrintf("SipConnection::dial got dial string: \"%s\"\n",
+        dialString);
 #endif
 
-        // Use the Url object to perserve parameters and display name
-        Url toUrl(dialString);
-        toUrl.getHostAddress(toAddress);
+    // Use the Url object to perserve parameters and display name
+    Url toUrl(dialString);
+    toUrl.getHostAddress(toAddress);
 
-                //SipMessage::parseAddressFromUri(dialString, &toAddress, &toPort,
-                //      &toProtocol, &toUser, &toUserLabel);
-                if(toAddress.isNull())
-                {
-                        sipUserAgent->getDirectoryServer(0, &toAddress,
-                                &toPort, &toProtocol);
+    //SipMessage::parseAddressFromUri(dialString, &toAddress, &toPort,
+    //      &toProtocol, &toUser, &toUserLabel);
+    if(toAddress.isNull())
+    {
+        sipUserAgent->getDirectoryServer(0, &toAddress,
+            &toPort, &toProtocol);
 #ifdef TEST_PRINT
-                        osPrintf("Got directory server: \"%s\"\n",
-                                toAddress.data());
+        osPrintf("Got directory server: \"%s\"\n",
+            toAddress.data());
 #endif
-            toUrl.setHostAddress(toAddress.data());
-            toUrl.setHostPort(toPort);
-            if(!toProtocol.isNull())
-            {
-                toUrl.setUrlParameter("transport", toProtocol.data());
-            }
+        toUrl.setHostAddress(toAddress.data());
+        toUrl.setHostPort(toPort);
+        if(!toProtocol.isNull())
+        {
+            toUrl.setUrlParameter("transport", toProtocol.data());
         }
-                //SipMessage::buildSipUrl(&goodToAddress, toAddress.data(),
-                //              toPort, toProtocol.data(), toUser.data(),
-                //              toUserLabel.data());
-        toUrl.toString(goodToAddress);
+    }
+    //SipMessage::buildSipUrl(&goodToAddress, toAddress.data(),
+    //              toPort, toProtocol.data(), toUser.data(),
+    //              toUserLabel.data());
+    toUrl.toString(goodToAddress);
 
 }
 
 UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
-                                        UtlBoolean callInFocus,
-                                        UtlBoolean onHook)
+                                         UtlBoolean callInFocus,
+                                         UtlBoolean onHook)
 {
-        int msgType = eventMessage.getMsgType();
-        int msgSubType = eventMessage.getMsgSubType();
-        UtlBoolean processedOk = TRUE;
-        const SipMessage* sipMsg = NULL;
-        int messageType;
+    int msgType = eventMessage.getMsgType();
+    int msgSubType = eventMessage.getMsgSubType();
+    UtlBoolean processedOk = TRUE;
+    const SipMessage* sipMsg = NULL;
+    int messageType;
 
-        if(msgType == OsMsg::PHONE_APP &&
-                msgSubType == CallManager::CP_SIP_MESSAGE)
-        {
-                sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
-                messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
+    if(msgType == OsMsg::PHONE_APP &&
+        msgSubType == CallManager::CP_SIP_MESSAGE)
+    {
+        sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
+        messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 #ifdef TEST_PRINT
-                osPrintf("SipConnection::messageType: %d\n", messageType);
+        osPrintf("SipConnection::messageType: %d\n", messageType);
 #endif
         UtlBoolean messageIsResponse = sipMsg->isResponse();
         UtlString method;
         if(!messageIsResponse) sipMsg->getRequestMethod(&method);
 
-                // This is a request which failed to get sent
-                if(messageType == SipMessageEvent::TRANSPORT_ERROR)
-                {
+        // This is a request which failed to get sent
+        if(messageType == SipMessageEvent::TRANSPORT_ERROR)
+        {
 #ifdef TEST_PRINT
-                        osPrintf("Processing message transport error method: %s\n",
+            osPrintf("Processing message transport error method: %s\n",
                 messageIsResponse ? method.data() : "response");
 #endif
             if(!inviteMsg)
@@ -1704,19 +1786,19 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 // THis call was not setup (i.e. did not try to sent an
                 // invite and we did not receive one.  This is a bad call
                 setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                fireSipXEvent(DISCONNECTED, DISCONNECTED_BADADDRESS) ;
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BADADDRESS) ;
             }
-                        // We only care about INVITE.
-                        // BYE, CANCLE and ACK are someone else's problem.
-                        // REGISTER and OPTIONS are handled else where
-                        else if(sipMsg->isSameMessage(inviteMsg) &&
-                                getState() == CONNECTION_OFFERING)
-                        {
+            // We only care about INVITE.
+            // BYE, CANCLE and ACK are someone else's problem.
+            // REGISTER and OPTIONS are handled else where
+            else if(sipMsg->isSameMessage(inviteMsg) &&
+                getState() == CONNECTION_OFFERING)
+            {
 #ifdef TEST_PRINT
-                                osPrintf("No response to INVITE\n");
+                osPrintf("No response to INVITE\n");
 #endif
-                                setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                fireSipXEvent(DISCONNECTED, DISCONNECTED_BADADDRESS) ;
+                setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BADADDRESS) ;
 
 #ifdef TEST_PRINT
                 osPrintf("SipConnection::processMessage originalConnectionAddress: %s connection state: CONNECTION_FAILED transport failed\n",
@@ -1746,7 +1828,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
             // We did not get a response to the session timer
             // re-invite, so terminate the connection
             else if(sipMsg->isSameMessage(inviteMsg) &&
-                                getState() == CONNECTION_ESTABLISHED &&
+                getState() == CONNECTION_ESTABLISHED &&
                 reinviteState == REINVITING &&
                 mSessionReinviteTimer > 0)
             {
@@ -1759,25 +1841,25 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
             // A BYE or CANCEL failed to get sent
             else if(!messageIsResponse &&
                 (method.compareTo(SIP_BYE_METHOD) == 0 ||
-                 method.compareTo(SIP_CANCEL_METHOD) == 0))
+                method.compareTo(SIP_CANCEL_METHOD) == 0))
             {
 #ifdef TEST_PRINT
                 osPrintf("SipConnection::processMessage failed BYE\n");
 #endif
                 setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                fireSipXEvent(DISCONNECTED, DISCONNECTED_NETWORK) ;
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NETWORK) ;
             }
             else
             {
-                                if (reinviteState == REINVITING)
-                                        reinviteState = ACCEPT_INVITE;
+                if (reinviteState == REINVITING)
+                    reinviteState = ACCEPT_INVITE;
 #ifdef TEST_PRINT
                 osPrintf("SipConnection::processMessage unhandled failed message\n");
 #endif
             }
 
-                        processedOk = TRUE;
-                }
+            processedOk = TRUE;
+        }
 
         // Session timer is about to expire send a Re-INVITE to
         // keep the session going
@@ -1792,7 +1874,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
         {
             lastLocalSequenceNumber++;
 
-                if(sipMsg->isResponse())
+            if(sipMsg->isResponse())
             {
                 // If this was the INVITE we need to update the
                 // cached invite so that its cseq is up to date
@@ -1805,7 +1887,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                     // Need to send an ACK to finish transaction
                     //SipMessage* ackMessage = new SipMessage();
                     //ackMessage->setAckData(inviteMsg);
-                                //sipUserAgent->send(ackMessage);
+                    //send(ackMessage);
                 }
 #ifdef TEST_PRINT
                 else
@@ -1828,34 +1910,34 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
         }
 
 
-                else if(sipMsg->isResponse())
-                {
+        else if(sipMsg->isResponse())
+        {
 #ifdef TEST_PRINT
             ((SipMessage*)sipMsg)->logTimeEvent("PROCESSING");
 #endif
-                        processedOk = processResponse(sipMsg, callInFocus, onHook);
-                //numCodecs, rtpCodecs);
-                }
-                else
-                {
+            processedOk = processResponse(sipMsg, callInFocus, onHook);
+            //numCodecs, rtpCodecs);
+        }
+        else
+        {
 #ifdef TEST_PRINT
             ((SipMessage*)sipMsg)->logTimeEvent("PROCESSING");
 #endif
-                        processedOk = processRequest(sipMsg, callInFocus, onHook);
-                //numCodecs, rtpCodecs);
-                }
+            processedOk = processRequest(sipMsg, callInFocus, onHook);
+            //numCodecs, rtpCodecs);
+        }
 
 #ifdef TEST_PRINT
         sipMsg->dumpTimeLog();
 #endif
 
-        }
-        else
-        {
-                processedOk = FALSE;
-        }
+    }
+    else
+    {
+        processedOk = FALSE;
+    }
 
-        return(processedOk);
+    return(processedOk);
 }
 
 UtlBoolean SipConnection::extendSessionReinvite()
@@ -1874,17 +1956,17 @@ UtlBoolean SipConnection::extendSessionReinvite()
         reinvite.resetTransport();
         reinvite.removeLastVia();
 
-                //remove all routes
-                UtlString route;
-                while ( reinvite.removeRouteUri(0 , &route)){}
+        //remove all routes
+        UtlString route;
+        while ( reinvite.removeRouteUri(0 , &route)){}
 
-                if ( !mRouteField.isNull())
-                {
-                        //set correct route
-                        reinvite.setRouteField(mRouteField);
-                }
+        if ( !mRouteField.isNull())
+        {
+            //set correct route
+            reinvite.setRouteField(mRouteField);
+        }
 
-        messageSent = sipUserAgent->send(reinvite);
+        messageSent = send(reinvite);
         delete inviteMsg;
         inviteMsg = new SipMessage(reinvite);
 
@@ -1903,927 +1985,972 @@ UtlBoolean SipConnection::extendSessionReinvite()
         getState() == CONNECTION_IDLE)
     {
         setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-        fireSipXEvent(DISCONNECTED, DISCONNECTED_RESOURCES) ;
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_RESOURCES) ;
     }
 
     return(messageSent);
 }
 
 UtlBoolean SipConnection::processRequest(const SipMessage* request,
-                                        UtlBoolean callInFocus,
-                                        UtlBoolean onHook)
+                                         UtlBoolean callInFocus,
+                                         UtlBoolean onHook)
 {
-        UtlString sipMethod;
-        UtlBoolean processedOk = TRUE;
-        request->getRequestMethod(&sipMethod);
+    UtlString sipMethod;
+    UtlBoolean processedOk = TRUE;
+    request->getRequestMethod(&sipMethod);
 
-   UtlString name = mpCall->getName();
+    UtlString name = mpCall->getName();
 #ifdef TEST_PRINT
     int requestSequenceNum = 0;
-        UtlString requestSeqMethod;
-        request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
+    UtlString requestSeqMethod;
+    request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
     osPrintf("SipConnection::processRequest inviteMsg: %x requestSequenceNum: %d lastRemoteSequenceNumber: %d connectionState: %d reinviteState: %d\n",
-            inviteMsg, requestSequenceNum, lastRemoteSequenceNumber,
-                        getState(), reinviteState);
+        inviteMsg, requestSequenceNum, lastRemoteSequenceNumber,
+        getState(), reinviteState);
 #endif
 
-        // INVITE
-        // We are being hailed
-        if(strcmp(sipMethod.data(),SIP_INVITE_METHOD) == 0)
-        {
+    // INVITE
+    // We are being hailed
+    if(strcmp(sipMethod.data(),SIP_INVITE_METHOD) == 0)
+    {
 #ifdef TEST_PRINT
-                osPrintf("%s in INVITE case\n", name.data());
+        osPrintf("%s in INVITE case\n", name.data());
 #endif
         processInviteRequest(request);
-        }
+    }
 
-        // SIP REFER received (transfer)
-        else if(strcmp(sipMethod.data(),SIP_REFER_METHOD) == 0)
-        {
+    // SIP REFER received (transfer)
+    else if(strcmp(sipMethod.data(),SIP_REFER_METHOD) == 0)
+    {
 #ifdef TEST_PRINT
-                osPrintf("SIP REFER method received\n");
+        osPrintf("SIP REFER method received\n");
 #endif
         processReferRequest(request);
     }
 
-        // SIP ACK received
-        else if(strcmp(sipMethod.data(),SIP_ACK_METHOD) == 0)
-        {
+    // SIP ACK received
+    else if(strcmp(sipMethod.data(),SIP_ACK_METHOD) == 0)
+    {
 #ifdef TEST_PRINT
-                osPrintf("%s SIP ACK method received\n", name.data());
+        osPrintf("%s SIP ACK method received\n", name.data());
 #endif
         processAckRequest(request);
-        }
+    }
 
-        // BYE
-        // The call is being shutdown
-        else if(strcmp(sipMethod.data(), SIP_BYE_METHOD)  == 0)
-        {
+    // BYE
+    // The call is being shutdown
+    else if(strcmp(sipMethod.data(), SIP_BYE_METHOD)  == 0)
+    {
 #ifdef TEST_PRINT
-                osPrintf("%s %s method received to close down call\n",
-                                        name.data(), sipMethod.data());
+        osPrintf("%s %s method received to close down call\n",
+            name.data(), sipMethod.data());
 #endif
         processByeRequest(request);
-        }
+    }
 
-        // CANCEL
-        // The call is being shutdown
-        else if(strcmp(sipMethod.data(), SIP_CANCEL_METHOD) == 0)
-        {
+    // CANCEL
+    // The call is being shutdown
+    else if(strcmp(sipMethod.data(), SIP_CANCEL_METHOD) == 0)
+    {
 #ifdef TEST_PRINT
-                osPrintf("%s %s method received to close down call\n",
-                                        name.data(), sipMethod.data());
+        osPrintf("%s %s method received to close down call\n",
+            name.data(), sipMethod.data());
 #endif
         processCancelRequest(request);
-        }
+    }
 
     // NOTIFY
     else if(strcmp(sipMethod.data(), SIP_NOTIFY_METHOD) == 0)
-        {
+    {
 #ifdef TEST_PRINT
-                osPrintf("%s method received\n",
-                                        sipMethod.data());
+        osPrintf("%s method received\n",
+            sipMethod.data());
 #endif
         processNotifyRequest(request);
-        }
+    }
 
     else
     {
 #ifdef TEST_PRINT
         osPrintf("SipConnection::processRequest %s method NOT HANDLED\n",
-                                        sipMethod.data());
+            sipMethod.data());
 #endif
     }
 
-        return(processedOk);
+    return(processedOk);
 }
 
 void SipConnection::processInviteRequest(const SipMessage* request)
 {
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "Entering SipConnection::processInviteRequest inviteMsg=0x%08x ", (int)inviteMsg);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        "Entering SipConnection::processInviteRequest inviteMsg=0x%08x ", (int)inviteMsg);
 #endif
 
-   UtlString sipMethod;
-   request->getRequestMethod(&sipMethod);
-   UtlString callId;
-   //UtlBoolean receiveCodecSet;
-   //UtlBoolean sendCodecSet;
-   int requestSequenceNum = 0;
-   UtlString requestSeqMethod;
-   int tagNum = -1;
+    UtlString sipMethod;
+    request->getRequestMethod(&sipMethod);
+    UtlString callId;
+    //UtlBoolean receiveCodecSet;
+    //UtlBoolean sendCodecSet;
+    int requestSequenceNum = 0;
+    UtlString requestSeqMethod;
+    int tagNum = -1;
 
-   request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
+    setLocalAddress(request->getLocalIp().data());
+    request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
-   // Create a media connection if one does not yet exist
-   if(mConnectionId < 0)
-   {
-      // Create a new connection in the flow graph
-      mpMediaInterface->createConnection(mConnectionId);
-   }
+    // Create a media connection if one does not yet exist
+    if(mConnectionId < 0 && mpMediaInterface != NULL)
+    {
+        // Create a new connection in the flow graph
+        mpMediaInterface->createConnection(mConnectionId);
+    }
 
-   // It is safer to always set the To field tag regardless
-   // of whether there are more than 1 via's
-   // If there are more than 1 via's we are suppose to put
-   // a tag in the to field
-   // UtlString via;
-   //if(request->getViaField(&via, 1))
-   {
-      UtlString toAddr;
-      UtlString toProto;
-      int toPort;
-      UtlString tag;
+    // It is safer to always set the To field tag regardless
+    // of whether there are more than 1 via's
+    // If there are more than 1 via's we are suppose to put
+    // a tag in the to field
+    // UtlString via;
+    //if(request->getViaField(&via, 1))
+    {
+        UtlString toAddr;
+        UtlString toProto;
+        int toPort;
+        UtlString tag;
 
-      request->getToAddress(&toAddr, &toPort, &toProto, NULL,
-                            NULL, &tag);
-      // The tag is not set, add it
-      if(tag.isNull())
-      {
-         tagNum = rand();
-      }
-   }
+        request->getToAddress(&toAddr, &toPort, &toProto, NULL,
+            NULL, &tag);
+        // The tag is not set, add it
+        if(tag.isNull())
+        {
+            tagNum = rand();
+        }
+    }
 
-   // Replaces is independent of REFER so
-   // do not assume there must be a Refer-To or Refer-By
-   UtlBoolean hasReplaceHeader = FALSE;
-   UtlBoolean doesReplaceCallLegExist = FALSE;
-   int       replaceCallLegState = -1 ;
-   UtlString replaceCallId;
-   UtlString replaceToTag;
-   UtlString replaceFromTag;
-   hasReplaceHeader = request->getReplacesData(replaceCallId, replaceToTag,
-                                               replaceFromTag);
+    // Replaces is independent of REFER so
+    // do not assume there must be a Refer-To or Refer-By
+    UtlBoolean hasReplaceHeader = FALSE;
+    UtlBoolean doesReplaceCallLegExist = FALSE;
+    int       replaceCallLegState = -1 ;
+    UtlString replaceCallId;
+    UtlString replaceToTag;
+    UtlString replaceFromTag;
+    hasReplaceHeader = request->getReplacesData(replaceCallId, replaceToTag,
+        replaceFromTag);
 #ifdef TEST_PRINT
-   osPrintf("SipConnection::processInviteRequest - \n\thasReplaceHeader %d \n\treplaceCallId %s \n\treplaceToTag %s\n\treplaceFromTag %s\n",
-            hasReplaceHeader,
-            replaceCallId.data(),
-            replaceToTag.data(),
-            replaceFromTag.data());
+    osPrintf("SipConnection::processInviteRequest - \n\thasReplaceHeader %d \n\treplaceCallId %s \n\treplaceToTag %s\n\treplaceFromTag %s\n",
+        hasReplaceHeader,
+        replaceCallId.data(),
+        replaceToTag.data(),
+        replaceFromTag.data());
 #endif
-   if (hasReplaceHeader)
-   {
-      // Ugly assumption that this is a CpPeerCall
-      doesReplaceCallLegExist =
-         ((CpPeerCall*)mpCall)->getConnectionState(
+    if (hasReplaceHeader)
+    {
+        // Ugly assumption that this is a CpPeerCall
+        doesReplaceCallLegExist =
+            ((CpPeerCall*)mpCall)->getConnectionState(
             replaceCallId.data(), replaceToTag.data(),
             replaceFromTag.data(),
             replaceCallLegState,
             TRUE);
-   }
+    }
 
-   // If this is previous to the last invite
-   if(inviteMsg && requestSequenceNum < lastRemoteSequenceNumber)
-   {
-      SipMessage sipResponse;
-      sipResponse.setBadTransactionData(request);
-      if(tagNum >= 0)
-      {
-         sipResponse.setToFieldTag(tagNum);
-      }
-      sipUserAgent->send(sipResponse);
-   }
-
-   // if this is the same invite
-   else if(inviteMsg &&
-           !inviteFromThisSide &&
-           requestSequenceNum == lastRemoteSequenceNumber)
-   {
-      UtlString viaField;
-      inviteMsg->getViaField(&viaField, 0);
-      UtlString oldInviteBranchId;
-      SipMessage::getViaTag(viaField.data(),
-                            "branch",
-                            oldInviteBranchId);
-      request->getViaField(&viaField, 0);
-      UtlString newInviteBranchId;
-      SipMessage::getViaTag(viaField.data(),
-                            "branch",
-                            newInviteBranchId);
-
-      // from a different branch
-      if(!oldInviteBranchId.isNull() &&
-         oldInviteBranchId.compareTo(newInviteBranchId) != 0)
-      {
-         SipMessage sipResponse;
-         sipResponse.setLoopDetectedData(request);
-         if(tagNum >= 0)
-         {
+    // If this is previous to the last invite
+    if(inviteMsg && requestSequenceNum < lastRemoteSequenceNumber)
+    {
+        SipMessage sipResponse;
+        sipResponse.setBadTransactionData(request);
+        if(tagNum >= 0)
+        {
             sipResponse.setToFieldTag(tagNum);
-         }
-         sipUserAgent->send(sipResponse);
-      }
-      else
-      {
-         // no-op, ignore duplicate INVITE
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
-                       "SipConnection::processInviteRequest received duplicate request");
-      }
-   }
-   else if (hasReplaceHeader && !doesReplaceCallLegExist)
-   {
-      // has replace header, but it does not match this call, so send 481.
-      SipMessage badTransaction;
-      badTransaction.setBadTransactionData(request);
-      sipUserAgent->send(badTransaction);
+        }
+        send(sipResponse);
+    }
 
-      // Bug 3658: as transfer target, call waiting disabled, transferee comes via proxy
-      // manager, sequence of messages is 2 INVITEs from proxy, 486 then this 481.
-      // When going from IDLE to DISCONNECTED, set the dropping flag so call will get
-      // cleaned up
-      mpCall->setDropState(TRUE);
-      setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
-      setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL);
-      fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
+    // if this is the same invite
+    else if(inviteMsg &&
+        !inviteFromThisSide &&
+        requestSequenceNum == lastRemoteSequenceNumber)
+    {
+        UtlString viaField;
+        inviteMsg->getViaField(&viaField, 0);
+        UtlString oldInviteBranchId;
+        SipMessage::getViaTag(viaField.data(),
+            "branch",
+            oldInviteBranchId);
+        request->getViaField(&viaField, 0);
+        UtlString newInviteBranchId;
+        SipMessage::getViaTag(viaField.data(),
+            "branch",
+            newInviteBranchId);
+
+        // from a different branch
+        if(!oldInviteBranchId.isNull() &&
+            oldInviteBranchId.compareTo(newInviteBranchId) != 0)
+        {
+            SipMessage sipResponse;
+            sipResponse.setLoopDetectedData(request);
+            if(tagNum >= 0)
+            {
+                sipResponse.setToFieldTag(tagNum);
+            }
+            send(sipResponse);
+        }
+        else
+        {
+            // no-op, ignore duplicate INVITE
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                "SipConnection::processInviteRequest received duplicate request");
+        }
+    }
+    else if (hasReplaceHeader && !doesReplaceCallLegExist)
+    {
+        // has replace header, but it does not match this call, so send 481.
+        SipMessage badTransaction;
+        badTransaction.setBadTransactionData(request);
+        send(badTransaction);
+
+        // Bug 3658: as transfer target, call waiting disabled, transferee comes via proxy
+        // manager, sequence of messages is 2 INVITEs from proxy, 486 then this 481.
+        // When going from IDLE to DISCONNECTED, set the dropping flag so call will get
+        // cleaned up
+        mpCall->setDropState(TRUE);
+        setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
+        setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL);
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
 #ifdef TEST_PRINT
-      osPrintf("SipConnection::processInviteRequest - CONNECTION_DISCONNECTED, replace call leg does not match\n");
+        osPrintf("SipConnection::processInviteRequest - CONNECTION_DISCONNECTED, replace call leg does not match\n");
 #endif
-   }
-   // Proceed to offering state
-   else if((getState() == CONNECTION_IDLE && // New call
-            mConnectionId > 0 && // Media resources available
-            (mLineAvailableBehavior == RING || // really not busy
-             mLineAvailableBehavior == RING_SILENT || // pretend to ring
-             mLineAvailableBehavior == FORWARD_ON_NO_ANSWER ||
-             mLineAvailableBehavior == FORWARD_UNCONDITIONAL ||
-             mLineBusyBehavior == FAKE_RING))|| // pretend not busy
-           // I do not remember what the follow case is for:
-           (getState() == CONNECTION_OFFERING && // not call to self
-            mRemoteIsCallee && !request->isSameMessage(inviteMsg)))
-   {
-      lastRemoteSequenceNumber = requestSequenceNum;
+    }
+    // Proceed to offering state
+    else if((getState() == CONNECTION_IDLE && // New call
+        mConnectionId > -1 && // Media resources available
+        (mLineAvailableBehavior == RING || // really not busy
+        mLineAvailableBehavior == RING_SILENT || // pretend to ring
+        mLineAvailableBehavior == FORWARD_ON_NO_ANSWER ||
+        mLineAvailableBehavior == FORWARD_UNCONDITIONAL ||
+        mLineBusyBehavior == FAKE_RING))|| // pretend not busy
+        // I do not remember what the follow case is for:
+        (getState() == CONNECTION_OFFERING && // not call to self
+        mRemoteIsCallee && !request->isSameMessage(inviteMsg)))
+    {
+        lastRemoteSequenceNumber = requestSequenceNum;
 
 
-      //set the allows field
-      if(mAllowedRemote.isNull())
-      {
-         // Get the methods the other side supports
-         request->getAllowField(mAllowedRemote);
-      }
+        //set the allows field
+        if(mAllowedRemote.isNull())
+        {
+            // Get the methods the other side supports
+            request->getAllowField(mAllowedRemote);
+        }
 
-      // This should be the first SIP message
-      // Set the connection's callId
-      getCallId(&callId);
-      if(callId.isNull())
-      {
-         request->getCallIdField(&callId);
-         setCallId(callId.data());
-      }
+        // This should be the first SIP message
+        // Set the connection's callId
+        getCallId(&callId);
+        if(callId.isNull())
+        {
+            request->getCallIdField(&callId);
+            setCallId(callId.data());
+        }
 
-      // Save a copy of the INVITE
-      inviteMsg = new SipMessage(*request);
-      inviteFromThisSide = FALSE;
-      setCallerId();
-      //save line Id
-      {
-         // Get the request URI, which is in addr-spec format.
-         UtlString uri;
-         request->getRequestUri(&uri);
-         // Convert the URI to name-addr format.
-         Url parsedUri(uri, TRUE);
-         // Store into mLocalContact, which is in name-addr format.
-         parsedUri.toString(mLocalContact);
-      }
+        // Save a copy of the INVITE
+        inviteMsg = new SipMessage(*request);
+        inviteFromThisSide = FALSE;
+        setCallerId();
+        //save line Id
+        {
+           // Get the request URI, which is in addr-spec format.
+           UtlString uri;
+           request->getRequestUri(&uri);
+           // Convert the URI to name-addr format.
+           Url parsedUri(uri, TRUE);
+           // Store into mLocalContact, which is in name-addr format.
+           parsedUri.toString(mLocalContact);
+        }
 
-      int cause = CONNECTION_CAUSE_NORMAL;
+        int cause = CONNECTION_CAUSE_NORMAL;
 
-      // Replaces is independent of REFER so
-      // do not assume there must be a Refer-To or Refer-By
-      // Assume the replaces call leg does not exist if the call left
-      // state state is not established.  The latest RFC states that
-      // one cannot use replaces for an early dialog
-      if (doesReplaceCallLegExist &&
-          (replaceCallLegState != CONNECTION_ESTABLISHED))
-      {
-         doesReplaceCallLegExist = FALSE ;
-      }
+        // Replaces is independent of REFER so
+        // do not assume there must be a Refer-To or Refer-By
+        // Assume the replaces call leg does not exist if the call left
+        // state state is not established.  The latest RFC states that
+        // one cannot use replaces for an early dialog
+        if (doesReplaceCallLegExist &&
+            (replaceCallLegState != CONNECTION_ESTABLISHED))
+        {
+            doesReplaceCallLegExist = FALSE ;
+        }
 
 
-      // Allow transfer if the call leg exists and the call leg is
-      // established.  Transferring a call while in early dialog is
-      // illegal.
-      if (doesReplaceCallLegExist)
-      {
-         cause = CONNECTION_CAUSE_TRANSFER;
-
-         // Setup the meta event data
-         int metaEventId = mpCallManager->getNewMetaEventId();
-         const char* metaEventCallIds[2];
-         metaEventCallIds[0] = callId.data();        // target call Id
-         metaEventCallIds[1] = replaceCallId.data(); // original call Id
-         mpCall->startMetaEvent(metaEventId,
-                                PtEvent::META_CALL_TRANSFERRING,
-                                2, metaEventCallIds);
-         mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
-
-#ifdef TEST_PRINT
-         osPrintf("SipConnection::processInviteRequest replaceCallId: %s, toTag: %s, fromTag: %s\n", replaceCallId.data(),
-                  replaceToTag.data(), replaceFromTag.data());
-#endif
-      }
-      else
-      {
-         // This call does not contain a REPLACES header, however, it
-         // may still be part of a blind transfer, so look for the
-         // referred-by or requested-by headers
-         UtlString referredBy;
-         UtlString requestedBy;
-         request->getReferredByField(referredBy);
-         request->getRequestedByField(requestedBy);
-         if (!referredBy.isNull() || !requestedBy.isNull())
-         {
+        // Allow transfer if the call leg exists and the call leg is
+        // established.  Transferring a call while in early dialog is
+        // illegal.
+        if (doesReplaceCallLegExist)
+        {
             cause = CONNECTION_CAUSE_TRANSFER;
+
+            // Setup the meta event data
+            int metaEventId = mpCallManager->getNewMetaEventId();
+            const char* metaEventCallIds[2];
+            metaEventCallIds[0] = callId.data();        // target call Id
+            metaEventCallIds[1] = replaceCallId.data(); // original call Id
+            mpCall->startMetaEvent(metaEventId,
+                PtEvent::META_CALL_TRANSFERRING,
+                2, metaEventCallIds);
             mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
-         }
 
-
-         mpCall->startMetaEvent( mpCallManager->getNewMetaEventId(),
-                                 PtEvent::META_CALL_STARTING,
-                                 0,
-                                 0,
-                                 mRemoteIsCallee);
-
-         if (!mRemoteIsCallee)   // inbound call
-         {
-            mpCall->setCallState(mResponseCode, mResponseText, PtCall::ACTIVE);
-            setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, PtEvent::CAUSE_NEW_CALL);
-            setState(CONNECTION_INITIATED, CONNECTION_LOCAL, PtEvent::CAUSE_NEW_CALL);
-            fireSipXEvent(NEWCALL, NEW_CALL_NORMAL) ;
-         }
-      }
-
-
-      // If this is not part of a call leg replaces operation
-      // we normally go to offering so that the application
-      // can decide to accept, rejecto or redirect
-      if(!doesReplaceCallLegExist)
-      {
-         setState(CONNECTION_OFFERING, CONNECTION_LOCAL, cause);
-         fireSipXEvent(OFFERING, OFFERING_ACTIVE) ;
-
-      }
-
-      // Always get the remote contact as it may can change over time
-      UtlString contactInResponse;
-      if (request->getContactUri(0 , &contactInResponse))
-      {
-         mRemoteContact.remove(0);
-         mRemoteContact.append(contactInResponse);
-      }
-
-      // Get the route for subsequent requests
-      request->buildRouteField(&mRouteField);
-#ifdef TEST_PRINT
-      osPrintf("INVITE set mRouteField: %s\n", mRouteField.data());
+#ifndef SIPXTAPI_EXCLUDE
+            fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_TRANSFERRED, (void*) replaceCallId.data()) ;
 #endif
 
-      // Set the to tag if it is not set in the Invite
-      if(tagNum >= 0)
-      {
-         inviteMsg->setToFieldTag(tagNum);
-
-         // Update the cached from field after saving the tag
-         inviteMsg->getToUrl(mFromUrl);
-      }
 #ifdef TEST_PRINT
-      osPrintf("Offering delay: %d\n", mOfferingDelay);
+            osPrintf("SipConnection::processInviteRequest replaceCallId: %s, toTag: %s, fromTag: %s\n", replaceCallId.data(),
+                replaceToTag.data(), replaceFromTag.data());
 #endif
-      // If we are replacing a call let answer the call
-      // immediately do not go to offering first.
-      if(doesReplaceCallLegExist)
-      {
-         // Go immediately to answer the call
-         answer();
-
-         // Bob 11/16/01: The following setState was added to close a race between
-         // the answer (above) and hangup (below).  The application layer is notified
-         // of state changed on on the replies to these messages.  These can lead to
-         // dropped transfer if the BYE reponse is received before INVITE response.
-         setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
-         fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
-
-         // Drop the leg to be replaced
-         ((CpPeerCall*)mpCall)->hangUp(replaceCallId.data(),
-                                       replaceToTag.data(),
-                                       replaceFromTag.data());
-      }
-      else if(mOfferingDelay == IMMEDIATE)
-      {
-         accept(mForwardOnNoAnswerSeconds);
-      }
-      // The connection stays in Offering state until timeout
-      // or told to do otherwise
-      else
-      {
-         // Should send a Trying response
-         //SipMessage offeringTryingMessage;
-         //offeringTryingMessage.setTryingResponseData(inviteMsg);
-         //sipUserAgent->send(offeringTryingMessage);
-
-         // If the delay is not forever, setup a timer to expire
-         if(mOfferingDelay > IMMEDIATE) setOfferingTimer(mOfferingDelay);
-
-         // Other wise do nothing, let it sit in offering forever
-      }
-   }
-
-   // Re-INVITE allowed
-   else if(inviteMsg && requestSequenceNum > lastRemoteSequenceNumber &&
-           getState() == CONNECTION_ESTABLISHED &&
-           reinviteState == ACCEPT_INVITE)
-   {
-      // Keep track of the last sequence number;
-      lastRemoteSequenceNumber = requestSequenceNum;
-
-
-      // Always get the remote contact as it may can change over time
-      UtlString contactInResponse;
-      if (request->getContactUri(0 , &contactInResponse))
-      {
-         mRemoteContact.remove(0);
-         mRemoteContact.append(contactInResponse);
-      }
-
-      // The route set is set only on the initial dialog transaction
-      //request->buildRouteField(&mRouteField);
-      //osPrintf("reINVITE set mRouteField: %s\n", mRouteField.data());
-
-      // Do not allow other Requests until the ReINVITE is complete
-      reinviteState = REINVITED;
-#ifdef TEST_PRINT
-      osPrintf("INVITE reinviteState: %d\n", reinviteState);
-#endif
-
-      UtlString rtpAddress;
-      int receiveRtpPort;
-      int receiveRtcpPort;
-      SdpCodecFactory supportedCodecs;
-      mpMediaInterface->getCapabilities(mConnectionId,
-                                        rtpAddress,
-                                        receiveRtpPort,
-                                        receiveRtcpPort,
-                                        supportedCodecs);
-
-      int numMatchingCodecs = 0;
-      SdpCodec** matchingCodecs = NULL;
-
-      // Get the RTP info from the message if present
-      // Should check the content type first
-      if(getInitialSdpCodecs(request,
-                             supportedCodecs, numMatchingCodecs, matchingCodecs,
-                             remoteRtpAddress, remoteRtpPort))
-      {
-         // If the codecs match send an OK
-         if(numMatchingCodecs > 0)
-         {
-            // Setup media channel
-            mpMediaInterface->setConnectionDestination(mConnectionId,
-                                                       remoteRtpAddress.data(),
-                                                       remoteRtpPort);
-#ifdef TEST_PRINT
-            osPrintf("ReINVITE RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
-#endif
-
-            // Far side requested hold
-            if(remoteRtpPort == 0 ||
-               remoteRtpAddress.compareTo("0.0.0.0") == 0)
+        }
+        else
+        {
+            // This call does not contain a REPLACES header, however, it
+            // may still be part of a blind transfer, so look for the
+            // referred-by or requested-by headers
+            UtlString referredBy;
+            UtlString requestedBy;
+            request->getReferredByField(referredBy);
+            request->getRequestedByField(requestedBy);
+            if (!referredBy.isNull() || !requestedBy.isNull())
             {
-               //receiveRtpPort = 0;
-               // Leave the receive on to drain the buffers
-               //mpMediaInterface->stopRtpReceive(mConnectionId);
-               mpMediaInterface->stopRtpSend(mConnectionId);
-               mRemoteRequestedHold = TRUE;
-            }
-            else if(remoteRtpPort > 0)
-            {
-               mpMediaInterface->startRtpSend(mConnectionId,
-                                              numMatchingCodecs, matchingCodecs);
-               mpMediaInterface->startRtpReceive(mConnectionId,
-                                                 numMatchingCodecs, matchingCodecs);
+                cause = CONNECTION_CAUSE_TRANSFER;
+                mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
             }
 
-            // Send a INVITE OK response
+            mpCall->startMetaEvent( mpCallManager->getNewMetaEventId(),
+                PtEvent::META_CALL_STARTING,
+                0,
+                0,
+                mRemoteIsCallee);
+
+            if (!mRemoteIsCallee)   // inbound call
+            {
+                mpCall->setCallState(mResponseCode, mResponseText, PtCall::ACTIVE);
+                setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, PtEvent::CAUSE_NEW_CALL);
+                setState(CONNECTION_INITIATED, CONNECTION_LOCAL, PtEvent::CAUSE_NEW_CALL);
+                fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL) ;
+            }
+        }
+
+
+        // If this is not part of a call leg replaces operation
+        // we normally go to offering so that the application
+        // can decide to accept, rejecto or redirect
+        if(!doesReplaceCallLegExist)
+        {
+            setState(CONNECTION_OFFERING, CONNECTION_LOCAL, cause);
+            fireSipXEvent(CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE) ;
+
+        }
+
+        // Always get the remote contact as it may can change over time
+        UtlString contactInResponse;
+        if (request->getContactUri(0 , &contactInResponse))
+        {
+            mRemoteContact.remove(0);
+            mRemoteContact.append(contactInResponse);
+        }
+
+        // Get the route for subsequent requests
+        request->buildRouteField(&mRouteField);
 #ifdef TEST_PRINT
-            osPrintf("Sending INVITE OK\n");
+        osPrintf("INVITE set mRouteField: %s\n", mRouteField.data());
+#endif
+        // Set the to tag if it is not set in the Invite
+        if(tagNum >= 0)
+        {
+            inviteMsg->setToFieldTag(tagNum);
+
+            // Update the cached from field after saving the tag
+            inviteMsg->getToUrl(mFromUrl);
+        }
+#ifdef TEST_PRINT
+        osPrintf("Offering delay: %d\n", mOfferingDelay);
+#endif
+        // If we are replacing a call let answer the call
+        // immediately do not go to offering first.
+        if(doesReplaceCallLegExist)
+        {
+            // Go immediately to answer the call
+            answer();
+
+            // Bob 11/16/01: The following setState was added to close a race between
+            // the answer (above) and hangup (below).  The application layer is notified
+            // of state changed on on the replies to these messages.  These can lead to
+            // dropped transfer if the BYE reponse is received before INVITE response.
+            setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
+            if (mTerminalConnState == PtTerminalConnection::HELD)
+            {
+                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD);
+            }
+            else
+            {
+                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE);
+            }
+            
+
+            // Drop the leg to be replaced
+            ((CpPeerCall*)mpCall)->hangUp(replaceCallId.data(),
+                replaceToTag.data(),
+                replaceFromTag.data());
+        }
+        else if(mOfferingDelay == IMMEDIATE)
+        {
+            accept(mForwardOnNoAnswerSeconds);
+        }
+        // The connection stays in Offering state until timeout
+        // or told to do otherwise
+        else
+        {
+            // Should send a Trying response
+            //SipMessage offeringTryingMessage;
+            //offeringTryingMessage.setTryingResponseData(inviteMsg);
+            //send(offeringTryingMessage);
+
+            // If the delay is not forever, setup a timer to expire
+            if(mOfferingDelay > IMMEDIATE)
+            {
+                setOfferingTimer(mOfferingDelay);
+            }
+            // Other wise do nothing, let it sit in offering forever
+        }
+    }
+    // Re-INVITE allowed
+    else if(mpMediaInterface != NULL && inviteMsg && 
+            requestSequenceNum > lastRemoteSequenceNumber &&
+            getState() == CONNECTION_ESTABLISHED &&
+            reinviteState == ACCEPT_INVITE)
+    {
+        // Keep track of the last sequence number;
+        lastRemoteSequenceNumber = requestSequenceNum;
+
+
+        // Always get the remote contact as it may can change over time
+        UtlString contactInResponse;
+        if (request->getContactUri(0 , &contactInResponse))
+        {
+            mRemoteContact.remove(0);
+            mRemoteContact.append(contactInResponse);
+        }
+
+        // The route set is set only on the initial dialog transaction
+        //request->buildRouteField(&mRouteField);
+        //osPrintf("reINVITE set mRouteField: %s\n", mRouteField.data());
+
+        // Do not allow other Requests until the ReINVITE is complete
+        reinviteState = REINVITED;
+#ifdef TEST_PRINT
+        osPrintf("INVITE reinviteState: %d\n", reinviteState);
 #endif
 
-            if(remoteRtpPort <= 0 ||
-               remoteRtpAddress.compareTo("0.0.0.0") == 0)
+        UtlString rtpAddress;
+        int receiveRtpPort;
+        int receiveRtcpPort;
+        SdpCodecFactory supportedCodecs;
+        mpMediaInterface->getCapabilities(mConnectionId,
+            rtpAddress,
+            receiveRtpPort,
+            receiveRtcpPort,
+            supportedCodecs);
+
+        int numMatchingCodecs = 0;
+        SdpCodec** matchingCodecs = NULL;
+
+        // Get the RTP info from the message if present
+        // Should check the content type first
+        if(getInitialSdpCodecs(request,
+            supportedCodecs, numMatchingCodecs, matchingCodecs,
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort))
+        {
+            // If the codecs match send an OK
+            if(numMatchingCodecs > 0)
             {
-               rtpAddress.remove(0);
-               rtpAddress.append("0.0.0.0");  // hold address
-            }
+                // Setup media channel
+                mpMediaInterface->setConnectionDestination(mConnectionId,
+                    remoteRtpAddress.data(),
+                    remoteRtpPort,
+                    remoteRtcpPort);
 #ifdef TEST_PRINT
+                osPrintf("ReINVITE RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
+#endif
+
+                // Far side requested hold
+                if(remoteRtpPort == 0 ||
+                    remoteRtpAddress.compareTo("0.0.0.0") == 0)
+                {
+                    //receiveRtpPort = 0;
+                    // Leave the receive on to drain the buffers
+                    //mpMediaInterface->stopRtpReceive(mConnectionId);
+                    mpMediaInterface->stopRtpSend(mConnectionId);
+                    fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+                    if (mTerminalConnState == PtTerminalConnection::HELD)
+                    {
+                        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE);
+                    }
+                    else
+                    {
+                        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD);
+                    }
+                    
+                    mRemoteRequestedHold = TRUE;
+                }
+                else if(remoteRtpPort > 0)
+                {
+                    mpMediaInterface->startRtpReceive(mConnectionId,
+                        numMatchingCodecs, matchingCodecs);
+
+                    mpMediaInterface->startRtpSend(mConnectionId,
+                        numMatchingCodecs, matchingCodecs);
+
+                    // Fire a CALLSTATE_CONNECTED_ACTIVE event for remote side taking 
+                    // us off hold
+                    if (mTerminalConnState == PtTerminalConnection::HELD)
+                    {
+                        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD);
+                    }
+                    else
+                    {
+                        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE);
+                    }
+
+#ifndef SIPXTAPI_EXCLUDE
+                    // If sipX TAPI, fire audio start event 
+                    UtlString codecName;
+                    SIPX_AUDIO_CODEC tapiCodec;
+                    if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
+                                                          codecName, 
+                                                          &tapiCodec.iPayloadType) == OS_SUCCESS)
+                    {
+                        strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                        fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
+                    }
+#endif /* SIPXTAPI_EXCLUDE */
+
+                }
+
+                // Send a INVITE OK response
+#ifdef TEST_PRINT
+                osPrintf("Sending INVITE OK\n");
+#endif
+
+                if(remoteRtpPort <= 0 ||
+                    remoteRtpAddress.compareTo("0.0.0.0") == 0)
+                {
+                    rtpAddress.remove(0);
+                    rtpAddress.append("0.0.0.0");  // hold address
+                }
+#ifdef TEST_PRINT
+                osPrintf("REINVITE: using RTP address: %s\n",
+                    rtpAddress.data());
+#endif
+
+                SipMessage sipResponse;
+                sipResponse.setInviteOkData(request, rtpAddress.data(),
+                    receiveRtpPort, receiveRtcpPort, numMatchingCodecs,
+                    matchingCodecs, mDefaultSessionReinviteTimer,
+                    mLocalContact.data());
+                if(tagNum >= 0)
+                {
+                    sipResponse.setToFieldTag(tagNum);
+                }
+                send(sipResponse);
+
+                // Save the invite for future reference
+                if(inviteMsg)
+                {
+                    delete inviteMsg;
+                }
+                inviteMsg = new SipMessage(*request);
+                inviteFromThisSide = FALSE;
+                setCallerId();
+
+
+                if(tagNum >= 0)
+                {
+                    inviteMsg->setToFieldTag(tagNum);
+
+                    // Update the cached from field after saving the tag
+                    inviteMsg->getToUrl(mFromUrl);
+                }
+
+            }
+            // If the codecs do not match send an error
+            else
+            {
+                // No common codecs send INVITE error response
+                SipMessage sipResponse;
+                sipResponse.setInviteBadCodecs(request, sipUserAgent);
+                if(tagNum >= 0)
+                {
+                    sipResponse.setToFieldTag(tagNum);
+                }
+                send(sipResponse);
+            }
+        }
+        else
+        {
+#ifdef TEST_PRINT
+            osPrintf("No SDP in reINVITE\n");
+            // Send back the whole set of supported codecs
             osPrintf("REINVITE: using RTP address: %s\n",
-                     rtpAddress.data());
+                rtpAddress.data());
 #endif
+
+            // Use the full set of capabilities as the other
+            // side did not give SDP to find common/matching
+            // codecs
+            supportedCodecs.getCodecs(numMatchingCodecs,
+                matchingCodecs);
 
             SipMessage sipResponse;
             sipResponse.setInviteOkData(request, rtpAddress.data(),
-                                        receiveRtpPort, receiveRtcpPort, numMatchingCodecs,
-                                        matchingCodecs, mDefaultSessionReinviteTimer,
-                                        mLocalContact.data());
+                receiveRtpPort, receiveRtcpPort, numMatchingCodecs, matchingCodecs,
+                mDefaultSessionReinviteTimer, mLocalContact.data());
             if(tagNum >= 0)
             {
-               sipResponse.setToFieldTag(tagNum);
+                sipResponse.setToFieldTag(tagNum);
             }
-            sipUserAgent->send(sipResponse);
+            send(sipResponse);
 
             // Save the invite for future reference
             if(inviteMsg)
             {
-               delete inviteMsg;
+                delete inviteMsg;
             }
             inviteMsg = new SipMessage(*request);
             inviteFromThisSide = FALSE;
             setCallerId();
 
-
             if(tagNum >= 0)
             {
-               inviteMsg->setToFieldTag(tagNum);
+                inviteMsg->setToFieldTag(tagNum);
 
-               // Update the cached from field after saving the tag
-               inviteMsg->getToUrl(mFromUrl);
+                // Update the cached from field after saving the tag
+                inviteMsg->getToUrl(mFromUrl);
             }
+        }
 
-         }
+        // Free up the codec copies and array
+        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+        {
+            delete matchingCodecs[codecIndex];
+            matchingCodecs[codecIndex] = NULL;
+        }
+        delete[] matchingCodecs;
+        matchingCodecs = NULL;
+    }
 
-         // If the codecs do not match send an error
-         else
-         {
-            // No common codecs send INVITE error response
-            SipMessage sipResponse;
-            sipResponse.setInviteBadCodecs(request, sipUserAgent);
-            if(tagNum >= 0)
-            {
-               sipResponse.setToFieldTag(tagNum);
-            }
-            sipUserAgent->send(sipResponse);
-         }
-      }
-      else
-      {
+    // Busy, but queue call
+    else if(mpMediaInterface != NULL && getState() == CONNECTION_IDLE &&
+        ((mLineBusyBehavior == QUEUE_SILENT) ||
+        (mLineBusyBehavior == QUEUE_ALERT) ||
+        (mLineBusyBehavior == BUSY &&
+        request->isRequestDispositionSet(SIP_DISPOSITION_QUEUE))))
+    {
+        lastRemoteSequenceNumber = requestSequenceNum;
+
 #ifdef TEST_PRINT
-         osPrintf("No SDP in reINVITE\n");
-         // Send back the whole set of supported codecs
-         osPrintf("REINVITE: using RTP address: %s\n",
-                  rtpAddress.data());
+        osPrintf("Busy, queuing call\n");
 #endif
 
-         // Use the full set of capabilities as the other
-         // side did not give SDP to find common/matching
-         // codecs
-         supportedCodecs.getCodecs(numMatchingCodecs,
-                                   matchingCodecs);
+        // This should be the first SIP message
+        // Set the connection's callId
+        getCallId(&callId);
+        if(callId.isNull())
+        {
+            request->getCallIdField(&callId);
+            setCallId(callId.data());
+        }
 
-         SipMessage sipResponse;
-         sipResponse.setInviteOkData(request, rtpAddress.data(),
-                                     receiveRtpPort, receiveRtcpPort, numMatchingCodecs, matchingCodecs,
-                                     mDefaultSessionReinviteTimer, mLocalContact.data());
-         if(tagNum >= 0)
-         {
+        // Always get the remote contact as it may can change over time
+        UtlString contactInResponse;
+        if (request->getContactUri(0 , &contactInResponse))
+        {
+            mRemoteContact.remove(0);
+            mRemoteContact.append(contactInResponse);
+        }
+
+        // Get the route for subsequent requests
+        request->buildRouteField(&mRouteField);
+#ifdef TEST_PRINT
+        osPrintf("queuedINVITE set mRouteField: %s\n", mRouteField.data());
+#endif
+
+        // Get the capabilities to figure out the matching codecs
+        UtlString rtpAddress;
+        int receiveRtpPort;
+        int receiveRtcpPort;
+        SdpCodecFactory supportedCodecs;
+        mpMediaInterface->getCapabilities(mConnectionId,
+            rtpAddress,
+            receiveRtpPort,
+            receiveRtcpPort,
+            supportedCodecs);
+
+        // Get the codecs
+        int numMatchingCodecs = 0;
+        SdpCodec** matchingCodecs = NULL;
+        getInitialSdpCodecs(request,
+            supportedCodecs,
+            numMatchingCodecs, matchingCodecs,
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+
+        // We are not suppose to go into offering state before, after
+        // or at all when queuing a call.
+
+
+        // Save a copy of the invite for future reference
+        inviteMsg = new SipMessage(*request);
+        inviteFromThisSide = FALSE;
+        setCallerId();
+
+        // Create and send a queued response
+        SipMessage sipResponse;
+        sipResponse.setQueuedResponseData(request);
+        if(tagNum >= 0)
+        {
             sipResponse.setToFieldTag(tagNum);
-         }
-         sipUserAgent->send(sipResponse);
+        }
+        send(sipResponse);
+        setState(CONNECTION_QUEUED, CONNECTION_LOCAL);
+        /** SIPXTAPI: TBD **/
 
-         // Save the invite for future reference
-         if(inviteMsg)
-         {
-            delete inviteMsg;
-         }
-         inviteMsg = new SipMessage(*request);
-         inviteFromThisSide = FALSE;
-         setCallerId();
-
-         if(tagNum >= 0)
-         {
-            inviteMsg->setToFieldTag(tagNum);
-
-            // Update the cached from field after saving the tag
-            inviteMsg->getToUrl(mFromUrl);
-         }
-      }
-
-      // Free up the codec copies and array
-      for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-      {
-         delete matchingCodecs[codecIndex];
-         matchingCodecs[codecIndex] = NULL;
-      }
-      delete[] matchingCodecs;
-      matchingCodecs = NULL;
-
-   }
-
-   // Busy, but queue call
-   else if(getState() == CONNECTION_IDLE &&
-           ((/*!callInFocus && */ mLineBusyBehavior == QUEUE_SILENT) ||
-            (/*!callInFocus && */ mLineBusyBehavior == QUEUE_ALERT) ||
-            (/*!callInFocus && */ mLineBusyBehavior == BUSY &&
-             request->isRequestDispositionSet(SIP_DISPOSITION_QUEUE))))
-   {
-      lastRemoteSequenceNumber = requestSequenceNum;
-
+        // Free up the codec copies and array
+        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+        {
+            delete matchingCodecs[codecIndex];
+            matchingCodecs[codecIndex] = NULL;
+        }
+        delete[] matchingCodecs;
+        matchingCodecs = NULL;
+    }
+    // Forward on busy
+    else if(getState() == CONNECTION_IDLE &&
+        /*!callInFocus && */ mLineBusyBehavior == FORWARD_ON_BUSY &&
+        !mForwardOnBusy.isNull())
+    {
 #ifdef TEST_PRINT
-      osPrintf("Busy, queuing call\n");
+        osPrintf("Busy, forwarding call to \"%s\"\n",
+            mForwardOnBusy.data());
 #endif
 
-      // This should be the first SIP message
-      // Set the connection's callId
-      getCallId(&callId);
-      if(callId.isNull())
-      {
-         request->getCallIdField(&callId);
-         setCallId(callId.data());
-      }
+        SipMessage sipResponse;
+        sipResponse.setForwardResponseData(request,
+            mForwardOnBusy.data());
+        if(tagNum >= 0)
+        {
+            sipResponse.setToFieldTag(tagNum);
+        }
+        send(sipResponse);
 
-      // Always get the remote contact as it may can change over time
-      UtlString contactInResponse;
-      if (request->getContactUri(0 , &contactInResponse))
-      {
-         mRemoteContact.remove(0);
-         mRemoteContact.append(contactInResponse);
-      }
-
-      // Get the route for subsequent requests
-      request->buildRouteField(&mRouteField);
 #ifdef TEST_PRINT
-      osPrintf("queuedINVITE set mRouteField: %s\n", mRouteField.data());
+        osPrintf("SipConnection::processInviteRequest - CONNECTION_FAILED, cause BUSY : 2390\n");
 #endif
-
-      // Get the capabilities to figure out the matching codecs
-      UtlString rtpAddress;
-      int receiveRtpPort;
-      int receiveRtcpPort;
-      SdpCodecFactory supportedCodecs;
-      mpMediaInterface->getCapabilities(mConnectionId,
-                                        rtpAddress,
-                                        receiveRtpPort,
-                                        receiveRtcpPort,
-                                        supportedCodecs);
-
-      // Get the codecs
-      int numMatchingCodecs = 0;
-      SdpCodec** matchingCodecs = NULL;
-      getInitialSdpCodecs(request,
-                          supportedCodecs,
-                          numMatchingCodecs, matchingCodecs,
-                          remoteRtpAddress, remoteRtpPort);
-
-      // We are not suppose to go into offering state before, after
-      // or at all when queuing a call.
-
-
-      // Save a copy of the invite for future reference
-      inviteMsg = new SipMessage(*request);
-      inviteFromThisSide = FALSE;
-      setCallerId();
-
-      // Create and send a queued response
-      SipMessage sipResponse;
-      sipResponse.setQueuedResponseData(request);
-      if(tagNum >= 0)
-      {
-         sipResponse.setToFieldTag(tagNum);
-      }
-      sipUserAgent->send(sipResponse);
-      setState(CONNECTION_QUEUED, CONNECTION_LOCAL);
-      /** SIPXTAPI: TBD **/
-
-      // Free up the codec copies and array
-      for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-      {
-         delete matchingCodecs[codecIndex];
-         matchingCodecs[codecIndex] = NULL;
-      }
-      delete[] matchingCodecs;
-      matchingCodecs = NULL;
-   }
-
-   // Forward on busy
-   else if(getState() == CONNECTION_IDLE &&
-           /*!callInFocus && */ mLineBusyBehavior == FORWARD_ON_BUSY &&
-           !mForwardOnBusy.isNull())
-   {
+        setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_BUSY);
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BUSY) ;
+    }
+    // If busy
+    else
+    {
 #ifdef TEST_PRINT
-      osPrintf("Busy, forwarding call to \"%s\"\n",
-               mForwardOnBusy.data());
+        osPrintf("Call: busy returning response\n");
+        osPrintf("Busy behavior: %d infocus: %d forward on busy URL: %s\n",
+            mLineBusyBehavior, -5/*callInFocus*/, mForwardOnBusy.data());
 #endif
+        // This should be the first SIP message
+        // Set the connection's callId
+        getCallId(&callId);
+        if(callId.isNull())
+        {
+            request->getCallIdField(&callId);
+            setCallId(callId.data());
+        }
 
-      SipMessage sipResponse;
-      sipResponse.setForwardResponseData(request,
-                                         mForwardOnBusy.data());
-      if(tagNum >= 0)
-      {
-         sipResponse.setToFieldTag(tagNum);
-      }
-      sipUserAgent->send(sipResponse);
+        // Send back a busy INVITE response
+        SipMessage sipResponse;
+        sipResponse.setInviteBusyData(request);
+        if(tagNum >= 0)
+        {
+            sipResponse.setToFieldTag(tagNum);
+        }
+        send(sipResponse);
 
+        // Special case:
+        // We sent the invite to our self
+        if(inviteMsg && request->isSameMessage(inviteMsg))
+        {
+            // Do not set state here it will be done when
+            // the response comes back
+        }
+        else
+        {
+            if (reinviteState != REINVITING)
+            {
 #ifdef TEST_PRINT
-      osPrintf("SipConnection::processInviteRequest - CONNECTION_FAILED, cause BUSY : 2390\n");
+                osPrintf("SipConnection::processInviteRequest - busy, not HELD state, setting state to CONNECTION_FAILED\n");
 #endif
-      setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_BUSY);
-      fireSipXEvent(DISCONNECTED, DISCONNECTED_BUSY) ;
-   }
-
-   // If busy
-   else
-   {
-#ifdef TEST_PRINT
-      osPrintf("Call: busy returning response\n");
-      osPrintf("Busy behavior: %d infocus: %d forward on busy URL: %s\n",
-               mLineBusyBehavior, -5/*callInFocus*/, mForwardOnBusy.data());
-#endif
-
-      // This should be the first SIP message
-      // Set the connection's callId
-      getCallId(&callId);
-      if(callId.isNull())
-      {
-         request->getCallIdField(&callId);
-         setCallId(callId.data());
-      }
-
-      // Send back a busy INVITE response
-      SipMessage sipResponse;
-      sipResponse.setInviteBusyData(request);
-      if(tagNum >= 0)
-      {
-         sipResponse.setToFieldTag(tagNum);
-      }
-      sipUserAgent->send(sipResponse);
-
-      // Special case:
-      // We sent the invite to our self
-      if(inviteMsg && request->isSameMessage(inviteMsg))
-      {
-         // Do not set state here it will be done when
-         // the response comes back
-      }
-
-      else
-      {
-         if (reinviteState != REINVITING)
-         {
-#ifdef TEST_PRINT
-            osPrintf("SipConnection::processInviteRequest - busy, not HELD state, setting state to CONNECTION_FAILED\n");
-#endif
-            setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_BUSY);
-            fireSipXEvent(DISCONNECTED, DISCONNECTED_BUSY) ;
-         }
-      }
-   }
+                setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_BUSY);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BUSY) ;
+            }
+        }
+    }
 
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "Leaving SipConnection::processInviteRequest inviteMsg=0x%08x ", (int)inviteMsg);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        "Leaving SipConnection::processInviteRequest inviteMsg=0x%08x ", (int)inviteMsg);
 #endif
 } // End of processInviteRequest
 
+
 void SipConnection::processReferRequest(const SipMessage* request)
 {
-        mIsAcceptSent = FALSE;
+    mIsAcceptSent = FALSE;
 
-        UtlString referTo;
-        UtlString referredBy;
-        request->getReferredByField(referredBy);
-        request->getReferToField(referTo);
+    UtlString referTo;
+    UtlString referredBy;
+    request->getReferredByField(referredBy);
+    request->getReferToField(referTo);
 
-                //reject Refers to non sip URLs
-                Url referToUrl(referTo);
-                UtlString protocol;
-                referToUrl.getUrlType(protocol);
+    //reject Refers to non sip URLs
+    Url referToUrl(referTo);
+    UtlString protocol;
+    referToUrl.getUrlType(protocol);
 
-        int connectionState = getState();
-        // Cannot transfer if there is not already a call setup
-        if(connectionState != CONNECTION_ESTABLISHED &&
-            connectionState != CONNECTION_IDLE)
-        {
-            SipMessage sipResponse;
-                        sipResponse.setReferDeclinedData(request);
-                        sipUserAgent->send(sipResponse);
-        }
+    int connectionState = getState();
+    // Cannot transfer if there is not already a call setup
+    if(connectionState != CONNECTION_ESTABLISHED &&
+        connectionState != CONNECTION_IDLE)
+    {
+        SipMessage sipResponse;
+        sipResponse.setReferDeclinedData(request);
+        send(sipResponse);
+    }
 
-        // If there is not exactly one Refered-By
-        // or not exactly one Refer-To header
-        // or there is already a REFER in progress
-        else if(request->getHeaderValue(1, SIP_REFERRED_BY_FIELD) != NULL||
-            request->getHeaderValue(1, SIP_REFER_TO_FIELD) != NULL ||
-            mReferMessage)
-        {
-            SipMessage sipResponse;
-                        sipResponse.setRequestBadRequest(request);
-                        sipUserAgent->send(sipResponse);
-        }
+    // If there is not exactly one Refered-By
+    // or not exactly one Refer-To header
+    // or there is already a REFER in progress
+    else if(request->getHeaderValue(1, SIP_REFERRED_BY_FIELD) != NULL||
+        request->getHeaderValue(1, SIP_REFER_TO_FIELD) != NULL ||
+        mReferMessage)
+    {
+        SipMessage sipResponse;
+        sipResponse.setRequestBadRequest(request);
+        send(sipResponse);
+    }
 
-                //if Url is not of type Sip
-                else if (protocol.index("SIP" , 0, UtlString::ignoreCase) != 0)
-                {
-            SipMessage sipResponse;
-                        sipResponse.setRequestBadUrlType(request);
-                        sipUserAgent->send(sipResponse);
-                }
-        // Give the transfer a try.
-        else if(connectionState == CONNECTION_ESTABLISHED)
-        {
-            // Create a second call if it does not exist already
-            // Set the target call id in this call
-            // Set this call's type to transferee original call
-            UtlString targetCallId;
-            Url targetUrl(referTo);
-            targetUrl.getHeaderParameter(SIP_CALLID_FIELD, targetCallId);
-            // targetUrl.removeHeaderParameters();
-            targetUrl.toString(referTo);
-            //SipMessage::parseParameterFromUri(referTo.data(), "Call-ID",
-            //    &targetCallId);
+    //if Url is not of type Sip
+    else if (protocol.index("SIP" , 0, UtlString::ignoreCase) != 0)
+    {
+        SipMessage sipResponse;
+        sipResponse.setRequestBadUrlType(request);
+        send(sipResponse);
+    }
+    // Give the transfer a try.
+    else if(connectionState == CONNECTION_ESTABLISHED)
+    {
+        // Create a second call if it does not exist already
+        // Set the target call id in this call
+        // Set this call's type to transferee original call
+        UtlString targetCallId;
+        Url targetUrl(referTo);
+        targetUrl.getHeaderParameter(SIP_CALLID_FIELD, targetCallId);
+        // targetUrl.removeHeaderParameters();
+        targetUrl.toString(referTo);
+        //SipMessage::parseParameterFromUri(referTo.data(), "Call-ID",
+        //    &targetCallId);
 #ifdef TEST_PRINT
-            osPrintf("SipConnection::processRequest REFER refer-to: %s callid: %s\n",
-                referTo.data(), targetCallId.data());
+        osPrintf("SipConnection::processRequest REFER refer-to: %s callid: %s\n",
+            referTo.data(), targetCallId.data());
 #endif
 
-            // Setup the meta event data
-            int metaEventId = mpCallManager->getNewMetaEventId();
-            const char* metaEventCallIds[2];
-            UtlString thisCallId;
-            getCallId(&thisCallId);
-            metaEventCallIds[0] = targetCallId.data();
-            metaEventCallIds[1] = thisCallId.data();
+        // Setup the meta event data
+        int metaEventId = mpCallManager->getNewMetaEventId();
+        const char* metaEventCallIds[2];
+        UtlString thisCallId;
+        getCallId(&thisCallId);
+        metaEventCallIds[0] = targetCallId.data();
+        metaEventCallIds[1] = thisCallId.data();
 
-            // Mark the begining of a transfer meta event in this call
-            mpCall->startMetaEvent(metaEventId,
-                PtEvent::META_CALL_TRANSFERRING,
-                2, metaEventCallIds);
+        // Mark the begining of a transfer meta event in this call
+        mpCall->startMetaEvent(metaEventId,
+            PtEvent::META_CALL_TRANSFERRING,
+            2, metaEventCallIds);
 
-            // I am not sure we want the focus change to
-            // be automatic.  It is here for now to make it work
-            CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
-            mpCallManager->postMessage(yieldFocus);
+        // I am not sure we want the focus change to
+        // be automatic.  It is here for now to make it work
+        CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
+        mpCallManager->postMessage(yieldFocus);
 
-            // The new call by default assumes focus.
-            // Mark the new call as part of this transfer meta event
-            mpCallManager->createCall(&targetCallId, metaEventId,
-                PtEvent::META_CALL_TRANSFERRING, 2, metaEventCallIds);
-            mpCall->setTargetCallId(targetCallId.data());
-            mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
+        // The new call by default assumes focus.
+        // Mark the new call as part of this transfer meta event
+        mpCallManager->createCall(&targetCallId, metaEventId,
+            PtEvent::META_CALL_TRANSFERRING, 2, metaEventCallIds);
+        mpCall->setTargetCallId(targetCallId.data());
+        mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
 
-            // Send a message to the target call to create the
-            // connection and send the INVITE
-            UtlString remoteAddress;
-            getRemoteAddress(&remoteAddress);
-            CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
-                targetCallId.data(), referTo.data(), referredBy.data(), thisCallId.data(),
-                remoteAddress.data());
+        // Send a message to the target call to create the
+        // connection and send the INVITE
+        UtlString remoteAddress;
+        getRemoteAddress(&remoteAddress);
+        CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
+            targetCallId.data(), referTo.data(), referredBy.data(), thisCallId.data(),
+            remoteAddress.data());
 #ifdef TEST_PRINT
-            osPrintf("SipConnection::processRequest posting CP_TRANSFEREE_CONNECTION\n");
+        osPrintf("SipConnection::processRequest posting CP_TRANSFEREE_CONNECTION\n");
 #endif
-            mpCallManager->postMessage(transfereeConnect);
+        mpCallManager->postMessage(transfereeConnect);
 
-            // Send an accepted response, a NOTIFY is sent later to
-            // provide the resulting outcome
-            SipMessage sipResponse;
-                        sipResponse.setResponseData(request, SIP_ACCEPTED_CODE,
-                SIP_ACCEPTED_TEXT, mLocalContact);
-                        mIsAcceptSent = sipUserAgent->send(sipResponse);
+        // Send an accepted response, a NOTIFY is sent later to
+        // provide the resulting outcome
+        SipMessage sipResponse;
+        sipResponse.setResponseData(request, SIP_ACCEPTED_CODE,
+            SIP_ACCEPTED_TEXT, mLocalContact);
+        mIsAcceptSent = send(sipResponse);
 
-            // Save a copy for the NOTIFY
-            mReferMessage = new SipMessage(*request);
+        // Save a copy for the NOTIFY
+        mReferMessage = new SipMessage(*request);
 
-        }
+    }
 
-        else if(connectionState == CONNECTION_IDLE)
-        {
-            // Set the identity of this connection
-            request->getFromUrl(mToUrl);
-            request->getToUrl(mFromUrl);
-            UtlString callId;
-            request->getCallIdField(&callId);
-            setCallId(callId);
-            UtlString fromField;
-            mToUrl.toString(fromField);
+    else if(connectionState == CONNECTION_IDLE)
+    {
+        // Set the identity of this connection
+        request->getFromUrl(mToUrl);
+        request->getToUrl(mFromUrl);
+        UtlString callId;
+        request->getCallIdField(&callId);
+        setCallId(callId);
+        UtlString fromField;
+        mToUrl.toString(fromField);
 
-            // Post a message to add a connection to this call
-            CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
-                callId.data(), referTo.data(),
-                referredBy.data(), callId.data(), fromField.data());
-            mpCallManager->postMessage(transfereeConnect);
+        // Post a message to add a connection to this call
+        CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
+            callId.data(), referTo.data(),
+            referredBy.data(), callId.data(), fromField.data());
+        mpCallManager->postMessage(transfereeConnect);
 
-            // Assume focus, probably not the right thing
-            //mpCallManager->unhold(callId.data());
+        // Assume focus, probably not the right thing
+        //mpCallManager->unhold(callId.data());
 
-            // Send back a response
-            SipMessage referResponse;
-            referResponse.setResponseData(request, SIP_ACCEPTED_CODE,
-                SIP_ACCEPTED_TEXT, mLocalContact);
-                        mIsAcceptSent = sipUserAgent->send(referResponse);
+        // Send back a response
+        SipMessage referResponse;
+        referResponse.setResponseData(request, SIP_ACCEPTED_CODE,
+            SIP_ACCEPTED_TEXT, mLocalContact);
+        mIsAcceptSent = send(referResponse);
 
-            // Save a copy for the NOTIFY
-            mReferMessage = new SipMessage(*request);
+        // Save a copy for the NOTIFY
+        mReferMessage = new SipMessage(*request);
 
-            setState(CONNECTION_UNKNOWN, CONNECTION_REMOTE);
-            /** SIPXTAPI: TBD **/
-        }
+        setState(CONNECTION_UNKNOWN, CONNECTION_REMOTE);
+        /** SIPXTAPI: TBD **/
+    }
 } // end of processReferRequest
 
 void SipConnection::processNotifyRequest(const SipMessage* request)
@@ -2841,14 +2968,14 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
 
         // If we have a body that contains the REFER status/outcome
         if(     body &&
-                        ( contentType.index(CONTENT_TYPE_SIP_APPLICATION, 0, UtlString::ignoreCase) == 0 ||
-                                contentType.index(CONTENT_TYPE_MESSAGE_SIPFRAG, 0, UtlString::ignoreCase) == 0) )
+            ( contentType.index(CONTENT_TYPE_SIP_APPLICATION, 0, UtlString::ignoreCase) == 0 ||
+            contentType.index(CONTENT_TYPE_MESSAGE_SIPFRAG, 0, UtlString::ignoreCase) == 0) )
         {
             // Send a NOTIFY response, we like the content
             // Need to send this ASAP and before the BYE
             SipMessage notifyResponse;
             notifyResponse.setOkResponseData(request, mLocalContact);
-            sipUserAgent->send(notifyResponse);
+            send(notifyResponse);
 
             const char* bytes;
             int numBytes;
@@ -2859,24 +2986,29 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             int state;
             int cause;
             int responseCode = response.getResponseStatusCode();
-                        mResponseCode = responseCode;
-                        response.getResponseStatusText(&mResponseText);
+            mResponseCode = responseCode;
+            response.getResponseStatusText(&mResponseText);
 
             if(responseCode == SIP_OK_CODE)
             {
                 state = CONNECTION_ESTABLISHED;
                 cause = CONNECTION_CAUSE_NORMAL;
+
+                fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_SUCCESS) ;
             }
             else if(responseCode == SIP_DECLINE_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_CANCELLED;
+
+                fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
             }
             else if(responseCode == SIP_BAD_METHOD_CODE ||
                 responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
+                fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
             }
             else if(responseCode == SIP_RINGING_CODE)
             {
@@ -2886,6 +3018,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 // which is actually ringing)
                 state = CONNECTION_OFFERING;
                 cause = CONNECTION_CAUSE_NORMAL;
+                fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_RINGING) ;
             }
             else if(responseCode == SIP_EARLY_MEDIA_CODE)
             {
@@ -2895,16 +3028,20 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 // which is actually ringing)
                 state = CONNECTION_ESTABLISHED;
                 cause = CONNECTION_CAUSE_UNKNOWN;
+
+                fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_RINGING) ;
             }
             else if (responseCode == SIP_SERVICE_UNAVAILABLE_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_SERVICE_UNAVAILABLE;
+                fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
             }
             else
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_BUSY;
+                fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
             }
 
             if(responseCode >= SIP_OK_CODE)
@@ -2946,7 +3083,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             // Send a NOTIFY response
             SipMessage notifyResponse;
             notifyResponse.setOkResponseData(request, mLocalContact);
-            sipUserAgent->send(notifyResponse);
+            send(notifyResponse);
         }
 
     } // End REFER NOTIFY
@@ -2956,338 +3093,363 @@ void SipConnection::processAckRequest(const SipMessage* request)
 {
     //UtlBoolean receiveCodecSet;
     //UtlBoolean sendCodecSet;
-        int requestSequenceNum = 0;
-        UtlString requestSeqMethod;
+    int requestSequenceNum = 0;
+    UtlString requestSeqMethod;
 
-        request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
+    request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
-                // If this ACK belongs to the last INVITE and
-                // we are accepting the INVITE
-                if(getState() == CONNECTION_ESTABLISHED &&
-                        (lastRemoteSequenceNumber == requestSequenceNum || mIsAcceptSent))
-                {
-         UtlString rtpAddress;
-         int receiveRtpPort;
-         int receiveRtcpPort;
-         SdpCodecFactory supportedCodecs;
-         mpMediaInterface->getCapabilities(mConnectionId,
-                                          rtpAddress,
-                                          receiveRtpPort,
-                                          receiveRtcpPort,
-                                          supportedCodecs);
+    // If this ACK belongs to the last INVITE and
+    // we are accepting the INVITE
+    if(mpMediaInterface != NULL && getState() == CONNECTION_ESTABLISHED &&
+        (lastRemoteSequenceNumber == requestSequenceNum || mIsAcceptSent))
+    {
+        UtlString rtpAddress;
+        int receiveRtpPort;
+        int receiveRtcpPort;
+        SdpCodecFactory supportedCodecs;
+        mpMediaInterface->getCapabilities(mConnectionId,
+            rtpAddress,
+            receiveRtpPort,
+            receiveRtcpPort,
+            supportedCodecs);
 
-         // If codecs set ACK in SDP
-                        // If there is an SDP body find the best
-                        //codecs, address & port
-            int numMatchingCodecs = 0;
-            SdpCodec** matchingCodecs = NULL;
-            if(getInitialSdpCodecs(request,
-                supportedCodecs,
-                numMatchingCodecs, matchingCodecs,
-                remoteRtpAddress, remoteRtpPort) &&
-                numMatchingCodecs > 0)
+        // If codecs set ACK in SDP
+        // If there is an SDP body find the best
+        //codecs, address & port
+        int numMatchingCodecs = 0;
+        SdpCodec** matchingCodecs = NULL;
+        if(getInitialSdpCodecs(request,
+            supportedCodecs,
+            numMatchingCodecs, matchingCodecs,
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort) &&
+            numMatchingCodecs > 0)
+        {
+            // Set up the remote RTP sockets
+            mpMediaInterface->setConnectionDestination(mConnectionId,
+                remoteRtpAddress.data(),
+                remoteRtpPort,
+                remoteRtcpPort);
+
+#ifdef TEST_PRINT
+            osPrintf("RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
+#endif
+
+            mpMediaInterface->startRtpSend(mConnectionId,
+                numMatchingCodecs, matchingCodecs);
+
+#ifndef SIPXTAPI_EXCLUDE
+            // If sipX TAPI, fire audio start event 
+            UtlString codecName;
+            SIPX_AUDIO_CODEC tapiCodec;
+            if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
+                                                  codecName, 
+                                                  &tapiCodec.iPayloadType) == OS_SUCCESS)
             {
-                              // Set up the remote RTP sockets
-               mpMediaInterface->setConnectionDestination(mConnectionId,
-                  remoteRtpAddress.data(),
-                  remoteRtpPort);
-
-#ifdef TEST_PRINT
-               osPrintf("RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
-#endif
-
-               mpMediaInterface->startRtpSend(mConnectionId,
-                     numMatchingCodecs, matchingCodecs);
+                strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
             }
+#endif /* SIPXTAPI_EXCLUDE */
+        }
 #ifdef TEST_PRINT
-            osPrintf("ACK reinviteState: %d\n", reinviteState);
+        osPrintf("ACK reinviteState: %d\n", reinviteState);
 #endif
 
-            // Free up the codec copies and array
-            for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+        // Free up the codec copies and array
+        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+        {
+            delete matchingCodecs[codecIndex];
+            matchingCodecs[codecIndex] = NULL;
+        }
+        if(matchingCodecs) delete[] matchingCodecs;
+        matchingCodecs = NULL;
+
+        if(reinviteState == ACCEPT_INVITE)
+        {
+            inviteFromThisSide = FALSE;
+            setCallerId();
+            setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE);
+            if (mTerminalConnState == PtTerminalConnection::HELD)
             {
-                delete matchingCodecs[codecIndex];
-                matchingCodecs[codecIndex] = NULL;
+                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD);
             }
-            if(matchingCodecs) delete[] matchingCodecs;
-            matchingCodecs = NULL;
-
-                        if(reinviteState == ACCEPT_INVITE)
-                        {
-                inviteFromThisSide = FALSE;
-                setCallerId();
-                                setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE);
-                fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
-
-                // If the other side did not send an Allowed field in
-                // the INVITE, send an OPTIONS method to see if the
-                // otherside supports methods such as REFER
-                                if(mAllowedRemote.isNull())
-                                {
-                                        lastLocalSequenceNumber++;
-                                        SipMessage optionsRequest;
-                                        optionsRequest.setOptionsData(inviteMsg, mRemoteContact, inviteFromThisSide,
-                                                lastLocalSequenceNumber, mRouteField.data(), mLocalContact);
-                                        sipUserAgent->send(optionsRequest);
-                                }
-                        }
-                        // Reset to allow sub sequent re-INVITE
-                        else if(reinviteState == REINVITED)
-                        {
-#ifdef TEST_PRINT
-                osPrintf("ReINVITE ACK - ReINVITE allowed again\n");
-#endif
-                                reinviteState = ACCEPT_INVITE;
-                        }
-
-            // If we are in the middle of a transfer meta event
-            // on the target phone and target call it ends here
-            if(mpCall->getCallType() ==
-              CpCall::CP_TRANSFER_TARGET_TARGET_CALL)
+            else
             {
-                mpCall->setCallType(CpCall::CP_NORMAL_CALL);
+                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE);
             }
-                }
+            
 
-                // Else error response to the ACK
-                //getState() != CONNECTION_ESTABLISHED
-                // requestSequenceNum != requestSequenceNum
-                else
-                {
+            // If the other side did not send an Allowed field in
+            // the INVITE, send an OPTIONS method to see if the
+            // otherside supports methods such as REFER
+            if(mAllowedRemote.isNull())
+            {
+                lastLocalSequenceNumber++;
+                SipMessage optionsRequest;
+                optionsRequest.setOptionsData(inviteMsg, mRemoteContact, inviteFromThisSide,
+                    lastLocalSequenceNumber, mRouteField.data(), mLocalContact);
+                send(optionsRequest);
+            }
+        }
+        // Reset to allow sub sequent re-INVITE
+        else if(reinviteState == REINVITED)
+        {
 #ifdef TEST_PRINT
-                         osPrintf("Ignoring ACK connectionState: %d request CSeq: %d invite CSeq: %d\n",
-                                getState(), requestSequenceNum, requestSequenceNum);
+            osPrintf("ReINVITE ACK - ReINVITE allowed again\n");
+#endif
+            reinviteState = ACCEPT_INVITE;
+        }
+
+        // If we are in the middle of a transfer meta event
+        // on the target phone and target call it ends here
+        if(mpCall->getCallType() ==
+            CpCall::CP_TRANSFER_TARGET_TARGET_CALL)
+        {
+            mpCall->setCallType(CpCall::CP_NORMAL_CALL);
+        }
+    }
+
+    // Else error response to the ACK
+    //getState() != CONNECTION_ESTABLISHED
+    // requestSequenceNum != requestSequenceNum
+    else
+    {
+#ifdef TEST_PRINT
+        osPrintf("Ignoring ACK connectionState: %d request CSeq: %d invite CSeq: %d\n",
+            getState(), requestSequenceNum, requestSequenceNum);
 #endif
 
-             // If there is no invite message then shut down this connection
-             if(!inviteMsg)
-             {
-                 setState(CONNECTION_FAILED, CONNECTION_LOCAL);
-                 fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
-             }
+        // If there is no invite message then shut down this connection
+        if(!inviteMsg)
+        {
+            setState(CONNECTION_FAILED, CONNECTION_LOCAL);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
+        }
 
 
-                         // ACKs do not get a response
-                }
+        // ACKs do not get a response
+    }
 
 } // End of processAckRequest
 
 void SipConnection::processByeRequest(const SipMessage* request)
 {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "Entering SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
+    OsSysLog::add(FAC_SIP, PRI_WARNING,
+        "Entering SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
 #endif
-        int requestSequenceNum = 0;
-        UtlString requestSeqMethod;
+    int requestSequenceNum = 0;
+    UtlString requestSeqMethod;
 
-        request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
+    request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
-                if(inviteMsg && lastRemoteSequenceNumber < requestSequenceNum)
-                {
-                        lastRemoteSequenceNumber = requestSequenceNum;
+    if(inviteMsg && lastRemoteSequenceNumber < requestSequenceNum)
+    {
+        lastRemoteSequenceNumber = requestSequenceNum;
 
-            // Stop the media usage ASAP
+        // Stop the media usage ASAP
+        if (mpMediaInterface != NULL)
+        {
             mpMediaInterface->stopRtpSend(mConnectionId);
-            // Let the receive go for now to drain the socket
-            // in case the other side is still sending RTP
-            //mpMediaInterface->stopRtpReceive(mConnectionId);
+            fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+        }
 
-                        // Build an OK response
-                        SipMessage sipResponse;
-                        sipResponse.setOkResponseData(request, mLocalContact);
-                        sipUserAgent->send(sipResponse);
+        // Build an OK response
+        SipMessage sipResponse;
+        sipResponse.setOkResponseData(request, mLocalContact);
+        send(sipResponse);
 
 #ifdef SINGLE_CALL_TRANSFER
-            // Check for blind transfer
+        // Check for blind transfer
+        int alsoIndex = 0;
+        UtlString alsoUri;
+        UtlString transferController;
+        request->getFromField(&transferController);
+        while(request->getAlsoUri(alsoIndex, &alsoUri))
+        {
+            ((CpPeerCall*)mpCall)->addParty(alsoUri.data(),
+                transferController.data(), NULL);
+            alsoIndex++;
+        }
+
+#else
+        UtlString thereAreAnyAlsoUri;
+        if(request->getAlsoUri(0, &thereAreAnyAlsoUri))
+        {
+
+            // Two call model BYE Also transfer
+
+            // Create a second call if it does not exist already
+            // Set the target call id in this call
+            // Set this call's type to transferee original call
+            UtlString targetCallId;
+
+            // I am not sure we want the focus change to
+            // be automatic.  It is here for now to make it work
+            CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
+            mpCallManager->postMessage(yieldFocus);
+
+            // The new call by default assumes focus
+            mpCallManager->createCall(&targetCallId);
+            mpCall->setTargetCallId(targetCallId.data());
+            mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
+
             int alsoIndex = 0;
             UtlString alsoUri;
             UtlString transferController;
             request->getFromField(&transferController);
+            UtlString remoteAddress;
+            getRemoteAddress(&remoteAddress);
+            UtlString thisCallId;
+            getCallId(&thisCallId);
+            UtlString referredBy;
+            request->getFromField(&referredBy);
             while(request->getAlsoUri(alsoIndex, &alsoUri))
             {
-                ((CpPeerCall*)mpCall)->addParty(alsoUri.data(),
-                    transferController.data(), NULL);
+                //((CpPeerCall*)mpCall)->addParty(alsoUri.data(),
+                //    transferController.data(), NULL);
                 alsoIndex++;
+
+#   ifdef TEST_PRINT
+                osPrintf("SipConnection::processRequest BYE Also URI: %s callid: %s\n",
+                    alsoUri.data(), targetCallId.data());
+#   endif
+                // Send a message to the target call to create the
+                // connection and send the INVITE
+                CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
+                    targetCallId.data(), alsoUri.data(), referredBy.data(), thisCallId.data(),
+                    remoteAddress.data(), TRUE /* Use BYE Also style INVITE*/ );
+
+#   ifdef TEST_PRINT
+                osPrintf("SipConnection::processRequest posting CP_TRANSFEREE_CONNECTION\n");
+#   endif
+                mpCallManager->postMessage(transfereeConnect);
             }
 
-#else
-                        UtlString thereAreAnyAlsoUri;
-            if(request->getAlsoUri(0, &thereAreAnyAlsoUri))
-            {
-
-                                // Two call model BYE Also transfer
-
-                                // Create a second call if it does not exist already
-                                // Set the target call id in this call
-                                // Set this call's type to transferee original call
-                                UtlString targetCallId;
-
-                                // I am not sure we want the focus change to
-                                // be automatic.  It is here for now to make it work
-                                CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
-                                mpCallManager->postMessage(yieldFocus);
-
-                                // The new call by default assumes focus
-                                mpCallManager->createCall(&targetCallId);
-                                mpCall->setTargetCallId(targetCallId.data());
-                                mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
-
-                                int alsoIndex = 0;
-                                UtlString alsoUri;
-                                UtlString transferController;
-                                request->getFromField(&transferController);
-                                UtlString remoteAddress;
-                                getRemoteAddress(&remoteAddress);
-                                UtlString thisCallId;
-                                getCallId(&thisCallId);
-                                UtlString referredBy;
-                                request->getFromField(&referredBy);
-                                while(request->getAlsoUri(alsoIndex, &alsoUri))
-                                {
-                                        //((CpPeerCall*)mpCall)->addParty(alsoUri.data(),
-                                        //    transferController.data(), NULL);
-                                        alsoIndex++;
-
-#   ifdef TEST_PRINT
-                                        osPrintf("SipConnection::processRequest BYE Also URI: %s callid: %s\n",
-                                                alsoUri.data(), targetCallId.data());
-#   endif
-                                        // Send a message to the target call to create the
-                                        // connection and send the INVITE
-                                        CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
-                                                targetCallId.data(), alsoUri.data(), referredBy.data(), thisCallId.data(),
-                                                remoteAddress.data(), TRUE /* Use BYE Also style INVITE*/ );
-
-#   ifdef TEST_PRINT
-                                        osPrintf("SipConnection::processRequest posting CP_TRANSFEREE_CONNECTION\n");
-#   endif
-                                        mpCallManager->postMessage(transfereeConnect);
-                                }
-
-                                // Send a trying response as it is likely to take a while
-                                //SipMessage sipTryingResponse;
-                                //sipTryingResponse.setTryingResponseData(request);
-                                //sipUserAgent->send(sipTryingResponse);
-                }
+            // Send a trying response as it is likely to take a while
+            //SipMessage sipTryingResponse;
+            //sipTryingResponse.setTryingResponseData(request);
+            //send(sipTryingResponse);
+        }
 #endif
 
-                        setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
-            fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
-      }
+        setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
+    }
 
-                // BYE is not legal in the current state
-                else
-                {
-                        // Build an error response
-                        SipMessage sipResponse;
-                        sipResponse.setByeErrorData(request);
-                        sipUserAgent->send(sipResponse);
+    // BYE is not legal in the current state
+    else
+    {
+        // Build an error response
+        SipMessage sipResponse;
+        sipResponse.setByeErrorData(request);
+        send(sipResponse);
 
-                        // Do not change the state
+        // Do not change the state
 
-            // I do not recall the context of the above comment
-            // May want to change to failed state in all cases
-            if(getState() == CONNECTION_IDLE)
-            {
-                setState(CONNECTION_FAILED, CONNECTION_LOCAL);
-                fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
-            }
-            else if(!inviteMsg)
-            {
-               // If an invite was not sent or received something
-               // is wrong.  This bye is invalid.
-               setState(CONNECTION_FAILED, CONNECTION_LOCAL);
-               fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
-             }
-                }
+        // I do not recall the context of the above comment
+        // May want to change to failed state in all cases
+        if(getState() == CONNECTION_IDLE)
+        {
+            setState(CONNECTION_FAILED, CONNECTION_LOCAL);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
+        }
+        else if(!inviteMsg)
+        {
+            // If an invite was not sent or received something
+            // is wrong.  This bye is invalid.
+            setState(CONNECTION_FAILED, CONNECTION_LOCAL);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
+        }
+    }
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "Leaving SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
+    OsSysLog::add(FAC_SIP, PRI_WARNING,
+        "Leaving SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
 #endif
 } // End of processByeRequest
 
 void SipConnection::processCancelRequest(const SipMessage* request)
 {
-        int requestSequenceNum = 0;
-        UtlString requestSeqMethod;
+    int requestSequenceNum = 0;
+    UtlString requestSeqMethod;
 
-        request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
+    request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
-                int calleeState = getState();
+    int calleeState = getState();
 
-                // If it is acceptable to CANCLE the call
-                if(lastRemoteSequenceNumber == requestSequenceNum &&
-                        calleeState != CONNECTION_IDLE &&
-                        calleeState != CONNECTION_DISCONNECTED &&
-                        calleeState !=  CONNECTION_FAILED &&
-                        calleeState != CONNECTION_ESTABLISHED)
-                {
+    // If it is acceptable to CANCLE the call
+    if(lastRemoteSequenceNumber == requestSequenceNum &&
+        calleeState != CONNECTION_IDLE &&
+        calleeState != CONNECTION_DISCONNECTED &&
+        calleeState !=  CONNECTION_FAILED &&
+        calleeState != CONNECTION_ESTABLISHED)
+    {
 
 
-                        // Build a 487 response
-                        if (!inviteFromThisSide)
-                        {
-                SipMessage sipResponse;
-                                sipResponse.setRequestTerminatedResponseData(inviteMsg);
-                                sipUserAgent->send(sipResponse);
-                        }
+        // Build a 487 response
+        if (!inviteFromThisSide)
+        {
+            SipMessage sipResponse;
+            sipResponse.setRequestTerminatedResponseData(inviteMsg);
+            send(sipResponse);
+        }
 
-                        setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
-            fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
+        setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
 
-                        // Build an OK response
-            SipMessage cancelResponse;
-                        cancelResponse.setOkResponseData(request, mLocalContact);
-                        sipUserAgent->send(cancelResponse);
-                }
+        // Build an OK response
+        SipMessage cancelResponse;
+        cancelResponse.setOkResponseData(request, mLocalContact);
+        send(cancelResponse);
+    }
 
-                // CANCEL is not legal in the current state
-                else
-                {
-                        // Build an error response
-                        SipMessage sipResponse;
-                        sipResponse.setBadTransactionData(request);
-                        sipUserAgent->send(sipResponse);
+    // CANCEL is not legal in the current state
+    else
+    {
+        // Build an error response
+        SipMessage sipResponse;
+        sipResponse.setBadTransactionData(request);
+        send(sipResponse);
 
-                        // Do not change the state
+        // Do not change the state
 
-         // Do not know where the above comment came from
-         // If there was no invite sent or received this is a bad call
-         if(!inviteMsg)
-         {
-             setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_CANCELLED);
-             fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
-         }
-                }
+        // Do not know where the above comment came from
+        // If there was no invite sent or received this is a bad call
+        if(!inviteMsg)
+        {
+            setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_CANCELLED);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
+        }
+    }
 } // End of processCancelRequest
 
 UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
-                                        SdpCodecFactory& supportedCodecsArray,
-                                        int& numCodecsInCommon,
-                                        SdpCodec** &codecsInCommon,
-                                        UtlString& remoteAddress,
-                                        int& remotePort) const
+                                              SdpCodecFactory& supportedCodecsArray,
+                                              int& numCodecsInCommon,
+                                              SdpCodec** &codecsInCommon,
+                                              UtlString& remoteAddress,
+                                              int& remotePort,
+                                              int& remoteRtcpPort) const
 {
     // Get the RTP info from the message if present
-        // Should check the content type first
-        const SdpBody* sdpBody = sdpMessage->getSdpBody();
-        if(sdpBody)
-        {
+    // Should check the content type first
+    const SdpBody* sdpBody = sdpMessage->getSdpBody();
+    if(sdpBody)
+    {
 #ifdef TEST_PRINT
-                osPrintf("SDP body in INVITE, finding best codec\n");
+        osPrintf("SDP body in INVITE, finding best codec\n");
 #endif
-                sdpBody->getBestAudioCodecs(supportedCodecsArray,
-                                    numCodecsInCommon,
-                                    codecsInCommon,
-                                    remoteAddress,
-                                    remotePort);
-        }
+        sdpBody->getBestAudioCodecs(supportedCodecsArray,
+            numCodecsInCommon,
+            codecsInCommon,
+            remoteAddress,
+            remotePort, 
+            remoteRtcpPort);
+    }
 #ifdef TEST_PRINT
-        else
-        {
-                osPrintf("No SDP in message\n");
-        }
+    else
+    {
+        osPrintf("No SDP in message\n");
+    }
 #endif
 
     return(sdpBody != NULL);
@@ -3297,473 +3459,488 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                                           UtlBoolean callInFocus,
                                           UtlBoolean onHook)
 {
-   int sequenceNum;
-   UtlString sequenceMethod;
-   UtlBoolean processedOk = TRUE;
-   UtlString responseText;
-   UtlString contactUri;
-   int previousState = getState();
-   int responseCode = response->getResponseStatusCode();
-   mResponseCode = responseCode;
+    int sequenceNum;
+    UtlString sequenceMethod;
+    UtlBoolean processedOk = TRUE;
+    UtlString responseText;
+    UtlString contactUri;
+    int previousState = getState();
+    int responseCode = response->getResponseStatusCode();
+    mResponseCode = responseCode;
 
-   response->getResponseStatusText(&responseText);
-   mResponseText = responseText;
-   response->getCSeqField(&sequenceNum, &sequenceMethod);
+    response->getResponseStatusText(&responseText);
+    mResponseText = responseText;
+    response->getCSeqField(&sequenceNum, &sequenceMethod);
 
-   if(!inviteMsg)
-   {
-      // An invite was not sent or received.  This call is invalid.
-      setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-      fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
-   }
+    if(!inviteMsg)
+    {
+        // An invite was not sent or received.  This call is invalid.
+        setState(CONNECTION_FAILED, CONNECTION_REMOTE);
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
+    }
 
-   else if(strcmp(sequenceMethod.data(), SIP_INVITE_METHOD) == 0)
-   {
-      processInviteResponse(response);
-      if (mTerminalConnState == PtTerminalConnection::HELD)
-      {
-         UtlString remoteAddress;
-         getRemoteAddress(&remoteAddress);
-         postTaoListenerMessage(PtEvent::TERMINAL_CONNECTION_HELD, PtEvent::CAUSE_NEW_CALL);
-         /** SIPXTAPI TBD **/
-         // fireSipXEvent(CONNECTED, CONNECTED_INACTIVE_HELD) ;
-      }
+    else if(strcmp(sequenceMethod.data(), SIP_INVITE_METHOD) == 0)
+    {
+        processInviteResponse(response);
+        if (mTerminalConnState == PtTerminalConnection::HELD)
+        {
+            UtlString remoteAddress;
+            getRemoteAddress(&remoteAddress);
+            postTaoListenerMessage(PtEvent::TERMINAL_CONNECTION_HELD, PtEvent::CAUSE_NEW_CALL);
+            /** SIPXTAPI TBD **/
+            // fireSipXEvent(CONNECTED, CONNECTED_INACTIVE_HELD) ;
+        }
 
-   } // End INVITE responses
+    } // End INVITE responses
 
-   // REFER responses:
-   else if(strcmp(sequenceMethod.data(), SIP_REFER_METHOD) == 0)
-   {
-      processReferResponse(response);
-   }
+    // REFER responses:
+    else if(strcmp(sequenceMethod.data(), SIP_REFER_METHOD) == 0)
+    {
+        processReferResponse(response);
+    }
 
 #ifdef TEST_PRINT
-   // ACK response ???
-   else if(strcmp(sequenceMethod.data(), SIP_ACK_METHOD) == 0)
-   {
-      osPrintf("ACK response ignored: %d %s\n", responseCode,
-               responseText.data());
-   }
+    // ACK response ???
+    else if(strcmp(sequenceMethod.data(), SIP_ACK_METHOD) == 0)
+    {
+        osPrintf("ACK response ignored: %d %s\n", responseCode,
+            responseText.data());
+    }
 #endif
 
-   // Options response
-   else if(strcmp(sequenceMethod.data(), SIP_OPTIONS_METHOD) == 0)
-   {
-      processOptionsResponse(response);
-   }
+    // Options response
+    else if(strcmp(sequenceMethod.data(), SIP_OPTIONS_METHOD) == 0)
+    {
+        processOptionsResponse(response);
+    }
 
-   // NOTIFY response
-   else if(strcmp(sequenceMethod.data(), SIP_NOTIFY_METHOD) == 0)
-   {
-      processNotifyResponse(response);
-   }
+    // NOTIFY response
+    else if(strcmp(sequenceMethod.data(), SIP_NOTIFY_METHOD) == 0)
+    {
+        processNotifyResponse(response);
+    }
 
-   // else
-   // BYE, CANCEL responses
-   else if(strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0 ||
-           strcmp(sequenceMethod.data(), SIP_CANCEL_METHOD) == 0)
-   {
-      // We check the sequence number and method name of the
-      // last sent request to make sure this is a response to
-      // something that we actually sent
-      if(lastLocalSequenceNumber == sequenceNum &&
-         sequenceMethod.compareTo(mLastRequestMethod) == 0)
-      {
+    // else
+    // BYE, CANCEL responses
+    else if(strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0 ||
+        strcmp(sequenceMethod.data(), SIP_CANCEL_METHOD) == 0)
+    {
+        // We check the sequence number and method name of the
+        // last sent request to make sure this is a response to
+        // something that we actually sent
+        if(lastLocalSequenceNumber == sequenceNum &&
+            sequenceMethod.compareTo(mLastRequestMethod) == 0)
+        {
 #ifdef TEST_PRINT
-         osPrintf("%s response: %d %s\n", sequenceMethod.data(),
-                  responseCode, responseText.data());
+            osPrintf("%s response: %d %s\n", sequenceMethod.data(),
+                responseCode, responseText.data());
 #endif
-         if(responseCode >= SIP_OK_CODE)
-         {
-            mpMediaInterface->stopRtpSend(mConnectionId);
-            // G729 is too expensive to leave going, stop receive
-            // now as well.
-            // We used to leave the receive going, to get cleaned up in
-            // the delete of the connection so that the socket gets
-            // drained.
-            mpMediaInterface->stopRtpReceive(mConnectionId);
-            //osPrintf("RTP receive not STOPPED\n");
-         }
-
-         // If this is the response to a BYE Also transfer
-         if(getState() == CONNECTION_ESTABLISHED &&
-            responseCode >= SIP_OK_CODE &&
-            strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0 &&
-            !mTargetCallConnectionAddress.isNull() &&
-            !isMethodAllowed(SIP_REFER_METHOD))
-         {
-            // We need to send notification to the target call
-            // as to whether the transfer failed or succeeded
-            int state;
-            int cause;
-            if(responseCode == SIP_OK_CODE)
+            if(responseCode >= SIP_OK_CODE)
             {
-               state = CONNECTION_ESTABLISHED;
-               //cause = CONNECTION_CAUSE_NORMAL;
-               //setState(CONNECTION_DISCONNECTED, CONNECTION_CAUSE_TRANSFER);
-               cause = CONNECTION_CAUSE_TRANSFER;
+                if (mpMediaInterface != NULL)
+                {
+                    mpMediaInterface->stopRtpSend(mConnectionId);
+                    mpMediaInterface->stopRtpReceive(mConnectionId);
+                    fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+                }                
             }
-            else if(responseCode == SIP_BAD_EXTENSION_CODE ||
+
+            // If this is the response to a BYE Also transfer
+            if(getState() == CONNECTION_ESTABLISHED &&
+                responseCode >= SIP_OK_CODE &&
+                strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0 &&
+                !mTargetCallConnectionAddress.isNull() &&
+                !isMethodAllowed(SIP_REFER_METHOD))
+            {
+                // We need to send notification to the target call
+                // as to whether the transfer failed or succeeded
+                int state;
+                int cause;
+                if(responseCode == SIP_OK_CODE)
+                {
+                    state = CONNECTION_ESTABLISHED;
+                    //cause = CONNECTION_CAUSE_NORMAL;
+                    //setState(CONNECTION_DISCONNECTED, CONNECTION_CAUSE_TRANSFER);
+                    cause = CONNECTION_CAUSE_TRANSFER;
+                }
+                else if(responseCode == SIP_BAD_EXTENSION_CODE ||
                     responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
-            {
-               state = CONNECTION_FAILED;
-               cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
+                {
+                    state = CONNECTION_FAILED;
+                    cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
+                }
+                else if(responseCode == SIP_DECLINE_CODE)
+                {
+                    state = CONNECTION_FAILED;
+                    cause = CONNECTION_CAUSE_CANCELLED;
+                }
+                else
+                {
+                    state = CONNECTION_FAILED;
+                    cause = CONNECTION_CAUSE_BUSY;
+                }
+
+                setState(state, CONNECTION_REMOTE, cause);
+                /** SIPXTAPI: TBD **/
+
+                // Send the message to the target call
+                UtlString targetCallId;
+                UtlString toField;
+                mToUrl.toString(toField);
+                mpCall->getTargetCallId(targetCallId);
+                CpMultiStringMessage transferControllerStatus(CallManager::CP_TRANSFER_CONNECTION_STATUS,
+                    targetCallId.data(), toField.data(),
+                    NULL, NULL, NULL,
+                    state, cause);
+#ifdef TEST_PRINT
+                osPrintf("SipConnection::processResponse BYE posting CP_TRANSFER_CONNECTION_STATUS to call: %s\n",
+                    targetCallId.data());
+#endif
+                mpCallManager->postMessage(transferControllerStatus);
+
+                // Reset mTargetCallConnectionAddress so that if this connection
+                // is not disconnected due to transfer failure, it can
+                // try another transfer or just disconnect.
+                mTargetCallConnectionAddress = "";
+
             }
-            else if(responseCode == SIP_DECLINE_CODE)
+
+            //for BYE
+            else if(responseCode >= SIP_OK_CODE &&
+                lastLocalSequenceNumber == sequenceNum &&
+                (strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0))
             {
-               state = CONNECTION_FAILED;
-               cause = CONNECTION_CAUSE_CANCELLED;
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::processResponse: Response %d "
+                    "received for BYE", responseCode);
+                setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
+
+                // If we are in the middle of a transfer meta event
+                // on the target phone and target call it ends here
+                int metaEventId = 0;
+                int metaEventType = PtEvent::META_EVENT_NONE;
+                int numCalls = 0;
+                const UtlString* metaEventCallIds = NULL;
+                if(mpCall)
+                {
+                    mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
+                        &metaEventCallIds);
+                    if(metaEventId > 0 && metaEventType == PtEvent::META_CALL_TRANSFERRING)
+                        mpCall->stopMetaEvent();
+                }
             }
+            else if(responseCode >= SIP_OK_CODE &&
+                lastLocalSequenceNumber == sequenceNum &&
+                (strcmp(sequenceMethod.data(), SIP_CANCEL_METHOD) == 0) &&
+                previousState != CONNECTION_ESTABLISHED &&
+                previousState != CONNECTION_FAILED &&
+                previousState != CONNECTION_DISCONNECTED &&
+                previousState != CONNECTION_UNKNOWN &&
+                previousState != CONNECTION_FAILED)
+            {
+                //start 32 second timer according to the bis03 draft
+                UtlString callId;
+                mpCall->getCallId(callId);
+                UtlString remoteAddr;
+                getRemoteAddress(&remoteAddr);
+                CpMultiStringMessage* CancelTimerMessage =
+                    new CpMultiStringMessage(CpCallManager::CP_CANCEL_TIMER, callId.data(), remoteAddr.data());
+                OsTimer* timer = new OsTimer(mpCallManager->getMessageQueue(), (int)CancelTimerMessage);
+                OsTime timerTime(32,0);
+                timer->oneshotAfter(timerTime);
+            }
+
+            else if(sequenceMethod.compareTo(SIP_BYE_METHOD) == 0)
+            {
+                processByeResponse(response);
+            }
+            else if(sequenceMethod.compareTo(SIP_CANCEL_METHOD) == 0)
+            {
+                processCancelResponse(response);
+            }
+            // else Ignore provisional responses
             else
             {
-               state = CONNECTION_FAILED;
-               cause = CONNECTION_CAUSE_BUSY;
+#ifdef TEST_PRINT
+                osPrintf("%s provisional response ignored: %d %s\n",
+                    sequenceMethod.data(),
+                    responseCode,
+                    responseText.data());
+#endif
             }
-
-            setState(state, CONNECTION_REMOTE, cause);
-            /** SIPXTAPI: TBD **/
-
-            // Send the message to the target call
-            UtlString targetCallId;
-            UtlString toField;
-            mToUrl.toString(toField);
-            mpCall->getTargetCallId(targetCallId);
-            CpMultiStringMessage transferControllerStatus(CallManager::CP_TRANSFER_CONNECTION_STATUS,
-                                                          targetCallId.data(), toField.data(),
-                                                          NULL, NULL, NULL,
-                                                          state, cause);
+        }
+        else
+        {
 #ifdef TEST_PRINT
-            osPrintf("SipConnection::processResponse BYE posting CP_TRANSFER_CONNECTION_STATUS to call: %s\n",
-                     targetCallId.data());
+            osPrintf("%s response ignored: %d %s invalid cseq last: %d last method: %s\n",
+                sequenceMethod.data(),
+                responseCode,
+                responseText.data(),
+                lastLocalSequenceNumber,
+                mLastRequestMethod.data());
 #endif
-            mpCallManager->postMessage(transferControllerStatus);
+        }
+    }//END - else if(strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0 || strcmp(sequenceMethod.data(), SIP_CANCEL_METHOD) == 0)
 
-            // Reset mTargetCallConnectionAddress so that if this connection
-            // is not disconnected due to transfer failure, it can
-            // try another transfer or just disconnect.
-            mTargetCallConnectionAddress = "";
-
-         }
-
-         //for BYE
-         else if(responseCode >= SIP_OK_CODE &&
-                 lastLocalSequenceNumber == sequenceNum &&
-                 (strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0))
-         {
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
-                          "SipConnection::processResponse: Response %d "
-                          "received for BYE", responseCode);
-            setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
-            fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
-
-            // If we are in the middle of a transfer meta event
-            // on the target phone and target call it ends here
-            int metaEventId = 0;
-            int metaEventType = PtEvent::META_EVENT_NONE;
-            int numCalls = 0;
-            const UtlString* metaEventCallIds = NULL;
-            if(mpCall)
-            {
-               mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
-                                    &metaEventCallIds);
-               if(metaEventId > 0 && metaEventType == PtEvent::META_CALL_TRANSFERRING)
-                  mpCall->stopMetaEvent();
-            }
-         }
-         else if(responseCode >= SIP_OK_CODE &&
-                 lastLocalSequenceNumber == sequenceNum &&
-                 (strcmp(sequenceMethod.data(), SIP_CANCEL_METHOD) == 0) &&
-                 previousState != CONNECTION_ESTABLISHED &&
-                 previousState != CONNECTION_FAILED &&
-                 previousState != CONNECTION_DISCONNECTED &&
-                 previousState != CONNECTION_UNKNOWN &&
-                 previousState != CONNECTION_FAILED)
-         {
-            //start 32 second timer according to the bis03 draft
-            UtlString callId;
-            mpCall->getCallId(callId);
-            UtlString remoteAddr;
-            getRemoteAddress(&remoteAddr);
-            CpMultiStringMessage* CancelTimerMessage =
-               new CpMultiStringMessage(CpCallManager::CP_CANCEL_TIMER, callId.data(), remoteAddr.data());
-            OsQueuedEvent* queuedEvent = new OsQueuedEvent(*(mpCallManager->getMessageQueue()), (int)CancelTimerMessage);
-            OsTimer* timer = new OsTimer(*queuedEvent);
-            OsTime timerTime(32,0);
-            timer->oneshotAfter(timerTime);
-
-         }
-
-         else if(sequenceMethod.compareTo(SIP_BYE_METHOD) == 0)
-         {
-            processByeResponse(response);
-         }
-         else if(sequenceMethod.compareTo(SIP_CANCEL_METHOD) == 0)
-         {
-            processCancelResponse(response);
-         }
-         // else Ignore provisional responses
-         else
-         {
+    // Unknown method response
+    else
+    {
 #ifdef TEST_PRINT
-            osPrintf("%s provisional response ignored: %d %s\n",
-                     sequenceMethod.data(),
-                     responseCode,
-                     responseText.data());
+        osPrintf("%s response ignored: %d %s\n",
+            sequenceMethod.data(),
+            responseCode,
+            responseText.data());
 #endif
-         }
-      }
-      else
-      {
-#ifdef TEST_PRINT
-         osPrintf("%s response ignored: %d %s invalid cseq last: %d last method: %s\n",
-                  sequenceMethod.data(),
-                  responseCode,
-                  responseText.data(),
-                  lastLocalSequenceNumber,
-                  mLastRequestMethod.data());
-#endif
-      }
-   }//END - else if(strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0 || strcmp(sequenceMethod.data(), SIP_CANCEL_METHOD) == 0)
+    }
 
-   // Unknown method response
-   else
-   {
-#ifdef TEST_PRINT
-      osPrintf("%s response ignored: %d %s\n",
-               sequenceMethod.data(),
-               responseCode,
-               responseText.data());
-#endif
-   }
-
-   return(processedOk);
+    return(processedOk);
 }  // End of processResponse
 
 void SipConnection::processInviteResponse(const SipMessage* response)
 {
-        int sequenceNum;
-        UtlString sequenceMethod;
+    int sequenceNum;
+    UtlString sequenceMethod;
     int responseCode = response->getResponseStatusCode();
     int previousState = getState();
 
-        response->getCSeqField(&sequenceNum, &sequenceMethod);
+    response->getCSeqField(&sequenceNum, &sequenceMethod);
 
-        if(lastLocalSequenceNumber == sequenceNum &&
-            inviteMsg)
+    if(lastLocalSequenceNumber == sequenceNum &&
+        inviteMsg)
+    {
+        UtlString toAddr;
+        UtlString toProto;
+        int toPort;
+        UtlString inviteTag;
+
+        // Check to see if there is a tag set in the To field that
+        // should be remembered for future messages.
+        inviteMsg->getToAddress(&toAddr, &toPort, &toProto,
+            NULL, NULL, &inviteTag);
+
+        // Do not save the tag unless it is a final response
+        // This is the stupid/simple thing to do until we need
+        // more elaborate tracking of forked/serial branches
+        if(inviteTag.isNull() && responseCode >= SIP_OK_CODE)
         {
-            UtlString toAddr;
-            UtlString toProto;
-            int toPort;
-            UtlString inviteTag;
-
-            // Check to see if there is a tag set in the To field that
-            // should be remembered for future messages.
-            inviteMsg->getToAddress(&toAddr, &toPort, &toProto,
+            response->getToAddress(&toAddr, &toPort, &toProto,
                 NULL, NULL, &inviteTag);
 
-            // Do not save the tag unless it is a final response
-            // This is the stupid/simple thing to do until we need
-            // more elaborate tracking of forked/serial branches
-            if(inviteTag.isNull() && responseCode >= SIP_OK_CODE)
-            {
-                response->getToAddress(&toAddr, &toPort, &toProto,
-                    NULL, NULL, &inviteTag);
-
 #ifdef TEST_PRINT
-                osPrintf("SipConnection::processInviteResponse no invite tag, got response tag: \"%s\"\n",
-                    inviteTag.data());
+            osPrintf("SipConnection::processInviteResponse no invite tag, got response tag: \"%s\"\n",
+                inviteTag.data());
 #endif
 
-                if(!inviteTag.isNull())
-                {
-                    inviteMsg->setToFieldTag(inviteTag.data());
+            if(!inviteTag.isNull())
+            {
+                inviteMsg->setToFieldTag(inviteTag.data());
 
-                    // Update the cased to field after saving the tag
-                    inviteMsg->getToUrl(mToUrl);
-                }
+                // Update the cased to field after saving the tag
+                inviteMsg->getToUrl(mToUrl);
             }
         }
+    }
 
 #ifdef TEST_PRINT
-       osPrintf("SipConnection::processInviteResponse responseCode %d\n\t reinviteState %d\n\t sequenceNum %d\n\t lastLocalSequenceNumber%d\n",
-           responseCode,
-           reinviteState,
-           sequenceNum,
-           lastLocalSequenceNumber);
+    osPrintf("SipConnection::processInviteResponse responseCode %d\n\t reinviteState %d\n\t sequenceNum %d\n\t lastLocalSequenceNumber%d\n",
+        responseCode,
+        reinviteState,
+        sequenceNum,
+        lastLocalSequenceNumber);
 #endif
-                if((responseCode == SIP_RINGING_CODE ||
-            responseCode == SIP_EARLY_MEDIA_CODE) &&
-                        lastLocalSequenceNumber == sequenceNum &&
-                        reinviteState == ACCEPT_INVITE)
-                {
-                        UtlBoolean isEarlyMedia = TRUE;
+    if((responseCode == SIP_RINGING_CODE ||
+        responseCode == SIP_EARLY_MEDIA_CODE) &&
+        lastLocalSequenceNumber == sequenceNum &&
+        reinviteState == ACCEPT_INVITE)
+    {
+        UtlBoolean isEarlyMedia = TRUE;
 #ifdef TEST_PRINT
-                        osPrintf("received Ringing response\n");
+        osPrintf("received Ringing response\n");
 #endif
-                        if( responseCode == SIP_RINGING_CODE && !mIsEarlyMediaFor180)
-                        {
-                                isEarlyMedia = FALSE;
-                        }
-            // If there is SDP we have early media or remote ringback
-            int cause = CONNECTION_CAUSE_NORMAL;
-                        if(response->getSdpBody() && isEarlyMedia)
+        if( responseCode == SIP_RINGING_CODE && !mIsEarlyMediaFor180)
+        {
+            isEarlyMedia = FALSE;
+        }
+        // If there is SDP we have early media or remote ringback
+        int cause = CONNECTION_CAUSE_NORMAL;
+        if(response->getSdpBody() && isEarlyMedia && mpMediaInterface != NULL)
+        {
+            cause = CONNECTION_CAUSE_UNKNOWN;
+
+            // If this is the initial INVITE
+            if(reinviteState == ACCEPT_INVITE)
             {
-                cause = CONNECTION_CAUSE_UNKNOWN;
+                // Setup the sending of audio
+                UtlString rtpAddress;
+                int receiveRtpPort;
+                int receiveRtcpPort;
+                SdpCodecFactory supportedCodecs;
+                mpMediaInterface->getCapabilities(mConnectionId,
+                    rtpAddress,
+                    receiveRtpPort,
+                    receiveRtcpPort,
+                    supportedCodecs);
+                // Setup the media channel
+                // The address should be retrieved from the sdpBody
+                int numMatchingCodecs = 0;
+                SdpCodec** matchingCodecs = NULL;
+                getInitialSdpCodecs(response, supportedCodecs,
+                    numMatchingCodecs, matchingCodecs,
+                    remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
 
-                // If this is the initial INVITE
-                if(reinviteState == ACCEPT_INVITE)
+                if(numMatchingCodecs > 0)
                 {
-                    // Setup the sending of audio
-                    UtlString rtpAddress;
-                    int receiveRtpPort;
-                    int receiveRtcpPort;
-                    SdpCodecFactory supportedCodecs;
-                    mpMediaInterface->getCapabilities(mConnectionId,
-                                                      rtpAddress,
-                                                      receiveRtpPort,
-                                                      receiveRtcpPort,
-                                                      supportedCodecs);
-                                // Setup the media channel
-                                // The address should be retrieved from the sdpBody
-                    int numMatchingCodecs = 0;
-                    SdpCodec** matchingCodecs = NULL;
-                                getInitialSdpCodecs(response, supportedCodecs,
-                        numMatchingCodecs, matchingCodecs,
-                        remoteRtpAddress, remoteRtpPort);
-
-                    if(numMatchingCodecs > 0)
+                    // Set up the remote RTP sockets if we have a legitimate
+                    // address to send RTP
+                    if(!remoteRtpAddress.isNull() &&
+                        remoteRtpAddress.compareTo("0.0.0.0") != 0)
                     {
-                        // Set up the remote RTP sockets if we have a legitimate
-                        // address to send RTP
-                        if(!remoteRtpAddress.isNull() &&
-                            remoteRtpAddress.compareTo("0.0.0.0") != 0)
-                        {
-                            mpMediaInterface->setConnectionDestination(mConnectionId,
-                            remoteRtpAddress.data(), remoteRtpPort);
-                        }
-
-                        if(!remoteRtpAddress.isNull() &&
-                            remoteRtpAddress.compareTo("0.0.0.0") != 0 &&
-                            remoteRtpPort > 0 &&
-                            mTerminalConnState != PtTerminalConnection::HELD)
-                                        {
-                                                mpMediaInterface->startRtpSend(mConnectionId,
-                                numMatchingCodecs,
-                                matchingCodecs);
-                                        }
-
-                    } // End if there are matching codecs
-
-                    // Free up the codec copies and array
-                    for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-                    {
-                        delete matchingCodecs[codecIndex];
-                        matchingCodecs[codecIndex] = NULL;
+                        mpMediaInterface->setConnectionDestination(mConnectionId,
+                            remoteRtpAddress.data(), remoteRtpPort, remoteRtcpPort);
                     }
-                    if(matchingCodecs) delete[] matchingCodecs;
-                    matchingCodecs = NULL;
 
-                } // End if this is an initial INVITE
-            } // End if this is an early media, provisional response
+                    if(!remoteRtpAddress.isNull() &&
+                        remoteRtpAddress.compareTo("0.0.0.0") != 0 &&
+                        remoteRtpPort > 0 &&
+                        mTerminalConnState != PtTerminalConnection::HELD)
+                    {
+                        mpMediaInterface->startRtpSend(mConnectionId,
+                            numMatchingCodecs,
+                            matchingCodecs);
 
-            setState(CONNECTION_ALERTING, CONNECTION_REMOTE, cause);
-            if (responseCode == SIP_EARLY_MEDIA_CODE)
-            {
-                fireSipXEvent(REMOTE_ALERTING, REMOTE_ALERTING_MEDIA) ;
-            }
-            else
-            {
-                fireSipXEvent(REMOTE_ALERTING, REMOTE_ALERTING_NORMAL) ;
-            }
-                }
-
-                // Start busy tone the other end is busy
-                else if(responseCode == SIP_BUSY_CODE &&
-                        lastLocalSequenceNumber == sequenceNum &&
-                        reinviteState == ACCEPT_INVITE)
-                {
-#ifdef TEST_PRINT
-                        osPrintf("received INVITE Busy\n");
-#endif
-                        setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-            fireSipXEvent(DISCONNECTED, DISCONNECTED_BUSY) ;
-        }
-
-        // Call queued
-                else if(responseCode == SIP_QUEUED_CODE &&
-                        lastLocalSequenceNumber == sequenceNum &&
-                        reinviteState == ACCEPT_INVITE)
-                {
-#ifdef TEST_PRINT
-                        osPrintf("received INVITE queued\n");
-#endif
-                        setState(CONNECTION_QUEUED, CONNECTION_REMOTE);
-            /** SIPXTAPI: TBD **/
-
-            // Should there be a queued tone?
-
-            // Do not send an ACK as this is informational
-        }
-
-                // Failed invite
-                else if(responseCode >= SIP_BAD_REQUEST_CODE &&
-                        lastLocalSequenceNumber == sequenceNum)
-                {
-                        if (reinviteState == ACCEPT_INVITE)
-
+#ifndef SIPXTAPI_EXCLUDE
+                        // If sipX TAPI, fire audio start event
+                        UtlString codecName;
+                        SIPX_AUDIO_CODEC tapiCodec;
+                        if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
+                                                              codecName, 
+                                                              &tapiCodec.iPayloadType) == OS_SUCCESS)
                         {
-                                UtlString responseText;
-                                response->getResponseStatusText(&responseText);
+                            strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                            fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
+                        }
+#endif /* SIPXTAPI_EXCLUDE */
+                    }
+
+                } // End if there are matching codecs
+
+                // Free up the codec copies and array
+                for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+                {
+                    delete matchingCodecs[codecIndex];
+                    matchingCodecs[codecIndex] = NULL;
+                }
+                if(matchingCodecs) delete[] matchingCodecs;
+                matchingCodecs = NULL;
+
+            } // End if this is an initial INVITE
+        } // End if this is an early media, provisional response
+
+        setState(CONNECTION_ALERTING, CONNECTION_REMOTE, cause);
+        if (responseCode == SIP_EARLY_MEDIA_CODE)
+        {
+            fireSipXEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_MEDIA) ;
+        }
+        else
+        {
+            fireSipXEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL) ;
+        }
+    }
+
+    // Start busy tone the other end is busy
+    else if(responseCode == SIP_BUSY_CODE &&
+        lastLocalSequenceNumber == sequenceNum &&
+        reinviteState == ACCEPT_INVITE)
+    {
 #ifdef TEST_PRINT
-                                osPrintf("INVITE failed with response: %d %s\n",
-                                        responseCode, responseText.data());
+        osPrintf("received INVITE Busy\n");
+#endif
+        setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
+        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BUSY) ;
+    }
+
+    // Call queued
+    else if(responseCode == SIP_QUEUED_CODE &&
+        lastLocalSequenceNumber == sequenceNum &&
+        reinviteState == ACCEPT_INVITE)
+    {
+#ifdef TEST_PRINT
+        osPrintf("received INVITE queued\n");
+#endif
+        setState(CONNECTION_QUEUED, CONNECTION_REMOTE);
+        /** SIPXTAPI: TBD **/
+
+        // Should there be a queued tone?
+
+        // Do not send an ACK as this is informational
+    }
+
+    // Failed invite
+    else if(responseCode >= SIP_BAD_REQUEST_CODE &&
+        lastLocalSequenceNumber == sequenceNum)
+    {
+        if (reinviteState == ACCEPT_INVITE)
+
+        {
+            UtlString responseText;
+            response->getResponseStatusText(&responseText);
+#ifdef TEST_PRINT
+            osPrintf("INVITE failed with response: %d %s\n",
+                responseCode, responseText.data());
 #endif
 
             int cause = CONNECTION_CAUSE_UNKNOWN;
-                                int warningCode;
+            int warningCode;
 
-                                switch(responseCode)
-                                {
-                                case HTTP_UNAUTHORIZED_CODE:
-                                        cause = CONNECTION_CAUSE_NOT_ALLOWED;
-                                        break;
+            switch(responseCode)
+            {
+            case HTTP_UNAUTHORIZED_CODE:
+                cause = CONNECTION_CAUSE_NOT_ALLOWED;
+                break;
 
-                                case HTTP_PROXY_UNAUTHORIZED_CODE:
-                                        cause = CONNECTION_CAUSE_NETWORK_NOT_ALLOWED;
-                                        break;
+            case HTTP_PROXY_UNAUTHORIZED_CODE:
+                cause = CONNECTION_CAUSE_NETWORK_NOT_ALLOWED;
+                break;
 
             case SIP_REQUEST_TIMEOUT_CODE:
-               cause = CONNECTION_CAUSE_CANCELLED;
-               break;
+                cause = CONNECTION_CAUSE_CANCELLED;
+                break;
 
-                                case SIP_BAD_REQUEST_CODE:
-                                        response->getWarningCode(&warningCode);
-                                        if(warningCode == SIP_WARN_MEDIA_NAVAIL_CODE)
-                                        {
-                                                // incompatable media
-                                                cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
-                                        }
-                                        break;
+            case SIP_BAD_REQUEST_CODE:
+                response->getWarningCode(&warningCode);
+                if(warningCode == SIP_WARN_MEDIA_NAVAIL_CODE)
+                {
+                    // incompatable media
+                    cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
+                }
+                break;
 
-                                default:
+            default:
 
-                                        if(responseCode < SIP_SERVER_INTERNAL_ERROR_CODE)
-                                                cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
-                                        else if(responseCode >= SIP_SERVER_INTERNAL_ERROR_CODE &&
-                                                responseCode < SIP_GLOBAL_BUSY_CODE)
-                                                cause = CONNECTION_CAUSE_NETWORK_NOT_OBTAINABLE;
-                                        if(responseCode >= SIP_GLOBAL_BUSY_CODE)
-                                                cause = CONNECTION_CAUSE_NETWORK_CONGESTION;
-                                        else cause = CONNECTION_CAUSE_UNKNOWN;
-                                        break;
-                                }
+                if(responseCode < SIP_SERVER_INTERNAL_ERROR_CODE)
+                    cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
+                else if(responseCode >= SIP_SERVER_INTERNAL_ERROR_CODE &&
+                    responseCode < SIP_GLOBAL_BUSY_CODE)
+                    cause = CONNECTION_CAUSE_NETWORK_NOT_OBTAINABLE;
+                if(responseCode >= SIP_GLOBAL_BUSY_CODE)
+                    cause = CONNECTION_CAUSE_NETWORK_CONGESTION;
+                else cause = CONNECTION_CAUSE_UNKNOWN;
+                break;
+            }
 
-                        // in case the response is "487 call terminated"
-                        if(responseCode == SIP_REQUEST_TERMINATED_CODE)
+            // in case the response is "487 call terminated"
+            if(responseCode == SIP_REQUEST_TERMINATED_CODE)
             {
-               cause = CONNECTION_CAUSE_CANCELLED;
-               setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
-               fireSipXEvent(DISCONNECTED, DISCONNECTED_BUSY) ;
+                cause = CONNECTION_CAUSE_CANCELLED;
+                setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BUSY) ;
+            }
+            else if (responseCode == SIP_NOT_FOUND_CODE)
+            {
+                cause = CONNECTION_CAUSE_DEST_NOT_OBTAINABLE;
+                setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BADADDRESS) ;
             }
             else
             {
@@ -3771,611 +3948,700 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 /** SIPXTAPI: TBD **/
             }
 
-                                mbCancelling = FALSE;   // if was cancelling, now cancelled.
+            mbCancelling = FALSE;   // if was cancelling, now cancelled.
 
-                        }
+        }
 
-                        else if (reinviteState == REINVITING)
-                        {
-                                // ACK gets sent by the SipUserAgent for error responses
-                                //SipMessage sipRequest;
-                                //sipRequest.setAckData(response,inviteMsg);
-                                //sipUserAgent->send(sipRequest);
+        else if (reinviteState == REINVITING &&
+                 responseCode != SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE)
+        {
+            // ACK gets sent by the SipUserAgent for error responses
+            //SipMessage sipRequest;
+            //sipRequest.setAckData(response,inviteMsg);
+            //send(sipRequest);
 
-                                reinviteState = ACCEPT_INVITE;
-                                //processedOk = false;
+            reinviteState = ACCEPT_INVITE;
+            //processedOk = false;
 
-                // Temp Fix: If we failed to renegotiate a invite, failed the
-                // connection so that the upper layers can react.  We *SHOULD*
-                // fire off a new event to application layer indicating that the
-                // reinvite failed -- or make hold/unhold blocking. (Bob 8/14/02)
-                postTaoListenerMessage(CONNECTION_FAILED, CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION, false);
-                fireSipXEvent(DISCONNECTED, DISCONNECTED_RESOURCES) ;
-                        }
-                }
+            // Temp Fix: If we failed to renegotiate a invite, failed the
+            // connection so that the upper layers can react.  We *SHOULD*
+            // fire off a new event to application layer indicating that the
+            // reinvite failed -- or make hold/unhold blocking. (Bob 8/14/02)
+            
+            postTaoListenerMessage(CONNECTION_FAILED, CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION, false);
+            #ifndef SIPXTAPI_EXCLUDE
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_RESOURCES) ;
+            #endif
+        }
+        else if (reinviteState == REINVITING &&
+                 responseCode == SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE)
+        {
+            reinviteState = ACCEPT_INVITE;
+            
+            // RFC 3261 states:
+            /*
+                During the session, either Alice or Bob may decide to change the
+                characteristics of the media session.  This is accomplished by
+                sending a re-INVITE containing a new media description.  This re-
+                INVITE references the existing dialog so that the other party knows
+                that it is to modify an existing session instead of establishing a
+                new session.  The other party sends a 200 (OK) to accept the change.
+                The requestor responds to the 200 (OK) with an ACK.  If the other
+                party does not accept the change, he sends an error response such as
+                488 (Not Acceptable Here), which also receives an ACK.  However, the
+                failure of the re-INVITE does not cause the existing call to fail -
+                the session continues using the previously negotiated
+                characteristics.  Full details on session modification are in Section
+                14.
+            */
+            // my interpretation of this is that we need to continue the session 
+            // and not cause a disconnect - MDC 6/23/2005
+            #ifndef SIPXTAPI_EXCLUDE
+                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_REQUEST_NOT_ACCEPTED) ;
+            #endif
+        }
+    }
 
-           // INVITE OK too late
-                // The other end picked up, but this end already hungup
-                else if(responseCode == SIP_OK_CODE &&
-                        lastLocalSequenceNumber == sequenceNum &&
-            (getState() == CONNECTION_DISCONNECTED || mbCancelling))
-                {
+    // INVITE OK too late
+    // The other end picked up, but this end already hungup
+    else if(responseCode == SIP_OK_CODE &&
+        lastLocalSequenceNumber == sequenceNum &&
+        (getState() == CONNECTION_DISCONNECTED || mbCancelling))
+    {
 
-                        mbCancelling = FALSE;   // if was cancelling, now cancelled.
-            // Send an ACK
-            SipMessage sipAckRequest;
-                        sipAckRequest.setAckData(response,inviteMsg);
-                        sipUserAgent->send(sipAckRequest);
+        mbCancelling = FALSE;   // if was cancelling, now cancelled.
+        // Send an ACK
+        SipMessage sipAckRequest;
+        sipAckRequest.setAckData(response,inviteMsg);
+        send(sipAckRequest);
 
 
-            // Always get the remote contact as it may can change over time
-            UtlString contactInResponse;
-                        if (response->getContactUri(0 , &contactInResponse))
-                        {
-                                mRemoteContact.remove(0);
-                                mRemoteContact.append(contactInResponse);
-                        }
+        // Always get the remote contact as it may can change over time
+        UtlString contactInResponse;
+        if (response->getContactUri(0 , &contactInResponse))
+        {
+            mRemoteContact.remove(0);
+            mRemoteContact.append(contactInResponse);
+        }
 
-            // Get the route for subsequent requests
+        // Get the route for subsequent requests
+        response->buildRouteField(&mRouteField);
+#ifdef TEST_PRINT
+        osPrintf("okINVITE set mRouteField: %s\n", mRouteField.data());
+#endif
+
+        // Send a BYE
+        SipMessage sipByeRequest;
+        lastLocalSequenceNumber++;
+        sipByeRequest.setByeData(inviteMsg, mRemoteContact, TRUE,
+            lastLocalSequenceNumber, mRouteField.data(), NULL,
+            mLocalContact.data());
+
+        mLastRequestMethod = SIP_BYE_METHOD;
+        send(sipByeRequest);
+#ifdef TEST_PRINT
+        osPrintf("glare: received OK to hungup call, sending ACK & BYE\n");
+#endif
+
+    }
+
+    // INVITE OK
+    // The other end picked up
+    else if(responseCode == SIP_OK_CODE &&
+        lastLocalSequenceNumber == sequenceNum)
+
+    {
+#ifdef TEST_PRINT
+        osPrintf("received INVITE OK\n");
+#endif
+        // connect the call
+
+        //save the contact field in the response to send further reinvites
+        UtlString contactInResponse;
+        if (response->getContactUri(0 , &contactInResponse))
+        {
+            mRemoteContact.remove(0);
+            mRemoteContact.append(contactInResponse);
+        }
+
+        // Get the route for subsequent requests only if this is
+        // the initial transaction
+        if(previousState != CONNECTION_ESTABLISHED)
+        {
             response->buildRouteField(&mRouteField);
 #ifdef TEST_PRINT
             osPrintf("okINVITE set mRouteField: %s\n", mRouteField.data());
 #endif
+        }
+
+        // Get the session timer if set
+        mSessionReinviteTimer = 0;
+        response->getSessionExpires(&mSessionReinviteTimer);
+
+        // Set a timer to reINVITE to keep the session up
+        if(mSessionReinviteTimer > mDefaultSessionReinviteTimer &&
+            mDefaultSessionReinviteTimer != 0) // if default < 0 disallow
+        {
+            mSessionReinviteTimer = mDefaultSessionReinviteTimer;
+        }
+
+        int timerSeconds = mSessionReinviteTimer;
+        if(mSessionReinviteTimer > 2)
+        {
+            timerSeconds = mSessionReinviteTimer / 2; //safety factor
+        }
+
+        // Construct an ACK
+        SipMessage sipRequest;
+        sipRequest.setAckData(response, inviteMsg, NULL,
+            mSessionReinviteTimer);
+        // Set the route field
+        if(!mRouteField.isNull())
+        {
+            sipRequest.setRouteField(mRouteField.data());
+#ifdef TEST_PRINT
+            osPrintf("Adding route to ACK: %s\n", mRouteField.data());
+#endif
+        }
+#ifdef TEST_PRINT
+        else
+        {
+
+            osPrintf("No route to add to ACK :%s\n", mRouteField.data());
+        }
+#endif
+
+        // Start the session reINVITE timer
+        if(mSessionReinviteTimer > 0)
+        {
+            SipMessageEvent* sipMsgEvent =
+                new SipMessageEvent(new SipMessage(sipRequest),
+                SipMessageEvent::SESSION_REINVITE_TIMER);
+            OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
+                (int)sipMsgEvent);
+            // Convert from mSeconds to uSeconds
+            OsTime timerTime(timerSeconds, 0);
+            timer->oneshotAfter(timerTime);
+#ifdef TEST_PRINT
+            osPrintf("SipConnection::processInviteResponse timer message type: %d %d",
+                OsMsg::PHONE_APP, SipMessageEvent::SESSION_REINVITE_TIMER);
+#endif
+        }
+
+        // Send the ACK message
+        send(sipRequest);
+        if (mFarEndHoldState == TERMCONNECTION_HOLDING)
+        {
+            setTerminalConnectionState(PtTerminalConnection::HELD, 1);
+            mFarEndHoldState = TERMCONNECTION_HELD;
+
+            if (mTerminalConnState == PtTerminalConnection::HELD)
+            {
+                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE);
+            }
+            else
+            {
+                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD);
+            }
+
+            if (mpMediaInterface != NULL)
+            {
+                mpMediaInterface->stopRtpSend(mConnectionId);
+                fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+            }
+
+            // The prerequisit hold was completed we
+            // can now do the next action/transaction
+            switch(mHoldCompleteAction)
+            {
+            case CpCallManager::CP_BLIND_TRANSFER:
+                // This hold was performed as a precurser to
+                // A blind transfer.
+                mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
+                doBlindRefer();
+                break;
+
+            default:
+                // Bogus action, reset it
+                mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
+                break;
+            }
+
+        }
+        else if (mFarEndHoldState == TERMCONNECTION_TALKING)
+        {
+            setTerminalConnectionState(PtTerminalConnection::TALKING, 1);
+            mFarEndHoldState = TERMCONNECTION_NONE;
+        }
+
+#ifdef TEST_PRINT
+        osPrintf("200 OK reinviteState: %d\n", reinviteState);
+#endif
+
+        UtlString rtpAddress;
+        int receiveRtpPort;
+        int receiveRtcpPort;
+        SdpCodecFactory supportedCodecs;
+
+        if (mpMediaInterface != NULL)
+        {
+            mpMediaInterface->getCapabilities(mConnectionId,
+                    rtpAddress,
+                    receiveRtpPort,
+                    receiveRtcpPort,
+                    supportedCodecs);
+        }
+        // Setup the media channel
+        // The address should be retrieved from the sdpBody
+        int numMatchingCodecs = 0;
+        SdpCodec** matchingCodecs = NULL;
+        getInitialSdpCodecs(response, supportedCodecs,
+            numMatchingCodecs, matchingCodecs,
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+
+        if (numMatchingCodecs > 0 && mpMediaInterface != NULL)
+        {
+            // Set up the remote RTP sockets if we have a legitimate
+            // address to send RTP
+            if(!remoteRtpAddress.isNull() &&
+                remoteRtpAddress.compareTo("0.0.0.0") != 0)
+            {
+                mpMediaInterface->setConnectionDestination(mConnectionId,
+                    remoteRtpAddress.data(), remoteRtpPort, remoteRtcpPort);
+            }
+
+            if(reinviteState == ACCEPT_INVITE)
+            {
+                setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE);
+                if (mTerminalConnState == PtTerminalConnection::HELD)
+                {
+                    fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD);
+                }
+                else
+                {
+                    fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE);
+                }
+            }
+
+            //osPrintf("RTP SENDING address: %s port: %d \nRTP LISTENING port: %d\n",
+            //                      remoteRtpAddress.data(), remoteRtpPort, localRtpPort);
+
+            // No RTP address, stop sending media
+            if(remoteRtpAddress.isNull() ||
+                remoteRtpAddress.compareTo("0.0.0.0") == 0)
+            {
+                mpMediaInterface->stopRtpSend(mConnectionId);
+                // stop receiving it too
+                mpMediaInterface->stopRtpReceive(mConnectionId);
+                fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+            }
+
+            else if(remoteRtpPort > 0 && mTerminalConnState != PtTerminalConnection::HELD)
+            {
+                mpMediaInterface->startRtpReceive(mConnectionId,
+                    numMatchingCodecs,
+                    matchingCodecs);
+
+                mpMediaInterface->startRtpSend(mConnectionId,
+                    numMatchingCodecs,
+                    matchingCodecs);
+ 
+#ifndef SIPXTAPI_EXCLUDE
+                // If sipX TAPI, fire an audio start event
+                UtlString codecName;
+                SIPX_AUDIO_CODEC tapiCodec;
+                if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
+                                                      codecName, 
+                                                      &tapiCodec.iPayloadType) == OS_SUCCESS)
+                {
+                    strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+
+                    if (mTerminalConnState == PtTerminalConnection::TALKING)
+                    {
+                        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;                        
+                    }
+                    else if (mTerminalConnState == PtTerminalConnection::HELD)
+                    {
+                        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
+                    }
+                    fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
+                }
+#endif /* SIPXTAPI_EXCLUDE */
+            }
+            else if(mTerminalConnState == PtTerminalConnection::HELD)
+            {
+                mpMediaInterface->stopRtpSend(mConnectionId);
+                mpMediaInterface->stopRtpReceive(mConnectionId);
+                fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+            }
+        }
+
+        // Original INVITE response with no SDP
+        // cannot setup call
+        else if(reinviteState == ACCEPT_INVITE)
+        {
+#ifdef TEST_PRINT
+            osPrintf("No SDP in INVITE OK response\n");
+#endif
+            setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION);
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_RESOURCES) ;
 
             // Send a BYE
-         SipMessage sipByeRequest;
-         lastLocalSequenceNumber++;
-                 sipByeRequest.setByeData(inviteMsg, mRemoteContact, TRUE,
-                           lastLocalSequenceNumber, mRouteField.data(), NULL,
-               mLocalContact.data());
+            //UtlString directoryServerUri;
+            SipMessage sipByeRequest;
+            //if(!inviteFromThisSide)
+            //{
+            //    UtlString dirAddress;
+            //    UtlString dirProtocol;
+            //    int dirPort;
+
+            //    sipUserAgent->getDirectoryServer(0, &dirAddress,
+            //              &dirPort, &dirProtocol);
+            //    SipMessage::buildSipUrl(&directoryServerUri,
+            //        dirAddress.data(), dirPort, dirProtocol.data());
+            //}
+            lastLocalSequenceNumber++;
+#ifdef TEST_PRINT
+            osPrintf("no SDP BYE route: %s\n", mRouteField.data());
+#endif
+            UtlString localContact ;
+            sipByeRequest.setByeData(inviteMsg,
+                mRemoteContact,
+                inviteFromThisSide,
+                lastLocalSequenceNumber,
+                //directoryServerUri.data(),
+                mRouteField.data(),
+                NULL, // no alsoUri
+                mLocalContact.data());
 
             mLastRequestMethod = SIP_BYE_METHOD;
-                        sipUserAgent->send(sipByeRequest);
-#ifdef TEST_PRINT
-            osPrintf("glare: received OK to hungup call, sending ACK & BYE\n");
-#endif
+            send(sipByeRequest);
 
         }
 
-                // INVITE OK
-                // The other end picked up
-                else if(responseCode == SIP_OK_CODE &&
-                            lastLocalSequenceNumber == sequenceNum)
+        // Ignore reINVITE OK responses without SDP
+        else
+        {
+        }
 
-                {
-#ifdef TEST_PRINT
-                        osPrintf("received INVITE OK\n");
-#endif
-                        // connect the call
+        // Allow ReINVITEs from the other side again
+        if(reinviteState == REINVITING)
+        {
+            reinviteState = ACCEPT_INVITE;
+        }
 
-                        //save the contact field in the response to send further reinvites
-                        UtlString contactInResponse;
-                        if (response->getContactUri(0 , &contactInResponse))
-                        {
-                                mRemoteContact.remove(0);
-                                mRemoteContact.append(contactInResponse);
-                        }
+        // If we do not already know what the other side
+        // support (i.e. methods)
+        if(mAllowedRemote.isNull())
+        {
+            // Get the methods the other side supports
+            response->getAllowField(mAllowedRemote);
 
-            // Get the route for subsequent requests only if this is
-            // the initial transaction
-            if(previousState != CONNECTION_ESTABLISHED)
+            // If the other side did not set the allowed field
+            // send an OPTIONS request to see what it supports
+            if(mAllowedRemote.isNull())
             {
-                response->buildRouteField(&mRouteField);
-#ifdef TEST_PRINT
-                osPrintf("okINVITE set mRouteField: %s\n", mRouteField.data());
-#endif
-            }
-
-            // Get the session timer if set
-            mSessionReinviteTimer = 0;
-            response->getSessionExpires(&mSessionReinviteTimer);
-
-            // Set a timer to reINVITE to keep the session up
-            if(mSessionReinviteTimer > mDefaultSessionReinviteTimer &&
-                mDefaultSessionReinviteTimer != 0) // if default < 0 disallow
-            {
-                mSessionReinviteTimer = mDefaultSessionReinviteTimer;
-            }
-
-            int timerSeconds = mSessionReinviteTimer;
-            if(mSessionReinviteTimer > 2)
-            {
-                timerSeconds = mSessionReinviteTimer / 2; //safety factor
-            }
-
-            // Construct an ACK
-            SipMessage sipRequest;
-                        sipRequest.setAckData(response, inviteMsg, NULL,
-                mSessionReinviteTimer);
-            // Set the route field
-            if(!mRouteField.isNull())
-            {
-                sipRequest.setRouteField(mRouteField.data());
-#ifdef TEST_PRINT
-                osPrintf("Adding route to ACK: %s\n", mRouteField.data());
-#endif
-            }
-#ifdef TEST_PRINT
-            else
-            {
-
-                osPrintf("No route to add to ACK :%s\n", mRouteField.data());
-            }
-#endif
-
-            // Start the session reINVITE timer
-            if(mSessionReinviteTimer > 0)
-            {
-                SipMessageEvent* sipMsgEvent =
-                    new SipMessageEvent(new SipMessage(sipRequest),
-                            SipMessageEvent::SESSION_REINVITE_TIMER);
-                OsQueuedEvent* queuedEvent =
-                    new OsQueuedEvent(*(mpCallManager->getMessageQueue()),
-                                        (int)sipMsgEvent);
-                            OsTimer* timer = new OsTimer(*queuedEvent);
-                            // Convert from mSeconds to uSeconds
-                            OsTime timerTime(timerSeconds, 0);
-                            timer->oneshotAfter(timerTime);
-#ifdef TEST_PRINT
-                osPrintf("SipConnection::processInviteResponse timer message type: %d %d",
-                    OsMsg::PHONE_APP, SipMessageEvent::SESSION_REINVITE_TIMER);
-#endif
-            }
-
-                        // Send the ACK message
-                        sipUserAgent->send(sipRequest);
-                        if (mFarEndHoldState == TERMCONNECTION_HOLDING)
-                        {
-                                setTerminalConnectionState(PtTerminalConnection::HELD, 1);
-                                mFarEndHoldState = TERMCONNECTION_HELD;
-                                mpMediaInterface->stopRtpSend(mConnectionId);
-
-                // The prerequisit hold was completed we
-                // can now do the next action/transaction
-                switch(mHoldCompleteAction)
-                {
-                    case CpCallManager::CP_BLIND_TRANSFER:
-                        // This hold was performed as a precurser to
-                        // A blind transfer.
-                        mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
-                        doBlindRefer();
-                        break;
-
-                    default:
-                        // Bogus action, reset it
-                        mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
-                        break;
-                }
-
-                        }
-                        else if (mFarEndHoldState == TERMCONNECTION_TALKING)
-                        {
-                                setTerminalConnectionState(PtTerminalConnection::TALKING, 1);
-                                mFarEndHoldState = TERMCONNECTION_NONE;
-                        }
-
-#ifdef TEST_PRINT
-            osPrintf("200 OK reinviteState: %d\n", reinviteState);
-#endif
-
-            UtlString rtpAddress;
-            int receiveRtpPort;
-            int receiveRtcpPort;
-            SdpCodecFactory supportedCodecs;
-            mpMediaInterface->getCapabilities(mConnectionId,
-                                              rtpAddress,
-                                              receiveRtpPort,
-                                              receiveRtcpPort,
-                                              supportedCodecs);
-                        // Setup the media channel
-                        // The address should be retrieved from the sdpBody
-            int numMatchingCodecs = 0;
-            SdpCodec** matchingCodecs = NULL;
-                        getInitialSdpCodecs(response, supportedCodecs,
-                numMatchingCodecs, matchingCodecs,
-                remoteRtpAddress, remoteRtpPort);
-
-                        if(numMatchingCodecs > 0)
-            {
-                // Set up the remote RTP sockets if we have a legitimate
-                // address to send RTP
-                if(!remoteRtpAddress.isNull() &&
-                    remoteRtpAddress.compareTo("0.0.0.0") != 0)
-                {
-                    mpMediaInterface->setConnectionDestination(mConnectionId,
-                    remoteRtpAddress.data(), remoteRtpPort);
-                }
-
-                                if(reinviteState == ACCEPT_INVITE)
-                                {
-                                        setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE);
-                    fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
-                                }
-
-                                //osPrintf("RTP SENDING address: %s port: %d \nRTP LISTENING port: %d\n",
-                                //                      remoteRtpAddress.data(), remoteRtpPort, localRtpPort);
-
-                // No RTP address, stop sending media
-                if(remoteRtpAddress.isNull() ||
-                    remoteRtpAddress.compareTo("0.0.0.0") == 0)
-                {
-                    mpMediaInterface->stopRtpSend(mConnectionId);
-                    // stop receiving it too
-                    mpMediaInterface->stopRtpReceive(mConnectionId);
-                }
-
-                                else if(remoteRtpPort > 0 && mTerminalConnState != PtTerminalConnection::HELD)
-                                {
-                                        mpMediaInterface->startRtpReceive(mConnectionId,
-                        numMatchingCodecs,
-                        matchingCodecs);
-                                        mpMediaInterface->startRtpSend(mConnectionId,
-                        numMatchingCodecs,
-                        matchingCodecs);
-                                }
-                                else if(mTerminalConnState == PtTerminalConnection::HELD)
-                                {
-                    mpMediaInterface->stopRtpSend(mConnectionId);
-                    mpMediaInterface->stopRtpReceive(mConnectionId);
-                                }
-
-
-                        }
-
-                        // Original INVITE response with no SDP
-                        // cannot setup call
-                        else if(reinviteState == ACCEPT_INVITE)
-                        {
-#ifdef TEST_PRINT
-                                osPrintf("No SDP in INVITE OK response\n");
-#endif
-                                setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION);
-                fireSipXEvent(DISCONNECTED, DISCONNECTED_RESOURCES) ;
-
-                                // Send a BYE
-                //UtlString directoryServerUri;
-                                SipMessage sipByeRequest;
-                //if(!inviteFromThisSide)
-                //{
-                //    UtlString dirAddress;
-                //    UtlString dirProtocol;
-                //    int dirPort;
-
-                //    sipUserAgent->getDirectoryServer(0, &dirAddress,
-                                //              &dirPort, &dirProtocol);
-                //    SipMessage::buildSipUrl(&directoryServerUri,
-                //        dirAddress.data(), dirPort, dirProtocol.data());
-                //}
                 lastLocalSequenceNumber++;
-#ifdef TEST_PRINT
-                osPrintf("no SDP BYE route: %s\n", mRouteField.data());
-#endif
-                UtlString localContact ;
-                sipByeRequest.setByeData(inviteMsg,
+                SipMessage optionsRequest;
+                optionsRequest.setOptionsData(inviteMsg,
                     mRemoteContact,
                     inviteFromThisSide,
                     lastLocalSequenceNumber,
-                    //directoryServerUri.data(),
-                    mRouteField.data(),
-                    NULL, // no alsoUri
-                    mLocalContact.data());
+                    mRouteField.data(), mLocalContact);
 
-                    mLastRequestMethod = SIP_BYE_METHOD;
-                                    sipUserAgent->send(sipByeRequest);
-
-                        }
-
-                        // Ignore reINVITE OK responses without SDP
-                        else
-                        {
-                        }
-
-            // Allow ReINVITEs from the other side again
-            if(reinviteState == REINVITING)
-            {
-                reinviteState = ACCEPT_INVITE;
-            }
-
-            // If we do not already know what the other side
-            // support (i.e. methods)
-            if(mAllowedRemote.isNull())
-            {
-                // Get the methods the other side supports
-                response->getAllowField(mAllowedRemote);
-
-             // If the other side did not set the allowed field
-             // send an OPTIONS request to see what it supports
-             if(mAllowedRemote.isNull())
-               {
-                 lastLocalSequenceNumber++;
-                 SipMessage optionsRequest;
-                 optionsRequest.setOptionsData(inviteMsg,
-                     mRemoteContact,
-                     inviteFromThisSide,
-                     lastLocalSequenceNumber,
-                     mRouteField.data(), mLocalContact);
-
-                 sipUserAgent->send(optionsRequest);
-               }
-         }
-
-            // Free up the codec copies and array
-            for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-            {
-                delete matchingCodecs[codecIndex];
-                matchingCodecs[codecIndex] = NULL;
-            }
-            if(matchingCodecs) delete[] matchingCodecs;
-            matchingCodecs = NULL;
-                }
-
-
-                // Redirect
-                else if(responseCode >= SIP_MULTI_CHOICE_CODE &&
-                        responseCode < SIP_BAD_REQUEST_CODE &&
-                        lastLocalSequenceNumber == sequenceNum)
-                {
-#ifdef TEST_PRINT
-                        osPrintf("Redirect received\n");
-#endif
-
-                        // ACK gets sent by the SipUserAgent for error responses
-                        //SipMessage sipRequest;
-                        //sipRequest.setAckData(response, inviteMsg);
-                        //sipUserAgent->send(sipRequest);
-
-                        // If the call has not already failed
-                        if(getState() != CONNECTION_FAILED)
-                        {
-                                // Get the first contact uri
-                UtlString contactUri;
-                                response->getContactUri(0, &contactUri);
-#ifdef TEST_PRINT
-                                osPrintf("Redirecting to: %s\n", contactUri.data());
-#endif
-
-                                if(!contactUri.isNull() && inviteMsg)
-                                {
-                                        // Create a new INVITE
-                                        lastLocalSequenceNumber++;
-                                        SipMessage sipRequest(*inviteMsg);
-                                        sipRequest.changeUri(contactUri.data());
-
-                    // Don't use the contact in the to field for redirect
-                    // Use the same To field, but clear the tag
-                    mToUrl.removeFieldParameter("tag");
-                    UtlString toField;
-                    mToUrl.toString(toField);
-                    sipRequest.setRawToField(toField);
-                    //sipRequest.setRawToField(contactUri.data());
-
-                    // Set incremented Cseq
-                                        sipRequest.setCSeqField(lastLocalSequenceNumber,
-                                                SIP_INVITE_METHOD);
-
-                    // Decrement the max-forwards header
-                    int maxForwards;
-                    if(!sipRequest.getMaxForwards(maxForwards))
-                    {
-                        maxForwards = SIP_DEFAULT_MAX_FORWARDS;
-                    }
-                    maxForwards--;
-                    sipRequest.setMaxForwards(maxForwards);
-
-                                        //reomove all routes
-                                        UtlString route;
-                                        while ( sipRequest.removeRouteUri(0,&route)){}
-
-                                        //now it is first send
-                                        sipRequest.clearDNSField();
-                                        sipRequest.resetTransport();
-
-                                        // Get rid of the original invite and save a copy of
-                                        // the new one
-                                        if(inviteMsg) delete inviteMsg;
-                                        inviteMsg = NULL;
-                                        inviteMsg = new SipMessage(sipRequest);
-                    inviteFromThisSide = TRUE;
-
-                    // As the To field is not modified this is superfluous
-                    //setCallerId();
-
-                                        // Send the invite
-                                        if(sipUserAgent->send(sipRequest))
-                                        {
-                                                // Change the state back to Offering
-                                                setState(CONNECTION_OFFERING, CONNECTION_REMOTE, CONNECTION_CAUSE_REDIRECTED);
-                        fireSipXEvent(REMOTE_OFFERING, REMOTE_OFFERING_NORMAL) ;
-                                        }
-                                        else
-                                        {
-                        UtlString redirected;
-                        int len;
-                        sipRequest.getBytes(&redirected, &len);
-#ifdef TEST_PRINT
-                        osPrintf("==== Redirected failed ===>%s\n====>\n",
-                            redirected.data());
-#endif
-                                                // The send failed
-                                                setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_NETWORK_NOT_OBTAINABLE);
-                        fireSipXEvent(DISCONNECTED, DISCONNECTED_NETWORK) ;
-                                        }
-                                }
-
-                                // don't know how we got here, this is bad
-                                else
-                                {
-                                        setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-                    fireSipXEvent(DISCONNECTED, DISCONNECTED_UNKNOWN) ;
-                                }
-                        }
-                }
-
-                else
-                {
-            UtlString responseText;
-            response->getResponseStatusText(&responseText);
-#ifdef TEST_PRINT
-                        osPrintf("Ignoring INVITE response: %d %s\n", responseCode,
-                                responseText.data());
-#endif
-                        if(responseCode >= SIP_OK_CODE &&
-                                (lastLocalSequenceNumber == sequenceNum || mIsReferSent))
-                        {
-#ifdef TEST_PRINT
-                // I do not understand what cases go through this else
-                // so this is just a error message for now.
-                if(responseCode < SIP_3XX_CLASS_CODE)
-                {
-                    osPrintf("ERROR: SipConnection::processInviteResponse sending ACK for failed INVITE\n");
-                }
-#endif
-
-                                // Send an ACK
-                                SipMessage sipRequest;
-                                sipRequest.setAckData(response,inviteMsg);
-                                sipUserAgent->send(sipRequest);
-                                if(reinviteState == REINVITED)
-                                {
-#ifdef TEST_PRINT
-                                        osPrintf("ReINVITE ACK - ReINVITE allowed again\n");
-#endif
-                                        reinviteState = ACCEPT_INVITE;
-                                }
-                        }
-                }
-
-        // If we have completed a REFER based transfer
-        // Send the status back to the original call & connection
-        // as to whether it succeeded or not.
-#ifdef TEST_PRINT
-        UtlString connState;
-        getStateString(getState(), &connState);
-        osPrintf("SipConnection::processResponse originalConnectionAddress: %s connection state: %s\n",
-            mOriginalCallConnectionAddress.data(), connState.data());
-        getStateString(previousState, &connState);
-        osPrintf("SipConnection::processResponse originalConnectionAddress: %s previous state: %s\n",
-            mOriginalCallConnectionAddress.data(), connState.data());
-#endif
-        int currentState = getState();
-        if(previousState != currentState &&
-            !mOriginalCallConnectionAddress.isNull())
-        {
-            if(currentState == CONNECTION_ESTABLISHED ||
-                currentState == CONNECTION_FAILED ||
-                currentState == CONNECTION_ALERTING)
-            {
-                UtlString originalCallId;
-                mpCall->getOriginalCallId(originalCallId);
-                CpMultiStringMessage transfereeStatus(CallManager::CP_TRANSFEREE_CONNECTION_STATUS,
-                    originalCallId.data(),
-                    mOriginalCallConnectionAddress.data(),
-                    NULL, NULL, NULL,
-                    currentState, responseCode);
-#ifdef TEST_PRINT
-                osPrintf("SipConnection::processResponse posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s\n",
-                    originalCallId.data());
-#endif
-                mpCallManager->postMessage(transfereeStatus);
-
-                // This is the end of the transfer meta event
-                // whether successful or not
-                //mpCall->stopMetaEvent();
-
+                send(optionsRequest);
             }
         }
+
+        // Free up the codec copies and array
+        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+        {
+            delete matchingCodecs[codecIndex];
+            matchingCodecs[codecIndex] = NULL;
+        }
+        if(matchingCodecs) delete[] matchingCodecs;
+        matchingCodecs = NULL;
+    }
+
+
+    // Redirect
+    else if(responseCode >= SIP_MULTI_CHOICE_CODE &&
+        responseCode < SIP_BAD_REQUEST_CODE &&
+        lastLocalSequenceNumber == sequenceNum)
+    {
+#ifdef TEST_PRINT
+        osPrintf("Redirect received\n");
+#endif
+
+        // ACK gets sent by the SipUserAgent for error responses
+        //SipMessage sipRequest;
+        //sipRequest.setAckData(response, inviteMsg);
+        //send(sipRequest);
+
+        // If the call has not already failed
+        if(getState() != CONNECTION_FAILED)
+        {
+            // Get the first contact uri
+            UtlString contactUri;
+            response->getContactUri(0, &contactUri);
+#ifdef TEST_PRINT
+            osPrintf("Redirecting to: %s\n", contactUri.data());
+#endif
+
+            if(!contactUri.isNull() && inviteMsg)
+            {
+                // Create a new INVITE
+                lastLocalSequenceNumber++;
+                SipMessage sipRequest(*inviteMsg);
+                sipRequest.changeUri(contactUri.data());
+
+                // Don't use the contact in the to field for redirect
+                // Use the same To field, but clear the tag
+                mToUrl.removeFieldParameter("tag");
+                UtlString toField;
+                mToUrl.toString(toField);
+                sipRequest.setRawToField(toField);
+                //sipRequest.setRawToField(contactUri.data());
+
+                // Set incremented Cseq
+                sipRequest.setCSeqField(lastLocalSequenceNumber,
+                    SIP_INVITE_METHOD);
+
+                // Decrement the max-forwards header
+                int maxForwards;
+                if(!sipRequest.getMaxForwards(maxForwards))
+                {
+                    maxForwards = SIP_DEFAULT_MAX_FORWARDS;
+                }
+                maxForwards--;
+                sipRequest.setMaxForwards(maxForwards);
+
+                //reomove all routes
+                UtlString route;
+                while ( sipRequest.removeRouteUri(0,&route)){}
+
+                //now it is first send
+                sipRequest.clearDNSField();
+                sipRequest.resetTransport();
+
+                // Get rid of the original invite and save a copy of
+                // the new one
+                if(inviteMsg) delete inviteMsg;
+                inviteMsg = NULL;
+                inviteMsg = new SipMessage(sipRequest);
+                inviteFromThisSide = TRUE;
+
+                // As the To field is not modified this is superfluous
+                //setCallerId();
+
+                // Send the invite
+                if(send(sipRequest))
+                {
+                    // Change the state back to Offering
+                    setState(CONNECTION_OFFERING, CONNECTION_REMOTE, CONNECTION_CAUSE_REDIRECTED);
+                    fireSipXEvent(CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL) ;
+                }
+                else
+                {
+                    UtlString redirected;
+                    int len;
+                    sipRequest.getBytes(&redirected, &len);
+#ifdef TEST_PRINT
+                    osPrintf("==== Redirected failed ===>%s\n====>\n",
+                        redirected.data());
+#endif
+                    // The send failed
+                    setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_NETWORK_NOT_OBTAINABLE);
+                    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NETWORK) ;
+                }
+            }
+
+            // don't know how we got here, this is bad
+            else
+            {
+                setState(CONNECTION_FAILED, CONNECTION_REMOTE);
+                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
+            }
+        }
+    }
+
+    else
+    {
+        UtlString responseText;
+        response->getResponseStatusText(&responseText);
+#ifdef TEST_PRINT
+        osPrintf("Ignoring INVITE response: %d %s\n", responseCode,
+            responseText.data());
+#endif
+        if(responseCode >= SIP_OK_CODE &&
+            (lastLocalSequenceNumber == sequenceNum || mIsReferSent))
+        {
+#ifdef TEST_PRINT
+            // I do not understand what cases go through this else
+            // so this is just a error message for now.
+            if(responseCode < SIP_3XX_CLASS_CODE)
+            {
+                osPrintf("ERROR: SipConnection::processInviteResponse sending ACK for failed INVITE\n");
+            }
+#endif
+
+            // Send an ACK
+            SipMessage sipRequest;
+            sipRequest.setAckData(response,inviteMsg);
+            send(sipRequest);
+            if(reinviteState == REINVITED)
+            {
+#ifdef TEST_PRINT
+                osPrintf("ReINVITE ACK - ReINVITE allowed again\n");
+#endif
+                reinviteState = ACCEPT_INVITE;
+            }
+        }
+    }
+
+    // If we have completed a REFER based transfer
+    // Send the status back to the original call & connection
+    // as to whether it succeeded or not.
+#ifdef TEST_PRINT
+    UtlString connState;
+    getStateString(getState(), &connState);
+    osPrintf("SipConnection::processResponse originalConnectionAddress: %s connection state: %s\n",
+        mOriginalCallConnectionAddress.data(), connState.data());
+    getStateString(previousState, &connState);
+    osPrintf("SipConnection::processResponse originalConnectionAddress: %s previous state: %s\n",
+        mOriginalCallConnectionAddress.data(), connState.data());
+#endif
+    int currentState = getState();
+    if(previousState != currentState &&
+        !mOriginalCallConnectionAddress.isNull())
+    {
+        if(currentState == CONNECTION_ESTABLISHED ||
+            currentState == CONNECTION_FAILED ||
+            currentState == CONNECTION_ALERTING)
+        {
+            UtlString originalCallId;
+            mpCall->getOriginalCallId(originalCallId);
+            CpMultiStringMessage transfereeStatus(CallManager::CP_TRANSFEREE_CONNECTION_STATUS,
+                originalCallId.data(),
+                mOriginalCallConnectionAddress.data(),
+                NULL, NULL, NULL,
+                currentState, responseCode);
+#ifdef TEST_PRINT
+            osPrintf("SipConnection::processResponse posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s\n",
+                originalCallId.data());
+#endif
+            mpCallManager->postMessage(transfereeStatus);
+
+            // This is the end of the transfer meta event
+            // whether successful or not
+            //mpCall->stopMetaEvent();
+
+        }
+    }
 } // End of processInviteResponse
 
 void SipConnection::processReferResponse(const SipMessage* response)
 {
-        int state = CONNECTION_UNKNOWN;
-        int cause = CONNECTION_CAUSE_UNKNOWN;
-        int responseCode = response->getResponseStatusCode();
+    int state = CONNECTION_UNKNOWN;
+    int cause = CONNECTION_CAUSE_UNKNOWN;
+    int responseCode = response->getResponseStatusCode();
 
-        // 2xx class responses are no-ops as it only indicates
-        // the transferee is attempting to INVITE the transfer target
-        if(responseCode == SIP_OK_CODE)
-        {
-            state = CONNECTION_DIALING;
-            cause = CONNECTION_CAUSE_NORMAL;
-        }
-        else if(responseCode == SIP_ACCEPTED_CODE)
-        {
-            state = CONNECTION_OFFERING;
-            cause = CONNECTION_CAUSE_NORMAL;
-        }
-        else if(responseCode == SIP_DECLINE_CODE)
-        {
-            state = CONNECTION_FAILED;
-            cause = CONNECTION_CAUSE_CANCELLED;
-        }
-        else if(responseCode == SIP_BAD_METHOD_CODE ||
-            responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
-        {
-            state = CONNECTION_FAILED;
-            cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
-        }
-        else if(responseCode >= SIP_MULTI_CHOICE_CODE)
-        {
-            state = CONNECTION_FAILED;
-            cause = CONNECTION_CAUSE_BUSY;
-        }
+    // 2xx class responses are no-ops as it only indicates
+    // the transferee is attempting to INVITE the transfer target
+    if(responseCode == SIP_OK_CODE)
+    {
+        state = CONNECTION_DIALING;
+        cause = CONNECTION_CAUSE_NORMAL;
 
-        // REFER is not supported, try BYE Also
-        if(responseCode == SIP_BAD_METHOD_CODE  ||
-            responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
-        {
-            UtlString thisAddress;
-            response->getFromField(&thisAddress);
-            doHangUp(mTargetCallConnectionAddress.data(), thisAddress.data());
+        fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_ACCEPTED) ;
+    }
+    else if(responseCode == SIP_ACCEPTED_CODE)
+    {
+        state = CONNECTION_OFFERING;
+        cause = CONNECTION_CAUSE_NORMAL;
 
-            // If we do not know what the other side supports
-            // set it to BYE only so that we do not try REFER again
-            if(mAllowedRemote.isNull())
-                                mAllowedRemote = SIP_BYE_METHOD;
-                        else
-                        {
-                                int pos = mAllowedRemote.index("REFER", 0, UtlString::ignoreCase);
+        fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_ACCEPTED) ;
+    }
+    else if(responseCode == SIP_DECLINE_CODE)
+    {
+        state = CONNECTION_FAILED;
+        cause = CONNECTION_CAUSE_CANCELLED;
 
-                                if (pos >= 0)
-                                {
-                                        mAllowedRemote.remove(pos, 6);
-                                }
-                        }
-        }
+        fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
+    }
+    else if(responseCode == SIP_BAD_METHOD_CODE ||
+        responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
+    {
+        state = CONNECTION_FAILED;
+        cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
 
-        // We change state on the target/consultative call
-        else if(responseCode >= SIP_OK_CODE)
-        {
-            // Signal the connection in the target call with the final status
-            UtlString targetCallId;
-            UtlString toField;
-            mToUrl.toString(toField);
-            mpCall->getTargetCallId(targetCallId);
-            CpMultiStringMessage transferControllerStatus(CallManager::CP_TRANSFER_CONNECTION_STATUS,
-                targetCallId.data(), toField.data(),
-                NULL, NULL, NULL,
-                state, cause);
-    #ifdef TEST_PRINT
-            osPrintf("SipConnection::processResponse REFER posting CP_TRANSFER_CONNECTION_STATUS to call: %s\n",
-                targetCallId.data());
-    #endif
-            mpCallManager->postMessage(transferControllerStatus);
+        fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
+    }
+    else if(responseCode >= SIP_MULTI_CHOICE_CODE)
+    {
+        state = CONNECTION_FAILED;
+        cause = CONNECTION_CAUSE_BUSY;
 
-            // Drop this connection, the transfer succeeded
-            // Do the drop at the last possible momment so that
-            // both calls have some overlap.
-            if(responseCode == SIP_OK_CODE) doHangUp();
-        }
+        fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
+    }
 
-#ifdef TEST_PRINT
-        // We ignore provisional response
-        // as they do not indicate any state change
+#if 0
+    // REFER is not supported, try BYE Also
+    if(responseCode == SIP_BAD_METHOD_CODE  ||
+        responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
+    {
+        UtlString thisAddress;
+        response->getFromField(&thisAddress);
+        doHangUp(mTargetCallConnectionAddress.data(), thisAddress.data());
+
+        // If we do not know what the other side supports
+        // set it to BYE only so that we do not try REFER again
+        if(mAllowedRemote.isNull())
+            mAllowedRemote = SIP_BYE_METHOD;
         else
         {
-            osPrintf("SipConnection::processResponse ignoring REFER response %d\n",
-                responseCode);
+            int pos = mAllowedRemote.index("REFER", 0, UtlString::ignoreCase);
+
+            if (pos >= 0)
+            {
+                mAllowedRemote.remove(pos, 6);
+            }
         }
+    }
+#endif
+
+    // We change state on the target/consultative call
+    if(responseCode >= SIP_OK_CODE)
+    {
+        // Signal the connection in the target call with the final status
+        UtlString targetCallId;
+        UtlString toField;
+        mToUrl.toString(toField);
+        mpCall->getTargetCallId(targetCallId);
+        CpMultiStringMessage transferControllerStatus(CallManager::CP_TRANSFER_CONNECTION_STATUS,
+            targetCallId.data(), toField.data(),
+            NULL, NULL, NULL,
+            state, cause);
+#ifdef TEST_PRINT
+        osPrintf("SipConnection::processResponse REFER posting CP_TRANSFER_CONNECTION_STATUS to call: %s\n",
+            targetCallId.data());
+#endif
+        mpCallManager->postMessage(transferControllerStatus);
+
+        // Drop this connection, the transfer succeeded
+        // Do the drop at the last possible momment so that
+        // both calls have some overlap.
+        if(responseCode == SIP_OK_CODE) doHangUp();
+    }
+
+#ifdef TEST_PRINT
+    // We ignore provisional response
+    // as they do not indicate any state change
+    else
+    {
+        osPrintf("SipConnection::processResponse ignoring REFER response %d\n",
+            responseCode);
+    }
 #endif
 } // End of processReferResponse
 
@@ -4397,8 +4663,8 @@ void SipConnection::processOptionsResponse(const SipMessage* response)
     int sequenceNum;
     UtlString sequenceMethod;
 
-        response->getResponseStatusText(&responseText);
-        response->getCSeqField(&sequenceNum, &sequenceMethod);
+    response->getResponseStatusText(&responseText);
+    response->getCSeqField(&sequenceNum, &sequenceMethod);
 
     if(responseCode == SIP_OK_CODE &&
         lastLocalSequenceNumber == sequenceNum)
@@ -4417,10 +4683,10 @@ void SipConnection::processOptionsResponse(const SipMessage* response)
 #ifdef TEST_PRINT
     else
         osPrintf("%s response ignored: %d %s invalid cseq last: %d\n",
-                        sequenceMethod.data(),
-            responseCode,
-                        responseText.data(),
-            lastLocalSequenceNumber);
+        sequenceMethod.data(),
+        responseCode,
+        responseText.data(),
+        lastLocalSequenceNumber);
 #endif
 } // End of processOptionsResponse
 
@@ -4441,26 +4707,28 @@ void SipConnection::processByeResponse(const SipMessage* response)
         CpMultiStringMessage* expiredBye =
             new CpMultiStringMessage(CallManager::CP_FORCE_DROP_CONNECTION,
             callId.data(), remoteAddress.data(), localAddress.data());
-        OsQueuedEvent* queuedEvent =
-            new OsQueuedEvent(*(mpCallManager->getMessageQueue()),
-                                (int)expiredBye);
-                OsTimer* timer = new OsTimer(*queuedEvent);
-                // Convert from mSeconds to uSeconds
+        OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
+            (int)expiredBye);
+        // Convert from mSeconds to uSeconds
 #ifdef TEST_PRINT
         osPrintf("Setting BYE timeout to %d seconds\n",
             sipUserAgent->getSipStateTransactionTimeout() / 1000);
 #endif
-                OsTime timerTime(sipUserAgent->getSipStateTransactionTimeout() / 1000, 0);
-                timer->oneshotAfter(timerTime);
+        OsTime timerTime(sipUserAgent->getSipStateTransactionTimeout() / 1000, 0);
+        timer->oneshotAfter(timerTime);
     }
 
     else if(responseCode >= SIP_2XX_CLASS_CODE)
     {
-       // All final codes are treated the same, since if attempting the
-       // BYE fails, for safety, we need to terminate the call anyway.
-       // Stop sending & receiving RTP
-       mpMediaInterface->stopRtpSend(mConnectionId);
-       mpMediaInterface->stopRtpReceive(mConnectionId);
+        // All final codes are treated the same, since if attempting the
+        // BYE fails, for safety, we need to terminate the call anyway.
+        // Stop sending & receiving RTP
+        if (mpMediaInterface != NULL)
+        {
+            mpMediaInterface->stopRtpSend(mConnectionId);
+            mpMediaInterface->stopRtpReceive(mConnectionId);
+            fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+        }
     }
 } // End of processByeResponse
 
@@ -4481,23 +4749,26 @@ void SipConnection::processCancelResponse(const SipMessage* response)
         CpMultiStringMessage* expiredBye =
             new CpMultiStringMessage(CallManager::CP_FORCE_DROP_CONNECTION,
             callId.data(), remoteAddress.data(), localAddress.data());
-        OsQueuedEvent* queuedEvent =
-            new OsQueuedEvent(*(mpCallManager->getMessageQueue()),
-                                (int)expiredBye);
-                OsTimer* timer = new OsTimer(*queuedEvent);
-                // Convert from mSeconds to uSeconds
+
+        OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
+            (int)expiredBye);
+        // Convert from mSeconds to uSeconds
 #ifdef TEST_PRINT
         osPrintf("Setting CANCEL timeout to %d seconds\n",
             sipUserAgent->getSipStateTransactionTimeout() / 1000);
 #endif
-                OsTime timerTime(sipUserAgent->getSipStateTransactionTimeout() / 1000, 0);
-                timer->oneshotAfter(timerTime);
+        OsTime timerTime(sipUserAgent->getSipStateTransactionTimeout() / 1000, 0);
+        timer->oneshotAfter(timerTime);
     }
     else if(responseCode >= SIP_2XX_CLASS_CODE)
     {
         // Stop sending & receiving RTP
-        mpMediaInterface->stopRtpSend(mConnectionId);
-        mpMediaInterface->stopRtpReceive(mConnectionId);
+        if (mpMediaInterface != NULL)
+        {
+            mpMediaInterface->stopRtpSend(mConnectionId);
+            mpMediaInterface->stopRtpReceive(mConnectionId);
+            fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
+        }
     }
 
 } // End of processCancelResponse
@@ -4506,164 +4777,167 @@ void SipConnection::processCancelResponse(const SipMessage* response)
 
 void SipConnection::setCallerId()
 {
-   UtlString newCallerId;
+    UtlString newCallerId;
 
-   if(inviteMsg)
-   {
-      UtlString user;
-      UtlString addr;
-      //UtlString fromProtocol;
-      Url uri;
-      UtlString userLabel;
-      //int port;
-      if(!inviteFromThisSide)
-      {
-         inviteMsg->getFromUrl(mToUrl);
-         uri = mToUrl;
-         inviteMsg->getToUrl(mFromUrl);
-         inviteMsg->getRequestUri(&mRemoteUriStr);
-
-#ifdef TEST_PRINT
-         UtlString fromString;
-         UtlString toString;
-         mToUrl.toString(toString);
-         mFromUrl.toString(fromString);
-         osPrintf("SipConnection::setCallerId INBOUND to: %s from: %s\n",
-             toString.data(), fromString.data());
-#endif
-      }
-      else
-      {
-         inviteMsg->getToUrl(mToUrl);
-         uri = mToUrl;
-         inviteMsg->getFromUrl(mFromUrl);
-         inviteMsg->getRequestUri(&mLocalUriStr);
+    if(inviteMsg)
+    {
+        UtlString user;
+        UtlString addr;
+        //UtlString fromProtocol;
+        Url uri;
+        UtlString userLabel;
+        //int port;
+        if(!inviteFromThisSide)
+        {
+            inviteMsg->getFromUrl(mToUrl);
+            uri = mToUrl;
+            inviteMsg->getToUrl(mFromUrl);
+            inviteMsg->getRequestUri(&mRemoteUriStr);
 
 #ifdef TEST_PRINT
-         UtlString fromString;
-         UtlString toString;
-         mToUrl.toString(toString);
-         mFromUrl.toString(fromString);
-         osPrintf("SipConnection::setCallerId INBOUND to: %s from: %s\n",
-             toString.data(), fromString.data());
+            UtlString fromString;
+            UtlString toString;
+            mToUrl.toString(toString);
+            mFromUrl.toString(fromString);
+            osPrintf("SipConnection::setCallerId INBOUND to: %s from: %s\n",
+                toString.data(), fromString.data());
 #endif
-      }
+        }
+        else
+        {
+            inviteMsg->getToUrl(mToUrl);
+            uri = mToUrl;
+            inviteMsg->getFromUrl(mFromUrl);
+            inviteMsg->getRequestUri(&mLocalUriStr);
 
-      uri.getHostAddress(addr);
-      //port = uri.getHostPort();
-      //uri.getUrlParameter("transport", fromProtocol);
-      uri.getUserId(user);
-      uri.getDisplayName(userLabel);
-      // Set the caller ID
-      // Use the first that is not empty string of:
-      // user label
-      // user id
-      // host address
-      NameValueTokenizer::frontBackTrim(&userLabel, " \t\n\r");
 #ifdef TEST_PRINT
-      osPrintf("SipConnection::setCallerid label: %s user %s address: %s\n",
-          userLabel.data(), user.data(), addr.data());
+            UtlString fromString;
+            UtlString toString;
+            mToUrl.toString(toString);
+            mFromUrl.toString(fromString);
+            osPrintf("SipConnection::setCallerId INBOUND to: %s from: %s\n",
+                toString.data(), fromString.data());
+#endif
+        }
+
+        uri.getHostAddress(addr);
+        //port = uri.getHostPort();
+        //uri.getUrlParameter("transport", fromProtocol);
+        uri.getUserId(user);
+        uri.getDisplayName(userLabel);
+        // Set the caller ID
+        // Use the first that is not empty string of:
+        // user label
+        // user id
+        // host address
+        NameValueTokenizer::frontBackTrim(&userLabel, " \t\n\r");
+#ifdef TEST_PRINT
+        osPrintf("SipConnection::setCallerid label: %s user %s address: %s\n",
+            userLabel.data(), user.data(), addr.data());
 #endif
 
-      if(!userLabel.isNull())
-      {
-          newCallerId.append(userLabel.data());
-      }
-      else
-      {
-          NameValueTokenizer::frontBackTrim(&user, " \t\n\r");
-          if(!user.isNull())
-          {
-              newCallerId.append(user.data());
-          }
-          else
-          {
-              NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
-                  newCallerId.append(addr.data());
-          }
-      }
-   }
-   Connection::setCallerId(newCallerId.data());
+        if(!userLabel.isNull())
+        {
+            newCallerId.append(userLabel.data());
+        }
+        else
+        {
+            NameValueTokenizer::frontBackTrim(&user, " \t\n\r");
+            if(!user.isNull())
+            {
+                newCallerId.append(user.data());
+            }
+            else
+            {
+                NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+                newCallerId.append(addr.data());
+            }
+        }
+    }
+    Connection::setCallerId(newCallerId.data());
 }
 
 UtlBoolean SipConnection::processNewFinalMessage(SipUserAgent* sipUa,
-                                             OsMsg* eventMessage)
+                                                 OsMsg* eventMessage)
 {
-        UtlBoolean sendSucceeded = FALSE;
+    UtlBoolean sendSucceeded = FALSE;
 
-        int msgType = eventMessage->getMsgType();
-        int msgSubType = eventMessage->getMsgSubType();
-        const SipMessage* sipMsg = NULL;
+    int msgType = eventMessage->getMsgType();
+    int msgSubType = eventMessage->getMsgSubType();
+    const SipMessage* sipMsg = NULL;
 
-        if(msgType == OsMsg::PHONE_APP &&
-      msgSubType == CallManager::CP_SIP_MESSAGE)
+    if(msgType == OsMsg::PHONE_APP &&
+        msgSubType == CallManager::CP_SIP_MESSAGE)
+    {
+        sipMsg = ((SipMessageEvent*)eventMessage)->getMessage();
+        int port;
+        int sequenceNum;
+        UtlString method;
+        UtlString address;
+        UtlString protocol;
+        UtlString user;
+        UtlString userLabel;
+        UtlString tag;
+        UtlString sequenceMethod;
+        sipMsg->getToAddress(&address, &port, &protocol, &user, &userLabel, &tag);
+        sipMsg->getCSeqField(&sequenceNum, &method);
+
+        int responseCode = sipMsg->getResponseStatusCode();
+
+        // INVITE to create a connection
+        //if to tag is already set then return 481 error
+        if(method.compareTo(SIP_INVITE_METHOD) == 0 &&
+            !tag.isNull() &&
+            responseCode == SIP_OK_CODE)
         {
-      sipMsg = ((SipMessageEvent*)eventMessage)->getMessage();
-      int port;
-      int sequenceNum;
-      UtlString method;
-      UtlString address;
-      UtlString protocol;
-      UtlString user;
-      UtlString userLabel;
-      UtlString tag;
-      UtlString sequenceMethod;
-      sipMsg->getToAddress(&address, &port, &protocol, &user, &userLabel, &tag);
-      sipMsg->getCSeqField(&sequenceNum, &method);
+            UtlString fromField;
+            UtlString toField;
+            UtlString uri;
+            UtlString callId;
 
-      int responseCode = sipMsg->getResponseStatusCode();
+            sipMsg->getFromField(&fromField);
+            sipMsg->getToField(&toField);
+            sipMsg->getContactUri( 0 , &uri);
+            if(uri.isNull())
+                uri.append(toField.data());
 
-      // INVITE to create a connection
-      //if to tag is already set then return 481 error
-      if(method.compareTo(SIP_INVITE_METHOD) == 0 &&
-         !tag.isNull() &&
-         responseCode == SIP_OK_CODE)
-      {
-              UtlString fromField;
-              UtlString toField;
-              UtlString uri;
-              UtlString callId;
+            sipMsg->getCallIdField(&callId);
+            SipMessage* ackMessage = new SipMessage();
+            ackMessage->setAckData(uri,
+                fromField,
+                toField,
+                callId,
+                sequenceNum);
+            sendSucceeded = sipUa->send(*ackMessage);
+            delete ackMessage;
 
-              sipMsg->getFromField(&fromField);
-              sipMsg->getToField(&toField);
-          sipMsg->getContactUri( 0 , &uri);
-                   if(uri.isNull())
-                      uri.append(toField.data());
+            if (sendSucceeded)
+            {
+                SipMessage* byeMessage = new SipMessage();
+                byeMessage->setByeData(uri,
+                    fromField,
+                    toField,
+                    callId,
+                    NULL,
+                    sequenceNum + 1);
 
-         sipMsg->getCallIdField(&callId);
-         SipMessage* ackMessage = new SipMessage();
-         ackMessage->setAckData(uri,
-                                                                   fromField,
-                                toField,
-                                callId,
-                                sequenceNum);
-         sendSucceeded = sipUa->send(*ackMessage);
-         delete ackMessage;
+                sendSucceeded = sipUa->send(*byeMessage);
+                delete byeMessage;
+            }
+        }
 
-         if (sendSucceeded)
-         {
-            SipMessage* byeMessage = new SipMessage();
-            byeMessage->setByeData(uri,
-                                                               fromField,
-                                   toField,
-                                   callId,
-                                   NULL,
-                                   sequenceNum + 1);
-
-            sendSucceeded = sipUa->send(*byeMessage);
-            delete byeMessage;
-         }
-      }
-
-   }
-   return sendSucceeded;
+    }
+    return sendSucceeded;
 }
 
 
 void SipConnection::setContactType(CONTACT_TYPE eType)
 {
     mContactType = eType ;
-    mpMediaInterface->setContactType(mConnectionId, eType) ;
+    if (mpMediaInterface != NULL)
+    {
+        mpMediaInterface->setContactType(mConnectionId, eType) ;
+    }
 
     UtlString localContact ;
     buildLocalContact(mFromUrl, localContact);
@@ -4679,7 +4953,7 @@ UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress) const
 
 
 UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress,
-                                          UtlBoolean leaveFieldParmetersIn) const
+                                           UtlBoolean leaveFieldParmetersIn) const
 {
     // leaveFieldParmetersIn gives the flexability of getting the
     // tag when the connection is still an early dialog
@@ -4688,10 +4962,10 @@ UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress,
     // If this is an early dialog or we explicily want the
     // field parameters
     if(leaveFieldParmetersIn ||
-       remoteState == CONNECTION_ESTABLISHED ||
-       remoteState == CONNECTION_DISCONNECTED ||
-       remoteState == CONNECTION_FAILED ||
-       remoteState == CONNECTION_UNKNOWN)
+        remoteState == CONNECTION_ESTABLISHED ||
+        remoteState == CONNECTION_DISCONNECTED ||
+        remoteState == CONNECTION_FAILED ||
+        remoteState == CONNECTION_UNKNOWN)
     {
         // Cast as the toString method is not const
         ((Url)mToUrl).toString(*remoteAddress);
@@ -4718,7 +4992,7 @@ UtlBoolean SipConnection::isSameRemoteAddress(Url& remoteAddress) const
 }
 
 UtlBoolean SipConnection::isSameRemoteAddress(Url& remoteAddress,
-                                             UtlBoolean tagsMustMatch) const
+                                              UtlBoolean tagsMustMatch) const
 {
     UtlBoolean isSame = FALSE;
 
@@ -4728,10 +5002,10 @@ UtlBoolean SipConnection::isSameRemoteAddress(Url& remoteAddress,
     Url mToUrlTmp(mToUrl);
 
     if(tagsMustMatch ||
-       remoteState == CONNECTION_ESTABLISHED ||
-       remoteState == CONNECTION_DISCONNECTED ||
-       remoteState == CONNECTION_FAILED ||
-       remoteState == CONNECTION_UNKNOWN)
+        remoteState == CONNECTION_ESTABLISHED ||
+        remoteState == CONNECTION_DISCONNECTED ||
+        remoteState == CONNECTION_FAILED ||
+        remoteState == CONNECTION_UNKNOWN)
     {
         isSame = SipMessage::isSameSession(mToUrlTmp, remoteAddress);
     }
@@ -4758,9 +5032,9 @@ UtlBoolean SipConnection::getSession(SipSession& session)
     ssn.setLocalContact(Url(mLocalContact.data(), FALSE));
 
     if (!mRemoteUriStr.isNull())
-      ssn.setRemoteRequestUri(mRemoteUriStr);
+        ssn.setRemoteRequestUri(mRemoteUriStr);
     if (!mLocalUriStr.isNull())
-      ssn.setLocalRequestUri(mLocalUriStr);
+        ssn.setLocalRequestUri(mLocalUriStr);
 
     session = ssn;
     return(TRUE);
@@ -4774,12 +5048,12 @@ int SipConnection::getNextCseq()
 
 OsStatus SipConnection::getFromField(UtlString* fromField)
 {
-        OsStatus ret = OS_SUCCESS;
+    OsStatus ret = OS_SUCCESS;
 
     UtlString host;
     mFromUrl.getHostAddress(host);
-        if(host.isNull())
-                ret = OS_NOT_FOUND;
+    if(host.isNull())
+        ret = OS_NOT_FOUND;
 
     mFromUrl.toString(*fromField);
 
@@ -4788,16 +5062,16 @@ OsStatus SipConnection::getFromField(UtlString* fromField)
         fromField->data());
 #endif
 
-        return ret;
+    return ret;
 }
 
 OsStatus SipConnection::getToField(UtlString* toField)
 {
-        OsStatus ret = OS_SUCCESS;
+    OsStatus ret = OS_SUCCESS;
     UtlString host;
     mToUrl.getHostAddress(host);
-        if (host.isNull())
-                ret = OS_NOT_FOUND;
+    if (host.isNull())
+        ret = OS_NOT_FOUND;
 
     mToUrl.toString(*toField);
 
@@ -4806,7 +5080,7 @@ OsStatus SipConnection::getToField(UtlString* toField)
         toField->data());
 #endif
 
-        return ret;
+    return ret;
 }
 
 
@@ -4815,20 +5089,20 @@ OsStatus SipConnection::getToField(UtlString* toField)
 UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
 {
     int msgType = eventMessage.getMsgType();
-        int msgSubType = eventMessage.getMsgSubType();
-        UtlBoolean handleMessage = FALSE;
-        const SipMessage* sipMsg = NULL;
-        int messageType;
+    int msgSubType = eventMessage.getMsgSubType();
+    UtlBoolean handleMessage = FALSE;
+    const SipMessage* sipMsg = NULL;
+    int messageType;
 
     // Do not handle message if marked for deletion
     if (isMarkedForDeletion())
         return false ;
 
-        if(msgType == OsMsg::PHONE_APP &&
-                msgSubType == CallManager::CP_SIP_MESSAGE)
-        {
-                sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
-                messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
+    if(msgType == OsMsg::PHONE_APP &&
+        msgSubType == CallManager::CP_SIP_MESSAGE)
+    {
+        sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
+        messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 
         // If the callId, To and From match it belongs to this message
         if(inviteMsg && inviteMsg->isSameSession(sipMsg))
@@ -4840,9 +5114,9 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
             // Trick to reverse the To & From fields
             SipMessage toFromReversed;
 
-             toFromReversed.setByeData(inviteMsg,
-                 mRemoteContact,
-                 FALSE, 1, "", NULL, mLocalContact.data());
+            toFromReversed.setByeData(inviteMsg,
+                mRemoteContact,
+                FALSE, 1, "", NULL, mLocalContact.data());
             if(toFromReversed.isSameSession(sipMsg))
             {
                 handleMessage = TRUE;
@@ -4855,9 +5129,9 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
 }
 
 UtlBoolean SipConnection::isConnection(const char* callId,
-                                      const char* toTag,
-                                      const char* fromTag,
-                                      UtlBoolean  strictCompare) const
+                                       const char* toTag,
+                                       const char* fromTag,
+                                       UtlBoolean  strictCompare) const
 {
     UtlBoolean matches = FALSE;
 
@@ -4879,32 +5153,32 @@ UtlBoolean SipConnection::isConnection(const char* callId,
 
             if (strictCompare)
             {
-               // for transfer target in a consultative call,
-               // thisFromTag is remote, thisToTag is local
-               if((thisFromTag.compareTo(toTag) == 0 &&
-                   thisToTag.compareTo(fromTag) == 0 ))
-               {
-                   matches = TRUE;
-               }
+                // for transfer target in a consultative call,
+                // thisFromTag is remote, thisToTag is local
+                if((thisFromTag.compareTo(toTag) == 0 &&
+                    thisToTag.compareTo(fromTag) == 0 ))
+                {
+                    matches = TRUE;
+                }
             }
 
             // Do a sloppy comparison
             //  Allow a match either way
             else
             {
-               if((thisFromTag.compareTo(fromTag) == 0 &&
-                   thisToTag.compareTo(toTag) == 0 ) ||
-                   (thisFromTag.compareTo(toTag) == 0 &&
-                   thisToTag.compareTo(fromTag) == 0 ))
-               {
-                   matches = TRUE;
-               }
+                if((thisFromTag.compareTo(fromTag) == 0 &&
+                    thisToTag.compareTo(toTag) == 0 ) ||
+                    (thisFromTag.compareTo(toTag) == 0 &&
+                    thisToTag.compareTo(fromTag) == 0 ))
+                {
+                    matches = TRUE;
+                }
             }
- #ifdef TEST_PRINT
+#ifdef TEST_PRINT
             osPrintf("SipConnection::isConnection toTag=%s\n\t fromTag=%s\n\t thisToTag=%s\n\t thisFromTag=%s\n\t matches=%d\n",
-                    toTag, fromTag, thisToTag.data(), thisFromTag.data(), (int)matches) ;
+                toTag, fromTag, thisToTag.data(), thisFromTag.data(), (int)matches) ;
 #endif
-       }
+        }
     }
 
     return(matches);
@@ -4940,47 +5214,51 @@ UtlBoolean SipConnection::isMethodAllowed(const char* method)
     return(methodSupported);
 }
 
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 void SipConnection::proceedToRinging(const SipMessage* inviteMessage,
                                      SipUserAgent* sipUserAgent, int tagNum,
-                                     //UtlBoolean callInFocus,
-                                     int availableBehavior,
-                                     CpMediaInterface* mediaInterface)
+                                     int availableBehavior)
 {
-   UtlString name = mpCall->getName();
+    UtlString name = mpCall->getName();
 #ifdef TEST_PRINT
-   osPrintf("%s SipConnection::proceedToRinging\n", name.data());
+    osPrintf("%s SipConnection::proceedToRinging\n", name.data());
 #endif
+
     // Send back a ringing INVITE response
-        SipMessage sipResponse;
-        sipResponse.setInviteRingingData(inviteMessage);
+    SipMessage sipResponse;
+    sipResponse.setInviteRingingData(inviteMessage);
     if(tagNum >= 0)
     {
         sipResponse.setToFieldTag(tagNum);
     }
-        if(sipUserAgent->send(sipResponse))
-        {
+    if(send(sipResponse))
+    {
 #ifdef TEST_PRINT
-                osPrintf("INVITE Ringing sent successfully\n");
+        osPrintf("INVITE Ringing sent successfully\n");
 #endif
-        }
-        else
-        {
+    }
+    else
+    {
 #ifdef TEST_PRINT
-                osPrintf("INVITE Ringing send failed\n");
+        osPrintf("INVITE Ringing send failed\n");
 #endif
-        }
-
-    // If not pretending to ring or busy
-    //if(!callInFocus || availableBehavior != RING_SILENT)
-    //{
-                //mediaInterface->startRinger(TRUE, FALSE);
-    //}
+    }
 }
 
-
+UtlBoolean SipConnection::send(SipMessage& message,
+                    OsMsgQ* responseListener,
+                    void* responseListenerData)
+{
+    if (message.getLocalIp().length() < 1)
+    {
+        int port = -1;
+        UtlString localIp;
+        sipUserAgent->getLocalAddress(&localIp, &port);        
+        message.setLocalIp(localIp);
+    }
+    return sipUserAgent->send(message, responseListener, responseListenerData);
+}
 /* ============================ FUNCTIONS ================================= */

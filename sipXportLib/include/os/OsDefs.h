@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsDefs_h_
 #define _OsDefs_h_
@@ -37,6 +35,21 @@ void osPrintf(const char* format , ...)
 #endif
          ;
          
+// A special value for "port number" which means that no port is specified.
+#define PORT_NONE (-1)
+
+// A special value for "port number" which means that some default port number
+// should be used.  The default may be defined by the situation, or
+// the OS may choose a port number.
+// For use when PORT_NONE is used to mean "open no port", and in socket-opening
+// calls.
+#define PORT_DEFAULT (-2)
+
+// Macro to test a port number for validity as a real port (and not PORT_NONE
+// or PORT_DEFAULT).  Note that 0 is a valid port number for the protocol,
+// but the Berkeley sockets interface makes it impossible to specify it.
+// In addition, RTP treats port 0 as a special value.  Thus we forbid port 0.
+#define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
 // EXTERNAL VARIABLES
 // CONSTANTS

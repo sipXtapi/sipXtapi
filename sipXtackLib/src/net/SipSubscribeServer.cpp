@@ -88,12 +88,15 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
                                       *subscriptionMgr,
                                       *eventHandler);
 
-    // Enable the server to accept the given SIP event package
-    newServer->enableEventType(eventType, 
-                               &userAgent, 
-                               publishContent,
-                               eventHandler,
-                               subscriptionMgr);
+    if(eventType && *eventType)
+    {
+        // Enable the server to accept the given SIP event package
+        newServer->enableEventType(eventType, 
+                                   &userAgent, 
+                                   publishContent,
+                                   eventHandler,
+                                   subscriptionMgr);
+    }
 
     return(newServer);
 }
@@ -122,6 +125,11 @@ SipSubscribeServer::SipSubscribeServer(const SipSubscribeServer& rSipSubscribeSe
 // Destructor
 SipSubscribeServer::~SipSubscribeServer()
 {
+   /*
+    * Don't delete  mpDefaultContentMgr, mpDefaultSubscriptionMgr, or mpDefaultEventHandler
+    *   they are owned by whoever constructed this server.
+    */
+
     // Iterate through and delete all the event data
     // TODO:
 }
@@ -354,7 +362,7 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
        msgSubType == SipMessage::NET_SIP_MESSAGE)
     {
         const SipMessage* sipMessage = ((SipMessageEvent&)eventMessage).getMessage();
-        int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
+
         UtlString method;
         if(sipMessage)
         {
@@ -448,6 +456,17 @@ SipSubscriptionMgr* SipSubscribeServer::getSubscriptionMgr(const UtlString& even
 }
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean SipSubscribeServer::isEventTypeEnabled(const UtlString& eventType)
+{
+    lockForRead();
+    // Only add the event support if it does not already exist;
+    SubscribeServerEventData* eventData = 
+        (SubscribeServerEventData*) mEventDefinitions.find(&eventType);
+    unlockForRead();
+
+    return(eventData != NULL);
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

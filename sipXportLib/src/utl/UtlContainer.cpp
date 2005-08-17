@@ -1,15 +1,15 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlContainer.h"
+#include "utl/UtlLink.h"
 #include "utl/UtlIterator.h"
 #include "os/OsLock.h"
 
@@ -19,7 +19,15 @@
 const UtlContainableType UtlContainer::TYPE = "UtlContainer" ;
 
 // STATIC VARIABLE INITIALIZATIONS
-OsBSem UtlContainer::sIteratorConnectionLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+/*
+ * spIteratorConnectionLock is implemented as a pointer to a dynamically allocated
+ * lock here so that it will be constructed at initialization time (the
+ * 'new' below), but _never_ destructed (as it would be if declared an OsBSem rather
+ * than an OsBSem*).  This is because we cannot control the order of destructors
+ * between modules, and this lock needs to exist until all container and iterator
+ * destructors have been run - so we deliberately leak it.
+ */
+OsBSem* UtlContainer::spIteratorConnectionLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -28,14 +36,8 @@ OsBSem UtlContainer::sIteratorConnectionLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 // Constructor
 
 UtlContainer::UtlContainer()
-   : mContainerLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-     mpIteratorList(NULL)
+   : mContainerLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
-   if (!g_thread_supported())
-   {
-      g_thread_init(NULL);
-   }
-   
 }
 
 
@@ -49,22 +51,22 @@ UtlContainer::~UtlContainer()
 // but it is used by the methods for various subclasses.
 void UtlContainer::invalidateIterators()
 {
-   GList*          listNode = NULL;
+   UtlLink*        listNode;
    UtlIterator*    foundIterator;
 
    // The caller is holding the sIteratorConnectionLock and mContainerLock.
        
    // Walk the list to notify the iterators.
-   for (listNode = g_list_first(mpIteratorList);
+   for (listNode = static_cast<UtlLink*>(mIteratorList.head());
         listNode != NULL;
-        listNode = g_list_next(listNode)
+        listNode = listNode->next()
         )
    {
       foundIterator = (UtlIterator*)listNode->data;
       foundIterator->invalidate();
    }
 
-   mpIteratorList = NULL;
+   assert(mIteratorList.isUnLinked());// some iterator failed to call removeIterator
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -83,7 +85,8 @@ void UtlContainer::invalidateIterators()
  */
 unsigned UtlContainer::hash() const
 {
-   return g_direct_hash(this);
+   // default implementation
+   return (unsigned) this;
 }
 
 
@@ -106,7 +109,7 @@ UtlContainableType UtlContainer::getContainableType() const
  */
 int UtlContainer::compareTo(const UtlContainable* otherObject) const
 {
-   return this == otherObject ? 0 : 1;
+   return ((unsigned) this) - ((unsigned) otherObject);
 }
 
 
@@ -115,13 +118,13 @@ int UtlContainer::compareTo(const UtlContainable* otherObject) const
 /// Lock the linkage between containers and iterators
 void UtlContainer::acquireIteratorConnectionLock()
 {
-   sIteratorConnectionLock.acquire();
+   spIteratorConnectionLock->acquire();
 }
 
 /// Unlock the linkage between containers and iterators
 void UtlContainer::releaseIteratorConnectionLock()
 {
-   sIteratorConnectionLock.release();
+   spIteratorConnectionLock->release();
 }
 
 void UtlContainer::addIterator(UtlIterator* newIterator) const
@@ -137,7 +140,10 @@ void UtlContainer::addIterator(UtlIterator* newIterator) const
    
     if(newIterator)
     {
-       my->mpIteratorList = g_list_append(my->mpIteratorList, newIterator);
+       // :HACK: note that we are storing a UtlIterator* in the UtlContainer* pointer
+       UtlLink* iteratorLink = UtlLink::get();
+       iteratorLink->data = (UtlContainer*)newIterator;
+       iteratorLink->UtlChain::listBefore(&my->mIteratorList, NULL);
     }
 }
 
@@ -151,17 +157,17 @@ void UtlContainer::removeIterator(UtlIterator *existingIterator) const
    // This method is declared const because it makes no change that
    // any other method can detect in the container, but it actually
    // does make a change, so we have to cast away the const.
-   UtlContainer *my = (UtlContainer*)this;
    
    if(existingIterator)
    {
-      my->mpIteratorList = g_list_remove(my->mpIteratorList, existingIterator);
+      UtlContainer *my = (UtlContainer*)this;
+      UtlLink* iteratorLink;
+
+      // :HACK: note that we are storing a UtlIterator* in the UtlContainer* pointer
+      iteratorLink = UtlLink::findData(&my->mIteratorList, (UtlContainer*)existingIterator);
+      if (iteratorLink)
+      {
+         iteratorLink->detachFrom(&my->mIteratorList);
+      }
    }
 }
-
-
-
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-/* ============================ FUNCTIONS ================================= */

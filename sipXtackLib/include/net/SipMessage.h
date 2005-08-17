@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipMessage_h_
 #define _SipMessage_h_
@@ -286,9 +284,9 @@ class SipMessage : public HttpMessage
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   static UtlHashBag shortFieldNames;
-   static UtlHashBag longFieldNames;
-   static UtlHashBag disallowedUrlHeaders;
+   static UtlHashBag* mpShortFieldNames;
+   static UtlHashBag* mpLongFieldNames;
+   static UtlHashBag* mpDisallowedUrlHeaders;
 
 
    // See sipXcall's CpCallManager for more defines
@@ -338,7 +336,8 @@ public:
 
     //! @name SIP URL manipulators
     //@{
-    static void buildSipUrl(UtlString* url, const char* address, int port = 0,
+    static void buildSipUrl(UtlString* url, const char* address,
+                            int port = PORT_NONE,
                             const char* protocol = NULL,
                             const char* user = NULL,
                             const char* userLabel = NULL,
@@ -773,7 +772,7 @@ public:
                     int* recievedPort = NULL,
                     UtlBoolean* receivedSet = NULL,
                     UtlBoolean* maddrSet = NULL,
-                    UtlBoolean* receivePortSet = NULL) const;
+                    UtlBoolean* receivedPortSet = NULL) const;
 
     UtlBoolean removeLastVia();
 
@@ -838,6 +837,10 @@ public:
 
     //! Set the SIP-ETAG field in a response to the PUBLISH request
     void setSipETagField(const char* sipETagField);
+
+    const UtlString& getLocalIp() const;
+    
+    void setLocalIp(const UtlString& localIp);
 
     //@}
 
@@ -928,7 +931,7 @@ public:
                                                  enum HttpEndpointEnum authEntity = SERVER) const;
 
     //! @name DNS SRV state accessors
-    /*! \note this will be depricated
+    /*! \note this will be deprecated
      */
     //@{
         //SDUA
@@ -973,6 +976,7 @@ public:
     static UtlBoolean isSameSession(Url& previousUrl, Url& newUrl);
     UtlBoolean isResponseTo(const SipMessage* message) const;
     UtlBoolean isAckFor(const SipMessage* inviteResponse) const;
+    
     //SDUA
     UtlBoolean isInviteFor(const SipMessage* inviteRequest) const;
     UtlBoolean isSameTransaction(const SipMessage* message) const;
@@ -997,6 +1001,8 @@ protected:
 private:
 
     SipTransaction* mpSipTransaction;
+    
+    UtlString mLocalIp;
 
     //SDUA
     UtlString m_dnsProtocol ;

@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -23,8 +21,8 @@
 
 // EXTERNAL FUNCTIONS
 
-/* linux does not seem to have any way of getting a clock-independent time. */
-#ifdef __linux__
+/* provide a way of getting a clock-independent time if necessary */
+#if defined(__pingtel_on_posix__) && !defined(sun)
 pt_tick_t pt_get_ticks(void)
 {
    static pt_tick_t ticks = 0;
@@ -121,7 +119,10 @@ void OsSysSoftTimer::startTimer(OsTimer* pTimer)
    /* This makes an ADD message */
    OsTimerMessage message(pTimer, &synch);
 
-   requestQ->send(message);
+   if (requestQ)
+   {
+      requestQ->send(message);
+   }
 
 #ifndef OS_SYS_SOFT_TIMER_ASYNC_START_TIMER
    synch.acquire();
@@ -218,8 +219,8 @@ int OsSysSoftTimer::run(void * pArg)
             /* use the knowledge that ticks are nanoseconds on solaris */
             OsTime expiry(timer->expiry / TICKS_PER_SECOND,
                           (timer->expiry % TICKS_PER_SECOND) / 1000);
-#elif defined(__linux__)
-            /* use the knowledge that ticks are microseconds on linux */
+#elif defined(__pingtel_on_posix__)
+            /* use the knowledge that ticks are microseconds on other posix systems */
             OsTime expiry(timer->expiry / TICKS_PER_SECOND,
                           timer->expiry % TICKS_PER_SECOND);
 #elif defined(_WIN32)
@@ -437,7 +438,7 @@ bool OsSysSoftTimer::doServiceRequests(OsMsg* pFirstMessage)
       }
 
       pMessage->releaseMsg();
-      if (!requestQ) 
+      if (!requestQ || !keepRunning) 
       {
           break ; 
       }

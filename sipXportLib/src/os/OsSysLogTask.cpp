@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -58,6 +56,7 @@ OsSysLogTask::OsSysLogTask(const int maxInMemoryLogEntries /* = 0 */,
    , mFlushPeriod(0)
    , mLogChanged(FALSE)
    , mpTimer(NULL)
+   , mpCallback(NULL)
    , mRWMutex(OsRWMutex::Q_PRIORITY)
    , mpLastReopen()
 {    
@@ -87,6 +86,7 @@ OsSysLogTask::OsSysLogTask(const int maxInMemoryLogEntries /* = 0 */,
 // Destructor
 OsSysLogTask::~OsSysLogTask()
 {
+   waitUntilShutDown();
    clear() ;
 
    // Free Ring Buffer
@@ -287,6 +287,9 @@ UtlBoolean OsSysLogTask::handleMessage(OsMsg& eventMessage)
                   free(data) ;
                }
                break ;
+            case OsSysLogMsg::SET_CALLBACK:
+               processSetCallback((OsSysLogCallback) pSysLogMsg->getData());
+               break ;
             case OsSysLogMsg::SET_FLUSH_PERIOD:
                processSetFlushPeriod((int) pSysLogMsg->getData()) ;
                break ;
@@ -457,6 +460,29 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
          else
             mpSockets[i]->write("\n", 1, 0) ;
       }
+   }
+
+   /* 
+    * If a callback funtion was registered, call and hand over the log entry
+    */
+   if ( mpCallback != NULL )
+   {
+      UtlString date;
+      UtlString eventCount;
+      UtlString facility;
+      UtlString priority;
+      UtlString hostname;
+      UtlString taskname;
+      UtlString taskId;
+      UtlString processId;
+      UtlString content;
+
+      // Parse the log entry to extract the priority 
+      OsSysLog::parseLogString(pEntry, date, eventCount, facility, priority,
+                               hostname, taskname, taskId, processId,
+                               content);
+  
+      mpCallback(priority, "SIPxua", pEntry);
    }
 
 
@@ -636,6 +662,10 @@ OsStatus OsSysLogTask::processSetFile(const char* szFile)
          file.close() ;
       }
    }
+   else
+   {
+       mRWMutex.releaseWrite();
+   }
 
    return status;
 }
@@ -657,8 +687,7 @@ OsStatus OsSysLogTask::processSetFlushPeriod(const int iSeconds)
       // Enable a new timer / reschedule existing timer
       if (mpTimer == NULL)
       {
-         OsQueuedEvent* pEvent = new OsQueuedEvent(*getMessageQueue(), 0);
-         mpTimer = new OsTimer(*pEvent) ;
+         mpTimer = new OsTimer(getMessageQueue(), 0) ;
       }
       else
          mpTimer->stop() ;
@@ -672,10 +701,6 @@ OsStatus OsSysLogTask::processSetFlushPeriod(const int iSeconds)
       if (mpTimer != NULL)
       {
          mpTimer->stop() ;
-
-         OsQueuedEvent* pEvent = (OsQueuedEvent*) mpTimer->getNotifier() ;
-         if (pEvent != NULL)
-            delete pEvent;
 
          delete mpTimer ;
          mpTimer = NULL ;
@@ -696,7 +721,7 @@ OsStatus OsSysLogTask::processAddSocket(const char* remoteHost)
    OsStatus status = OS_SUCCESS;
    UtlBoolean bFoundSpace = FALSE;
    char* host = strdup(remoteHost);
-   int port = 0;
+   int port = PORT_NONE;
 
    // Parse remoteHost into a host and port
    char* portStart = strrchr(host, (int) ':');
@@ -812,6 +837,19 @@ OsStatus OsSysLogTask::processFlushLog(OsEvent* pEvent)
    {
       pEvent->signal(0) ;
    }
+
+   return status;
+}
+
+OsStatus OsSysLogTask::processSetCallback(OsSysLogCallback fn)
+{
+   OsStatus status = OS_SUCCESS;
+
+   mRWMutex.acquireWrite() ;
+
+   mpCallback = fn;
+
+   mRWMutex.releaseWrite() ;
 
    return status;
 }

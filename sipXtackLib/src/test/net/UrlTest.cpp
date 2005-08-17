@@ -1,13 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -42,6 +38,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testSipAdvanced); 
     CPPUNIT_TEST(testSipComplexUser);
     CPPUNIT_TEST(testLongHostname);
+    CPPUNIT_TEST(testSipParameters);
     CPPUNIT_TEST(testFullSip);
     CPPUNIT_TEST(testQuotedName);
     CPPUNIT_TEST(testFancyNames);
@@ -51,6 +48,8 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testNoHeaderParams);
     CPPUNIT_TEST(testCorrection);
     CPPUNIT_TEST(testIpAddressOnly);
+    CPPUNIT_TEST(testMissingAngles);
+    CPPUNIT_TEST(testNoAngleParam);
     CPPUNIT_TEST(testHostAddressOnly);
     CPPUNIT_TEST(testHostAndPort);
     CPPUNIT_TEST(testIPv6Host);
@@ -82,6 +81,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testIsUserHostPortVaryCapitalization);
     CPPUNIT_TEST(testIsUserHostPortNoPort);
     CPPUNIT_TEST(testIsUserHostPortNoMatch);
+    CPPUNIT_TEST(testIsUserHostPortPorts);
     CPPUNIT_TEST(testToString);
     CPPUNIT_TEST(testGetIdentity);
     CPPUNIT_TEST_SUITE_END();
@@ -107,20 +107,25 @@ public:
     void testFileBasic()
     {
         const char* szUrl =  "file://www.sipfoundry.org/dddd/ffff.txt";        
-
+#ifdef _WIN32
+        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+#endif        
         Url url(szUrl);
         sprintf(msg, "simple file url : %s", szUrl);
-        ASSERT_STR_EQUAL_MESSAGE(msg, "file", getUrlType(url));
-        ASSERT_STR_EQUAL_MESSAGE(msg, "www.sipfoundry.org", getHostAddress(url));
-        ASSERT_STR_EQUAL_MESSAGE(msg, "/dddd/ffff.txt", getPath(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, url.getHostPort());
+        ASSERT_STR_EQUAL_MESSAGE(msg, "www.sipfoundry.org", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "file", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "/dddd/ffff.txt", getPath(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
     }
 
     void testFileWithPortAndPath()
     {
         const char* szUrl = "file://server:8080/dddd/ffff.txt";
 
+#ifdef _WIN32
+        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+#endif   
         sprintf(msg, "file url w/path and port : %s", szUrl);
         Url url(szUrl);
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
@@ -140,7 +145,7 @@ public:
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "www.sipfoundry.org", getHostAddress(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "http", getUrlType(url));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, url.getHostPort());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
     }
 
    void testHttpWithPortAndPath()
@@ -217,7 +222,7 @@ public:
         Url url(szUrl); 
         ASSERT_STR_EQUAL_MESSAGE(msg, "10.1.1.89", getHostAddress(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, url.getHostPort());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
 
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, getUri(url));
@@ -245,10 +250,10 @@ public:
 
         sprintf(msg, "url sip address: %s", szUrl);
         Url url(szUrl); 
-             ASSERT_STR_EQUAL_MESSAGE(msg, "sipfoundry.org", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sipfoundry.org", getHostAddress(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "rschaaf", getUserId(url));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, url.getHostPort());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
 
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip:rschaaf@sipfoundry.org", toString(url));
         url.includeAngleBrackets();
@@ -287,7 +292,7 @@ public:
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "user-tester.my/place?&yourplace", 
             getUserId(url));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, url.getHostPort());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
 
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip:user-tester.my/place?&yourplace@sipfoundry.org",
@@ -307,10 +312,35 @@ public:
             getHostAddress(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "125", getUserId(url));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, url.getHostPort());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
 
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip:125@testing.stage.inhouse.sipfoundry.org", getUri(url));
+    }
+
+    void testSipParameters()
+    {
+        const char *szUrl = "<sip:username@10.1.1.225:555;tag=xxxxx;transport=TCP;"
+            "msgId=4?call-Id=call2&cseq=2+INVITE>;fieldParam1=1234;fieldParam2=2345";
+
+        const char *szUrlCorrected = "<sip:username@10.1.1.225:555;tag=xxxxx;"
+            "transport=TCP;msgId=4?call-Id=call2&cseq=2+INVITE>;fieldParam1=1234;"
+            "fieldParam2=2345";
+
+        Url url(szUrl);
+        sprintf(msg, "%s", szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, szUrlCorrected, toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "10.1.1.225", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "username", getUserId(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 555, url.getHostPort());
+        ASSERT_STR_EQUAL_MESSAGE(msg, "xxxxx", getParam("tag", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "TCP", getParam("transport", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "4", getParam("msgId", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "call2", getHeaderParam("call-Id", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "2 INVITE", getHeaderParam("cseq", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "1234", getFieldParam("fieldParam1", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "2345", getFieldParam("fieldParam2", url));
     }
 
     void testFullSip()
@@ -350,7 +380,7 @@ public:
          ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
          ASSERT_STR_EQUAL_MESSAGE(msg, "easy", getUserId(url));
          ASSERT_STR_EQUAL_MESSAGE(msg, "sipserver", getHostAddress(url));
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, url.getHostPort());
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
 
          ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
          ASSERT_STR_EQUAL_MESSAGE(msg, "sip:easy@sipserver", getUri(url));
@@ -513,7 +543,7 @@ public:
       }
 
 
-   void testIpAddressOnly()
+    void testIpAddressOnly()
     {
         const char *szUrl = "10.1.1.225";
         Url url(szUrl);
@@ -543,13 +573,15 @@ public:
          ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:somewhere.sipfoundry.org:333", toString(url));
       }
 
-   void testBogusPort()
+    void testBogusPort()
     {
         const char *szUrl = "sip:1234@sipserver:abcd";
         Url url(szUrl);
         ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:1234@sipserver", toString(url));
         ASSERT_STR_EQUAL_MESSAGE(szUrl, "sipserver", getHostAddress(url));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(szUrl, 0, url.getHostPort());
+	// The port will be returned as PORT_NONE, because Url::Url()
+	// could not parse it.
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(szUrl, PORT_NONE, url.getHostPort());
     }
 
    void testIPv6Host()
@@ -653,7 +685,7 @@ public:
     {
         Url url("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1"); 
         url.setDisplayName("Changed Name");
-        url.setHostPort(0);
+        url.setHostPort(PORT_NONE);
         url.setHeaderParameter("h1", "hchanged1");
         url.setHeaderParameter("h2", "hnew2");
 
@@ -1229,6 +1261,54 @@ public:
         CPPUNIT_ASSERT_MESSAGE(msg, !url.isUserHostPortEqual(szTest));
     }
 
+    void testIsUserHostPortPorts()
+    {
+       const char *szUrl = "R V<sip:Raghu@SF.oRg:5080>";
+       const char *szTest =        "raghu@sf.org:5080";
+       Url url(szUrl);
+        
+       sprintf(msg, "test=%s, url=%s", szTest, szUrl);
+       CPPUNIT_ASSERT_MESSAGE(msg, !url.isUserHostPortEqual(szTest));
+
+       const char* strings[] = {
+          "sip:foo@bar",
+          "sip:foo@bar:5060",
+          "sip:foo@bar:1",
+          "sip:foo@bar:100",
+          "sip:foo@bar:65535",
+       };
+       Url urls[sizeof (strings) / sizeof (strings[0])];
+       unsigned int i;
+
+       // Set up the Url objects.
+       for (i = 0; i < sizeof (strings) / sizeof (strings[0]);
+            i++)
+       {
+          urls[i] = strings[i];
+       }
+
+       // Do all the comparisons.
+       for (i = 0; i < sizeof (strings) / sizeof (strings[0]);
+            i++)
+       {
+          for (unsigned int j = 0;
+               j < sizeof (strings) / sizeof (strings[0]);
+               j++)
+          {
+             int expected = (i == j);
+             // Until XSL-96 is fixed, url[0] == url[1].
+             if ((i == 0 || i == 1) && (j == 0 || j == 1))
+             {
+                expected = 1;
+             }
+             int actual = urls[i].isUserHostPortEqual(urls[j]);
+             char msg[80];
+             sprintf(msg, "%s == %s", strings[i], strings[j]);
+             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected, actual);
+          }
+       }
+    }
+
     void testToString()
     {
         const char* szUrl = "sip:192.168.1.102" ;
@@ -1245,7 +1325,7 @@ public:
        const char* strings[] = {
           "sip:foo@bar",
           "sip:foo@bar:5060",
-          "sip:foo@bar:0",
+          "sip:foo@bar:1",
           "sip:foo@bar:100",
           "sip:foo@bar:65535",
        };
@@ -1253,7 +1333,7 @@ public:
        const char* identities[sizeof (strings) / sizeof (strings[0])] = {
           "foo@bar",
           "foo@bar",
-          "foo@bar",
+          "foo@bar:1",
           "foo@bar:100",
           "foo@bar:65535",
        };

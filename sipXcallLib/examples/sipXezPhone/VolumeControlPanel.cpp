@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -31,7 +27,7 @@ END_EVENT_TABLE()
 VolumeControlPanel::VolumeControlPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size, const int volumeLevel, const int gainLevel) :
    wxPanel(parent, IDR_VOLUME_CONTROL_PANEL, pos, size, wxTAB_TRAVERSAL, "VolumeControlPanel")
 {
-   wxColor* pPanelColor = new wxColor(132,169,181);
+   wxColor* pPanelColor = & (sipXezPhoneSettings::getInstance().getBackgroundColor());
    SetBackgroundColour(*pPanelColor);
 
         wxPoint origin(0,0);
@@ -49,11 +45,11 @@ VolumeControlPanel::VolumeControlPanel(wxWindow* parent, const wxPoint& pos, con
         origin.y = 30;
         controlSize.SetHeight(100);
         controlSize.SetWidth(16);
-        mpVolumeControl = new wxSlider(this, IDR_SPEAKER_SLIDER, VOLUME_MAX + 1 - volumeLevel, 1, VOLUME_MAX, origin, controlSize, wxSL_VERTICAL);
+        mpVolumeControl = new wxSlider(this, IDR_SPEAKER_SLIDER, VOLUME_MAX + 1 - volumeLevel, 0, VOLUME_MAX, origin, controlSize, wxSL_VERTICAL);
         mpVolumeControl->SetThumbLength(10);
 
         origin.x = 16;
-        mpMicGainControl = new wxSlider(this, IDR_MICROPHONE_SLIDER, GAIN_MAX + 1 - gainLevel, 1, GAIN_MAX, origin, controlSize, wxSL_VERTICAL);
+        mpMicGainControl = new wxSlider(this, IDR_MICROPHONE_SLIDER, GAIN_MAX + 1 - gainLevel, 0, GAIN_MAX, origin, controlSize, wxSL_VERTICAL);
         mpMicGainControl->SetThumbLength(10);
 
     origin.x = 16;
@@ -66,7 +62,7 @@ VolumeControlPanel::VolumeControlPanel(wxWindow* parent, const wxPoint& pos, con
 
 }
 
-void VolumeControlPanel::OnSpeakerSlider(wxScrollEvent& event)
+void VolumeControlPanel::OnSpeakerSlider(wxEvent& event)
 {
    if (VOLUME_MAX + 1 - mpVolumeControl->GetValue() != sipXmgr::getInstance().getSpeakerVolume())
    {
@@ -75,12 +71,12 @@ void VolumeControlPanel::OnSpeakerSlider(wxScrollEvent& event)
    }
 }
 
-void VolumeControlPanel::OnMicrophoneSlider(wxScrollEvent& event)
+void VolumeControlPanel::OnMicrophoneSlider(wxEvent& event)
 {
    if (GAIN_MAX + 1 - mpMicGainControl->GetValue() != sipXmgr::getInstance().getMicGain())
    {
       sipXmgr::getInstance().setMicGain(GAIN_MAX + 1 - mpMicGainControl->GetValue());
-      sipXezPhoneSettings::getInstance().setMicGain(GAIN_MAX - mpMicGainControl->GetValue());
+      sipXezPhoneSettings::getInstance().setMicGain(GAIN_MAX + 1 - mpMicGainControl->GetValue());
    }
 }
 

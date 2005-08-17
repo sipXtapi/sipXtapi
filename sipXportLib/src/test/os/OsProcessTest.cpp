@@ -1,13 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -16,12 +12,12 @@
 #include <os/OsTask.h>
 #include <os/OsProcess.h>
 
-#include <iostream>
-
 class OsProcessTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(OsProcessTest);
+#ifndef _WIN32
     CPPUNIT_TEST(testLaunch);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -58,7 +54,7 @@ public:
 
         OsPath startupDir = ".";
 
-        std::cout << "Launching process: " << appName.data() << std::endl;
+        //std::cout << "Launching process: " << appName.data() << std::endl;
         stat = process.launch(appName,params,startupDir);
         CPPUNIT_ASSERT_MESSAGE("Launched application", stat == OS_SUCCESS);
         KNOWN_BUG("Unknown failure", "XPL-12");
@@ -73,7 +69,7 @@ public:
         stat = OsProcess::getByPID(process.getPID(), newProcess);
         CPPUNIT_ASSERT_MESSAGE("Got process pid ok", stat == OS_SUCCESS);
 
-        std::cout << "Waiting 5 secs before killing process..." << std::endl;
+        //std::cout << "Waiting 5 secs before killing process..." << std::endl;
         OsTask::delay(5000);
         stat = newProcess.kill();
         CPPUNIT_ASSERT_MESSAGE("Able to kill process", stat == OS_SUCCESS);

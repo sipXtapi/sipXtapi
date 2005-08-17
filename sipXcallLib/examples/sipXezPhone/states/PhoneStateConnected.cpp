@@ -1,25 +1,21 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include "../stdwx.h"
 #include "../sipXmgr.h"
-#include "../MainPanel.h"
 #include "PhoneStateConnected.h"
-#include "PhoneStateCallHeld.h"
 #include "PhoneStateIdle.h"
 #include "PhoneStateDisconnectRequested.h"
 #include "PhoneStateTransferRequested.h"
+#include "PhoneStateLocalHoldRequested.h"
+#include "PhoneStateCallHeldRemotely.h"
 #include "../sipXezPhoneApp.h"
 
 
@@ -58,7 +54,7 @@ PhoneState* PhoneStateConnected::OnDisconnected(SIPX_CALL hCall)
 
 PhoneState* PhoneStateConnected::OnHoldButton()
 {
-    return (new PhoneStateCallHeld());
+    return (new PhoneStateLocalHoldRequested(mhCall));
 }
 
 PhoneState* PhoneStateConnected::OnTransferRequested(const wxString phoneNumber)
@@ -66,13 +62,13 @@ PhoneState* PhoneStateConnected::OnTransferRequested(const wxString phoneNumber)
     return (new PhoneStateTransferRequested(phoneNumber));
 }
 
+PhoneState* PhoneStateConnected::OnConnectedInactive()
+{
+    return (new PhoneStateCallHeldRemotely());
+}
+
 PhoneState* PhoneStateConnected::Execute()
 {
-   MainPanel* pMainPanel = dynamic_cast<MainPanel*>(wxWindow::FindWindowById(IDR_MAINPANEL, thePhoneApp->GetTopWindow()));
-   if (pMainPanel)
-   {
-       pMainPanel->StartTimer(true);
-   }
    thePhoneApp->setStatusMessage("Connected.");
    
    return this;

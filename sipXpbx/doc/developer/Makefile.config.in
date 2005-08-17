@@ -30,22 +30,11 @@ prefix=@prefix@
 default:
 	false
 
-# Prevent the Watchdog from automatically running the config server.
-WD=@SIPX_CONFDIR@/WatchDog.xml
-no-config-server:
-	mv $(WD) $(WD).tmp
-	sed <$(WD).tmp >$(WD) \
-	    -e $'/^[ \t]*<process name="RMIRegistry"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
-	    -e $'/^[ \t]*<process name="ProfilePublisher"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
-	    -e $'/^[ \t]*<process name="ProfileWriter"/,/<\/process>/s/\(.*\)/<!-- \1 -->/' \
-	    -e $'/^[ \t]*<process name="ProfileGenerator"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
-	rm $(WD).tmp
-
 # Prevent the Watchdog from automatically running the media server.
 no-media-server:
 	mv $(WD) $(WD).tmp
 	sed <$(WD).tmp >$(WD) \
-	    -e $'/^[ \t]*<process name="MediaServer"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
+	    -e $$'/^[ \t]*<process name="MediaServer"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
 	rm $(WD).tmp
 
 # Install test certificate files so Apache can do SSL.
@@ -122,8 +111,8 @@ install-sipXvxml-no-setuid:
 	rm -f $(SIPXVXML).tmp
 	mv $(START_FILE) $(START_FILE).tmp
 	sed <$(START_FILE).tmp >$(START_FILE) \
-	    -e $'s/^\\([ \t]*chown .*\\/sipXvxml[ \t]*\\)$$/#\\1/' \
-	    -e $'s/^\\([ \t]*chmod .*\\/sipXvxml[ \t]*\\)$$/#\\1/'
+	    -e $$'s/^\\([ \t]*chown .*\\/sipXvxml[ \t]*\\)$$/#\\1/' \
+	    -e $$'s/^\\([ \t]*chmod .*\\/sipXvxml[ \t]*\\)$$/#\\1/'
 	rm $(START_FILE).tmp
 
 # Check that there is no inconsistency in the dynamic libraries that all the
@@ -133,3 +122,20 @@ check-libraries:
 	    @bindir@/{sipXvxml,sipauthproxy,sipdbtest,sipproxy,sipregistrar,sipstatus,watchdog} \
 	    @APACHE2_HTTPD@ \
 	    @APACHE2_MOD@/{libmod_cplusplus.so,libmod_sipxauth.so}
+
+# Set the logging levels for all the components to $(LEVEL),
+# defaulting to DEBUG.
+LEVEL=DEBUG
+log-debug:
+	cd @SIPX_CONFDIR@ ; \
+	for FILE in \
+	    authproxy-config.in mediaserver-config.in proxy-config.in \
+	    registrar-config.in sipxdialog-config.in sipxpark-config.in \
+	    sipxpresence-config.in status-config.in voicemail.xml.in ; \
+	do \
+	    mv $$FILE $$FILE.tmp ; \
+	    sed <$$FILE.tmp >$$FILE \
+	        -e 's/_LOG_LEVEL *:.*$$/_LOG_LEVEL : $(LEVEL)/' \
+	        -e 's/-log-level>[^<>]*</-log-level>$(LEVEL)</' ; \
+	    rm $$FILE.tmp ; \
+	done

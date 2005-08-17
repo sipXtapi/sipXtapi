@@ -1,14 +1,9 @@
-
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <utl/UtlStringTest.h>
 #include <string.h>
@@ -567,48 +562,48 @@ public:
     {
         UtlString a("aa\0bb", 5);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("lost null char in string",
-              strlen(a.data()), (unsigned int) 2);
+              strlen(a.data()), (size_t) 2);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect length with null char",
-              a.length(), (unsigned int) 5);
+              a.length(), (size_t) 5);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("did not find null char",
-              a.index('\0'), (unsigned int) 2);
+              a.index('\0'), (size_t) 2);
 
         a.append("cc\0dd", 5);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("append with null char lost",
-              a.length(), (unsigned int) 10);
+              a.length(), (size_t) 10);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("failed to find last null char",
-              a.last('\0'), (unsigned int) 7);
+              a.last('\0'), (size_t) 7);
 
         UtlString b("\0", 1);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("failed to create string with null char",
-              b.length(), (unsigned int) 1);
+              b.length(), (size_t) 1);
 
         UtlString c(b);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("failed to copy string with null char",
-              c.length(), (unsigned int) 1);
+              c.length(), (size_t) 1);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("copied strings w/null char not equal",
               c, b);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("failed to find null char w/string",
-              a.index(b), (unsigned int) 2);
+              a.index(b), (size_t) 2);
 
         a.remove(3);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("remove lost null char",
-              a.length(), (unsigned int) 3);
+              a.length(), (size_t) 3);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("data after remove lost null char",
-              strlen(a.data()), (unsigned int) 2);
+              strlen(a.data()), (size_t) 2);
 
         a.remove(2);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("failed to remove null char",
-              strlen(a.data()), (unsigned int) 2);
+              strlen(a.data()), (size_t) 2);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("wrong length after remove null char",
-              a.length(), (unsigned int) 2);
+              a.length(), (size_t) 2);
     }
 
     void testEfficientMemoryCopy()
@@ -625,22 +620,19 @@ public:
         dataPtr = a.data();
         a.append("bbbb");
         aPtr = a.data();
-        osPrintf("ZZZZZZZZ old: %p new %p\n", dataPtr, aPtr);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory",
               dataPtr, aPtr);
 
         dataPtr = a.data();
         a.insert(0, "zzz");
         aPtr = a.data();
-        // BUG:
-        //CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory",
-        //      dataPtr, aPtr);
+        KNOWN_BUG("char assign does not reuse memory", "XPL-51");
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory", dataPtr, aPtr);
 
         dataPtr = a.data();
         a.remove(0);
         aPtr = a.data();
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("remove does not reuse memory",
-              dataPtr, aPtr);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("remove does not reuse memory", dataPtr, aPtr);
 
         UtlString b;
         b.append("ABC");
@@ -648,9 +640,8 @@ public:
         dataPtr = b.data();
         b.append("34567890123456789");
         aPtr = b.data();
-        // BUG:
-        //CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory",
-        //      dataPtr, aPtr);
+        KNOWN_BUG("char assign does not reuse memory", "XPL-51");
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory", dataPtr, aPtr);
      }
 
     /** test the += char* operator. This operator is exactly the same as

@@ -1,26 +1,30 @@
-SUBDIRS =
 
-INCLUDES = -I$(top_srcdir)/include 
+include $(top_builddir)/config/sipXcommon.mak
 
-sipXezPhonedir = .
-sipXezPhone_PROGRAMS = sipXezPhone
+bin_PROGRAMS = sipXezPhone
+
+sipXezPhone_CXXFLAGS = \
+	@WXWIDGETS_CXXFLAGS@
 
 sipXezPhone_LDADD = \
-	$(top_builddir)/src/libsipXcall.la
+	$(top_builddir)/src/libsipXcall.la \
+	@WXWIDGETS_LIBS@
 
 sipXezPhone_SOURCES = \
 	ButtonPanel.cpp \
 	CallHistoryPanel.cpp \
 	CallList.cpp \
 	ContactListCtrl.cpp \
+	ConferencePanel.cpp \
 	DialEntryPanel.cpp \
+	DialerThread.cpp \
 	DialPadButton.cpp \
 	DialPadPanel.cpp \
-	DialerThread.cpp \
+    EventLogDlg.cpp \
 	MainPanel.cpp \
 	PlacedCallList.cpp \
 	ReceivedCallList.cpp \
-	VolumeControlPanel.cpp \
+	sipXAudioSettingsDlg.cpp \
 	sipXezPhoneAboutDlg.cpp \
 	sipXezPhoneApp.cpp \
 	sipXezPhoneFrame.cpp \
@@ -28,19 +32,22 @@ sipXezPhone_SOURCES = \
 	sipXezPhoneSettingsDlg.cpp \
 	sipXezPhone_wdr.cpp \
 	sipXmgr.cpp \
-	states/PhoneState.cpp \
+	VolumeControlPanel.cpp \
 	states/PhoneStateAccepted.cpp \
-	states/PhoneStateCallHeld.cpp \
+	states/PhoneStateCallHeldLocally.cpp \
+	states/PhoneStateCallHeldRemotely.cpp \
 	states/PhoneStateConnected.cpp \
+	states/PhoneState.cpp \
 	states/PhoneStateDialing.cpp \
 	states/PhoneStateDisconnectRequested.cpp \
 	states/PhoneStateIdle.cpp \
+	states/PhoneStateLocalHoldRequested.cpp \
 	states/PhoneStateMachine.cpp \
 	states/PhoneStateMachineObserver.cpp \
 	states/PhoneStateOutgoingCallReject.cpp \
 	states/PhoneStateRemoteAlerting.cpp \
 	states/PhoneStateRemoteBusy.cpp \
 	states/PhoneStateRinging.cpp \
-	states/PhoneStateTransferRequested.cpp \
 	states/PhoneStateTransfering.cpp \
+	states/PhoneStateTransferRequested.cpp \
 	stdwx.cpp

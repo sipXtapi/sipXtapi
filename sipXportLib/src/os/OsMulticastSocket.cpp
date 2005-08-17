@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -21,6 +19,7 @@
 #   include <resolvLib.h>
 #   include <sockLib.h>
 #elif defined(__pingtel_on_posix__)
+#   include <netinet/in.h>
 #   include <sys/types.h>
 #   include <sys/socket.h>
 #   include <netdb.h>
@@ -214,17 +213,8 @@ int OsMulticastSocket::read(char* buffer, int bufferLength)
         struct sockaddr_in serverSockAddr;
         int fromStructLength = sizeof(serverSockAddr);
         //int bytesRead = recv(socketDescriptor, buffer, bufferLength, 0);
-        int flags = 0;
-
-#if defined(__pingtel_on_posix__)
-    // We do not want send to throw signals if there is a
-    // problem with the socket as this results in the process
-    // getting aborted.  We just want it to return an error
-        flags = MSG_NOSIGNAL;
-#endif
-
         int bytesRead = recvfrom(socketDescriptor, buffer, bufferLength,
-                flags,
+                0,
                 (struct sockaddr*) &serverSockAddr,
 #ifdef __pingtel_on_posix__
                         (socklen_t *)

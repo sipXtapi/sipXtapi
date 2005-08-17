@@ -1,13 +1,11 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -28,7 +26,7 @@ static const int DEFAULT_NAMEDB_SIZE = 100;
 
 // STATIC VARIABLE INITIALIZATIONS
 OsNameDb* OsNameDb::spInstance = NULL;
-OsBSem    OsNameDb::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+OsBSem*   OsNameDb::spLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -37,17 +35,12 @@ OsBSem    OsNameDb::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 // Return a pointer to the singleton object, creating it if necessary
 OsNameDb* OsNameDb::getNameDb(void)
 {
-   if (spInstance == NULL)// does the singleton need to be created?
+   spLock->acquire();
+   if (spInstance == NULL) // not created while getting lock?
    {
-      // The singleton does not yet exist, so acquire the lock to ensure
-      // that only one instance is created
-      sLock.acquire();
-      if (spInstance == NULL) // not created while getting lock?
-      {
-         spInstance = new OsNameDb();
-      }
-      sLock.release();
+      spInstance = new OsNameDb();
    }
+   spLock->release();
    
    return spInstance;
 }

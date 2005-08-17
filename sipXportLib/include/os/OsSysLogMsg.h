@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsSysLogMsg_h_
 #define _OsSysLogMsg_h_
@@ -46,6 +44,7 @@ public:
       ADD_SOCKET,       // Add a target output socket
       SET_FLUSH_PERIOD, // Set the flush period
       FLUSH_LOG,        // Flush the log (write to disk)
+      SET_CALLBACK,     // Set the callback function
    } ;
   //: Defines the various SysLog Msg Subtypes
   //

@@ -12,7 +12,8 @@
 <!ELEMENT setting (label?,profileName?,type?,value,description?)>
 <!ATTLIST setting 
   name NMTOKEN #REQUIRED
-  advanced  %flag; "no">
+  advanced %flag; "no"
+  hidden %flag; "no">
 
 <!ELEMENT value (#PCDATA)>
 

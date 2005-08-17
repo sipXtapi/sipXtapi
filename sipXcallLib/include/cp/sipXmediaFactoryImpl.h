@@ -14,10 +14,14 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "cp/CpMediaInterfaceFactoryInterface.h"
+#include "cp/CpMediaInterfaceFactoryImpl.h"
 #include "rtcp/RtcpConfig.h"
 
 // DEFINES
+#define GIPS_CODEC_ID_PCMA      "PCMA"
+#define GIPS_CODEC_ID_PCMU      "PCMU"
+#define GIPS_CODEC_ID_TELEPHONE "audio/telephone-event"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -35,7 +39,7 @@ struct IRTCPControl ;
 /**
  *
  */
-class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryInterface
+class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
@@ -55,9 +59,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryInterface
 
 /* ============================ MANIPULATORS ============================== */
 
-    virtual CpMediaInterface* createMediaInterface( int startRtpPort, 
-                                                    int lastRtpPort,
-                                                    const char* publicAddress,
+    virtual CpMediaInterface* createMediaInterface( const char* publicAddress,
                                                     const char* localAddress,
                                                     int numCodecs,
                                                     SdpCodec* sdpCodecArray[],
@@ -73,7 +75,13 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryInterface
     virtual OsStatus setMicrophoneGain(int iGain) ;
     virtual OsStatus setMicrophoneDevice(const UtlString& device) ;
     virtual OsStatus muteMicrophone(UtlBoolean bMute) ;
-    virtual OsStatus enableAEC(UtlBoolean bEnable) ;
+
+    virtual OsStatus enableAudioAEC(UtlBoolean bEnable);
+    virtual OsStatus enableOutOfBandDTMF(UtlBoolean bEnable);
+
+    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
+                                       const UtlString& sPreferences,
+                                       int* iRejected);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -82,14 +90,19 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryInterface
     virtual OsStatus getMicrophoneGain(int& iVolume) const ;
     virtual OsStatus getMicrophoneDevice(UtlString& device) const ;
 
+    virtual OsStatus getNumOfCodecs(int& iCodecs) const;
+    virtual OsStatus getCodec(int iCodec, UtlString& codec, int& bandWidth) const;
+
+    virtual OsStatus getCodecNameByType(SdpCodec::SdpCodecTypes codecType, UtlString& codecName) const;
+
 /* ============================ INQUIRY =================================== */
+
+    virtual OsStatus isAudioAECEnabled(UtlBoolean& bEnabled) const;
+    virtual OsStatus isOutOfBandDTMFEnabled(UtlBoolean& bEnabled) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-    MpMediaTask* mpMediaTask ;     /**< Media task instance */
-    int miGain ;                   /**< Gain value stored for unmuting */
-    UtlBoolean mbAEC ;             /**< Is AEC enabled? */
-
+    MpMediaTask*    mpMediaTask ;     /**< Media task instance */
 #ifdef INCLUDE_RTCP /* [ */
     IRTCPControl*   mpiRTCPControl;   /**< Realtime Control Interface */
 #endif /* INCLUDE_RTCP ] */
@@ -97,6 +110,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryInterface
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
+    static int miInstanceCount;
 
 };
 

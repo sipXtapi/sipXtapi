@@ -93,7 +93,7 @@ do { \
 #include <stdio.h>     /* required for compilation on win32.
                         * Probably types.h does not include WCHAR */
 
-#include <winsock2.h> /* For NT socket */
+#include <winsock.h> /* For NT socket */
 #include <sys/timeb.h> /* For _ftime() */
 #include <sys/stat.h>  /* S_IWRITE */
 #include <process.h> /* For _getpid() */

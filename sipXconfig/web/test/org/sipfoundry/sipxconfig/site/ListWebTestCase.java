@@ -165,7 +165,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         assertEquals(names.length, values.length);
         clickLink(buildId("add"));
         setAddParams(names,values);
-        clickButton(buildEditId("save"));
+        clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }
     

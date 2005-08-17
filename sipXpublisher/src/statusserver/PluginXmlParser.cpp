@@ -239,7 +239,7 @@ PluginXmlParser::requireElement (
 	const UtlString& tagName, 
 	OsStatus* err)
 {
-	TiXmlNode* n = parent.FirstChild(tagName.data());
+	TiXmlNode* n = (TiXmlNode*)parent.FirstChild(tagName.data());
 	if (!n)
 	{
 		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode missing %s ", 
@@ -263,7 +263,7 @@ PluginXmlParser::requireText (
     const TiXmlElement& elem, 
 	OsStatus* err)
 {
-	TiXmlNode* tn = elem.FirstChild();
+	TiXmlNode* tn = (TiXmlNode*)elem.FirstChild();
 	if (tn != NULL && tn->Type() == TiXmlNode::TEXT) 
 	{
 		TiXmlText* t = tn->ToText();

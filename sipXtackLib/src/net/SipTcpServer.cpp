@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -16,6 +14,10 @@
 #include <net/SipTcpServer.h>
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
+#include <os/HostAdapterAddress.h>
+#include <utl/UtlHashMapIterator.h>
+#include <net/SipServerBroker.h>
+#include <os/OsPtrMsg.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -28,24 +30,130 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipTcpServer::SipTcpServer(int port, SipUserAgent* userAgent,
+SipTcpServer::SipTcpServer(int port,
+	  		   SipUserAgent* userAgent,
                            const char* protocolString, 
-                           const char* taskName) :
- SipProtocolServerBase(userAgent, protocolString, taskName)
+                           const char* taskName,
+                           UtlBoolean bUseNextAvailablePort,
+                           const char* szBindAddr) :
+    SipProtocolServerBase(userAgent, protocolString, taskName)
 {   
-   if(port >= 0)
-   {
-       mServerSocket = new OsServerSocket(64, port);
-       mServerPort = mServerSocket->getLocalHostPort() ;
-   }
-   else
-   {
-       mServerSocket = NULL;
-       mServerPort = -1 ;
-   }
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTcpServer::_ port = %d, taskName = '%s', bUseNextAvailablePort = %d, szBindAddr = '%s'",
+                 port, taskName, bUseNextAvailablePort, szBindAddr);
+
+   mServerPort = port ;
+   mpServerBrokerListener = new SipServerBrokerListener(this);
+
+    if (szBindAddr && 0 != strcmp(szBindAddr, "0.0.0.0"))
+    {
+        mDefaultIp = szBindAddr;
+        createServerSocket(szBindAddr, mServerPort, bUseNextAvailablePort);
+    }
+    else
+    {
+        int numAddresses = 0;
+        const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
+        getAllLocalHostIps(adapterAddresses, numAddresses);
+
+        for (int i = 0; i < numAddresses; i++)
+        {
+            createServerSocket(adapterAddresses[i]->mAddress.data(),
+                               mServerPort,
+                               bUseNextAvailablePort);
+            if (0 == i)
+            {
+                // use the first IP address in the array
+                // for the 'default ip'
+                mDefaultIp = adapterAddresses[i]->mAddress.data();
+            }
+            delete adapterAddresses[i];
+        }
+    }
 
    mDefaultPort = SIP_PORT;
 
+}
+
+UtlBoolean SipTcpServer::startListener()
+{
+    UtlBoolean bRet(FALSE);
+#       ifdef TEST_PRINT
+        osPrintf("SIP Server binding to port %d\n", serverPort);
+#       endif
+
+    // iterate over the SipServerBroker map and call start
+    UtlHashMapIterator iterator(mServerBrokers);
+    UtlVoidPtr* pBrokerContainer = NULL;
+    SipServerBroker* pBroker = NULL;
+    UtlString* pKey = NULL;
+    
+    while(pKey = (UtlString*)iterator())
+    {
+        pBrokerContainer = (UtlVoidPtr*) iterator.value();
+        if (pBrokerContainer)
+        {
+            pBroker = (SipServerBroker*)pBrokerContainer->getValue();
+            if (pBroker)
+            {
+                pBroker->start();
+                bRet = TRUE;
+            }
+        }
+    }
+    return bRet;
+}
+
+OsStatus SipTcpServer::createServerSocket(const char* szBindAddr, int& port, const UtlBoolean& bUseNextAvailablePort)
+{
+    OsStatus rc = OS_FAILED;
+
+    if (port != PORT_NONE)
+    {
+        OsServerSocket* pSocket = new OsServerSocket(64, port, szBindAddr);
+
+        // If the socket is busy or unbindable and the user requested using the
+        // next available port, try the next SIP_MAX_PORT_RANGE ports.
+        if (pSocket && !pSocket->isOk() && bUseNextAvailablePort)
+        {
+            for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
+            {
+                delete pSocket;
+                pSocket = new OsServerSocket(64, port+i);
+                if (pSocket && pSocket->isOk())
+                {
+                    break ;
+                }
+            }
+        }
+
+        if (pSocket && pSocket->isOk())
+        {
+            port = pSocket->getLocalHostPort();
+            CONTACT_ADDRESS contact;
+            strcpy(contact.cIpAddress, szBindAddr);
+            contact.iPort = port;
+            contact.eContactType = LOCAL;
+            char szAdapterName[16];
+            memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
+            
+            getContactAdapterName(szAdapterName, contact.cIpAddress);
+
+            strcpy(contact.cInterface, szAdapterName);
+            mSipUserAgent->addContactAddress(contact);
+       
+            // add address and port to the maps
+            mServerSocketMap.insertKeyAndValue(new UtlString(szBindAddr),
+                                               new UtlVoidPtr((void*)pSocket));
+            mServerPortMap.insertKeyAndValue(new UtlString(szBindAddr),
+                                                   new UtlInt(pSocket->getLocalHostPort()));
+            mServerBrokers.insertKeyAndValue(new UtlString(szBindAddr),
+                                              new UtlVoidPtr(new SipServerBroker((OsServerTask*)mpServerBrokerListener,
+                                                                                                pSocket)));                                                   
+        }
+
+    }
+    return rc;
 }
 
 // Copy constructor
@@ -57,108 +165,91 @@ SipTcpServer::SipTcpServer(const SipTcpServer& rSipTcpServer) :
 // Destructor
 SipTcpServer::~SipTcpServer()
 {
-    if(mServerSocket) delete mServerSocket;
-    mServerSocket = NULL;
+    waitUntilShutDown();
+
+
+
+    {
+        SipServerBroker* pBroker = NULL;
+        UtlHashMapIterator iterator(this->mServerBrokers);
+        UtlVoidPtr* pBrokerContainer = NULL;
+        UtlString* pKey = NULL;
+        
+        while (pKey = (UtlString*)iterator())
+        {
+            pBrokerContainer = (UtlVoidPtr*)iterator.value();
+            if (pBrokerContainer)
+            {
+                pBroker = (SipServerBroker*)pBrokerContainer->getValue();
+                if (pBroker)
+                {
+                    delete pBroker;
+                }
+            }
+        }
+        mServerBrokers.destroyAll();
+    }
+
+/*
+    {
+        OsSocket* pSocket = NULL;
+        UtlHashMapIterator iterator(mServerSocketMap);
+        UtlVoidPtr* pSocketContainer = NULL;
+        UtlString* pKey = NULL;
+        
+        while (pKey = (UtlString*)iterator())
+        {
+            pSocketContainer = (UtlVoidPtr*)iterator.value();
+            if (pSocketContainer)
+            {
+                pSocket = (OsSocket*)pSocketContainer->getValue();
+                if (pSocket)
+                {
+                    delete pSocket;
+                }
+            }
+        }
+        mServerSocketMap.destroyAll();
+    }
+*/
+    mServerSocketMap.destroyAll();
+    mServerPortMap.destroyAll();
+    
+    
+    mpServerBrokerListener->requestShutdown();
+    delete mpServerBrokerListener;
+    
 }
 
 /* ============================ MANIPULATORS ============================== */
 
 int SipTcpServer::run(void* runArgument)
 {
-    OsConnectionSocket* clientSocket = NULL;
-    UtlBoolean clientStarted;
-    SipClient* client = NULL;
 
-    if(mServerSocket == NULL)
+    while (!isShuttingDown())
     {
-#       ifdef TEST_PRINT
-        osPrintf("Sip%sServer NULL server socket\n", mProtocolString.data() );
-#       endif
-        assert( mServerSocket );
-    }
-    else if(!mServerSocket->isOk())
-    {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
-                     "SipTcpServer failed to bind to port %d",
-                     mServerPort
-                     );
-
-#      ifdef TEST_PRINT
-       osPrintf("Failed to bind to port: %d\n  Another process using this port?\n",
-                mServerPort);
-#      endif
-    }
-    else
-    {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTcpServer binding to %s port %d", 
-                     mProtocolString.data(), mServerPort
-                     );
-
-#       ifdef TEST_PRINT
-       osPrintf("SIP Server binding to %s port %d\n", 
-                mProtocolString.data(), mServerPort);
-#       endif
-    }
-
-    while(!isShuttingDown() &&
-        mServerSocket->isOk())
-    {
-        clientSocket = mServerSocket->accept();
-#ifdef TEST_PRINT
-        osPrintf("SIP Server accepting %d connection on server port %d\n",
-            mProtocolString.data(), mServerPort);
-#endif
-
-        if(clientSocket)
-        {
-            client = new SipClient(clientSocket);
-            if(mSipUserAgent)
-            {
-                client->setUserAgent(mSipUserAgent);
-            }
-
-            UtlString hostAddress;
-            int hostPort;
-            clientSocket->getRemoteHostIp(&hostAddress, &hostPort);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::run client: %p %s:%d",
-                mProtocolString.data(), client, hostAddress.data(), hostPort);
-
-            clientStarted = client->start();
-            if(!clientStarted)
-            {
-                osPrintf("SIP %s Client failed to start", mProtocolString.data());
-            }
-            addClient(client);
-        }
+        OsTask::delay(500); // this method really shouldn't do anything
     }
 
     return(0);
 }
 
-UtlBoolean SipTcpServer::startListener()
-{
-   start();
-
-    // For each client start listening
-
-   startClients();
-    return(TRUE);
-}
-
 void SipTcpServer::shutdownListener()
 {
+#   ifdef TEST_PRINT
     osPrintf("Sip%sServer::shutdownListener() - before requestShutDown\n",
         mProtocolString.data());
+#   endif
     requestShutdown();
 
     shutdownClients();
 }
 
 
-OsSocket* SipTcpServer::buildClientSocket(int hostPort, const char* hostAddress)
+OsSocket* SipTcpServer::buildClientSocket(int hostPort, const char* hostAddress, const char* localIp)
 {
     // Create a socket in non-blocking mode while connecting
-    OsConnectionSocket* socket = new OsConnectionSocket(hostPort, hostAddress, FALSE);
+    OsConnectionSocket* socket = new OsConnectionSocket(hostPort, hostAddress, FALSE, localIp);
     socket->makeBlocking();
     return(socket);
 }
@@ -181,17 +272,62 @@ int SipTcpServer::getServerPort() const
     return mServerPort ;
 
 }
+
+UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMessage)
+{
+    UtlBoolean bRet(FALSE);
+    int msgType = eventMessage.getMsgType();
+    int msgSubType = eventMessage.getMsgSubType();
+    OsPtrMsg *pPtrMsg = NULL;
+    
+    
+    if (msgType == OsMsg::OS_EVENT)
+    {
+        // if we are receiving this message, a socket an accept has
+        // occurred, and the socket is being sent to us in this message
+        if (msgSubType == SIP_SERVER_BROKER_NOTIFY)
+        {
+            // unpackage the client socket
+            pPtrMsg = dynamic_cast<OsPtrMsg*>(&eventMessage);
+            
+            assert(pPtrMsg);
+            
+            OsConnectionSocket* clientSocket = reinterpret_cast<OsConnectionSocket*>(pPtrMsg->getPtr());
+            assert (clientSocket);
+            
+            SipClient* client = NULL;
+            client = new SipClient(clientSocket);
+            if(mpOwner->mSipUserAgent)
+            {
+                client->setUserAgent(mpOwner->mSipUserAgent);
+            }
+
+            UtlString hostAddress;
+            int hostPort;
+            clientSocket->getRemoteHostIp(&hostAddress, &hostPort);
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::run client: %p %s:%d",
+                mpOwner->mProtocolString.data(), client, hostAddress.data(), hostPort);
+
+            UtlBoolean clientStarted = client->start();
+            if(!clientStarted)
+            {
+                OsSysLog::add(FAC_SIP, PRI_ERR, "SIP %s Client failed to start", mpOwner->mProtocolString.data());
+            }
+            mpOwner->addClient(client);
+        }
+    }
+    
+    return bRet;
+}
     
 
 /* ============================ INQUIRY =================================== */
-UtlBoolean SipTcpServer::isOk()
-{
-    return mServerSocket->isOk();
-}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 

@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef SIPXTAPI_EXCLUDE /* [ */
 
@@ -20,6 +18,7 @@
 #include "utl/UtlVoidPtr.h"
 #include "utl/UtlInt.h"
 #include "tapi/SipXHandleMap.h"
+#include "utl/UtlHashMapIterator.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -44,6 +43,37 @@ SipXHandleMap::~SipXHandleMap()
 
 /* ============================ MANIPULATORS ============================== */
 
+void SipXHandleMap::addHandleRef(SIPXHANDLE hHandle)
+{
+    mLock.acquire();
+
+    mLockCountHash.findValue(&UtlInt(hHandle));
+    UtlInt* count = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
+    if (count == NULL)
+    {
+        mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(1));
+    }
+    else
+    {
+        count->setValue(count->getValue() + 1);
+    }
+    mLock.release();
+}
+
+void SipXHandleMap::releaseHandleRef(SIPXHANDLE hHandle)
+{
+    lock();
+    UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
+    if (pCount == NULL)
+    {
+        mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(0));
+    }
+    else
+    {
+        pCount->setValue(pCount->getValue() - 1);
+    }
+    unlock();
+}
 
 void SipXHandleMap::lock()
 {
@@ -59,11 +89,10 @@ void SipXHandleMap::unlock()
 
 SIPXHANDLE SipXHandleMap::allocHandle(const void* pData) 
 {
-
-    SIPXHANDLE hCall = mNextHandle++ ;
-
     lock() ;
+    SIPXHANDLE hCall = mNextHandle++ ;
     insertKeyAndValue(new UtlInt(hCall), new UtlVoidPtr((void*) pData)) ;
+    addHandleRef(hCall);
     unlock() ;
 
     return hCall ;
@@ -86,32 +115,55 @@ const void* SipXHandleMap::findHandle(SIPXHANDLE handle)
     unlock() ;
 
     return pRC ;
-
 }
 
 
 const void* SipXHandleMap::removeHandle(SIPXHANDLE handle) 
 {
-    lock() ;
-
+    releaseHandleRef(handle);
     const void* pRC = NULL ;
-    UtlInt key(handle) ;
-    UtlVoidPtr* pValue ;
-        
-    pValue = (UtlVoidPtr*) findValue(&key) ;
-    if (pValue != NULL)
-    {
-        pRC = pValue->getValue() ;                
-        destroy(&key) ;
-    }
-
-    unlock() ;
     
+    lock() ;
+    UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(handle))) ;
+        
+    if (pCount == NULL || pCount->getValue() < 1)
+    {
+        UtlInt key(handle) ;
+        UtlVoidPtr* pValue ;
+            
+        pValue = (UtlVoidPtr*) findValue(&key) ;
+        if (pValue != NULL)
+        {
+            pRC = pValue->getValue() ;                
+            destroy(&key) ;
+        }
+
+        if (pCount)
+        {
+            mLockCountHash.destroy(&UtlInt(handle));
+        }
+    }
+    
+    unlock() ;
     return pRC ;
 }
 
 
 /* ============================ ACCESSORS ================================= */
+
+void SipXHandleMap::dump() 
+{
+    UtlHashMapIterator itor(*this) ;
+    UtlInt* pKey ;
+    UtlVoidPtr* pValue ;
+        
+    while (pKey = (UtlInt*) itor())
+    {
+        pValue = (UtlVoidPtr*) findValue(pKey) ;
+        printf("\tkey=%d, value=%08X\n", pKey->getValue(), 
+                pValue ? pValue->getValue() : 0) ;                        
+    }       
+}
 
 /* ============================ INQUIRY =================================== */
 

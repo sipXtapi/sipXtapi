@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 
 // SYSTEM INCLUDES
@@ -19,6 +17,9 @@
       typedef __int64_t __int64;
 #  elif defined(sun)
 #     include <sys/int_types.h>
+      typedef int64_t __int64;
+#  elif defined(__MACH__) /* OS X */
+#     include <sys/types.h>
       typedef int64_t __int64;
 #  else
 #     error Unsupported POSIX OS.

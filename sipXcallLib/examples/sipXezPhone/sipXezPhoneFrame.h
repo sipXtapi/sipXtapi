@@ -1,18 +1,16 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _h_sipxezphoneframe
 #define _h_sipxezphoneframe
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "sipXezPhoneAboutDlg.h"
+#include "ConferencePanel.h"
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -21,6 +19,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class EventLogDlg ;
 
 /**
  * This is the application's frame window.
@@ -44,6 +43,40 @@ public:
     void OnConfiguration(wxCommandEvent& event);
 
    /**
+    * EventHandler for the Test Info menu item.
+    */
+    void OnTestInfo(wxCommandEvent& event);
+
+   /**
+    * EventHandler for the Test Teardown menu item.
+    */
+    void OnTestTeardown(wxCommandEvent& event);
+    
+   /**
+    * EventHandler for the Test LineRemove menu item.
+    */
+    void OnTestLineRemove(wxCommandEvent& event);
+    
+    
+    /** 
+     * EventHandler for line unregistration test menu
+     */
+    void OnTestUnRegister(wxCommandEvent& WXUNUSED(event));
+    
+    /**
+     * eventhandler for testing dns srv enable / disable
+     */
+    void OnTestDNS(wxCommandEvent& WXUNUSED(event));
+
+    
+#ifdef VOICE_ENGINE
+    /** 
+     * EventHandler for the Voice Engine test menu
+     */
+    void OnTestVoiceEngine(wxCommandEvent& WXUNUSED(event));
+#endif
+    
+   /**
     * EventHandler for the About menu item.
     */
     void OnAbout(wxCommandEvent& event);
@@ -58,12 +91,41 @@ public:
     */
     void OnClose(wxCloseEvent& event);
 
-
    /**
     * Event handler for the wxMoveEvent
     */
     void OnMove(wxMoveEvent& moveEvent);
-    
+
+   /**
+    * EventHandler for the Configuration menu item.
+    */
+    void OnAudioSettings(wxCommandEvent& event);
+
+   /**
+    * EventHandler for the Playfile menu item.
+    */
+    void OnPlayFile(wxCommandEvent& event);
+
+   /**
+    * EventHandler for the Stopfile menu item.
+    */
+    void OnStopFile(wxCommandEvent& event);
+
+    /**
+     * EventHandler for the Show SIP Log menu item.
+     */
+    void OnShowSipLog(wxCommandEvent& event);
+
+    /**
+     * EventHandler for the Show Event Log menu item.
+     */
+    void OnShowEventLog(wxCommandEvent& event);
+
+    /**
+     * EventHandler for the Show Sys Log menu item.
+     */
+    void OnShowSysLog(wxCommandEvent& event) ;
+      
     
 /* ============================ ACCESSORS ================================= */
 
@@ -92,6 +154,7 @@ public:
      */
     void positionPanels();
     
+     
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -99,14 +162,17 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    sipXezPhoneAboutDlg* m_pAboutDlg;
     wxMenu *mpMenuSettings;
+    wxMenu *mpMenuTest;
     bool mBoolMinimalView;
     wxDialog* mpCallHistoryWnd;
-    wxDialog* mpConferencingWnd;
+    ConferencePanel* mpConferencingWnd;
     bool mCallHistoryVisible;
     bool mConferencingVisible;
-    DECLARE_EVENT_TABLE()
-    
+    EventLogDlg* mpEventLogDlg;
+
+    DECLARE_EVENT_TABLE()    
 };
 
 

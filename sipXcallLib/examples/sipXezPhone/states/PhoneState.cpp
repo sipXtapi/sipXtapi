@@ -1,21 +1,18 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "..\stdwx.h"
-#include "..\sipXmgr.h"
+#include "../stdwx.h"
+#include "../sipXmgr.h"
 #include "PhoneState.h"
 #include "PhoneStateIdle.h"
+#include "PhoneStateRemoteBusy.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -23,12 +20,18 @@
 // STATIC VARIABLE INITIALIZATIONS
 // MACRO CALLS
 
-PhoneState::PhoneState(void) : mhCall(NULL)
+PhoneState::PhoneState(void) :
+   mhCall(SIPX_CALL_NULL)
 {
 }
 
 PhoneState::~PhoneState(void)
 {
+}
+
+PhoneState* PhoneState::OnRemoteBusy()
+{
+    return (new PhoneStateRemoteBusy());
 }
 
 PhoneState* PhoneState::OnDisconnected(const SIPX_CALL hCall)

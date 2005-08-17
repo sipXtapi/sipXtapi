@@ -13,7 +13,7 @@
     </boolean>
   </type>
   <group name="permission">
-    <group name="app-permission">
+    <group name="application">
       <label>Web UI Permissions</label>
       <setting name="superadmin">
         <label>Superadmin Access</label>
@@ -22,54 +22,54 @@
         <description>User can log into administration interface.</description>
       </setting>
     </group>
-    <group name="call-permission">
+    <group name="call-handling">
       <label>Call Handling Permissions</label>
       <setting name="_900Dialing">
         <label>900 Dialing</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>User can dial 900 numbers</description>
       </setting>
       <setting name="AutoAttendant">
         <label>Attendant Directory</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>List user in Auto Attendant</description>
       </setting>
       <setting name="InternationDialing">
         <label>InternationalDialing</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>User can dial international numbers</description>
       </setting>
       <setting name="LocalDialing">
         <label>LocalDialing</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>User can dial local numbers</description>
       </setting>
       <setting name="LongDistanceDialing">
-        <label>LocalDialing</label>
+        <label>Long Distance Dialing</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>User can dial long distance numbers</description>
       </setting>
       <setting name="Voicemail">
         <label>Voice Mail</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>User has voicemail inbox</description>
       </setting>
       <setting name="ForwardCallsExternal">
         <label>Forward Calls External</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>User can forward calls to external numbers</description>
       </setting>
       <setting name="RecordSystemPrompts">
         <label>Record System Prompts</label>
         <type refid="enable-disable"/>
-        <value>ENABLE</value>
+        <value>DISABLE</value>
         <description>User can record system prompts</description>
       </setting>
     </group>

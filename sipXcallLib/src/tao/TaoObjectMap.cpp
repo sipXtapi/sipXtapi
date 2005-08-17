@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifdef TEST
 #include "utl/UtlMemCheck.h"
@@ -44,8 +42,9 @@ TaoListenerDb::~TaoListenerDb()
 //////////////////////////////////////////////////////////////////////
 
 TaoObjectMap::TaoObjectMap(int initialDbSize)
-:  mDict(initialDbSize), mNumInserts(0), mNumRemoves(0)
+:  mDict(), mNumInserts(0), mNumRemoves(0)
 {
+   initialDbSize = initialDbSize;
 }
 
 //:Copy constructor 

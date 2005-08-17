@@ -4,6 +4,8 @@
 		<config>src/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/setting/setting.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/common/common.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
@@ -17,9 +19,11 @@
 				<config>src/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/common/common.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/setting/setting.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

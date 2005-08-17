@@ -1,14 +1,9 @@
-
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <string.h>
 #include <stdlib.h>
@@ -45,7 +40,6 @@ class UtlHashMapTests : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(UtlHashMapTests);
     CPPUNIT_TEST(checkSanity_Insert_Entries_And_At) ; 
 //    CPPUNIT_TEST(DynaTest) ; 
-    CPPUNIT_TEST(testCopyInto) ;
     CPPUNIT_TEST(testInsertKeyAndValue) ; 
     CPPUNIT_TEST(testInsert) ; 
     CPPUNIT_TEST(testFind) ; 
@@ -56,6 +50,8 @@ class UtlHashMapTests : public CppUnit::TestCase
     CPPUNIT_TEST(testIsEmpty) ; 
     CPPUNIT_TEST(testClear) ; 
     CPPUNIT_TEST(testClearAndDestroy) ; 
+    CPPUNIT_TEST(testCopyInto) ;
+    CPPUNIT_TEST(testRemoveCollision) ;
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -583,7 +579,7 @@ public:
     */
     void utlTestRemove(RemoveType type) 
     {
-        const int testCount = 4 ; 
+        const int testCount = 4; 
         const char* prefix = ""; 
 
         if (type == TEST_REMOVE)
@@ -634,6 +630,7 @@ public:
             TestUtilities::createMessage(3, &msg, prefix, Msgs[i], suffix1) ;
             if (type == TEST_REMOVE) 
             {
+
                UtlContainable* foundKey = commonList.remove(testData_Remove[i]) ; 
                UtlContainable* expectedKey = exp_ReturnKey[i] ; 
                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)foundKey, (void*)expectedKey) ; 
@@ -644,6 +641,7 @@ public:
                 UtlContainable* expectedValue = exp_ReturnValue[i] ; 
                 UtlContainable* foundValue ; 
                 UtlContainable* foundKey = commonList.removeKeyAndValue(testData_Remove[i], foundValue) ; 
+                
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)expectedKey, (void*)foundKey) ; 
                 TestUtilities::createMessage(3, &msg, prefix, Msgs[i], suffix3) ; 
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)expectedValue, (void*)foundValue) ; 
@@ -799,6 +797,92 @@ public:
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), 0, cCountAfter) ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), cCountBefore -  4, (int)emptyList.entries()) ; 
     } //testClearAndDestroy
+
+   void testRemoveCollision()
+      {
+         // the following two entries collide if the initial bucket size is 16
+         UtlInt int1(1);
+         UtlInt int16(16);
+
+         UtlInt int2(2);
+         UtlInt int3(3);
+
+         UtlHashMap map;
+
+         CPPUNIT_ASSERT( map.numberOfBuckets() == 16 ); // check assumption of collision
+
+         // Load all the test objects
+         CPPUNIT_ASSERT( map.insert(&int1)  == &int1 );
+         CPPUNIT_ASSERT( map.insert(&int2)  == &int2 );
+         CPPUNIT_ASSERT( map.insert(&int3)  == &int3 );
+         CPPUNIT_ASSERT( map.insert(&int16) == &int16 );
+
+         // Check that everything is there
+         CPPUNIT_ASSERT( map.entries() == 4 );
+         CPPUNIT_ASSERT( map.contains(&int1) );
+         CPPUNIT_ASSERT( map.contains(&int2) );
+         CPPUNIT_ASSERT( map.contains(&int3) );
+         CPPUNIT_ASSERT( map.contains(&int16) );
+
+         // Take entry 1 out (will collide w/ 16)
+         CPPUNIT_ASSERT( map.removeReference(&int1) == &int1 );
+
+         // Check that everything except entry 1 is still there, and that 1 is gone
+         CPPUNIT_ASSERT( map.entries() == 3 );
+         CPPUNIT_ASSERT( ! map.contains(&int1) );
+         CPPUNIT_ASSERT( map.contains(&int2) );
+         CPPUNIT_ASSERT( map.contains(&int3) );
+         CPPUNIT_ASSERT( map.contains(&int16) );
+
+         // Put entry 1 back in (so that 16 will collide w/ it again)
+         CPPUNIT_ASSERT( map.insert(&int1) == &int1 );
+
+         // Check that everything is there
+         CPPUNIT_ASSERT( map.entries() == 4 );
+         CPPUNIT_ASSERT( map.contains(&int1) );
+         CPPUNIT_ASSERT( map.contains(&int2) );
+         CPPUNIT_ASSERT( map.contains(&int3) );
+         CPPUNIT_ASSERT( map.contains(&int16) );
+
+         // Take entry 16 out (will collide w/ 1)
+         CPPUNIT_ASSERT( map.removeReference(&int16) == &int16 );
+
+         // Check that everything except entry 16 is still there, and that 16 is gone
+         CPPUNIT_ASSERT( map.entries() == 3 );
+         CPPUNIT_ASSERT( map.contains(&int1) );
+         CPPUNIT_ASSERT( map.contains(&int2) );
+         CPPUNIT_ASSERT( map.contains(&int3) );
+         CPPUNIT_ASSERT( ! map.contains(&int16) );
+
+         CPPUNIT_ASSERT( map.removeReference(&int2) == &int2 );
+
+         // Check that everything that should be is still there
+         CPPUNIT_ASSERT( map.entries() == 2 );
+         CPPUNIT_ASSERT( map.contains(&int1) );
+         CPPUNIT_ASSERT( ! map.contains(&int2) );
+         CPPUNIT_ASSERT( map.contains(&int3) );
+         CPPUNIT_ASSERT( ! map.contains(&int16) );
+
+         // remove 3 (no collision for this one)
+         CPPUNIT_ASSERT( map.removeReference(&int3) == &int3 );
+
+         // Check that everything that should be is still there
+         CPPUNIT_ASSERT( map.entries() == 1 );
+         CPPUNIT_ASSERT( map.contains(&int1) );
+         CPPUNIT_ASSERT( ! map.contains(&int2) );
+         CPPUNIT_ASSERT( ! map.contains(&int3) );
+         CPPUNIT_ASSERT( ! map.contains(&int16) );
+
+         // remove 3 again - should fail this time
+         CPPUNIT_ASSERT( map.removeReference(&int3) == NULL );
+
+         // Check that everything that should be is still there
+         CPPUNIT_ASSERT( map.entries() == 1 );
+         CPPUNIT_ASSERT( map.contains(&int1) );
+         CPPUNIT_ASSERT( ! map.contains(&int2) );
+         CPPUNIT_ASSERT( ! map.contains(&int3) );
+         CPPUNIT_ASSERT( ! map.contains(&int16) );
+      }
 };
 
 const int UtlHashMapTests::INDEX_NOT_EXIST = -1;

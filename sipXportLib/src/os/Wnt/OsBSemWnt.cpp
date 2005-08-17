@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -55,6 +53,7 @@ OsBSemWnt::~OsBSemWnt()
 {
     UtlBoolean res;
     res = CloseHandle(mSemImp);
+    mSemImp = NULL;
 
         mOptions = 0;
         mTaskId = 0;
@@ -98,7 +97,11 @@ OsStatus OsBSemWnt::release(void)
 {
    OsStatus ret = OS_SUCCESS;
 
-   if (!ReleaseSemaphore(mSemImp,
+   if (mSemImp == NULL)
+   {
+      ret = OS_TASK_NOT_STARTED;
+   }
+   else if (!ReleaseSemaphore(mSemImp,
                         1,         // add one to the previous value
                         NULL))     // don't return the old value
    {

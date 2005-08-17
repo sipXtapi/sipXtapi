@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 
@@ -32,7 +30,8 @@ SdpCodec::SdpCodec(enum SdpCodecTypes sdpCodecType,
                    int preferredPacketLength,
                    int numChannels,
                    const char* formatSpecificData,
-                   const int CPUCost)
+                   const int CPUCost,
+                   const int BWCost)
 {
    setValue(sdpCodecType);
    mCodecPayloadFormat = payloadFormat;
@@ -45,12 +44,13 @@ SdpCodec::SdpCodec(enum SdpCodecTypes sdpCodecType,
    mMimeType.toLower();
    mFormatSpecificData.append(formatSpecificData ? formatSpecificData : "");
    mCPUCost = CPUCost;
+   mBWCost = BWCost;
 }
 
 // Copy constructor
 SdpCodec::SdpCodec(const SdpCodec& rSdpCodec)
 {
-        setValue(rSdpCodec.getValue());
+    setValue(rSdpCodec.getValue());
     mCodecPayloadFormat = rSdpCodec.mCodecPayloadFormat;
     mSampleRate = rSdpCodec.mSampleRate;
     mPacketLength = rSdpCodec.mPacketLength;
@@ -59,6 +59,7 @@ SdpCodec::SdpCodec(const SdpCodec& rSdpCodec)
     mMimeSubtype = rSdpCodec.mMimeSubtype;
     mFormatSpecificData = rSdpCodec.mFormatSpecificData;
     mCPUCost  = rSdpCodec.mCPUCost;
+    mBWCost  = rSdpCodec.mBWCost;
 }
 
 // Destructor
@@ -84,6 +85,7 @@ SdpCodec::operator=(const SdpCodec& rhs)
     mMimeSubtype = rhs.mMimeSubtype;
     mFormatSpecificData = rhs.mFormatSpecificData;
     mCPUCost  = rhs.mCPUCost;
+    mBWCost = rhs.mBWCost;
 
    return *this;
 }
@@ -157,6 +159,12 @@ formatData: \'%s\'\n",
 int SdpCodec::getCPUCost() const
 {
    return mCPUCost;
+}
+
+// Get the bandwidth cost for this codec.
+int SdpCodec::getBWCost() const
+{
+   return mBWCost;
 }
 
 /* ============================ INQUIRY =================================== */

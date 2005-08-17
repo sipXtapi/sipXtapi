@@ -41,7 +41,7 @@
 	  -->
 	<component id="userTable" type="contrib:TableView">
 		<binding name="source" expression="users"/>
-		<static-binding name="columns" value="* DisplayID:displayId,FirstName:firstName,LastName:lastName,Extension:extension"/>
+		<static-binding name="columns" value="* Username:userName,First name:firstName,Last name:lastName,Extension:extension"/>
         <static-binding name="pageSize" value="20"/>
 	</component>
 	<component id="userColumns" type="contrib:TableColumns">
@@ -51,21 +51,21 @@
         <binding name="convertor" expression="idConverter"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
-    <component id="DisplayIDColumnValue" type="Block"/>
-    <component id="displayIdAsLinkConditional" type="Conditional">
+    <component id="UsernameColumnValue" type="Block"/>
+    <component id="userNameAsLinkConditional" type="Conditional">
         <binding name="condition" expression="userListener != null"/>
     </component>
-    <component id="displayIdAsTextConditional" type="Conditional">
+    <component id="userNameAsTextConditional" type="Conditional">
         <binding name="condition" expression="userListener == null"/>
     </component>
-    <component id="displayIdLink" type="DirectLink">
+    <component id="userNameLink" type="DirectLink">
         <binding name="listener" expression="userListener"/>
         <binding name="parameters" expression="currentUser.id"/>
     </component>
-    <component id="displayId" type="Insert">
-        <binding name="value" expression="currentUser.displayId"/>
+    <component id="userName" type="Insert">
+        <binding name="value" expression="currentUser.userName"/>
     </component>
-    <component id="displayIdAsText" copy-of="displayId"/>
+    <component id="userNameAsText" copy-of="userName"/>
 	<component id="userValues" type="contrib:TableValues">
 	</component>
     <component id="selectedRow" type="Checkbox">

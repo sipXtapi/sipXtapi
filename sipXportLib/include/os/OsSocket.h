@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsSocket_h_
 #define _OsSocket_h_
@@ -18,17 +16,25 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "utl/UtlString.h"
+#include "os/OsBSem.h"
+
 
 // DEFINES
+#define MAX_IP_ADDRESSES 32
 
+//: constant indentifier indicating the maximum number of IP addresses on this host.
 #define OS_INVALID_SOCKET_DESCRIPTOR -1
+
 #if defined(_WIN32)
+#   include <os/wnt/getWindowsDNSServers.h>
+#   include "os/wnt/WindowsAdapterInfo.h"
 #  define OsSocketGetERRNO() (WSAGetLastError())
 #  define OS_INVALID_INET_ADDRESS INADDR_NONE // 0xffffffff
 #elif defined(_VXWORKS)
 #  define OsSocketGetERRNO() (errno)
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
 #elif defined(__pingtel_on_posix__)
+#  include "os/linux/AdapterInfo.h"
 #  define OsSocketGetERRNO() (h_errno)
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
 #else
@@ -44,7 +50,77 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
+/**
+ * CONTACT_TYPE is an enumeration of possible address type for use with
+ * SIP contacts and SDP connection information.
+ */
+typedef enum
+{
+    LOCAL,      /**< Local address for a particular interface */
+    NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
+    RELAY,      /**< Relay address (e.g. TURN)                */
+    CONFIG,     /**< Manually configured address              */
+
+    AUTO = -1,  /**< Automatic contact selection; used for API 
+                     parameters */
+    ALL  = -2,  /**< Filter value for the SipContactDb, for looking
+                     up records of all types. */
+                     
+} CONTACT_TYPE ;
+
+
+/** Type for storing Contact Record identifiers */
+typedef int CONTACT_ID; 
+
+/**
+ * The CONTACT_ADDRESS struct includes contact information (ip and port),
+ * address source type, and interface.
+ */
+struct CONTACT_ADDRESS
+{
+    CONTACT_ADDRESS()
+    {
+        memset((void*)cInterface, 0, sizeof(cInterface));
+        memset((void*)cIpAddress, 0, sizeof(cIpAddress));
+        eContactType = AUTO;
+        id = 0;
+        iPort = -1;
+    }
+    
+    // copy contstructor
+    CONTACT_ADDRESS(const CONTACT_ADDRESS& ref)
+    {
+        strcpy(this->cInterface, ref.cInterface);
+        strcpy(this->cIpAddress, ref.cIpAddress);
+        this->eContactType = ref.eContactType;
+        this->id = ref.id;
+        this->iPort = ref.iPort;
+    }
+    
+    // assignment operator
+    CONTACT_ADDRESS& operator=(const CONTACT_ADDRESS& ref)
+    {
+        // check for assignment to self
+        if (this == &ref) return *this;
+
+        strcpy(this->cInterface, ref.cInterface);
+        strcpy(this->cIpAddress, ref.cIpAddress);
+        this->eContactType = ref.eContactType;
+        this->id = ref.id;
+        this->iPort = ref.iPort;
+        
+        return *this;
+    }
+        
+    CONTACT_ID   id;              /**< Contact record Id */
+    CONTACT_TYPE eContactType ;   /**< Address type/source */
+    char              cInterface[32] ; /**< Source interface    */
+    char              cIpAddress[32] ; /**< IP Address          */
+    int               iPort ;          /**< Port                */
+};
+
 // TYPEDEFS
+
 // FORWARD DECLARATIONS
 
 //: Abstract Socket class
@@ -69,8 +145,8 @@ public:
       MULTICAST = 2,
       SSL_SOCKET = 3
    };
-     //: Protocol Types
-
+   //: Protocol Types
+   
 /* ============================ CREATORS ================================== */
    OsSocket();
      //:Default constructor
@@ -192,7 +268,12 @@ public:
    // Returns the ip address for this host on which this socket is communicating
    // On multi-homed machines, this is the address to the NIC over which the
    // socket communicates. The format is of the form: xx.x.xxx.x
-
+   
+   const UtlString& getLocalIp() const;
+   //:Return this socket's Local Ip Address
+   
+   void setLocalIp(const UtlString& localIp) { mLocalIp = localIp; }
+   
    virtual int getLocalHostPort() const;
    //:Return the local port number
    // Returns the port to which this socket is bound on this host.
@@ -262,10 +343,12 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   static OsBSem mInitializeSem;
    int socketDescriptor;
 
    int localHostPort;
    int remoteHostPort;
+   UtlString mLocalIp;
    UtlString localHostName;
    UtlString remoteHostName;
    UtlString mRemoteIpAddress;
@@ -287,7 +370,6 @@ private:
 
    static UtlBoolean hasDefaultDnsDomain();
      //:Returns TRUE if this host has a default DNS domain
-
 };
 
 /* ============================ INLINE METHODS ============================ */

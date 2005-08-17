@@ -61,6 +61,7 @@ public class EditGatewayTest extends TestCase {
 
     public void testSaveAndAssign() {
         DialingRule rule = new CustomDialingRule();
+        rule.setUniqueId();
         rule.setName("my rule name");
 
         Gateway g = new Gateway();

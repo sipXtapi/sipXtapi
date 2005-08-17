@@ -37,7 +37,7 @@ MwiPlugin::MwiPlugin (
 
     // get permission associated with this plugin, if any
     TiXmlNode* nextNode = NULL;
-    while ((nextNode = pluginElement.IterateChildren(nextNode)))
+    while ((nextNode = (TiXmlNode*)pluginElement.IterateChildren(nextNode)))
     {
         if( nextNode->Type() == TiXmlNode::ELEMENT )
         {
@@ -307,7 +307,7 @@ MwiPluginFactory(const TiXmlNode& pluginConfigDataNode,
     SubscribeServerPluginBase* plugin = NULL;
     // get attibutes for the Plugin and create new instance of a plugin
     // according to the event type.
-    TiXmlElement* pluginElement = pluginConfigDataNode.ToElement();
+    TiXmlElement* pluginElement = (TiXmlElement*)pluginConfigDataNode.ToElement();
     if ( pluginElement != NULL )
     {
         TiXmlNode* attibuteNode = NULL;

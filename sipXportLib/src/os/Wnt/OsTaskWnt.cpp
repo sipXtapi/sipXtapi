@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -530,13 +528,27 @@ void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
      // Remove the key from the internal task list, before terminating it
      itoa((int) mThreadId, idString, 10);   // convert the id to a string
      res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
-     assert(res == OS_SUCCESS);
 
-          //before we go ahead and kill the thread, lets make sure it's still running
-          DWORD ExitCode;
-          GetExitCodeThread( mThreadH,&ExitCode);
+    //before we go ahead and kill the thread, lets make sure it's still running
+    DWORD ExitCode;
+    
+    // KLUDGE ALERT- we need to avoid calling
+    // TerminateThread at all costs.
+    // TerminateThread is VERY VERY dangerous.
+    // Wait for 5 seconds, or until the thread exited
+    // before calling TerminateThread.
+    // attempt to wait for the thread to exit on its own
+    for (int i = 0; i < 50; i++)
+    {
+        GetExitCodeThread( mThreadH,&ExitCode);
+        if (ExitCode != STILL_ACTIVE)
+        {
+            break;
+        }
+        Sleep(100);
+    }    
 
-          if (ExitCode == STILL_ACTIVE)
+    if (ExitCode == STILL_ACTIVE)
           TerminateThread(mThreadH, 0);          // first get rid of the thread
                                              //  ignore the return code since
                                              //  it's possible the thread has

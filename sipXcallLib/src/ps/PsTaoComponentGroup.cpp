@@ -1,24 +1,24 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpCodec.h"
 #include "ps/PsTaoComponentGroup.h"
 #include "ps/PsTaoComponent.h"
 #include "ps/PsTaoSpeaker.h"
 #include "ps/PsTaoRinger.h"
 #include "ps/PsTaoMicrophone.h"
+#ifndef SIPXMEDIA_EXCLUDE
+#include "mp/MpCodec.h"
+#endif 
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -267,20 +267,28 @@ OsStatus PsTaoComponentGroup::setRingerVolume(int& level) // input 0 <= level <=
 
 OsStatus PsTaoComponentGroup::setMicGain(int group, int& level)
 {
-        if (mGroupType == group)
+    if (mGroupType == group)
+    {
+        if (level == 5)
         {
-                if (level == 5)
-                        mMicGain = mMicNominal;
-                else
-                        mMicGain = gainNormalize(level);
-        osPrintf("PsTaoComponentGroup::setMicGain: groupt type: %d, level %d mMicGain %d\n", group, level, mMicGain);
-
-                MpCodec_setGain(mMicGain);
-
-                return OS_SUCCESS;
+            mMicGain = mMicNominal;
         }
+        else
+        {
+            mMicGain = gainNormalize(level);
+        }
+        osPrintf("PsTaoComponentGroup::setMicGain: groupt type: %d, level %d mMicGain %d\n", group, level, mMicGain);
+        
+        #ifndef SIPXMEDIA_EXCLUDE
+            MpCodec_setGain(mMicGain);
+        #else
+            // TODO
+            // call the MediaInterface to set the gain
+        #endif
+        return OS_SUCCESS;
+    }
 
-        return OS_INVALID_ARGUMENT;
+    return OS_INVALID_ARGUMENT;
 }
 
 UtlBoolean PsTaoComponentGroup::activate(void)

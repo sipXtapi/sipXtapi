@@ -31,7 +31,6 @@ version_Age=0
 
 
 libtestpluginA_la_LIBADD = \
-	@GLIB_LIBS@ \
 	-ldl \
 	-lrt  \
 	-lpthread  \
@@ -42,12 +41,10 @@ libtestpluginB_la_LIBADD = $(libtestpluginA_la_LIBADD)
 ## Compile the same source twice, changing the resulting class name
 ##    to create two different plugins
 libtestpluginA_la_CXXFLAGS = \
-	@GLIB_CFLAGS@ \
 	-DLIBRARY_NAME=\"TestPluginA\" \
 	-DTestPlugin=TestPluginA
 
 libtestpluginB_la_CXXFLAGS = \
-	@GLIB_CFLAGS@ \
 	-DLIBRARY_NAME=\"TestPluginB\" \
 	-DTestPlugin=TestPluginB
 

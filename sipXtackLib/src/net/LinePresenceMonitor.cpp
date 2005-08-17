@@ -182,7 +182,7 @@ OsStatus LinePresenceMonitor::subscribe(LinePresenceBase* line)
 {
    OsStatus result = OS_FAILED;
    mLock.acquire();
-   Url* lineUrl = line->getAddress();
+   Url* lineUrl = line->getUri();
    
    if (mLocal)
    {
@@ -228,7 +228,7 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
 {
    OsStatus result = OS_FAILED;
    mLock.acquire();
-   Url* lineUrl = line->getAddress();
+   Url* lineUrl = line->getUri();
    
    if (mLocal)
    {
@@ -275,7 +275,7 @@ OsStatus LinePresenceMonitor::subscribe(UtlSList& list)
    mLock.acquire();
    UtlSListIterator iterator(list);
    LinePresenceBase* line;
-   while (line = dynamic_cast <LinePresenceBase *> (iterator()))
+   while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
    {
       subscribe(line);
    }
@@ -291,7 +291,7 @@ OsStatus LinePresenceMonitor::unsubscribe(UtlSList& list)
    mLock.acquire();
    UtlSListIterator iterator(list);
    LinePresenceBase* line;
-   while (line = dynamic_cast <LinePresenceBase *> (iterator()))
+   while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
    {
       unsubscribe(line);
    }

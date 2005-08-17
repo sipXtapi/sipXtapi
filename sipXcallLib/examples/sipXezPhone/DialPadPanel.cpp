@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -15,6 +11,7 @@
 #include "stdwx.h"
 #include "sipXmgr.h"
 #include "DialPadPanel.h"
+#include "sipXezPhoneSettings.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -30,7 +27,7 @@ DialPadPanel::DialPadPanel(wxWindow* parent, const wxPoint& pos, const wxSize& s
    wxPanel(parent, IDR_DIALPADPANEL, pos, size, wxTAB_TRAVERSAL, "DialPadPanel")
 {
 
-    wxColor* pPanelColor = new wxColor(132,169,181);
+    wxColor* pPanelColor = & (sipXezPhoneSettings::getInstance().getBackgroundColor());
     SetBackgroundColour(*pPanelColor);
 
         createPhoneButton("res/1.bmp", "res/1_down.bmp", IDR_DIAL_BUTTON_1, 0, 0, ID_DTMF_1, '1');
@@ -72,7 +69,7 @@ void DialPadPanel::createPhoneButton(const wxString& bmpFile, const wxString& bm
                 mpButton[index]->SetBitmapSelected(bitmap2);
         }
 
-    wxColor btnColor = wxColor(132,169,181);
+    wxColor btnColor = (sipXezPhoneSettings::getInstance().getBackgroundColor());
     mpButton[index]->SetBackgroundColour(btnColor);
 
 

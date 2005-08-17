@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 
 #include "test/mp/MpTestConfig.h"
@@ -98,72 +94,72 @@ void MpTestConfig::initializeMediaSystem()
 void MpTestConfig::initializeSipUA()
 {
    mUA = new SipUserAgent(5060, // TCP
-                          5060, // UDP
-                          5061, // TLS
-                          NULL, // public IP address (nopt used in proxy)
-                          NULL, // default user (not used in proxy)
-                          NULL, // default SIP address (not used in proxy)
-                          NULL, // outbound proxy
-                          NULL, // directory server
-                          NULL, // registry server
-                          NULL, // auth scheme
-                          NULL, //auth realm
-                          NULL, // auth DB
-                          NULL, // auth user IDs
-                          NULL, // auth passwords
-                          NULL, // nat ping URL
-                          0, // nat ping frequency
-                          "PING", // nat ping method
-                          NULL, // line mgr
-                          SIP_DEFAULT_RTT, // first resend timeout
-                          TRUE, // default to UA transaction
-                          SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
-                          SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
-      );
+                5060, // UDP
+        5061, // TLS
+                NULL, // public IP address (nopt used in proxy)
+                NULL, // default user (not used in proxy)
+                NULL, // default SIP address (not used in proxy)
+                NULL, // outbound proxy
+                NULL, // directory server
+                NULL, // registry server
+                NULL, // auth scheme
+                NULL, //auth realm
+                NULL, // auth DB
+                NULL, // auth user IDs
+                NULL, // auth passwords
+                NULL, // nat ping URL
+                0, // nat ping frequency
+                "PING", // nat ping method
+                NULL, // line mgr
+                SIP_DEFAULT_RTT, // first resend timeout
+                TRUE, // default to UA transaction
+                SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
+                SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
+                );
 
    mUA->start();
 }
 
 void MpTestConfig::initializeCallManager()
 {
-   UtlString localAddress;
-   OsSocket::getHostIp(&localAddress);
+        UtlString localAddress;
+        OsSocket::getHostIp(&localAddress);
 
-   // Enable PCMU, PCMA, Tones/RFC2833
-   UtlString codecList("258 257 128");
-   SdpCodecFactory* pCodecFactory = new SdpCodecFactory();
-   UtlString oneCodec;
-   pCodecFactory->buildSdpCodecFactory(codecList);
+        // Enable PCMU, PCMA, Tones/RFC2833
+        UtlString codecList("258 257 128");
+        SdpCodecFactory* pCodecFactory = new SdpCodecFactory();
+        UtlString oneCodec;
+        pCodecFactory->buildSdpCodecFactory(codecList);
 
-   mCallManager = new CallManager(
-      FALSE,
-      NULL,
-      TRUE,                              // early media in 180 ringing
-      pCodecFactory,
-      9000,                              // rtp start
-      9999,                              // rtp end
-      localAddress.data(),
-      localAddress.data(),
-      mUA,
-      0,                                 // sipSessionReinviteTimer
-      NULL,                              // mgcpStackTask
-      "ivr@sip.pingtel.com",             // defaultCallExtension
-      Connection::RING,                  // availableBehavior
-      NULL,                              // unconditionalForwardUrl
-      -1,                                // forwardOnNoAnswerSeconds
-      NULL,                              // forwardOnNoAnswerUrl
-      Connection::BUSY,                  // busyBehavior
-      NULL,                              // sipForwardOnBusyUrl
-      NULL,                              // speedNums
-      CallManager::SIP_CALL,             // phonesetOutgoingCallProtocol
-      4,                                 // numDialPlanDigits
-      CallManager::NEAR_END_HOLD,        // holdType
-      5000,                              // offeringDelay
-      "",                                // pLocal
-      CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
-      QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
-      10,                                // maxCalls
-      NULL);                             // CpMediaInterfaceFactory
+         mCallManager = new CallManager(
+            FALSE,
+            NULL,
+            TRUE,                              // early media in 180 ringing
+            pCodecFactory,
+            9000,                              // rtp start
+            9999,                              // rtp end
+            localAddress.data(),
+            localAddress.data(),
+            mUA,
+            0,                                 // sipSessionReinviteTimer
+            NULL,                              // mgcpStackTask
+            "ivr@sip.pingtel.com",             // defaultCallExtension
+            Connection::RING,                  // availableBehavior
+            NULL,                              // unconditionalForwardUrl
+            -1,                                // forwardOnNoAnswerSeconds
+            NULL,                              // forwardOnNoAnswerUrl
+            Connection::BUSY,                  // busyBehavior
+            NULL,                              // sipForwardOnBusyUrl
+            NULL,                              // speedNums
+            CallManager::SIP_CALL,             // phonesetOutgoingCallProtocol
+            4,                                 // numDialPlanDigits
+            CallManager::NEAR_END_HOLD,        // holdType
+            5000,                              // offeringDelay
+            "",                                // pLocal
+            CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
+            QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
+            10,                                // maxCalls
+            NULL);                             // CpMediaInterfaceFactory
 
    mCallManager->start() ;
 }

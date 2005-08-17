@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #ifdef TEST
 #include "utl/UtlMemCheck.h"
@@ -21,7 +17,9 @@
 #include "tao/TaoTransportTask.h"
 #include "tao/TaoString.h"
 #include "cp/CpCallManager.h"
+#ifndef SIPXMEDIA_EXCLUDE
 #include "mp/MpStreamPlaylistPlayer.h"
+#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -536,14 +534,19 @@ TaoStatus TaoTerminalConnectionAdaptor::createPlayer(TaoMessage& rMsg)
    int flags = atoi(arg[2]) ;
    const char* szCallId = arg[3] ;
 
-   mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYER, szCallId, szStream, flags, ppPlayer) ;
 
-        rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
+    #ifndef SIPXMEDIA_EXCLUDE   
+        mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYER, szCallId, szStream, flags, ppPlayer) ;
+    #else
+        // TODO - use the Media Interface to create a player
+    #endif 
 
-        if (mpSvrTransport->postMessage(rMsg))
-                return TAO_SUCCESS;
+    rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 
-        return TAO_FAILURE;
+    if (mpSvrTransport->postMessage(rMsg))
+            return TAO_SUCCESS;
+
+    return TAO_FAILURE;
 }
 
 
@@ -558,7 +561,7 @@ TaoStatus TaoTerminalConnectionAdaptor::destroyPlayer(TaoMessage& rMsg)
    MpStreamPlayer* pPlayer = (MpStreamPlayer*) atoi(arg[0]) ;
    const char* szCallId = arg[1] ;
 
-   mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYER, szCallId, pPlayer) ;
+//   mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYER, szCallId, pPlayer) ;
 
         rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 
@@ -580,11 +583,15 @@ TaoStatus TaoTerminalConnectionAdaptor::createPlaylistPlayer(TaoMessage& rMsg)
    MpStreamPlaylistPlayer** ppPlayer = (MpStreamPlaylistPlayer**) atoi(arg[0]) ;
    const char* szCallId = arg[1] ;
 
-   mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYLIST_PLAYER,
-                          szCallId,
-                          NULL,
-                          0,
-                          (MpStreamPlayer **)ppPlayer) ;
+    #ifndef SIPXMEDIA_EXCLUDE
+    mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYLIST_PLAYER,
+        szCallId,
+        NULL,
+        0,
+        (MpStreamPlayer **)ppPlayer) ;
+    #else
+        // TODO - create a player using the Media Interface
+    #endif
 
         rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 
@@ -606,15 +613,18 @@ TaoStatus TaoTerminalConnectionAdaptor::destroyPlaylistPlayer(TaoMessage& rMsg)
    MpStreamPlaylistPlayer* pPlayer = (MpStreamPlaylistPlayer*) atoi(arg[0]) ;
    const char* szCallId = arg[1] ;
 
-   mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYLIST_PLAYER, szCallId, (MpStreamPlayer *)pPlayer) ;
+    #ifndef SIPXMEDIA_EXCLUDE
+        mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYLIST_PLAYER, szCallId, (MpStreamPlayer *)pPlayer) ;
+    #else
+        // TODO - destroy the player through the Media Interface
+    #endif
 
-        rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
+    rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 
-        if (mpSvrTransport->postMessage(rMsg))
-                return TAO_SUCCESS;
+    if (mpSvrTransport->postMessage(rMsg))
+            return TAO_SUCCESS;
 
-        return TAO_FAILURE;
-
+    return TAO_FAILURE;
 }
 
 

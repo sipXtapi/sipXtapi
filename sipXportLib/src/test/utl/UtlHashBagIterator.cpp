@@ -1,14 +1,9 @@
-
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -46,6 +41,7 @@ class UtlHashBagIteratorTests : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(UtlHashBagIteratorTests);
     CPPUNIT_TEST(testAdvancingOperator_And_KeyMethod) ; 
     CPPUNIT_TEST(testFiltered) ;
+    CPPUNIT_TEST(testCollision) ; 
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -449,6 +445,77 @@ public:
             CPPUNIT_ASSERT_MESSAGE("Expected element not found",0x0000==foundMask);
          }
       }
+
+   /* Check for a problem that turned up in insert():  If an object
+    * was inserted that should have been put at the end of a chain,
+    * it was instead inserted at the beginning.
+    *
+    * This test detects the problem by inserting two objects which we arrange
+    * to fall into the same bucket.  The object with the largest hash is
+    * inserted second, so it should go at the end of the list, but instead
+    * is inserted at the beginning.  The result is that the small-hash
+    * object can't be seen by a selective HashBagIterator.
+    *
+    * The objects we use to exercise this case have to be tuned to the hash
+    * algorithm of the objects and the algorithm
+    * (UtlHashBag::bucketNumber) for turning hashes into bucket numbers.
+    */
+   void testCollision()
+      {
+         UtlHashBag bag;
+
+         // For UtlInt's, the hash is the value.
+         UtlInt small_hash_object(1);
+         bag.insert(&small_hash_object);
+
+         // put in some other objects
+         UtlInt other_hash_object3(3);
+         bag.insert(&other_hash_object3);
+         UtlInt other_hash_object4(4);
+         bag.insert(&other_hash_object4);
+         UtlInt other_hash_object5(5);
+         bag.insert(&other_hash_object5);
+
+         UtlContainable* found;
+         {
+            // check that a keyed iterator sees the small_hash_object
+            UtlHashBagIterator itor(bag, new UtlInt(1));
+            found = itor();
+            CPPUNIT_ASSERT(found == &small_hash_object);
+
+            // and nothing else
+            found = itor();
+            CPPUNIT_ASSERT(found == NULL);
+         }
+         
+         // We depend on the fact that a HashBag initially has 16 buckets and
+         // folds hashes with XOR.  Under these conditions, 1 & 16 collide and
+         // land in the same bucket.
+         UtlInt large_hash_object(16);
+         bag.insert(&large_hash_object);
+
+         {
+            // check that a keyed iterator sees the small_hash_object
+            UtlHashBagIterator itor(bag, new UtlInt(1));
+            found = itor();
+            CPPUNIT_ASSERT(found == &small_hash_object);
+
+            // and nothing else
+            found = itor();
+            CPPUNIT_ASSERT(found == NULL);
+         }
+
+         {
+            // check that a keyed iterator sees the large_hash_object
+            UtlHashBagIterator itor(bag, new UtlInt(16));
+            found = itor();
+            CPPUNIT_ASSERT(found == &large_hash_object);
+
+            // and nothing else
+            found = itor();
+            CPPUNIT_ASSERT(found == NULL);
+         }
+      } // testCollision
 
 };
 

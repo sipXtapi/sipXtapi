@@ -25,11 +25,6 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h malloc.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
-AM_PATH_GLIB_2_0
-if ! test x"$no_glib" = x
-then
-  AC_MSG_ERROR(GLib2 required)
-fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -68,21 +63,23 @@ CHECK_GIPS
 # GIPS needs to be at the end of the list
 LIBS="$LIBS $GIPS_OBJS"
 
-## Enable compilation of TAPI code if desired
-AM_CONDITIONAL(BUILDTAPI, test x$enable_tapi = xyes)
+SFAC_SIPX_TAPI
+SFAC_FEATURE_SIPX_EZPHONE
 
 AC_CONFIG_FILES([
   Makefile 
-  config/sipXcommon.mak
   bin/Makefile
+  config/sipXcommon.mak
   doc/Makefile
   examples/CallScript/src/Makefile
   examples/Makefile 
   examples/PlaceCall/src/Makefile
+  examples/ReceiveCall/src/Makefile
   examples/musicServer/Makefile
   examples/sipXezPhone/Makefile
   include/Makefile 
   src/Makefile 
   src/test/Makefile
+  src/test/tapi/Makefile
 ])
 AC_OUTPUT

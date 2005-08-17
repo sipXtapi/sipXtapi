@@ -1,11 +1,9 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <openssl/ssl.h>
@@ -264,7 +262,7 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
       // Extract the subject and issuer information about the peer
       // and the certificate validation result.  Neither of these
       // are meaningful without the other.
-      //    (note various dynamically allocated items - freed below
+      //    (note various dynamically allocated items - freed below)
       int   validity  = SSL_get_verify_result(connection);
       X509* peer_cert = SSL_get_peer_certificate(connection);
       if (peer_cert)

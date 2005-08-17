@@ -1,17 +1,15 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
-#include <stdio.h>
+
+#include "os/OsDefs.h"
+
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #if defined(_WIN32)
 #  include <windows.h>
@@ -21,22 +19,27 @@
 #  define SLEEP(milliseconds) usleep((milliseconds)*1000)
 #endif
 
+#include "os/OsDefs.h"
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
 
-#define SAMPLES_PER_FRAME   80      // Number of samples per frame time
-#define LOOPBACK_LENGTH     200     // Frames for loopback delay (10ms per frame)
+#define SAMPLES_PER_FRAME   80          // Number of samples per frame time
+#define LOOPBACK_LENGTH     200         // Frames for loopback delay (10ms per frame)
 
 static short* g_loopback_samples[LOOPBACK_LENGTH] ; // loopback buffer
 static short g_loopback_head = 0 ;      // index into loopback
 static char* g_szPlayTones = NULL ;     // tones to play on answer
-static char* g_szFile = NULL ;      // file to play on answer
+static char* g_szFile = NULL ;          // file to play on answer
 
 // Print usage message
 void usage(const char* szExecutable)
 {
-    printf("\nUsage:\n") ;
+    char szBuffer[64] = "";
+
+    sipxConfigGetVersion(szBuffer, 64);
+    printf("\nUsage:\n");
     printf("   %s <options>\n", szExecutable) ;
+    printf("      using %s\n", szBuffer) ;
     printf("\n") ;
     printf("Options:\n") ;
     printf("   -d durationInSeconds (default=30 seconds)\n") ;
@@ -49,7 +52,9 @@ void usage(const char* szExecutable)
     printf("   -u username (for authentication)\n") ;
     printf("   -a password  (for authentication)\n") ;
     printf("   -m realm  (for authentication)\n") ;
+    printf("   -x proxy (outbound proxy)\n");
     printf("   -S stun server\n") ;
+    printf("   -v show sipXtapi version\n");
     printf("\n") ;
 }
 
@@ -67,9 +72,11 @@ bool parseArgs(int argc,
                char** pszUsername,
                char** pszPassword,
                char** pszRealm,
-               char** pszStunServer)
+               char** pszStunServer,
+               char** pszProxy)
 {
     bool bRC = true ;
+    char szBuffer[64];
 
     assert(pDuration && pszPlayTones) ;
     *pDuration = 30 ;
@@ -83,10 +90,11 @@ bool parseArgs(int argc,
     *pszPassword = NULL ;
     *pszRealm = NULL ;
     *pszStunServer = NULL ;
+    *pszProxy = NULL;
 
     for (int i=1; i<argc; i++)
     {
-    	if (strcmp(argv[i], "-d") == 0)
+        if (strcmp(argv[i], "-d") == 0)
         {
             if ((i+1) < argc)
             {
@@ -149,6 +157,8 @@ bool parseArgs(int argc,
         {
             *bLoopback = true ;
         }
+
+
         else if (strcmp(argv[i], "-i") == 0)
         {
             if ((i+1) < argc)
@@ -161,6 +171,7 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
         else if (strcmp(argv[i], "-u") == 0)
         {
             if ((i+1) < argc)
@@ -173,6 +184,7 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
         else if (strcmp(argv[i], "-a") == 0)
         {
             if ((i+1) < argc)
@@ -185,6 +197,7 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
         else if (strcmp(argv[i], "-m") == 0)
         {
             if ((i+1) < argc)
@@ -197,6 +210,7 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
         else if (strcmp(argv[i], "-S") == 0)
         {
             if ((i+1) < argc)
@@ -208,6 +222,24 @@ bool parseArgs(int argc,
                 bRC = false ;
                 break ; // Error
             }
+        }
+        else if (strcmp(argv[i], "-x") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pszProxy = strdup(argv[++i]) ;
+            }
+            else
+            {
+                bRC = false ;
+                break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-v") == 0)
+        {
+            sipxConfigGetVersion(szBuffer, 64);
+            printf("%s\n", szBuffer);
+            exit(0);
         }
         else
         {
@@ -238,7 +270,7 @@ bool playTones(char* szPlayTones, SIPX_CALL hCall)
         int toneId = *szPlayTones++ ;
 
         if (    (toneId >= '0' && toneId <= '9') ||
-                (toneId == '#') || (toneId == '*') || toneId == ',')
+            (toneId == '#') || (toneId == '*') || toneId == ',' || toneId == '!')
         {
             if (toneId == ',')
             {
@@ -267,8 +299,7 @@ bool playTones(char* szPlayTones, SIPX_CALL hCall)
 
 void SpkrAudioHook(const int nSamples, short* pSamples)
 {
-    memcpy(g_loopback_samples[g_loopback_head], pSamples,
-        sizeof(short) * SAMPLES_PER_FRAME) ;
+    memcpy(g_loopback_samples[g_loopback_head], pSamples, sizeof(short) * SAMPLES_PER_FRAME) ;
     g_loopback_head = ((g_loopback_head + 1) % LOOPBACK_LENGTH) ;
     memset(pSamples, 0, sizeof(short) * SAMPLES_PER_FRAME) ;
 }
@@ -277,8 +308,7 @@ void SpkrAudioHook(const int nSamples, short* pSamples)
 void MicAudioHook(const int nSamples, short* pSamples)
 {
     short index = ((g_loopback_head + 1) % LOOPBACK_LENGTH) ;
-    memcpy(pSamples, g_loopback_samples[index],
-            sizeof(short) * SAMPLES_PER_FRAME) ;
+    memcpy(pSamples, g_loopback_samples[index], sizeof(short) * SAMPLES_PER_FRAME) ;
 }
 
 
@@ -288,8 +318,7 @@ void clearLoopback()
     {
         if (g_loopback_samples[i])
         {
-            memset(g_loopback_samples[i], 0, sizeof(short)
-                    * SAMPLES_PER_FRAME) ;
+            memset(g_loopback_samples[i], 0, sizeof(short) * SAMPLES_PER_FRAME) ;
         }
     }
     g_loopback_head = 0 ;
@@ -309,47 +338,65 @@ void initLoopback()
 }
 
 
-void EventCallBack( SIPX_CALL hCall,
-                    SIPX_LINE hLine,
-                    SIPX_CALLSTATE_MAJOR eMajor,
-                    SIPX_CALLSTATE_MINOR eMinor,
-                    void* pUserData)
+bool EventCallBack(SIPX_EVENT_CATEGORY category, 
+                   void* pInfo, 
+                   void* pUserData)
 {
-    switch (eMajor)
+    assert (pInfo != NULL);
+
+    // Dump event
+    char cBuf[1024] ;
+    printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    
+
+    if (category == EVENT_CATEGORY_CALLSTATE)
     {
-    case OFFERING:
-        printf("LineId: %d\n", hLine) ;
-        sipxCallAccept(hCall) ;
-        break ;
-    case ALERTING:
-        clearLoopback() ;
-        sipxCallAnswer(hCall) ;
-        break ;
-    case CONNECTED:
-        SLEEP(1000) ;   // BAD: Do not block the callback thread
+        SIPX_CALLSTATE_INFO* pCallInfo = static_cast<SIPX_CALLSTATE_INFO*>(pInfo);
+        printf("    hCall=%d, hAssociatedCall=%d\n", pCallInfo->hCall, pCallInfo->hAssociatedCall) ;
 
-        // Play file if provided
-        if (g_szFile)
+        switch (pCallInfo->event)
         {
-            if (!playFile(g_szFile, hCall))
-            {
-                printf("Failed to play file: %s\n", g_szFile) ;
-            }
-        }
+        case CALLSTATE_OFFERING:
+            sipxCallAccept(pCallInfo->hCall) ;
+            break ;
+        case CALLSTATE_ALERTING:
+            clearLoopback() ;
+            sipxCallAnswer(pCallInfo->hCall) ;
+            break ;
+        case CALLSTATE_CONNECTED:
+            SLEEP(1000) ;   // BAD: Do not block the callback thread
 
-        // Play tones if provided
-        if (g_szPlayTones)
-        {
-            if (!playTones(g_szPlayTones, hCall))
+            // Play file if provided
+            if (g_szFile)
             {
-                printf("Failed to play tones: %s\n", g_szPlayTones) ;
+                if (!playFile(g_szFile, pCallInfo->hCall))
+                {
+                    printf("Failed to play file: %s\n", g_szFile) ;
+                }
             }
+
+            // Play tones if provided
+            if (g_szPlayTones)
+            {
+                if (!playTones(g_szPlayTones, pCallInfo->hCall))
+                {
+                    printf("Failed to play tones: %s\n", g_szPlayTones) ;
+                }
+            }
+            break ;
+        case CALLSTATE_DISCONNECTED:
+            sipxCallDestroy(pCallInfo->hCall) ;
+            break ;
+        case CALLSTATE_AUDIO_EVENT:
+            if (pCallInfo->cause == CALLSTATE_AUDIO_START)
+            {
+                printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codec.cName, pCallInfo->codec.iPayloadType);
+            }
+            break;
+        case CALLSTATE_DESTROYED:
+            break ;
         }
-        break ;
-    case DISCONNECTED:
-        sipxCallDestroy(hCall) ;
-        break ;
     }
+    return true;
 }
 
 
@@ -362,15 +409,56 @@ SIPX_LINE lineInit(SIPX_INST hInst, char* szIdentity, char* szUsername, char* sz
         sipxLineAdd(hInst, szIdentity, &hLine) ;
 
         if (    szUsername && strlen(szUsername) &&
-                szPassword && strlen(szPassword) &&
-                szRealm && strlen(szRealm))
+            szPassword && strlen(szPassword) &&
+            szRealm && strlen(szRealm))
         {
             sipxLineAddCredential(hLine, szUsername, szPassword, szRealm) ;
             sipxLineRegister(hLine, true);
         }
     }
+    else
+    {
+        sipxLineAdd(hInst, "sip:receivecall@localhost", &hLine) ;
+    }
 
     return hLine ;
+}
+
+void dumpLocalContacts(SIPX_INST hInst)
+{
+    SIPX_CONTACT_ADDRESS contacts[10] ;
+    size_t nContacts;
+
+    SIPX_RESULT status = sipxConfigGetLocalContacts(hInst, contacts, 10, nContacts) ;
+    if (status == SIPX_RESULT_SUCCESS)
+    {
+        for (size_t i = 0; i<nContacts; i++)
+        {
+            const char* szType = "UNKNOWN" ;
+            switch (contacts[i].eContactType)
+            {
+                case CONTACT_LOCAL:
+                    szType = "LOCAL" ;
+                    break ;
+                case CONTACT_NAT_MAPPED:
+                    szType = "NAT_MAPPED" ;
+                    break ;
+                case CONTACT_RELAY:
+                    szType = "RELAY" ;
+                    break ;
+                case CONTACT_CONFIG:
+                    szType = "CONFIG" ;
+                    break ;
+            }
+            printf("<-> Type %s, Interface: %s, Ip %s, Port %d\n",
+                    szType, contacts[i].cInterface, contacts[i].cIpAddress,
+                    contacts[i].iPort) ;
+        }
+    }
+    else
+    {
+        printf("<-> Unable to query local contact addresses\n") ;
+    }
 }
 
 
@@ -384,14 +472,15 @@ int main(int argc, char* argv[])
     char* szPassword ;
     char* szRealm ;
     char* szStunServer ;
+    char* szProxy ;
     SIPX_INST hInst ;
     SIPX_LINE hLine ;
 
 
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &g_szPlayTones,
-        &g_szFile, &bLoopback, &szIdentity, &szUsername, &szPassword, &szRealm, &szStunServer) &&
-            (iDuration > 0) && (iSipPort > 0) && (iRtpPort > 0))
+        &g_szFile, &bLoopback, &szIdentity, &szUsername, &szPassword, &szRealm, &szStunServer, &szProxy) &&
+        (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         if (bLoopback)
         {
@@ -399,17 +488,23 @@ int main(int argc, char* argv[])
         }
 
         // initialize sipx TAPI-like API
-        sipxConfigEnableLog("ReceiveCall.log", LOG_LEVEL_INFO) ;
-        if (sipxInitialize(&hInst, iSipPort, iSipPort, iRtpPort)
-                == SIPX_RESULT_SUCCESS)
-        {
+        sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
+        sipxConfigSetLogFile("ReceiveCall.log");
+        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity) == SIPX_RESULT_SUCCESS)
+        {            
+            if (szProxy)
+            {
+                sipxConfigSetOutboundProxy(hInst, szProxy);
+            }
             sipxConfigEnableRport(hInst, true) ;
             if (szStunServer)
             {
                 sipxConfigEnableStun(hInst, szStunServer, 28) ;
             }
-            sipxListenerAdd(hInst, EventCallBack, NULL) ;
+            sipxEventListenerAdd(hInst, EventCallBack, NULL) ;
             hLine = lineInit(hInst, szIdentity, szUsername, szPassword, szRealm) ;
+
+            dumpLocalContacts(hInst) ;
 
             while (true)
             {

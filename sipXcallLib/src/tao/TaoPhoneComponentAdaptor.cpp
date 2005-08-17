@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -26,8 +24,9 @@
 #include "ps/PsButtonTask.h"
 #include "ps/PsPhoneTask.h"
 #include "ps/PsHookswTask.h"
-#include "mp/MpCodec.h"
-
+#ifndef SIPXMEDIA_EXCLUDE
+    #include "mp/MpCodec.h"
+#endif
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS

@@ -1,13 +1,9 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _PhoneStateMachine_h_
 #define _PhoneStateMachine_h_
 
@@ -53,10 +49,12 @@ public:
    virtual PhoneState* OnDisconnected(const SIPX_CALL hCall);   
    virtual PhoneState* OnOutgoingCallRejected(); 
    virtual PhoneState* OnError(); 
-   virtual PhoneState* OnHoldButton();
    virtual PhoneState* OnTransferRequested(const wxString phoneNumber);
    virtual PhoneState* OnTransferComplete(const bool bFailure);
    virtual PhoneState* OnOffer(const SIPX_CALL hCall);
+   virtual PhoneState* OnHoldButton();
+   virtual PhoneState* OnLocalHoldRequested();
+   virtual PhoneState* OnConnectedInactive();
 
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
@@ -83,3 +81,4 @@ private:
 };
 
 #endif
+

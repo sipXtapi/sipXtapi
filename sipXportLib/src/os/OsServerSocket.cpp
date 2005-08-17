@@ -1,19 +1,16 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
 
-#define OsSS_CONST
 #if defined(_WIN32)
 #   include <winsock.h>
 #undef OsSS_CONST
@@ -23,9 +20,14 @@
 #   include <sockLib.h>
 #   include <unistd.h>
 #elif defined(__pingtel_on_posix__)
+#undef OsSS_CONST
+#define OsSS_CONST const
+#   include <netinet/in.h>
 #   include <sys/types.h>
 #   include <sys/socket.h>
 #   include <netdb.h>
+#   include <netinet/in.h>
+#   include <arpa/inet.h>
 #   include <unistd.h>
 #   include <resolv.h>
 #else
@@ -54,7 +56,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsServerSocket::OsServerSocket(int connectionQueueSize, int serverPort)
+OsServerSocket::OsServerSocket(int connectionQueueSize,
+    int serverPort,
+    const char* szBindAddr)
 {
    const int one = 1;
    int error = 0;
@@ -80,17 +84,45 @@ OsServerSocket::OsServerSocket(int connectionQueueSize, int serverPort)
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       goto EXIT;
    }
+
+#ifndef WIN32
    if(setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&one, sizeof(one)))
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!\n");
+#endif
+    setsockopt(socketDescriptor, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
+
+#  if defined(__MACH__)
+   // Under OS X, we use SO_NOSIGPIPE here because MSG_NOSIGNAL
+   // is not supported for the write() call.
+   if(setsockopt(socketDescriptor, SOL_SOCKET, SO_NOSIGPIPE, (char *)&one, sizeof(one)))
+   {
+      error = OsSocketGetERRNO();
+      close();
+      perror("call to setsockopt failed in OsServerSocket::OsServerSocket\n");
+      OsSysLog::add(FAC_SIP, PRI_ERR, "setsockopt call failed with error: 0x%x in OsServerSocket::OsServerSocket\n", error);
+      goto EXIT;
+   }
+#       endif
+
+
 
    localAddr.sin_family = AF_INET;
 
    // Bind to a specific server port if given, or let the system pick
-   // any available port number if defaulted to -1.
-   localAddr.sin_port = htons((-1 == serverPort) ? 0 : serverPort);
+   // any available port number if PORT_DEFAULT.
+   localAddr.sin_port = htons((PORT_DEFAULT == serverPort) ? 0 : serverPort);
 
    // Allow IP in on any of this host's addresses or NICs.
-   localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress();
+   if (szBindAddr)
+   {
+      localAddr.sin_addr.s_addr = inet_addr (szBindAddr);
+      mLocalIp = szBindAddr;
+   }
+   else
+   {
+      localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress();
+      mLocalIp = inet_ntoa(localAddr.sin_addr);
+   }
 //   localAddr.sin_addr.s_addr=htonl(INADDR_ANY); // Allow IP in on
 
    error = bind(socketDescriptor,
@@ -101,7 +133,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize, int serverPort)
       error = OsSocketGetERRNO();
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "OsServerSocket:  bind to port %d failed with error: %d = 0x%x\n",
-                    ((-1 == serverPort) ? 0 : serverPort), error, error);
+                    ((PORT_DEFAULT == serverPort) ? 0 : serverPort), error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       goto EXIT;
    }
@@ -168,8 +200,11 @@ OsConnectionSocket* OsServerSocket::accept()
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       return NULL;
    }
+   
+   const int one = 1 ;
+   setsockopt(clientSocket, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
 
-   connectSock = new OsConnectionSocket(clientSocket);
+   connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
 
    return(connectSock);
 }
@@ -181,6 +216,7 @@ void OsServerSocket::close()
 #if defined(_WIN32)
       closesocket(socketDescriptor);
 #elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
+      // Call shutdown first to unblock blocking calls on Linux
       ::shutdown(socketDescriptor,2);
       ::close(socketDescriptor);
 #else

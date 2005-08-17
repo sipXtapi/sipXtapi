@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+  -  S E T T I N G  D A O  I M P L
+  -->
+  <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="processContext" ref="sipxProcessContext"/>
+  </bean>
+  <!--
+  -  S E T T I N G  D A O 
+  -->
+  <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.setting.SettingDao</value>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>hibernateInterceptor</value>
+        <value>settingDaoImpl</value>
+      </list>
+    </property>
+  </bean>  
+  <bean id="modelFilesContext" class="org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl" dependency-check="all">
+    <property name="configDirectory">
+      <value>${sysdir.etc}</value>
+    </property>
+    <property name="modelBuilder">
+      <bean class="org.sipfoundry.sipxconfig.setting.XmlModelBuilder">
+        <constructor-arg index="0">
+          <value>${sysdir.etc}</value>
+        </constructor-arg>
+      </bean>      
+    </property>    
+  </bean>
+</beans>

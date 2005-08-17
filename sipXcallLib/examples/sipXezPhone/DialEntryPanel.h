@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _DialEntrypanel_h_
 #define _DialEntrypanel_h_
 
@@ -47,7 +43,7 @@ public:
    /**
     * Dial Button event handler
     */
-   void OnButtonClick(wxCommandEvent& event);
+   void OnButtonClick(wxEvent& event);
 
    /**
     * retrieve the text from the combo box

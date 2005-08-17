@@ -21,8 +21,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1"
+				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include,..\..\..\sipXtackLib\include,..\..\..\gips;..\..\..\sipXportLib\include\glib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;VOICE_ENGINE;GIPS_DLL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -41,13 +41,13 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rpcrt4.lib wsock32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapid.lib sipXportLib.lib libpcre.a gthread-2.0.lib glib-2.0.lib"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapid.lib sipXportLib.lib libpcre.a "
 				OutputFile="./sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\sipXtapi\Debug,\wxWindows-2.4.2\lib,..\..\..\sipXportLib\Debug"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames=""
+				IgnoreDefaultLibraryNames="msvcrt.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/sipXezPhone.pdb"
 				SubSystem="2"
@@ -92,8 +92,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1"
+				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include,..\..\..\sipXtackLib\include,..\..\..\gips;..\..\..\sipXportLib\include\glib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;VOICE_ENGINE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -111,11 +111,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib odbc32.lib odbccp32.lib comctl32.lib rpcrt4.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapi.lib sipXportLib.lib libpcre.a gthread-2.0.lib glib-2.0.lib"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib wsock32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapi.lib sipXportLib.lib libpcre.a "
 				OutputFile="./sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\Release_TAPI\;..\..\sipXtapi\Release;..\..\Release\;&quot;\wxWindows-2.4.2\lib&quot;;..\..\..\sipXportLib\Release"
+				AdditionalLibraryDirectories="..\..\sipXtapi\Release;..\..\Release\;&quot;\wxWindows-2.4.2\lib&quot;;..\..\..\sipXportLib\Release"
 				ProgramDatabaseFile=".\Release/sipXezPhone.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
@@ -219,6 +219,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ConferencePanel.cpp">
+			</File>
+			<File
 				RelativePath=".\ContactListCtrl.cpp">
 			</File>
 			<File
@@ -288,6 +291,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\EventLogDlg.cpp">
+			</File>
+			<File
 				RelativePath="MainPanel.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -349,6 +355,9 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sipXAudioSettingsDlg.cpp">
 			</File>
 			<File
 				RelativePath="sipXezPhone_wdr.cpp">
@@ -549,7 +558,10 @@
 					RelativePath=".\states\PhoneStateAccepted.cpp">
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateCallHeld.cpp">
+					RelativePath=".\states\PhoneStateCallHeldLocally.cpp">
+				</File>
+				<File
+					RelativePath=".\states\PhoneStateCallHeldRemotely.cpp">
 				</File>
 				<File
 					RelativePath=".\states\PhoneStateConnected.cpp">
@@ -562,6 +574,9 @@
 				</File>
 				<File
 					RelativePath=".\states\PhoneStateIdle.cpp">
+				</File>
+				<File
+					RelativePath=".\states\PhoneStateLocalHoldRequested.cpp">
 				</File>
 				<File
 					RelativePath=".\states\PhoneStateMachine.cpp">
@@ -602,6 +617,9 @@
 				RelativePath="CallList.h">
 			</File>
 			<File
+				RelativePath=".\ConferencePanel.h">
+			</File>
+			<File
 				RelativePath=".\ContactListCtrl.h">
 			</File>
 			<File
@@ -612,6 +630,9 @@
 			</File>
 			<File
 				RelativePath="DialPadPanel.h">
+			</File>
+			<File
+				RelativePath=".\EventLogDlg.h">
 			</File>
 			<File
 				RelativePath="MainPanel.h">
@@ -660,7 +681,10 @@
 					RelativePath=".\states\PhoneStateAccepted.h">
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateCallHeld.h">
+					RelativePath=".\states\PhoneStateCallHeldLocally.h">
+				</File>
+				<File
+					RelativePath=".\states\PhoneStateCallHeldRemotely.h">
 				</File>
 				<File
 					RelativePath=".\states\PhoneStateConnected.h">
@@ -673,6 +697,9 @@
 				</File>
 				<File
 					RelativePath=".\states\PhoneStateIdle.h">
+				</File>
+				<File
+					RelativePath=".\states\PhoneStateLocalHoldRequested.h">
 				</File>
 				<File
 					RelativePath=".\states\PhoneStateMachine.h">

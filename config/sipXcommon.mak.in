@@ -58,4 +58,5 @@ LocalizeSipXconfig = sed \
 		  -e 's,@XPRESSA_BUILD_COMMENT\@,@XPRESSA_BUILD_COMMENT@,g' \
 		  -e 's,@SIPXPHONELIB\@,@SIPXPHONELIB@,g' \
 		  -e 's,@SIPXPHONEDATA\@,@SIPXPHONEDATA@,g' \
-		  -e 's,@SIPXPHONECONF\@,@SIPXPHONECONF@,g' 
+		  -e 's,@SIPXPHONECONF\@,@SIPXPHONECONF@,g' \
+		  -e 's,@NAMED_PROGRAM\@,@NAMED_PROGRAM@,g' 

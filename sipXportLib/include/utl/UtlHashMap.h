@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlHashMap_h_
 #define _UtlHashMap_h_
@@ -14,10 +14,11 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlContainer.h"
-#include "glib.h"
 
 // DEFINES
 // MACROS
+#define NUM_HASHMAP_BUCKETS(bits) (1<<bits)
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -25,6 +26,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class UtlContainable;
+class UtlPair;
 
 /**
  * UtlHashMap is a container object that allows you to store keys and 
@@ -35,7 +37,6 @@ class UtlHashMap : public UtlContainer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   friend class UtlHashMapIterator;
 
 /* ============================ CREATORS ================================== */
 
@@ -43,20 +44,6 @@ public:
      * Default Constructor
      */
     UtlHashMap();
-
-
-    /**
-     * Constructor accepting a starting number of bins and a flag to control
-     * the allocation of buckets.  If you imagine the UtlHashMap implemented 
-     * using an array, the number of bins is the array size and the buckets 
-     * are a data structure filled into each array slot.
-     *
-     * @param numBins The initial number of bins.
-     * @param bPrealloc true to preallocate all of the buckets, false to allow
-     *        the buckets to be allocated when needed.
-     */
-    UtlHashMap(int numBins, UtlBoolean bPrealloc = false);
-
 
     /**
      * Destructor
@@ -177,29 +164,76 @@ public:
      */
     void copyInto(UtlHashMap& map) const;
 
+    /// The current number of buckets in the hash.
+    size_t numberOfBuckets() const
+       {
+          return NUM_HASHMAP_BUCKETS(mBucketBits);
+       }
+    
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    friend class UtlHashMapIterator;
 
+    static const UtlContainable* INTERNAL_NULL;
+
+    /// If the Hash is too full, add additional buckets.
     /**
-     * Return the key for a given value or NULL if not found.
+     * Assumes that the caller is holding the mContainerLock.
+     *
+     * This calls resize to actually do the resize if it is safe.
      */
-    UtlContainable* getValue(const UtlContainable* key) const;
-    /**<
-     * Assumes that the caller is holding the mContainerLock
-     */
+    void resizeIfNeededAndSafe()
+       {
+          if (   ( mElements / NUM_HASHMAP_BUCKETS(mBucketBits) >= 3 ) // mean bucket 3 or more
+              && ( mIteratorList.isUnLinked() )   /* there are no iterators -
+                                                   * resizing moves elements to new buckets,
+                                                   * which could cause an iterator to miss some
+                                                   * and to return others more than once.
+                                                   */
+              )
+          {
+             resize();
+          }
+       }
     
+    size_t    mElements;   ///< number of UtlContainable objects in this UtlHashMap
+    size_t    mBucketBits; ///< number of bits used to index the buckets
+    UtlChain* mpBucket;    ///< an array of 2**n UtlChain elements, each used as a list header.
 
-    GHashTable* mpHashTable;
-
-
+    static    UtlChainPool* spPairPool; ///< pool of available UtlPair objects.
+    
     static const UtlContainableType TYPE;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    // internal shared constructor code
-    void init();
+    /// Allocate additional buckets and redistribute existing contents.
+    void resize();
+    /**
+     * This should only be called through resizeIfNeededAndSafe.
+     */          
+
+    /// Search for a given key value and return the the UtlPair and bucket for it.
+    bool lookup(const UtlContainable* key, ///< The key to locate.
+                UtlChain*&      bucket,    /**< The bucket list header in which it belongs.
+                                            *   This is set regardless of whether or not the
+                                            *   key was found in the table. */
+                UtlPair*&       pair       /**< If the key was found, the UtlPair for the entry.
+                                            *   If the key was not found, this is NULL. */
+                ) const;
+    /**<
+     * @return true if the key was found, and false if not.
+     */
+    
+    /// Insert a pair into a bucket.
+    void insert(UtlPair*        pair,   /**< The UtlPair for the entry - data, value, and hash
+                                         *   are already set. */
+                UtlChain*       bucket  ///< The bucket list header where the entry belongs.
+                );
+
+    /// Calculate the bucket number for a given hash.
+    size_t bucketNumber(unsigned hash) const;
     
     // no copy constructor is provided
     UtlHashMap(UtlHashMap&);
@@ -207,18 +241,10 @@ private:
     /** Use copyInto instead */
     UtlHashMap& operator=(const UtlHashMap&);
     
-    // static callback functions for ghashtable.
-    static guint callbackHash(gconstpointer v);
-    static gboolean callbackEqual(gconstpointer v, gconstpointer v2);
-
     /**
      * notifyIteratorsOfRemove - called before removing any entry from the UtlHashMap
      */
-    void notifyIteratorsOfRemove(const UtlContainable* key);
-    static gboolean UtlHashMap::notifyEachRemoved(gpointer  key,gpointer  value,gpointer  user_data);
-
-    static gboolean UtlHashMap::notifyEachDeleted(gpointer  key,gpointer  value,gpointer  user_data);
-
+    void notifyIteratorsOfRemove(const UtlPair* pair);
 };
 
 #endif    // _UtlHashMap_h_

@@ -1,13 +1,10 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -30,8 +27,12 @@
 #include <sys/stat.h>
 #include <stdio.h>
 
+#ifndef SIPXMEDIA_EXCLUDE
+    #include "mp/MpCodec.h"
+    #include "mp/dmaTask.h"
+#endif
+
 // APPLICATION INCLUDES
-#include "mp/MpCodec.h"
 #ifdef _VXWORKS
    int touch(char *name);
 #endif
@@ -65,9 +66,6 @@
 #include "tao/TaoPhoneComponentAdaptor.h"
 #include "tao/TaoTerminalAdaptor.h"
 #include "tao/TaoObjectMap.h"
-#include "mp/dmaTask.h"
-
-#include <os/iostream>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -304,11 +302,15 @@ OsStatus PsPhoneTask::setGain(int level)
 //      assert(FALSE);
       break;
    }
-
+   
+   #ifndef SIPXMEDIA_EXCLUDE
    MpCodec_setGain(level);
+   #else
+   // TODO - set the gain using the CpMediaInterfaceFactory
+   #endif
    osPrintf("PsPhoneTask::setGain - MpCodec_setGain(%d)\n", level);
 
-        return rc;
+   return rc;
 }
 
 // Sets the speaker mode for the phone (which speakers are enabled).
@@ -386,33 +388,39 @@ void PsPhoneTask::speakerModeEnable(int mode)
 
 void PsPhoneTask::speakerModeDisable(int mode)
 {
-        mode = (mSpkrMode & (0xffffffff - mode));
-        if (mode == 0)
-        {
-                mSpkrMode = mode;
-#ifdef _VXWORKS
-                MpCodec_setSpeakerMode(CODEC_DISABLE_SPKR);
-                MpCodec_setMicMode(CODEC_DISABLE_MIC);
-#endif
-        }
+    mode = (mSpkrMode & (0xffffffff - mode));
+    if (mode == 0)
+    {
+        mSpkrMode = mode;
+        #ifdef _VXWORKS
+        MpCodec_setSpeakerMode(CODEC_DISABLE_SPKR);
+        MpCodec_setMicMode(CODEC_DISABLE_MIC);
+        #endif
+    }
    else
-                setSpeakerMode(mode);
+   {
+       setSpeakerMode(mode);
+   }
 }
 
 // Set the speaker volume to a level between 0 (low) and 100 (high)
 OsStatus PsPhoneTask::setVolume(int level)
 {
-        if (mSpkrMode & HANDSET_ENABLED ||
-          mSpkrMode & SPEAKERPHONE_ENABLED ||
-          mSpkrMode & RINGER_ENABLED ||
-          mSpkrMode & SOUND_ENABLED ||
-          mSpkrMode & HEADSET_ENABLED)
-        {
-                MpCodec_setVolume(level);
-                osPrintf("< PsPhoneTask::setVolume: %d mode: %d>\n", level, mSpkrMode);
-        }
+    if (mSpkrMode & HANDSET_ENABLED ||
+    mSpkrMode & SPEAKERPHONE_ENABLED ||
+    mSpkrMode & RINGER_ENABLED ||
+    mSpkrMode & SOUND_ENABLED ||
+    mSpkrMode & HEADSET_ENABLED)
+    {
+        #ifndef SIPXMEDIA_EXCLUDE
+            MpCodec_setVolume(level);
+        #else
+            // TODO - call the MediaInterface to set the volume
+        #endif
+        osPrintf("< PsPhoneTask::setVolume: %d mode: %d>\n", level, mSpkrMode);
+    }
 
-        return OS_SUCCESS;
+    return OS_SUCCESS;
 }
 
 void PsPhoneTask::extSpeakerConnect(UtlBoolean connected)
@@ -795,11 +803,13 @@ UtlBoolean PsPhoneTask::handlePhoneMessage(const PsMsg& rMsg)
       }
       else
       {
+/*
          cout << "Phone message:" << endl;
          cout << "  type="   << msgType <<
                  ", source=" << msgSrc <<
                  ", param1=" << param1 <<
                  ", param2=" << param2 << endl;
+*/
       }
       break;
    case PsMsg::BUTTON_SET_INFO:
@@ -822,11 +832,13 @@ UtlBoolean PsPhoneTask::handlePhoneMessage(const PsMsg& rMsg)
          postListenerMessage(rMsg);
       else
       {
+/*
          cout << "Phone message:" << endl;
          cout << "  type="   << msgType <<
                  ", source=" << msgSrc <<
                  ", param1=" << param1 <<
                  ", param2=" << param2 << endl;
+*/
       }
       break;
    case PsMsg::TERMINAL_GET_COMPONENT:
@@ -1172,17 +1184,21 @@ int PsPhoneTask::activateGroup(int type)
                 break;
         case PtComponentGroup::RINGER:
         case PtComponentGroup::PHONE_SET:
-                if (mpPhoneSetGroup)
-                {
-            DmaTask::setRingerEnabled(true);
-                        rc = mpPhoneSetGroup->activate();
-                        speakerModeEnable(RINGER_ENABLED);
-                        mpPhoneSetGroup->getVolume(PsTaoComponentGroup::PHONE_SET, level);
-                        setVolume(level);
-                        mpPhoneSetGroup->getMicGainValue(PsTaoComponentGroup::PHONE_SET, level);
-                        setGainValue(level);
-                }
-                break;
+        if (mpPhoneSetGroup)
+        {
+            #ifndef SIPXMEDIA_EXCLUDE
+                DmaTask::setRingerEnabled(true);
+                rc = mpPhoneSetGroup->activate();
+                speakerModeEnable(RINGER_ENABLED);
+                mpPhoneSetGroup->getVolume(PsTaoComponentGroup::PHONE_SET, level);
+                setVolume(level);
+                mpPhoneSetGroup->getMicGainValue(PsTaoComponentGroup::PHONE_SET, level);
+                setGainValue(level);
+            #else
+                // TODO - do all of the above using the MediaInterface
+            #endif
+        }
+        break;
         case PtComponentGroup::SOUND:
                 if (mpSpeakerPhoneGroup)
                 {
@@ -1192,11 +1208,15 @@ int PsPhoneTask::activateGroup(int type)
                    int stepsize;    // in .1 dB
                    int mute;
 
-                   MpCodec_getVolumeRange(low, high, nominal, stepsize, mute, mSplash, CODEC_ENABLE_BASE_SPKR);
-                        osPrintf("~~~ activateGroup: splash %d\n", mSplash);
-                        rc = mpSpeakerPhoneGroup->activate();
-                        speakerModeEnable(SOUND_ENABLED);
-                        setVolume(mSplash);
+                   #ifndef SIPXMEDIA_EXCLUDE
+                       MpCodec_getVolumeRange(low, high, nominal, stepsize, mute, mSplash, CODEC_ENABLE_BASE_SPKR);
+                            osPrintf("~~~ activateGroup: splash %d\n", mSplash);
+                            rc = mpSpeakerPhoneGroup->activate();
+                            speakerModeEnable(SOUND_ENABLED);
+                            setVolume(mSplash);
+                   #else
+                       // TODO - do the above using the MediaInterface
+                   #endif
                 }
                 break;
         case PtComponentGroup::OTHER:
@@ -1260,13 +1280,17 @@ UtlBoolean PsPhoneTask::deactivateGroup(int type)
            break;
         case PtComponentGroup::PHONE_SET:
         case PtComponentGroup::RINGER:
-           if (mpPhoneSetGroup)
-           {
-                        DmaTask::setRingerEnabled(false);
-                        rc = mpPhoneSetGroup->deactivate();
-                        speakerModeDisable(RINGER_ENABLED | SOUND_ENABLED);
-           }
-           break;
+            if (mpPhoneSetGroup)
+            {
+                #ifndef SIPXMEDIA_EXCLUDE
+                    DmaTask::setRingerEnabled(false);
+                #else
+                    // TODO - do the above using the MediaInterface
+                #endif
+                rc = mpPhoneSetGroup->deactivate();
+                speakerModeDisable(RINGER_ENABLED | SOUND_ENABLED);
+            }
+            break;
         case PtComponentGroup::SOUND:
            if (mpSpeakerPhoneGroup)
            {

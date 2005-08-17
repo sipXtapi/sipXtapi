@@ -1,13 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -29,7 +25,9 @@ class OsFileTest : public CppUnit::TestCase
     CPPUNIT_TEST(testReadWriteBuffer);
     CPPUNIT_TEST(testCopyFile);
     CPPUNIT_TEST(testReadOnly);
+#ifndef _WIN32
     CPPUNIT_TEST(testReadLock);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
     /** where all tests should r/w data */

@@ -9,7 +9,7 @@ INCLUDES = -I$(top_srcdir)/include
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
-version_Current=1
+version_Current=2
 # Revision - set to 0 if Current was incremented
 #            increment if any implementation has changed
 version_Revision=0
@@ -17,19 +17,23 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXport_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+libsipXport_la_LDFLAGS = \
+	-version-info ${version_Current}:${version_Revision}:${version_Age} \
+	@PCRE_LDFLAGS@ \
+	@SSL_LDFLAGS@
 
 libsipXport_la_LIBADD = \
-	@GLIB_LIBS@ \
 	@PCRE_LIBS@ \
 	@SSL_LIBS@ \
+	@RT_LIBS@ \
 	-ldl \
-	-lrt  \
 	-lpthread  \
 	-lstdc++
 
+# this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
+# 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
+
 libsipXport_la_CXXFLAGS = \
-	@GLIB_CFLAGS@ \
 	@PCRE_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
@@ -40,6 +44,7 @@ libsipXport_la_SOURCES =  \
     ../config/sipxportlib-buildstamp.cpp \
     utl/UtlBool.cpp \
     utl/UtlDateTime.cpp \
+    utl/UtlLink.cpp \
     utl/UtlVoidPtr.cpp \
     utl/UtlHistogram.cpp \
     utl/UtlInt.cpp \
@@ -94,6 +99,7 @@ libsipXport_la_SOURCES =  \
     os/OsProcessMgr.cpp \
     os/OsProtectEvent.cpp \
     os/OsProtectEventMgr.cpp \
+	os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
     os/OsRWMutex.cpp \
@@ -117,14 +123,15 @@ libsipXport_la_SOURCES =  \
     os/OsTimerTask.cpp \
     os/OsTokenizer.cpp \
     os/OsUtil.cpp \
+    os/OsStunAgentTask.cpp \
     os/OsStunQueryAgent.cpp \
     os/OsStunDatagramSocket.cpp \
-    os/OsStunAgentTask.cpp \
     os/shared/OsMsgQShared.cpp \
     os/shared/OsSysSoftTimer.cpp \
     os/shared/OsTimerMessage.cpp \
     os/linux/clock_gettime.c \
     os/linux/host_address.c \
+    os/linux/AdapterInfo.cpp \
     os/linux/OsBSemLinux.cpp \
     os/linux/OsCSemLinux.cpp \
     os/linux/OsDateTimeLinux.cpp \
@@ -148,7 +155,7 @@ libsipXport_la_SOURCES =  \
     xmlparser/TiXmlIterator.cpp
 
 EXTRA_DIST= \
-    os/Wnt/getWindowsDNSServers.c \
+    os/Wnt/getWindowsDNSServers.cpp \
     os/Wnt/OsBSemWnt.cpp \
     os/Wnt/OsCSemWnt.cpp \
     os/Wnt/OsDateTimeWnt.cpp \
@@ -167,4 +174,3 @@ EXTRA_DIST= \
     os/Wnt/OsTimerMessage.cpp \
     os/Wnt/OsUtilWnt.cpp \
     os/Wnt/WindowsAdapterInfo.cpp 
-

@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -83,10 +81,15 @@ void* OsLockingList::pop()
 
         // Lock before accessing the list
         OsLock localLock(listMutex);
-        UtlVoidPtr* elementContainer = dynamic_cast<UtlVoidPtr*>(list.last());
-        list.removeReference(elementContainer);
-        element = (void*) elementContainer->getValue();
-        delete elementContainer;
+
+        if (list.entries())
+        {
+            UtlVoidPtr* elementContainer = dynamic_cast<UtlVoidPtr*>(list.last());
+            list.removeReference(elementContainer);
+            element = (void*) elementContainer->getValue();
+            delete elementContainer;
+        }
+
         return(element);
 }
 

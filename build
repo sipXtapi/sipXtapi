@@ -214,6 +214,7 @@ distributionBuild()
         return 0
     else
         builderr "ERROR : $Project failed to build!!!"
+        BuildReturn=-1
         echo ""
         return 1
     fi
@@ -233,6 +234,14 @@ rpmClean()
     if ! test -z `rpm -qa $RpmPackage-debug | tr -d [:space:]`
     then
         if ! $Sudo rpm -e $RpmPackage-debug
+        then 
+            Success=false
+        fi
+    fi 
+
+    if ! test -z `rpm -qa $RpmPackage-debuginfo | tr -d [:space:]`
+    then
+        if ! $Sudo rpm -e $RpmPackage-debuginfo
         then 
             Success=false
         fi
@@ -261,6 +270,7 @@ rpmClean()
         return 0
     else
         builderr "ERROR : $Project rpms failed to be removed"
+        BuildReturn=-1
         echo ""
         return 1
     fi
@@ -339,6 +349,7 @@ rpmBuild()
         return 0
     else
         builderr "ERROR : $Project failed to build!!!"
+        BuildReturn=-1
         echo ""
         return 1
     fi
@@ -598,7 +609,7 @@ then
       if [ -d $Project ]
       then
         pushd $Project > /dev/null
-*        "$@"
+        "$@"
         popd > /dev/null
       else
           echo "$Project missing (skipped) " 1>&2

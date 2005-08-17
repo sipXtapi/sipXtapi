@@ -1,12 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -19,6 +18,7 @@
 #include <net/NameValuePair.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SdpCodecFactory.h>
+#include <utl/UtlTokenizer.h>
 
 #define MAXIMUM_LONG_INT_CHARS 20
 #define MAXIMUM_MEDIA_TYPES 20
@@ -294,7 +294,7 @@ UtlBoolean SdpBody::getMediaRtcpPort(int mediaIndex, int* port) const
         {
             while (nv = findFieldNameBefore(&iterator, "a", "m"))
             {
-                printf("->%s:%s\n", nv->data(), nv->getValue()) ;
+                //printf("->%s:%s\n", nv->data(), nv->getValue()) ;
 
                 UtlString typeAttribute ;
                 UtlString portAttribute ;
@@ -315,7 +315,6 @@ UtlBoolean SdpBody::getMediaRtcpPort(int mediaIndex, int* port) const
 
     return bFound ;
 }
-
 
 UtlBoolean SdpBody::getMediaProtocol(int mediaIndex, UtlString* transportProtocol) const
 {
@@ -683,11 +682,13 @@ void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
    }
 }
 
-void SdpBody::getBestAudioCodecs(//int numRtpCodecs,
-   SdpCodecFactory& localRtpCodecs,
+
+void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                                  int& numCodecsInCommon,
                                  SdpCodec**& codecsInCommonArray,
-                                 UtlString& rtpAddress, int& rtpPort) const
+                                 UtlString& rtpAddress, 
+                                 int& rtpPort,
+                                 int& rtcpPort) const
 {
 
    int mediaIndex = 0;
@@ -708,6 +709,7 @@ void SdpBody::getBestAudioCodecs(//int numRtpCodecs,
          // than one media field, each might have a different
          // port and address
          getMediaPort(mediaIndex, &rtpPort);
+         getMediaRtcpPort(mediaIndex, &rtcpPort);
          getMediaAddress(mediaIndex, &rtpAddress);
 
          if(rtpPort >= 0)
@@ -1059,7 +1061,6 @@ void SdpBody::addFormatParameters(int payloadType,
    addValue("a", fieldValue.data());
 }
 
-
 void SdpBody::addCandidateAttribute(const char* id, 
                                     double qValue, 
                                     const char* userFrag, 
@@ -1112,7 +1113,7 @@ UtlBoolean SdpBody::getCandidateAttribute(int index,
                                           UtlString& rUnicastIp, 
                                           int& rUnicastPort, 
                                           UtlString& rCandidateIp, 
-                                          int& rCandidatePort) 
+                                          int& rCandidatePort) const
 {    
     UtlBoolean found = FALSE;
     UtlSListIterator iterator(*sdpFields);
@@ -1167,7 +1168,6 @@ UtlBoolean SdpBody::getCandidateAttribute(int index,
 
     return(found) ;
 }
-
 
 void SdpBody::addMediaData(const char* mediaType,
                            int portNumber, int portPairCount,
@@ -1457,4 +1457,3 @@ NameValuePair* SdpBody::findFieldNameBefore(UtlSListIterator* iter,
 
 
 /* ============================ FUNCTIONS ================================= */
-

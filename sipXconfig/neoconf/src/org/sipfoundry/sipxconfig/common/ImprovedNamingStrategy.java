@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-public class ImprovedNamingStrategy extends net.sf.hibernate.cfg.ImprovedNamingStrategy {
+public class ImprovedNamingStrategy extends org.hibernate.cfg.ImprovedNamingStrategy {
 
     public ImprovedNamingStrategy() {
         super();

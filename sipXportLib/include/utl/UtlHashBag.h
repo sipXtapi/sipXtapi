@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlHashBag_h_
 #define _UtlHashBag_h_
@@ -14,10 +14,12 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlContainer.h"
-#include "glib.h"
+#include "utl/UtlLink.h"
 
 // DEFINES
 // MACROS
+#define NUM_HASHBAG_BUCKETS(bits) (1<<bits)
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -27,8 +29,8 @@
 class UtlContainable;
 
 /**
- * A UtlHashBag is a orderless container that efficiently allows for both 
- * random access and iteration.  It also allows for duplicate entries.
+ * A UtlHashBag is an orderless container that efficiently allows for both 
+ * random access and iteration. 
  */
 class UtlHashBag : public UtlContainer
 {
@@ -121,27 +123,81 @@ class UtlHashBag : public UtlContainer
     */
    virtual UtlContainableType getContainableType() const;
 
+   /// The current number of buckets in the hash.
+   size_t numberOfBuckets() const
+      {
+         return NUM_HASHBAG_BUCKETS(mBucketBits);
+      }
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
    friend class UtlHashBagIterator;
 
-   void UtlHashBag::notifyIteratorsOfRemove(const GList* key);
+   void UtlHashBag::notifyIteratorsOfRemove(const UtlLink* pair);
+
+   /// If the Hash is too full, add additional buckets.
+   /**
+    * Assumes that the caller is holding the mContainerLock.
+    *
+    * This calls resize to actually do the resize if it is safe.
+    */
+   void resizeIfNeededAndSafe()
+      {
+         if (   ( mElements / NUM_HASHBAG_BUCKETS(mBucketBits) >= 3 ) // mean bucket 3 or more
+             && ( mIteratorList.isUnLinked() )   /* there are no iterators -
+                                                  * resizing moves elements to new buckets,
+                                                  * which could cause an iterator to miss some
+                                                  * and to return others more than once.
+                                                  */
+             )
+         {
+            resize();
+         }
+      }
+    
+   size_t    mElements;   ///< number of UtlContainable objects in this UtlHashMap
+   size_t    mBucketBits; ///< number of bits used to index the buckets
+   UtlChain* mpBucket;    ///< an array of 2**n UtlChain elements, each used as a list header.
 
    static UtlContainableType TYPE;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
-   GHashTable* mpHashTable;
-   size_t      mEntries;
 
-   static gboolean utlObjectEqual(gconstpointer v, gconstpointer v2);
 
-   static guint utlObjectHash(gconstpointer v);
+   /// Insert a link into a bucket (the bucket list is ordered by hashcode).
+   void insert(UtlLink*       link,  ///< The UtlLink for the entry if it was found.
+               UtlChain*      bucket ///< The bucket list header where the entry belongs.
+               );
 
-   static gboolean UtlHashBag::clearAndNotifyEachRemoved(gpointer key, gpointer value, gpointer user_data);
-   
-   static gboolean UtlHashBag::clearAndNotifyEachDeleted(gpointer key, gpointer value, gpointer user_data);
-   
+   /// Allocate additional buckets and redistribute existing contents.
+   void resize();
+   /**
+    * This should only be called through resizeIfNeededAndSafe.
+    */          
+
+   /// Search for a given key value and return the the UtlPair and bucket for it.
+   bool lookup(const UtlContainable* key, ///< The key to locate.
+               UtlChain*&      bucket,    /**< The bucket list header in which it belongs.
+                                           *   This is set regardless of whether or not the
+                                           *   key was found in the table. */
+               UtlLink*&       pair       /**< If the key was found, the UtlPair for the entry.
+                                           *   If the key was not found, this is NULL. */
+               ) const;
+   /**<
+    * @return true if the key was found, and false if not.
+    */
+    
+   /// Insert a pair into a bucket.
+   void insert(UtlPair*        pair,   /**< The UtlPair for the entry - data, value, and hash
+                                        *   are already set. */
+               UtlChain*       bucket  ///< The bucket list header where the entry belongs.
+               );
+
+   /// Calculate the bucket number for a given hash.
+   size_t bucketNumber(unsigned hash) const;
+
+
    // Don't allow the implicit copy constructor.
    UtlHashBag(UtlHashBag&);
 

@@ -1,12 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2005 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Soma Easwaramoorthy
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+// Written by Soma Easwaramoorthy.  Licensed to Pingtel Corp.
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 /* ====================================================================
  * The Vovida Software License, Version 1.0 
@@ -84,18 +83,20 @@
  *-----------------------------------------------------------------------------
  */
 #include <cassert>
-#include <iostream>
 
 #ifdef WIN32
-#include <iostream>
-#include <winsock2.h>
+#include <winsock.h>
 #else
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #endif /* WIN32 */
 
 #include <os/OsTask.h>
 #include <os/OsStunQueryAgent.h>
 #include <os/OsStunDatagramSocket.h>
+#include <os/shared/OsSysSoftTimer.h>
 
 
 /*-----------------------------------------------------------------------------
@@ -841,10 +842,8 @@ int OsStunQueryAgent::randomInt ()
 asm("rdtsc" : "=A" (tick));
 #elif defined (__SUNPRO_CC) || defined( __sparc__ )
         tick = gethrtime();
-#elif defined(__MACH__)
-        int fd=open("/dev/random",O_RDONLY);
-        read(fd,&tick,sizeof(tick));
-        closesocket(fd);
+#elif defined(__pingtel_on_posix__)
+	tick = pt_get_ticks();
 #else
 #     error Need some way to seed the random number generator
 #endif
@@ -903,10 +902,8 @@ void OsStunQueryAgent::buildReqSimple(StunMessage *msg, bool changePort, bool ch
         msg->msgHdr.id.octet[i+3]= r>>24;
     }
 
-    /* Copy the specified ID to the first octet if it is not zero */
-    if ( id != 0 ) {
-        msg->msgHdr.id.octet[0] = id;
-    }
+    /* Copy the specified ID to the first octet */
+    msg->msgHdr.id.octet[0] = id;
 
     /* Place a change request depending on what is asked */
     msg->hasChangeRequest = true;
@@ -934,7 +931,7 @@ void OsStunQueryAgent::buildReqSimple(StunMessage *msg, bool changePort, bool ch
 void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int testNum) {
     /* Check if the destination is a valid one */
     assert( dest.addr != 0 );
-    assert( dest.port != 0 );
+    assert(portIsValid(dest.port));
 
     bool changePort=false;
     bool changeIP=false;
@@ -971,7 +968,7 @@ void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int t
     memset(&req, 0, sizeof(StunMessage));
 
     /* Generate a STUN request */
-    buildReqSimple( &req, changePort , changeIP , testNum );
+    buildReqSimple( &req, changePort , changeIP , 0x00);
 
     /* Encode the message into char array */
     char buf[STUN_MAX_MESSAGE_SIZE];
@@ -1105,7 +1102,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
 
             if ( (!respTestI2) && respTestI ) { /* We have received a response to Test I but not Test I2 */
                 /* Check the address to send to if valid */
-                if (  ( testI2dest.addr != 0 ) &&  ( testI2dest.port != 0 ) ) {
+                if (  ( testI2dest.addr != 0 ) &&  ( portIsValid(testI2dest.port) ) ) {
                     /* Send Test I2 */
 #ifdef TEST
                     cout << "Sending Test I2" << endl;
@@ -1131,7 +1128,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
             }
 
             if ( respTestI && (!respTestHairpin) ) { /* Got a response for Test I; but no response for hair pin test */
-                if (  ( testImappedAddr.addr != 0 ) &&  ( testImappedAddr.port != 0 ) ) {
+                if (  ( testImappedAddr.addr != 0 ) &&  ( portIsValid(testImappedAddr.port) ) ) {
 #ifdef TEST
                     cout << "Sending hairpin Test" << endl;
 #endif
@@ -1319,12 +1316,8 @@ bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &a
         if (msgLen > 0)
         {
             memset(&resp, 0, sizeof(StunMessage));
-            resp.parseMessage( msg,msgLen);
-            if (resp.msgHdr.id.octet[0]==1)     /* Response for Test I */
+            if (resp.parseMessage(msg, msgLen))
             {	
-#ifdef TEST
-                cout << "Received response for Test I" << endl;
-#endif
                 ma=htonl (resp.mappedAddress.ipv4.addr);
                 addr = inet_ntoa (*((in_addr*)&ma));
                 port = resp.mappedAddress.ipv4.port;

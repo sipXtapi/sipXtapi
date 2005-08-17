@@ -101,7 +101,6 @@ UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
 UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message, 
                                       const char* dialogHandle)
 {
-    UtlBoolean updatedDialog = FALSE;
     UtlString handle(dialogHandle ? dialogHandle : "");
     // If the dialog handle was not set, get it from the message
     if(handle.isNull())

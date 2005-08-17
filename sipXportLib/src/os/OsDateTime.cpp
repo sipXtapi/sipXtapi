@@ -1,13 +1,11 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <time.h>
 #include <ctype.h>
@@ -80,7 +78,7 @@ OsDateTimeBase::OsDateTimeBase(const unsigned short year,
    mSecond(second)
 {
    // no work required beyond what's been done by the initializers
-    osPrintf("OsDateTime CREATED with mMonth = %d\n",month);
+    
 }
 
 // Copy constructor

@@ -1,10 +1,10 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _REGEX_H
 #define _REGEX_H
@@ -419,4 +419,3 @@ class RegEx
 };
 
 #endif // _REGEX_H
-

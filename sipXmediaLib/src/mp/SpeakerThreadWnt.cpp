@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <windows.h>
@@ -249,7 +247,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
       osPrintf("outPrePrep(): %d playbacks, %d flushes\n", oPP, flushes);
    }
 #endif /* DEBUG_WINDOZE ] */
-   while (MprToSpkr::MAX_SPKR_BUFFERS < MpMisc.pSpkQ->numMsgs()) {
+   while (MpMisc.pSpkQ && MprToSpkr::MAX_SPKR_BUFFERS < MpMisc.pSpkQ->numMsgs()) {
       OsStatus  res;
       flushes++;
       res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
@@ -266,7 +264,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
       }
    }
 
-   if ((skip == 0) && (MprToSpkr::MIN_SPKR_BUFFERS > MpMisc.pSpkQ->numMsgs())) {
+   if (MpMisc.pSpkQ && (skip == 0) && (MprToSpkr::MIN_SPKR_BUFFERS > MpMisc.pSpkQ->numMsgs())) {
       skip = MprToSpkr::SKIP_SPKR_BUFFERS;
       assert(MprToSpkr::MAX_SPKR_BUFFERS >= skip);
 #ifdef DEBUG_WINDOZE /* [ */
@@ -276,12 +274,12 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
 
    ob = NULL;
    if (0 == skip) {
-      if (OS_SUCCESS == MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT)) {
+      if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT)) {
          ob = msg->getTag();
          msg->releaseMsg();
       }
    } else {
-      if (MpMisc.pSpkQ->numMsgs() >= skip) skip = 0;
+      if (MpMisc.pSpkQ && MpMisc.pSpkQ->numMsgs() >= skip) skip = 0;
    }
 
    if (NULL == ob) {

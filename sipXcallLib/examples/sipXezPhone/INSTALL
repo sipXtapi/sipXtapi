@@ -52,8 +52,6 @@ For example:
   svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXtackLib sipXtackLib
   svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXmediaLib sipXmediaLib
   svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXcallLib sipXcallLib
-  
-  The sipXezPhone code and the Visual Studio project files are located in the "sipXcallLib\examples\sipXezPhone" directory.
 
 
 -------------------------------
@@ -140,11 +138,6 @@ By default, the wxWidgets' setup.exe installs the libraries in the
 NOTE - there is one important post-installation step for installing wxWidgets:
        copy setup.h from \wxWindows-2.4.2\include\wx\msw
                       to \wxWindows-2.4.2\include\wx
-                      
-Building wxWigets
------------------
-Using Visual Studio open up the C:\wxWindows-2.4.2\src\wxWindows.dsw workspace.
-Using the Batch Build feature build all projects in the workspace.
 
 -----------------
 Building C++ Code

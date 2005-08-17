@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipUserAgent_h_
 #define _SipUserAgent_h_
@@ -26,10 +24,13 @@
 #include <os/OsQueuedEvent.h>
 
 
-
 // DEFINES
-#define SIP_DEFAULT_RTT 500
-#define SIP_MINIMUM_RTT 100
+#define SIP_DEFAULT_RTT     500
+#define SIP_MINIMUM_RTT     100
+#define SIP_MAX_PORT_RANGE  10  // If a port is in use and the sip user agent 
+                                // is created with bUseNextAvailablePort set to
+                                // true, this is the number of sequential ports
+                                // to try.
 
 // proxy, registrar, etc. UDP socket buffer size
 #define SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE 1000000
@@ -154,6 +155,7 @@ class SipUserAgent : public SipUserAgentBase
 public:
 
     friend class SipTransaction;
+    friend class SipUdpServer;
     friend int SipUdpServer::run(void* runArg);
 
     enum EventSubTypes
@@ -167,12 +169,15 @@ public:
     //! Constructor
     /*! Sets up listeners on the defined ports and IP layer
      * protocols for incoming SIP messages.
-     * \param sipTcpPort - port to listen on for SIP TCP messages.  Specify 0
-     *        to automatically select an open port or -1 to disable.
-     * \param sipUdpPort - port to listen on for SIP UDP messages.  Specify 0
-     *        to automatically select an open port or -1 to disable.
-     * \param sipTlsPort - port to listen on for SIP TLS messages.  Specify 0
-     *        to automatically select an open port of -1 to disable.
+     * \param sipTcpPort - port to listen on for SIP TCP messages.
+     *        Specify PORT_DEFAULT to automatically select a port, or
+     *        PORT_NONE to disable.
+     * \param sipUdpPort - port to listen on for SIP UDP messages.
+     *        Specify PORT_DEFAULT to automatically select a port, or
+     *        PORT_NONE to disable.
+     * \param sipTlsPort - port to listen on for SIP TLS messages.
+     *        Specify PORT_DEFAULT to automatically select a port, or
+     *        PORT_NONE to disable.
      * \param publicAddress - use this address in Via and Contact headers
      *        instead of the actual adress.  This is useful for address
      *        spoofing in a UA when behind a NAT
@@ -208,6 +213,11 @@ public:
      *        to use for the listener sockets.
      * \param queueSize - Size of the OsMsgQ to use for the queues
      *        internal to the SipUserAgent and subsystems.
+     * \param bUseNextAvailablePort - When setting up the sip user 
+     *        agent using the designated sipTcp, sipUdp, and sipTls
+     *        ports, select the next available port if the supplied
+     *        port is busy.  If enable, this will attempt at most
+     *        10 sequential ports.
      */
     SipUserAgent(int sipTcpPort = SIP_PORT,
                 int sipUdpPort = SIP_PORT,
@@ -230,7 +240,8 @@ public:
                 int sipFirstResendTimeout = SIP_DEFAULT_RTT,
                 UtlBoolean defaultToUaTransactions = TRUE,
                 int readBufferSize = -1,
-                int queueSize = OsServerTask::DEF_MAX_MSGS);
+                int queueSize = OsServerTask::DEF_MAX_MSGS,
+                UtlBoolean bUseNextAvailablePort = FALSE);
 
     //! Destructor
     virtual
@@ -248,9 +259,12 @@ public:
      */
     void shutdown(UtlBoolean blockingShutdown = TRUE);
 
-    //! Enable stun lookups for UDP signaling.  Use a NULL szStunServer to
+    //! Enable stun lookups for UDP signaling.  Use a NULL szStunServer to 
     //! disable
-    virtual void enableStun(const char* szStunServer, int refreshPeriodInSecs) ;
+    virtual void enableStun(const char* szStunServer, 
+                            int refreshPeriodInSecs, 
+                            OsNotification* pNotification = NULL,
+                            const char* szIp = NULL) ;
 
     //! For internal use only
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
@@ -342,7 +356,7 @@ public:
     virtual void dispatch(SipMessage* message,
                           int messageType = SipMessageEvent::APPLICATION);
 
-    void allowMethod(const char* methodName);
+    void allowMethod(const char* methodName, const bool bAllow = true);
 
     void allowExtension(const char* extension);
 
@@ -425,6 +439,10 @@ public:
 
     int getDefaultSerialExpiresSeconds() const;
 
+    //! Tells the User Agent whether or not to append
+    //! the platform name onto the User Agent string
+    void setIncludePlatformInUserAgentName(const bool bInclude);
+    
     void setDefaultSerialExpiresSeconds(int expiresSeconds);
 
     //! Period of time a TCP socket can remain idle before it is removed
@@ -444,8 +462,8 @@ public:
     //! Set the number of seconds to wait before trying the next DNS SRV record
     void setDnsSrvTimeout(int timeout);
 
-    //! Set other DNS names or IP addresses which are considered to be
-    //! the same for this SipUserAgent.
+    //! Set other DNS names or IP addresses which are considered to
+    //! refer to this SipUserAgent.
     /*! Used with routing decisions to determine whether routes
      * are targeted to this SIP server or not.
      * \param aliases - space or comma separated of the format:
@@ -468,13 +486,19 @@ public:
     SipMessage* getRequest(const SipMessage& response);
 
     int getUdpPort() const ;
-      //! Get the local UDP port number (or -1 if disabled) 
+      //! Get the local UDP port number (or PORT_NONE if disabled) 
 
     int getTcpPort() const ;
-     //! Get the local TCP port number (or -1 if disabled) 
+     //! Get the local TCP port number (or PORT_NONE if disabled) 
 
     int getTlsPort() const ;
-      //! Get the local Tls port number (or -1 if disabled) 
+      //! Get the local Tls port number (or PORT_NONE if disabled) 
+      
+    void setUserAgentName(const UtlString& name);
+      //! Sets the User Agent name sent with outgoing sip messages.
+
+    const UtlString& getUserAgentName() const;
+      //! Sets the User Agent name sent with outgoing sip messages.
 
 /* ============================ INQUIRY =================================== */
 
@@ -506,6 +530,14 @@ public:
     UtlBoolean isShutdownDone();
 
     void setUserAgentHeader(SipMessage& message);
+
+    SipContactDb& getContactDb() { return mContactDb; }
+
+    //! Adds a contact record to the contact db
+    const bool addContactAddress(CONTACT_ADDRESS& contactAddress);
+    
+    //! Gets all contact addresses for this user agent
+    void getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -593,7 +625,7 @@ private:
     UtlHashBag mMessageObservers;
     OsRWMutex mMessageLogRMutex;
     OsRWMutex mMessageLogWMutex;
-
+    
     //times
     int mFirstResendTimeoutMs; //intialtimeout
     int mLastResendTimeoutMs; //timeout between last 2 resends
@@ -627,6 +659,8 @@ private:
     UtlBoolean mRecurseOnlyOne300Contact;
     UtlBoolean mReturnViasForMaxForwards;
     UtlBoolean mbUseRport;
+    bool mbIncludePlatformInUserAgentName;  // whether or not the platform name should
+                                            // be appended to the user agent name
 
     void garbageCollection();
 
@@ -635,10 +669,7 @@ private:
     void queueMessageToObservers(SipMessage* message,
                                  int messageType);
 
-    //! event object to be sent to the Q periodically
-    OsQueuedEvent* mpQueuedEvent;
-
-    //! timer that sends events to the q periodically
+    //! timer that sends events to the queue periodically
     OsTimer* mpTimer;
 
     //! flags used during shutdown

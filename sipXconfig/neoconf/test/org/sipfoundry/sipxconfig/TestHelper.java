@@ -35,8 +35,12 @@ import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.springframework.beans.factory.access.BeanFactoryLocator;
+import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 
 /**
  * For unittests that need spring instantiated
@@ -57,10 +61,20 @@ public final class TestHelper {
     public static ApplicationContext getApplicationContext() {
         if (s_appContext == null) {
             getSysDirProperties();
-            s_appContext = new ClassPathXmlApplicationContext(TestUtil.APPLICATION_CONTEXT_FILES);
+            BeanFactoryLocator bfl = ContextSingletonBeanFactoryLocator.getInstance();
+            BeanFactoryReference bfr = bfl.useBeanFactory("servicelayer-context");
+            s_appContext = (ApplicationContext) bfr.getFactory();
         }
 
         return s_appContext;
+    }
+    
+    public static Setting loadSettings(String path) {
+      String sysdir = getSysDirProperties().getProperty("sysdir.etc");
+      XmlModelBuilder builder = new XmlModelBuilder(sysdir);
+      Setting settings = builder.buildModel(new File(sysdir + "/" + path));
+      
+      return settings;
     }
 
     public static String getClasspathDirectory() {

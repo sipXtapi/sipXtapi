@@ -280,5 +280,15 @@ create sequence job_seq;
 create sequence call_group_seq;
 create sequence backup_plan_seq;
 
+/*
+ * Temporary hack: create a superadmin user with an empty password.  We will remove this
+ * hack before the product ships, and provide a bootstrap page instead so that if the 
+ * product comes up and there are no users, then the first user can be created.
+ *
+ * Note: previously this hack set the pintoken to 'password', relying on another hack
+ * that allowed the password and pintoken to be the same.  That hack is gone so setting
+ * the pintoken to 'password' would no longer work because the password would then be the
+ * inverse hash of 'password' rather than 'password'.
+ */
 insert into users (user_id, pintoken, display_id) 
-  values (nextval('user_seq'), 'password', 'superadmin');
+  values (nextval('user_seq'), '', 'superadmin');

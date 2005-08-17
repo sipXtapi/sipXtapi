@@ -265,7 +265,7 @@ ImportTask::getAttributeValue (
     UtlString& value ) const
 {
     OsStatus result = OS_SUCCESS;
-    TiXmlNode* configNode = rNode.FirstChild( rKey );
+    TiXmlNode* configNode = (TiXmlNode*)rNode.FirstChild( rKey );
 
     if ( (configNode != NULL) && (configNode->Type() == TiXmlNode::ELEMENT) )
     {

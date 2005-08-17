@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -19,7 +15,8 @@
 #include "sipXezPhoneSettingsDlg.h"
 #include "states/PhoneStateMachine.h"
 #include "states/PhoneStateConnected.h"
-#include "states/PhoneStateCallHeld.h"
+#include "states/PhoneStateCallHeldLocally.h"
+#include "states/PhoneStateCallHeldRemotely.h"
 #include "sipXezPhoneApp.h"
 
 
@@ -33,7 +30,6 @@ BEGIN_EVENT_TABLE(MainPanel, wxPanel)
     EVT_INIT_DIALOG(MainPanel::OnInitDialog)
     EVT_BUTTON(IDR_CALL_HISTORY_BUTTON, MainPanel::OnCallHistoryButton)
     EVT_BUTTON(IDR_CONFERENCING_BUTTON, MainPanel::OnConferencingButton)
-    EVT_TIMER(TIMER_ID, MainPanel::OnTimer)
 END_EVENT_TABLE()
 
 // Constructor
@@ -43,7 +39,7 @@ MainPanel::MainPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size) :
     // load the settings
     sipXezPhoneSettings::getInstance().loadSettings();
 
-    wxColor* pPanelColor = new wxColor(132,169,181);
+    wxColor* pPanelColor = & (sipXezPhoneSettings::getInstance().getBackgroundColor());
     SetBackgroundColour(*pPanelColor);
 
     // create and add the Volume Controls
@@ -67,9 +63,9 @@ MainPanel::MainPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size) :
     mpDialEntryPanel = new DialEntryPanel(this, origin, panelSize);
 
     // create and add the Button Panel
-    origin.x = 42;
+    origin.x = 30;
     origin.y = 37;
-    panelSize.SetWidth(150);
+    panelSize.SetWidth(175);
     panelSize.SetHeight(33);
     mpButtonPanel = new ButtonPanel(this, origin, panelSize);
 
@@ -99,21 +95,18 @@ MainPanel::MainPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size) :
     CreateConferencingButton();
 
     InitDialog();
-
-    InitializeTimer();
 }
 
 // Destructor
 MainPanel::~MainPanel()
 {
    if (dynamic_cast<PhoneStateConnected*>(PhoneStateMachine::getInstance().getState()) ||   // if its in the connected or held state
-       dynamic_cast<PhoneStateCallHeld* >(PhoneStateMachine::getInstance().getState()))
+       dynamic_cast<PhoneStateCallHeldLocally* >(PhoneStateMachine::getInstance().getState()) ||
+       dynamic_cast<PhoneStateCallHeldRemotely* >(PhoneStateMachine::getInstance().getState()))
    {
       PhoneStateMachine::getInstance().OnFlashButton();
    }
-   UnInitializeTimer();
    sipXmgr::release();
-   Sleep(3000);
 }
 
 // Event handler for the wxInitDialog event
@@ -156,65 +149,12 @@ void MainPanel::CreateConferencingButton()
     mpConferencingBtn->SetBackgroundColour(btnColor);
 }
 
-void MainPanel::OnConferencingButton(wxCommandEvent& event)
+void MainPanel::OnConferencingButton(wxEvent& event)
 {
     thePhoneApp->getFrame().setConferencingVisible(! thePhoneApp->getFrame().getConferencingVisible());
 }
 
-void MainPanel::OnCallHistoryButton(wxCommandEvent& event)
+void MainPanel::OnCallHistoryButton(wxEvent& event)
 {
     thePhoneApp->getFrame().setCallHistoryVisible(! thePhoneApp->getFrame().getCallHistoryVisible());
 }
-
-void MainPanel::OnTimer(wxTimerEvent& event)
-{
-    if(mStartTimer)
-    {//print the elapsed time only if mStartTimer=true
-        mSec++;
-        if(mSec==60)
-        {
-            mMin++;
-            mSec=0;
-        }
-        if(mMin==60)
-        {
-            mHour++;
-            mMin=0;
-        }
-        if(mHour==24)
-        {
-            mHour=0;
-        }
-        
-        char szLogTime[256];
-        
-        sprintf(szLogTime, "%2.2d:%2.2d:%2.2d", mHour, mMin, mSec);
-        
-        thePhoneApp->setTitleMessage(szLogTime);
-    }
-}
-
-void MainPanel::InitializeTimer()
-{
-    mHour=mMin=mSec=0;
-    mStartTimer=false;//don't print mode
-    mTimer.SetOwner(this, TIMER_ID);
-    if(!mTimer.Start(1000, wxTIMER_CONTINUOUS))
-    {
-        //run timer notifier after every one second
-        thePhoneApp->setTitleMessage("Timer Err.");
-    }
-}
-void MainPanel::UnInitializeTimer()
-{
-    if(mTimer.IsRunning())
-        mTimer.Stop();
-}
-void MainPanel::StartTimer(const bool bStartTimer)
-{
-    mHour=0;
-    mMin=0;
-    mSec=0;
-    mStartTimer=bStartTimer;
-}
-

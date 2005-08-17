@@ -151,33 +151,43 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
          OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                        "No orbit file name specified");
       }
-      else if (
-         // Get the park server's SIP domain so we can forward its
-         // addresses to it.
-         (configDb.get(CONFIG_SETTING_PARK_SERVER, mParkServerDomain) !=
-          OS_SUCCESS) ||
-         mParkServerDomain.isNull())
-      {
-         OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRedirectorPickUp::initialize "
-                       "No park server address specified.");
-      }
       else
       {
+         // Assemble the full file name.
          UtlString fileName =
             *configDir + OsPathBase::separator + *orbitConfigFilename;
 
-         OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
-                       "Call retrieve code is '%s', orbit file is '%s', "
-                       "park server domain is '%s'",
-                       callRetrieveCode.data(), fileName.data(),
-                       mParkServerDomain.data());
-         // Read the orbit file to get the list of orbit numbers.
-         if (parseOrbitFile(fileName) == OS_SUCCESS)
+         // If the file is absent, that is not an error.
+         if (!OsFileSystem::exists(fileName))
          {
-            r = OS_SUCCESS;
-            // All needed information for call retrieval is present,
-            // so set mCallRetrieveCode to activate it.
-            mCallRetrieveCode = callRetrieveCode;
+            OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+                          "Orbit file '%s' does not exist", fileName.data());
+         }
+         else if (
+            // Get the park server's SIP domain so we can forward its
+            // addresses to it.
+            (configDb.get(CONFIG_SETTING_PARK_SERVER, mParkServerDomain) !=
+             OS_SUCCESS) ||
+            mParkServerDomain.isNull())
+         {
+            OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRedirectorPickUp::initialize "
+                          "No park server address specified.");
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+                          "Call retrieve code is '%s', orbit file is '%s', "
+                          "park server domain is '%s'",
+                          callRetrieveCode.data(), fileName.data(),
+                          mParkServerDomain.data());
+            // Read the orbit file to get the list of orbit numbers.
+            if (parseOrbitFile(fileName) == OS_SUCCESS)
+            {
+               r = OS_SUCCESS;
+               // All needed information for call retrieval is present,
+               // so set mCallRetrieveCode to activate it.
+               mCallRetrieveCode = callRetrieveCode;
+            }
          }
       }
    }
@@ -198,9 +208,9 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
       // process them.
       mpSipUserAgent = new SipUserAgent(
          // Let the system choose the port numbers.
-         0, // sipTcpPort
-         0, // sipUdpPort
-         0, // sipTlsPort
+         PORT_DEFAULT, // sipTcpPort
+         PORT_DEFAULT, // sipUdpPort
+         PORT_DEFAULT, // sipTlsPort
          NULL, // publicAddress
          NULL, // defaultUser
          NULL, // defaultSipAddress
@@ -219,7 +229,8 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
          SIP_DEFAULT_RTT, // sipFirstResendTimeout
          TRUE, // defaultToUaTransactions
          -1, // readBufferSize
-         OsServerTask::DEF_MAX_MSGS // queueSize
+         OsServerTask::DEF_MAX_MSGS, // queueSize
+         FALSE // bUseNextAvailablePort
          );
       mpSipUserAgent->start();
 

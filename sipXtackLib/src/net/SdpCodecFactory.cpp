@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 //////////////////////////////////////////////////////////////////////////////
 //  G.729 enabling controls.  Currently only on VxWorks and Windows
@@ -202,6 +200,14 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
 
     compareString.toUpper();
 
+    if (strcmp(compareString,"TELEPHONE-EVENT") == 0 ||
+       strcmp(compareString,"AUDIO/TELEPHONE-EVENT") == 0 || 
+       strcmp(compareString,"128") == 0 ||
+       strcmp(compareString,"AVT-TONES") == 0 ||
+       strcmp(compareString,"AVT") == 0)
+        retType = SdpCodec::SDP_CODEC_TONES;
+    else
+#ifdef HAVE_GIPS /* [ */
     if (strcmp(compareString,"PCMU") == 0 ||
        strcmp(compareString,"G711U") == 0 || 
        strcmp(compareString,"0") == 0 ||
@@ -213,12 +219,6 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
        strcmp(compareString,"8") == 0 ||
        strcmp(compareString,"257") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_PCMA;
-    else
-    if (strcmp(compareString,"TELEPHONE-EVENT") == 0 ||
-       strcmp(compareString,"128") == 0 ||
-       strcmp(compareString,"AVT-TONES") == 0 ||
-       strcmp(compareString,"AVT") == 0)
-        retType = SdpCodec::SDP_CODEC_TONES;
     else
     if (strcmp(compareString,"EG711U") == 0 ||
        strcmp(compareString,"260") == 0)
@@ -244,6 +244,18 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
     else
     if (strcmp(compareString,"ILBC") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_ILBC;
+   else
+    if (strcmp(compareString,"ISAC") == 0)
+        retType = SdpCodec::SDP_CODEC_GIPS_ISAC;
+#else /* HAVE_GIPS ] [ */
+    if (strcmp(compareString,"PCMU") == 0)
+        retType = SdpCodec::SDP_CODEC_PCMU;
+    else
+    if (strcmp(compareString,"PCMA") == 0)
+        retType = SdpCodec::SDP_CODEC_PCMA;
+#endif /* HAVE_GIPS ] */
+    else
+       retType = SdpCodec::SDP_CODEC_UNKNOWN;
 
     return retType;
 }
@@ -367,7 +379,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             20000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_LOW);
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_LOW);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -386,7 +399,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             10000,
                             1,
                             "annexb=no",
-                            SdpCodec::SDP_CODEC_CPU_HIGH);
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_LOW);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -403,7 +417,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             10000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_HIGH);
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_LOW);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -420,7 +435,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             10000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_HIGH);
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_LOW);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -429,6 +445,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
          break;
 #endif /* PLATFORM_SUPPORTS_G729 ] */
 
+#ifdef HAVE_GIPS /* [ */
       case SdpCodec::SDP_CODEC_GIPS_PCMA:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_GIPS_PCMA,
@@ -439,7 +456,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             20000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_LOW);
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -457,7 +475,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             20000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_LOW);
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -478,7 +497,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             20000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_LOW);
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -496,7 +516,8 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             20000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_LOW);
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -514,11 +535,30 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             30000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_HIGH); // $$$ ???
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_LOW); // $$$ ???
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
             // osPrintf("Codec is SDP_CODEC_GIPS_ILBC ");
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_GIPS_ISAC:
+        {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_GIPS_ISAC,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_AUDIO,
+                            MIME_SUBTYPE_ISAC,
+                            16000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_VARIABLE); // $$$ ???
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
          }
          break;
 
@@ -532,13 +572,55 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             20000,
                             1,
                             "",
-                            SdpCodec::SDP_CODEC_CPU_LOW);
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_HIGH);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
             // osPrintf("Codec is SDP_CODEC_GIPS_IPCMWB ");
          }
          break;
+
+#else /* HAVE_GIPS ] [ */
+
+      case SdpCodec::SDP_CODEC_PCMA:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_PCMA,
+                            SdpCodec::SDP_CODEC_PCMA,
+                            MIME_TYPE_AUDIO,
+                            MIME_SUBTYPE_PCMA,
+                            8000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_PCMU:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_PCMU,
+                            SdpCodec::SDP_CODEC_PCMU,
+                            MIME_TYPE_AUDIO,
+                            MIME_SUBTYPE_PCMU,
+                            8000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+#endif /* HAVE_GIPS ] */
+
 //////////////////////////////////////////////////////////////////////////
 
       default:
@@ -682,6 +764,7 @@ int SdpCodecFactory::getCodecCount()
     return iCount;
 }
 
+
 void SdpCodecFactory::getCodecs(int& numCodecs, 
                                 SdpCodec**& codecArray)
 {
@@ -732,7 +815,7 @@ int SdpCodecFactory::getCodecCPULimit()
 {
    return mCodecCPULimit;
 }
-     
+
 
 /* ============================ INQUIRY =================================== */
 

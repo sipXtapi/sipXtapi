@@ -66,25 +66,6 @@ EOF
     exit 1
 fi
 
-@bindir@/ssl-cert/check-cert.sh --verbose $Basename.crt 
-
-if [ ! -d @SIPX_CONFDIR@/ssl ]
-then
-    mkdir               @SIPX_CONFDIR@/ssl || exit 1
-    chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl || exit 1
-    chmod 0700          @SIPX_CONFDIR@/ssl || exit 1
-fi
-
-# install the certificate
-cp    $Basename.crt @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
-chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
-chmod 0600          @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
-
-# install the private key
-cp    $Basename.key @SIPX_CONFDIR@/ssl/ssl.key || exit 1
-chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/ssl.key || exit 1
-chmod 0600          @SIPX_CONFDIR@/ssl/ssl.key || exit 1
-
 if [ $InstallCA = TRUE ]
 then
 
@@ -105,6 +86,25 @@ then
     @bindir@/ssl-cert/ca_rehash 
 
 fi
+
+@bindir@/ssl-cert/check-cert.sh --verbose $Basename.crt 
+
+if [ ! -d @SIPX_CONFDIR@/ssl ]
+then
+    mkdir               @SIPX_CONFDIR@/ssl || exit 1
+    chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl || exit 1
+    chmod 0700          @SIPX_CONFDIR@/ssl || exit 1
+fi
+
+# install the certificate
+cp    $Basename.crt @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
+chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
+chmod 0600          @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
+
+# install the private key
+cp    $Basename.key @SIPX_CONFDIR@/ssl/ssl.key || exit 1
+chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/ssl.key || exit 1
+chmod 0600          @SIPX_CONFDIR@/ssl/ssl.key || exit 1
 
 cat <<EOF
 

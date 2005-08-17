@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifndef _PhoneStateMachineObserver_h_
 #define _PhoneStateMachineObserver_h_
 
@@ -52,22 +48,6 @@ public:
    virtual ~PhoneStateMachineObserver();
 
 
-   virtual PhoneState* OnDial(const wxString phoneNumber)   { return NULL; }
-   virtual PhoneState* OnRinging(const SIPX_CALL hCall)                 { return NULL; }
-   virtual PhoneState* OnRemoteAlerting()                       { return NULL; }
-   virtual PhoneState* OnRemoteBusy()                           { return NULL; }
-   virtual PhoneState* OnFlashButton()                          { return NULL; }
-   virtual PhoneState* OnConnected()                            { return NULL; }
-   virtual PhoneState* OnDisconnected(const SIPX_CALL hCall)  { return NULL; }
-   virtual PhoneState* OnOutgoingCallRejected()             { return NULL; }
-   virtual PhoneState* OnError()                            { return NULL; }
-   virtual PhoneState* OnHoldButton()                       { return NULL; }
-   virtual PhoneState* OnTransferRequested(const wxString phoneNumber)      { return NULL; }
-   virtual PhoneState* OnTransferComplete(const bool bFailure)              { return NULL; }
-   virtual PhoneState* OnOffer(const SIPX_CALL hCall)             { return NULL; }
-
-   virtual PhoneState* Execute() { return NULL; };
-
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
@@ -79,3 +59,6 @@ private:
 
 };
 #endif
+
+
+

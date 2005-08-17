@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -20,7 +20,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-const size_t UtlHashMapIterator::BEFORE_FIRST = (size_t)(-1);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -31,10 +30,9 @@ UtlHashMapIterator::UtlHashMapIterator(const UtlHashMap& mapSource)
    : UtlIterator(mapSource)
 {
    OsLock container(const_cast<OsBSem&>(mapSource.mContainerLock));
-
    addToContainer(&mapSource);
-      
-   init(&mapSource);
+
+   init();
 }
 
 
@@ -49,9 +47,15 @@ UtlHashMapIterator::~UtlHashMapIterator()
       OsLock container(myHashMap->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      flush();
-
       myHashMap->removeIterator(this);
+
+      /*
+       * A UtlHashMap cannot be resized when there is an iterator associated with it,
+       * so it's possible that it has grown while this iterator existed and that it
+       * needs to be resized.  Check for and do that now if needed.
+       */
+      myHashMap->resizeIfNeededAndSafe();
+
       mpMyContainer = NULL;
    }
    else
@@ -77,12 +81,29 @@ UtlContainable* UtlHashMapIterator::operator()()
       OsLock container(myHashMap->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      while( !foundKey && ++mPosition < mIteratorSize )
+      if (mPosition < myHashMap->numberOfBuckets())
       {
-         if(mpContainables[mPosition] != NULL)
+         UtlPair* pair;
+         for ( pair = (  mpCurrentPair
+                       ? static_cast<UtlPair*>(mpCurrentPair->UtlChain::next)
+                       : static_cast<UtlPair*>(myHashMap->mpBucket[mPosition].listHead())
+                       );
+               !pair && ++mPosition < myHashMap->numberOfBuckets();
+               pair = static_cast<UtlPair*>(myHashMap->mpBucket[mPosition].listHead())
+              )
          {
-            foundKey = mpContainables[mPosition];
          }
+
+         if(pair)
+         {
+            mpCurrentPair = pair;
+            foundKey = pair->data;
+         }
+      }
+      else
+      {
+         // mPosition >= myHashMap->numberOfBuckets(), so we've run off the end of the entries.
+         mpCurrentPair = NULL;
       }
    }
    else
@@ -104,8 +125,7 @@ void UtlHashMapIterator::reset()
       OsLock container(myHashMap->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      flush();
-      init(myHashMap);
+      init();
    }
    else
    {
@@ -130,9 +150,12 @@ UtlContainable* UtlHashMapIterator::key() const
       OsLock container(myHashMap->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      if (mPosition < mIteratorSize)
+      if (   (mPosition < myHashMap->numberOfBuckets())
+          && (mpCurrentPair)
+          && (mPairIsValid)
+          )
       {
-         currentKey = mpContainables[mPosition];
+         currentKey = mpCurrentPair->data;
       }
    }
    else
@@ -156,11 +179,15 @@ UtlContainable* UtlHashMapIterator::value() const
       OsLock container(myHashMap->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      if (   mPosition < mIteratorSize // iterator in bounds
-          && mpContainables[mPosition] // has not been removed
+      if (   (mPosition < myHashMap->numberOfBuckets())
+          && (mpCurrentPair)
+          && (mPairIsValid)
           )
       {
-         currentValue = myHashMap->getValue(mpContainables[mPosition]);
+         currentValue = (  mpCurrentPair->value != UtlHashMap::INTERNAL_NULL
+                         ? mpCurrentPair->value
+                         : NULL
+                         );
       }
    }
    else
@@ -176,61 +203,24 @@ UtlContainable* UtlHashMapIterator::value() const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Called by the HashMap before removing a key from the map
-void UtlHashMapIterator::removing(const UtlContainable* key)
+void UtlHashMapIterator::removing(const UtlPair* key)
 {
    // the caller already holds the mContainerLock
-   size_t check;
-   bool found;
-   for ( check = 0, found = false; check < mIteratorSize && !found; check++ )
+   if (key = mpCurrentPair)
    {
-      if ( mpContainables[check] == key )
-      {
-         mpContainables[check] = NULL; // prevent returning this key
-         found = true;
-      }
+      mPairIsValid = false;
+      mpCurrentPair  = static_cast<UtlPair*>(mpCurrentPair->UtlChain::prev);
    }
 }
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void UtlHashMapIterator::init(const UtlHashMap* hashMap)
+void UtlHashMapIterator::init()   
 {
-   // caller is holding the hashMap->mContainerLock
-   mIteratorSize = g_hash_table_size(hashMap->mpHashTable);
-
-   mpContainables = new UtlContainable*[mIteratorSize];
-   assert(mpContainables != NULL);
-
    mPosition = 0;
-
-   g_hash_table_foreach(hashMap->mpHashTable, fillInContainables, this);
-
-   mPosition = BEFORE_FIRST;
+   mpCurrentPair = NULL;
+   mPairIsValid = true;
 }
-
-void UtlHashMapIterator::fillInContainables(gpointer key, 
-                                            gpointer value, 
-                                            gpointer user_data
-                                            )
-{
-   UtlHashMapIterator* my = (UtlHashMapIterator*)user_data; // 'this' passed through C library
-
-   assert( my->mPosition < my->mIteratorSize );
-
-   my->mpContainables[my->mPosition++] = (UtlContainable*) key;
-}
-
-
-void UtlHashMapIterator::flush()
-{
-   // caller is holding the mContainerLock
-   mIteratorSize = 0;
-   mPosition = BEFORE_FIRST;
-   delete[] mpContainables;
-   mpContainables = NULL;
-}
-
-
 
 /* ============================ FUNCTIONS ================================= */

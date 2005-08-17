@@ -51,7 +51,6 @@ public class GatewayContextTestDb extends TestCase {
 
         assertEquals(1, m_context.getGateways().size());
         assertTrue(m_context.getGateways().contains(g1));
-        assertFalse(m_context.getGateways().contains(g2));
 
         // add g2
         m_context.storeGateway(g2);
@@ -119,7 +118,7 @@ public class GatewayContextTestDb extends TestCase {
             String factoryId = (String) i.next();
             Gateway gateway = m_context.newGateway(factoryId);
             assertEquals(gateway.getClass(), m_appContext.getBean(factoryId).getClass());
-            assertNotNull(gateway.getGatewayContext());
+            assertNotNull(gateway.getModelFilesContext());
             m_context.storeGateway(gateway);
         }
         ITable actual = TestHelper.getConnection().createDataSet().getTable("gateway");
@@ -132,12 +131,18 @@ public class GatewayContextTestDb extends TestCase {
      * factory from the beans
      */
     public void testGetFactoryIds() {
-        String[] gatewayBeans = m_appContext.getBeanDefinitionNames(Gateway.class);
+        String[] gatewayBeans = m_appContext.getBeanNamesForType(Gateway.class);
         Map factoryIds = m_context.getFactoryIds();
         assertEquals(gatewayBeans.length, factoryIds.size());
         for (int i = 0; i < gatewayBeans.length; i++) {
             String beanName = gatewayBeans[i];
             assertTrue(factoryIds.containsKey(beanName));
         }
+    }
+    
+    public void testGetGatewaySettings() throws Exception {
+        TestHelper.cleanInsertFlat("gateway/SeedGateway.xml");
+        Gateway gateway = m_context.getGateway(new Integer(1001));
+        assertNotNull(gateway.getModelFilesContext());
     }
 }

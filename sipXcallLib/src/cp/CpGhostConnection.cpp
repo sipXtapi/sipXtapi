@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 
 // SYSTEM INCLUDES
@@ -16,6 +14,7 @@
 // APPLICATION INCLUDES
 #include <cp/CpGhostConnection.h>
 #include <net/Url.h>
+#include <net/SipContactDb.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -180,12 +179,6 @@ UtlBoolean CpGhostConnection::getRemoteAddress(UtlString* remoteAddress) const
 {
     *remoteAddress = mRemoteAddress;
     return(!mRemoteAddress.isNull());
-}
-
-UtlBoolean CpGhostConnection::getRemoteAddress(UtlString* remoteAddress, UtlBoolean leaveFieldParametersIn) const
-{
-    unimplemented("CpGhostConnection::getRemoteAddress");
-    return(FALSE);
 }
 
 UtlBoolean CpGhostConnection::getSession(SipSession& session)

@@ -1,13 +1,10 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _PsTaoComponentGroup_h_
 #define _PsTaoComponentGroup_h_
@@ -17,6 +14,8 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
+#include "utl/UtlDefs.h"
+#include "utl/UtlString.h"
 
 // DEFINES
 // MACROS

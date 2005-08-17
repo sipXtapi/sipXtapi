@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipTcpServer_h_
 #define _SipTcpServer_h_
@@ -42,7 +40,9 @@ public:
    SipTcpServer(int sipPort = SIP_PORT,
                 SipUserAgent* userAgent = NULL,
                 const char* protocolString = SIP_TRANSPORT_TCP,
-                const char* taskName  = "SipTcpServer-%d");
+                const char* taskName  = "SipTcpServer-%d",
+                UtlBoolean bUseNextAvailablePort = FALSE,
+                const char* szBindAddr = NULL);
      //:Default constructor
 
 
@@ -51,14 +51,14 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-        UtlBoolean startListener();
+    virtual UtlBoolean startListener();
 
-        //void addEventConsumer(OsServerTask* messageEventListener);
-        //void removeEventConsumer(OsServerTask* messageEventListener);
+    //void addEventConsumer(OsServerTask* messageEventListener);
+    //void removeEventConsumer(OsServerTask* messageEventListener);
 
-        void shutdownListener();
+    void shutdownListener();
 
-        int run(void* pArg);
+    int run(void* pArg);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -66,20 +66,51 @@ public:
     //: The the local server port for this server
 
 /* ============================ INQUIRY =================================== */
-    virtual UtlBoolean isOk();
 
+
+/* ============================ Enumerations ============================== */
+    enum EventSubTypes
+    {
+        SIP_SERVER_BROKER_NOTIFY = 1
+    };
+    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
-    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress);
-
+    OsStatus createServerSocket(const char* szBindAddr,
+                                int& port,
+                                const UtlBoolean& bUseNextAvailablePort);
+                                
+    class SipServerBrokerListener : public OsServerTask
+    {
+        public:
+            SipServerBrokerListener(SipTcpServer* pOwner) :
+               OsServerTask("SipTcpServerBrokerListener-%d", (void*)pOwner),
+               mpOwner(pOwner)
+            {
+                start();
+            }
+            virtual ~SipServerBrokerListener()
+            {
+                waitUntilShutDown();
+            }
+            virtual UtlBoolean handleMessage(OsMsg& rMsg);
+        private:
+            SipTcpServer* mpOwner;
+    };
+    
+    friend class SipServerBrokerListener;
+    SipServerBrokerListener* mpServerBrokerListener;
+    
+    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp);
+    
     int mServerPort;
-    OsServerSocket* mServerSocket;
+    
+    UtlHashMap mServerBrokers;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-        SipTcpServer(const SipTcpServer& rSipTcpServer);
+    SipTcpServer(const SipTcpServer& rSipTcpServer);
         //: disable Copy constructor
 
     SipTcpServer& operator=(const SipTcpServer& rhs);

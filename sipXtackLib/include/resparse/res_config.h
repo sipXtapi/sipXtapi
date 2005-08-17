@@ -1,13 +1,10 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef INCLUDE_RESPARSE_RES_CONFIG_H
 #define INCLUDE_RESPARSE_RES_CONFIG_H

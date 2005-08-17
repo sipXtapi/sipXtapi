@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsConfigDb_h_
 #define _OsConfigDb_h_
@@ -204,9 +202,13 @@ public:
      * Helper method to obtain a port value from the configuration database.
      * Results are as follows:
      * <pre>
-     *   > 0 : A port was specified
-     *   = 0 : Automatically select a port (e.g. use OS)
-     *   < 0 : Disabled (either specified, key not found, or blank value)
+     *   PORT_DEFAULT : Let a port be selected automatically.
+     *                  Represented as "DEFAULT".
+     *   PORT_NONE :    Disabled (either specified as such, the key
+     *                  was not found, or the value was blank)
+     *                  Represented as "NONE".
+     *   other :        The port number that was specified
+     *                  Represented as a decimal integer.
      * </pre>
      *
      * @param szKey Key file to lookup.

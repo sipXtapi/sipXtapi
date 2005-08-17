@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -423,6 +421,8 @@ int OsUtil::getPlatformType(void)
 
 #if defined(_WIN32) /* ] [ */
    platform = PLATFORM_WIN32;
+#elif defined(__MACH__)
+   platform = PLATFORM_MACOSX;
 #elif defined(__linux__) /* ] [ */
    platform = PLATFORM_LINUX;
 #elif defined(sun) /* ] [ */
@@ -438,7 +438,7 @@ int OsUtil::getProductType(void)
 {
    int productType = PRODUCT_UNKNOWN;
 
-#if defined(_WIN32) || defined(__linux__) || defined(sun)
+#if defined(_WIN32) || defined(__pingtel_on_posix__)
    productType = PRODUCT_INSTANT_XPRESSA;
 #else
    assert(FALSE);

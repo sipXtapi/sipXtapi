@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <string.h>
@@ -88,7 +86,7 @@ HttpMessage::HttpMessage(const char* messageBytes, int byteCount)
         timesSent = 0;
         transportProtocol = OsSocket::UNKNOWN;
     mFirstSent = FALSE;
-    mSendPort = 0;
+    mSendPort = PORT_NONE;
     mpResponseListenerQueue = NULL;
     mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
@@ -112,7 +110,7 @@ HttpMessage::HttpMessage(OsSocket* inSocket, int bufferSize)
         timesSent = 0;
         transportProtocol = OsSocket::UNKNOWN;
     mFirstSent = FALSE;
-    mSendPort = 0;
+    mSendPort = PORT_NONE;
     mpResponseListenerQueue = NULL;
     mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
@@ -549,7 +547,7 @@ int HttpMessage::get(Url& httpUrl,
     UtlString urlType;
     httpUrl.getUrlType(urlType);
 
-    if (httpPort == 0)
+    if (httpPort == PORT_NONE)
     {
         if (urlType == "https")
             httpPort = 443;
@@ -787,7 +785,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
    UtlString urlType;
    httpUrl.getUrlType(urlType);
 
-   if (httpPort <= 0)
+   if (!portIsValid(httpPort))
    {
       if (urlType == "https")
          httpPort = 443;
@@ -916,7 +914,7 @@ int HttpMessage::get(Url& httpUrl,
     {
         UtlString hostPort(httpHost);
         httpPort = httpUrl.getHostPort();
-        if (httpPort == 0)
+        if (httpPort == PORT_NONE)
         {
             if (urlType == "http")
                 httpPort = 80;
@@ -1986,7 +1984,7 @@ void HttpMessage::resetTransport()
         transportProtocol = OsSocket::UNKNOWN;
     mFirstSent = FALSE;
     mSendAddress = "";
-    mSendPort = 0;
+    mSendPort = PORT_NONE;
 }
 
 OsMsgQ* HttpMessage::getResponseListenerQueue()

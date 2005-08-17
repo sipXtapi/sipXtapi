@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #include "net/SipLineList.h"
 
@@ -19,7 +17,12 @@ SipLineList::SipLineList()
 {}
 
 SipLineList::~SipLineList()
-{}
+{    
+    while (SipLine* pLine = (SipLine*) m_LineList.pop()) 
+    {
+        delete pLine ;
+    }
+}
 
 void
 SipLineList::add(SipLine *newLine)

@@ -1,13 +1,10 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -24,6 +21,7 @@
 
 #include "assert.h"
 #include "mp/MpCodecFactory.h"
+#include "os/OsSysLog.h"
 
 // all encoder child classes
 #include "mp/MpePtAVT.h"
@@ -121,6 +119,7 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
 
 #ifdef HAVE_GIPS /* [ */
+
    case (SdpCodec::SDP_CODEC_GIPS_PCMA):
       rpDecoder = new MpdGIPSPCMA(payloadType);
       break;
@@ -158,22 +157,22 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
       rpDecoder = new MpdGIPSG729ab(payloadType);
       break;
 #endif /* PLATFORM_SUPPORTS_G729 ] */
-#else /* HAVE_GIPS ] [ */
-   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
-      rpDecoder = new MpdSipxPcma(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
-      rpDecoder = new MpdSipxPcmu(payloadType);
-      break;
 
 #endif /* HAVE_GIPS ] */
 
+   case (SdpCodec::SDP_CODEC_PCMA):
+      rpDecoder = new MpdSipxPcma(payloadType);
+      break;
+
+   case (SdpCodec::SDP_CODEC_PCMU):
+      rpDecoder = new MpdSipxPcmu(payloadType);
+      break;
    default:
-/*
-      osPrintf("MpCodecFactory::createDecoder(i:%d, x:%d) ** INVALID **\n",
-         internalCodecId, payloadType);
-*/
+      OsSysLog::add(FAC_MP, PRI_ERR, 
+                    "MpCodecFactory::createDecoder unknown codec type "
+                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
+                    "payloadType = %d",
+                    internalCodecId, payloadType);
       assert(FALSE);
       break;
    }
@@ -242,20 +241,22 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
 #endif /* PLATFORM_SUPPORTS_G729 ] */
 #else /* HAVE_GIPS ] [ */
-   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
+   case (SdpCodec::SDP_CODEC_PCMA):
       rpEncoder = new MpeSipxPcma(payloadType);
       break;
 
-   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
+   case (SdpCodec::SDP_CODEC_PCMU):
       rpEncoder = new MpeSipxPcmu(payloadType);
       break;
 
 #endif /* HAVE_GIPS ] */
 
    default:
-
-      osPrintf("MpCodecFactory::createEncoder(i:%d, x:%d) ** INVALID **\n",
-         internalCodecId, payloadType);
+      OsSysLog::add(FAC_MP, PRI_ERR, 
+                    "MpCodecFactory::createEncoder unknown codec type "
+                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
+                    "payloadType = %d",
+                    internalCodecId, payloadType);
       assert(FALSE);
       break;
    }

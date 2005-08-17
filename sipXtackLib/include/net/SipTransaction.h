@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipTransaction_h_
 #define _SipTransaction_h_
@@ -138,6 +136,8 @@ public:
     void stopTimers();
 
     void deleteTimers();
+
+/* ============================ Deprecated ============================== */
 
     void linkChild(SipTransaction& child);
 
@@ -339,9 +339,12 @@ private:
     int mCseq;
     UtlBoolean mIsServerTransaction; ///< TRUE = server, FALSE = client
     UtlBoolean mIsUaTransaction;     ///< UA or proxy transaction
+
+    // Address and transport that have been established for this transaction.
     UtlString mSendToAddress;
     int mSendToPort;
     enum OsSocket::SocketProtocolTypes mSendToProtocol;
+
     server_t* mpDnsSrvRecords;
     SipMessage* mpRequest;
     SipMessage* mpLastProvisionalResponse;
@@ -358,7 +361,8 @@ private:
     enum transactionStates mTransactionState;
     UtlBoolean mDispatchedFinalResponse; ///< For UA recursion
     UtlBoolean mProvisionalSdp;          ///< early media
-    UtlSList mTimers;                    ///< All outstanding timers started by this transaction.
+    UtlSList mTimers;                    /**< A list of all outstanding timers
+                                          *   started by this transaction. */
 
     // Recursion members
     UtlBoolean mIsCanceled;

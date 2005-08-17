@@ -1,18 +1,17 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
 
 #ifdef __pingtel_on_posix__
+#include <sys/types.h>
 #include <netinet/in.h>
 #endif
 
@@ -270,6 +269,47 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
    pSecondary = newCodecs[2];
 
    handleDeselectCodecs();  // cleanup the old ones, if any
+
+   if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+   {
+      if (NULL != pPrimary) {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprEncode::handleSelectCodecs "
+                       "pPrimary->getCodecType() = %d, "
+                       "pPrimary->getCodecPayloadFormat() = %d",
+                       pPrimary->getCodecType(),
+                       pPrimary->getCodecPayloadFormat());
+      } else {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprEncode::handleSelectCodecs "
+                       "pPrimary == NULL");
+      }
+      if (sbAllowAvtCodec && NULL != pDtmf) {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprEncode::handleSelectCodecs "
+                       "pDtmf->getCodecType() = %d, "
+                       "pDtmf->getCodecPayloadFormat() = %d",
+                       pDtmf->getCodecType(),
+                       pDtmf->getCodecPayloadFormat());
+      } else {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprEncode::handleSelectCodecs "
+                       "sbAllowAvtCodec = %d, pDtmf = %p",
+                       sbAllowAvtCodec, pDtmf);
+      }
+      if (NULL != pSecondary) {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprEncode::handleSelectCodecs "
+                       "pSecondary->getCodecType() = %d, "
+                       "pSecondary->getCodecPayloadFormat() = %d",
+                       pSecondary->getCodecType(),
+                       pSecondary->getCodecPayloadFormat());
+      } else {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprEncode::handleSelectCodecs "
+                       "pSecondary == NULL");
+      }
+   }
 
    if (NULL != pPrimary) {
       ourCodec = pPrimary->getCodecType();

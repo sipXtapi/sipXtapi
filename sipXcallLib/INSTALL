@@ -1,3 +1,4 @@
+<<<<<<< .working
 Required Software
 =================
 
@@ -74,4 +75,3 @@ For example:
   
   cd sipXmediaLib
   ./configure --prefix=/tmp/sipXtapi --enable-local-audio
-

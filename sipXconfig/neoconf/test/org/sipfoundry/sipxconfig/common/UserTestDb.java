@@ -20,6 +20,7 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class UserTestDb extends TestCase {
 
@@ -44,7 +45,7 @@ public class UserTestDb extends TestCase {
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         User user = new User();
-        user.setDisplayId("userid");
+        user.setUserName("userid");
         user.setFirstName("FirstName");
         user.setLastName("LastName");
         user.setPintoken("password");
@@ -59,7 +60,7 @@ public class UserTestDb extends TestCase {
 
         ITable expected = expectedRds.getTable("users");
         ITable actual = TestHelper.getConnection().createQueryTable("users",
-                "select * from users where display_id='userid'");
+                "select * from users where user_name='userid'");
 
         Assertion.assertEquals(expected, actual);
     }
@@ -70,5 +71,13 @@ public class UserTestDb extends TestCase {
         User user = m_core.loadUser(new Integer(1001));
         Set groups = user.getGroups();
         assertEquals(1, groups.size());
+    }
+    
+    public void testUserSettings() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        User user = m_core.loadUser(new Integer(1001));
+        Setting settings = user.getSettings();        
+        assertNotNull(settings);
     }
 }

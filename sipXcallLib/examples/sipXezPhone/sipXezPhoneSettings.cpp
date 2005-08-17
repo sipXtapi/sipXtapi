@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -24,14 +20,19 @@ sipXezPhoneSettings* sipXezPhoneSettings::spSipXezPhoneSettings = NULL;
 
 // Constructor - private, this is a singleton
 sipXezPhoneSettings::sipXezPhoneSettings() :
+   mIdentity(""),
    mUsername(""),
    mPassword(""),
-   mIdentity(""),
    mRealm(""),
    mSpeakerVolume(VOLUME_DEFAULT),
    mRingerVolume(VOLUME_DEFAULT),
    mMicGain(GAIN_DEFAULT),
-   RecentNumbersListSize(10)
+   RecentNumbersListSize(10),
+   mTestMode(false),
+   mbEnableAEC(false),
+   mbEnableOutOfBandDTMF(true),
+   mbEnableSRTP(false),
+   mCodecPreference(AUDIO_CODEC_BW_NORMAL)
 {
     PhoneStateMachine::getInstance().addObserver(this);
 }
@@ -63,6 +64,7 @@ UtlBoolean sipXezPhoneSettings::loadSettings()
     configDb.get("REALM", mRealm);
     configDb.get("IDENTITY", mIdentity);
     configDb.get("PROXY_SERVER", mProxyServer);
+    configDb.get("STUN_SERVER", mStunServer);
 
     int temp = 0;
     configDb.get("USE_RPORT", temp);
@@ -74,6 +76,14 @@ UtlBoolean sipXezPhoneSettings::loadSettings()
     {
         mUseRport = false;
     }
+    configDb.get("ENABLE_AEC", temp);
+    mbEnableAEC = (temp == 1) ? true : false;
+
+    configDb.get("ENABLE_OOB_DTMF", temp);
+    mbEnableOutOfBandDTMF = (temp == 1) ? true : false;
+
+    configDb.get("ENABLE_SRTP", temp);
+    mbEnableSRTP = (temp == 1) ? true : false;
 
     int value = 0;
 
@@ -94,6 +104,9 @@ UtlBoolean sipXezPhoneSettings::loadSettings()
     {
         mMicGain = value;
     }
+
+    configDb.get("CODEC_PREF", value);
+    mCodecPreference = value;
 
     int i = 0;
     char szKey[256];
@@ -132,6 +145,7 @@ UtlBoolean sipXezPhoneSettings::saveSettings()
     configDb.set("REALM", mRealm);
     configDb.set("IDENTITY", mIdentity);
     configDb.set("PROXY_SERVER", mProxyServer);
+    configDb.set("STUN_SERVER", mStunServer);
 
     UtlString temp("0");
     if (mUseRport)
@@ -140,15 +154,26 @@ UtlBoolean sipXezPhoneSettings::saveSettings()
     }
     configDb.set("USE_RPORT", temp);
 
-   char szValue[4];
-   char szKey[256];
+    temp = (mbEnableAEC) ? "1" : "0";
+    configDb.set("ENABLE_AEC", temp);
 
-   sprintf(szValue, "%d", mSpeakerVolume);
-   configDb.set("SPEAKER_VOLUME", szValue);
-   sprintf(szValue, "%d", mRingerVolume);
-   configDb.set("RINGER_VOLUME", szValue);
-   sprintf(szValue, "%d", mMicGain);
-   configDb.set("MIC_GAIN", szValue);
+    temp = (mbEnableOutOfBandDTMF) ? "1" : "0";
+    configDb.set("ENABLE_OOB_DTMF", temp);
+
+    temp = (mbEnableSRTP) ? "1" : "0";
+    configDb.set("ENABLE_SRTP", temp);
+
+    char szValue[4];
+    char szKey[256];
+
+    sprintf(szValue, "%d", mSpeakerVolume);
+    configDb.set("SPEAKER_VOLUME", szValue);
+    sprintf(szValue, "%d", mRingerVolume);
+    configDb.set("RINGER_VOLUME", szValue);
+    sprintf(szValue, "%d", mMicGain);
+    configDb.set("MIC_GAIN", szValue);
+    sprintf(szValue, "%d", mCodecPreference);
+    configDb.set("CODEC_PREF", szValue);
 
 
    // first, get rid of the old Numbers
@@ -220,7 +245,18 @@ void sipXezPhoneSettings::setUseRport(const bool useRport)
     mUseRport = useRport;
 }
 
-wxColor sipXezPhoneSettings::getBackgroundColor()
+wxColor sipXezPhoneSettings::getBackgroundColor() const
 {
-    return wxColor(132,169,181);
+    //return wxColor(132,169,181);
+    return wxColor(193, 194, 245);
+}
+
+void sipXezPhoneSettings::setTestMode(bool bOn)
+{
+    mTestMode = bOn;
+}
+
+bool sipXezPhoneSettings::getTestMode()
+{
+    return mTestMode;
 }

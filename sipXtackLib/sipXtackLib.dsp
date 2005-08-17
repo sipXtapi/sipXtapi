@@ -221,6 +221,10 @@ SOURCE=.\src\net\SipConfigServerAgent.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\net\SipContactDb.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\net\SipDialog.cpp
 # End Source File
 # Begin Source File
@@ -298,6 +302,10 @@ SOURCE=.\src\net\SipRefreshMgr.cpp
 # Begin Source File
 
 SOURCE=.\src\net\SipServerBase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\net\SipServerBroker.cpp
 # End Source File
 # Begin Source File
 
@@ -409,6 +417,10 @@ SOURCE=.\include\resparse\wnt\inet_aton.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\resparse\sys\isa_defs.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\net\MailAttachment.h
 # End Source File
 # Begin Source File
@@ -509,6 +521,10 @@ SOURCE=.\include\net\SipConfigServerAgent.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\net\SipContactDb.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\net\SipDialog.h
 # End Source File
 # Begin Source File
@@ -585,6 +601,10 @@ SOURCE=.\include\net\SipServerBase.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\net\SipServerBroker.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\net\SipSession.h
 # End Source File
 # Begin Source File
@@ -638,6 +658,10 @@ SOURCE=.\include\net\SipUserAgentBase.h
 # Begin Source File
 
 SOURCE=.\include\net\SipUserAgentStateless.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\resparse\wnt\sol_search.h
 # End Source File
 # Begin Source File
 

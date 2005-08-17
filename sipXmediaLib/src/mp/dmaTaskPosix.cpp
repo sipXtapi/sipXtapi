@@ -113,9 +113,7 @@ int showFrameCount(int silent)
 
 static void * mediaSignaller(void * arg)
 {
-   osPrintf(" **********STARTING mediaSignaller THREAD!**********\n");
-
-#ifdef _REALTIME_LINUX_AUDIO_THREADS /* [ */
+#if defined(_REALTIME_LINUX_AUDIO_THREADS) && defined(__linux__) /* [ */
    struct sched_param realtime;
    int res;
 
@@ -136,7 +134,14 @@ static void * mediaSignaller(void * arg)
    }
 #endif /* _REALTIME_LINUX_AUDIO_THREADS ] */
 
+#ifdef __linux__
    clock_gettime(CLOCK_REALTIME, &sNotifierTime);
+#else
+   struct timeval tv;
+   gettimeofday(&tv, NULL);
+   sNotifierTime.tv_sec = tv.tv_sec;
+   sNotifierTime.tv_nsec = tv.tv_usec * 1000;
+#endif
    pthread_mutex_lock(&sNotifierMutex);
 
    while(dmaOnline)

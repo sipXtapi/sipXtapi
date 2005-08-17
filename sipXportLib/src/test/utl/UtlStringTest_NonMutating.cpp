@@ -1,14 +1,9 @@
-
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -383,7 +378,7 @@ public:
           }; 
 
        // Go through the table of tests.
-       for (int i=0; i < sizeof(testData)/sizeof(testData[0]); i++)
+       for (unsigned i=0; i < sizeof(testData)/sizeof(testData[0]); i++)
        {
           // Get the test string as a UtlString.
           UtlString testString(testData[i].string); 

@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _CpCall_h_
 #define _CpCall_h_
@@ -37,11 +35,11 @@
 // CONSTANTS
 // STRUCTS
 struct DtmfEvent {
-        int     event;
-        int interdigitSecs;
-  int timeoutSecs;
-  int ignoreKeyUp;
-  UtlBoolean enabled;
+    int     event;
+    int interdigitSecs;
+    int timeoutSecs;
+    int ignoreKeyUp;
+    UtlBoolean enabled;
 };
 
 // TYPEDEFS
@@ -53,7 +51,7 @@ class CpMediaInterface;
 // Class detailed description which may extend to multiple lines
 class CpCall : public OsServerTask
 {
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
+    /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
     enum eventType
@@ -66,7 +64,7 @@ public:
     enum metaEventState
     {
         METAEVENT_START = 0,
-                METAEVENT_INPROGRESS,
+        METAEVENT_INPROGRESS,
         METAEVENT_END
     };
 
@@ -108,57 +106,57 @@ public:
         // Is a definite match no need to search any further
         CP_DEFINITELY_WILL_HANDLE
     };
-/* ============================ CREATORS ================================== */
+    /* ============================ CREATORS ================================== */
 
-   CpCall(CpCallManager* manager = NULL,
-          CpMediaInterface* callMediaInterface = NULL,
-          int callIndex = -1,
-          const char* callId = NULL,
-          int holdType = CallManager::NEAR_END_HOLD);
-     //:Default constructor
+    CpCall(CpCallManager* manager = NULL,
+        CpMediaInterface* callMediaInterface = NULL,
+        int callIndex = -1,
+        const char* callId = NULL,
+        int holdType = CallManager::NEAR_END_HOLD);
+    //:Default constructor
 
-   virtual
-   ~CpCall();
-     //:Destructor
+    virtual
+        ~CpCall();
+    //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+    /* ============================ MANIPULATORS ============================== */
 
-   void setDropState(UtlBoolean state);
+    void setDropState(UtlBoolean state);
 
-        void postMetaEvent(int state, int remoteIsCallee = -1);  // remoteIsCallee = -1 means not set
+    void postMetaEvent(int state, int remoteIsCallee = -1);  // remoteIsCallee = -1 means not set
 
-   void postTaoListenerMessage(int responseCode,
-                                                                UtlString responseText,
-                                                                int eventId,
-                                                                int type,
-                                                                int cause = PtEvent::CAUSE_NORMAL,
-                                                                int remoteIsCallee = 1,
-                                                                UtlString remoteAddress = "",
-                                                                int isRemote = 0,
-                                                                UtlString targetCallId = OsUtil::NULL_OS_STRING);
+    void postTaoListenerMessage(int responseCode,
+        UtlString responseText,
+        int eventId,
+        int type,
+        int cause = PtEvent::CAUSE_NORMAL,
+        int remoteIsCallee = 1,
+        UtlString remoteAddress = "",
+        int isRemote = 0,
+        UtlString targetCallId = OsUtil::NULL_OS_STRING);
 
-        virtual OsStatus addTaoListener(OsServerTask* pListener,
-                                                                        char* callId = NULL,
-                                                                        int ConnectId = 0,
-                                                                        int mask = 0,
-                                                                int pEv = 0);
-        //:Register as a listener for call and connection events.
+    virtual OsStatus addTaoListener(OsServerTask* pListener,
+        char* callId = NULL,
+        int ConnectId = 0,
+        int mask = 0,
+        int pEv = 0);
+    //:Register as a listener for call and connection events.
 
-   void setCallState(int responseCode, UtlString responseText, int state, int cause = PtEvent::CAUSE_NORMAL);
+    void setCallState(int responseCode, UtlString responseText, int state, int cause = PtEvent::CAUSE_NORMAL);
 
-        virtual void inFocus(int talking = 1);
-        virtual void outOfFocus();
+    virtual void inFocus(int talking = 1);
+    virtual void outOfFocus();
 
     //virtual void hold();
     //virtual void offHold();
     virtual void localHold();
-        virtual void hangUp(UtlString callId, int metaEventId);
+    virtual void hangUp(UtlString callId, int metaEventId);
     //virtual void blindTransfer() = 0;
     //virtual void conferenceAddParty() = 0;
 
-        virtual void getLocalAddress(char* address, int len);
+    virtual void getLocalAddress(char* address, int len);
 
-        virtual void getLocalTerminalId(char* terminal, int len);
+    virtual void getLocalTerminalId(char* terminal, int len);
 
     virtual void getCallId(UtlString& callId);
     //: Gets the main call Id for this call
@@ -172,12 +170,12 @@ public:
     int getLocalConnectionState() { return mLocalConnectionState; };
     //: Sets the local connection state for this call
 
-        void addToneListenerToFlowGraph(int pListener, Connection* connection);
-   void removeToneListenerFromFlowGraph(int pListener, Connection* connection);
+    void addToneListenerToFlowGraph(int pListener, Connection* connection);
+    void removeToneListenerFromFlowGraph(int pListener, Connection* connection);
 
-   OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration, int& dtmfterm);
-   virtual OsStatus stopRecord();
-/* ============================ ACCESSORS ================================= */
+    OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration, int& dtmfterm);
+    virtual OsStatus stopRecord();
+    /* ============================ ACCESSORS ================================= */
     static int getCallTrackingListCount();
     //returns the number of call tasks currently outstanding.
 
@@ -190,7 +188,7 @@ public:
     // This should go away
     void enableDtmf();
 
-        static void getStateString(int state, UtlString* stateLabel);
+    static void getStateString(int state, UtlString* stateLabel);
 
     // Meta Event Utilities
     // For the meta events, the first callId (index=0) is the new
@@ -215,9 +213,9 @@ public:
     void setOriginalCallId(const char* targetCallId);
     void getOriginalCallId(UtlString& targetCallId) const;
 
-        int getLocalConnectionState(int state);
+    int getLocalConnectionState(int state);
 
-/* ============================ INQUIRY =================================== */
+    /* ============================ INQUIRY =================================== */
 
     virtual UtlBoolean hasCallId(const char* callId) = 0;
 
@@ -229,45 +227,45 @@ public:
 
     virtual UtlBoolean isLocalHeld();
 
-        virtual UtlBoolean canDisconnectConnection(Connection* pConnection) = 0;
+    virtual UtlBoolean canDisconnectConnection(Connection* pConnection) = 0;
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
+    /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage) = 0;
     virtual void onHook() = 0;
 
-        virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state) = 0;
+    virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state) = 0;
 
-        virtual UtlBoolean getTermConnectionState(const char* address,
-                                                                                        const char* terminal,
-                                                                                        int& state) = 0;
+    virtual UtlBoolean getTermConnectionState(const char* address,
+        const char* terminal,
+        int& state) = 0;
 
     void addHistoryEvent(const char* messageLogString);
     void addHistoryEvent(const int msgSubType,
-                         const CpMultiStringMessage* multiStringMessage);
+        const CpMultiStringMessage* multiStringMessage);
 
-        OsStatus addListener(OsServerTask* pListener,
-                                                        TaoListenerDb** pListeners,
-                                                        int& listenerCnt,
-                                                                char* callId = NULL,
-                                                                int ConnectId = 0,
-                                                                int mask = 0,
-                                                        int pEv = 0);
+    OsStatus addListener(OsServerTask* pListener,
+        TaoListenerDb** pListeners,
+        int& listenerCnt,
+        char* callId = NULL,
+        int ConnectId = 0,
+        int mask = 0,
+        int pEv = 0);
 
     CpCallManager* mpManager;
     UtlString mCallId;
     UtlBoolean mCallInFocus;
-        UtlBoolean mRemoteDtmf;
-        UtlBoolean mDtmfEnabled;
+    UtlBoolean mRemoteDtmf;
+    UtlBoolean mDtmfEnabled;
     OsRWMutex mCallIdMutex;
     CpMediaInterface*   mpMediaInterface;
     int mCallIndex;
     int mCallState;
     int mHoldType;
     int mLocalConnectionState;
-        int mLocalTermConnectionState;
-        UtlBoolean mLocalHeld;
+    int mLocalTermConnectionState;
+    UtlBoolean mLocalHeld;
 
     UtlBoolean mDropping;
     int mMetaEventId;
@@ -275,49 +273,49 @@ protected:
     int mNumMetaEventCalls;
     UtlString* mpMetaEventCallIds;
 
-        TaoListenerDb**                 mpListeners;
-                int                             mListenerCnt;
-        int                             mMaxNumListeners;
+    TaoListenerDb**                 mpListeners;
+    int                             mListenerCnt;
+    int                             mMaxNumListeners;
 
-        TaoListenerDb*                  mpToneListeners[MAX_NUM_TONE_LISTENERS];
-        int                                             mToneListenerCnt;
+    TaoListenerDb*                  mpToneListeners[MAX_NUM_TONE_LISTENERS];
+    int                                             mToneListenerCnt;
 
     int mMessageEventCount;
     UtlString mCallHistory[CP_CALL_HISTORY_LENGTH];
 
     OsRWMutex                           mDtmfQMutex;
-        int                                             mDtmfQLen;
-        DtmfEvent                               mDtmfEvents[MAX_NUM_TONE_LISTENERS];
+    int                                             mDtmfQLen;
+    DtmfEvent                               mDtmfEvents[MAX_NUM_TONE_LISTENERS];
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
+    /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
     static OsLockingList *spCallTrackingList;
-      //: maintains a list of the Call-nnn names
+    //: maintains a list of the Call-nnn names
 
 
     static OsStatus addToCallTrackingList(UtlString &rCallTaskName);
-      //: function used to add call names to the tracking list
+    //: function used to add call names to the tracking list
 
     static OsStatus removeFromCallTrackingList(UtlString &rCallTaskName);
-      //: function used to remove call names from the tracking list
+    //: function used to remove call names from the tracking list
 
     int mCallType;
     UtlString mOriginalCallId;
     UtlString mTargetCallId;
 
-   CpCall& operator=(const CpCall& rhs);
-     //:Assignment operator (disabled)
-   CpCall(const CpCall& rCpCall);
-     //:Copy constructor (disabled)
+    CpCall& operator=(const CpCall& rhs);
+    //:Assignment operator (disabled)
+    CpCall(const CpCall& rCpCall);
+    //:Copy constructor (disabled)
 
-        int tcStateFromEventId(int eventId);
+    int tcStateFromEventId(int eventId);
 
-        // utility function used to remove ev from mDtmfEvents.
-        void removeFromDtmfEventList(int ev);
+    // utility function used to remove ev from mDtmfEvents.
+    void removeFromDtmfEventList(int ev);
 
-        // utility function used to check if ev exists in mDtmfEvents.
-        int dtmfEventExists(int ev);
+    // utility function used to check if ev exists in mDtmfEvents.
+    int dtmfEventExists(int ev);
 
 };
 

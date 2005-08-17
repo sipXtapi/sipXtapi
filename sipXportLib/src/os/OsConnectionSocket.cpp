@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -50,16 +48,19 @@
 OsConnectionSocket::OsConnectionSocket(int connectedSocketDescriptor)
 {
         socketDescriptor = connectedSocketDescriptor;
+}
 
-        // Should query and setup:
-        // remoteHostPort
-        // remoteHostName
+OsConnectionSocket::OsConnectionSocket(const char* szLocalIp, int connectedSocketDescriptor)
+{
+        socketDescriptor = connectedSocketDescriptor;
+        mLocalIp = szLocalIp;
 }
 
 // Constructor
 OsConnectionSocket::OsConnectionSocket(int serverPort,
                                        const char* serverName,
-                                       UtlBoolean blockingConnect)
+                                       UtlBoolean blockingConnect,
+                                       const char* localIp)
 {
    int error = 0;
    UtlBoolean isIp;
@@ -81,18 +82,47 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
 #if defined(_VXWORKS)
       serverName = "127.0.0.1";
 #elif defined(__pingtel_on_posix__)
-      serverName = "localhost";
+    unsigned long address_val = OsSocket::getDefaultBindAddress();
+      
+    if (!localIp)
+    {
+        if (address_val == htonl(INADDR_ANY))
+            serverName = "localhost";
+        else
+        {
+            struct in_addr in;
+            in.s_addr = address_val;
+
+            serverName = inet_ntoa(in);
+        }
+    }
+    else
+    {
+        mLocalIp = localIp;
+        serverName = localIp;
+    }
+
 #elif defined(WIN32)
       unsigned long address_val = OsSocket::getDefaultBindAddress();
-      if (address_val == htonl(INADDR_ANY))
-         serverName = "localhost";
-      else
-      {
-         struct in_addr in;
-         in.S_un.S_addr = address_val;
+      
+    if (!localIp)
+    {
+        if (address_val == htonl(INADDR_ANY))
+            serverName = "localhost";
+        else
+        {
+            struct in_addr in;
+            in.S_un.S_addr = address_val;
 
-         serverName = inet_ntoa(in);
-      }
+            serverName = inet_ntoa(in);
+        }
+    }
+    else
+    {
+        mLocalIp = localIp;
+        serverName = localIp;
+    }
+      
 #else
 #error Unsupported target platform.
 #endif
@@ -101,6 +131,11 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    if(serverName)
    {
       remoteHostName.append(serverName);
+   }
+
+   if (localIp)
+   {
+        mLocalIp = localIp;
    }
 
    if(!socketInit())

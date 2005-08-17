@@ -15,8 +15,10 @@
 
 myName=`basename $0`
 myDir=`dirname $0`
-# default expiration is 3 years
-Days=1095 
+# default Certificate Authority Expiration is 3 years
+AuthorityDays=3650
+# default server expiration is 3 years
+CertDays=1095 
 
 #   external tools
 openssl="@OPENSSL@"
@@ -164,7 +166,7 @@ nsComment        = "${myName} generated custom CA certificate"
 nsCertType       = sslCA
 EOT
 
-$openssl x509 -extfile ca_crt.cfg -extensions x509v3 -req -days ${Days} -signkey ca.key -in ca.csr -sha1 -out ca.crt
+$openssl x509 -extfile ca_crt.cfg -extensions x509v3 -req -days ${AuthorityDays} -signkey ca.key -in ca.csr -sha1 -out ca.crt -text
 if [ $? -ne 0 ]; then
     echo "${myName}:Error: Failed to generate self-signed CA certificate" 1>&2
     exit 1
@@ -222,7 +224,7 @@ subjectAltName         = URI:sip:${sipDomainName},DNS:${serverHostName}
 subjectKeyIdentifier   = hash
 EOT
 
-$openssl req -config server_csr.cfg -new -sha1 -key $server.key -reqexts extend_req -out $server.csr -days ${Days}
+$openssl req -config server_csr.cfg -new -sha1 -key $server.key -reqexts extend_req -out $server.csr -days ${CertDays}
 if [ $? -ne 0 ]; then
     echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
     exit 1
@@ -241,7 +243,7 @@ subjectAltName         = URI:sip:${sipDomainName},DNS:${serverHostName}
 subjectKeyIdentifier   = hash
 EOT
 
-$openssl x509 -extfile server_crt.cfg -extensions x509v3 -extensions extend_cert -sha1 -days ${Days} -CAserial ca.ser -CA ca.crt -CAkey ca.key -in $server.csr -req -out $server.crt
+$openssl x509 -extfile server_crt.cfg -extensions x509v3 -extensions extend_cert -sha1 -days ${CertDays} -CAserial ca.ser -CA ca.crt -CAkey ca.key -in $server.csr -req -out $server.crt -text
 if [ $? -ne 0 ]; then
     echo "${myName}:Error: Failed to generate X.509 certificate" 1>&2
     exit 1
@@ -304,8 +306,8 @@ in this directory:
 
     @bindir@/ssl-cert/install-cert.sh $server
 
-These files will expire one year from today; you will need to rerun
-this command to generate new certificates then (or, preferably,
-before then).
+The server certificate will expire ${CertDays} days from today; 
+you will need to rerun this command to generate new certificates
+then (or, preferably, before then).
 
 EOF

@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -48,22 +48,25 @@ UtlContainable* UtlSListIterator::findNext(const UtlContainable* containableToMa
       OsLock take(myList->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      GList* next = (mpCurrentNode == NULL
-                     ? g_list_first(myList->mpList)
-                     : g_list_next(mpCurrentNode)
-                     );
-      while (next != NULL && match == NULL)
+      // advance the iterator
+      UtlLink* nextLink = (mpCurrentNode == NULL
+                           ? myList->head()
+                           : mpCurrentNode->next()
+                           );
+
+      // search for the next match forward
+      while (nextLink && !match)
       {
-          UtlContainable *candidate = (UtlContainable*)next->data;
-          if (candidate != NULL && candidate->compareTo(containableToMatch) == 0)
-          {
-              mpCurrentNode = next;
-              match = candidate;
-          }
-          else
-          {
-              next = g_list_next(next);
-          }
+         UtlContainable *candidate = (UtlContainable*)nextLink->data;
+         if (candidate && candidate->compareTo(containableToMatch) == 0)
+         {
+            mpCurrentNode = nextLink;
+            match = candidate;
+         }
+         else
+         {
+            nextLink = nextLink->next();
+         }
       }
    }
    else
@@ -87,15 +90,15 @@ UtlContainable* UtlSListIterator::insertAfterPoint(UtlContainable* insertedObjec
       OsLock take(myList->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      if (mpCurrentNode == NULL) // at the start of the list
+      if (mpCurrentNode == UtlListIterator::OFF_LIST_END)
       {
-         myList->mpList = g_list_insert(myList->mpList, insertedObject, 0);
+         mpCurrentNode = UtlLink::listBefore(myList, NULL, insertedObject); /* append to tail */
       }
       else
       {
-         myList->mpList = g_list_insert_before(myList->mpList, mpCurrentNode, insertedObject);
+         UtlLink::listAfter(myList, mpCurrentNode, insertedObject);
       }
-
+      
       result = insertedObject; 
    }
    else

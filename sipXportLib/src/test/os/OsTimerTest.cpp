@@ -1,13 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -19,9 +15,7 @@
 #include <sipxunit/TestUtilities.h>
 
 #include <time.h>
-#include <iostream>
 #include <string.h>
-#include <glib.h>
 
 /*
  * OSTIMETOLERANCE is the allowed 'slop'; timers may be off by this
@@ -30,6 +24,8 @@
  */
 #define OSTIMETOLERANCE 150
 
+//#define REPORT_SKEW(x) printf x
+#define REPORT_SKEW(x) /* x */
 using namespace std ; 
 
 OsTime      tenMsec(0, 10000);// timer offset ten msec into the future
@@ -127,6 +123,9 @@ public:
 
     void testImmediateTimer()
     {
+#ifdef _WIN32
+        KNOWN_FATAL_BUG("Fails under Win32", "XPL-101");
+#endif
         OsCallback* pNotifier ;
         OsTimer* pTimer ;
         UtlBoolean returnValue ; 
@@ -144,7 +143,7 @@ public:
                                "immediately", 
                                diffUSecs > 0 && 
                                diffUSecs <= MsecsToUsecs(OSTIMETOLERANCE));
-        printf("      Timing inaccuracy = %6ld uS;\n", diffUSecs) ; 
+        REPORT_SKEW(("      Timing inaccuracy = %6ld uS;\n", diffUSecs)); 
         delete pTimer;
         delete pNotifier;
     }
@@ -215,13 +214,13 @@ public:
             CPPUNIT_ASSERT_MESSAGE(Message.data(),
                 diffUSecs >= expectedWaitUSecs - MsecsToUsecs(testData[i].tolerance) &&
                 diffUSecs <= expectedWaitUSecs + MsecsToUsecs(testData[i].tolerance));
-            printf("      Timing inaccuracy for iter %3d = %8ld uS; Time=%ld.%03ld;\n",
+            REPORT_SKEW(("      Timing inaccuracy for iter %3d = %8ld uS; Time=%ld.%03ld;\n",
                 i, 
                 diffUSecs - expectedWaitUSecs, 
                 testData[i].seconds,
                 testData[i].milliseconds
                 
-                ) ; 
+                )); 
             delete pTimer;
             delete pNotifier;
         }
@@ -250,10 +249,10 @@ public:
 
         diffUSecs = getTimeDeltaInUsecs();
 
-        printf("      Timing inaccuracy = %8ld uS; Time=%d.%03d;\n",
+        REPORT_SKEW(("      Timing inaccuracy = %8ld uS; Time=%d.%03d;\n",
                 diffUSecs - expectedWaitUSecs, 
                 1, 250
-                ) ; 
+                )); 
 
         KNOWN_BUG("oneshotAfter not very precise for fractional times!", "XPL-39") ; 
 
@@ -492,10 +491,10 @@ public:
         }
 
         for (i=0; i<N_TIME_DELTAS; i++) {
-            printf("      %4d: t=%ld.%06ld, %5d calls\n", i,
+            REPORT_SKEW(("      %4d: t=%ld.%06ld, %5d calls\n", i,
                 td[i].start.tv_sec,
                 td[i].start.tv_usec,
-                td[i].iterCount);
+                td[i].iterCount));
         }
         
     }

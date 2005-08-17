@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <errno.h>
 #include <string.h>
@@ -16,7 +12,7 @@
 #include <stdlib.h>
 #if defined(_WIN32)
 #   include <io.h>
-#elif defined(__linux__)
+#elif defined(__pingtel_on_posix__)
 #   include <unistd.h>
 #endif
 

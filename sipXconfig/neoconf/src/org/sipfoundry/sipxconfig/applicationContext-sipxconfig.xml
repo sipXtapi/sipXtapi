@@ -68,7 +68,7 @@
     </property>
     <property name="hibernateProperties">
       <props>
-        <prop key="hibernate.dialect"> net.sf.hibernate.dialect.PostgreSQLDialect</prop>
+        <prop key="hibernate.dialect"> org.hibernate.dialect.PostgreSQLDialect</prop>
         <prop key="hibernate.query.substitutions">true=1 false=0</prop>
         <!-- prop key="hibernate.show_sql">true</prop -->
       </props>
@@ -83,74 +83,37 @@
       <bean class="org.sipfoundry.sipxconfig.common.ImprovedNamingStrategy"/>      
     </property>
   </bean>
+  
   <!--
   - H I B E R N A T E   S E S S I O N
   -->
-  <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate.HibernateInterceptor">
+  <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
   </bean>
+
+  <!-- springInstantiator will force hibernate to create new objects through Spring -->
+  <bean id="springInstantiator" class="org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+  
+  <!--
+    - Use this instead of 'hibernateInterceptor' when you want to
+    - load spring beans from hibernate mappings.  See common/common.beans.xml for example
+    -->
+  <bean id="springHibernateInterceptor" parent="hibernateInterceptor">
+    <property name="entityInterceptorBeanName">
+      <value>springInstantiator</value>
+    </property>    
+  </bean>
+
   <!--
   - V E L O C I T Y
   -->
   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="resourceLoaderPath"><value>file:${sysdir.etc}</value></property>
   </bean>
-  <!--
-  -  S E T T I N G  D A O  I M P L
-  -->
-  <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
-  </bean>
-  <!--
-  -  S E T T I N G  D A O 
-  -->
-  <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.setting.SettingDao</value>
-    </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>settingDaoImpl</value>
-      </list>
-    </property>
-  </bean>
-  <!--
-  - C O R E  C O N T E X T   I M P L
-  -->
-  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
-    <property name="processContext">
-      <ref bean="sipxProcessContext"/>
-    </property>    
-    <property name="settingDao">
-      <ref bean="settingDao"/>
-    </property>
-    <property name="systemDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
-  </bean>
-  <!--
-  - C O R E  C O N T E X T
-  -->
-  <bean id="coreContext" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.common.CoreContext</value>
-    </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>coreContextImpl</value>
-      </list>
-    </property>
-  </bean>
-  
   <!-- 
   - A D M I N   C O N T E X T           
   -->

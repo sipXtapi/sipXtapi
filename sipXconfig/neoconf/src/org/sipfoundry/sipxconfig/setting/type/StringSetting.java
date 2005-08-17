@@ -59,4 +59,8 @@ public class StringSetting implements SettingType {
     public String getName() {
         return "string";
     }
+
+    public Object convertToTypedValue(Object value) {
+        return value;
+    }
 }

@@ -1,20 +1,15 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include "../stdwx.h"
 #include "../sipXmgr.h"
-#include "../MainPanel.h"
 #include "PhoneStateIdle.h"
 #include "PhoneStateDialing.h"
 #include "PhoneStateRinging.h"
@@ -52,12 +47,6 @@ PhoneState* PhoneStateIdle::OnRinging(SIPX_CALL hCall)
 PhoneState* PhoneStateIdle::Execute()
 {
    thePhoneApp->setStatusMessage("Idle.");
-   MainPanel* pMainPanel = dynamic_cast<MainPanel*>(wxWindow::FindWindowById(IDR_MAINPANEL, thePhoneApp->GetTopWindow()));
-   if (pMainPanel)
-   {
-       pMainPanel->StartTimer(false);
-   }
-   
    return this;
 }
 

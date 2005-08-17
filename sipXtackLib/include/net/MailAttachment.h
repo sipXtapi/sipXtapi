@@ -1,24 +1,18 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // MailAttachment class declaration for Mailer
 
 #ifndef __MAILATTACHMENT_H__
 #define __MAILATTACHMENT_H__
 
-#include <iostream>
 #include "os/OsDefs.h"
 #include "os/OsFS.h"
-
-
-using namespace std;
 
 class MailAttachment
 {

@@ -1,13 +1,10 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 //The averaged latency of packets in dejitter buffer is calculated in method 
 //PullPacket( ) for the purpose of dejitter buffer
@@ -22,6 +19,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #if defined(_VXWORKS) || defined(__pingtel_on_posix__)
+#include <sys/types.h>
 #include <netinet/in.h>
 #endif
 #ifdef WIN32

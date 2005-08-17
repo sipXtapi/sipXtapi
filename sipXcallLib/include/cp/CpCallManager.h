@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _CpCallManager_h_
 #define _CpCallManager_h_
@@ -24,6 +22,7 @@
 #include "ptapi/PtEvent.h"
 #include "ptapi/PtDefs.h"
 #include "net/SipMessage.h"
+#include "net/SipContactDb.h"
 #include "net/SipDialog.h"
 #include "cp/Connection.h"
 
@@ -176,6 +175,13 @@ public:
         CP_STOPRECORD,
         CP_SET_OUTBOUND_LINE,
         CP_GET_LOCAL_CONTACTS,
+        CP_OUTGOING_INFO,
+        CP_GET_MEDIA_CONNECTION_ID,
+        CP_ENABLE_STUN,
+        CP_GET_CAN_ADD_PARTY,
+        CP_SPLIT_CONNECTION,
+        CP_JOIN_CONNECTION,
+        CP_CONSULT_TRANSFER_ADDRESS,
     };
 
 /*
@@ -300,7 +306,7 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_TYPE eContactType = AUTO) = 0;
+                             CONTACT_ID contactId = 0) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a
@@ -315,7 +321,7 @@ public:
                              UtlString& targetCallConsultAddress) = 0;
 
     //! Blind transfer
-    virtual PtStatus transfer(const char* callId,
+    virtual PtStatus transfer_blind(const char* callId,
                               const char* transferToUrl,
                               UtlString* targetCallId,
                               UtlString* targetConnectionAddress = NULL) = 0;

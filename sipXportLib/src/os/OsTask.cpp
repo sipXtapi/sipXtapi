@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -173,7 +171,7 @@ OsTaskBase::~OsTaskBase()
    if (mName != "")
    {
       res = OsUtil::deleteKeyValue(TASK_PREFIX, mName);
-      assert(res == OS_SUCCESS);
+      //assert(res == OS_SUCCESS);
    }
 
    mName = OsUtil::NULL_OS_STRING;

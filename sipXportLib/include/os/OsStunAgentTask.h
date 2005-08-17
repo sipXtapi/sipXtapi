@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsStunAgentTask_h_	/* [ */
 #define _OsStunAgentTask_h_
@@ -88,10 +86,15 @@ public:
      * Send a stun request to the designated stun server and port and signal
      * the specified notification object when complete.
      */
-    virtual UtlBoolean sendStunRequest(OsStunDatagramSocket* pSocket,
-                                       const UtlString& stunServer,
-                                       const int stunPort,
-                                       OsEvent* pNotify) ;
+    UtlBoolean sendStunDiscoveryRequest(OsStunDatagramSocket* pSocket,
+                                        const UtlString& stunServer,
+                                        const int stunPort) ;
+
+
+    UtlBoolean sendStunConnectivityRequest(OsStunDatagramSocket* pSocket,
+                                           const UtlString& stunServer,
+                                           int iStunPort,
+                                           unsigned char cPriority) ;
 
     /**
      * Synchronize with the OsStunAgentTask by posting a message to this event
@@ -102,11 +105,10 @@ public:
 
     
     /**
-     * Remove any notification objects for the given socket.  This is a 
-     * cleanup method needed in cases where no stun responses is ever
-     * received.
+     * Remove any references for the given socket.  This is a cleanup method 
+     * needed to referencing stale pointers.
      */
-    void removeNotify(OsStunDatagramSocket* pSocket) ;
+    void removeSocket(OsStunDatagramSocket* pSocket) ;
 
 /* ============================ ACCESSORS ================================= */
 
@@ -147,8 +149,10 @@ protected:
 private:
     static OsStunAgentTask* spInstance ;    /**< Singleton instance */
     static OsMutex sLock ;                  /**< Lock for singleton accessors */
-    UtlHashMap mNotifyMap ;                 /**< Map of socket -> notify object */  
-    OsMutex mNotifyMapLock ;                /**< Lock for Notify map */
+    UtlHashMap mResponseMap;                /**< Map of outstanding refresh requests */  
+    UtlHashMap mConnectivityMap ;           /**< Map of outstanding connectivity probes */
+    OsMutex mMapsLock ;                     /**< Lock for Notify and Connectiviy maps */
+    UtlSList mTimerPool;                    /**< List of free timers available for use */
     
     /** Disabled copy constructor (not supported) */
     OsStunAgentTask(const OsStunAgentTask& rOsStunAgentTask);     

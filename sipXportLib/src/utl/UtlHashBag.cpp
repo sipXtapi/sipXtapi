@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 
@@ -20,14 +20,19 @@
 // CONSTANTS
 const UtlContainableType UtlHashBag::TYPE = "UtlHashBag";
 
+#define HASHBAG_INITIAL_BUCKET_BITS 4
+#define NUM_HASHBAG_BUCKETS(bits) (1<<bits)
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /**
  * Design Notes
  *
- * UtlHashBag is implemented using a GHashTable; the key is the object,
- * and the value is a GList* that points to a list of like elements.
- *
+ * Each entry in the dynamic mBucket array is a list header for the items in that bucket.
+ * The bucket number for an item is its hash code, XOR-folded to the mBucketBits
+ * The entries in each bucket list are sorted into ascending order, so that the worst case
+ * lookup performance (when all items hash to the same bucket) is no worse than a linear 
+ * search (if the hash functions are any good, it should almost always be better).
  */
 
 /* //////////////////////////// PUBLIC /////////////////////////////////// */
@@ -36,24 +41,94 @@ const UtlContainableType UtlHashBag::TYPE = "UtlHashBag";
 
 // Constructor
 
-UtlHashBag::UtlHashBag()
-   : mEntries(0)
+UtlHashBag::UtlHashBag() :
+   mElements(0),
+   mBucketBits(HASHBAG_INITIAL_BUCKET_BITS),
+   mpBucket(new UtlChain[NUM_HASHBAG_BUCKETS(HASHBAG_INITIAL_BUCKET_BITS)])
 {
-   mpHashTable = g_hash_table_new(utlObjectHash,utlObjectEqual);
 }
 
 
 // Destructor
 UtlHashBag::~UtlHashBag()
 {
+   UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerLock);
+      
+   invalidateIterators();
 
-   if ( mpHashTable )
+   UtlContainer::releaseIteratorConnectionLock();
+
+   // still holding the mContainerLock
+   // walk the buckets
+   for (size_t i = 0; i < numberOfBuckets(); i++)
    {
-      g_hash_table_destroy(mpHashTable);
-      mpHashTable=NULL;
+      // empty each bucket and release each UtlPair back to the pool
+      while (!mpBucket[i].isUnLinked())
+      {
+         UtlLink* link = static_cast<UtlLink*>(mpBucket[i].listHead());
+         link->detachFromList(&mpBucket[i]);
+         link->release();
+      }
    }
-   mEntries=0;
+   delete [] mpBucket;   // free the bucket headers
+}
+
+/*
+ * Allocate additional buckets and redistribute existing contents.
+ * This should only be called through resizeIfNeededAndSafe.
+ */          
+void UtlHashBag::resize()
+{
+   // already holding the mContainerLock
+   UtlChain* newBucket;
+   size_t    newBucketBits;
+
+   // if an iterator had prevented resizing while many elements were added,
+   // we might need to double more than once to restore the target ratio.
+   for (newBucketBits = mBucketBits+1;
+        mElements / NUM_HASHBAG_BUCKETS(newBucketBits) >= 3;
+        newBucketBits++
+        )
+   {
+   }
+
+   // allocate the new buckets
+   newBucket = new UtlChain[NUM_HASHBAG_BUCKETS(newBucketBits)];
+   
+   if (newBucket)
+   {
+      // save the old buckets until we move the entries out of them
+      UtlChain* oldBucket     = mpBucket;
+      size_t    numOldBuckets = numberOfBuckets();
+
+      // put in the new buckets
+      mBucketBits = newBucketBits;
+      mpBucket = newBucket;
+
+      // move all the entries to the new buckets
+      size_t old;
+      size_t toBeMoved;
+      for (old = 0, toBeMoved = mElements;
+           old < numOldBuckets && toBeMoved;
+           old++
+           )
+      {
+         while(!oldBucket[old].isUnLinked()) // old bucket is not empty yet
+         {
+            UtlLink* link = static_cast<UtlLink*>(oldBucket[old].head());
+            link->detachFromList(&oldBucket[old]);
+            insert(link, &mpBucket[bucketNumber(link->hash)]);
+            toBeMoved--;
+         }
+      }
+
+      delete [] oldBucket; // finished with the old empty buckets
+   }
+   else
+   {
+      assert(newBucket); // failed to allocate new buckets
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -61,73 +136,71 @@ UtlHashBag::~UtlHashBag()
 
 UtlContainable* UtlHashBag::insert(UtlContainable* insertedContainable)
 {
-   GList* instances = NULL;
-
-   if(insertedContainable)
+   if (insertedContainable) // NULL keys are not allowed
    {
-      OsLock take(mContainerLock);
+      OsLock take(mContainerLock);   
 
-      instances = (GList*)g_hash_table_lookup(mpHashTable, insertedContainable);
+      UtlLink*  link;
+      
+      link = UtlLink::get();
+      link->data  = insertedContainable;
+      link->hash  = insertedContainable->hash();
 
-      GList* newInstances = g_list_append(instances, insertedContainable);
+      insert(link, &mpBucket[bucketNumber(link->hash)]);
 
-      if (instances != newInstances)
-      {
-         if (instances != NULL)
-         {
-            UtlContainable* oldKeyObject = (UtlContainable*)instances->data;
-            g_hash_table_remove(mpHashTable,oldKeyObject);
-         }
-
-         g_hash_table_insert(mpHashTable, insertedContainable, newInstances);
-      }
-
-      mEntries++;
+      mElements++;
    }
 
    return insertedContainable;
 }
 
+/*
+ * Insert a link into a bucket (the bucket list is ordered by hashcode).
+ */
+void UtlHashBag::insert(UtlLink*       link,  ///< The UtlLink for the entry if it was found.
+                        UtlChain*      bucket ///< The bucket list header where the entry belongs.
+                        )
+{
+   UtlLink* inBucket;
+   
+   for (inBucket = static_cast<UtlLink*>(bucket->listHead());
+        (   inBucket                     // not end of list
+         && link->hash > inBucket->hash  // hash list is ordered, so if > then we're done.
+         );
+        inBucket = static_cast<UtlLink*>(inBucket->UtlChain::next)
+        )
+   {
+   }
+   link->UtlChain::listBefore(bucket, inBucket);
+   
+   resizeIfNeededAndSafe();
+}
 
 UtlContainable* UtlHashBag::remove(UtlContainable* object)
 {
    UtlContainable* removed = NULL;
-   GList* likeElements = NULL;
-
+   
    if (object)
    {
       OsLock take(mContainerLock);
 
-      likeElements = (GList*)g_hash_table_lookup(mpHashTable, object);
-
-      if (likeElements)
+      UtlLink*  link;
+      UtlChain* bucket;
+      
+      if ( lookup(object, bucket, link) )
       {
-         GList* node = g_list_first(likeElements);
+         removed = link->data;
+         
+         notifyIteratorsOfRemove(link);
+         
+         link->detachFromList(bucket);
+         removed = link->data;
+         link->release();
 
-         removed = (UtlContainable*)node->data;
-         notifyIteratorsOfRemove(node);
-
-         // remove the element from the inner list
-         likeElements = g_list_delete_link(likeElements,node);
-         mEntries--;
-
-         if (likeElements) // are there still some of this key in the bag?
-         {
-            // yes, so change the key to one that is still in the list.
-            g_hash_table_remove(mpHashTable,removed);
-
-            g_hash_table_insert(mpHashTable, g_list_first(likeElements)->data,
-                                likeElements);
-         }
-         else
-         {
-            // all like elements have been removed, so take this
-            // entry out of the hash table.
-            g_hash_table_remove(mpHashTable,removed);
-         }
+         mElements--;
       }
    }
-
+   
    return removed;
 }
 
@@ -140,55 +213,44 @@ UtlContainable* UtlHashBag::remove(UtlContainable* object)
 UtlContainable* UtlHashBag::removeReference(const UtlContainable* object)
 {
    UtlContainable* removed = NULL;
-   GList* likeElements = NULL;
-
+   
    if (object)
    {
+      size_t   keyHash = object->hash();
+
       OsLock take(mContainerLock);
 
-      likeElements = (GList*)g_hash_table_lookup(mpHashTable, object);
-
-      if (likeElements)
+      UtlLink*  link;
+      UtlChain* bucket;
+      UtlLink* check;
+   
+      bucket = &mpBucket[bucketNumber(keyHash)];
+      for (link = NULL, check = static_cast<UtlLink*>(bucket->listHead());
+           (   !link                  // not found 
+            && check                  // not end of list
+            && check->hash <= keyHash // hash list is ordered, so if > then it's not in the list
+            );
+           check = check->next()
+           )
       {
-         GList* foundNode;
-         GList* node;
-         for ( foundNode = NULL, node = g_list_first(likeElements);
-               foundNode == NULL && node != NULL;
-               node = g_list_next(node)
-              )
+         if (check->data == object)
          {
-            if ( object == (UtlContainable*)node->data )
-            {
-               foundNode = node;
-            }
-         }
-
-         if ( foundNode )
-         {
-            removed = (UtlContainable*)foundNode->data;;
-            notifyIteratorsOfRemove(foundNode);
-
-            // remove the element from the inner list
-            likeElements = g_list_delete_link(likeElements,foundNode);
-            mEntries--;
-
-            if (likeElements) // are there still some of this key in the bag?
-            {
-               // yes, so change the key to one that is still in the list.
-               g_hash_table_remove(mpHashTable,removed);
-
-               g_hash_table_insert(mpHashTable,g_list_first(likeElements)->data,likeElements);
-            }
-            else
-            {
-               // all like elements have been removed, so take this
-               // entry out of the hash table.
-               g_hash_table_remove(mpHashTable,removed);
-            }
+            link = check; // found it
          }
       }
-   }
 
+      if (link)
+      {
+         notifyIteratorsOfRemove(link);
+         
+         link->detachFromList(bucket);
+         removed = link->data;
+         link->release();
+
+         mElements--;
+      }
+   }
+   
    return removed;
 }
 
@@ -214,18 +276,48 @@ void UtlHashBag::removeAll()
 {
    OsLock take(mContainerLock);
 
-   g_hash_table_foreach_remove(mpHashTable, clearAndNotifyEachRemoved, this);
-   mEntries = 0;
+   size_t i;
+   size_t toBeRemoved;
+   for (i = 0, toBeRemoved = mElements;
+        i < numberOfBuckets() && toBeRemoved;
+        i++
+        ) // for each bucket
+   {
+      while(!mpBucket[i].isUnLinked()) // bucket is not empty yet
+      {
+         UtlLink* link = static_cast<UtlLink*>(mpBucket[i].head());
+         notifyIteratorsOfRemove(link);
+         link->detachFromList(&mpBucket[i]);
+         link->release();
+         toBeRemoved--;
+      }
+   }
+   mElements = 0;
 }
-
 
 
 void UtlHashBag::destroyAll()
 {
    OsLock take(mContainerLock);
 
-   g_hash_table_foreach_remove(mpHashTable, clearAndNotifyEachDeleted, this);
-   mEntries = 0;
+   size_t i;
+   size_t toBeDestroyed;
+   for (i = 0, toBeDestroyed = mElements;
+        i < numberOfBuckets() && toBeDestroyed;
+        i++
+        ) // for each bucket
+   {
+      while(!mpBucket[i].isUnLinked()) // bucket is not empty yet
+      {
+         UtlLink* link = static_cast<UtlLink*>(mpBucket[i].head());
+         notifyIteratorsOfRemove(link);
+         link->detachFromList(&mpBucket[i]);
+         delete link->data;
+         link->release();
+         toBeDestroyed--;
+      }
+   }
+   mElements = 0;
 }
 
 
@@ -238,13 +330,14 @@ UtlContainable* UtlHashBag::find(const UtlContainable* object) const
 
    OsLock take(const_cast<OsBSem&>(mContainerLock));
 
-   GList* likeItems = (GList*)g_hash_table_lookup(mpHashTable, object);
-
-   if ( likeItems )
+   UtlLink*  link;
+   UtlChain* bucket;
+   
+   if (lookup(object, bucket, link))
    {
-      foundObject = (UtlContainable*)(g_list_first(likeItems)->data);
+      foundObject = link->data;
    }
-
+   
    return foundObject;
 }
 
@@ -256,7 +349,7 @@ size_t UtlHashBag::entries() const
 {
    OsLock take(const_cast<OsBSem&>(mContainerLock));
 
-   return mEntries;
+   return mElements;
 }
 
 
@@ -264,15 +357,18 @@ UtlBoolean UtlHashBag::isEmpty() const
 {
    OsLock take(const_cast<OsBSem&>(mContainerLock));
 
-   return mEntries == 0;
+   return mElements == 0;
 }
 
 
 UtlBoolean UtlHashBag::contains(const UtlContainable* object)  const
 {
+   UtlLink*  link;
+   UtlChain* bucket;
+   
    OsLock take(const_cast<OsBSem&>(mContainerLock));
 
-   return g_hash_table_lookup(mpHashTable, object) != NULL;
+   return lookup(object, bucket, link);
 }
 
 
@@ -285,71 +381,73 @@ UtlContainableType UtlHashBag::getContainableType() const
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-guint UtlHashBag::utlObjectHash(gconstpointer v)
-{
-   UtlContainable* containable = (UtlContainable*)v;
-   return (guint)containable->hash();
-}
 
-gboolean UtlHashBag::utlObjectEqual(gconstpointer v,gconstpointer v2)
-{
-   UtlContainable* containable1 = (UtlContainable*) v;
-   UtlContainable* containable2 = (UtlContainable*) v2;
-
-   return containable1->compareTo(containable2) == 0;
-}
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-
-gboolean UtlHashBag::clearAndNotifyEachRemoved(gpointer key, gpointer value, gpointer user_data)
+void UtlHashBag::notifyIteratorsOfRemove(const UtlLink* link)
 {
-   UtlHashBag* I = (UtlHashBag*)user_data; // 'this' passed through C library
-
-   GList* listNode;
-
-   for ( listNode = g_list_first((GList*)value);
-         listNode;
-         listNode = g_list_first(listNode)
-        )
-   {
-      I->notifyIteratorsOfRemove(listNode);
-      listNode = g_list_delete_link( listNode, listNode );
-   }
-
-   return TRUE;
-}
-
-
-gboolean UtlHashBag::clearAndNotifyEachDeleted(gpointer key, gpointer value, gpointer user_data)
-{
-   UtlHashBag* I = (UtlHashBag*)user_data; // 'this' passed through C library
-   GList* listNode;
-
-   for ( listNode = g_list_first((GList*)value);
-         listNode;
-         listNode = g_list_first(listNode)
-        )
-   {
-      UtlContainable* object = (UtlContainable*)listNode->data;
-      I->notifyIteratorsOfRemove(listNode);
-      delete object;
-      listNode = g_list_delete_link( listNode, listNode );
-   }
-
-   return TRUE;
-}
-
-
-void UtlHashBag::notifyIteratorsOfRemove(const GList* key)
-{
-   GList* listNode;
+   UtlLink* listNode;
    UtlHashBagIterator* foundIterator;
-
-   for (listNode = g_list_first(mpIteratorList); listNode; listNode = g_list_next(listNode))
+   
+   for (listNode = mIteratorList.head(); listNode; listNode = listNode->next())
    {
       foundIterator = (UtlHashBagIterator*)listNode->data;
-      foundIterator->removing(key);
+      foundIterator->removing(link);
    }
 }
 
-/* ============================ FUNCTIONS ================================= */
+/*
+ * Search for a given key value and return the bucket and UtlLink for it.
+ * Return true if the key was found, and false if not.
+ */
+bool UtlHashBag::lookup(const UtlContainable* key, ///< The key to locate.
+                        UtlChain*&      bucket, /**< The bucket list header in which it belongs.
+                                                 *   This is set regardless of whether or not the
+                                                 *   key was found in the table. */
+                        UtlLink*&       link    /**< If the key was found, the UtlLink for entry.
+                                                 *   If the key was not found, this is NULL. */
+                        ) const
+{
+   UtlLink* check;
+   size_t   keyHash = key->hash();
+   
+   bucket = &mpBucket[bucketNumber(keyHash)];
+   for (link = NULL, check = static_cast<UtlLink*>(bucket->listHead());
+        (   !link                  // not found 
+         && check                  // not end of list
+         && check->hash <= keyHash // hash list is ordered, so if > then it's not in the list
+         );
+        check = static_cast<UtlLink*>(check->UtlChain::next)
+        )
+   {
+      if (check->hash == keyHash && check->data->isEqual(key))
+      {
+         link = check; // found it
+      }
+   }
+   return link != NULL;
+}
+
+size_t UtlHashBag::bucketNumber(unsigned hash) const
+{
+   /*
+    * We only use mBucketBits of the hash to index mpBucket, but we don't want to
+    * loose the information in the higher bits of the hash code.  So we 'fold' the 
+    * high order bits by XORing them mBucketBits at a time into the bits we'll
+    * use until there are no non-zero high order bits left.
+    */
+   size_t foldedHash;
+   size_t highBits;
+
+   size_t lowBitsMask = numberOfBuckets() - 1;
+   for ( (foldedHash = hash & lowBitsMask, // get the low bits we want into the folded value
+          highBits   = hash                // don't bother masking off the low bits
+          );
+         highBits = highBits >> mBucketBits;  // shift out bits already used until zero 
+         foldedHash ^= highBits & lowBitsMask // incorporate non-zero
+        )
+   {
+   }
+   return foldedHash;
+}
+

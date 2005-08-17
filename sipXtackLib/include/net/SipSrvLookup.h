@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipSrvLookup_h_
 #define _SipSrvLookup_h_
@@ -36,104 +34,189 @@
 // STRUCTS
 
 // TYPEDEFS
-typedef struct server_t {
-  char *host;              /* host name */
-  enum OsSocket::SocketProtocolTypes type; /* SOCK_DGRAM or SOCK_STREAM */
-  struct sockaddr_in sin;  /* IP address and port */
-  int preference;          /* MX and SRV preference value (lower is better) */
-  int weight;              /* load balancing weight (higher is better) */
-} server_t;
 
 // FORWARD DECLARATIONS
+class server_t;
 
-//:Return list of server entries for 'domain', with last entry having a
-//:host value of NULL.
-// The service is a protocol such as 'sip' or 'rtsp'.  The 'port' argument
-// is used when the DNS entry doesn't contain one.  A negative number
-// indicates the default port.  (This is indicated explicitly since SRV
-// records are skipped unless the default port is used.) The 'type'
-// restricts whether UDP or TCP addresses are sought.  If 0 both are used.
+/**
+ * A class (with no members) whose 'servers' method implements the RFC
+ * 3263 process for determining a list of server entries for a SIP
+ * domain name.
+ */
 class SipSrvLookup
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   /// Get the list of server entries for SIP domain name 'domain'.
    static server_t* servers(const char *domain,
+                            ///< SIP domain name or host name
                             const char *service,
-                            enum OsSocket::SocketProtocolTypes socketType,
-                            int port);
+                            ///< "sip" or "sips"
+                            OsSocket::SocketProtocolTypes socketType,
+                            ///< types of transport
+                            int port
+                            ///< port number from URI, or PORT_NONE
+      );
+   /**<
+    * Returns the list of server entries for SIP domain name 'domain'.
+    * Implements the processes of RFC 2543.
+    * The search process is modified by the parameters:
+    *
+    * The 'service' is the URI scheme, "sip" or "sips".
+    *
+    * The 'port' argument is the port number supplied in the URI, or a
+    * negative number if none was supplied.
+    * If none was supplied, SRV records are consulted.  If no SRV records
+    * are found, port defaults to 5060 for "sip" service and 5061 for
+    * "sips" service.
+    *
+    * The 'socketType' restricts the search to that sort of transport,
+    * and may have the values (within enum SocketProtocolTypes):
+    *    TCP
+    *    UDP
+    *    SSL_SOCKET
+    *    UNKNOWN (all of the above are acceptable)
+    * It is used if the URI or other context information specifies a transport.
+    * If UNKNOWN is specified, servers() attempts to return addresses for
+    * all transports that it knows about that are compatible with the service.
+    * (If socketType is incompatible with service, no addresses will
+    * be returned.)
+    *
+    * @returns Allocates an array of server_t objects and returns
+    * the pointer to it.  Caller is responsible for delete[]'ing the array.
+    * The servers are listed in the array in preference order, with a final
+    * entry with a host value of NULL.
+    */
 
-   //! Inquire if this is a valid SRV record
-   static UtlBoolean isValidServerT(server_t& srvRecord);
+   /// Option codes for server lookup.
+   enum OptionCode {
+      OptionCodeNone = 0,       ///< Special value
+      OptionCodeFirst,          ///< Start of range
+      OptionCodeIgnoreSRV,      ///< If 1, do not search for SRV records.
+      OptionCodeIgnoreNAPTR,    ///< If 1, do not search for NAPTR records.
+      OptionCodeSortAnswers,    /**< If 1, sort DNS answers before using them.
+                                 *   (For testing only.) */
+      OptionCodePrintAnswers,   /**< If 1, print DNS answers.
+                                 *   (For testing only.) */
+      OptionCodeCNAMELimit,     ///< Max. number of CNAMEs to follow.
+      OptionCodeNoDefaultTCP,   /**< If 1, do not add TCP contacts by default,
+                                 *   for better RFC 3263 conformance. */
+      OptionCodeLast,           ///< End of range
+   };
+   /**<
+    * All options have a code name in this enumeration.  All codes are in the
+    * range OptionCodeFirst:OptionCodeLast.  OptionCodeNone is not in that
+    * range and may be used as a special value.
+    *
+    * Option values are signed integers.
+    *
+    * Getting and setting all option codes in that range is guaranteed to
+    * restore the server lookup algorithm to the preceeding codition.
+    *
+    * The way enum values are assigned is somewhat sloppy (it allows some
+    * code values that are not used to be in the valid range), but it makes
+    * editing the enum correctly quite easy.  Do not reorder the list without
+    * checking the initializer in SipSrvLookup.cpp; some options have non-zero
+    * initial values.
+    */
 
-   //! Accessor for host name
-   static void getHostNameFromServerT(server_t& srvRecord,
-                                      UtlString& hostName);
+   /// Get an option value.
+   static inline int getOption(OptionCode option)
+      {
+         return options[option];
+      }
 
-   //! Accessor for host IP address
-   static void getIpAddressFromServerT(server_t& srvRecord,
-                                      UtlString& hostName);
+   /// Set an option value.
+   static void setOption(OptionCode option, int value);
+   /**
+    * setOption can be called at any time from any thread without
+    * causing harm to any requests that may be being processed.
+    * It may, however, block until all current requests are processed
+    * before returning to the caller, and current requests may be processed
+    * partly under the old configuration and partly under the new
+    * configuration.
+    */
 
-   //! Accessor for port
-   static int getPortFromServerT(server_t& srvRecord);
-
-   static int getWeightFromServerT(server_t& srvRecord);
-
-   //! Accessor for preference
-   static int getPreferenceFromServerT(server_t& srvRecord);
-
-   //! Accessor for protocol
-   static enum OsSocket::SocketProtocolTypes getProtocolFromServerT(server_t& srvRecord);
-
-   //! Initializer for server_t
-   static void initServerT(server_t& srvRecord);
-
-   // destructor for server_t
-   static void freeServerT(server_t* srvRecordArray);
-
-   //! Sets the DNS SRV times.  Defaults: timeout=5, retries=4
-   static void setDnsSrvTimeouts(int initialTimeoutInSecs, int retries);
+   /// Sets the timing parameters for DNS SRV queries.
+   static void setDnsSrvTimeouts(int initialTimeoutInSecs,
+                                 /**< Timeout in seconds for first query,
+                                  *   or 0 for no change. */
+                                 int retries
+                                 /**< Number of retries to attempt,
+                                  *   or 0 for no change. */
+      );
+   ///< Defaults are: timeout = 5, retries = 4.
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   /// Mutex to keep the routines thread-safe.
+   static OsMutex sMutex;
+
+   /// The array of option values.
+   static int options[OptionCodeLast+1];
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   static OsMutex sLock;
-
-   static server_t* server_insert(server_t *server,
-                                  const char *host,
-                                  enum OsSocket::SocketProtocolTypes type,
-                                  struct sockaddr_in sin,
-                                  int preference,
-                                  int weight,
-                                  int *entries);
-
-   static int server_sort(const server_t *s1, const server_t *s2);
-
-   static server_t* server_addr(server_t *server,
-                                const char *domain,
-                                const char *service,
-                                enum OsSocket::SocketProtocolTypes type,
-                                int port,
-                                int preference,
-                                int weight,
-                                int *entries,
-                                int depth,
-                                UtlBoolean doCnameQuery);
-
-   static server_t* server_hosts(const char *domain,
-                                 const char *service,
-                                 enum OsSocket::SocketProtocolTypes type,
-                                 int port,
-                                 int *entries);
-
-   static UtlBoolean lookup_addr_in_addl_info(struct sockaddr_in *sin,
-                                       void *response, char *name,
-                                       int port);
-
 };
 
-/* ============================ INLINE METHODS ============================ */
+
+/**
+ * Structure to describe a server found for a SIP domain.
+ */
+class server_t {
+  public:
+   
+   //! Sets the mDnsSrvResolveEnabled flag
+   static void setDnsSrvResolveEnabled(UtlBoolean& enabled);   
+
+   char *host;                  ///< Host name. (Owned by this object.)
+   OsSocket::SocketProtocolTypes type;
+                                ///< OsSocket:{TCP,UDP,SSL_SOCKET}
+   struct sockaddr_in sin;      ///< IP address and port
+   unsigned int priority;       ///< SRV priority value
+   unsigned int weight;         ///< SRV weight
+   float score;                 ///< Calculated sorting score
+
+   /// Initializer for server_t
+   server_t();
+   static UtlBoolean mDnsSrvResolveEnabled;
+   
+
+   /// Copy constructor for server_t
+   server_t(const server_t& rserver_t);
+
+   /// Copy assignment constructor for server_t
+   server_t& operator=(const server_t& rhs);
+
+   /// Destructor for server_t
+   ~server_t();
+
+   /// Inquire if this is a valid SRV record
+   UtlBoolean isValidServerT();
+   ///< Tests whether the host name element is non-NULL.
+
+   /// Accessor for host name
+   void getHostNameFromServerT(UtlString& hostName);
+
+   /// Accessor for host IP address
+   void getIpAddressFromServerT(UtlString& hostName);
+
+   /// Accessor for port
+   int getPortFromServerT();
+
+   /// Accessor for weight
+   unsigned int getWeightFromServerT();
+
+   /// Accessor for score
+   float getScoreFromServerT();
+
+   /// Accessor for priority
+   unsigned int getPriorityFromServerT();
+
+   /// Accessor for protocol
+   OsSocket::SocketProtocolTypes getProtocolFromServerT();
+};
 
 #endif  // _SipSrvLookup_h_

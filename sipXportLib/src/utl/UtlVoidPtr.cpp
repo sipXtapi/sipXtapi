@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <string.h>
 
@@ -77,7 +75,7 @@ int UtlVoidPtr::compareTo(UtlContainable const * inVal) const
    
    if (inVal->isInstanceOf(UtlVoidPtr::TYPE))
    {
-      result = (((UtlVoidPtr*)inVal)->mpValue == mpValue) ? 0 : 1;
+      result = ((unsigned) mpValue) - ((unsigned) ((UtlVoidPtr*) inVal)->mpValue);
    }
    else
    {

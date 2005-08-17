@@ -1,13 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -433,7 +429,7 @@ OsStatus OsTaskLinux::id(int& rId)
    
    //if started, return the taskId, otherwise return -1
    if (isStarted())
-      rId = (pthread_t)mTaskId;
+      rId = (int)mTaskId;
    else
    {
       retVal = OS_TASK_NOT_STARTED;
@@ -525,7 +521,7 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
 void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
 {
    OsStatus res;
-   int savedTaskId;
+   pthread_t savedTaskId;
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "OsTaskLinux::doLinuxTerminateTask, deleting task thread: %x,"
@@ -685,14 +681,13 @@ void * OsTaskLinux::taskEntry(void* arg)
 void OsTaskLinux::taskUnregister(void)
 {
    OsStatus res;
+   char     idString[15];
    
    if ( 0 != (int)mTaskId )
    {
-      char     idString[15];
       // Remove the key from the internal task list, before terminating it
       sprintf(idString, "%d", (int)mTaskId);    // convert the id to a string
       res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
-      mTaskId = 0;
    }
    else
    {
@@ -702,14 +697,13 @@ void OsTaskLinux::taskUnregister(void)
    if (res != OS_SUCCESS)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux::doLinuxTerminateTask, failed to delete"
-               " key value: %s 0x%08x, returns 0x%08x",
-               "taskName(mTaskId)", (int)mTaskId, res);
+                    " mTaskId = 0x%08x, key '%s', returns %d",
+                    (int) mTaskId, idString, res);
    }
+   mTaskId = 0;
 
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
 
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-

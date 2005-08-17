@@ -1,20 +1,18 @@
-// $Id$
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
 #include "cp/CpMediaInterfaceFactory.h"
-#include "cp/CpMediaInterfaceFactoryInterface.h"
+#include "cp/CpMediaInterfaceFactoryImpl.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -27,7 +25,7 @@
 
 // Constructor
 CpMediaInterfaceFactory::CpMediaInterfaceFactory()
-    : mpFactoryInterface(NULL)
+    : mpFactoryImpl(NULL)
 {
 }
 
@@ -40,28 +38,26 @@ CpMediaInterfaceFactory::~CpMediaInterfaceFactory()
 /* ============================ MANIPULATORS ============================== */
 
 // Set the actual factory implementation
-void CpMediaInterfaceFactory::setFactoryImplementation(CpMediaInterfaceFactoryInterface* pFactoryInterface) 
+void CpMediaInterfaceFactory::setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryImpl) 
 {
     // Only bother if the pointers are different
-    if (pFactoryInterface != mpFactoryInterface)
+    if (pFactoryImpl != mpFactoryImpl)
     {
         // Delete old version
-        if (mpFactoryInterface)
+        if (mpFactoryImpl)
         {
-            delete mpFactoryInterface ;
-            mpFactoryInterface = NULL ;
+            mpFactoryImpl->release() ;
+            mpFactoryImpl = NULL ;
         }
 
         // Set new version
-        mpFactoryInterface = pFactoryInterface ;
+        mpFactoryImpl = pFactoryImpl;
     }
 }
 
 
 // Create a media interface via the specified factory
-CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(int startRtpPort, 
-                                                                int lastRtpPort,
-                                                                const char* publicAddress,
+CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publicAddress,
                                                                 const char* localAddress,
                                                                 int numCodecs,
                                                                 SdpCodec* sdpCodecArray[],
@@ -72,12 +68,11 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(int startRtpPort
 {
     CpMediaInterface* pInterface = NULL ;
 
-    if (mpFactoryInterface) 
+    if (mpFactoryImpl) 
     {
-        pInterface = mpFactoryInterface->createMediaInterface(startRtpPort, 
-                lastRtpPort, publicAddress, localAddress, numCodecs, 
-                sdpCodecArray, locale, expeditedIpTos, szStunServer, 
-                iStunKeepAlivePeriodSecs) ;
+        pInterface = mpFactoryImpl->createMediaInterface(publicAddress, 
+                localAddress, numCodecs, sdpCodecArray, locale, 
+                expeditedIpTos, szStunServer, iStunKeepAlivePeriodSecs) ;
     }
 
     return pInterface ;
@@ -85,10 +80,10 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(int startRtpPort
 
 /* ============================ ACCESSORS ================================= */
 
-CpMediaInterfaceFactoryInterface* 
+CpMediaInterfaceFactoryImpl* 
 CpMediaInterfaceFactory::getFactoryImplementation()
 {
-    return mpFactoryInterface ;
+    return mpFactoryImpl ;
 }
 
 /* ============================ INQUIRY =================================== */

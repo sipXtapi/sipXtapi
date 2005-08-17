@@ -83,7 +83,7 @@
       <value>800, 877, 888</value>
     </property>
     <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.TOLL_FREE_DIALING"
+      <bean id="org.sipfoundry.sipxconfig.common.Permission.TOLL_FREE_DIALING"
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
     </property>
   </bean>
@@ -99,7 +99,7 @@
       <value>900</value>
     </property>
     <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.admin.dialplan.config.Permission.RESTRICTED_DIALING"
+      <bean id="org.sipfoundry.sipxconfig.common.Permission.RESTRICTED_DIALING"
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
     </property>
   </bean>

@@ -1,13 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -27,13 +23,15 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetVia);
       CPPUNIT_TEST(testGetAddrVia);
       CPPUNIT_TEST(testGetNoBranchVia);
+      CPPUNIT_TEST(testGetViaPort);
       CPPUNIT_TEST(testGetEventField);
+      CPPUNIT_TEST(testGetToAddress);
+      CPPUNIT_TEST(testGetFromAddress);
+      CPPUNIT_TEST(testGetResponseSendAddress);
+      CPPUNIT_TEST(testParseAddressFromUriPort);
       CPPUNIT_TEST(testProbPort);
-   // :TODO: After the sipxtapi merge, which is supposed to clean up a lot
-   // of how SipUserAgent is shut down, reactivate this test.
-#if 0
+      CPPUNIT_TEST(testMultipartBody);
       CPPUNIT_TEST(testCodecError);
-#endif
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -158,6 +156,181 @@ class SipMessageTest : public CppUnit::TestCase
 
       };
 
+   void testGetViaPort()
+      {
+         struct test {
+	   const char* string;	// Input string.
+	   int port;		// Expected returned viaPort.
+	   int rportSet;	// Expected returned receivedPortSet.
+	   int rport;		// Expected returned receivedPort.
+         };
+            
+	 struct test tests[] = {
+	   { "sip:foo@bar", PORT_NONE, 0, PORT_NONE },
+	   { "sip:foo@bar:5060", 5060, 0, PORT_NONE },
+	   { "sip:foo@bar:1", 1, 0, PORT_NONE },
+	   { "sip:foo@bar:100", 100, 0, PORT_NONE },
+	   { "sip:foo@bar:65535", 65535, 0, PORT_NONE },
+	   { "sip:foo@bar;rport=1", PORT_NONE, 1, 1 },
+	   { "sip:foo@bar:5060;rport=1", 5060, 1, 1 },
+	   { "sip:foo@bar:1;rport=1", 1, 1, 1 },
+	   { "sip:foo@bar:100;rport=1", 100, 1, 1 },
+	   { "sip:foo@bar:65535;rport=1", 65535, 1, 1 },
+	   { "sip:foo@bar;rport=100", PORT_NONE, 1, 100 },
+	   { "sip:foo@bar:5060;rport=100", 5060, 1, 100 },
+	   { "sip:foo@bar:1;rport=100", 1, 1, 100 },
+	   { "sip:foo@bar:100;rport=100", 100, 1, 100 },
+	   { "sip:foo@bar:65535;rport=100", 65535, 1, 100 },
+	   { "sip:foo@bar;rport=5060", PORT_NONE, 1, 5060 },
+	   { "sip:foo@bar:5060;rport=5060", 5060, 1, 5060 },
+	   { "sip:foo@bar:1;rport=5060", 1, 1, 5060 },
+	   { "sip:foo@bar:100;rport=5060", 100, 1, 5060 },
+	   { "sip:foo@bar:65535;rport=5060", 65535, 1, 5060 },
+	   { "sip:foo@bar;rport=65535", PORT_NONE, 1, 65535 },
+	   { "sip:foo@bar:5060;rport=65535", 5060, 1, 65535 },
+	   { "sip:foo@bar:1;rport=65535", 1, 1, 65535 },
+	   { "sip:foo@bar:100;rport=65535", 100, 1, 65535 },
+	   { "sip:foo@bar:65535;rport=65535", 65535, 1, 65535 },
+         };
+
+         // Buffer to compose message.
+         char message[1000];
+
+         // Message templates into which to insert addresses.
+         // Template has at least 2 Via's, to make sure the function is looking
+         // at the right Via.
+         const char* message_template =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP %s;branch=z9hG4bK-foobarbazquux\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         UtlString viaAddress;
+         int viaPort;
+         UtlString protocol;
+         int receivedPort;
+         UtlBoolean receivedSet;
+         UtlBoolean maddrSet;
+         UtlBoolean receivedPortSet;
+
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]);
+              i++)
+         {
+            // Compose the message.
+            sprintf(message, message_template, tests[i].string);
+            SipMessage sipMessage(message, strlen(message));
+
+            sipMessage.getLastVia(&viaAddress,
+                                  &viaPort,
+                                  &protocol,
+                                  &receivedPort,
+                                  &receivedSet,
+                                  &maddrSet,
+                                  &receivedPortSet);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].port,
+					 viaPort);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].rportSet,
+                                         receivedPortSet);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].rport,
+                                         receivedPort);
+         }
+      }
+
+   void testMultipartBody()
+      {
+         const char* MultipartBodyMessage =
+            "INVITE sip:65681@testserver.com SIP/2.0\r\n"
+            "Record-Route: <sip:172.20.26.36:5080;lr;a;t=15039611-4B5;s=5fc190d408cc09d245d115792f6d61e1>\r\n"
+            "Via: SIP/2.0/UDP 172.20.26.36:5080;branch=z9hG4bK-826b994f3fa1136ea6da35868d05fcbb\r\n"
+            "Via: SIP/2.0/TCP 172.20.26.36;branch=z9hG4bK-a45e8e1a92501d6d29854307651741b3\r\n"
+            "Via: SIP/2.0/UDP  10.21.128.204:5060;branch=z9hG4bK9E8\r\n"
+            "From: <sip:10.21.128.204>;tag=15039611-4B5\r\n"
+            "To: <sip:65681@testserver.com>\r\n"
+            "Date: Mon, 18 Jul 2005 18:05:17 GMT\r\n"
+            "Call-Id: 55147C1E-F6ED11D9-80E3EC05-47D61469@10.21.128.204\r\n"
+            "Supported: 100rel,timer\r\n"
+            "Min-Se: 1800\r\n"
+            "Cisco-Guid: 1427005942-4142731737-2150891535-615471488\r\n"
+            "User-Agent: Cisco-SIPGateway/IOS-12.x\r\n"
+            "Allow: INVITE, OPTIONS, BYE, CANCEL, ACK, PRACK, COMET, REFER, SUBSCRIBE, NOTIFY, INFO, UPDATE, REGISTER\r\n"
+            "Cseq: 101 INVITE\r\n"
+            "Max-Forwards: 9\r\n"
+            "Timestamp: 1121709917\r\n"
+            "Contact: <sip:10.21.128.204:5060>\r\n"
+            "Expires: 180\r\n"
+            "Allow-Events: telephone-event\r\n"
+            "Mime-Version: 1.0\r\n"
+            "Content-Type: multipart/mixed;boundary=uniqueBoundary\r\n"
+            "Content-Length: 561\r\n"
+            "\r\n"
+            "--uniqueBoundary\r\n"
+            "Content-Type: application/sdp\r\n"
+            "\r\n"
+            "v=0\r\n"
+            "o=CiscoSystemsSIP-GW-UserAgent 9773 1231 IN IP4 10.21.128.204\r\n"
+            "s=SIP Call\r\n"
+            "c=IN IP4 10.21.128.204\r\n"
+            "t=0 0\r\n"
+            "m=audio 16634 RTP/AVP 0 98\r\n"
+            "c=IN IP4 10.21.128.204\r\n"
+            "a=rtpmap:0 PCMU/8000\r\n"
+            "a=rtpmap:98 telephone-event/8000\r\n"
+            "a=fmtp:98 0-16\r\n"
+            "a=ptime:20\r\n"
+            "--uniqueBoundary\r\n"
+            "Content-Type: application/gtd\r\n"
+            "Content-Disposition: signal;handling=optional\r\n"
+            "\r\n"
+            "IAM,\r\n"
+            "PRN,isdn*,,NT100,\r\n"
+            "USI,rate,c,s,c,1\r\n"
+            "USI,lay1,ulaw\r\n"
+            "TMR,00\r\n"
+            "CPN,04,,1,65681\r\n"
+            "CPC,09\r\n"
+            "FCI,,,,,,,y,\r\n"
+            "GCI,550e61f6f6ed11d98034000f24af5980\r\n"
+            "\r\n"
+            "--uniqueBoundary--\r\n"
+            ;
+
+         const char* correctBody =
+            "v=0\r\n"
+            "o=CiscoSystemsSIP-GW-UserAgent 9773 1231 IN IP4 10.21.128.204\r\n"
+            "s=SIP Call\r\n"
+            "c=IN IP4 10.21.128.204\r\n"
+            "t=0 0\r\n"
+            "m=audio 16634 RTP/AVP 0 98\r\n"
+            "c=IN IP4 10.21.128.204\r\n"
+            "a=rtpmap:0 PCMU/8000\r\n"
+            "a=rtpmap:98 telephone-event/8000\r\n"
+            "a=fmtp:98 0-16\r\n"
+            "a=ptime:20"
+            ;
+         
+         SipMessage testMsg( MultipartBodyMessage, strlen( MultipartBodyMessage ) );
+
+         const SdpBody* sdpBody = testMsg.getSdpBody();
+         CPPUNIT_ASSERT(sdpBody);
+         
+         UtlString theBody;
+         int theLength;
+         
+         sdpBody->getBytes(&theBody, &theLength);
+         
+         ASSERT_STR_EQUAL(correctBody,theBody.data());
+      };
+
    void testGetEventField()
       {
          UtlString fullEventField;
@@ -273,7 +446,220 @@ class SipMessageTest : public CppUnit::TestCase
          UtlString paramName2("p2");
          CPPUNIT_ASSERT(NULL != (paramValue = dynamic_cast<UtlString*>(params.findValue(&paramName2))));
          ASSERT_STR_EQUAL("two",paramValue->data());
-      };
+      }
+
+   void testGetToAddress()
+      {
+         struct test {
+	   const char* string;	// Input string.
+	   int port;		// Expected returned to-address port.
+         };
+            
+	 struct test tests[] = {
+	   { "sip:foo@bar", PORT_NONE },
+	   { "sip:foo@bar:5060", 5060 },
+	   { "sip:foo@bar:1", 1 },
+	   { "sip:foo@bar:100", 100 },
+	   { "sip:foo@bar:65535", 65535 },
+         };
+
+         UtlString address;
+         int port;
+         UtlString protocol;
+         UtlString user;
+         UtlString userLabel;
+         UtlString tag;
+         // Buffer to compose message.
+         char message[1000];
+         // Message template into which to insert the To address.
+         const char* message_template =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "To: %s\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]);
+              i++)
+         {
+            // Compose the message.
+            sprintf(message, message_template, tests[i].string);
+            SipMessage sipMessage(message, strlen(message));
+
+            sipMessage.getToAddress(&address, &port, &protocol, &user,
+                                    &userLabel, &tag);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].port, port);
+         }
+      }
+
+   void testGetFromAddress()
+      {
+         struct test {
+	   const char* string;	// Input string.
+	   int port;		// Expected returned from-address port.
+         };
+            
+	 struct test tests[] = {
+	   { "sip:foo@bar", PORT_NONE },
+	   { "sip:foo@bar:5060", 5060 },
+	   { "sip:foo@bar:1", 1 },
+	   { "sip:foo@bar:100", 100 },
+	   { "sip:foo@bar:65535", 65535 },
+         };
+
+         UtlString address;
+         int port;
+         UtlString protocol;
+         UtlString user;
+         UtlString userLabel;
+         UtlString tag;
+         // Buffer to compose message.
+         char message[1000];
+         // Message template into which to insert the From address.
+         const char* message_template =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "To: Sip Send <sip:sipsend@pingtel.org>\r\n"
+            "From: %s; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]);
+              i++)
+         {
+            // Compose the message.
+            sprintf(message, message_template, tests[i].string);
+            SipMessage sipMessage(message, strlen(message));
+
+            sipMessage.getFromAddress(&address, &port, &protocol, &user,
+                                    &userLabel, &tag);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].port, port);
+         }
+      }
+
+   void testGetResponseSendAddress()
+      {
+         // Message templates into which to insert the address.
+
+         // Template has 2 Via's, to make sure the function is looking
+         // at the right Via.
+         const char* message_template2 =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP %s;branch=z9hG4bK-foobarbazquux\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "\r\n";
+
+         // Template has 1 Via.
+         const char* message_template1 =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP %s;branch=z9hG4bK-foobarbazquux\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "\r\n";
+
+         // Template has 0 Via's.
+         // The From address is used.
+         const char* message_template0 =
+            "REGISTER sip:sipsend@pingtel.org SIP/2.0\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: %s; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "\r\n";
+
+         struct test {
+            const char* message_template;
+            const char* address;
+            int port;
+         };
+            
+         struct test tests[] = {
+            { message_template0, "sip:foo@bar", PORT_NONE },
+            { message_template0, "sip:foo@bar:0", 0 },
+            { message_template0, "sip:foo@bar:100", 100 },
+            { message_template0, "sip:foo@bar:5060", 5060 },
+            { message_template0, "sip:foo@bar:65535", 65535 },
+            { message_template1, "sip:foo@bar", PORT_NONE },
+            { message_template1, "sip:foo@bar:0", 0 },
+            { message_template1, "sip:foo@bar:100", 100 },
+            { message_template1, "sip:foo@bar:5060", 5060 },
+            { message_template1, "sip:foo@bar:65535", 65535 },
+            { message_template2, "sip:foo@bar", PORT_NONE },
+            { message_template2, "sip:foo@bar:0", 0 },
+            { message_template2, "sip:foo@bar:100", 100 },
+            { message_template2, "sip:foo@bar:5060", 5060 },
+            { message_template2, "sip:foo@bar:65535", 65535 },
+         };
+
+         // Buffer to compose message.
+         char message[1000];
+
+         UtlString address;
+         int port;
+         UtlString protocol;
+
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]);
+              i++)
+         {
+            // Compose the message.
+            sprintf(message, tests[i].message_template, tests[i].address);
+            SipMessage sipMessage(message, strlen(message));
+
+            sipMessage.getResponseSendAddress(address,
+                                              port,
+                                              protocol);
+            char number[10];
+            sprintf(number, "Test %d", i);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(number, tests[i].port, port);
+         }
+      }
+
+   void testParseAddressFromUriPort()
+      {
+         struct test {
+	   const char* string;	// Input string.
+	   int port;		// Expected returned port.
+         };
+            
+	 struct test tests[] = {
+	   { "sip:foo@bar", PORT_NONE },
+	   { "sip:foo@bar:5060", 5060 },
+	   { "sip:foo@bar:1", 1 },
+	   { "sip:foo@bar:100", 100 },
+	   { "sip:foo@bar:65535", 65535 },
+         };
+
+         UtlString address;
+         int port;
+         UtlString protocol;
+         UtlString user;
+         UtlString userLabel;
+         UtlString tag;
+
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]);
+              i++)
+         {
+            SipMessage::parseAddressFromUri(tests[i].string,
+                                            &address, &port, &protocol, &user,
+                                            &userLabel, &tag);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].port, port);
+         }
+      }
 
    void testProbPort()
       {
@@ -294,7 +680,7 @@ class SipMessageTest : public CppUnit::TestCase
                                          &userLabel,
                                          &tag);
          
-         CPPUNIT_ASSERT_EQUAL(0, port);
+         CPPUNIT_ASSERT_EQUAL(PORT_NONE, port);
 
          ASSERT_STR_EQUAL("username", user);
          ASSERT_STR_EQUAL("\"Display@Name\"", userLabel);
@@ -388,13 +774,7 @@ class SipMessageTest : public CppUnit::TestCase
          }
          // Check the agent value.
          ASSERT_STR_EQUAL(agent_expected, agent);
-
-         // Print the warning data.
-         printf("Warning code: %d\n", code);
-         printf("Warning agent: '%s'\n", agent);
-         printf("Warning text: '%s'\n", text);
       }
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

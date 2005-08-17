@@ -68,7 +68,7 @@ public class PhoneTestHelper {
         for (int i = 0; i < line.length; i++) {
             line[0] = new LineData();
             User testUser = new User();
-            testUser.setDisplayId(SiteTestHelper.TEST_USER);
+            testUser.setUserName(SiteTestHelper.TEST_USER);
             line[0].setUser(testUser);
             line[0].setPhoneData(endpoint[0]);
             m_tester.clickLink("AddUser");        

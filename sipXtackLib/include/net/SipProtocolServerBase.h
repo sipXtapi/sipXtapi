@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipProtocolServerBase_h_
 #define _SipProtocolServerBase_h_
@@ -22,6 +20,7 @@
 #include <os/OsServerTask.h>
 #include <os/OsLockingList.h>
 #include <os/OsRWMutex.h>
+#include <utl/UtlHashMap.h>
 
 // DEFINES
 // MACROS
@@ -53,32 +52,35 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-        virtual UtlBoolean startListener() = 0;
 
-        virtual void shutdownListener() = 0;
+    virtual UtlBoolean startListener();
+
+    virtual void shutdownListener() = 0;
 
 
-        UtlBoolean send(SipMessage* message, const char* hostAddress,
-                int hostPort = SIP_PORT);
+    UtlBoolean send(SipMessage* message, const char* hostAddress,
+            int hostPort = SIP_PORT);
 
-        virtual int run(void* pArg) = 0;
+    virtual int run(void* pArg) = 0;
 
     void removeOldClients(long oldTime);
 
 /* ============================ ACCESSORS ================================= */
 
-        int getClientCount();
+    int getClientCount();
 
     virtual void printStatus();
 
+    virtual int isOk();
+
 /* ============================ INQUIRY =================================== */
-    virtual UtlBoolean isOk() = 0;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-        SipClient* createClient(const char* hostAddress,
-                                                        int hostPort);
+    SipClient* createClient(const char* hostAddress,
+                            int hostPort,
+                            const char* localIp);
 
     void releaseClient(SipClient* client);
 
@@ -90,11 +92,16 @@ protected:
 
     void addClient(SipClient* client);
 
-    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress) = 0;
+    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp) = 0;
 
     UtlString mProtocolString;
+    UtlString mDefaultIp;
     int mDefaultPort;
     SipUserAgent* mSipUserAgent;
+    UtlHashMap mServerSocketMap;
+    UtlHashMap mServerPortMap;
+    UtlHashMap mServers;
+    
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -102,8 +109,9 @@ private:
 
     UtlBoolean waitForClientToWrite(SipClient* client);
 
-        SipClient* getClient(const char* hostAddress,
-                                                  int hostPort);
+    SipClient* getClient(const char* hostAddress,
+                         int hostPort,
+                         const char* localIp);
 
     void deleteClient(SipClient* client);
 

@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -82,7 +80,6 @@ PsHookswTask::~PsHookswTask()
 {
    delete mpHookswDev;
    delete mpTimer;
-   delete mpTimerEvent;
 
    spInstance = NULL;
 }
@@ -135,8 +132,8 @@ PsHookswTask::PsHookswTask()
    mpHookswDev->enableIntr(TRUE);  // start by looking for offhook
 
    // create the timer that will be used to "debounce" the hookswitch
-   mpTimerEvent = new OsQueuedEvent(mIncomingQ, 0);
-   mpTimer      = new OsTimer(*mpTimerEvent);
+   mpTimer      = new OsTimer(&mIncomingQ, 0);
+   mpTimerEvent = (OsQueuedEvent*) mpTimer->getNotifier();
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -20,6 +18,7 @@
 // APPLICATION INCLUDES
 #include "os/OsTimer.h"
 #include "os/OsTimerTask.h"
+#include "os/OsQueuedEvent.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -32,16 +31,29 @@ const UtlContainableType OsTimer::TYPE = "OsTimer" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-// Timer expiration event notification happens using the OsNotification
-// object. The address of "this" OsTimer object is the eventData that is
+// Timer expiration event notification happens using the 
+// newly created OsQueuedEvent object
+// The address of "this" OsTimer object is the eventData that is
 // conveyed to the Listener when the notification is signaled.
-OsTimer::OsTimer(OsNotification& rNotifier)
-:  mpNotifier(&rNotifier),
+OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
+   mpNotifier(new OsQueuedEvent(*pQueue, userData)) ,
    mState(CREATED),
    mTimerId(0),
-   mType(UNSPECIFIED)
+   mType(UNSPECIFIED),
+   mbManagedNotifier(true),
+   mUserData(userData)   
 {
-   // no further work required, it's all done by the initializers
+}
+
+OsTimer::OsTimer(OsNotification& rNotifier) :
+   mpNotifier(&rNotifier) ,
+   mState(CREATED),
+   mTimerId(0),
+   mType(UNSPECIFIED),
+   mbManagedNotifier(false),
+   mUserData(0)
+{
+    // deprecated.  Please use the other constructor.
 }
 
 // Destructor
@@ -61,6 +73,12 @@ OsTimer::~OsTimer()
    default:
       assert(FALSE);
    }
+   
+   if (mbManagedNotifier)
+   {
+      delete mpNotifier;
+   }
+   mpNotifier = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -167,7 +185,7 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
 
    if (inVal->isInstanceOf(OsTimer::TYPE))
    {
-      result = (((OsTimer*)inVal) == this) ? 0 : 1;
+      result = ((unsigned) this) - ((unsigned) inVal);
    }
    else
    {
@@ -262,5 +280,3 @@ void OsTimer::setTimerType(int timerType)
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-

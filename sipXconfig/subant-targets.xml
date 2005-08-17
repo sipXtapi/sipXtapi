@@ -20,7 +20,7 @@
     -->
   <dirname property="subant-targets.basedir" file="${ant.file.subant-targets}"/>
   <property file="${subant-targets.basedir}/top.build.dir"/>
-  <property file="${top.build.dir}/config.properties"/>
+  <property file="${top.build.dir}/build.properties"/>
 
   <!--
     -  D E F A U L T
@@ -30,6 +30,8 @@
     <my.subant/>
   </target>
 
+  <!-- PRE CHECK -->
+  <target name="precommit" depends="clean,default,test-all,style,install"/>
 
   <!-- C L E A N -->
   <target name="clean" 

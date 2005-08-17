@@ -248,7 +248,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                     //UtlString domain;
                     //originalUri.getHostAddress(domain);
                     //int port = originalUri.getHostPort();
-                    //if(port <= 0) port = SIP_PORT;
+                    //if(!portIsValid(port)) port = SIP_PORT;
                     //char portBuf[64];
                     //sprintf(portBuf, "%d", port);
                     //domain.append(':');

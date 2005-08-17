@@ -165,4 +165,3 @@ class PluginIterator
 };
 
 #endif // _PLUGINHOOKS_H_
-

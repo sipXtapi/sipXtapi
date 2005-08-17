@@ -29,37 +29,23 @@ public class BeanWithGroups extends BeanWithSettings {
     public void setGroups(Set settingSets) {
         m_groups = settingSets;        
     }
-    
-    public Setting decorate(Group implicitRootTag, Setting settings) {
-        return decorate(implicitRootTag, getGroups(), settings);
-    }
-    
-    protected Setting decorate(Group implicitRootTag, Set groups, Setting settings) {
-        Setting decorated = settings;
-        if (implicitRootTag != null) {
-            decorated = implicitRootTag.decorate(decorated);
-        }
         
+    public void addGroup(Group tag) {
+        m_groups.add(tag);
+    }
+
+    protected Setting decorateSettings(Setting settings) {
+        Set groups = getGroups();
         if (groups != null) {
             Iterator i = groups.iterator();
             while (i.hasNext()) {
                 SettingVisitor visitor = (SettingVisitor) i.next(); 
-                decorated.acceptVisitor(visitor);
+                settings.acceptVisitor(visitor);
             }
         }
         
-        ValueStorage valueStorage = getValueStorage();
-        if (valueStorage == null) {
-            valueStorage = new ValueStorage();
-            setValueStorage(valueStorage);
-        }
-        
-        decorated = valueStorage.decorate(decorated);
+        Setting decorated = super.decorateSettings(settings);
         
         return decorated;    
-    }
-    
-    public void addGroup(Group tag) {
-        m_groups.add(tag);
     }
 }

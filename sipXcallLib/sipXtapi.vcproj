@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="sipXtapi"
+	ProjectGUID="{85CAC56D-4E3A-4712-91A5-AE724B11AE25}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -21,8 +22,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\sipXmediaLib\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,..\sipXmediaLib\include;..\gips;../gips/sipXmediaVoiceEngine/include/"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;HAVE_GIPS;GIPS_EXPORT;VOICE_ENGINE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -43,10 +44,13 @@
 				OutputFile=".\sipXtapi\Debug/sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\sipXcallLib\Debug,..\sipXmediaLib\debug,..\sipXportLib\debug,..\sipXtackLib\Debug,..\gips"
-				IgnoreDefaultLibraryNames="MSVCRT.lib"
+				AdditionalLibraryDirectories="..\sipXcallLib\Debug,..\gips\sipXmediaVoiceEngine\debug,..\sipXportLib\debug,..\sipXtackLib\Debug,..\gips\VoiceEngine\libraries"
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames="libc,libc.lib,libcmt.lib,msvcrt.lib,msvcprt.lib,libcmtd.lib"
+				ModuleDefinitionFile="sipXtapi.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\sipXtapi\Debug/sipXtapid.pdb"
+				GenerateMapFile="TRUE"
 				ImportLibrary=".\sipXtapi\Debug/sipXtapid.lib"
 				TargetMachine="1"/>
 			<Tool
@@ -90,12 +94,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\sipXmediaLib\include"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS"
-				StringPooling="FALSE"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,..\sipXmediaLib\include;..\gips;../gips/sipXmediaVoiceEngine/include/"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;HAVE_GIPS;GIPS_EXPORT;VOICE_ENGINE"
+				StringPooling="TRUE"
 				RuntimeLibrary="2"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="FALSE"
+				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\sipXtapi\Release/sipXtapi.pch"
@@ -114,8 +117,11 @@
 				OutputFile=".\sipXtapi\Release/sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\sipXcallLib\Release,..\sipXmediaLib\release,..\sipXportLib\release,..\sipXtackLib\Release,..\gips"
+				AdditionalLibraryDirectories="..\sipXtackLib\Release,..\sipXcallLib\Release,..\gips\sipXmediaVoiceEngine\Release,..\sipXportLib\Release,..\sipXtackLib\Release,..\gips\VoiceEngine\libraries"
+				IgnoreDefaultLibraryNames="libcpmt.lib,libcpmtd.lib,libc,libcd,libc.lib,libcd.lib,libcmt.lib,msvcrtd.lib,msvcprtd.lib,libcmtd.lib"
+				ModuleDefinitionFile="sipXtapi.def"
 				ProgramDatabaseFile=".\sipXtapi\Release/sipXtapi.pdb"
+				GenerateMapFile="TRUE"
 				ImportLibrary=".\sipXtapi\Release/sipXtapi.lib"
 				TargetMachine="1"/>
 			<Tool
@@ -176,7 +182,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\tapi\sipXtapi.cpp">
+				RelativePath="src\tapi\SipXMessageObserver.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -198,6 +204,33 @@
 			</File>
 			<File
 				RelativePath=".\src\tapi\SipXtapiEventDispatcher.cpp">
+			</File>
+			<File
+				RelativePath="src\tapi\sipXtapi.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit);VOICE_ENGINE"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit);VOICE_ENGINE"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sipXtapi.def">
+			</File>
+			<File
+				RelativePath=".\sipXtapi.rc">
 			</File>
 			<File
 				RelativePath="src\tapi\sipXtapiEvents.cpp">
@@ -228,7 +261,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit)"
+						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;VOICE_ENGINE"
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -237,7 +270,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit)"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit);VOICE_ENGINE"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -246,7 +279,13 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath=".\resource.h">
+			</File>
+			<File
 				RelativePath="include\tapi\SipXHandleMap.h">
+			</File>
+			<File
+				RelativePath="include\tapi\SipXMessageObserver.h">
 			</File>
 			<File
 				RelativePath="include\tapi\sipXtapi.h">
@@ -257,10 +296,10 @@
 			<File
 				RelativePath="include\tapi\sipXtapiInternal.h">
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<Filter
+				Name="Resource Files"
+				Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

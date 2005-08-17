@@ -1,17 +1,14 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "glib.h"
-#include "glib/glist.h"
-
 #include "utl/UtlContainable.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlSList.h"
@@ -47,9 +44,9 @@ UtlContainable* UtlSList::append(UtlContainable* obj)
    
     if(obj != NULL)
     {
-       GLIST_SANITY_CHECK;
-       mpList = g_list_append(mpList, obj);
-       GLIST_SANITY_CHECK;
+       LIST_SANITY_CHECK;
+       UtlLink::listBefore(this, NULL, obj);
+       LIST_SANITY_CHECK;
     }
     
     return(obj);
@@ -66,23 +63,28 @@ UtlContainable* UtlSList::insertAt(size_t N, UtlContainable* obj)
 
    OsLock take(mContainerLock);   
 
-   GLIST_SANITY_CHECK;
-   if(N <= g_list_length(mpList) && obj != NULL)
+   LIST_SANITY_CHECK;
+   size_t n;
+   UtlLink* link;
+   for (n = 0, link = head(); link && n < N; link = link->next(), n++)
    {
-      mpList = g_list_insert(mpList, obj, N);
+   }
+   if (n == N)
+   {
+      UtlLink::listBefore(this, link, obj);
       inserted = obj;
    }
-   GLIST_SANITY_CHECK;
+   LIST_SANITY_CHECK;
 
    return inserted;
 }
 
 
-UtlContainable* UtlSList::insertAfter(GList* afterNode, UtlContainable* object)
+UtlContainable* UtlSList::insertAfter(UtlLink* afterNode, UtlContainable* object)
 {
    OsLock take(mContainerLock);   
 
-   mpList = g_list_insert_before(mpList, afterNode, object);
+   UtlLink::listAfter(this, afterNode, object);
    return object;
 }
 
@@ -97,14 +99,14 @@ UtlContainable* UtlSList::insert(UtlContainable* obj)
 // Remove the designated object by equality.
 UtlContainable* UtlSList::remove(const UtlContainable* object) 
 {
-   GList* listNode;
-   GList* found;
+   UtlLink* listNode;
+   UtlLink* found;
    UtlContainable* foundObject = NULL;
    
    OsLock take(mContainerLock);
    
-   GLIST_SANITY_CHECK;
-   for(listNode = g_list_first(mpList), found = NULL; listNode && !found; listNode = g_list_next(listNode))
+   LIST_SANITY_CHECK;
+   for (listNode = head(), found = NULL; listNode && !found; listNode = listNode->next())
    {
       UtlContainable* visitNode = (UtlContainable*) listNode->data;
       if(visitNode && visitNode->compareTo(object) == 0)
@@ -118,7 +120,7 @@ UtlContainable* UtlSList::remove(const UtlContainable* object)
       foundObject = (UtlContainable*)found->data;
       removeLink(found);
    }
-   GLIST_SANITY_CHECK;
+   LIST_SANITY_CHECK;
 
    return foundObject;
 }
@@ -147,16 +149,18 @@ UtlBoolean UtlSList::destroy(UtlContainable* obj)
 // Find the first occurrence of the designated object by equality.
 UtlContainable* UtlSList::find(const UtlContainable* containableToMatch) const
 {
-   GList* listNode;
+   UtlLink* listNode;
    UtlContainable* matchElement = NULL;
    UtlContainable* visitNode;
 
+   unsigned targetHash = containableToMatch->hash();
+   
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   GLIST_SANITY_CHECK;
-   for(listNode = g_list_first(mpList);
+   LIST_SANITY_CHECK;
+   for(listNode = head()->findNextHash(targetHash);
        listNode &&  matchElement == NULL;
-       listNode = g_list_next(listNode)
+       listNode = listNode->next()->findNextHash(targetHash)
        )
    {
       visitNode = (UtlContainable*) listNode->data;
@@ -165,7 +169,7 @@ UtlContainable* UtlSList::find(const UtlContainable* containableToMatch) const
          matchElement = visitNode;
       }
    }
-   GLIST_SANITY_CHECK;
+   LIST_SANITY_CHECK;
 
    return(matchElement);
 }
@@ -178,13 +182,13 @@ UtlContainable* UtlSList::find(const UtlContainable* containableToMatch) const
 size_t UtlSList::occurrencesOf(const UtlContainable* containableToMatch) const 
 {
    int count = 0;
-   GList* listNode;
+   UtlLink* listNode;
    UtlContainable* visitNode = NULL;
 
    OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-   GLIST_SANITY_CHECK;
-   for(listNode = g_list_first(mpList); listNode; listNode = g_list_next(listNode))
+   LIST_SANITY_CHECK;
+   for(listNode = head(); listNode; listNode = listNode->next())
    {
       visitNode = (UtlContainable*)listNode->data;
       if(visitNode && visitNode->compareTo(containableToMatch) == 0)
@@ -192,7 +196,7 @@ size_t UtlSList::occurrencesOf(const UtlContainable* containableToMatch) const
          count++;
       }
    }
-   GLIST_SANITY_CHECK;
+   LIST_SANITY_CHECK;
 
    return(count);
 }
@@ -203,15 +207,15 @@ size_t UtlSList::index(const UtlContainable* containableToMatch) const
 {
     size_t matchedIndex = UTL_NOT_FOUND;
     size_t currentIndex;
-    GList* listNode;
+    UtlLink* listNode;
     UtlContainable* visitNode = NULL;
 
     OsLock take(const_cast<OsBSem&>(mContainerLock));
    
-    GLIST_SANITY_CHECK;
-    for(listNode = g_list_first(mpList), currentIndex = 0;
+    LIST_SANITY_CHECK;
+    for(listNode = head(), currentIndex = 0;
         matchedIndex == UTL_NOT_FOUND && listNode;
-        listNode = g_list_next(listNode)
+        listNode = listNode->next()
         )
     {
         visitNode = (UtlContainable*) listNode->data;
@@ -224,7 +228,7 @@ size_t UtlSList::index(const UtlContainable* containableToMatch) const
            currentIndex++;
         }
     }
-    GLIST_SANITY_CHECK;
+    LIST_SANITY_CHECK;
  
     return matchedIndex;
 }

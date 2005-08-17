@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
@@ -20,9 +18,7 @@
 #include "utl/UtlRscTrace.h"
 
 #if defined(_WIN32)
-#   include <winsock.h>
-#include "os/wnt/WindowsAdapterInfo.h"
-
+#   include <winsock2.h>
 #elif defined(_VXWORKS)
 #   include <hostLib.h>
 #   include <inetLib.h>
@@ -53,6 +49,7 @@
 #include "os/linux/host_address.h"
 #endif
 
+
 #define HOST_NAME_LENGTH 512
 
 
@@ -74,6 +71,9 @@ UtlString  OsSocket::m_DomainName = "";
 // seems that g++ won't compile it with optimization enabled for some reason.
 unsigned long OsSocket::m_DefaultBindAddress = INADDR_ANY;
 
+OsBSem OsSocket::mInitializeSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
+
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 //static method for accessing the bind address from C source
@@ -86,6 +86,7 @@ unsigned long osSocketGetDefaultBindAddress()
 
 // Constructor
 OsSocket::OsSocket()
+        
 {
         socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
@@ -148,10 +149,13 @@ int OsSocket::write(const char* buffer, int bufferLength)
 
    int flags = 0;
 
-#if defined(__pingtel_on_posix__)
+#if defined(__linux__) || defined(sun)
    // We do not want send to throw signals if there is a
    // problem with the socket as this results in the process
-   // getting aborted.  We just want it to return an error
+   // getting aborted. We just want it to return an error.
+   // (Under OS X, we use SO_NOSIGPIPE because this is not
+   // supported... this is done in the constructors for
+   // stream socket types as it is a one-time-only thing.)
    flags = MSG_NOSIGNAL;
 #endif
 
@@ -207,10 +211,13 @@ int OsSocket::read(char* buffer, int bufferLength)
 
    int flags = 0;
 
-#if defined(__pingtel_on_posix__)
+#if defined(__linux__) || defined(sun)
    // We do not want send to throw signals if there is a
    // problem with the socket as this results in the process
-   // getting aborted.  We just want it to return an error
+   // getting aborted. We just want it to return an error.
+   // (Under OS X, we use SO_NOSIGPIPE because this is not
+   // supported... this is done in the constructors for
+   // stream socket types as it is a one-time-only thing.)
    flags = MSG_NOSIGNAL;
 #endif
 
@@ -253,15 +260,18 @@ int OsSocket::read(char* buffer, int bufferLength,
    struct sockaddr_in fromSockAddress;
    int fromLength = sizeof(fromSockAddress);
 
-   if (NULL != fromPort) *fromPort = 0;
+   if (NULL != fromPort) *fromPort = PORT_NONE;
    if (NULL != fromAddress) fromAddress->s_addr = 0;
 
    int flags = 0;
 
-#if defined(__pingtel_on_posix__)
+#if defined(__linux__) || defined(sun)
    // We do not want send to throw signals if there is a
    // problem with the socket as this results in the process
-   // getting aborted.  We just want it to return an error
+   // getting aborted. We just want it to return an error.
+   // (Under OS X, we use SO_NOSIGPIPE because this is not
+   // supported... this is done in the constructors for
+   // stream socket types as it is a one-time-only thing.)
    flags = MSG_NOSIGNAL;
 #endif
 
@@ -279,7 +289,7 @@ int OsSocket::read(char* buffer, int bufferLength,
       if(error)
       {
          close();
-         perror("OsSocket::read call to recvfrom failed\n");
+         // perror("OsSocket::read call to recvfrom failed\n");
          osPrintf("recvfrom call failed with error: %d\n", error);
       }
 
@@ -502,7 +512,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
 
            if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
            {
-               perror("OsSocket::isReadyToRead()");
+               // perror("OsSocket::isReadyToRead()");
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToRead select returned %d in socket: %d 0%x\n",
                    resCode, tempSocketDescr, this);
            }
@@ -627,7 +637,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
 
          if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
          {
-             perror("OsSocket::isReadyToWrite()");
+             // perror("OsSocket::isReadyToWrite()");
              OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite select returned %d in socket: %d %p\n",
                  resCode, tempSocketDescr, this);
          }
@@ -725,8 +735,12 @@ void OsSocket::makeBlocking()
 UtlBoolean OsSocket::socketInit()
 {
         UtlBoolean returnCode = TRUE;
+        
+        mInitializeSem.acquire();
         if(!socketInitialized)
         {
+            socketInitialized = TRUE;
+            mInitializeSem.release();
            // Windows specific startup
 #               ifdef _WIN32
                 WORD wVersionRequested = MAKEWORD( 1, 1 );
@@ -741,7 +755,11 @@ UtlBoolean OsSocket::socketInit()
                 }
 #               endif
 
-                socketInitialized = TRUE;
+                
+        }
+        else
+        {
+            mInitializeSem.release();
         }
         return(returnCode);
 }
@@ -756,54 +774,55 @@ UtlBoolean OsSocket::socketInit()
 
 unsigned long OsSocket::initDefaultAdapterID(UtlString &interface_id)
 {
-        UtlString address = "";
-        unsigned long retip = htonl(INADDR_ANY);
-
-
+    mInitializeSem.acquire();
+    UtlString address = "";
+    unsigned long retip = htonl(INADDR_ANY);
 
 #ifdef WIN32
-                //under windows it is possible for many network devices to be present.
-                //in this case we will either return an empty string
-                //or if the configuration parameter  PHONESET_BIND_MAC_ADDRESS is defined
-                //we will look up the mac address against the windows adapters
-                //and then return the correct ip address for that adapter
-                int numAdapters = getAdaptersInfo();  //fills in the structure with the adapter info
-                if (numAdapters < 2)
-                        retip = htonl(INADDR_ANY);
-                else
-                {
-                        char ipaddress[20];
-                        char adapter_id[30];
+    // Under windows it is possible for many network devices to be present.
+    // in this case we will either return an empty string
+    // or if the configuration parameter  PHONESET_BIND_MAC_ADDRESS is defined
+    // we will look up the mac address against the windows adapters
+    // and then return the correct ip address for that adapter
+    int numAdapters = getAdaptersInfo();  //fills in the structure with the adapter info
+    if (numAdapters < 2)
+    {
+        retip = htonl(INADDR_ANY);
+    } 
+    else
+    {
+        char ipaddress[20];
+        char adapter_id[30];
 
-                        *ipaddress = '\0';
-                        *adapter_id = '\0';
+        *ipaddress = '\0';
+        *adapter_id = '\0';
 
-                        strcpy(adapter_id,interface_id.data());
+        strcpy(adapter_id, interface_id.data());
 
-                        //if this fails, then we need to choose any address
-                        if (strlen(adapter_id) == 0 || lookupIpAddressByMacAddress(adapter_id, ipaddress) == -1)
-                        {
-                                retip = htonl(INADDR_ANY);
-                        }
-                        else
-                                address = ipaddress;
-                }
+        //if this fails, then we need to choose any address
+        if (strlen(adapter_id) == 0 || 
+                lookupIpAddressByMacAddress(adapter_id, ipaddress) == -1)
+        {
+            retip = htonl(INADDR_ANY);
+        }
+        else
+        {
+            address = ipaddress;
+        }
+    }
 
-
-                //now convert if it has a string ip address
-                if (address != "")
-                {
-                        struct in_addr  ipAddr;
-                        ipAddr.s_addr = inet_addr (address.data());
-                        retip = ipAddr.s_addr;
-
-                }
+    //now convert if it has a string ip address
+    if (address != "")
+    {
+        struct in_addr  ipAddr;
+        ipAddr.s_addr = inet_addr (address.data());
+        retip = ipAddr.s_addr;
+    }
 
 #endif
 
-
-        return retip;
-
+    mInitializeSem.release();
+    return retip;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -818,7 +837,9 @@ int OsSocket::getSocketDescriptor() const
 
 void OsSocket::setDefaultBindAddress(const unsigned long bind_address)
 {
+    mInitializeSem.acquire();
     m_DefaultBindAddress = bind_address;
+    mInitializeSem.release();
 }
 
 unsigned long OsSocket::getDefaultBindAddress()
@@ -1019,6 +1040,7 @@ void OsSocket::getLocalHostIp(UtlString* localHostAddress) const
 }
 
 
+
 int OsSocket::getLocalHostPort() const
 {
         return(localHostPort);
@@ -1134,6 +1156,11 @@ UtlBoolean OsSocket::isSameHost(const char* host1, const char* host2)
                 host2Addr.remove(0);
         }
         return(same);
+}
+
+const UtlString& OsSocket::getLocalIp() const
+{
+    return mLocalIp;
 }
 
 // change the ip address into the dot ip address

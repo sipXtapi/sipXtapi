@@ -1,13 +1,9 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -33,18 +29,18 @@ END_EVENT_TABLE()
 // Constructor
 DialEntryPanel::DialEntryPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size) :
    wxPanel(parent, IDR_DIAL_ENTRY_PANEL, pos, size, wxTAB_TRAVERSAL, "DialEntryPanel"),
-        mpComboBox(NULL),
-        mpSizer(NULL),
-        mpOutline(NULL),
-        mpListener(NULL)
+   mpSizer(NULL),
+   mpComboBox(NULL),
+   mpOutline(NULL),
+   mpListener(NULL)
 {
 
-        wxColor* pPanelColor = new wxColor(132,169,181);
-        SetBackgroundColour(*pPanelColor);
+    wxColor* pPanelColor = & (sipXezPhoneSettings::getInstance().getBackgroundColor());
+    SetBackgroundColour(*pPanelColor);
 
     wxPoint origin(0,0);
     mpOutline = new wxStaticBox(this, -1, "Dial", origin, size);
-        mpOutline->SetBackgroundColour(*pPanelColor);
+    mpOutline->SetBackgroundColour(*pPanelColor);
 
     mpSizer = new wxStaticBoxSizer(mpOutline, wxHORIZONTAL);
 
@@ -104,7 +100,7 @@ const wxString DialEntryPanel::getEnteredText()
 }
 
 // Event handler for the button
-void DialEntryPanel::OnButtonClick(wxCommandEvent& event)
+void DialEntryPanel::OnButtonClick(wxEvent& event)
 {
    wxString phoneNumber = getEnteredText();
 
@@ -136,3 +132,4 @@ PhoneState* DialEntryPanel::DialEntryPhoneStateMachineObserver::OnRinging(SIPX_C
     }
     return NULL;
 }
+

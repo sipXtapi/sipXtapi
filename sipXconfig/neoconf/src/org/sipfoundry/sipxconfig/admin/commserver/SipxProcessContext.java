@@ -33,8 +33,49 @@ public interface SipxProcessContext {
             return getEnumList(SipxProcessContext.Process.class);
         }
     };
+    
+    public static class Command extends Enum {
+        public static final Command START = new Command("start");
+        public static final Command STOP = new Command("stop");
+        public static final Command RESTART = new Command("restart");
+        public static final Command STATUS = new Command("status");
 
-    void restart(Process process);
+        public Command(String name) {
+            super(name);
+        }
+
+        public static List getAll() {
+            return getEnumList(SipxProcessContext.Command.class);
+        }
+    }
+    
+    /**
+     * Return an array containing a ServiceStatus entry for each process on the first
+     * server machine.  This is a first step towards providing status for all
+     * server machines.
+     */ 
+    public ServiceStatus[] getStatus();
+
+    /** 
+     * Apply the specified command to the named services.
+     * This method handles only commands that don't need output, which excludes the
+     * "status" command.
+     */
+    public void manageServices(String[] serviceNames, Command command);
+
+    /** 
+     * Apply the specified command to the named service.
+     * This method handles only commands that don't need output, which excludes the
+     * "status" command.
+     */
+    public void manageService(String serviceName, Command command);
+    
+    /** 
+     * Apply the specified command to the process/service.
+     * This method handles only commands that don't need output, which excludes the
+     * "status" command.
+     */
+    public void manageService(Process process, Command command);
     
     void generate(DataSet dataSet);
 

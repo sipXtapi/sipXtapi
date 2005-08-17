@@ -1,13 +1,10 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 #ifndef _OsSysLogFacilities_h_
 #define _OsSysLogFacilities_h_
@@ -68,6 +65,8 @@ enum tagOsSysLogFacility
    FAC_DB,                 // Database related (sipdb)
    FAC_PROCESSMGR,         // OsProcessMgr
    FAC_PROCESS,            // process related
+   FAC_SIPXTAPI,           // sipXtapi related
+   FAC_AUDIO,              // audio related
    FAC_MAX_FACILITY        // Last Facility (used to for length)
 
    //

@@ -66,7 +66,7 @@ public class PolycomLine extends AbstractLine {
         if (u != null) {
             PhoneDefaults defaults = getDefaults();
             Setting mwi = getSettings().getSetting("msg.mwi");
-            String uri = u.getDisplayId() + '@' + defaults.getDomainName();
+            String uri = u.getUserName() + '@' + defaults.getDomainName();
             mwi.getSetting("subscribe").setValue(uri);
             mwi.getSetting("callBack").setValue(VOICEMAIL_EXT + '@' + defaults.getDomainName());
             mwi.getSetting("callBackMode").setValue("contact");

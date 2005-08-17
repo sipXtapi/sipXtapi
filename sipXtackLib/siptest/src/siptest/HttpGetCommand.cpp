@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -97,7 +93,7 @@ int HttpGetCommand::execute(int argc, char* argv[])
                 UtlString server = uri;
                 server.remove(serverEndIndex);
                 int portIndex = server.index(":");
-                int port = 0;
+                int port = PORT_NONE;
                 if(portIndex > 0)
                 {
                     UtlString portString = server;
@@ -111,7 +107,7 @@ int HttpGetCommand::execute(int argc, char* argv[])
                 printf("HTTP get of %s from server %s port: %d\n",
                     uri.data(), server.data(), port);
 
-                if(port == 0)
+                if (!portIsValid(port))
                 {
                     port = 80;
                     printf("defaulting to http port 80\n");

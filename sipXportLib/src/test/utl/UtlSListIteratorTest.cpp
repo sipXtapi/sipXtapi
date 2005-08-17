@@ -1,14 +1,9 @@
-
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -548,8 +543,8 @@ public:
         iter() ; //moves cursor to 0 
         iter() ; //moves cursor to 1 
         iter() ; //moves cursor to 2   
-        // Value is now inserted at pos2
-        // old[1] moves further to pos3
+        // Value is now inserted after pos2 (to pos3)
+        // old[1] stays at pos2
         uReturn = iter.insertAfterPoint(testData[ti].insertValue) ; 
         TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix1) ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE (msg.data(), (void*)testData[ti].insertValue, \
@@ -557,16 +552,16 @@ public:
         iter.reset() ;
         iter() ;  // moves cursor to 0 
         iter() ; // moves cursor to 1
-        // The item is inserted just after the position.
-        uAppended = iter() ; //moves cursor to pos3 and returns item at pos2
-        TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix2) ;
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)testData[ti].insertValue, \
-            (void*)uAppended) ;
         // Verify that the original item is still retained.
         originalValue = iter() ;
-        TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix3) ;
+        TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix2) ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)testData[ti].oldValue, \
             (void*)originalValue) ;
+        // The item is inserted just after the position.
+        uAppended = iter() ; //moves cursor to pos3 and returns item at pos2
+        TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix3) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)testData[ti].insertValue, \
+            (void*)uAppended) ;
 
         // Test#3 - Now verify when the cursor is at the last position. 
         ti = 2 ; 
@@ -580,16 +575,16 @@ public:
         // now move the cursor all the way to the penultimate position
         for (size_t i = 0 ; i < commonList.entries() - 1; i++)
         {
-            uAppended = iter() ;
+            originalValue = iter() ;
         }
+        // verify original is still retained. 
+        TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix3) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)testData[ti].oldValue, \
+                                     (void*)originalValue) ; 
+        uAppended = iter() ; 
         TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix2) ; 
         CPPUNIT_ASSERT_EQUAL_MESSAGE( msg.data(), (void*)testData[ti].insertValue, \
             (void*)uAppended) ; 
-        // verify original is still retained. 
-        originalValue = iter() ; 
-        TestUtilities::createMessage(3, &msg, prefix, testData[ti].testDescription, suffix3) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)testData[ti].oldValue, \
-            (void*)originalValue) ; 
 
     } //testInsertAfterPoint
 };

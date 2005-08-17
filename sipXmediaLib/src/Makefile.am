@@ -27,7 +27,7 @@ libsipXmedia_la_CXXFLAGS = \
 	-D_REALTIME_LINUX_AUDIO_THREADS $(LOCAL_AUDIO_CXXFLAGS)
 
 libsipXmedia_la_LIBADD = \
-	@SIPXTACK_LIBS@
+	@SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
 
 libsipXmedia_la_SOURCES =  \
     ../config/sipxmedialib-buildstamp.h \

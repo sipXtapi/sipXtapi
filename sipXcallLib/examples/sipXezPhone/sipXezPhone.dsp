@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../include" /I "..\..\lib\mswd" /I "\wxWindows-2.4.2\include" /I "..\..\..\sipXportLib\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D WINVER=0x400 /D "_MT" /D wxUSE_GUI=1 /FR /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../include" /I "..\..\lib\mswd" /I "\wxWindows-2.4.2\include" /I "..\..\..\sipXportLib\include" /I "..\..\..\sipXtackLib\include" /I "..\..\..\gips" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D WINVER=0x400 /D "_MT" /D wxUSE_GUI=1 /D "VOICE_ENGINE" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 advapi32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib rpcrt4.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapi.lib sipXportLib.lib libpcre.a /nologo /subsystem:windows /machine:I386 /out:"./sipXezPhone.exe" /libpath:"..\..\Release\\" /libpath:"..\..\sipXtapi\Release" /libpath:"\wxWindows-2.4.2\lib" /libpath:"..\..\..\sipXportLib\Release"
+# ADD LINK32 advapi32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib rpcrt4.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapi.lib sipXportLib.lib libpcre.a /nologo /subsystem:windows /machine:I386 /out:"./sipXezPhone.exe" /libpath:"..\..\Release\\" /libpath:"\wxWindows-2.4.2\lib" /libpath:"..\..\..\sipXportLib\Release" /libpath:"..\..\sipXtapi\Release"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "sipXezPhone - Win32 Debug"
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /GR /GX /Zi /Od /I "../../include" /I "..\..\lib\mswd" /I "\wxWindows-2.4.2\include" /I "..\..\..\sipXportLib\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D WINVER=0x400 /D "_MT" /D wxUSE_GUI=1 /FR /YX"stdwx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /Zi /Od /I "../../include" /I "..\..\lib\mswd" /I "\wxWindows-2.4.2\include" /I "..\..\..\sipXportLib\include" /I "..\..\..\sipXtackLib\include" /I "..\..\..\gips" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D WINVER=0x400 /D "_MT" /D wxUSE_GUI=1 /D "VOICE_ENGINE" /FR /YX"stdwx.h" /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -80,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 advapi32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib rpcrt4.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXcallLib.lib sipXtapid.lib sipXportLib.lib libpcre.a /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMTD.lib" /nodefaultlib:"LIBCMT.lib" /nodefaultlib:"MSVCRT" /out:"./sipXezPhone.exe" /pdbtype:sept /libpath:"..\..\Debug" /libpath:"\\" /libpath:"..\..\sipXtapi\Debug" /libpath:"\wxWindows-2.4.2\lib" /libpath:"..\..\..\sipXportLib\Debug"
+# ADD LINK32 advapi32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib uuid.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXcallLib.lib sipXtapid.lib sipXportLib.lib libpcre.a comctl32.lib comdlg32.lib shell32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMTD.lib" /nodefaultlib:"LIBCMT.lib" /nodefaultlib:"MSVCRT" /out:"..\..\sipXtapi\debug\sipXezPhone.exe" /pdbtype:sept /libpath:"..\..\Debug" /libpath:"\\" /libpath:"..\..\sipXtapi\Debug" /libpath:"\wxWindows-2.4.2\lib" /libpath:"..\..\..\sipXportLib\Debug"
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -105,7 +105,11 @@ SOURCE=.\states\PhoneStateAccepted.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\states\PhoneStateCallHeld.cpp
+SOURCE=.\states\PhoneStateCallHeldLocally.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\states\PhoneStateCallHeldRemotely.cpp
 # End Source File
 # Begin Source File
 
@@ -122,6 +126,10 @@ SOURCE=.\states\PhoneStateDisconnectRequested.cpp
 # Begin Source File
 
 SOURCE=.\states\PhoneStateIdle.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\states\PhoneStateLocalHoldRequested.cpp
 # End Source File
 # Begin Source File
 
@@ -170,6 +178,10 @@ SOURCE=.\CallList.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConferencePanel.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ContactListCtrl.cpp
 # End Source File
 # Begin Source File
@@ -190,6 +202,10 @@ SOURCE=.\DialPadPanel.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\EventLogDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MainPanel.cpp
 # End Source File
 # Begin Source File
@@ -199,6 +215,10 @@ SOURCE=.\PlacedCallList.cpp
 # Begin Source File
 
 SOURCE=.\ReceivedCallList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXAudioSettingsDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -254,6 +274,10 @@ SOURCE=.\CallList.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConferencePanel.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ContactListCtrl.h
 # End Source File
 # Begin Source File
@@ -267,6 +291,10 @@ SOURCE=.\DialPadButton.h
 # Begin Source File
 
 SOURCE=.\DialPadPanel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EventLogDlg.h
 # End Source File
 # Begin Source File
 
@@ -286,6 +314,14 @@ SOURCE=.\resource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\sipXAudioSettingsDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXezPhone_wdr.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\sipXezPhoneApp.h
 # End Source File
 # Begin Source File
@@ -295,6 +331,10 @@ SOURCE=.\sipXezPhoneFrame.h
 # Begin Source File
 
 SOURCE=.\sipXezPhoneSettings.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXezPhoneSettingsDlg.h
 # End Source File
 # Begin Source File
 

@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
@@ -38,9 +36,9 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 
-UtlHashBag SipMessage::shortFieldNames;
-UtlHashBag SipMessage::longFieldNames;
-UtlHashBag SipMessage::disallowedUrlHeaders;
+UtlHashBag* SipMessage::mpShortFieldNames = new UtlHashBag();
+UtlHashBag* SipMessage::mpLongFieldNames = new UtlHashBag();
+UtlHashBag* SipMessage::mpDisallowedUrlHeaders = new UtlHashBag();
 
 #ifdef WIN32
 #  define strcasecmp stricmp
@@ -55,6 +53,7 @@ UtlHashBag SipMessage::disallowedUrlHeaders;
 SipMessage::SipMessage(const char* messageBytes, int byteCount) :
    HttpMessage(messageBytes, byteCount)
 {
+   mLocalIp = "";
    mpSipTransaction = NULL;
    replaceShortFieldNames();
 #ifdef TRACK_LIFE
@@ -82,6 +81,7 @@ SipMessage::SipMessage(const SipMessage& rSipMessage) :
 #endif
    replaceShortFieldNames();
    //SDUA
+   mLocalIp = rSipMessage.mLocalIp;
    m_dnsProtocol = rSipMessage.m_dnsProtocol;
    m_dnsAddress = rSipMessage.m_dnsAddress;
    m_dnsPort = rSipMessage.m_dnsPort;
@@ -104,6 +104,7 @@ SipMessage::operator=(const SipMessage& rSipMessage)
    if (this != &rSipMessage)
    {
          replaceShortFieldNames();
+      mLocalIp = rSipMessage.mLocalIp;
       //SDUA
       m_dnsProtocol = rSipMessage.m_dnsProtocol;
       m_dnsAddress = rSipMessage.m_dnsAddress;
@@ -116,27 +117,27 @@ SipMessage::operator=(const SipMessage& rSipMessage)
 
 void SipMessage::initShortNames()
 {
-   if(longFieldNames.isEmpty())
+   if(mpLongFieldNames->isEmpty())
    {
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_CONTENT_TYPE_FIELD, SIP_SHORT_CONTENT_TYPE_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_CONTENT_ENCODING_FIELD, SIP_SHORT_CONTENT_ENCODING_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_FROM_FIELD, SIP_SHORT_FROM_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_CALLID_FIELD, SIP_SHORT_CALLID_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_CONTACT_FIELD, SIP_SHORT_CONTACT_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_CONTENT_LENGTH_FIELD, SIP_SHORT_CONTENT_LENGTH_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_REFERRED_BY_FIELD, SIP_SHORT_REFERRED_BY_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_REFER_TO_FIELD, SIP_SHORT_REFER_TO_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_SUBJECT_FIELD, SIP_SHORT_SUBJECT_FIELD));
-        SipMessage::longFieldNames.insert(new NameValuePair(SIP_SUPPORTED_FIELD, SIP_SHORT_SUPPORTED_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_TO_FIELD, SIP_SHORT_TO_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_VIA_FIELD, SIP_SHORT_VIA_FIELD));
-      SipMessage::longFieldNames.insert(new NameValuePair(SIP_EVENT_FIELD, SIP_SHORT_EVENT_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_TYPE_FIELD, SIP_SHORT_CONTENT_TYPE_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_ENCODING_FIELD, SIP_SHORT_CONTENT_ENCODING_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_FROM_FIELD, SIP_SHORT_FROM_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CALLID_FIELD, SIP_SHORT_CALLID_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTACT_FIELD, SIP_SHORT_CONTACT_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_LENGTH_FIELD, SIP_SHORT_CONTENT_LENGTH_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_REFERRED_BY_FIELD, SIP_SHORT_REFERRED_BY_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_REFER_TO_FIELD, SIP_SHORT_REFER_TO_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_SUBJECT_FIELD, SIP_SHORT_SUBJECT_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_SUPPORTED_FIELD, SIP_SHORT_SUPPORTED_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_TO_FIELD, SIP_SHORT_TO_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_VIA_FIELD, SIP_SHORT_VIA_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_EVENT_FIELD, SIP_SHORT_EVENT_FIELD));
 
-      UtlHashBagIterator iterator(longFieldNames);
+      UtlHashBagIterator iterator(*mpLongFieldNames);
       NameValuePair* nvPair;
       while ((nvPair = (NameValuePair*) iterator()))
       {
-         shortFieldNames.insert(new NameValuePair(nvPair->getValue(),
+         mpShortFieldNames->insert(new NameValuePair(nvPair->getValue(),
             nvPair->data()));
       }
    }
@@ -146,22 +147,22 @@ void SipMessage::initDisallowedUrlHeaders()
 {
     // These headers may NOT be passed through in a URL to
     // be set in a message
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_CONTACT_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTACT_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_LENGTH_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_LENGTH_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_TYPE_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_TYPE_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_CSEQ_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_REFER_TO_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_REFERRED_BY_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_TO_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_SHORT_TO_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_USER_AGENT_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_VIA_FIELD));
-    SipMessage::disallowedUrlHeaders.insert(new UtlString(SIP_SHORT_VIA_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTACT_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTACT_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_LENGTH_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_LENGTH_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_TYPE_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_TYPE_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CSEQ_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_REFER_TO_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_REFERRED_BY_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_TO_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_TO_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_USER_AGENT_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_VIA_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_VIA_FIELD));
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -173,14 +174,16 @@ UtlBoolean SipMessage::getShortName(const char* longFieldName,
    UtlBoolean nameFound = FALSE;
    initShortNames();
 
-   shortFieldName->remove(0);
-   NameValuePair* shortNV = (NameValuePair*) longFieldNames.find(&longNV);
-   if(shortNV)
+   if (mpLongFieldNames)
    {
-      shortFieldName->append(shortNV->getValue());
-      nameFound = TRUE;
+        shortFieldName->remove(0);
+        NameValuePair* shortNV = (NameValuePair*) mpLongFieldNames->find(&longNV);
+        if(shortNV)
+        {
+            shortFieldName->append(shortNV->getValue());
+            nameFound = TRUE;
+        }
    }
-
    return(nameFound);
 }
 
@@ -198,7 +201,7 @@ UtlBoolean SipMessage::getLongName(const char* shortFieldName,
 
        initShortNames();
 
-       NameValuePair* longNV = (NameValuePair*) shortFieldNames.find(&shortNV);
+       NameValuePair* longNV = (NameValuePair*) mpShortFieldNames->find(&shortNV);
        if(longNV)
        {
           *longFieldName = longNV->getValue();
@@ -283,6 +286,7 @@ void SipMessage::setReinviteData(SipMessage* invite,
     UtlString contactUri;
     UtlString lastResponseContact;
 
+    setLocalIp(invite->getLocalIp()) ;
 
     // Get the to, from and callId fields
     if(inviteFromThisSide)
@@ -546,16 +550,19 @@ void SipMessage::setResponseData(int statusCode, const char* statusText,
 
 void SipMessage::setTryingResponseData(const SipMessage* request)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_TRYING_CODE, SIP_TRYING_TEXT);
 }
 
 void SipMessage::setInviteRingingData(const SipMessage* inviteRequest)
 {
+   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_RINGING_CODE, SIP_RINGING_TEXT);
 }
 
 void SipMessage::setQueuedResponseData(const SipMessage* inviteRequest)
 {
+   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_QUEUED_CODE, SIP_QUEUED_TEXT);
 }
 
@@ -570,12 +577,14 @@ void SipMessage::setInviteBusyData(const char* fromField, const char* toField,
 
 void SipMessage::setBadTransactionData(const SipMessage* inviteRequest)
 {
+   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_BAD_TRANSACTION_CODE,
         SIP_BAD_TRANSACTION_TEXT);
 }
 
 void SipMessage::setLoopDetectedData(const SipMessage* inviteRequest)
 {
+   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_LOOP_DETECTED_CODE,
         SIP_LOOP_DETECTED_TEXT);
 }
@@ -588,6 +597,7 @@ void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
    int sequenceNum;
    UtlString sequenceMethod;
 
+   setLocalIp(inviteRequest->getLocalIp());
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -602,6 +612,7 @@ void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
 void SipMessage::setForwardResponseData(const SipMessage* request,
                      const char* forwardAddress)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_TEMPORARY_MOVE_CODE, SIP_TEMPORARY_MOVE_TEXT);
 
    // Add the contact field for the forward address
@@ -624,7 +635,8 @@ void SipMessage::setForwardResponseData(const SipMessage* request,
 void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
                                     SipUserAgent* ua)
 {
-   char warningCodeString[MAXIMUM_INTEGER_STRING_LENGTH + 2];
+   setLocalIp(inviteRequest->getLocalIp());
+   char warningCodeString[MAXIMUM_INTEGER_STRING_LENGTH + 1];
    UtlString warningField;
 
    //setInviteBusyData(fromField.data(), toField.data(),
@@ -660,6 +672,7 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
 void SipMessage::setRequestBadMethod(const SipMessage* request,
                             const char* allowedMethods)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_METHOD_CODE, SIP_BAD_METHOD_TEXT);
 
    // Add a methods supported field
@@ -668,6 +681,7 @@ void SipMessage::setRequestBadMethod(const SipMessage* request,
 
 void SipMessage::setRequestUnimplemented(const SipMessage* request)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_UNIMPLEMENTED_METHOD_CODE,
         SIP_UNIMPLEMENTED_METHOD_TEXT);
 }
@@ -675,6 +689,7 @@ void SipMessage::setRequestUnimplemented(const SipMessage* request)
 void SipMessage::setRequestBadExtension(const SipMessage* request,
                             const char* disallowedExtension)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_EXTENSION_CODE, SIP_BAD_EXTENSION_TEXT);
 
    // Add a methods supported field
@@ -684,6 +699,7 @@ void SipMessage::setRequestBadExtension(const SipMessage* request,
 void SipMessage::setRequestBadContentEncoding(const SipMessage* request,
                    const char* allowedEncodings)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_MEDIA_CODE, SIP_BAD_MEDIA_TEXT);
 
    // Add a encodings supported field
@@ -696,22 +712,25 @@ void SipMessage::setRequestBadContentEncoding(const SipMessage* request,
 
 void SipMessage::setRequestBadAddress(const SipMessage* request)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_ADDRESS_CODE, SIP_BAD_ADDRESS_TEXT);
 }
 
 void SipMessage::setRequestBadVersion(const SipMessage* request)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_VERSION_CODE, SIP_BAD_VERSION_TEXT);
 }
 
 void SipMessage::setRequestBadRequest(const SipMessage* request)
 {
-
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
 void SipMessage::setRequestBadUrlType(const SipMessage* request)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_UNSUPPORTED_URI_SCHEME_CODE,
                    SIP_UNSUPPORTED_URI_SCHEME_TEXT);
 }
@@ -733,7 +752,7 @@ void SipMessage::setInviteOkData(const char* fromField,
    int len;
 
    setResponseData(SIP_OK_CODE, SIP_OK_TEXT, fromField, toField,
-                     callId, sequenceNumber, SIP_INVITE_METHOD);
+                     callId, sequenceNumber, SIP_INVITE_METHOD, localContact);
 
    // Create and add the SDP body
    sdpBody = new SdpBody();
@@ -776,6 +795,7 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
    UtlString sequenceMethod;
    const SdpBody* inviteSdp = NULL;
 
+   setLocalIp(inviteRequest->getLocalIp());
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -827,6 +847,7 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
 void SipMessage::setOkResponseData(const SipMessage* request,
                                    const char* localContact)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_OK_CODE, SIP_OK_TEXT, localContact);
 }
 
@@ -844,6 +865,7 @@ void SipMessage::setNotifyData(SipMessage *subscribeRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
+   setLocalIp(subscribeRequest->getLocalIp());
    subscribeRequest->getFromField(&fromField);
    subscribeRequest->getToField(&toField);
    subscribeRequest->getCallIdField(&callId);
@@ -1064,6 +1086,7 @@ void SipMessage::setVoicemailData(const char* fromField,
 
 void SipMessage::setRequestTerminatedResponseData(const SipMessage* request)
 {
+   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_REQUEST_TERMINATED_CODE, SIP_REQUEST_TERMINATED_TEXT);
 }
 
@@ -1074,6 +1097,7 @@ void SipMessage::setRequestUnauthorized(const SipMessage* request,
                             const char* authenticationOpaque,
                             enum HttpEndpointEnum authEntity)
 {
+   setLocalIp(request->getLocalIp());
     if(authEntity == SERVER)
     {
         setResponseData(request,
@@ -1159,6 +1183,7 @@ void SipMessage::setResponseData(const SipMessage* request,
                          const char* responseText,
                          const char* localContact)
 {
+   setLocalIp(request->getLocalIp());
    UtlString fromField;
    UtlString toField;
    UtlString callId;
@@ -1193,6 +1218,7 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
                             const char* contact,
                             int sessionTimerExpires)
 {
+   setLocalIp(inviteResponse->getLocalIp());
    UtlString fromField;
    UtlString toField;
    UtlString uri;
@@ -1307,6 +1333,7 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
 
 void SipMessage::setAckErrorData(const SipMessage* byeRequest)
 {
+   setLocalIp(byeRequest->getLocalIp());
    setResponseData(byeRequest, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
@@ -1338,6 +1365,8 @@ void SipMessage::setByeData(const SipMessage* inviteRequest,
    UtlString sequenceMethod;
    UtlString remoteContactString;
 
+   setLocalIp(inviteRequest->getLocalIp());
+
    if (remoteContact)
       remoteContactString.append(remoteContact);
 
@@ -1346,13 +1375,12 @@ void SipMessage::setByeData(const SipMessage* inviteRequest,
    inviteRequest->getCallIdField(&callId);
    inviteRequest->getCSeqField(&dummySequenceNum, &sequenceMethod);
 
-    if(routeField && *routeField)
-    {
-        setRouteField(routeField);
-    }
+   if(routeField && *routeField)
+   {
+       setRouteField(routeField);
+   }
 
-   //SDUA
-    if (!remoteContactString.isNull())
+   if (!remoteContactString.isNull())
    {
       uri.append(remoteContactString);
    }
@@ -1418,6 +1446,7 @@ void SipMessage::setReferData(const SipMessage* inviteRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
+   setLocalIp(inviteRequest->getLocalIp());
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -1520,16 +1549,19 @@ void SipMessage::setReferData(const SipMessage* inviteRequest,
 
 void SipMessage::setReferOkData(const SipMessage* referRequest)
 {
+   setLocalIp(referRequest->getLocalIp());
    setResponseData(referRequest, SIP_OK_CODE, SIP_OK_TEXT);
 }
 
 void SipMessage::setReferDeclinedData(const SipMessage* referRequest)
 {
+   setLocalIp(referRequest->getLocalIp());
    setResponseData(referRequest, SIP_DECLINE_CODE, SIP_DECLINE_TEXT);
 }
 
 void SipMessage::setReferFailedData(const SipMessage* referRequest)
 {
+   setLocalIp(referRequest->getLocalIp());
    setResponseData(referRequest, SIP_SERVICE_UNAVAILABLE_CODE, SIP_SERVICE_UNAVAILABLE_TEXT);
 }
 
@@ -1547,6 +1579,7 @@ void SipMessage::setOptionsData(const SipMessage* inviteRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
+   setLocalIp(inviteRequest->getLocalIp());
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -1613,6 +1646,7 @@ void SipMessage::setOptionsData(const SipMessage* inviteRequest,
 
 void SipMessage::setByeErrorData(const SipMessage* byeRequest)
 {
+   setLocalIp(byeRequest->getLocalIp());
    setResponseData(byeRequest, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
@@ -1633,6 +1667,8 @@ void SipMessage::setCancelData(const SipMessage* inviteRequest)
    UtlString callId;
    int sequenceNum;
    UtlString sequenceMethod;
+
+   setLocalIp(inviteRequest->getLocalIp());
 
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
@@ -1709,7 +1745,7 @@ void SipMessage::addVia(const char* domainName,
    }
    viaField.append(" ");
    viaField.append(domainName);
-   if(port > 0)
+   if(portIsValid(port))
    {
       sprintf(portString, ":%d", port);
       viaField.append(portString);
@@ -1944,7 +1980,7 @@ void SipMessage::buildSipUrl(UtlString* url, const char* address, int port,
 
    url->append(address);
 
-   if(port > 0)
+   if (portIsValid(port))
    {
       sprintf(portString, ":%d", port);
       url->append(portString);
@@ -2500,7 +2536,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
     // If the sender of the request indicated support of
     // rport (i.e. received port) send this response back to
     // the same port it came from
-    if(receivedSet && receivedPortSet && receivedPort > 0)
+    if(receivedSet && receivedPortSet && portIsValid(receivedPort))
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipMessage::getResponseSendAddress response to receivedPort %s:%d not %d\n",
             address.data(), receivedPort, port);
@@ -2709,7 +2745,7 @@ void SipMessage::getLastVia(UtlString* address,
                             int* receivedPort,
                             UtlBoolean* receivedSet,
                             UtlBoolean* maddrSet,
-                            UtlBoolean* receivePortSet) const
+                            UtlBoolean* receivedPortSet) const
 {
    UtlString Via;
 
@@ -2719,6 +2755,9 @@ void SipMessage::getLastVia(UtlString* address,
    UtlString receivedPortString;
    UtlString maddr;
    int index;
+   address->remove(0);
+   *port = PORT_NONE;
+   protocol->remove(0);
 
    if (port)
    {
@@ -2740,12 +2779,13 @@ void SipMessage::getLastVia(UtlString* address,
    {
       *maddrSet = FALSE;
    }
-   if (receivePortSet)
+   if (receivedPortSet)
    {
-      *receivePortSet = FALSE;
+      *receivedPortSet = FALSE;
    }
-
    
+   // Get the first (most recent) Via value, which is the one that tells
+   // how to send the response.
    if (getFieldSubfield(SIP_VIA_FIELD, 0, &Via))
    {
       NameValueTokenizer::getSubField(Via, 0, SIP_SUBFIELD_SEPARATORS,
@@ -2778,17 +2818,19 @@ void SipMessage::getLastVia(UtlString* address,
       {
          *port = viaParam.getHostPort();
       }
-      UtlBoolean receivedFound = viaParam.getUrlParameter("received",receivedAddress);
-      UtlBoolean maddrFound = viaParam.getUrlParameter("maddr",maddr);
-      UtlBoolean receivedPortFound = viaParam.getUrlParameter("rport",receivedPortString);
+      UtlBoolean receivedFound =
+         viaParam.getUrlParameter("received", receivedAddress);
+      UtlBoolean maddrFound = viaParam.getUrlParameter("maddr", maddr);
+      UtlBoolean receivedPortFound =
+         viaParam.getUrlParameter("rport", receivedPortString);
 
-      // The maddr takes precidence over the received by address
+      // The maddr takes precedence over the received-by address
       if(address && !maddr.isNull())
       {
          *address = maddr;
       }
 
-      // The received address takes precidence over the sent-by address
+      // The received address takes precedence over the sent-by address
       else if(address && !receivedAddress.isNull())
       {
          address->remove(0);
@@ -2802,7 +2844,7 @@ void SipMessage::getLastVia(UtlString* address,
       }
       else if(receivedPort)
       {
-         *receivedPort = 0;
+         *receivedPort = PORT_NONE;
       }
 
       if(receivedSet)
@@ -2813,10 +2855,9 @@ void SipMessage::getLastVia(UtlString* address,
       {
          *maddrSet = maddrFound;
       }
-      
-      if(receivePortSet)
+      if(receivedPortSet)
       {
-         *receivePortSet = receivedPortFound;
+         *receivedPortSet = receivedPortFound;
       }
    }
 }
@@ -4013,15 +4054,15 @@ UtlBoolean SipMessage::isSameSession(const SipMessage* message) const
             message->getFromAddress(&thatAddress, &thatPort, &thatProtocol,
                &thatUser, &thatUserLabel, &thatTag);
 
-            if(thisAddress.compareTo(thatAddress) == 0 &&
-            (thisPort == thatPort ||
-               (thisPort == 0 && thatPort == SIP_PORT) ||
-                  (thisPort == SIP_PORT && thatPort == 0)) &&
-            thisProtocol.compareTo(thatProtocol) == 0 &&
-            thisUser.compareTo(thatUser) == 0 &&
-            (thisTag.compareTo(thatTag , UtlString::ignoreCase) == 0 ||
-            (thisTag.isNull() && !isResponse()) ||
-            (thatTag.isNull() && !message->isResponse())))
+            if (thisAddress.compareTo(thatAddress) == 0 &&
+                (thisPort == thatPort ||
+                 (thisPort == PORT_NONE && thatPort == SIP_PORT) ||
+                 (thisPort == SIP_PORT && thatPort == PORT_NONE)) &&
+                thisProtocol.compareTo(thatProtocol) == 0 &&
+                thisUser.compareTo(thatUser) == 0 &&
+                (thisTag.compareTo(thatTag, UtlString::ignoreCase) == 0 ||
+                 (thisTag.isNull() && !isResponse()) ||
+                 (thatTag.isNull() && !message->isResponse())))
             {
                isSameFrom = TRUE;
             }
@@ -4065,16 +4106,15 @@ UtlBoolean SipMessage::isSameSession(const SipMessage* message) const
 
             // Everything must match with the exception that the
             // request may not have the tag set.
-            if(thisAddress.compareTo(thatAddress) == 0 &&
-            (thisPort == thatPort ||
-               (thisPort == 0 && thatPort == SIP_PORT) ||
-                  (thisPort == SIP_PORT && thatPort == 0)) &&
-            thisProtocol.compareTo(thatProtocol) == 0 &&
-            thisUser.compareTo(thatUser) == 0 &&
-            (thisTag.compareTo(thatTag , UtlString::ignoreCase) == 0 ||
-            (thisTag.isNull() && !isResponse()) ||
-            (thatTag.isNull() && !message->isResponse())))
-
+            if (thisAddress.compareTo(thatAddress) == 0 &&
+                (thisPort == thatPort ||
+                 (thisPort == PORT_NONE && thatPort == SIP_PORT) ||
+                 (thisPort == SIP_PORT && thatPort == PORT_NONE)) &&
+                thisProtocol.compareTo(thatProtocol) == 0 &&
+                thisUser.compareTo(thatUser) == 0 &&
+                (thisTag.compareTo(thatTag , UtlString::ignoreCase) == 0 ||
+                 (thisTag.isNull() && !isResponse()) ||
+                 (thatTag.isNull() && !message->isResponse())))
             {
                isSame = TRUE;
             }
@@ -4278,8 +4318,14 @@ UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
     UtlString name(headerFieldName);
     name.toUpper();
     UtlString nameCollectable(name);
-
-    return(NULL == disallowedUrlHeaders.find(&nameCollectable));
+    UtlBoolean isAllowed(FALSE);
+    
+    if (mpDisallowedUrlHeaders &&
+        NULL == mpDisallowedUrlHeaders->find(&nameCollectable))
+    {
+        isAllowed = TRUE;
+    }
+    return isAllowed;
 }
 
 //SDUA
@@ -4411,6 +4457,16 @@ void SipMessage::ParseContactFields(const SipMessage *registerResponse,
    }
    return ;
 
+}
+
+const UtlString& SipMessage::getLocalIp() const
+{
+    return mLocalIp;
+}
+
+void SipMessage::setLocalIp(const UtlString& localIp)
+{
+    mLocalIp = localIp;
 }
 
 /// Get the name/value pairs for a Via field
@@ -4548,6 +4604,3 @@ UtlBoolean SipMessage::getSipETagField(UtlString& sipETagField) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

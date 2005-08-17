@@ -11,7 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import java.awt.geom.Arc2D.Double;
+
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.DoubleConverter;
+
 public class RealSetting implements SettingType {
+    private static final Converter CONVERTER = new DoubleConverter();
+
     private float m_min;
 
     private float m_max = Float.MAX_VALUE;
@@ -44,5 +51,9 @@ public class RealSetting implements SettingType {
 
     public void setRequired(boolean required) {
         m_required = required;
+    }
+
+    public Object convertToTypedValue(Object value) {
+        return CONVERTER.convert(Double.class, value);
     }
 }

@@ -15,7 +15,7 @@
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
-#       include <winsock2.h>
+#       include <winsock.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
@@ -36,8 +36,8 @@
 #       include <sys/socket.h>
 #       include <arpa/inet.h>
 #       include <arpa/nameser.h>
+#       include <arpa/nameser_compat.h> /* T_SRV, etc., on recent BIND */
 #       include <resolv.h>
-#       include <malloc.h>
 #       include <string.h>
 #       include <stdlib.h>
 #define T_NULL_RR T_NULL

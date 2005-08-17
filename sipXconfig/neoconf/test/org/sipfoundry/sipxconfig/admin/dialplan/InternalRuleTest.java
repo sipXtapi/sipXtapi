@@ -19,8 +19,8 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule.Operator;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.common.Permission;
 
 /**
  * InternalRuleTest

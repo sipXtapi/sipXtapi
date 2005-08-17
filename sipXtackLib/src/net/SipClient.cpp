@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -26,7 +24,6 @@
 #include <os/OsEvent.h>
 
 #define SIP_DEFAULT_RTT 500
-//#define _VXWORKS
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -62,15 +59,15 @@ SipClient::SipClient(OsSocket* socket) :
  {
    //set default value for first transcation time out
    mFirstResendTimeoutMs = SIP_DEFAULT_RTT * 4;
-        sipUserAgent = NULL;
-        clientSocket = socket;
-    mRemoteViaPort = -1;
-    mRemoteReceivedPort = -1;
-    mWaitingList = NULL;
-    mInUseForWrite = 0;
-    mbSharedSocket = FALSE ;
+   sipUserAgent = NULL;
+   clientSocket = socket;
+   mRemoteViaPort = PORT_NONE;
+   mRemoteReceivedPort = PORT_NONE;
+   mWaitingList = NULL;
+   mInUseForWrite = 0;
+   mbSharedSocket = FALSE ;
 
-    touch();
+   touch();
 
    if(socket)
    {
@@ -88,9 +85,10 @@ SipClient::SipClient(OsSocket* socket) :
 
 }
 
+
 // Copy constructor
- SipClient::SipClient(const SipClient& rSipClient) :
-mSocketLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
+SipClient::SipClient(const SipClient& rSipClient) 
+    : mSocketLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
 }
 
@@ -98,14 +96,14 @@ mSocketLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 SipClient::~SipClient()
 {
 #ifdef TEST_PRINT
-        osPrintf("SipClient::~SipClient Start\n");
-#endif
+    osPrintf("SipClient::~SipClient Start\n");
+#endif  
 
-        // Do not delete the event listers they are not subordinate
+    // Do not delete the event listers they are not subordinate
 
-        // Free the socket
-        if(clientSocket)
-        {
+    // Free the socket
+    if(clientSocket)
+    {
         // Close the socket to unblock the run method
         // in case it is blocked in a isReadyToRead or
         // a read on the clientSocket.  This should also
@@ -117,14 +115,13 @@ SipClient::~SipClient()
         osPrintf("SipClient::~SipClient closing socket\n");
 #endif
 
-
         if (!mbSharedSocket)
         {
            clientSocket->close();
         }
 
-           // Signal everybody to stop waiting for this SipClient
-           signalAllAvailableForWrite();
+        // Signal everybody to stop waiting for this SipClient
+        signalAllAvailableForWrite();
 
         // Wait for the task to exit so that it does not
         // reference the socket or other members after they
@@ -144,17 +141,15 @@ SipClient::~SipClient()
 #endif
         if (!mbSharedSocket)
         {
-                   delete clientSocket;
+            delete clientSocket;
         }
-                clientSocket = NULL;
-
-
-        }
+        clientSocket = NULL;
+    }
     else if(isStarted() || isShuttingDown())
     {
-                #ifdef TEST_PRINT
+#ifdef TEST_PRINT
         osPrintf("SipClient::~SipClient Wait until shutdown\n");
-                #endif
+#endif
 
         // It should not get here but just in case
         waitUntilShutDown();
@@ -172,37 +167,39 @@ SipClient::~SipClient()
         delete mWaitingList;
         mWaitingList = NULL;
     }
+
+    // Do not delete the event listers they are not subordinate
 }
 
 /* ============================ MANIPULATORS ============================== */
 
 int SipClient::run(void* runArg)
 {
-        int bytesRead;
-   UtlString buffer;
-        SipMessage* message = NULL;
-        UtlString remoteHostName;
-        UtlString viaProtocol;
-   UtlString fromIpAddress;
-   int fromPort;
-   int numFailures = 0;
-        UtlBoolean internalShutdown = FALSE;
-   UtlBoolean readAMessage = FALSE;
-        int readBufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE;
+    int bytesRead;
+    UtlString buffer;
+    SipMessage* message = NULL;
+    UtlString remoteHostName;
+    UtlString viaProtocol;
+    UtlString fromIpAddress;
+    int fromPort;
+    int numFailures = 0;
+    UtlBoolean internalShutdown = FALSE;
+    UtlBoolean readAMessage = FALSE;
+    
+    int readBufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE;
 
-        if(clientSocket->getIpProtocol() == OsSocket::UDP)
+    if(clientSocket->getIpProtocol() == OsSocket::UDP)
+    {
+        readBufferSize = MAX_UDP_PACKET_SIZE;
+    }
+
+    while(   !isShuttingDown()
+            && !internalShutdown
+            && clientSocket
+            && clientSocket->isOk())
+    {
+        if(clientSocket)
         {
-                readBufferSize = MAX_UDP_PACKET_SIZE;
-        }
-
-
-        while(   !isShuttingDown()
-         && !internalShutdown
-         && clientSocket
-         && clientSocket->isOk())
-        {
-                if(clientSocket)
-                {
 #ifdef LOG_TIME
             OsTimeLog eventTimes;
 #endif
@@ -220,7 +217,7 @@ int SipClient::run(void* runArg)
 #ifdef LOG_TIME
                 eventTimes.addEvent("locking");
 #endif
-                //Lock to prevent multitreaded read or write
+                // Lock to prevent multitreaded read or write
                 mSocketLock.acquire();
 
 #ifdef LOG_TIME
@@ -312,13 +309,7 @@ int SipClient::run(void* runArg)
                                   bytesRead, (clientSocket->isOk() ? "OK" : "NO")
                                   );
 
-#ifdef _VXWORKS
-                    mSocketLock.acquire();
-#endif
                     clientSocket->close();
-#ifdef _VXWORKS
-                    mSocketLock.release();
-#endif
                     internalShutdown = TRUE;
                 }
             }
@@ -346,7 +337,8 @@ int SipClient::run(void* runArg)
                        logMessage.append(fromIpAddress);
                        logMessage.append("---- Port: ");
                        char buff[10];
-                       sprintf(buff, "%d",fromPort == 0? 5060:fromPort);
+                       sprintf(buff, "%d",
+                               !portIsValid(fromPort) ? 5060 : fromPort);
                        logMessage.append(buff);
                        logMessage.append("----\n");
 
@@ -372,6 +364,10 @@ int SipClient::run(void* runArg)
 
                     // Keep track of where this message came from
                     message->setSendAddress(fromIpAddress.data(), fromPort);
+                    
+                    // Keep track of the interface on which this message was
+                    // received.               
+                    message->setLocalIp(clientSocket->getLocalIp());
 
                     if(mReceivedAddress.isNull())
                     {
@@ -401,7 +397,10 @@ int SipClient::run(void* runArg)
                         // If the rport tag is present the sender wants to
                         // know what port this message was received from
                         int tempLastPort = lastPort;
-                        if(lastPort == 0) tempLastPort = 5060;
+                        if (!portIsValid(lastPort))
+                        {
+                           tempLastPort = 5060;
+                        }
 
                         if (receivedPortSet)
                         {
@@ -429,7 +428,7 @@ int SipClient::run(void* runArg)
                         if(mRemoteViaAddress.isNull())
                         {
                             mRemoteViaAddress = lastAddress;
-                            mRemoteViaPort = lastPort > 0 ? lastPort : 5060;
+                            mRemoteViaPort = portIsValid(lastPort) ? lastPort : 5060;
                         }
                     }
 
@@ -515,31 +514,12 @@ int SipClient::run(void* runArg)
 
 UtlBoolean SipClient::isReadyToRead()
 {
-   UtlBoolean readyToRead = FALSE;
+    UtlBoolean readyToRead = FALSE;
 
-#ifdef _VXWORKS
-
-   UtlBoolean bSocketError = FALSE;
-   int isReadyCount = 0;
-
-        // On Vxworks we set a maximum block time to prevent
-        // locking out of close of the socket in the SipClient
-        // destructor
-   do
-   {
-      isReadyCount++;
-
-        mSocketLock.acquire();
-           readyToRead = clientSocket->isReadyToReadEx(50,bSocketError);
-      mSocketLock.release();
-
-   } while (!bSocketError && clientSocket->isOk() && !readyToRead);
-#else
-           readyToRead = clientSocket->isReadyToRead(-1);
-#endif
+    readyToRead = clientSocket->isReadyToRead(-1);
 
 
-        return(readyToRead);
+    return(readyToRead);
 }
 
 
@@ -568,9 +548,6 @@ UtlBoolean SipClient::send(SipMessage* message)
          OsTimeLog eventTimes;
          eventTimes.addEvent("wait to write");
 #endif
-#ifdef _VXWORKS
-         mSocketLock.acquire();
-#endif
          // Wait until the socket is ready to write
          if(clientSocket->isReadyToWrite(mFirstResendTimeoutMs))
          {
@@ -578,9 +555,7 @@ UtlBoolean SipClient::send(SipMessage* message)
             eventTimes.addEvent("wait to lock");
 #endif
             //Lock to prevent multitreaded read or write
-#ifndef _VXWORKS
             mSocketLock.acquire();
-#endif
 #ifdef LOG_TIME
             eventTimes.addEvent("writing");
 #endif
@@ -588,9 +563,7 @@ UtlBoolean SipClient::send(SipMessage* message)
 #ifdef LOG_TIME
             eventTimes.addEvent("releasing");
 #endif
-#ifndef _VXWORKS
             mSocketLock.release();
-#endif
 #ifdef LOG_TIME
             eventTimes.addEvent("released");
             UtlString timeString;
@@ -608,10 +581,6 @@ UtlBoolean SipClient::send(SipMessage* message)
          {
             clientSocket->close();
          }
-
-#ifdef _VXWORKS
-         mSocketLock.release();
-#endif
       }
    }
 
@@ -647,11 +616,11 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
           {
              //Lock to prevent multitreaded read or write
              mSocketLock.acquire();
-             bytesWritten = ((OsDatagramSocket*)clientSocket)->write(buffer.data(), bufferLen,
-                                                                     address,
-                                                                     // zero means use default
-                                                                     port ? port : SIP_PORT
-                                                                     );
+             bytesWritten = ((OsDatagramSocket*)clientSocket)->
+                write(buffer.data(), bufferLen, address,
+                      // PORT_NONE means use default.
+                      (port == PORT_NONE) ? SIP_PORT : port
+                   );
              mSocketLock.release();
 
              if(bufferLen == bytesWritten)
@@ -853,7 +822,7 @@ UtlBoolean SipClient::isOk()
 UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
 {
     UtlBoolean isSame = FALSE;
-    int tempHostPort = hostPort > 0 ? hostPort : SIP_PORT; // TODO: not correct for TLS
+    int tempHostPort = portIsValid(hostPort) ? hostPort : SIP_PORT; // :TODO: not correct for TLS
 
     // If the ports match and the host is the same as either the
     // original name that the socket was constructed with or the
@@ -894,6 +863,12 @@ void SipClient::markAvailbleForWrite()
     mInUseForWrite = 0;
     signalNextAvailableForWrite();
 }
+
+const UtlString& SipClient::getLocalIp()
+{
+    return clientSocket->getLocalIp();
+}
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

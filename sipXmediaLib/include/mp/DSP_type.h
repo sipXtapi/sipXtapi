@@ -1,18 +1,16 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef DSP_TYPE   /* [ */
 #define DSP_TYPE
 
-#if (defined(_VXWORKS) || defined(__linux__) || defined(sun)) /* [ */
+#if (defined(_VXWORKS) || defined(__pingtel_on_posix__)) /* [ */
 typedef long long int Word64S;
 typedef unsigned long long int Word64;
 

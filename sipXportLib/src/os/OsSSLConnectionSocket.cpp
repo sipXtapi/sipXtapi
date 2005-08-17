@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -58,7 +54,7 @@
 
 // Constructor
 OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long timeoutInSecs) :
-    OsConnectionSocket(connectedSocketDescriptor),
+    OsConnectionSocket(NULL, connectedSocketDescriptor),
     mSSL(NULL)
 {
    if (mIsConnected)
@@ -78,7 +74,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long
 }
 
 OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor) :
-    OsConnectionSocket(connectedSocketDescriptor)
+    OsConnectionSocket(NULL, connectedSocketDescriptor)
 {
     mbExternalSSLSocket = TRUE;
     mSSL = s;
@@ -266,7 +262,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
     {
        int err = -1;
 
-       // TODO: eventually this could allow for other SSL contexts...
+       // TODO: eventually this should allow for other SSL contexts...
        mSSL = OsSharedSSL::get()->getServerConnection();
 
        if (mSSL && (socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR))
@@ -285,7 +281,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
           else
           {
              OsSSL::logError(FAC_KERNEL, PRI_ERR,
-                             "OsSSLConnectionSocket SSL_connect failed", SSL_get_error(mSSL, err));
+                             "OsSSLConnectionSocket SSL_connect failed: %s", SSL_get_error(mSSL, err));
              mIsConnected = FALSE;
              OsConnectionSocket::close();
              socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;          

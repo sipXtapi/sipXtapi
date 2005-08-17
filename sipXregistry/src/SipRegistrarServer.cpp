@@ -834,7 +834,7 @@ SipRegistrarServer::addValidDomain(const UtlString& host, int port)
    valid->toLower();
 
    char explicitPort[20];
-   sprintf(explicitPort,":%d",0==port ? SIP_PORT : port );
+   sprintf(explicitPort,":%d", PORT_NONE==port ? SIP_PORT : port );
    valid->append(explicitPort);
    
    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::addValidDomain(%s)\n",valid->data()) ;
@@ -856,7 +856,7 @@ SipRegistrarServer::isValidDomain(
     lookupDomain.toLower();
 
     int port = reqUri.getHostPort();
-    if (0==port)
+    if (port == PORT_NONE)
     {
        port = SIP_PORT;
     }

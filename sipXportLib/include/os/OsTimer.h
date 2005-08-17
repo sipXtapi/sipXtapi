@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsTimer_h_
 #define _OsTimer_h_
@@ -16,11 +14,13 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
+#include "os/OsMsgQ.h"
 #include "os/OsDateTime.h"
 #include "os/OsNotification.h"
 #include "os/OsStatus.h"
 #include "os/OsTime.h"
 #include "utl/UtlContainable.h"
+
 
 // DEFINES
 // MACROS
@@ -55,11 +55,20 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+    //:Constructor
+    // Timer expiration event notification happens using a newly created
+    // OsQueuedEvent object.
+    // The address of "this" OsTimer object is the eventData that is
+    // conveyed to the Listener when the notification is signaled.
+   OsTimer(OsMsgQ* pQueue, const int userData);
+
+    //:Constructor
+    // *Deprecated*
+    // Timer expiration event notification happens using the OsNotification
+    // object. The address of "this" OsTimer object is the eventData that is
+    // conveyed to the Listener when the notification is signaled.
+    // *Deprecated*
    OsTimer(OsNotification& rNotifier);
-     //:Constructor
-     // Timer expiration event notification happens using the OsNotification
-     // object. The address of "this" OsTimer object is the eventData that is
-     // conveyed to the Listener when the notification is signaled.
 
    virtual
    ~OsTimer();
@@ -99,6 +108,8 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
+    virtual const int getUserData() { return mUserData; }
+    
 /* ============================ INQUIRY =================================== */
 
     /**
@@ -196,7 +207,8 @@ private:
    int             mState;     // object state (see the OsTimerState enum)
    int             mTimerId;   // system (low-level) timer id
    int             mType;      // timer type
-
+   bool            mbManagedNotifier;
+   const int        mUserData;  // user data supplied in the constructor 
 };
 
 /* ============================ INLINE METHODS ============================ */

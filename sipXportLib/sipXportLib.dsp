@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "include\glib" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "DISABLE_MEM_POOLS" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\..\sipXportLib\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "DISABLE_MEM_POOLS" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -85,27 +85,7 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\src\os\Wnt\getWindowsDNSServers.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\glib\ghash.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\glib\glist.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\glib\gmem.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\glib\gprimes.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\glib\gtree.c
+SOURCE=.\src\os\Wnt\getWindowsDNSServers.cpp
 # End Source File
 # Begin Source File
 
@@ -277,6 +257,10 @@ SOURCE=.\src\os\OsProtectEventMgr.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsPtrMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsQueuedEvent.cpp
 # End Source File
 # Begin Source File
@@ -393,10 +377,6 @@ SOURCE=.\src\os\Wnt\OsUtilWnt.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\glib\sipxstubs.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\xmlparser\tinystr.cpp
 # End Source File
 # Begin Source File
@@ -454,6 +434,10 @@ SOURCE=.\src\utl\UtlInt.cpp
 # Begin Source File
 
 SOURCE=.\src\utl\UtlIterator.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlLink.cpp
 # End Source File
 # Begin Source File
 
@@ -710,6 +694,10 @@ SOURCE=.\include\os\OsProtectEvent.h
 # Begin Source File
 
 SOURCE=.\include\os\OsProtectEventMgr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsPtrMsg.h
 # End Source File
 # Begin Source File
 

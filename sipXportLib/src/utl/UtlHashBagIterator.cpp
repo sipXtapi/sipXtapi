@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -17,24 +17,43 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const size_t UtlHashBagIterator::BEFORE_FIRST = (size_t)(-1);
-
 // STATIC VARIABLE INITIALIZATIONS
 
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
+/*
+ * ===========================  Design Notes  =====================================
+ *
+ *   The following tables show the state of the position tracking member variables
+ *   for different iterator states.  The states of a keyed iterator and an unkeyed
+ *   iterator are shown separately.  (The state following a reset() is the same as
+ *   the Initial state)
+ *
+ * ================ Unkeyed iterator (created without passing a key object)
+ *                            mPosition           mpCurrentLink     mLinkIsValid
+ * Initial()                      0                  NULL             true
+ * on returned item      0..(numberOfBuckets-1)    ->UtlLink->item    true
+ * on removed item       0..(numberOfBuckets-1)    ->UtlLink->item    false
+ * after last item          numberOfBuckets          NULL             true
+ *
+ * ================ Keyed iterator (created providing a key object)
+ *                            mPosition           mpCurrentLink     mLinkIsValid
+ * Initial(key)       bucketNumber(mpSubsetHash)      NULL            true
+ * on returned item   bucketNumber(mpSubsetHash)  ->UtlLink->item     true
+ * on removed item    bucketNumber(mpSubsetHash)  ->UtlLink->item     false
+ * after last item          numberOfBuckets          NULL             true
+ *
+ */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlHashBagIterator::UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key)   
-   : UtlIterator(hashBag),
-     mpSubsetMatch(key)
+UtlHashBagIterator::UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key) :
+   UtlIterator(hashBag),
+   mpSubsetMatch(key)
 {
    OsLock container(const_cast<OsBSem&>(hashBag.mContainerLock));
-
    addToContainer(mpMyContainer);
 
-   init(&hashBag);
+   init(hashBag);
 }
 
 
@@ -50,9 +69,11 @@ UtlHashBagIterator::~UtlHashBagIterator()
       UtlContainer::releaseIteratorConnectionLock();
 
       myHashBag->removeIterator(this);
-      mpMyContainer = NULL;
 
-      flush();
+      // in case the existence of this iterator has been preventing a resize
+      myHashBag->resizeIfNeededAndSafe();
+      
+      mpMyContainer = NULL;
    }
    else
    {
@@ -75,30 +96,76 @@ UtlContainable* UtlHashBagIterator::operator()()
       OsLock container(myHashBag->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      do 
+      if (mPosition < myHashBag->numberOfBuckets())
       {
-         if ( mpListNode )
+         if (mpSubsetMatch)
          {
-            // we are somewhere in the list mpKeyLists[mListIndex]
-            mpListNode = g_list_next(mpListNode);
-            if (mpListNode)
+            /*
+             * This iterator only returns elements matching mpSubsetMatch
+             * so mPosition (the bucket index) never changes - all matches
+             * are by definition in the same bucket.
+             */
+            UtlLink* link;
+            for ( link = (  mpCurrentLink
+                          ? static_cast<UtlLink*>(mpCurrentLink->UtlChain::next)
+                          : static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead())
+                          );
+                  (   !foundObject              // no match found yet
+                   && link                      // but we have a link
+                   && link->hash <= mSubsetHash /* bucket list is sorted by hash code,
+                                                 * so when link->hash > mSubsetHash
+                                                 * there will be no more matches */
+                   );
+                  link = link->next()
+                 )
             {
-               foundObject = (UtlContainable*)mpListNode->data;
+               if (   link->hash == mSubsetHash          // save the call to isEqual
+                   && link->data->isEqual(mpSubsetMatch) // the real test of equality
+                   )
+               {
+                  mpCurrentLink = link;
+                  foundObject   = link->data;
+               }
+            }
+            if (!foundObject)
+            {
+               mPosition = myHashBag->numberOfBuckets(); // that's it - no more matches
             }
          }
          else
          {
-            // we have reached the end of a list
-            if ( ++mListIndex < mKeyListSize ) // is there another list?
+            // this iterator has no subset to match - it walks all elements in the hash
+
+            for ( mpCurrentLink = (  mpCurrentLink
+                                   ? static_cast<UtlLink*>(mpCurrentLink->UtlChain::next)
+                                   : static_cast<UtlLink*>(
+                                      myHashBag->mpBucket[mPosition].listHead())
+                                   );
+                  (   !mpCurrentLink // there was a next - this bucket has another item in it
+                   && (  ++mPosition // if not, bump the bucket 
+                       < myHashBag->numberOfBuckets() // have we looked at the last bucket?
+                       )
+                   );
+                  mpCurrentLink = static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead()) 
+                 )
             {
-               mpListNode = g_list_first(mpKeyLists[mListIndex]); // get the next list header
-               if ( mpListNode ) // lists can be empty due to removals...
-               {
-                  foundObject = (UtlContainable*)mpListNode->data;
-               }
+            }
+
+            if(mpCurrentLink)
+            {
+               foundObject = mpCurrentLink->data;
+            }
+            else
+            {
+               // this iterator is done - mPosition walked off the end.
             }
          }
-      } while ( !foundObject && mListIndex < mKeyListSize );
+      }
+      else
+      {
+         // mPosition >= myHashMap->numberOfBuckets(), so we've run off the end of the entries.
+         mpCurrentLink = NULL;
+      }
    }
    else
    {
@@ -118,8 +185,7 @@ void UtlHashBagIterator::reset()
       OsLock container(myHashBag->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      flush();
-      init(myHashBag);
+      init(*myHashBag);
    }
    else
    {
@@ -142,9 +208,9 @@ UtlContainable* UtlHashBagIterator::key() const
       OsLock container(myHashBag->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      if (mpListNode) // current position is defined
+      if (mLinkIsValid && mpCurrentLink) // current position is defined
       {
-         current = (UtlContainable*)mpListNode->data;
+         current = mpCurrentLink->data;
       }
    }
    else
@@ -160,112 +226,35 @@ UtlContainable* UtlHashBagIterator::key() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-void UtlHashBagIterator::removing(const GList* node)
+void UtlHashBagIterator::removing(const UtlLink* link)
 {
    // caller is holding the mContainerLock
 
-   size_t keyIndex = BEFORE_FIRST;
-   
-   if (mpKeyLists)
+   if (link = mpCurrentLink)
    {
-      // check to see if node was a cached list header
-      for (size_t i = 0; keyIndex == BEFORE_FIRST && i < mKeyListSize; i++)
-      {
-         if (mpKeyLists[i] == node)
-         {
-            keyIndex = i;
-         }
-      }
-      if (keyIndex != BEFORE_FIRST)
-      {
-         // the node to be removed is in our cached copy of list headers,
-         // so advance the cache to the next node in the list.
-         mpKeyLists[keyIndex] = g_list_next(node);
-      }
-      
-      if (mpListNode && mpListNode == node) // removing the current node?
-      {
-         mpListNode = g_list_previous(mpListNode);
-         if (mpListNode == NULL)
-         {
-            // node was the first in its list, so back up the index of which list we're in
-            mListIndex--;
-         }
-      }
+      mLinkIsValid  = false;
+      mpCurrentLink = mpCurrentLink->prev();
    }
 }
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void UtlHashBagIterator::init(UtlHashBag* hashBag)
+void UtlHashBagIterator::init(UtlHashBag& hashBag)
 {
    // caller is holding the mContainerLock
 
-   // default to a null iterator
-   mpKeyLists = NULL;
-   mKeyListSize = 0;
+   mpCurrentLink = NULL;
+   mLinkIsValid  = true;
 
-   if (hashBag)
+   if (mpSubsetMatch)
    {
-      if ( mpSubsetMatch ) // is this iterator filtered for some key?
-      {      
-         GList* thisKeyList = (GList*)g_hash_table_lookup(hashBag->mpHashTable, mpSubsetMatch);
-      
-         if ( thisKeyList )
-         {
-            mKeyListSize = 1;
-            mpKeyLists = new GList*[mKeyListSize];
-            mpKeyLists[0] = thisKeyList;
-         }
-         else
-         {
-            // this key is not in the subset; leave it a null iterator
-         }
-      }
-      else
-      {
-         // this iterator is for all keys
-         // create a cache of the list headers for each unique key
-         mKeyListSize = g_hash_table_size(hashBag->mpHashTable); 
-         mpKeyLists = new GList*[mKeyListSize];
-   
-         assert(mpKeyLists != NULL);
-
-         mListIndex = 0; // set up to fill in table
-         g_hash_table_foreach(hashBag->mpHashTable, fillInKeyLists, this);
-      }
+      mSubsetHash = mpSubsetMatch->hash();
+      mPosition = hashBag.bucketNumber(mSubsetHash);
    }
-
-   
-   mpListNode = NULL;
-   mListIndex = BEFORE_FIRST;
-}
-
-void UtlHashBagIterator::fillInKeyLists(gpointer key, 
-                                        gpointer value, 
-                                        gpointer user_data
-                                        )
-{
-   UtlHashBagIterator* my = (UtlHashBagIterator*)user_data; // 'this' passed through C library
-
-   assert( my->mListIndex < my->mKeyListSize );
-
-   my->mpKeyLists[my->mListIndex++] = (GList*)value;
-}
-
-
-void UtlHashBagIterator::flush()
-{
-   // caller is holding mContainerLock and mContainerRefLock
-
-   mKeyListSize = 0;
-   mListIndex = BEFORE_FIRST;
-   mpListNode = NULL;
-   if (mpKeyLists)
+   else
    {
-      delete[] mpKeyLists;
-      mpKeyLists = NULL;
+      mPosition = 0;
    }
 }
 

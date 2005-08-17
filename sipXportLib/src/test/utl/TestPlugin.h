@@ -56,4 +56,3 @@ private:
    UtlHashMap  mConfiguration;
    bool        mConfigured;
 };
-

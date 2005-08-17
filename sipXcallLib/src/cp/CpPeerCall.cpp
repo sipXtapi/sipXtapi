@@ -1,17 +1,15 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
- 
+////////////////////////////////////////////////////////////////////////
+//////
+
+
 
 // SYSTEM INCLUDES
-#include <stdio.h>
+#include "os/OsDefs.h"
 
 // APPLICATION INCLUDES
 #include "utl/UtlRegex.h"
@@ -45,9 +43,9 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define CALL_STATUS_FIELD       "status"
-#define CALL_DELETE_DELAY_SECS  4     // Number of seconds between a drop 
-                                      // request (call) and call deletion
-                                      // (call manager)
+#define CALL_DELETE_DELAY_SECS  2     // Number of seconds between a drop 
+// request (call) and call deletion
+// (call manager)
 #ifdef _WIN32
 #   define CALL_CONTROL_TONES
 #endif
@@ -79,15 +77,16 @@ CpPeerCall::CpPeerCall(UtlBoolean isEarlyMediaFor180Enabled,
                        int forwardOnNoAnswerMilliSeconds, 
                        const char* forwardOnNoAnswerUrl,
                        int ringingExpireSeconds) :
-CpCall(callManager, callMediaInterface, callIndex, callId, holdType),
-mConnectionMutex(OsRWMutex::Q_PRIORITY),
-mIsEarlyMediaFor180(TRUE)
+CpCall(callManager, callMediaInterface, callIndex, callId,
+       holdType),
+       mConnectionMutex(OsRWMutex::Q_PRIORITY),
+       mIsEarlyMediaFor180(TRUE)
 {
 #ifdef TEST_PRINT
     if (callId)
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall constructor: %s\n", callId);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall constructor: %s\n", callId);
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall constructor:: callId is Null\n");
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall constructor:: callId is Null\n");
 #endif
 
     // SIP and Peer to Peer call intialization
@@ -124,7 +123,7 @@ mIsEarlyMediaFor180(TRUE)
 
     else
     {
-       noAnswerTimeout = ringingExpireSeconds;
+        noAnswerTimeout = ringingExpireSeconds;
     }
 
     if(defaultCallExtension)
@@ -158,7 +157,6 @@ mIsEarlyMediaFor180(TRUE)
 
     mDialMode = ADD_PARTY;
     setCallType(CP_NORMAL_CALL);
-    meContactType = AUTO ;
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::Call outbound line: %s\n", mName.data(), mLocalAddress.data());
@@ -167,14 +165,14 @@ mIsEarlyMediaFor180(TRUE)
     mbRequestedDrop = false ;
 #ifdef TEST_PRINT
     if (callId)
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall constructor: %s\n", callId);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall constructor: %s\n", callId);
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall constructor:: callId is Null\n");
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall constructor:: callId is Null\n");
 #endif
 
 #ifndef SIPXTAPI_EXCLUDE
-    eLastMajor = (SIPX_CALLSTATE_MAJOR) -1 ;
-    eLastMinor = (SIPX_CALLSTATE_MINOR) -1 ;
+    eLastMajor = (SIPX_CALLSTATE_EVENT) -1 ;
+    eLastMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
 #endif
 }
 
@@ -187,15 +185,16 @@ mConnectionMutex(OsRWMutex::Q_PRIORITY)
 // Destructor
 CpPeerCall::~CpPeerCall()
 {
+   waitUntilShutDown(20000) ;
 #ifdef TEST_PRINT
     UtlString name = getName();
     if (!mCallId.isNull())
     {
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor: %s\n", name.data(), mCallId.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor: %s\n", name.data(), mCallId.data());       
     }
     else
     {
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor:: callId is Null\n", name.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor:: callId is Null\n", name.data());       
     }
 #endif
 
@@ -208,11 +207,11 @@ CpPeerCall::~CpPeerCall()
 #ifdef TEST_PRINT
     if (!mCallId.isNull())
     {   
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor: %s\n", name.data(), mCallId.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor: %s\n", name.data(), mCallId.data());       
     }
     else
     {
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor:: callId is Null\n", name.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor:: callId is Null\n", name.data());       
     }
 #endif
 }
@@ -223,10 +222,10 @@ CpPeerCall::~CpPeerCall()
 CpPeerCall& 
 CpPeerCall::operator=(const CpPeerCall& rhs)
 {
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
+    if (this == &rhs)            // handle the assignment to self case
+        return *this;
 
-   return *this;
+    return *this;
 }
 
 // Handles the processing of a CallManager::CP_DIAL_STRING message
@@ -235,11 +234,12 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     UtlString dialString;
     UtlString desiredCallId;
     UtlString remoteHostName;
-    CONTACT_TYPE eType ;
+    CONTACT_ID contactId ;
 
     ((CpMultiStringMessage*)pEventMessage)->getString1Data(dialString);    
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(desiredCallId);
-    eType = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();    
+    contactId = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall: dialing string: \'%s\' length: %d\n", 
@@ -273,12 +273,12 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
         if (desiredCallId.length() != 0)
         {
             // Use supplied callId
-            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), eType);
+            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId);
         }
         else
         {
             // Use default call id
-            addParty(remoteHostName.data(), NULL, NULL, NULL, eType);
+            addParty(remoteHostName.data(), NULL, NULL, NULL, contactId);
         }        
     } 
 
@@ -323,7 +323,7 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         const char* metaCallIds[2];
         metaCallIds[0] = targetCallId.data(); // New call first
         metaCallIds[1] = thisCallId.data();
-        
+
         // Start the meta event
         startMetaEvent(metaEventId, PtEvent::META_CALL_TRANSFERRING, 2, metaCallIds);
 
@@ -331,8 +331,8 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         mpManager->createCall(&targetCallId, metaEventId, 
             PtEvent::META_CALL_TRANSFERRING, 2, metaCallIds,
             FALSE);  // Do  not assume focus if there is no infocus call
-            // as this is not a real call.  It is a place holder for call
-            // state on the remote call
+        // as this is not a real call.  It is a place holder for call
+        // state on the remote call
 
         if(msgSubType == CallManager::CP_BLIND_TRANSFER)
         {
@@ -373,7 +373,7 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
                 osPrintf("%s-CpPeerCall::CP_BLIND_TRANSFER posting CONNECTION_FAILED to call: %s\n",
                     mName.data(), targetCallId.data());
 #endif
-           }
+            }
             else
             {
                 // Send a message to the target call for each transfered
@@ -384,104 +384,53 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
                 connection->getRemoteAddress(&connectionAddress);
 #ifdef TEST_PRINT
                 osPrintf("%s-2 party transfer on connection: %s original call: %s target call: %s\n", 
-                     mName.data(), connectionAddress.data(), originalCallId.data(), targetCallId.data());
+                    mName.data(), connectionAddress.data(), originalCallId.data(), targetCallId.data());
 #endif
                 CpMultiStringMessage transferConnect(CallManager::CP_TRANSFER_CONNECTION,
-                targetCallId.data(), 
-                transferTargetAddress.data(), 
-                originalCallId.data(),
-                connectionAddress.data(),
-                NULL,
-                metaEventId);
+                    targetCallId.data(), 
+                    transferTargetAddress.data(), 
+                    originalCallId.data(),
+                    connectionAddress.data(),
+                    NULL,
+                    metaEventId);
                 mpManager->postMessage(transferConnect);
             }
         }
     }
-    
+
     return TRUE;
 }
 
-// Handles the processing of a CallManager::CP_CONSULT_TRANSFER message      
-UtlBoolean CpPeerCall::handleConsultTransfer(OsMsg* pEventMessage)
+// Handles the processing of a CallManager::CP_CONSULT_TRANSFER_ADDRESS
+// message.
+UtlBoolean CpPeerCall::handleTransferAddress(OsMsg* pEventMessage)
 {
-#ifdef COMMENT_OUT_THIS_CHUNK 
+    CpMultiStringMessage* pMessage = (CpMultiStringMessage*) pEventMessage ;
+    int msgSubType = pEventMessage->getMsgSubType() ;
 
-    // This message is received by the original call on
-    // the transfer controller
-    if(getCallType() == CP_NORMAL_CALL)// should be CP_CONSULT_CALL?
-    { 
-        setCallType(CP_TRANSFER_CONTROLLER_ORIGINAL_CALL);
+    UtlString sourceCallId ;
+    UtlString sourceAddress ;
+    UtlString targetCallId ;
+    UtlString targetAddress ;
+    UtlString targetUrl ;
 
-        int metaEventId = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-        UtlString targetCallId;
-        ((CpMultiStringMessage*)pEventMessage)->getString3Data(targetCallId);
-        setTargetCallId(targetCallId.data());
+    // Parse parameters
+    pMessage->getString1Data(sourceCallId) ;
+    pMessage->getString2Data(sourceAddress) ;
+    pMessage->getString3Data(targetCallId) ;
+    pMessage->getString4Data(targetAddress) ;
+    pMessage->getString5Data(targetUrl) ;
 
-        UtlString thisCallId;
-        getCallId(thisCallId);
-        const char* metaCallIds[2];
-        metaCallIds[0] = targetCallId.data(); // New call first
-        metaCallIds[1] = thisCallId.data();
-        
-        // Start the meta event
-        startMetaEvent(metaEventId, PtEvent::META_CALL_TRANSFERRING, 2, metaCallIds);
-
-        Connection* connection = NULL;
-        UtlString transferTargetAddress;
-        ((CpMultiStringMessage*)pEventMessage)->getString2Data(transferTargetAddress);
-#ifdef TEST_PRINT
-        osPrintf("%s-CpPeerCall::CP_CONSULT_TRANSFER targetCallId: %s targetAddress: %s metaEventId: %d\n",
-            mName.data(), targetCallId.data(), transferTargetAddress.data());
-#endif
-
-        OsReadLock lock(mConnectionMutex);
-        UtlDListIterator iterator(mConnections);
-        while(connection = (Connection*) iterator())
+    Connection* pConnection = findHandlingConnection(sourceAddress);
+    if (pConnection)
+    {
+        UtlBoolean bRC = pConnection->originalCallTransfer(targetUrl, sourceAddress, targetCallId) ;
+        if (!bRC)
         {
-            // Do the transfer operation on each connection in this call
-            UtlBoolean isOk = connection->originalCallTransfer(transferTargetAddress, 
-                NULL, targetCallId.data());
 
-            if (!isOk)
-            {
-                UtlString targetCallId;
-                getTargetCallId(targetCallId);
-                UtlString remoteAddress;
-                connection->getRemoteAddress(&remoteAddress);
-                UtlString responseText;
-                connection->getResponseText(responseText);
-                postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE, PtEvent::CAUSE_TRANSFER, connection->isRemoteCallee(), remoteAddress, 1, targetCallId);
-                /** SIPXTAPI: TBD **/
-#ifdef TEST_PRINT
-                osPrintf("%s-CpPeerCall::CP_CONSULT_TRANSFER posting CONNECTION_FAILED to call: %s\n",
-                    mName.data(), targetCallId.data());
-#endif
-            }
-            else
-            {
-                // Send a message to the target call for each transfered
-                // connection
-                UtlString originalCallId;
-                UtlString connectionAddress;
-                connection->getCallId(&originalCallId);
-                connection->getRemoteAddress(&connectionAddress);
-#ifdef TEST_PRINT
-                osPrintf("%s-2 party transfer on connection: %s original call: %s target call: %s\n", 
-                     mName.data(), connectionAddress.data(), originalCallId.data(), targetCallId.data());
-#endif
-                CpMultiStringMessage transferConsultConnect(CallManager::CP_TRANSFER_CONNECTION,
-                targetCallId.data(), 
-                transferTargetAddress.data(), 
-                originalCallId.data(),
-                connectionAddress.data(),
-                NULL,
-                metaEventId);
-                mpManager->postMessage(transferConsultConnect);
-            }
         }
     }
 
-#endif /* COMMENT_OUT_THIS_CHUNK */
     return TRUE;
 }
 
@@ -504,15 +453,15 @@ UtlBoolean CpPeerCall::handleTransferConnection(OsMsg* pEventMessage)
 #endif
     // If it is legal for this call to be a transfer target
     if(getCallType() == CP_NORMAL_CALL ||
-       (getCallType() == CP_TRANSFER_CONTROLLER_TARGET_CALL &&
+        (getCallType() == CP_TRANSFER_CONTROLLER_TARGET_CALL &&
         currentOriginalCallId.compareTo(originalCallId) == 0))
     {
         // Set the original call id so that we can send messages
         // back if necessary.
         if(getCallType() == CP_NORMAL_CALL)
         {
-           setOriginalCallId(originalCallId.data());
-           setCallType(CP_TRANSFER_CONTROLLER_TARGET_CALL);
+            setOriginalCallId(originalCallId.data());
+            setCallType(CP_TRANSFER_CONTROLLER_TARGET_CALL);
         }
 
         // Find the connection
@@ -551,12 +500,12 @@ UtlBoolean CpPeerCall::handleTransferConnection(OsMsg* pEventMessage)
 
 
     /*
-     * WARNING: We should creating another connection for the TARGET address.
-     *          We are not doing this now, because we don't have any code that
-     *          steps through state progressions.
-     *
-     * TODO: CODE ME
-     */
+    * WARNING: We should creating another connection for the TARGET address.
+    *          We are not doing this now, because we don't have any code that
+    *          steps through state progressions.
+    *
+    * TODO: CODE ME
+    */
 
     return TRUE ;
 }
@@ -565,7 +514,7 @@ UtlBoolean CpPeerCall::handleTransferConnection(OsMsg* pEventMessage)
 // Handles the processing of a CallManager::CP_TRANSFEREE_CONNECTION message
 UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
 {
-// Message sent to target call on transferee
+    // Message sent to target call on transferee
 
     UtlString referTo;
     UtlString referredBy;
@@ -648,21 +597,21 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
         {
 #ifdef TEST_PRINT
             osPrintf("%s-CpPeerCall::handleSipMessage - connection NULL, shouldCreateConnection TRUE msgType %d msgSubType %d \n", 
-               name.data(), pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
+                name.data(), pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
 #endif
             connection = new SipConnection("", // Get local address from message
-                                    mIsEarlyMediaFor180,
-                                    mpManager,
-                                    this,
-                                    mpMediaInterface, 
-                                    //mpCallUiContext,
-                                    sipUserAgent,
-                                    offeringDelay, 
-                                    mSipSessionReinviteTimer,
-                                    lineAvailableBehavior, 
-                                    forwardUnconditional.data(),
-                                    lineBusyBehavior, 
-                                    forwardOnBusy.data());
+                mIsEarlyMediaFor180,
+                mpManager,
+                this,
+                mpMediaInterface, 
+                //mpCallUiContext,
+                sipUserAgent,
+                offeringDelay, 
+                mSipSessionReinviteTimer,
+                lineAvailableBehavior, 
+                forwardUnconditional.data(),
+                lineBusyBehavior, 
+                forwardOnBusy.data());
             addConnection(connection);
             bAddedConnection = TRUE ;
             mDtmfEnabled = TRUE ;
@@ -672,14 +621,14 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
             SipConnection::processNewFinalMessage(sipUserAgent, pEventMessage);
 #ifdef TEST_PRINT
             osPrintf("%s CpPeerCall::handleSipMessage - processing new final response to INVITE\n", 
-               name.data());
+                name.data());
 #endif
         }
     }
-    
+
 #ifdef TEST_PRINT
     osPrintf("%s CpPeerCall::handleSipMessage - connection %d msgType %d msgSubType %d\n", 
-       name.data(), (int)connection, pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
+        name.data(), (int)connection, pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
 #endif
 
     if(connection)
@@ -689,30 +638,30 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
         //PtTerminalConnection::TerminalConnectionState prevTermConState;
         //int gotPrevTermConState = getUiTerminalConnectionState(prevTermConState);
 
-//                if (previousConnectionState == Connection::CONNECTION_IDLE)
-//                {
-//                    startMetaEvent( mpManager->getNewMetaEventId(), 
-//                                    PtEvent::META_CALL_STARTING, 
-//                                    0, 
-//                                    0);
-//                }
+        //                if (previousConnectionState == Connection::CONNECTION_IDLE)
+        //                {
+        //                    startMetaEvent( mpManager->getNewMetaEventId(), 
+        //                                    PtEvent::META_CALL_STARTING, 
+        //                                    0, 
+        //                                    0);
+        //                }
 
         connection->processMessage(*pEventMessage, mCallInFocus, 
-           !mDtmfEnabled); // mDtmfEnabled is the same as offHook state
-           //mNumCodecs, mpaCodecArray);
+            !mDtmfEnabled); // mDtmfEnabled is the same as offHook state
+        //mNumCodecs, mpaCodecArray);
 
         int currentConnectionState = connection->getState();    
         if ( ((previousConnectionState != currentConnectionState) || 
-              (getCallState() == PtCall::IDLE)) &&
-             ((currentConnectionState == Connection::CONNECTION_OFFERING) ||
-              (currentConnectionState == Connection::CONNECTION_ALERTING)) )
+            (getCallState() == PtCall::IDLE)) &&
+            ((currentConnectionState == Connection::CONNECTION_OFFERING) ||
+            (currentConnectionState == Connection::CONNECTION_ALERTING)) )
         {
             UtlString responseText;
             connection->getResponseText(responseText);
             setCallState(connection->getResponseCode(), responseText, PtCall::ACTIVE);
             /** SIPXTAPI: TBD **/            
         }
-        
+
         if (previousConnectionState == Connection::CONNECTION_IDLE && 
             currentConnectionState == Connection::CONNECTION_OFFERING)
         {
@@ -721,17 +670,17 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
 
         // If this call does not have a callId set it
         if(!isCallIdSet() &&
-           (currentConnectionState != Connection::CONNECTION_FAILED ||
-           currentConnectionState != Connection::CONNECTION_DISCONNECTED ||
-           currentConnectionState != Connection::CONNECTION_IDLE))
+            (currentConnectionState != Connection::CONNECTION_FAILED ||
+            currentConnectionState != Connection::CONNECTION_DISCONNECTED ||
+            currentConnectionState != Connection::CONNECTION_IDLE))
         {
             UtlString callId;
             connection->getCallId(&callId);
             setCallId(callId.data());
         }
 
-       if (bAddedConnection)
-          addToneListenersToConnection(connection) ;
+        if (bAddedConnection)
+            addToneListenersToConnection(connection) ;
 
     } // End if we created a new connection or used and existing one            
 
@@ -744,49 +693,55 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
 // Handles the processing of a CallManager::CP_DROP_CONNECTION message
 UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
 {
-   {
-       OsReadLock lock(mConnectionMutex);
-       UtlString connectionAddress;
-       ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
-       Connection* connection = findHandlingConnection(connectionAddress);
+    {
+        OsReadLock lock(mConnectionMutex);
+        UtlString connectionAddress;
+        ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
+        Connection* connection = findHandlingConnection(connectionAddress);
 
-       if(connection)
-       {
+        if(connection)
+        {
 #ifndef SIPXTAPI_EXCLUDE
-           connection->fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
+            // do not fire the taip event if it is a ghost connection
+            CpGhostConnection* pGhost = NULL;
+            pGhost = dynamic_cast<CpGhostConnection*>(connection);
+            if (!pGhost)
+            {
+                connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
+            }
 #endif
-           connection->hangUp();
-       }
-   }
+            connection->hangUp();
+        }
+    }
 
-   // Check if call is dead and drop it if it is
-   dropIfDead();
-    
-   return TRUE;
+    // Check if call is dead and drop it if it is
+    dropIfDead();
+
+    return TRUE;
 }
 
 
 // Handles the processing of a CallManager::CP_FORCE_DROP_CONNECTION message
 UtlBoolean CpPeerCall::handleForceDropConnection(OsMsg* pEventMessage)
 {
-   {
-      OsReadLock lock(mConnectionMutex);
-      UtlString connectionAddress;
-      ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
-      Connection* connection = findHandlingConnection(connectionAddress);
+    {
+        OsReadLock lock(mConnectionMutex);
+        UtlString connectionAddress;
+        ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
+        Connection* connection = findHandlingConnection(connectionAddress);
 
-      if(connection)
-       {
+        if(connection)
+        {
 #ifdef TEST_PRINT
-           osPrintf("%s-CpPeerCall::CP_FORCE_DROP_CONNECTION Found connection\n", mName.data());
+            osPrintf("%s-CpPeerCall::CP_FORCE_DROP_CONNECTION Found connection\n", mName.data());
 #endif
-           connection->forceHangUp();
-           /** SIPXTAPI: TBD **/
-           
-       }
-       mLocalConnectionState = PtEvent::CONNECTION_DISCONNECTED;
-       mLocalTermConnectionState = PtTerminalConnection::DROPPED;
-   }
+            connection->forceHangUp();
+            /** SIPXTAPI: TBD **/
+
+        }
+        mLocalConnectionState = PtEvent::CONNECTION_DISCONNECTED;
+        mLocalTermConnectionState = PtTerminalConnection::DROPPED;
+    }
 
     // Check if call is dead and drop it if it is
     dropIfDead();
@@ -806,7 +761,7 @@ UtlBoolean CpPeerCall::handleGetAddresses(OsMsg* pEventMessage)
     UtlSList* connectionList;
     OsProtectedEvent* getConnEvent = (OsProtectedEvent*) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getConnEvent->getIntData((int&)connectionList);
-    
+
     if(getConnEvent)
     {
         // Get the remote connection(s)/address(es)
@@ -849,7 +804,7 @@ UtlBoolean CpPeerCall::handleGetAddresses(OsMsg* pEventMessage)
 
     return TRUE ;
 }
-      
+
 
 // Handles the processing of a CallManager::CP_ACCEPT_CONNECTION 
 // message
@@ -859,7 +814,7 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     UtlBoolean connectionFound = FALSE;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     CONTACT_TYPE eType = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    
+
     // This is a bit of a hack/short cut.
     // Find the first remote connection which is in the OFFERING
     // state and assume that it is the connection on
@@ -871,7 +826,7 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     // is that the local connection may be ESTABLISHED and an 
     // incoming call (new connection) to join an existing conference 
     // call will make the local connection go to the OFFERING state.
-    
+
     SipConnection* connection = NULL;
     UtlString address;
     int connectState;
@@ -891,11 +846,6 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
 
         if(connectState == Connection::CONNECTION_OFFERING)
         {
-            if (eType == AUTO)
-            {
-                eType = meContactType ;
-            }
-
             connection->setContactType(eType) ;
             connection->accept(noAnswerTimeout);
             connectionFound = TRUE;
@@ -942,30 +892,30 @@ UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
     UtlString address;
     int connectState;
     {
-       OsReadLock lock(mConnectionMutex);
-       UtlDListIterator iterator(mConnections);
-       while ((connection = (Connection*) iterator()))
-       {
-           connectState = connection->getState();
+        OsReadLock lock(mConnectionMutex);
+        UtlDListIterator iterator(mConnections);
+        while ((connection = (Connection*) iterator()))
+        {
+            connectState = connection->getState();
 
 #ifdef TEST_PRINT
-           UtlString remoteAddr;
-           UtlString stateString;
-           connection->getRemoteAddress(&remoteAddr);
-           connection->getStateString(connectState, &stateString);
-           osPrintf("%s-CallManager::CP_REJECT_CONNECTION connection: %s state: %s\n",
-               mName.data(), remoteAddr.data(), stateString.data());
+            UtlString remoteAddr;
+            UtlString stateString;
+            connection->getRemoteAddress(&remoteAddr);
+            connection->getStateString(connectState, &stateString);
+            osPrintf("%s-CallManager::CP_REJECT_CONNECTION connection: %s state: %s\n",
+                mName.data(), remoteAddr.data(), stateString.data());
 #endif
 
-           if(connectState == Connection::CONNECTION_OFFERING)
-           {
-               connection->reject();
-               connectionFound = TRUE;
-               break;
-           }
-       }
+            if(connectState == Connection::CONNECTION_OFFERING)
+            {
+                connection->reject();
+                connectionFound = TRUE;
+                break;
+            }
+        }
     }
-    
+
 #ifdef TEST_PRINT
     if(connectionFound)
     {
@@ -974,7 +924,7 @@ UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
     else
     {
         osPrintf("%s-ERROR: CpPeerCall::CP_REJECT_CONNECTION cannot find connectionId: %s\n", 
-           mName.data(), remoteAddress.data());
+            mName.data(), remoteAddress.data());
     }
 #endif
 
@@ -994,7 +944,7 @@ UtlBoolean CpPeerCall::handleRedirectConnection(OsMsg* pEventMessage)
     UtlBoolean connectionFound = FALSE;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(forwardAddress);
-   
+
     // This is a bit of a hack/short cut.
     // Find the first remote connection which is in the OFFERING
     // or ALERTING state and assume that it is the connection on
@@ -1010,29 +960,29 @@ UtlBoolean CpPeerCall::handleRedirectConnection(OsMsg* pEventMessage)
     UtlString address;
     int connectState;
     {
-       OsReadLock lock(mConnectionMutex);
-       UtlDListIterator iterator(mConnections);
-       while ((connection = (Connection*) iterator()))
-       {
-           connectState = connection->getState();
+        OsReadLock lock(mConnectionMutex);
+        UtlDListIterator iterator(mConnections);
+        while ((connection = (Connection*) iterator()))
+        {
+            connectState = connection->getState();
 
 #ifdef TEST_PRINT
-           UtlString remoteAddr;
-           UtlString stateString;
-           connection->getRemoteAddress(&remoteAddr);
-           connection->getStateString(connectState, &stateString);
-           osPrintf("%s-CallManager::CP_REDIRECT_CONNECTION connection: %s state: %s\n",
-               mName.data(), remoteAddr.data(), stateString.data());
+            UtlString remoteAddr;
+            UtlString stateString;
+            connection->getRemoteAddress(&remoteAddr);
+            connection->getStateString(connectState, &stateString);
+            osPrintf("%s-CallManager::CP_REDIRECT_CONNECTION connection: %s state: %s\n",
+                mName.data(), remoteAddr.data(), stateString.data());
 #endif
 
-           if(connectState == Connection::CONNECTION_OFFERING ||
-               connectState == Connection::CONNECTION_ALERTING)
-           {
-               connection->redirect(forwardAddress.data());
-               connectionFound = TRUE;
-               break;
-           }
-       }
+            if(connectState == Connection::CONNECTION_OFFERING ||
+                connectState == Connection::CONNECTION_ALERTING)
+            {
+                connection->redirect(forwardAddress.data());
+                connectionFound = TRUE;
+                break;
+            }
+        }
     }
 
 #ifdef TEST_PRINT
@@ -1043,13 +993,13 @@ UtlBoolean CpPeerCall::handleRedirectConnection(OsMsg* pEventMessage)
     else
     {
         osPrintf("%s-ERROR: CpPeerCall::CP_REDIRECT_CONNECTION cannot find connectionId: %s\n", 
-           mName.data(), remoteAddress.data());
+            mName.data(), remoteAddress.data());
     }
 #endif
 
     // Check if call is dead and drop it if it is
     dropIfDead();
-    
+
     return TRUE ;
 }    
 
@@ -1075,12 +1025,22 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
         if(connection)
         {
             connection->hold();
+#ifndef SIPXTAPI_EXCLUDE
+            if (mLocalHeld)
+            {
+                connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE) ;
+            }
+            else
+            {
+                connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
+            }
+#endif
         }
         else
         {
 #ifdef TEST_PRINT
             osPrintf("%s-ERROR: CpPeerCall::CP_HOLD_TERM_CONNECTION cannot find connectionId: %s terminalId: %s\n", 
-               mName.data(), address.data(), terminalId.data());
+                mName.data(), address.data(), terminalId.data());
 #endif
         }
     }
@@ -1153,7 +1113,14 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
                     connection->isRemoteCallee(), 
                     remoteAddress);
 #ifndef SIPXTAPI_EXCLUDE
-                connection->fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
+                if (mLocalHeld)
+                {
+                    connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
+                }
+                else
+                {
+                    connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
+                }
 #endif                
 #ifdef TEST_PRINT
                 osPrintf("%s->>>> CpPeerCall::handleCallMessage: CallManager::CP_UNHOLD_TERM_CONNECTION:  TERMINAL_CONNECTION_CREATED >>>>\n", mName.data());
@@ -1164,7 +1131,7 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
         else
         {
             osPrintf("%s-ERROR: CpPeerCall::CP_OFFHOLD_TERM_CONNECTION cannot find connectionId: %s\n", 
-               mName.data(), address.data());
+                mName.data(), address.data());
         }
 #endif
     }
@@ -1176,7 +1143,7 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
 // message
 UtlBoolean CpPeerCall::handleRenegotiateCodecsConnection(OsMsg* pEventMessage)
 {
-        UtlString address;
+    UtlString address;
     UtlString terminalId;
 
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(address);
@@ -1186,7 +1153,7 @@ UtlBoolean CpPeerCall::handleRenegotiateCodecsConnection(OsMsg* pEventMessage)
     {
 #ifdef TEST_PRINT
         osPrintf("%s-ERROR: CpPeerCall::CP_RENEGOTIATE_CODECS_CONNECTION cannot renegotiate codecs for local connectionId: %s\n", 
-           mName.data(), address.data());
+            mName.data(), address.data());
 #endif
     }
     else
@@ -1196,7 +1163,7 @@ UtlBoolean CpPeerCall::handleRenegotiateCodecsConnection(OsMsg* pEventMessage)
 
         if(connection)
         {
-            
+
             //UtlString remoteAddress;
             //connection->getRemoteAddress(&remoteAddress);
             if (mLocalTermConnectionState == PtTerminalConnection::TALKING)
@@ -1225,7 +1192,7 @@ UtlBoolean CpPeerCall::handleRenegotiateCodecsConnection(OsMsg* pEventMessage)
         else
         {
             osPrintf("%s-ERROR: CpPeerCall::CP_RENEGOTIATE_CODECS_CONNECTION cannot find connectionId: %s\n", 
-               mName.data(), address.data());
+                mName.data(), address.data());
         }
 #endif
     }
@@ -1237,65 +1204,85 @@ UtlBoolean CpPeerCall::handleRenegotiateCodecsConnection(OsMsg* pEventMessage)
 // message
 UtlBoolean CpPeerCall::handleRenegotiateCodecsAllConnections(OsMsg* pEventMessage)
 {
-   if (mLocalTermConnectionState == PtTerminalConnection::TALKING)
-   {    
-      Connection* connection = NULL;    
-      OsReadLock lock(mConnectionMutex);
-      UtlDListIterator iterator(mConnections);
-      while ((connection = (Connection*) iterator()))
-      {
-         connection->renegotiateCodecs() ;
-      }
-   } 
-   return TRUE ;
+    if (mLocalTermConnectionState == PtTerminalConnection::TALKING)
+    {    
+        Connection* connection = NULL;    
+        OsReadLock lock(mConnectionMutex);
+        UtlDListIterator iterator(mConnections);
+        while ((connection = (Connection*) iterator()))
+        {
+            connection->renegotiateCodecs() ;
+        }
+    } 
+    return TRUE ;
 }
 
 
 // Handles the processing of a CallManager::CP_SET_CODEC_CPU_LIMIT message
 UtlBoolean CpPeerCall::handleSetCodecCPULimit(OsMsg& eventMessage)
 {
-   int iLevel = ((CpMultiStringMessage&)eventMessage).getInt1Data();
-   mpMediaInterface->setCodecCPULimit(iLevel) ;
-               
-   return TRUE ;
+    UtlBoolean bRC = FALSE ;
+
+    int iLevel = ((CpMultiStringMessage&)eventMessage).getInt1Data();
+    if (mpMediaInterface)
+    {
+        mpMediaInterface->setCodecCPULimit(iLevel) ;
+        bRC = TRUE ;
+    }
+
+    return bRC ;
 }
 
 
 // Handles the processing of a CallManager::CP_GET_CODEC_CPU_COST message
 UtlBoolean CpPeerCall::handleGetCodecCPUCost(OsMsg& eventMessage)
 {
-   int iCost = mpMediaInterface->getCodecCPUCost();
+    UtlBoolean bRC = FALSE ;
+    int iCost = -1 ; 
 
-   OsProtectedEvent* getNumEvent = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
-            
-   // If the event has already been signalled, clean up
-   if(OS_ALREADY_SIGNALED == getNumEvent->signal(iCost))
-   {
-      // The other end must have timed out on the wait
-      OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-      eventMgr->release(getNumEvent);
-   }
+    if (mpMediaInterface)
+    {
+        iCost = mpMediaInterface->getCodecCPUCost();
+        bRC = TRUE ;
+    }
 
-   return TRUE ;
+    OsProtectedEvent* getNumEvent = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
+
+    // If the event has already been signalled, clean up
+    if(OS_ALREADY_SIGNALED == getNumEvent->signal(iCost))
+    {
+        // The other end must have timed out on the wait
+        OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+        eventMgr->release(getNumEvent);
+    }
+
+    return bRC ;
 }
 
 
 // Handles the processing of a CallManager::CP_GET_CODEC_CPU_LIMIT message
 UtlBoolean CpPeerCall::handleGetCodecCPULimit(OsMsg& eventMessage)
 {
-   int iCost = mpMediaInterface->getCodecCPULimit();
+    UtlBoolean bRC = FALSE  ;
+    int iCost = -1 ;
 
-   OsProtectedEvent* getNumEvent = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
-            
-   // If the event has already been signalled, clean up
-   if(OS_ALREADY_SIGNALED == getNumEvent->signal(iCost))
-   {
-      // The other end must have timed out on the wait
-      OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-      eventMgr->release(getNumEvent);
-   }
+    if (mpMediaInterface)
+    {
+        iCost = mpMediaInterface->getCodecCPULimit();
+        bRC = TRUE ;
+    }
 
-   return TRUE ;
+    OsProtectedEvent* getNumEvent = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
+
+    // If the event has already been signalled, clean up
+    if(OS_ALREADY_SIGNALED == getNumEvent->signal(iCost))
+    {
+        // The other end must have timed out on the wait
+        OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+        eventMgr->release(getNumEvent);
+    }
+
+    return bRC ;
 }
 
 
@@ -1317,7 +1304,7 @@ UtlBoolean CpPeerCall::handleAddToneListener(OsMsg* pEventMessage)
 
     // add tone listener to a local list
     if (!mToneListeners.containsReference((UtlContainable*) pListener))
-       mToneListeners.append((UtlContainable*) pListener);
+        mToneListeners.append((UtlContainable*) pListener);
 
     return TRUE ;
 }
@@ -1341,7 +1328,7 @@ UtlBoolean CpPeerCall::handleRemoveToneListener(OsMsg* pEventMessage)
 
     // remove tone listener from local list
     if (!mToneListeners.containsReference((UtlContainable*)  pListener))
-       mToneListeners.removeReference((UtlContainable*) pListener);
+        mToneListeners.removeReference((UtlContainable*) pListener);
 
 
     return TRUE ;
@@ -1366,21 +1353,21 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
         mName.data(), connectionAddress.data(), connState.data(), cause);
 #endif
     {
-       // Find the connection and give it the status
-       OsReadLock lock(mConnectionMutex);
-       Connection* connection = findHandlingConnection(connectionAddress);
-       if(connection)
-       {
-           connection->transferControllerStatus(connectionState, cause);
-       }
+        // Find the connection and give it the status
+        OsReadLock lock(mConnectionMutex);
+        Connection* connection = findHandlingConnection(connectionAddress);
+        if(connection)
+        {
+            connection->transferControllerStatus(connectionState, cause);
+        }
 #ifdef TEST_PRINT
-       else
-       {
-           UtlString defaultCallId;
-           getCallId(defaultCallId);
-           osPrintf("%s-CpPeerCall::CP_TRANSFER_CONNECTION_STATUS FAILED to find connection %s in call: %s\n",
-               mName.data(), connectionAddress.data(), defaultCallId.data());
-       }
+        else
+        {
+            UtlString defaultCallId;
+            getCallId(defaultCallId);
+            osPrintf("%s-CpPeerCall::CP_TRANSFER_CONNECTION_STATUS FAILED to find connection %s in call: %s\n",
+                mName.data(), connectionAddress.data(), defaultCallId.data());
+        }
 #endif
     }
 
@@ -1413,18 +1400,18 @@ UtlBoolean CpPeerCall::handleTransfereeConnectionStatus(OsMsg* pEventMessage)
 #endif
     // Find the connection and give it the status
     {
-       OsReadLock lock(mConnectionMutex);
-       Connection* connection = findHandlingConnection(connectionAddress);
-       if(connection)
-           connection->transfereeStatus(connectionState, responseCode);
+        OsReadLock lock(mConnectionMutex);
+        Connection* connection = findHandlingConnection(connectionAddress);
+        if(connection)
+            connection->transfereeStatus(connectionState, responseCode);
 #ifdef TEST_PRINT
-       else
-       {
-           UtlString thisCallId;
-           getCallId(thisCallId);
-           osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION_STATUS connection not found in call: %s\n",
-               mName.data(), thisCallId.data());
-       }
+        else
+        {
+            UtlString thisCallId;
+            getCallId(thisCallId);
+            osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION_STATUS connection not found in call: %s\n",
+                mName.data(), thisCallId.data());
+        }
 #endif
     }
 
@@ -1444,8 +1431,8 @@ UtlBoolean CpPeerCall::handleGetNumConnections(OsMsg* pEventMessage)
 {
     int numConnections = mConnections.entries() + 1;
     OsProtectedEvent* getNumEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+
     // If the event has already been signalled, clean up
     if(OS_ALREADY_SIGNALED == getNumEvent->signal(numConnections))
     {
@@ -1465,7 +1452,7 @@ UtlBoolean CpPeerCall::handleGetConnections(OsMsg* pEventMessage)
     int numConnections = 0;
     UtlSList* connectionList = 0;
     OsProtectedEvent* getConnEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getConnEvent->getIntData((int&)connectionList);
 
     if(getConnEvent && connectionList)
@@ -1486,7 +1473,7 @@ UtlBoolean CpPeerCall::handleGetConnections(OsMsg* pEventMessage)
                 connectionList->append(new UtlString(address));
                 numConnections++;
             }
-       }
+        }
         // Signal the caller that we are done.
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == getConnEvent->signal(numConnections))
@@ -1513,13 +1500,11 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(address);
     SipSession* sessionPtr;
     OsProtectedEvent* getFieldEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((int&)sessionPtr);
 
-#ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%x",
         sessionPtr);
-#endif
 
     // Get the remote connection(s)/address(es)
     Connection* connection = NULL;
@@ -1533,38 +1518,49 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         connection->getCallId(&connCallId);
         connection->getLocalAddress(&localAddress);
         connection->getRemoteAddress(&remoteAddress);
-        
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession looking for the SipSession for %s, %s, %s",
-                      connCallId.data(), localAddress.data(), remoteAddress.data());
-                      
-        // Check whether the tag is set in addresses or not. If so, do not need to use callId
-        // for comparison.
-        UtlBoolean hasTag = checkForTag(address);
 
-        if ((hasTag && (address.compareTo(localAddress) == 0)) ||
-            (hasTag && (address.compareTo(remoteAddress) == 0)) ||
-            (callId.compareTo(connCallId) == 0) && 
+#if 0
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession "
+                      "connection->getCallId() = '%s', "
+                      "connection->getLocalAddress() = '%s', "
+                      "connection->getRemoteAddress() = '%s'",
+                      connCallId.data(), localAddress.data(),
+                      remoteAddress.data());
+#endif
+        if ((callId.compareTo(connCallId) == 0) && 
             (address.compareTo(localAddress) == 0 || address.compareTo(remoteAddress) == 0))
         {
             SipSession session;
             connection->getSession(session);
-#ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: 0x%x",
-                          sessionPtr);
-#endif
+                sessionPtr);
 
+#if 0
+            {
+               Url localUrl, remoteUrl;
+               session.getFromUrl(localUrl);
+               session.getToUrl(remoteUrl);
+               UtlString localUrlStr, remoteUrlStr;
+               localUrl.toString(localUrlStr);
+               remoteUrl.toString(remoteUrlStr);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "CpPeerCall::handleGetSession mLocalUrl = '%s', mRemoteUrl = '%s'",
+                             localUrlStr.data(), remoteUrlStr.data());
+            }
+#endif
             *sessionPtr = SipSession(session);
             // Signal the caller that we are done.
             break;
         }
     }
-    
+
     // If the event has already been signalled, clean up
     if(OS_ALREADY_SIGNALED == getFieldEvent->signal(1))
     {
         // The other end must have timed out on the wait
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession deleting session: %p",
-            sessionPtr);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CpPeerCall::handleGetSession deleting session: %p",
+                      sessionPtr);
         delete sessionPtr;
         sessionPtr = NULL;
 
@@ -1581,7 +1577,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
 UtlBoolean CpPeerCall::handleGetCallState(OsMsg* pEventMessage)
 {
     OsProtectedEvent* getStateEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
     // Signal the caller that we are done.
     // If the event has already been signalled, clean up
@@ -1603,7 +1599,7 @@ UtlBoolean CpPeerCall::handleGetConnectionState(OsMsg* pEventMessage)
     UtlString remoteAddress;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     OsProtectedEvent* getStateEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
     int state;
     if (!getConnectionState(remoteAddress, state))
@@ -1629,7 +1625,7 @@ UtlBoolean CpPeerCall::handleGetNextCseq(OsMsg* pEventMessage)
     UtlString remoteAddress;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     OsProtectedEvent* getStateEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     Connection* connection = findHandlingConnection(remoteAddress);
 
     int nextCseq = -1;
@@ -1654,8 +1650,8 @@ UtlBoolean CpPeerCall::handleGetNextCseq(OsMsg* pEventMessage)
 
 // Enumerate possible contact addresses
 void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[], 
-                                           size_t nMaxContacts, 
-                                           size_t& nActualContacts)
+                                          size_t nMaxContacts, 
+                                          size_t& nActualContacts)
 {
     UtlString ipAddress ;
     int port ;
@@ -1664,19 +1660,17 @@ void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
     nActualContacts = 0 ;
 
     if (    (nActualContacts < nMaxContacts) && 
-            (sipUserAgent->getLocalAddress(&ipAddress, &port)))
+        (sipUserAgent->getLocalAddress(&ipAddress, &port)))
     {
-        memset(&contacts[nActualContacts], 0, sizeof(CONTACT_ADDRESS)) ;
         contacts[nActualContacts].eContactType = LOCAL ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
         nActualContacts++ ;
     }
-    
+
     if (    (nActualContacts < nMaxContacts) && 
-            (sipUserAgent->getNatMappedAddress(&ipAddress, &port)))
+        (sipUserAgent->getNatMappedAddress(&ipAddress, &port)))
     {
-        memset(&contacts[nActualContacts], 0, sizeof(CONTACT_ADDRESS)) ;
         contacts[nActualContacts].eContactType = NAT_MAPPED ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
@@ -1684,9 +1678,8 @@ void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
     }
 
     if (    (nActualContacts < nMaxContacts) && 
-            (sipUserAgent->getConfiguredPublicAddress(&ipAddress, &port)))
+        (sipUserAgent->getConfiguredPublicAddress(&ipAddress, &port)))
     {
-        memset(&contacts[nActualContacts], 0, sizeof(CONTACT_ADDRESS)) ;
         contacts[nActualContacts].eContactType = CONFIG ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
@@ -1698,7 +1691,7 @@ void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
 UtlBoolean CpPeerCall::handleGetLocalContacts(OsMsg* pEventMessage)
 {
     OsProtectedEvent* pProtectedEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
     CONTACT_ADDRESS* addresses = (CONTACT_ADDRESS*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     size_t nMaxAddresses = (size_t) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
@@ -1728,7 +1721,7 @@ UtlBoolean CpPeerCall::handleGetTerminalConnectionState(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(terminal);
     OsProtectedEvent* getStateEvent = (OsProtectedEvent*) 
-            ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
     int state;
     if (!getTermConnectionState(remoteAddress, terminal, state))
@@ -1755,7 +1748,7 @@ UtlBoolean CpPeerCall::handleIsLocalTerminalConnection(OsMsg* pEventMessage)
     UtlString terminalId;
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(terminalId);
     OsProtectedEvent* getNumEvent = 
-            (OsProtectedEvent*) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        (OsProtectedEvent*) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::CP_IS_LOCAL_TERM_CONNECTION terminal ID:%s event: %x\n",
@@ -1813,7 +1806,7 @@ UtlBoolean CpPeerCall::handleOfferingExpired(OsMsg* pEventMessage)
     if(connection)
     {
         int connectionState = connection->getState();
-    
+
         // If we do have a timeout, note it to both the
         // console and syslog
         if (connectionState == Connection::CONNECTION_OFFERING)
@@ -1822,7 +1815,7 @@ UtlBoolean CpPeerCall::handleOfferingExpired(OsMsg* pEventMessage)
             SipSession  session ;
             Url         urlFrom, urlTo ;
             UtlString    callId, from, to ;
-           
+
             connection->getSession(session) ;
             session.getCallId(callId) ;
             session.getFromUrl(urlFrom) ;
@@ -1848,7 +1841,7 @@ UtlBoolean CpPeerCall::handleOfferingExpired(OsMsg* pEventMessage)
         {
             // Unconditional forwarding is on
             if(lineAvailableBehavior == 
-                    Connection::FORWARD_UNCONDITIONAL &&
+                Connection::FORWARD_UNCONDITIONAL &&
                 !forwardUnconditional.isNull())
             {
 #ifdef TEST_PRINT
@@ -1862,7 +1855,7 @@ UtlBoolean CpPeerCall::handleOfferingExpired(OsMsg* pEventMessage)
                 else
                 {
                     osPrintf("%s-ERROR: CpPeerCall::invalid  forwarding (unconditional forwarding) address: %s\n", 
-                       mName.data(), forwardUnconditional.data());
+                        mName.data(), forwardUnconditional.data());
                 }
 #endif
                 forwardAddressUrl = OsUtil::NULL_OS_STRING;
@@ -1897,7 +1890,7 @@ UtlBoolean CpPeerCall::handleOfferingExpired(OsMsg* pEventMessage)
                 else
                 {
                     osPrintf("%s-ERROR: CpPeerCall::invalid forwarding (forward on busy)  address: %s\n", 
-                       mName.data(), forwardOnBusy.data());
+                        mName.data(), forwardOnBusy.data());
                 }
 #endif
                 forwardAddressUrl = OsUtil::NULL_OS_STRING;
@@ -1917,7 +1910,7 @@ UtlBoolean CpPeerCall::handleOfferingExpired(OsMsg* pEventMessage)
     else
     {
         osPrintf("%s-ERROR: CpPeerCall::CP_OFFERING_EXPIRED cannot find connectionId: %s\n", 
-           mName.data(), address.data());
+            mName.data(), address.data());
     }
 #endif
 
@@ -1939,37 +1932,37 @@ UtlBoolean CpPeerCall::handleRingingExpired(OsMsg* pEventMessage)
     // and the timer expired.
     if(connection &&
         connection->getState() == 
-            Connection::CONNECTION_ALERTING) 
+        Connection::CONNECTION_ALERTING) 
     {      
-       if (lineAvailableBehavior == Connection::FORWARD_ON_NO_ANSWER &&
-        !forwardOnNoAnswer.isNull())
-       {
+        if (lineAvailableBehavior == Connection::FORWARD_ON_NO_ANSWER &&
+            !forwardOnNoAnswer.isNull())
+        {
 #ifdef TEST_PRINT
             osPrintf("%s-CpPeerCall::CP_OFFERING_EXPIRED forward on no answer to: %s",
-               mName.data(), forwardOnNoAnswer.data());
+                mName.data(), forwardOnNoAnswer.data());
 #endif
 
             UtlString forwardAddressUrl(forwardOnNoAnswer.data());
             if (PT_SUCCESS == mpManager->validateAddress(forwardAddressUrl))
-               connection->redirect(forwardAddressUrl.data());
+                connection->redirect(forwardAddressUrl.data());
 #ifdef TEST_PRINT
-           else
-           {
-               osPrintf("%s-ERROR: CpPeerCall::invalid forwarding( forwardOnNoAnswer) address: %s\n", 
-                  mName.data(), forwardOnNoAnswer.data());
-           }
+            else
+            {
+                osPrintf("%s-ERROR: CpPeerCall::invalid forwarding( forwardOnNoAnswer) address: %s\n", 
+                    mName.data(), forwardOnNoAnswer.data());
+            }
 #endif
-           forwardAddressUrl = OsUtil::NULL_OS_STRING;
-       }
+            forwardAddressUrl = OsUtil::NULL_OS_STRING;
+        }
 
-       // We now drop the call if no one picks up this call after so long
-       else
-       {
+        // We now drop the call if no one picks up this call after so long
+        else
+        {
 #ifdef TEST_PRINT
-         osPrintf("%s-CpPeerCall::handleRingingExpired rejecting", mName.data());
+            osPrintf("%s-CpPeerCall::handleRingingExpired rejecting", mName.data());
 #endif
-         connection->reject();
-       }
+            connection->reject();
+        }
     }
 
     return TRUE ;
@@ -1980,32 +1973,32 @@ UtlBoolean CpPeerCall::handleRingingExpired(OsMsg* pEventMessage)
 // message
 UtlBoolean CpPeerCall::handleUnholdAllTermConnections(OsMsg* pEventMessage)
 {
-   Connection* connection = NULL;
-   OsReadLock lock(mConnectionMutex);
-   UtlDListIterator iterator(mConnections);
+    Connection* connection = NULL;
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
 
-   while ((connection = (Connection*) iterator()))
-   {
-      connection->offHold();
+    while ((connection = (Connection*) iterator()))
+    {
+        connection->offHold();
 
-      if (mLocalTermConnectionState != PtTerminalConnection::TALKING &&
+        if (mLocalTermConnectionState != PtTerminalConnection::TALKING &&
             mLocalTermConnectionState != PtTerminalConnection::IDLE)
-      {
-         UtlString responseText;
-         UtlString remoteAddress;
+        {
+            UtlString responseText;
+            UtlString remoteAddress;
 
-         connection->getResponseText(responseText);      
-         connection->getRemoteAddress(&remoteAddress);
+            connection->getResponseText(responseText);      
+            connection->getRemoteAddress(&remoteAddress);
 
-         postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_TALKING, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_UNHOLD, connection->isRemoteCallee(), remoteAddress);
+            postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_TALKING, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_UNHOLD, connection->isRemoteCallee(), remoteAddress);
 #ifndef SIPXTAPI_EXCLUDE
-         connection->fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
+            connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
 #endif
-      
-      }
-   }
 
-   return TRUE ;
+        }
+    }
+
+    return TRUE ;
 }
 
 
@@ -2013,12 +2006,12 @@ UtlBoolean CpPeerCall::handleUnholdAllTermConnections(OsMsg* pEventMessage)
 // message
 UtlBoolean CpPeerCall::handleUnholdLocalTermConnection(OsMsg* pEventMessage)
 {
-   // Post a message to the callManager to change focus
-   CpIntMessage localHoldMessage(CallManager::CP_GET_FOCUS, (int)this);
-   mpManager->postMessage(localHoldMessage);
-   mLocalHeld = FALSE;
+    // Post a message to the callManager to change focus
+    CpIntMessage localHoldMessage(CallManager::CP_GET_FOCUS, (int)this);
+    mpManager->postMessage(localHoldMessage);
+    mLocalHeld = FALSE;
 
-   return TRUE ;
+    return TRUE ;
 }
 
 
@@ -2026,12 +2019,12 @@ UtlBoolean CpPeerCall::handleUnholdLocalTermConnection(OsMsg* pEventMessage)
 // message
 UtlBoolean CpPeerCall::handleHoldLocalTermConnection(OsMsg* pEventMessage)
 {
-   // Post a message to the callManager to change focus
-   CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS, (int)this);
-   mpManager->postMessage(localHoldMessage);
-   mLocalHeld = TRUE;
+    // Post a message to the callManager to change focus
+    CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS, (int)this);
+    mpManager->postMessage(localHoldMessage);
+    mLocalHeld = TRUE;
 
-   return TRUE ;
+    return TRUE ;
 }
 
 
@@ -2043,7 +2036,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
 
     if(msgSubType != CallManager::CP_SIP_MESSAGE &&
         msgSubType != CallManager::CP_DIAL_STRING)
-          CpCall::addHistoryEvent(msgSubType, multiStringMessage);
+        CpCall::addHistoryEvent(msgSubType, multiStringMessage);
 
     // Either we are the caller and are done dialing at this point
     // Or we are the callee, turn off local only DTMF tone 
@@ -2067,6 +2060,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         handleDialString(&eventMessage);
         break;
 
+    case CallManager::CP_OUTGOING_INFO:
+        handleSendInfo(&eventMessage);
+        break;
+
     case CallManager::CP_DEQUEUED_CALL:
         handleDequeueCall(&eventMessage) ;
         break;
@@ -2080,11 +2077,9 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         handleTransfer(&eventMessage) ;
         break ;
 
-#ifdef COMMENT_OUT_THIS_CHUNK 
-    case CallManager::CP_CONSULT_TRANSFER:
-        handleConsultTransfer(&eventMessage);
+    case CallManager::CP_CONSULT_TRANSFER_ADDRESS:
+        handleTransferAddress(&eventMessage) ;
         break ;
-#endif /* COMMENT_OUT_THIS_CHUNK */
 
     case CallManager::CP_TRANSFER_CONNECTION:
         handleTransferConnection(&eventMessage);
@@ -2106,6 +2101,22 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_GET_NUM_TERM_CONNECTIONS:
         handleGetNumConnections(&eventMessage);
         break ;
+        
+    case CallManager::CP_GET_MEDIA_CONNECTION_ID:
+        handleGetMediaConnectionId(&eventMessage);
+        break;
+
+    case CallManager::CP_GET_CAN_ADD_PARTY:
+        handleGetCanAddParty(&eventMessage);
+        break;
+
+    case CallManager::CP_SPLIT_CONNECTION:
+        handleSplitConnection(&eventMessage);
+        break ;
+
+    case CallManager::CP_JOIN_CONNECTION:
+        handleJoinConnection(&eventMessage);
+        break ;
 
     case CallManager::CP_GET_CONNECTIONS:
         handleGetConnections(&eventMessage);
@@ -2119,7 +2130,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_GET_SESSION:
         handleGetSession(&eventMessage);
         break ;
-   
+
     case CallManager::CP_GET_TERM_CONNECTIONS:
         handleGetTermConnections(&eventMessage);
         break;
@@ -2177,16 +2188,16 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         break ;
 
     case CallManager::CP_SET_CODEC_CPU_LIMIT:
-       handleSetCodecCPULimit(eventMessage);
-       break ;
+        handleSetCodecCPULimit(eventMessage);
+        break ;
 
     case CallManager::CP_GET_CODEC_CPU_COST:
-       handleGetCodecCPUCost(eventMessage);
-       break ;
+        handleGetCodecCPUCost(eventMessage);
+        break ;
 
     case CallManager::CP_GET_CODEC_CPU_LIMIT:
-       handleGetCodecCPULimit(eventMessage);
-       break ;
+        handleGetCodecCPULimit(eventMessage);
+        break ;
 
     case CallManager::CP_CANCEL_TIMER:
         handleCancelTimer(&eventMessage);
@@ -2219,7 +2230,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_HOLD_LOCAL_TERM_CONNECTION:
         handleHoldLocalTermConnection(&eventMessage);
         break ;
-    
+
     case CallManager::CP_SET_OUTBOUND_LINE:
         handleSetOutboundLine( &eventMessage );   
         break;
@@ -2231,31 +2242,192 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         processedMessage = FALSE;
 #ifdef TEST_PRINT
         osPrintf("%s-Unknown PHONE_APP CallManager message subtype: %d\n", 
-           mName.data(), msgSubType);
+            mName.data(), msgSubType);
 #endif
         break;
     }
 
     return(processedMessage);
 }
-  
+
+UtlBoolean CpPeerCall::handleSendInfo(OsMsg* pEventMessage)
+{
+    CpMultiStringMessage& infoMessage = (CpMultiStringMessage&) *pEventMessage;
+    UtlString callId;
+    UtlString contentType;
+    UtlString sContent;
+
+    infoMessage.getString1Data(callId);
+    infoMessage.getString2Data(contentType);
+    infoMessage.getString3Data(sContent);
+
+    UtlString connectionCallId;
+    Connection* connection = NULL;
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
+
+    while ((connection = (Connection*) iterator()))
+    {
+        connection->getCallId(&connectionCallId);
+        if(strcmp(callId, connectionCallId.data()) == 0)
+        {
+            connection->sendInfo(contentType, sContent); 
+            break;
+        }
+    }
+    return true;
+}
+
+UtlBoolean CpPeerCall::handleGetMediaConnectionId(OsMsg* pEventMessage)
+{
+    int connectionId = -1;
+    CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage;
+    OsProtectedEvent* event = (OsProtectedEvent*) 
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        
+    UtlString callId;
+    UtlString remoteAddress;
+    
+    pMultiMessage->getString1Data(callId);
+    pMultiMessage->getString2Data(remoteAddress);
+    void** ppInstData = (void**)pMultiMessage->getInt2Data();
+    
+    Connection* connection = NULL;
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
+    while ((connection = (Connection*) iterator()))
+    {
+        UtlString connectionRemoteAddress;
+        
+        connection->getRemoteAddress(&connectionRemoteAddress);
+        if (connectionRemoteAddress == remoteAddress)
+        {
+            connectionId = connection->getConnectionId();
+            if (ppInstData)
+            {
+                *ppInstData = connection->getMediaInterfacePtr();
+            }
+            break;
+        }
+    }    
+        
+    // If the event has already been signalled, clean up
+    if(event && OS_ALREADY_SIGNALED == event->signal(connectionId))
+    {
+        // The other end must have timed out on the wait
+        OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+        eventMgr->release(event);
+    }
+
+    return true;
+}
+
+UtlBoolean CpPeerCall::handleGetCanAddParty(OsMsg* pEventMessage)
+{
+    UtlBoolean bCanAdd = FALSE ;
+    CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage;
+    OsProtectedEvent* event = (OsProtectedEvent*) 
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        
+    UtlString callId;    
+    pMultiMessage->getString1Data(callId);
+
+    if (mpMediaInterface)
+    {
+        bCanAdd = mpMediaInterface->canAddParty() ;
+    }
+           
+    // If the event has already been signalled, clean up
+    if(event && OS_ALREADY_SIGNALED == event->signal(bCanAdd))
+    {
+        // The other end must have timed out on the wait
+        OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+        eventMgr->release(event);
+    }
+
+    return true;
+}
+
+// Handles the processing of a CP_SPLIT_CONNECTION message
+UtlBoolean CpPeerCall::handleSplitConnection(OsMsg* pEventMessage)
+{    
+    UtlString remoteAddress ;
+    UtlString targetCallId ;
+    CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage;
+    pMultiMessage->getString2Data(remoteAddress) ;
+    pMultiMessage->getString3Data(targetCallId) ;
+    OsProtectedEvent* pEvent = (OsProtectedEvent*) pMultiMessage->getInt1Data();
+    
+    Connection* pConnection = findHandlingConnection(remoteAddress);
+    if (pConnection != NULL)
+    {
+        OsWriteLock lock(mConnectionMutex); // TODO: Move write lock above and inline findHandling
+
+        // Call must be on hold prior to split/join.
+        if (pConnection->isHeld())
+        {
+            pConnection->prepareForSplit() ;
+            mConnections.remove(pConnection) ;
+
+            CpMultiStringMessage joinMessage(CallManager::CP_JOIN_CONNECTION,   
+                    targetCallId,
+                    remoteAddress,
+                    NULL,
+                    NULL,
+                    NULL,
+                    (int) pConnection,
+                    (int) pEvent) ;
+            mpManager->postMessage(joinMessage);
+        }
+        else
+        {
+            pEvent->signal(FALSE) ;
+        }
+    }
+    else
+    {
+        pEvent->signal(FALSE) ;
+    }
+
+    return true ; 
+}
+
+
+// Handles the processing of a CP_JOIN_CONNECTION message
+UtlBoolean CpPeerCall::handleJoinConnection(OsMsg* pEventMessage)
+{
+    UtlString remoteAddress ;
+    UtlString targetCallId ;
+
+    CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage ;
+    Connection* pConnection = (Connection*) pMultiMessage->getInt1Data() ;
+    OsProtectedEvent* pEvent = (OsProtectedEvent*) pMultiMessage->getInt2Data() ;
+    
+    pConnection->prepareForJoin(this, mpMediaInterface) ;
+    addConnection(pConnection) ;
+
+   pEvent->signal(TRUE) ;
+    
+    return true ; 
+}
+
+
 void CpPeerCall::handleSetOutboundLine(OsMsg* pEventMessage)
 {   
-       UtlString strOutboundAddress;
-       ((CpMultiStringMessage*)pEventMessage)->getString2Data(strOutboundAddress);             
-       Url outboundLine(strOutboundAddress);
-       outboundLine.toString(mLocalTerminalId);
-       mLocalAddress = mLocalTerminalId;
+    UtlString strOutboundAddress;
+    ((CpMultiStringMessage*)pEventMessage)->getString2Data(strOutboundAddress);
 
-       meContactType = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
+    Url outboundLine(strOutboundAddress);
+    outboundLine.toString(mLocalTerminalId);
+    mLocalAddress = mLocalTerminalId;
 }  
 
 void CpPeerCall::handleGetTermConnections(OsMsg* pEventMessage)
 {
     int numConnections = 0;
     UtlSList* connectionList;
-        UtlString connectionAddress;
-      ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
+    UtlString connectionAddress;
+    ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
     OsProtectedEvent* getConnEvent = (OsProtectedEvent*) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getConnEvent->getIntData((int&)connectionList);
 
@@ -2266,7 +2438,7 @@ void CpPeerCall::handleGetTermConnections(OsMsg* pEventMessage)
         numConnections++;
     }
     else
-    // Get the remote terminalConnection(s)/terminalName(es)
+        // Get the remote terminalConnection(s)/terminalName(es)
     { // scope for lock
         OsReadLock lock(mConnectionMutex);
         Connection* connection = NULL;
@@ -2275,36 +2447,36 @@ void CpPeerCall::handleGetTermConnections(OsMsg* pEventMessage)
         UtlDListIterator iterator(mConnections);
         while ((connection = (Connection*) iterator()))
         {
-           Url remoteUrl(connectionAddress);
+            Url remoteUrl(connectionAddress);
 
-           if (connection->isSameRemoteAddress(remoteUrl))
-           {
-               connection->getRemoteAddress(&address);
+            if (connection->isSameRemoteAddress(remoteUrl))
+            {
+                connection->getRemoteAddress(&address);
 
-               address.insert(0, "foreign-terminal-");
-               found = 1; 
+                address.insert(0, "foreign-terminal-");
+                found = 1; 
 #ifdef TEST_PRINT
-       osPrintf("%s-set terminal: %s\n", mName.data(), address.data());
+                osPrintf("%s-set terminal: %s\n", mName.data(), address.data());
 #endif
 
-               connectionList->append(new UtlString(address));
-               numConnections++;
-           }
+                connectionList->append(new UtlString(address));
+                numConnections++;
+            }
         }
         if (!found)    // didn't find match, tags differ?
         {            
             connection = findHandlingConnection(connectionAddress);
             if (connection)
             {
-                  connection->getRemoteAddress(&address);
+                connection->getRemoteAddress(&address);
 
-                  address.insert(0, "foreign-terminal-");
+                address.insert(0, "foreign-terminal-");
 #ifdef TEST_PRINT
-                  osPrintf("%s-CpPeerCall::getTerminalConnections MISSED in first pass found: %s\n", 
-                     mName.data(), address.data());
+                osPrintf("%s-CpPeerCall::getTerminalConnections MISSED in first pass found: %s\n", 
+                    mName.data(), address.data());
 #endif
-                  connectionList->append(new UtlString(address));
-                  numConnections++;
+                connectionList->append(new UtlString(address));
+                numConnections++;
             }
         }
     }
@@ -2321,47 +2493,55 @@ void CpPeerCall::handleGetTermConnections(OsMsg* pEventMessage)
     }
 }
 
+
 Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  const char* callController,
                                  const char* originalCallConnectionAddress,
                                  const char* newCallId,
-                                 CONTACT_TYPE eType)
+                                 CONTACT_ID contactId)
 {
     SipConnection* connection = NULL;
 
     // Should be using the outgoing call type here
     // for SIP, MGCP, etc.
     connection = new SipConnection(mLocalAddress,
-                                mIsEarlyMediaFor180,
-                               mpManager,
-                               this,
-                               mpMediaInterface,
-                               sipUserAgent,
-                               offeringDelay, 
-                               mSipSessionReinviteTimer);
-
-    if (eType == AUTO)
+        mIsEarlyMediaFor180,
+        mpManager,
+        this,
+        mpMediaInterface,
+        sipUserAgent,
+        offeringDelay, 
+        mSipSessionReinviteTimer);
+    
+    connection->setContactId(contactId);
+    CONTACT_ADDRESS* pContact = NULL;
+    
+    pContact = sipUserAgent->getContactDb().find(contactId);
+    
+    if (pContact)
     {
-        eType = meContactType ;
+        connection->setContactType(pContact->eContactType);
     }
-
-    connection->setContactType(eType) ;
+    else
+    {
+        connection->setContactType(AUTO);
+    }
     addConnection(connection);
 
     UtlString callId;
     // Get the call-id from the call
     getCallId(callId);
-    
+
     if (newCallId != NULL)
     {
         callId = newCallId ;
     }
-        
+
     connection->dial(transferTargetAddress,
-                     mLocalAddress.data(), 
-                     callId.data(),
-                     callController,
-                     originalCallConnectionAddress); 
+        mLocalAddress.data(), 
+        callId.data(),
+        callController,
+        originalCallConnectionAddress); 
 
     addToneListenersToConnection(connection) ;
 
@@ -2412,7 +2592,7 @@ void CpPeerCall::inFocus(int talking)
         connection->getRemoteAddress(&remoteAddress);
 #ifdef TEST_PRINT
         osPrintf("%s-Call %s out of focus\n", 
-           mName.data(), connectionCallId.data());
+            mName.data(), connectionCallId.data());
 #endif
     }
 
@@ -2430,43 +2610,52 @@ void CpPeerCall::inFocus(int talking)
         if (getCallState() != PtCall::ACTIVE)
         {
             setCallState(responseCode, responseText, PtCall::ACTIVE, PtEvent::CAUSE_NEW_CALL);
-            /** SIPXTAPI: TBD **/
         }
         postTaoListenerMessage(responseCode, responseText, PtEvent::CONNECTION_INITIATED, CONNECTION_STATE, PtEvent::CAUSE_NEW_CALL, remoteIsCallee, remoteAddress);
-        /** SIPXTAPI: TBD **/
 
         if (mLocalTermConnectionState == PtTerminalConnection::IDLE)
         {
             postTaoListenerMessage(responseCode, responseText, PtEvent::TERMINAL_CONNECTION_CREATED, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NEW_CALL, remoteIsCallee, remoteAddress);
-            /** SIPXTAPI: TBD **/
-                
+
             int metaEventId = 0;
             int metaEventType = PtEvent::META_EVENT_NONE;
             int numCalls = 0;
             const UtlString* metaEventCallIds = NULL;
             getMetaEvent(metaEventId, metaEventType, numCalls, 
-                    &metaEventCallIds);
+                &metaEventCallIds);
             if(metaEventType != PtEvent::META_CALL_TRANSFERRING)
                 stopMetaEvent();
         }
     }
     else 
     {
-        if (connection)
+        UtlDListIterator iterator(mConnections);
+        while ((connection = (Connection*) iterator()))
         {
             int cause = 0;
             int state = connection->getState(cause);
             if (state != Connection::CONNECTION_ALERTING || mLocalTermConnectionState == PtTerminalConnection::HELD)
             {
-                 UtlString responseText;
+                UtlString responseText;
                 connection->getResponseText(responseText);
                 postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_TALKING, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_UNHOLD, remoteIsCallee, remoteAddress);
-#ifndef SIPXTAPI_EXCLUDE
-                connection->fireSipXEvent(CONNECTED, CONNECTED_ACTIVE) ;
-#endif
             }
         }
     }
+
+#ifndef SIPXTAPI_EXCLUDE
+    UtlDListIterator iterator(mConnections);
+    while ((connection = (Connection*) iterator()))
+    {
+        int cause = 0;
+        int state = connection->getState(cause);
+        if (state != Connection::CONNECTION_ALERTING || mLocalTermConnectionState == PtTerminalConnection::HELD)
+        {
+            connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
+        }
+    }
+#endif
+
 
     CpCall::inFocus();
 }
@@ -2475,31 +2664,43 @@ void CpPeerCall::outOfFocus()
 {
     CpCall::outOfFocus();
 
-      OsReadLock lock(mConnectionMutex);
-      Connection* connection = (Connection*) mConnections.first();
-  
-    if(connection && (connection->remoteRequestedHold() || mLocalHeld))
-    {
-        int remoteIsCallee = 1;
-        UtlString responseText;
-        UtlString remoteAddress;
-        UtlString connectionCallId;
-        connection->getCallId(&connectionCallId);
-        remoteIsCallee = connection->isRemoteCallee();
-#ifdef TEST_PRINT
-          osPrintf("%s-Call %s out of focus\n", 
-             mName.data(), connectionCallId.data());
-#endif
-        connection->getRemoteAddress(&remoteAddress);
-        connection->getResponseText(responseText);
+    OsReadLock lock(mConnectionMutex);
+    
+    UtlDListIterator iterator(mConnections);
+    Connection* connection = NULL;
 
-        // Notify listeners that the local connection is out of focus
-        postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_HELD, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NORMAL, remoteIsCallee, remoteAddress);
+    while (connection = (Connection*)iterator())
+    {
+        if(connection && (connection->remoteRequestedHold() || mLocalHeld))
+        {
+            int remoteIsCallee = 1;
+            UtlString responseText;
+            UtlString remoteAddress;
+            UtlString connectionCallId;
+            connection->getCallId(&connectionCallId);
+            remoteIsCallee = connection->isRemoteCallee();
+    #ifdef TEST_PRINT
+            osPrintf("%s-Call %s out of focus\n", 
+                mName.data(), connectionCallId.data());
+    #endif
+            connection->getRemoteAddress(&remoteAddress);
+            connection->getResponseText(responseText);
+
+            // Notify listeners that the local connection is out of focus
+            postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_HELD, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NORMAL, remoteIsCallee, remoteAddress);
+        }
+
 #ifndef SIPXTAPI_EXCLUDE
-        connection->fireSipXEvent(CONNECTED, CONNECTED_INACTIVE) ;
+        if (connection->isHeld())
+        {
+            connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE) ;
+        }
+        else
+        {
+            connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
+        }
 #endif
     }
-
 }
 
 void CpPeerCall::onHook()
@@ -2511,21 +2712,27 @@ void CpPeerCall::onHook()
     Connection* connection = NULL;
 
     // Take this call out of focus right away
-    CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS,
-                        (int)this);
+    CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS, (int) this);
     mpManager->postMessage(localHoldMessage);
     {
         OsReadLock lock(mConnectionMutex);
         UtlDListIterator iterator(mConnections);
 
-
         while ((connection = (Connection*) iterator()))
         {
-            connection->hangUp();            
+            connection->hangUp();
+            connection->setMediaInterface(NULL) ;           
+            
 #ifndef SIPXTAPI_EXCLUDE
-            connection->fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
+            // do not fire the taip event if it is a ghost connection
+            CpGhostConnection* pGhost = NULL;
+            pGhost = dynamic_cast<CpGhostConnection*>(connection);
+            if (!pGhost)
+            {
+                connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
+            }
 #endif
-        }
+        }       
     }
 
     dropIfDead();
@@ -2536,9 +2743,9 @@ void CpPeerCall::hangUp(const char* callId,
                         const char* fromTag)
 {
     Connection* connection = findHandlingConnection(callId, 
-                                                  toTag,
-                                                  fromTag,
-                                                  FALSE);
+        toTag,
+        fromTag,
+        FALSE);
     if(connection)
     {
         connection->hangUp();
@@ -2550,10 +2757,10 @@ void CpPeerCall::hangUp(const char* callId,
 // toTag, and fromTag.  If the connection cannot be found a UtlBoolean value of
 // false is returned.
 UtlBoolean CpPeerCall::getConnectionState(const char* callId, 
-                                         const char* toTag,
-                                         const char* fromTag,
-                                         int&        state,
-                                         UtlBoolean   strictCompare)
+                                          const char* toTag,
+                                          const char* fromTag,
+                                          int&        state,
+                                          UtlBoolean   strictCompare)
 {
     UtlBoolean bRC = FALSE ;
 
@@ -2582,12 +2789,11 @@ void CpPeerCall::dropIfDead()
     // If all the connections are dead, drop the call
     if (mDropping && !isConnectionLive(&localConnectionState))
     {
-
         if (mbRequestedDrop)
         {
 #ifdef TEST_PRINT
             osPrintf("%s-WARNING: dropIfDead called multiple times for call %10p\n", 
-               mName.data(), this) ;
+                mName.data(), this) ;
 #endif
             return ;
         }
@@ -2596,44 +2802,63 @@ void CpPeerCall::dropIfDead()
             mbRequestedDrop = true ;
         }
 
-        setCallState(0, "", PtCall::INVALID);        
-
-#ifndef SIPXTAPI_EXCLUDE
-        Connection* connection = NULL;
-        while ((connection = (Connection*) mConnections.get()))
-        {
-            connection->fireSipXEvent(DESTROYED, DESTROYED_NORMAL) ;    
-        }
-#endif
-
-   
-        // the media processor channel Shut down happens
-        // when the call gets deleted
-
+        setCallState(0, "", PtCall::INVALID);          
         mDtmfEnabled = FALSE;
 
         // Signal the manager to Shutdown the task
         // Do this at the very last opportunity
 #ifdef TEST_PRINT
         osPrintf("%s-CpPeerCall::dropIfDead callId: %s Posting call exit: %X\r\n", 
-           mName.data(), thisCallId.data(), (void*) this);
+            mName.data(), thisCallId.data(), (void*) this);
 #endif
-        // 7/16/02 / bandreasen
-        //  
-        // A race condition exists between the those listening for events and
-        // the physical deletion of a call. It is somewhat difficult to 
-        // correctly solve this race by introducing synchronization between 
-        // the listeners and the call manager.  Thus, this change.
-        //
-        // The following code was changed to delay the destruction of a call
-        // so that listeners have a chance to react to events before their
-        // world is torn down around them.
-        //
-        CpIntMessage* pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(int)this);
-          OsQueuedEvent* queuedEvent = new OsQueuedEvent(*(mpManager->getMessageQueue()), (int)pExitMsg);
-          OsTimer* timer = new OsTimer(*queuedEvent);
-          OsTime timerTime(CALL_DELETE_DELAY_SECS, 0);
-          timer->oneshotAfter(timerTime);
+        {
+            OsReadLock lock(mConnectionMutex);
+
+            if (mConnections.entries())
+            {
+                // 7/16/02 / bandreasen
+                //  
+                // A race condition exists between the those listening for events and
+                // the physical deletion of a call. It is somewhat difficult to 
+                // correctly solve this race by introducing synchronization between 
+                // the listeners and the call manager.  Thus, this change.
+                //
+                // The following code was changed to delay the destruction of a call
+                // so that listeners have a chance to react to events before their
+                // world is torn down around them.
+                //
+                #ifndef SIPXTAPI_EXCLUDE
+                    // Notify listeners that call is going to be torn down
+                    UtlDListIterator iterator(mConnections);
+                    Connection* connection = NULL;
+                    while ((connection = (Connection*) iterator()))
+                    {              
+                        // do not fire the taip event if it is a ghost connection
+                        CpGhostConnection* pGhost = NULL;
+                        pGhost = dynamic_cast<CpGhostConnection*>(connection);
+                        if (!pGhost)
+                        {
+                            connection->fireSipXEvent(CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
+                        }
+                    }                
+                    // Drop the call immediately
+                    CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (int)this) ;
+                    mpManager->postMessage(ExitMsg) ;
+                #else
+                    CpIntMessage* pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(int)this);
+                    OsQueuedEvent* queuedEvent = new OsQueuedEvent(*(mpManager->getMessageQueue()), (int)pExitMsg);
+                    OsTimer* timer = new OsTimer(*queuedEvent);
+                    OsTime timerTime(CALL_DELETE_DELAY_SECS, 0);
+                    timer->oneshotAfter(timerTime);
+                #endif
+            }
+            else
+            {
+                // Drop the call immediately
+                CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (int)this) ;
+                mpManager->postMessage(ExitMsg) ;
+            }
+        }
     }
     else
     {
@@ -2643,88 +2868,101 @@ void CpPeerCall::dropIfDead()
 
 void CpPeerCall::dropDeadConnections()
 {
-   OsWriteLock lock(mConnectionMutex);
-   Connection* connection = NULL;
-   int         connectionState;
-   OsTime      now ;
+    OsWriteLock lock(mConnectionMutex);
+    Connection* connection = NULL;
+    int         connectionState;
+    OsTime      now ;
 
 #ifdef TEST_PRINT
-   UtlString thisCallId;
-   getCallId(thisCallId);
-   osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: %X\r\n", 
-      mName.data(), thisCallId.data(), (void*) this);
+    UtlString thisCallId;
+    getCallId(thisCallId);
+    osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: %X\r\n", 
+        mName.data(), thisCallId.data(), (void*) this);
 #endif
-   OsDateTime::getCurTimeSinceBoot(now) ;
-   UtlDListIterator iterator(mConnections);
-   while ((connection = (Connection*) iterator()))
-   {
-      // 1. Look for newly disconnected/failed connections and fire off events
-      // and mark for deletion.
+    OsDateTime::getCurTimeSinceBoot(now) ;
+    UtlDListIterator iterator(mConnections);
+    while ((connection = (Connection*) iterator()))
+    {
+        // 1. Look for newly disconnected/failed connections and fire off events
+        // and mark for deletion.
 
-      int cause = 0;
-      connectionState = connection->getState(0, cause);    // get remote connection state
+        int cause = 0;
+        connectionState = connection->getState(0, cause);    // get remote connection state
 #ifdef TEST_PRINT
-      osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: connection state %d \r\n", 
-         mName.data(), thisCallId.data(), connectionState);
+        osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: connection state %d \r\n", 
+            mName.data(), thisCallId.data(), connectionState);
 #endif
-      if (!connection->isMarkedForDeletion() &&
+        if (!connection->isMarkedForDeletion() &&
             (connectionState ==  Connection::CONNECTION_DISCONNECTED ||
             connectionState == Connection::CONNECTION_FAILED))
-      {
-         UtlString addr;
-         connection->getLocalAddress(&addr);
-         int localState = connection->getState(1, cause);    // get local state
+        {
+            UtlString addr;
+            connection->getLocalAddress(&addr);
+            int localState = connection->getState(1, cause);    // get local state
 #ifdef TEST_PRINT
-         UtlString stateStr;
-         connection->getStateString(localState, &stateStr);
-         osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: localState %s address %s, local addr %s\r\n", 
-               mName.data(), thisCallId.data(), stateStr.data(), addr.data(), mLocalAddress.data());
+            UtlString stateStr;
+            connection->getStateString(localState, &stateStr);
+            osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: localState %s address %s, local addr %s\r\n", 
+                mName.data(), thisCallId.data(), stateStr.data(), addr.data(), mLocalAddress.data());
 #endif
-         if (mLocalAddress == addr)
-         {
-            if (localState ==  Connection::CONNECTION_DISCONNECTED)
+            if (mLocalAddress == addr)
             {
-               UtlString responseText;
-               connection->getResponseText(responseText);
-               postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_DISCONNECTED, CONNECTION_STATE);
+                if (localState ==  Connection::CONNECTION_DISCONNECTED)
+                {
+                    UtlString responseText;
+                    connection->getResponseText(responseText);
+                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_DISCONNECTED, CONNECTION_STATE);
 #ifndef SIPXTAPI_EXCLUDE
-                connection->fireSipXEvent(DISCONNECTED, DISCONNECTED_NORMAL) ;
+                    // do not fire the taip event if it is a ghost connection
+                    CpGhostConnection* pGhost = NULL;
+                    pGhost = dynamic_cast<CpGhostConnection*>(connection);
+                    if (!pGhost)
+                    {
+                        connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
+                    }
 #endif                
-               
-               
-               postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
-            }
-            else if (localState ==  Connection::CONNECTION_FAILED)
-            {
-               UtlString responseText;
-               connection->getResponseText(responseText);
-               postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE);               
-               postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
-#ifndef SIPXTAPI_EXCLUDE
-               connection->fireSipXEvent(DESTROYED, DESTROYED_NORMAL) ;    
-#endif
-            }               
-        
-            // Mark the connection for deletion
-            connection->markForDeletion() ;            
-         }
-      } 
 
-      // 2. Look for connections which could be removed/deleted
-      if (connection->isMarkedForDeletion())
-      {
-         OsTime deleteAfter ;
-         connection->getDeleteAfter(deleteAfter) ;
-         if (now > deleteAfter)
-         {            
-#ifdef TEST_PRINT
-            osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: delete marked connection %p\r\n", 
-               mName.data(), thisCallId.data(), connection);
+
+                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
+                }
+                else if (localState ==  Connection::CONNECTION_FAILED)
+                {
+                    UtlString responseText;
+                    connection->getResponseText(responseText);
+                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE);               
+                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
+#ifndef SIPXTAPI_EXCLUDE
+                    CpGhostConnection* pGhost = NULL;
+                    pGhost = dynamic_cast<CpGhostConnection*>(connection);
+
+                    // do not fire the taip event if it is a ghost connection
+                    if (!pGhost)
+                    {
+                        connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;    
+                    }
 #endif
-            mConnections.destroy(connection);
-         }
-      }
-   }              
+                }               
+
+                // Mark the connection for deletion
+                connection->markForDeletion() ;            
+            }
+        } 
+
+        // 2. Look for connections which could be removed/deleted
+        if (connection->isMarkedForDeletion())
+        {
+            OsTime deleteAfter ;
+            connection->getDeleteAfter(deleteAfter) ;
+            if (now > deleteAfter)
+            {            
+#ifdef TEST_PRINT
+                osPrintf("%s-CpPeerCall::dropDeadConnections callId: %s: delete marked connection %p\r\n", 
+                    mName.data(), thisCallId.data(), connection);
+#endif
+                mConnections.destroy(connection);
+            }
+        }
+    }              
 }
 
 
@@ -2853,8 +3091,8 @@ UtlBoolean CpPeerCall::getConnectionState(const char* remoteAddress, int& state)
 }
 
 UtlBoolean CpPeerCall::getTermConnectionState(const char* address, 
-                                            const char* terminal, 
-                                            int& state)
+                                              const char* terminal, 
+                                              int& state)
 {
     UtlBoolean rc = TRUE;
     state = PtTerminalConnection::UNKNOWN;
@@ -2917,7 +3155,7 @@ void CpPeerCall::getLocalAddress(char* address, int maxLen)
     address[len] = 0;
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::getLocalAddress %s\n", 
-       mName.data(), address);
+        mName.data(), address);
 #endif
 }
 
@@ -2937,7 +3175,7 @@ void CpPeerCall::getLocalTerminalId(char* terminal, int maxLen)
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean CpPeerCall::shouldCreateCall(SipUserAgent& sipUa, OsMsg& eventMessage,
-                                         SdpCodecFactory& codecFactory)
+                                        SdpCodecFactory& codecFactory)
 {
     UtlBoolean createCall = FALSE;
     int msgType = eventMessage.getMsgType();
@@ -2947,7 +3185,7 @@ UtlBoolean CpPeerCall::shouldCreateCall(SipUserAgent& sipUa, OsMsg& eventMessage
         msgSubType == CallManager::CP_SIP_MESSAGE)
     {
         createCall = SipConnection::shouldCreateConnection(sipUa, eventMessage,
-                                                             &codecFactory);
+            &codecFactory);
     }
     // This should work with the connection Factory to decide which
     // type of connection and if the connection should be created.
@@ -2957,7 +3195,7 @@ UtlBoolean CpPeerCall::shouldCreateCall(SipUserAgent& sipUa, OsMsg& eventMessage
 CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessage)
 {
     CpCall::handleWillingness takeTheMessage = CP_WILL_NOT_HANDLE;
-    
+
     if(eventMessage.getMsgType() == OsMsg::PHONE_APP &&
         eventMessage.getMsgSubType() == CallManager::CP_SIP_MESSAGE)
     {
@@ -2970,7 +3208,7 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
             sipMsg->getCSeqField(&seqNum,&seqMethod);
             UtlString strToField;
             sipMsg->getToField(&strToField);
-            
+
             // DWW 08/18/03 If we are dropping and a invite comes in, but 
             // has a to field, we should let the callmanager create a new call.
             // Otherwise, if a invite comes in, and does not have a to field,
@@ -2983,17 +3221,17 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
                 UtlString callId;
                 sipMsg->getCallIdField(&callId);
 
-    #ifdef TEST_PRINT
+#ifdef TEST_PRINT
                 osPrintf("%s-Message mCallId %s callid: %s\n", 
-                   mName.data(), mCallId.data(), callId.data());
-    #endif
+                    mName.data(), mCallId.data(), callId.data());
+#endif
 
-                 UtlBoolean thisCallHasCallId = hasCallId(callId.data());
-                 if(thisCallHasCallId)
-                 {
-                     takeTheMessage = CP_DEFINITELY_WILL_HANDLE;
-                 }
-        
+                UtlBoolean thisCallHasCallId = hasCallId(callId.data());
+                if(thisCallHasCallId)
+                {
+                    takeTheMessage = CP_DEFINITELY_WILL_HANDLE;
+                }
+
                 // Check if this is an INVITE with a Replaces header
                 if(takeTheMessage == CP_WILL_NOT_HANDLE && 
                     !sipMsg->isResponse())
@@ -3055,11 +3293,11 @@ UtlBoolean CpPeerCall::isConnectionLive(int* localConnectionState)
         }
 
         if(connectionState != Connection::CONNECTION_DISCONNECTED &&
-           connectionState != Connection::CONNECTION_FAILED  &&
-           connectionState != Connection::CONNECTION_UNKNOWN)
-           // Atleast sometimes we do not want to kill the call
-           // if there are IDLE connections
-           //connectionState != Connection::CONNECTION_IDLE)
+            connectionState != Connection::CONNECTION_FAILED  &&
+            connectionState != Connection::CONNECTION_UNKNOWN)
+            // Atleast sometimes we do not want to kill the call
+            // if there are IDLE connections
+            //connectionState != Connection::CONNECTION_IDLE)
         {
 #ifdef TEST_PRINT
             UtlString remoteAddr;
@@ -3076,27 +3314,27 @@ UtlBoolean CpPeerCall::isConnectionLive(int* localConnectionState)
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::isConnectionLive: %d\n", 
-       mName.data(), liveConnections);
+        mName.data(), liveConnections);
 #endif
 
-/*    if (*localConnectionState != Connection::CONNECTION_DISCONNECTED &&
-        *localConnectionState != Connection::CONNECTION_FAILED &&
-        *localConnectionState != Connection::CONNECTION_UNKNOWN)
+    /*    if (*localConnectionState != Connection::CONNECTION_DISCONNECTED &&
+    *localConnectionState != Connection::CONNECTION_FAILED &&
+    *localConnectionState != Connection::CONNECTION_UNKNOWN)
     {
-        liveConnections = 1;    // connection may be in hold state, as in consultative transfer (trasferee)
+    liveConnections = 1;    // connection may be in hold state, as in consultative transfer (trasferee)
     }
-*/
+    */
     return(liveConnections);
 }
 
 UtlBoolean CpPeerCall::isConnection(const char* callId, 
-                                        const char* toTag,
-                                        const char* fromTag)
+                                    const char* toTag,
+                                    const char* fromTag)
 {
     return(NULL != findHandlingConnection(callId, 
-                                          toTag,
-                                          fromTag,
-                                          FALSE));
+        toTag,
+        fromTag,
+        FALSE));
 }
 
 UtlBoolean CpPeerCall::isLocalTerminal(const char* terminalId)
@@ -3122,7 +3360,7 @@ UtlBoolean CpPeerCall::isLocalTerminal(const char* terminalId)
 #endif
 
             isLocal = ((mLocalTerminalId.compareTo(terminalId) == 0) || (mLocalTerminalId.compareTo(user) == 0)) ;
-                    
+
         }
     }
     return(isLocal);
@@ -3144,9 +3382,9 @@ UtlBoolean CpPeerCall::canDisconnectConnection(Connection* pConnection)
     }
 
     ret = ((cnt >= 1) &&
-            contains  && 
-            (!mLocalHeld || 
-            mLocalTermConnectionState != PtTerminalConnection::HELD));
+        contains  && 
+        (!mLocalHeld || 
+        mLocalTermConnectionState != PtTerminalConnection::HELD));
 
     return ret;
 }
@@ -3171,9 +3409,9 @@ Connection* CpPeerCall::findHandlingConnection(OsMsg& eventMessage)
 }
 
 Connection* CpPeerCall::findHandlingConnection(const char* callId, 
-                                                const char* toTag,
-                                                const char* fromTag,
-                                                UtlBoolean  strictCompare)
+                                               const char* toTag,
+                                               const char* fromTag,
+                                               UtlBoolean  strictCompare)
 {
     Connection* connection = NULL;
     OsReadLock lock(mConnectionMutex);
@@ -3182,9 +3420,9 @@ Connection* CpPeerCall::findHandlingConnection(const char* callId,
     while ((connection = (Connection*) iterator()))
     {
         if(connection->isConnection(callId, 
-                                    toTag,
-                                    fromTag,
-                                    strictCompare)) break;
+            toTag,
+            fromTag,
+            strictCompare)) break;
         connection = NULL;
     }
     return(connection);
@@ -3204,15 +3442,15 @@ Connection* CpPeerCall::findHandlingConnection(UtlString& remoteAddress)
         connection->getRemoteAddress(&connectionRemoteAddress);
         if (!connectionRemoteAddress.isNull())
         {
-          Url connectionAddressUrl(connectionRemoteAddress);
+            Url connectionAddressUrl(connectionRemoteAddress);
 
-          // This allows remoteUrl to match if it does not have a tag
-          if(SipMessage::isSameSession(remoteUrl, connectionAddressUrl)) break;
+            // This allows remoteUrl to match if it does not have a tag
+            if(SipMessage::isSameSession(remoteUrl, connectionAddressUrl)) break;
 
-          // This allows connectionAddressUrl to match if it does not have a tag
-          if(SipMessage::isSameSession(connectionAddressUrl, remoteUrl)) break;
+            // This allows connectionAddressUrl to match if it does not have a tag
+            if(SipMessage::isSameSession(connectionAddressUrl, remoteUrl)) break;
 
-          connection = NULL;
+            connection = NULL;
         }
     }        
     return(connection);
@@ -3222,7 +3460,7 @@ void CpPeerCall::addConnection(Connection* connection)
 {
     connection->setLocalAddress(mLocalAddress.data());
     OsWriteLock lock(mConnectionMutex);
-  
+
     mConnections.append(connection);
 
     addTaoListenerToConnection(connection);
@@ -3266,25 +3504,5 @@ Connection* CpPeerCall::findQueuedConnection()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-UtlBoolean CpPeerCall::checkForTag(UtlString &address)
-{
-   if (address.compareTo("sip:") == 0)
-   {
-      return FALSE;
-   }
-   
-   UtlString tag;
-   Url url(address);
-   url.getFieldParameter("tag", tag);
-   
-   if (tag.isNull())
-   {
-      return FALSE;
-   }
-   else
-   {
-      return TRUE;
-   }
-}
 /* ============================ FUNCTIONS ================================= */
 

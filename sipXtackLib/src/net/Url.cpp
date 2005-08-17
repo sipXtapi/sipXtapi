@@ -1162,6 +1162,15 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    // If !isAddrSpec:
    //    DisplayName<userinfo@hostport;urlParameters?headerParameters>;fieldParameters
 
+   // Try to catch when a name-addr is passed but we are expecting an
+   // addr-spec -- many name-addr's start with '<' or '"'.
+   if (isAddrSpec && (urlString[0] == '<' || urlString[0] == '"'))
+   {
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "Url::parseString Invalid addr-spec found (probably name-addr format): '%s'",
+                    urlString);
+   }
+
    int workingOffset = 0; // begin at the beginning...
    
    size_t afterAngleBrackets = UTL_NOT_FOUND;
@@ -1291,7 +1300,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       }
       else
       {
-         mHostPort = 0;
+         mHostPort = PORT_NONE;
       }
 
       workingOffset = hostAndPort.AfterMatch(0);

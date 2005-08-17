@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef SIPXTAPI_EXCLUDE /* [ */
 
@@ -72,7 +70,16 @@ class SipXHandleMap : public UtlHashMap
      * should be called explicitly if using an external iterator on the map.
      */
     void unlock() ;
-
+    
+    /**
+     * Adds a reference count to the handle lock.  In this way, removeHandle is 
+     * guarded against removal while a handle is in use.
+     * releaseHandleRef decrements the reference count.
+     * addHandleRef should only be used in very specific
+     * cases, when the handle might become invalid before it is needed again.
+     */
+     void addHandleRef(SIPXHANDLE handle);
+     
     /**
      * Allocate a unique handle and associate the designed pData value
      * with that handle.
@@ -94,16 +101,28 @@ class SipXHandleMap : public UtlHashMap
 
 /* ============================ ACCESSORS ================================= */
 
+    void dump() ;
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-        OsMutex    mLock ;       /**< Locked used for addEntry and removeEntry */
+    OsMutex    mLock ;       /**< Locked used for addEntry and removeEntry */
     SIPXHANDLE mNextHandle ; /**< Next available handle index */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
+    UtlHashMap mLockCountHash;
+    
+    /**
+     * Decrements reference count for handle locking.
+     * This should only be called from withing 
+     * removeHandle. 
+     * So, removeHandle will only actually remove the handle and
+     * return a pointer when there are no outstanding locks.
+     */
+    void releaseHandleRef(SIPXHANDLE handle);
+    
 };
 
 /* ============================ INLINE METHODS ============================ */

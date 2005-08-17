@@ -1,20 +1,18 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
 
 #ifdef __pingtel_on_posix__
-#include <malloc.h>
+#include <stdlib.h>
 #endif
 
 // APPLICATION INCLUDES
@@ -194,7 +192,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
             iTotalChannels = channelsPreferred;
 
             compressionType = audioFile->getDecompressionType();
+#if 0
             osPrintf("compression = %d\n", compressionType);
+#endif
         }
         else
             osPrintf("\nERROR: Could not detect format correctly. Should be AU or WAV or RAW\n");
@@ -203,7 +203,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
         // First, figure out which kind of file it is
         if (bDetectedFormatIsOk && audioFile->getAudioFormat() == AUDIO_FORMAT_WAV)
         {
+#if 0
             osPrintf("AudioFile: It's WAV file\n");
+#endif
 
             switch(compressionType) 
             {
@@ -234,7 +236,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
+#if 0
                             osPrintf("Buffer length: %d\n", buffer->length());
+#endif
                         }
                         free(charBuffer);
                     }
@@ -263,7 +267,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
+#if 0
                             osPrintf("Buffer length: %d\n", buffer->length());
+#endif
                         }
                         free(charBuffer);
                     }
@@ -279,7 +285,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
         else
         if (bDetectedFormatIsOk && audioFile->getAudioFormat() == AUDIO_FORMAT_AU)
         {
+#if 0
             osPrintf("AudioFile: It's a AU file\n");
+#endif
             switch(compressionType)
             {
                 case MpAuRead::DePcm8Unsigned:
@@ -306,7 +314,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
+#if 0
                             osPrintf("Buffer length: %d\n", buffer->length());
+#endif
                         }
                         free(charBuffer);
                     }
@@ -334,7 +344,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
+#if 0
                             osPrintf("Buffer length: %d\n", buffer->length());
+#endif
                         }
 
                         free(charBuffer);
@@ -358,7 +370,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
     else
     {
 
+#if 0
         osPrintf("AudioFile: raw file\n");
+#endif
 
      // if we cannot determine the format of the audio file,
      // and if the ext of the file is .ulaw, we assume it is a no-header
@@ -391,7 +405,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                     if (buffer)
                     {
                         buffer->append(charBuffer, filesize);
+#if 0
                         osPrintf("Buffer length: %d\n", buffer->length());
+#endif
                     }
                     free(charBuffer);
                 }
@@ -421,7 +437,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                     buffer->append(charBuffer, bytesRead);
                 }
 
+#if 0
                 osPrintf("Buffer length: %d\n", buffer->length());
+#endif
             }
 
             free(charBuffer);
@@ -509,9 +527,11 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
       {
           int bufferLength = mpFileBuffer->length();
           int totalBytesRead = 0;
+#if 0
           if(mFileBufferIndex == 0) {
              osPrintf("MprFromFile: buffer frameSize: %d\n", bytesPerFrame);
           }
+#endif
           if(mFileBufferIndex < bufferLength)
           {
               totalBytesRead = bufferLength - mFileBufferIndex;
@@ -530,8 +550,10 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
              bytesLeft = 1;
              while((totalBytesRead < bytesPerFrame) && (bytesLeft > 0))
              {
+#if 0
                  osPrintf("MprFromFile: repeating buffer frameSize: %d\n",
                     bytesPerFrame);
+#endif
                  mFileBufferIndex = 0;
                  bytesLeft = min(bufferLength - mFileBufferIndex,
                     bytesPerFrame - totalBytesRead);
@@ -571,7 +593,9 @@ UtlBoolean MprFromFile::handleSetup(MpFlowGraphMsg& rMsg)
    mpNotify = (OsNotification*) rMsg.getPtr1();
    mpFileBuffer = (UtlString*) rMsg.getPtr2();
    if(mpFileBuffer) {
+#if 0
       osPrintf("File buffer %d bytes long\n", mpFileBuffer->length());
+#endif
       mFileBufferIndex = 0;
       mFileRepeat = (rMsg.getInt1() == PLAY_ONCE) ? FALSE : TRUE;
    }

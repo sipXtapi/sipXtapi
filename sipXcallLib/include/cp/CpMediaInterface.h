@@ -1,11 +1,7 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004-2005 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +30,7 @@ class SdpCodecFactory;
 class MpStreamPlaylistPlayer;
 class MpStreamPlayer;
 class MpStreamQueuePlayer;
+class CpMediaInterfaceFactoryImpl ;
 
 /** 
  * Abstract media control interface.
@@ -58,12 +55,21 @@ public:
    /**
     * Default constructor
     */
-   CpMediaInterface();
+   CpMediaInterface(CpMediaInterfaceFactoryImpl *pFactoryImpl);
 
+/* =========================== DESTRUCTORS ================================ */
+
+  protected:
    /**
-    * Destructor
+    * Destructor - protected so that we can manage media interface pointers
     */
    virtual ~CpMediaInterface();
+  public:
+
+   /**
+    * public interface for destroying this media interface
+    */ 
+   virtual void release() = 0; 
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -109,12 +115,34 @@ public:
     *        createConnection
     * @param rtpHostAddress IP (or host) address of remote party.
     * @param rtpPort RTP port of remote party
-    *
-    * @TODO This method should also supply the rtcpPort.
+    * @param rtcpPort RTCP port of remote party
     */
    virtual OsStatus setConnectionDestination(int connectionId,
                                              const char* rtpHostAddress, 
-                                             int rtpPort) = 0 ;
+                                             int rtpPort,
+                                             int rtcpPort) = 0 ;
+
+   /**
+    * Add an alternate connection destination for this media interface.
+    * Alternerates are generally obtained from the SdpBody in the form
+    * of candidate addresses.  When adding an alternate connection, the
+    * implementation should use an ICE-like method to determine the 
+    * best destination address.
+    *
+    * @param connectionId Connection Id for the call leg obtained from 
+    *        createConnection
+    * @param cPriority Relatively priority of the destination.  Higher
+    *        numbers have greater priority (0..255)
+    * @param rtpHostAddress alternate destination address
+    * @param port Alternative destination port
+    * @param bRtp Boolean that indicates whether this is for the rtp
+    *        stream (true) or the rtcp stream (false).
+    */
+   virtual OsStatus addAlternateDestinations(int connectionId,
+                                             unsigned char cPriority,
+                                             const char* rtpHostAddress, 
+                                             int port,
+                                             bool bRtp) = 0 ;
 
    /**
     * Start sending RTP using the specified codec list.  Generally, this
@@ -308,18 +336,6 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   //! Query whether the specified media connection is enabled for 
-   //! sending RTP.
-   virtual UtlBoolean isSendingRtp(int connectionId) = 0 ;
-
-   //! Query whether the specified media connection is enabled for
-   //! sending RTP.
-   virtual UtlBoolean isReceivingRtp(int connectionId) = 0 ;
-
-   //! Query whether the specified media connection has a destination 
-   //! specified for sending RTP.
-   virtual UtlBoolean isDestinationSet(int connectionId) = 0 ;
-
    //! For internal use only
    virtual void setPremiumSound(UtlBoolean enabled) = 0;
 
@@ -334,10 +350,29 @@ public:
    //!Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ() = 0 ;
 
+   // Returns the primary codec for the connection
+   virtual OsStatus getPrimaryCodec(int connectionId, UtlString& codec, int *payloadType) = 0;
+
 /* ============================ INQUIRY =================================== */
+
+   //! Query whether the specified media connection is enabled for 
+   //! sending RTP.
+   virtual UtlBoolean isSendingRtp(int connectionId) = 0 ;
+
+   //! Query whether the specified media connection is enabled for
+   //! sending RTP.
+   virtual UtlBoolean isReceivingRtp(int connectionId) = 0 ;
+
+   //! Query whether the specified media connection has a destination 
+   //! specified for sending RTP.
+   virtual UtlBoolean isDestinationSet(int connectionId) = 0 ;
+
+   //! Query whether a new party can be added to this media interfaces
+   virtual UtlBoolean canAddParty() = 0 ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    CpMediaInterfaceFactoryImpl *mpFactoryImpl ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

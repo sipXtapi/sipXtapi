@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -68,10 +66,13 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
    mNumTotalWriteErrors(0),
    mNumRecentWriteErrors(0)
 {
-    int error = 0;
-    UtlBoolean isIp = FALSE;
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsDatagramSocket::_ attempt %s:%d"
+                  ,remoteHost, remoteHostPortNum);
+
+    int                error = 0;
+    UtlBoolean         isIp = FALSE;
     struct sockaddr_in localAddr;
-    struct hostent* server = NULL;
+    struct hostent*    server = NULL;
 
     // Verify socket layer is initialized.
     if(!socketInit())
@@ -111,8 +112,24 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
 
     // Bind to the socket
     localAddr.sin_family = AF_INET;
-    localAddr.sin_port = htons(localHostPort);    
-    localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress() ;
+    localAddr.sin_port =
+       htons(localHostPort == PORT_DEFAULT ? 0 : localHostPort);
+
+    // Should use host address (if specified in localHost) but for now use any
+    if (!localHost)
+    {
+        localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress(); // $$$
+        mLocalIp = inet_ntoa(localAddr.sin_addr);
+    }
+    else
+    {
+        struct in_addr  ipAddr;
+        ipAddr.s_addr = inet_addr (localHost);
+        localAddr.sin_addr.s_addr= ipAddr.s_addr;
+        mLocalIp = localHost;
+    }
+
+    
 #   if defined(_WIN32)
     error = bind( socketDescriptor, (const struct sockaddr*) &localAddr,
             sizeof(localAddr));
@@ -128,10 +145,9 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
     }
     else
     {
-        // Get the local host port -- zero (autoselect) may have been used
         sockaddr_in addr ;
         int addrSize = sizeof(struct sockaddr_in);
-        getsockname(socketDescriptor, (struct sockaddr*) &addr, SOCKET_LEN_TYPE& addrSize);
+        error = getsockname(socketDescriptor, (struct sockaddr*) &addr, SOCKET_LEN_TYPE& addrSize);
         localHostPort = htons(addr.sin_port);
     }
 
@@ -270,23 +286,13 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
     }
     else
     {
-        int flags = 0;
-
-#if defined(__pingtel_on_posix__)
-    // We do not want send to throw signals if there is a
-    // problem with the socket as this results in the process
-    // getting aborted.  We just want it to return an error
-        flags = MSG_NOSIGNAL;
-#endif
-
-
         // Why isn't this abstracted into OsSocket, as is done in ::write(2)?
         bytesSent = sendto(socketDescriptor,
 #ifdef _VXWORKS
             (char*)
 #endif
             buffer, bufferLength,
-            flags,
+            0,
             (struct sockaddr*) &toSockAddress, sizeof(struct sockaddr_in));
 
         if(bytesSent != bufferLength)
@@ -352,21 +358,12 @@ int OsDatagramSocket::writeTo(const char* buffer, int bufferLength)
     int bytesSent = 0;
 
     if (getToSockaddr()) {
-        int flags = 0;
-
-#if defined(__pingtel_on_posix__)
-    // We do not want send to throw signals if there is a
-    // problem with the socket as this results in the process
-    // getting aborted.  We just want it to return an error
-        flags = MSG_NOSIGNAL;
-#endif
-
         bytesSent = sendto(socketDescriptor,
 #ifdef _VXWORKS
             (char*)
 #endif
             buffer, bufferLength,
-            flags,
+            0,
             (struct sockaddr*) mpToSockaddr, sizeof(struct sockaddr_in));
 
         if(bytesSent != bufferLength)
@@ -415,7 +412,7 @@ int OsDatagramSocket::read(char* buffer, int bufferLength)
     int bytesRead;
 
     // If the remote end is not "connected" we cannot use recv
-    if(mSimulatedConnect || remoteHostPort <= 0 || remoteHostName.isNull())
+    if(mSimulatedConnect || !portIsValid(remoteHostPort) || remoteHostName.isNull())
     {
 #ifdef GETFROMINFO /* [ */
         if (GETFROMINFO) {

@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -43,8 +41,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsTimerDb::OsTimerDb(int initialDbSize)
-:  mDict(initialDbSize), mNumInserts(0), mNumRemoves(0)
+OsTimerDb::OsTimerDb()
+:  mNumInserts(0), mNumRemoves(0)
 {
 #ifdef TEST
    if (!sIsTested)

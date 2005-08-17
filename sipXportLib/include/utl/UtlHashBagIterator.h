@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlHashBagIterator_h_
 #define _UtlHashBagIterator_h_
@@ -15,7 +15,6 @@
 #include "utl/UtlDefs.h"
 #include "utl/UtlIterator.h"
 #include "utl/UtlHashBag.h"
-#include "glib.h"
 
 // DEFINES
 // MACROS
@@ -79,8 +78,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static const size_t BEFORE_FIRST;
-
     friend class UtlHashBag;
     
     /**
@@ -88,29 +85,22 @@ protected:
      * removed from the container.  The iterator must ensure that the element
      * for the removed node is not returned by any subsequent call.
      */
-    virtual void removing(const GList* node);
+    virtual void removing(const UtlLink* node);
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    void init(UtlHashBag* hashBag);
+    void init(UtlHashBag& hashBag);
    
-
-    void flush();
-   
-
-    static void fillInKeyLists(gpointer key,
-                               gpointer value,
-                               gpointer user_data
-                               );
-   
-    UtlContainable* mpSubsetMatch; // if non-NULL, points to the key that defines the subset
+    UtlContainable* mpSubsetMatch; ///< if non-NULL, points to the key that defines the subset
+    unsigned        mSubsetHash;   ///< if mpSubsetMatch != NULL, this is its hash code
     
-    size_t   mKeyListSize; // size of the mpKeyLists array
-    GList**  mpKeyLists;   // each element is the list header (the hash table value entry) for a given key
-    size_t   mListIndex;   // index into mpKeyLists
-    GList*   mpListNode;   // position in the current list
+    size_t   mPosition;      ///< current bucket number [0..numberOfBuckets-1]
+    UtlLink* mpCurrentLink;  ///< current UtlLink within the bucket, or BEFORE_FIRST
+    bool     mLinkIsValid;   /**< true if mpCurrentLink is the valid current position
+                              * The only time this is false is when the UtlContainable
+                              * at the current position was removed while it was current. */
 
     // no copy constructor
     UtlHashBagIterator(UtlHashBagIterator&);

@@ -142,8 +142,7 @@ protected:
      * @param host the host part of a valid registration url
      * @param port the port number portion of a valid registration url
      */
-    void addValidDomain(const UtlString& host, int port = 0);
+    void addValidDomain(const UtlString& host, int port = PORT_NONE);
 };
 
 #endif // SIPREGISTRARSERVER_H
-

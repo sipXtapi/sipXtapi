@@ -310,7 +310,7 @@ getProcessElements(
     UtlString& rStrParameters,
     UtlString& rStartupDir)
 {
-    TiXmlNode *commandNode = processElement.FirstChild(pCommand);
+    TiXmlNode *commandNode = (TiXmlNode*)processElement.FirstChild(pCommand);
     if ( commandNode != NULL )
     {                   // This is actually an individual row
         TiXmlElement *element = commandNode->ToElement();
@@ -363,7 +363,7 @@ startstopProcess(
 
     UtlBoolean bDone = FALSE;
 
-    TiXmlElement*rootElement = doc.RootElement();
+    TiXmlElement* rootElement = (TiXmlElement*)doc.RootElement();
     if (rootElement)
     {
         TiXmlNode *pGroupNode = rootElement->FirstChild( "group" );

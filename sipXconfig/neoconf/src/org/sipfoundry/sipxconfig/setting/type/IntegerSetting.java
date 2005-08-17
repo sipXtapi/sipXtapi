@@ -11,7 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.IntegerConverter;
+
 public class IntegerSetting implements SettingType {
+    private static final Converter CONVERTER = new IntegerConverter();
+
     private int m_min;
 
     private int m_max = Integer.MAX_VALUE;
@@ -44,5 +49,9 @@ public class IntegerSetting implements SettingType {
 
     public void setRequired(boolean required) {
         m_required = required;
+    }
+
+    public Object convertToTypedValue(Object value) {
+        return CONVERTER.convert(Integer.class, value);
     }
 }

@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -176,7 +174,7 @@ void OsTimeLog::addEvent(const char* eventName)
          microSecs % MICROSECS_PER_SEC);
 #else
    OsTime* now = new OsTime();
-   OsDateTime::getCurTimeSinceBoot(*now);
+   OsDateTime::getCurTime(*now);
 #endif
 
     addEvent(eventName, now);

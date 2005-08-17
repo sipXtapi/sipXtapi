@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -445,7 +443,7 @@ int MpResource::compareTo(UtlContainable const * inVal) const
    
    if (inVal->isInstanceOf(getContainableType()))
    {
-      result = (inVal == this) ? 0 : 1;
+      result = ((unsigned) this) - ((unsigned) inVal);
    }
    else
    {

@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -152,7 +150,7 @@ UtlBoolean OsMsg::isMsgInUse(void) const
 //! Implements the interface for a UtlContainable
 unsigned OsMsg::hash() const
 {
-   return (unsigned)this;
+   return (unsigned) this;
 }
 
 UtlContainableType OsMsg::getContainableType() const
@@ -162,7 +160,7 @@ UtlContainableType OsMsg::getContainableType() const
 
 int OsMsg::compareTo(UtlContainable const* other) const
 {
-   return (this == other) ? 0 : 1;
+   return ((unsigned) this) - ((unsigned) other);
 }
 
 

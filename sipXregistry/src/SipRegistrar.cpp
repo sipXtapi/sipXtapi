@@ -235,9 +235,9 @@ SipRegistrar::startRegistrar(
     const UtlString workingDir,
     const char* configFileName )
 {
-    int tcpPort = 0;
-    int udpPort = 0;
-    int tlsPort = 0;
+    int tcpPort = PORT_DEFAULT;
+    int udpPort = PORT_DEFAULT;
+    int tlsPort = PORT_DEFAULT;
     UtlString defaultMaxExpiresTime;
     UtlString defaultMinExpiresTime;
 
@@ -287,8 +287,22 @@ SipRegistrar::startRegistrar(
     }
 
     udpPort = configDb.getPort("SIP_REGISTRAR_UDP_PORT");
+    if (udpPort == PORT_DEFAULT)
+    {
+       udpPort = 5070;
+    }
+  
     tcpPort = configDb.getPort("SIP_REGISTRAR_TCP_PORT");
+    if (tcpPort == PORT_DEFAULT)
+    {
+       tcpPort = 5070;
+    }
+
     tlsPort = configDb.getPort("SIP_REGISTRAR_TLS_PORT");
+    if (tlsPort == PORT_DEFAULT)
+    {
+       tlsPort = 5071;
+    }
 
     configDb.get("SIP_REGISTRAR_MAX_EXPIRES", defaultMaxExpiresTime);
     configDb.get("SIP_REGISTRAR_MIN_EXPIRES", defaultMinExpiresTime);

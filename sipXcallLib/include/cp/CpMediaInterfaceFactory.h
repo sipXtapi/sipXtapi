@@ -1,12 +1,11 @@
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _CpMediaInterfaceFactory_h_
 #define _CpMediaInterfaceFactory_h_
@@ -21,7 +20,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class CpMediaInterfaceFactoryInterface ;
+class CpMediaInterfaceFactoryImpl ;
 class CpMediaInterface ;
 class SdpCodec ;
 
@@ -61,16 +60,14 @@ class CpMediaInterfaceFactory
      * The factory will automatically be deleted when the destructor of 
      * CpMediaInterfaceFactory is invoked.
      */
-    void setFactoryImplementation(CpMediaInterfaceFactoryInterface* pFactoryInterface) ;
+    void setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryInterface) ;
 
 
     /**
      * Create a media interface using the designated 
      * CpMediaIntefaceFactoryInterface.
      */ 
-    CpMediaInterface* createMediaInterface(int startRtpPort, 
-                                           int lastRtpPort,
-                                           const char* publicAddress,
+    CpMediaInterface* createMediaInterface(const char* publicAddress,
                                            const char* localAddress,
                                            int numCodecs,
                                            SdpCodec* sdpCodecArray[],
@@ -82,13 +79,13 @@ class CpMediaInterfaceFactory
 
 /* ============================ ACCESSORS ================================= */
 
-    CpMediaInterfaceFactoryInterface* getFactoryImplementation() ;
+    CpMediaInterfaceFactoryImpl* getFactoryImplementation() ;
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-    CpMediaInterfaceFactoryInterface* mpFactoryInterface ; 
+    CpMediaInterfaceFactoryImpl* mpFactoryImpl ; 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

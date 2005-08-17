@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipUserAgentBase_h_
 #define _SipUserAgentBase_h_
@@ -22,6 +20,7 @@
 #include <os/OsRWMutex.h>
 #include <net/SipMessage.h>
 #include <net/SipMessageEvent.h>
+#include <net/SipContactDb.h>
 
 
 
@@ -115,6 +114,7 @@ protected:
     UtlString mContactAddress;
     OsRWMutex mObserverMutex;
     UtlHashBag mConfigChangeObservers;
+    SipContactDb mContactDb;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -15,6 +13,7 @@
 // APPLICATION INCLUDES
 #include <net/SipProtocolServerBase.h>
 #include <net/SipUserAgent.h>
+#include <utl/UtlHashMapIterator.h>
 #include <os/OsDateTime.h>
 #include <os/OsEvent.h>
 #include <os/OsLock.h>
@@ -53,6 +52,8 @@ SipProtocolServerBase::~SipProtocolServerBase()
     mDataGuard.acquire();
     mClientLock.acquireWrite();
 
+    waitUntilShutDown();
+    
     int iteratorHandle = mClientList.getIteratorHandle();
     SipClient* client = NULL;
     while ((client = (SipClient*)mClientList.next(iteratorHandle)))
@@ -75,7 +76,15 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
 {
     UtlBoolean sendOk = FALSE;
 
-    SipClient* client = createClient(hostAddress, hostPort);
+
+    UtlString localIp(message->getLocalIp());
+    
+    if (localIp.length() < 1)
+    {
+        localIp = mDefaultIp;
+    }
+
+    SipClient* client = createClient(hostAddress, hostPort, localIp);
     if(client)
     {
         int isBusy = client->isInUseForWrite();
@@ -147,15 +156,61 @@ void SipProtocolServerBase::releaseClient(SipClient* client)
     mClientLock.releaseWrite();
 }
 
+UtlBoolean SipProtocolServerBase::startListener()
+{
+#       ifdef TEST_PRINT
+        osPrintf("SIP Server binding to port %d\n", serverPort);
+#       endif
+
+    UtlHashMapIterator iter(mServerSocketMap);
+    UtlVoidPtr* pSocketContainer = NULL;
+    UtlString* pKey;
+    while (pKey =(UtlString*)iter())
+    {
+        OsSocket* pSocket = NULL;
+        SipClient* pServer = NULL;
+        UtlVoidPtr* pServerContainer = NULL;
+
+        UtlString localIp = *pKey;
+        pSocketContainer = (UtlVoidPtr*)iter.value();
+         
+        if (pSocketContainer)
+        {    
+            pSocket = (OsSocket*)pSocketContainer->getValue();
+        }
+        
+        pServerContainer = (UtlVoidPtr*)mServers.findValue(&localIp);
+        if (!pServerContainer)
+        {
+            pServer = new SipClient(pSocket);
+            this->mServers.insertKeyAndValue(new UtlString(localIp), new UtlVoidPtr((void*)pServer));
+            pServer->start();
+        }
+        else
+        {
+            pServer = (SipClient*) pServerContainer->getValue();
+        }
+        if(mSipUserAgent)
+        {
+            if (pServer)
+            {
+                pServer->setUserAgent(mSipUserAgent);
+            }
+        }
+    }
+    return(TRUE);
+}
+
 SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
-                                               int hostPort)
+                                               int hostPort,
+                                               const char* localIp)
 {
     UtlString remoteHostAddr;
     UtlBoolean clientStarted = FALSE;
 
     mClientLock.acquireWrite();
 
-    SipClient* client = getClient(hostAddress, hostPort);
+    SipClient* client = getClient(hostAddress, hostPort, localIp);
 
     if(! client)
     {
@@ -164,7 +219,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                       hostAddress, hostPort);
 #       endif
 
-        if(hostPort <= 0)
+        if(!portIsValid(hostPort))
         {
             hostPort = mDefaultPort;
 #           if TEST_CLIENT_CREATION
@@ -178,7 +233,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
         OsDateTime::getCurTimeSinceBoot(time);
         long beforeSecs = time.seconds();
 
-        OsSocket* clientSocket = buildClientSocket(hostPort, hostAddress);
+        OsSocket* clientSocket = buildClientSocket(hostPort, hostAddress, localIp);
 
         OsDateTime::getCurTimeSinceBoot(time);
         long afterSecs = time.seconds();
@@ -275,6 +330,31 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
     return(client);
 }
 
+int SipProtocolServerBase::isOk()
+{
+    UtlBoolean bRet = true;
+    
+    SipClient* pServer = NULL;
+    UtlHashMapIterator iterator(mServers);
+    UtlVoidPtr* pServerContainer = NULL;
+    UtlString* pKey = NULL;
+    
+    while (pKey = (UtlString*)iterator())
+    {
+        pServerContainer = (UtlVoidPtr*)iterator.value();
+        if (pServerContainer)
+        {
+            pServer = (SipClient*)pServerContainer->getValue();
+        }
+        
+        if (pServer)
+        {
+            bRet = bRet && pServer->isOk();
+        }
+    }
+    return bRet;
+}
+
 UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
 {
     UtlBoolean exists;
@@ -364,7 +444,7 @@ UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
 }
 
 SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
-                                  int hostPort)
+                                  int hostPort, const char* localIp)
 {
     UtlBoolean isSameHost = FALSE;
     UtlString hostAddressString(hostAddress ? hostAddress : "");
@@ -383,7 +463,8 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
 
         isSameHost = client->isConnectedTo(hostAddressString, hostPort);
 
-        if(isSameHost && client->isOk())
+        if(isSameHost && client->isOk() &&
+           0 == strcmp(client->getLocalIp(), localIp))
         {
             break;
         }

@@ -11,14 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 
@@ -26,6 +30,7 @@ public abstract class ManageUsers extends BasePage
         implements PageRenderListener {
     
     public static final String PAGE = "ManageUsers";
+    private static final String USER_TABLE_COMPONENT_ID = "userTable";
 
     public abstract Collection getUsers();
     
@@ -47,7 +52,16 @@ public abstract class ManageUsers extends BasePage
     }
     
     public void deleteUsers(IRequestCycle cycle_) {
-        // TODO : use select map
+        UserTable table = (UserTable) getComponent(USER_TABLE_COMPONENT_ID);
+        SelectMap selections = table.getSelections();
+        Collection selected = selections.getAllSelected();
+        Collection users = new ArrayList(CollectionUtils.safeSize(selected));
+        for (Iterator i = selected.iterator(); i.hasNext();) {
+            Integer userId = (Integer) i.next();
+            User user = getCoreContext().loadUser(userId);
+            users.add(user);
+        }
+        getCoreContext().deleteUsers(users);
     }
     
     public void pageBeginRender(PageEvent event_) {

@@ -29,7 +29,7 @@ public class BackupPageTestUi extends WebTestCase {
     
     /**
      * Does not check if backup was successful - just checks if no Tapestry exceptions show up
-     * would have to send mock backup shell script to artifical root. 
+     * would have to send mock backup shell script to artificial root. 
      */
     public void testBackupNow() {
         SiteTestHelper.assertNoException(getTester());

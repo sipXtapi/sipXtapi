@@ -1,13 +1,10 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -408,14 +405,11 @@ UtlBoolean PsButtonTask::handlePhoneMessage(PsMsg& rMsg)
 void PsButtonTask::disableTimer(int index)
 {
    OsTimer*        pTimer;
-   OsNotification* pNotifier;
 
    pTimer = mpRepTimers[index];
 
    if (pTimer != NULL)
    {
-      pNotifier = pTimer->getNotifier();
-      delete pNotifier;
       delete pTimer;
       mpRepTimers[index] = NULL;
    }
@@ -436,8 +430,7 @@ void PsButtonTask::enableTimer(int index)
    if (repInterval.isInfinite())    // if the repeat interval is infinite,
       return;                       //  don't bother enabling it
 
-   pNotifier = new OsQueuedEvent(mIncomingQ, index);
-   mpRepTimers[index] = new OsTimer(*pNotifier);
+   mpRepTimers[index] = new OsTimer(&mIncomingQ, index);
    res = mpRepTimers[index]->periodicEvery(repInterval, repInterval);
    assert(res == OS_SUCCESS);
 }

@@ -1577,7 +1577,7 @@ MailboxManager::getConfigValue (
     UtlString& value ) const
 {
     OsStatus result = OS_SUCCESS;
-    TiXmlNode* configNode = node.FirstChild( key );
+    TiXmlNode* configNode = (TiXmlNode*)node.FirstChild( key );
 
     if ( (configNode != NULL) && (configNode->Type() == TiXmlNode::ELEMENT) )
     {
@@ -1630,7 +1630,7 @@ MailboxManager::setConfigValue (
     const UtlString& newValue ) const
 {
     OsStatus result = OS_SUCCESS;
-    TiXmlNode* configNode = node.FirstChild( key );
+    TiXmlNode* configNode = (TiXmlNode*)node.FirstChild( key );
 
     if ( (configNode != NULL) && (configNode->Type() == TiXmlNode::ELEMENT) )
     {

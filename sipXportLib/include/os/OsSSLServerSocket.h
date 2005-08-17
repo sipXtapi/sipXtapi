@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _OsSSLServerSocket_h_
 #define _OsSSLServerSocket_h_
@@ -45,9 +43,9 @@ public:
    OsSSLServerSocket(int connectionQueueSize, /**< The maximum number of outstanding connection
                                                *   requests which are allowed before subsequent
                                                *   requests are turned away.*/ 
-                     int serverPort=-1        /**< The port on which the server will listen to
-                                                 accept connection requests.
-                                                 -1 (default) means let OS pick port. */
+                     int serverPort=PORT_DEFAULT /**< The port on which the server will listen to
+                                                  *   accept connection requests.
+                                                  *   PORT_DEFAULT means let OS pick port. */
                      );
    /**
     * Sets the socket connection queue and starts listening on the

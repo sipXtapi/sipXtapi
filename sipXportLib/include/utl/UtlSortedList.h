@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _UtlSortedList_h_
 #define _UtlSortedList_h_
@@ -14,7 +14,6 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlList.h"
-#include "glib.h"
 
 // DEFINES
 // MACROS
@@ -67,13 +66,6 @@ public:
     virtual UtlContainable* remove(const UtlContainable*);
 
 
-    /**
-     * Remove the object at location index.
-     *
-     * return true on success, otherwise false
-     */
-    virtual UtlContainable* removeAt(const size_t index);
-
 /* ============================ ACCESSORS ================================= */
 
     /**
@@ -109,12 +101,12 @@ protected:
     typedef enum {POSITION, EXACTLY} MatchType;
 
     /**
-     * Return the first GList node which is greater or equal to the designated
+     * Return the first UtlLink which is greater or equal to the designated
      * object, or NULL if not found.
      *
      * The caller must hold the mContainerLock
      */
-    GList* findNode(GList* starting, MatchType match, const UtlContainable* obj) const;
+    UtlLink* findNode(UtlLink* starting, MatchType match, const UtlContainable* obj) const;
 
     static const UtlContainableType TYPE;
 

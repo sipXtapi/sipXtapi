@@ -110,8 +110,8 @@ void ForwardRules::buildDefaultRules(const char* domain,
     UtlString ipAddressPort(ipAddress ? ipAddress : "127.0.0.1");
     UtlString fqhnPort(fqhn ? fqhn : "localhost");
 
-    if(localPort == 5060) localPort = 0;
-    if(localPort > 0)
+    if(localPort == 5060) localPort = PORT_NONE;
+    if(portIsValid(localPort))
     {
         char portString[40];
         sprintf(portString,":%d", localPort);
@@ -267,7 +267,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
    int testPort = requestUri.getHostPort();
    if(testPort == SIP_PORT)
    {
-      testPort = 0;
+      testPort = PORT_NONE;
    }
    
    UtlBoolean routeMatchFound = false;
@@ -334,7 +334,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
                // See if the host and port of the routeFrom elelment
                // match that of the URI
                if( (xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0) &&
-                  ((xmlPort == SIP_PORT && testPort == 0) ||
+                  ((xmlPort == SIP_PORT && testPort == PORT_NONE) ||
                    xmlPort == testPort) )
                {
                   routeMatchFound = true;

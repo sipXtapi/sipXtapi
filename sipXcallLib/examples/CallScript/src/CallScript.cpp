@@ -1,24 +1,17 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #define DEFAULT_SIP_PORT 5960
 #define DEFAULT_RTP_PORT 9000
 #define INPUT_LINE_SIZE 200
 #define MAX_PAUSE_DURATION_MS (60*1000)
 
-#include <stdio.h>
+#include "os/OsDefs.h"
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <time.h>
 
 #if defined(_WIN32)
@@ -108,7 +101,7 @@ bool placeCall(const char* szSipUrl, const char* szFromIdentity)
 {
     printf("<-> Placing call to \"%s\" as \"%s\"\n", szSipUrl, szFromIdentity);
 
-    sipxLineAdd(g_hInst, szFromIdentity, &g_hLine);
+    sipxLineAdd(g_hInst, szFromIdentity, false, &g_hLine);
     sipxCallCreate(g_hInst, g_hLine, &g_hCall);
     sipxCallConnect(g_hCall, szSipUrl);
 
@@ -195,7 +188,7 @@ int main(int argc, char* argv[])
 
    // Parse Arguments
    if (!(parseArgs(argc, argv, &iSipPort, &iRtpPort, &szLabel) &&
-         (iSipPort > 0) && (iRtpPort > 0)))
+         portIsValid(iSipPort) && portIsValid(iRtpPort)))
    {
       usage(argv[0]);
       exit(1);

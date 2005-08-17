@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -32,24 +30,48 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipTlsServer::SipTlsServer(int port, SipUserAgent* userAgent) :
- SipTcpServer(-1, userAgent, SIP_TRANSPORT_TLS, "SipTlsServer-%d")
+SipTlsServer::SipTlsServer(int port, SipUserAgent* userAgent, UtlBoolean bUseNextAvailablePort) :
+ SipTcpServer(PORT_NONE, userAgent, SIP_TRANSPORT_TLS, "SipTlsServer-%d")
 {
-   OsSysLog::add(FAC_SIP,PRI_DEBUG,"SipTlsServer::~ port %d", port);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTlsServer::_ port = %d, bUseNextAvailablePort = %d",
+                  port, bUseNextAvailablePort);
+
+    mServerPort = PORT_NONE ;
    
-   if(port >= 0)
-   {
-#ifdef SIP_TLS
-        mServerSocket = new OsSSLServerSocket(64, port);
-#else
-        mServerSocket = new OsServerSocket(64, port);
-#endif
-        mServerPort = mServerSocket->getLocalHostPort() ;
-    }
-    else
+    OsSysLog::add(FAC_SIP,PRI_DEBUG,"SipTlsServer::~ port %d", port);
+
+    if(portIsValid(port))
     {
-        mServerSocket = NULL;
-        mServerPort = -1 ;
+#ifdef SIP_TLS
+        OsServerSocket* pServerSocket = new OsSSLServerSocket(64, port);
+#else
+        OsServerSocket* pServerSocket = new OsServerSocket(64, port);
+#endif
+
+        // If the socket is busy or unbindable and the user requested using the
+        // next available port, try the next SIP_MAX_PORT_RANGE ports.
+        if (bUseNextAvailablePort && !pServerSocket->isOk())
+        {
+            for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
+            {
+                delete pServerSocket ;
+#ifdef SIP_TLS
+                pServerSocket = new OsSSLServerSocket(64, port+i);
+#else
+                pServerSocket = new OsServerSocket(64, port+i);
+#endif                
+                if (pServerSocket->isOk())
+                {
+                    break ;
+                }
+            }
+        }
+
+        if (pServerSocket->isOk())
+        {
+            mServerPort = pServerSocket->getLocalHostPort() ;
+        }
     }
 
    mDefaultPort = SIP_TLS_PORT;
@@ -60,8 +82,8 @@ SipTlsServer::SipTlsServer(int port, SipUserAgent* userAgent) :
 // Destructor
 SipTlsServer::~SipTlsServer()
 {
-    if(mServerSocket) delete mServerSocket;
-    mServerSocket = NULL;
+    waitUntilShutDown();
+
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -90,10 +112,6 @@ int SipTlsServer::getServerPort() const
 }
 
 /* ============================ INQUIRY =================================== */
-UtlBoolean SipTlsServer::isOk()
-{
-        return mServerSocket->isOk();
-}
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -101,4 +119,3 @@ UtlBoolean SipTlsServer::isOk()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

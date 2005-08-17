@@ -276,6 +276,9 @@ void IvrCallListener::handleStartVXISession(TaoMessage& rMsg, TaoString& arg)
    UtlString requestUriStr;
    Url fromUrl;
    Url toUrl;
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                 "IvrCallListener::handleStartVXISession callId = '%s', address = '%s'",
+                 callId.data(), address.data());
    if (mpCallManager->getSession(
           callId.data(),         // call id
           address.data(), // remote address
@@ -293,15 +296,10 @@ void IvrCallListener::handleStartVXISession(TaoMessage& rMsg, TaoString& arg)
    UtlString vxmlDoc;
 
    requestUrl.getFieldParameter("play", vxmlDoc);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                 "IvrCallListener::handleStartVXISession vxmlDoc = '%s'",
+                 vxmlDoc.data());
 
-   if (vxmlDoc.isNull())
-   {
-      unsigned int pos = requestUriStr.index("play=");
-      if (pos != UTL_NOT_FOUND)
-      {
-         vxmlDoc = requestUriStr((pos + 5), requestUriStr.length() - pos - 1);
-      }
-   }
    requestUrl.getFieldParameter("user", userId);
    requestUrl.getFieldParameter("domain", domain);
    if (userId.isNull()) requestUrl.getUserId(userId);
@@ -619,4 +617,3 @@ void IvrCallListener::testInquiry()
 #endif //TEST
 
 /* ============================ FUNCTIONS ================================= */
-

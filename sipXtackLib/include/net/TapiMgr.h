@@ -1,13 +1,11 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2005 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 #ifndef SIPXTAPI_EXCLUDE
 #ifndef _TapiMgr_h
 #define _TapiMgr_h
@@ -43,6 +41,12 @@ public:
     */
     static TapiMgr& getInstance();
 
+
+   /**
+    * Sets the callback function pointer for all Events (to be fired to the sipXtapi layer)
+    */
+    void setTapiCallback(sipxEventCallbackFn fp);
+
    /**
     * Sets the callback function pointer for Call Events (to be fired to the sipXtapi layer)
     */
@@ -53,22 +57,34 @@ public:
     */
     void setTapiLineCallback(sipxLineEventCallbackFn fp);
     
+    
     /** 
      * This method calls the Call event callback using the function pointer.
+     * It calls the deprecated "Call Callback" in sipXtapi.
      */    
     void fireCallEvent(const void*          pSrc,
                        const char*		    szCallId,
                        SipSession*          pSession,
 				       const char*          szRemoteAddress,                   
-				       SIPX_CALLSTATE_MAJOR eMajorState,
-				       SIPX_CALLSTATE_MINOR eMinorState) ;
+				       SIPX_CALLSTATE_EVENT eMajorState,
+				       SIPX_CALLSTATE_CAUSE eMinorState,
+                       void*                pEventData) ;
     
     /** 
      * This method calls the Line event callback using the function pointer.
+     * It calls the deprecated "Line Callback" in sipXtapi.
      */    
     void fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
-                        SIPX_LINE_EVENT_TYPE_MAJOR major);		
+                        SIPX_LINESTATE_EVENT event,
+                        SIPX_LINESTATE_CAUSE cause);	
+                        
+    /** 
+     * This method calls the new "unified callback" procedure in sipXtapi.
+     */
+    void fireEvent(const void* pSrc,
+                   const SIPX_EVENT_CATEGORY event,
+                   void* pInfo);
     
 
 /* ============================ MANIPULATORS ============================== */
@@ -103,15 +119,20 @@ private:
     static TapiMgr* spTapiMgr;
 
     /**
-     * function pointer for the Call Event callback.
+     * function pointer for the Unified Event callback proc in sipXtapi.
+     */
+    sipxEventCallbackFn sipxEventCallbackPtr;
+
+    /**
+     * function pointer for the Call Event callback proc in sipXtapi.
      */
     sipxCallEventCallbackFn sipxCallEventCallbackPtr;
 
     /**
-     * function pointer for the Line Event callback.
+     * function pointer for the Line Event callback proc in sipXtapi.
      */
     sipxLineEventCallbackFn sipxLineEventCallbackPtr;
-
+    
 };
 
 #endif /* ifndef _TapiMgr_h_ */

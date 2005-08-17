@@ -402,7 +402,7 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
             HttpMessage::unescape( from );
             if (impl->live == 1) 
             {
-                if (PT_SUCCESS == impl->pCallMgr->transfer((char*)impl->callId, from.data(), 0, 0))
+                if (PT_SUCCESS == impl->pCallMgr->transfer_blind((char*)impl->callId, from.data(), 0, 0))
                 {
                         impl->transferred = 0;
                         int state = 0;

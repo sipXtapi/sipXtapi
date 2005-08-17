@@ -39,6 +39,10 @@ nobase_include_HEADERS =  \
     net/SdpCodecFactory.h \
     net/SdpCodec.h \
     net/SipClient.h \
+    net/SipContactDb.h \
+    net/SipDialog.h \
+    net/SipDialogEvent.h \
+    net/SipDialogMgr.h \
     net/SipDialog.h \
     net/SipDialogMgr.h \
     net/SipDialogMonitor.h \
@@ -60,18 +64,19 @@ nobase_include_HEADERS =  \
     net/SipProtocolServerBase.h \
     net/SipPublishContentMgr.h \
     net/SipPublishServer.h \
-    net/SipPublishServerEventStateMgr.h \
     net/SipPublishServerEventStateCompositor.h \
+    net/SipPublishServerEventStateMgr.h \
     net/SipRefreshMgr.h \
     net/SipRefreshManager.h \
     net/SipRequestContext.h \
     net/SipResourceList.h \
     net/SipServerBase.h \
+    net/SipServerBroker.h \
     net/SipSession.h \
     net/SipSrvLookup.h \
     net/SipSubscribeClient.h \
-    net/SipSubscribeServerEventHandler.h \
     net/SipSubscribeServer.h \
+    net/SipSubscribeServerEventHandler.h \
     net/SipSubscriptionMgr.h \
     net/SipTcpServer.h \
     net/SipTlsServer.h \
@@ -96,7 +101,14 @@ nobase_include_HEADERS =  \
     resparse/res_config.h \
     resparse/res_info.h \
     resparse/rr.h \
-    resparse/types.h
+    resparse/types.h \
+    tapi/SipXHandleMap.h \
+    tapi/SipXMessageObserver.h \
+    tapi/SipXtapiEventDispatcher.h \
+    tapi/doxyfile \
+    tapi/sipXtapi.h \
+    tapi/sipXtapiEvents.h \
+    tapi/sipXtapiInternal.h
 
 net/version.h: .FORCE
 	@test -d net || mkdir net
@@ -114,4 +126,3 @@ net/version.h: .FORCE
 	;fi
 
 .FORCE:
-

@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.common.Permission;
 
 /**
  * MappingRule

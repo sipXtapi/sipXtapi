@@ -60,6 +60,8 @@ sipXezPhoneSettingsDlg::sipXezPhoneSettingsDlg( wxWindow *parent, wxWindowID id,
     wxCheckBox* pCheck = (wxCheckBox*)sipXezPhoneSettingsDlg::FindWindowById(ID_ENABLE_RPORT_CTRL, this);
     pCheck->SetValue( sipXezPhoneSettings::getInstance().getUseRport() );
 
+    pCtrl = (wxTextCtrl*)sipXezPhoneSettingsDlg::FindWindowById(ID_STUN_SERVER_CTRL, this);
+    pCtrl->SetValue( sipXezPhoneSettings::getInstance().getStunServer().data() );
 }
 
 // WDR: handler implementations for sipXezPhoneSettingsDlg
@@ -92,6 +94,11 @@ void sipXezPhoneSettingsDlg::OnOk(wxCommandEvent &event)
     
     wxCheckBox* pCheck = (wxCheckBox*)sipXezPhoneSettingsDlg::FindWindowById(ID_ENABLE_RPORT_CTRL, this);
     sipXezPhoneSettings::getInstance().setUseRport(pCheck->GetValue());
+
+    pCtrl = (wxTextCtrl*)sipXezPhoneSettingsDlg::FindWindowById(ID_STUN_SERVER_CTRL, this);
+    x = pCtrl->GetValue();
+    sipXezPhoneSettings::getInstance().setStunServer(x.c_str());
+
 
     sipXezPhoneSettings::getInstance().saveSettings();
     

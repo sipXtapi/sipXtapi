@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -390,7 +388,6 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
          if (!boolRes) {
             osPrintf("MpMedia: called %s, which indicated failure\n",
                mpResourceInProcess->mName.data());
-            assert(boolRes);
          }
       }
    }

@@ -227,11 +227,11 @@ StatusServer::startStatusServer (
     const UtlString workingDir, 
     const char* configFileName )
 {
-    int httpPort  = 0;
-    int httpsPort = 0;
-    int tcpPort   = 0;
-    int udpPort   = 0;
-    int tlsPort   = 0;
+    int httpPort  = PORT_NONE;
+    int httpsPort = PORT_NONE;
+    int tcpPort   = PORT_NONE;
+    int udpPort   = PORT_NONE;
+    int tlsPort   = PORT_NONE;
     UtlString defaultMaxExpiresTime;
     UtlString defaultMinExpiresTime;
 
@@ -289,11 +289,28 @@ StatusServer::startStatusServer (
     configDb.get("SIP_STATUS_MAX_EXPIRES", defaultMaxExpiresTime);
     configDb.get("SIP_STATUS_MIN_EXPIRES", defaultMinExpiresTime);
 
+    // SIP_STATUS_UDP_PORT
     udpPort = configDb.getPort("SIP_STATUS_UDP_PORT") ;
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TCP_PORT : %d", tcpPort);
+    if ( udpPort == PORT_NONE )
+    {
+       udpPort = 5110;
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_UDP_PORT : %d", udpPort);
+
+    // SIP_STATUS_TCP_PORT
     tcpPort = configDb.getPort("SIP_STATUS_TCP_PORT") ;
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_UDP_PORT : %d", tcpPort);
+    if ( tcpPort == PORT_NONE )
+    {
+       tcpPort = 5110;
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TCP_PORT : %d", tcpPort);
+
+    // SIP_STATUS_TLS_PORT
     tlsPort = configDb.getPort("SIP_STATUS_TLS_PORT") ;
+    if ( tlsPort == PORT_NONE )
+    {
+       tcpPort = 5111;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TLS_PORT : %d", tlsPort);
     
     // Get the HTTP server authentication database
@@ -380,7 +397,7 @@ StatusServer::startStatusServer (
 
     // Only search for the non secure SIP_STATUS_HTTP_PORT 
     // if the secure one is disabled
-    if ( httpsPort <= 0 )
+    if ( httpsPort == PORT_NONE )
     {
         // SIP_STATUS_HTTP_PORT
         result = configDb.get("SIP_STATUS_HTTP_PORT", portStr);
@@ -444,8 +461,8 @@ StatusServer::startStatusServer (
                   defaultMinExpiresTime.data());
 
 
-    int webServerPort = httpsPort > 0? httpsPort : httpPort;
-    UtlBoolean isSecureServer = (httpsPort > 0);
+    int webServerPort = portIsValid(httpsPort) ? httpsPort : httpPort;
+    UtlBoolean isSecureServer = portIsValid(httpsPort);
     // Start the HTTP server
     HttpServer* httpServer = 
         initHttpServer(
@@ -612,10 +629,10 @@ StatusServer::initHttpServer (
     osBaseUriDirectory =  workingDirectory + OsPathBase::separator;
 
     // Determine whether we should start the web server or not.  Use the port
-    // value as the decision point.  Anything > 0 means enable. 
+    // value as the decision point.  A valid port means enable. 
     // If isSecureServer then start the port as a secure web server.
     // 
-    if( httpServerPort > 0 )
+    if( portIsValid(httpServerPort) )
     {
         OsSysLog::add(FAC_SIP, PRI_INFO,
                       "Starting Embedded Web Server on port %d...",

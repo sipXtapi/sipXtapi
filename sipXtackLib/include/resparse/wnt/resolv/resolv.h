@@ -63,7 +63,7 @@
 
 #include <sys/types.h>
 #include <stdio.h>
-#include <winsock2.h>
+#include <winsock.h>
 
 #ifdef __cplusplus
 extern "C" {

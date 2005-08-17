@@ -94,6 +94,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libsipXtack.a
 # %attr(755,root,root) %{_libdir}/debug/usr/lib/libsipXtack.so*
 %{_includedir}/net/*
+%{_includedir}/tapi/*
 %{_includedir}/resparse/*
 %{_includedir}/siptest/*
 

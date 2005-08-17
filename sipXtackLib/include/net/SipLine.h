@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 #if !defined(AFX_SIPLINE_H__6AD8439B_AA8A_4F09_B5C4_44A3BA9C7AC6__INCLUDED_)
 #define AFX_SIPLINE_H__6AD8439B_AA8A_4F09_B5C4_44A3BA9C7AC6__INCLUDED_
 
@@ -150,9 +148,7 @@ public:
     LINE_CONTACT_TYPE getContactType() const ;
     void setContactType(LINE_CONTACT_TYPE eContactType) ;
 
-
 protected:
-
 
         UtlBoolean mIsVisible;
         UtlBoolean mIsAutoEnabled;

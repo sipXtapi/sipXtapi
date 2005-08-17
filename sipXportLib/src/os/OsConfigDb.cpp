@@ -1,13 +1,11 @@
-// $Id$
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <ctype.h>
@@ -488,13 +486,32 @@ int OsConfigDb::getPort(const char* szKey)
     assert(szKey) ;
 
     UtlString value ;
-    int port = -1 ;
+    int port = PORT_NONE ;
 
     if (get(szKey, value) == OS_SUCCESS)
     {
+        // If the value is null, leave port == PORT_NONE.
         if (value.length())
         {
-            get(szKey, port) ;
+           if (value.compareTo("DEFAULT", UtlString::ignoreCase))
+           {
+              port = PORT_DEFAULT;
+           }
+           else if (value.compareTo("NONE", UtlString::ignoreCase))
+           {
+              port = PORT_NONE;
+           }
+           else
+           {
+              port = atoi(value.data());
+              if (!portIsValid(port))
+              {
+                 port = PORT_NONE;
+                 OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                               "Invalid port number value '%s' for config variable '%s'.",
+                               value.data(), szKey);
+              }
+           }
         }
     }
 
@@ -881,7 +898,7 @@ int DbEntry::compareTo(const UtlContainable *b) const
 
 unsigned int DbEntry::hash() const
 {
-    return (int)this;
+    return key.hash();
 }
 
 static UtlContainableType DB_ENTRY_TYPE = "DbEntry";

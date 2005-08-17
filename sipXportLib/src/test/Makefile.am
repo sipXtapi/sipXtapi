@@ -3,11 +3,10 @@ SUBDIRS = sipxunit testplugin
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
+# for performance numbers, add to TESTS: UtlListPerformance UtlHashMapPerformance
 TESTS = testsuite
 
-check_PROGRAMS = testsuite sandbox
-
-#testsuite_LDFLAGS =    @PCRE_LDFLAGS@
+check_PROGRAMS = testsuite sandbox UtlListPerformance UtlHashMapPerformance
 
 ## To load source in gdb for libsipXport.la, type the 'share' at the
 ## gdb console just before stepping into function in sipXportLib
@@ -17,14 +16,17 @@ testsuite_LDADD = \
 
 testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
-	@GLIB_CFLAGS@ \
 	@PCRE_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DTEST_DIR=\"@abs_builddir@\" \
 	-fno-gcse -O0
 
+# ORDER NOTE: the utl/UtlLinkTest and utl/UtlChainTest must be before
+#             any test that uses any UtlContainer.
 testsuite_SOURCES = \
+    utl/UtlChainTest.cpp \
+    utl/UtlLinkTest.cpp \
     utl/UtlContainableTestStub.cpp \
     utl/UtlContainableTestStub.h \
     utl/UtlVoidPtr.cpp \
@@ -54,7 +56,6 @@ testsuite_SOURCES = \
     os/OsCallbackTest.cpp \
     os/OsTimerTaskTest.cpp \
     os/OsTimeTest.cpp \
-    os/OsTimerTest.cpp \
     os/OsEventTest.cpp \
     os/OsLockTest.cpp \
     os/OsMsgQTest.cpp \
@@ -73,6 +74,8 @@ testsuite_SOURCES = \
 	 utl/TestPlugin.h \
 	 utl/PluginHooksTest.cpp
 
+# :TODO: Removed because they depend on direct access to glib
+#    os/OsTimerTest.cpp
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
 # debugging or when developing a new unittest. As courtesy remove all
@@ -88,7 +91,35 @@ sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
+    os/OsEventTest.cpp \
     utl/PluginHooksTest.cpp
+
+# Performance test of UtlList
+
+UtlListPerformance_SOURCES = \
+	utl/UtlListPerformance.cpp
+
+
+UtlListPerformance_CXXFLAGS = \
+	-I$(top_builddir)/config \
+	-I$(top_srcdir)/include
+
+UtlListPerformance_LDADD = \
+    ../libsipXport.la
+
+# Performance test of UtlHashMap
+
+UtlHashMapPerformance_SOURCES = \
+	utl/UtlHashMapPerformance.cpp
+
+
+UtlHashMapPerformance_CXXFLAGS = \
+	-I$(top_builddir)/config \
+	-I$(top_srcdir)/include
+
+UtlHashMapPerformance_LDADD = \
+    ../libsipXport.la
+
 
 EXTRA_DIST= \
     sipXportTest.dsp

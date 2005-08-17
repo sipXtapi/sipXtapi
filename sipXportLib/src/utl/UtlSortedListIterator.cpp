@@ -1,11 +1,11 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-//////////////////////////////////////////////////////////////////////////////
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 
@@ -53,10 +53,9 @@ UtlContainable* UtlSortedListIterator::findNext(const UtlContainable* objectToFi
 
       if (mpCurrentNode != UtlListIterator::OFF_LIST_END)
       {
-         GList *start = (mpCurrentNode == NULL ? g_list_first(myList->mpList) : 
-                         mpCurrentNode);
+         UtlLink* start = (mpCurrentNode == NULL ? myList->head() : mpCurrentNode);
 
-         GList* nextNode = myList->findNode(start, UtlSortedList::EXACTLY, objectToFind);
+         UtlLink* nextNode = myList->findNode(start, UtlSortedList::EXACTLY, objectToFind);
       
          if (nextNode)
          {
@@ -68,13 +67,13 @@ UtlContainable* UtlSortedListIterator::findNext(const UtlContainable* objectToFi
       if (!nextMatch) // find a match?
       {
          // no - set current position so that next will return NULL
-         mpCurrentNode = g_list_last(myList->mpList);
+         mpCurrentNode = myList->tail();
       }
    }
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return(nextMatch);
 }

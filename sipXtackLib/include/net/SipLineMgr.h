@@ -1,13 +1,11 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifndef _SipLineMgr_h_
 #define _SipLineMgr_h_
@@ -22,7 +20,6 @@
 #include "net/SipLine.h"
 #include "net/SipLineList.h"
 #include "net/SipLineEvent.h"
-#include "net/SipRefreshMgr.h"
 #include "net/HttpMessage.h"
 
 // DEFINES
@@ -61,6 +58,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class OsConfigDb;
+class SipRefreshMgr;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -85,7 +83,7 @@ public:
 
    void StartLineMgr();
 
-   UtlBoolean initializeRefreshMgr( SipRefreshMgr * refershMgr );
+   UtlBoolean initializeRefreshMgr( SipRefreshMgr * refreshMgr );
 
    void setDefaultContactUri(const Url& contactUri);
 
@@ -103,6 +101,8 @@ public:
    void disableLine(const Url& identity,
                     UtlBoolean onStartup = FALSE,
                     const UtlString& lineId ="");
+
+   void lineHasBeenUnregistered(const Url& identity);
 
    void enableAllLines();
 
@@ -323,8 +323,8 @@ private:
     OsRWMutex mObserverMutex;
 
     // line list and temp line lists
-    static SipLineList  sLineList;
-    static SipLineList  sTempLineList;
+    mutable SipLineList  sLineList;
+    mutable SipLineList  sTempLineList;
 };
 
 /* ============================ INLINE METHODS ============================ */

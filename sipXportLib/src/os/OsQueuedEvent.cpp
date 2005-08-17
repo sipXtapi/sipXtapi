@@ -1,13 +1,11 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -36,6 +34,7 @@ OsQueuedEvent::OsQueuedEvent(OsMsgQ& rMsgQ, const int userData)
 // Destructor
 OsQueuedEvent::~OsQueuedEvent()
 {
+   mpMsgQ = NULL;
    // no work required
 }
 
@@ -89,7 +88,16 @@ OsStatus OsQueuedEvent::doSendEventMsg(const int msgType,
                   eventData,   // data signaled with event
                   timestamp);  // event timestamp (time since boot)
 
-   return mpMsgQ->send(msg);
+   OsStatus rc;
+   if (mpMsgQ)
+   {
+      rc = mpMsgQ->send(msg);
+   }
+   else
+   {
+      rc = OS_FAILED;
+   }
+   return rc;
 }
 
 /* ============================ FUNCTIONS ================================= */

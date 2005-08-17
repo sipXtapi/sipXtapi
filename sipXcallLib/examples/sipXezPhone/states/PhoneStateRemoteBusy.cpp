@@ -1,21 +1,21 @@
-// $Id$
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "..\stdwx.h"
-#include "..\sipXmgr.h"
+#include "../stdwx.h"
+#include "../sipXmgr.h"
 #include "PhoneStateRemoteBusy.h"
 #include "../sipXezPhoneApp.h"
+#include "PhoneStateIdle.h"
+#include "../sipXmgr.h"
+#include "tapi/sipXtapi.h"
+#include "tapi/sipXtapiEvents.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -30,10 +30,19 @@ PhoneStateRemoteBusy::PhoneStateRemoteBusy(void)
 
 PhoneStateRemoteBusy::~PhoneStateRemoteBusy(void)
 {
+    sipXmgr::getInstance().stopTone();
+}
+
+PhoneState* PhoneStateRemoteBusy::OnFlashButton()
+{
+   return (new PhoneStateIdle());
 }
 
 PhoneState* PhoneStateRemoteBusy::Execute()
 {
-   thePhoneApp->setStatusMessage("Busy.");
-   return this;
+    thePhoneApp->setStatusMessage("Busy.");
+    
+    sipxCallStartTone(sipXmgr::getInstance().getCurrentCall(), ID_TONE_BUSY, true, false); 
+   
+    return this;
 }

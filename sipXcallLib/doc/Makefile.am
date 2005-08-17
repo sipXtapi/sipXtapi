@@ -2,6 +2,7 @@ include $(top_builddir)/config/sipXcommon.mak
 
 EXTRA_DIST = \
   Doxyfile.in \
+  header.html \
   footer.html
 
 all: doc

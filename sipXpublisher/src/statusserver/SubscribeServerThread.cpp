@@ -675,7 +675,7 @@ SubscribeServerThread::isValidDomain(
     // local host or a FullyQalified Domain Name
     if ( ( (address.compareTo(mDefaultDomainHostIP.data(), UtlString::ignoreCase) == 0) ||
            (address.compareTo(mDefaultDomainHostFQDN.data(), UtlString::ignoreCase) == 0) )
-         && ( (mDefaultDomainPort == 0) || (port == mDefaultDomainPort) ) )
+         && ( (mDefaultDomainPort == PORT_NONE) || (port == mDefaultDomainPort) ) )
     {
         syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain\n") ;
         return TRUE;

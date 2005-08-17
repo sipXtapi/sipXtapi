@@ -1,13 +1,9 @@
 //
-//
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -23,6 +19,7 @@
 #   include <sockLib.h>
 #   include <unistd.h>
 #elif defined(__pingtel_on_posix__)
+#   include <netinet/in.h>
 #   include <sys/types.h>
 #   include <sys/socket.h>
 #   include <netdb.h>
@@ -133,15 +130,15 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                if (1 == result)
                {
                   OsSSL::logConnectParams(FAC_KERNEL, PRI_DEBUG
-                                          ,"OsSSLServerSocket::accept."
+                                          ,"OsSSLServerSocket::accept %p"
                                           ,pSSL);
                }
                else
                {
                   OsSSL::logError(FAC_KERNEL, PRI_ERR,
                                   (  result == 0
-                                   ? "OsSSLServerSocket SSL_accept - incompatible client?"
-                                   : "OsSSLServerSocket SSL_accept SSL handshake error"
+                                   ? "OsSSLServerSocket SSL_accept - incompatible client? - %s"
+                                   : "OsSSLServerSocket SSL_accept SSL handshake error - %s"
                                    ),
                                   SSL_get_error(pSSL, result));
                   socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;

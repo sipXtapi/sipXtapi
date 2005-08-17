@@ -131,6 +131,12 @@ SipSubscriptionMgr::SipSubscriptionMgr(const SipSubscriptionMgr& rSipSubscriptio
 // Destructor
 SipSubscriptionMgr::~SipSubscriptionMgr()
 {
+    // This crashed the SubscriptionMgrTest on Win32 but not
+    // deleting mpDialogMgr causes a memory leak.
+    // This is now causing a crash on Linux as well.  The whole thing
+    // needs more investigation.
+    //delete mpDialogMgr ;
+
     // Iterate through and delete all the dialogs
     // TODO:
 }

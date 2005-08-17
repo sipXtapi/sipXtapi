@@ -212,7 +212,6 @@
         <module name="usage.UnusedPrivateField">
             <property name="ignoreFormat" value="(_$|Temp$|^serialVersionUID)"/>
         </module>
-        <module name="usage.UnusedPrivateMethod"/>        
+        <module name="usage.UnusedPrivateMethod"/>
 	</module>
-
 </module>

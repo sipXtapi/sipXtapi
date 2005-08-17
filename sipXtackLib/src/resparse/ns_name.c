@@ -23,7 +23,7 @@
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */
-#       include <winsock2.h>
+#       include <winsock.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>

@@ -22,6 +22,7 @@ import org.dom4j.Element;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 public class AuthRulesTest extends XMLTestCase {
@@ -44,6 +45,7 @@ public class AuthRulesTest extends XMLTestCase {
 
     public void testGenerate() throws Exception {
         Gateway gateway = new Gateway();
+        gateway.setUniqueId();
         gateway.setAddress("10.1.2.3");
 
         List gateways = new ArrayList();
@@ -182,6 +184,7 @@ public class AuthRulesTest extends XMLTestCase {
         Gateway[] gateways = new Gateway[GATEWAYS_LEN];
         for (int i = 0; i < gateways.length; i++) {
             gateways[i] = new Gateway();
+            gateways[i].setUniqueId();
             gateways[i].setAddress("10.1.2." + i);
         }
         AuthRules rules = new AuthRules();

@@ -34,7 +34,7 @@ import com.meterware.httpunit.WebResponse;
 public class SiteTestHelper {
 
     /**
-     * Same displayId that TestPage creates. thought of referencing static variable but may pull
+     * Same userName that TestPage creates. thought of referencing static variable but may pull
      * in unnec. dependencies
      */
     public static final String TEST_USER = "testuser";
@@ -163,7 +163,7 @@ public class SiteTestHelper {
     public static String getArtificialSystemRootDirectory() {
         if (null == s_artificialSystemRoot) {
             s_artificialSystemRoot = TestUtil.getTestOutputDirectory("web")
-                    + "/artifical-system-root";
+                    + "/artificial-system-root";
         }
         return s_artificialSystemRoot;
     }

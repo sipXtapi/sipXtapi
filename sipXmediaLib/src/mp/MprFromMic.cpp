@@ -1,13 +1,11 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 #ifdef WIN32
 #define INSERT_SAWTOOTH
@@ -23,6 +21,9 @@
       typedef __int64_t __int64;
 #  elif defined(sun)
 #     include <sys/int_types.h>
+      typedef int64_t __int64;
+#  elif defined(__MACH__) /* OS X */
+#     include <sys/types.h>
       typedef int64_t __int64;
 #  else
 #     error Unsupported POSIX OS.
@@ -112,7 +113,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 		// the max_mic_buffers threshold, drain the queue until in range)
 		OsMsgQ* pMicOutQ;
 		pMicOutQ = MpMisc.pMicQ;
-		while (MpMisc.max_mic_buffers < pMicOutQ->numMsgs()) 
+		while (pMicOutQ && MpMisc.max_mic_buffers < pMicOutQ->numMsgs()) 
 		{
 	        if (OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg,
 					OsTime::NO_WAIT)) 
@@ -123,14 +124,14 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 			}
 		}
 
-		if (pMicOutQ->numMsgs() <= 0)
+		if (pMicOutQ && pMicOutQ->numMsgs() <= 0)
 		{
 //			osPrintf("MprFromMic: No data available (total frames=%d, starved frames=%d)\n", 
 //					mNumFrames, mNumEmpties);
 		}
 		else
 		{
-			if (OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg, 
+			if (pMicOutQ && OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg, 
 					OsTime::NO_WAIT)) 
 			{
 				out = pMsg->getTag();

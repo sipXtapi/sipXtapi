@@ -1,14 +1,9 @@
-
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -40,6 +35,7 @@ class UtlHashBagTest : public  CppUnit::TestCase
     CPPUNIT_TEST(testIsEmpty) ; 
     CPPUNIT_TEST(testClear) ; 
     CPPUNIT_TEST(testClearAndDestroy) ; 
+    CPPUNIT_TEST(testRemoveReference) ; 
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -630,6 +626,96 @@ public:
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), 0, (int)emptyList.entries()) ; 
     } //testClearAndDestroy
   
+   void testRemoveReference()
+      {
+         // the following two entries collide if the initial bucket size is 16
+         UtlInt int1(1);
+         UtlInt int16(16);
+
+         UtlInt int2a(2);
+         UtlInt int2b(2);
+         UtlInt int3(3);
+
+         UtlHashBag bag;
+
+         CPPUNIT_ASSERT( bag.numberOfBuckets() == 16 ); // check assumption of collision
+
+         // Load all the test objects
+         CPPUNIT_ASSERT( bag.insert(&int1) == &int1 );
+         CPPUNIT_ASSERT( bag.insert(&int16) == &int16 );
+         CPPUNIT_ASSERT( bag.insert(&int2a) == &int2a );
+         CPPUNIT_ASSERT( bag.insert(&int2b) == &int2b );
+         CPPUNIT_ASSERT( bag.insert(&int3) == &int3 );
+
+         // Check that everything is there
+         CPPUNIT_ASSERT( bag.entries() == 5 );
+         CPPUNIT_ASSERT( bag.contains(&int1) );
+         CPPUNIT_ASSERT( bag.contains(&int16) );
+         CPPUNIT_ASSERT( bag.contains(&int2a) ); // cannot test for 2a and 2b independently
+         CPPUNIT_ASSERT( bag.contains(&int3) );
+
+         // Take entry 1 out (might collide w/ 16)
+         CPPUNIT_ASSERT( bag.removeReference(&int1) == &int1 );
+
+         // Check that everything except entry 1 is still there, and that 1 is gone
+         CPPUNIT_ASSERT( bag.entries() == 4 );
+         CPPUNIT_ASSERT( ! bag.contains(&int1) );
+         CPPUNIT_ASSERT( bag.contains(&int16) );
+         CPPUNIT_ASSERT( bag.contains(&int2a) );// cannot test for 2a and 2b independently
+         CPPUNIT_ASSERT( bag.contains(&int3) );
+
+         // Put entry 1 back in (so that 16 will collide w/ it again)
+         CPPUNIT_ASSERT( bag.insert(&int1) == &int1 );
+
+         // Check that everything is there
+         CPPUNIT_ASSERT( bag.entries() == 5 );
+         CPPUNIT_ASSERT( bag.contains(&int1) );
+         CPPUNIT_ASSERT( bag.contains(&int16) );
+         CPPUNIT_ASSERT( bag.contains(&int2a) );
+         CPPUNIT_ASSERT( bag.contains(&int3) );
+
+         // Take entry 16 out (might collide w/ 1)
+         CPPUNIT_ASSERT( bag.removeReference(&int16) == &int16 );
+
+         // Check that everything except entry 16 is still there, and that 16 is gone
+         CPPUNIT_ASSERT( bag.entries() == 4 );
+         CPPUNIT_ASSERT( bag.contains(&int1) );
+         CPPUNIT_ASSERT( ! bag.contains(&int16) );
+         CPPUNIT_ASSERT( bag.contains(&int2a) );// cannot test for 2a and 2b independently
+         CPPUNIT_ASSERT( bag.contains(&int3) );
+
+         // remove 2a (and ensure that you don't get back 2b)
+         CPPUNIT_ASSERT( bag.removeReference(&int2a) == &int2a );
+
+         // Check that everything that should be is still there
+         CPPUNIT_ASSERT( bag.entries() == 3 );
+         CPPUNIT_ASSERT( bag.contains(&int1) );
+         CPPUNIT_ASSERT( ! bag.contains(&int16) );
+         CPPUNIT_ASSERT( bag.find(&int2a) == &int2b ); // equal values, but now there's only one
+         CPPUNIT_ASSERT( bag.contains(&int3) );
+
+         // remove 3 (no collision for this one)
+         CPPUNIT_ASSERT( bag.removeReference(&int3) == &int3 );
+
+         // Check that everything that should be is still there
+         CPPUNIT_ASSERT( bag.entries() == 2 );
+         CPPUNIT_ASSERT( bag.contains(&int1) );
+         CPPUNIT_ASSERT( ! bag.contains(&int16) );
+         CPPUNIT_ASSERT( bag.find(&int2a) == &int2b ); // equal values, but now there's only one
+         CPPUNIT_ASSERT( ! bag.contains(&int3) );
+
+         // remove 3 again - should fail this time
+         CPPUNIT_ASSERT( bag.removeReference(&int3) == NULL );
+
+         // Check that everything that should be is still there
+         CPPUNIT_ASSERT( bag.entries() == 2 );
+         CPPUNIT_ASSERT( bag.contains(&int1) );
+         CPPUNIT_ASSERT( ! bag.contains(&int16) );
+         CPPUNIT_ASSERT( bag.find(&int2a) == &int2b ); // equal values, but now there's only one
+         CPPUNIT_ASSERT( ! bag.contains(&int3) );
+
+      }
+   
 };
 
 const char* UtlHashBagTest::longAlphaNumString = \

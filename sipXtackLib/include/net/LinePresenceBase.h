@@ -34,7 +34,8 @@ public:
  */
    enum ePresenceStateType {
       PRESENT     = 1,     /**< present state */
-      ON_HOOK     = 2      /**< on/off hook state */
+      ON_HOOK     = 2,     /**< on/off hook state */
+      SIGNED_IN   = 4      /**< ACD SIGNED-IN state */
    };
 
 
@@ -64,7 +65,7 @@ public:
    /**
     * Return the AOR for this line.
     */
-   virtual Url* getAddress(void) = 0;
+   virtual Url* getUri(void) = 0;
 
    /**
     * Return the presence / line state information for this line.

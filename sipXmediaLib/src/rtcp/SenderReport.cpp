@@ -1,20 +1,20 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//////
+
 
 
 // Includes
 #ifdef WIN32
 #include <sys/timeb.h>
 #elif defined(__pingtel_on_posix__)
+#include <sys/types.h>
 #include <netinet/in.h>
+#include <sys/time.h>
 #define ERROR (-1)
 #endif
 #include "rtcp/SenderReport.h"
@@ -196,14 +196,24 @@ void CSenderReport::SetRTPTimestamp(unsigned long ulRandomOffset,
         dTimestamp = stLocalTime.millitm * MILLI2MICRO;
         dTimestamp *= (double)(FOUR_GIGABYTES/MICRO2SEC);
 
+#elif defined(__pingtel_on_posix__)
+        struct timeval tv;
+
+        gettimeofday(&tv, NULL);
+        // Load Most Significant word with Wall time seconds
+        m_aulNTPStartTime[0] = tv.tv_sec + WALLTIMEOFFSET;
+
+        // Load Least Significant word with Wall time microseconds
+        dTimestamp = (double) tv.tv_usec / MILLI2MICRO;
+        dTimestamp *= (double) (FOUR_GIGABYTES / MICRO2SEC);
+
 #else
         struct timespec stLocalTime;
 
         // Make a call to VxWorks to get this timestamp
-        if (clock_gettime (CLOCK_REALTIME, &stLocalTime) == ERROR)
+        if (clock_gettime(CLOCK_REALTIME, &stLocalTime) == ERROR)
         {
-            osPrintf("**** FAILURE **** SetRTPTimestamp() -"
-                                                  " clock_gettime failure\n");
+            osPrintf("**** FAILURE **** SetRTPTimestamp() - clock_gettime failure\n");
             stLocalTime.tv_sec = 0;
             stLocalTime.tv_nsec = 0;
         }
@@ -456,14 +466,24 @@ unsigned long CSenderReport::LoadTimestamps(unsigned long *aulTimestamps)
     dTimestamp = stLocalTime.millitm * MILLI2MICRO;
     dTimestamp *= (double)(FOUR_GIGABYTES/MICRO2SEC);
 
+#elif defined(__pingtel_on_posix__)
+        struct timeval tv;
+
+        gettimeofday(&tv, NULL);
+        // Load Most Significant word with Wall time seconds
+        m_aulNTPStartTime[0] = tv.tv_sec + WALLTIMEOFFSET;
+
+        // Load Least Significant word with Wall time microseconds
+        dTimestamp = (double) tv.tv_usec / MILLI2MICRO;
+        dTimestamp *= (double) (FOUR_GIGABYTES / MICRO2SEC);
+
 #else
     struct timespec stLocalTime;
 
     // Make a call to VxWorks to get this timestamp
-    if (clock_gettime (CLOCK_REALTIME, &stLocalTime) == ERROR)
+    if (clock_gettime(CLOCK_REALTIME, &stLocalTime) == ERROR)
     {
-        osPrintf("**** FAILURE ****"
-                              " LoadTimestamps() - clock_gettime failure\n");
+        osPrintf("**** FAILURE **** LoadTimestamps() - clock_gettime failure\n");
         stLocalTime.tv_sec = 0;
         stLocalTime.tv_nsec = 0;
     }
@@ -601,14 +621,24 @@ unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
     dTimestamp = stLocalTime.millitm * MILLI2MICRO;
     dTimestamp *= (double)(FOUR_GIGABYTES/MICRO2SEC);
 
+#elif defined(__pingtel_on_posix__)
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    // Load Most Significant word with Wall time seconds
+    m_aulNTPStartTime[0] = tv.tv_sec + WALLTIMEOFFSET;
+
+    // Load Least Significant word with Wall time microseconds
+    dTimestamp = (double) tv.tv_usec / MILLI2MICRO;
+    dTimestamp *= (double) (FOUR_GIGABYTES / MICRO2SEC);
+
 #else
     struct timespec stLocalTime;
 
     // Make a call to VxWorks to get this timestamp
-    if (clock_gettime (CLOCK_REALTIME, &stLocalTime) == ERROR)
+    if (clock_gettime(CLOCK_REALTIME, &stLocalTime) == ERROR)
     {
-        osPrintf("**** FAILURE ****"
-                               " LoadTimestamps() - clock_gettime failure\n");
+        osPrintf("**** FAILURE **** LoadTimestamps() - clock_gettime failure\n");
         stLocalTime.tv_sec = 0;
         stLocalTime.tv_nsec = 0;
     }
