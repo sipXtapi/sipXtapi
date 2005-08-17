@@ -22,7 +22,7 @@ public class CallGroupTest extends TestCase {
 
     public void testInsertRingUser() {
         User u = new User();
-        u.setDisplayId("testUser");
+        u.setUserName("testUser");
         CallGroup group = new CallGroup();
         UserRing ring = group.insertRing(u);
         assertSame(u, ring.getUser());
@@ -40,7 +40,7 @@ public class CallGroupTest extends TestCase {
         final int ringsLen = 5;
         for (int i = 0; i < ringsLen; i++) {
             User u = new User();
-            u.setDisplayId("testUser" + i);
+            u.setUserName("testUser" + i);
             group.insertRing(u);
         }
 
@@ -72,7 +72,7 @@ public class CallGroupTest extends TestCase {
         final int ringsLen = 5;
         for (int i = 0; i < ringsLen; i++) {
             User u = new User();
-            u.setDisplayId("testUser" + i);
+            u.setUserName("testUser" + i);
             group.insertRing(u);
         }
         assertEquals(ringsLen, group.getCalls().size());
@@ -84,7 +84,7 @@ public class CallGroupTest extends TestCase {
         assertEquals(ringsLen, clonedCalls.size());
         for (int i = 0; i < ringsLen; i++) {
             UserRing ring = (UserRing) clonedCalls.get(i);
-            assertEquals("testUser" + i, ring.getUser().getDisplayId());
+            assertEquals("testUser" + i, ring.getUser().getUserName());
             assertSame(clonedGroup, ring.getCallGroup());
         }
 

@@ -29,7 +29,7 @@ public class SettingTypesTest extends TestCase {
     private Setting group;
 
     protected void setUp() throws Exception {
-        XmlModelBuilder builder = new XmlModelBuilder("etc");
+        ModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("setting-types.xml");
         SettingSet root = builder.buildModel(in);
         group = root.getSetting("group");
@@ -58,6 +58,9 @@ public class SettingTypesTest extends TestCase {
             assertEquals(min_max[0], intType.getMin());
             assertEquals(min_max[1], intType.getMax());
             assertEquals(EXPECTED_REQUIRED[i], intType.isRequired());
+            assertTrue(intSetting.getTypedValue() instanceof Integer);
+
+            assertEquals(intSetting.getTypedValue().toString(), intSetting.getValue());
         }
     }
 
@@ -84,6 +87,10 @@ public class SettingTypesTest extends TestCase {
             assertEquals(min_max[0], realType.getMin(), 0.001f);
             assertEquals(min_max[1], realType.getMax(), 0.001f);
             assertEquals(EXPECTED_REQUIRED[i], realType.isRequired());
+
+            assertTrue(realSetting.getTypedValue() instanceof Double);
+
+            assertEquals(realSetting.getTypedValue().toString(), realSetting.getValue());
         }
     }
 
@@ -105,6 +112,10 @@ public class SettingTypesTest extends TestCase {
         assertEquals("kuku", strType.getPattern());
         assertTrue(strType.isRequired());
         assertTrue(strType.isPassword());
+
+        assertTrue(stringSetting.getTypedValue() instanceof String);
+
+        assertSame(stringSetting.getTypedValue().toString(), stringSetting.getValue());
     }
 
     public void testSettingEnumType() {
@@ -130,6 +141,9 @@ public class SettingTypesTest extends TestCase {
             assertEquals(V2L[i][0], entry.getKey());
             assertEquals(V2L[i][1], entry.getValue());
         }
+
+        assertTrue(enumSetting.getTypedValue() instanceof Integer);
+        assertEquals(new Integer(0), enumSetting.getTypedValue());
     }
 
     public void testDefaultBooleanType() {
@@ -140,6 +154,10 @@ public class SettingTypesTest extends TestCase {
         BooleanSetting boolSetting = (BooleanSetting) type;
         assertEquals("1", boolSetting.getTrueValue());
         assertEquals("0", boolSetting.getFalseValue());
+
+        assertTrue(setting.getTypedValue() instanceof Boolean);
+        
+        assertSame(setting.getTypedValue(), Boolean.TRUE);
     }
 
     public void testBooleanType() {
@@ -150,5 +168,9 @@ public class SettingTypesTest extends TestCase {
         BooleanSetting boolSetting = (BooleanSetting) type;
         assertEquals("true", boolSetting.getTrueValue());
         assertEquals("false", boolSetting.getFalseValue());
+        
+        assertTrue(setting.getTypedValue() instanceof Boolean);
+
+        assertSame(setting.getTypedValue(), Boolean.FALSE);
     }
 }

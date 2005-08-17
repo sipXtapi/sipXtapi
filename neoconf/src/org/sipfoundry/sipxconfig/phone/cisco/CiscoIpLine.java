@@ -50,7 +50,7 @@ public class CiscoIpLine extends CiscoLine {
         
         User u = getLineData().getUser();
         if (u != null) {
-            getSettings().getSetting("line/shortname").setValue(u.getDisplayId());
+            getSettings().getSetting("line/shortname").setValue(u.getUserName());
         }
     }
 }

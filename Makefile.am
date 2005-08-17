@@ -33,7 +33,8 @@ EXTRA_DIST = \
     BUILDSTAMP \
     SVN-VERSION \
     LICENSE \
-    config.properties.in \
+    build.properties.in \
+    lib.properties \
     neoconf \
     sipxconfig.spec \
     web \
@@ -42,10 +43,10 @@ EXTRA_DIST = \
     lib
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
-BUILT_SOURCES = config.properties
+BUILT_SOURCES = build.properties
 
-config.properties : config.properties.in Makefile $(top_srcdir)/top.build.dir
-	$(edit) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
+build.properties : build.properties.in Makefile $(top_srcdir)/top.build.dir
+	$(edit) $(srcdir)/build.properties.in > $(top_builddir)/build.properties
 
 # This sets the default build dir to the last directory that called
 # configure shell script.  This allows 'ant' to be called from any directory

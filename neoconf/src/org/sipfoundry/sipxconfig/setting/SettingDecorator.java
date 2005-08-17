@@ -12,39 +12,39 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
-
 
 /**
  * Wrap another setting object, delegate ALL methods to the Settting class
  */
 public abstract class SettingDecorator implements Setting, Cloneable {
-    
+
     private Setting m_delegate;
-    
+
     /** BEAN ACCESS ONLY */
-    public SettingDecorator() {        
+    public SettingDecorator() {
     }
-    
+
     public SettingDecorator(Setting delegate) {
         m_delegate = delegate;
     }
-    
+
     protected Setting getDelegate() {
         return m_delegate;
     }
-    
+
     protected void setDelegate(Setting delegate) {
         m_delegate = delegate;
     }
-    
+
     public Setting getParent() {
         return m_delegate.getParent();
     }
 
     public void setParent(Setting setting) {
-        m_delegate.setParent(setting);        
+        m_delegate.setParent(setting);
     }
 
     public String getPath() {
@@ -63,10 +63,6 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         return m_delegate.getLabel();
     }
 
-    public void setLabel(String label) {
-        m_delegate.setLabel(label);
-    }
-
     public String getName() {
         return m_delegate.getName();
     }
@@ -79,12 +75,12 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         return m_delegate.getProfileName();
     }
 
-    public void setProfileName(String profileName) {
-        m_delegate.setProfileName(profileName);
-    }
-
     public String getValue() {
         return m_delegate.getValue();
+    }
+
+    public Object getTypedValue() {
+        return getType().convertToTypedValue(getValue());
     }
 
     public void setValue(String value) {
@@ -103,10 +99,6 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         return m_delegate.getDescription();
     }
 
-    public void setDescription(String description) {
-        m_delegate.setDescription(description);
-    }
-
     public Collection getValues() {
         return m_delegate.getValues();
     }
@@ -115,21 +107,32 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         return m_delegate.isAdvanced();
     }
 
-    /** 
+    public boolean isHidden() {
+        return m_delegate.isHidden();
+    }
+
+    /**
      * Does not use delegate! Assumes subclass is a Setting and not a SettingGroup
      */
     public void acceptVisitor(SettingVisitor visitor) {
+
+        // Does not use delegate! because "visitSetting(this)" would pass in
+        // the delegate and not this decorator. So we have to mimic what setting
+        // group and setting value do
+        // m_delegate.acceptVisitor(visitor);
+        //
         if (getValues().size() == 0) {
             visitor.visitSetting(this);
         } else {
             visitor.visitSettingGroup(this);
+            Iterator children = getValues().iterator();
+            while (children.hasNext()) {
+                Setting setting = (Setting) children.next();
+                setting.acceptVisitor(visitor);
+            }
         }
     }
 
-    public void setAdvanced(boolean hidden) {
-        m_delegate.setAdvanced(hidden);
-    }
-    
     public Object clone() {
         try {
             return super.clone();
@@ -137,7 +140,7 @@ public abstract class SettingDecorator implements Setting, Cloneable {
             throw new RuntimeException("Cannot clone setting decorator", e);
         }
     }
-    
+
     public Setting copy() {
         return (Setting) clone();
     }

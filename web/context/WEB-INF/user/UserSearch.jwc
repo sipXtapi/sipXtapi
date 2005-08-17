@@ -29,23 +29,23 @@
     <!--
       - C O M P O N E N T S
       -->
-    <component id="displayIdLabel" type="FieldLabel">
-        <binding name="field" expression="components.displayId"/>
-	    <static-binding name="displayName" value="User ID"/>
+    <component id="userNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.userName"/>
+	    <static-binding name="displayName" value="Username"/>
     </component>
-    <component id="displayId" type="TextField">
-	    <binding name="value" expression="user.displayId"/>
+    <component id="userName" type="TextField">
+	    <binding name="value" expression="user.userName"/>
     </component>
     <component id="firstNameLabel" type="FieldLabel">
         <binding name="field" expression="components.firstName"/>
-	    <static-binding name="displayName" value="First Name"/>
+	    <static-binding name="displayName" value="First name"/>
     </component>
     <component id="firstName" type="TextField">
 	    <binding name="value" expression="user.firstName"/>
     </component>
     <component id="lastNameLabel" type="FieldLabel">
         <binding name="field" expression="components.lastName"/>
-	    <static-binding name="displayName" value="Last Name"/>
+	    <static-binding name="displayName" value="Last name"/>
     </component>
     <component id="lastName" type="TextField">
 	    <binding name="value" expression="user.lastName"/>

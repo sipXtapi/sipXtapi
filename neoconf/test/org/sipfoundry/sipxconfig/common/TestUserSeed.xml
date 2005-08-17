@@ -3,7 +3,7 @@
 <dataset>
 	<users 
     user_id="1000"
-    display_id="testuser" 
+    user_name="testuser" 
     first_name="Test"
     last_name="User"
     sip_password="1234"

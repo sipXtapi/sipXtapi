@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
 
@@ -20,7 +21,7 @@ import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Backup provides Java interface to backup scripts
@@ -97,9 +98,10 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         return (String[]) l.toArray(new String[l.size()]);
     }
     
-    public void deleteInitializationTask(String task) {        
-        getHibernateTemplate().delete("from " + InitializationTask.class.getName() 
+    public void deleteInitializationTask(String task) {
+        Collection c = getHibernateTemplate().find("from " + InitializationTask.class.getName() 
                 + " t where t.task = '" + task + "'");
+        getHibernateTemplate().deleteAll(c);
     }
 }
 

@@ -18,8 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.hibernate.Hibernate;
-
 import org.apache.commons.collections.map.LinkedMap;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
@@ -33,8 +31,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.orm.hibernate.HibernateTemplate;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
@@ -261,12 +259,17 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
         // not leave hanging references. DB will reject otherwise
-        getHibernateTemplate().delete("from LineData");
-        getHibernateTemplate().delete("from PhoneData");
-        getHibernateTemplate().delete("from Group where resource = 'phone'");
+        deleteAll("from LineData");
+        deleteAll("from PhoneData");
+        deleteAll("from Group where resource = 'phone'");
         // deleted automatically?
         //getHibernateTemplate().delete("from ValueStorage");
         flush();
+    }
+    
+    private void deleteAll(String query) {
+        Collection c = getHibernateTemplate().find(query);
+        getHibernateTemplate().deleteAll(c);
     }
 
     public String getSystemDirectory() {
@@ -288,12 +291,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return model;
     }
     
-    public void deleteLinesForUser(Integer userId) {
-        // TODO: move query to .hbm.xml file
-        getHibernateTemplate().delete("from LineData line where line.user.id=?", userId,
-                Hibernate.INTEGER);
-    }
-
     private class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A phone with serial number: {0} already exists.";
 

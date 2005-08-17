@@ -28,7 +28,7 @@ public class LoginContextImplTest extends TestCase {
 
         MockControl control = MockControl.createNiceControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) control.getMock();
-        coreContext.loadUserByDisplayId("superadmin");
+        coreContext.loadUserByUserName("superadmin");
         control.setReturnValue(m_user, 3);
 
         coreContext.getAuthorizationRealm();
@@ -39,7 +39,7 @@ public class LoginContextImplTest extends TestCase {
     }
 
     public void testCheckCredentials() {
-        m_user.setDisplayId("superadmin");
+        m_user.setUserName("superadmin");
         m_user.setPintoken("e3e367205de83ab477cdf3449f152791");
 
         // password OK
@@ -52,15 +52,8 @@ public class LoginContextImplTest extends TestCase {
         assertNull(m_impl.checkCredentials("superadmin", "123"));
     }
 
-    public void testCheckCredentialsShort() {
-        m_user.setDisplayId("superadmin");
-        m_user.setPintoken("kkk");
-
-        assertSame(m_user, m_impl.checkCredentials("superadmin", "kkk"));
-    }
-
     public void testCheckCredentialsInvalid() {
-        m_user.setDisplayId("superadmin");
+        m_user.setUserName("superadmin");
         m_user.setPintoken("kkk");
 
         assertNull(m_impl.checkCredentials("superadmin", "zzz"));
@@ -71,10 +64,10 @@ public class LoginContextImplTest extends TestCase {
     }
 
     public void testIsAdmin() {
-        m_user.setDisplayId("superadmin");
+        m_user.setUserName("superadmin");
         assertTrue(m_impl.isAdmin(m_user));
 
-        m_user.setDisplayId("xyz");
+        m_user.setUserName("xyz");
         assertFalse(m_impl.isAdmin(m_user));
     }
 }

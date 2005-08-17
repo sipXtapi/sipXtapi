@@ -24,6 +24,10 @@ import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class CredentialsTest extends XMLTestCase {
+    private static final String SIPFOUNDRY = "sipfoundry.org";
+    private static final String REALM = SIPFOUNDRY;
+    private static final String DOMAIN = "sipx." + SIPFOUNDRY;
+
     public void testGenerateEmpty() throws Exception {
         MockControl control = MockControl.createControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) control.getMock();
@@ -48,22 +52,22 @@ public class CredentialsTest extends XMLTestCase {
     public void testAddUser() throws Exception {
         Document document = DocumentFactory.getInstance().createDocument();
         Element item = document.addElement("items").addElement("item");
-
         User user = new User();
-        user.setDisplayId("superadmin");
-        user.setPintoken("pin1234");
+        user.setUserName("superadmin");
+        final String PIN = "pin1234";
+        user.setPin(PIN, REALM);
         user.setSipPassword("pass4321");
 
         Credentials credentials = new Credentials();
-        credentials.addUser(item, user, "sipx.sipfoundry.org", "sipfoundry.org");
+        credentials.addUser(item, user, DOMAIN, REALM);
 
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("sip:superadmin@sipx.sipfoundry.org", "/items/item/uri", domDoc);
-        assertXpathEvaluatesTo(Md5Encoder.digestPassword("superadmin", "sipfoundry.org",
-                "pin1234"), "/items/item/pintoken", domDoc);
-        assertXpathEvaluatesTo(Md5Encoder.digestPassword("superadmin", "sipfoundry.org",
+        assertXpathEvaluatesTo("sip:superadmin@" + DOMAIN, "/items/item/uri", domDoc);
+        assertXpathEvaluatesTo(Md5Encoder.digestPassword("superadmin", REALM,
+                PIN), "/items/item/pintoken", domDoc);
+        assertXpathEvaluatesTo(Md5Encoder.digestPassword("superadmin", REALM,
                 "pass4321"), "/items/item/passtoken", domDoc);
-        assertXpathEvaluatesTo("sipfoundry.org", "/items/item/realm", domDoc);
+        assertXpathEvaluatesTo(REALM, "/items/item/realm", domDoc);
         assertXpathEvaluatesTo("DIGEST", "/items/item/authtype", domDoc);
     }
 
@@ -72,17 +76,18 @@ public class CredentialsTest extends XMLTestCase {
         Element item = document.addElement("items").addElement("item");
 
         User user = new User();
-        user.setDisplayId("superadmin");
+        user.setUserName("superadmin");
+        user.setPin("", REALM);
 
         Credentials credentials = new Credentials();
-        credentials.addUser(item, user, "sipx.sipfoundry.org", "sipfoundry.org");
+        credentials.addUser(item, user, DOMAIN, REALM);
 
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("sip:superadmin@sipx.sipfoundry.org", "/items/item/uri", domDoc);
-        String emptyHash = Md5Encoder.digestPassword("superadmin", "sipfoundry.org", "");
+        assertXpathEvaluatesTo("sip:superadmin@" + DOMAIN, "/items/item/uri", domDoc);
+        String emptyHash = Md5Encoder.digestPassword("superadmin", REALM, "");
         assertXpathEvaluatesTo(emptyHash, "/items/item/pintoken", domDoc);
         assertXpathEvaluatesTo(emptyHash, "/items/item/passtoken", domDoc);
-        assertXpathEvaluatesTo("sipfoundry.org", "/items/item/realm", domDoc);
+        assertXpathEvaluatesTo(REALM, "/items/item/realm", domDoc);
         assertXpathEvaluatesTo("DIGEST", "/items/item/authtype", domDoc);
     }
 }

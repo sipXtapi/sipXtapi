@@ -20,6 +20,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -30,7 +31,7 @@ public class IniFileWriterTest extends TestCase {
     private Setting m_setting;
 
     protected void setUp() throws Exception {
-        XmlModelBuilder builder = new XmlModelBuilder(TestHelper.getSysDirProperties()
+        ModelBuilder builder = new XmlModelBuilder(TestHelper.getSysDirProperties()
                 .getProperty("sysdir.etc"));
         InputStream stream = getClass().getResourceAsStream("IniFileWriter.test.xml");
         m_setting = builder.buildModel(stream).copy();

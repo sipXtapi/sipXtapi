@@ -7,6 +7,8 @@
     <constructor-arg>
       <list>
         <value>classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</value>

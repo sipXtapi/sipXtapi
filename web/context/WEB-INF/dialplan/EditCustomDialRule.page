@@ -33,7 +33,7 @@
         class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
         lifecycle="page">
         <set-property name="enumClass" 
-        	expression="@org.sipfoundry.sipxconfig.admin.dialplan.config.Permission@class"/>
+        	expression="@org.sipfoundry.sipxconfig.common.Permission@class"/>
     </bean>
     
     <!--

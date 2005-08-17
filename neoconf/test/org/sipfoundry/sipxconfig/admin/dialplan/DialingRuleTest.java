@@ -31,7 +31,6 @@ public class DialingRuleTest extends TestCase {
         orgRule.setName("name");
         orgRule.setDescription("description");
         DialingRule detachedRule = (DialingRule) orgRule.duplicate();
-        assertTrue(orgRule.equals(detachedRule));
         assertNotSame(orgRule, detachedRule);
         assertEquals(orgRule.getDescription(), detachedRule.getDescription());
         assertEquals(orgRule.getName(), detachedRule.getName());

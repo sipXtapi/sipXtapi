@@ -55,6 +55,7 @@
     <pathelement path="${velocity.jar}" />
     <pathelement path="${xerces.jar}" />
     <pathelement path="${xml-apis.jar}" />
+    <pathelement path="${antlr.jar}" />
   </path>
 
   <path id="base.path">
@@ -114,7 +115,7 @@
     <copy file="bin/sipxconfig.sh.in" 
       tofile="${dest.dir}${bin.dir}/sipxconfig.sh" />
     <replace file="${dest.dir}${bin.dir}/sipxconfig.sh" 
-      propertyfile="${top.build.dir}/config.properties">
+      propertyfile="${top.build.dir}/build.properties">
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
       <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir" 
         />
@@ -131,7 +132,7 @@
     <copy file="bin/create-ssl-truststore.sh.in" 
       tofile="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" />
     <replace file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" 
-      propertyfile="${top.build.dir}/config.properties">
+      propertyfile="${top.build.dir}/build.properties">
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@openssl@" property="openssl"/>
     </replace>
@@ -172,7 +173,7 @@
   <target name="test-war" depends="compile.test,war" 
     description="Creates a war file for unittests">
     <property name="test.systemRoot" 
-      location="${test.results.dir}/artifical-system-root" />
+      location="${test.results.dir}/artificial-system-root" />
     <delete dir="${test.war}" />
     <unwar src="${sipxconfig.war}" dest="${test.war}" />
     <!-- generates sipxconfig.properties that has test oriented values -->

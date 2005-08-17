@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import net.sf.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Configuration;
 
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -31,7 +31,7 @@ public class DynamicSessionFactoryBeanTest extends XMLTestCase {
     public void testBindSubclasses() throws Exception {
         MockControl controlFactory = MockControl.createControl(ListableBeanFactory.class);
         ListableBeanFactory factory = (ListableBeanFactory) controlFactory.getMock();
-        factory.getBeanDefinitionNames(Gateway.class);
+        factory.getBeanNamesForType(Gateway.class);
         controlFactory.setReturnValue(new String[] {"gwGeneric", "gwMediant1000"});
         factory.getType("gwGeneric");
         controlFactory.setReturnValue(Gateway.class);
@@ -53,7 +53,7 @@ public class DynamicSessionFactoryBeanTest extends XMLTestCase {
     public void testBindSubclassesOfBean() throws Exception {
         MockControl controlFactory = MockControl.createControl(ListableBeanFactory.class);
         ListableBeanFactory factory = (ListableBeanFactory) controlFactory.getMock();
-        factory.getBeanDefinitionNames(Gateway.class);
+        factory.getBeanNamesForType(Gateway.class);
         controlFactory.setReturnValue(new String[] {"gwGeneric", "gwMediant1000"});
         factory.getType("gwGeneric");
         controlFactory.setReturnValue(Gateway.class);

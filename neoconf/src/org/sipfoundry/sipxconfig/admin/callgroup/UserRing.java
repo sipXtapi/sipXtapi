@@ -22,7 +22,7 @@ public class UserRing extends AbstractRing {
     }
 
     protected Object getUserPart() {
-        return m_user.getDisplayId();
+        return m_user.getUserName();
     }
 
     public User getUser() {
@@ -48,6 +48,6 @@ public class UserRing extends AbstractRing {
      */
     public boolean isFirst() {
         AbstractRing ring = (AbstractRing) getCallGroup().getCalls().get(0);
-        return ring.equals(this);
+        return ring == this;
     }
 }

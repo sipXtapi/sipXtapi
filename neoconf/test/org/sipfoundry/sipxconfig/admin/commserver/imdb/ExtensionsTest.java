@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.User;
 public class ExtensionsTest extends XMLTestCase {
     private String[][] DATA = {
         {
-            "first", "last", "displayId", "1234"
+            "first", "last", "userName", "1234"
         }, {
             null, null, "kuku", "4321"
         }, {
@@ -42,7 +42,7 @@ public class ExtensionsTest extends XMLTestCase {
             User user = new User();
             user.setFirstName(userData[0]);
             user.setLastName(userData[1]);
-            user.setDisplayId(userData[2]);
+            user.setUserName(userData[2]);
             user.setExtension(userData[3]);
             users.add(user);
         }
@@ -85,7 +85,7 @@ public class ExtensionsTest extends XMLTestCase {
 
         assertXpathEvaluatesTo("extension", "/items/@type", domDoc);
         assertXpathEvaluatesTo("1234", "/items/item/extension", domDoc);
-        assertXpathEvaluatesTo("first last<sip:displayId@company.com>", "/items/item/uri", domDoc);
+        assertXpathEvaluatesTo("first last<sip:userName@company.com>", "/items/item/uri", domDoc);
         assertXpathEvaluatesTo("4321", "/items/item[2]/extension", domDoc);
         assertXpathEvaluatesTo("sip:kuku@company.com", "/items/item[2]/uri", domDoc);
         assertXpathNotExists("/items/item[3]", domDoc);

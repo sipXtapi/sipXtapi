@@ -13,4 +13,15 @@ package org.sipfoundry.sipxconfig.setting.type;
 
 public interface SettingType {
     String getName();
+
+    boolean isRequired();
+
+    /**
+     * Converts between internal representation of the value (usually String) and external
+     * representation determined by this type.
+     * 
+     * @param value internal representation of the setting value
+     * @return the same value coerced to typed value Integer, Boolean etc.
+     */
+    Object convertToTypedValue(Object value);
 }

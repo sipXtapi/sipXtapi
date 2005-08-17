@@ -34,8 +34,10 @@ public class SettingImpl implements Setting, Cloneable {
     private Setting m_settingGroup;
     
     private String m_value;
-    
+        
     private boolean m_advanced;
+
+    private boolean m_hidden;
     
     /**
      * bean access only, must set name before valid object
@@ -169,6 +171,10 @@ public class SettingImpl implements Setting, Cloneable {
     public String getValue() {        
         return m_value;
     }
+    
+    public Object getTypedValue() {
+        return getType().convertToTypedValue(getValue());
+    }
 
     public void setValue(String value) {
         m_value = value;
@@ -205,7 +211,15 @@ public class SettingImpl implements Setting, Cloneable {
         return m_advanced;
     }
     
-    public void setAdvanced(boolean hidden) {
-        m_advanced = hidden;
+    public void setAdvanced(boolean advanced) {
+        m_advanced = advanced;
+    }
+    
+    public boolean isHidden() {
+        return m_hidden;
+    }
+    
+    public void setHidden(boolean hidden) {
+        m_hidden = hidden;
     }
 }

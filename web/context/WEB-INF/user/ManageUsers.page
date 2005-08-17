@@ -5,6 +5,7 @@
 
 <page-specification class="org.sipfoundry.sipxconfig.site.user.ManageUsers">
     <description>add a description</description>
+    
 	<!--
 	  - P R O P E R T I E S
 	  -->
@@ -12,13 +13,17 @@
 	<property-specification name="coreContext" 
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/> 
-	<!--
+
+    <!--
 	  - B E A N S
 	  -->
+        
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    
 	<!--
 	  - C O M P O N E N T S
 	  -->
+    
 	<component id="userManagement" type="Form">
 	</component>
     <component id="addUser" type="PageLink">

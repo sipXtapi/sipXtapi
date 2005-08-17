@@ -15,6 +15,8 @@ import java.util.Collection;
 
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -37,7 +39,9 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
     public abstract void setCallGroup(CallGroup callGroup);
 
-    public abstract boolean getCommitChanges();
+    public abstract ICallback getCallback();
+
+    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         CallGroup callGroup = getCallGroup();
@@ -52,6 +56,9 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
             callGroup = new CallGroup();
         }
         setCallGroup(callGroup);
+        if (null == getCallback()) {
+            setCallback(new PageCallback(ListCallGroups.PAGE));
+        }
     }
 
     /**
@@ -73,12 +80,14 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         delete(ringTable);
         move(ringTable);
         addRow(cycle, ringTable);
+    }
 
-        if (getCommitChanges()) {
-            saveValid();
-            getCallGroupContext().activateCallGroups();
-            cycle.activate(ListCallGroups.PAGE);
+    public void commit(IRequestCycle cycle_) {
+        if (!isValid()) {
+            return;
         }
+        saveValid();
+        getCallGroupContext().activateCallGroups();
     }
 
     /**

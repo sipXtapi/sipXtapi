@@ -1,0 +1,42 @@
+# G E N E R A L
+version=@VERSION@
+top.dir=@abs_top_srcdir@
+java=@JAVA@
+java.home=@JAVA_HOME@
+optimize=@JAVAC_OPTIMIZED@
+deprecation=false
+debug=@JAVAC_DEBUG@
+bin.dir=@bindir@
+lib.dir=@libdir@
+localstate.dir=@localstatedir@
+dest.dir=
+
+# comma-separated combination of 'lines' 'source' and 'var' only valid
+# when debug is on
+debuglevel=lines
+
+# S I P X P B X  / S I P X C O N F I G
+sipxconfig.phone.dir=@SIPX_CONFIGPHONEDIR@
+sipxpbx.backup.dir=@SIPX_BACKUPDIR@
+sipxconfig.lib.dir=@SIPXCONFIG_LIBDIR@
+sipxpbx.bin.dir=@SIPX_BINDIR@
+sipxpbx.data.dir=@SIPX_DATADIR@
+sipxpbx.conf.dir=@SIPX_CONFDIR@
+sipxvxml.data.dir=@SIPX_VXMLDATADIR@
+sipxpark.audio.dir=@SIPX_PARKMUSICDIR@
+www.dir=@wwwdir@
+sipxpbx.user=@SIPXPBXUSER@
+
+sipxconfig.db.pds=SIPXCONFIG_TEST
+sipxconfig.db.user=postgres
+sipxpbx.log.dir=@SIPX_LOGDIR@
+sipxpbx.run.dir=@SIPX_RUNDIR@
+sipxpbx.tmp.dir=@SIPX_TMPDIR@
+sipxconfig.war=${top.build.dir}/web/dist/sipxconfig.war
+sipxconfig.jar=${top.build.dir}/neoconf/dist/sipxconfig.jar
+# very optional
+sipfoundry.org.dir=@SIPFOUNDRY_ORG@
+neoconf.etc.dir=${top.dir}/neoconf/etc
+
+openssl=@OPENSSL@
+clover.jar=@CLOVER_JAR@

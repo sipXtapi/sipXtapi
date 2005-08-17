@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Permission;
+import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.BeanFactoryGlobals;

@@ -28,7 +28,7 @@ public class SpringHibernateInstantiatorTest extends TestCase {
         m_instantiator = new SpringHibernateInstantiator();
         m_instantiator.setBeanFactory(context);
         // to make sure that test are valid
-        assertTrue(context.getBeanDefinitionNames(Gateway.class).length > 1);
+        assertTrue(context.getBeanNamesForType(Gateway.class).length > 1);
     }
 
     public void testInstantiate() {

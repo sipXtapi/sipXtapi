@@ -36,10 +36,10 @@ import org.xml.sax.SAXException;
 /**
  * Build a SettingModel object hierarchy from a model XML file.
  */
-public class XmlModelBuilder {
+public class XmlModelBuilder implements ModelBuilder {
     private static final String EL_VALUE = "/value";
     private static final String EL_LABEL = "/label";
-    
+
     private final Map m_types = new HashMap();
     private final EntityResolver m_entityResolver;
 
@@ -51,6 +51,11 @@ public class XmlModelBuilder {
         this(new File(configDirectory));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sipfoundry.sipxconfig.setting.ModelBuilder#buildModel(java.io.File)
+     */
     public SettingSet buildModel(File modelFile) {
         FileInputStream is = null;
         try {
@@ -65,6 +70,11 @@ public class XmlModelBuilder {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sipfoundry.sipxconfig.setting.ModelBuilder#buildModel(java.io.InputStream)
+     */
     public SettingSet buildModel(InputStream is) throws IOException {
         Digester digester = new Digester();
 
@@ -76,7 +86,7 @@ public class XmlModelBuilder {
         digester.setEntityResolver(m_entityResolver);
         digester.push(new SettingSet());
         addSettingTypes(digester, "model/type/");
-        
+
         String groupPattern = "*/group";
         SettingRuleSet groupRule = new SettingRuleSet(groupPattern, SettingSet.class);
         digester.addRuleSet(groupRule);
@@ -91,13 +101,13 @@ public class XmlModelBuilder {
             throw new RuntimeException("Could not parse model definition file", se);
         }
     }
-    
+
     private void addSettingTypes(Digester digester, String patternPrefix) {
         digester.addRuleSet(new IntegerSettingRule(patternPrefix + "integer"));
         digester.addRuleSet(new RealSettingRule(patternPrefix + "real"));
         digester.addRuleSet(new StringSettingRule(patternPrefix + "string"));
         digester.addRuleSet(new EnumSettingRule(patternPrefix + "enum"));
-        digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean"));                    
+        digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean"));
     }
 
     class SettingRuleSet extends RuleSetBase {
@@ -131,7 +141,7 @@ public class XmlModelBuilder {
             if (copyOfName != null) {
                 Setting copyTo = (Setting) getDigester().pop();
                 Setting parent = (Setting) getDigester().peek();
-                // setting to be copied must be defined in file before setting 
+                // setting to be copied must be defined in file before setting
                 // attempting to copy
                 Setting copyOf = parent.getSetting(copyOfName);
                 Setting copy = copyOf.copy();
@@ -140,45 +150,45 @@ public class XmlModelBuilder {
             }
         }
     }
-    
+
     class SettingTypeIdRule extends Rule {
         private String m_id;
-        
+
         public void end(String namespace_, String name_) {
             if (m_id != null) {
                 Setting rootSetting = (Setting) getDigester().peek();
                 SettingType type = rootSetting.getType();
                 m_types.put(m_id, type);
             }
-        }                
- 
+        }
+
         public void begin(String namespace_, String name_, Attributes attributes) {
             m_id = attributes.getValue("id");
             String refid = attributes.getValue("refid");
             if (refid != null) {
                 SettingType type = (SettingType) m_types.get(refid);
                 if (type == null) {
-                    throw new IllegalArgumentException("Setting type with id=" 
-                            + refid + " not found.");
+                    throw new IllegalArgumentException("Setting type with id=" + refid
+                            + " not found.");
                 }
                 Setting setting = (Setting) getDigester().peek();
                 setting.setType(type);
             }
-        }        
+        }
     }
-    
+
     class SettingTypeRule extends RuleSetBase {
         private final String m_pattern;
 
         public SettingTypeRule(String pattern) {
             m_pattern = pattern;
         }
-                
+
         public void addRuleInstances(Digester digester) {
-            digester.addSetNext(m_pattern, "setType", SettingType.class.getName());            
+            digester.addSetNext(m_pattern, "setType", SettingType.class.getName());
             digester.addRule(getParentPattern(), new SettingTypeIdRule());
         }
-        
+
         String getParentPattern() {
             int slash = m_pattern.lastIndexOf('/');
             return m_pattern.substring(0, slash);
@@ -186,7 +196,7 @@ public class XmlModelBuilder {
 
         public String getPattern() {
             return m_pattern;
-        }        
+        }
     }
 
     class StringSettingRule extends SettingTypeRule {

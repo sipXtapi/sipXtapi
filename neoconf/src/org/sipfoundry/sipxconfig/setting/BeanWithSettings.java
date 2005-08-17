@@ -18,12 +18,18 @@ public class BeanWithSettings extends BeanWithId {
     private Setting m_settings;
 
     private ValueStorage m_valueStorage;
-    
+       
+    private Setting m_model;
+
     /**
      * @return undecorated model - direct representation of XML model description
      */
     public Setting getSettingModel() {
-        return null;
+        return m_model;
+    }
+    
+    public void setSettingModel(Setting model) {
+        m_model = model;
     }
 
     /**
@@ -31,22 +37,29 @@ public class BeanWithSettings extends BeanWithId {
      */
     public Setting getSettings() {
         if (m_settings == null) {
-            Setting settings = getSettingModel();
-            if (settings == null) {
-                // it's OK for a gateway not to provide settings
-                return null;
-            }
-            if (m_valueStorage == null) {
-                m_valueStorage = new ValueStorage();
-            }
-
-            m_settings = m_valueStorage.decorate(settings);
-            // TODO do we need setDefaults(); here
+            m_settings = decorateSettings(getSettingModel());
         }
 
         return m_settings;
     }
+    
+    protected Setting decorateSettings(Setting settings) {
+        if (settings == null) {
+            // it's OK for a gateway not to provide settings
+            return null;
+        }
+        
+        if (m_valueStorage == null) {
+            m_valueStorage = new ValueStorage();
+        }
 
+        Setting decorated = m_valueStorage.decorate(settings);
+        
+        // TODO do we need setDefaults(); here        
+
+        return decorated;
+    }
+    
     public void setValueStorage(ValueStorage valueStorage) {
         m_valueStorage = valueStorage;
     }
@@ -54,6 +67,4 @@ public class BeanWithSettings extends BeanWithId {
     public ValueStorage getValueStorage() {
         return m_valueStorage;
     }
-
-
 }

@@ -15,7 +15,9 @@
             classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/login/login.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
             classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
+            classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml
             </param-value>
     </context-param>
     <filter>

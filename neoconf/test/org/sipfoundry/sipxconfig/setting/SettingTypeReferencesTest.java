@@ -23,7 +23,7 @@ public class SettingTypeReferencesTest extends TestCase {
     private Setting group;
 
     protected void setUp() throws Exception {
-        XmlModelBuilder builder = new XmlModelBuilder("etc");
+        ModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("setting-type-references.xml");
         SettingSet root = builder.buildModel(in);
         group = root.getSetting("group");

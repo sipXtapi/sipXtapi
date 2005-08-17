@@ -44,6 +44,8 @@ public abstract class NewUser extends BasePage implements PageRenderListener {
     }
 
     public void pageBeginRender(PageEvent event_) {
-        setUser(new User());
+        if (getUser() == null) {
+            setUser(new User());
+        }
     }
 }

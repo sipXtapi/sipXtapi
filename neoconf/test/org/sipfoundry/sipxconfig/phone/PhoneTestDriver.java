@@ -58,7 +58,7 @@ public class PhoneTestDriver {
         _phone.setTftpRoot(TestHelper.getTestDirectory());
         
         user = new User();
-        user.setDisplayId("juser");
+        user.setUserName("juser");
         user.setFirstName("Joe");
         user.setLastName("User");
         user.setSipPassword("1234");

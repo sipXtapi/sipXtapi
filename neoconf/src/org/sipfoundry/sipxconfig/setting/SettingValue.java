@@ -47,5 +47,5 @@ public class SettingValue extends SettingDecorator {
     public String getValue() {
         String value = (String) m_storage.getValue(getDelegate());
         return value == null ? getDefaultValue() : value;
-    }
+    }    
 }

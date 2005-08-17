@@ -1,20 +1,20 @@
 <!--
-  - Manages the database creation, droping and upgrading. File is processed
-  - by ANT and thus format compilies with ANT project files.
+  - Manages database creation, dropping and upgrading.  The file is processed
+  - by ANT and thus the format complies with ANT project files.
   -
   - How to add a database patch:
   -   1. add sql commands to a file called X in this directory, where X is any
   -      value you choose
-  -   2. define a target X by copying a patch in section for the database version
-  -      in defined at the top of schema.sql
-  -   3. Add sql file reference to build.xml (this may go away)
+  -   2. define a target X by copying a patch in the section for the database version
+  -      defined at the top of schema.sql
+  -   3. Add a sql file reference to build.xml (this may go away)
   -
   - How to initialize tables beyond simple SQL.
-  -   1. Add this to you SQL patch file
+  -   1. Add this to your SQL patch file
   -
   -       insert into initialization_task (name) values ('Z');
   - 
-  -   2. Follow instruction in InitializationTask.java
+  -   2. Follow instructions in InitializationTask.java
   -->
 <project name="database" basedir=".">
   <property name="sipxconfig.db.name" value="SIPXCONFIG"/>
@@ -73,7 +73,7 @@
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups,default-user-group" />	
+    depends="initialization_task,user_groups,default-user-group,user_name" />
   
   <target name="schema" unless="schema">
     <sipx-sql>
@@ -87,7 +87,7 @@
      version0 to version1 - development database to intial version, this can be deleted
                               when all patches are migrated into schema.sql because migration
                               will be solved by a separate process and we're not supporting
-                              upgrading from a develepment database.
+                              upgrading from a development database.
     -->	
    <!--
     - version0 patches
@@ -103,6 +103,12 @@
       	insert into initialization_task (name) values ('default-user-group');
     </sipx-sql>
   	<mark-patch-applied patch="default-user-group"/>
+  </target>	  
+  <target name="user_name" unless="user_name">
+    <sipx-sql>
+		alter table users rename column display_id to user_name;
+    </sipx-sql>
+  	<mark-patch-applied patch="user_name"/>
   </target>	  
   <!--
     - SUPPORT UTILITIES

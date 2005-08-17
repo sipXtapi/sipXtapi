@@ -7,7 +7,7 @@
             <type>
                 <integer min="3" max="15" required="yes"/>
             </type>
-            <value></value>
+            <value>7</value>
             <description>Setting Description</description>
         </setting>
         <setting name="int_setting_1">
@@ -16,7 +16,7 @@
             <type>
                 <integer/>
             </type>
-            <value></value>
+            <value>7</value>
             <description>Setting Description</description>
         </setting>
         <setting name="real_setting_0">
@@ -25,7 +25,7 @@
             <type>
                 <real min="3.14" max="15.12" required="yes"/>
             </type>
-            <value></value>
+            <value>5.0</value>
             <description>Setting Description</description>
         </setting>
         <setting name="real_setting_1">
@@ -34,7 +34,7 @@
             <type>
                 <real/>
             </type>
-            <value></value>
+            <value>5.0</value>
             <description>Setting Description</description>
         </setting>
               <setting name="str_setting_def">
@@ -54,7 +54,7 @@
                     <pattern>kuku</pattern>
                 </string>
             </type>
-            <value></value>
+            <value>bongo</value>
             <description>Setting Description</description>
         </setting>
         <setting name="enum_setting">
@@ -66,12 +66,14 @@
                    <option><value>no_label_value</value></option>
                 </enum>
             </type>
+            <value>0</value>
         </setting>
         <setting name="boolean_default">
           <label>Boolean setting label</label>
           <type>
             <boolean/>
           </type>
+          <value>1</value>
         </setting>
         <setting name="boolean_setting">
           <label>Boolean setting label</label>
@@ -81,6 +83,7 @@
               <false><value>false</value></false>
             </boolean>
           </type>
+          <value>false</value>
         </setting>
 	</group>
 </model>

@@ -36,7 +36,7 @@ public abstract class TestPage extends BasePage {
 
     public static final String ADMIN = "superadmin";
 
-    public static final String PINTOKEN = "1234";
+    public static final String PIN = "1234";
 
     public abstract DialPlanContext getDialPlanManager();
 
@@ -107,20 +107,20 @@ public abstract class TestPage extends BasePage {
 
     public void seedTestUser(IRequestCycle cycle_) {
         User user = new User();
-        user.setDisplayId(TEST_USER);
+        user.setUserName(TEST_USER);
         user.setFirstName("Test");
         user.setLastName("User");
         user.setExtension("200");
-        user.setPintoken(PINTOKEN);
+        user.setPin(PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
     }
 
     public void login(IRequestCycle cycle_) {
-        User admin = getCoreContext().loadUserByDisplayId(ADMIN);
+        User admin = getCoreContext().loadUserByUserName(ADMIN);
         if (admin == null) {
             admin = new User();
-            admin.setDisplayId(ADMIN);
-            admin.setPintoken(PINTOKEN);
+            admin.setUserName(ADMIN);
+            admin.setPin(PIN, getCoreContext().getAuthorizationRealm());
             getCoreContext().saveUser(admin);
         }
         Visit visit = (Visit) getVisit();

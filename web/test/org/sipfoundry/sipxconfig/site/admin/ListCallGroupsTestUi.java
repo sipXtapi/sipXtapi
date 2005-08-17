@@ -54,7 +54,7 @@ public class ListCallGroupsTestUi extends ListWebTestCase {
         tester.clickLink("callgroups:add");
         SiteTestHelper.assertNoException(getTester());
         assertFormPresent("callgroup:form");
-        assertButtonPresent("callgroup:save");
-        assertButtonPresent("cancel");
+        assertButtonPresent("form:ok");
+        assertButtonPresent("form:cancel");
     }
 }

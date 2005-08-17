@@ -19,7 +19,8 @@
     -->
   <dirname property="ant-targets.basedir" file="${ant.file.ant-targets}"/>
   <property file="${ant-targets.basedir}/top.build.dir"/>
-  <property file="${top.build.dir}/config.properties"/>
+  <property file="${top.build.dir}/build.properties"/>
+  <property file="${top.dir}/lib.properties"/>
   <property name="build.dir" value="${top.build.dir}/${project.dir}"/>  
   <property name="src.dir" value="src" />
   <property name="classes.dir" value="${build.dir}/classes" />
@@ -57,11 +58,13 @@
           - antlr that comes w/ant 1.6 is too old, use local 
           - that came w/checkstyle 
           -->
-        <pathelement location="${antlr.jar}"/>
+        <pathelement location="${checkstyle-antlr.jar}"/>
         <pathelement location="${checkstyle-optional.jar}"/>
      </classpath> 
    </taskdef> 
 
+  <!-- Common target before doing a checkin -->
+  <target name="precommit" depends="clean,default,test-all,style,install"/>
 
   <!--
     - C L O V E R

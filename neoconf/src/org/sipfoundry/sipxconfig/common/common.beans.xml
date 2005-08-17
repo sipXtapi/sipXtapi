@@ -1,0 +1,43 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+  - C O R E  C O N T E X T   I M P L
+  -->
+  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="processContext">
+      <ref bean="sipxProcessContext"/>
+    </property>    
+    <property name="settingDao">
+      <ref bean="settingDao"/>
+    </property>
+    <property name="userSettingModel" ref="userSettingModel"/>
+  </bean>
+  <!--
+  - C O R E  C O N T E X T
+  -->
+  <bean id="coreContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.common.CoreContext</value>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>springHibernateInterceptor</value>
+        <value>coreContextImpl</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="userSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel" singleton="false">
+    <property name="resource" value="user-settings.xml"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
+  <bean id="user" class="org.sipfoundry.sipxconfig.common.User" singleton="false">
+    <property name="settingModel" ref="userSettingModel"/>
+  </bean>
+  
+</beans>

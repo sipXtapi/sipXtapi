@@ -35,51 +35,20 @@
     	direction="auto" 
     	type="org.apache.tapestry.valid.IValidationDelegate"/>
 
-    <property-specification name="showAdvanced" type="boolean" persistent="yes"/>
-    
-    <property-specification name="currentSetting"
-        type="org.sipfoundry.sipxconfig.setting.Setting">
-    </property-specification>
-    
     <property-specification name="action" type="org.apache.tapestry.IActionListener"/>    
     
     <component id="settingsForm" type="Form">
         <binding name="delegate" expression="validator"/>
         <binding name="listener" expression="listeners.formSubmit"/>
     </component>
-    <component id="IfGroup" type="contrib:FormConditional">
-        <binding name="condition" expression="currentSetting.getValues().size() > 0"/>
-    </component>
-    <component id="IfSetting" type="contrib:FormConditional">
-        <binding name="condition" expression="currentSetting.getValues().size() == 0"/>
-    </component>
     <component id="ifRenderOk" type="contrib:FormConditional">
         <binding name="condition" expression="okListener != null"/>
     </component>
-    <component id="ifRenderSetting" type="contrib:FormConditional">
-        <binding name="condition" expression="renderSetting(currentSetting)"/>
-    </component>
-    <component id="ifRenderToggle" type="contrib:FormConditional">
-        <binding name="condition" expression="hasAdvancedSettings"/>
+    
+    <component id="settingsFieldset" type="SettingsFieldset">
+        <binding name="settings" expression="settings"/>
     </component>
     
-    <component id="settings" type="Foreach">
-        <binding name="source" expression="flattenedSettings"/>
-        <binding name="value" expression="currentSetting"/>
-    </component>
-    
-    <component id="settingEditor" type="SettingEditor">
-        <binding name="setting" expression="currentSetting"/>
-    </component>
-
-    <component id="groupLabel" type="Insert">
-        <binding name="value" expression="currentSetting.label"/>
-    </component>
-
-    <component id="groupDescription" type="Insert">
-        <binding name="value" expression="currentSetting.description"/>
-    </component>
-
     <component id="cancel" type="Submit">
         <binding name="selected" expression="action"/>
         <binding name="tag" expression="cancelListener"/>
@@ -93,12 +62,4 @@
         <binding name="tag" expression="okListener"/>
     </component>
     
-    <component id="toggleShowAdvanced" type="LinkSubmit">
-        <binding name="tag" expression="!showAdvanced"/>
-        <binding name="selected" expression="showAdvanced"/>
-    </component>
-    
-    <component id="toggleText" type="InsertText">
-        <binding name="value" expression="messages.getMessage(showAdvanced?'hideAdvanced':'showAdvanced')"/>
-    </component>    
 </component-specification>

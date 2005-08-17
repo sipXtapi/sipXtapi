@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
-import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
+import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 
 public class PhoneTestDb extends TestCase {

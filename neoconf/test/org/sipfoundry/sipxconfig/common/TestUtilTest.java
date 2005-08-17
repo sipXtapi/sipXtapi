@@ -42,7 +42,7 @@ public class TestUtilTest extends TestCase {
     public void testGetTopBuildDirectory() {
         String buildDir = TestUtil.getBuildDirectory("neoconf");
         File topBuild = new File(buildDir).getParentFile();
-        File configProperties = new File(topBuild, "config.properties");
+        File configProperties = new File(topBuild, "build.properties");
         assertTrue(configProperties.exists());
     }
 }

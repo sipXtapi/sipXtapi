@@ -37,7 +37,8 @@ public class NewUserTestUi extends WebTestCase {
         setFormElement("firstName", "NewUserFname");
         setFormElement("lastName", "NewUserLname");
         setFormElement("extension", "993");
-        setFormElement("pintoken", "1234");
+        setFormElement("password", "1234");
+        setFormElement("confirmPassword", "1234");
         clickButton("user:save");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);

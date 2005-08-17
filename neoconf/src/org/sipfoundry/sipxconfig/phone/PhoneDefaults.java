@@ -115,8 +115,8 @@ public class PhoneDefaults {
                 settings.setRegistrationServerPort(m_registrationServerPort);
             }
             if (user != null) {
-                settings.setAuthorizationId(user.getDisplayId());
-                settings.setUserId(user.getDisplayId());
+                settings.setAuthorizationId(user.getUserName());
+                settings.setUserId(user.getUserName());
                 settings.setDisplayName(user.getDisplayName());
                 settings.setPassword(user.getSipPassword());
                 settings.setAuthorizationRealm(m_authorizationRealm);
@@ -130,7 +130,7 @@ public class PhoneDefaults {
     
     public String getUri(User user) {
         StringBuffer sb = new StringBuffer();
-        sb.append("sip:").append(user.getDisplayId());
+        sb.append("sip:").append(user.getUserName());
         sb.append('@').append(m_domainName);
 
         String displayName = user.getDisplayName();

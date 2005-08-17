@@ -16,14 +16,16 @@
 	    initial-value="global.callGroupContext"/>
     
 	<property-specification name="callGroup" 
-		type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroup"
-    	persistent="yes"/>
+		type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroup"/>
 
 	<property-specification name="callGroupId" 
 		type="java.lang.Integer"
     	persistent="yes"/>
     
     <property-specification name="commitChanges" type="boolean" initial-value="false"/>
+    
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"/>
     
     <!--
      - B E A N S
@@ -55,13 +57,8 @@
         <binding name="rings" expression="callGroup.calls"/>
     </component>
     
-    <component id="onSave" type="Submit">
-        <binding name="selected" expression="commitChanges"/>
-        <binding name="tag" expression="true"/>
-        <message-binding name="value" key="button.save"/>
-    </component>
-    <component id="onCancel" type="CancelButton">
-        <binding name="returnPageName" expression="@org.sipfoundry.sipxconfig.site.admin.ListCallGroups@PAGE"/>
-        <message-binding name="value" key="button.cancel"/>
-    </component>
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
+    </component>    
 </page-specification>

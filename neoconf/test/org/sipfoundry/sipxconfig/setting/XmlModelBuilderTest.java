@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
 public class XmlModelBuilderTest extends TestCase {
-    private XmlModelBuilder m_builder;
+    private ModelBuilder m_builder;
 
     protected void setUp() throws Exception {
         m_builder = new XmlModelBuilder("etc");
@@ -97,20 +97,20 @@ public class XmlModelBuilderTest extends TestCase {
 
         Setting human = root.getSetting("human");
         assertEquals("Human", human.getLabel());
-        assertEquals("Earthlings", human.getDescription());       
+        assertEquals("Earthlings", human.getDescription());
         assertNotNull(human.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertNull(human.getSetting("giveBirth"));
 
         Setting man = root.getSetting("man");
         assertEquals("Man", man.getLabel());
-        assertEquals("Earthlings", man.getDescription());       
+        assertEquals("Earthlings", man.getDescription());
         assertNotNull(man.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertEquals("face", man.getSetting("shave").getValue());
         assertNull(man.getSetting("giveBirth"));
 
         Setting woman = root.getSetting("woman");
         assertEquals("Woman", woman.getLabel());
-        assertEquals("Earthlings", woman.getDescription());       
+        assertEquals("Earthlings", woman.getDescription());
         assertNotNull(woman.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertEquals("legs", woman.getSetting("shave").getValue());
         assertNotNull(woman.getSetting("giveBirth"));
@@ -119,5 +119,16 @@ public class XmlModelBuilderTest extends TestCase {
         man.getSetting("shave").setValue("back");
         assertEquals("back", man.getSetting("shave").getValue());
         assertNotSame("back", woman.getSetting("shave").getValue());
+    }
+
+    public void testFlags() throws Exception {
+        InputStream in = getClass().getResourceAsStream("genders.xml");
+        SettingSet root = m_builder.buildModel(in);
+        Setting reason = root.getSetting("/man/reason");
+        assertFalse(reason.isAdvanced());
+        assertTrue(reason.isHidden());
+        Setting giveBirth = root.getSetting("/woman/giveBirth");
+        assertTrue(giveBirth.isAdvanced());
+        assertFalse(giveBirth.isHidden());
     }
 }

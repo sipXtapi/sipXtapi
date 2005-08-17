@@ -11,17 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.UserType;
-
 import org.apache.commons.lang.enums.Enum;
 import org.apache.commons.lang.enums.EnumUtils;
+import org.hibernate.Hibernate;
+import org.hibernate.usertype.UserType;
 
 /**
  * EnumUserType Maps a commons-lang <code>Enum</code> to a Hibernate type. From the example on
@@ -35,7 +34,7 @@ public class EnumUserType implements UserType {
     }
 
     /**
-     * @see net.sf.hibernate.UserType#sqlTypes()
+     * @see org.hibernate.usertype.UserType#sqlTypes()
      */
     public int[] sqlTypes() {
         return new int[] {
@@ -44,16 +43,16 @@ public class EnumUserType implements UserType {
     }
 
     /**
-     * @see net.sf.hibernate.UserType#returnedClass()
+     * @see org.hibernate.usertype.UserType#returnedClass()
      */
     public Class returnedClass() {
         return m_enumClass;
     }
 
     /**
-     * @see net.sf.hibernate.UserType#equals(java.lang.Object, java.lang.Object)
+     * @see org.hibernate.usertype.UserType#equals(java.lang.Object, java.lang.Object)
      */
-    public boolean equals(Object x, Object y) throws HibernateException {
+    public boolean equals(Object x, Object y)  {
         if (x == y) {
             return true;
         }
@@ -62,22 +61,21 @@ public class EnumUserType implements UserType {
             return false;
         }
 
-        return Hibernate.STRING.equals(x, y);
+        return Hibernate.STRING.isEqual(x, y);
     }
 
     /**
-     * @see net.sf.hibernate.UserType#nullSafeGet(java.sql.ResultSet, java.lang.String[],
+     * @see org.hibernate.usertype.UserType#nullSafeGet(java.sql.ResultSet, java.lang.String[],
      *      java.lang.Object)
      */
-    public Object nullSafeGet(ResultSet rs, String[] names, Object owner_)
-        throws HibernateException, SQLException {
+    public Object nullSafeGet(ResultSet rs, String[] names, Object owner_) throws SQLException {
         String enumCode = (String) Hibernate.STRING.nullSafeGet(rs, names[0]);
 
         return EnumUtils.getEnum(m_enumClass, enumCode);
     }
 
     /**
-     * @see net.sf.hibernate.UserType#nullSafeSet(java.sql.PreparedStatement, java.lang.Object,
+     * @see org.hibernate.usertype.UserType#nullSafeSet(java.sql.PreparedStatement, java.lang.Object,
      *      int)
      */
     public void nullSafeSet(PreparedStatement st, Object value, int index) throws SQLException {
@@ -93,16 +91,32 @@ public class EnumUserType implements UserType {
     }
 
     /**
-     * @see net.sf.hibernate.UserType#deepCopy(java.lang.Object)
+     * @see org.hibernate.usertype.UserType#deepCopy(java.lang.Object)
      */
     public Object deepCopy(Object value) {
         return value;
     }
 
     /**
-     * @see net.sf.hibernate.UserType#isMutable()
+     * @see org.hibernate.usertype.UserType#isMutable()
      */
     public boolean isMutable() {
         return false;
+    }
+
+    public int hashCode(Object x) {
+        return x.hashCode();
+    }
+
+    public Serializable disassemble(Object value_) {
+        return null;
+    }
+
+    public Object assemble(Serializable cached_, Object owner_) {
+        return null;
+    }
+
+    public Object replace(Object original, Object target_, Object owner_) {
+        return original;
     }
 }

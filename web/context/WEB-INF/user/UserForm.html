@@ -10,11 +10,11 @@
             <tr>
 			<td>
                 <label for="user:userId">
-                    <span jwcid="userIdLabel">User ID:</span>
+                    <span jwcid="userIdLabel">Username:</span>
                 </label>
             </td>
 			<td>
-				<input jwcid="userId"/>
+				<input jwcid="userId" id="user:username"/>
 			</td>
             </tr>
             <tr>
@@ -24,7 +24,7 @@
                 </label>
             </td>
 			<td>
-				<input jwcid="firstName"/>
+				<input jwcid="firstName" id="user:firstName"/>
 			</td>
             </tr>
             <tr>
@@ -34,7 +34,7 @@
                 </label>
             </td>
 			<td>
-				<input jwcid="lastName"/>
+				<input jwcid="lastName" id="user:lastName"/>
 			</td>
             </tr>
             <tr>
@@ -44,19 +44,10 @@
                 </label>
             </td>
 			<td>
-				<input jwcid="extension"/>
+				<input jwcid="extension" id="user:extension"/>
 			</td>
             </tr>
-            <tr>
-			<td>
-                <label for="user:pintoken">
-                    <span jwcid="pintokenLabel">PIN:</span>
-                </label>
-            </td>
-			<td>
-				<input jwcid="pintoken"/>
-			</td>
-            </tr>
+			<span jwcid="pin"/>
             <tr>
 			<td>
                 <label for="user:sipPassword">
@@ -64,14 +55,14 @@
                 </label>
             </td>
 			<td>
-				<input jwcid="sipPassword"/>
+				<input jwcid="sipPassword" id="user:sipPassword"/>
 			</td>
             </tr>
 	        <tr>
 	            <td>
 					<label for="select:group">Additional groups:</label>
 	            </td>
-	            <td><span jwcid="groupSelect"/>
+	            <td><span jwcid="groupSelect" id="select:group"/>
 	            </td>
 	        </tr>
         </table>

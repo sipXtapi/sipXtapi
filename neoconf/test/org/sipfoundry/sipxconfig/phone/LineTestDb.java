@@ -45,7 +45,7 @@ public class LineTestDb extends TestCase {
 
         Phone phone = m_context.loadPhone(new Integer(1000));
         assertEquals(2, phone.getLines().size());
-        User user = m_core.loadUserByDisplayId("testuser");
+        User user = m_core.loadUserByUserName("testuser");
 
         LineData thirdLine = new LineData();
         thirdLine.setUser(user);        
@@ -73,7 +73,7 @@ public class LineTestDb extends TestCase {
 
         Phone phone = m_context.loadPhone(new Integer(1000));
         assertEquals(0, phone.getLines().size());
-        User user = m_core.loadUserByDisplayId("testuser");
+        User user = m_core.loadUserByUserName("testuser");
 
         Line line = phone.createLine(new LineData());
         LineData lineMeta = line.getLineData();
@@ -166,23 +166,4 @@ public class LineTestDb extends TestCase {
         Phone loadedPhone = m_context.loadPhone(newPhone.getPhoneData().getId());
         assertEquals(0, loadedPhone.getLines().size());
     }
-
-    public void testDeleteLinesForUser() throws Exception {
-        TestHelper.cleanInsertFlat("phone/LineSeed.xml");
-
-        ITable before = TestHelper.getConnection().createDataSet().getTable("line");
-        assertEquals(1, before.getRowCount());
-
-        // we do not have a user like that - nothing should change
-        m_context.deleteLinesForUser(new Integer(99999));
-        before = TestHelper.getConnection().createDataSet().getTable("line");
-        assertEquals(1, before.getRowCount());
-
-        User user = m_core.loadUserByDisplayId("testuser");
-        m_context.deleteLinesForUser(user.getId());
-
-        ITable after = TestHelper.getConnection().createDataSet().getTable("line");
-
-        assertEquals(0, after.getRowCount());
-    }    
 }
