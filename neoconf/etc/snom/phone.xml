@@ -798,14 +798,14 @@
 	  <setting name="challenge_reboot">
 		<label>Authentication for SIP Reboot</label>
 		<type refid="on-off"/>
-		<value>on</value>
+		<value>off</value>
 		<description>Authentication required for NOTIFYs with event reboot</description>
 	  </setting>
 	  <setting name="challenge_checksync">
 		<label>Authentication for SIP Check-Sync</label>
 		<type refid="on-off"/>
-		<value>on</value>
-		<description>Authentication required for NOTIFYs with event check-sync</description>
+		<value>off</value>
+		<description>Authentication required for NOTIFYs with event check-sync. WARNING breaks provisioning with sipXconfig if turend on!</description>
 	  </setting>
 	  <setting name="aoc_amount_display">
 		<label>AOC Amount Display</label>
@@ -919,18 +919,6 @@
 		<label>Log Level</label>
 		<type><integer min="0" max="9"/></type>
 		<value>5</value>
-		<description></description>
-	  </setting>
-	  <setting name="country_prefix">
-		<label>ENUM Country Prefix</label>
-		<type><integer/></type>
-		<value></value>
-		<description></description>
-	  </setting>
-	  <setting name="area_prefix">
-		<label>ENUM Area Prefix</label>
-		<type><integer/></type>
-		<value></value>
 		<description></description>
 	  </setting>
 	  <setting name="enum_suffix">
