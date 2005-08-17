@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /D "DISABLE_MEM_POOLS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "src\cse" /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /D "DISABLE_MEM_POOLS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "include\fastdb" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXcommserverLib\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D SIPX_VERSION=\"2.7\" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"

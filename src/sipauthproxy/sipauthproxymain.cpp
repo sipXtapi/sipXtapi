@@ -430,10 +430,22 @@ main( int argc, char* argv[] )
     osPrintf("SIP_AUTHPROXY_ROUTE_NAME : %s\n", routeName.data());
 
     proxyUdpPort = configDb.getPort("SIP_AUTHPROXY_UDP_PORT");
+    if (!portIsValid(proxyUdpPort))
+    {
+       proxyUdpPort = 5080;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_UDP_PORT : %d", proxyUdpPort);
     proxyTcpPort = configDb.getPort("SIP_AUTHPROXY_TCP_PORT") ;
+    if (!portIsValid(proxyTcpPort))
+    {
+       proxyTcpPort = 5080;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_TCP_PORT : %d", proxyTcpPort);
     proxyTlsPort = configDb.getPort("SIP_AUTHPROXY_TLS_PORT") ;
+    if (!portIsValid(proxyTlsPort))
+    {
+       proxyTlsPort = 5081;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_TLS_PORT : %d", proxyTlsPort);
 
     UtlString hostAliases;
