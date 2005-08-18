@@ -26,12 +26,11 @@ public class KPhoneTestDb extends TestCase {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
 
-        // Defining FACTORY_ID is not nec, just good practice
-        KPhone kphone = (KPhone) pc.newPhone(KPhone.FACTORY_ID);
+        KPhone kphone = (KPhone) pc.newPhone(KPhone.MODEL);
 
         // All phones in system have a unique id, this will be important for
         // selecting which profile to download 
-        kphone.getPhoneData().setSerialNumber("000000000000");
+        kphone.setSerialNumber("000000000000");
 
         // method to test
         StringWriter actual = new StringWriter();

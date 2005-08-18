@@ -21,10 +21,12 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 public interface Setting {
 
     public static final String NULL_VALUE = new String();
+    
+    public static final char PATH_DELIM = '/';
 
-    public Setting getParent();
+    public String getParentPath();
 
-    public void setParent(Setting setting);
+    public void setParentPath(String path);
 
     public String getPath();
 

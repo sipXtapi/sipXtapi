@@ -37,20 +37,12 @@
     </id>
   </class>
 
-  <query name="rootGroupByResource">
-    <![CDATA[from Group g where g.weight = 0 and g.resource = :resource]]>
-  </query>  
-    
   <query name="groupsByResource">
     <![CDATA[from Group g where g.resource = :resource order by g.weight]]>
   </query>  
 
-  <query name="groupsByResourceWithoutRoot">
-    <![CDATA[from Group g where g.weight != 0 and g.resource = :resource order by g.weight]]>
-  </query>  
-  
   <query name="groupIdsWithNameAndResource">
     <![CDATA[select g.id from Group g where g.resource = :resource and g.name = :name]]>       
   </query>
-    
+  
 </hibernate-mapping>

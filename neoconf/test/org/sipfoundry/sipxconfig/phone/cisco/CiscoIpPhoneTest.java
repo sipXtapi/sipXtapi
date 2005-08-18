@@ -22,15 +22,11 @@ public class CiscoIpPhoneTest extends TestCase {
     
     CiscoIpPhone phone;
     
-    CiscoIpLine line;
-
     PhoneTestDriver tester;
     
     protected void setUp() {
-        phone = new CiscoIpPhone();
-        line = new CiscoIpLine();
-        tester = new PhoneTestDriver(phone, CiscoModel.MODEL_7960.getModelId(), line, 
-                CiscoIpLine.FACTORY_ID);
+        phone = new CiscoIpPhone(CiscoModel.MODEL_7960);
+        tester = new PhoneTestDriver(phone, "cisco/ip-phone.xml");
     }
     
     public void testGetSettings() {

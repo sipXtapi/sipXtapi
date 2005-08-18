@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.common;
 
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Permission
@@ -72,17 +73,17 @@ public final class Permission extends Enum {
      * Returns the path in user settings to this permission group or setting
      */
     public String getSettingPath() {
-        StringBuffer sb = new StringBuffer("permission");
+        StringBuffer sb = new StringBuffer("permission/");
         if (m_parent != null) {
-            sb.append('/').append(m_parent.getName());
+            sb.append(m_parent.getName()).append(Setting.PATH_DELIM);
         }
-        sb.append('/').append(getName());
+        sb.append(getName());
         
         return sb.toString();
     }
     
     public void setEnabled(Group g, boolean enable) {
-        String path = getSettingPath();
-        g.getValues().put('/' + path, enable ? ENABLE : DISABLE);
+        String path = Setting.PATH_DELIM + getSettingPath();
+        g.getValues().put(path, enable ? ENABLE : DISABLE);
     }
 }

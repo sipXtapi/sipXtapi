@@ -25,7 +25,7 @@ public class SipxServer implements Server {
 
     public Setting getSettings() {
         Setting settingModel = getSettingModel();
-        settingModel.acceptVisitor(m_storage);        
+        m_storage.decorate(settingModel);        
         return settingModel;
     }
 

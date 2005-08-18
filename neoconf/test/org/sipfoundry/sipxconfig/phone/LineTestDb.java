@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 
 public class LineTestDb extends TestCase {
 
@@ -47,9 +46,9 @@ public class LineTestDb extends TestCase {
         assertEquals(2, phone.getLines().size());
         User user = m_core.loadUserByUserName("testuser");
 
-        LineData thirdLine = new LineData();
+        Line thirdLine = phone.createLine();
         thirdLine.setUser(user);        
-        phone.addLine(phone.createLine(thirdLine));
+        phone.addLine(thirdLine);
         m_context.storePhone(phone);
 
         // reload data to get updated ids
@@ -75,9 +74,8 @@ public class LineTestDb extends TestCase {
         assertEquals(0, phone.getLines().size());
         User user = m_core.loadUserByUserName("testuser");
 
-        Line line = phone.createLine(new LineData());
-        LineData lineMeta = line.getLineData();
-        lineMeta.setUser(user);
+        Line line = phone.createLine();
+        line.setUser(user);
         phone.addLine(line);
         m_context.storePhone(phone);
 
@@ -103,6 +101,11 @@ public class LineTestDb extends TestCase {
         Phone phone = m_context.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
         assertEquals(1, lines.size());
+        
+        Line line = (Line) lines.iterator().next();
+        line.getSettings();
+        m_context.storePhone(phone);
+        
         lines.clear();
         m_context.storePhone(phone);
 
@@ -160,10 +163,10 @@ public class LineTestDb extends TestCase {
     public void testNoLinesButOtherPhonesHaveLines() throws Exception {
         TestHelper.cleanInsertFlat("phone/LineSeed.xml");
 
-        Phone newPhone = m_context.newPhone(PolycomModel.MODEL_600.getModelId());
-        newPhone.getPhoneData().setSerialNumber("XXXX");
+        Phone newPhone = m_context.newPhone(Phone.MODEL);
+        newPhone.setSerialNumber("XXXX");
         m_context.storePhone(newPhone);
-        Phone loadedPhone = m_context.loadPhone(newPhone.getPhoneData().getId());
+        Phone loadedPhone = m_context.loadPhone(newPhone.getId());
         assertEquals(0, loadedPhone.getLines().size());
     }
 }

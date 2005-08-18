@@ -15,9 +15,9 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.tapestry.BaseComponent;
-import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public abstract class SettingsFieldset extends BaseComponent {
     public abstract Setting getCurrentSetting();
@@ -27,7 +27,7 @@ public abstract class SettingsFieldset extends BaseComponent {
     public abstract void setSettings(Setting setting);
 
     public Collection getFlattenedSettings() {
-        return FilterRunner.filter(SettingFilter.ALL, getSettings());
+        return SettingUtil.filter(SettingFilter.ALL, getSettings());
     }
 
     public abstract boolean getShowAdvanced();

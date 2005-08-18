@@ -2,12 +2,13 @@
 <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 <dataset>
     <phone serial_number="999123456" 		
-		phone_id="1000"
+		    phone_id="1000"
         name="unittest-sample phone1"
-        factory_id="polycom300"/> 
+        bean_id="genericPhone"
+        model_id=""/>
     <line 
-		line_id="1000" 
-		phone_id="1000"
-		position="0" 
-		user_id="1000"/> 		
+		    line_id="1000" 
+		    phone_id="1000"
+		    position="0" 
+		    user_id="1000"/> 		
 </dataset>

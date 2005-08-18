@@ -37,9 +37,9 @@ public class ValueStorageTestDb extends TestCase {
         root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea")); 
         
         ValueStorage vs = new ValueStorage();
-        SettingSet copy = (SettingSet) vs.decorate(root);
-        copy.getSetting("fruit/apple").setValue("granny smith");
-        copy.getSetting("vegetable/pea").setValue(null);
+        vs.decorate(root);
+        root.getSetting("fruit/apple").setValue("granny smith");
+        root.getSetting("vegetable/pea").setValue(null);
         
         m_dao.storeValueStorage(vs);
 
@@ -63,9 +63,9 @@ public class ValueStorageTestDb extends TestCase {
         root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea")); 
         
         ValueStorage vs = m_dao.loadValueStorage(new Integer(1));
-        Setting copy = vs.decorate(root);
-        copy.getSetting("fruit/apple").setValue(null);
-        copy.getSetting("vegetable/pea").setValue("snow pea");
+        vs.decorate(root);
+        root.getSetting("fruit/apple").setValue(null);
+        root.getSetting("vegetable/pea").setValue("snow pea");
         
         m_dao.storeValueStorage(vs);
 

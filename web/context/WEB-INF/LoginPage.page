@@ -37,18 +37,19 @@
         <binding name="delegate" expression="beans.validator"/>
     </component>
     
-    <component id="labelUserName" type="FieldLabel">
+    <component id="panelUserName" type="FieldPanel">
         <binding name="field" expression="components.userName"/>
-    </component>
+        <message-binding name="label" key="label.userName"/>
+    </component>    
     <component id="userName" type="ValidField">
         <binding name="value" expression="userName"/>
         <binding name="validator" expression="beans.nameValidator"/>
         <message-binding name="displayName" key="label.userName"/>
     </component>
     
-    <component id="labelPassword" type="FieldLabel">
+    <component id="panelPassword" type="FieldPanel">
         <binding name="field" expression="components.password"/>
-        <message-binding name="displayName" key="label.password"/>
+        <message-binding name="label" key="label.password"/>
     </component>
     <component id="password" type="TextField">
         <binding name="value" expression="password"/>

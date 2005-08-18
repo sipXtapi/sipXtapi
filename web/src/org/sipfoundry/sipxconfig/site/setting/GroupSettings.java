@@ -63,7 +63,8 @@ public abstract class GroupSettings extends BasePage implements PageRenderListen
             Setting first = (Setting) getSettings().getValues().iterator().next();
             currentSettingName = first.getName();
         }
-        Setting settings = group.decorate(getSettings());
+        Setting settings = getSettings().copy();
+        group.decorate(settings);
         Setting parent = settings.getSetting(currentSettingName);
         setParentSetting(parent);
     }

@@ -46,4 +46,8 @@
   <!-- forwarding -->
   <table name="ring"/>
   
+  <!-- conference bridge -->
+  <table name="meetme_bridge"/>
+  <table name="meetme_conference"/>
+  <table name="meetme_participant"/>  
 </dataset>

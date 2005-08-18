@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
-import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -55,7 +54,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public abstract void setAddMenuItemAction(AttendantMenuAction action);
 
     public void removeMenuItems(IRequestCycle cycle_) {
-        nonSaveFormSubmit();
         Iterator selected = getSelections().getAllSelected().iterator();
         Map menuItems = getAttendant().getMenuItems();
         while (selected.hasNext()) {
@@ -65,7 +63,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     }
 
     public void reset(IRequestCycle cycle_) {
-        nonSaveFormSubmit();
         getAttendant().resetToFactoryDefault();
     }
 
@@ -86,10 +83,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
                 .getBean("descriptionValidator");
         descriptionValidator.validate(validator);
-        AssetSelector assetSelector = getAssetSelector();
-        assetSelector.validateNotEmpty(validator,
-                "You must select an existing prompt or upload a new one.");
-        assetSelector.checkFileUpload();
         if (!validator.getHasErrors()) {
             getDialPlanContext().storeAutoAttendant(getAttendant());
             getVxmlGenerator().generate(getAttendant());
@@ -109,7 +102,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     }
 
     public void addMenuItem(IRequestCycle cycle_) {
-        nonSaveFormSubmit();
         if (getAddMenuItemAction() == null) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record("You must selection an action for your new attentant menu item",
@@ -120,21 +112,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             selectNextAvailableDialpadKey();
             setAddMenuItemAction(null);
         }
-    }
-
-    /**
-     * Doesn't leave or or save any data
-     */
-    private void nonSaveFormSubmit() {
-        // SUBOPTIMAL: although it would be nice to upload file when saving, tapestry
-        // cannot preserve state of Upload component and users would lose upload
-        // selection everytime a menu item was added. Negative to this method is
-        // that hitting cancel after adding 1 or more menu items would leave prompt
-        // on server. Dedicated prompt management page would avoid this altogether.
-        getAssetSelector().checkFileUpload();
-
-        IValidationDelegate validator = TapestryUtils.getValidator(this);
-        validator.clearErrors();
     }
 
     /**
@@ -168,9 +145,5 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         AutoAttendant aa = new AutoAttendant();
         aa.resetToFactoryDefault();
         setAttendant(aa);
-    }
-
-    private AssetSelector getAssetSelector() {
-        return (AssetSelector) getComponent("attendantPromptSelector");
     }
 }

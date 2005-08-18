@@ -2,51 +2,64 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.phone" default-lazy="false">
-  <!-- 
-  - E N D P O I N T 
-  -->
-  <class name="PhoneData" table="phone">
+  <!-- P H O N E -->
+  <class name="Phone" table="phone" discriminator-value="genericPhone">
     <id name="id" column="phone_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">phone_seq</param>
       </generator>
     </id>
+    <discriminator column="bean_id"/>
+    <property name="beanId" insert="false" update="false"/>
+    <property name="modelId"/>
     <property name="name"/>
     <property name="serialNumber"/>
-    <property name="factoryId"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 	  <set name="groups" table="phone_group" sort="natural">
       <key column="phone_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
-  </class>
-  
-  <!--
-  -  L I N E
-  -->
-  <class name="LineData" table="line">
+    <list name="lines" inverse="true" cascade="all-delete-orphan">
+      <key column="phone_id"/>
+      <index column="position"/>
+      <one-to-many class="Line"/>
+    </list>
+  </class>  
+  <!-- L I N E -->
+  <class name="Line" table="line">
     <id name="id" column="line_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">line_seq</param>
       </generator>
     </id>
-    <many-to-one name="phoneData" column="phone_id" class="PhoneData" not-null="true"/>
+    <many-to-one name="phone" column="phone_id" class="Phone" not-null="true"/>
     <property name="position"/>
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-  	<set name="groups" table="line_group" sort="natural">
+    <!-- Groups are read from phone, lines cannot have their own
+       - group at this time, either too confusing to user -->
+  	<!-- set name="groups" table="line_group" sort="natural">
       <key column="line_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
-    </set>
+    </set -->
   </class>
   
   <query name="phoneIdsWithName">
-    <![CDATA[select pd.id from PhoneData pd where pd.name = :value]]>
+    <![CDATA[select p.id from Phone p where p.name = :value]]>
   </query>
   
   <query name="phoneIdsWithSerialNumber">
-    <![CDATA[select pd.id from PhoneData pd where pd.serialNumber = :value]]>        
+    <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>        
   </query>  
+
+  <query name="phonesByGroupId">
+    <![CDATA[from Phone p where p.groups.id = :groupId]]>
+  </query>
+  
+  <query name="phonesByUserId">
+    <![CDATA[from Phone p where p.lines.user.id = :userId]]>
+  </query>
+  
 </hibernate-mapping>

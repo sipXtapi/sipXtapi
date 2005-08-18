@@ -44,11 +44,11 @@
     </component>            
     <component id="deviceIdLink" type="DirectLink">
         <binding name="listener" expression="listeners.editPhone"/>
-        <binding name="parameters" expression="phone.phoneData.id"/>
+        <binding name="parameters" expression="phone.id"/>
     </component>
     <component id="linesLink" type="DirectLink">
         <binding name="listener" expression="listeners.editLines"/>
-        <binding name="parameters" expression="phone.phoneData.id"/>
+        <binding name="parameters" expression="phone.id"/>
     </component>
     <component id="settingsTabs" type="Foreach">
         <binding name="source" expression="settings.values"/>

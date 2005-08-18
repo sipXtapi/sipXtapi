@@ -42,14 +42,14 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
     }
     
     public String getAppFilename() {
-        return getPhone().getPhoneData().getSerialNumber() + ".cfg";
+        return getPhone().getSerialNumber() + ".cfg";
     }
     
     String getDirectory() {
         if (m_directory == null) {
             PolycomPhone polycomPhone = (PolycomPhone) getPhone();
             String tftpRoot = polycomPhone.getTftpRoot();
-            String endpointDir = polycomPhone.getPhoneData().getSerialNumber();           
+            String endpointDir = polycomPhone.getSerialNumber();           
             m_staleDirectories.clear();
             m_directory = getNextDirectorySequence(tftpRoot, endpointDir, m_staleDirectories);
         }

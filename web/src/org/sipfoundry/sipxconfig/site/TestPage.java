@@ -32,11 +32,15 @@ public abstract class TestPage extends BasePage {
 
     public static final String PAGE = "TestPage";
 
-    public static final String TEST_USER = "testuser";
-
-    public static final String ADMIN = "superadmin";
-
-    public static final String PIN = "1234";
+    public static final User TEST_USER = new User();
+    public static final String TEST_USER_PIN = "1234";
+    static {
+        // makesure this name matches SiteTestHelper.java
+        TEST_USER.setUserName("testuser");
+        TEST_USER.setFirstName("Test");
+        TEST_USER.setExtension("200");
+        TEST_USER.setLastName("User");
+    }
 
     public abstract DialPlanContext getDialPlanManager();
 
@@ -57,8 +61,6 @@ public abstract class TestPage extends BasePage {
 
     public void resetPhoneContext(IRequestCycle cycle_) {
         getPhoneContext().clear();
-        // creates root phone group
-        getPhoneContext().loadRootGroup();
     }
 
     public void resetCallGroupContext(IRequestCycle cycle_) {
@@ -107,24 +109,23 @@ public abstract class TestPage extends BasePage {
 
     public void seedTestUser(IRequestCycle cycle_) {
         User user = new User();
-        user.setUserName(TEST_USER);
-        user.setFirstName("Test");
-        user.setLastName("User");
-        user.setExtension("200");
-        user.setPin(PIN, getCoreContext().getAuthorizationRealm());
+        user.setUserName(TEST_USER.getUserName());
+        user.setFirstName(TEST_USER.getFirstName());
+        user.setLastName(TEST_USER.getLastName());
+        user.setExtension(TEST_USER.getExtension());
+        user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
     }
 
-    public void login(IRequestCycle cycle_) {
-        User admin = getCoreContext().loadUserByUserName(ADMIN);
-        if (admin == null) {
-            admin = new User();
-            admin.setUserName(ADMIN);
-            admin.setPin(PIN, getCoreContext().getAuthorizationRealm());
-            getCoreContext().saveUser(admin);
+    public void login(IRequestCycle cycle) {        
+        CoreContext core = getCoreContext(); 
+        User user = core.loadUserByUserName(TEST_USER.getUserName());
+        if (user == null) {
+            seedTestUser(cycle);
+            user = core.loadUserByUserName(TEST_USER.getUserName());
         }
         Visit visit = (Visit) getVisit();
-        visit.login(admin.getId(), true);
+        visit.login(user.getId(), true);
     }
 
     public void generateDataSet(IRequestCycle cycle) {

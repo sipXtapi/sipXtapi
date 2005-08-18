@@ -11,51 +11,302 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.Collection;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
- * Implement this to add support for new devices to the system
+ * Base class for managed phone subclasses  
  */
-public interface Phone {
-    
-    public void setPhoneData(PhoneData meta);
-    
-    public PhoneData getPhoneData();
-    
-    /**
-     * @return undecorated model - direct representation of XML model description
-     */
-    public Setting getSettingModel();
-
-    /**
-     * @return decorated model - use this to modify phone settings
-     */
-    public Setting getSettings();
-    
-    public void generateProfiles();
-    
-    public void restart();
+public class Phone extends BeanWithGroups {
         
-    public List getLines();
-    
-    public Object getAdapter(Class adatper);
-    
-    public void addLine(Line line);
-    
-    public Line getLine(int position);
-    
-    public Collection getDeletedLines();
-    
-    /** you must explicitly call addLine */
-    public Line createLine(LineData lineMeta);
+    // public because of checkstyle
+    public static final String PHONE_CONSTANT = "phone";
 
-    /** implementation need to declare they implement PrimaryKeySource */
-    public Object getPrimaryKey();
+    public static final PhoneModel MODEL = new PhoneModel("genericPhone", "Generic Phone");
     
-    public void setPhoneContext(PhoneContext phoneContext);
+    public static final String PHONE_GROUP_RESOURCE = PHONE_CONSTANT;
     
-    public PhoneContext getPhoneContext();
+    private String m_name;
+
+    private String m_serialNumber;
+    
+    private PhoneModel m_model; 
+    
+    private List m_lines = Collections.EMPTY_LIST;
+    
+    private PhoneContext m_phoneContext;
+    
+    private String m_tftpRoot;
+
+    private VelocityEngine m_velocityEngine;
+
+    private SipService m_sip;
+    
+    private String m_phoneTemplate;
+
+    private String m_webDirectory;
+    
+    private String m_beanId;
+    
+    public Phone() {
+        this(MODEL);
+    }
+    
+    protected Phone(String beanId) {
+        m_beanId = beanId;
+    }
+    
+    protected Phone(PhoneModel model) {
+        m_beanId = model.getBeanId();
+        m_model = model;
+    }
+    
+    public String getModelLabel() {
+        return m_model.getLabel();
+    }
+    
+    public void setModelId(String modelId) {
+        m_model = PhoneModel.getModel(getBeanId(), modelId);
+    }
+    
+    public PhoneModel getModel() {
+        return m_model;
+    }
+    
+    public String getWebDirectory() {
+        return m_webDirectory;
+    }
+    
+    public void setWebDirectory(String webDirectory) {
+        m_webDirectory = webDirectory;
+    }
+
+    public void setSipService(SipService sip) {
+        m_sip = sip;
+    }
+
+    public SipService getSipService() {
+        return m_sip;
+    }
+
+    public String getTftpRoot() {
+        return m_tftpRoot;
+    }
+
+    public void setTftpRoot(String tftpRoot) {
+        m_tftpRoot = tftpRoot;
+    }
+
+    public VelocityEngine getVelocityEngine() {
+        return m_velocityEngine;
+    }
+
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
+    }
+
+    protected void makeParentDirectory(File f) {
+        if (!f.getParentFile().exists()) {
+            if (!f.getParentFile().mkdirs()) {
+                throw new RuntimeException("Could not create parent directory for file "
+                        + f.getPath());
+            }
+        }
+    }
+    
+    public Setting getSettingModel() {
+        Setting model = super.getSettingModel();
+        if (model == null) {
+            return null;
+        }
+        
+        String name = getModel().getName();
+        Setting modelType = model.getSetting(name);
+        Setting phoneModel = modelType.getSetting(PHONE_CONSTANT);
+        phoneModel.setName(StringUtils.EMPTY);
+        phoneModel.setParentPath(null); // detach
+        
+        return phoneModel;
+    }
+
+    public Setting getLineSettingModel() {
+        Setting model = super.getSettingModel();
+        if (model == null) {
+            return null;
+        }
+        
+        String name = getModel().getName();
+        Setting modelType = model.getSetting(name);
+        Setting lineModel = modelType.getSetting("line");
+        lineModel.setName(StringUtils.EMPTY);
+        lineModel.setParentPath(null); // detach
+        
+        return lineModel;
+    }
+    
+    public String getPhoneFilename() {
+        String phoneFilename = getSerialNumber();
+        return getTftpRoot() + "/" + phoneFilename.toUpperCase() + ".cfg";
+    }
+
+    public void generateProfiles() {
+        Writer wtr = null;
+        try {
+            File file = new File(getTftpRoot() + '/' + getPhoneFilename());
+            makeParentDirectory(file);
+            wtr = new FileWriter(file);
+            generateProfile(wtr);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(wtr);
+        }
+    }    
+    
+    public String getPhoneTemplate() {
+        return m_phoneTemplate;
+    }
+
+    public void setPhoneTemplate(String phoneTemplate) {
+        m_phoneTemplate = phoneTemplate;
+    }
+
+    public void generateProfile(Writer out) {
+        VelocityProfileGenerator profile = new VelocityProfileGenerator(this);
+        generateProfile(profile, getPhoneTemplate(), out);        
+    }
+
+    protected void generateProfile(VelocityProfileGenerator cfg, String template, Writer out) {
+        cfg.setVelocityEngine(getVelocityEngine());
+        cfg.generateProfile(template, out);
+    }
+
+    /**
+     * @throws RestartException is cannot complete operation
+     */
+    public void restart() {
+        if (getLines().size() == 0) {
+            throw new RestartException("Restart command is sent to first line and "
+                    + "first phone line is not valid");
+        }
+
+        Line line = getLine(0);
+        m_sip.sendCheckSync(line);
+    }
+    
+    /**
+     * @return ids used in PhoneFactory
+     */
+    public String getBeanId() {
+        return m_beanId;
+    }
+    
+    /**
+     * Internal, do not call this method. Hibnerate property declared update=false, but 
+     * still required method be defined.
+     */
+    public void setBeanId(String illegal_) {
+    }
+
+    public String getModelId() {
+        return m_model.getModelId();
+    }
+
+    public String getName() {
+        return m_name;
+    }
+
+    public void setName(String name) {
+        m_name = name;
+    }
+
+    public String getSerialNumber() {
+        return m_serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        m_serialNumber = cleanSerialNumber(serialNumber);
+    }
+    
+    private static String cleanSerialNumber(String rawNumber) {
+        String clean = rawNumber.toLowerCase();
+        clean = clean.replaceAll("[:\\s]*", "");
+        
+        return clean;        
+    }
+    
+    /**
+     * @return name if set otherwise serial number, convienent for display purposes
+     */
+    public String getDisplayLabel() {
+        return m_name != null ? m_name : m_serialNumber;
+    }
+    
+    /**
+     * No adapters supported in generic implementation
+     */
+    public Object getAdapter(Class interfac_) {
+        return null;
+    }
+    
+    /**
+     * No line adapters supported in generic implementation
+     */
+    public Object getLineAdapter(Line line_, Class interfac_) {
+        return null;
+    }
+
+    public List getLines() {
+        return m_lines;
+    }
+    
+    public void setLines(List lines) {
+        m_lines = lines;
+    }
+    
+    public void addLine(Line line) {
+        if (m_lines == Collections.EMPTY_LIST) {
+            m_lines = new ArrayList();
+        }
+        line.setPhone(this);
+        line.setPosition(m_lines.size());
+        m_lines.add(line);
+    }
+    
+    public Line getLine(int position) {
+        return (Line) m_lines.get(position);
+    }
+    
+    protected void defaultSettings() {
+        getPhoneContext().getPhoneDefaults().setPhoneDefaults(this);
+    }
+    
+    protected void defaultLineSettings(Line line) {
+        getPhoneContext().getPhoneDefaults().setLineDefaults(line, line.getUser());
+    }
+
+    public PhoneContext getPhoneContext() {
+        return m_phoneContext;
+    }
+    
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+    
+    public Line createLine() {
+        Line line = new Line();
+        line.setPhone(this);
+        return line;
+    }
 }

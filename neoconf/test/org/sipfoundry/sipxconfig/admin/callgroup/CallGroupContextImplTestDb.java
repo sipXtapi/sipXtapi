@@ -19,6 +19,8 @@ import junit.framework.TestCase;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
@@ -26,9 +28,12 @@ public class CallGroupContextImplTestDb extends TestCase {
 
     private CallGroupContext m_context;
 
+    private CoreContext m_coreContext;
+
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
+        m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.xml");
         TestHelper.cleanInsert("admin/callgroup/CallGroupSeed.xml");
@@ -75,13 +80,13 @@ public class CallGroupContextImplTestDb extends TestCase {
         ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
         assertEquals(3, tableCallGroup.getRowCount());
     }
-    
+
     public void testStoreCallGroupDuplicateName() throws Exception {
         CallGroup group = new CallGroup();
         group.setName("sales");
         group.setExtension("202");
         group.setEnabled(true);
-        
+
         try {
             m_context.storeCallGroup(group);
             fail("NameInUseException should be thrown");
@@ -92,7 +97,7 @@ public class CallGroupContextImplTestDb extends TestCase {
         ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
         assertEquals(2, tableCallGroup.getRowCount());
     }
-    
+
     public void testStoreCallGroupDuplicateExtension() throws Exception {
         CallGroup group = new CallGroup();
         group.setName("kuku");
@@ -183,5 +188,16 @@ public class CallGroupContextImplTestDb extends TestCase {
         callGroup = m_context.loadCallGroup(new Integer(1002));
         userRings = callGroup.getCalls();
         assertTrue(userRings.isEmpty());
+    }
+
+    public void testDeleteUser() throws Exception {
+        User user = m_coreContext.loadUser(new Integer(1000));
+        ITable rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
+
+        assertEquals(1, rings.getRowCount());
+        m_coreContext.deleteUser(user);
+
+        rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
+        assertEquals(0, rings.getRowCount());
     }
 }

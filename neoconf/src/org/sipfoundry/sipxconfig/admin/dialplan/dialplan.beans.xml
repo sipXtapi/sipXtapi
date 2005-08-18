@@ -5,7 +5,6 @@
 
   <!--
   - D I A L   P L A N S
-  - TODO: move to separate file
   -->
   <bean id="dialRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory"/>
   
@@ -169,16 +168,18 @@
     </property>
   </bean>
   
-  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext</value>
     </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>dialPlanContextImpl</value>
-      </list>
+    <property name="target">
+      <ref local="dialPlanContextImpl"/>
     </property>
   </bean>
+
+  <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
+    <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
+
 </beans>
 

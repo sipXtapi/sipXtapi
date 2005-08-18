@@ -26,7 +26,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class MediantGateway extends Gateway {
     public static final String FACTORY_ID = "gwMediant1000";
     public static final String MANUFACTURER = "audiocodes";
-
+    
+    public MediantGateway() {
+        setFactoryId(FACTORY_ID);
+    }
+    
     public Setting getSettingModel() {
         return getModelFilesContext().loadModelFile(MANUFACTURER, "mediant-gateway.xml");
     }

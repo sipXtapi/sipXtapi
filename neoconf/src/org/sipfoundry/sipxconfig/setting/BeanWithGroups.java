@@ -34,18 +34,17 @@ public class BeanWithGroups extends BeanWithSettings {
         m_groups.add(tag);
     }
 
-    protected Setting decorateSettings(Setting settings) {
+    protected void decorateSettings() {
+        Setting settings = getSettings();
         Set groups = getGroups();
         if (groups != null) {
             Iterator i = groups.iterator();
             while (i.hasNext()) {
-                SettingVisitor visitor = (SettingVisitor) i.next(); 
-                settings.acceptVisitor(visitor);
+                Group group = (Group) i.next(); 
+                group.decorate(settings);
             }
         }
         
-        Setting decorated = super.decorateSettings(settings);
-        
-        return decorated;    
+        super.decorateSettings();
     }
 }

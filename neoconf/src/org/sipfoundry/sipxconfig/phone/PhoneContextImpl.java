@@ -12,15 +12,19 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.LinkedMap;
+import org.hibernate.type.Type;
+import org.sipfoundry.sipxconfig.common.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
-import org.sipfoundry.sipxconfig.common.InitializationTask;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -38,7 +42,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
-        PhoneContext, ApplicationListener {
+        PhoneContext, ApplicationListener, DaoEventListener {
 
     private static final String GROUP_RESOURCE_ID = "phone";
 
@@ -46,13 +50,15 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
 
     private BeanFactory m_beanFactory;
 
-    private Map m_phoneIds;
+    private List m_availableModels;
 
     private JobQueue m_jobQueue;
 
     private String m_systemDirectory;
 
     private Map m_modelCache = new HashMap();
+    
+    private PhoneDefaults m_phoneDefaults;
 
     /**
      * Generate profile on phones in background
@@ -60,6 +66,14 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public void generateProfilesAndRestart(Collection phones) {
         JobRecord job = createJobRecord(phones, JobRecord.TYPE_PROJECTION);
         m_jobQueue.addJob(job);
+    }
+
+    public List getAvailablePhoneModels() {
+        return m_availableModels;
+    }
+    
+    public void setAvailablePhoneModels(List models) {
+        m_availableModels = models;
     }
 
     /**
@@ -94,157 +108,77 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         m_beanFactory = beanFactory;
     }
 
-    public Map getPhoneFactoryIds() {
-        return m_phoneIds;
-    }
-
-    public void setPhoneFactoryIds(Map phoneIds) {
-        m_phoneIds = phoneIds;
-    }
-
     public void flush() {
         getHibernateTemplate().flush();
     }
 
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
-        PhoneData meta = phone.getPhoneData();
-        String serialNumber = meta.getSerialNumber();
-        DaoUtils.checkDuplicates(hibernate, meta, "phoneIdsWithSerialNumber", serialNumber,
+        String serialNumber = phone.getSerialNumber();
+        DaoUtils.checkDuplicates(hibernate, phone, "phoneIdsWithSerialNumber", serialNumber,
                 new DuplicateSerialNumberException(serialNumber));
-        String name = meta.getName();
-        DaoUtils.checkDuplicates(hibernate, meta, "phoneIdsWithName", name,
+        String name = phone.getName();
+        DaoUtils.checkDuplicates(hibernate, phone, "phoneIdsWithName", name,
                 new DuplicateNameException(name));
-        meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
-        hibernate.saveOrUpdate(meta);
-        Iterator lines = phone.getLines().iterator();
-        while (lines.hasNext()) {
-            Line line = (Line) lines.next();
-            storeLine(line);
-        }
-        Iterator deleted = phone.getDeletedLines().iterator();
-        while (deleted.hasNext()) {
-            Line line = (Line) deleted.next();
-            deleteLine(line);
-        }
+        phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
+        hibernate.saveOrUpdate(phone);
     }
 
     public void deletePhone(Phone phone) {
-        Iterator lines = phone.getLines().iterator();
-        while (lines.hasNext()) {
-            deleteLine((Line) lines.next());
+        phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
+        Iterator i = phone.getLines().iterator();
+        while (i.hasNext()) {
+            Line line = (Line) i.next();
+            line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
         }
-        Iterator deleted = phone.getDeletedLines().iterator();
-        while (deleted.hasNext()) {
-            deleteLine((Line) deleted.next());
-        }
-        PhoneData meta = phone.getPhoneData();
-        meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
-        getHibernateTemplate().delete(meta);
+        getHibernateTemplate().delete(phone);
     }
 
     public void storeLine(Line line) {
-        LineData meta = line.getLineData();
-        meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
-        getHibernateTemplate().saveOrUpdate(meta);
+        line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
+        getHibernateTemplate().saveOrUpdate(line);
     }
 
     public void deleteLine(Line line) {
-        LineData meta = line.getLineData();
-        meta.setValueStorage(clearUnsavedValueStorage(meta.getValueStorage()));
-        getHibernateTemplate().delete(meta);
+        line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
+        getHibernateTemplate().delete(line);
     }
 
     ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
-        // HACK: Load incase it needs to be deleted
+        // If no settings don't bother saving anything.
         return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
     }
     
     public Line loadLine(Integer id) {
-        return loadLine((LineData) getHibernateTemplate().load(LineData.class, id));
+        Line line = (Line) getHibernateTemplate().load(Line.class, id); 
+        return line;
     }
 
     public Collection loadPhones() {
-        // Inventing a hibernate, transient object here to associate phone and line metadata
-        // might be helpful.
-        String phoneQuery = "from PhoneData p";
-        List phoneMetas = getHibernateTemplate().find(phoneQuery);
-        Map phones = new LinkedMap();
-        for (int i = 0; i < phoneMetas.size(); i++) {
-            PhoneData meta = (PhoneData) phoneMetas.get(i);
-            Phone phone = loadPhoneFromFactory(meta);
-            phones.put(meta.getPrimaryKey(), phone);
-        }
+        String phoneQuery = "from Phone p";
+        List phones = getHibernateTemplate().find(phoneQuery);
 
-        String lineQuery = "from LineData l order by l.phoneData, l.position asc";
-        List lineMetas = getHibernateTemplate().find(lineQuery);
-        for (int i = 0; i < lineMetas.size(); i++) {
-            LineData lineMeta = (LineData) lineMetas.get(i);
-            // collate by parent object: phoneMetaData
-            Phone phone = (Phone) phones.get(lineMeta.getPhoneData().getPrimaryKey());
-            if (phone == null) {
-                phone = loadPhoneFromFactory(lineMeta.getPhoneData());
-                phones.put(lineMeta.getPhoneData().getPrimaryKey(), phone);
-            }
-            phone.addLine(phone.createLine(lineMeta));
-        }
-
-        return phones.values();
+        return phones;
     }
 
     public Phone loadPhone(Integer id) {
-        Phone phone = loadPhoneFromFactory((PhoneData) getHibernateTemplate().load(
-                PhoneData.class, id));
-        String lineQuery = "from LineData l where l.phoneData = :phoneData order by l.position asc";
-        List lineMetas = getHibernateTemplate().findByNamedParam(lineQuery, "phoneData",
-                phone.getPhoneData());
-        for (int i = 0; i < lineMetas.size(); i++) {
-            LineData meta = (LineData) lineMetas.get(i);
-            phone.addLine(phone.createLine(meta));
-        }
-
+        Phone phone = (Phone) getHibernateTemplate().load(Phone.class, id);
         return phone;
     }
 
-    public Phone newPhone(String factoryId) {
-        Phone phone = (Phone) m_beanFactory.getBean(factoryId);
-        phone.setPhoneData(new PhoneData(factoryId));
-        phone.setPhoneContext(this);
-
+    public Phone newPhone(PhoneModel model) {
+        Phone phone = (Phone) m_beanFactory.getBean(model.getBeanId());
+        phone.setModelId(model.getModelId());
+        
         return phone;
-    }
-
-    public Line newLine(String factoryId) {
-        return (Line) m_beanFactory.getBean(factoryId);
-    }
-
-    private Phone loadPhoneFromFactory(PhoneData meta) {
-        Phone phone = (Phone) m_beanFactory.getBean(meta.getFactoryId());
-        phone.setPhoneData(meta);
-        phone.setPhoneContext(this);
-        meta.setModelLabel((String) m_phoneIds.get(meta.getFactoryId()));
-
-        return phone;
-    }
-
-    Line loadLine(LineData meta) {
-        return loadPhoneFromFactory(meta.getPhoneData()).createLine(meta);
     }
 
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
     }
 
-    public Group loadRootGroup() {
-        return m_settingDao.loadRootGroup(GROUP_RESOURCE_ID);
-    }
-    
     public List getGroups() {
         return m_settingDao.getGroups(GROUP_RESOURCE_ID);
-    }
-
-    public List getGroupsWithoutRoot() {
-        return m_settingDao.getGroupsWithoutRoot(GROUP_RESOURCE_ID);
     }
 
     public JobRecord loadJob(Integer id) {
@@ -259,12 +193,8 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
         // not leave hanging references. DB will reject otherwise
-        deleteAll("from LineData");
-        deleteAll("from PhoneData");
+        deleteAll("from Phone");
         deleteAll("from Group where resource = 'phone'");
-        // deleted automatically?
-        //getHibernateTemplate().delete("from ValueStorage");
-        flush();
     }
     
     private void deleteAll(String query) {
@@ -289,7 +219,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
             m_modelCache.put(filename, model);
         }
         return model;
-    }
+    }    
     
     private class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A phone with serial number: {0} already exists.";
@@ -307,12 +237,73 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         }
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof InitializationTask) {
-            InitializationTask task = (InitializationTask) event;
-            if ("default-phone-group".equals(task.getTask())) {
-                m_settingDao.createRootGroup(GROUP_RESOURCE_ID);
+    public void onApplicationEvent(ApplicationEvent event_) {
+        // no init tasks defined yet
+    }
+
+    public PhoneDefaults getPhoneDefaults() {
+        return m_phoneDefaults;
+    }
+
+    public void setPhoneDefaults(PhoneDefaults phoneDefaults) {
+        m_phoneDefaults = phoneDefaults;
+    }
+    
+    public Collection getPhonesByGroupId(Integer groupId) {
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByGroupId", 
+                "groupId", groupId);
+        return users;
+    }
+
+    public void onDelete(Object entity, Serializable id_, Object[] state_, String[] propertyNames_,
+            Type[] types_) {
+
+        Class c = entity.getClass();
+        if (Group.class.equals(c)) {
+            Group group = (Group) entity;
+            if (Phone.PHONE_GROUP_RESOURCE.equals(group.getResource())) {
+                Collection phones = getPhonesByGroupId(group.getId());
+                Iterator iphones = phones.iterator();
+                while (iphones.hasNext()) {
+                    Phone phone = (Phone) iphones.next();
+                    Object[] ids = new Object[] { 
+                            group.getId() 
+                    };
+                    DataCollectionUtil.removeByPrimaryKey(phone.getGroups(), ids);
+                    storePhone(phone);
+                }
+            }
+        } else if (User.class.equals(c)) {
+            User user = (User) entity;
+            Collection phones = getPhonesByUserId(user.getId());
+            Iterator iphones = phones.iterator();
+            while (iphones.hasNext()) {
+                Phone phone = (Phone) iphones.next();
+                Collection lines = phone.getLines();
+                Iterator ilines = lines.iterator();
+                List ids = new ArrayList();
+                while (ilines.hasNext()) {
+                    Line line = (Line) ilines.next();
+                    User lineUser = line.getUser();
+                    if (lineUser.getId().equals(user.getId())) {
+                        ids.add(line.getId());
+                    }
+                }
+                DataCollectionUtil.removeByPrimaryKey(lines, ids.toArray());                        
+                storePhone(phone);
             }            
         }
+    }
+
+    public boolean onSave(Object entity_, Serializable id_, Object[] state_, String[] propertyNames_,
+            Type[] types_) {
+
+        return false;
+    }
+    
+    public Collection getPhonesByUserId(Integer userId) {
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", 
+                "userId", userId);
+        return users;        
     }
 }

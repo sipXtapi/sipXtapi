@@ -10,14 +10,19 @@
     <!--
       - P A R A M E T E R S
       -->
-	<parameter name="phoneData" 
-        type="org.sipfoundry.sipxconfig.phone.PhoneData" 
-        required="yes" 
-        direction="auto"/>
+	<parameter name="phone" 
+        type="org.sipfoundry.sipxconfig.phone.Phone" 
+        required="yes"
+        direction="in"/>
 	<parameter name="validator" 
         type="org.apache.tapestry.valid.IValidationDelegate" 
         required="yes" 
-        direction="auto"/>        
+        direction="in"/>        
+	<parameter name="phoneModel" 
+        type="org.sipfoundry.sipxconfig.phone.PhoneModel" 
+        required="no" 
+        direction="auto"
+        default-value="phone.model"/>            
     <!--
       - P R O P E R T I E S
       -->
@@ -34,6 +39,10 @@
     	<set-property name="required" expression="false"/>
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
+    <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    	<set-property name="collection" expression="phoneContext.availablePhoneModels"/>
+    	<set-property name="labelExpression" expression="'label'"/>        
+    </bean>
     <!--
       - C O M P O N E N T S
       -->
@@ -44,7 +53,7 @@
         <binding name="field" expression="components.phoneName"/>
     </component>
     <component id="phoneName" type="ValidField">
-	    <binding name="value" expression="phoneData.name"/>
+	    <binding name="value" expression="phone.name"/>
     	<binding name="validator" expression="beans.nameValidator"/>
 	    <static-binding name="displayName" value="Alternate label"/>
     </component>
@@ -52,7 +61,7 @@
         <binding name="field" expression="components.serialNumber"/>
     </component>
     <component id="serialNumber" type="ValidField">
-	    <binding name="value" expression="phoneData.serialNumber"/>
+	    <binding name="value" expression="phone.serialNumber"/>
         <binding name="validator" expression="page.global.validSerialNumber"/>
 	    <static-binding name="displayName" value="Serial number"/>
     </component>
@@ -61,12 +70,13 @@
         <static-binding name="displayName" value="Phone model"/>
     </component>
     <component id="phoneModel" type="PropertySelection">
-        <binding name="model" expression="phoneSelectionModel"/>
-        <binding name="value" expression="phoneData.factoryId"/>
+        <binding name="model" expression="beans.phoneSelectionModel"/>
+        <binding name="value" expression="phoneModel"/>
+        <binding name="disabled" expression="!phone.isNew()"/>
     </component>
     <component id="groupSelect" type="GroupSelect">
-        <binding name="groups" expression="phoneContext.groupsWithoutRoot"/>
-        <binding name="values" expression="phoneData.groups"/>
+        <binding name="groups" expression="phoneContext.groups"/>
+        <binding name="values" expression="phone.groups"/>
     </component>
     
 </component-specification>

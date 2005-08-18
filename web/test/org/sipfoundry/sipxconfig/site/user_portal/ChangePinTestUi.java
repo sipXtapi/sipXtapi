@@ -21,15 +21,15 @@ import org.sipfoundry.sipxconfig.site.TestPage;
  * ChangePinTestUi
  */
 public class ChangePinTestUi extends WebTestCase {
-    private static final String CURRENT_PIN = TestPage.PIN;
+    private static final String CURRENT_PIN = TestPage.TEST_USER_PIN;
     private static final String NEW_PIN = "5678";
     private static final String WRONG_PIN = "0000";
     private static final String NON_NUMERIC_PIN = "nerf";
     
-    private static final String MSG_MUST_ENTER_VALUE = "You must enter a value";
     private static final String MSG_WRONG_PIN = "The current PIN that you entered is incorrect";
     private static final String MSG_NON_NUMERIC_PIN = "must be a numeric value";
     private static final String MSG_PIN_MISMATCH = "The new PIN and confirmed new PIN don't match";
+    private static final String MSG_EMPTY_NEW_PIN="The new PIN cannot be empty";
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ChangePinTestUi.class);
@@ -62,16 +62,20 @@ public class ChangePinTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
     }
     
+    // When entering an empty current PIN, we expect to see an error that it is the wrong PIN,
+    // because in fact the PIN is not empty.  But we should accept an empty current PIN as valid
+    // data, even though we won't allow someone to set their PIN to empty in the UI, just
+    // in case the PIN was cleared at the DB level and the user wants to restore a legal PIN value. 
     public void testEmptyCurrentPin() throws Exception {
         changePin("", NEW_PIN);
+        assertTextPresent(MSG_WRONG_PIN);
         SiteTestHelper.assertNoException(tester);
-        assertTextPresent(MSG_MUST_ENTER_VALUE);
     }
     
     public void testEmptyNewPin() throws Exception {
         changePin(CURRENT_PIN, "");
         SiteTestHelper.assertNoException(tester);
-        assertTextPresent(MSG_MUST_ENTER_VALUE);
+        assertTextPresent(MSG_EMPTY_NEW_PIN);
     }
     
     public void testWrongPin() throws Exception {

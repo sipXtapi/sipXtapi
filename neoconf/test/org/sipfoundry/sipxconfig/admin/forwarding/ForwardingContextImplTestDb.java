@@ -15,8 +15,6 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -28,7 +26,7 @@ import org.springframework.dao.DataAccessException;
 /**
  * ForwardingContextImplTestDb
  */
-public class ForwardingContextImplTestDb extends TestCase {
+public class ForwardingContextImplTestDb extends TestHelper.TestCaseDb {
     private ForwardingContext m_context;
     private CoreContext m_coreContext;
     private Integer testUserId = new Integer(1000);
@@ -58,6 +56,16 @@ public class ForwardingContextImplTestDb extends TestCase {
             assertEquals(400 + ring.getId().intValue() - 1000, ring.getExpiration());
             assertEquals(new Integer(id--), ring.getId());
         }
+    }
+
+    public void testOnDeleteUser() throws Exception {
+        User user = m_coreContext.loadUser(testUserId);
+        ITable rings = TestHelper.getConnection().createDataSet().getTable("ring");
+        assertEquals(5, rings.getRowCount());
+        m_coreContext.deleteUser(user);
+        rings = TestHelper.getConnection().createDataSet().getTable("ring");
+        // 3 rings should disappear from that
+        assertEquals(2, rings.getRowCount());
     }
 
     public void testSave() throws Exception {
@@ -109,8 +117,8 @@ public class ForwardingContextImplTestDb extends TestCase {
         m_context.saveCallSequence(callSequence);
         m_context.flush();
 
-        ITable expected = TestHelper.loadDataSetFlat("admin/forwarding/RingMoved.xml")
-                .getTable("ring");
+        ITable expected = TestHelper.loadDataSetFlat("admin/forwarding/RingMoved.xml").getTable(
+                "ring");
         ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
         Assertion.assertEquals(expected, actual);
     }
@@ -141,7 +149,7 @@ public class ForwardingContextImplTestDb extends TestCase {
         List forwardingAliases = m_context.getForwardingAliases();
         assertEquals(seedRings, forwardingAliases.size());
         List authExceptions = m_context.getForwardingAuthExceptions();
-        
+
         // FIXME, should be 3
         assertEquals(0, authExceptions.size());
 

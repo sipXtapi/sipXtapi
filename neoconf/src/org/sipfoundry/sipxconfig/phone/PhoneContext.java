@@ -13,10 +13,8 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
-import org.sipfoundry.sipxconfig.setting.Group;
 
 
 /**
@@ -38,9 +36,9 @@ public interface PhoneContext extends DataObjectSource {
      * 
      * @param phones collection of phone objects
      */
-    public void restart(Collection phones);    
-
-    public Map getPhoneFactoryIds();
+    public void restart(Collection phones);
+    
+    public List getAvailablePhoneModels();
 
     /**
      * Commits the transaction and performs a batch of SQL commands
@@ -60,11 +58,9 @@ public interface PhoneContext extends DataObjectSource {
     
     public void deleteLine(Line line);
 
-    public Line newLine(String factoryId);
-
     public Line loadLine(Integer id);
     
-    public Phone newPhone(String factoryId);
+    public Phone newPhone(PhoneModel model);
 
     public Phone loadPhone(Integer id);
     
@@ -74,11 +70,7 @@ public interface PhoneContext extends DataObjectSource {
 
     public void deletePhone(Phone phone);
     
-    public Group loadRootGroup();
-    
     public List getGroups();
-    
-    public List getGroupsWithoutRoot();
     
     public JobRecord loadJob(Integer id);
     
@@ -88,4 +80,10 @@ public interface PhoneContext extends DataObjectSource {
     public void clear();
 
     public String getSystemDirectory();
+    
+    public PhoneDefaults getPhoneDefaults();
+
+    public Collection getPhonesByGroupId(Integer groupId);
+
+    public Collection getPhonesByUserId(Integer userId);
 }

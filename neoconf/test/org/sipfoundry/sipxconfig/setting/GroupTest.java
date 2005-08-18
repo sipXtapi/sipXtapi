@@ -30,8 +30,8 @@ public class GroupTest extends TestCase {
     public void testDecorateWithFilterRunner() {
         seedSimpleSettingGroup();
         Group f = new Group();
-        Setting rootDecorated = f.decorate(m_root);
-        Collection settings = FilterRunner.filter(SettingFilter.ALL, rootDecorated);
+        f.decorate(m_root);
+        Collection settings = SettingUtil.filter(SettingFilter.ALL, m_root);
         assertEquals(4, settings.size());
         Iterator i = settings.iterator();
         i.next(); // fruit

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
@@ -32,6 +33,14 @@ public abstract class UserForm extends BaseComponent {
         super.renderComponent(writer, cycle);
         
         if (cycle.isRewinding()) {
+            // Don't allow the PIN to be empty.  If it is empty, bail out without
+            // reporting an error.  In some contexts an empty PIN is an error, in
+            // other contexts we just ignore it.  So leave it up to the guy using
+            // us to decide whether an empty PIN is an error or not.
+            if (StringUtils.isEmpty(getPin())) {
+                return;
+            }
+            
             CoreContext core = getCoreContext();
             getUser().setPin(getPin(), core.getAuthorizationRealm());
         }

@@ -9,9 +9,9 @@
 	  - P R O P E R T I E S
 	  -->    
     <!-- Persistent -->
-    <property-specification name="phoneFactoryId" 
+    <property-specification name="phoneModel" 
         persistent="yes"
-        type="java.lang.String"/>
+        type="org.sipfoundry.sipxconfig.phone.PhoneModel"/>
     <property-specification name="editFormSettingName" 
         persistent="yes"
         type="java.lang.String"/>

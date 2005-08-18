@@ -11,14 +11,11 @@ public class SnomTest extends TestCase {
 
 	SnomPhone phone;
 
-	SnomLine line;
-
 	PhoneTestDriver tester;
 
 	protected void setUp() {
-		phone = new SnomPhone();
-		line = new SnomLine();
-		tester = new PhoneTestDriver(phone, SnomModel.MODEL_360.getModelId(), line, SnomLine.FACTORY_ID);
+		phone = new SnomPhone(SnomModel.MODEL_360);
+		tester = new PhoneTestDriver(phone, "snom/phone.xml");
 	}
 
 	public void testGenerateProfiles() throws Exception {

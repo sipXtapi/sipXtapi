@@ -23,9 +23,7 @@ import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
@@ -34,6 +32,8 @@ import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
  * Support for Cisco ATA186/188 and Cisco 7905/7912
  */
 public class CiscoAtaPhone extends CiscoPhone {
+
+    public static final String BEAN_ID = "ciscoAta"; 
 
     private static final String ZERO = "0";
     
@@ -48,17 +48,26 @@ public class CiscoAtaPhone extends CiscoPhone {
     private String m_binDir;
     
     public CiscoAtaPhone() {
-        setLineFactoryId(CiscoAtaLine.FACTORY_ID);
-        setPhoneTemplate("cisco/cisco-ata.vm");
-        setModelFile("cisco/ata-phone.xml");
+        super(BEAN_ID);
+        init();
+    }
+    
+    public CiscoAtaPhone(CiscoModel model) {
+        super(model);
+        init();
+    }
+    
+    private void init() {
+        setPhoneTemplate("cisco/cisco-ata.vm");        
     }
 
     public String getCfgPrefix() {
-        return getModel().getCfgPrefix();
+        CiscoModel model = (CiscoModel) getModel();
+        return model.getCfgPrefix();
     }
 
     public String getPhoneFilename() {
-        String phoneFilename = getPhoneData().getSerialNumber();
+        String phoneFilename = getSerialNumber();
         return getTftpRoot() + '/' + getCfgPrefix() + phoneFilename.toLowerCase();
     }
     
@@ -139,7 +148,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             StringBuffer msg = new StringBuffer();
             
             msg.append("Cannot complete configuration of Cisco device ");
-            msg.append(getPhoneData().getSerialNumber());
+            msg.append(getSerialNumber());
             msg.append(".  Required file cannot be found ");
             msg.append(f.getAbsolutePath());
             msg.append(". This file is supplied by Cisco support.");
@@ -163,6 +172,25 @@ public class CiscoAtaPhone extends CiscoPhone {
         return o;
     }
 
+    public Object getLineAdapter(Line line, Class interfac) {
+        Object impl;
+        if (interfac == LineSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(line.getSettings());
+            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/LoginID");
+            adapter.addMapping(LineSettings.USER_ID, "port/UID");            
+            adapter.addMapping(LineSettings.PASSWORD, "port/PWD");
+            adapter.addMapping(LineSettings.DISPLAY_NAME, "port/DisplayName");
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "sip/Proxy");
+            // sip/SIPPort for outbound proxy?
+            impl = adapter.getImplementation();
+        } else {
+            impl = super.getAdapter(interfac);
+        }
+        
+        return impl;
+    }
+
     public String getSoftwareUpgradeConfig() {
         Setting swupgrade = getSettings().getSetting("upgrade");
 
@@ -172,7 +200,8 @@ public class CiscoAtaPhone extends CiscoPhone {
 
         String swimage = swupgrade.getSetting("upgradecode").getValue();
         String imageid = swupgrade.getSetting(IMAGE_ID).getValue();
-        String upghex = getModel().getUpgCode();
+        CiscoModel model = (CiscoModel) getModel();
+        String upghex = model.getUpgCode();
 
         if (StringUtils.isBlank(swimage) || swimage.equals(NONE)
                 || imageid.equals(ZERO)) {
@@ -217,11 +246,9 @@ public class CiscoAtaPhone extends CiscoPhone {
 
         // copy in blank lines of all unused lines
         for (; i < getMaxLineCount(); i++) {
-            CiscoAtaLine line = new CiscoAtaLine();
+            Line line = createLine();
             line.setPhone(this);
-            line.setLineData(new LineData());
-            line.getLineData().setPosition(i);
-            line.setDefaults(new PhoneDefaults());
+            line.setPosition(i);
             LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
             settings.setDisplayName(ZERO);
             settings.setUserId(ZERO);

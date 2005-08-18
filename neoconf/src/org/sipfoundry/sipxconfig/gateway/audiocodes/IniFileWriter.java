@@ -42,7 +42,7 @@ public class IniFileWriter implements SettingVisitor {
 
     public void visitSettingGroup(Setting group) {
         // skip root - empty name
-        if (group.getName() == null) {
+        if (StringUtils.isEmpty(group.getName())) {
             return;
         }
         Object[] params = new String[] {

@@ -2,37 +2,21 @@
 <fieldset jwcid="optFieldset">
 <table jwcid="optTable">
     <tbody jwcid="optTbody">
-    <tr jwcid="ifUseEnabled">
-        <td>
-            <label for="item:enabled"><span jwcid="enabledLabel">Enabled</span>:</label>
-        </td>
-        <td>
-            <input jwcid="enabled" type="checkbox" id="item:enabled" checked="checked"/>
-        </td>
+    <span jwcid="ifUseEnabled">
+    <tr jwcid="enabledLabel" for="item:enabled">
+    	<input jwcid="enabled" type="checkbox" id="item:enabled" checked="checked"/>
     </tr>
-    <tr>
-        <td>
-            <label for="item:name"><span jwcid="nameLabel">Name</span>:</label>
-        </td>
-        <td>
-            <input jwcid="name" id="item:name" maxlength="40" type="text" value="custom1"/>
-        </td>
+    </span>
+    <tr jwcid="nameLabel" for="item:name">
+        <input jwcid="name" id="item:name" maxlength="40" type="text" value="custom1"/>
     </tr>
-    <tr jwcid="ifUseExtension">
-        <td>
-            <label for="item:extension"><span jwcid="extensionLabel">Extension</span>:</label>
-        </td>
-        <td>
-            <input jwcid="extension" id="item:extension" type="text" value="330" maxlength="15"/>
-        </td>
+    <span jwcid="ifUseExtension">
+    <tr jwcid="extensionLabel" for="item:extension">
+    	<input jwcid="extension" id="item:extension" type="text" value="330" maxlength="15"/>
     </tr>
-    <tr>
-        <td>
-            <label for="item:description"><span jwcid="descriptionLabel">Description</span>:</label>
-        </td>
-        <td>
-            <textarea jwcid="description" id="item:description" cols="45" rows="5">description</textarea>
-        </td>
+    </span>
+    <tr jwcid="descriptionLabel" for="item:description">
+        <textarea jwcid="description" id="item:description" cols="45" rows="5">description</textarea>
     </tr>
     </tbody>
 </table>

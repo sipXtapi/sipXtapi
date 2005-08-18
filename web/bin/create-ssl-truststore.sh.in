@@ -102,8 +102,9 @@ do
          grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`" || exit 1
 
     JavaHome=`sipx-config --jdk`
-    $JavaHome/bin/keytool -import -noprompt -alias "$caname" \
-        -keystore $TrustStore -storepass "$Password" -file $Certificate || exit 1
+    openssl x509 -in $Certificate | \
+        $JavaHome/bin/keytool -import -noprompt -alias "$caname" \
+        -keystore $TrustStore -storepass "$Password" || exit 1
     chown @sipxpbx.user@ $TrustStore
     chmod 600 $TrustStore
 done

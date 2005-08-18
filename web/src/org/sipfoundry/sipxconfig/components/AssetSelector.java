@@ -18,7 +18,10 @@ import java.io.IOException;
 import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IMarkupWriter;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -40,6 +43,8 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
 
     public abstract String getAsset();
 
+    public abstract String getErrorMsg();
+
     public void pageBeginRender(PageEvent event_) {
         File assetDir = new File(getAssetDir());
         String[] assets = assetDir.list();
@@ -56,7 +61,19 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
         return isSpecified;
     }
 
-    public void checkFileUpload() {
+    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        super.renderComponent(writer, cycle);
+        if (!cycle.isRewinding()) {
+            return;
+        }
+        AbstractPage page = (AbstractPage) getPage();
+        IValidationDelegate validator = TapestryUtils.getValidator(page);
+        validateNotEmpty(validator, getErrorMsg());
+        TapestryUtils.isValid(page);
+        checkFileUpload();
+    }
+
+    private void checkFileUpload() {
         IUploadFile upload = getUploadAsset();
         if (!isUploadFileSpecified(upload)) {
             return;
@@ -84,7 +101,7 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
      * @param validator
      * @param errorMsg
      */
-    public void validateNotEmpty(IValidationDelegate validator, String errorMsg) {
+    private void validateNotEmpty(IValidationDelegate validator, String errorMsg) {
         if (StringUtils.isBlank(getAsset()) && !isUploadFileSpecified(getUploadAsset())) {
             validator.record(errorMsg, ValidationConstraint.REQUIRED);
         }

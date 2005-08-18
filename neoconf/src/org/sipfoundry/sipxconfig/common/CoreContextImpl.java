@@ -17,54 +17,52 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Example;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.event.SaveOrUpdateEvent;
-import org.hibernate.event.SaveOrUpdateEventListener;
+import org.hibernate.type.Type;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class CoreContextImpl extends HibernateDaoSupport 
-        implements CoreContext, ApplicationListener {
+public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
+        ApplicationListener, DaoEventListener {
 
     static final String USER_GROUP_RESOURCE_ID = "user";
 
-    private static final char LIKE_WILDCARD = '%';
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String EXTENSION_PROP_NAME = "extension";
-            
+
     private SipxProcessContext m_processContext;
-    
+
     private String m_authorizationRealm;
-    
+
     private String m_domainName;
-    
+
     private SettingDao m_settingDao;
-    
+
     private Setting m_userSettingModel;
-    
+
     public CoreContextImpl() {
-        super();        
+        super();
     }
-    
+
     public String getAuthorizationRealm() {
         return m_authorizationRealm;
     }
-    
+
     public void setAuthorizationRealm(String authorizationRealm) {
         m_authorizationRealm = authorizationRealm;
     }
-    
+
     public String getDomainName() {
         return m_domainName;
     }
@@ -77,29 +75,32 @@ public class CoreContextImpl extends HibernateDaoSupport
         getHibernateTemplate().saveOrUpdate(user);
         m_processContext.generateAll();
     }
-    
+
     public void deleteUser(User user) {
         getHibernateTemplate().delete(user);
         m_processContext.generateAll();
     }
-    
-    public void deleteUsers(Collection users) {
-        if (CollectionUtils.safeSize(users) == 0) {
-            return;     // no users to delete => nothing to do
+
+    public void deleteUsers(Collection userIds) {
+        if (userIds.isEmpty()) {
+            // no users to delete => nothing to do
+            return;
         }
-        for (Iterator iter = users.iterator(); iter.hasNext();) {
-            User user = (User) iter.next();
-            getHibernateTemplate().delete(user);            
+        List users = new ArrayList(userIds.size());
+        for (Iterator i = userIds.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            users.add(loadUser(id));
         }
+        getHibernateTemplate().deleteAll(users);
         m_processContext.generateAll();
     }
 
     public User loadUser(Integer id) {
         User user = (User) getHibernateTemplate().load(User.class, id);
-        
+
         return user;
     }
-    
+
     public User loadUserByUserName(String userName) {
         return loadUserByUniqueProperty(USERNAME_PROP_NAME, userName);
     }
@@ -107,138 +108,135 @@ public class CoreContextImpl extends HibernateDaoSupport
     public User loadUserByExtension(String extension) {
         return loadUserByUniqueProperty(EXTENSION_PROP_NAME, extension);
     }
-    
+
     private User loadUserByUniqueProperty(String propName, String propValue) {
-        // TODO: move query to mapping file
-        String query = "from User u where u." + propName + " = '" + propValue + "'";
-        List users = getHibernateTemplate().find(query);
-        User user = (User) requireOneOrZero(users, query);
-        
-        return user;        
+        final Criterion expression = Restrictions.eq(propName, propValue);
+
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                Criteria criteria = session.createCriteria(User.class).add(expression);
+                return criteria.list();
+            }
+        };
+        List users = getHibernateTemplate().executeFind(callback);
+        User user = (User) requireOneOrZero(users, expression.toString());
+
+        return user;
     }
-    
+
     public List loadUserByTemplateUser(User template) {
-        try {
-            // See a query building facade here, lot's of redundancy and areas for error. 
-            // wait for more cases before refactoring...
-            
-            Criteria criteria = getSession().createCriteria(User.class);            
-            
-            ArrayList ors = new ArrayList();
-            if (StringUtils.isNotBlank(template.getFirstName())) {
-                ors.add(Restrictions.ilike("firstName", template.getFirstName() + LIKE_WILDCARD));
+        final Example example = Example.create(template);
+        example.enableLike(MatchMode.START);
+        example.excludeProperty("id");
+
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                Criteria criteria = session.createCriteria(User.class).add(example);
+                return criteria.list();
             }
-            if (StringUtils.isNotBlank(template.getLastName())) {
-                ors.add(Restrictions.ilike("lastName", template.getLastName() + LIKE_WILDCARD));
-            }
-            if (StringUtils.isNotBlank(template.getExtension())) {
-                ors.add(Restrictions.eq(EXTENSION_PROP_NAME, template.getExtension()));
-            }
-            if (StringUtils.isNotBlank(template.getUserName())) {
-                ors.add(Restrictions.ilike(USERNAME_PROP_NAME, template.getUserName() + LIKE_WILDCARD));
-            }
-            
-            if (ors.size() > 0) {
-                Criterion templateExpression = (Criterion) ors.get(0);
-                for (int i = 1; i < ors.size(); i++) {
-                    Criterion next = (Criterion) ors.get(i);
-                    templateExpression = Restrictions.or(templateExpression, next);
-                }
-                criteria.add(templateExpression);
-            }
-                        
-            return criteria.list();
-        } catch (HibernateException e) {
-            throw getHibernateTemplate().convertHibernateAccessException(e);
-        }
+        };
+        return getHibernateTemplate().executeFind(callback);
     }
-    
+
     public List loadUsers() {
         return getHibernateTemplate().loadAll(User.class);
-    }    
+    }
 
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
     }
 
     /**
-     * Catch database corruption errors when more than one record exists.
-     * In general fields should have unique indexes setup to protect against
-     * this.  This method is created as a safe check only, there has been not
-     * been any experiences of courupt data to date.
+     * Catch database corruption errors when more than one record exists. In general fields should
+     * have unique indexes setup to protect against this. This method is created as a safe check
+     * only, there has been not been any experiences of courupt data to date.
      * 
-     * @param c 
+     * @param c
      * @param query
      * 
      * @return first item from the collection
      * @throws IllegalStateException if more than one item in collection. In general
      */
     public static Object requireOneOrZero(Collection c, String query) {
-        if (c.size() > 2) {            
+        if (c.size() > 2) {
             // DatabaseCorruptionExection ?
-            // TODO: move error string construction to new UnexpectedQueryResult(?) class, enable localization
-            StringBuffer error = new StringBuffer().append("read ").append(c.size())
-                    .append(" and expected zero or one. query=").append(query);
+            // TODO: move error string construction to new UnexpectedQueryResult(?) class, enable
+            // localization
+            StringBuffer error = new StringBuffer().append("read ").append(c.size()).append(
+                    " and expected zero or one. query=").append(query);
             throw new IllegalStateException(error.toString());
-        }        
+        }
         Iterator i = c.iterator();
-        
+
         return (i.hasNext() ? c.iterator().next() : null);
     }
-    
+
     public void clear() {
         Collection c = getHibernateTemplate().find("from User");
-        getHibernateTemplate().deleteAll(c);        
+        getHibernateTemplate().deleteAll(c);
     }
-    
-    public boolean checkUserPermission(User user_, Permission p_) {
-        // TODO: implementation needed
-        return false;
-    }
-    
+
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
     }
-    
+
     public SipxProcessContext getProcessContext() {
         return m_processContext;
     }
-    
 
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ApplicationInitializedEvent) {
-            Configuration cfg = new Configuration();
-            cfg.getSessionEventListenerConfig()
-                    .setSaveOrUpdateEventListener(new PermissionReplicationTrigger(m_processContext));            
-        } else if (event instanceof InitializationTask) {
+        if (event instanceof InitializationTask) {
             InitializationTask task = (InitializationTask) event;
-            if (task.getTask().equals("default-user-group")) {
-                m_settingDao.createRootGroup(USER_GROUP_RESOURCE_ID);
+            if (task.getTask().equals("admin-group-and-user")) {
+                createAdminGroupAndInitialUserTask();
             }
         }
-    }       
-        
-    public void setSettingDao(SettingDao settingDao) {
-        m_settingDao = settingDao;
-    }    
-    
-    public Group loadRootUserGroup() {
-        return m_settingDao.loadRootGroup(USER_GROUP_RESOURCE_ID);
-    }
-    
-    public List getUserGroups() {
-        return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
 
-    public List getUserGroupsWithoutRoot() {
-        return m_settingDao.getGroupsWithoutRoot(USER_GROUP_RESOURCE_ID);
+    /**
+     * Temporary hack: create a superadmin user with an empty password. We will remove this hack
+     * before the product ships, and provide a bootstrap page instead so that if the product comes
+     * up and there are no users, then the first user can be created.
+     */
+    public void createAdminGroupAndInitialUserTask() {
+        Group adminGroup = new Group();
+        adminGroup.setName("administrators"); // nothing special about name
+        adminGroup.setResource(User.GROUP_RESOURCE_ID);
+        adminGroup.setDescription("Users with superadmin privledges");
+        Permission.SUPERADMIN.setEnabled(adminGroup, true);
+        m_settingDao.storeGroup(adminGroup);
+
+        // using superadmin name not to disrrupt existing customers
+        // can be anything
+        String superadmin = "superadmin";
+        User admin = loadUserByUserName(superadmin);
+        if (admin == null) {
+            admin = new User();
+            admin.setUserName(superadmin);
+            // Note: previously this hack set the pintoken to 'password', relying on another hack
+            // that allowed the password and pintoken to be the same. That hack is gone so setting
+            // the pintoken to 'password' would no longer work because the password would then be
+            // the inverse hash of 'password' rather than 'password'.
+            admin.setPintoken("");
+        }
+
+        admin.addGroup(adminGroup);
+        saveUser(admin);
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
+    }
+
+    public List getUserGroups() {
+        return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
 
     public Setting getUserSettingsModel() {
         // return copy so original model stays intact
         return m_userSettingModel.copy();
     }
-    
+
     public void setUserSettingModel(Setting userSettingModel) {
         m_userSettingModel = userSettingModel;
     }
@@ -252,27 +250,42 @@ public class CoreContextImpl extends HibernateDaoSupport
         }
         return aliases;
     }
-    
-    /**
-     * Watch for user permissions changes, on change, 
-     */
-    static class PermissionReplicationTrigger implements SaveOrUpdateEventListener {
-        
-        private SipxProcessContext m_sipx;
-        
-        PermissionReplicationTrigger(SipxProcessContext sipx) {
-            m_sipx = sipx;
-        }
-    
-        public Serializable onSaveOrUpdate(SaveOrUpdateEvent event) {
-            if (event.getClass().equals(Group.class)) {
-                Group g = (Group) event.getEntity();
-                if (CoreContextImpl.USER_GROUP_RESOURCE_ID.equals(g.getResource())) {
-                    m_sipx.generate(DataSet.PERMISSION);
-                }            
+
+    public Collection getGroupMembers(Group group) {
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "userGroupMembers", "groupId", group.getId());
+        return users;
+    }
+
+    public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames,
+            Type[] types) {
+        onSaveOrDelete(entity, id, state, propertyNames, types);
+    }
+
+    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
+            Type[] types) {
+        onSaveOrDelete(entity, id, state, propertyNames, types);
+        return false;
+    }
+
+    void onSaveOrDelete(Object entity, Serializable id_, Object[] state_,
+            String[] propertyNames_, Type[] types_) {
+
+        Class c = entity.getClass();
+        if (Group.class.equals(c)) {
+            Group group = (Group) entity;
+            if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
+                Collection users = getGroupMembers(group);
+                Iterator iusers = users.iterator();
+                while (iusers.hasNext()) {
+                    User user = (User) iusers.next();
+                    Object[] ids = new Object[] {
+                        group.getId()
+                    };
+                    DataCollectionUtil.removeByPrimaryKey(user.getGroups(), ids);
+                    saveUser(user);
+                }
             }
-            
-            return null;
         }
     }
 }

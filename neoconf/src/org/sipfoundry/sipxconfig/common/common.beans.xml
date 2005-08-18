@@ -19,24 +19,21 @@
   <!--
   - C O R E  C O N T E X T
   -->
-  <bean id="coreContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="coreContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.common.CoreContext</value>
     </property>
-    <property name="interceptorNames">
-      <list>
-        <value>springHibernateInterceptor</value>
-        <value>coreContextImpl</value>
-      </list>
+    <property name="target">
+      <ref local="coreContextImpl"/>
     </property>
   </bean>
-
+  
   <bean id="userSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel" singleton="false">
     <property name="resource" value="user-settings.xml"/>
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="user" class="org.sipfoundry.sipxconfig.common.User" singleton="false">
+  <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User" singleton="false">
     <property name="settingModel" ref="userSettingModel"/>
   </bean>
   

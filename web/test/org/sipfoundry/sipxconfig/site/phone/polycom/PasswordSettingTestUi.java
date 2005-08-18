@@ -38,7 +38,6 @@ public class PasswordSettingTestUi extends WebTestCase {
     }
     
     public void testEditSipSetttings() {
-        m_helper.seedPhone(1);
         m_helper.seedLine(1);
         clickLink("ManagePhones");        
         clickLinkWithText(SiteTestHelper.TEST_USER);

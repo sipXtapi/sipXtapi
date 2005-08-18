@@ -14,8 +14,11 @@ package org.sipfoundry.sipxconfig.login;
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class LoginContextImplTest extends TestCase {
     private LoginContextImpl m_impl;
@@ -25,6 +28,11 @@ public class LoginContextImplTest extends TestCase {
         m_impl = new LoginContextImpl();
 
         m_user = new User();
+        Group admin = new Group();
+        m_user.addGroup(admin);
+        
+        m_user.setSettingModel(TestHelper.loadSettings("user-settings.xml"));
+        Permission.SUPERADMIN.setEnabled(admin, true);
 
         MockControl control = MockControl.createNiceControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) control.getMock();
@@ -68,6 +76,17 @@ public class LoginContextImplTest extends TestCase {
         assertTrue(m_impl.isAdmin(m_user));
 
         m_user.setUserName("xyz");
-        assertFalse(m_impl.isAdmin(m_user));
+        assertTrue(m_impl.isAdmin(m_user));
+    }
+    
+    public void testNotAdmin() {        
+        User nonAdmin = new User();
+        nonAdmin.setUserName("superadmin"); //not really superadmin
+        Group nonAdminGroup = new Group();
+        nonAdmin.addGroup(nonAdminGroup);
+        
+        nonAdmin.setSettingModel(TestHelper.loadSettings("user-settings.xml"));
+        
+        assertFalse(m_impl.isAdmin(nonAdmin));
     }
 }

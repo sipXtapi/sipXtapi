@@ -21,6 +21,7 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.easymock.MockControl;
+import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 public class JobRecordTestDb extends TestCase {
@@ -70,12 +71,9 @@ public class JobRecordTestDb extends TestCase {
     public void testRunJob() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        PhoneData phoneData = new PhoneData();
-        phoneData.setSerialNumber("000000000000");
-        
-        MockControl phoneControl = MockControl.createStrictControl(Phone.class);
+        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
         Phone phone = (Phone) phoneControl.getMock();
-        phoneControl.expectAndReturn(phone.getPhoneData(), phoneData);
+        phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
         phone.restart();
         phoneControl.setVoidCallable(1);
         phoneControl.replay();

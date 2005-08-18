@@ -24,16 +24,13 @@
     </property>
   </bean>
     
-  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
     </property>
-    <property name="interceptorNames">
-      <list>
-        <value>springHibernateInterceptor</value>
-        <value>gatewayContextImpl</value>
-      </list>
-    </property>    
+    <property name="target">
+      <ref local="gatewayContextImpl"/>
+    </property>
   </bean>
   
   <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">

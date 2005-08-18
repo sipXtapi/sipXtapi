@@ -85,6 +85,7 @@
     <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="ErrorMsg" specification-path="common/ErrorMsg.jwc"/>
+    <component-type type="FieldPanel" specification-path="common/FieldPanel.jwc"/>
     <component-type type="FormActions" specification-path="common/FormActions.jwc"/>
     <component-type type="GatewayForm" specification-path="gateway/GatewayForm.jwc"/>
     <component-type type="GatewaysPanel" specification-path="gateway/GatewaysPanel.jwc"/>

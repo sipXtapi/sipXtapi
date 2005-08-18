@@ -13,6 +13,12 @@
     	required="yes"
     	direction="auto"/>    
         
+    <parameter name="pinValidator"
+        type="org.apache.tapestry.valid.IValidator"
+    	required="no"
+    	direction="auto"
+        default-value="beans.defaultPinValidator"/>
+        
     <!--
       - P R O P E R T I E S
       -->
@@ -42,8 +48,8 @@
     <bean name="extensionValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
     	<set-property name="required" expression="false"/>
 	</bean>
-    <bean name="pinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
+    <bean name="defaultPinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
+    	<set-property name="required" expression="false"/>
 	</bean>
      
     <!--
@@ -85,7 +91,7 @@
         <message-binding name="passwordDisplayName" key="label.pin"/>
         <message-binding name="confirmPasswordDisplayName" key="label.pin2"/>
         <message-binding name="passwordMismatchMessage" key="message.pinMismatch"/>
-        <binding name="passwordValidator" expression="beans.pinValidator"/>
+        <binding name="passwordValidator" expression="pinValidator"/>
     </component>
     <component id="sipPasswordLabel" type="FieldLabel">
         <binding name="field" expression="components.sipPassword"/>
@@ -95,7 +101,7 @@
 	    <binding name="value" expression="user.sipPassword"/>
     </component>
     <component id="groupSelect" type="GroupSelect">
-        <binding name="groups" expression="coreContext.userGroupsWithoutRoot"/>
+        <binding name="groups" expression="coreContext.userGroups"/>
         <binding name="values" expression="user.groups"/>
     </component>
     

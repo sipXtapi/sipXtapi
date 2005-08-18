@@ -28,19 +28,12 @@ public class CoreConfigurationTest extends XMLTestCase {
     
     PolycomPhone phone;
     
-    PolycomLine line;
-
     PhoneTestDriver tester;
     
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
-        phone = new PolycomPhone();
-        line = new PolycomLine();
-        tester = new PhoneTestDriver(phone, PolycomModel.MODEL_600.getName(), line, 
-                PolycomLine.FACTORY_ID);
-        phone.setDefaults(tester.defaults);
-        phone.setTftpRoot(TestHelper.getTestDirectory());
-        line.setDefaults(tester.defaults);
+        phone = new PolycomPhone(PolycomModel.MODEL_600);
+        tester = new PhoneTestDriver(phone, "polycom/phone.xml");        
     }
 
     public void testGenerateProfile() throws Exception {

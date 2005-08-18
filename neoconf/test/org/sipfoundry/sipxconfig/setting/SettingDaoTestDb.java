@@ -32,8 +32,8 @@ public class SettingDaoTestDb extends TestCase {
         root.addSetting(new SettingImpl("setting"));
         
         ValueStorage vs = new ValueStorage();
-        SettingSet copy = (SettingSet) vs.decorate(root);
-        copy.getSetting("setting").setValue("some value");
+        vs.decorate(root);
+        root.getSetting("setting").setValue("some value");
 
         dao.storeValueStorage(vs);
     }

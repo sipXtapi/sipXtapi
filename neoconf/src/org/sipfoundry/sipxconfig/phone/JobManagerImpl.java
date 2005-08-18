@@ -70,7 +70,7 @@ public class JobManagerImpl extends Thread implements JobManager {
         for (int i = 0; i < phones.length && !m_stop; i++) {
             Phone phone = phones[i];
             String progress = null;
-            job.setDetails("Projection for phone " + phone.getPhoneData().getSerialNumber());
+            job.setDetails("Projection for phone " + phone.getSerialNumber());
             String progressSuffix = "" + (i + 1) + " of " + phones.length + " phones";
             try {
                 job.setProgress("Starting " + progressSuffix);

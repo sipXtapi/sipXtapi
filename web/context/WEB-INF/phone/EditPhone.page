@@ -28,12 +28,12 @@
         <static-binding name="heading" value="Identification"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">
-        <binding name="phoneData" expression="phone.phoneData"/>
+        <binding name="phone" expression="phone"/>
         <binding name="validator" expression="beans.validator"/>
     </component>    
     <component id="addLine" type="DirectLink">
         <binding name="listener" expression="listeners.addLine"/>
-        <binding name="parameters" expression="phone.phoneData.id"/>
+        <binding name="parameters" expression="phone.id"/>
     </component>
     <component id="ok" type="Submit">
         <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.ok)"/>

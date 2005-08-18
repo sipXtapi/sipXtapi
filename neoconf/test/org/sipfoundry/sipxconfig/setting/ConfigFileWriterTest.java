@@ -17,13 +17,14 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Properties;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
-
-import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.common.TestUtil;
 
 public class ConfigFileWriterTest extends TestCase {
     private String m_originalContent;
@@ -50,7 +51,7 @@ public class ConfigFileWriterTest extends TestCase {
         Writer buffer = new StringWriter();
         CopyUtils.copy(configStream, buffer);
 
-        m_originalContent = buffer.toString();
+        m_originalContent = TestUtil.cleanEndOfLines(buffer.toString());
 
         IOUtils.closeQuietly(configStream);
     }
@@ -63,12 +64,12 @@ public class ConfigFileWriterTest extends TestCase {
         ConfigFileWriter writer = new ConfigFileWriter(m_destinationFile);
         writer.store(m_properties);
 
-        String newContent = FileUtils.readFileToString(m_destinationFile, "8859_1");
+        String newContent = FileUtils.readFileToString(m_destinationFile, "8859_1");        
 
         // files need to be quite similar - instead of checking it line by line just
         // make sure that the first difference is related to Libya's change
-        String diff = StringUtils.difference(m_originalContent, newContent);
+        String diff = StringUtils.difference(m_originalContent, newContent);        
         assertTrue(diff.startsWith(" 100"));
-        assertTrue(newContent.endsWith("Kenya : 55\n"));
+        assertTrue(newContent.endsWith(TestUtil.cleanEndOfLines("Kenya : 55\n")));
     }
 }

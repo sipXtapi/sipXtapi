@@ -44,8 +44,8 @@ public class SettingTest extends TestCase {
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
-        Setting copy = meta.decorate(m_root);
-        Setting m_appleCopy = copy.getSetting("fruit").getSetting("apple");
+        meta.decorate(m_root);
+        Setting m_appleCopy = m_root.getSetting("fruit").getSetting("apple");
         m_appleCopy.setValue("macintosh");
         assertNull(m_apple.getValue());
         assertEquals("macintosh", m_appleCopy.getValue());
@@ -68,8 +68,8 @@ public class SettingTest extends TestCase {
         assertNull(tag.get(m_apple.getPath()));
         assertEquals(0, tag.size());
 
-        Setting copy = tag.decorate(m_root);
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+        tag.decorate(m_root);
+        Setting appleCopy = m_root.getSetting("fruit").getSetting("apple");
         m_apple.setAdvanced(true);
         assertTrue(appleCopy.isAdvanced());
 
@@ -88,8 +88,8 @@ public class SettingTest extends TestCase {
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
 
-        Setting copy = meta.decorate(m_root);
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+        meta.decorate(m_root);
+        Setting appleCopy = m_root.getSetting("fruit").getSetting("apple");
         m_apple.setAdvanced(true);
         appleCopy.setValue("macintosh");
         assertTrue(appleCopy.isAdvanced());
@@ -103,26 +103,6 @@ public class SettingTest extends TestCase {
         m_apple.setAdvanced(false);
         assertNull(meta.get(m_apple.getPath()));
         assertEquals(0, meta.size());
-    }
-
-    public void testGetSettingViaRelativePath() {
-        seedSimpleSettingGroup();
-        assertSame(m_root, m_fruit.getSetting(".."));
-        assertSame(m_root, m_apple.getSetting("../.."));
-    }
-
-    public void testGetSettingViaAbsoluePath() {
-        seedSimpleSettingGroup();
-        assertSame(m_root, m_fruit.getSetting("/"));
-        assertSame(m_root, m_fruit.getSetting("//"));
-        assertSame(m_fruit, m_apple.getSetting("/fruit"));
-        assertSame(m_apple, m_root.getSetting("/fruit/apple"));
-    }
-
-    public void testGetSettingAbsoluteAndRelativePath() {
-        seedSimpleSettingGroup();
-        assertSame(m_fruit, m_root.getSetting("/fruit/../fruit"));
-        assertSame(m_root, m_apple.getSetting("../../fruit//"));
     }
 
     public void test100GroupsWith100Settings() {
@@ -146,5 +126,6 @@ public class SettingTest extends TestCase {
         assertSame(anotherFruit, m_root.getSetting("fruit"));
         assertSame(banana, anotherFruit.getSetting("banana"));
         assertSame(m_apple, anotherFruit.getSetting("apple"));
-    }
+    }    
+    
 }

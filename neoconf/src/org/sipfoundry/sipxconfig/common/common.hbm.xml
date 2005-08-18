@@ -39,5 +39,9 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
   </class>
+  
+  <query name="userGroupMembers">
+    <![CDATA[from User u where u.groups.id = :groupId]]>
+  </query>
 
 </hibernate-mapping>

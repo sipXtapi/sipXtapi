@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -58,16 +60,28 @@ public abstract class ChangePin extends BasePage {
         // Validate the current PIN.
         // Note that the ConfirmPassword component ensures that the new PIN and
         // confirm new PIN fields match, so we don't have to worry about that here.
+        
         CoreContext coreContext = getCoreContext();
         User user = coreContext.loadUser(userId);
         LoginContext loginContext = getLoginContext();
-        user = loginContext.checkCredentials(user.getUserName(), getCurrentPin());
+        
+        // If the currentPin is null, then make it the empty string
+        String currentPin = (String) ObjectUtils.defaultIfNull(getCurrentPin(), StringUtils.EMPTY);
+        
+        user = loginContext.checkCredentials(user.getUserName(), currentPin);
         if (user == null) {
             IValidationDelegate delegate = TapestryUtils.getValidator(this);
             delegate.record(getMessage("message.badCurrentPin"), ValidationConstraint.CONSISTENCY);
             return;
         }
 
+        // The new PIN is not allowed to be empty
+        if (StringUtils.isEmpty(getNewPin())) {
+            IValidationDelegate delegate = TapestryUtils.getValidator(this);
+            delegate.record(getMessage("message.emptyNewPin"), ValidationConstraint.REQUIRED);
+            return;            
+        }
+        
         // Change the PIN
         user.setPin(getNewPin(), coreContext.getAuthorizationRealm());
         coreContext.saveUser(user);

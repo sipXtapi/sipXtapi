@@ -63,7 +63,7 @@ public abstract class LineNavigation extends BaseComponent {
      */
     public Object[] getEditSettingListenerParameters() {
         return new Object[] { 
-            getLine().getLineData().getId(),
+            getLine().getId(),
             getCurrentSetting().getName() 
         };
     }
