@@ -41,16 +41,21 @@
 				/>
 			<alertInfo 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('alertInfo'))
-#foreach ($setting in $cfg.getRecursiveSettings($group))
-    voIpProt.SIP.alertInfo.${setting.Parent.ProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#foreach ($subgroup in $group.Values)
+#set ($parentProfileName = $subgroup.ProfileName)
+#foreach ($setting in $subgroup.Values)
+    voIpProt.SIP.alertInfo.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#end
 #end
             />
 			<requestValidation 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('requestValidation'))
-#foreach ($setting in $cfg.getRecursiveSettings($group))
-    voIpProt.SIP.requestValidation.${setting.Parent.ProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#foreach ($subgroup in $group.Values)
+#set ($parentProfileName = $subgroup.ProfileName)
+#foreach ($setting in $subgroup.Values)
+    voIpProt.SIP.requestValidation.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
 #end			
-				>
+#end				>
 				<digest 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('digest'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))

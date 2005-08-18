@@ -1531,8 +1531,11 @@
 				/>
 			<profiles 
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('audioProfile'))
-#foreach ($setting in $cfg.getRecursiveSettings($group))
-        voice.audioProfile.${setting.Parent.ProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#foreach ($subgroup in $group.Values)
+#set ($parentProfileName = $subgroup.ProfileName)
+#foreach ($setting in $subgroup.Values)
+        voice.audioProfile.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#end
 #end
             />
 		</codecs>

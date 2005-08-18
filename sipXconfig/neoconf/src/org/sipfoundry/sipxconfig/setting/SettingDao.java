@@ -28,14 +28,10 @@ public interface SettingDao extends DataObjectSource {
     
     public void deleteGroup(Group group);
     
+    public Group getGroup(Integer id);
+    
     public List getGroups(String resource);
     
-    public List getGroupsWithoutRoot(String source);
-
-    public void createRootGroup(String resource);
-
-    public Group loadRootGroup(String resource);
-
     public Group loadGroup(Integer tagId);
 
     public void storeValueStorage(ValueStorage storage);

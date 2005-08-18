@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -203,6 +205,16 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
         }
     }
 
+    public UserDeleteListener createUserDeleteListener() {
+        return new OnUserDelete();
+    }
+
+    private class OnUserDelete extends UserDeleteListener {
+        protected void onUserDelete(User user) {
+            removeUser(user.getId());
+        }
+    }
+    
     // trivial setters
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;

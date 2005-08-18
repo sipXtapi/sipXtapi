@@ -32,10 +32,10 @@ public class ManagePhonesTestUi extends WebTestCase {
     }
 
     public void testGenerateProfiles() {
-        m_helper.seedPhone(11);
+        m_helper.seedPhone(1);
 
-        clickLink("ManagePhones");      
-        selectRows(0, 11);
+        clickLink("ManagePhones");
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         checkCheckbox("selectedRow");
         clickButton("phone:sendProfiles");
         SiteTestHelper.assertNoException(tester);
@@ -43,30 +43,24 @@ public class ManagePhonesTestUi extends WebTestCase {
     }    
 
     public void testRestart() {
-        m_helper.seedPhone(11);
+        m_helper.seedPhone(1);
 
         clickLink("ManagePhones");   
-        selectRows(0, 11);
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         clickButton("phone:restart");
         SiteTestHelper.assertNoException(tester);        
         // test if SIP messages were sent
     }    
     
     public void testDelete() {
-        m_helper.seedPhone(11);
+        m_helper.seedPhone(1);
 
         clickLink("ManagePhones");          
-        selectRows(0, 11);
+        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
         clickButton("phone:delete");
         // 2 = 1 thead (columns) + 1 tfoot (pager)
         assertEquals(2, SiteTestHelper.getRowCount(tester, "phone:list"));
         
         SiteTestHelper.assertNoException(tester);
     }    
-    
-    private void selectRows(int start, int count) {
-        for (int i = start; i < count; i++) {
-            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
-        }
-    }
 }

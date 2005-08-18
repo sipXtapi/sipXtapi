@@ -27,9 +27,35 @@ import org.apache.commons.lang.StringUtils;
  * however unittest library is uglier IMHO.
  */
 public final class TestUtil {
+    
+    private static final String EOL = System.getProperty("line.separator");
+    
+    private static final String FORWARD_SLASH = "/";
 
     private TestUtil() {
         // empty - to prevent instantiation
+    }
+    
+    public static final boolean isWindows() {
+        return File.separatorChar == '\\';        
+    }
+    
+    /**
+     * Change "\n" the the native end-of-line char.  On unix, this
+     * does nothing on windows, this add "\r\n"
+     */
+    public static final String cleanEndOfLines(String s) {
+        String clean = s.replaceAll("\n", EOL);
+        return clean;
+    }
+    
+    public static final String currentDrive() {
+        if (!isWindows()) {
+            return "";
+        }
+        
+        String drive = new File(FORWARD_SLASH).getAbsolutePath().substring(0, 2);
+        return drive;
     }
 
     /**
@@ -82,7 +108,7 @@ public final class TestUtil {
      */
     public static String getBuildDirectory(String project) {
         try {
-            int depth = StringUtils.countMatches(project, "/") + 1;
+            int depth = StringUtils.countMatches(project, FORWARD_SLASH) + 1;
             File topSrcDir = new File(getProjectDirectory());
             for (int i = 0; i < depth; i++) {
                 topSrcDir = topSrcDir.getParentFile();

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -22,17 +23,13 @@ public class PolycomPhoneTest extends TestCase {
     
     PolycomPhone phone;
     
-    PolycomLine line;
-
     PhoneTestDriver tester;
     
     protected void setUp() {
-        phone = new PolycomPhone();
-        line = new PolycomLine();
-        tester = new PhoneTestDriver(phone, PolycomModel.MODEL_600.getName(), line, 
-                PolycomLine.FACTORY_ID);
+        phone = new PolycomPhone(PolycomModel.MODEL_600);
+        tester = new PhoneTestDriver(phone, "polycom/phone.xml");        
     }
-            
+    
     public void testDefaults() throws Exception {
         Setting settings = phone.getSettings();
         Setting address = settings.getSetting("voIpProt/SIP.outboundProxy/address");
@@ -59,6 +56,20 @@ public class PolycomPhoneTest extends TestCase {
     public void testRestart() throws Exception {
         phone.restart();
         tester.sipControl.verify();
+    }
+
+    public void testLineDefaults() throws Exception {
+        Setting settings = tester.line.getSettings();
+        Setting address = settings.getSetting("reg/server/1/address");
+        assertEquals("registrar.sipfoundry.org", address.getValue());
+    }
+
+    public void testLineDefaultsNoUser() throws Exception {
+        Line secondLine = phone.createLine();
+        phone.addLine(secondLine);
+        Setting settings = secondLine.getSettings();        
+        Setting userId = settings.getSetting("reg/auth.userId");
+        assertEquals(Setting.NULL_VALUE, userId.getValue());
     }
 }
 

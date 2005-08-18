@@ -37,13 +37,13 @@
         <description>List user in Auto Attendant</description>
       </setting>
       <setting name="InternationDialing">
-        <label>InternationalDialing</label>
+        <label>International Dialing</label>
         <type refid="enable-disable"/>
         <value>DISABLE</value>
         <description>User can dial international numbers</description>
       </setting>
       <setting name="LocalDialing">
-        <label>LocalDialing</label>
+        <label>Local Dialing</label>
         <type refid="enable-disable"/>
         <value>DISABLE</value>
         <description>User can dial local numbers</description>

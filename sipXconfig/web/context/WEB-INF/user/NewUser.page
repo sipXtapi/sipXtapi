@@ -16,12 +16,17 @@
     	initial-value="global.coreContext"/>    
 
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <bean name="pinValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>    
 
     <component id="form" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>
     <component id="userForm" type="UserForm">
         <binding name="user" expression="user"/>
+        <binding name="pinValidator" expression="beans.pinValidator"/>
     </component>
     <component id="save" type="Submit">
         <binding name="listener" expression="listeners.save"/>

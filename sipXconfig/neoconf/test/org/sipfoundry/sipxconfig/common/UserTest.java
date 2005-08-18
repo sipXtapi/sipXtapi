@@ -130,7 +130,8 @@ public class UserTest extends TestCase {
         Group group = new Group();
         user.addGroup(group);
         
-        Setting superAdmin = user.getSettings().getSetting(Permission.SUPERADMIN.getSettingPath()); 
+        String path = Permission.SUPERADMIN.getSettingPath();
+        Setting superAdmin = user.getSettings().getSetting(path); 
         assertNotNull(superAdmin);
         assertFalse(user.hasPermission(Permission.SUPERADMIN));
     }

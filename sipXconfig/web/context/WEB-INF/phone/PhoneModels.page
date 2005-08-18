@@ -12,8 +12,8 @@
     <property-specification name="groupId"
         type="java.lang.Integer"
         persistent="yes"/>
-    <property-specification name="currentFactoryId"
-        type="java.lang.String"/>
+    <property-specification name="currentPhoneModel"
+        type="org.sipfoundry.sipxconfig.phone.PhoneModel"/>
 	<property-specification name="settingContext" 
 		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
     	initial-value="global.settingDao"/>    
@@ -21,15 +21,15 @@
         type="org.sipfoundry.sipxconfig.setting.Group"/>
 
     <component id="phoneModels" type="Foreach">
-        <binding name="source" expression="phoneContext.phoneFactoryIds.keySet()"/>
-        <binding name="value" expression="currentFactoryId"/>
+        <binding name="source" expression="phoneContext.availablePhoneModels"/>
+        <binding name="value" expression="currentPhoneModel"/>
     </component>
     <component id="phoneModel" type="Insert">
-        <binding name="value" expression="phoneContext.phoneFactoryIds[currentFactoryId]"/>
+        <binding name="value" expression="currentPhoneModel.label"/>
     </component>
     <component id="phoneModelLink" type="DirectLink">
         <binding name="listener" expression="listeners.editPhoneDefaults"/>
-        <binding name="parameters" expression="currentFactoryId"/>
+        <binding name="parameters" expression="currentPhoneModel.name"/>
     </component>
     <component id="editGroup" type="DirectLink">
         <binding name="listener" expression="listeners.editGroup"/>

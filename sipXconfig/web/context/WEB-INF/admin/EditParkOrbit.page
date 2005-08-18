@@ -47,7 +47,8 @@
         <binding name="asset" expression="parkOrbit.music"/>
         <binding name="assetDir" expression="global.orbitsGenerator.audioDirectory"/>
         <message-binding name="selectLabel" key="label.music"/>
-        <message-binding name="uploadLabel" key="label.upload"/>        
+        <message-binding name="uploadLabel" key="label.upload"/>
+        <message-binding name="errorMsg" key="error.select"/>
     </component>
             
     <component id="onSave" type="Submit">

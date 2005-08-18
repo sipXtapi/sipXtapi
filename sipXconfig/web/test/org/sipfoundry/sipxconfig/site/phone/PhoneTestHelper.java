@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.site.phone;
 import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.LineData;
-import org.sipfoundry.sipxconfig.phone.PhoneData;
+import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 /**
@@ -26,9 +26,9 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
  */
 public class PhoneTestHelper {
     
-    public PhoneData[] endpoint;
+    public Phone[] endpoint;
     
-    public LineData[] line;
+    public Line[] line;
     
     private WebTester m_tester;
     
@@ -44,14 +44,14 @@ public class PhoneTestHelper {
     
     public void seedPhone(int count) {
         SiteTestHelper.home(m_tester);
-        endpoint = new PhoneData[count];
+        endpoint = new Phone[count];
         for (int i = 0; i < endpoint.length; i++) {
-            endpoint[i] = new PhoneData();
+            endpoint[i] = new Phone();
             String serNum = "000000000000" + i;
             endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
             m_tester.clickLink("NewPhone");
             m_tester.setFormElement("serialNumber", endpoint[i].getSerialNumber());
-            m_tester.setFormElement("phoneModel", "1");
+            m_tester.setFormElement("phoneModel", "2");
             m_tester.clickButton("phone:ok");
             SiteTestHelper.home(m_tester);
         }
@@ -64,13 +64,12 @@ public class PhoneTestHelper {
         m_tester.clickLink("ManagePhones");        
         m_tester.clickLinkWithText(endpoint[0].getSerialNumber());
         m_tester.clickLinkWithText("Lines");
-        line = new LineData[count];
+        line = new Line[count];
         for (int i = 0; i < line.length; i++) {
-            line[0] = new LineData();
+            line[0] = endpoint[0].createLine();
             User testUser = new User();
             testUser.setUserName(SiteTestHelper.TEST_USER);
             line[0].setUser(testUser);
-            line[0].setPhoneData(endpoint[0]);
             m_tester.clickLink("AddUser");        
             m_tester.clickButton("user:search");
             // first (should be only?) row

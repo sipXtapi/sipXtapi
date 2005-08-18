@@ -11,14 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -30,7 +26,9 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     
     private static final String RESOURCE_PARAM = "resource";
     
-    private SipxProcessContext m_processContext;
+    public Group getGroup(Integer groupId) {
+        return (Group) getHibernateTemplate().load(Group.class, groupId);
+    }
 
     public void deleteGroup(Group group) {
         getHibernateTemplate().delete(group);
@@ -48,11 +46,6 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         checkDuplicates(group);
         assignWeightToNewGroups(group);
         getHibernateTemplate().saveOrUpdate(group);
-        
-        // FIXME : HACK, will refactor to use hibernate event model 
-        if ("user".equals(group.getResource())) {
-            m_processContext.generate(DataSet.PERMISSION);
-        }            
     }
     
     void assignWeightToNewGroups(Group group) {
@@ -89,23 +82,6 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
     public Group loadGroup(Integer id) {
         return (Group) getHibernateTemplate().load(Group.class, id);
     }
-
-    public void createRootGroup(String resource) {
-        Group group = new Group();
-        group.setName("Default");
-        group.setWeight(new Integer(0));
-        group.setResource(resource);      
-        storeGroup(group);        
-    }
-
-    public Group loadRootGroup(String resource) {
-        String query = "rootGroupByResource";
-        Collection tags = getHibernateTemplate().findByNamedQueryAndNamedParam(query, 
-                RESOURCE_PARAM, resource);
-        Group group = (Group) CoreContextImpl.requireOneOrZero(tags, query);
-        
-        return group;
-    }
     
     public List getGroups(String resource) {
         List groups = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource", 
@@ -113,12 +89,6 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return groups;
     }
     
-    public List getGroupsWithoutRoot(String resource) {
-        List groups = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResourceWithoutRoot", 
-                RESOURCE_PARAM, resource);
-        return groups;        
-    }
-
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
     }
@@ -157,9 +127,4 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
             m_weight = weight;
         }
     }
-
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
-    }
-    
 }

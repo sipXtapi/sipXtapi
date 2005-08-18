@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineData;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 
 /**
@@ -37,7 +37,8 @@ public class PhoneConfiguration extends VelocityProfileGenerator {
 
     public Collection getLines() {
         PolycomPhone phone = (PolycomPhone) getPhone();
-        ArrayList linesSettings = new ArrayList(phone.getMaxLineCount());
+        int lineCount = phone.getModel().getMaxLineCount();
+        ArrayList linesSettings = new ArrayList(lineCount);
 
         Collection lines = phone.getLines();
         int i = 0;
@@ -47,13 +48,14 @@ public class PhoneConfiguration extends VelocityProfileGenerator {
         }
 
         // copy in blank lines of all unused lines
-        for (; i < phone.getMaxLineCount(); i++) {
-            PolycomLine line = new PolycomLine();
-            line.setDefaults(new PhoneDefaults());
+        for (; i < lineCount; i++) {
+            Line line = phone.createLine();
             line.setPhone(phone);
-            line.setLineData(new LineData());
-            line.getLineData().setPosition(i);
+            line.setPosition(i);
             linesSettings.add(line.getSettings());
+            LineSettings s = (LineSettings) line.getAdapter(LineSettings.class);
+            s.setRegistrationServer(StringUtils.EMPTY);
+            s.setRegistrationServerPort(StringUtils.EMPTY);
         }
         
         return linesSettings;

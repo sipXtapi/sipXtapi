@@ -60,7 +60,7 @@ public class SettingSet extends SettingImpl implements Cloneable {
      * adds the setting to this group collection along with setting the group on the setting
      */
     public Setting addSetting(Setting setting) {
-        setting.setParent(this);
+        setting.setParentPath(getPath());
 
         Setting existingChild = (Setting) m_children.get(setting.getName());
         m_children.put(setting.getName(), setting);
@@ -79,7 +79,7 @@ public class SettingSet extends SettingImpl implements Cloneable {
     }
 
     public Setting getSetting(String name) {
-        return SettingImpl.getSettingByPath(m_children, this, name);
+        return SettingUtil.getSettingByPath(m_children, this, name);
     }
 
     public Collection getValues() {

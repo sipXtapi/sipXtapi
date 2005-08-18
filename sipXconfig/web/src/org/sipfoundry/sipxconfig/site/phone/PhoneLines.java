@@ -86,6 +86,11 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     public void deleteLine(IRequestCycle cycle_) {
         PhoneContext context = getPhoneContext();
         Phone phone = getPhone();
+        
+        // hack, avoid hibernate exception on unsaved valuestorage objects
+        // on orphaned lines
+        context.storePhone(phone);
+        
         Object[] lineIds = getSelections().getAllSelected().toArray();
         DataCollectionUtil.removeByPrimaryKey(phone.getLines(), lineIds);
         

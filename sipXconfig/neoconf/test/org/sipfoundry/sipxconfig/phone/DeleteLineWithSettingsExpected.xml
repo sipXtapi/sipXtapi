@@ -13,7 +13,8 @@
   		value_storage_id="1000"
 	  	phone_id="1000"
       name="unittest-sample phone1"
-      factory_id="polycom300"/> 
+      bean_id="genericPhone"
+      model_id=""/> 
     <line 
 		  line_id="1000" 
   		phone_id="1000"

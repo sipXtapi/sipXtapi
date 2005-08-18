@@ -39,8 +39,6 @@ public class SiteTestHelper {
      */
     public static final String TEST_USER = "testuser";
 
-    public static final String ADMIN = "superadmin";
-
     private static String s_buildDir;
 
     private static String s_baseUrl;

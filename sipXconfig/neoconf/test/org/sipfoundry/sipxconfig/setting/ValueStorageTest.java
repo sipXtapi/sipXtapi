@@ -34,8 +34,8 @@ public class ValueStorageTest extends TestCase {
         ValueStorage settingValues = new ValueStorage();
         settingValues.put(m_apple.getPath(), "granny smith");
         
-        SettingSet copy = (SettingSet) settingValues.decorate(m_root);
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+        settingValues.decorate(m_root);
+        Setting appleCopy = m_root.getSetting("fruit").getSetting("apple");
 
         assertEquals("granny smith", appleCopy.getValue());
         assertFalse(m_apple == appleCopy);
@@ -45,8 +45,8 @@ public class ValueStorageTest extends TestCase {
     public void testNullSettings() {
         seedSimpleSettingGroup();
 
-        SettingSet copy = (SettingSet) new ValueStorage().decorate(m_root);        
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+        new ValueStorage().decorate(m_root);        
+        Setting appleCopy = m_root.getSetting("fruit").getSetting("apple");
         
         assertNull(appleCopy.getValue());
         
@@ -62,8 +62,8 @@ public class ValueStorageTest extends TestCase {
         m_apple.setValue("granny smith");
         
         ValueStorage storage = new ValueStorage();
-        SettingSet copy = (SettingSet) storage.decorate(m_root);
-        Setting appleCopy = copy.getSetting("fruit").getSetting("apple");
+        storage.decorate(m_root);
+        Setting appleCopy = m_root.getSetting("fruit").getSetting("apple");
         
         assertEquals("granny smith", appleCopy.getValue());        
         assertNull(storage.get(appleCopy.getPath())); // white box
@@ -87,11 +87,11 @@ public class ValueStorageTest extends TestCase {
         m_apple.setValue("granny smith");
 
         ValueStorage storage = new ValueStorage();
-        SettingSet copy = (SettingSet) storage.decorate(m_root);
-        copy.getSetting("fruit").getSetting("apple").setValue("macintosh");
+        storage.decorate(m_root);
+        m_root.getSetting("fruit").getSetting("apple").setValue("macintosh");
         
         
-        Collection c = FilterRunner.filter(APPLE, copy);
+        Collection c = SettingUtil.filter(APPLE, m_root);
         assertEquals(1, c.size());
         Setting actualApple = (Setting) c.iterator().next(); 
         assertEquals(actualApple.getValue(), "macintosh");        
@@ -105,14 +105,14 @@ public class ValueStorageTest extends TestCase {
         m_apple.setValue("system default");
         
         Group f = new Group();
-        Setting tagDecorated = f.decorate(m_root);
-        tagDecorated.getSetting("fruit/apple").setValue("tag default");
+        f.decorate(m_root);
+        m_root.getSetting("fruit/apple").setValue("tag default");
         
         ValueStorage vs = new ValueStorage();
-        Setting vsDecorated = vs.decorate(tagDecorated);
-        vsDecorated.getSetting("fruit/apple").setValue("actual setting value");
+        vs.decorate(m_root);
+        m_root.getSetting("fruit/apple").setValue("actual setting value");
                       
-        Setting settingValue = vsDecorated.getSetting("fruit/apple");
+        Setting settingValue = m_root.getSetting("fruit/apple");
         assertEquals("actual setting value", settingValue.getValue());
 
         String tagValue = (String) f.get(m_apple.getPath());

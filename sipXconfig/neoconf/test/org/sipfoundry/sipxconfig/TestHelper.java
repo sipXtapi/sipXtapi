@@ -57,7 +57,7 @@ public final class TestHelper {
         // default XML parser (crimson) cannot resolve relative DTDs, google for bug
         System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
     }
-
+    
     public static ApplicationContext getApplicationContext() {
         if (s_appContext == null) {
             getSysDirProperties();

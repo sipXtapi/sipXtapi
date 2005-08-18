@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.login;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
+import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class LoginContextImpl implements LoginContext {
@@ -63,10 +64,10 @@ public class LoginContextImpl implements LoginContext {
         if (user == null) {
             return false;
         }
-        // TODO: real implementation needed (checking privileges)
-        String userName = user.getUserName();
+        
+        boolean superadmin = user.hasPermission(Permission.SUPERADMIN);
 
-        return "superadmin".equals(userName);
+        return superadmin;
 
     }
 

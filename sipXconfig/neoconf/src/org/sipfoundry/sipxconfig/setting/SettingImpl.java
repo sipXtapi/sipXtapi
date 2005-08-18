@@ -13,8 +13,9 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
+import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
@@ -25,13 +26,13 @@ public class SettingImpl implements Setting, Cloneable {
 
     private SettingType m_type = StringSetting.DEFAULT;
 
-    private String m_name;
+    private String m_name = StringUtils.EMPTY;
     
     private String m_description;
 
     private String m_profileName;
     
-    private Setting m_settingGroup;
+    private String m_parentPath;
     
     private String m_value;
         
@@ -60,24 +61,34 @@ public class SettingImpl implements Setting, Cloneable {
     public Setting copy() {
         return (Setting) clone();
     }
-
-    public Setting getParent() {
-        return m_settingGroup;
+    
+    public String getParentPath() {
+        return m_parentPath;
     }
     
-    public void setParent(Setting setting) {
-        m_settingGroup = setting;
+    /**
+     * Resolve decorators
+     */
+    
+    public void setParentPath(String path) {
+        m_parentPath = path;
+        Collection c = getValues();
+        if (!c.isEmpty()) {
+            Iterator i = c.iterator();
+            while (i.hasNext()) {
+                Setting child = (Setting) i.next();
+                // recursive
+                child.setParentPath(getPath());
+            }
+        }
     }
     
     public String getPath() {
-        String path;
-        if (m_settingGroup == null) {
-            path = "";
-        } else {
-            path = m_settingGroup.getPath() + '/' + getName();
+        if (getParentPath() == null) {
+            return getName();
         }
-
-        return path;
+        
+        return getParentPath() + PATH_DELIM + getName();
     }
     
     public void acceptVisitor(SettingVisitor visitor) {
@@ -92,53 +103,16 @@ public class SettingImpl implements Setting, Cloneable {
     }
 
     /**
+     * Correct Examples
+     *   getSetting("a/b/c");
+     *   
+     * Incorrect Examples:
+     *   getSetting("../a/b");
+     * 
      * @throws IllegalArgumentException  Cannot get settings from another setting, only groups
      */
     public Setting getSetting(String name) {
-        return getSettingByPath(null, this, name);
-    }
-    
-    public static Setting getSettingByPath(Map children, Setting setting, String path) {
-        Setting target = null;
-        String relativeParent = "../";
-        if (path.indexOf(relativeParent) == 0) {            
-            target = setting.getParent().getSetting(path.substring(relativeParent.length()));             
-        } else if (path.equals("..")) {            
-            target = setting.getParent();             
-        } else if (path.equals("/")) {
-            target = getRoot(setting);
-        } else if (path.charAt(0) == '/') {
-            Setting root = getRoot(setting);
-            target = root.getSetting(path.substring(1));
-        } else {
-            int slash = path.indexOf('/');
-            if (slash > 0) {
-                String tok = path.substring(0, slash);
-                Setting child = setting.getSetting(tok);
-                if (child != null) {
-                    target = child.getSetting(path.substring(slash + 1));
-                }            
-            } else if (children == null) {
-                throw new IllegalArgumentException("Cannot get settings from another setting, only groups");            
-            } else {
-                target = (Setting) children.get(path);                        
-            }
-        }
-        
-        return target;
-    }
-    
-    public static Setting getRoot(Setting setting) {
-        if (setting == null) {
-            return null;
-        }
-        
-        Setting candidate = setting;
-        while (candidate.getParent() != null) {
-            candidate = candidate.getParent();
-        }
-        
-        return candidate;
+        return SettingUtil.getSettingByPath(null, this, name);
     }
     
     /**

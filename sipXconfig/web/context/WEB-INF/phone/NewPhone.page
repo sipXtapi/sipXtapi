@@ -8,8 +8,12 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
-	<property-specification name="phoneData" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneData"/>
+	<property-specification name="phone" 
+		type="org.sipfoundry.sipxconfig.phone.Phone"
+        initial-value="new org.sipfoundry.sipxconfig.phone.Phone()"/>
+	<property-specification name="phoneModel" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneModel"
+        initial-value="phone.model"/>
 	<property-specification name="stay" 
 		type="boolean"/>
     <!--
@@ -23,8 +27,9 @@
         <binding name="delegate" expression="beans.validator"/>
     </component>
     <component id="editPhoneForm" type="EditPhoneForm">
-        <binding name="phoneData" expression="phoneData"/>
+        <binding name="phone" expression="phone"/>
         <binding name="validator" expression="beans.validator"/>
+        <binding name="phoneModel" expression="phoneModel"/>        
     </component>    
     <component id="ok" type="Submit">
         <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.finish)"/>

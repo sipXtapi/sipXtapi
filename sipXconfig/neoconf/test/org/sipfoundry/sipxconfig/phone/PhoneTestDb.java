@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -20,37 +21,46 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 
 public class PhoneTestDb extends TestCase {
     
-    private PhoneContext m_context;
+    private PhoneContext context;
+    
+    private SettingDao settingDao;
+    
+    private CoreContext core;
     
     protected void setUp() throws Exception {
-        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
+        ApplicationContext app = TestHelper.getApplicationContext();
+        context = (PhoneContext) app.getBean(PhoneContext.CONTEXT_BEAN_NAME);        
+        settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
+        core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);        
     }
     
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         
-        Phone phone = m_context.newPhone(PolycomModel.MODEL_300.getModelId());
-        PhoneData e = phone.getPhoneData();
-        e.setFactoryId(PolycomModel.MODEL_300.getModelId());
-        e.setSerialNumber("999123456");
-        e.setName("unittest-sample phone1");
-        m_context.storePhone(phone);
+        Phone phone = context.newPhone(Phone.MODEL);
+        phone.setSerialNumber("999123456");
+        phone.setName("unittest-sample phone1");
+        context.storePhone(phone);
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("phone");
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveEndpointExpected.xml"); 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[phone_id_1]", e.getId());
+        expectedRds.addReplacementObject("[phone_id_1]", phone.getId());
         expectedRds.addReplacementObject("[null]", null);                      
         ITable expected = expectedRds.getTable("phone");                
         Assertion.assertEquals(expected, actual);
@@ -61,14 +71,13 @@ public class PhoneTestDb extends TestCase {
         TestHelper.insertFlat("common/TestUserSeed.xml");
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
         
-        Phone p = m_context.loadPhone(new Integer(1000));
-        PhoneData e = p.getPhoneData();
-        assertEquals("999123456", e.getSerialNumber());
+        Phone p = context.loadPhone(new Integer(1000));
+        assertEquals("999123456", p.getSerialNumber());
         
-        Integer id = e.getId();        
-        m_context.deletePhone(p);
+        Integer id = p.getId();        
+        context.deletePhone(p);
         try {
-            m_context.loadPhone(id);
+            context.loadPhone(id);
             fail();
         } catch (HibernateObjectRetrievalFailureException x) {
             assertTrue(true);
@@ -82,19 +91,23 @@ public class PhoneTestDb extends TestCase {
     public void testUpdateSettings() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+
+        Setting model = TestHelper.loadSettings("phone-settings.xml");        
+        model.getSetting("genericPhone/phone").addSetting(new SettingImpl("foo"));
+
+        Phone p = context.loadPhone(new Integer(1000));        
+        p.setSettingModel(model);
+        p.getSettings().getSetting("foo").setValue("bar");
+        context.storePhone(p);        
+        context.flush();
         
-        Phone p = m_context.loadPhone(new Integer(1000));
-        Setting setting = p.getSettings().getSetting("up/headsetMode");
-        String newValue = setting.getValue().equals("0") ? "1" : "0"; // toggle
-        setting.setValue(newValue);
-        m_context.storePhone(p);        
-        m_context.flush();
-        
-        Phone reloadPhone = m_context.loadPhone(new Integer(1000));               
+        Phone reloadPhone = context.loadPhone(new Integer(1000));               
+        p.setSettingModel(model);
+        reloadPhone.setSettingModel(model);
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/UpdateSettingsExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);        
 
-        ValueStorage s = reloadPhone.getPhoneData().getValueStorage();
+        ValueStorage s = reloadPhone.getValueStorage();
         assertNotNull(s);
         expectedRds.addReplacementObject("[value_storage_id]", s.getId());
 
@@ -108,10 +121,10 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
         
-        Phone p = m_context.loadPhone(new Integer(1000));
-        List groups = m_context.getGroupsWithoutRoot();
-        p.getPhoneData().addGroup((Group) groups.get(0));
-        m_context.storePhone(p);
+        Phone p = context.loadPhone(new Integer(1000));
+        List groups = context.getGroups();
+        p.addGroup((Group) groups.get(0));
+        context.storePhone(p);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddGroupExpected.xml");
         IDataSet actual = TestHelper.getConnection().createDataSet();                
@@ -123,20 +136,85 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
         
-        Phone p = m_context.loadPhone(new Integer(1000));
-        List groups = m_context.getGroupsWithoutRoot();
-        p.getPhoneData().addGroup((Group) groups.get(0));
-        m_context.storePhone(p);
+        Phone p = context.loadPhone(new Integer(1000));
+        List groups = context.getGroups();
+        p.addGroup((Group) groups.get(0));
+        context.storePhone(p);
         p = null;
         
-        Phone reloaded = m_context.loadPhone(new Integer(1000));
-        reloaded.getPhoneData().getGroups().clear();
-        reloaded.getPhoneData().addGroup((Group) groups.get(0));
-        reloaded.getPhoneData().addGroup((Group) groups.get(1));
-        m_context.storePhone(reloaded);
+        Phone reloaded = context.loadPhone(new Integer(1000));
+        reloaded.getGroups().clear();
+        reloaded.addGroup((Group) groups.get(0));
+        reloaded.addGroup((Group) groups.get(1));
+        context.storePhone(reloaded);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddSecondGroupExpected.xml");
         IDataSet actual = TestHelper.getConnection().createDataSet();                
         Assertion.assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));        
+    }
+    
+    public void testPhoneSubclassSave() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        Phone subclass = context.newPhone(PolycomModel.MODEL_300);
+        subclass.setSerialNumber("000000000000");
+        context.storePhone(subclass);
+        
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/PhoneSubclassSaveExpected.xml");
+        IDataSet actual = TestHelper.getConnection().createDataSet();                
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);        
+        expectedRds.addReplacementObject("[phone_id]", subclass.getId());
+        expectedRds.addReplacementObject("[null]", null);
+
+        Assertion.assertEquals(expectedRds.getTable("phone"), actual.getTable("phone"));        
+    }
+    
+    public void testPhoneSubclassDelete() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/PhoneSubclassSeed.xml");
+        Phone subclass = context.loadPhone(new Integer(1000));
+        subclass.setSerialNumber("000000000000");
+        context.deletePhone(subclass);
+        
+        IDataSet actual = TestHelper.getConnection().createDataSet();                
+        assertEquals(0, actual.getTable("phone").getRowCount());
+    }
+
+    public void testClear() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        context.clear();
+    }
+
+    public void testDeletePhoneGroups() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
+        Group group = settingDao.getGroup(new Integer(1001));
+        settingDao.deleteGroup(group);
+        // link table references removed
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("phone_group");
+        // just phone 2 and group 2
+        assertEquals(1, actual.getRowCount());
+    } 
+    
+    public void testPhonesByUserId() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        Collection phones = context.getPhonesByUserId(new Integer(1000));
+        assertEquals(1, phones.size());
+        Phone p = (Phone) phones.iterator().next();
+        assertEquals("unittest-sample phone1", p.getName());
+    }
+    
+    public void testDeleteUserRemoveLines() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        User testUser = core.loadUser(new Integer(1000));
+        core.deleteUser(testUser);
+        
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
+        assertEquals(0, actual.getRowCount());        
     }
 }

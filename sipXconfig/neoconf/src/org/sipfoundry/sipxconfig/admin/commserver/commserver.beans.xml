@@ -14,7 +14,7 @@
       <value>${sysdir.etc}</value>
     </property>
     <property name="replicationManager">
-      <bean class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>
+        <bean class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>          
     </property>
   </bean>
   
@@ -37,4 +37,9 @@
   <bean id="credentialDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials"/>
   <bean id="permissionDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions"/>
   <bean id="authexceptionDataSet" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.AuthExceptions"/>
+  
+  <bean id="replicationTrigger" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
+    <property name="processContext" ref="sipxProcessContext"/>
+  </bean>
+    
 </beans>

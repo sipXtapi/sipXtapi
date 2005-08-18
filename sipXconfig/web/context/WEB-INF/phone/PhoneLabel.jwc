@@ -24,9 +24,9 @@
       - C O M P O N E N T S
       -->
     <component id="phoneLabel" type="Insert">
-        <binding name="value" expression="phone.phoneData.displayLabel"/>
+        <binding name="value" expression="phone.displayLabel"/>
     </component>
     <component id="phoneModel" type="Insert">
-        <binding name="value" expression="phone.phoneData.modelLabel"/>
+        <binding name="value" expression="phone.model.label"/>
     </component>    
 </component-specification>

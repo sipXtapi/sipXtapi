@@ -11,31 +11,43 @@
  */
 package org.sipfoundry.sipxconfig.phone.kphone;
 
-import java.io.File;
+import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
-import org.sipfoundry.sipxconfig.phone.GenericPhone;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
-
-public class KPhone extends GenericPhone {
+public class KPhone extends Phone {
     
-    public static final String FACTORY_ID = "kphone";
+    public static final PhoneModel MODEL = new PhoneModel("kphone", "KPhone");
     
     public KPhone() {
-        // Tells superclass what bean to create for lines
-        setLineFactoryId(KPhoneLine.FACTORY_ID);
-        setPhoneTemplate(FACTORY_ID + "/kphonerc.vm");
+        super(MODEL);
+        setPhoneTemplate("kphone/kphonerc.vm");
     }
     
-    public Setting getSettingModel() {
-        String systemDirectory = getPhoneContext().getSystemDirectory();
-        File modelDefsFile = new File(systemDirectory + '/' + FACTORY_ID + "/phone.xml");
-        Setting model = new XmlModelBuilder(systemDirectory).buildModel(modelDefsFile).copy();
-        
-        return model;
-    }
-
     public String getPhoneFilename() {
-        return getWebDirectory() + "/" + getPhoneData().getSerialNumber() + ".kphonerc";
+        return getWebDirectory() + "/" + getSerialNumber() + ".kphonerc";
     }    
+    
+    public Object getLineAdapter(Line line, Class interfac) {
+        Object impl;
+        if (interfac == LineSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(line.getSettings());
+            adapter.addMapping(LineSettings.USER_ID, "Registration/UserName");            
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "Registration/SipServer");
+            impl = adapter.getImplementation();
+        } else {
+            impl = super.getAdapter(interfac);
+        }
+        
+        return impl;        
+    }
+    
+    public void defaultLineSettings(Line line) {
+        super.defaultLineSettings(line);
+        
+        line.getSettings().getSetting("Registration/SipUri").setValue(line.getUri());
+    }
 }

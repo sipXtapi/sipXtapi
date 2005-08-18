@@ -15,6 +15,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.TestPage;
 
 
 public class NewUserTestUi extends WebTestCase {
@@ -46,7 +47,8 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("ManageUsers");
         String[][] table = new String[][] {
-                { SiteTestHelper.ADMIN, "", "", ""},                
+                { TestPage.TEST_USER.getUserName(), TestPage.TEST_USER.getFirstName(), 
+                    TestPage.TEST_USER.getLastName(), TestPage.TEST_USER.getExtension()},                
                 { "new-user-test" , "NewUserFname", "NewUserLname", "993"}
             };
         assertTableRowsEqual("user:list", 1, table);                        

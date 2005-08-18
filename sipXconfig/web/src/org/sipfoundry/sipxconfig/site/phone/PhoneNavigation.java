@@ -76,7 +76,7 @@ public abstract class PhoneNavigation extends BaseComponent {
      */
     public Object[] getEditSettingListenerParameters() {
         return new Object[] { 
-            getPhone().getPhoneData().getId(),
+            getPhone().getId(),
             getCurrentSetting().getName() 
         };
     }

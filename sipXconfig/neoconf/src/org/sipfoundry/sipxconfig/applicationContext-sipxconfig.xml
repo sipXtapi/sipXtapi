@@ -61,6 +61,7 @@
         <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/common/common.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/conference/conference.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/gateway/gateway.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phone/phone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/setting/setting.hbm.xml</value>
@@ -76,6 +77,7 @@
     <property name="baseClassBeanIds">
       <list>
         <value>gwGeneric</value>        
+        <value>genericPhone</value>        
       </list>      
     </property>
     <!-- unless otherwise specified property nameLikeThis will be mapped to column name_like_this -->
@@ -93,19 +95,37 @@
     </property>
   </bean>
 
+  
+  <bean id="daoEventDispatcherInterceptor" parent="hibernateInterceptor">
+    <property name="entityInterceptorBeanName">
+      <value>daoEventDispatcher</value>
+    </property>    
+  </bean>
+
+  <bean id="daoEventDispatcher" class="org.sipfoundry.sipxconfig.common.DaoEventDispatcher">
+  </bean>
+
   <!-- springInstantiator will force hibernate to create new objects through Spring -->
   <bean id="springInstantiator" class="org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator">
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
-  
+
   <!--
     - Use this instead of 'hibernateInterceptor' when you want to
     - load spring beans from hibernate mappings.  See common/common.beans.xml for example
     -->
-  <bean id="springHibernateInterceptor" parent="hibernateInterceptor">
+  <bean id="springHibernateInterceptor" parent="daoEventDispatcherInterceptor">
     <property name="entityInterceptorBeanName">
       <value>springInstantiator</value>
     </property>    
+  </bean>
+
+  <bean id="abstractDao" abstract="true">
+    <property name="interceptorNames">
+      <list>
+        <value>springHibernateInterceptor</value>
+      </list>
+    </property>
   </bean>
 
   <!--
@@ -114,92 +134,5 @@
   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="resourceLoaderPath"><value>file:${sysdir.etc}</value></property>
   </bean>
-  <!-- 
-  - A D M I N   C O N T E X T           
-  -->
-  <bean id="adminContext" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.AdminContext</value>
-    </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>adminContextImpl</value>
-      </list>
-    </property>
-  </bean>
-  <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl"
-    autowire="byType">
-    <property name="binDirectory">
-      <value>${sysdir.bin}</value>
-    </property>
-  </bean>
-  
-  <!--
-  - F O R W A R D I N G  C O N T E X T
-  -->
-  
-  
-  <!-- autowire is used here to enable injecting JMS Template in application context, but not in JUnit context -->
-  <bean id="forwardingContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl" autowire="byType">
-    <property name="coreContext">
-      <ref bean="coreContextImpl"/>
-    </property>
-    <property name="processContext">
-      <ref bean="sipxProcessContext"></ref>
-    </property>    
-  </bean>
-  
-  <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext</value>
-    </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>forwardingContextImpl</value>
-      </list>
-    </property>
-  </bean>
-
-  <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
-    <property name="velocityEngine">
-      <ref local="velocityEngine"/>
-    </property>
-  </bean>
-  
-  <!--
-  - C A L L G R O U P   C O N T E X T
-  -->
-  <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits">
-    <property name="configDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
-  </bean>
-  
-  <bean id="callGroupContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl" autowire="byType">
-    <property name="coreContext">
-      <ref bean="coreContextImpl"/>
-    </property>
-    <property name="orbitsGenerator">
-      <ref bean="orbitsGenerator"/>
-    </property>
-    <property name="processContext">
-      <ref bean="sipxProcessContext"></ref>
-    </property>
-  </bean>
-  
-  <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext</value>
-    </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>callGroupContextImpl</value>
-      </list>
-    </property>
-  </bean>  
+    
 </beans>

@@ -76,6 +76,7 @@
     <component id="attendantPromptSelector" type="AssetSelector">
         <binding name="asset" expression="attendant.prompt"/>
         <binding name="assetDir" expression="vxmlGenerator.promptsDirectory"/>
+        <message-binding name="errorMsg" key="error.select"/>
     </component>
 
     <component id="ok" type="Submit">

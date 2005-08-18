@@ -16,21 +16,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.phone.GenericPhone;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
-public class PolycomPhone extends GenericPhone {
+public class PolycomPhone extends Phone {
     
-    public static final String FACTORY_ID = "polycom";
+    public static final String BEAN_ID = "polycom";
 
     public static final String CALL = "call";
+
+    private static final String VOICEMAIL_EXT = "101";
 
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
@@ -41,13 +46,13 @@ public class PolycomPhone extends GenericPhone {
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
 
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
-
+    
     public PolycomPhone() {
-        setLineFactoryId(PolycomLine.FACTORY_ID);
+        super(BEAN_ID);
     }
-
-    public PolycomModel getModel() {
-        return PolycomModel.getModel(getPhoneData().getFactoryId());
+    
+    public PolycomPhone(PolycomModel model) {
+        super(model);
     }
 
     public String getPhoneTemplate() {
@@ -80,18 +85,6 @@ public class PolycomPhone extends GenericPhone {
 
     public void setSipTemplate(String sipTemplate) {
         m_sipTemplate = sipTemplate;
-    }
-
-    public int getMaxLineCount() {
-        return getModel().getMaxLines();
-    }
-
-    public Setting getSettingModel() {
-        String systemDirectory = getPhoneContext().getSystemDirectory();        
-        File modelDefsFile = new File(systemDirectory + '/' + FACTORY_ID + "/phone.xml");
-        Setting model = new XmlModelBuilder(systemDirectory).buildModel(modelDefsFile).copy();
-        
-        return model;
     }
 
     public void generateProfiles() {
@@ -144,5 +137,39 @@ public class PolycomPhone extends GenericPhone {
         
         return o;
     }
+    
+    public Object getLineAdapter(Line line, Class interfac) {
+        Object impl;
+        if (interfac == LineSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(line.getSettings());
+            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "reg/auth.userId");
+            adapter.addMapping(LineSettings.USER_ID, "reg/address");            
+            adapter.addMapping(LineSettings.PASSWORD, "reg/auth.password");
+            adapter.addMapping(LineSettings.DISPLAY_NAME, "reg/displayName");
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "reg/server/1/address");
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, "reg/server/1/port");
+            impl = adapter.getImplementation();
+        } else {
+            impl = super.getAdapter(interfac);
+        }
+        
+        return impl;
+    }
+    
+    protected void defaultLineSettings(Line line) {
+        super.defaultLineSettings(line);
+        
+        User u = line.getUser();
+        if (u != null) {
+            PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+            Setting mwi = line.getSettings().getSetting("msg.mwi");
+            String uri = u.getUserName() + '@' + defaults.getDomainName();
+            mwi.getSetting("subscribe").setValue(uri);
+            mwi.getSetting("callBack").setValue(VOICEMAIL_EXT + '@' + defaults.getDomainName());
+            mwi.getSetting("callBackMode").setValue("contact");
+        }        
+    }
+
 }
 

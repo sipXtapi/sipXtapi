@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.common.TestUtil;
 public class BackupPlanTest extends TestCase {
 
     private BackupPlan m_backup;
-
+    
     protected void setUp() throws Exception {
         m_backup = new BackupPlan();
         m_backup.setConfigsScript("mock-backup.sh");
@@ -36,7 +36,11 @@ public class BackupPlanTest extends TestCase {
     public void testBuildExecName() {
         File tmp = new File("/tmp");
         String cmdLine = m_backup.buildExecName(tmp, "kuku");
-        assertEquals("/tmp/kuku --non-interactive", cmdLine);
+        if (TestUtil.isWindows()) {
+            assertEquals(":\\tmp\\kuku --non-interactive", cmdLine.substring(1));            
+        } else {
+            assertEquals("/tmp/kuku --non-interactive", cmdLine);
+        }
     }
 
     public void testGetBackupLocations() {
@@ -47,12 +51,16 @@ public class BackupPlanTest extends TestCase {
             "./backup-mailstore/mailstore.tar.gz"
         };
         for (int i = 0; i < refBackupLocations.length; i++) {
-            assertEquals(refBackupLocations[i], backupLocations[i].getPath());
+            String expected = refBackupLocations[i].replace('/', File.separatorChar); 
+            assertEquals(expected, backupLocations[i].getPath());
         }
-
     }
 
     public void testPerform() throws Exception {
+        if (TestUtil.isWindows()) {
+            // tries to run a shell script. ignore test
+            return;
+        }
         String backupPath = TestHelper.getTestDirectory() + "/backup-" + System.currentTimeMillis();
         File[] backups = m_backup.perform(backupPath, TestUtil.getTestSourceDirectory(this.getClass()));
         assertEquals(3, backups.length);

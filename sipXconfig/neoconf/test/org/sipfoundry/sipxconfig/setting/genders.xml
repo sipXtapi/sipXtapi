@@ -10,14 +10,14 @@
 		</group>
 		<description>Earthlings</description>
 	</group>
-	<group name="man" copy-of="/human">
+	<group name="man" copy-of="human">
 		<label>Man</label>
 		<setting name="shave">
 			<value>face</value>
 		</setting>
 		<setting name="reason" hidden="yes"/>
 	</group>
-	<group name="woman" copy-of="/human">
+	<group name="woman" copy-of="human">
 		<label>Woman</label>
 		<setting name="shave">
 			<value>legs</value>

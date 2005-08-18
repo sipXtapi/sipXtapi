@@ -9,22 +9,19 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
-    <property name="processContext" ref="sipxProcessContext"/>
   </bean>
   <!--
   -  S E T T I N G  D A O 
   -->
-  <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.setting.SettingDao</value>
     </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-        <value>settingDaoImpl</value>
-      </list>
+    <property name="target">
+      <ref local="settingDaoImpl"/>
     </property>
   </bean>  
+
   <bean id="modelFilesContext" class="org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl" dependency-check="all">
     <property name="configDirectory">
       <value>${sysdir.etc}</value>

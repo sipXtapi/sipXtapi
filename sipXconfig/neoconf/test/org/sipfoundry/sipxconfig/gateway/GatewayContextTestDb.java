@@ -92,6 +92,17 @@ public class GatewayContextTestDb extends TestCase {
         assertEquals("10.1.1.2", g1.getAddress());
     }
 
+    public void testSaveLoadUpdateGateway() throws Exception {
+        Gateway g1 = new Gateway();
+        g1.setAddress("10.1.1.1");
+        m_context.storeGateway(g1);
+        
+        Gateway g2 = m_context.getGateway(g1.getId());       
+        g2.setAddress("10.1.1.2");
+        m_context.storeGateway(g2);
+        assertEquals("10.1.1.2", g2.getAddress());
+    }
+
     public void testDeleteGatewayInUse() {
         Gateway g1 = new Gateway();
         g1.setAddress("10.1.1.1");

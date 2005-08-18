@@ -299,6 +299,8 @@
   <target name="test-report" depends="init"
      description="Generate test results to test-results/junit-noframe.html">
 
+    <property name="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser"/>
+
     <junitreport todir="${test.results.dir}">
 
       <fileset dir="${test.results.dir}">

@@ -33,8 +33,8 @@ public class LoginPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(getTester());
         
         WebForm form = tester.getDialog().getForm();
-        form.setParameter("userName", TestPage.ADMIN);
-        form.setParameter("password", TestPage.PIN);
+        form.setParameter("userName", TestPage.TEST_USER.getUserName());
+        form.setParameter("password", TestPage.TEST_USER_PIN);
         clickButton("login:submit");
                 
         // we are on the home page now - no errors no login form

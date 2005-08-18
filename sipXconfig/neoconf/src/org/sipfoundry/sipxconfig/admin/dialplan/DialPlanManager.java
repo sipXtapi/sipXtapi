@@ -31,7 +31,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * DialPlanManager is an implementation of DialPlanContext with hibernate support.
  */
-class DialPlanManager extends HibernateDaoSupport 
+public class DialPlanManager extends HibernateDaoSupport 
         implements BeanFactoryAware, DialPlanContext, ApplicationListener {
 
     private String m_configDirectory;

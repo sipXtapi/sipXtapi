@@ -9,15 +9,18 @@
     <phone serial_number="000000000001" 		
 		phone_id="1001"
         name="unittest-sample phone1"
-        factory_id="polycom300"/> 
+        bean_id="genericPhone"
+      model_id=""/> 
     <phone serial_number="000000000002" 		
 		phone_id="1002"
         name="unittest-sample phone2"
-        factory_id="polycom300"/> 
+        bean_id="genericPhone"
+      model_id=""/> 
     <phone serial_number="000000000003" 		
 		phone_id="1003"
         name="unittest-sample phone3"
-        factory_id="polycom300"/> 
+        bean_id="genericPhone"
+      model_id=""/>
     <value_storage 
 		  value_storage_id="1001"/> 
     <group_storage

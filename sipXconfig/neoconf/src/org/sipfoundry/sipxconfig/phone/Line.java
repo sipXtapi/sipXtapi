@@ -11,32 +11,88 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Set;
+
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-/**
- * Line on a phone
- */
-public interface Line extends DataCollectionItem {
-    
-    public Phone getPhone();
-    
-    public void setPhone(Phone phone);
-    
-    public void setLineData(LineData meta);
+public class Line extends BeanWithGroups implements DataCollectionItem {
 
-    public LineData getLineData();
+    private Phone m_phone;
 
-    public Setting getSettings();
+    private String m_uri;
     
-    public Setting getSettingModel();
+    private User m_user;
     
-    public String getUri();
+    private int m_position;
     
-    public void setUri(String uri);
+    public User getUser() {
+        return m_user;
+    }
 
-    public Object getAdapter(Class adatper);
+    public void setUser(User user) {
+        m_user = user;
+    }
+
+    public String getDisplayLabel() {
+        return m_user.getUserName();
+    }
+
+    public int getPosition() {
+        return m_position;
+    }
+
+    public void setPosition(int position) {
+        m_position = position;
+    }
     
-    /** implementation need to declare they implement PrimaryKeySource */
-    public Object getPrimaryKey();
+    public Setting getSettingModel() {
+        Setting model = getPhone().getLineSettingModel();
+        return model != null ? model.copy() : null;
+    }
+    
+    public Set getGroups() {
+        // Use phone groups until we can justify lines
+        // having their own groups and work out a reasonable UI
+        Set groups = getPhone().getGroups();
+        
+        return groups;
+    }
+    
+    public PhoneContext getPhoneContext() {
+        return getPhone().getPhoneContext();
+    }
+
+    public Phone getPhone() {
+        return m_phone;
+    }
+
+    public void setPhone(Phone phone) {
+        m_phone = phone;
+    }
+
+    protected void defaultSettings() {
+        getPhone().defaultLineSettings(this);
+    }
+    
+    public Object getAdapter(Class interfac) {
+        Object adapter = getPhone().getLineAdapter(this, interfac);
+        return adapter;
+    }
+    
+    public String getUri() {
+        // HACK: uri is determined by it's settings, so need to initialize
+        // them before determining the URI. hesitated to create an initialize()
+        // method on phones and lines for the moment as to not introduce yet 
+        // another setup requirement on related objects.
+        getSettings();
+        
+        return m_uri;
+    }
+    
+    public void setUri(String uri) {
+        m_uri = uri;
+    }
 }

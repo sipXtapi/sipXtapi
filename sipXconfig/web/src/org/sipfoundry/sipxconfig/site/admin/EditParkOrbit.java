@@ -19,7 +19,6 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.callgroup.ParkOrbit;
-import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -65,9 +64,6 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
      * @param cycle current request cycle
      */
     public void formSubmit(IRequestCycle cycle) {
-        AssetSelector assetSelector = getAssetSelector();
-        assetSelector.checkFileUpload();
-
         if (!isValid()) {
             return;
         }
@@ -85,15 +81,7 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
                 .getBean("descriptionValidator");
         descriptionValidator.validate(delegate);
 
-        AssetSelector assetSelector = getAssetSelector();
-        assetSelector.validateNotEmpty(delegate,
-                "You must select an existing music on hold or upload a new one.");
-
         return !delegate.getHasErrors();
-    }
-
-    private AssetSelector getAssetSelector() {
-        return (AssetSelector) getComponent("musicOnHoldSelector");
     }
 
     private void saveValid() {

@@ -16,10 +16,10 @@ import java.util.Collection;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.sipfoundry.sipxconfig.setting.FilterRunner;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 /**
  * Baseclass for velocity template generators
@@ -38,10 +38,9 @@ public class VelocityProfileGenerator {
     
     private static final SettingFilter SETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root, Setting setting) {
-            boolean firstLevel = (setting.getParent() == root); 
-            boolean group = SettingSet.class.isAssignableFrom(setting.getClass());
-            
-            return !group && firstLevel;
+            boolean firstGeneration = setting.getParentPath().equals(root.getPath());
+            boolean isLeaf = setting.getValues().isEmpty();            
+            return firstGeneration && isLeaf;
         }
     };        
 
@@ -69,11 +68,11 @@ public class VelocityProfileGenerator {
      * Velocity macro convienence method. Recursive list of all settings, ignoring groups
      */
     public Collection getRecursiveSettings(Setting group) {
-        return FilterRunner.filter(RECURSIVE_SETTINGS, group);        
+        return SettingUtil.filter(RECURSIVE_SETTINGS, group);        
     }
 
     public Collection getSettings(Setting group) {
-        return FilterRunner.filter(SETTINGS, group);        
+        return SettingUtil.filter(SETTINGS, group);        
     }
     
     /**
@@ -85,7 +84,6 @@ public class VelocityProfileGenerator {
     
     protected void addContext(VelocityContext context) {
         context.put("phone", getPhone());
-        context.put("endpoint", getPhone().getPhoneData());
         context.put("cfg", this);                        
     }
 

@@ -19,8 +19,8 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneData;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
@@ -43,7 +43,7 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     }
     
     public Map getMemberCounts() {
-        Map memberCount = getSettingContext().getGroupMemberCountIndexedByGroupId(PhoneData.class);
+        Map memberCount = getSettingContext().getGroupMemberCountIndexedByGroupId(Phone.class);
         
         return memberCount;
     }

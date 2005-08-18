@@ -9,7 +9,11 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/xmlunit/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/xmlunit/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlunit-1.0.jar">
+		<attributes>
+			<attribute value="http://xmlunit.sourceforge.net/doc" name="javadoc_location"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry sourcepath="/LIB_SRC/velocity/src.zip" kind="var" path="SIPX_CONFIG/lib/velocity-1.4.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/commons-beanutils/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/dom4j/1.6.1/src.zip" kind="var" path="SIPX_CONFIG/lib/dom4j-1.6.1.jar"/>

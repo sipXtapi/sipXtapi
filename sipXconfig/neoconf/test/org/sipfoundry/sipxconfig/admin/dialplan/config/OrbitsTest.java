@@ -21,6 +21,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.admin.callgroup.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.callgroup.ParkOrbit;
+import org.sipfoundry.sipxconfig.common.TestUtil;
 
 public class OrbitsTest extends XMLTestCase {
     private Collection m_parkOrbits;
@@ -57,6 +58,9 @@ public class OrbitsTest extends XMLTestCase {
         orbits.setAudioDirectory("/var/sipxdata/parkserver/music");
         orbits.generate(new BackgroundMusic(), m_parkOrbits);
         String generatedXml = orbits.getFileContent();
+        // orbits file on windows includes "c:/" etc
+        generatedXml = generatedXml.replaceAll(TestUtil.currentDrive(), "");
+        generatedXml = generatedXml.replace('\\', '/');
         InputStream referenceXml = OrbitsTest.class.getResourceAsStream("orbits.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
     }

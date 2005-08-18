@@ -40,7 +40,7 @@ public abstract class UserGroups extends BasePage  implements PageRenderListener
         
     public void addGroup(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
-        page.newGroup("user", PAGE);
+        page.newGroup(User.GROUP_RESOURCE_ID, PAGE);
         cycle.activate(page);
     }
     

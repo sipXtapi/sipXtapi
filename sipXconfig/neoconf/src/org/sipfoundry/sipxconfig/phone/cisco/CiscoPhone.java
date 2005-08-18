@@ -11,36 +11,25 @@
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
 
-import java.io.File;
-
-import org.sipfoundry.sipxconfig.phone.GenericPhone;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * Support for Cisco 7940/7960
  */
-public abstract class CiscoPhone extends GenericPhone {
-
-    public static final String FACTORY_ID = "cisco";
+public abstract class CiscoPhone extends Phone {
 
     public static final String PORT = "port";
     
     public static final String SIP = "sip";
 
     private String m_phoneTemplate;
-
-    public Setting getSettingModel() {
-        File sysDir = new File(getPhoneContext().getSystemDirectory());
-        File modelDefsFile = new File(sysDir, getModelFile());
-        Setting all = new XmlModelBuilder(sysDir).buildModel(modelDefsFile);
-        Setting model = all.getSetting(getModel().getModelId());
-        
-        return model;
+    
+    protected CiscoPhone(String beanId) {
+        super(beanId);
     }
     
-    public CiscoModel getModel() {
-        return CiscoModel.getModel(getPhoneData().getFactoryId());
+    protected CiscoPhone(CiscoModel model) {
+        super(model);
     }
 
     public abstract String getPhoneFilename();
@@ -54,6 +43,6 @@ public abstract class CiscoPhone extends GenericPhone {
     }
 
     public int getMaxLineCount() {
-        return getModel().getMaxLines();
+        return getModel().getMaxLineCount();
     }
 }

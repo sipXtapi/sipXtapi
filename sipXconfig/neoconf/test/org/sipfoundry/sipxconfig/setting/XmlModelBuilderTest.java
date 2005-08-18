@@ -47,7 +47,7 @@ public class XmlModelBuilderTest extends TestCase {
     public void testReadingGames() throws IOException {
         InputStream in = getClass().getResourceAsStream("games.xml");
         SettingSet games = m_builder.buildModel(in);
-        assertNull(games.getName());
+        assertEquals("", games.getName());
         assertEquals(2, games.getValues().size());
 
         SettingSet chess = (SettingSet) games.getSetting("chess");
@@ -124,10 +124,10 @@ public class XmlModelBuilderTest extends TestCase {
     public void testFlags() throws Exception {
         InputStream in = getClass().getResourceAsStream("genders.xml");
         SettingSet root = m_builder.buildModel(in);
-        Setting reason = root.getSetting("/man/reason");
+        Setting reason = root.getSetting("man/reason");
         assertFalse(reason.isAdvanced());
         assertTrue(reason.isHidden());
-        Setting giveBirth = root.getSetting("/woman/giveBirth");
+        Setting giveBirth = root.getSetting("woman/giveBirth");
         assertTrue(giveBirth.isAdvanced());
         assertFalse(giveBirth.isHidden());
     }

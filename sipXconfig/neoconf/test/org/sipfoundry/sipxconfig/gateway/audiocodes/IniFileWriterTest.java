@@ -20,6 +20,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
@@ -80,7 +81,7 @@ public class IniFileWriterTest extends TestCase {
         first.acceptVisitor(iniWriter); // without new line
         iniWriter.setGroupNameSuffix(" XXX");
         second.acceptVisitor(iniWriter); // with new line
-
-        assertEquals("[first]\n\n\n[second XXX]\n\n", writer.toString());
+        String actual = TestUtil.cleanEndOfLines("[first]\n\n\n[second XXX]\n\n");        
+        assertEquals(actual, writer.toString());
     }
 }

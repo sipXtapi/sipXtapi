@@ -41,10 +41,10 @@ public class EditPhoneTestUi extends WebTestCase {
     }
 
     public void testEditPhone() {
-        selectOption("phoneModel", "Polycom SoundPoint IP 300");
+        setFormElement("serialNumber", "a00000000001");
         clickButton("phone:ok");
         String[][] table = new String[][] {
-            { "a00000000000", "", "Polycom SoundPoint IP 300" },                
+            { "a00000000001", "", "Polycom SoundPoint IP 500" },                
         };
         assertTextInTable("phone:list", table[0]);        
     }

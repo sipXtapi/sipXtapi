@@ -22,15 +22,11 @@ public class GrandstreamPhoneTest extends TestCase {
     
     GrandstreamPhone phone;
     
-    GrandstreamLine line;
-
     PhoneTestDriver tester;
     
     protected void setUp() {
-        phone = new GrandstreamPhone();
-        line = new GrandstreamLine();
-        tester = new PhoneTestDriver(phone, GrandstreamModel.MODEL_BUDGETONE.getModelId(), line, 
-                GrandstreamLine.FACTORY_ID);
+        phone = new GrandstreamPhone(GrandstreamModel.MODEL_BUDGETONE);
+        tester = new PhoneTestDriver(phone, "grandstream/phone.xml");
     }
 
     public void testGenerateProfiles() throws Exception {

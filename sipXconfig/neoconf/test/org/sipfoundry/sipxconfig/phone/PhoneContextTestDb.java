@@ -45,10 +45,8 @@ public class PhoneContextTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
-        Phone p = m_context.newPhone("polycom600");
-        PhoneData data = p.getPhoneData();
-        data.setFactoryId("test");
-        data.setSerialNumber("999123456");
+        Phone p = m_context.newPhone(Phone.MODEL);
+        p.setSerialNumber("999123456");
 
         try {
             m_context.storePhone(p);
@@ -63,7 +61,7 @@ public class PhoneContextTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/DuplicateSerialNumberSeed.xml");
 
         Phone p = m_context.loadPhone(new Integer(1000));
-        p.getPhoneData().setSerialNumber("000000000002");
+        p.setSerialNumber("000000000002");
         try {
             m_context.storePhone(p);
             fail("should have thrown DuplicateFieldException");
@@ -76,7 +74,7 @@ public class PhoneContextTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
         
-        Map counts = m_settingContext.getGroupMemberCountIndexedByGroupId(PhoneData.class);
+        Map counts = m_settingContext.getGroupMemberCountIndexedByGroupId(Phone.class);
         assertEquals(2, counts.size());
         assertEquals(new Integer(2), counts.get(new Integer(1001)));
         assertEquals(new Integer(1), counts.get(new Integer(1002)));

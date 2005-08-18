@@ -73,7 +73,7 @@
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups,default-user-group,user_name" />
+    depends="initialization_task,user_groups,admin-group-and-user,user_name,phoneBeanId,meetme" />
   
   <target name="schema" unless="schema">
     <sipx-sql>
@@ -98,18 +98,29 @@
   <target name="user_groups" unless="user_groups">
     <db-patch patch="user_groups"/>
   </target>
-  <target name="default-user-group" unless="default-user-group">
+  <target name="admin-group-and-user" unless="admin-group-and-user">
     <sipx-sql>
-      	insert into initialization_task (name) values ('default-user-group');
+      	insert into initialization_task (name) values ('admin-group-and-user');
     </sipx-sql>
-  	<mark-patch-applied patch="default-user-group"/>
+  	<mark-patch-applied patch="admin-group-and-user"/>
+  </target>
+  <target name="phoneBeanId" unless="phoneBeanId">
+    <sipx-sql>
+      	alter table phone rename column factory_id to bean_id;
+      	alter table phone add column model_id varchar(64);
+    </sipx-sql>
+  	<mark-patch-applied patch="phoneBeanId"/>
   </target>	  
   <target name="user_name" unless="user_name">
     <sipx-sql>
 		alter table users rename column display_id to user_name;
     </sipx-sql>
   	<mark-patch-applied patch="user_name"/>
-  </target>	  
+  </target>
+  <target name="meetme" unless="meetme">
+    <db-patch patch="meetme"/>
+  </target>  
+  
   <!--
     - SUPPORT UTILITIES
     -->

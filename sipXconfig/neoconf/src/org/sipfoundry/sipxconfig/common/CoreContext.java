@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -32,7 +31,7 @@ public interface CoreContext extends DataObjectSource {
     
     public void deleteUser(User user);
 
-    public void deleteUsers(Collection users);
+    public void deleteUsers(Collection usersIds);
 
     public User loadUser(Integer id);
     
@@ -50,12 +49,6 @@ public interface CoreContext extends DataObjectSource {
     
     public void clear();
     
-    public boolean checkUserPermission(User user, Permission p);
-    
-    public Group loadRootUserGroup();
-    
-    public List getUserGroupsWithoutRoot();
-
     public List getUserGroups();
     
     /**
@@ -65,7 +58,10 @@ public interface CoreContext extends DataObjectSource {
 
     public List getUserAliases();
 
-    public void setProcessContext(SipxProcessContext processContext);
-
-    public SipxProcessContext getProcessContext();
+    public Collection getGroupMembers(Group group);
+    
+    /**
+     * Called internally by boot-up process
+     */
+    public void createAdminGroupAndInitialUserTask();
 }

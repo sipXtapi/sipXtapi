@@ -28,8 +28,8 @@
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="source" expression="phones"/>
-		<binding name="columns">'* Phone:phoneData.serialNumber,' + 
-			'!Lines,Model:phoneData.modelLabel'</binding>
+		<binding name="columns">'* Phone:serialNumber,' + 
+			'!Lines,Model:model.label'</binding>
         <static-binding name="pageSize" value="20"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
@@ -55,7 +55,7 @@
         <binding name="parameters" expression="currentRow.primaryKey"/>
     </component>
     <component id="phoneLabel" type="Insert"> 
-        <binding name="value" expression="currentRow.phoneData.displayLabel"/>
+        <binding name="value" expression="currentRow.displayLabel"/>
     </component>
     <!-- Column 3: edit lines -->
     <component id="LinesColumnValue" type="Block"/>
@@ -68,7 +68,7 @@
         <binding name="parameters" expression="currentLine.primaryKey"/>
     </component>
     <component id="lineLabel" type="Insert">
-        <binding name="value" expression="currentLine.lineData.displayLabel"/>
+        <binding name="value" expression="currentLine.displayLabel"/>
     </component>    
     <component id="sendProfiles" type="Submit">
         <binding name="listener" expression="listeners.generateProfiles"/>

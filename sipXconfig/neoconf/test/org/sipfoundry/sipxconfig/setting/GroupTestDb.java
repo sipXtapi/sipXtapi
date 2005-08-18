@@ -30,21 +30,6 @@ public class GroupTestDb extends TestCase {
         m_dao = (SettingDao) context.getBean("settingDao");
     }
 
-// TODO:Not sure this is still valid, rework here    
-//    public void testGetRootGroup() throws Exception {
-//        TestHelper.cleanInsert("ClearDb.xml");
-//
-//        Group root = m_dao.loadRootGroup("unittest");
-//        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/GetRootGroupExpected.xml");
-//        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-//        expectedRds.addReplacementObject("[group_id]", root.getId());
-//        expectedRds.addReplacementObject("[null]", null);
-//
-//        ITable expected = expectedRds.getTable("group_storage");
-//        ITable actual = TestHelper.getConnection().createDataSet().getTable("group_storage");
-//        Assertion.assertEquals(expected, actual);
-//    }
-
     public void testSave() throws Throwable {
         TestHelper.cleanInsert("ClearDb.xml");
 
@@ -55,9 +40,9 @@ public class GroupTestDb extends TestCase {
         Group ms = new Group();
         ms.setResource("unittest");
         ms.setName("food");
-        SettingSet copy = (SettingSet) ms.decorate(root);
-        copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
-        copy.getSetting("vegetable").getSetting("pea").setValue(null);
+        ms.decorate(root);
+        root.getSetting("fruit").getSetting("apple").setValue("granny smith");
+        root.getSetting("vegetable").getSetting("pea").setValue(null);
 
         m_dao.storeGroup(ms);
 
@@ -84,12 +69,12 @@ public class GroupTestDb extends TestCase {
         root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
         Group ms = m_dao.loadGroup(new Integer(1));
-        Setting copy = ms.decorate(root);
+        ms.decorate(root);
         // should make it disappear
-        copy.getSetting("fruit").getSetting("apple").setValue("granny smith");
+        root.getSetting("fruit").getSetting("apple").setValue("granny smith");
 
         // should make it update
-        copy.getSetting("vegetable").getSetting("pea").setValue("snap pea");
+        root.getSetting("vegetable").getSetting("pea").setValue("snap pea");
 
         assertEquals(1, ms.getValues().size());
         m_dao.storeGroup(ms);

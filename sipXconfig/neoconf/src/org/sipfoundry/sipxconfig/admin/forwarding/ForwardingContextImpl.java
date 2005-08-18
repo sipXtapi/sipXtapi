@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserDeleteListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -29,9 +30,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext {
     private CoreContext m_coreContext;
-    
+
     private SipxProcessContext m_processContext;
-    
 
     /**
      * Looks for a call sequence associated with a given user.
@@ -93,15 +93,15 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public List getForwardingAuthExceptions() {
         List aliases = new ArrayList();
-        List sequences = loadAllCallSequences();        
+        List sequences = loadAllCallSequences();
         for (Iterator i = sequences.iterator(); i.hasNext();) {
             CallSequence sequence = (CallSequence) i.next();
             User user = sequence.getUser();
-            if (m_coreContext.checkUserPermission(user, Permission.FORWARD_CALLS_EXTERNAL)) {
+            if (user.hasPermission(Permission.FORWARD_CALLS_EXTERNAL)) {
                 aliases.addAll(sequence.generateAuthExceptions());
             }
         }
-        
+
         return aliases;
     }
 
@@ -118,8 +118,20 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
-    
+
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
-    }    
+    }
+
+    public UserDeleteListener createUserDeleteListener() {
+        return new OnUserDelete();
+    }
+
+    private class OnUserDelete extends UserDeleteListener {
+        protected void onUserDelete(User user) {
+            // false means - do not replicate - since we are deleting the user it'll happen
+            // automatically
+            removeCallSequenceForUserId(user.getId(), false);
+        }
+    }
 }

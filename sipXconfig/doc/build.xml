@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="documentation" default="doc" basedir=".">
+<project name="documentation" default="default" basedir=".">
 
 	<patternset id="test.classes" excludes="**" />
 
@@ -22,7 +22,7 @@
 	</xmlcatalog>
 
 	<!-- M A I N  T A R G E T -->
-	<target name="doc" depends="manual,neoconf-prototype,api-avoid-rebuilding,api" />
+	<target name="default" depends="manual,neoconf-prototype,api-avoid-rebuilding,api" />
 	
 	<!-- I N I T -->
 	<target name="init">

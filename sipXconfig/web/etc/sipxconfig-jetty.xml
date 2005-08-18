@@ -58,10 +58,22 @@
     </Arg>
   </Call>
 
+  <!-- Call name="addListener">
+    <Arg>
+      <New class="org.mortbay.http.SunJsseListener">
+        <Set name="Port">8443</Set>     
+        <Set name="Keystore"><SystemProperty name="jetty.conf" default="."/>/ssl/ssl.p12</Set>
+	<Set name="Password">sipxpbx</Set>
+	<Set name="KeyPassword">sipxpbx</Set>
+      </New>
+    </Arg>
+  </Call -->
+
   <Set name="rootWebApp">sipxconfig</Set>
   <Call name="addWebApplication">
     <Arg>/sipxconfig</Arg>
     <Arg><SystemProperty name="jetty.lib.dir"/>/sipxconfig.war</Arg>
+    <Set name="extractWAR">true</Set>
   </Call>
 
 </Configure>

@@ -15,17 +15,23 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class BeanWithSettings extends BeanWithId {
 
+    /**
+     * While settings are getting decorated, this represents the settings that should be decorated
+     */
     private Setting m_settings;
 
     private ValueStorage m_valueStorage;
        
     private Setting m_model;
+    
+    /** settings are lazy loaded */
+    private boolean m_initializedSettings;
 
     /**
      * @return undecorated model - direct representation of XML model description
      */
     public Setting getSettingModel() {
-        return m_model;
+        return (m_model != null ? m_model.copy() : null);
     }
     
     public void setSettingModel(Setting model) {
@@ -36,28 +42,40 @@ public class BeanWithSettings extends BeanWithId {
      * @return decorated model - use this to modify phone settings
      */
     public Setting getSettings() {
-        if (m_settings == null) {
-            m_settings = decorateSettings(getSettingModel());
+        if (!m_initializedSettings) {
+            m_initializedSettings = true;
+            setSettings(getSettingModel());
+            defaultSettings();
+            decorateSettings();
         }
 
         return m_settings;
     }
     
-    protected Setting decorateSettings(Setting settings) {
+    protected void setSettings(Setting settings) {
+        m_settings = settings;
+    }
+        
+    protected void decorateSettings() {
+        Setting settings = getSettings();
         if (settings == null) {
-            // it's OK for a gateway not to provide settings
-            return null;
+            return;
         }
         
         if (m_valueStorage == null) {
             m_valueStorage = new ValueStorage();
         }
-
-        Setting decorated = m_valueStorage.decorate(settings);
         
-        // TODO do we need setDefaults(); here        
-
-        return decorated;
+        m_valueStorage.decorate(settings);
+        setSettings(settings);
+    }
+    
+    /**
+     * Make adjustments to current settings based on object state sparing the user 
+     * from having to specifiy them. Default implementation applys no defaults, override
+     * to supply your own.
+     */
+    protected void defaultSettings() {
     }
     
     public void setValueStorage(ValueStorage valueStorage) {

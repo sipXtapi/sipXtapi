@@ -33,7 +33,8 @@
         <binding name="asset" expression="music"/>
         <binding name="assetDir" expression="page.global.orbitsGenerator.audioDirectory"/>
         <message-binding name="selectLabel" key="label.music"/>
-        <message-binding name="uploadLabel" key="label.upload"/>        
+        <message-binding name="uploadLabel" key="label.upload"/>
+        <message-binding name="errorMsg" key="error.select"/>        
     </component>
             
     <component id="onSave" type="Submit">

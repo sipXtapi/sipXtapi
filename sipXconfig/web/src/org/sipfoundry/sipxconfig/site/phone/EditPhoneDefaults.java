@@ -19,14 +19,14 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineData;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.FilterRunner;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public abstract class EditPhoneDefaults extends BasePage implements PageRenderListener {
     
@@ -40,9 +40,9 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     
     public abstract Phone getPhone();
     
-    public abstract String getPhoneFactoryId();
+    public abstract PhoneModel getPhoneModel();
     
-    public abstract void setPhoneFactoryId(String factoryId);
+    public abstract void setPhoneModel(PhoneModel model);
     
     public abstract Group getGroup();
     
@@ -73,8 +73,8 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     /**
      * Entry point for other pages to edit a phone model's default settings 
      */
-    public void editPhoneSettings(String factoryId, Integer groupId) {
-        setPhoneFactoryId(factoryId);
+    public void editPhoneSettings(PhoneModel phoneModel, Integer groupId) {
+        setPhoneModel(phoneModel);
         setEditFormSettingName(null);
         setGroupId(groupId);
     }
@@ -119,17 +119,17 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     }
 
     public void pageBeginRender(PageEvent event_) {
-        if (getPhoneFactoryId() == null) {
+        if (getPhoneModel() == null) {
             throw new IllegalArgumentException("phone factory id required");
         }
         setGroup(getSettingDao().loadGroup(getGroupId()));
         
-        Phone phone = getPhoneContext().newPhone(getPhoneFactoryId());
-        phone.getPhoneData().addGroup(getGroup());
+        Phone phone = getPhoneContext().newPhone(getPhoneModel());
+        phone.addGroup(getGroup());
         
-        Line line = phone.createLine(new LineData());
+        Line line = phone.createLine();
         phone.addLine(line);
-        line.getLineData().addGroup(getGroup());
+        line.addGroup(getGroup());
 
         setPhone(phone);
         
@@ -155,9 +155,11 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
             rootSettings = getPhone().getLine(0).getSettingModel().copy();
         }
 
+        getGroup().decorate(rootSettings);
+        
         Setting subset = rootSettings.getSetting(getEditFormSettingName());
         setEditFormSetting(subset);
-        Setting decorated = getGroup().decorate(subset);
-        setEditFormSettings(FilterRunner.filter(SettingFilter.ALL, decorated));
+        
+        setEditFormSettings(SettingUtil.filter(SettingFilter.ALL, subset));
     }    
 }

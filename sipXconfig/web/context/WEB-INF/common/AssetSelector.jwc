@@ -22,6 +22,9 @@
     <parameter name="uploadLabel" type="java.lang.String" 
     	required="no" direction="in" 
     	default-value="'Upload prompt'"/>
+    
+    <parameter name="errorMsg" type="java.lang.String" 
+        direction="in" required="yes"/>
 
     <!-- P R O P E R T I E S -->    
 	<property-specification name="uploadAsset" type="org.apache.tapestry.request.IUploadFile"/>

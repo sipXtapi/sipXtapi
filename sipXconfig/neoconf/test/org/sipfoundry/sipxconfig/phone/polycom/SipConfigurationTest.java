@@ -30,19 +30,12 @@ public class SipConfigurationTest  extends XMLTestCase {
     
     PolycomPhone phone;
     
-    PolycomLine line;
-
     PhoneTestDriver tester;
     
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
-        phone = new PolycomPhone();
-        line = new PolycomLine();
-        tester = new PhoneTestDriver(phone, PolycomModel.MODEL_600.getName(), line, 
-                PolycomLine.FACTORY_ID);
-        phone.setDefaults(tester.defaults);
-        phone.setTftpRoot(TestHelper.getTestDirectory());
-        line.setDefaults(tester.defaults);
+        phone = new PolycomPhone(PolycomModel.MODEL_600);
+        tester = new PhoneTestDriver(phone, "polycom/phone.xml");        
     }
     
     public void testGenerateProfile() throws Exception {
@@ -54,7 +47,7 @@ public class SipConfigurationTest  extends XMLTestCase {
         endpointSettings.getSetting("call/rejectBusyOnDnd").setValue("0");
         endpointSettings.getSetting("voIpProt.SIP/local/port").setValue("5061");
 
-        Setting lineSettings = line.getSettings();
+        Setting lineSettings = tester.line.getSettings();
         lineSettings.getSetting("call/serverMissedCall/enabled").setValue("1");
         
         VelocityProfileGenerator cfg = new VelocityProfileGenerator(phone);

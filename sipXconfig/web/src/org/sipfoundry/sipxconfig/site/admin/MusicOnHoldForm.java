@@ -11,14 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.AbstractComponent;
+import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class MusicOnHoldForm extends BaseComponent implements PageRenderListener {
@@ -42,23 +40,10 @@ public abstract class MusicOnHoldForm extends BaseComponent implements PageRende
         if (!getCommitChanges()) {
             return;
         }
-        AssetSelector assetSelector = getAssetSelector();
-        assetSelector.checkFileUpload();
 
-        if (isValid()) {
+        if (TapestryUtils.isValid((AbstractPage) getPage())) {
             saveValid();
         }
-    }
-
-    private boolean isValid() {
-        IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
-        AssetSelector assetSelector = getAssetSelector();
-        assetSelector.validateNotEmpty(delegate, getMessage("selector.error"));
-        return !delegate.getHasErrors();
-    }
-
-    private AssetSelector getAssetSelector() {
-        return (AssetSelector) getComponent("musicOnHoldSelector");
     }
 
     private void saveValid() {

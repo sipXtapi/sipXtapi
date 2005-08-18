@@ -39,12 +39,12 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         m_delegate = delegate;
     }
 
-    public Setting getParent() {
-        return m_delegate.getParent();
+    public String getParentPath() {
+        return m_delegate.getParentPath();
     }
 
-    public void setParent(Setting setting) {
-        m_delegate.setParent(setting);
+    public void setParentPath(String path) {
+        m_delegate.setParentPath(path);
     }
 
     public String getPath() {
@@ -142,6 +142,8 @@ public abstract class SettingDecorator implements Setting, Cloneable {
     }
 
     public Setting copy() {
-        return (Setting) clone();
+        SettingDecorator copy = (SettingDecorator) clone(); 
+        copy.m_delegate = m_delegate.copy();
+        return copy;
     }
 }

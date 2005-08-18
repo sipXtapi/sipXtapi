@@ -14,17 +14,15 @@ package org.sipfoundry.sipxconfig.phone;
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
+import org.easymock.classextension.MockClassControl;
 
 
 public class JobManagerTest extends TestCase {
         
     public void testGenerateProfiles() throws Exception {
-        PhoneData phoneData = new PhoneData();
-        phoneData.setSerialNumber("000000000000");
-        
-        MockControl phoneControl = MockControl.createStrictControl(Phone.class);
+        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
         Phone phone = (Phone) phoneControl.getMock();
-        phoneControl.expectAndReturn(phone.getPhoneData(), phoneData);
+        phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
         phone.generateProfiles();        
         phoneControl.setVoidCallable(1);
         phone.restart();
@@ -54,12 +52,9 @@ public class JobManagerTest extends TestCase {
     }
     
     public void testRestartException() throws Exception {
-        PhoneData phoneData = new PhoneData();
-        phoneData.setSerialNumber("000000000000");
-        
-        MockControl phoneControl = MockControl.createStrictControl(Phone.class);
+        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
         Phone phone = (Phone) phoneControl.getMock();
-        phoneControl.expectAndReturn(phone.getPhoneData(), phoneData);
+        phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
         phone.restart();
         phoneControl.setVoidCallable(1);
         phoneControl.replay();
