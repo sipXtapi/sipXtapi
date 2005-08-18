@@ -57,7 +57,7 @@ public final class TestHelper {
         // default XML parser (crimson) cannot resolve relative DTDs, google for bug
         System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
     }
-    
+
     public static ApplicationContext getApplicationContext() {
         if (s_appContext == null) {
             getSysDirProperties();
@@ -68,13 +68,13 @@ public final class TestHelper {
 
         return s_appContext;
     }
-    
+
     public static Setting loadSettings(String path) {
-      String sysdir = getSysDirProperties().getProperty("sysdir.etc");
-      XmlModelBuilder builder = new XmlModelBuilder(sysdir);
-      Setting settings = builder.buildModel(new File(sysdir + "/" + path));
-      
-      return settings;
+        String sysdir = getSysDirProperties().getProperty("sysdir.etc");
+        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
+        Setting settings = builder.buildModel(new File(sysdir + "/" + path));
+
+        return settings;
     }
 
     public static String getClasspathDirectory() {
@@ -82,17 +82,17 @@ public final class TestHelper {
     }
 
     public static VelocityEngine getVelocityEngine() {
-        
+
         try {
             Properties sysdir = getSysDirProperties();
-    
+
             String etcDir = sysdir.getProperty("sysdir.etc");
-    
+
             VelocityEngine engine = new VelocityEngine();
             engine.setProperty("resource.loader", "file");
             engine.setProperty("file.resource.loader.path", etcDir);
             engine.init();
-    
+
             return engine;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -105,13 +105,19 @@ public final class TestHelper {
 
     public static Properties getSysDirProperties() {
         if (s_sysDirProps == null) {
-            String etcDir = TestUtil.getProjectDirectory() + "/etc";
-            String outDir = getTestDirectory();
-            s_sysDirProps = new Properties(); 
-            TestUtil.setSysDirProperties(s_sysDirProps, etcDir, outDir);
-            TestUtil.saveSysDirProperties(s_sysDirProps, getClasspathDirectory());
+            String classpathDirectory = getClasspathDirectory();
+            s_sysDirProps = initSysDirProperties(classpathDirectory);
         }
         return s_sysDirProps;
+    }
+
+    public static Properties initSysDirProperties(String dir) {
+        String etcDir = TestUtil.getProjectDirectory() + "/etc";
+        String outDir = getTestDirectory();
+        Properties props = new Properties();
+        TestUtil.setSysDirProperties(props, etcDir, outDir);
+        TestUtil.saveSysDirProperties(props, dir);
+        return props;
     }
 
     public static IDatabaseConnection getConnection() throws Exception {
@@ -131,8 +137,12 @@ public final class TestHelper {
 
     public static void main(String[] args) {
         try {
+            if (args.length > 0) {
+                s_sysDirProps = initSysDirProperties(args[0]);
+            }
             generateDbDtd();
             generateDbXml();
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -143,14 +153,14 @@ public final class TestHelper {
         IDatabaseConnection c = getConnection();
 
         FlatDtdDataSet.write(c.createDataSet(), new FileOutputStream(
-                "test/org/sipfoundry/sipxconfig/sipxconfig-dataset.dtd"));
+                "test/org/sipfoundry/sipxconfig/sipxconfig-db.dtd"));
     }
 
     private static void generateDbXml() throws Exception {
         IDatabaseConnection c = getConnection();
 
         XmlDataSet.write(c.createDataSet(), new FileOutputStream(
-                "test/org/sipfoundry/sipxconfig/sipxconfig-dataset.xml"));
+                "test/org/sipfoundry/sipxconfig/sipxconfig-db.xml"));
     }
 
     public static IDataSet loadDataSet(String fileResource) throws Exception {
@@ -160,14 +170,15 @@ public final class TestHelper {
 
     public static IDataSet loadDataSetFlat(String resource) throws Exception {
         InputStream datasetStream = TestHelper.class.getResourceAsStream(resource);
-        return new FlatXmlDataSet(datasetStream);
+        // we do not want to use metadata since it DBTestUnit resolves relative DTDs incorrectly
+        // we are checking XML validity in separate Ant tasks (test-dataset) 
+        return new FlatXmlDataSet(datasetStream, false);
     }
 
     public static void cleanInsert(String resource) throws Exception {
         try {
             DatabaseOperation.CLEAN_INSERT.execute(getConnection(), loadDataSet(resource));
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             throw e.getNextException();
         }
     }
@@ -202,18 +213,20 @@ public final class TestHelper {
             }
         }
     }
-    
+
     /**
      * Use in test to create copy of example files to be changed by test methods.
+     * 
      * @param from input stream
      * @param dir destination directory
      * @param filename destination file name
      * @throws IOException
      */
-    public static final void copyStreamToDirectory(InputStream from, String dir, String filename) throws IOException {
+    public static final void copyStreamToDirectory(InputStream from, String dir, String filename)
+            throws IOException {
         FileOutputStream to = new FileOutputStream(new File(dir, filename));
         CopyUtils.copy(from, to);
         IOUtils.closeQuietly(to);
         IOUtils.closeQuietly(from);
-    }    
+    }
 }

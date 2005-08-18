@@ -1,163 +1,190 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!ELEMENT dataset (
-    admin_group_assignments*,
-    admin_groups*,
-    aliases*,
-    app_ag_assoc*,
-    application_groups*,
-    applications*,
-    config_sets*,
-    core_software_details*,
-    cs_profile_details*,
-    cs_property_permissions*,
-    endpoint*,
-    extension_pools*,
-    extensions*,
-    jobs*,
+    attendant_menu_item*,
+    auto_attendant*,
+    backup_plan*,
+    call_group*,
+    custom_dialing_rule*,
+    custom_dialing_rule_permission*,
+    daily_backup_schedule*,
+    dial_pattern*,
+    dial_plan*,
+    dialing_rule*,
+    dialing_rule_gateway*,
+    emergency_dialing_rule*,
+    gateway*,
+    group_storage*,
+    group_weight*,
+    initialization_task*,
+    internal_dialing_rule*,
+    international_dialing_rule*,
+    job*,
     line*,
-    log_phone_cs_assoc*,
-    logical_phones*,
-    manufacturers*,
-    organizations*,
-    patches*,
-    phone_characteristics*,
-    phone_groups*,
-    phone_type_csd_assoc*,
-    phone_types*,
-    png_cs_assoc*,
-    profile_data*,
-    ref_config_sets*,
-    ref_phone_characteristics*,
-    ref_properties*,
-    roles*,
-    setting*,
-    setting_map*,
-    storage*,
-    test_data*,
-    ug_cs_assoc*,
-    user_admin_assoc*,
-    user_ag_assoc*,
-    user_app_ref_assoc*,
-    user_cs_assoc*,
-    user_group_ag_assoc*,
-    user_groups*,
-    user_roles*,
+    line_group*,
+    local_dialing_rule*,
+    long_distance_dialing_rule*,
+    meetme_bridge*,
+    meetme_conference*,
+    meetme_participant*,
+    park_orbit*,
+    patch*,
+    phone*,
+    phone_group*,
+    ring*,
+    setting_value*,
+    user_group*,
+    user_ring*,
     users*,
-    versions*)>
+    value_storage*,
+    version_history*)>
 
-<!ELEMENT admin_group_assignments EMPTY>
-<!ATTLIST admin_group_assignments
-    id CDATA #REQUIRED
-    adm_grps_id CDATA #REQUIRED
-    usrs_id CDATA #IMPLIED
-    log_pn_id CDATA #IMPLIED
-    ug_id CDATA #IMPLIED
-    pg_id CDATA #IMPLIED
+<!ELEMENT attendant_menu_item EMPTY>
+<!ATTLIST attendant_menu_item
+    auto_attendant_id CDATA #REQUIRED
+    action CDATA #IMPLIED
+    parameter CDATA #IMPLIED
+    dialpad_key CDATA #REQUIRED
 >
 
-<!ELEMENT admin_groups EMPTY>
-<!ATTLIST admin_groups
-    id CDATA #REQUIRED
-    name CDATA #REQUIRED
-    org_id_1 CDATA #REQUIRED
->
-
-<!ELEMENT aliases EMPTY>
-<!ATTLIST aliases
-    alias CDATA #REQUIRED
-    user_id CDATA #REQUIRED
-    alias_order CDATA #REQUIRED
->
-
-<!ELEMENT app_ag_assoc EMPTY>
-<!ATTLIST app_ag_assoc
-    apps_id CDATA #REQUIRED
-    ag_id CDATA #REQUIRED
->
-
-<!ELEMENT application_groups EMPTY>
-<!ATTLIST application_groups
-    id CDATA #REQUIRED
-    name CDATA #REQUIRED
-    org_id CDATA #REQUIRED
->
-
-<!ELEMENT applications EMPTY>
-<!ATTLIST applications
-    id CDATA #REQUIRED
-    pt_id CDATA #REQUIRED
-    ref_prop_id CDATA #REQUIRED
-    url CDATA #REQUIRED
-    org_id CDATA #REQUIRED
-    name CDATA #REQUIRED
-    description CDATA #IMPLIED
->
-
-<!ELEMENT config_sets EMPTY>
-<!ATTLIST config_sets
-    id CDATA #REQUIRED
-    rcs_id CDATA #REQUIRED
-    profile_type CDATA #REQUIRED
-    content CDATA #REQUIRED
->
-
-<!ELEMENT core_software_details EMPTY>
-<!ATTLIST core_software_details
-    id CDATA #REQUIRED
-    installed_date CDATA #REQUIRED
-    description CDATA #IMPLIED
-    version CDATA #REQUIRED
-    name CDATA #REQUIRED
->
-
-<!ELEMENT cs_profile_details EMPTY>
-<!ATTLIST cs_profile_details
-    id CDATA #REQUIRED
-    projection_class CDATA #REQUIRED
-    csd_id CDATA #REQUIRED
-    file_name CDATA #REQUIRED
-    render_class CDATA #REQUIRED
-    profile_type CDATA #REQUIRED
-    xslt_url CDATA #REQUIRED
->
-
-<!ELEMENT cs_property_permissions EMPTY>
-<!ATTLIST cs_property_permissions
-    ref_prop_id CDATA #REQUIRED
-    rcs_id CDATA #REQUIRED
-    is_read_only CDATA #REQUIRED
-    is_final CDATA #REQUIRED
->
-
-<!ELEMENT endpoint EMPTY>
-<!ATTLIST endpoint
-    endpoint_id CDATA #REQUIRED
-    serial_number CDATA #REQUIRED
+<!ELEMENT auto_attendant EMPTY>
+<!ATTLIST auto_attendant
+    auto_attendant_id CDATA #REQUIRED
     name CDATA #IMPLIED
-    phone_id CDATA #REQUIRED
-    storage_id CDATA #IMPLIED
+    extension CDATA #IMPLIED
+    prompt CDATA #IMPLIED
+    system_id CDATA #IMPLIED
+    description CDATA #IMPLIED
 >
 
-<!ELEMENT extension_pools EMPTY>
-<!ATTLIST extension_pools
+<!ELEMENT backup_plan EMPTY>
+<!ATTLIST backup_plan
+    backup_plan_id CDATA #REQUIRED
+    limited_count CDATA #IMPLIED
+    configs CDATA #IMPLIED
+    voicemail CDATA #IMPLIED
+    dbase CDATA #IMPLIED
+>
+
+<!ELEMENT call_group EMPTY>
+<!ATTLIST call_group
+    call_group_id CDATA #REQUIRED
+    enabled CDATA #IMPLIED
+    name CDATA #IMPLIED
+    extension CDATA #IMPLIED
+    description CDATA #IMPLIED
+>
+
+<!ELEMENT custom_dialing_rule EMPTY>
+<!ATTLIST custom_dialing_rule
+    custom_dialing_rule_id CDATA #REQUIRED
+    call_pattern_digits CDATA #IMPLIED
+    call_pattern_prefix CDATA #IMPLIED
+>
+
+<!ELEMENT custom_dialing_rule_permission EMPTY>
+<!ATTLIST custom_dialing_rule_permission
+    custom_dialing_rule_id CDATA #REQUIRED
+    permission CDATA #IMPLIED
+>
+
+<!ELEMENT daily_backup_schedule EMPTY>
+<!ATTLIST daily_backup_schedule
+    daily_backup_schedule_id CDATA #REQUIRED
+    enabled CDATA #IMPLIED
+    time_of_day CDATA #IMPLIED
+    scheduled_day CDATA #IMPLIED
+    backup_plan_id CDATA #IMPLIED
+>
+
+<!ELEMENT dial_pattern EMPTY>
+<!ATTLIST dial_pattern
+    custom_dialing_rule_id CDATA #REQUIRED
+    element_prefix CDATA #IMPLIED
+    element_digits CDATA #IMPLIED
+    index CDATA #REQUIRED
+>
+
+<!ELEMENT dial_plan EMPTY>
+<!ATTLIST dial_plan
+    dial_plan_id CDATA #REQUIRED
+>
+
+<!ELEMENT dialing_rule EMPTY>
+<!ATTLIST dialing_rule
+    dialing_rule_id CDATA #REQUIRED
     name CDATA #REQUIRED
-    org_id CDATA #REQUIRED
-    id CDATA #REQUIRED
+    description CDATA #IMPLIED
+    enabled CDATA #IMPLIED
+    position CDATA #IMPLIED
+    dial_plan_id CDATA #IMPLIED
 >
 
-<!ELEMENT extensions EMPTY>
-<!ATTLIST extensions
-    extension_number CDATA #REQUIRED
-    ext_pool_id CDATA #REQUIRED
-    status CDATA #REQUIRED
+<!ELEMENT dialing_rule_gateway EMPTY>
+<!ATTLIST dialing_rule_gateway
+    dialing_rule_id CDATA #REQUIRED
+    gateway_id CDATA #REQUIRED
+    index CDATA #REQUIRED
 >
 
-<!ELEMENT jobs EMPTY>
-<!ATTLIST jobs
-    id CDATA #REQUIRED
-    type CDATA #REQUIRED
+<!ELEMENT emergency_dialing_rule EMPTY>
+<!ATTLIST emergency_dialing_rule
+    emergency_dialing_rule_id CDATA #REQUIRED
+    optional_prefix CDATA #IMPLIED
+    emergency_number CDATA #IMPLIED
+    use_media_server CDATA #IMPLIED
+>
+
+<!ELEMENT gateway EMPTY>
+<!ATTLIST gateway
+    gateway_id CDATA #REQUIRED
+    factory_id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    address CDATA #IMPLIED
+    description CDATA #IMPLIED
+    serial_number CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+>
+
+<!ELEMENT group_storage EMPTY>
+<!ATTLIST group_storage
+    group_id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    description CDATA #IMPLIED
+    resource CDATA #IMPLIED
+    weight CDATA #IMPLIED
+>
+
+<!ELEMENT group_weight EMPTY>
+<!ATTLIST group_weight
+    weight CDATA #REQUIRED
+>
+
+<!ELEMENT initialization_task EMPTY>
+<!ATTLIST initialization_task
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT internal_dialing_rule EMPTY>
+<!ATTLIST internal_dialing_rule
+    internal_dialing_rule_id CDATA #REQUIRED
+    auto_attendant_id CDATA #IMPLIED
+    local_extension_len CDATA #IMPLIED
+    voice_mail CDATA #IMPLIED
+    voice_mail_prefix CDATA #IMPLIED
+    aa_aliases CDATA #IMPLIED
+>
+
+<!ELEMENT international_dialing_rule EMPTY>
+<!ATTLIST international_dialing_rule
+    international_dialing_rule_id CDATA #REQUIRED
+    international_prefix CDATA #IMPLIED
+>
+
+<!ELEMENT job EMPTY>
+<!ATTLIST job
+    job_id CDATA #REQUIRED
+    type CDATA #IMPLIED
     status CDATA #IMPLIED
-    start_time CDATA #REQUIRED
+    start_time_string CDATA #IMPLIED
     details CDATA #IMPLIED
     progress CDATA #IMPLIED
     exception_message CDATA #IMPLIED
@@ -166,215 +193,151 @@
 <!ELEMENT line EMPTY>
 <!ATTLIST line
     line_id CDATA #REQUIRED
-    position CDATA #REQUIRED
+    phone_id CDATA #REQUIRED
+    position CDATA #IMPLIED
+    user_id CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+>
+
+<!ELEMENT line_group EMPTY>
+<!ATTLIST line_group
+    line_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
+>
+
+<!ELEMENT local_dialing_rule EMPTY>
+<!ATTLIST local_dialing_rule
+    local_dialing_rule_id CDATA #REQUIRED
+    external_len CDATA #IMPLIED
+    pstn_prefix CDATA #IMPLIED
+>
+
+<!ELEMENT long_distance_dialing_rule EMPTY>
+<!ATTLIST long_distance_dialing_rule
+    international_dialing_rule_id CDATA #REQUIRED
+    area_codes CDATA #IMPLIED
+    external_len CDATA #IMPLIED
+    long_distance_prefix CDATA #IMPLIED
+    permission CDATA #IMPLIED
+    pstn_prefix CDATA #IMPLIED
+>
+
+<!ELEMENT meetme_bridge EMPTY>
+<!ATTLIST meetme_bridge
+    meetme_bridge_id CDATA #REQUIRED
+    enabled CDATA #IMPLIED
+    name CDATA #REQUIRED
+    host CDATA #IMPLIED
+    port CDATA #IMPLIED
+    description CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+>
+
+<!ELEMENT meetme_conference EMPTY>
+<!ATTLIST meetme_conference
+    meetme_conference_id CDATA #REQUIRED
+    enabled CDATA #IMPLIED
+    name CDATA #REQUIRED
+    description CDATA #IMPLIED
+    extension CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+    meetme_bridge_id CDATA #REQUIRED
+>
+
+<!ELEMENT meetme_participant EMPTY>
+<!ATTLIST meetme_participant
+    meetme_participant_id CDATA #REQUIRED
+    enabled CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
     user_id CDATA #REQUIRED
-    storage_id CDATA #IMPLIED
-    endpoint_id CDATA #REQUIRED
+    meetme_conference_id CDATA #REQUIRED
 >
 
-<!ELEMENT log_phone_cs_assoc EMPTY>
-<!ATTLIST log_phone_cs_assoc
-    cs_id CDATA #REQUIRED
-    log_pn_id CDATA #REQUIRED
->
-
-<!ELEMENT logical_phones EMPTY>
-<!ATTLIST logical_phones
-    id CDATA #REQUIRED
-    short_name CDATA #REQUIRED
-    csd_id CDATA #REQUIRED
-    org_id CDATA #REQUIRED
-    rcs_id CDATA #REQUIRED
-    pg_id CDATA #IMPLIED
-    usrs_id CDATA #IMPLIED
+<!ELEMENT park_orbit EMPTY>
+<!ATTLIST park_orbit
+    park_orbit_id CDATA #REQUIRED
+    orbit_type CDATA #REQUIRED
+    music CDATA #IMPLIED
+    enabled CDATA #IMPLIED
+    name CDATA #IMPLIED
+    extension CDATA #IMPLIED
     description CDATA #IMPLIED
-    pt_id CDATA #REQUIRED
+>
+
+<!ELEMENT patch EMPTY>
+<!ATTLIST patch
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT phone EMPTY>
+<!ATTLIST phone
+    phone_id CDATA #REQUIRED
+    name CDATA #IMPLIED
     serial_number CDATA #IMPLIED
+    bean_id CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+    model_id CDATA #IMPLIED
 >
 
-<!ELEMENT manufacturers EMPTY>
-<!ATTLIST manufacturers
-    id CDATA #REQUIRED
-    name CDATA #REQUIRED
+<!ELEMENT phone_group EMPTY>
+<!ATTLIST phone_group
+    phone_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
 >
 
-<!ELEMENT organizations EMPTY>
-<!ATTLIST organizations
-    id CDATA #REQUIRED
-    name CDATA #REQUIRED
-    parent_id CDATA #IMPLIED
-    dns_domain CDATA #IMPLIED
-    stereotype CDATA #REQUIRED
+<!ELEMENT ring EMPTY>
+<!ATTLIST ring
+    ring_id CDATA #REQUIRED
+    number CDATA #IMPLIED
+    position CDATA #IMPLIED
+    expiration CDATA #IMPLIED
+    ring_type CDATA #IMPLIED
+    user_id CDATA #REQUIRED
 >
 
-<!ELEMENT patches EMPTY>
-<!ATTLIST patches
-    patch_number CDATA #REQUIRED
-    date_applied CDATA #REQUIRED
-    status CDATA #REQUIRED
-    description CDATA #IMPLIED
->
-
-<!ELEMENT phone_characteristics EMPTY>
-<!ATTLIST phone_characteristics
-    rp_chars_characteristic CDATA #REQUIRED
+<!ELEMENT setting_value EMPTY>
+<!ATTLIST setting_value
+    value_storage_id CDATA #REQUIRED
     value CDATA #REQUIRED
-    pt_id CDATA #IMPLIED
-    apps_id CDATA #IMPLIED
->
-
-<!ELEMENT phone_groups EMPTY>
-<!ATTLIST phone_groups
-    id CDATA #REQUIRED
-    rcs_id CDATA #REQUIRED
-    org_id CDATA #REQUIRED
-    name CDATA #REQUIRED
-    parent_pg_id CDATA #IMPLIED
->
-
-<!ELEMENT phone_type_csd_assoc EMPTY>
-<!ATTLIST phone_type_csd_assoc
-    csd_id CDATA #REQUIRED
-    pt_id CDATA #REQUIRED
->
-
-<!ELEMENT phone_types EMPTY>
-<!ATTLIST phone_types
-    id CDATA #REQUIRED
-    model CDATA #REQUIRED
-    manu_id CDATA #REQUIRED
->
-
-<!ELEMENT png_cs_assoc EMPTY>
-<!ATTLIST png_cs_assoc
-    cs_id CDATA #REQUIRED
-    pg_id CDATA #REQUIRED
->
-
-<!ELEMENT profile_data EMPTY>
-<!ATTLIST profile_data
-    log_pn_id CDATA #REQUIRED
-    type CDATA #REQUIRED
-    seq_number CDATA #REQUIRED
->
-
-<!ELEMENT ref_config_sets EMPTY>
-<!ATTLIST ref_config_sets
-    id CDATA #REQUIRED
-    name CDATA #REQUIRED
-    org_id CDATA #REQUIRED
->
-
-<!ELEMENT ref_phone_characteristics EMPTY>
-<!ATTLIST ref_phone_characteristics
-    characteristic CDATA #REQUIRED
->
-
-<!ELEMENT ref_properties EMPTY>
-<!ATTLIST ref_properties
-    id CDATA #REQUIRED
-    content CDATA #REQUIRED
-    profile_type CDATA #REQUIRED
-    name CDATA #REQUIRED
-    code CDATA #REQUIRED
->
-
-<!ELEMENT roles EMPTY>
-<!ATTLIST roles
-    name CDATA #REQUIRED
->
-
-<!ELEMENT setting EMPTY>
-<!ATTLIST setting
-    storage_id CDATA #REQUIRED
     path CDATA #REQUIRED
-    value CDATA #REQUIRED
 >
 
-<!ELEMENT setting_map EMPTY>
-<!ATTLIST setting_map
-    setting_map_id CDATA #REQUIRED
+<!ELEMENT user_group EMPTY>
+<!ATTLIST user_group
+    user_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
 >
 
-<!ELEMENT storage EMPTY>
-<!ATTLIST storage
-    storage_id CDATA #REQUIRED
->
-
-<!ELEMENT test_data EMPTY>
-<!ATTLIST test_data
-    label CDATA #REQUIRED
-    record_id CDATA #REQUIRED
->
-
-<!ELEMENT ug_cs_assoc EMPTY>
-<!ATTLIST ug_cs_assoc
-    ug_id CDATA #REQUIRED
-    cs_id CDATA #REQUIRED
->
-
-<!ELEMENT user_admin_assoc EMPTY>
-<!ATTLIST user_admin_assoc
-    usrs_id CDATA #REQUIRED
-    adm_grps_id CDATA #REQUIRED
->
-
-<!ELEMENT user_ag_assoc EMPTY>
-<!ATTLIST user_ag_assoc
-    usrs_id CDATA #REQUIRED
-    ag_id CDATA #REQUIRED
->
-
-<!ELEMENT user_app_ref_assoc EMPTY>
-<!ATTLIST user_app_ref_assoc
-    usrs_id CDATA #REQUIRED
-    cs_id CDATA #IMPLIED
->
-
-<!ELEMENT user_cs_assoc EMPTY>
-<!ATTLIST user_cs_assoc
-    usrs_id CDATA #REQUIRED
-    cs_id CDATA #REQUIRED
->
-
-<!ELEMENT user_group_ag_assoc EMPTY>
-<!ATTLIST user_group_ag_assoc
-    ug_id CDATA #REQUIRED
-    ag_id CDATA #REQUIRED
->
-
-<!ELEMENT user_groups EMPTY>
-<!ATTLIST user_groups
-    id CDATA #REQUIRED
-    rcs_id CDATA #REQUIRED
-    org_id CDATA #REQUIRED
-    name CDATA #REQUIRED
-    parent_ug_id CDATA #IMPLIED
->
-
-<!ELEMENT user_roles EMPTY>
-<!ATTLIST user_roles
-    usrs_id CDATA #REQUIRED
-    roles_name CDATA #REQUIRED
+<!ELEMENT user_ring EMPTY>
+<!ATTLIST user_ring
+    user_ring_id CDATA #REQUIRED
+    position CDATA #IMPLIED
+    expiration CDATA #IMPLIED
+    ring_type CDATA #IMPLIED
+    call_group_id CDATA #REQUIRED
+    user_id CDATA #REQUIRED
 >
 
 <!ELEMENT users EMPTY>
 <!ATTLIST users
-    id CDATA #REQUIRED
+    user_id CDATA #REQUIRED
     first_name CDATA #IMPLIED
-    org_id CDATA #REQUIRED
-    password CDATA #IMPLIED
-    ug_id CDATA #IMPLIED
-    rcs_id CDATA #IMPLIED
+    pintoken CDATA #IMPLIED
+    sip_password CDATA #IMPLIED
     last_name CDATA #IMPLIED
-    display_id CDATA #REQUIRED
+    user_name CDATA #IMPLIED
     extension CDATA #IMPLIED
-    profile_encryption_key CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
 >
 
-<!ELEMENT versions EMPTY>
-<!ATTLIST versions
-    applied CDATA #REQUIRED
+<!ELEMENT value_storage EMPTY>
+<!ATTLIST value_storage
+    value_storage_id CDATA #REQUIRED
+>
+
+<!ELEMENT version_history EMPTY>
+<!ATTLIST version_history
     version CDATA #REQUIRED
+    applied CDATA #REQUIRED
 >
 
