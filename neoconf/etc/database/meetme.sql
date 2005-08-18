@@ -20,7 +20,8 @@ create table meetme_conference (
 
 create table meetme_bridge (
     meetme_bridge_id int4 not null,
-    enabled bool,    
+    enabled bool,
+    name varchar(255) not null,
     host varchar(255),
     port int4,
     description varchar(255),
@@ -31,7 +32,7 @@ create table meetme_bridge (
 alter table meetme_conference
     add constraint fk_meetme_conference_bridge
     foreign key (meetme_bridge_id) 
-    references meetme_conference;
+    references meetme_bridge;
     
 alter table meetme_participant
     add constraint fk_meetme_participant_conference

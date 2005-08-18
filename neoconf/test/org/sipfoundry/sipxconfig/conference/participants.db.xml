@@ -1,0 +1,16 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>  
+  <meetme_bridge meetme_bridge_id="2005" name="bridge_2005" enabled="1"/>
+  <meetme_bridge meetme_bridge_id="2006" name="bridge_2006" enabled="0"/>
+  
+  <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3001" name="conf_3001" enabled="0"/>
+  <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3002" name="conf_3002" enabled="1"/>
+  <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3003" name="conf_3003" enabled="1"/>
+  
+  <meetme_participant user_id="1002" meetme_conference_id="3001" meetme_participant_id="4001" enabled="1"/>  
+  <meetme_participant user_id="1003" meetme_conference_id="3002" meetme_participant_id="4002" enabled="1"/>  
+  <meetme_participant user_id="1004" meetme_conference_id="3002" meetme_participant_id="4003" enabled="1"/>  
+  <meetme_participant user_id="1005" meetme_conference_id="3002" meetme_participant_id="4004" enabled="1"/>  
+  <meetme_participant user_id="1002" meetme_conference_id="3003" meetme_participant_id="4005" enabled="1"/>  
+  <meetme_participant user_id="1005" meetme_conference_id="3003" meetme_participant_id="4006" enabled="1"/>  
+</dataset>

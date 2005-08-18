@@ -64,7 +64,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             Bridge bridge = loadBridge(id);
             bridges.add(bridge);
         }
-        getHibernateTemplate().deleteAll(bridgesIds);
+        getHibernateTemplate().deleteAll(bridges);
     }
 
     public void removeConferences(Collection conferencesIds) {
@@ -99,6 +99,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             Participant participant = getParticipant(conference, user);
             if (participant == null) {
                 participant = newParticipant();
+                participant.setUser(user);
                 conference.insertParticipant(participant);
             }
         }

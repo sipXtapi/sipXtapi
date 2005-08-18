@@ -168,7 +168,7 @@
   <!--
     - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
     -->
-    <target name="test-db" depends="compile.test, reset-db"
+    <target name="test-db" depends="compile.test, reset-db, test-datasets"
        description="run junit tests that interact with database">
 
     	<junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
@@ -192,8 +192,15 @@
 			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
 			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
 			<fileset dir="etc/grandstream" includes="**/*.xml"></fileset>
+			<fileset dir="etc/sipxconference" includes="**/*.xml"></fileset>
 			<fileset file="etc/user-settings.xml"/>
 			<dtd publicid="-//SIPFoundry//sipXconfig//Model specification 1.0//EN" location="etc/setting.dtd"/>
+		</xmlvalidate>
+	</target>
+	
+	<target name="test-datasets">
+		<xmlvalidate description="validate dataset files used in tests">
+			<fileset dir="test" includes="**/*.db.xml"></fileset>
 		</xmlvalidate>
 	</target>
   
@@ -206,6 +213,16 @@
 			<filelist dir="etc/database" files="database.xml" />
 		</subant>
     </target>
+	
+	<target name="dataset-db"
+		description="Generates the sipconfig-db.dtd which is used to validate datasets"
+		depends="compile.test, reset-db">
+		<java classname="org.sipfoundry.sipxconfig.TestHelper" classpathref="test.path" 
+			fork="on" error="/dev/null" output="/dev/null">
+			<arg value="${test.classes.dir}"/>
+		</java>
+		<echo level="info" message="Please remember to commit new sipxconfig-db.dtd file"/>
+	</target>
     
 </project>
 
