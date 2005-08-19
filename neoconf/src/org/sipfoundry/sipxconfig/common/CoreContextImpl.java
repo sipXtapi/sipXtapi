@@ -17,10 +17,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
+import org.hibernate.criterion.Example.PropertySelector;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
@@ -40,6 +42,8 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
 
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String EXTENSION_PROP_NAME = "extension";
+
+    private static final PropertySelector NOT_NULL_OR_BLANK = new NotNullOrBlank();
 
     private SipxProcessContext m_processContext;
 
@@ -126,6 +130,7 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
 
     public List loadUserByTemplateUser(User template) {
         final Example example = Example.create(template);
+        example.setPropertySelector(NOT_NULL_OR_BLANK);
         example.enableLike(MatchMode.START);
         example.excludeProperty("id");
 
@@ -286,6 +291,18 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
                     saveUser(user);
                 }
             }
+        }
+    }
+
+    private static class NotNullOrBlank implements PropertySelector {
+        public boolean include(Object propertyValue, String propertyName_, Type type_) {
+            if (propertyValue == null) {
+                return false;
+            }
+            if (propertyValue instanceof String) {
+                return StringUtils.isNotBlank((String) propertyValue);
+            }
+            return true;
         }
     }
 }
