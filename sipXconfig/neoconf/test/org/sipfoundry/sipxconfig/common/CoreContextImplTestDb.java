@@ -65,6 +65,7 @@ public class CoreContextImplTestDb extends TestCase {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
+        template.setFirstName("");
         List users = m_core.loadUserByTemplateUser(template);
 
         assertEquals(9, users.size());
