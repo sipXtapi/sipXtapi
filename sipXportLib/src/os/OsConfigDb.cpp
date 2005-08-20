@@ -493,11 +493,11 @@ int OsConfigDb::getPort(const char* szKey)
         // If the value is null, leave port == PORT_NONE.
         if (value.length())
         {
-           if (value.compareTo("DEFAULT", UtlString::ignoreCase))
+           if (value.compareTo("DEFAULT", UtlString::ignoreCase) == 0)
            {
               port = PORT_DEFAULT;
            }
-           else if (value.compareTo("NONE", UtlString::ignoreCase))
+           else if (value.compareTo("NONE", UtlString::ignoreCase) == 0)
            {
               port = PORT_NONE;
            }
