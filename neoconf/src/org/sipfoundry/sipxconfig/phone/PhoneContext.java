@@ -72,10 +72,6 @@ public interface PhoneContext extends DataObjectSource {
     
     public List getGroups();
     
-    public JobRecord loadJob(Integer id);
-    
-    public void storeJob(JobRecord job);
-
     /** unittesting only */
     public void clear();
 

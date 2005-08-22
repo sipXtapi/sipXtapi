@@ -44,7 +44,7 @@ public class GroupTestDb extends TestCase {
         root.getSetting("fruit").getSetting("apple").setValue("granny smith");
         root.getSetting("vegetable").getSetting("pea").setValue(null);
 
-        m_dao.storeGroup(ms);
+        m_dao.saveGroup(ms);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveGroupExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
@@ -77,7 +77,7 @@ public class GroupTestDb extends TestCase {
         root.getSetting("vegetable").getSetting("pea").setValue("snap pea");
 
         assertEquals(1, ms.getValues().size());
-        m_dao.storeGroup(ms);
+        m_dao.saveGroup(ms);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateGroupExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
@@ -99,7 +99,7 @@ public class GroupTestDb extends TestCase {
         duplicate.setResource(ms.getResource());
         
         try {
-            m_dao.storeGroup(duplicate);
+            m_dao.saveGroup(duplicate);
             fail();
         } catch (UserException u) {            
             assertTrue(true);
@@ -111,7 +111,7 @@ public class GroupTestDb extends TestCase {
         Group newGroup = new Group();
         newGroup.setResource("unittest");
         newGroup.setName("unittest");        
-        m_dao.storeGroup(newGroup);
+        m_dao.saveGroup(newGroup);
         assertNotNull(newGroup.getWeight());
     }
 }

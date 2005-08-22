@@ -11,19 +11,30 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.hibernate.EmptyInterceptor;
-import org.hibernate.type.Type;
+import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class DaoEventDispatcher extends EmptyInterceptor implements BeanFactoryAware {
-
+public final class DaoEventDispatcher implements MethodBeforeAdvice, BeanFactoryAware {
+    
+    private static final int ON_DELETE = 1;
+    
+    private static final int ON_SAVE = 2;
+    
+    private int m_eventType;
+    
     private ListableBeanFactory m_beanFactory;
+    
+    
+    private DaoEventDispatcher(int eventType) {
+        m_eventType = eventType;
+    }
     
     /**
      * This can only be used withy listeable bean factory
@@ -35,31 +46,38 @@ public class DaoEventDispatcher extends EmptyInterceptor implements BeanFactoryA
     public BeanFactory getBeanFactory() {
         return m_beanFactory;
     }
-
-    public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames,
-            Type[] types) {
-
-        Map beanMap = m_beanFactory.getBeansOfType(DaoEventListener.class, true, true);
-        Iterator beans = beanMap.values().iterator();
-        while (beans.hasNext()) {
-            DaoEventListener listener = (DaoEventListener) beans.next();
-            listener.onDelete(entity, id, state, propertyNames, types);
-        }
+    
+    public static DaoEventDispatcher createDeleteDispatcher() {
+        return new DaoEventDispatcher(ON_DELETE);
     }
 
-    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
-            Type[] types) {
-        
-        boolean modified = false;
+    public static DaoEventDispatcher createSaveDispatcher() {
+        return new DaoEventDispatcher(ON_SAVE);
+    }
+
+    public void before(Method m_, Object[] args, Object target_) throws Throwable {
         Map beanMap = m_beanFactory.getBeansOfType(DaoEventListener.class, true, true);
-        Iterator beans = beanMap.values().iterator();
+        onEvent(args, beanMap.values());
+    }
+    
+    void onEvent(Object[] args, Collection listeners) {
+        if (args.length == 0) {
+            // empty arg calls like save() or delete() won't be considered
+            return;
+        }
+        Iterator beans = listeners.iterator();
         while (beans.hasNext()) {
             DaoEventListener listener = (DaoEventListener) beans.next();
-            if (listener.onSave(entity, id, state, propertyNames, types)) {
-                modified = true;
-            }            
+            switch (m_eventType) {
+            case ON_DELETE:
+                listener.onDelete(args[0]);
+                break;
+            case ON_SAVE:
+                listener.onSave(args[0]);
+                break;
+            default:
+                throw new RuntimeException("Unknown event type " + m_eventType);
+            }
         }
-
-        return modified;
     }    
 }

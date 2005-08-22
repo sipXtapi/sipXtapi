@@ -51,4 +51,31 @@ public class SpringHibernateInstantiatorTest extends TestCase {
         Object bean = m_instantiator.instantiate(StringUtils.class, id);
         assertNull(bean);
     }
+
+//    public void testOnSaveAndOnDelete() {
+//        Object entity = new Object();
+//
+//        MockControl listenerControl = MockControl.createStrictControl(DaoEventListener.class);
+//        DaoEventListener listener = (DaoEventListener) listenerControl.getMock();
+//        listenerControl.expectAndReturn(listener.onSave(entity, null, null, null, null), false);
+//        listener.onDelete(entity, null, null, null, null);
+//        listenerControl.setDefaultVoidCallable();
+//        listenerControl.replay();
+//        
+//        MockControl bfControl = MockControl.createStrictControl(ListableBeanFactory.class);
+//        ListableBeanFactory bf = (ListableBeanFactory) bfControl.getMock();
+//        Map beanMap = new HashMap();
+//        beanMap.put(listener.getClass().getName(), listener);
+//        bfControl.expectAndReturn(bf.getBeansOfType(DaoEventListener.class, true, true), beanMap, 2);
+//        bfControl.replay();
+//        
+//        SpringHibernateInstantiator instantiator = new SpringHibernateInstantiator();
+//        instantiator.setBeanFactory(bf);
+//        instantiator.onSave(entity, null, null, null, null);
+//        instantiator.onDelete(entity, null, null, null, null);
+//        
+//        listenerControl.verify();
+//        bfControl.verify();
+//    }
+    
 }

@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -190,6 +191,7 @@ public class CallGroupContextImplTestDb extends TestCase {
         assertTrue(userRings.isEmpty());
     }
 
+    
     public void testDeleteUser() throws Exception {
         User user = m_coreContext.loadUser(new Integer(1000));
         ITable rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
@@ -200,4 +202,15 @@ public class CallGroupContextImplTestDb extends TestCase {
         rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
         assertEquals(0, rings.getRowCount());
     }
+    
+    public void testDeleteUserById() throws Exception {
+        User user = m_coreContext.loadUser(new Integer(1000));
+        ITable rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
+
+        assertEquals(1, rings.getRowCount());
+        m_coreContext.deleteUsers(Collections.singletonList(user.getId()));
+
+        rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
+        assertEquals(0, rings.getRowCount());
+    }    
 }

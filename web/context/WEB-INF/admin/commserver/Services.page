@@ -11,7 +11,7 @@
 	  -->    
     <property-specification name="sipxProcessContext" 
     	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
-    	initial-value="global.sipxProcessContextImpl"/>
+    	initial-value="global.sipxProcessContext"/>
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus">
     </property-specification>    

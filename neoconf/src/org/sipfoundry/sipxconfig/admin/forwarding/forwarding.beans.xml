@@ -11,11 +11,11 @@
     class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContextImpl"/>
-    <property name="processContext" ref="sipxProcessContext"/>    
+    <property name="replicationContext" ref="sipxReplicationContext"/>    
   </bean>
 
   <bean id="forwardingContextUserDelete" 
-    class="org.sipfoundry.sipxconfig.common.DaoEventListener" 
+    class="org.sipfoundry.sipxconfig.common.event.DaoEventListener" 
     factory-bean="forwardingContextImpl" factory-method="createUserDeleteListener"/>
     
   <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"

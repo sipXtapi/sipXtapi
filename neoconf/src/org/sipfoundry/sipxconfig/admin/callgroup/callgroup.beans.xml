@@ -10,13 +10,13 @@
     class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContextImpl"/>
-    <property name="processContext" ref="sipxProcessContext"/>
+    <property name="replicationContext" ref="sipxReplicationContext"/>
     <property name="orbitsGenerator">
       <ref local="orbitsGenerator"/>
     </property>
   </bean>
   
-  <bean id="callGroupContextUserDelete" class="org.sipfoundry.sipxconfig.common.DaoEventListener"
+  <bean id="callGroupContextUserDelete" class="org.sipfoundry.sipxconfig.common.event.DaoEventListener"
     factory-bean="callGroupContextImpl" factory-method="createUserDeleteListener"/>
   
   <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean"

@@ -11,9 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -25,23 +22,14 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
-public class SipxProcessContextImpl implements BeanFactoryAware, SipxProcessContext {
-    private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
-    
+public class SipxProcessContextImpl extends SipxReplicationContextImpl implements BeanFactoryAware, SipxProcessContext {
     // for checkstyle compliance, keep only one copy of this string
     private static final String STATUS = "status";  
     
@@ -49,23 +37,11 @@ public class SipxProcessContextImpl implements BeanFactoryAware, SipxProcessCont
     private static final String ACTION_STATUS = STATUS;    
     private static final String COMMAND_URL_FORMAT = "{0}?command={1}";
     private static final String COMMAND_FOR_PROCESS_URL_FORMAT = "{0}?command={1}&process={2}";
-    private static final String TOPOLOGY_XML = "topology.xml";
-
     // Constants related to parsing XML output from the process monitor
     private static final String FIND_PROCESS_ELEMENT_XPATH = "//process";
     private static final String PROCESS_NAME_ATTRIB = "name";
     private static final String PROCESS_STATUS_ATTRIB = STATUS;
-    
-    /** these are lazily constructed - always use accessors */
-    private String[] m_processMonitorUrls;
-    private String[] m_replicationUrls;
 
-    private String m_configDirectory;
-
-    private BeanFactory m_beanFactory;
-
-    private ReplicationManager m_replicationManager;
-    
     // TODO: Generalize this to report status for multiple servers instead of just the first one.
     /** Read service status values from the process monitor and return them in an array */
     public ServiceStatus[] getStatus() {
@@ -152,32 +128,6 @@ public class SipxProcessContextImpl implements BeanFactoryAware, SipxProcessCont
         return inputStream;
     }
     
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
-    }
-
-    public void generate(DataSet dataSet) {
-        String beanName = dataSet.getBeanName();
-        DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
-                DataSetGenerator.class);
-        m_replicationManager.replicateData(getReplicationUrls(), generator.generate(), dataSet);
-    }
-
-    public void generateAll() {
-        for (Iterator i = DataSet.iterator(); i.hasNext();) {
-            DataSet dataSet = (DataSet) i.next();
-            generate(dataSet);
-        }
-    }
-
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
-    }
-
-    public void setReplicationManager(ReplicationManager replicationManager) {
-        m_replicationManager = replicationManager;
-    }
-
     public void manageServices(String[] serviceNames, Command command) {
         for (int i = 0; i < serviceNames.length; i++) {
             String serviceName = serviceNames[i];
@@ -267,67 +217,6 @@ public class SipxProcessContextImpl implements BeanFactoryAware, SipxProcessCont
         return constructStatusUrls(false);
     }
     
-    /** Return the process monitor URLs, retrieving them on demand */
-    String[] getProcessMonitorUrls() {
-        if (m_processMonitorUrls == null) {
-            retrieveUrls();
-        }
-        return m_processMonitorUrls;
-    }
-
-    /** Return the replication URLs, retrieving them on demand */
-    String[] getReplicationUrls() {
-        if (m_replicationUrls == null) {
-            retrieveUrls();
-        }
-        return m_replicationUrls;
-    }
-
-    /** Extract URLs from the topology file and save them in data members */
-    private void retrieveUrls() {
-        try {
-            InputStream stream = getTopologyAsStream();
-            SAXReader xmlReader = new SAXReader();
-            Document topology = xmlReader.read(stream);
-
-            m_processMonitorUrls = retrieveUrls(topology, "/topology/location/agent_url");
-            m_replicationUrls = retrieveUrls(topology, "/topology/location/replication_url");
-        } catch (FileNotFoundException e) {
-            // When running in a test environment, the topology file will not be found
-            m_processMonitorUrls = new String[0];
-            m_replicationUrls = new String[0];
-            LOG.warn("Could not find the file " + TOPOLOGY_XML, e);
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    /**
-     * Given a topology document and the XML path to elements containing URL values,
-     * retrieve all such URLs and return them as a string array
-     */
-    private String[] retrieveUrls(Document topology, String xmlPath) {
-        List nodes = topology.selectNodes(xmlPath);
-        String[] urls = new String[nodes.size()];
-        for (int i = 0; i < urls.length; i++) {
-            Node node = (Node) nodes.get(i);
-            urls[i] = node.getText().trim();
-        }
-        return urls;
-    }
-    
-    /** Open an input stream on the topology file and return it */
-    protected InputStream getTopologyAsStream() throws FileNotFoundException {
-        File file = new File(m_configDirectory, TOPOLOGY_XML);
-        InputStream stream = new FileInputStream(file);
-        return stream;
-    }
-    
-    //================================================================================
-    // Generic Utilities
-    // TODO: Consider moving these methods to a more central place
-    //================================================================================
-
     /**
      * Create an URL from text and return it.
      * Wrap MalformedURLExceptions with RuntimeExceptions so that callers don't

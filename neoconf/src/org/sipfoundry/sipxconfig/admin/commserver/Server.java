@@ -16,5 +16,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public interface Server {
     Setting getSettings();
     
+    ServerSettings getServerSettings();
+    
     void applySettings();
 }

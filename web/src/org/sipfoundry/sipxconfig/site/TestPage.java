@@ -11,16 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.io.Serializable;
+import java.util.List;
+
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -31,6 +35,8 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 public abstract class TestPage extends BasePage {
 
     public static final String PAGE = "TestPage";
+
+    public static final int JOBS = 4;
 
     public static final User TEST_USER = new User();
     public static final String TEST_USER_PIN = "1234";
@@ -52,7 +58,9 @@ public abstract class TestPage extends BasePage {
 
     public abstract CoreContext getCoreContext();
 
-    public abstract SipxProcessContext getSipxProcessContext();
+    public abstract SipxReplicationContext getSipxReplicationContext();
+
+    public abstract JobContext getJobContext();
 
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanManager().clear();
@@ -79,7 +87,8 @@ public abstract class TestPage extends BasePage {
     }
 
     public void newGroup(IRequestCycle cycle) {
-        String resource = (String) TapestryUtils.assertParameter(String.class, cycle.getServiceParameters(), 0);
+        String resource = (String) TapestryUtils.assertParameter(String.class, cycle
+                .getServiceParameters(), 0);
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup(resource, PAGE);
         cycle.activate(page);
@@ -117,13 +126,28 @@ public abstract class TestPage extends BasePage {
         getCoreContext().saveUser(user);
     }
 
+    public void populateJobs(IRequestCycle cycle_) {
+        JobContext jobContext = getJobContext();
+        jobContext.clear();
+        Serializable[] jobIds = new Serializable[JOBS];
+        for (int i = 0; i < jobIds.length; i++) {
+            jobIds[i] = jobContext.schedule("test" + i);
+            if (i > 0) {
+                jobContext.start(jobIds[i]);
+            }
+        }
+        jobContext.success(jobIds[2]);
+        jobContext.failure(jobIds[JOBS - 1], "something bad happended", null);
+    }
+
     public void login(IRequestCycle cycle) {        
         CoreContext core = getCoreContext(); 
-        User user = core.loadUserByUserName(TEST_USER.getUserName());
-        if (user == null) {
+        List users = core.loadUsers();
+        if (users.isEmpty()) {
             seedTestUser(cycle);
-            user = core.loadUserByUserName(TEST_USER.getUserName());
+            users = core.loadUsers();
         }
+        User user = (User) users.get(0);
         Visit visit = (Visit) getVisit();
         visit.login(user.getId(), true);
     }
@@ -131,7 +155,7 @@ public abstract class TestPage extends BasePage {
     public void generateDataSet(IRequestCycle cycle) {
         String setName = (String) TapestryUtils.assertParameter(String.class, cycle
                 .getServiceParameters(), 0);
-        SipxProcessContext sipxProcessContext = getSipxProcessContext();
-        sipxProcessContext.generate(DataSet.getEnum(setName));
+        SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
+        sipxReplicationContext.generate(DataSet.getEnum(setName));
     }
 }

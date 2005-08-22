@@ -11,28 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.Date;
-
-import org.sipfoundry.sipxconfig.phone.JobRecord;
-
 import junit.framework.TestCase;
+
 
 public class JobRecordTest extends TestCase {
     
-    public void testSetStartDate() {
+    // probably good candidate for removal - nothing to test really...
+    // I am keeping it in case JobRecord takes on new responsibilities
+    public void testBasic() {
         JobRecord j = new JobRecord();
-        Date expected = new Date();
-        j.setStartTime(expected);
-        Date actual = j.getStartTime();
-        // anything after seconds get truncated, so won't be identical
-        assertEquals(expected.toString(), actual.toString());
+        Phone[] phones = new Phone[1];
+        j.setPhones(phones);
+        assertSame(phones, j.getPhones());
     }
     
-    public void testSetStartStatus() {
-        JobRecord j = new JobRecord();
-        assertNull(j.getStartTimeString());
-        j.setStatus(JobRecord.STATUS_STARTED);
-        assertNotNull(j.getStartTimeString());
-    }
-
 }

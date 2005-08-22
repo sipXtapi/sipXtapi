@@ -105,7 +105,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     }
     
     public void apply(IRequestCycle cycle_) {
-        getSettingDao().storeGroup(getGroup());
+        getSettingDao().saveGroup(getGroup());
     }
 
     public void cancel(IRequestCycle cycle) {

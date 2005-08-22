@@ -11,48 +11,40 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.io.Serializable;
-
-import org.hibernate.type.Type;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.common.DaoEventListener;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class ReplicationTrigger implements DaoEventListener {
 
-    private SipxProcessContext m_processContext;
+    private SipxReplicationContext m_replicationContext;
 
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
-    }
-    
-    public SipxProcessContext getProcessContext() {
-        return m_processContext;
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
     }
 
-    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
-            Type[] types) {
-        onSaveOrDelete(entity, id, state, propertyNames, types);
-        return false;
+    public SipxReplicationContext getReplicationContext() {
+        return m_replicationContext;
     }
 
-    public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames, 
-            Type[] types) {
-        onSaveOrDelete(entity, id, state, propertyNames, types);
+    public void onSave(Object entity) {
+        onSaveOrDelete(entity);
     }
-    
-    void onSaveOrDelete(Object entity, Serializable id_, Object[] state_, String[] propertyNames_, 
-            Type[] types_) {
 
+    public void onDelete(Object entity) {
+        onSaveOrDelete(entity);
+    }
+
+    void onSaveOrDelete(Object entity) {
         Class c = entity.getClass();
         if (Group.class.equals(c)) {
             Group group = (Group) entity;
             if ("user".equals(group.getResource())) {
-                m_processContext.generate(DataSet.PERMISSION);
+                m_replicationContext.generate(DataSet.PERMISSION);
             }
         } else if (User.class.equals(c)) {
-            m_processContext.generateAll();
-        }                
+            m_replicationContext.generateAll();
+        }
     }
 }

@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,12 +19,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.type.Type;
-import org.sipfoundry.sipxconfig.common.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -181,14 +179,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return m_settingDao.getGroups(GROUP_RESOURCE_ID);
     }
 
-    public JobRecord loadJob(Integer id) {
-        return (JobRecord) getHibernateTemplate().load(JobRecord.class, id);
-    }
-
-    public void storeJob(JobRecord job) {
-        getHibernateTemplate().saveOrUpdate(job);
-    }
-
     /** unittesting only */
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
@@ -255,12 +245,11 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         return users;
     }
 
-    public void onDelete(Object entity, Serializable id_, Object[] state_, String[] propertyNames_,
-            Type[] types_) {
-
+    public void onDelete(Object entity) {
         Class c = entity.getClass();
         if (Group.class.equals(c)) {
             Group group = (Group) entity;
+            getHibernateTemplate().update(group);
             if (Phone.PHONE_GROUP_RESOURCE.equals(group.getResource())) {
                 Collection phones = getPhonesByGroupId(group.getId());
                 Iterator iphones = phones.iterator();
@@ -295,10 +284,7 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         }
     }
 
-    public boolean onSave(Object entity_, Serializable id_, Object[] state_, String[] propertyNames_,
-            Type[] types_) {
-
-        return false;
+    public void onSave(Object entity_) {
     }
     
     public Collection getPhonesByUserId(Integer userId) {

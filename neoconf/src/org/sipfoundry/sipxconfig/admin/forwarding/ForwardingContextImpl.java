@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserDeleteListener;
+import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -31,7 +31,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext {
     private CoreContext m_coreContext;
 
-    private SipxProcessContext m_processContext;
+    private SipxReplicationContext m_replicationContext;
 
     /**
      * Looks for a call sequence associated with a given user.
@@ -56,8 +56,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         getHibernateTemplate().update(callSequence);
         if (notify) {
             // Notify commserver of ALIAS and AUTH_EXCEPTIONS
-            m_processContext.generate(DataSet.ALIAS);
-            m_processContext.generate(DataSet.AUTH_EXCEPTION);
+            m_replicationContext.generate(DataSet.ALIAS);
+            m_replicationContext.generate(DataSet.AUTH_EXCEPTION);
         }
     }
 
@@ -119,8 +119,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         m_coreContext = coreContext;
     }
 
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
     }
 
     public UserDeleteListener createUserDeleteListener() {

@@ -11,9 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.io.Serializable;
-
-import org.hibernate.type.Type;
 
 /**
  * Any beans that implement this interface will be called when entities are saved
@@ -25,12 +22,10 @@ public interface DaoEventListener {
     /**
      * Is called before the actual entity is deleted
      */
-    public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames,
-            Type[] types);
+    public void onDelete(Object entity);
 
     /**
-     * Is called before the actual entity is saved
+     * Is called before the actual entity is saved or updated
      */
-    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
-            Type[] types);
-}
+    public void onSave(Object entity);
+}    

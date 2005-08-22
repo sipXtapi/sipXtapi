@@ -17,14 +17,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -36,7 +36,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     private Orbits m_orbitsGenerator;
 
-    private SipxProcessContext m_processContext;
+    private SipxReplicationContext m_replicationContext;
 
     public CallGroup loadCallGroup(Integer id) {
         return (CallGroup) getHibernateTemplate().load(CallGroup.class, id);
@@ -88,7 +88,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
      * Sends notification to progile generator to trigger alias generation
      */
     public void activateCallGroups() {
-        m_processContext.generate(DataSet.ALIAS);
+        m_replicationContext.generate(DataSet.ALIAS);
     }
 
     /**
@@ -211,10 +211,11 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {
+            getHibernateTemplate().update(user);
             removeUser(user.getId());
         }
     }
-    
+
     // trivial setters
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -224,7 +225,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
         m_orbitsGenerator = orbitsGenerator;
     }
 
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
     }
 }

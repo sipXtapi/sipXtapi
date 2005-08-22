@@ -46,7 +46,7 @@
     <property name="coreContext" ref="coreContextImpl"/>
   </bean>
   
-  <bean id="conferenceBridgeContextUserDelete" class="org.sipfoundry.sipxconfig.common.DaoEventListener"
+  <bean id="conferenceBridgeContextUserDelete" class="org.sipfoundry.sipxconfig.common.event.DaoEventListener"
     factory-bean="conferenceBridgeContextImpl" factory-method="createUserDeleteListener"/>
   
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean"
