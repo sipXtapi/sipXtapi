@@ -31,7 +31,7 @@
 class UtlContainable ;
 
 /**
- * UtlList is a base class for lists designed to contain any number
+ * UtlList is an abstract base class for list classes designed to contain any number
  * of objects derived from the UtlContainable class.  Like any UtlContainer, a
  * UtlList may contain objects of different UtlContainableType
  * (e.g. UtlInts and UtlVoidPtrs), however, sorting and comparison behavior
@@ -76,7 +76,7 @@ public:
     UtlContainable* get() ;  
 
     /**
-     * Removed the designated object by reference
+     * Remove the designated object by reference
      * (as opposed to searching for an equality match).  
      *
      * @return the object if successful, otherwise null

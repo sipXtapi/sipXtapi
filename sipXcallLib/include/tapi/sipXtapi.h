@@ -325,6 +325,7 @@ typedef struct
  * example, only one user agent should control the local system's input and 
  * output audio devices. */
 typedef void* SIPX_INST ;         
+const SIPX_INST SIPX_INST_NULL = 0; /**< Represents a null instance handle */
 
 /** 
  * The SIPX_LINE handle represents an inbound or outbound identity.  When 
@@ -1263,8 +1264,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
  * 
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param szLineURL The address of record for the line identity.  Can be 
-          prepended with a Display Name.
-          e.g. -    "Zaphod Beeblebrox" <sip:zaphb@fourty-two.net>
+ *        prepended with a Display Name.
+ *        e.g. -    "Zaphod Beeblebrox" <sip:zaphb@fourty-two.net>
  * @param phLine Pointer to a line handle.  Upon success, a handle to the 
  *        newly added line is returned.
  * @param contactId Id of the desired contact record to use for this line.

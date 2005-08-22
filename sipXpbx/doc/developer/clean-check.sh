@@ -20,28 +20,35 @@ mkdir "$T"
 cd "$T"
 
 # Make a clean checkout of the source.
-mkdir "$T/clean"
-make -f "$MAKEFILE" -C "$T/clean" checkout
+mkdir "$T/build"
+make -f "$MAKEFILE" -C "$T/build" checkout
+# Get the list of files from the fresh checkout.
+( cd "$T/build" ;
+  find . -name .svn -prune -false -o -type f | sort ) >"$T/clean-files"
 
-# Copy the checkout to the build directory.
-cp -a "$T/clean" "$T/build"
+# Make an install directory.
+mkdir "$T/install"
+# Make an Apache modules directory in the install directory, so the install
+# process will use it instead of /lib/httpd/modules.
+mkdir -p "$T/install/lib/httpd/modules"
 # Build everything.
-make -f "$MAKEFILE" -C "$T/clean" build-only
+make PREFIX="$T/install" -f "$MAKEFILE" -C "$T/build" build-check-install
 # Clean the build directory..
-make -f "$MAKEFILE" -C "$T/clean" clean
+make PREFIX="$T/install" -f "$MAKEFILE" -C "$T/build" distclean
 
-# Get the list of files from both directories and take the difference.
-( cd "$T/clean" ; find . -type f ) >"$T/clean-files"
-( cd "$T/build" ; find . -type f ) >"$T/build-files"
+# Get the list of files after build and distclean.
+( cd "$T/build" ;
+  find . -name .svn -prune -false -o -type f | sort ) >"$T/build-files"
+# Take the differences between the two lists of files.
 comm -13 "$T/clean-files" "$T/build-files" >"$T/uncleaned-files"
 comm -23 "$T/clean-files" "$T/build-files" >"$T/destroyed-files"
 
 # Print the message.
-echo "----- The following files are build artifacts not removed by 'make clean':"
+echo "----- The following files are build artifacts not removed by 'make distclean':"
 cat "$T/uncleaned-files"
 echo "----- [end]"
 
-echo "----- The following files are source-controlled but are removed by 'make clean':"
+echo "----- The following files are source-controlled but are removed by 'make distclean':"
 cat "$T/destroyed-files"
 echo "----- [end]"
 

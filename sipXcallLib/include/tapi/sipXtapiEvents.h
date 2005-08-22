@@ -573,7 +573,7 @@ typedef enum SIPX_CALLSTATE_MAJOR
                                  state.  Please review the DISCONNECTED minor events to
                                  understand the cause. */
     OFFERING        = 6000, /**< An OFFERING state indicates that a new call invitation
-                                 has been extended this user agent.  Application
+                                 has been extended to this user agent.  Application
                                  developers should invoke sipxCallAccept(),
                                  sipxCallReject() or sipxCallRedirect() in response.
                                  Not responding will result in an implicit call
@@ -588,7 +588,7 @@ typedef enum SIPX_CALLSTATE_MAJOR
                                  have been removed for a call.  This is the last event
                                  that the application will receive for any call.  The
                                  call handle is invalid after this event is received. */
-	AUDIO_EVENT     = 9000, /**< The  AUDIO_EVENT event indicates the RTP session has 
+    AUDIO_EVENT     = 9000, /**< The  AUDIO_EVENT event indicates the RTP session has 
                                  either started or stopped. */
     TRANSFER        = 10000 /**< The transfer state indicates a state change in a 
                                  transfer attempt.  Please see the TRANSFER cause 

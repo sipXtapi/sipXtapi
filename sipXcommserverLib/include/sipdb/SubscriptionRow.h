@@ -37,7 +37,7 @@ public:
     const char* contact;
     int4 notifycseq;
     int4 subscribecseq;
-    int4 expires; // Absolute expiratoin time secs since 1/1/1970
+    int4 expires; // Absolute expiration time secs since 1/1/1970
     const char* eventtype;
     const char* id; // id param from event header
     const char* to;

@@ -67,6 +67,7 @@ enum tagOsSysLogFacility
    FAC_PROCESS,            // process related
    FAC_SIPXTAPI,           // sipXtapi related
    FAC_AUDIO,              // audio related
+   FAC_CONFERENCE,         // Conference bridge
    FAC_MAX_FACILITY        // Last Facility (used to for length)
 
    //

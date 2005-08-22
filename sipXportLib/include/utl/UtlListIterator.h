@@ -116,5 +116,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlListIterator_h_
-
-
