@@ -1,4 +1,3 @@
-<<<<<<< .working
 Required Software
 =================
 
@@ -29,6 +28,7 @@ configuring all of the required software.  Once, the required libraries
 are installed and built, installing sipXcallLib under linux is relatively
 easy:
 
+  autoreconf --install --force
   ./configure --prefix=<DIR_TO_INSTALL>
   make
   make check
