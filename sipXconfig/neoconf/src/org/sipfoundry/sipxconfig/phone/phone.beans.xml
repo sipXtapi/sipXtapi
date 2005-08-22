@@ -184,11 +184,12 @@
   <bean id="jobQueue" class="org.sipfoundry.sipxconfig.phone.JobQueue" singleton="true"/>
   <bean id="jobManager" class="org.sipfoundry.sipxconfig.phone.JobManagerImpl">
     <property name="phoneContext">
-      <ref bean="phoneContext"/>
+      <ref local="phoneContext"/>
     </property>
     <property name="jobQueue">
-      <ref bean="jobQueue"/>
+      <ref local="jobQueue"/>
     </property>
+    <property name="jobContext" ref="jobContext"/>
   </bean>  
 </beans>
       

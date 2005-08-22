@@ -16,6 +16,9 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class ServerSettings extends BasePage implements PageRenderListener {
@@ -30,6 +33,12 @@ public abstract class ServerSettings extends BasePage implements PageRenderListe
     public abstract Setting getParentSetting();
 
     public abstract void setParentSetting(Setting parent);
+    
+    public abstract CoreContext getCoreContext();
+
+    public abstract PhoneContext getPhoneContext();
+    
+    public abstract SipxReplicationContext getSipxReplicationContext();
 
     public void pageBeginRender(PageEvent event_) {
         Server server = getServer();
@@ -48,9 +57,29 @@ public abstract class ServerSettings extends BasePage implements PageRenderListe
 
     public void apply(IRequestCycle cycle) {
         getServer().applySettings();
+        handlePossibleDomainNameChange();
         RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
         restartPage.setNextPage(PAGE);
         cycle.activate(restartPage);
+    }
+    
+    private void handlePossibleDomainNameChange() {
+        String oldDomainName = getCoreContext().getDomainName();
+        String newDomainName = getServer().getServerSettings().getDomainName();
+
+        // bail if domain name wasn't changed.
+        if (newDomainName.equals(oldDomainName)) {
+            return;
+        }
+        
+        // propagate domain name to all known copies.  Hopefully better
+        // way will surface when server settings aren't assumed to be
+        // local
+        getCoreContext().setDomainName(newDomainName);
+        getPhoneContext().getPhoneDefaults().setDomainName(newDomainName);
+
+        // hopefully happens before user restarts servers.
+        getSipxReplicationContext().generateAll();        
     }
 
     public void cancel(IRequestCycle cycle_) {

@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserDeleteListener;
+import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;

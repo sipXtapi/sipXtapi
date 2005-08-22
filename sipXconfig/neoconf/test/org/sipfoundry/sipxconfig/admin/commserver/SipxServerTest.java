@@ -23,12 +23,19 @@ public class SipxServerTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_server = new SipxServer();
-        m_server.setConfigDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));        
-    }
-    
+        m_server.setConfigDirectory(TestHelper.getSysDirProperties().getProperty("sysdir.etc"));
+        m_server.setSettingModel(TestHelper.loadSettings("commserver/server.xml"));
+    }    
     
     public void testGetSetting() {
         Setting settings = m_server.getSettings();
         assertNotNull(settings);
+    }
+    
+    public void testGetServerSettings() {
+        String expected = "myserver";
+        m_server.getSettings().getSetting("domain/SIPXCHANGE_DOMAIN_NAME").setValue(expected);
+        String actual = m_server.getServerSettings().getDomainName();
+        assertNotNull(expected, actual);
     }
 }

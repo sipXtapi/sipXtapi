@@ -8,9 +8,7 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
-    <property name="processContext">
-      <ref bean="sipxProcessContext"/>
-    </property>    
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="settingDao">
       <ref bean="settingDao"/>
     </property>

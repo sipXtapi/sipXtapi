@@ -76,7 +76,7 @@ public abstract class GroupSettings extends BasePage implements PageRenderListen
 
     public void apply(IRequestCycle cycle_) {
         SettingDao dao = getSettingDao();
-        dao.storeGroup(getGroup());
+        dao.saveGroup(getGroup());
     }
 
     public void cancel(IRequestCycle cycle) {

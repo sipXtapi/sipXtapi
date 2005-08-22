@@ -47,6 +47,8 @@ public interface CoreContext extends DataObjectSource {
     
     public String getDomainName();
     
+    public void setDomainName(String domainName);
+    
     public void clear();
     
     public List getUserGroups();

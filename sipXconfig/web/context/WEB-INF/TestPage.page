@@ -21,9 +21,12 @@
 	<property-specification name="coreContext" 
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>
-    <property-specification name="sipxProcessContext"
-    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext"
-    	initial-value="global.sipxProcessContext"/>
+    <property-specification name="sipxReplicationContext"
+    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext"
+    	initial-value="global.sipxReplicationContext"/>
+    <property-specification name="jobContext" 
+    	type="org.sipfoundry.sipxconfig.job.JobContext" 
+    	initial-value="global.jobContext"/>
 
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>
@@ -56,6 +59,9 @@
     </component>
     <component id="login" type="DirectLink">
         <binding name="listener" expression="listeners.login"/>
+    </component>
+    <component id="populateJobs" type="DirectLink">
+        <binding name="listener" expression="listeners.populateJobs"/>
     </component>
    
     <component id="RestartReminder" type="DirectLink">

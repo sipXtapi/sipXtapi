@@ -42,7 +42,7 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, storageId);    
     }
 
-    public void storeGroup(Group group) {
+    public void saveGroup(Group group) {
         checkDuplicates(group);
         assignWeightToNewGroups(group);
         getHibernateTemplate().saveOrUpdate(group);

@@ -15,9 +15,11 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -26,9 +28,9 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * with hibernate All Interceptor methods, with the exception od instantiate, copied from
  * EmptyInterceptor
  */
-public class SpringHibernateInstantiator extends DaoEventDispatcher implements BeanFactoryAware {
+public class SpringHibernateInstantiator extends EmptyInterceptor implements BeanFactoryAware {    
     private static final Log LOG = LogFactory.getLog(SpringHibernateInstantiator.class);
-
+    private ListableBeanFactory m_beanFactory;
     private SessionFactory m_sessionFactory;
 
     /**
@@ -54,6 +56,17 @@ public class SpringHibernateInstantiator extends DaoEventDispatcher implements B
             }
         }
         return null;
+    }    
+
+    /**
+     * This can only be used withy listeable bean factory
+     */
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+    
+    public BeanFactory getBeanFactory() {
+        return m_beanFactory;
     }
 
     public void setSessionFactory(SessionFactory sessionFactory) {

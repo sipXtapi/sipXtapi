@@ -3,20 +3,6 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.common" default-lazy="false">
 
-    <class name="org.sipfoundry.sipxconfig.phone.JobRecord" table="job">
-    <id name="id" column="job_id" type="int" unsaved-value="-1">
-      <generator class="sequence">
-        <param name="sequence">job_seq</param>
-      </generator>
-    </id>
-    <property name="type"/>
-    <property name="status"/>
-    <property name="startTimeString"/>
-    <property name="details"/>
-    <property name="progress"/>
-    <property name="exceptionMessage"/>
-  </class>
-  
   <!-- 
     - U S E R
     -->

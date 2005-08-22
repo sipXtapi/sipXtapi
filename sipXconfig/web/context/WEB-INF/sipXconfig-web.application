@@ -21,12 +21,6 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="GroupSettings" specification-path="setting/GroupSettings.page"/>    
-    <page name="UserGroups" specification-path="user/UserGroups.page"/>    
-    <page name="EditUser" specification-path="user/EditUser.page"/>    
-    <page name="EditGroup" specification-path="setting/EditGroup.page"/>    
-    <page name="PhoneModels" specification-path="phone/PhoneModels.page"/>    
-    <page name="PhoneGroups" specification-path="phone/PhoneGroups.page"/>    
     <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
@@ -37,6 +31,7 @@
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
     <page name="EditEmergencyDialRule" specification-path="dialplan/EditEmergencyDialRule.page"/>
     <page name="EditEmergencyRouting" specification-path="dialplan/EditEmergencyRouting.page"/>
+    <page name="EditGroup" specification-path="setting/EditGroup.page"/>    
     <page name="EditInternalDialRule" specification-path="dialplan/EditInternalDialRule.page"/>
     <page name="EditInternationalDialRule" specification-path="dialplan/EditInternationalDialRule.page"/>
     <page name="EditFlexibleDialPlan" specification-path="dialplan/EditFlexibleDialPlan.page"/>
@@ -47,7 +42,10 @@
     <page name="EditGateway" specification-path="gateway/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
+    <page name="EditUser" specification-path="user/EditUser.page"/>    
+    <page name="GroupSettings" specification-path="setting/GroupSettings.page"/>    
     <page name="Home" specification-path="Home.page"/>
+    <page name="JobStatusPage" specification-path="admin/JobStatusPage.page"/>    
     <page name="ListCallGroups" specification-path="admin/ListCallGroups.page"/>    
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="gateway/ListGateways.page"/>
@@ -57,7 +55,9 @@
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>
+    <page name="PhoneGroups" specification-path="phone/PhoneGroups.page"/>    
     <page name="PhoneLines" specification-path="phone/PhoneLines.page"/>
+    <page name="PhoneModels" specification-path="phone/PhoneModels.page"/>    
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>
     <page name="SelectGateways" specification-path="gateway/SelectGateways.page"/>
@@ -65,6 +65,7 @@
     <page name="ServerSettings" specification-path="admin/commserver/ServerSettings.page"/>    
     <page name="Services" specification-path="admin/commserver/Services.page"/>
     <page name="UserCallForwarding" specification-path="user_portal/UserCallForwarding.page"/>
+    <page name="UserGroups" specification-path="user/UserGroups.page"/>    
 
     <!--
       -  C O M P O N E N T S

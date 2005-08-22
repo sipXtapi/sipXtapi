@@ -11,40 +11,69 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 
 public class DaoEventDispatcherTest extends TestCase {
+	
+	public void testOnDelete() {
+    	User u = new User();
+    	u.setUserName("testme");
 
-    public void testOnSaveAndOnDelete() {
-        Object entity = new Object();
+    	MockControl listenerCtrl = MockControl.createControl(DaoEventListener.class);
+		DaoEventListener listener = (DaoEventListener) listenerCtrl.getMock();
+		listener.onDelete(u);
+		listenerCtrl.replay();
+		
+		DaoEventDispatcher dispatcher = DaoEventDispatcher.createDeleteDispatcher();
+		dispatcher.onEvent(new Object[] {u}, Collections.singleton(listener));
+		
+		listenerCtrl.verify();		
+	}
 
-        MockControl listenerControl = MockControl.createStrictControl(DaoEventListener.class);
-        DaoEventListener listener = (DaoEventListener) listenerControl.getMock();
-        listenerControl.expectAndReturn(listener.onSave(entity, null, null, null, null), false);
-        listener.onDelete(entity, null, null, null, null);
-        listenerControl.setDefaultVoidCallable();
-        listenerControl.replay();
-        
-        MockControl bfControl = MockControl.createStrictControl(ListableBeanFactory.class);
-        ListableBeanFactory bf = (ListableBeanFactory) bfControl.getMock();
-        Map beanMap = new HashMap();
-        beanMap.put(listener.getClass().getName(), listener);
-        bfControl.expectAndReturn(bf.getBeansOfType(DaoEventListener.class, true, true), beanMap, 2);
-        bfControl.replay();
-        
-        DaoEventDispatcher dispatcher = new DaoEventDispatcher();
-        dispatcher.setBeanFactory(bf);
-        dispatcher.onSave(entity, null, null, null, null);
-        dispatcher.onDelete(entity, null, null, null, null);
-        
-        listenerControl.verify();
-        bfControl.verify();
+    public void _testOnSaveAspect() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+    	User u = new User();
+    	u.setUserName("testme");
+    	
+    	MockControl listenerCtrl = MockControl.createControl(DaoEventListener.class);
+		DaoEventListener listener = (DaoEventListener) listenerCtrl.getMock();
+		listener.onSave(u);
+		listenerCtrl.replay();
+    	
+    	MockControl control = MockControl.createStrictControl(ListableBeanFactory.class);
+    	ListableBeanFactory beanFactory = (ListableBeanFactory) control.getMock();
+    	Map beanMap = new HashMap();
+    	beanMap.put("mockEventListener", listener);
+    	control.expectAndReturn(beanFactory.getBeansOfType(DaoEventListener.class, true, true), beanMap);
+    	control.replay();
+    	
+    	ApplicationContext app = TestHelper.getApplicationContext();
+    	CoreContext core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
+    	DaoEventDispatcher dispatcher = (DaoEventDispatcher)app.getBean("onSaveEventDispatcher");
+    	BeanFactory oldFactory = dispatcher.getBeanFactory();
+    	try {
+    		dispatcher.setBeanFactory(beanFactory);
+    		// event
+    		core.saveUser(u);
+    		
+    		// no event
+    		core.clear();
+    	
+    		listenerCtrl.verify();
+    		control.verify();
+    	} finally {
+    		dispatcher.setBeanFactory(oldFactory);
+    	}
     }
 }
 

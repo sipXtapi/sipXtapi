@@ -24,7 +24,7 @@ public interface SettingDao extends DataObjectSource {
     /** common name found in spring file */
     public static final String CONTEXT_NAME = "settingDao";
 
-    public void storeGroup(Group group);
+    public void saveGroup(Group group);
     
     public void deleteGroup(Group group);
     

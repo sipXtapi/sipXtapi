@@ -16,6 +16,9 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import junit.framework.Test;
+
+import com.meterware.httpunit.WebForm;
+
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -55,5 +58,21 @@ public class ServerSettingsTestUi extends WebTestCase {
             SiteTestHelper.assertNoException(tester);
             SiteTestHelper.assertNoUserError(tester);            
         }
+    }
+    
+    /**
+     * If domain name changes, replication is triggered, make sure system is ok
+     */
+    public void testDomainNameChange() {
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("link:domain");               
+
+        // Don't know how to user form element with id setting:SIPXCHANGE_DOMAIN_NAME 
+        String domainNameElement = "stringField"; 
+        
+        setFormElement(domainNameElement, "zappa");
+        clickButton("setting:apply");
+        SiteTestHelper.assertNoException(tester);
     }
 }

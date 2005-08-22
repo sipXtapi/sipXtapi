@@ -14,7 +14,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-1.1.jar"/>
-	<classpathentry sourcepath="LIB_SRC/httpunit/src.zip" kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
+	<classpathentry sourcepath="/LIBSRC/httpunit/src.zip" kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-2.5.1.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
@@ -23,7 +23,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>
-	<classpathentry sourcepath="LIB_SRC/jwebunit/src.zip" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar">
+	<classpathentry sourcepath="/LIBSRC/jwebunit/src.zip" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar">
 		<attributes>
 			<attribute value="http://jwebunit.sourceforge.net/apidocs" name="javadoc_location"/>
 		</attributes>

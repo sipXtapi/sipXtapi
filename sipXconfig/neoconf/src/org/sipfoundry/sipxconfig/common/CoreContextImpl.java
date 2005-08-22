@@ -11,22 +11,19 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
-import org.hibernate.criterion.Example.PropertySelector;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.type.Type;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -43,10 +40,6 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String EXTENSION_PROP_NAME = "extension";
 
-    private static final PropertySelector NOT_NULL_OR_BLANK = new NotNullOrBlank();
-
-    private SipxProcessContext m_processContext;
-
     private String m_authorizationRealm;
 
     private String m_domainName;
@@ -54,6 +47,8 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
     private SettingDao m_settingDao;
 
     private Setting m_userSettingModel;
+    
+    private DaoEventPublisher m_daoEventPublisher;
 
     public CoreContextImpl() {
         super();
@@ -77,12 +72,10 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
 
     public void saveUser(User user) {
         getHibernateTemplate().saveOrUpdate(user);
-        m_processContext.generateAll();
     }
 
-    public void deleteUser(User user) {
+    public void deleteUser(User user) {        
         getHibernateTemplate().delete(user);
-        m_processContext.generateAll();
     }
 
     public void deleteUsers(Collection userIds) {
@@ -93,10 +86,11 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         List users = new ArrayList(userIds.size());
         for (Iterator i = userIds.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            users.add(loadUser(id));
+            User user = loadUser(id);
+            users.add(user);
+            m_daoEventPublisher.publishDelete(user);
         }
         getHibernateTemplate().deleteAll(users);
-        m_processContext.generateAll();
     }
 
     public User loadUser(Integer id) {
@@ -130,7 +124,7 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
 
     public List loadUserByTemplateUser(User template) {
         final Example example = Example.create(template);
-        example.setPropertySelector(NOT_NULL_OR_BLANK);
+        example.setPropertySelector(NotNullOrBlank.INSTANCE);
         example.enableLike(MatchMode.START);
         example.excludeProperty("id");
 
@@ -181,14 +175,10 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         getHibernateTemplate().deleteAll(c);
     }
 
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
-
-    public SipxProcessContext getProcessContext() {
-        return m_processContext;
-    }
-
+    
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof InitializationTask) {
             InitializationTask task = (InitializationTask) event;
@@ -209,7 +199,7 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         adminGroup.setResource(User.GROUP_RESOURCE_ID);
         adminGroup.setDescription("Users with superadmin privledges");
         Permission.SUPERADMIN.setEnabled(adminGroup, true);
-        m_settingDao.storeGroup(adminGroup);
+        m_settingDao.saveGroup(adminGroup);
 
         // using superadmin name not to disrrupt existing customers
         // can be anything
@@ -262,23 +252,10 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         return users;
     }
 
-    public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames,
-            Type[] types) {
-        onSaveOrDelete(entity, id, state, propertyNames, types);
-    }
-
-    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
-            Type[] types) {
-        onSaveOrDelete(entity, id, state, propertyNames, types);
-        return false;
-    }
-
-    void onSaveOrDelete(Object entity, Serializable id_, Object[] state_,
-            String[] propertyNames_, Type[] types_) {
-
-        Class c = entity.getClass();
-        if (Group.class.equals(c)) {
+    public void onDelete(Object entity) {
+        if (entity instanceof Group) {
             Group group = (Group) entity;
+            getHibernateTemplate().update(group);
             if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
                 Collection users = getGroupMembers(group);
                 Iterator iusers = users.iterator();
@@ -294,15 +271,6 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         }
     }
 
-    private static class NotNullOrBlank implements PropertySelector {
-        public boolean include(Object propertyValue, String propertyName_, Type type_) {
-            if (propertyValue == null) {
-                return false;
-            }
-            if (propertyValue instanceof String) {
-                return StringUtils.isNotBlank((String) propertyValue);
-            }
-            return true;
-        }
+    public void onSave(Object entity_) {
     }
 }

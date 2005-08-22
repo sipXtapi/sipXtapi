@@ -64,7 +64,7 @@ public abstract class GroupTable extends BaseComponent {
         Iterator i = groups.iterator();
         while (i.hasNext()) {
             Group group = (Group) i.next();
-            context.storeGroup(group);
+            context.saveGroup(group);
         }
     }
 }

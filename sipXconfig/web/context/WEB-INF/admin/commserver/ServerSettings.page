@@ -18,6 +18,15 @@
     	/>    
     <property-specification name="parentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="coreContext" 
+    	type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/>
+    <property-specification name="phoneContext" 
+    	type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>
+    <property-specification name="sipxReplicationContext" 
+    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext" 
+    	initial-value="global.sipxReplicationContext"/>
     
     <!-- B E A N S -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>

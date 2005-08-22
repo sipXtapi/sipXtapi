@@ -56,7 +56,7 @@ public abstract class EditGroup extends BasePage {
     
     void save() {
         Group group = getGroup();
-        getSettingContext().storeGroup(group);
+        getSettingContext().saveGroup(group);
     }
 
     public void cancel(IRequestCycle cycle) {        

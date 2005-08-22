@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.List;
 
 import org.apache.commons.lang.enums.Enum;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 
 public interface SipxProcessContext {
     public static class Process extends Enum {
@@ -75,9 +74,5 @@ public interface SipxProcessContext {
      * This method handles only commands that don't need output, which excludes the
      * "status" command.
      */
-    public void manageService(Process process, Command command);
-    
-    void generate(DataSet dataSet);
-
-    void generateAll();
+    public void manageService(Process process, Command command);    
 }

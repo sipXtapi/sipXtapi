@@ -11,11 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.Serializable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.job.JobContext;
 
 /**
- * Run an ansynchorous operation on a list of jobs.  
+ * Run an ansynchorous operation on a list of jobs.
  */
 public class JobManagerImpl extends Thread implements JobManager {
 
@@ -28,6 +31,8 @@ public class JobManagerImpl extends Thread implements JobManager {
     private JobQueue m_jobQueue;
 
     private boolean m_stop;
+
+    private JobContext m_jobContext;
 
     private Object m_runMonitor = new Object();
 
@@ -60,53 +65,37 @@ public class JobManagerImpl extends Thread implements JobManager {
     }
 
     void runJob(JobRecord job) {
-        // JobRecord, a legacy business object, doesn't have the right fields to capture
-        // all relevant data.  If phones 1 and 3 of 100 phones have and exception, only
-        // one job record exception will be captured.
-        job.setStatus(JobRecord.STATUS_STARTED);
-        m_phoneContext.storeJob(job);
-        char status = JobRecord.STATUS_COMPLETE;
         Phone[] phones = job.getPhones();
         for (int i = 0; i < phones.length && !m_stop; i++) {
             Phone phone = phones[i];
-            String progress = null;
-            job.setDetails("Projection for phone " + phone.getSerialNumber());
-            String progressSuffix = "" + (i + 1) + " of " + phones.length + " phones";
+            Serializable jobId = m_jobContext.schedule("Projection for phone "
+                    + phone.getSerialNumber());
             try {
-                job.setProgress("Starting " + progressSuffix);
-                m_phoneContext.storeJob(job);
+                m_jobContext.start(jobId);
                 switch (job.getType()) {
                 case JobRecord.TYPE_PROJECTION:
-                    progress = "projected " + progressSuffix;
                     phone.generateProfiles();
                     phone.restart();
                     break;
 
                 case JobRecord.TYPE_DEVICE_RESTART:
-                    progress = "restarted " + progressSuffix;
                     phone.restart();
                     break;
                 default:
                     break;
                 }
-                job.setProgress(progress);
+                m_jobContext.success(jobId);
             } catch (RestartException re) {
-                status = JobRecord.STATUS_FAILED;
-                job.setExceptionMessage(re.getMessage());
+                m_jobContext.failure(jobId, null, re);
             } catch (RuntimeException e) {
-                status = JobRecord.STATUS_FAILED;
-                job.setExceptionMessage(e.toString());
+                m_jobContext.failure(jobId, null, e);
                 throw e;
             }
-            m_phoneContext.storeJob(job);
         }
-
-        job.setStatus(status);
-        m_phoneContext.storeJob(job);
     }
 
     /**
-     * As soon as job queue is set, jobs can be added and 
+     * As soon as job queue is set, jobs can be added and
      */
     public void setJobQueue(JobQueue jobQueue) {
         m_jobQueue = jobQueue;
@@ -127,5 +116,9 @@ public class JobManagerImpl extends Thread implements JobManager {
 
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
+    }
+
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
     }
 }
