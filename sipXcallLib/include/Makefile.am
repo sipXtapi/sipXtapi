@@ -151,3 +151,5 @@ noinst_HEADERS = \
     test/mp/MyPlayerListenerHistoryKeeper.h \
     test/mp/MyPlayerListenerPoller.h \
     test/mp/MyStreamQueueHistoryKeeper.h 
+
+DISTCLEANFILES = Makefile.in

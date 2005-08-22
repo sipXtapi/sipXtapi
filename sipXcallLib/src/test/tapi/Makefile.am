@@ -25,4 +25,4 @@ testsuite_SOURCES = \
   TestRegistryData.cpp \
   ../jnibutton.cpp
 
-
+DISTCLEANFILES = Makefile.in

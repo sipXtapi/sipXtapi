@@ -15,3 +15,15 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	    $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
+
+DISTCLEANFILES = \
+	Makefile.in \
+	sipxcalllib-config \
+	config/config.guess \
+	config/config.sub \
+	config/depcomp \
+	config/install-sh \
+	config/ltmain.sh \
+	config/missing \
+	config/sipxcalllib-buildstamp.cpp \
+	config/sipxcalllib-buildstamp.h

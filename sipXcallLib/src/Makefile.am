@@ -151,3 +151,5 @@ libsipXcall_la_SOURCES = \
     ps/PsTaoRinger.cpp \
     ps/PsTaoSpeaker.cpp \
     $(tapi_sources)
+
+DISTCLEANFILES = Makefile.in

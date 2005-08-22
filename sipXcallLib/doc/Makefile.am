@@ -36,3 +36,5 @@ clean: clean-doc
 .PHONY: clean-doc
 clean-doc:
 	rm -rf @PACKAGE@ Doxyfile
+
+DISTCLEANFILES = Doxyfile Makefile.in
