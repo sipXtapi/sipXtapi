@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.job;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,7 +20,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 /**
  * Information about the job
  */
-public class Job extends BeanWithId {
+public class Job extends BeanWithId implements Serializable {
     private Date m_start;
 
     private Date m_stop;

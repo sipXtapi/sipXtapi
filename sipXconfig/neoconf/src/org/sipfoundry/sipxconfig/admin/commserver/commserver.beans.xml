@@ -22,6 +22,7 @@
     <property name="replicationManager">
       <bean class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>
     </property>
+    <property name="jobContext" ref="jobContext"/>
   </bean>
   
   <bean id="sipxProcessContext" parent="sipxReplicationContextImpl"
@@ -46,10 +47,7 @@
   <bean id="extensionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions"/>
   <bean id="aliasDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">
-    <property name="callGroupContext" ref="callGroupContext"/>
-    <property name="forwardingContext" ref="forwardingContext"/>
-  </bean>
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases" autowire="byName" dependency-check="objects"/>
   <bean id="credentialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials"/>
   <bean id="permissionDataSet" parent="dataSetGenerator"

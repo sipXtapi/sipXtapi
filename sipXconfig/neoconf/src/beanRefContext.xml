@@ -7,8 +7,6 @@
     <constructor-arg>
       <list>
         <value>classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
-        <value>classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml</value>
-        <value>classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/admin.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</value>
@@ -19,6 +17,8 @@
         <value>classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/login/login.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml</value>
       </list>
     </constructor-arg>
   </bean>

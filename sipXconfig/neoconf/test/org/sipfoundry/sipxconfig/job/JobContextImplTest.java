@@ -59,7 +59,10 @@ public class JobContextImplTest extends TestCase {
         context.success(jobIds[2]);
         context.failure(jobIds[3], null, null);
 
-        context.removeCompleted();
+        int removed = context.removeCompleted();
+        
+        assertEquals(1, removed);
+        
         List jobs = context.getJobs();
         assertEquals(3, jobs.size());
 
@@ -89,5 +92,39 @@ public class JobContextImplTest extends TestCase {
         jobs = context.getJobs();
         // but the list should be empty next time we retrieve it
         assertEquals(0, jobs.size());
+    }
+
+    public void testNullId() {
+        // it should be OK to call most of context functions with null id
+        JobContext context = new JobContextImpl();
+        context.start(null);
+        context.success(null);
+        context.failure(null, null, null);
+    }
+
+    public void testFull() {
+        JobContext context = new JobContextImpl();
+        Serializable first = null;
+        for (int i = 0; i < JobContextImpl.MAX_JOBS; i++) {
+            Serializable id = context.schedule("job" + i);
+            assertNotNull(id);
+            context.start(id);
+            if(i == 0) {
+                first = id;
+            }
+        }
+
+        assertEquals(JobContextImpl.MAX_JOBS, context.getJobs().size());
+        assertTrue(context.getJobs().contains(first));
+        
+        // it should be OK now
+        assertNotNull(context.schedule("extra job"));
+        
+        // but the queue do not grow
+        assertEquals(JobContextImpl.MAX_JOBS, context.getJobs().size());
+        assertFalse(context.getJobs().contains(first));
+        
+        // but it still should be OK to call success (or failure)
+        context.success(first);        
     }
 }

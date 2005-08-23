@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.dom4j.io.SAXReader;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
@@ -40,16 +42,30 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
     private String m_configDirectory;
     private BeanFactory m_beanFactory;
     private ReplicationManager m_replicationManager;
+    private JobContext m_jobContext;
 
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
     }
 
     public void generate(DataSet dataSet) {
-        String beanName = dataSet.getBeanName();
-        DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
-                DataSetGenerator.class);
-        m_replicationManager.replicateData(getReplicationUrls(), generator.generate(), dataSet);
+        Serializable jobId = m_jobContext.schedule("Replication: " + dataSet.getName());
+        boolean success = false;
+        try {
+            m_jobContext.start(jobId);
+            String beanName = dataSet.getBeanName();
+            DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
+                    DataSetGenerator.class);
+            success = m_replicationManager.replicateData(getReplicationUrls(), generator
+                    .generate(), dataSet);
+        } finally {
+            if (success) {
+                m_jobContext.success(jobId);
+            } else {
+                // there is not really a good info here - advise user to consult log?
+                m_jobContext.failure(jobId, null, null);
+            }
+        }
     }
 
     public void generateAll() {
@@ -121,5 +137,9 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
             retrieveUrls();
         }
         return m_processMonitorUrls;
+    }
+
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
     }
 }

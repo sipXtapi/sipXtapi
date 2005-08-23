@@ -55,6 +55,7 @@
     <pathelement path="${velocity.jar}" />
     <pathelement path="${xerces.jar}" />
     <pathelement path="${xml-apis.jar}" />
+    <pathelement path="${xmlrpc.jar}" />
     <pathelement path="${antlr.jar}" />
   </path>
 
@@ -137,6 +138,17 @@
       <replacefilter token="@openssl@" property="openssl"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" perm="ugo+x" />
+
+    <copy file="bin/create-ssl-keystore.sh.in" 
+      tofile="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh" />
+    <replace file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh" 
+      propertyfile="${top.build.dir}/build.properties">
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@openssl@" property="openssl"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh" perm="ugo+x" />
 
     <!-- config -->
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />

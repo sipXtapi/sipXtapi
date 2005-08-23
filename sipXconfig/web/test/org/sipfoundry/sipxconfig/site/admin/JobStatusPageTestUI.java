@@ -53,6 +53,19 @@ public class JobStatusPageTestUI extends WebTestCase {
         // remove finishedjobs
         clickButton("jobs:remove");
         table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
-        assertEquals(4, table.getRowCount());
+        assertEquals(4, table.getRowCount());        
     }
+    
+    public void testClear() throws Exception {
+        clickLink("jobs:populate");
+        clickLink("JobStatusPage");
+        SiteTestHelper.assertNoException(tester);
+        WebTable table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        assertEquals(5, table.getRowCount());
+
+        // remove finishedjobs
+        clickButton("jobs:clear");
+        table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        assertEquals(1, table.getRowCount());        
+    }    
 }
