@@ -11,17 +11,18 @@ RELEASE = 1
 INSTALL = @INSTALL@
 
 EXTRA_DIST = \
-	 config/sipX-config.in \
+    BUILDSTAMP \
+    CONTRIBUTORS \
+    LICENSE \
+    SVN-VERSION \
+    bin/httpd-sipxchange-config.sh.in \
+    config/apache_version.awk \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
+    config/sipX-config.in \
     config/sipXcommon.mak.in \
-	 CONTRIBUTORS \
-    BUILDSTAMP \
-    SVN-VERSION \
-	 LICENSE \
-	 bin/httpd-sipxchange-config.sh.in \
-	 sipxpbx.spec
+    config/sipXprojtop.mak \
+    sipxpbx.spec
 
 install-exec-hook :
 	$(LocalizeSipXconfig) $(srcdir)/bin/httpd-sipxchange-config.sh.in > httpd-sipxchange-config.sh
