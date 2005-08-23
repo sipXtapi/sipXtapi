@@ -100,7 +100,8 @@ public abstract class XmlUnitHelper {
         return writer.write(doc);
     }
 
-    public static void style(Reader xsl, Reader xml, Writer out, Map params) throws TransformerException {
+    public static void style(Reader xsl, Reader xml, Writer out, Map params)
+            throws TransformerException {
         Source xmlSource = new javax.xml.transform.stream.StreamSource(xml);
         TransformerFactory factory = TransformerFactory.newInstance();
         Source xslSource = new javax.xml.transform.stream.StreamSource(xsl);
@@ -116,9 +117,10 @@ public abstract class XmlUnitHelper {
         StreamResult result = new StreamResult(out);
         transformer.transform(xmlSource, result);
     }
-    
+
     /**
      * Loads XML document from class resource
+     * 
      * @param klass - for locating the file - pass this.class
      * @param name name of the file in the same directory as klass
      * @return newly read DOM4J document

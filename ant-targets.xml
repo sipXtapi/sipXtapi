@@ -219,7 +219,7 @@
       description="checks code convention violations"> 
     <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false" 
         failureproperty="checkstyle.failed" classpathref="base.path"> 
-      <fileset dir="${src.dir}">
+      <fileset dir="${src.dir}/org/sipfoundry">
         <include name="**/*.java"/>
       </fileset>
       <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/> 

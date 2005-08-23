@@ -126,11 +126,21 @@ public class SiteTestHelper {
      * @param index
      */
     public static void checkCheckbox(WebTester tester, String id, int index) {
+        tester.checkCheckbox(getIndexedId(id, index));
+    }
+    
+    /**
+     * Translates between Tapestry index and normal index
+     * 
+     * @param id HTML element id
+     * @param index tapestry index
+     */    
+    public static String getIndexedId(String id, int index) {
         String suffix = "";
         if (index > 0) {
             suffix = "$" + (index - 1);
         }
-        tester.checkCheckbox(id + suffix);
+        return id + suffix;
     }
 
     public static void assertOptionSelected(WebTester tester, String formElement, String expected) {

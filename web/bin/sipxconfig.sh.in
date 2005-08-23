@@ -78,7 +78,7 @@ createAuthoritiesTruststore() {
     # List of authorities accepted system-wide
     if [ -d $AuthoritiesDir ]
     then
-      TrustStore=$SslDir/authorities.jks
+      TrustStore=$SslDir/.authorities.jks
       Certificates=`find $AuthoritiesDir | egrep -i '.(crt|crl)$'`
       @bin.dir@/ssl-cert/create-ssl-truststore.sh --checksum $SslDir/.authorities-contents.md5 --truststore $TrustStore  $Certificates
       # password on command line is not security issue. catrust and directory has appropriate
@@ -93,6 +93,7 @@ createAuthoritiesTruststore() {
       TrustStoreOpts=""
     fi
 }
+
     
 # Take a list of files for directories complete with 
 # and expand pathnames to create string for PATH based variables 
@@ -140,12 +141,14 @@ onWebUi() {
     makeRestoreBackup @sipxpbx.conf.dir@/authproxy-config.in
 
     createAuthoritiesTruststore
+    @bin.dir@/ssl-cert/create-ssl-keystore.sh
     
     JavaOpts="-server $SIPXCONFIG_OPTS"
 
     # Used in sipxconfig-jetty.xml only
     SystemProps="\
         -Djetty.lib.dir=@sipxconfig.lib.dir@ \
+        -Djetty.conf.dir=@sipxpbx.conf.dir@ \
         -Djetty.log.dir=${LogDir} \
         -Dorg.apache.commons.logging.LogFactory=org.mortbay.log.Factory"
 

@@ -13,46 +13,66 @@ package org.sipfoundry.sipxconfig.job;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 public class JobContextImpl implements JobContext {
-    private List m_jobs = new ArrayList();
+    static final int MAX_JOBS = 50;
+
+    private Collection m_jobs = new CircularFifoBuffer(MAX_JOBS);
 
     private synchronized Job getJob(Serializable id) {
-        int i = m_jobs.indexOf(new BeanWithId((Integer) id));
-        return (Job) m_jobs.get(i);
+        if (id instanceof Job) {
+            return (Job) id;
+        }
+        return null;
+    }
+
+    private Serializable addNewJob(Job job) {
+        job.setUniqueId();
+        m_jobs.add(job);
+        return job;
     }
 
     public synchronized Serializable schedule(String name) {
         Job job = new Job(name);
-        // temporary - until we implement database storage
-        job.setUniqueId();
-        m_jobs.add(job);
-        return job.getId();
+        return addNewJob(job);
     }
 
     public void start(Serializable jobId) {
-        getJob(jobId).start();
+        Job job = getJob(jobId);
+        if (job != null) {
+            job.start();
+        }
     }
 
     public void success(Serializable jobId) {
-        getJob(jobId).success();
+        Job job = getJob(jobId);
+        if (job != null) {
+            job.success();
+        }
     }
 
     public void failure(Serializable jobId, String errorMsg, Throwable exception) {
-        getJob(jobId).failure(errorMsg, exception);
+        Job job = getJob(jobId);
+        if (job != null) {
+            job.failure(errorMsg, exception);
+        }
     }
 
-    public synchronized void removeCompleted() {
+    public synchronized int removeCompleted() {
+        int counter = 0;
         for (Iterator i = m_jobs.iterator(); i.hasNext();) {
             Job job = (Job) i.next();
             if (job.getStatus().equals(JobStatus.COMPLETED)) {
                 i.remove();
+                counter++;
             }
         }
+        return counter;
     }
 
     public synchronized void clear() {

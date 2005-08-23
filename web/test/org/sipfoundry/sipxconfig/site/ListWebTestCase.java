@@ -40,6 +40,7 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     private boolean m_hasDuplicate = true;
     private boolean m_hasMove = false;
+    private boolean m_exactCheck = true;
 
     public ListWebTestCase(String pageLink, String resetLink, String idPrefix) {
         m_pageLink = pageLink;
@@ -95,7 +96,7 @@ public abstract class ListWebTestCase extends WebTestCase {
     // common tests
     public void testDisplay() {
         SiteTestHelper.assertNoException(tester);
-        assertFormPresent(buildId("form"));
+        assertFormPresent(getFormId());
         assertLinkPresent(buildId("add"));
         assertEquals(1, SiteTestHelper.getRowCount(tester, buildId("list")));
         assertButtonPresent(buildId("delete"));
@@ -109,7 +110,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         }
     }
 
-    public void testAdd() {
+    public void testAdd() throws Exception {
         final int count = 5;
         ExpectedTable expected = new ExpectedTable();
         for (int i = 0; i < count; i++) {
@@ -117,12 +118,16 @@ public abstract class ListWebTestCase extends WebTestCase {
             addItem(getParamNames(), values);
             expected.appendRow(new ExpectedRow(getExpectedTableRow(values)));
         }
-        // we should have 2 items now
         assertEquals(count + 1, SiteTestHelper.getRowCount(tester, buildId("list")));
-        assertTableRowsEqual(buildId("list"), 1, expected);
+        if (m_exactCheck) {
+            assertTableRowsEqual(buildId("list"), 1, expected);
+        }
+        else {
+            assertTableRowsExist(buildId("list"), expected);
+        }
     }
 
-    public void testEdit() {
+    public void testEdit() throws Exception {
         String[] values = getParamValues(7);
         addItem(getParamNames(), values);
 
@@ -135,7 +140,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         }
     }
 
-    public void testDelete() {
+    public void testDelete() throws Exception {
         final int[] toBeRemoved = {
             2, 4
         };
@@ -158,27 +163,40 @@ public abstract class ListWebTestCase extends WebTestCase {
 
         assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
                 buildId("list")));
-        assertTableRowsEqual(buildId("list"), 1, expected);
+        if (m_exactCheck) {
+            assertTableRowsEqual(buildId("list"), 1, expected);
+        }
     }
 
-    protected final void addItem(String[] names, String[] values) {
+    protected final void addItem(String[] names, String[] values) throws Exception {
         assertEquals(names.length, values.length);
-        clickLink(buildId("add"));
-        setAddParams(names,values);
+        clickAddLink();
+        setAddParams(names, values);
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }
-    
+
+    protected void clickAddLink() throws Exception {
+        clickLink(buildId("add"));
+    }
+
+    private void assertTableRowsExist(String tableId, ExpectedTable expected) {
+        for(int i = 0; i < expected.getExpectedStrings().length; i++) {
+            assertTextInTable(tableId, expected.getExpectedStrings()[i][0]);
+        }
+    }
+
     /**
      * Overwrite this to set any aditional params
-     * @param names 
+     * 
+     * @param names
      * @param values
      */
     protected void setAddParams(String[] names, String[] values) {
         WebForm form = getDialog().getForm();
         for (int i = 0; i < names.length; i++) {
             form.setParameter(names[i], values[i]);
-        }        
+        }
     }
 
     public void setHasDuplicate(boolean hasDuplicate) {
@@ -187,5 +205,13 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     public void setHasMove(boolean hasMove) {
         m_hasMove = hasMove;
+    }
+
+    public void setExactCheck(boolean exactCheck) {
+        m_exactCheck = exactCheck;
+    }
+
+    protected String getFormId() {
+        return buildId("form");
     }
 }

@@ -25,7 +25,7 @@ public class XmlRpcProxyFactoryBean extends XmlRpcClientInterceptor implements F
         m_serviceProxy = ProxyFactory.getProxy(getServiceInterface(), this);
     }
 
-    public Object getObject() throws Exception {
+    public Object getObject() {
         return m_serviceProxy;
     }
 

@@ -14,5 +14,5 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import org.dom4j.Document;
 
 public interface ReplicationManager {
-    void replicateData(String[] urls, Document payload, DataSet type);
+    boolean replicateData(String[] urls, Document payload, DataSet type);
 }

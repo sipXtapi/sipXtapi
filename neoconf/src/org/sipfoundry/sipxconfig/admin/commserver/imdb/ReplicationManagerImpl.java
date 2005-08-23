@@ -37,19 +37,26 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     /**
      * sends payload data to all URLs
+     * 
+     * It only returns one result, if there is a failure checking the log is the only way to
+     * detect it. We could throw exceptions from here but it would mean that a single IO failure
+     * dooms entire replication process.
      */
-    public void replicateData(String[] urls, Document payload, DataSet type) {
+    public boolean replicateData(String[] urls, Document payload, DataSet type) {
         byte[] payloadBytes = xmlToByteArray(payload);
         Document xml = generateXMLDataToPost(payloadBytes, type);
         byte[] data = xmlToByteArray(xml);
 
+        boolean success = true;
         for (int i = 0; i < urls.length; i++) {
             try {
                 postData(urls[i], data);
             } catch (IOException e) {
+                success = false;
                 LOG.error("Replication failed: " + type.getName(), e);
             }
         }
+        return success;
     }
 
     private byte[] xmlToByteArray(Document doc) {

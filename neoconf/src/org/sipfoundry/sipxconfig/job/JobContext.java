@@ -23,7 +23,7 @@ public interface JobContext {
 
     void failure(Serializable jobId, String errorMsg, Throwable exception);
 
-    void removeCompleted();
+    int removeCompleted();
 
     void clear();
 

@@ -41,6 +41,7 @@ import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * For unittests that need spring instantiated
@@ -207,13 +208,23 @@ public final class TestHelper {
             try {
                 super.runBare();
             } catch (SQLException e) {
-                System.err.println(e.getNextException().getMessage());
+                dumpSqlExceptionMessages(e);
                 throw e;
+            } catch (DataIntegrityViolationException e) {
+                if (e.getCause() instanceof SQLException) {
+                    dumpSqlExceptionMessages((SQLException) e.getCause());
+                }
+                throw e;
+            }
+        }
 
+        private void dumpSqlExceptionMessages(SQLException e) {
+            for (SQLException next = e; next != null; next = next.getNextException()) {
+                System.err.println(next.getMessage());
             }
         }
     }
-
+    
     /**
      * Use in test to create copy of example files to be changed by test methods.
      * 
