@@ -18,6 +18,10 @@
 #define MAX_HOST_NAME         256
 #define MILLISECOND           1000
 
+// Define this locally as opposed to creating
+// additional dependencies on OsSocket.h
+#define OS_INVALID_SOCKET_DESCRIPTOR -1
+
 static HANDLE WatchDogMutex;
 
 #if defined(__MINGW32__)
