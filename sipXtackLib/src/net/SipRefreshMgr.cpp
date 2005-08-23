@@ -52,9 +52,7 @@
 SipRefreshMgr::SipRefreshMgr():
     OsServerTask("SipRefreshMgr-%d"),
     mpLineMgr(NULL),
-#ifndef SIPXTAPI_EXCLUDE
     mpLastLineEventMap(NULL),
-#endif
     mRegisterListMutexR(OsRWMutex::Q_FIFO),
     mRegisterListMutexW(OsRWMutex::Q_FIFO),
     mSubscribeListMutexR(OsRWMutex::Q_FIFO),
@@ -70,13 +68,11 @@ SipRefreshMgr::~SipRefreshMgr()
 { 
     waitUntilShutDown();
 
-#ifndef SIPXTAPI_EXCLUDE
     if (mpLastLineEventMap)
     {
         mpLastLineEventMap->destroyAll() ;
         delete mpLastLineEventMap ;
     }
-#endif
 
     UtlHashBagIterator itor(mMessageObservers) ;
     while (SipObserverCriteria* pObserver = (SipObserverCriteria*) itor())
@@ -478,9 +474,7 @@ SipRefreshMgr::unRegisterUser (
             contact.setFieldParameter(SIP_EXPIRES_FIELD,"0");
             sipMsg.setContactField(contact.toString());
             sipMsg.removeHeader(SIP_EXPIRES_FIELD,0);
-            #ifndef SIPXTAPI_EXCLUDE
-                fireSipXLineEvent(Uri, lineId.data(), LINESTATE_UNREGISTERING, LINESTATE_UNREGISTERING_NORMAL);
-            #endif
+            fireSipXLineEvent(Uri, lineId.data(), LINESTATE_UNREGISTERING, LINESTATE_UNREGISTERING_NORMAL);
             
             // clear out any pending register requests
             this->removeAllFromRequestList(&sipMsg);
@@ -578,15 +572,11 @@ SipRefreshMgr::sendRequest (
                 mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_FAILED);
             }
 
-#ifndef SIPXTAPI_EXCLUDE
             fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_COULD_NOT_CONNECT);
-#endif 
         }
         else if ( methodName.compareTo(SIP_REGISTER_METHOD) == 0 && isExpiresZero(&request)) 
         {
-#ifndef SIPXTAPI_EXCLUDE
             fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTER_FAILED, LINESTATE_UNREGISTER_FAILED_COULD_NOT_CONNECT);
-#endif 
         }
         
         // @JC Added Comments: create a message on the queue with a quarter
@@ -607,7 +597,6 @@ SipRefreshMgr::sendRequest (
     }
     else
     {
-#ifndef SIPXTAPI_EXCLUDE
             int sequenceNum = 0;
             UtlString tmpMethod;
             request.getCSeqField(&sequenceNum, &tmpMethod);
@@ -624,7 +613,6 @@ SipRefreshMgr::sendRequest (
             {
 
             }
-#endif // #ifndef SIPXTAPI_EXCLUDE
         retval = OS_SUCCESS;
     }
 
@@ -843,7 +831,6 @@ SipRefreshMgr::processResponse(
                 // it means we just did an unregister
                 if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
                 {
-                    #ifndef SIPXTAPI_EXCLUDE
                         Url url;
                         UtlString lineId;
                         request->getToUrl(url);
@@ -861,7 +848,6 @@ SipRefreshMgr::processResponse(
                         {
                             fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTER_FAILED, LINESTATE_CAUSE_UNKNOWN);
                         }
-                    #endif // #ifndef SIPXTAPI_EXCLUDE
                 }
                 sendEventToUpperlayer = TRUE;
             }
@@ -878,7 +864,7 @@ SipRefreshMgr::processResponse(
                     {
                         mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_FAILED);
                     }
-#ifndef SIPXTAPI_EXCLUDE
+
                     lineId = "sip:" + lineId; 
                     if (responseCode == 401 || responseCode == 403 || responseCode == 407)
                     {
@@ -892,7 +878,6 @@ SipRefreshMgr::processResponse(
                     {
                         fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_CAUSE_UNKNOWN);
                     }
-#endif 
                 }
                 rescheduleAfterTime(request, FAILED_PERCENTAGE_TIMEOUT);
             }
@@ -909,14 +894,13 @@ SipRefreshMgr::processResponse(
             
             mpLineMgr->setStateForLine(url, SipLine::LINE_STATE_FAILED);
         }
-#ifndef SIPXTAPI_EXCLUDE
+
             Url url;
             UtlString lineId;
             request->getToUrl(url);
             url.getIdentity(lineId);
             lineId = "sip:" + lineId; 
             fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTER_FAILED, LINESTATE_CAUSE_UNKNOWN);
-#endif 
     }
 
     if ( sendEventToUpperlayer )
@@ -964,14 +948,14 @@ SipRefreshMgr::processOKResponse(
         //reschedule only if expires value != 0, otherwise it means we just did an unregister
         if ( requestRefreshPeriod == 0 )
         {
-#ifndef SIPXTAPI_EXCLUDE
+
                 Url url;
                 UtlString lineId;
                 request->getToUrl(url);
                 url.getIdentity(lineId);
                 lineId = "sip:" + lineId; 
                 fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTERED, LINESTATE_UNREGISTERED_NORMAL);
-#endif 
+
                 // if its an unregister, remove all related messasges 
                 // from the appropriate request list
                 response->setCSeqField(-1, method);
@@ -984,14 +968,14 @@ SipRefreshMgr::processOKResponse(
             {
                 request->setToFieldTag(toTag);
             }
-#ifndef SIPXTAPI_EXCLUDE
+
                 Url url;
                 UtlString lineId;
                 request->getToUrl(url);
                 url.getIdentity(lineId);            
                 lineId = "sip:" + lineId; 
                 fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL);
-#endif 
+
             rescheduleRequest(request, responseRefreshPeriod, SIP_REGISTER_METHOD);
         }
         else // could not find expires in 200 ok response , reschedule after default time
@@ -2003,7 +1987,6 @@ const int SipRefreshMgr::getSubscribeTimeout()
     return mDefaultSubscribePeriod;
 }
 
-#ifndef SIPXTAPI_EXCLUDE
 
 void SipRefreshMgr::fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause) 
 {
@@ -2066,7 +2049,6 @@ void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINESTA
     return;
 }
 
-#endif // #ifndef SIPXTAPI_EXCLUDE
 
 void SipRefreshMgr::removeAllFromRequestList(SipMessage* response)
 {

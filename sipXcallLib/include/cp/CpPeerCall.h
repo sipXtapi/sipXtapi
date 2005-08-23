@@ -21,9 +21,7 @@
 #include <os/OsRWMutex.h>
 #include <cp/CallManager.h>
 
-#ifndef SIPXTAPI_EXCLUDE
 #include "tapi/sipXtapiEvents.h"
-#endif
 
 // DEFINES
 // MACROS
@@ -338,10 +336,8 @@ private:
     UtlBoolean mIsEarlyMediaFor180;
     UtlBoolean mbRequestedDrop;      // Have we requested to be dropped by the CallManager
 
-#ifndef SIPXTAPI_EXCLUDE
     SIPX_CALLSTATE_EVENT eLastMajor ;
     SIPX_CALLSTATE_CAUSE eLastMinor ; 
-#endif
 
     CpPeerCall(const CpPeerCall& rCpPeerCall);
     //:Copy constructor

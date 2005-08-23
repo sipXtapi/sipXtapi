@@ -1,17 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-if BUILDTAPI
-tapi_sources =\
-  tapi/sipXtapi.cpp \
-  tapi/sipXtapiEvents.cpp \
-  tapi/sipXtapiInternal.cpp \
-  tapi/SipXHandleMap.cpp \
-  tapi/SipXMessageObserver.cpp
 
-tapi_dist = tapi
-endif
-
-EXTRA_DIST = $(tapi_dist)
+EXTRA_DIST = tapi
 
 SUBDIRS = . test 
 
@@ -150,6 +140,11 @@ libsipXcall_la_SOURCES = \
     ps/PsTaoMicrophone.cpp \
     ps/PsTaoRinger.cpp \
     ps/PsTaoSpeaker.cpp \
-    $(tapi_sources)
+	 tapi/sipXtapi.cpp \
+	 tapi/sipXtapiEvents.cpp \
+	 tapi/sipXtapiInternal.cpp \
+	 tapi/SipXHandleMap.cpp \
+	 tapi/SipXMessageObserver.cpp
+
 
 DISTCLEANFILES = Makefile.in

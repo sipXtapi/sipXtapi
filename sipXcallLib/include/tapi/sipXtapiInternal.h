@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 #ifndef _SIPXTAPIINTERNAL_H /* [ */
 #define _SIPXTAPIINTERNAL_H
 
@@ -499,5 +497,3 @@ UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall) ;
 
 
 #endif /* ] _SIPXTAPIINTERNAL_H */
-
-#endif /* ] SIPXTAPI_EXCLUDE */

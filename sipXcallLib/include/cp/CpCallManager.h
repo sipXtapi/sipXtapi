@@ -586,7 +586,6 @@ public:
     virtual OsStatus getSession(const char* callId,
                                 const char* address,
                                 SipSession& session) = 0;
-    //@}
 
     //! Get the SIP dialog information for the specified terminal connection.
     virtual OsStatus getSipDialog(const char* callId,

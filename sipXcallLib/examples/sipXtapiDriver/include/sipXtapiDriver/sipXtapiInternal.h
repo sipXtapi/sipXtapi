@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 #ifndef _SIPXTAPIINTERNAL_H /* [ */
 #define _SIPXTAPIINTERNAL_H
 
@@ -360,5 +358,3 @@ SIPXTAPI_API SIPX_RESULT sipxConfigVoicemailSubscribe(const SIPX_INST hInst,
 
 
 #endif /* ] _SIPXTAPIINTERNAL_H */
-
-#endif /* ] SIPXTAPI_EXCLUDE */

@@ -11,7 +11,6 @@
 #define SIPREFRESHMGR_H
 
 // SYSTEM INCLUDES
-//#include <...>
 
 // APPLICATION INCLUDES
 #include "os/OsServerTask.h"
@@ -21,11 +20,10 @@
 #include "net/SipMessageList.h"
 #include "net/SipMessageEvent.h"
 #include "utl/UtlRandom.h"
-#ifndef SIPXTAPI_EXCLUDE
-    #include "utl/UtlHashMap.h"
-    #include "tapi/sipXtapiEvents.h"
-    #include "tapi/sipXtapiInternal.h"
-#endif 
+#include "utl/UtlHashMap.h"
+#include "tapi/sipXtapiEvents.h" /* :TODO: CIRCULAR */
+#include "tapi/sipXtapiInternal.h" /* :TODO: CIRCULAR */
+
 #include "net/SipLine.h"
 
 
@@ -265,7 +263,6 @@ protected:
       
       
       
-#ifndef SIPXTAPI_EXCLUDE
     void fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause);
     //: event firing method used to notify sipXtapi of line events       
     
@@ -276,7 +273,7 @@ protected:
     //: sets the last line event type 
     
     UtlHashMap* mpLastLineEventMap;
-#endif
+
     // register
     int mDefaultRegistryPeriod;
     SipMessageList mRegisterList;

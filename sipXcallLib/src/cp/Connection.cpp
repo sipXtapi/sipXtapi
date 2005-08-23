@@ -106,12 +106,10 @@ Connection::Connection(CpCallManager* callMgr,
 	mpListenerCnt = new TaoReference();
 	mpListeners = new TaoObjectMap();
 
-#ifndef SIPXTAPI_EXCLUDE
     m_eLastMajor = (SIPX_CALLSTATE_EVENT) -1 ;
     m_eLastMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
     m_eLastAudioMajor = (SIPX_CALLSTATE_EVENT) -1 ;
     m_eLastAudioMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
-#endif
 
     mpCallManager->getNewSessionId(this) ;
 
@@ -459,7 +457,6 @@ void Connection::setMediaInterface(CpMediaInterface* pMediaInterface)
 }
 
 
-#ifndef SIPXTAPI_EXCLUDE
 
 UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo)
 {
@@ -518,7 +515,6 @@ void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CA
         TapiMgr::getInstance().fireCallEvent(mpCallManager, callId.data(), &session, remoteAddress.data(), eventCode, causeCode, pEventData) ;
     }
 }
-#endif
 
 
 /* ============================ ACCESSORS ================================= */

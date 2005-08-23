@@ -6,8 +6,6 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-#ifndef SIPXTAPI_EXCLUDE
-
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "net/TapiMgr.h"
@@ -92,5 +90,3 @@ void TapiMgr::fireEvent(const void* pSrc, const SIPX_EVENT_CATEGORY event, void 
         (*sipxEventCallbackPtr)(pSrc, event, pInfo);
     }
 }
-
-#endif /* SIPXTAPI_EXCLUDE */

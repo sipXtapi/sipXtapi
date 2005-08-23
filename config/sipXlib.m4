@@ -235,8 +235,6 @@ AC_DEFUN([CHECK_GIPS],
 ],
       compile_with_gips=yes)
 
-   AC_REQUIRE([SFAC_SIPX_TAPI])
-
    AC_MSG_CHECKING(if compile with gips)
 
    if test x$compile_with_gips = xyes
@@ -269,7 +267,7 @@ AC_DEFUN([CHECK_GIPS],
       #LIBS="$LIBS $GIPS_OBJS"
 
       #Check for enabling voice engine if compiling with GIPS
-      AC_ARG_ENABLE(tapi,
+      AC_ARG_ENABLE(gipsve,
                  [  --enable-gipsve         Link to GIPS voice engine if --with-gips is set ],
                  enable_gipsve=yes)
       AC_MSG_CHECKING(if linking to gips voice engine)
@@ -473,28 +471,8 @@ AC_DEFUN([SFAC_FEATURE_SIP_TLS],
 ])
 
 
-AC_DEFUN([SFAC_SIPX_TAPI],
-[
-    AC_ARG_ENABLE(tapi,
-                 [  --enable-tapi           Compile TAPI code ],
-                 enable_tapi=yes)
-
-    if test x$enable_tapi != xyes; then
-        SF_CXX_C_FLAGS="-DSIPXTAPI_EXCLUDE"
-        CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS"
-        CFLAGS="$CFLAGS $SF_CXX_C_FLAGS"
-    fi
-
-   AM_CONDITIONAL(BUILDTAPI, test x$enable_tapi = xyes)
-
-   AC_MSG_CHECKING([Building sipXtapi])
-   AC_MSG_RESULT(${enable_tapi})
-])
-
-
 AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
 [
-   AC_REQUIRE([SFAC_SIPX_TAPI])
    AC_REQUIRE([CHECK_WXWIDGETS])
 
    AC_ARG_ENABLE(sipx-ezphone, 
@@ -505,14 +483,10 @@ AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
    # If sipx-ezphone is requested, check for its prerequisites.
    if test x$enable_sipx_ezphone = xyes
    then
-       if test x$enable_tapi != xyes
+       if test x$enable_wxwidgets != xyes
        then
-	   AC_MSG_ERROR([sipXtapi is required for sipXezPhone (--enable-tapi)])
-	   enable_sipx_ezphone=no
-       elif test x$enable_wxwidgets != xyes
-       then
-	   AC_MSG_ERROR([wxWidgets is required for sipXezPhone])
-	   enable_sipx_ezphone=no
+	      AC_MSG_ERROR([wxWidgets is required for sipXezPhone])
+	      enable_sipx_ezphone=no
        fi
    fi
 

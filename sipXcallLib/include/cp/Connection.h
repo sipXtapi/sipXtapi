@@ -15,10 +15,8 @@
 // APPLICATION INCLUDES
 #include <utl/UtlString.h>
 #include <os/OsMutex.h>
-#ifndef SIPXTAPI_EXCLUDE
-#  include <tapi/sipXtapiEvents.h>
-#  include <tapi/sipXtapiInternal.h>
-#endif
+#include <tapi/sipXtapiEvents.h>
+#include <tapi/sipXtapiInternal.h>
 #include <net/SipContactDb.h>
 
 
@@ -27,11 +25,6 @@
 #	define LOCAL_AND_REMOTE 1
 
 // MACROS
-#ifdef SIPXTAPI_EXCLUDE
-#  define fireSipXEvent(XX, YY) ;
-#  define fireSipXEvent(XX, YY, ZZ) ;
-#endif
-
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -203,9 +196,7 @@ public:
    virtual void forceHangUp(int connectionState = CONNECTION_DISCONNECTED)
    {
 	   setState(connectionState, CONNECTION_REMOTE);
-#ifndef SIPXTAPI_EXCLUDE
-       fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
-#endif 
+      fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
    }
 
    virtual UtlBoolean dequeue(UtlBoolean callInFocus) = 0;
@@ -281,10 +272,8 @@ public:
     CpMediaInterface* getMediaInterfacePtr();
       //:Gets the media interface pointer for this connection.
 
-#ifndef SIPXTAPI_EXCLUDE
     UtlBoolean validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo) ;
     void fireSipXEvent(SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor, void *pEventData=NULL) ;
-#endif
 
 /* ============================ ACCESSORS ================================= */
 
@@ -428,12 +417,10 @@ private:
 	OsMutex  callIdMutex;
     OsTime   mDeleteAfter ;    // Instructs the call to delete this connection
                               // after this time period (time since boot)
-#ifndef SIPXTAPI_EXCLUDE
     SIPX_CALLSTATE_EVENT m_eLastMajor ; 
     SIPX_CALLSTATE_CAUSE m_eLastMinor ; 
     SIPX_CALLSTATE_EVENT m_eLastAudioMajor;
     SIPX_CALLSTATE_CAUSE m_eLastAudioMinor;
-#endif
 
 
 	Connection(const Connection& rConnection);

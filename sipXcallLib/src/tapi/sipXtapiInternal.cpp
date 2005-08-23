@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -1319,7 +1317,4 @@ UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall)
     return bShouldRemove ;
 }
 
-
-
-#endif /* ] SIPXTAPI_EXCLUDE */
 

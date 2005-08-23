@@ -1,9 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-if BUILDTAPI
-tapi_sources = net/TapiMgr.cpp
-endif
-
 SUBDIRS = . test
 
 ## Make these part of optional compile under IF we use
@@ -131,4 +127,4 @@ libsipXtack_la_SOURCES =  \
     resparse/res_print.c \
     resparse/res_query.c \
     resparse/res_send.c \
-    $(tapi_sources)
+	 net/TapiMgr.cpp

@@ -6,8 +6,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 /**
  * @mainpage sipXtapi SDK Overview
  * 
@@ -1739,5 +1737,3 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
 //@}
 
 #endif // _sipXtapi_h_
-
-#endif /* ] SIPXTAPI_EXCLUDE */

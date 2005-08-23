@@ -6,7 +6,6 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-#ifndef SIPXTAPI_EXCLUDE
 #ifndef _TapiMgr_h
 #define _TapiMgr_h
 
@@ -136,4 +135,3 @@ private:
 };
 
 #endif /* ifndef _TapiMgr_h_ */
-#endif /* ifndef SIPXTAPI_EXCLUDE */

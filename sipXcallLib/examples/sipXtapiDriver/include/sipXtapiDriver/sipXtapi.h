@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 /**
  * @mainpage sipXtapi SDK Overview
  * 
@@ -1442,5 +1440,3 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
 //@}
 
 #endif // _sipXtapi_h_
-
-#endif /* ] SIPXTAPI_EXCLUDE */

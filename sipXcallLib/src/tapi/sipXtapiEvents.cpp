@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 // SYSTEM INCLUDES
 #if !defined(_WIN32)
 #  include <stddef.h>
@@ -1071,9 +1069,3 @@ void sipxFireEvent(const void* pSrc,
         }
     }
 }
-
-
-                                     
-                                    
-
-#endif /* ] SIPXTAPI_EXCLUDE */

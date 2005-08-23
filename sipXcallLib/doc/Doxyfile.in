@@ -256,7 +256,7 @@ EXAMPLE_PATH          = ../examples
 # and *.h) to filter out the source-files in the directories. If left 
 # blank all files are included. 
 
-EXAMPLE_PATTERNS      = *.cpp *.h
+EXAMPLE_PATTERNS      = *.cpp *.h *.html
 
 # The IMAGE_PATH tag can be used to specify one or more files or 
 # directories that contain image that are included in the documentation (see 

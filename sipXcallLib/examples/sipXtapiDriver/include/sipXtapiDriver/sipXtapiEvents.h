@@ -7,7 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
 /**
  * @file sipXtapiEvents.h
  * sipXtapi event declarations
@@ -668,4 +667,3 @@ SIPXTAPI_API char* sipxLineEventToString(SIPX_LINE_EVENT_TYPE_MAJOR lineTypeMajo
                                      
 
 #endif /* ifndef _sipXtapiEvents_h_ */
-#endif /* ] SIPXTAPI_EXCLUDE */

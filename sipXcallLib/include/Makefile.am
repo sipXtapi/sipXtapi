@@ -3,16 +3,6 @@
 # projects
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
-if BUILDTAPI
-tapi_headers = \
-    tapi/SipXHandleMap.h \
-    tapi/SipXMessageObserver.h \
-    tapi/SipXtapiEventDispatcher.h \
-    tapi/sipXtapi.h \
-    tapi/sipXtapiEvents.h \
-    tapi/sipXtapiInternal.h
-endif
-
 nobase_include_HEADERS =  \
     cp/CallManager.h \
     cp/Connection.h \
@@ -144,7 +134,12 @@ nobase_include_HEADERS =  \
     tao/TaoTerminalConnectionListener.h \
     tao/TaoTransportAgent.h \
     tao/TaoTransportTask.h \
-    $(tapi_headers)
+    tapi/SipXHandleMap.h \
+    tapi/SipXMessageObserver.h \
+    tapi/SipXtapiEventDispatcher.h \
+    tapi/sipXtapi.h \
+    tapi/sipXtapiEvents.h \
+    tapi/sipXtapiInternal.h
 
 noinst_HEADERS = \
     test/mp/MpTestConfig.h \

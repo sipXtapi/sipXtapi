@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 // SYSTEM INCLUDES
 #include <assert.h>
 #ifdef _WIN32
@@ -4501,5 +4499,3 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
     
     return rc;
 }
-
-#endif /* ] SIPXTAPI_EXCLUDE */

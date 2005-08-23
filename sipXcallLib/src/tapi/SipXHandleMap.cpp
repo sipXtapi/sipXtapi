@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 // SYSTEM INCLUDES
 #ifdef _WIN32
 #include <windows.h>
@@ -173,4 +171,3 @@ void SipXHandleMap::dump()
 
 /* ============================ FUNCTIONS ================================= */
 
-#endif /* ] SIPXTAPI_EXCLUDE */

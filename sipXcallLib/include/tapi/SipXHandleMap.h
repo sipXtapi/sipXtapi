@@ -7,8 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
-
 #ifndef _SipXHandleMap_h_
 #define _SipXHandleMap_h_
 
@@ -128,5 +126,3 @@ class SipXHandleMap : public UtlHashMap
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _SipXHandleMap_h_
-
-#endif /* ] SIPXTAPI_EXCLUDE */

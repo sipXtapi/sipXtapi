@@ -622,12 +622,10 @@ UtlBoolean SipConnection::dial(const char* dialString,
             rtpCodecsArray = NULL;
         }
         
-        #ifndef SIPXTAPI_EXCLUDE
             if (callController && callController[0] != '\0')
             {
                 fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_TRANSFER) ;
             }
-        #endif
 
         // Set caller preference if caller wants queueing or campon
         if(requestQueuedCall)
@@ -740,7 +738,6 @@ UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
     }
     else
     {
-#ifndef SIPXTAPI_EXCLUDE
         // With sipX TAPI, send network error event.
         SIPX_INFOSTATUS_INFO info;
 
@@ -752,7 +749,6 @@ UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
         info.szResponseText = (const char*)"INFO: network error";
         TapiMgr::getInstance().fireEvent(this->mpCallManager,
                                          EVENT_CATEGORY_INFO_STATUS, &info);
-#endif /* SIPXTAPI_EXCLUDE */
     }
 
     //delete pBody; // DONT delete here!  body is deleted by HttpMessage class
@@ -913,7 +909,6 @@ UtlBoolean SipConnection::answer()
                         mpMediaInterface->startRtpSend(mConnectionId,
                             numMatchingCodecs, matchingCodecs);
 
-#ifndef SIPXTAPI_EXCLUDE
                         // If sipX TAPI, fire audio start event
                         UtlString codecName;
                         SIPX_AUDIO_CODEC tapiCodec;
@@ -924,7 +919,6 @@ UtlBoolean SipConnection::answer()
                             strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                             fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                         }
-#endif /* SIPXTAPI_EXCLUDE */
                     }
                 }
 
@@ -2300,9 +2294,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 2, metaEventCallIds);
             mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
 
-#ifndef SIPXTAPI_EXCLUDE
             fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_TRANSFERRED, (void*) replaceCallId.data()) ;
-#endif
 
 #ifdef TEST_PRINT
             osPrintf("SipConnection::processInviteRequest replaceCallId: %s, toTag: %s, fromTag: %s\n", replaceCallId.data(),
@@ -2520,7 +2512,6 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                         fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE);
                     }
 
-#ifndef SIPXTAPI_EXCLUDE
                     // If sipX TAPI, fire audio start event 
                     UtlString codecName;
                     SIPX_AUDIO_CODEC tapiCodec;
@@ -2531,8 +2522,6 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                         strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                         fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                     }
-#endif /* SIPXTAPI_EXCLUDE */
-
                 }
 
                 // Send a INVITE OK response
@@ -3137,7 +3126,6 @@ void SipConnection::processAckRequest(const SipMessage* request)
             mpMediaInterface->startRtpSend(mConnectionId,
                 numMatchingCodecs, matchingCodecs);
 
-#ifndef SIPXTAPI_EXCLUDE
             // If sipX TAPI, fire audio start event 
             UtlString codecName;
             SIPX_AUDIO_CODEC tapiCodec;
@@ -3148,7 +3136,6 @@ void SipConnection::processAckRequest(const SipMessage* request)
                 strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                 fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
             }
-#endif /* SIPXTAPI_EXCLUDE */
         }
 #ifdef TEST_PRINT
         osPrintf("ACK reinviteState: %d\n", reinviteState);
@@ -3809,7 +3796,6 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                             numMatchingCodecs,
                             matchingCodecs);
 
-#ifndef SIPXTAPI_EXCLUDE
                         // If sipX TAPI, fire audio start event
                         UtlString codecName;
                         SIPX_AUDIO_CODEC tapiCodec;
@@ -3820,7 +3806,6 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                             strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                             fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                         }
-#endif /* SIPXTAPI_EXCLUDE */
                     }
 
                 } // End if there are matching codecs
@@ -3969,9 +3954,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
             // reinvite failed -- or make hold/unhold blocking. (Bob 8/14/02)
             
             postTaoListenerMessage(CONNECTION_FAILED, CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION, false);
-            #ifndef SIPXTAPI_EXCLUDE
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_RESOURCES) ;
-            #endif
+            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_RESOURCES) ;
         }
         else if (reinviteState == REINVITING &&
                  responseCode == SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE)
@@ -3996,9 +3979,8 @@ void SipConnection::processInviteResponse(const SipMessage* response)
             */
             // my interpretation of this is that we need to continue the session 
             // and not cause a disconnect - MDC 6/23/2005
-            #ifndef SIPXTAPI_EXCLUDE
-                fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_REQUEST_NOT_ACCEPTED) ;
-            #endif
+
+            fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_REQUEST_NOT_ACCEPTED) ;
         }
     }
 
@@ -4246,7 +4228,6 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                     numMatchingCodecs,
                     matchingCodecs);
  
-#ifndef SIPXTAPI_EXCLUDE
                 // If sipX TAPI, fire an audio start event
                 UtlString codecName;
                 SIPX_AUDIO_CODEC tapiCodec;
@@ -4266,7 +4247,6 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                     }
                     fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                 }
-#endif /* SIPXTAPI_EXCLUDE */
             }
             else if(mTerminalConnState == PtTerminalConnection::HELD)
             {

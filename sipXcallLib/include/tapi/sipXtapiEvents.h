@@ -7,7 +7,6 @@
 //////
 
 
-#ifndef SIPXTAPI_EXCLUDE /* [ */
 /**
  * @file sipXtapiEvents.h
  * sipXtapi event declarations
@@ -874,4 +873,3 @@ SIPXTAPI_API char* sipxConfigEventToString(SIPX_CONFIG_EVENT event,
                                      
 
 #endif /* ifndef _sipXtapiEvents_h_ */
-#endif /* ] SIPXTAPI_EXCLUDE */

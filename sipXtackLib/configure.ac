@@ -53,9 +53,6 @@ CHECK_SSL
 
 SFAC_LIB_PORT
 
-# Configure the TAPI in or out.
-SFAC_SIPX_TAPI
-
 SFAC_FEATURE_SIP_TLS
 
 ENABLE_DOXYGEN
@@ -79,9 +76,6 @@ fi
 
 # named is used in some sipXtackLib tests
 CHECK_NAMED
-
-## Enable compilation of TAPI code if desired
-AM_CONDITIONAL(BUILDTAPI, test x$enable_tapi = xyes)
 
 AC_CONFIG_FILES([
   Makefile 

@@ -170,10 +170,8 @@ CpCall(callManager, callMediaInterface, callIndex, callId,
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall constructor:: callId is Null\n");
 #endif
 
-#ifndef SIPXTAPI_EXCLUDE
     eLastMajor = (SIPX_CALLSTATE_EVENT) -1 ;
     eLastMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
-#endif
 }
 
 // Copy constructor
@@ -701,7 +699,6 @@ UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
 
         if(connection)
         {
-#ifndef SIPXTAPI_EXCLUDE
             // do not fire the taip event if it is a ghost connection
             CpGhostConnection* pGhost = NULL;
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
@@ -709,7 +706,6 @@ UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
             {
                 connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
             }
-#endif
             connection->hangUp();
         }
     }
@@ -1025,7 +1021,7 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
         if(connection)
         {
             connection->hold();
-#ifndef SIPXTAPI_EXCLUDE
+
             if (mLocalHeld)
             {
                 connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE) ;
@@ -1034,7 +1030,6 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
             {
                 connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
             }
-#endif
         }
         else
         {
@@ -1112,7 +1107,7 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
                     PtEvent::CAUSE_UNHOLD, 
                     connection->isRemoteCallee(), 
                     remoteAddress);
-#ifndef SIPXTAPI_EXCLUDE
+
                 if (mLocalHeld)
                 {
                     connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
@@ -1121,7 +1116,7 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
                 {
                     connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
                 }
-#endif                
+
 #ifdef TEST_PRINT
                 osPrintf("%s->>>> CpPeerCall::handleCallMessage: CallManager::CP_UNHOLD_TERM_CONNECTION:  TERMINAL_CONNECTION_CREATED >>>>\n", mName.data());
 #endif
@@ -1991,10 +1986,8 @@ UtlBoolean CpPeerCall::handleUnholdAllTermConnections(OsMsg* pEventMessage)
             connection->getRemoteAddress(&remoteAddress);
 
             postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_TALKING, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_UNHOLD, connection->isRemoteCallee(), remoteAddress);
-#ifndef SIPXTAPI_EXCLUDE
-            connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
-#endif
 
+            connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
         }
     }
 
@@ -2643,7 +2636,6 @@ void CpPeerCall::inFocus(int talking)
         }
     }
 
-#ifndef SIPXTAPI_EXCLUDE
     UtlDListIterator iterator(mConnections);
     while ((connection = (Connection*) iterator()))
     {
@@ -2654,8 +2646,6 @@ void CpPeerCall::inFocus(int talking)
             connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
         }
     }
-#endif
-
 
     CpCall::inFocus();
 }
@@ -2690,7 +2680,6 @@ void CpPeerCall::outOfFocus()
             postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_HELD, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NORMAL, remoteIsCallee, remoteAddress);
         }
 
-#ifndef SIPXTAPI_EXCLUDE
         if (connection->isHeld())
         {
             connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE) ;
@@ -2699,7 +2688,6 @@ void CpPeerCall::outOfFocus()
         {
             connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
         }
-#endif
     }
 }
 
@@ -2723,7 +2711,6 @@ void CpPeerCall::onHook()
             connection->hangUp();
             connection->setMediaInterface(NULL) ;           
             
-#ifndef SIPXTAPI_EXCLUDE
             // do not fire the taip event if it is a ghost connection
             CpGhostConnection* pGhost = NULL;
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
@@ -2731,7 +2718,6 @@ void CpPeerCall::onHook()
             {
                 connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
             }
-#endif
         }       
     }
 
@@ -2816,18 +2802,6 @@ void CpPeerCall::dropIfDead()
 
             if (mConnections.entries())
             {
-                // 7/16/02 / bandreasen
-                //  
-                // A race condition exists between the those listening for events and
-                // the physical deletion of a call. It is somewhat difficult to 
-                // correctly solve this race by introducing synchronization between 
-                // the listeners and the call manager.  Thus, this change.
-                //
-                // The following code was changed to delay the destruction of a call
-                // so that listeners have a chance to react to events before their
-                // world is torn down around them.
-                //
-                #ifndef SIPXTAPI_EXCLUDE
                     // Notify listeners that call is going to be torn down
                     UtlDListIterator iterator(mConnections);
                     Connection* connection = NULL;
@@ -2844,13 +2818,6 @@ void CpPeerCall::dropIfDead()
                     // Drop the call immediately
                     CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (int)this) ;
                     mpManager->postMessage(ExitMsg) ;
-                #else
-                    CpIntMessage* pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(int)this);
-                    OsQueuedEvent* queuedEvent = new OsQueuedEvent(*(mpManager->getMessageQueue()), (int)pExitMsg);
-                    OsTimer* timer = new OsTimer(*queuedEvent);
-                    OsTime timerTime(CALL_DELETE_DELAY_SECS, 0);
-                    timer->oneshotAfter(timerTime);
-                #endif
             }
             else
             {
@@ -2912,7 +2879,7 @@ void CpPeerCall::dropDeadConnections()
                     UtlString responseText;
                     connection->getResponseText(responseText);
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_DISCONNECTED, CONNECTION_STATE);
-#ifndef SIPXTAPI_EXCLUDE
+
                     // do not fire the taip event if it is a ghost connection
                     CpGhostConnection* pGhost = NULL;
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);
@@ -2920,8 +2887,6 @@ void CpPeerCall::dropDeadConnections()
                     {
                         connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
                     }
-#endif                
-
 
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
                 }
@@ -2931,7 +2896,7 @@ void CpPeerCall::dropDeadConnections()
                     connection->getResponseText(responseText);
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE);               
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
-#ifndef SIPXTAPI_EXCLUDE
+
                     CpGhostConnection* pGhost = NULL;
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);
 
@@ -2940,7 +2905,6 @@ void CpPeerCall::dropDeadConnections()
                     {
                         connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;    
                     }
-#endif
                 }               
 
                 // Mark the connection for deletion
