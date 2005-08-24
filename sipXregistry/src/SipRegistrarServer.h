@@ -20,7 +20,6 @@
 #include "net/SipNonceDb.h"
 #include "utl/UtlHashMap.h"
 #include "utl/PluginHooks.h"
-#include "SipImpliedSubscriptions.h"
 
 // DEFINES
 // MACROS
@@ -48,8 +47,7 @@ public:
      */
     UtlBoolean initialize(
         SipUserAgent* SipUserAgent,
-        SipImpliedSubscriptions* sipImpliedSubscriptions,
-        PluginHooks* sipRegisterHooks,
+        PluginHooks* sipRegisterPlugins,
         int defaultRegistryPeriod,
         const UtlString& minExpiresTime,
         const UtlString& defaultDomain,
@@ -93,8 +91,8 @@ protected:
     
     SipNonceDb mNonceDb;
     long mNonceExpiration;
-    SipImpliedSubscriptions* mImpliedSubscriptions;
-    PluginHooks* mpSipRegisterHooks;
+
+    PluginHooks* mpSipRegisterPlugins;
 
     /**
      *

@@ -44,7 +44,7 @@
  * the actual search, so if an expression is frequently reused, it is best to
  * compile it only once and then construct the expression to use in the search
  * using the copy constructor.
- * @endnote
+ * 
  *
  * @nosubgrouping
  */
@@ -143,7 +143,7 @@ class RegEx
    *    The start of this search is not considered the start of the subject for
    *    the purposes of anchoring.  So if the expresssion is "^xx", then subject
    *    "fooxx" will not match, even if offset is passed as '3'.
-   *    @endnote
+   *    
    */
 
 
@@ -166,7 +166,7 @@ class RegEx
    *    \endcode
    *    Would print "A1\n" and then "A2\n".
    *
-   * @note Prefer MatchString over the less efficient Match @endnote
+   * @note Prefer MatchString over the less efficient Match 
    */
 
 ///@}
@@ -202,7 +202,7 @@ class RegEx
    * expression "(foo|(bar))(bing)" matches subject "foobingo", and Matches would return 4
    * because substring 3 "bing" was matched, but substring 2 would be the null string for
    * that match.
-   * @endnote
+   * 
    */
 
 
@@ -275,7 +275,7 @@ class RegEx
    * @note
    * The returned start position is relative to the beginning of the subject string,
    * not from any offset value.
-   * @endnote
+   * 
    */
 
 
@@ -384,7 +384,7 @@ class RegEx
    * @note
    * This does more memory allocation and data copying than any of the other results methods;
    * use one of the others when possible.
-   * @endnote
+   * 
    *
    * May only be called after a successful search, and applies to the results of
    * that call. Parameter i must be less than

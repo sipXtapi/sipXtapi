@@ -19,7 +19,6 @@ sipregistrar_SOURCES =  \
     main.cpp \
     RedirectResumeMsg.cpp \
     RedirectSuspend.cpp \
-    SipImpliedSubscriptions.cpp \
     SipRedirectorAliasDB.cpp \
     SipRedirectorHunt.cpp \
     SipRedirectorMapping.cpp \
@@ -32,7 +31,6 @@ sipregistrar_SOURCES =  \
     SipRegistrarServer.cpp \
     RedirectResumeMsg.h \
     RedirectSuspend.h \
-    SipImpliedSubscriptions.h \
     SipRedirectorAliasDB.h \
     SipRedirectorHunt.h \
     SipRedirectorMapping.h \

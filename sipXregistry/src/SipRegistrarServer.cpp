@@ -29,7 +29,7 @@
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
 #include "SipRegistrarServer.h"
-#include "registry/RegisterHook.h"
+#include "registry/RegisterPlugin.h"
 
 // DEFINES
 // MACROS
@@ -69,8 +69,7 @@ SipRegistrarServer::SipRegistrarServer() :
 UtlBoolean
 SipRegistrarServer::initialize(
     SipUserAgent* SipUserAgent,
-    SipImpliedSubscriptions* sipImpliedSubscriptions,
-    PluginHooks* sipRegisterHooks,
+    PluginHooks* sipRegisterPlugins,
     int defaultRegistryPeriod,
     const UtlString& minExpiresTime,
     const UtlString& defaultDomain,
@@ -133,8 +132,7 @@ SipRegistrarServer::initialize(
     }
 
     mIsCredentialDB = useCredentialDB;
-    mImpliedSubscriptions = sipImpliedSubscriptions;
-    mpSipRegisterHooks = sipRegisterHooks;
+    mpSipRegisterPlugins = sipRegisterPlugins;
     
     if ( SipUserAgent )
     {
@@ -427,21 +425,12 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                     int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
                     imdb->cleanAndPersist( oldestTimeToKeep );
 
-                    // :TODO: move this into a hook
-                    if ( longestExpiration > 0 ) // registration inserted or extended?
+                    // give each RegisterPlugin a chance to do its thing
+                    PluginIterator plugins(*mpSipRegisterPlugins);
+                    RegisterPlugin* plugin;
+                    while(plugin = static_cast<RegisterPlugin*>(plugins.next()))
                     {
-                        // This included at least one actual registration, so see if there are
-                        // any subscriptions we need to request on behalf of this AOR
-                        mImpliedSubscriptions->checkAndSend( registerMessage, longestExpiration
-                                                            ,mNonceDb, mSipUserAgent
-                                                            );
-                    }
-                
-                    PluginIterator hooks(*mpSipRegisterHooks);
-                    RegisterHook* hook;
-                    while(hook = static_cast<RegisterHook*>(hooks.next()))
-                    {
-                       hook->takeAction(registerMessage, longestExpiration, mSipUserAgent );
+                       plugin->takeAction(registerMessage, longestExpiration, mSipUserAgent );
                     }
                 }
             }
@@ -884,15 +873,15 @@ SipRegistrarServer::~SipRegistrarServer()
    mValidDomains.destroyAll();
 }
 
-void RegisterHook::takeAction( const SipMessage&   registerMessage  
-                              ,const unsigned int  registrationDuration 
-                              ,SipUserAgent*       sipUserAgent
-                              )
+void RegisterPlugin::takeAction( const SipMessage&   registerMessage  
+                                ,const unsigned int  registrationDuration 
+                                ,SipUserAgent*       sipUserAgent
+                                )
 {
    assert(false);
    
    OsSysLog::add(FAC_SIP, PRI_ERR,
-                 "RegisterHook::takeAction not resolved by configured hook"
+                 "RegisterPlugin::takeAction not resolved by configured hook"
                  );
 }
 

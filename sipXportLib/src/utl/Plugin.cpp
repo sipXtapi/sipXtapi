@@ -30,8 +30,8 @@
 // FORWARD DECLARATIONS
 // GLOBAL VARIABLES
 
-// ConfiguredHook is the container used to hold each Plugin.
-/*
+/// ConfiguredHook is the container used to hold each Plugin.
+/**
  * ConfiguredHook inherits from UtlString so that it will be a
  * UtlContainable and will be identifiable by its configured prefix name.
  */
@@ -64,14 +64,14 @@ public:
                hook = factory(hookPrefix); 
 
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                             "PluginHooks created '%s' from '%s'",
+                             "Plugin created '%s' from '%s'",
                              data(), libName.data()
                              );
             }
             else
             {
                OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                             "PluginHooks: factory '%s' not found in library '%s' for '%s'",
+                             "Plugin: factory '%s' not found in library '%s' for '%s'",
                              hookFactoryName.data(), libName.data(), data()
                              );
 
@@ -80,7 +80,7 @@ public:
          else
          {
             OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                          "PluginHooks: failed to getOsSharedLibMgr"
+                          "Plugin: failed to getOsSharedLibMgr"
                           );
          }
       }
@@ -126,7 +126,7 @@ public:
             if (OS_SUCCESS == configDb.getSubHash(myConfigName, myConfig))
             {
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                             "PluginHooks configuring '%s' from '%s'",
+                             "Plugin configuring '%s' from '%s'",
                              data(), myConfigName.data()
                              );
                hook->readConfig(myConfig);
@@ -134,7 +134,7 @@ public:
             else
             {
                OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                             "PluginHooks no configuration found for '%s'",
+                             "Plugin no configuration found for '%s'",
                              data()
                              );
             }

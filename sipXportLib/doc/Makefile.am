@@ -1,12 +1,16 @@
 include $(top_builddir)/config/sipXcommon.mak
 
+images = \
+	PluginUml.png
+
 EXTRA_DIST = \
   Doxyfile.in \
-  footer.html
+  footer.html \
+  $(images)
 
 all: doc
 
-doc: @PACKAGE@
+doc: @PACKAGE@ external-docs
 
 Doxyfile: $(srcdir)/Doxyfile.in
 	$(LocalizeSipXconfig) \
@@ -32,6 +36,13 @@ clean: clean-doc
 clean-doc:
 	rm -rf @PACKAGE@ Doxyfile
 
-@PACKAGE@: Doxyfile
+@PACKAGE@: Doxyfile 
 	rm -rf @PACKAGE@
 	@DOXYGEN@
+
+.PHONY: external-docs
+external-docs: @PACKAGE@ $(foreach img,$(images),@PACKAGE@/$(img))
+
+$(foreach img,$(images),@PACKAGE@/$(img)): @PACKAGE@/% : %
+	cp $< $@
+

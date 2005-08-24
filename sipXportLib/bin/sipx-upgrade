@@ -206,6 +206,12 @@ UpgradeRegistry2_8To3_0() {
         SIP_REGISTRAR_CALL_PICKUP_WAIT 2.0
     AddConfigLine ${SysConfDir}/sipxpbx/registrar-config.in \
         SIP_REGISTRAR_PARK_SERVER '${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}'
+    # Add plugin for Implied MWI
+    AddConfigLine ${SysConfDir}/sipxpbx/registrar-config.in \
+        SIP_REGISTRAR_HOOK_LIBRARY.MWI '@SIPX_LIBDIR@/libRegistrarImpliedMWI.so'
+    # Convert hardcoded MWI specifiers to use the plugin
+    perl -pi -e 's/SIP_REGISTRAR_MWI_SUBSCRIBE/SIP_REGISTRAR.MWI.UA/' \
+         ${SysConfDir}/sipxpbx/registrar-config.in
 }
 
 ##########################

@@ -22,6 +22,20 @@ editetc :
 	  then \
 		echo "    Using existing $(sysconfdir)/sipxpbx/$$target"; \
 		case $$target in \
+			registrar-config.in) \
+				echo "        Checking mwi in $(sysconfdir)/sipxpbx/$$target"; \
+				if grep 'SIP_REGISTRAR_HOOK_LIBRARY.MWI' $(sysconfdir)/sipxpbx/$$target > /dev/null; \
+				then \
+					: ; \
+				else \
+					echo "        Adding mwi plugin to $(sysconfdir)/sipxpbx/$$target"; \
+					echo "SIP_REGISTRAR_HOOK_LIBRARY.MWI : @SIPX_LIBDIR@/libRegistrarImpliedMWI.so" \
+					>> $(sysconfdir)/sipxpbx/$$target ; \
+					perl -pi \
+					-e 's/SIP_REGISTRAR_MWI_SUBSCRIBE/SIP_REGISTRAR.MWI.UA/' \
+					$(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
+				fi; \
+				;; \
 			fallbackrules.xml.in|mappingrules.xml.in) \
 				echo "        Checking/updating schema for $(sysconfdir)/sipxpbx/$$target"; \
 				perl -pi \

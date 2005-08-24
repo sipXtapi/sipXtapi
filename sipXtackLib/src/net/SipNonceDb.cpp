@@ -15,6 +15,7 @@
 #include <os/OsTime.h>
 #include <os/OsSysLog.h>
 #include <net/NetMd5Codec.h>
+#include "os/OsLock.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -200,4 +201,19 @@ UtlString SipNonceDb::nonceSignature(const UtlString& callId,
    NetMd5Codec::encode(nonceSigningData.data(), signature);
 
    return signature;
+}
+
+OsBSem*     SharedNonceDb::spLock       = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
+SipNonceDb* SharedNonceDb::spSipNonceDb = NULL;
+
+SipNonceDb* SharedNonceDb::get()
+{
+   // critical region to ensure that only one shared ssl context is created
+   OsLock lock(*spLock);
+
+   if (!spSipNonceDb)
+   {
+      spSipNonceDb = new SipNonceDb();
+   }
+   return spSipNonceDb;
 }

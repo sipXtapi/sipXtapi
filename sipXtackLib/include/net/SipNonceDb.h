@@ -15,9 +15,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlString.h>
 #include <utl/UtlHashBag.h>
-
-
-
+#include "os/OsBSem.h"
 
 // DEFINES
 // MACROS
@@ -87,6 +85,27 @@ private:
    UtlString    mNonceSignatureSecret;
 
 };
+
+/// A shared singleton instance of SipNonceDb.
+class SharedNonceDb : public SipNonceDb
+{
+  public:
+
+   /// Get the singleton shared nonce database.
+   static SipNonceDb* get();
+   
+  private:
+   
+   static OsBSem*     spLock;
+   static SipNonceDb* spSipNonceDb;
+
+   /// Hidden constructor for singleton
+   SharedNonceDb();
+
+   /// Hidden destructor
+   ~SharedNonceDb();
+};
+
 
 /* ============================ INLINE METHODS ============================ */
 

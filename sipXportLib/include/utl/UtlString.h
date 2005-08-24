@@ -170,7 +170,7 @@ public:
      * @note
      * This method constructs a temporary UtlString object.  It will usually be more efficient
      * to use the append method taking a UtlString, postion, and length.
-     * @endnote
+     * 
      */
 
     /// Get the character at position N.

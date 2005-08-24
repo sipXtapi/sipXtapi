@@ -21,7 +21,6 @@
 #include "os/OsRWMutex.h"
 #include "net/SipServerBase.h"
 #include "utl/PluginHooks.h"
-#include "SipImpliedSubscriptions.h"
 
 // DEFINES
 // MACROS
@@ -91,8 +90,7 @@ private:
    OsMsgQ* mRegistrarMsgQ;
    UtlBoolean mRegistrarThreadInitialized;
 
-   SipImpliedSubscriptions* mSipImpliedSubscriptions;
-   PluginHooks* mSipRegisterHooks;
+   PluginHooks* mSipRegisterPlugins;
 
    UtlString mMinExpiresTime;
    UtlString mRegistryCacheFileName;
@@ -109,8 +107,7 @@ private:
 
 
    SipRegistrar( SipUserAgent* sipUserAgent,
-                 SipImpliedSubscriptions* sipImpliedSubscriptions,
-                 PluginHooks* sipRegisterHooks,
+                 PluginHooks* sipRegisterPlugins,
                  int maxExpiresTime,
                  const UtlString& defaultDomain,
                  const UtlString& domainAliases,

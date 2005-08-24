@@ -13,7 +13,6 @@
  */ 
 
 /** 
- * @file sipXtapi.h
  * sipXtapi main API declarations
  **/
 

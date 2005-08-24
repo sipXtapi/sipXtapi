@@ -24,7 +24,7 @@
 
 
 /**
- * A test hook for use with PluginHookTest
+ * A test hook for use with PluginTest
  *
  * This is compiled twice by the Makefile to produce two different shared libraries.
  * The only differences between those compilations are the command line definitions:
@@ -40,7 +40,7 @@
  */
 const char* TestPlugin::LibraryName = LIBRARY_NAME;
 
-const char* TestPlugin::FactoryName = "getTestHook";
+const char* TestPlugin::FactoryName = "getTestPlugin";
 
 /// Read (or re-read) whatever configuration the hook requires.
 void TestPlugin::readConfig( OsConfigDb& configDb )
@@ -92,9 +92,9 @@ void TestPlugin::pluginName(UtlString& name) const
 }
 
 
-/// The constructor is called from REGISTER_HOOK_FACTORY_METHOD below
+/// The constructor is called from getTestPlugin below
 TestPlugin::TestPlugin(const UtlString& name) :
-   PluginHook(name),
+   Plugin(name),
    mConfigured(false)
 {
 }
@@ -104,7 +104,7 @@ TestPlugin::~TestPlugin()
    mConfiguration.destroyAll();
 }
 
-extern "C" TestPlugin* getTestHook(const UtlString& name)
+extern "C" TestPlugin* getTestPlugin(const UtlString& name)
 {
    return new TestPlugin(name);
 }

@@ -22,7 +22,7 @@
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
 #include "SipRegistrar.h"
-#include "registry/RegisterHook.h"
+#include "registry/RegisterPlugin.h"
 #include "SipRedirectServer.h"
 #include "SipRegistrarServer.h"
 
@@ -35,8 +35,8 @@
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_REGISTRAR_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_REGISTRAR_LOG_DIR"
 
-const char* RegisterHook::Prefix  = "SIP_REGISTRAR";
-const char* RegisterHook::Factory = "getRegisterHook";
+const char* RegisterPlugin::Prefix  = "SIP_REGISTRAR";
+const char* RegisterPlugin::Factory = "getRegisterPlugin";
 
 // STATIC VARIABLE INITIALIZATIONS
 SipRegistrar* SipRegistrar::spInstance = NULL;
@@ -48,8 +48,7 @@ OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 // Constructor
 SipRegistrar::SipRegistrar(SipUserAgent* sipUserAgent,
-                           SipImpliedSubscriptions* sipImpliedSubscriptions,
-                           PluginHooks* sipRegisterHooks,
+                           PluginHooks* sipRegisterPlugins,
                            int maxExpiresTime,
                            const UtlString& defaultDomain,
                            const UtlString& domainAliases,
@@ -67,8 +66,7 @@ mRedirectServer(NULL),
 mRedirectMsgQ(NULL),
 mRedirectThreadInitialized(FALSE),
 mRegistrarThreadInitialized(FALSE),
-mSipImpliedSubscriptions(sipImpliedSubscriptions),
-mSipRegisterHooks(sipRegisterHooks)
+mSipRegisterPlugins(sipRegisterPlugins)
 {
    mConfigDirectory.remove(0);
    mConfigDirectory.append(configDir);
@@ -405,11 +403,10 @@ SipRegistrar::startRegistrar(
         SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
         );
 
-    SipImpliedSubscriptions* sipImpliedSubscriptions = new SipImpliedSubscriptions();
-    sipImpliedSubscriptions->readConfig( configDb );
-
-    PluginHooks* sipRegisterHooks = new PluginHooks( RegisterHook::Factory, RegisterHook::Prefix );
-    sipRegisterHooks->readConfig( configDb );
+    PluginHooks* sipRegisterPlugins = new PluginHooks( RegisterPlugin::Factory
+                                                      ,RegisterPlugin::Prefix
+                                                      );
+    sipRegisterPlugins->readConfig( configDb );
 
     sipUserAgent->start();
 
@@ -427,8 +424,7 @@ SipRegistrar::startRegistrar(
     SipRegistrar* registrar =
         new SipRegistrar(
             sipUserAgent,
-            sipImpliedSubscriptions,
-            sipRegisterHooks,
+            sipRegisterPlugins,
             maxExpiresTime ,
             domainName,
             domainAliases,
@@ -522,8 +518,7 @@ SipRegistrar::startRegistrarServer()
 {
     mRegistrarServer = new SipRegistrarServer();
     if ( mRegistrarServer->initialize(mSipUserAgent,
-                                      mSipImpliedSubscriptions,
-                                      mSipRegisterHooks,
+                                      mSipRegisterPlugins,
                                       mDefaultRegistryPeriod,
                                       mMinExpiresTime,
                                       mDefaultDomain,

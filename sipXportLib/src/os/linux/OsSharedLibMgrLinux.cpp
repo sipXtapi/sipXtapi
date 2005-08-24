@@ -80,14 +80,14 @@ OsStatus OsSharedLibMgrLinux::loadSharedLib(const char* libName)
         if (!libHandle)
         {
             OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                "Failed to load shared library: %s error: %s\n",
+                "Failed to load shared library: %s error: %s",
                 libName, dlerror());
             status = OS_NOT_FOUND;
         }
         else
         {
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "Loaded shared lib \"%s\" handle: %p\n", libName ? libName : "(null)",
+                 "Loaded shared lib \"%s\" handle: %p", libName ? libName : "(null)",
                   libHandle);
             OsSharedLibHandleLinux* collectableHandle =
                 new OsSharedLibHandleLinux(libName,

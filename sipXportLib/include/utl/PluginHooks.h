@@ -21,14 +21,14 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class PluginHook;
+class Plugin;
 class PluginIterator;
 class OsConfigDb;
 
 /**
  * A PluginHooks object is used to add dynamically loaded libraries (a "plugin") to a program
  * at run time.  The module to be loaded must implement a class derived from
- * the PluginHook abstract class.
+ * the Plugin abstract class.
  *
  * An object of this class manages all the configured plugin hooks for a program.
  * A class of plugin hooks is identified by a factory routine name used to obtain
@@ -89,7 +89,7 @@ class PluginHooks
     * ACTION_EVENT.CopyAction.BAR : barvalue2
     * @endcode
     *
-    * The readConfig method in the hook (which must inherit from PluginHook) is passed
+    * The readConfig method in the hook (which must inherit from Plugin) is passed
     * its own subhash of the configuration data, stripping everything through the '.'
     * following the instance name, so in the example above, the CopyAction hook would
     * be passed the equivalent of this configuration:
@@ -103,7 +103,7 @@ class PluginHooks
     * - Existing plugin instances that are no longer in the configuration
     *   are deleted (their destructor is invoked).
     * - Existing plugin instances that are still in the configuration
-    *   are reconfigured (their PluginHook::readConfig method is called).
+    *   are reconfigured (their Plugin::readConfig method is called).
     *
     */
 
@@ -116,19 +116,19 @@ class PluginHooks
 };
 
 /**
- * PluginIterator is used to obtain a sequence of PluginHook objects to be invoked.
+ * PluginIterator is used to obtain a sequence of Plugin objects to be invoked.
  *
  * The calling program gets the plugin objects by creating a PluginIterator
- * over a PluginHook object and then calling the PluginIterator::next method to
- * get each instance of the PluginHook (and optionally, its instance name).
+ * over a Plugin object and then calling the PluginIterator::next method to
+ * get each instance of the Plugin (and optionally, its instance name).
  *
- * The PluginIterator always returns the configured PluginHook objects in lexical
+ * The PluginIterator always returns the configured Plugin objects in lexical
  * order by the instance name; this allows the configuration to control the
  * order in which they are invoked.
  *
- * PluginHook libraries can implement any calling interface that's needed (a 
- * program that uses the PluginHook mechanism should create a base class that extends
- * PluginHook to specify the interface).
+ * Plugin libraries can implement any calling interface that's needed (a 
+ * program that uses the Plugin mechanism should create a base class that extends
+ * Plugin to specify the interface).
  *
  * A typical usage would look like:
  * @code
@@ -149,13 +149,13 @@ class PluginIterator
    ~PluginIterator();
    
    /// Advance to and return the next plugin.
-   PluginHook* next(UtlString* name = NULL /**< the instance name string for the returned
-                                            *   PluginHook (for logging purposes)
+   Plugin* next(UtlString* name = NULL /**< the instance name string for the returned
+                                            *   Plugin (for logging purposes)
                                             *   may be NULL if the caller does not need the name.
                                             */
                     );
    /**<
-    * No meaning should be attached to PluginHook names, so that order of plugin
+    * No meaning should be attached to Plugin names, so that order of plugin
     * iteration can be controlled by the lexical order of plugin names.
     */
 

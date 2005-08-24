@@ -9,7 +9,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "utl/UtlHashMap.h"
-#include "utl/PluginHook.h"
+#include "utl/Plugin.h"
 
 // DEFINES
 // MACROS
@@ -22,13 +22,13 @@
 class TestPlugin;
 
 
-extern "C" TestPlugin* getTestHook(const UtlString& name);
+extern "C" TestPlugin* getTestPlugin(const UtlString& name);
 
 /**
- * TestPlugin defines the interface for plugins to the PluginHooksTest.
+ * TestPlugin defines the interface for plugins to the PluginsTest.
  *
  */
-class TestPlugin : public PluginHook
+class TestPlugin : public Plugin
 {
 public:
 
@@ -48,7 +48,7 @@ public:
    static const char* FactoryName;   
 
 private:
-   friend TestPlugin* getTestHook(const UtlString& name);
+   friend TestPlugin* getTestPlugin(const UtlString& name);
    
    /// The constructor is called from getHook factory method.
    TestPlugin(const UtlString& hookName);

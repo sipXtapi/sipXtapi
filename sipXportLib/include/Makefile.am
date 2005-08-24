@@ -131,7 +131,7 @@ nobase_include_HEADERS = \
     utl/XmlContent.h \
     utl/UtlSortedListIterator.h \
     utl/UtlRandom.h \
-	 utl/PluginHook.h \
+	 utl/Plugin.h \
 	 utl/PluginHooks.h
 
 EXTRA_DIST= \
