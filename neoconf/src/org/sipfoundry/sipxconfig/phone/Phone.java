@@ -163,7 +163,7 @@ public class Phone extends BeanWithGroups {
     public void generateProfiles() {
         Writer wtr = null;
         try {
-            File file = new File(getTftpRoot() + '/' + getPhoneFilename());
+            File file = new File(getPhoneFilename());
             makeParentDirectory(file);
             wtr = new FileWriter(file);
             generateProfile(wtr);

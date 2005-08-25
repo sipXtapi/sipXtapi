@@ -50,6 +50,11 @@ public class SettingModel extends SettingDecorator {
         setDelegate(model);
     }
 
+    // FIXME: temporary - SettingModel should not be a decorator
+    public Setting getRealSetting() {
+        return getDelegate();
+    }
+    
     public String getDefaultValue() {
         // not really used, but delegate anyway
         return getDelegate().getDefaultValue();

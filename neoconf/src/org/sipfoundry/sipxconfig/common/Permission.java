@@ -23,7 +23,8 @@ public final class Permission extends Enum {
     public static final String DISABLE = "DISABLE";
     
     public static final Permission APPLICATION = new Permission("application");
-    public static final Permission SUPERADMIN = new Permission(APPLICATION, "superadmin");    
+    public static final Permission SUPERADMIN = new Permission(APPLICATION, "superadmin");
+    public static final Permission TUI_CHANGE_PIN = new Permission(APPLICATION, "tui-change-pin");
     public static final Permission CALL_HANDLING = new Permission("call-handling");
     public static final Permission NO_ACCESS = new Permission(CALL_HANDLING, "NoAccess");
     public static final Permission VOICEMAIL = new Permission(CALL_HANDLING, "Voicemail");

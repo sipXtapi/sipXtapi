@@ -16,17 +16,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
 
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.context.ApplicationContext;
 
-public class GatewayContextTestDb extends TestCase {
+public class GatewayContextTestDb extends TestHelper.TestCaseDb {
 
     private GatewayContext m_context;
 
@@ -124,17 +122,23 @@ public class GatewayContextTestDb extends TestCase {
     }
 
     public void testAllGateways() throws Exception {
-        Collection factoryIds = m_context.getFactoryIds().keySet();
-        for (Iterator i = factoryIds.iterator(); i.hasNext();) {
-            String factoryId = (String) i.next();
-            Gateway gateway = m_context.newGateway(factoryId);
-            assertEquals(gateway.getClass(), m_appContext.getBean(factoryId).getClass());
-            assertNotNull(gateway.getModelFilesContext());
+        Collection models = m_context.getAvailableGatewayModels();
+        for (Iterator i = models.iterator(); i.hasNext();) {
+            PhoneModel model = (PhoneModel) i.next();
+            Gateway gateway = m_context.newGateway(model);
+            String beanId = model.getBeanId();            
+            assertEquals(gateway.getClass(), m_appContext.getBean(beanId).getClass());
+            if(beanId.equals("gwGeneric")) {                
+                assertNull(gateway.getSettings());
+            }
+            else {
+                assertNotNull(gateway.getSettings());                
+            }
             m_context.storeGateway(gateway);
         }
         ITable actual = TestHelper.getConnection().createDataSet().getTable("gateway");
         // one gateway per row
-        assertEquals(factoryIds.size(), actual.getRowCount());
+        assertEquals(models.size(), actual.getRowCount());
     }
 
     /**
@@ -142,18 +146,22 @@ public class GatewayContextTestDb extends TestCase {
      * factory from the beans
      */
     public void testGetFactoryIds() {
-        String[] gatewayBeans = m_appContext.getBeanNamesForType(Gateway.class);
-        Map factoryIds = m_context.getFactoryIds();
-        assertEquals(gatewayBeans.length, factoryIds.size());
-        for (int i = 0; i < gatewayBeans.length; i++) {
-            String beanName = gatewayBeans[i];
-            assertTrue(factoryIds.containsKey(beanName));
+        // TODO: introduce gateway model - otherwise we will have problems if phone models are defined in bean files
+        String[] gatewayModelBeansArray = m_appContext.getBeanNamesForType(PhoneModel.class);
+        List gatewayModelBeans = Arrays.asList(gatewayModelBeansArray);
+
+        Collection models = m_context.getAvailableGatewayModels();
+        assertEquals(gatewayModelBeans.size(), models.size());
+        for (Iterator i = models.iterator(); i.hasNext();) {
+            PhoneModel model = (PhoneModel) i.next();
+            String beanId = model.getBeanId();
+            gatewayModelBeans.contains(beanId);
         }
     }
     
     public void testGetGatewaySettings() throws Exception {
         TestHelper.cleanInsertFlat("gateway/SeedGateway.xml");
         Gateway gateway = m_context.getGateway(new Integer(1001));
-        assertNotNull(gateway.getModelFilesContext());
+        assertNotNull(gateway.getTftpRoot());
     }
 }

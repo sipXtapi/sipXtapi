@@ -73,8 +73,7 @@
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups,admin-group-and-user,user_name,phoneBeanId,meetme" />
-  
+    depends="initialization_task,user_groups,admin-group-and-user,user_name,phoneBeanId,meetme,gatewayBeanId"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -110,7 +109,15 @@
       	alter table phone add column model_id varchar(64);
     </sipx-sql>
   	<mark-patch-applied patch="phoneBeanId"/>
-  </target>	  
+  </target>
+  <target name="gatewayBeanId" unless="gatewayBeanId">
+    <sipx-sql>
+      	alter table gateway rename column factory_id to bean_id;
+      	alter table gateway add column model_id varchar(64);       
+    </sipx-sql>
+  	<mark-patch-applied patch="gatewayBeanId"/>
+  </target>  
+  
   <target name="user_name" unless="user_name">
     <sipx-sql>
 		alter table users rename column display_id to user_name;

@@ -11,16 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.hibernate.cfg.Configuration;
+import java.io.StringReader;
 
-import org.custommonkey.xmlunit.XMLAssert;
-import org.custommonkey.xmlunit.XMLTestCase;
+import junit.framework.TestCase;
+
+import org.dom4j.Document;
+import org.dom4j.io.SAXReader;
 import org.easymock.MockControl;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.util.DTDEntityResolver;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class DynamicSessionFactoryBeanTest extends XMLTestCase {
+public class DynamicSessionFactoryBeanTest extends TestCase {
 
     public void testXmlMapping() throws Exception {
         DynamicSessionFactoryBean factory = new DynamicSessionFactoryBean();
@@ -73,12 +77,17 @@ public class DynamicSessionFactoryBeanTest extends XMLTestCase {
     
     
     private static void validateXml(String xml) throws Exception {
-        XMLAssert.assertXpathEvaluatesTo(Gateway.class.getName(), "/hibernate-mapping/subclass/@extends",
-                xml);
-        XMLAssert.assertXpathEvaluatesTo(MediantGateway.class.getName(),
-                "/hibernate-mapping/subclass/@name", xml);
-        XMLAssert.assertXpathEvaluatesTo("gwMediant1000",
-                "/hibernate-mapping/subclass/@discriminator-value", xml);        
+        SAXReader xmlReader = new SAXReader();
+        xmlReader.setEntityResolver(new DTDEntityResolver());
+        xmlReader.setValidation(true);
+        
+        Document document = xmlReader.read(new StringReader(xml));
+        
+        assertEquals(Gateway.class.getName(), document.valueOf("/hibernate-mapping/subclass/@extends"));
+        assertEquals(MediantGateway.class.getName(),
+                document.valueOf("/hibernate-mapping/subclass/@name"));
+        assertEquals("gwMediant1000",
+                document.valueOf("/hibernate-mapping/subclass/@discriminator-value"));        
     }
     
     /**

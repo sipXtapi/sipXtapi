@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.gateway;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 
 public interface GatewayContext {    
@@ -43,7 +44,7 @@ public interface GatewayContext {
      */
     public abstract Collection getAvailableGateways(Integer ruleId);
     
-    public abstract Gateway newGateway(String factoryId);
+    public abstract Gateway newGateway(PhoneModel model);
     
-    public Map getFactoryIds();
+    public List getAvailableGatewayModels();
 }

@@ -21,6 +21,16 @@
         <value>DISABLE</value>
         <description>User can log into administration interface.</description>
       </setting>
+      <setting name="tui-change-pin">
+        <label>Change PIN from IVR</label>
+        <type refid="enable-disable"/>
+        <value>ENABLE</value>
+        <description>User can change PIN value from 
+			Voicemail system. PIN is used to log into voicemail system and web interface.
+			PIN does not affect the password phones use to authenticate with registration 
+			server.
+			</description>
+      </setting>
     </group>
     <group name="call-handling">
       <label>Call Handling Permissions</label>

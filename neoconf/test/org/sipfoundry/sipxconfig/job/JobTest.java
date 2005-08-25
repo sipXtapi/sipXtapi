@@ -46,6 +46,13 @@ public class JobTest extends TestCase {
 
         assertEquals("some error\nexception error", job.getErrorMsg());
     }
+    
+    public void testErrorMessage() {
+        Job job = new Job();
+        job.start();
+        job.failure(null, new RuntimeException());
+        assertNotNull(job.getErrorMsg());
+    }
 
     public void testIllegalFailure() {
         Job job = new Job();

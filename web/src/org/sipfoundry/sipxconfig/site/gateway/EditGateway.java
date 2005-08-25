@@ -112,8 +112,11 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
         if (gateway.isNew()) {
-            Gateway newGateway = gatewayContext.newGateway(gateway.getFactoryId());
-            newGateway.update(gateway);
+            Gateway newGateway = gatewayContext.newGateway(gateway.getModel());
+            newGateway.setName(gateway.getName());
+            newGateway.setAddress(gateway.getAddress());
+            newGateway.setDescription(gateway.getDescription());
+            newGateway.setSerialNumber(gateway.getSerialNumber());
             setGateway(newGateway);
             gateway = newGateway;
         }

@@ -3,48 +3,68 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
-  <group name="SYSTEM">
-    <label>System</label>
-    <setting name="DisableSNMP">
-      <label>SNMP</label>
+  <type id="inverted_boolean">
+    <boolean>
+      <true><value>0</value></true>
+      <false><value>1</value></false>
+    </boolean>
+  </type>
+  <group name="SIP_Params">
+    <label>SIP Params</label>
+    <profileName>SIP Params</profileName>
+    <setting name="PROXYNAME" hidden="yes">
+      <label>PROXYNAME</label>
       <type>
-        <boolean>
-          <true><value>0</value></true>
-          <false><value>1</value></false>
-        </boolean>
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="DNSPriServerIP">
-      <label>Primary DNS Server</label>
-      <type>
-        <ipaddr required="yes"/>
+        <string/>
       </type>
       <value/>
+      <description>Defines the Home Proxy Domain Name.If specified, the Proxy Name is used as Request-URI in
+        REGISTER, INVITE and other SIP messages. If not specified, the Proxy IP address is used
+        instead.</description>
     </setting>
-    <setting name="SyslogServerIP" advanced="yes">
-      <label>Syslog Server</label>
+    <setting name="PROXYIP" hidden="yes">
+      <label>PROXYIP</label>
       <type>
         <ipaddr/>
       </type>
       <value/>
+      <description>IP address and optionally port number of the primary Proxy server you are using. Enter the IP
+        address as FQDN or in dotted format notation for example 201.10.8.1. You can also specify the selected
+        port in the format: IP Address:port</description>
     </setting>
-    <setting name="EnableSyslog" advanced="yes">
-      <label>Syslog</label>
-      <type>
-        <boolean/>
-      </type>
+    <setting name="ISPROXYUSED" hidden="yes">
+      <label>Use Proxy</label>
+      <type refid="inverted_boolean"/>
+      <value>1</value>
+      <description>Don’t Use Proxy [0] = Proxy isn’t used, the internal routing table is used instead.Use Proxy
+        [1] = Proxy is used.If you are using a Proxy server, enter the IP address of the primary Proxy server in the
+        Proxy IP address field. If you are not using a Proxy server, you must configure the Tel to IP Routing table
+        on the gateway
+      </description>
+    </setting>
+    <setting name="ISREGISTERNEEDED" hidden="yes">
+      <label>Registration Needed</label>
+      <type refid="inverted_boolean"/>
       <value>0</value>
+      <description>No [0] = Gateway doesn’t register to Proxy / Registrar .Yes [1] = Gateway registers to Proxy /
+        Registrar when the device is powered up and every RegistrationTime seconds.</description>
     </setting>
-  </group>
-  <group name="Voice_Engine">
-    <label>Voice Engine</label>
-    <profileName>Voice Engine</profileName>
-    <setting name="IdlePCMPattern">
+    <setting name="MAXDIGITS">
+      <label>Maximum Digits</label>
       <type>
-        <integer/>
+        <integer min="1" max="49"/>
       </type>
-      <value>255</value>
+      <value>15</value>
+      <description>Maximum number of digits that can be dialed. The valid range is 1 to 49.</description>
+    </setting>
+    <setting name="TRUNKGROUP_1" hidden="yes">
+      <label>Trunk Group</label>
+      <type>
+        <string>
+          <pattern>\d+-\d+,\d+,\d+</pattern>
+        </string>
+      </type>
+      <value>1-1,201,0</value>
     </setting>
   </group>
 </model>
