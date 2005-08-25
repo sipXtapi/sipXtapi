@@ -73,8 +73,8 @@ public class PhoneModel extends Enum {
     /**
      * @return PhoneModel that corresponds to beanId + modelId unique identifier
      */
-    public static PhoneModel getModel(String beanId, String modelId) {
-        return getModel(beanId + modelId);
+    public static PhoneModel getModel(String beanId, String modelId) {        
+        return getModel(beanId + StringUtils.defaultString(modelId));
     }
     
     public static PhoneModel getModel(String name) {

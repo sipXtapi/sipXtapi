@@ -42,9 +42,17 @@
         <servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+	<servlet>
+		<servlet-name>change-pintoken</servlet-name>
+		<servlet-class>org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet</servlet-class>	    
+	</servlet>
     <servlet-mapping>
         <servlet-name>sipXconfig-web</servlet-name>
         <url-pattern>/app</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>change-pintoken</servlet-name>
+        <url-pattern>/api/change-pintoken</url-pattern>
     </servlet-mapping>
     <!-- Explicitly set session timeout to 2 hours -->
     <session-config>

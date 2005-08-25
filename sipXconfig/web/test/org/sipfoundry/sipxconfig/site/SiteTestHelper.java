@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.site;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Properties;
@@ -20,16 +21,21 @@ import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.sourceforge.jwebunit.HttpUnitDialog;
-import net.sourceforge.jwebunit.WebTester;
-
-import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxconfig.common.TestUtil;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebResponse;
+
+import net.sourceforge.jwebunit.HttpUnitDialog;
+import net.sourceforge.jwebunit.WebTester;
+
+import org.apache.commons.io.CopyUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 public class SiteTestHelper {
 
@@ -192,6 +198,33 @@ public class SiteTestHelper {
         }
 
         return directory;
+    }
+    
+    /**
+     * Get the full path and copy file from etc incase there are modiifcations to it
+     *  
+     * @param path relative to etc dir e.g. "kphone/phone.xml"
+     * @return full path to config file
+     */
+    public static String getFreshFileInArtificialSystemRoot(String path) {
+        String neopath = TestUtil.getProjectDirectory() + "/../neoconf/etc" + path;
+        String webpath = getArtificialSystemRootDirectory() + "/" + path;
+        try {
+            FileWriter out = new FileWriter(webpath);
+            CopyUtils.copy(neopath, out);
+            IOUtils.closeQuietly(out);
+            return webpath;
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }        
+    }
+    
+    public static Setting loadSettings(String path) {
+        String sysdir = TestUtil.getProjectDirectory() + "/../neoconf/etc";
+        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
+        Setting settings = builder.buildModel(new File(sysdir + "/" + path));
+
+        return settings;
     }
 
     /**

@@ -3,6 +3,7 @@
 <dataset>
 	<gateway 
     gateway_id="1001"
-    factory_id="gwMediant1000"
+    bean_id="gwAudiocodesMediant"
+    model_id="1X4_4_FXO"
     name="test gateway"/>
 </dataset>

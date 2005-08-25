@@ -31,6 +31,8 @@
         type="java.lang.String"
         persistent="yes"
     	/>
+    
+    <property-specification name="gatewayModel" type="org.sipfoundry.sipxconfig.phone.PhoneModel"/>
         
     <property-specification name="currentSettingSet" type="org.sipfoundry.sipxconfig.setting.SettingSet"/>    
                 

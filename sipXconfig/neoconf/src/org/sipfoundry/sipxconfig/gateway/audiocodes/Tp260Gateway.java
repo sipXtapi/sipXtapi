@@ -13,5 +13,5 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 
 
-public class MediantGateway extends AudioCodesGateway {
+public class Tp260Gateway extends AudioCodesGateway {
 }

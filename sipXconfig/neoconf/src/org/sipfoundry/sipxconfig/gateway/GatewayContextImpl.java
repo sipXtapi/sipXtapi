@@ -16,10 +16,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -31,7 +31,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private BeanFactory m_beanFactory;
 
-    private Map m_factoryIds;
+    private List m_availableGatewayModels;
 
     public GatewayContextImpl() {
         super();
@@ -77,6 +77,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             Gateway g = getGateway(id);
+            g.prepareSettings();
             g.generateProfiles();            
         }
         
@@ -115,20 +116,22 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         m_dialPlanContext = dialPlanContext;
     }
 
-    public Gateway newGateway(String factoryId) {
-        Gateway gateway = (Gateway) m_beanFactory.getBean(factoryId, Gateway.class);
+    public Gateway newGateway(PhoneModel model) {
+        Gateway gateway = (Gateway) m_beanFactory.getBean(model.getBeanId(), Gateway.class);
+        gateway.setBeanId(model.getBeanId());
+        gateway.setModelId(model.getModelId());
         return gateway;
-    }
-
-    public Map getFactoryIds() {
-        return m_factoryIds;
-    }
-
-    public void setFactoryIds(Map factoryIds) {
-        m_factoryIds = factoryIds;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    public void setAvailableGatewayModels(List availableGatewayModels) {
+        m_availableGatewayModels = availableGatewayModels;
+    }
+    
+    public List getAvailableGatewayModels() {
+        return m_availableGatewayModels;
     }
 }

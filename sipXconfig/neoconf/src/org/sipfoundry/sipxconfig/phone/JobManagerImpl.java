@@ -89,7 +89,9 @@ public class JobManagerImpl extends Thread implements JobManager {
                 m_jobContext.failure(jobId, null, re);
             } catch (RuntimeException e) {
                 m_jobContext.failure(jobId, null, e);
-                throw e;
+                // do not throw error, job queue will stop running.
+                // error gets logged to job error table and sipxconfig.log
+                LOG.error(e);
             }
         }
     }

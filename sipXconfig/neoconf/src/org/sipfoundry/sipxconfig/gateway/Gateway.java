@@ -13,10 +13,11 @@ package org.sipfoundry.sipxconfig.gateway;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Map;
 
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
-import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingModel;
 
 /**
  * Gateway
@@ -28,28 +29,51 @@ public class Gateway extends BeanWithSettings {
 
     private String m_description;
 
-    private String m_factoryId;
+    private String m_beanId;
+
+    private String m_modelId;
 
     private String m_serialNumber;
 
-    private GatewayContext m_gatewayContext;
-    
-    private ModelFilesContext m_modelFilesContext;
-
     private String m_tftpRoot;
 
+    private PhoneModel m_model;
+
+    public Gateway() {
+    }
+    
     public void generateProfiles(Writer writer_) throws IOException {
         // generic gateways does not support generating profiles
         throw new UnsupportedOperationException();
     }
 
-    public String getModelName() {
-        Map factoryIds = m_gatewayContext.getFactoryIds();
-        return (String) factoryIds.get(m_factoryId);
+    public void prepareSettings() {
+        // do nothing for generic gateways - this method is called before generateProfiles is called
+        // use to adjust settings for generation
     }
-
+    
     public void generateProfiles() {
         // do nothing for generic gateways - we do not generate profile for it
+    }
+
+    public Setting getSettingModel() {
+        Setting model = super.getSettingModel();
+        if (model instanceof SettingModel) {
+            SettingModel settingModel = (SettingModel) model;
+            return settingModel.getRealSetting();
+        }
+        return null;
+    }
+    
+    /**
+     * This is slightly unusual setter - used to initialed model variable TODO: replace with
+     * proper hibernate mappings
+     * 
+     * @param modelId
+     */
+    public void setModelId(String modelId) {
+        m_modelId = modelId;
+        m_model = PhoneModel.getModel(m_beanId, modelId);
     }
 
     public String getName() {
@@ -84,31 +108,31 @@ public class Gateway extends BeanWithSettings {
         m_serialNumber = serialNumber;
     }
 
-    public String getFactoryId() {
-        return m_factoryId;
-    }
-
-    public void setFactoryId(String factoryId) {
-        m_factoryId = factoryId;
-    }
-
-    public void setGatewayContext(GatewayContext gatewayContext) {
-        m_gatewayContext = gatewayContext;
-    }
-
     public String getTftpRoot() {
         return m_tftpRoot;
     }
-    
+
     public void setTftpRoot(String tftpRoot) {
         m_tftpRoot = tftpRoot;
     }
-    
-    public void setModelFilesContext(ModelFilesContext modelFileContext) {
-        m_modelFilesContext = modelFileContext;
+
+    public PhoneModel getModel() {
+        return m_model;
     }
     
-    public ModelFilesContext getModelFilesContext() {
-        return m_modelFilesContext;
+    public void setModel(PhoneModel model) {
+        m_model = model;
     }
+    public String getBeanId() {
+        return m_beanId;
+    }
+
+    public void setBeanId(String beanId) {
+        m_beanId = beanId;
+    }
+
+    public String getModelId() {
+        return m_modelId;
+    }
+
 }

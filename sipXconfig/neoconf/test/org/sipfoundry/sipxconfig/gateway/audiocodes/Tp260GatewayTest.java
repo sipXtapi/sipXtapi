@@ -23,14 +23,14 @@ import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
-public class MediantGatewayTest extends TestCase {
+public class Tp260GatewayTest extends TestCase {
     private AudioCodesModel m_model;
-    private MediantGateway m_gateway;
+    private Tp260Gateway m_gateway;
 
     protected void setUp() throws Exception {
         m_model = (AudioCodesModel) TestHelper.getApplicationContext().getBean(
-                "gmAudiocodesMP1X4_4_FXO");
-        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean("gwAudiocodesMediant");
+                "gmAudiocodesTP260_2_Span");
+        m_gateway = (Tp260Gateway) TestHelper.getApplicationContext().getBean("gwAudiocodesTp260");
         m_gateway.setBeanId(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
     }
@@ -42,7 +42,7 @@ public class MediantGatewayTest extends TestCase {
         m_gateway.generateProfiles(writer);
 
         // cursory check for now
-        assertTrue(writer.toString().indexOf("MAXDIGITS") >= 0);
+        assertTrue(writer.toString().indexOf("VoiceVolume") >= 0);
     }
 
     public void testPrepareSettings() throws Exception {
@@ -62,18 +62,18 @@ public class MediantGatewayTest extends TestCase {
         m_gateway.setDefaults(defaults);
         m_gateway.prepareSettings();
 
-        assertEquals("10.1.2.3:4321", m_gateway.getSettingValue("SIP_Params/PROXYIP"));
-        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Params/PROXYNAME"));
+        assertEquals("10.1.2.3:4321", m_gateway.getSettingValue("SIPgw/ProxyIp"));
+        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIPgw/ProxyName"));
 
         defaultsCtrl.verify();
     }
 
     public void testGetSettings() throws Exception {
         Setting settings = m_gateway.getSettings();
-        assertEquals("15", settings.getSetting("SIP_Params/MAXDIGITS").getValue());
+        assertEquals(new Integer(1), settings.getSetting("SIPgw/VoiceVolume").getTypedValue());
         assertTrue(settings instanceof SettingSet);
         SettingSet root = (SettingSet) settings;
         SettingSet currentSettingSet = (SettingSet) root.getDefaultSetting(SettingSet.class);
-        assertEquals("15", currentSettingSet.getSetting("MAXDIGITS").getValue());
+        assertEquals(Boolean.TRUE, currentSettingSet.getSetting("IsFaxUsed").getTypedValue());
     }
 }

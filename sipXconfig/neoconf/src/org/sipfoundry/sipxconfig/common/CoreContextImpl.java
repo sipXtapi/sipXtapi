@@ -199,6 +199,8 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         adminGroup.setResource(User.GROUP_RESOURCE_ID);
         adminGroup.setDescription("Users with superadmin privledges");
         Permission.SUPERADMIN.setEnabled(adminGroup, true);
+        Permission.TUI_CHANGE_PIN.setEnabled(adminGroup, false);
+
         m_settingDao.saveGroup(adminGroup);
 
         // using superadmin name not to disrrupt existing customers

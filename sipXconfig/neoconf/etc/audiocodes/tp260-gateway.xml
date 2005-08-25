@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <type id="int_boolean">
+    <boolean>
+      <true><value>1</value></true>
+      <false><value>0</value></false>
+    </boolean>
+  </type>
+  <group name="SIPgw">
+    <label>SIP Params</label>
+    <setting name="ProxyName" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="ProxyIp" hidden="yes">
+      <type>
+        <ipaddr/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="IsProxyUsed" hidden="yes">
+      <label>Use proxy</label>
+      <type refid="int_boolean"/>
+      <value>1</value>
+    </setting>
+    <setting name="IsRegisterNeeded" hidden="yes">
+      <label>Registration needed</label>
+      <type refid="int_boolean"/>
+      <value>0</value>
+    </setting>
+    <setting name="IsFaxUsed">
+      <label>Use fax</label>
+      <type refid="int_boolean"/>
+      <value>1</value>
+    </setting>    
+    <setting name="VoiceVolume">
+      <label>Voice volume</label>
+      <type>
+        <integer min="-31" max="31"/>
+      </type>
+      <value>1</value>
+      <description>Voice gain control. Parameter range is -31 to +31 db.</description>
+    </setting>
+  </group>
+</model>

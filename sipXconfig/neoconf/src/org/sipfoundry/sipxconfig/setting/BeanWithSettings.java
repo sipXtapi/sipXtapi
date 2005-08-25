@@ -85,4 +85,16 @@ public class BeanWithSettings extends BeanWithId {
     public ValueStorage getValueStorage() {
         return m_valueStorage;
     }
+
+    public String getSettingValue(String path) {
+        return getSettings().getSetting(path).getValue();
+    }
+
+    public Object getSettingTypedValue(String path) {
+        return getSettings().getSetting(path).getTypedValue();
+    }
+
+    public void setSettingValue(String path, String value) {
+        getSettings().getSetting(path).setValue(value);
+    }
 }

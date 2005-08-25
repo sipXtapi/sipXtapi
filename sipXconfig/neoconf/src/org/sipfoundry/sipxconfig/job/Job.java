@@ -88,7 +88,10 @@ public class Job extends BeanWithId implements Serializable {
         if (!m_status.equals(JobStatus.FAILED)) {
             return org.apache.commons.lang.StringUtils.EMPTY;
         }
-        StringBuffer error = new StringBuffer(m_errorMsg);
+        StringBuffer error = new StringBuffer();
+        if (m_errorMsg != null) {
+            error.append(m_errorMsg);
+        }
         if (m_exception != null) {
             error.append('\n');
             error.append(m_exception.getLocalizedMessage());

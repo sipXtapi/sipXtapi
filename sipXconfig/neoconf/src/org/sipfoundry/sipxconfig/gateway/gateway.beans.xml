@@ -3,8 +3,105 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- 
-    - G A T E W A Y  C O N T E X T
-    -->
+  - G A T E W A Y  C O N T E X T
+  -->
+  
+  <!-- gateway models -->
+  <bean id="gmGeneric" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <constructor-arg><value>gwGeneric</value></constructor-arg>
+    <constructor-arg><value>Unmanaged gateway</value></constructor-arg>
+  </bean>
+
+  <bean id="gmAutiocodesMP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="proxyNameSetting" value="SIP_Params/PROXYNAME"/>
+    <property name="proxyIpSetting" value="SIP_Params/PROXYIP"/>
+  </bean>
+
+  <bean id="gmAutiocodesTP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="proxyNameSetting" value="SIPgw/ProxyName"/>
+    <property name="proxyIpSetting" value="SIPgw/ProxyIp"/>
+  </bean>
+      
+  <bean id="gmAudiocodesMP1X4_4_FXO" parent="gmAutiocodesMP">
+    <constructor-arg><value>gwAudiocodesMediant</value></constructor-arg>
+    <constructor-arg><value>1X4_4_FXO</value></constructor-arg>
+    <constructor-arg><value>AudioCodes MP1X4 4 Port FXO</value></constructor-arg>
+ 		<constructor-arg><value>MP104FXSProxy.ini</value></constructor-arg>
+  </bean>
+  
+  <bean id="gmAudiocodesMP1X8_8_FXO" parent="gmAutiocodesMP">
+    <constructor-arg><value>gwAudiocodesMediant</value></constructor-arg>
+    <constructor-arg><value>1X8_8_FXO</value></constructor-arg>
+    <constructor-arg><value>AudioCodes MP1X8 8 Port FXO</value></constructor-arg>
+ 		<constructor-arg><value>MP104FXSProxy.ini</value></constructor-arg>
+  </bean>
+  
+  <bean id="gmAudiocodesTP260_1_Span" parent="gmAutiocodesTP">
+    <constructor-arg><value>gwAudiocodesTp260</value></constructor-arg>
+    <constructor-arg><value>1_Span</value></constructor-arg>
+    <constructor-arg><value>AudioCodes TP260 1 Span T1/E1</value></constructor-arg>
+ 		<constructor-arg><value>TP260.ini</value></constructor-arg>
+  </bean>
+  
+  <bean id="gmAudiocodesTP260_2_Span" parent="gmAutiocodesTP">
+    <constructor-arg><value>gwAudiocodesTp260</value></constructor-arg>
+    <constructor-arg><value>2_Span</value></constructor-arg>
+    <constructor-arg><value>AudioCodes TP260 2 Span T1/E1</value></constructor-arg>
+ 		<constructor-arg><value>TP260.ini</value></constructor-arg>
+  </bean>
+  
+  <bean id="gmAudiocodesTP260_4_Span" parent="gmAutiocodesTP">
+    <constructor-arg><value>gwAudiocodesTp260</value></constructor-arg>
+    <constructor-arg><value>4_Span</value></constructor-arg>
+    <constructor-arg><value>AudioCodes TP260 4 Span T1/E1</value></constructor-arg>
+ 		<constructor-arg><value>TP260.ini</value></constructor-arg>
+  </bean>
+  
+  <bean id="gmAudiocodesTP260_8_Span" parent="gmAutiocodesTP">
+    <constructor-arg><value>gwAudiocodesTp260</value></constructor-arg>
+    <constructor-arg><value>8_Span</value></constructor-arg>
+    <constructor-arg><value>AudioCodes TP260 8 Span T1/E1</value></constructor-arg>
+ 		<constructor-arg><value>TP260.ini</value></constructor-arg>
+  </bean>
+  
+  <!-- gateway beans -->
+  
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">
+    <property name="tftpRoot">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+  
+  <bean id="smAudiocodesMediant" class="org.sipfoundry.sipxconfig.setting.SettingModel">
+    <property name="resource" value="audiocodes/mediant-gateway.xml"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+  
+  <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway"
+    singleton="false" parent="gwGeneric">
+    <property name="settingModel">
+      <ref local="smAudiocodesMediant"/>
+    </property>
+    <property name="defaults" ref="phoneDefaults"/>
+  </bean>
+
+  <bean id="smAudiocodesTp260" class="org.sipfoundry.sipxconfig.setting.SettingModel">
+    <property name="resource" value="audiocodes/tp260-gateway.xml"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+      
+  <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway"
+    singleton="false" parent="gwGeneric">
+    <property name="settingModel">
+      <ref local="smAudiocodesTp260"/>
+    </property>
+    <property name="defaults" ref="phoneDefaults"/>
+  </bean>
+  
+    
+  <!-- gateway context -->
   <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
     <property name="dialPlanContext">
       <ref bean="dialPlanContext"/>
@@ -12,19 +109,21 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
-    <property name="factoryIds">
-      <map>
-        <entry key="gwGeneric">
-          <value>Unmanaged gateway</value>
-        </entry>
-        <entry key="gwMediant1000">
-          <value>Audio Codes Mediant 1000</value>
-        </entry>
-      </map>      
+    <property name="availableGatewayModels">
+      <list>
+        <ref local="gmGeneric"/>
+        <ref local="gmAudiocodesMP1X4_4_FXO"/>
+        <ref local="gmAudiocodesMP1X8_8_FXO"/>
+        <ref local="gmAudiocodesTP260_1_Span"/>
+        <ref local="gmAudiocodesTP260_2_Span"/>
+        <ref local="gmAudiocodesTP260_4_Span"/>
+        <ref local="gmAudiocodesTP260_8_Span"/>
+      </list>
     </property>
   </bean>
-    
-  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  
+  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
     </property>
@@ -33,19 +132,4 @@
     </property>
   </bean>
   
-  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">
-    <property name="gatewayContext">
-      <ref local="gatewayContext"/>
-    </property>
-    <property name="modelFilesContext">
-      <ref bean="modelFilesContext"/>      
-    </property>
-    <property name="tftpRoot">
-      <value>${sysdir.phone}/profile/tftproot</value>
-    </property>
-  </bean>
-  
-  <bean id="gwMediant1000" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" 
-    singleton="false" parent="gwGeneric">
-  </bean>
 </beans>

@@ -16,9 +16,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import junit.framework.Test;
-
-import com.meterware.httpunit.WebForm;
-
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.setting.Setting;
