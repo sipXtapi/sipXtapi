@@ -14,10 +14,10 @@
     <dependentdelay wait="0" />
     <workdir location="@localstatedir@/tmp" />
 
-    <!-- =============================================== --> 
+    <!-- =============================================== -->
     <!-- LOGFILE FOR PROCESSCGI              -->
     <!-- =============================================== -->
-    <logfile level="warning">@SIPX_LOGDIR@/processcgi.log</logfile>  
+    <logfile level="warning">@SIPX_LOGDIR@/processcgi.log</logfile>
 
     <!-- ================================ -->
     <!-- ======== CONFIG SERVER ========= -->
@@ -30,7 +30,7 @@
             <stdin  file="" />
 
             <start control="true">
-                <execute command="@bindir@/sipxconfig.sh" 
+                <execute command="@bindir@/sipxconfig.sh"
                          parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
@@ -56,8 +56,8 @@
             <stdin  file="" />
 
             <start control="true">
-                <execute command="@bindir@/sipregistrar.sh" 
-                         parameters="" 
+                <execute command="@bindir@/sipregistrar.sh"
+                         parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
 
@@ -77,8 +77,8 @@
             <stdin  file="" />
 
             <start control="true">
-                <execute command="@bindir@/sipproxy.sh" 
-                         parameters="" 
+                <execute command="@bindir@/sipproxy.sh"
+                         parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
 
@@ -99,7 +99,7 @@
 
             <start control="true">
                 <execute command="@bindir@/sipauthproxy.sh"
-                         parameters="" 
+                         parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
 
@@ -120,7 +120,7 @@
 
             <start control="true">
                 <execute command="@bindir@/sipstatus.sh"
-                         parameters="" 
+                         parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
 
@@ -167,6 +167,27 @@
 
             <start control="true">
                 <execute command="@bindir@/sipxpark.sh"
+                         parameters=""
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="ConferenceBridge">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/sipxconference.sh"
                          parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>

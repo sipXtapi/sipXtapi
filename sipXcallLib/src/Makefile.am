@@ -140,11 +140,10 @@ libsipXcall_la_SOURCES = \
     ps/PsTaoMicrophone.cpp \
     ps/PsTaoRinger.cpp \
     ps/PsTaoSpeaker.cpp \
-	 tapi/sipXtapi.cpp \
-	 tapi/sipXtapiEvents.cpp \
-	 tapi/sipXtapiInternal.cpp \
-	 tapi/SipXHandleMap.cpp \
-	 tapi/SipXMessageObserver.cpp
-
+    tapi/sipXtapi.cpp \
+    tapi/sipXtapiEvents.cpp \
+    tapi/sipXtapiInternal.cpp \
+    tapi/SipXHandleMap.cpp \
+    tapi/SipXMessageObserver.cpp
 
 DISTCLEANFILES = Makefile.in

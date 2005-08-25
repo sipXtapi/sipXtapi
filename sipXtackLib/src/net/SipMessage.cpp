@@ -34,11 +34,8 @@
 // CONSTANTS
 #define MAXIMUM_INTEGER_STRING_LENGTH 20
 
-// STATIC VARIABLE INITIALIZATIONS
-
-UtlHashBag* SipMessage::mpShortFieldNames = new UtlHashBag();
-UtlHashBag* SipMessage::mpLongFieldNames = new UtlHashBag();
-UtlHashBag* SipMessage::mpDisallowedUrlHeaders = new UtlHashBag();
+// STATIC VARIABLES
+SipMessage::SipMessageFieldProps* SipMessage::spSipMessageFieldProps = NULL ;
 
 #ifdef WIN32
 #  define strcasecmp stricmp
@@ -59,6 +56,11 @@ SipMessage::SipMessage(const char* messageBytes, int byteCount) :
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
+
+   if (spSipMessageFieldProps == NULL)
+   {
+      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+   }
 }
 
 SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
@@ -115,56 +117,6 @@ SipMessage::operator=(const SipMessage& rSipMessage)
 }
 
 
-void SipMessage::initShortNames()
-{
-   if(mpLongFieldNames->isEmpty())
-   {
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_TYPE_FIELD, SIP_SHORT_CONTENT_TYPE_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_ENCODING_FIELD, SIP_SHORT_CONTENT_ENCODING_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_FROM_FIELD, SIP_SHORT_FROM_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CALLID_FIELD, SIP_SHORT_CALLID_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTACT_FIELD, SIP_SHORT_CONTACT_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_LENGTH_FIELD, SIP_SHORT_CONTENT_LENGTH_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_REFERRED_BY_FIELD, SIP_SHORT_REFERRED_BY_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_REFER_TO_FIELD, SIP_SHORT_REFER_TO_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_SUBJECT_FIELD, SIP_SHORT_SUBJECT_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_SUPPORTED_FIELD, SIP_SHORT_SUPPORTED_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_TO_FIELD, SIP_SHORT_TO_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_VIA_FIELD, SIP_SHORT_VIA_FIELD));
-      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_EVENT_FIELD, SIP_SHORT_EVENT_FIELD));
-
-      UtlHashBagIterator iterator(*mpLongFieldNames);
-      NameValuePair* nvPair;
-      while ((nvPair = (NameValuePair*) iterator()))
-      {
-         mpShortFieldNames->insert(new NameValuePair(nvPair->getValue(),
-            nvPair->data()));
-      }
-   }
-}
-
-void SipMessage::initDisallowedUrlHeaders()
-{
-    // These headers may NOT be passed through in a URL to
-    // be set in a message
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTACT_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTACT_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_LENGTH_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_LENGTH_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_TYPE_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_TYPE_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CSEQ_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_REFER_TO_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_REFERRED_BY_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_TO_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_TO_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_USER_AGENT_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_VIA_FIELD));
-    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_VIA_FIELD));
-}
-
 /* ============================ MANIPULATORS ============================== */
 
 UtlBoolean SipMessage::getShortName(const char* longFieldName,
@@ -172,17 +124,13 @@ UtlBoolean SipMessage::getShortName(const char* longFieldName,
 {
    NameValuePair longNV(longFieldName);
    UtlBoolean nameFound = FALSE;
-   initShortNames();
 
-   if (mpLongFieldNames)
+   shortFieldName->remove(0);
+   NameValuePair* shortNV = (NameValuePair*) spSipMessageFieldProps->mLongFieldNames.find(&longNV);
+   if(shortNV)
    {
-        shortFieldName->remove(0);
-        NameValuePair* shortNV = (NameValuePair*) mpLongFieldNames->find(&longNV);
-        if(shortNV)
-        {
-            shortFieldName->append(shortNV->getValue());
-            nameFound = TRUE;
-        }
+      shortFieldName->append(shortNV->getValue());
+      nameFound = TRUE;
    }
    return(nameFound);
 }
@@ -199,9 +147,8 @@ UtlBoolean SipMessage::getLongName(const char* shortFieldName,
     {
         UtlString shortNV(shortFieldName);
 
-       initShortNames();
-
-       NameValuePair* longNV = (NameValuePair*) mpShortFieldNames->find(&shortNV);
+       NameValuePair* longNV =
+          (NameValuePair*) spSipMessageFieldProps->mShortFieldNames.find(&shortNV);
        if(longNV)
        {
           *longFieldName = longNV->getValue();
@@ -378,7 +325,15 @@ void SipMessage::setInviteData(const char* fromField,
         // If the header is allowed to be passed through
         if(isUrlHeaderAllowed(headerName.data()))
         {
-            addHeaderField(headerName.data(), headerValue.data());
+           if (isUrlHeaderUnique(headerName.data()))
+           {
+              // If the field exists, change it, if does not exist, create it.
+              setHeaderValue(headerName.data(), headerValue.data(), 0);
+           }
+           else
+           {
+              addHeaderField(headerName.data(), headerValue.data());
+           }
 #ifdef TEST_PRINT
             osPrintf("SipMessage::setInviteData: name=%s, value=%s\n",
                     headerName.data(), headerValue.data());
@@ -4318,14 +4273,19 @@ UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
     UtlString name(headerFieldName);
     name.toUpper();
     UtlString nameCollectable(name);
-    UtlBoolean isAllowed(FALSE);
+
+    return (NULL ==
+            spSipMessageFieldProps->mDisallowedUrlHeaders.find(&nameCollectable));
+}
+
+UtlBoolean SipMessage::isUrlHeaderUnique(const char* headerFieldName)
+{
+    UtlString name(headerFieldName);
+    name.toUpper();
+    UtlString nameCollectable(name);
     
-    if (mpDisallowedUrlHeaders &&
-        NULL == mpDisallowedUrlHeaders->find(&nameCollectable))
-    {
-        isAllowed = TRUE;
-    }
-    return isAllowed;
+    return (NULL !=
+            spSipMessageFieldProps->mUniqueUrlHeaders.find(&nameCollectable));
 }
 
 //SDUA
@@ -4604,3 +4564,75 @@ UtlBoolean SipMessage::getSipETagField(UtlString& sipETagField) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
+SipMessage::SipMessageFieldProps::SipMessageFieldProps()
+{
+   // Call the initializer functions.
+   initNames();
+   initDisallowedUrlHeaders();
+   initUniqueUrlHeaders();
+}
+
+void SipMessage::SipMessageFieldProps::initNames()
+{
+   // Load the table to translate long header names to short names.
+
+   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_TYPE_FIELD, SIP_SHORT_CONTENT_TYPE_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_ENCODING_FIELD, SIP_SHORT_CONTENT_ENCODING_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_FROM_FIELD, SIP_SHORT_FROM_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_CALLID_FIELD, SIP_SHORT_CALLID_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_CONTACT_FIELD, SIP_SHORT_CONTACT_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_LENGTH_FIELD, SIP_SHORT_CONTENT_LENGTH_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_REFERRED_BY_FIELD, SIP_SHORT_REFERRED_BY_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_REFER_TO_FIELD, SIP_SHORT_REFER_TO_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_SUBJECT_FIELD, SIP_SHORT_SUBJECT_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_SUPPORTED_FIELD, SIP_SHORT_SUPPORTED_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_TO_FIELD, SIP_SHORT_TO_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_VIA_FIELD, SIP_SHORT_VIA_FIELD));
+   mLongFieldNames.insert(new NameValuePair(SIP_EVENT_FIELD, SIP_SHORT_EVENT_FIELD));
+
+   // Reverse the pairs to load the table to translate short header names to
+   // long ones.
+
+   UtlHashBagIterator iterator(mLongFieldNames);
+   NameValuePair* nvPair;
+   while ((nvPair = (NameValuePair*) iterator()))
+   {
+      mShortFieldNames.insert(new NameValuePair(nvPair->getValue(),
+                                                 nvPair->data()));
+   }
+}
+
+void SipMessage::SipMessageFieldProps::initDisallowedUrlHeaders()
+{
+   // These headers may NOT be passed through in a URL to
+   // be set in a message
+
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTACT_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTACT_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_LENGTH_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_LENGTH_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_TYPE_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_TYPE_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_CSEQ_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_FROM_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_RECORD_ROUTE_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_REFER_TO_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_REFERRED_BY_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_ROUTE_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_TO_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_TO_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_USER_AGENT_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_VIA_FIELD));
+   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_VIA_FIELD));
+}
+
+void SipMessage::SipMessageFieldProps::initUniqueUrlHeaders()
+{
+   // These headers may occur only once in a message, so a URI header
+   // parameter overrides the existing header in the message.
+
+   mUniqueUrlHeaders.insert(new UtlString(SIP_EXPIRES_FIELD));
+}
