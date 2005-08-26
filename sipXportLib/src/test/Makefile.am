@@ -97,6 +97,7 @@ sandbox_SOURCES = \
 # Performance test of UtlList
 
 UtlListPerformance_SOURCES = \
+	utl/UtlPerformanceStrings.h \
 	utl/UtlListPerformance.cpp
 
 
@@ -110,6 +111,7 @@ UtlListPerformance_LDADD = \
 # Performance test of UtlHashMap
 
 UtlHashMapPerformance_SOURCES = \
+	utl/UtlPerformanceStrings.h \
 	utl/UtlHashMapPerformance.cpp
 
 

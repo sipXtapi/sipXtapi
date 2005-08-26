@@ -8,13 +8,15 @@ all: BUILDSTAMP
 ##  in the distribution tarball; it is not used in a subversion working copy
 ##  (see the BUILDSTAMP rule below).
 SVN-VERSION:
-	svnversion @top_srcdir@ > SVN-VERSION
+	svnversion @top_srcdir@ \
+	| perl -pe 'm /(\d+)/ && do { $$padded=sprintf( "%06d", $$1 ); s/\d+/$$padded/; }' \
+	> SVN-VERSION
 
 .PHONY: BUILDSTAMP
 BUILDSTAMP:
 	  if test -d @top_srcdir@/.svn \
 	  ;then \
-	    sipxSvnVersion=`svnversion @top_srcdir@` \
+	    sipxSvnVersion=`svnversion @top_srcdir@ | perl -pe 'm /(\d+)/ && do { $$padded=sprintf( "%06d", $$1 ); s/\d+/$$padded/; }'` \
 	  ;elif test -f @top_srcdir@/SVN-VERSION \
 	  ;then \
 	    sipxSvnVersion=`cat @top_srcdir@/SVN-VERSION` \
