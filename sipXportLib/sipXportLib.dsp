@@ -377,6 +377,10 @@ SOURCE=.\src\os\Wnt\OsUtilWnt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\utl\PluginHooks.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\xmlparser\tinystr.cpp
 # End Source File
 # Begin Source File
