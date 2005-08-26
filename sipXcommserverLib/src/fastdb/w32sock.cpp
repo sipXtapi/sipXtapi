@@ -20,7 +20,7 @@
 
 // Define this locally as opposed to creating
 // additional dependencies on OsSocket.h
-#define OS_INVALID_SOCKET_DESCRIPTOR -1
+#define OS_INVALID_SOCKET_DESCRIPTOR (-1)
 
 static HANDLE WatchDogMutex;
 
