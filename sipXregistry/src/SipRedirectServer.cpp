@@ -3,6 +3,9 @@
 // Copyright (C) 2004,2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004,2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -599,7 +602,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    }
    break;
 
-   case RedirectResumeMsg::REDIRECT_RESTART:
+   case REDIRECT_RESTART:
    {
       // A message saying that a redirector is now willing to resume
       // processing of a request.
@@ -709,7 +712,7 @@ SipRedirectServerPrivateStorageIterator(int redirectorNo) :
 {
 }
 
-SipRedirectorPrivateStorage*
+UtlContainable*
 SipRedirectServerPrivateStorageIterator::operator()()
 {
    SipRedirectorPrivateStorage* pStorage = NULL;

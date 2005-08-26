@@ -1,6 +1,8 @@
 # Microsoft Developer Studio Project File - Name="sipXregistry" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
+# Copyright (C) 2005 SIPez LLC.
+# Licensed to SIPfoundry under a Contributor Agreement.
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
@@ -74,7 +76,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcommserverLib.lib libpcre.a /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../sipXportLib/debug" /libpath:"../sipXtackLib/debug" /libpath:"../sipXcommserverLib/debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXtackLib.lib sipXcommserverLib.lib sipXportLib.lib libpcre.a /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../sipXportLib/debug" /libpath:"../sipXtackLib/debug" /libpath:"../sipXcommserverLib/debug"
 
 !ENDIF 
 
@@ -91,11 +93,43 @@ SOURCE=.\src\main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\SipHuntGroupFilter.cpp
+SOURCE=.\src\RedirectResumeMsg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RedirectSuspend.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\SipImpliedSubscriptions.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirector.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorAliasDB.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorHunt.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorMapping.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorPickUp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorRegDB.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorSubscribe.cpp
 # End Source File
 # Begin Source File
 
@@ -115,11 +149,47 @@ SOURCE=.\src\SipRegistrarServer.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\src\RedirectResumeMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RedirectSuspend.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\SipHuntGroupFilter.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\SipImpliedSubscriptions.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirector.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorAliasDB.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorHunt.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorMapping.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorPickUp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorRegDB.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorSubscribe.h
 # End Source File
 # Begin Source File
 

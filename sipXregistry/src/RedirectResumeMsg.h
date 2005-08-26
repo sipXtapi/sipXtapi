@@ -3,6 +3,9 @@
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -19,6 +22,10 @@
 #include "SipRedirector.h"
 
 // DEFINES
+   /** Message type code.
+    */
+#define REDIRECT_RESTART OsMsg::USER_START
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -31,10 +38,6 @@
 class RedirectResumeMsg : public OsMsg
 {
 public:
-   
-   /** Message type code.
-    */
-   static const int REDIRECT_RESTART = USER_START;
 
    /** Construct a message saying that redirector redirectorNo is willing to
     * reprocess request seqNo.
@@ -45,7 +48,7 @@ public:
    /**
     * Copy this message.
     */
-   virtual RedirectResumeMsg* createCopy(void) const;
+   virtual OsMsg* createCopy(void) const;
 
    /** Get the sequence number
     */

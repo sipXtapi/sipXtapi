@@ -3,6 +3,9 @@
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -192,7 +195,7 @@ class SipRedirectServerPrivateStorageIterator : protected UtlHashMapIterator
     * suspended redirection request which has a non-NULL pointer for this
     * redirector.
     */
-   virtual SipRedirectorPrivateStorage* operator()();
+   virtual UtlContainable* operator()();
 
 /* ============================ ACCESSORS ================================= */
 

@@ -3,6 +3,9 @@
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -53,6 +56,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const int SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent = -1;
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -68,9 +73,6 @@ SipRedirectorPickUp::SipRedirectorPickUp() :
 SipRedirectorPickUp::~SipRedirectorPickUp()
 {
 }
-
-// A zero timezone value, to be used when calling gettimeofday().
-struct timezone SipRedirectorPickUp::mTZ = { 0, 0 };
 
 // Initializer
 OsStatus
@@ -648,7 +650,7 @@ SipRedirectorPickUp::lookUpDialog(
       // was sent, so we can report how long it took to get the NOTIFYs.
       if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
       {
-         gettimeofday(&storage->mSubscribeSendTime, &SipRedirectorPickUp::mTZ);
+          OsDateTime::getCurTime(storage->mSubscribeSendTime);
       }
 
       // Set the timer to resume.
@@ -822,9 +824,10 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
    remote_tag = dialog->Attribute("remote-tag");
    incoming_string = dialog->Attribute("direction");
    // Beware that the direction attribute might be missing.
+   UtlString incomingString(incoming_string);
    incoming =
       incoming_string != NULL &&
-      strcasecmp(incoming_string, "recipient") == 0;
+      incomingString.compareTo("recipient", UtlString::ignoreCase) == 0;
 
    // Get values from children.
    for (TiXmlNode* child = dialog->FirstChild(); child;
@@ -1085,21 +1088,17 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                   {
                      // Calculate the response delay.
-                     struct timeval tv;
-                     gettimeofday(&tv, &SipRedirectorPickUp::mTZ);
-                     tv.tv_sec -= pStorage->mSubscribeSendTime.tv_sec;
-                     tv.tv_usec -= pStorage->mSubscribeSendTime.tv_usec;
-                     if (tv.tv_usec < 0)
-                     {
-                        tv.tv_sec--;
-                        tv.tv_usec += 1000000;
-                     }
+                     OsTime now;
+                     OsDateTime::getCurTime(now);
+                     OsTime delta;
+                     delta = now - (pStorage->mSubscribeSendTime);
+
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorPickUpTask::handleMessage "
                                    "NOTIFY for request %d, delay %d.%06d, "
                                    "body '%s'",
                                    itor.requestSeqNo(),
-                                   (int) tv.tv_sec, (int) tv.tv_usec,
+                                   (int) delta.seconds(), (int) delta.usecs(),
                                    body);
                   }
                   // Parse this NOTICE and store the needed

@@ -3,6 +3,9 @@
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -13,7 +16,7 @@
 #define SIPREDIRECTORPICKUP_H
 
 // SYSTEM INCLUDES
-#include <sys/time.h>
+//#include <sys/time.h>
 
 // APPLICATION INCLUDES
 #include "SipRedirector.h"
@@ -82,9 +85,6 @@ class SipRedirectorPickUp : public SipRedirector
       RequestSeqNo requestSeqNo,
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage);
-
-   // A zero timezone value.
-   static struct timezone mTZ;
 
    // Enum for values that describe the states of dialogs, and also
    // describe filtering criteria for states of dialogs.
@@ -241,10 +241,7 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
    OsTimer mTimer;
 
    // When the SUBSCRIBE was sent.
-   struct timeval mSubscribeSendTime;
-
-   int mSubscribeSendTimeSecs;
-   int mSubscribeSendTimeUsecs;
+   OsTime mSubscribeSendTime;
 
    // Process a NOTIFY body and record the calls as appropriate.
    void processNotify(const char* body);
@@ -265,7 +262,7 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
    // their calls picked up.
    int mTargetDialogDuration;
    // Note that the special value must be less than any legitimate duration.
-   static const int TargetDialogDurationAbsent = -1;
+   static const int TargetDialogDurationAbsent;
    // Local tag (from the point of view of the UA we are picking up from)
    UtlString mTargetDialogLocalTag;
    // Remote tag
