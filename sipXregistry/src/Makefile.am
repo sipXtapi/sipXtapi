@@ -28,7 +28,6 @@ sipregistrar_SOURCES =  \
     SipRedirectServer.cpp \
     SipRedirector.cpp \
     SipRegistrar.cpp \
-    SipRegisterHooks.h \
     SipRegistrarServer.cpp \
     RedirectResumeMsg.h \
     RedirectSuspend.h \

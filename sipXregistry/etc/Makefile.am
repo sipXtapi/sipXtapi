@@ -8,8 +8,13 @@ editetc_IN = \
     mappingrules.xml.in \
     fallbackrules.xml.in
 
+example_sipdb = \
+	huntgroup.xml \
+	alias.xml
+
 EXTRA_DIST=\
-  $(editetc_IN)
+  $(editetc_IN) \
+  $(example_sipdb)
 
 .PHONY: editetc
 editetc :
@@ -77,6 +82,21 @@ editsipdb :
 	  fi; \
 	done
 
-install-data-hook : editetc editsipdb
+.PHONY: example_sipdb
+example_sipdb: 
+	@for f in $(example_sipdb); \
+	do \
+		target=`basename $$f`; \
+		tgtdir=`dirname @SIPX_DBDIR@/$$target`; \
+		if [ ! -f $(DESTDIR)@SIPX_DBDIR@/$$target ]; \
+		then \
+			echo "    Installing empty example @SIPX_DBDIR@/$$target"; \
+			$(INSTALL) -D -m 644 $(srcdir)/$$target $(DESTDIR)@SIPX_DBDIR@/$$target; \
+		else \
+			echo "    Using existing @SIPX_DBDIR@/$$target"; \
+		fi; \
+	done
+
+install-data-hook : editetc editsipdb example_sipdb
 
 

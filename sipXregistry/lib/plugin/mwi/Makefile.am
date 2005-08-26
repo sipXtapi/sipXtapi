@@ -16,6 +16,7 @@ version_Revision=0
 version_Age=0
 
 libRegistrarImpliedMWI_la_LDFLAGS = \
+	-module \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@PCRE_LDFLAGS@ \
 	@SSL_LDFLAGS@

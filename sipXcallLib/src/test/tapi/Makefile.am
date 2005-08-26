@@ -11,17 +11,24 @@ testsuite_LDADD = \
     ../../libsipXcall.la
 
 testsuite_SOURCES = \
+  callbacks.h \
   callbacks.cpp \
+  EventRecorder.h \
   EventRecorder.cpp \
+  EventValidator.h \
   EventValidator.cpp \
+  sipXtapiTest.h \
   sipXtapiTest.cpp \
   sipXtapiTestCall.cpp \
   sipXtapiTestConference.cpp \
   sipXtapiTestConfig.cpp \
   sipXtapiTestLine.cpp \
   sipXtapiTestTransfer.cpp \
+  TestRegistrar.h \
   TestRegistrar.cpp \
+  TestRegistryCollection.h \
   TestRegistryCollection.cpp \
+  TestRegistryData.h \
   TestRegistryData.cpp \
   ../jnibutton.cpp
 

@@ -32,5 +32,13 @@
         </transform>
       </permissionMatch>
     </userMatch>
+    <userMatch>
+      <userPattern>9999</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
   </hostMatch>
 </mappings>

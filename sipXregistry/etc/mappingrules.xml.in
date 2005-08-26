@@ -64,7 +64,7 @@
       -  it conditional is accomplished by adding the ';q=0.1' at the end.
       -->
     <userMatch>
-      <userPattern>xxx</userPattern>
+      <userPattern>x.</userPattern>
       <permissionMatch>
         <permission>Voicemail</permission>
         <transform>

@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 use Getopt::Long;
+use Date::Parse;
+
 $Usage = <<HELP;
 
 regdisplay [ file ]...
@@ -9,7 +11,9 @@ regdisplay [ file ]...
 
 HELP
 
-GetOptions( 'help|h'         => \$Help )
+GetOptions( 'help|h' => \$Help,
+            'date=s' => \$Date,
+            )
     || exit -1;
 
 if ( $Help )
@@ -18,7 +22,14 @@ if ( $Help )
     exit $Help ? 0 : 1;
 }
 
-$now = time();
+if ( $Date )
+{
+    $BaseTime = str2time($Date);
+}
+else
+{
+    $BaseTime = time();
+}
 
 while(<>)
 {
@@ -48,7 +59,7 @@ sub asDate
 sub relativeTime
 {
     my $Epoch = shift;
-    my $difference = $Epoch-$now;
+    my $difference = $Epoch-$BaseTime;
 
     if ( $difference < 0 )
     {

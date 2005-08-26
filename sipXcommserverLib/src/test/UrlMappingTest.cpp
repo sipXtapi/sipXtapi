@@ -616,6 +616,21 @@ class UrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( registrations.getSize() == 0 );
          registrations.destroyAll();
 
+         urlmap->getContactList( Url("sip:9999@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact"
+                   , actual
+                   );
+         /* this is actually the wrong answer, because the rule is improper,
+            but this tests that there is no pointer fault, which there used to be */
+         ASSERT_STR_EQUAL("sip:thisdomain"
+                          , actual );
+
+         registrations.destroyAll();
+
          delete urlmap;
       }
 
