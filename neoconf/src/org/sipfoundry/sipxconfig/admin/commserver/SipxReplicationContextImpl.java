@@ -50,7 +50,7 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
 
     public void generate(DataSet dataSet) {
         Serializable jobId = m_jobContext.schedule("Replication: " + dataSet.getName());
-        boolean success = false;
+        boolean success = false;    
         try {
             m_jobContext.start(jobId);
             String beanName = dataSet.getBeanName();

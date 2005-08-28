@@ -28,10 +28,6 @@ public abstract class JobStatusPage extends BasePage {
 
     public abstract Job getCurrentRow();
 
-    /** No-op function does nothing. It is used as the listener function for the Refresh button. */
-    public void noop(IRequestCycle cycle_) {
-    }
-
     public void remove(IRequestCycle cycle_) {
         getJobContext().removeCompleted();
     }
