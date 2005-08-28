@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="yes" ?>
+<!--
+  - Example alias.xml file
+  -
+  - This shows aliases that map both
+  -   301@example.org and 303@example.org to John Doe
+  -   302@example.org is sent first to both Bill and
+  -      Betty Boop (in parallel), and then if those fail
+  -      to Jane Doe.
+  -->
+<items type="alias">
+    <item>
+        <uri>3000@example.org</uri>
+        <contact>&quot;John Doe&quot;&lt;sip:john.doe@example.org&gt;</contact>
+				<expires>2000</expires>
+    </item>
+    <item>
+        <uri>3001@example.org</uri>
+        <contact>&quot;Jane Doe&quot;&lt;sip:jane.doe@example.org&gt;</contact>
+				<expires>2001</expires>
+    </item>
+</items>

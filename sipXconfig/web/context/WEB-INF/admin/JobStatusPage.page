@@ -31,7 +31,7 @@
         <binding name="source" expression="jobContext.jobs"/>
         <static-binding name="pageSize" value="-1"/>
         <static-binding name="columns" 
-            value="* name:name,start:currentStart,stop:currentStop,status:status.name,error:errorMsg"/>
+            value="* name,start:currentStart,stop:currentStop,status:status.name,error:errorMsg"/>
     </component>
     <component id="tableColumns" type="contrib:TableColumns"/>    
     <component id="tableRows" type="contrib:TableRows">
@@ -58,7 +58,6 @@
         <message-binding name="label" key="button.clear"/>
     </component>
     <component id="refreshButton" type="Submit">
-        <binding name="listener" expression="listeners.noop"/>
         <message-binding name="label" key="button.refresh"/>
     </component>
 </page-specification>
