@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.digester.Digester;
+import org.apache.commons.digester.SetNestedPropertiesRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
@@ -77,7 +78,10 @@ public class RegistrationContextImpl implements RegistrationContext {
 
         digester.push(new ArrayList());
         digester.addObjectCreate(PATTERN, RegistrationItem.class);
-        digester.addSetNestedProperties(PATTERN);
+        SetNestedPropertiesRule rule = new SetNestedPropertiesRule();
+        // ignore all properties that we are not interested in
+        rule.setAllowUnknownChildElements(true);
+        digester.addRule(PATTERN, rule);
         digester.addSetNext(PATTERN, "add");
 
         return digester;
