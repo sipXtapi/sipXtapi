@@ -475,16 +475,6 @@ int main(int argc, char* argv[])
        OsTask::delay(2000);
     }
 
-    // Shut down the sipUserAgent
-    userAgent->shutdown(FALSE);
-
-    while(!userAgent->isShutdownDone())
-    {
-       ;
-    }
-
-    delete userAgent;
-
     // Flush the log file
     OsSysLog::flush();
 

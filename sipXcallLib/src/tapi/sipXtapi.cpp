@@ -647,7 +647,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall)
 }
 
 
-SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall)
+SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall,
+                                        const int errorCode,
+                                        const char* szErrorText)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallReject hCall=%d",
@@ -913,6 +915,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 UtlString address ;
                 OsStatus rc = pInst->pCallManager->getCalledAddresses(
                         callId.data(), 1, numAddresses, &address) ;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s",
+                              hCall, callId.data(), numAddresses, address.data());
                 assert(rc == OS_SUCCESS) ;
                 assert(numAddresses == 1) ;
 
@@ -1191,6 +1196,100 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionId(const SIPX_CALL hCall,
 
     return sr;
 }                                                 
+
+SIPXTAPI_API SIPX_RESULT sipxCallGetRequestURI(const SIPX_CALL hCall,
+                                               char* szUri,
+                                               const size_t iMaxLength)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallGetRequestURI hCall=%d",
+        hCall);
+
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    
+    assert(pData != 0) ;
+    assert(pData->pInst != 0) ;
+    
+    if (pData)        
+    {
+        if (pData->pInst && pData->pInst->pCallManager && pData->callId &&
+            pData->remoteAddress) 
+        {
+            CallManager* pCallManager = pData->pInst->pCallManager ;
+            UtlString callId(*pData->callId) ;
+            UtlString remoteAddress(*pData->remoteAddress) ;
+
+            sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+
+            SipDialog sipDialog;
+            pCallManager->getSipDialog(callId, remoteAddress, sipDialog);
+            
+            UtlString uri;
+            sipDialog.getRemoteRequestUri(uri);
+            if (iMaxLength)
+            {
+                strncpy(szUri, uri.data(), iMaxLength) ;
+                szUri[iMaxLength-1] = 0 ;
+                sr = SIPX_RESULT_SUCCESS;
+            }
+        }
+        else
+        {
+            sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        }    
+    }
+
+    return sr ;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteContact(const SIPX_CALL hCall,
+                                                  char* szContact,
+                                                  const size_t iMaxLength)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallGetRemoteContact hCall=%d",
+        hCall);
+
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    
+    assert(pData != 0) ;
+    assert(pData->pInst != 0) ;
+    
+    if (pData)        
+    {
+        if (pData->pInst && pData->pInst->pCallManager && pData->callId && 
+                pData->remoteAddress)
+        {
+            CallManager* pCallManager = pData->pInst->pCallManager ;
+            UtlString callId(*pData->callId) ;
+            UtlString remoteAddress(*pData->remoteAddress) ;
+
+            sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+
+            SipDialog sipDialog;
+            pCallManager->getSipDialog(callId, remoteAddress, sipDialog);
+            
+            Url contact;
+            sipDialog.getRemoteContact(contact);
+
+            if (iMaxLength)
+            {
+                strncpy(szContact, contact.toString().data(), iMaxLength) ;
+                szContact[iMaxLength-1] = 0 ;
+                sr = SIPX_RESULT_SUCCESS;
+            }
+        }
+        else
+        {
+            sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        }    
+    }
+
+
+    return sr ;
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
                                            const TONE_ID toneId,
@@ -4143,6 +4242,10 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                 // Now pick preferences out of all available codecs
                 pInst->pCodecFactory->getCodecs(numCodecs, codecsArray);
 
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                              "sipxConfigSetAudioCodecPreferences number of Codec = %d for hInst=%p",
+                              numCodecs, hInst);
+                              
                 for (int i=0; i<numCodecs; i++)
                 {
                     if (codecsArray[i]->getBWCost() <= bandWidth)
@@ -4471,19 +4574,11 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
     
     const HostAdapterAddress* utlAddresses[SIPX_MAX_IP_ADDRESSES];
     
-    #ifdef _WIN32
-        if (OS_SUCCESS == getAllLocalHostIps(utlAddresses, numAddresses))
-        {
-            rc = SIPX_RESULT_SUCCESS;
-        }
-    #else
-        // Temporarily create a single entry based upone
-        // the IP address returned from OsSocket::getHostIp()
-        UtlString localAddress;
-        OsSocket::getHostIp(&localAddress);
-        numAddresses = 1;
-        utlAddresses[0] = new HostAdapterAddress("eth0", (char*)localAddress.data());
-    #endif
+    if (OS_SUCCESS == getAllLocalHostIps(utlAddresses, numAddresses))
+    {
+        rc = SIPX_RESULT_SUCCESS;
+    }
+
     for (int i = 0; i < numAddresses; i++)
     {
         char *szAddress = NULL;

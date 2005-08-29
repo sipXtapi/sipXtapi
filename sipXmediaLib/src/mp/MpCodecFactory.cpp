@@ -160,15 +160,16 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
 
 #endif /* HAVE_GIPS ] */
 
-   case (SdpCodec::SDP_CODEC_PCMA):
+   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
       rpDecoder = new MpdSipxPcma(payloadType);
       break;
 
-   case (SdpCodec::SDP_CODEC_PCMU):
+   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
       rpDecoder = new MpdSipxPcmu(payloadType);
       break;
+
    default:
-      OsSysLog::add(FAC_MP, PRI_ERR, 
+      OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createDecoder unknown codec type "
                     "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
                     "payloadType = %d",
@@ -240,19 +241,18 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       ((MpeGIPSG729ab*) rpEncoder)->setVad(TRUE);
       break;
 #endif /* PLATFORM_SUPPORTS_G729 ] */
-#else /* HAVE_GIPS ] [ */
-   case (SdpCodec::SDP_CODEC_PCMA):
+#endif /* HAVE_GIPS ] */
+
+   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
       rpEncoder = new MpeSipxPcma(payloadType);
       break;
 
-   case (SdpCodec::SDP_CODEC_PCMU):
+   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
       rpEncoder = new MpeSipxPcmu(payloadType);
       break;
 
-#endif /* HAVE_GIPS ] */
-
    default:
-      OsSysLog::add(FAC_MP, PRI_ERR, 
+      OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createEncoder unknown codec type "
                     "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
                     "payloadType = %d",

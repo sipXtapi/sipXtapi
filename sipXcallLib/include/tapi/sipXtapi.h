@@ -492,8 +492,12 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall);
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
  *        a listener interface.
+ * @param errorCode RFC specified error code.
+ * @param szErrorText null terminated text string to explain the error code.
  */
-SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall) ;
+SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall,
+                                        const int errorCode = 400,
+                                        const char* szErrorText = "Bad Request") ;
 
 
 /**
@@ -646,6 +650,36 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteID(const SIPX_CALL hCall,
 SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionId(const SIPX_CALL hCall,
                                                  int& connectionId);
                                                  
+
+/**
+ * Get the SIP request uri.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ * @param szUri Buffer to store the request uri.  A zero-terminated string will be 
+ *        copied into this buffer on success.
+ * @param iMaxLength Max length of the request uri buffer.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallGetRequestURI(const SIPX_CALL hCall, 
+                                               char* szUri, 
+                                               const size_t iMaxLength) ;
+
+
+                                                           
+/**
+ * Get the SIP remote contact.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ * @param szContact Buffer to store the remote contact.  A zero-terminated string will be 
+ *        copied into this buffer on success.
+ * @param iMaxLength Max length of the remote contact buffer.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteContact(const SIPX_CALL hCall, 
+                                                  char* szContact, 
+                                                  const size_t iMaxLength) ;
 
                                                            
 /**

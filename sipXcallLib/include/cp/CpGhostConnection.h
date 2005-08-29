@@ -102,7 +102,11 @@ public:
    //: get Connection address
    //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
 
-        virtual UtlBoolean getSession(SipSession& session);
+   virtual UtlBoolean getRemoteAddress(UtlString* remoteAddress, UtlBoolean leaveFieldParametersIn) const;
+   //: get Connection address
+   //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
+   
+           virtual UtlBoolean getSession(SipSession& session);
 
     /**
      * Enumerate possible contact addresses

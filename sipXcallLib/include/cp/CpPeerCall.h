@@ -345,6 +345,8 @@ private:
     CpPeerCall& operator=(const CpPeerCall& rhs);
     //:Assignment operator
 
+   UtlBoolean checkForTag(UtlString &address);
+
 };
 
 /* ============================ INLINE METHODS ============================ */

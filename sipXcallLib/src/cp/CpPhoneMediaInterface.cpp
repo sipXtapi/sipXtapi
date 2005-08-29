@@ -162,7 +162,23 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 
    if(sdpCodecArray && numCodecs > 0)
    {
-       mSupportedCodecs.addCodecs(numCodecs, sdpCodecArray);
+       UtlString codecList;
+       UtlString codecName;
+       for (int i = 0; i < numCodecs; i++)
+       {
+           if (pFactoryImpl->getCodecNameByType(sdpCodecArray[i]->getCodecType(), codecName) == OS_SUCCESS)
+           {
+                 codecList = codecList + " " + codecName;
+           }
+       }
+       
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
+                     "CpPhoneMediaInterface: preference list = %s", codecList.data());
+                     
+       // Created the supported codecs from the preference list
+       int iRejected;
+       
+       pFactoryImpl->buildCodecFactory(&mSupportedCodecs, codecList, &iRejected);              
 
        // Assign any unset payload types
        mSupportedCodecs.bindPayloadTypes();
@@ -170,11 +186,13 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
    else
    {
        // Temp hard code codecs
-       SdpCodec mapCodecs1(SdpCodec::SDP_CODEC_PCMU, SdpCodec::SDP_CODEC_PCMU);
+       SdpCodec mapCodecs1(SdpCodec::SDP_CODEC_GIPS_PCMU, SdpCodec::SDP_CODEC_GIPS_PCMU);
        mSupportedCodecs.addCodec(mapCodecs1);
-       SdpCodec mapCodecs2(SdpCodec::SDP_CODEC_PCMA, SdpCodec::SDP_CODEC_PCMA);
+       SdpCodec mapCodecs2(SdpCodec::SDP_CODEC_GIPS_PCMA, SdpCodec::SDP_CODEC_GIPS_PCMA);
        mSupportedCodecs.addCodec(mapCodecs2);
-       //mapCodecs[2] = new SdpCodec(SdpCodec::SDP_CODEC_L16_MONO);
+       OsSysLog::add(FAC_CP, PRI_ERR, 
+                     "CpPhoneMediaInterface: Hardcoded SDP_CODEC_GIPS_PCMU and SDP_CODEC_GIPS_PCMA for now");
+       assert(false);
    }
 
    mExpeditedIpTos = expeditedIpTos;

@@ -18,8 +18,14 @@
 #include "rtcp/RtcpConfig.h"
 
 // DEFINES
+#define GIPS_CODEC_ID_IPCMWB    "IPCMWB"
+#define GIPS_CODEC_ID_ISAC      "ISAC"
+#define GIPS_CODEC_ID_EG711U    "EG711U"
+#define GIPS_CODEC_ID_EG711A    "EG711A"
 #define GIPS_CODEC_ID_PCMA      "PCMA"
 #define GIPS_CODEC_ID_PCMU      "PCMU"
+#define GIPS_CODEC_ID_ILBC      "iLBC"
+#define GIPS_CODEC_ID_G729      "G729"
 #define GIPS_CODEC_ID_TELEPHONE "audio/telephone-event"
 
 // MACROS

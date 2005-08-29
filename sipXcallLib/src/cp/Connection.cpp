@@ -774,7 +774,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 		callId += TAOMESSAGE_DELIMITER + mLocalAddress;		// arg[1], localAddress
 
 		UtlString remoteAddress;
-		getRemoteAddress(&remoteAddress);
+		getRemoteAddress(&remoteAddress, TRUE);
 
 		if (remoteAddress.isNull())							// arg[2], remote address
 			callId += TAOMESSAGE_DELIMITER + (UtlString)"UNKNOWN";	// not available yet

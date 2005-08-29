@@ -209,22 +209,83 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
 {
     OsStatus rc = OS_FAILED;
 
-    SdpCodec::SdpCodecTypes codecs[3];
+    int numCodecs = 0;
+    UtlString codecName;
+    UtlString codecList;
+
+    *iRejected = 0;
 
 #ifdef HAVE_GIPS /* [ */
-    codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU ;
-    codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA ;
+    numCodecs = 6;
+    SdpCodec::SdpCodecTypes codecs[6];
+            
+    codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
+    codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
+    codecs[2] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
+    codecs[3] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
+    codecs[4] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
+    codecs[5] = SdpCodec::SDP_CODEC_TONES;
+            
 #else /* HAVE_GIPS ] [ */
-    codecs[0] = SdpCodec::SDP_CODEC_PCMU ;
-    codecs[1] = SdpCodec::SDP_CODEC_PCMA ;
+    numCodecs = 3;
+    SdpCodec::SdpCodecTypes codecs[3];
+            
+    codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
+    codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
+    codecs[2] = SdpCodec::SDP_CODEC_TONES;
 #endif /* HAVE_GIPS ] */
-    codecs[2] = SdpCodec::SDP_CODEC_TONES ;
+
     if (pFactory)
     {
         pFactory->clearCodecs();
-        *iRejected = pFactory->buildSdpCodecFactory(3, codecs);
-        rc = OS_SUCCESS;
-    }
+
+        // add preferred codecs first
+        if (sPreferences.length() > 0)
+        {
+            UtlString references = sPreferences;
+            *iRejected = pFactory->buildSdpCodecFactory(references);
+            OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                          "sipXmediaFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
+                           references.data(), *iRejected);
+                           
+            // Now pick preferences out of all available codecs
+            SdpCodec** codecsArray = NULL;
+            pFactory->getCodecs(numCodecs, codecsArray);
+            
+            UtlString preferences;
+            for (int i = 0; i < numCodecs; i++)
+            {
+                if (getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
+                {
+                    preferences = preferences + " " + codecName;
+                }
+            }
+            
+            pFactory->clearCodecs();
+            *iRejected = pFactory->buildSdpCodecFactory(preferences);
+            OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                          "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
+                          preferences.data(), *iRejected);
+                          
+            // Free up the codecs and the array
+            for (int i = 0; i < numCodecs; i++)
+            {
+                delete codecsArray[i];
+                codecsArray[i] = NULL;
+            }
+            delete[] codecsArray;
+            codecsArray = NULL;
+                          
+            rc = OS_SUCCESS;
+        }
+        else
+        {
+            // Build up the supported codecs
+            *iRejected = pFactory->buildSdpCodecFactory(numCodecs, codecs);
+            rc = OS_SUCCESS;
+        }
+    }            
+
     return rc;
 }
 
@@ -306,9 +367,9 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
     case 1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMA;
         break;
 #else /* HAVE_GIPS ] [ */
-    case 0: codec = (const char*) SdpCodec::SDP_CODEC_PCMU;
+    case 0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMU;
         break;
-    case 1: codec = (const char*) SdpCodec::SDP_CODEC_PCMA;
+    case 1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMA;
         break;
 #endif /* HAVE_GIPS ] */
     case 2: codec = (const char*) SdpCodec::SDP_CODEC_TONES;
@@ -319,35 +380,49 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
     return rc;
 }
 
-OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, UtlString& codec) const
+OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, UtlString& codecName) const
 {
     OsStatus rc = OS_FAILED;
 
-    codec = "";
+    codecName = "";
 
     switch (type)
     {
     case SdpCodec::SDP_CODEC_TONES:
-        codec = GIPS_CODEC_ID_TELEPHONE;
+        codecName = GIPS_CODEC_ID_TELEPHONE;
         break;
-#ifdef HAVE_GIPS /* [ */
+    case SdpCodec::SDP_CODEC_G729A:
+        codecName = GIPS_CODEC_ID_G729;
+        break;
     case SdpCodec::SDP_CODEC_GIPS_PCMA:
-        codec = GIPS_CODEC_ID_PCMA;
+        codecName = GIPS_CODEC_ID_PCMA;
         break;
     case SdpCodec::SDP_CODEC_GIPS_PCMU:
-        codec = GIPS_CODEC_ID_PCMU;
+        codecName = GIPS_CODEC_ID_PCMU;
         break;
-#else /* HAVE_GIPS ] [ */
-    case SdpCodec::SDP_CODEC_PCMA:
-        codec = GIPS_CODEC_ID_PCMA;
+    case SdpCodec::SDP_CODEC_GIPS_IPCMA:
+        codecName = GIPS_CODEC_ID_EG711A;
         break;
-    case SdpCodec::SDP_CODEC_PCMU:
-        codec = GIPS_CODEC_ID_PCMU;
+    case SdpCodec::SDP_CODEC_GIPS_IPCMU:
+        codecName = GIPS_CODEC_ID_EG711U;
         break;
-#endif /* HAVE_GIPS ] */
+    case SdpCodec::SDP_CODEC_GIPS_IPCMWB:
+        codecName = GIPS_CODEC_ID_IPCMWB;
+        break;
+    case SdpCodec::SDP_CODEC_GIPS_ILBC:
+        codecName = GIPS_CODEC_ID_ILBC;
+        break;
+    case SdpCodec::SDP_CODEC_GIPS_ISAC:
+        codecName = GIPS_CODEC_ID_ISAC;
+        break;
+    default:
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+                      "sipXmediaFactoryImpl::getCodecNameByType unsupported type %d.",
+                      type);
+    
     }
 
-    if (codec != "")
+    if (codecName != "")
     {
         rc = OS_SUCCESS;
     }

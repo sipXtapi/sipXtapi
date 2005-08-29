@@ -207,7 +207,6 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
        strcmp(compareString,"AVT") == 0)
         retType = SdpCodec::SDP_CODEC_TONES;
     else
-#ifdef HAVE_GIPS /* [ */
     if (strcmp(compareString,"PCMU") == 0 ||
        strcmp(compareString,"G711U") == 0 || 
        strcmp(compareString,"0") == 0 ||
@@ -244,16 +243,9 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
     else
     if (strcmp(compareString,"ILBC") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_ILBC;
-   else
+    else
     if (strcmp(compareString,"ISAC") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_ISAC;
-#else /* HAVE_GIPS ] [ */
-    if (strcmp(compareString,"PCMU") == 0)
-        retType = SdpCodec::SDP_CODEC_PCMU;
-    else
-    if (strcmp(compareString,"PCMA") == 0)
-        retType = SdpCodec::SDP_CODEC_PCMA;
-#endif /* HAVE_GIPS ] */
     else
        retType = SdpCodec::SDP_CODEC_UNKNOWN;
 
@@ -445,7 +437,6 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
          break;
 #endif /* PLATFORM_SUPPORTS_G729 ] */
 
-#ifdef HAVE_GIPS /* [ */
       case SdpCodec::SDP_CODEC_GIPS_PCMA:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_GIPS_PCMA,
@@ -581,8 +572,6 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
          }
          break;
 
-#else /* HAVE_GIPS ] [ */
-
       case SdpCodec::SDP_CODEC_PCMA:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_PCMA,
@@ -618,8 +607,6 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
             aCodec.getEncodingName(codecEncodingName);
          }
          break;
-
-#endif /* HAVE_GIPS ] */
 
 //////////////////////////////////////////////////////////////////////////
 

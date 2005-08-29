@@ -1498,8 +1498,12 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((int&)sessionPtr);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%x",
-        sessionPtr);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%x for callId %s address %s",
+                  sessionPtr, callId.data(), address.data());
+
+    // Check whether the tag is set in addresses or not. If so, do not need to use callId
+    // for comparison.
+    UtlBoolean hasTag = checkForTag(address);
 
     // Get the remote connection(s)/address(es)
     Connection* connection = NULL;
@@ -1514,35 +1518,19 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         connection->getLocalAddress(&localAddress);
         connection->getRemoteAddress(&remoteAddress);
 
-#if 0
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession "
-                      "connection->getCallId() = '%s', "
-                      "connection->getLocalAddress() = '%s', "
-                      "connection->getRemoteAddress() = '%s'",
-                      connCallId.data(), localAddress.data(),
-                      remoteAddress.data());
-#endif
-        if ((callId.compareTo(connCallId) == 0) && 
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession looking for the SipSession for %s, %s, %s",
+                      connCallId.data(), localAddress.data(), remoteAddress.data());
+
+        if ((hasTag && (address.compareTo(localAddress) == 0)) ||
+            (hasTag && (address.compareTo(remoteAddress) == 0)) ||
+            (callId.compareTo(connCallId) == 0) &&
             (address.compareTo(localAddress) == 0 || address.compareTo(remoteAddress) == 0))
         {
             SipSession session;
             connection->getSession(session);
             OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: 0x%x",
-                sessionPtr);
+                          sessionPtr);
 
-#if 0
-            {
-               Url localUrl, remoteUrl;
-               session.getFromUrl(localUrl);
-               session.getToUrl(remoteUrl);
-               UtlString localUrlStr, remoteUrlStr;
-               localUrl.toString(localUrlStr);
-               remoteUrl.toString(remoteUrlStr);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "CpPeerCall::handleGetSession mLocalUrl = '%s', mRemoteUrl = '%s'",
-                             localUrlStr.data(), remoteUrlStr.data());
-            }
-#endif
             *sessionPtr = SipSession(session);
             // Signal the caller that we are done.
             break;
@@ -3467,6 +3455,26 @@ Connection* CpPeerCall::findQueuedConnection()
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+UtlBoolean CpPeerCall::checkForTag(UtlString &address)
+{
+   if (address.compareTo("sip:") == 0)
+   {
+      return FALSE;
+   }
+
+   UtlString tag;
+   Url url(address);
+   url.getFieldParameter("tag", tag);
+
+   if (tag.isNull())
+   {
+      return FALSE;
+   }
+   else
+   {
+      return TRUE;
+   }
+}
 
 /* ============================ FUNCTIONS ================================= */
 

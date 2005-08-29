@@ -181,6 +181,12 @@ UtlBoolean CpGhostConnection::getRemoteAddress(UtlString* remoteAddress) const
     return(!mRemoteAddress.isNull());
 }
 
+UtlBoolean CpGhostConnection::getRemoteAddress(UtlString* remoteAddress, UtlBoolean leaveFieldParametersIn) const
+{
+    unimplemented("CpGhostConnection::getRemoteAddress");
+    return(FALSE);
+}
+
 UtlBoolean CpGhostConnection::getSession(SipSession& session)
 {
     unimplemented("CpGhostConnection::getSession");

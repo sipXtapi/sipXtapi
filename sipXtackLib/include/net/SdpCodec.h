@@ -116,7 +116,6 @@ public:
 
          // Range for 3rd party add in codec types
         SDP_CODEC_3RD_PARTY_START = 256,
-#ifdef HAVE_GIPS /* [ */
         SDP_CODEC_GIPS_PCMA  = 257,
         SDP_CODEC_GIPS_PCMU  = 258,
         SDP_CODEC_GIPS_IPCMA = 259,
@@ -124,7 +123,6 @@ public:
         SDP_CODEC_GIPS_IPCMWB = 261,
         SDP_CODEC_GIPS_ILBC = 262,
         SDP_CODEC_GIPS_ISAC = 263,
-#endif /* HAVE_GIPS ] */
         SDP_CODEC_3RD_PARTY_END = 511
     };
 
