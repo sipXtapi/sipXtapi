@@ -18,8 +18,10 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.SetNestedPropertiesRule;
 import org.apache.commons.logging.Log;
@@ -62,6 +64,26 @@ public class RegistrationContextImpl implements RegistrationContext {
     List getRegistrations(InputStream is) throws IOException, SAXException {
         Digester digester = configureDigester();
         return (List) digester.parse(is);
+    }
+
+    /**
+     * Remove multiple registrations for a single contact
+     * 
+     * @param registrations
+     * @return registration list without duplicated
+     */
+    List cleanRegistrations(List registrations) {
+        LinkedMap contact2registration = new LinkedMap(registrations.size());
+        for (Iterator iter = registrations.iterator(); iter.hasNext();) {
+            RegistrationItem ri = (RegistrationItem) iter.next();
+            String contact = ri.getContact();
+            RegistrationItem riOld = (RegistrationItem) contact2registration.get(contact);
+            // replace older registrations
+            if (riOld == null || ri.compareTo(riOld) > 0) {
+                contact2registration.put(contact, ri);
+            }
+        }
+        return new ArrayList(contact2registration.values());
     }
 
     String getUrl() {
