@@ -54,6 +54,7 @@ doc :
 endif
 
 # Use += to add files to DISTCLEANFILES.
+DISTCLEANFILES =
 DISTCLEANFILES += \
 	sipXcallLib/config/config.sub \
 	sipXcallLib/config/depcomp \
