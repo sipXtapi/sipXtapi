@@ -5,16 +5,10 @@ include $(srcdir)/config/sipXprojtop.mak
 edit = $(LocalizeSipXconfig) \
     -e 's,@OPENSSL\@,@OPENSSL@,g' \
     -e 's,@CLOVER_JAR\@,@CLOVER_JAR@,g' \
-    -e 's,@JBOSS_HOME\@,@JBOSS_HOME@,g' \
-    -e 's,@JBOSS_SERVER_CONF\@,@JBOSS_SERVER_CONF@,g' \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
 
 
-if SIPAGENT
-SIPAGENT_OPT = sipagent-jni
-endif
-
-SUBDIRS = . bin neoconf $(SIPAGENT_OPT) web $(doc_SUBDIRS)
+SUBDIRS = . bin neoconf web $(doc_SUBDIRS)
 RELEASE = 2
 
 EXTRA_DIST = \
