@@ -9,3 +9,5 @@ optional_SUBDIRS =
 endif
 
 SUBDIRS = musicServer ${optional_SUBDIRS}
+
+DISTCLEANFILES = Makefile.in

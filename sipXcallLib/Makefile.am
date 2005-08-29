@@ -49,4 +49,10 @@ sipxcalllib.spec : sipxcalllib.spec.in
 dist-hook : sipxcalllib.spec
 	cp sipxcalllib.spec $(distdir)
 
-DISTCLEANFILES = BUILDSTAMP Makefile.in aclocal.m4 autom4te.cache/* config.h.in
+DISTCLEANFILES += \
+	BUILDSTAMP \
+	Makefile.in \
+	aclocal.m4 \
+	autom4te.cache/* \
+	config.h.in \
+	configure
