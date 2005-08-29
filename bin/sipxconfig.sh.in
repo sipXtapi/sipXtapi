@@ -51,11 +51,21 @@ fi
 
 if [ ${Action} = CONFIGTEST ]
 then
+    Status=0
+
     # comment out until (benign?) xml errors are resolved
     #@bin.dir@/sipx-validate-xml @sipxpbx.conf.dir@/topology.xml
     #$Status=$(($Status+$?))
 
-    exit 0
+    # Check that the log file is writable.
+    logfile="@SIPX_LOGDIR@/sipxconfig.log"
+    if [ -e $logfile -a ! -w $logfile ]
+    then
+	echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	Status=1
+    fi
+
+    exit $Status
 fi
 
 echo $$ > @sipxpbx.run.dir@/sipxconfig.pid
