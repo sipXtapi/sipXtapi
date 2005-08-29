@@ -53,13 +53,13 @@ doc :
 
 endif
 
-# Use += to add files to DISTCLEANFILES.
+# Use += to add files to DISTCLEANFILES in ../Makefile.am.
 DISTCLEANFILES =
 DISTCLEANFILES += \
-	sipXcallLib/config/config.sub \
-	sipXcallLib/config/depcomp \
-	sipXcallLib/config/install-sh \
-	sipXcallLib/config/ltmain.sh \
-	sipXcallLib/config/missing \
-	sipXcallLib/config/sipxcalllib-buildstamp.cpp \
-	sipXcallLib/config/sipxcalllib-buildstamp.h
+	config/config.sub \
+	config/depcomp \
+	config/install-sh \
+	config/ltmain.sh \
+	config/missing \
+	config/sipxcalllib-buildstamp.cpp \
+	config/sipxcalllib-buildstamp.h
