@@ -42,13 +42,38 @@ public class CoreContextImplTestDb extends TestCase {
         assertNull(m_core.loadUserByUserName("wont find this guy"));
     }
 
-    public void testLoadByExtension() throws Exception {
+    public void testLoadByAlias() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 
-        User user = m_core.loadUserByExtension("5");
+        User user = m_core.loadUserByAlias("2");
+        assertNotNull(user);
+        assertEquals("userseed2", user.getUserName());
+        user = m_core.loadUserByAlias("two");
+        assertNotNull(user);
+        assertEquals("userseed2", user.getUserName());
+        user = m_core.loadUserByAlias("5");
         assertNotNull(user);
         assertEquals("userseed5", user.getUserName());
-        assertNull(m_core.loadUserByExtension("666"));
+        assertNull(m_core.loadUserByAlias("666"));
+        assertNull(m_core.loadUserByAlias("userseed2"));
+    }
+
+    public void testLoadUserByUserNameOrAlias() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        User user = m_core.loadUserByUserNameOrAlias("2");
+        assertNotNull(user);
+        assertEquals("userseed2", user.getUserName());
+        user = m_core.loadUserByUserNameOrAlias("two");
+        assertNotNull(user);
+        assertEquals("userseed2", user.getUserName());
+        user = m_core.loadUserByUserNameOrAlias("5");
+        assertNotNull(user);
+        assertEquals("userseed5", user.getUserName());
+        assertNull(m_core.loadUserByUserNameOrAlias("666"));
+        user = m_core.loadUserByUserNameOrAlias("userseed2");
+        assertNotNull(user);
+        assertEquals("userseed2", user.getUserName());
     }
 
     public void testSearchByUserName() throws Exception {

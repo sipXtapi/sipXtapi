@@ -36,7 +36,7 @@ public class LoginContextImplTest extends TestCase {
 
         MockControl control = MockControl.createNiceControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) control.getMock();
-        coreContext.loadUserByUserName("superadmin");
+        coreContext.loadUserByUserNameOrAlias("superadmin");
         control.setReturnValue(m_user, 3);
 
         coreContext.getAuthorizationRealm();

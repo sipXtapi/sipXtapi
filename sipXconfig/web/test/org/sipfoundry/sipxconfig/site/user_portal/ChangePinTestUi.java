@@ -37,13 +37,13 @@ public class ChangePinTestUi extends WebTestCase {
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.seedUser(getTester());
         SiteTestHelper.home(getTester());
         tester.clickLink("resetCoreContext");
+        SiteTestHelper.seedUser(getTester());
+        tester.clickLink("loginFirstTestUser");
         SiteTestHelper.home(getTester());
         clickLink("ChangePin");
     }
-
     
     public void testDisplayChangePin() throws Exception {
         assertTextNotPresent("An exception has occurred.");

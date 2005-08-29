@@ -22,22 +22,19 @@ public class LoginContextImpl implements LoginContext {
     /**
      * Returns user if credentials check out.
      * Return null if the user does not exist or the password is wrong.
-     * The userId may be either the userName or the user's extension.
+     * The userId may be either the userName or an alias.
      */
-    public User checkCredentials(String userId, String password) {
-        User user = m_coreContext.loadUserByUserName(userId);
+    public User checkCredentials(String userNameOrAlias, String password) {
+        User user = m_coreContext.loadUserByUserNameOrAlias(userNameOrAlias);
         if (user == null) {
-            // The userId might be the user's extension rather than userName, see if that works.
-            user = m_coreContext.loadUserByExtension(userId);
-            if (user == null) {
-                return null;
-            }
+            return null;
         }
-
+        
+        String userName = user.getUserName();
         String pintoken = user.getPintoken();
 
-        String encodedPassword = Md5Encoder.digestPassword(userId, m_coreContext
-                .getAuthorizationRealm(), password);
+        String encodedPassword = Md5Encoder.digestPassword(
+                userName, m_coreContext.getAuthorizationRealm(), password);
         
         // Real match
         if (encodedPassword.equals(pintoken)) {

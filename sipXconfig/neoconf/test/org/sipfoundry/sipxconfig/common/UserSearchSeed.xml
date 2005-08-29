@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
-	<users user_name="userseed1" pintoken="x" user_id="1001" extension="1"/>
-	<users user_name="userseed2" pintoken="x" user_id="1002" extension="2"/>
-	<users user_name="userseed3" pintoken="x" user_id="1003" extension="3"/>
-	<users user_name="userseed4" pintoken="x" user_id="1004" extension="4"/>
-	<users user_name="userseed5" pintoken="x" user_id="1005" extension="5"/>
-	<users user_name="userseed6" pintoken="x" user_id="1006" extension="6"/>
-	<users user_name="usersee-nofind" pintoken="x" user_id="1007" extension="7"/>
-	<users user_name="nofind-userseed" pintoken="x" user_id="1008" extension="8"/>
-	<users user_name="u s e r s e e d" pintoken="x" user_id="1009" extension="9"/>
+	<users user_name="userseed1" pintoken="x" user_id="1001"/>
+	<users user_name="userseed2" pintoken="x" user_id="1002"/>
+	<users user_name="userseed3" pintoken="x" user_id="1003"/>
+	<users user_name="userseed4" pintoken="x" user_id="1004"/>
+	<users user_name="userseed5" pintoken="x" user_id="1005"/>
+	<users user_name="userseed6" pintoken="x" user_id="1006"/>
+	<users user_name="usersee-nofind" pintoken="x" user_id="1007"/>
+	<users user_name="nofind-userseed" pintoken="x" user_id="1008"/>
+	<users user_name="u s e r s e e d" pintoken="x" user_id="1009"/>
+	
+	<user_alias user_id="1001" alias="1"/>
+	<user_alias user_id="1002" alias="2"/>
+	<user_alias user_id="1002" alias="two"/>
+	<user_alias user_id="1003" alias="3"/>
+	<user_alias user_id="1004" alias="4"/>
+	<user_alias user_id="1005" alias="5"/>
+	<user_alias user_id="1006" alias="6"/>
+	<user_alias user_id="1007" alias="7"/>
+	<user_alias user_id="1008" alias="8"/>
+	<user_alias user_id="1009" alias="9"/>
 </dataset>

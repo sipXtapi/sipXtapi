@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.easymock.MockControl;
@@ -43,7 +44,10 @@ public class ExtensionsTest extends XMLTestCase {
             user.setFirstName(userData[0]);
             user.setLastName(userData[1]);
             user.setUserName(userData[2]);
-            user.setExtension(userData[3]);
+            String extension = userData[3];
+            if (!StringUtils.isBlank(extension)) {
+                user.getAliases().add(extension);                
+            }
             users.add(user);
         }
         m_users = Collections.unmodifiableList(users);

@@ -73,7 +73,7 @@
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups,admin-group-and-user,user_name,phoneBeanId,meetme,gatewayBeanId"/>
+    depends="initialization_task,user_groups,admin-group-and-user,user_name,user_name_constraints,user_aliases,phoneBeanId,meetme,gatewayBeanId"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -124,6 +124,16 @@
     </sipx-sql>
   	<mark-patch-applied patch="user_name"/>
   </target>
+  <target name="user_name_constraints" unless="user_name_constraints">
+    <sipx-sql>
+		alter table users add constraint uqc_user_name unique (user_name);
+		alter table users alter column user_name set not null;
+    </sipx-sql>
+  	<mark-patch-applied patch="user_name_constraints"/>
+  </target>
+  <target name="user_aliases" unless="user_aliases">
+    <db-patch patch="user_aliases"/>
+  </target>  
   <target name="meetme" unless="meetme">
     <db-patch patch="meetme"/>
   </target>  

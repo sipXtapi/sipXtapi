@@ -41,7 +41,7 @@
 	  -->
 	<component id="userTable" type="contrib:TableView">
 		<binding name="source" expression="users"/>
-		<static-binding name="columns" value="* Username:userName,First name:firstName,Last name:lastName,Extension:extension"/>
+		<static-binding name="columns" value="* firstName:firstName,lastName:lastName,userName:userName,aliases:aliasesString"/>
         <static-binding name="pageSize" value="20"/>
 	</component>
 	<component id="userColumns" type="contrib:TableColumns">
@@ -51,7 +51,7 @@
         <binding name="convertor" expression="idConverter"/>
 		<binding name="class" expression="beans.rowClass.next"/>
 	</component>
-    <component id="UsernameColumnValue" type="Block"/>
+    <component id="userNameColumnValue" type="Block"/>
     <component id="userNameAsLinkConditional" type="Conditional">
         <binding name="condition" expression="userListener != null"/>
     </component>

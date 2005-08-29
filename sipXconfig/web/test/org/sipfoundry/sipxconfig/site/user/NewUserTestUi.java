@@ -29,17 +29,26 @@ public class NewUserTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         tester.clickLink("resetCoreContext");
+        clickLink("seedTestUser");
     }
     
     public void testListUsers() throws Exception {
+        // Pick a username that is likely to be unique so we can run the test
+        //  repeatedly without resetting the DB
+        final String NEW_USER_USERNAME = TestPage.TEST_USER_USERNAME + Long.toString(System.currentTimeMillis());
+        final String NEW_USER_FNAME = "NewUserFname";
+        final String NEW_USER_LNAME = "NewUserLname";
+        final String NEW_USER_PWORD = "1234";
+        final String NEW_USER_ALIASES = "lazyboy, 993";
+        
         SiteTestHelper.home(tester);
         clickLink("NewUser"); 
-        setFormElement("userId", "new-user-test");
-        setFormElement("firstName", "NewUserFname");
-        setFormElement("lastName", "NewUserLname");
-        setFormElement("extension", "993");
-        setFormElement("password", "1234");
-        setFormElement("confirmPassword", "1234");
+        setFormElement("userId", NEW_USER_USERNAME);
+        setFormElement("firstName", NEW_USER_FNAME);
+        setFormElement("lastName", NEW_USER_LNAME);
+        setFormElement("password", NEW_USER_PWORD);
+        setFormElement("confirmPassword", NEW_USER_PWORD);
+        setFormElement("aliases", NEW_USER_ALIASES);
         clickButton("user:save");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
@@ -47,9 +56,9 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("ManageUsers");
         String[][] table = new String[][] {
-                { TestPage.TEST_USER.getUserName(), TestPage.TEST_USER.getFirstName(), 
-                    TestPage.TEST_USER.getLastName(), TestPage.TEST_USER.getExtension()},                
-                { "new-user-test" , "NewUserFname", "NewUserLname", "993"}
+                { TestPage.TEST_USER_FIRSTNAME, TestPage.TEST_USER_LASTNAME,
+                    TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_ALIASES },                
+                { NEW_USER_FNAME, NEW_USER_LNAME, NEW_USER_USERNAME, NEW_USER_ALIASES }
             };
         assertTableRowsEqual("user:list", 1, table);                        
     }

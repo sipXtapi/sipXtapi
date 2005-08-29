@@ -214,6 +214,36 @@
 		</subant>
     </target>
 	
+	<!-- Comment out hibernate stuff to avoid causing problems on Windows
+		
+	<taskdef name="hibernatetool"
+		classname="org.hibernate.tool.ant.HibernateToolTask">
+		<classpath>
+       			<pathelement location="${top.dir}/lib/hibernate-3.0.5.jar"/>
+			<pathelement location="${top.dir}/lib/hibernate-tools.jar"/>
+			<path refid="base.path"/>
+			<pathelement location="${jdbc-driver.jar}"/>
+		</classpath>
+	</taskdef>
+	
+	<target name="hbm2ddl" depends="default">
+		<hibernatetool destdir="${build.dir}">
+			<classpath location="${build.dir}/classes">
+				<pathelement location="${commons-lang.jar}"/>
+			</classpath>
+			<configuration propertyFile="${top.dir}/meta/hibernate.properties">
+				<fileset dir="${src.dir}" id="id">
+					<include name="**/common.hbm.xml"/>
+					<include name="**/setting.hbm.xml"/>
+				</fileset>
+			</configuration>
+			
+			<hbm2ddl outputfilename="schema.sql"/>
+		</hibernatetool>
+	</target>    
+	
+	-->
+		
 	<target name="dataset-db"
 		description="Generates the sipconfig-db.dtd which is used to validate datasets"
 		depends="compile.test, reset-db">
@@ -225,5 +255,3 @@
 	</target>
     
 </project>
-
-

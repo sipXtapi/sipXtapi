@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Common code for line and phone information.
+ * Common code for line, phone, and user information.
  */
 public class BeanWithGroups extends BeanWithSettings {
 

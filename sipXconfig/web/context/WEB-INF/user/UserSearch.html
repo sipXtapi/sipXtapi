@@ -6,43 +6,51 @@
 		<table>
 			<tr>
 				<td>
-					<span jwcid="firstNameLabel">First name</span>:
+                    <label for="userSearch:firstName">
+						<span jwcid="firstNameLabel">First name</span>:
+                    </label>
 				</td>
 				<td>
-					<input jwcid="firstName"/>
+					<input jwcid="firstName" id="userSearch:firstName"/>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<span jwcid="lastNameLabel">Last name</span>:
+                    <label for="userSearch:lastName">
+ 						<span jwcid="lastNameLabel">Last name</span>:
+                    </label>
 				</td>
 				<td>
-					<input jwcid="lastName"/>
+					<input jwcid="lastName" id="userSearch:lastName"/>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<span jwcid="extensionLabel">Extension</span>:
+                    <label for="userSearch:userName">
+						<span jwcid="userNameLabel">User ID</span>:
+                    </label>
 				</td>
 				<td>
-					<input jwcid="extension"/>
+					<input jwcid="userName" id="userSearch:userName"/>
 				</td>
 			</tr>
-			<tr>
-				<td>
-					<span jwcid="userNameLabel">Username</span>:
-				</td>
-				<td>
-					<input jwcid="userName"/>
-				</td>
-			</tr>
+            <tr>
+                <td>
+                    <label for="userSearch:aliases">
+                        <span jwcid="aliasesLabel">Aliases</span>:
+                    </label>
+                </td>
+                <td>
+                    <input jwcid="aliases" id="userSearch:aliases"/>
+                </td>
+            </tr>
 		</table>
 	</fieldset>
 	<ul class="component-submit">
 		<li>
 			<input jwcid="cancel" id="user:cancel" value="Cancel"/>
 		</li>
-		<li>Username
+		<li>
 			<input jwcid="search" id="user:search" value="Search"/>
 		</li>
 	</ul>

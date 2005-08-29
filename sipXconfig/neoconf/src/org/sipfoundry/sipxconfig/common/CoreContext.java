@@ -40,8 +40,10 @@ public interface CoreContext extends DataObjectSource {
     public List loadUserByTemplateUser(User template);
 
     public User loadUserByUserName(String userName);
+    
+    public User loadUserByAlias(String userName);
 
-    public User loadUserByExtension(String extension);
+    public User loadUserByUserNameOrAlias(String userNameOrAlias);
     
     public String getAuthorizationRealm();
     

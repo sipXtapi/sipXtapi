@@ -45,7 +45,7 @@
         <binding name="source" expression="rings"/>
         <static-binding name="pageSize" value="-1"/>              
         <static-binding name="columns" 
-        	value="* !sequence:type,!userid:user.userName,!extension:user.extension,!expiration:expiration"/>
+        	value="* !sequence:type,!userid:user.userName,!alias:user.aliasesString,!expiration:expiration"/>
     </component>
     
 	<component id="sequenceColumnValue" type="Block"/>

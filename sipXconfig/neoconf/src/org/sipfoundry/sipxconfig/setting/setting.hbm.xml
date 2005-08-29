@@ -20,7 +20,7 @@
     <!--
       - G R O U P
       -->
-	  <joined-subclass name="Group" table="group_storage">
+    <joined-subclass name="Group" table="group_storage">
       <key column="group_id"/>
       <property name="name"/>
       <property name="description"/>
