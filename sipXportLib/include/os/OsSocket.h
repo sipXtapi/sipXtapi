@@ -23,7 +23,7 @@
 #define MAX_IP_ADDRESSES 32
 
 //: constant indentifier indicating the maximum number of IP addresses on this host.
-#define OS_INVALID_SOCKET_DESCRIPTOR -1
+#define OS_INVALID_SOCKET_DESCRIPTOR (-1)
 
 #if defined(_WIN32)
 #   include <os/wnt/getWindowsDNSServers.h>

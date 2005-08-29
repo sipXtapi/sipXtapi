@@ -172,7 +172,7 @@ const RegEx AllDigits("^\\+?[0-9*]+$");
 Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
    mScheme(SipUrlScheme),
    mPasswordSet(FALSE),
-   mHostPort(-1),
+   mHostPort(PORT_NONE),
    mpUrlParameters(NULL),
    mpHeaderOrQueryParameters(NULL),
    mpFieldParameters(NULL),
@@ -187,7 +187,7 @@ Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
 // Copy constructor
 Url::Url(const Url& rUrl) :
    mPasswordSet(FALSE),
-   mHostPort(-1),
+   mHostPort(PORT_NONE),
    mpUrlParameters(NULL),
    mpHeaderOrQueryParameters(NULL),
    mpFieldParameters(NULL),
@@ -218,7 +218,7 @@ void Url::reset()
     mPassword.remove(0);
     mPasswordSet = FALSE;
     mHostAddress.remove(0);
-    mHostPort = -1;
+    mHostPort = PORT_NONE;
     mPath.remove(0);
     mAngleBracketsIncluded = FALSE;
 }
@@ -716,7 +716,7 @@ void Url::getUri(UtlString& urlString)
 
     // Add the host
     urlString.append(mHostAddress);
-    if(mHostPort > 0)
+    if(portIsValid(mHostPort))
     {
        char portBuffer[20];
        sprintf(portBuffer, ":%d", mHostPort);
@@ -1413,21 +1413,10 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
 
 UtlBoolean Url::isUserHostPortEqual(const Url &url) const
 {
-   int port = url.mHostPort ;
-   if(port <= 0)
-   {
-      port = SIP_PORT;
-   }
-   
-   int checkPort = mHostPort ;
-   if(checkPort <= 0)
-   {
-      checkPort = SIP_PORT;
-   }
-   
+   // Compare the relevant components of the URI.
    return (   mHostAddress.compareTo(url.mHostAddress.data(), UtlString::ignoreCase) == 0
            && mUserId.compareTo(url.mUserId.data()) == 0
-           && ( checkPort == port ));
+           && mHostPort == url.mHostPort );
 }
 
 
@@ -1440,7 +1429,8 @@ void Url::getIdentity(UtlString &identity) const
    lowerHostAddress.toLower();
    identity.append(lowerHostAddress);
 
-   if(mHostPort > 0 && mHostPort != 5060)
+   // If the port designates an actual port, it must be specified.
+   if(portIsValid(mHostPort))
    {
       char portBuffer[20];
       sprintf(portBuffer, ":%d", mHostPort);

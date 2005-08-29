@@ -153,7 +153,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-    /// Construct the cannonical identity.
+    /// Construct the canonical identity.
     void getIdentity(UtlString& identity) const;
     /**<
      * In some applications this is used to compare if this
@@ -417,7 +417,8 @@ public:
    static UtlBoolean isDigitString(const char* dialedCharacters);
 
    /// Compare two URLs to see if the have the same user, host and port
-   /* Assumes that no port set is the same as the default port for
+   /* Follows the rules of RFC 3261 section 19.1.4, especially that
+    * that no port specifies is NOT the same as the default port for
     * the URL type/protocol.  Also assumes that host is \a not case 
     * sensative, but that user id \a is case sensative.
     * \return TRUE if the user Id, host and port are the same

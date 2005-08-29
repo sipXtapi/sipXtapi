@@ -180,14 +180,14 @@
             <!-- <dependency>??</dependency> -->
         </process>
 
-        <process name="ConferenceBridge">
+        <process name="ACDServer">
             <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
 
             <start control="true">
-                <execute command="@bindir@/sipxconference.sh"
+                <execute command="@bindir@/sipxacd.sh"
                          parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>

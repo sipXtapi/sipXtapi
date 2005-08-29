@@ -1248,7 +1248,7 @@ public:
         Url url(szUrl);
         
         sprintf(msg, "test=%s, url=%s", szTest, szUrl);
-        CPPUNIT_ASSERT_MESSAGE(msg, url.isUserHostPortEqual(szTest));
+        CPPUNIT_ASSERT_MESSAGE(msg, !url.isUserHostPortEqual(szTest));
     }
 
     void testIsUserHostPortNoMatch()
@@ -1296,11 +1296,6 @@ public:
                j++)
           {
              int expected = (i == j);
-             // Until XSL-96 is fixed, url[0] == url[1].
-             if ((i == 0 || i == 1) && (j == 0 || j == 1))
-             {
-                expected = 1;
-             }
              int actual = urls[i].isUserHostPortEqual(urls[j]);
              char msg[80];
              sprintf(msg, "%s == %s", strings[i], strings[j]);
@@ -1322,28 +1317,28 @@ public:
 
     void testGetIdentity()
     {
-       const char* strings[] = {
-          "sip:foo@bar",
-          "sip:foo@bar:5060",
-          "sip:foo@bar:1",
-          "sip:foo@bar:100",
-          "sip:foo@bar:65535",
+       // The data for a single test.
+       struct test {
+          // The string to convert to a URI.
+          const char* string;
+          // The identity to be returned by getIdentity().
+          const char* identity;
        };
-       Url urls[sizeof (strings) / sizeof (strings[0])];
-       const char* identities[sizeof (strings) / sizeof (strings[0])] = {
-          "foo@bar",
-          "foo@bar",
-          "foo@bar:1",
-          "foo@bar:100",
-          "foo@bar:65535",
+       // The tests.
+       struct test tests[] = {
+          { "sip:foo@bar", "foo@bar" },
+          { "sip:foo@bar:5060", "foo@bar:5060" },
+          { "sip:foo@bar:1", "foo@bar:1" },
+          { "sip:foo@bar:100", "foo@bar:100" },
+          { "sip:foo@bar:65535", "foo@bar:65535" },
        };
 
-       for (unsigned int i = 0; i < sizeof (strings) / sizeof (strings[0]);
+       for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]);
             i++)
        {
-          urls[i] = strings[i];
-          ASSERT_STR_EQUAL_MESSAGE(strings[i], identities[i],
-                                   getIdentity(urls[i]));
+          Url url = tests[i].string;
+          ASSERT_STR_EQUAL_MESSAGE(tests[i].string, tests[i].identity,
+                                   getIdentity(url));
        }
     }
 

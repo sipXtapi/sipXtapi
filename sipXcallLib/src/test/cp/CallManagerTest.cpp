@@ -40,9 +40,11 @@ class CallManangerTest : public CppUnit::TestCase
     CPPUNIT_TEST(testPickupCall);
 #endif
     CPPUNIT_TEST(testSimpleTeardown);
+#if 0
     CPPUNIT_TEST(testUATeardown);
     CPPUNIT_TEST(testLineMgrUATeardown);
     CPPUNIT_TEST(testRefreshMgrUATeardown);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:
