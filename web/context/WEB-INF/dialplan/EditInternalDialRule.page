@@ -70,7 +70,7 @@
     </component>
     <component id="autoAttendantAliases" type="ValidField">
         <binding name="value" expression="rule.aaAliases"/>
-        <binding name="validator" expression="global.validUserPatternSequence"/>
+        <binding name="validator" expression="global.validUsernamePatternSequence"/>
         <message-binding name="displayName" key="label.autoAttendantAliases"/>
     </component>
 

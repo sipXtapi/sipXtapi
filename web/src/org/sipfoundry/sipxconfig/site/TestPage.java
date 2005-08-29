@@ -37,17 +37,19 @@ public abstract class TestPage extends BasePage {
     public static final String PAGE = "TestPage";
 
     public static final int JOBS = 4;
+    public static final String EMPTY_STRING = "";
 
-    public static final User TEST_USER = new User();
+    // Data for the primary test user
+    // Make sure the username matches SiteTestHelper.java
+    public static final String TEST_USER_USERNAME = "testuser";
+    public static final String TEST_USER_FIRSTNAME = "Test";
+    public static final String TEST_USER_LASTNAME = "User";
+    public static final String TEST_USER_ALIAS1 = "testy";
+    public static final String TEST_USER_ALIAS2 = "200";
+    public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + ", " + TEST_USER_ALIAS2;
     public static final String TEST_USER_PIN = "1234";
-    static {
-        // makesure this name matches SiteTestHelper.java
-        TEST_USER.setUserName("testuser");
-        TEST_USER.setFirstName("Test");
-        TEST_USER.setExtension("200");
-        TEST_USER.setLastName("User");
-    }
-
+    
+    
     public abstract DialPlanContext getDialPlanManager();
 
     public abstract GatewayContext getGatewayContext();
@@ -61,7 +63,7 @@ public abstract class TestPage extends BasePage {
     public abstract SipxReplicationContext getSipxReplicationContext();
 
     public abstract JobContext getJobContext();
-
+    
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanManager().clear();
         getGatewayContext().clear();
@@ -117,15 +119,52 @@ public abstract class TestPage extends BasePage {
     }
 
     public void seedTestUser(IRequestCycle cycle_) {
+        // Create a test user that doesn't already exist
+        String userName = getUnusedTestUserName();
+        String firstName = TEST_USER_FIRSTNAME;
         User user = new User();
-        user.setUserName(TEST_USER.getUserName());
-        user.setFirstName(TEST_USER.getFirstName());
-        user.setLastName(TEST_USER.getLastName());
-        user.setExtension(TEST_USER.getExtension());
+        user.setUserName(userName);
+        user.setFirstName(firstName);
+        user.setLastName(TEST_USER_LASTNAME);
+        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES : EMPTY_STRING);
         user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
     }
-
+    
+    public void loginFirstTestUser(IRequestCycle cycle_) {
+        // Find the first test user
+        User user = getCoreContext().loadUserByUserName(TEST_USER_USERNAME);
+        if (user == null) {
+            throw new IllegalStateException("Test user with username = "
+                    + TEST_USER_USERNAME + " is not in the database");
+        }
+        
+        // Log it in
+        Visit visit = (Visit) getVisit();
+        visit.login(user.getId(), false);
+    }
+    
+    public String getUnusedTestUserName() {
+        String userName = null;
+        int count = 0;
+        while (true) {
+            userName = TEST_USER_USERNAME + getUsernameSuffix(count);
+            User user = getCoreContext().loadUserByUserName(userName);
+            count++;
+            if (user == null) {
+                break;      // found an unused username
+            }
+        }
+        return userName;
+    }
+    
+    // Construct a username by appending a numeric suffix to the standard
+    // test username.  Special case: when the count is 0, append the empty
+    // string rather than "0".
+    private String getUsernameSuffix(int i) {
+        return i != 0 ? Integer.toString(i) : EMPTY_STRING;
+    }
+    
     public void populateJobs(IRequestCycle cycle_) {
         JobContext jobContext = getJobContext();
         jobContext.clear();
@@ -137,7 +176,7 @@ public abstract class TestPage extends BasePage {
             }
         }
         jobContext.success(jobIds[2]);
-        jobContext.failure(jobIds[JOBS - 1], "something bad happended", null);
+        jobContext.failure(jobIds[JOBS - 1], "something bad happened", null);
     }
 
     public void login(IRequestCycle cycle) {        

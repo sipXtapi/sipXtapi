@@ -11,7 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -28,7 +31,10 @@ public class UserTest extends TestCase {
     private static final String SIP_PASSWORD = "sip password";
     private static final String REALM = "sipfoundry.org";
     private static final String DOMAIN = "sipfoundry.org";
-
+    private static final String ALIAS1 = "mambo";
+    private static final String ALIAS2 = "tango";
+    private static final String ALIASES_STRING = ALIAS1 + ", " + ALIAS2;
+    
     public void testGetDisplayName() {
         User u = new User();
         assertNull(u.getDisplayName());
@@ -107,20 +113,42 @@ public class UserTest extends TestCase {
     public void testGetAliases() {
         User user = new User();
         user.setUserName(USERNAME);
-        user.setExtension("4444");
-        List aliases = user.getAliases(DOMAIN);
-        assertEquals(1, aliases.size());
-        AliasMapping alias = (AliasMapping) aliases.get(0);
-        assertEquals("4444@sipfoundry.org", alias.getIdentity());
-        assertEquals("sip:" + USERNAME + "@" + DOMAIN, alias.getContact());
+        
+        Set aliases = new LinkedHashSet();  // use LinkedHashSet for stable ordering
+        aliases.add(ALIAS1);
+        aliases.add(ALIAS2);
+        user.setAliases(aliases);
+        assertEquals(ALIASES_STRING, user.getAliasesString());
+        checkAliases(user);
+        
+        user.setAliases(new LinkedHashSet());
+        user.setAliasesString(ALIASES_STRING);
+        checkAliases(user);
+                
+        List aliasMappings = user.getAliasMappings(DOMAIN);
+        assertEquals(2, aliasMappings.size());
+        AliasMapping alias = (AliasMapping) aliasMappings.get(0);
+        assertEquals(ALIAS1 + "@" + DOMAIN, alias.getIdentity());
+        final String CONTACT = "sip:" + USERNAME + "@" + DOMAIN;
+        assertEquals(CONTACT, alias.getContact());
+        alias = (AliasMapping) aliasMappings.get(1);
+        assertEquals(ALIAS2 + "@" + DOMAIN, alias.getIdentity());
+        assertEquals(CONTACT, alias.getContact());
     }
     
-    public void testGetAliasesNoExtension() {
+    private void checkAliases(User user) {
+        Set aliasesCheck = user.getAliases();
+        assertEquals(2, aliasesCheck.size());
+        Iterator i = aliasesCheck.iterator();
+        assertEquals(ALIAS1, i.next());
+        assertEquals(ALIAS2, i.next());        
+    }
+    
+    public void testGetEmptyAliases() {
         User user = new User();
         user.setUserName(USERNAME);
-        user.setExtension(null);
-        List aliases = user.getAliases(DOMAIN);
-        assertEquals(0, aliases.size());
+        List aliasMappings = user.getAliasMappings(DOMAIN);
+        assertEquals(0, aliasMappings.size());
     }
     
     public void testHasPermission() {

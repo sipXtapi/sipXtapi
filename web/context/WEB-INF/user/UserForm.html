@@ -9,18 +9,8 @@
         <table>
             <tr>
 			<td>
-                <label for="user:userId">
-                    <span jwcid="userIdLabel">Username:</span>
-                </label>
-            </td>
-			<td>
-				<input jwcid="userId" id="user:username"/>
-			</td>
-            </tr>
-            <tr>
-			<td>
                 <label for="user:firstName">
-                    <span jwcid="firstNameLabel">First Name:</span>
+                    <span jwcid="firstNameLabel">First Name</span>:
                 </label>
             </td>
 			<td>
@@ -30,7 +20,7 @@
             <tr>
 			<td>
                 <label for="user:lastName">
-                    <span jwcid="lastNameLabel">Last Name:</span>
+                    <span jwcid="lastNameLabel">Last Name</span>:
                 </label>
             </td>
 			<td>
@@ -39,19 +29,19 @@
             </tr>
             <tr>
 			<td>
-                <label for="user:extension">
-                    <span jwcid="extensionLabel">Extension:</span>
+                <label for="user:userId">
+                    <span jwcid="userIdLabel">User ID</span>:
                 </label>
             </td>
 			<td>
-				<input jwcid="extension" id="user:extension"/>
+				<input jwcid="userId" id="user:userId"/>
 			</td>
             </tr>
 			<span jwcid="pin"/>
             <tr>
 			<td>
                 <label for="user:sipPassword">
-                    <span jwcid="sipPasswordLabel">SIP Password:</span>
+                    <span jwcid="sipPasswordLabel">SIP Password</span>:
                 </label>
             </td>
 			<td>
@@ -65,6 +55,16 @@
 	            <td><span jwcid="groupSelect" id="select:group"/>
 	            </td>
 	        </tr>
+            <tr>
+                <td>
+                    <label for="user:aliases">
+                        <span jwcid="aliasesLabel">Aliases</span>:
+                    </label>
+                </td>
+                <td>
+                    <input jwcid="aliases" id="user:aliases"/>
+                </td>
+            </tr>
         </table>
     </fieldset>
 </span>

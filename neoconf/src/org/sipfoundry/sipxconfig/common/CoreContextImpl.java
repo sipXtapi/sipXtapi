@@ -13,8 +13,10 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -35,10 +37,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         ApplicationListener, DaoEventListener {
 
-    static final String USER_GROUP_RESOURCE_ID = "user";
-
+    private static final String USER_GROUP_RESOURCE_ID = "user";
     private static final String USERNAME_PROP_NAME = "userName";
-    private static final String EXTENSION_PROP_NAME = "extension";
 
     private String m_authorizationRealm;
 
@@ -103,10 +103,6 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         return loadUserByUniqueProperty(USERNAME_PROP_NAME, userName);
     }
 
-    public User loadUserByExtension(String extension) {
-        return loadUserByUniqueProperty(EXTENSION_PROP_NAME, extension);
-    }
-
     private User loadUserByUniqueProperty(String propName, String propValue) {
         final Criterion expression = Restrictions.eq(propName, propValue);
 
@@ -121,7 +117,32 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
 
         return user;
     }
+    
+    public User loadUserByAlias(String alias) {
+        return loadUserByNamedQueryAndNamedParam("userByAlias", "alias", alias);
+    }
+    
+    public User loadUserByUserNameOrAlias(String userNameOrAlias) {
+        return loadUserByNamedQueryAndNamedParam(
+                "userByNameOrAlias", "userNameOrAlias", userNameOrAlias);
+    }
 
+    private User loadUserByNamedQueryAndNamedParam(String queryName, String paramName, Object value) {
+        Collection usersColl = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                queryName, paramName, value);
+        Set users = new HashSet(usersColl);     // eliminate duplicates
+        if (users.size() > 1) {
+            throw new IllegalStateException(
+                    "The database has more than one user matching the query "
+                    + queryName + ", paramName = " + paramName + ", value = " + value);
+        }
+        User user = null;
+        if (users.size() > 0) {
+            user = (User) users.iterator().next();
+        }
+        return user;       
+    }
+    
     public List loadUserByTemplateUser(User template) {
         final Example example = Example.create(template);
         example.setPropertySelector(NotNullOrBlank.INSTANCE);
@@ -146,19 +167,19 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
     }
 
     /**
-     * Catch database corruption errors when more than one record exists. In general fields should
-     * have unique indexes setup to protect against this. This method is created as a safe check
-     * only, there has been not been any experiences of courupt data to date.
+     * Catch database corruption errors where more than one record exists. In general fields should
+     * have unique indexes set up to protect against this. This method is created as a safe check
+     * only, there have been not been any experiences of corrupt data to date.
      * 
      * @param c
      * @param query
      * 
      * @return first item from the collection
-     * @throws IllegalStateException if more than one item in collection. In general
+     * @throws IllegalStateException if more than one item in collection.
      */
     public static Object requireOneOrZero(Collection c, String query) {
         if (c.size() > 2) {
-            // DatabaseCorruptionExection ?
+            // DatabaseCorruptionException ?
             // TODO: move error string construction to new UnexpectedQueryResult(?) class, enable
             // localization
             StringBuffer error = new StringBuffer().append("read ").append(c.size()).append(
@@ -197,13 +218,13 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         Group adminGroup = new Group();
         adminGroup.setName("administrators"); // nothing special about name
         adminGroup.setResource(User.GROUP_RESOURCE_ID);
-        adminGroup.setDescription("Users with superadmin privledges");
+        adminGroup.setDescription("Users with superadmin privileges");
         Permission.SUPERADMIN.setEnabled(adminGroup, true);
         Permission.TUI_CHANGE_PIN.setEnabled(adminGroup, false);
 
         m_settingDao.saveGroup(adminGroup);
 
-        // using superadmin name not to disrrupt existing customers
+        // using superadmin name not to disrupt existing customers
         // can be anything
         String superadmin = "superadmin";
         User admin = loadUserByUserName(superadmin);
@@ -243,7 +264,7 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         List users = loadUsers();
         for (Iterator i = users.iterator(); i.hasNext();) {
             User user = (User) i.next();
-            aliases.addAll(user.getAliases(m_domainName));
+            aliases.addAll(user.getAliasMappings(m_domainName));
         }
         return aliases;
     }
@@ -275,4 +296,5 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
 
     public void onSave(Object entity_) {
     }
+    
 }

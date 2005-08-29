@@ -29,33 +29,34 @@
     <!--
       - C O M P O N E N T S
       -->
-    <component id="userNameLabel" type="FieldLabel">
-        <binding name="field" expression="components.userName"/>
-	    <static-binding name="displayName" value="Username"/>
-    </component>
-    <component id="userName" type="TextField">
-	    <binding name="value" expression="user.userName"/>
-    </component>
     <component id="firstNameLabel" type="FieldLabel">
         <binding name="field" expression="components.firstName"/>
-	    <static-binding name="displayName" value="First name"/>
+	    <message-binding name="displayName" key="label.firstName"/>
     </component>
     <component id="firstName" type="TextField">
 	    <binding name="value" expression="user.firstName"/>
     </component>
     <component id="lastNameLabel" type="FieldLabel">
         <binding name="field" expression="components.lastName"/>
-	    <static-binding name="displayName" value="Last name"/>
+	    <message-binding name="displayName" key="label.lastName"/>
     </component>
     <component id="lastName" type="TextField">
 	    <binding name="value" expression="user.lastName"/>
     </component>
-    <component id="extensionLabel" type="FieldLabel">
-        <binding name="field" expression="components.extension"/>
-	    <static-binding name="displayName" value="Extension"/>
+    <component id="userNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.userName"/>
+	    <message-binding name="displayName" key="label.userId"/>
     </component>
-    <component id="extension" type="TextField">
-	    <binding name="value" expression="user.extension"/>
+    <component id="userName" type="TextField">
+	    <binding name="value" expression="user.userName"/>
+    </component>
+    <component id="aliasesLabel" type="FieldLabel">
+        <binding name="field" expression="components.aliases"/>
+    </component>
+    <component id="aliases" type="ValidField">
+	    <binding name="value" expression="user.aliasesString"/>
+        <binding name="validator" expression="page.global.validUsernamePatternSequence"/>
+	    <message-binding name="displayName" key="label.aliases"/>
     </component>
     <component id="search" type="Submit">
         <binding name="listener" expression="listeners.search"/>

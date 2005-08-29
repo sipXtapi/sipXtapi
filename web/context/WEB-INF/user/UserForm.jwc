@@ -36,18 +36,14 @@
         initial-value="page.global.coreContext"/>
     
     <property-specification name="pin" type="java.lang.String"/>
+    
+	<!-- comma-delimited list of aliases -->
+    <property-specification name="aliasesString" type="java.lang.String"/>
 
     <!--
       - B E A N S 
       -->
     
-    <bean name="userIdValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>
-    <bean name="extensionValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
-	</bean>
     <bean name="defaultPinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
     	<set-property name="required" expression="false"/>
 	</bean>
@@ -56,14 +52,6 @@
       - C O M P O N E N T S
       -->
     
-    <component id="userIdLabel" type="FieldLabel">
-        <binding name="field" expression="components.userId"/>
-    </component>
-    <component id="userId" type="ValidField">
-	    <binding name="value" expression="user.userName"/>
-    	<binding name="validator" expression="beans.userIdValidator"/>
-	    <message-binding name="displayName" key="label.userId"/>
-    </component>
     <component id="firstNameLabel" type="FieldLabel">
         <binding name="field" expression="components.firstName"/>
 	    <message-binding name="displayName" key="label.firstName"/>
@@ -78,13 +66,13 @@
     <component id="lastName" type="TextField">
 	    <binding name="value" expression="user.lastName"/>
     </component>
-    <component id="extensionLabel" type="FieldLabel">
-        <binding name="field" expression="components.extension"/>
+    <component id="userIdLabel" type="FieldLabel">
+        <binding name="field" expression="components.userId"/>
     </component>
-    <component id="extension" type="ValidField">
-	    <binding name="value" expression="user.extension"/>
-    	<binding name="validator" expression="beans.extensionValidator"/>
-	    <message-binding name="displayName" key="label.extension"/>
+    <component id="userId" type="ValidField">
+	    <binding name="value" expression="user.userName"/>
+    	<binding name="validator" expression="page.global.validUsernamePattern"/>
+	    <message-binding name="displayName" key="label.userId"/>
     </component>
 	<component id="pin" type="ConfirmPassword">
         <binding name="password" expression="pin"/>
@@ -103,6 +91,14 @@
     <component id="groupSelect" type="GroupSelect">
         <binding name="groups" expression="coreContext.userGroups"/>
         <binding name="values" expression="user.groups"/>
+    </component>
+    <component id="aliasesLabel" type="FieldLabel">
+        <binding name="field" expression="components.aliases"/>
+    </component>
+    <component id="aliases" type="ValidField">
+	    <binding name="value" expression="aliasesString"/>
+        <binding name="validator" expression="page.global.validUsernamePatternSequence"/>
+	    <message-binding name="displayName" key="label.aliases"/>
     </component>
     
 </component-specification>

@@ -23,6 +23,10 @@ public class CollectionUtils extends org.apache.commons.collections.CollectionUt
         return coll != null ? coll.size() : 0;
     }
     
+    public static boolean safeIsEmpty(Collection coll) {
+        return safeSize(coll) == 0;
+    }
+    
     /** Return a Collection iterator.  Return an empty iterator if the Collection is null. */
     public static Iterator safeIterator(Collection coll) {
         return coll != null ? coll.iterator() : EmptyIterator.INSTANCE;

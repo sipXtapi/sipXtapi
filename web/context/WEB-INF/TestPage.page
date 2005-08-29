@@ -57,6 +57,9 @@
     <component id="seedTestUser" type="DirectLink">
         <binding name="listener" expression="listeners.seedTestUser"/>
     </component>
+    <component id="loginFirstTestUser" type="DirectLink">
+        <binding name="listener" expression="listeners.loginFirstTestUser"/>
+    </component>
     <component id="login" type="DirectLink">
         <binding name="listener" expression="listeners.login"/>
     </component>

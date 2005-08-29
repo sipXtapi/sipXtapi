@@ -5,6 +5,9 @@
 
   <!-- 
     - U S E R
+	-
+	- Ideally the table would be named "user" (singular) rather than "users",
+	- like other tables, but "user" exists already as a PostgreSQL internal table.
     -->
   <class name="User" table="users">
     <id name="id" column="user_id" type="int" unsaved-value="-1">
@@ -17,7 +20,10 @@
     <property name="sipPassword"/>
     <property name="lastName"/>
     <property name="userName"/>
-    <property name="extension"/>
+    <set name="aliases" table="user_alias">
+      <key column="user_id"/>
+      <element type="string" column="alias" not-null="true" unique="true"/>
+    </set>	
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
   	<set name="groups" table="user_group" sort="natural" >
@@ -25,7 +31,15 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
   </class>
-  
+	  
+  <query name="userByAlias">
+    <![CDATA[from User u join u.aliases alias where alias = :alias]]>
+  </query>
+	  
+  <query name="userByNameOrAlias">
+    <![CDATA[from User u left outer join u.aliases alias where u.userName = :userNameOrAlias or alias = :userNameOrAlias]]>
+  </query>
+	  
   <query name="userGroupMembers">
     <![CDATA[from User u where u.groups.id = :groupId]]>
   </query>

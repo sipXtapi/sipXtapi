@@ -13,24 +13,38 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class Extensions extends DataSetGenerator {
+    private static final Pattern PATTERN_NUMERIC = Pattern.compile("\\d+");
+    
+    /** Add all numeric aliases as extension elements in an XML document */
     protected void addItems(Element items) {
         String domainName = getCoreContext().getDomainName();
         List users = getCoreContext().loadUsers();
         for (Iterator i = users.iterator(); i.hasNext();) {
             User user = (User) i.next();
-            String extension = user.getExtension();
-            if (StringUtils.isBlank(extension)) {
-                continue;
+            Set aliases = user.getAliases();
+            boolean foundNumericAlias = false;
+            Element item = null;
+            for (Iterator iter = aliases.iterator(); iter.hasNext();) {
+                String alias = (String) iter.next();
+                Matcher m = PATTERN_NUMERIC.matcher(alias);
+                if (m.matches()) {
+                    if (!foundNumericAlias) {
+                        // There is at least one numeric alias, so add an entry for this user
+                        item = items.addElement("item");
+                        item.addElement("uri").setText(user.getUri(domainName));
+                        foundNumericAlias = true;
+                    }                    
+                    item.addElement("extension").setText(alias);
+                }
             }
-            Element item = items.addElement("item");
-            item.addElement("uri").setText(user.getUri(domainName));
-            item.addElement("extension").setText(extension);
         }
     }
     

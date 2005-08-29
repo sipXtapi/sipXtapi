@@ -11,10 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import com.meterware.httpunit.WebForm;
-
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
+
+import com.meterware.httpunit.WebForm;
 
 public class LoginPageTestUi extends WebTestCase {
     public static Test suite() throws Exception {
@@ -22,25 +22,35 @@ public class LoginPageTestUi extends WebTestCase {
     }
 
     public void setUp() {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
     }    
     
-
-    public void testLogin() throws Exception {
-        tester.beginAt("/");
-        
+    public void testLoginWithUserName() throws Exception {       
+        checkLogin(TestPage.TEST_USER_USERNAME);
+    }
+    
+    public void testLoginWithFirstAlias() throws Exception {       
+        checkLogin(TestPage.TEST_USER_ALIAS1);
+    }
+    
+    public void testLoginWithSecondAlias() throws Exception {       
+        checkLogin(TestPage.TEST_USER_ALIAS2);
+    }
+    
+    private void checkLogin(String userId) {        
+        tester.beginAt("/");        
         SiteTestHelper.assertNoException(getTester());
         SiteTestHelper.assertNoUserError(getTester());
         
         WebForm form = tester.getDialog().getForm();
-        form.setParameter("userName", TestPage.TEST_USER.getUserName());
+        form.setParameter("userName", userId);
         form.setParameter("password", TestPage.TEST_USER_PIN);
         clickButton("login:submit");
                 
         // we are on the home page now - no errors no login form
         SiteTestHelper.assertNoException(getTester());
         assertFormNotPresent("login:form");
-        assertElementNotPresent("user:error");
+        assertElementNotPresent("user:error");        
     }
     
     // successful login is tested by "home" function

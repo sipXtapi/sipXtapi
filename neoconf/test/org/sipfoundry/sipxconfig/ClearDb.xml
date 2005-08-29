@@ -31,6 +31,7 @@
     
   <!-- users -->
   <table name="users"/>
+  <table name="user_alias"/>
   <table name="user_ring"/>
   <table name="user_group"/>
     

@@ -57,7 +57,7 @@ public class UserTestDb extends TestCase {
         user.setLastName("LastName");
         user.setPintoken("password");
         user.setSipPassword("sippassword");
-        user.setExtension("1234");
+        user.getAliases().add("1234");
         core.saveUser(user);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveUserExpected.xml");

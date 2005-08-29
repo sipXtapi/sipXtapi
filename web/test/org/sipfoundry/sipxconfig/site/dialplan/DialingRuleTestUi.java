@@ -37,7 +37,6 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
         clickLinkWithText("Emergency");
-        dumpResponse(System.err);
         //it's a submit link: uses java script, does not have id
         clickLinkWithText("Add Existing Gateway");
     }
