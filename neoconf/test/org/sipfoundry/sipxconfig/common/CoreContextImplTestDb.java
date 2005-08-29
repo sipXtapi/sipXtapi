@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 
 public class CoreContextImplTestDb extends TestCase {
 
+    private static final int NUM_USERS = 10;
     private CoreContext m_core;
 
     protected void setUp() throws Exception {
@@ -64,16 +65,26 @@ public class CoreContextImplTestDb extends TestCase {
         User user = m_core.loadUserByUserNameOrAlias("2");
         assertNotNull(user);
         assertEquals("userseed2", user.getUserName());
+
         user = m_core.loadUserByUserNameOrAlias("two");
         assertNotNull(user);
         assertEquals("userseed2", user.getUserName());
+        
         user = m_core.loadUserByUserNameOrAlias("5");
         assertNotNull(user);
         assertEquals("userseed5", user.getUserName());
+        
         assertNull(m_core.loadUserByUserNameOrAlias("666"));
+        
         user = m_core.loadUserByUserNameOrAlias("userseed2");
         assertNotNull(user);
         assertEquals("userseed2", user.getUserName());
+        
+        // There was a bug earlier where only users who had aliases could be loaded.
+        // Test that a user without aliases can be loaded.
+        user = m_core.loadUserByUserNameOrAlias("userwithnoaliases");
+        assertNotNull(user);
+        assertEquals("userwithnoaliases", user.getUserName());
     }
 
     public void testSearchByUserName() throws Exception {
@@ -93,7 +104,7 @@ public class CoreContextImplTestDb extends TestCase {
         template.setFirstName("");
         List users = m_core.loadUserByTemplateUser(template);
 
-        assertEquals(9, users.size());
+        assertEquals(NUM_USERS, users.size());
     }
 
     public void testLoadUsers() throws Exception {
@@ -101,22 +112,26 @@ public class CoreContextImplTestDb extends TestCase {
 
         List users = m_core.loadUsers();
 
-        assertEquals(9, users.size());
+        // Check that we have the expected number of users
+        assertEquals(NUM_USERS, users.size());
     }
 
     public void testDeleteUsers() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 
+        // Check that we have the expected number of users
         ITable usersTable = TestHelper.getConnection().createDataSet().getTable("users");
-        assertEquals(9, usersTable.getRowCount());
+        assertEquals(NUM_USERS, usersTable.getRowCount());
         
+        // Delete two users
         List usersToDelete = new ArrayList();
         usersToDelete.add(new Integer(1001));
         usersToDelete.add(new Integer(1002));
         m_core.deleteUsers(usersToDelete);
 
+        // We should have reduced the user count by two
         usersTable = TestHelper.getConnection().createDataSet().getTable("users");
-        assertEquals(7, usersTable.getRowCount());
+        assertEquals(NUM_USERS - 2, usersTable.getRowCount());
     }
     
     public void testLoadGroups() throws Exception {
