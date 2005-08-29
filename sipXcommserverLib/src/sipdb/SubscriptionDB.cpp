@@ -230,7 +230,10 @@ SubscriptionDB::store()
 
             // Create the root node container
  	        TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
+           itemsElement.SetAttribute( "type", mDatabaseName.data() );
+
+            int timeNow = OsDateTime::getSecsSinceEpoch();
+            itemsElement.SetAttribute( "timestamp", timeNow );
 
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &SubscriptionRow::dbDescriptor;
@@ -448,6 +451,16 @@ SubscriptionDB::removeRow (
         {
             cursor.removeAllSelected();
         }
+        else
+        {
+           OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeRow row not found:\n"
+                         "to='%s' from='%s' callid='%s'\n"
+                         "eventtype='%s' id='%s' cseq='%d'",
+                         to.data(), from.data(), callid.data(),
+                         eventType.data(), id.data(), subscribeCseq
+                         );
+        }
+        
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
     }

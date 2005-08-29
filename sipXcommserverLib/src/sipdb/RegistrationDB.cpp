@@ -249,6 +249,9 @@ OsStatus RegistrationDB::cleanAndPersist( const int &newerThanTime )
             TiXmlElement itemsElement ( "items" );
             itemsElement.SetAttribute( "type", mDatabaseName.data() );
 
+            int timeNow = OsDateTime::getSecsSinceEpoch();
+            itemsElement.SetAttribute( "timestamp", timeNow );
+
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &RegistrationRow::dbDescriptor;
 

@@ -35,6 +35,12 @@ while(<>)
 {
     chomp;
     print;
+    if ( m|timestamp="(\d+)"| )
+    {
+        $BaseTime = $1;
+        $base = asDate($BaseTime);
+        print "<!-- Base Time: $base -->";
+    }
     if ( m|<expires>(\d+)</expires>| )
     {
         $localtime = asDate($1); 
