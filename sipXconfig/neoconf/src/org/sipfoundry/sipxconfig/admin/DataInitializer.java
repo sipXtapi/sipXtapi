@@ -23,9 +23,11 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
  */
 public class DataInitializer {
     
-    public static void main(String[] args_) {
-        new DataInitializer().runMain();
-        System.exit(0);
+    public static void main(String[] args) {
+        new DataInitializer().runMain();        
+        if (args.length == 0 || !"noexit".equals(args[0])) {
+            System.exit(0);
+        }
     }
     
     void runMain() {
