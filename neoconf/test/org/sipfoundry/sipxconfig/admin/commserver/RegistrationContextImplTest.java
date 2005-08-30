@@ -34,7 +34,7 @@ public class RegistrationContextImplTest extends TestCase {
         assertEquals(2, registrations.size());
         for (int i = 0; i < 2; i++) {
             RegistrationItem ri = (RegistrationItem) registrations.get(i);
-            assertEquals("200" + i, ri.getExpires());
+            assertEquals(2000 + i, ri.getExpires());
             assertTrue(ri.getUri().startsWith("300" + i));
             assertTrue(ri.getContact().indexOf("Doe") > 0);
         }
@@ -74,7 +74,7 @@ public class RegistrationContextImplTest extends TestCase {
         for (int i = 0; i < regData.length; i++) {
             RegistrationItem item = new RegistrationItem();
             item.setContact(regData[i][0]);
-            item.setExpires(regData[i][1]);
+            item.setExpires(Long.parseLong(regData[i][1]));
             regs.add(item);
         }
 
@@ -83,8 +83,8 @@ public class RegistrationContextImplTest extends TestCase {
         assertEquals("contact1", ((RegistrationItem) cleanRegs.get(0)).getContact());
         assertEquals("contact2", ((RegistrationItem) cleanRegs.get(1)).getContact());
         assertEquals("contact3", ((RegistrationItem) cleanRegs.get(2)).getContact());
-        assertEquals("12", ((RegistrationItem) cleanRegs.get(0)).getExpires());
-        assertEquals("11", ((RegistrationItem) cleanRegs.get(1)).getExpires());
-        assertEquals("13", ((RegistrationItem) cleanRegs.get(2)).getExpires());
+        assertEquals(12, ((RegistrationItem) cleanRegs.get(0)).getExpires());
+        assertEquals(11, ((RegistrationItem) cleanRegs.get(1)).getExpires());
+        assertEquals(13, ((RegistrationItem) cleanRegs.get(2)).getExpires());
     }
 }

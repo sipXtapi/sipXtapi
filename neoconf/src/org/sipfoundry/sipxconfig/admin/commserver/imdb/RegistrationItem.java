@@ -16,7 +16,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 public class RegistrationItem implements Comparable {
     private String m_uri;
     private String m_contact;
-    private String m_expires;
+    private long m_expires;
 
     public String getContact() {
         return m_contact;
@@ -26,11 +26,11 @@ public class RegistrationItem implements Comparable {
         m_contact = contact;
     }
 
-    public String getExpires() {
+    public long getExpires() {
         return m_expires;
     }
 
-    public void setExpires(String expires) {
+    public void setExpires(long expires) {
         m_expires = expires;
     }
 
@@ -42,17 +42,12 @@ public class RegistrationItem implements Comparable {
         m_uri = uri;
     }
 
-    long getExpiresAsSeconds() {
-        return Long.parseLong(m_expires);
-    }
-
     public int compareTo(Object other) {
         RegistrationItem riOther = (RegistrationItem) other;
-        return new CompareToBuilder()
-                .append(getExpiresAsSeconds(), riOther.getExpiresAsSeconds()).toComparison();
+        return new CompareToBuilder().append(getExpires(), riOther.getExpires()).toComparison();
     }
-    
+
     public long timeToExpireAsSeconds(long nowSeconds) {
-        return getExpiresAsSeconds() - nowSeconds;
+        return getExpires() - nowSeconds;
     }
 }
