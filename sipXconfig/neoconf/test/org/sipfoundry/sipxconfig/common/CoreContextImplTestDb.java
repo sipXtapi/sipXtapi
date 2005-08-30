@@ -97,6 +97,63 @@ public class CoreContextImplTestDb extends TestCase {
         assertEquals(6, users.size());
     }
 
+    public void testSearchByAlias() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        User template = new User();
+        template.setUserName("two");
+        List users = m_core.loadUserByTemplateUser(template);
+        assertEquals(1, users.size());
+        User user = (User) users.get(0);
+        assertEquals("userseed2", user.getUserName());
+    }
+
+    public void testSearchByAliasNotAllowed() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        User template = new User();
+        template.setUserName("two");
+        
+        // Pass in false to turn off matching on aliases, so search should return nothing
+        List users = m_core.loadUserByTemplateUser(template, false);
+        assertEquals(0, users.size());
+    }
+
+    public void testSearchByFirstName() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        User template = new User();
+        template.setFirstName("user4");
+        List users = m_core.loadUserByTemplateUser(template);
+        assertEquals(1, users.size());
+        User user = (User) users.get(0);
+        assertEquals("userseed4", user.getUserName());
+    }
+
+    public void testSearchByLastName() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        User template = new User();
+        template.setLastName("seed5");
+        List users = m_core.loadUserByTemplateUser(template);
+        assertEquals(1, users.size());
+        User user = (User) users.get(0);
+        assertEquals("userseed5", user.getUserName());
+    }
+
+    // Test that we are doing a logical "AND" not "OR".  There is a user with
+    // the specified first name, and a different user with the specified last
+    // name.  Because of the "AND" we should get no matches.
+    public void testSearchByFirstAndLastName() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        User template = new User();
+        template.setFirstName("user4");
+        template.setLastName("seed5");
+        List users = m_core.loadUserByTemplateUser(template);
+        assertEquals(0, users.size());
+    }
+
     public void testSearchFormBlank() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
-	<users user_name="userseed1" pintoken="x" user_id="1001"/>
-	<users user_name="userseed2" pintoken="x" user_id="1002"/>
-	<users user_name="userseed3" pintoken="x" user_id="1003"/>
-	<users user_name="userseed4" pintoken="x" user_id="1004"/>
-	<users user_name="userseed5" pintoken="x" user_id="1005"/>
-	<users user_name="userseed6" pintoken="x" user_id="1006"/>
-	<users user_name="usersee-nofind" pintoken="x" user_id="1007"/>
-	<users user_name="nofind-userseed" pintoken="x" user_id="1008"/>
-	<users user_name="u s e r s e e d" pintoken="x" user_id="1009"/>
-	<users user_name="userwithnoaliases" pintoken="x" user_id="1010"/>
+	<users first_name="" last_name="" user_name="userseed1" pintoken="x" user_id="1001"/>
+	<users first_name="" last_name="" user_name="userseed2" pintoken="x" user_id="1002"/>
+	<users first_name="" last_name="" user_name="userseed3" pintoken="x" user_id="1003"/>
+	<users first_name="user4" last_name="" user_name="userseed4" pintoken="x" user_id="1004"/>
+	<users first_name="" last_name="seed5" user_name="userseed5" pintoken="x" user_id="1005"/>
+	<users first_name="" last_name="" user_name="userseed6" pintoken="x" user_id="1006"/>
+	<users first_name="" last_name="" user_name="usersee-nofind" pintoken="x" user_id="1007"/>
+	<users first_name="" last_name="" user_name="nofind-userseed" pintoken="x" user_id="1008"/>
+	<users first_name="" last_name="" user_name="u s e r s e e d" pintoken="x" user_id="1009"/>
+	<users first_name="" last_name="" user_name="userwithnoaliases" pintoken="x" user_id="1010"/>
 	
 	<user_alias user_id="1001" alias="1"/>
 	<user_alias user_id="1002" alias="2"/>

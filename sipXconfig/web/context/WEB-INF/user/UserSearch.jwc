@@ -6,6 +6,7 @@
     allow-body="yes"
     allow-informal-parameters="no">
     <description>user search criteria form + action button</description>
+    
     <!--
       - P A R A M E T E R S
       -->
@@ -13,7 +14,8 @@
         type="org.apache.tapestry.IActionListener" 
         required="yes" 
         direction="in">
-    </parameter>    
+    </parameter>
+    
     <!--
       - P R O P E R T I E S
       -->
@@ -24,8 +26,9 @@
 		type="org.sipfoundry.sipxconfig.common.User"/>   
 	<property-specification name="users" 
 		type="java.util.List"/>
-    <property-specification name="queryInUse"
-        type="boolean" initial-value="false"/>
+    <property-specification name="firstRender"
+        type="boolean" initial-value="true"/>
+
     <!--
       - C O M P O N E N T S
       -->
@@ -43,20 +46,14 @@
     <component id="lastName" type="TextField">
 	    <binding name="value" expression="user.lastName"/>
     </component>
-    <component id="userNameLabel" type="FieldLabel">
-        <binding name="field" expression="components.userName"/>
-	    <message-binding name="displayName" key="label.userId"/>
+    <component id="userNameOrAliasLabel" type="FieldLabel">
+        <binding name="field" expression="components.userNameOrAlias"/>
+	    <message-binding name="displayName" key="label.userNameOrAlias"/>
     </component>
-    <component id="userName" type="TextField">
+    <!-- The UI captures a string that can be either the username or an alias.
+    	 Feed this string to the page bean in user.userName. --> 
+    <component id="userNameOrAlias" type="TextField">
 	    <binding name="value" expression="user.userName"/>
-    </component>
-    <component id="aliasesLabel" type="FieldLabel">
-        <binding name="field" expression="components.aliases"/>
-    </component>
-    <component id="aliases" type="ValidField">
-	    <binding name="value" expression="user.aliasesString"/>
-        <binding name="validator" expression="page.global.validUsernamePatternSequence"/>
-	    <message-binding name="displayName" key="label.aliases"/>
     </component>
     <component id="search" type="Submit">
         <binding name="listener" expression="listeners.search"/>
@@ -64,7 +61,7 @@
     <component id="cancel" type="Submit">
         <binding name="listener" expression="cancelListener"/>
     </component>    
-    <component id="queryInUse" type="Hidden">
-        <binding name="value" expression="queryInUse"/>
+    <component id="firstRender" type="Hidden">
+        <binding name="value" expression="firstRender"/>
     </component>
 </component-specification>

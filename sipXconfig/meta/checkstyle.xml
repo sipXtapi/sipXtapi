@@ -77,7 +77,9 @@
         <module name="MemberName">
             <property name="format" value="^m_[a-z][a-zA-Z0-9]*_?$"/>
         </module>
-        <module name="MethodName"/>
+        <module name="MethodName">
+			<property name="format" value="^[a-z][a-zA-Z0-9]*_?$"/>
+        </module>
         <module name="PackageName"/>
         <module name="ParameterName">
             <property name="format" value="^[a-z][a-zA-Z0-9]*_?$"/>
@@ -212,6 +214,8 @@
         <module name="usage.UnusedPrivateField">
             <property name="ignoreFormat" value="(_$|Temp$|^serialVersionUID)"/>
         </module>
-        <module name="usage.UnusedPrivateMethod"/>
+        <module name="usage.UnusedPrivateMethod">
+            <property name="ignoreFormat" value="_$"/>
+        </module>
 	</module>
 </module>
