@@ -12,12 +12,14 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
@@ -28,7 +30,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
 public class User extends BeanWithGroups {
-    
+
     public static final String GROUP_RESOURCE_ID = "user";
 
     private String m_firstName;
@@ -40,21 +42,16 @@ public class User extends BeanWithGroups {
     private String m_lastName;
 
     private String m_userName;
-    
-    private Set m_aliases; 
-    
-    
+
+    private Set m_aliases;
+
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
      * user. To keep the PIN secure, we don't store it.
      */
     public String getPintoken() {
         // for robustness, return an empty string rather than null
-        if (m_pintoken == null) {
-            m_pintoken = new String();
-        }
-
-        return m_pintoken;
+        return (String) ObjectUtils.defaultIfNull(m_pintoken, StringUtils.EMPTY);
     }
 
     /**
@@ -125,91 +122,72 @@ public class User extends BeanWithGroups {
     }
 
     public Set getAliases() {
-        if (m_aliases == null) {
-            // When creating the Set directly, rather than indirectly via Hibernate,
-            // use a LinkedHashSet for stable ordering of the Set, purely to simplify
-            // unit testing.
-            m_aliases = new LinkedHashSet(0);
-        }
-        return m_aliases;
+        // When creating the Set directly, rather than indirectly via Hibernate,
+        // use a LinkedHashSet for stable ordering of the Set, purely to simplify
+        // unit testing.
+        return (Set) ObjectUtils.defaultIfNull(m_aliases, new LinkedHashSet(0));
     }
-    
+
     public void setAliases(Set aliases) {
         m_aliases = aliases;
     }
-    
+
     /**
-     * Copy the input aliases to become the aliases of this user, without replacing the
-     * Set object.  For a user read from the DB, Hibernate creates the Set and we don't
-     * want to mess with it.  Also, by copying the aliases, subsequent changes to the 
-     * input Set won't affect the user's Set, since it is a separate object.
+     * Copy the input aliases to become the aliases of this user, without replacing the Set
+     * object. For a user read from the DB, Hibernate creates the Set and we don't want to mess
+     * with it. Also, by copying the aliases, subsequent changes to the input Set won't affect the
+     * user's Set, since it is a separate object.
      */
     public void copyAliases(Set aliases) {
-        getAliases();   // ensure aliases set is not null
+        getAliases(); // ensure aliases set is not null
         m_aliases.clear();
-        for (Iterator iter = aliases.iterator(); iter.hasNext();) {
-            String alias = (String) iter.next();
-            m_aliases.add(alias);
-        }
+        m_aliases.addAll(aliases);
     }
-    
+
     public void addAlias(String alias) {
         getAliases().add(alias);
     }
-    
+
     public void addAliases(String[] aliases) {
-        for (int i = 0; i < aliases.length; i++) {
-            addAlias(aliases[i]);
-        }
+        getAliases().addAll(Arrays.asList(aliases));
     }
 
     /** Return the aliases as a comma-delimited string */
     public String getAliasesString() {
         Set aliases = getAliases();
-        if (!aliases.isEmpty()) {
-            StringBuffer buf = new StringBuffer();
-            for (Iterator iter = aliases.iterator(); iter.hasNext();) {
-                String alias = (String) iter.next();
-                buf.append(alias);
-                if (iter.hasNext()) {
-                    buf.append(", ");
-                }
-            }
-            return buf.toString();
-        } else {
-            return new String();
-        }
+        return StringUtils.join(aliases.iterator(), ", ");
     }
 
     /** Set the aliases from a comma-delimited string */
     public void setAliasesString(String aliasesString) {
         String[] aliases = aliasesArrayFromString(aliasesString);
         getAliases().clear();
-        addAliases(aliases); 
+        addAliases(aliases);
     }
-    
+
     /**
-     * Given a comma-delimited string of aliases, return the aliases as a string
-     * array.  Trim leading and trailing whitespace from each alias.
+     * Given a comma-delimited string of aliases, return the aliases as a string array. Trim
+     * leading and trailing whitespace from each alias.
      */
     public static String[] aliasesArrayFromString(String aliasesString) {
-        if (StringUtils.isEmpty(aliasesString)) {
-            return new String[0];
+        if (StringUtils.isBlank(aliasesString)) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
         String aliasesString2 = aliasesString.trim();
         String[] aliases = aliasesString2.split("\\s*,\\s*");
         return aliases;
     }
-    
+
     public String getUri(String domainName) {
         return SipUri.format(this, domainName);
     }
 
     public List getAliasMappings(String domainName) {
         if (CollectionUtils.safeIsEmpty(m_aliases)) {
-            return Collections.EMPTY_LIST;            
+            return Collections.EMPTY_LIST;
         }
-        
+
+        final String contact = getUri(domainName);
         List mappings = new ArrayList(m_aliases.size());
         for (Iterator iter = m_aliases.iterator(); iter.hasNext();) {
             String alias = (String) iter.next();
@@ -217,11 +195,10 @@ public class User extends BeanWithGroups {
                 throw new RuntimeException("Found an empty alias for user " + m_userName);
             }
             final String identity = AliasMapping.createUri(alias, domainName);
-            final String contact = getUri(domainName);
             AliasMapping mapping = new AliasMapping(identity, contact);
             mappings.add(mapping);
         }
-        
+
         return mappings;
     }
 
@@ -237,5 +214,4 @@ public class User extends BeanWithGroups {
         boolean enabled = Permission.isEnabled(setting.getValue());
         return enabled;
     }
-
 }
