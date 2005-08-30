@@ -56,9 +56,9 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("ManageUsers");
         String[][] table = new String[][] {
+                { NEW_USER_FNAME, NEW_USER_LNAME, NEW_USER_USERNAME, NEW_USER_ALIASES },
                 { TestPage.TEST_USER_FIRSTNAME, TestPage.TEST_USER_LASTNAME,
-                    TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_ALIASES },                
-                { NEW_USER_FNAME, NEW_USER_LNAME, NEW_USER_USERNAME, NEW_USER_ALIASES }
+                    TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_ALIASES }                
             };
         assertTableRowsEqual("user:list", 1, table);                        
     }

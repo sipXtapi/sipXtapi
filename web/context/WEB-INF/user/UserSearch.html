@@ -1,6 +1,6 @@
 <span jwcid="$content$">
 	<span jwcid="@RenderBody"/>
-    <input type="hidden" jwcid="queryInUse"/>
+    <input type="hidden" jwcid="firstRender"/>
 	<fieldset>
 		<legend>User Search</legend>
 		<table>
@@ -26,24 +26,14 @@
 			</tr>
 			<tr>
 				<td>
-                    <label for="userSearch:userName">
-						<span jwcid="userNameLabel">User ID</span>:
+                    <label for="userSearch:userNameOrAlias">
+						<span jwcid="userNameOrAliasLabel">User ID or alias</span>:
                     </label>
 				</td>
 				<td>
-					<input jwcid="userName" id="userSearch:userName"/>
+					<input jwcid="userNameOrAlias" id="userSearch:userNameOrAlias"/>
 				</td>
 			</tr>
-            <tr>
-                <td>
-                    <label for="userSearch:aliases">
-                        <span jwcid="aliasesLabel">Aliases</span>:
-                    </label>
-                </td>
-                <td>
-                    <input jwcid="aliases" id="userSearch:aliases"/>
-                </td>
-            </tr>
 		</table>
 	</fieldset>
 	<ul class="component-submit">

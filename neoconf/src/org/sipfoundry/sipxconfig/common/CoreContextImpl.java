@@ -21,8 +21,6 @@ import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Example;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -143,19 +141,39 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
         return user;       
     }
     
-    public List loadUserByTemplateUser(User template) {
-        final Example example = Example.create(template);
-        example.setPropertySelector(NotNullOrBlank.INSTANCE);
-        example.enableLike(MatchMode.START);
-        example.excludeProperty("id");
-
+    /**
+     * Return all users matching the userTemplate example.
+     * Empty properties of userTemplate are ignored in the search.  The empty string is
+     * effectively a search wildcard.  Therefore if you pass in userTemplate with all
+     * properties left empty, the result set contains all users.
+     * Set matchUserNameOrAlias to true to look for userName matches in either the
+     * userName or aliases properties.  For example, if you pass in userTemplate with
+     * matchUserNameOrAlias set to true, and userTemplate.userName = "102", then the 
+     * search will return users with "102" as either the userName or an alias.  Otherwise
+     * matching is only done on the userName and aliases are ignored.
+     * Strings are matched with a wildcard at the end.  For example, if you pass in
+     * userTemplate.firstName = "jo" then you'll get matches on users with first name =
+     * "jo" or "joe" but not "flojo".
+     */
+    public List loadUserByTemplateUser(final User userTemplate, final boolean matchUserNameOrAlias) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
-                Criteria criteria = session.createCriteria(User.class).add(example);
-                return criteria.list();
+                UserLoader loader = new UserLoader(session);
+                return loader.loadUsers(userTemplate, matchUserNameOrAlias);
             }
         };
-        return getHibernateTemplate().executeFind(callback);
+        List users = getHibernateTemplate().executeFind(callback);
+        
+        // Eliminate any duplicates in the list.  See http://www.hibernate.org/117.html#A11 --
+        // we can't count on the "distinct" keyword in HQL to fix this, because the query 
+        // sometimes uses outer joins.
+        Set usersSet = new HashSet(users);
+        users = new ArrayList(usersSet);
+        return users;
+    }
+   
+    public List loadUserByTemplateUser(User userTemplate) {
+        return loadUserByTemplateUser(userTemplate, true);
     }
 
     public List loadUsers() {

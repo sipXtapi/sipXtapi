@@ -36,9 +36,9 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
     
     public abstract CoreContext getCoreContext();
     
-    public abstract boolean isQueryInUse();
+    public abstract boolean isFirstRender();
     
-    public abstract void setQueryInUse(boolean hasQuery);
+    public abstract void setFirstRender(boolean firstRender);
     
     public void search(IRequestCycle cycle_) {
         // keep original collection, reference has already been given to other
@@ -49,6 +49,7 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
     }
     
     public void pageBeginRender(PageEvent event) {
+        // Initialize the user and users properties if necessary
         if (getUser() == null) {        
             setUser(new User());
         }
@@ -56,8 +57,11 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
             setUsers(new ArrayList());
         }        
         
-        if (!isQueryInUse()) {
-            setQueryInUse(true);
+        // On navigating to this page and rendering for the first time, we don't
+        // want to perform a search, because the user hasn't entered any search
+        // criteria yet.
+        if (isFirstRender()) {
+            setFirstRender(false);
         } else {
             search(event.getRequestCycle());
         }

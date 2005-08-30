@@ -38,7 +38,9 @@ public interface CoreContext extends DataObjectSource {
     public List loadUsers();
     
     public List loadUserByTemplateUser(User template);
-
+    
+    public List loadUserByTemplateUser(User userTemplate, boolean matchUserNameOrAlias);
+    
     public User loadUserByUserName(String userName);
     
     public User loadUserByAlias(String userName);
