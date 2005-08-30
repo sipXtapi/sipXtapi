@@ -228,18 +228,18 @@ AC_DEFUN([SFAC_LIB_MEDIA],
 ## Optionally compile in the GIPS library in the media subsystem
 # (sipXmediaLib project) and executables that link it in
 # Conditionally use the GIPS audio libraries
-AC_DEFUN([CHECK_GIPS],
+AC_DEFUN([CHECK_GIPSNEQ],
 [
-   AC_ARG_WITH(gips,
-      [  --with-gips       Compile the media subsystem with the GIPS audio libraries
+   AC_ARG_WITH(gipsneq,
+      [  --with-gipsneq       Compile the media subsystem with the GIPS audio libraries
 ],
       compile_with_gips=yes)
 
-   AC_MSG_CHECKING(if compile with gips)
+   AC_MSG_CHECKING(if link in with gips NetEQ)
 
    if test x$compile_with_gips = xyes
    then
-      AC_MSG_RESULT(gips)
+      AC_MSG_RESULT(yes)
       
       SFAC_SRCDIR_EXPAND
 
@@ -249,9 +249,9 @@ AC_DEFUN([CHECK_GIPS],
       if test -e $withval/include/GIPS/Vendor_gips_typedefs.h
       then
          gips_dir=$withval
-      elif test -e $abs_srcdir/../gips/include/GIPS/Vendor_gips_typedefs.h
+      elif test -e $abs_srcdir/../sipXbuild/vendors/gips/include/GIPS/Vendor_gips_typedefs.h
       then
-         gips_dir=$abs_srcdir/../gips
+         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
       else
          AC_MSG_ERROR(GIPS/Vendor_gips_typedefs.h not found)
       fi
@@ -261,31 +261,109 @@ AC_DEFUN([CHECK_GIPS],
       # Add GIPS include path
       GIPSINC=$gips_dir/include
       # Add GIPS objects to be linked in
-      GIPS_OBJS=$gips_dir/GIPS_SuSE_i386.a
+      GIPS_NEQ_OBJS=$gips_dir/GIPS_SuSE_i386.a
       CPPFLAGS="$CPPFLAGS $GIPS_CPPFLAGS -I$GIPSINC"
       # GIPS needs to be at the end of the list
       #LIBS="$LIBS $GIPS_OBJS"
 
-      #Check for enabling voice engine if compiling with GIPS
-      AC_ARG_ENABLE(gipsve,
-                 [  --enable-gipsve         Link to GIPS voice engine if --with-gips is set ],
-                 enable_gipsve=yes)
-      AC_MSG_CHECKING(if linking to gips voice engine)
-      if test x$compile_with_gips = xyes
-      then
-        AC_MSG_RESULT(yes)
-        GIPS_CPPFLAGS="$GIPS_CPPFLAGS -DSIPXMEDIA_EXCLUDE"
-      else
-        AC_MSG_RESULT(no)
-      fi
    else
-      AC_MSG_RESULT(not compiling in gips)
+      AC_MSG_RESULT(no)
    fi
 
    AC_SUBST(GIPSINC)
-   AC_SUBST(GIPS_OBJS)
+   AC_SUBST(GIPS_NEQ_OBJS)
    AC_SUBST(GIPS_CPPFLAGS)
-]) # CHECK_GIPS
+
+   AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIALIB/libsipXmediaProcessing.la"])
+]) # CHECK_GIPSNEQ
+
+
+AC_DEFUN([CHECK_GIPSVE],
+[
+   AC_ARG_WITH(gipsve,
+      [  --with-gipsve       Link to GIPS voice engine if --with-gipsve is set],
+      link_with_gipsve=yes)
+
+   AC_MSG_CHECKING(if linking to gips voice engine)
+
+   if test x$link_with_gipsve = xyes
+   then
+      AC_MSG_RESULT(yes)
+      
+      SFAC_SRCDIR_EXPAND
+
+      AC_MSG_CHECKING(for gips includes)
+
+      if test -e $abs_srcdir/../sipXbuild/vendors/gips/VoiceEngine/interface/GipsVoiceEngineLib.h
+      then
+         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
+      else
+         AC_MSG_ERROR(sipXbuild/vendors/gips/VoiceEngine/interface/GipsVoiceEngineLib.h not found)
+      fi
+
+      AC_MSG_RESULT($gips_dir)
+
+      # Add GIPS include path
+      GIPSINC=$gips_dir/VoiceEngine/interface
+      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC"
+      # Add GIPS objects to be linked in
+      GIPS_VE_OBJS="$gips_dir/VoiceEngine/libraries/VoiceEngine_Linux_gcc.a"
+
+   else
+      AC_MSG_RESULT(no)
+   fi
+
+   AC_SUBST(GIPSINC)
+   AC_SUBST(GIPS_VE_OBJS)
+
+   AC_SUBST(SIPXMEDIA_VE_LIBS, ["$SIPXMEDIALIB/libsipXvoiceEngine.la"])
+
+   AM_CONDITIONAL(BUILDVE, test x$link_with_gipsve = xyes)
+
+]) # CHECK_GIPSVE
+
+AC_DEFUN([CHECK_GIPSCE],
+[
+   AC_ARG_WITH(gipsce,
+      [  --with-gipsce       Link to GIPS conference engine if --with-gipsce is set],
+      link_with_gipsce=yes)
+
+   AC_MSG_CHECKING(if linking to gips conference engine)
+
+   if test x$link_with_gipsce = xyes
+   then
+      AC_MSG_RESULT(yes)
+      
+      SFAC_SRCDIR_EXPAND
+
+      AC_MSG_CHECKING(for gips includes)
+
+      if test -e $abs_srcdir/../sipXbuild/vendors/gips/ConferenceEngine/interface/ConferenceEngine.h
+      then
+         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
+      else
+         AC_MSG_ERROR(sipXbuild/vendors/gips/ConferenceEngine/interface/ConferenceEngine.h not found)
+      fi
+
+      AC_MSG_RESULT($gips_dir)
+
+      # Add GIPS include path
+      GIPSINC=$gips_dir/ConferenceEngine/interface
+      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC"
+      # Add GIPS objects to be linked in
+      GIPS_CE_OBJS="$gips_dir/ConferenceEngine/libraries/ConferenceEngine_Linux_gcc.a"
+
+   else
+      AC_MSG_RESULT(no)
+   fi
+
+   AC_SUBST(GIPSINC)
+   AC_SUBST(GIPS_CE_OBJS)
+
+   AC_SUBST(SIPXMEDIA_CE_LIBS, ["$SIPXMEDIALIB/libsipXconferenceEngine.la"])
+   AM_CONDITIONAL(BUILDCE, test x$link_with_gipsce = xyes)
+
+]) # CHECK_GIPSCE
 
 
 ## sipXcallLib
