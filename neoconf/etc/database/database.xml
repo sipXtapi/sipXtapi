@@ -22,6 +22,7 @@
   <property name="sipxconfig.db.password" value=""/>
   <property name="sql.dir" location="${basedir}"/>
   <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
+  <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql"/>
   
   <target name="patches">
       <!-- ANT BUG: sql task has issues when output=absolute file path -->
@@ -69,7 +70,9 @@
     	
   <target name="initialize" depends="tasks" if="initialize">
   	<echo>initialize=${initialize}</echo>
-    <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null"/>
+    <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null">
+      <arg value="noexit"/>
+    </java>
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
@@ -79,6 +82,40 @@
       <transaction src="${sql.dir}/schema.sql"/>
     </sipx-sql>
   </target>  
+
+  <!-- 
+     2.8 Migration
+     Because 2.8 database schema was entirely different than 3.0 schema, we have one giant migration script
+     written in PL/pgSQL db language and uses the 'dblink' module, a postgres contrib package to 
+     translate data.
+    -->
+  <target name="migrate-2.8-setup" description="setup migration">
+    <exec executable="createlang">
+      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}"/>
+    </exec>
+    <condition property="dblink-present">
+      <available file="${dblink.sql}"/>
+    </condition>
+    <fail unless="dblink-present">
+      Failed to find dblink SQL ${dblink.sql}.  You either need to install dblink which is part 
+      of the postgres contrib (rh: yum install postgresql-contrib) or specify your dblink file
+      by passing to this script the following parameter:
+
+        -Ddblink.sql=path to dblink.sql file
+
+    </fail>
+    <sipx-sql>
+      <transaction src="${dblink.sql}"/>
+    </sipx-sql>
+  </target>
+
+  <target name="migrate-2.8" depends="drop,create,migrate-2.8-setup" 
+        description="migrate 2.8 database, note clears all existing 3.0 data">
+
+    <exec executable="psql">
+      <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
+    </exec>
+  </target>
   
   <!-- 
      Migration Targets Legend
