@@ -26,12 +26,7 @@
 #include <cp/CpStringMessage.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/Connection.h>
-#ifndef SIPXMEDIA_EXCLUDE
-#include <cp/sipXmediaFactoryImpl.h>
-#endif
-#include <cp/CpMediaInterfaceFactory.h>
-#include <cp/CpMediaInterfaceFactoryFactory.h>
-
+#include <mi/CpMediaInterfaceFactory.h>
 #include <utl/UtlRegex.h>
 #include <os/OsUtil.h>
 #include <os/OsConfigDb.h>
@@ -43,15 +38,6 @@
 #include <os/OsWriteLock.h>
 #include <net/NameValueTokenizer.h>
 #include <cp/CpPeerCall.h>
-#ifndef SIPXMEDIA_EXCLUDE
-#include <cp/CpPhoneMediaInterface.h>
-#include "mp/MpPlayer.h"
-#include "mp/MpStreamMsg.h"
-#include "mp/MpStreamPlayer.h"
-#include "mp/MpStreamQueuePlayer.h"
-#include "mp/MpStreamPlaylistPlayer.h"
-#include <mp/MpMediaTask.h>    
-#endif
 #include "tao/TaoMessage.h"
 #include "tao/TaoProviderAdaptor.h"
 #include "tao/TaoString.h"
@@ -59,6 +45,15 @@
 #include "ptapi/PtCall.h"
 #include "ptapi/PtEvent.h"
 
+// TO_BE_REMOVED
+#ifndef EXCLUDE_STREAMING
+#include "mp/MpPlayer.h"
+#include "mp/MpStreamMsg.h"
+#include "mp/MpStreamPlayer.h"
+#include "mp/MpStreamQueuePlayer.h"
+#include "mp/MpStreamPlaylistPlayer.h"
+#include <mp/MpMediaTask.h> 
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -126,19 +121,14 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     mnTotalIncomingCalls = 0;
     mnTotalOutgoingCalls = 0;
     mMaxCalls = maxCalls ;
-
+    
     if (pMediaFactory)
     {
         mpMediaFactory = pMediaFactory;
     }
     else
     {
-#ifndef SIPXMEDIA_EXCLUDE
-        mpMediaFactory = new CpMediaInterfaceFactory() ;
-        mpMediaFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb)) ;
-#else
         assert(false);
-#endif
     }
 
     // Instruct the factory to use the specified port range
@@ -276,7 +266,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
         mCallManagerHistory[h].capacity(256);
 
     mMessageEventCount = -1;
-
+    mStunOptions = 0 ;
     mStunKeepAlivePeriodSecs = 0 ;
 }
 
@@ -289,7 +279,7 @@ CpCallManager("CallManager-%d", "call")
 // Destructor
 CallManager::~CallManager()
 {
-    waitUntilShutDown();
+    waitUntilShutDown();   
     if(sipUserAgent)
     {
         delete sipUserAgent;
@@ -556,7 +546,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                     NULL, 
                                     localAddress, numCodecs, codecArray, 
                                     mLocale.data(), mExpeditedIpTos, mStunServer, 
-                                    mStunKeepAlivePeriodSecs);
+                                    mStunOptions, mStunKeepAlivePeriodSecs);
 
 
                                 int inviteExpireSeconds;
@@ -809,9 +799,10 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 ((CpMultiStringMessage&)eventMessage).getString2Data(addressUrl);
                 ((CpMultiStringMessage&)eventMessage).getString4Data(desiredConnectionCallId);
                 contactId = (CONTACT_ID) ((CpMultiStringMessage&)eventMessage).getInt1Data();
+                void* pDisplay = (void*) ((CpMultiStringMessage&)eventMessage).getInt2Data();
 
 
-                doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId) ;
+                doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId, pDisplay) ;
                 messageProcessed = TRUE;
                 break;
             }
@@ -842,15 +833,17 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             {
                 UtlString stunServer ;
                 int iRefreshPeriod ;
+                int iStunOptions ;
                 OsNotification* pNotification ;
 
 
                 CpMultiStringMessage& enableStunMessage = (CpMultiStringMessage&)eventMessage;
                 enableStunMessage.getString1Data(stunServer) ;
                 iRefreshPeriod = enableStunMessage.getInt1Data() ;
-                pNotification = (OsNotification*) enableStunMessage.getInt2Data() ;
+                iStunOptions = enableStunMessage.getInt2Data() ;
+                pNotification = (OsNotification*) enableStunMessage.getInt3Data() ;
 
-                doEnableStun(stunServer, iRefreshPeriod, pNotification) ;
+                doEnableStun(stunServer, iRefreshPeriod, iStunOptions, pNotification) ;
             }
         case CP_ANSWER_CONNECTION:
         case CP_DROP:
@@ -1043,10 +1036,10 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         }
         messageProcessed = TRUE;
         break;
-
+#ifndef EXCLUDE_STREAMING
     case OsMsg::STREAMING_MSG:
         {
-#ifndef SIPXMEDIA_EXCLUDE      
+            // TO_BE_REMOVED
             MpStreamMsg* pMsg = (MpStreamMsg*) &eventMessage ;
             UtlString callId = pMsg->getTarget() ;
 
@@ -1070,11 +1063,11 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             {
                 call->postMessage(eventMessage);
             }
-#else
-            // TODO - figure out how to do the above with the MediaInterface
-#endif
+            
+            //assert(false);
             break;
         }
+#endif 
 
     default:
         {
@@ -1235,7 +1228,8 @@ PtStatus CallManager::connect(const char* callId,
                               const char* toAddressString,
                               const char* fromAddressString,
                               const char* desiredCallIdString,
-                              CONTACT_ID contactId)
+                              CONTACT_ID contactId,
+                              const void* pDisplay)
 {
     UtlString toAddressUrl(toAddressString ? toAddressString : "");
     UtlString fromAddressUrl(fromAddressString ? fromAddressString : "");
@@ -1245,7 +1239,7 @@ PtStatus CallManager::connect(const char* callId,
     if(returnCode == PT_SUCCESS)
     {
         CpMultiStringMessage callMessage(CP_CONNECT, callId,
-            toAddressUrl, fromAddressUrl, desiredCallId, NULL, contactId);
+            toAddressUrl, fromAddressUrl, desiredCallId, NULL, contactId, (int)pDisplay);
         postMessage(callMessage);
     }
     return(returnCode);
@@ -1542,10 +1536,11 @@ void CallManager::stopPremiumSound(const char* callId)
 }
 
 
-
+#ifndef EXCLUDE_STREAMING
 void CallManager::createPlayer(const char* callId,
                                MpStreamPlaylistPlayer** ppPlayer)
 {
+    // TO_BE_REMOVED
     int msgtype = CP_CREATE_PLAYLIST_PLAYER;;
 
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -1573,8 +1568,9 @@ void CallManager::createPlayer(const char* callId,
     {
         eventMgr->release(ev);
     }
+    
+    //assert(false);
 }
-
 
 void CallManager::createPlayer(int type,
                                const char* callId,
@@ -1582,7 +1578,7 @@ void CallManager::createPlayer(int type,
                                int flags,
                                MpStreamPlayer** ppPlayer)
 {
-#ifndef SIPXMEDIA_EXCLUDE
+    // TO_BE_REMOVED
     int msgtype;
 
     switch (type)
@@ -1621,15 +1617,14 @@ void CallManager::createPlayer(int type,
     {
         eventMgr->release(ev);
     }
-#else
-    // TODO - use the Media Interface
-#endif
+    
+    //assert(false);
 }
 
 
 void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPlayer)
 {
-#ifndef SIPXMEDIA_EXCLUDE
+    // TO_BE_REMOVED
     int msgtype = CP_DESTROY_PLAYLIST_PLAYER;
 
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -1660,15 +1655,14 @@ void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPla
 
     // Delete the object
     delete pPlayer;
-#else
-    // TODO - figure out how to do the above with a MediaInterface
-#endif
+    
+    //assert(false);
 }
 
 
 void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pPlayer)
 {
-#ifndef SIPXMEDIA_EXCLUDE
+    // TO_BE_REMOVED
     int msgtype;
     switch (type)
     {
@@ -1720,11 +1714,10 @@ void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pP
         delete pPlayer ;
         break;
     }
-#else
-    // TODO - figure out how to do the above with the MediaInterface
-#endif
+    
+    //assert(false);
 }
-
+#endif
 
 void CallManager::setOutboundLineForCall(const char* callId, const char* address, CONTACT_TYPE eType)
 {
@@ -1734,9 +1727,12 @@ void CallManager::setOutboundLineForCall(const char* callId, const char* address
     postMessage(outboundLineMessage);
 }
 
-void CallManager::acceptConnection(const char* callId, const char* address, CONTACT_TYPE contactType)
+void CallManager::acceptConnection(const char* callId,
+                                   const char* address, 
+                                   CONTACT_TYPE contactType,
+                                   const void* hWnd)
 {
-    CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, NULL, (int) contactType);
+    CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, NULL, (int) contactType, (int) hWnd);
     postMessage(acceptMessage);
 }
 
@@ -2417,9 +2413,17 @@ OsStatus CallManager::setInboundCodecCPULimit(int limit)
     return OS_SUCCESS ;
 }
 
-void CallManager::answerTerminalConnection(const char* callId, const char* address, const char* terminalId)
+void CallManager::answerTerminalConnection(const char* callId, const char* address, const char* terminalId,
+                                           const void* pDisplay)
 {
-    CpMultiStringMessage callConnectionMessage(CP_ANSWER_CONNECTION, callId, address);
+    SIPX_VIDEO_DISPLAY* pDisplayCopy = NULL;
+    
+    if (pDisplay)
+    {
+        pDisplayCopy = new SIPX_VIDEO_DISPLAY(*(SIPX_VIDEO_DISPLAY*)pDisplay);
+    }
+    
+    CpMultiStringMessage callConnectionMessage(CP_ANSWER_CONNECTION, callId, address, NULL, NULL, NULL, (int)pDisplayCopy);
     postMessage(callConnectionMessage);
     mnTotalIncomingCalls++;
 
@@ -2645,10 +2649,11 @@ void CallManager::setMaxCalls(int maxCalls)
 // Enable STUN for NAT/Firewall traversal
 void CallManager::enableStun(const char* szStunServer, 
                              int iKeepAlivePeriodSecs, 
+                             int stunOptions,
                              OsNotification* pNotification)
 {
     CpMultiStringMessage enableStunMessage(CP_ENABLE_STUN, szStunServer, NULL, 
-            NULL, NULL, NULL, iKeepAlivePeriodSecs, (int) pNotification) ;
+            NULL, NULL, NULL, iKeepAlivePeriodSecs, stunOptions, (int) pNotification) ;
     postMessage(enableStunMessage);
 }
 
@@ -3432,6 +3437,7 @@ CpMediaInterfaceFactory* CallManager::getMediaInterfaceFactory()
 
 /* ============================ INQUIRY =================================== */
 
+#if 0 // TO_BE_REMOVED
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 void CallManager::postTaoListenerMessage(int eventId,
                                          int type,
@@ -3584,6 +3590,7 @@ void CallManager::postTaoListenerMessage(int eventId,
         causeStr = OsUtil::NULL_OS_STRING;
     }
 }
+#endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
@@ -3627,7 +3634,7 @@ void CallManager::doCreateCall(const char* callId,
             CpMediaInterface* mediaInterface = mpMediaFactory->createMediaInterface(
                 publicAddress.data(), localAddress.data(),
                 numCodecs, codecArray, mLocale.data(), mExpeditedIpTos,
-                mStunServer, mStunKeepAlivePeriodSecs);
+                mStunServer, mStunOptions, mStunKeepAlivePeriodSecs);
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: 0x%08x\n", (int)mediaInterface);
             call = new CpPeerCall(mIsEarlyMediaFor180,
@@ -3689,7 +3696,8 @@ void CallManager::doCreateCall(const char* callId,
 void CallManager::doConnect(const char* callId,
                             const char* addressUrl, 
                             const char* desiredConnectionCallId, 
-                            CONTACT_ID contactId)
+                            CONTACT_ID contactId,
+                            const void* pDisplay)
 {
     CpCall* call = findHandlingCall(callId);
     if(!call)
@@ -3700,7 +3708,7 @@ void CallManager::doConnect(const char* callId,
     else
     {
         // For now just send the call a dialString
-        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, NULL, contactId) ;
+        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, NULL, contactId, (int)pDisplay) ;
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
         call->stopMetaEvent();
@@ -3728,14 +3736,16 @@ void CallManager::doSendInfo(const char* callId,
 
 void CallManager::doEnableStun(const char* szStunServer, 
                                int iKeepAlivePeriodSecs, 
+                               int stunOptions,
                                OsNotification* pNotification)
 {
     mStunServer = szStunServer ;
+    mStunOptions = stunOptions ;
     mStunKeepAlivePeriodSecs = iKeepAlivePeriodSecs ;
 
     if (sipUserAgent) 
     {
-        sipUserAgent->enableStun(szStunServer, iKeepAlivePeriodSecs, pNotification) ;
+        sipUserAgent->enableStun(szStunServer, iKeepAlivePeriodSecs, stunOptions, pNotification) ;
     }
 }
 

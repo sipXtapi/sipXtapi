@@ -16,8 +16,12 @@ sipXtackLib : sipXportLib
 sipXmediaLib : sipXtackLib
 	@echo sipXmediaLib
 
+.PHONY: sipXmediaAdapterLib
+sipXmediaAdapterLib : sipXmediaLib
+	@echo sipXmediaAdapterLib
+
 .PHONY: sipXcallLib
-sipXcallLib : sipXmediaLib
+sipXcallLib : sipXmediaAdapterLib
 	@echo sipXcallLib
 
 .PHONY: sipXcommserverLib

@@ -23,6 +23,10 @@
 // WDR: class implementations
 
 static wxListBox* codecListControl = NULL;
+static wxChoice* codecPrefControl = NULL;
+static wxStaticText* helpControl = NULL;
+static wxButton* selectButton = NULL;
+static int g_bandWidth;
 
 static wxString bwChoices[] = {
     "Low Bandwidth", "Normal Bandwidth", "High Bandwidth"
@@ -32,6 +36,7 @@ static wxString bwChoices[] = {
 BEGIN_EVENT_TABLE(sipXAudioSettingsDlg,wxDialog)
     EVT_BUTTON( wxID_OK, sipXAudioSettingsDlg::OnOk )
     EVT_BUTTON( wxID_CANCEL, sipXAudioSettingsDlg::OnCancel )
+    EVT_BUTTON( ID_SELECT_SINGLE, sipXAudioSettingsDlg::OnSelect )
     EVT_CHOICE( ID_BANDWIDTH_CHOICE, sipXAudioSettingsDlg::OnCodec )
 END_EVENT_TABLE()
 
@@ -41,32 +46,37 @@ wxSizer *sipXAudioSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_siz
     codecListControl = NULL;
     wxGridSizer *grid0 = new wxGridSizer( 1, 0, 0 );
 
-    wxStaticBox *audio = new wxStaticBox(parent, -1, wxT("Audio"), wxDefaultPosition, wxSize(314, 75), wxALIGN_LEFT);
+    new wxStaticBox(parent, -1, wxT("Audio"), wxDefaultPosition, wxSize(314, 75), wxALIGN_LEFT);
 
-    wxStaticText *item00 = new wxStaticText(parent, ID_TEXT, wxT("Enable echo cancellation?"), wxPoint(10,20), wxSize(130,20), wxALIGN_LEFT );
+    new wxStaticText(parent, ID_TEXT, wxT("Enable echo cancellation?"), wxPoint(10,20), wxSize(130,20), wxALIGN_LEFT );
     wxCheckBox *item01 = new wxCheckBox(parent, ID_ENABLE_AEC, wxT(""), wxPoint(150,20), wxDefaultSize, 0 );
     item01->SetValue(sipXmgr::getInstance().isAECEnabled());
 
-    wxStaticText *item2 = new wxStaticText(parent, ID_TEXT, wxT("Enable ouf-of-band DTMF?"), wxPoint(10,45), wxSize(130, 20), wxALIGN_LEFT );
+    new wxStaticText(parent, ID_TEXT, wxT("Enable ouf-of-band DTMF?"), wxPoint(10,45), wxSize(130, 20), wxALIGN_LEFT );
     wxCheckBox *item3 = new wxCheckBox(parent, ID_ENABLE_OUT_DTMF, wxT(""), wxPoint(150,45), wxDefaultSize, 0 );
     item3->SetValue(sipXmgr::getInstance().isOutOfBandDTMFEnabled());
 
-    wxStaticText *item10 = new wxStaticText(parent, ID_TEXT, wxT("Enable SRTP?"), wxPoint(190,20), wxSize(120, 20), wxALIGN_LEFT );
+    new wxStaticText(parent, ID_TEXT, wxT("Enable SRTP?"), wxPoint(190,20), wxSize(120, 20), wxALIGN_LEFT );
     wxCheckBox *item11 = new wxCheckBox(parent, ID_ENABLE_SRTP, wxT(""), wxPoint(290,20), wxDefaultSize, 0 );
     item11->SetValue(sipXmgr::getInstance().isSRTPEnabled());
 
-    wxStaticBox *codecs = new wxStaticBox(parent, -1, wxT("Codecs"), wxPoint(-1,80), wxSize(314, 180), wxALIGN_LEFT);
+    new wxStaticBox(parent, -1, wxT("Codecs"), wxPoint(-1,80), wxSize(314, 180), wxALIGN_LEFT);
 
-    wxStaticText *item4 = new wxStaticText(parent, ID_TEXT, wxT("Codec preferences"), wxPoint(10,100), wxSize(180, 20), wxALIGN_LEFT );
+    new wxStaticText(parent, ID_TEXT, wxT("Codec preferences"), wxPoint(10,100), wxSize(180, 20), wxALIGN_LEFT );
     wxChoice *item5 = new wxChoice(parent, ID_BANDWIDTH_CHOICE, wxPoint(180,98), wxSize(-1,-1), 3, bwChoices);
 
-    int bandWidth;
-    if (sipXmgr::getInstance().getCodecPreferences(&bandWidth))
+    wxButton* item7 = new wxButton(parent, ID_SELECT_SINGLE, wxT("Select codec"), wxPoint(25, 177), wxDefaultSize);
+    selectButton = item7;
+    codecPrefControl = item5;
+    wxStaticText* item6 = new wxStaticText(parent, ID_TEXT, wxT(""), wxPoint(10,205), wxSize(130, 40), wxALIGN_LEFT );
+    helpControl = item6;
+
+    if (sipXmgr::getInstance().getCodecPreferences(&g_bandWidth))
     {
-        item5->SetSelection(bandWidth-1);
+        codecPrefControl->SetSelection(g_bandWidth-1);
     }
 
-    wxStaticText *item7 = new wxStaticText(parent, ID_TEXT, wxT("Supported codecs for this codec preference\n"), wxPoint(10,130), wxSize(120,-1), wxALIGN_LEFT );
+    new wxStaticText(parent, ID_TEXT, wxT("Supported codecs for this codec preference\n"), wxPoint(10,130), wxSize(120,-1), wxALIGN_LEFT );
 
     UtlString sData = "*sipXtapi error*";
     sipXmgr::getInstance().getCodecList(sData);
@@ -85,7 +95,9 @@ wxSizer *sipXAudioSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_siz
         tokTmp = strtok(NULL, "\n");
     }
 
-    wxButton *item9 = new wxButton(parent, wxID_OK, wxT("OK"), wxPoint(200, 270), wxDefaultSize);
+    ((sipXAudioSettingsDlg*)parent)->DeselectedCodec();
+
+    new wxButton(parent, wxID_OK, wxT("OK"), wxPoint(200, 270), wxDefaultSize);
     
     return grid0;
 }
@@ -130,10 +142,15 @@ void sipXAudioSettingsDlg::OnOk(wxCommandEvent &event)
 
     pChoice = (wxChoice*)sipXAudioSettingsDlg::FindWindowById(ID_BANDWIDTH_CHOICE, this);
     pos = pChoice->GetSelection();
-    sipXmgr::getInstance().setCodecPreferences(pos+1);
-    sipXezPhoneSettings::getInstance().setCodecPref(pos+1);
+    
+    // Don't change preferences on custom setting
+    if (g_bandWidth != 4)
+    {
+        sipXmgr::getInstance().setCodecPreferences(pos+1);
+        sipXezPhoneSettings::getInstance().setCodecPref(pos+1);
 
-    sipXezPhoneSettings::getInstance().saveSettings();
+        sipXezPhoneSettings::getInstance().saveSettings();
+    }
     
     event.Skip();
 }
@@ -147,7 +164,7 @@ void sipXAudioSettingsDlg::OnCodec(wxCommandEvent &event)
 {
     int i = event.GetSelection();
 
-    if (codecListControl)
+    if (codecListControl && i < 3)
     {
         sipXmgr::getInstance().setCodecPreferences(i+1);
         codecListControl->Clear();
@@ -165,9 +182,58 @@ void sipXAudioSettingsDlg::OnCodec(wxCommandEvent &event)
             codecListControl->Append(wxT(tokTmp));
             tokTmp = strtok(NULL, "\n");
         }
+        if (codecPrefControl->GetCount() == 4)
+        {
+            codecPrefControl->Delete(g_bandWidth-1);
+            DeselectedCodec();
+        }
+        g_bandWidth = i + 1;
     }
 }
 
+void sipXAudioSettingsDlg::OnSelect(wxCommandEvent &event)
+{
+    wxString x;
 
+    int i = codecListControl->GetSelection();
 
+    if (i != -1)
+    {
+        x = codecListControl->GetStringSelection();
+        g_bandWidth = 4;
+
+        codecPrefControl->Append("By name:");
+        codecPrefControl->SetSelection(g_bandWidth-1);
+
+        sipXmgr::getInstance().setAudioCodecByName((const char *)x);
+        codecListControl->Clear();
+
+        UtlString sData = "*sipXtapi error*";
+        sipXmgr::getInstance().getCodecList(sData);
+
+        char *tokTmp;
+        char *str = (char*)sData.data();
+
+        tokTmp = strtok(str, "\n");
+
+        while (tokTmp != NULL)
+        {
+            codecListControl->Append(wxT(tokTmp));
+            tokTmp = strtok(NULL, "\n");
+        }
+        SelectedCodec();
+    }
+}
+
+void sipXAudioSettingsDlg::SelectedCodec()
+{
+    helpControl->SetLabel("(Reset single codec\nselection by selecting a\ndifferent bandwidth.)");
+    selectButton->Disable();
+}
+
+void sipXAudioSettingsDlg::DeselectedCodec()
+{
+    helpControl->SetLabel("(Select highlighted codec\nand use only that\ncodec.)");
+    selectButton->Enable();
+}
 

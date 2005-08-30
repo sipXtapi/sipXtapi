@@ -16,6 +16,7 @@
 #include <net/SipMessage.h>
 #include <net/SipLineMgr.h>
 #include <net/SipRefreshMgr.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
 
 #ifdef _WIN32
   #define _CRTDBG_MAP_ALLOC
@@ -28,6 +29,7 @@ _CrtMemState MemStateDiff;
 
 #define BROKEN_INITTEST
 
+#define NUM_OF_RUNS 10
 /**
  * Unittest for CallManager
  */
@@ -123,7 +125,7 @@ public:
 #ifdef _WIN32
         _CrtMemCheckpoint(&MemStateBegin);
 #endif
-        for (int i=0; i<10; ++i)
+        for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             CallManager *pCallManager =
                new CallManager(FALSE,
@@ -153,20 +155,25 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               NULL); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif
             pCallManager->start();
-
+            
             pCallManager->requestShutdown();
 
 #if 0
             printf("Deleting CallManager\n");
 #endif
-            //delete pCallManager;
-
+            delete pCallManager;
         }
+        
+        for (int i=0; i<NUM_OF_RUNS; ++i)
+        {
+            sipxDestroyMediaFactoryFactory() ;
+        }
+            
 #ifdef _WIN32
         _CrtMemCheckpoint(&MemStateEnd);
         if (_CrtMemDifference(&MemStateDiff, &MemStateBegin, &MemStateEnd))
@@ -178,7 +185,7 @@ public:
 
     void testUATeardown()
     {
-        for (int i=0; i<10; ++i)
+        for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             SipUserAgent* sipUA = new SipUserAgent( 5090
                                                     ,5090
@@ -230,7 +237,7 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               NULL); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif
@@ -245,11 +252,16 @@ public:
             delete pCallManager;
 
         }
+        
+        for (int i=0; i<NUM_OF_RUNS; ++i)
+        {
+            sipxDestroyMediaFactoryFactory() ;
+        }
     }
 
     void testLineMgrUATeardown()
     {
-        for (int i=0; i<10; ++i)
+        for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             SipLineMgr*    lineMgr = new SipLineMgr();
             lineMgr->StartLineMgr();
@@ -302,7 +314,7 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               NULL); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif
@@ -321,11 +333,16 @@ public:
             delete pCallManager;
             delete lineMgr;
         }
+        
+        for (int i=0; i<NUM_OF_RUNS; ++i)
+        {
+            sipxDestroyMediaFactoryFactory() ;
+        }
     }
 
     void testRefreshMgrUATeardown()
     {
-        for (int i=0; i<10; ++i)
+        for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             SipLineMgr*    lineMgr = new SipLineMgr();
             SipRefreshMgr* refreshMgr = new SipRefreshMgr();
@@ -385,7 +402,7 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               NULL); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif
@@ -403,6 +420,11 @@ public:
             delete pCallManager;
             delete refreshMgr;
             delete lineMgr;
+        }
+        
+        for (int i=0; i<NUM_OF_RUNS; ++i)
+        {
+            sipxDestroyMediaFactoryFactory() ;
         }
     }
 

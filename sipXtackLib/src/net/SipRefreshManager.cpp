@@ -133,7 +133,8 @@ RefreshDialogState::operator=(const RefreshDialogState& rhs)
 // Constructor
 SipRefreshManager::SipRefreshManager(SipUserAgent& userAgent, 
                                      SipDialogMgr& dialogMgr)
-: mRefreshMgrMutex(OsMutex::Q_FIFO)
+    : OsServerTask("SipRefreshManager-%d")
+    , mRefreshMgrMutex(OsMutex::Q_FIFO)
 {
     mpUserAgent = &userAgent;
     mpDialogMgr = &dialogMgr;

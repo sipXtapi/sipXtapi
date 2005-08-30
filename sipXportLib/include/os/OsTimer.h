@@ -53,6 +53,30 @@ class OsTimer : public UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   // Possible states for the OsTimer object.  The state progression is from
+   // CREATED -> STARTED -> STOPPED.  The meaning of the states and state
+   // transitions is as follows:
+   // 
+   // CREATED                    The object has been constructed
+   // CREATED->STARTED           A timer start request has been sent to the
+   //                             OsTimerTask. As part of this transition, the
+   //                             client acquires the mSemaphore lock.
+   // STARTED->STOPPED           Either the timer has been explicitly stopped
+   //                             (by sending a STOP message to the
+   //                             OsTimerTask), or we have a oneshot timer
+   //                             that has expired. As part of this
+   //                             transition, the OsTimerTask releases the
+   //                             mSemaphore lock.
+   // STOPPED->STARTED           The client sends another start request for
+   //                             this OsTimer object (and again acquires the
+   //                             mSemaphore lock.
+   enum OsTimerState
+   {
+      CREATED,                // initial state
+      STARTED,                // timer start request has been submitted
+      STOPPED                 // timer has been stopped
+   };
+
 /* ============================ CREATORS ================================== */
 
     //:Constructor
@@ -120,6 +144,10 @@ public:
      */
     virtual int compareTo(UtlContainable const *) const ;
 
+    virtual int getState(void) const;
+     //:Return the state value for this OsTimer object
+
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     static UtlContainableType TYPE ;   /** < Class type used for runtime checking */
@@ -127,35 +155,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   enum OsTimerType
+ enum OsTimerType
    {
       UNSPECIFIED = 0x0,      // not initialized
       ONESHOT     = 0x1,      // expire at the specified offset
       PERIODIC    = 0x2,      // expire every period
-   };
-
-   // Possible states for the OsTimer object.  The state progression is from
-   // CREATED -> STARTED -> STOPPED.  The meaning of the states and state
-   // transitions is as follows:
-   // 
-   // CREATED                    The object has been constructed
-   // CREATED->STARTED           A timer start request has been sent to the
-   //                             OsTimerTask. As part of this transition, the
-   //                             client acquires the mSemaphore lock.
-   // STARTED->STOPPED           Either the timer has been explicitly stopped
-   //                             (by sending a STOP message to the
-   //                             OsTimerTask), or we have a oneshot timer
-   //                             that has expired. As part of this
-   //                             transition, the OsTimerTask releases the
-   //                             mSemaphore lock.
-   // STOPPED->STARTED           The client sends another start request for
-   //                             this OsTimer object (and again acquires the
-   //                             mSemaphore lock.
-   enum OsTimerState
-   {
-      CREATED,                // initial state
-      STARTED,                // timer start request has been submitted
-      STOPPED                 // timer has been stopped
    };
 
    virtual void doStartTimer(void);
@@ -168,9 +172,6 @@ private:
      //:Return the period of a periodic timer
      // If the timer is not periodic, return an infinite period.
    
-   virtual int getState(void) const;
-     //:Return the state value for this OsTimer object
-
    virtual int getTimerId(void) const;
      //:Return the system timer id for this object.
      // This method should only be called by the OsSysTimer object.

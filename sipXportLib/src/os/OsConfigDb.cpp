@@ -21,6 +21,9 @@
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigEncryption.h"
+#include "utl/UtlSortedListIterator.h"
+#include "utl/UtlSList.h"
+#include "utl/UtlSListIterator.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -269,6 +272,29 @@ OsStatus OsConfigDb::remove(const UtlString& rKey)
    }
 }
 
+// Remove all the key/value pairs starting with the designated prefix
+OsStatus OsConfigDb::removeByPrefix(const UtlString& rPrefix) 
+{
+   OsWriteLock lock(mRWMutex);
+   DbEntry* pEntry ;
+
+   UtlSortedListIterator itor(mDb) ;
+   while (pEntry = (DbEntry*) itor())
+   {
+       if (pEntry->key.length() >= rPrefix.length())
+       {
+           UtlString keyPrefix = pEntry->key ;
+           keyPrefix.remove(rPrefix.length()) ;
+           if (keyPrefix.compareTo(rPrefix, UtlString::ignoreCase) == 0)
+           {
+               remove(pEntry->key) ;
+           }
+       }      
+   }
+   
+   return OS_SUCCESS ;
+}
+
 // Insert the key/value pair into the config database.
 // If the database already contains an entry for this key, then replace it
 // with the new key/value pair.
@@ -279,6 +305,22 @@ void OsConfigDb::set(const UtlString& rKey, const UtlString& rNewValue)
    if (rKey.length() > 0) {
       insertEntry(rKey, rNewValue);
    }
+}
+
+// Insert the key/value pair into the config database If the
+// database already contains an entry for this key, then set the
+// value for the existing entry to iNewValue.
+void OsConfigDb::set(const UtlString& rKey, const int iNewValue) 
+{
+    UtlString newValue ;
+
+    // Convert to String
+    char cTemp[64] ;
+    sprintf(cTemp, "%d", iNewValue);
+
+    // Set
+    newValue = cTemp ;    
+    set(rKey, newValue) ;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -479,6 +521,80 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
    else
       return OS_NO_MORE_DATA;
 }
+
+
+// Stores a list of strings to the configuration datadase using the 
+// designated prefix as the base for the list items. 
+void OsConfigDb::addList(const UtlString& rPrefix,
+                         UtlSList& rList) 
+{
+    OsWriteLock lock(mRWMutex);
+    int iNumEntries ;
+    UtlString key ;
+    UtlString* pValue ;
+
+    // First remove all items start with the specified prefix
+    removeByPrefix(rPrefix) ;
+
+    // Next add all of the new items
+    iNumEntries = rList.entries() ;
+    if (iNumEntries > 0)
+    {
+        key = rPrefix ;
+        key.append(".COUNT") ;
+        set(key, iNumEntries) ;
+
+        UtlSListIterator itor(rList) ;        
+        int iCount = 1 ;
+        char cTemp[64] ;
+        while (pValue = (UtlString*) itor())
+        {
+            sprintf(cTemp, "%d", iCount++);   
+            key = rPrefix ;
+            key.append(".") ;
+            key.append(cTemp) ;
+
+            set(key, *pValue) ;            
+        }
+    }
+}
+
+
+// Loads a list of strings from the configuration datadase using the 
+// designated prefix as the base for the list items.
+int OsConfigDb::loadList(const UtlString& rPrefix,
+                         UtlSList& rList) 
+{
+    OsReadLock lock(mRWMutex);
+    int iNumEntries ;
+    int rc = 0 ; 
+    UtlString key ;
+    UtlString value ;
+    char cTemp[64] ;
+
+    // Get number of items
+    key = rPrefix ;
+    key.append(".COUNT") ;    
+    if (get(key, iNumEntries) == OS_SUCCESS)
+    {
+        for (int i = 0; i < iNumEntries; i++)
+        {            
+            sprintf(cTemp, "%d", i+1);
+            key = rPrefix ;
+            key.append(".") ;
+            key.append(cTemp) ;
+
+            if (get(key, value) == OS_SUCCESS)
+            {
+                rList.append(new UtlString(value)) ;
+                rc++ ;
+            }
+        }        
+    }
+
+    return rc ;
+}
+
 
 // Get a port number from the configuration database
 int OsConfigDb::getPort(const char* szKey)

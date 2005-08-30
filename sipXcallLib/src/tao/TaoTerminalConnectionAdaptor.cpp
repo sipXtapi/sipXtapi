@@ -17,9 +17,9 @@
 #include "tao/TaoTransportTask.h"
 #include "tao/TaoString.h"
 #include "cp/CpCallManager.h"
-#ifndef SIPXMEDIA_EXCLUDE
+
+// TO_BE_REMOVED
 #include "mp/MpStreamPlaylistPlayer.h"
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -535,11 +535,8 @@ TaoStatus TaoTerminalConnectionAdaptor::createPlayer(TaoMessage& rMsg)
    const char* szCallId = arg[3] ;
 
 
-    #ifndef SIPXMEDIA_EXCLUDE   
-        mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYER, szCallId, szStream, flags, ppPlayer) ;
-    #else
-        // TODO - use the Media Interface to create a player
-    #endif 
+    // TO_BE_REMOVED   
+    mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYER, szCallId, szStream, flags, ppPlayer) ;
 
     rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 
@@ -583,15 +580,12 @@ TaoStatus TaoTerminalConnectionAdaptor::createPlaylistPlayer(TaoMessage& rMsg)
    MpStreamPlaylistPlayer** ppPlayer = (MpStreamPlaylistPlayer**) atoi(arg[0]) ;
    const char* szCallId = arg[1] ;
 
-    #ifndef SIPXMEDIA_EXCLUDE
+    // TO_BE_REMOVED
     mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYLIST_PLAYER,
         szCallId,
         NULL,
         0,
         (MpStreamPlayer **)ppPlayer) ;
-    #else
-        // TODO - create a player using the Media Interface
-    #endif
 
         rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 
@@ -613,11 +607,8 @@ TaoStatus TaoTerminalConnectionAdaptor::destroyPlaylistPlayer(TaoMessage& rMsg)
    MpStreamPlaylistPlayer* pPlayer = (MpStreamPlaylistPlayer*) atoi(arg[0]) ;
    const char* szCallId = arg[1] ;
 
-    #ifndef SIPXMEDIA_EXCLUDE
-        mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYLIST_PLAYER, szCallId, (MpStreamPlayer *)pPlayer) ;
-    #else
-        // TODO - destroy the player through the Media Interface
-    #endif
+    // TO_BE_REMOVED
+    mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYLIST_PLAYER, szCallId, (MpStreamPlayer *)pPlayer) ;
 
     rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 

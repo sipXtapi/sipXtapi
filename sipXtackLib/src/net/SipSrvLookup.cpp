@@ -288,8 +288,15 @@ server_t* SipSrvLookup::servers(const char* domain,
    OsLock lock(sMutex);
 
    // Case 0: Eliminate contradictory combinations of service and type.
-   if ((strcmp(service, "sip") == 0 && socketType == OsSocket::SSL_SOCKET) ||
-       (strcmp(service, "sips") == 0 &&
+   
+   // 2006-08-18: bandreasen: This code was guarding against a sip: url
+   //     mixed with a socketType of SSL_SOCKET.  This is a prefectly
+   //     reasonable request <sip:foo@example.com;transport=tls>. 
+   //     This indicates that the next hop should use tls, however, tls
+   //     is not required for the entire path (proxy to proxy).
+   //
+   //     Check deleted and rest of the code has been adapted.
+   if ((strcmp(service, "sips") == 0 &&
         (socketType == OsSocket::TCP || socketType == OsSocket::UDP)))
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
@@ -307,8 +314,8 @@ server_t* SipSrvLookup::servers(const char* domain,
       // If port was specified in the URI, that is the port to use.
       // Otherwise, if the service is sips, use 5061.  Otherwise use 5060.
       in.sin_port = htons(portIsValid(port) ? port :
-                          strcmp(service, "sips") == 0 ? 5061 :
-                          5060);
+                          ((strcmp(service, "sips") == 0) || (socketType == OsSocket::SSL_SOCKET)) ? 
+                          5061 : 5060);
       // Set the transport if it is not already set for SIPS.
       if (socketType == OsSocket::UNKNOWN &&
           strcmp(service, "sips") == 0)
@@ -340,6 +347,14 @@ server_t* SipSrvLookup::servers(const char* domain,
             lookup_SRV(list, list_length_allocated, list_length_used,
                        domain, service, "tcp", OsSocket::TCP);
          }
+
+         // If TLS transport is acceptable.
+         if (socketType == OsSocket::UNKNOWN ||
+              socketType == OsSocket::SSL_SOCKET)
+         {
+            lookup_SRV(list, list_length_allocated, list_length_used,
+                       domain, service, "tls", OsSocket::SSL_SOCKET);
+         }
       }
       // Case 3: Look for A records.
       // (Only used for non-numeric addresses for which SRV lookup did not
@@ -356,8 +371,8 @@ server_t* SipSrvLookup::servers(const char* domain,
                   NULL,
                   // Default the port if it is not already set.
                   (portIsValid(port) ? port :
-                   strcmp(service, "sips") == 0 ? 5061 :
-                   5060),
+                  ((strcmp(service, "sips") == 0) || (socketType == OsSocket::SSL_SOCKET)) ? 
+                  5061 : 5060),
                   // Set the priority and weight to 0.
                   0, 0);
       }
@@ -367,6 +382,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    qsort(list, list_length_used, sizeof (server_t), server_compare);
 
    // Add ending empty element to list (after sorting the real entries).
+   memset(&in, 0, sizeof(in)) ;
    server_insert(list, list_length_allocated, list_length_used,
                  NULL, OsSocket::UNKNOWN, in, 0, 0);
 

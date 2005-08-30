@@ -25,11 +25,8 @@
 #include <net/Url.h>
 #include <net/SipSession.h>
 #include <net/NetBase64Codec.h>
-#ifndef SIPXMEDIA_EXCLUDE
-#include <mp/dtmflib.h>
-#endif
 #include <cp/SipConnection.h>
-#include <cp/CpMediaInterface.h>
+#include <mi/CpMediaInterface.h>
 #include <cp/CallManager.h>
 #include <cp/CpCallManager.h>
 #include <cp/CpPeerCall.h>
@@ -248,6 +245,8 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
             UtlString rtpAddress;
             int rtpPort;
             int rtcpPort;
+            int videoRtpPort;
+            int videoRtcpPort;
             const SdpBody* bodyPtr = sipMsg->getSdpBody();
             if(bodyPtr)
             {
@@ -256,7 +255,8 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
                 bodyPtr->getBestAudioCodecs(*codecFactory,
                     numMatchingCodecs,
                     matchingCodecs,
-                    rtpAddress, rtpPort, rtcpPort);
+                    rtpAddress, rtpPort, rtcpPort,
+                    videoRtpPort, videoRtcpPort);
                 if(numMatchingCodecs > 0)
                 {
                     // Need to cleanup the codecs
@@ -545,13 +545,17 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                const char* callId,
                                const char* callController,
                                const char* originalCallConnection,
-                               UtlBoolean requestQueuedCall)
+                               UtlBoolean requestQueuedCall,
+                               const void* pDisplay)
 {
     UtlBoolean dialOk = FALSE;
     SipMessage sipInvite;
     const char* callerDisplayName = NULL;
     int receiveRtpPort;
     int receiveRtcpPort;
+    int receiveVideoRtpPort;
+    int receiveVideoRtcpPort;
+    SdpSrtpParameters srtpParams;
     UtlString rtpAddress;
     UtlString dummyFrom;
     UtlString fromAddress;
@@ -561,14 +565,17 @@ UtlBoolean SipConnection::dial(const char* dialString,
     if(getState() == CONNECTION_IDLE && mpMediaInterface != NULL)
     {
         // Create a new connection in the media flowgraph
-        mpMediaInterface->createConnection(mConnectionId);
+        mpMediaInterface->createConnection(mConnectionId, (void*)pDisplay);
         mpMediaInterface->setContactType(mConnectionId, mContactType) ;
         SdpCodecFactory supportedCodecs;
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
             receiveRtcpPort,
-            supportedCodecs);
+            receiveVideoRtpPort, 
+            receiveVideoRtcpPort,
+            supportedCodecs,
+            srtpParams);
 
         mRemoteIsCallee = TRUE;
         setCallId(callId);
@@ -600,7 +607,8 @@ UtlBoolean SipConnection::dial(const char* dialString,
             // Prepare to receive the codecs
             mpMediaInterface->startRtpReceive(mConnectionId,
                 numCodecs,
-                rtpCodecsArray);
+                rtpCodecsArray,
+                srtpParams);
 
             // Create a contact using the host & port from the
             // SipUserAgent and the display name and userId from
@@ -609,7 +617,10 @@ UtlBoolean SipConnection::dial(const char* dialString,
             // Create and send an INVITE
             sipInvite.setInviteData(fromAddress.data(), goodToAddress.data(),
                 NULL, mLocalContact.data(), callId, rtpAddress.data(),
-                receiveRtpPort, receiveRtcpPort, lastLocalSequenceNumber,
+                receiveRtpPort, receiveRtcpPort, 
+                receiveVideoRtpPort, receiveVideoRtcpPort,
+                srtpParams,
+                lastLocalSequenceNumber,
                 numCodecs, rtpCodecsArray, mDefaultSessionReinviteTimer);
 
             // Free up the codecs and the array
@@ -755,7 +766,7 @@ UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
     return bRet;
 }
 
-UtlBoolean SipConnection::answer()
+UtlBoolean SipConnection::answer(const void* pDisplay)
 {
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_WARNING,
@@ -767,7 +778,10 @@ UtlBoolean SipConnection::answer()
     UtlString rtpAddress;
     int receiveRtpPort;
     int receiveRtcpPort;
+    int receiveVideoRtpPort;
+    int receiveVideoRtcpPort;
     SdpCodecFactory supportedCodecs;
+    SdpSrtpParameters srtpParams;
 
 
     int currentState = getState();
@@ -781,12 +795,16 @@ UtlBoolean SipConnection::answer()
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
 
+        mpMediaInterface->setVideoWindowDisplay(pDisplay);
         // Get supported codecs
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
             receiveRtcpPort,
-            supportedCodecs);
+            receiveVideoRtpPort,        // VIDEO: TODO
+            receiveVideoRtcpPort,
+            supportedCodecs,
+            srtpParams);
 
         getInitialSdpCodecs(inviteMsg, supportedCodecs,
             numMatchingCodecs, matchingCodecs,
@@ -845,15 +863,20 @@ UtlBoolean SipConnection::answer()
                 rtpAddress,
                 receiveRtpPort,
                 receiveRtcpPort,
-                supportedCodecs);
+                receiveVideoRtpPort,        // VIDEO: TODO
+                receiveVideoRtcpPort,
+                supportedCodecs,
+                srtpParams);
 
             // Build response
             SipMessage sipResponse;
 
             sipResponse.setInviteOkData(inviteMsg, rtpAddress.data(),
-                receiveRtpPort, receiveRtcpPort, numMatchingCodecs,
-                matchingCodecs, mDefaultSessionReinviteTimer,
-                mLocalContact.data());
+                receiveRtpPort, receiveRtcpPort, 
+                receiveVideoRtpPort, receiveVideoRtcpPort,
+                numMatchingCodecs, matchingCodecs, 
+                srtpParams,
+                mDefaultSessionReinviteTimer, mLocalContact.data());
 
             // Send a INVITE OK response
             if(!send(sipResponse))
@@ -888,7 +911,7 @@ UtlBoolean SipConnection::answer()
                 // Start receiving media
                 SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
                 mpMediaInterface->startRtpReceive(mConnectionId,
-                    numMatchingCodecs, matchingCodecs);
+                    numMatchingCodecs, matchingCodecs, srtpParams);
 
                 // if we have a send codec chosen Start sending media
                 if(numMatchingCodecs > 0)
@@ -896,7 +919,9 @@ UtlBoolean SipConnection::answer()
                     mpMediaInterface->setConnectionDestination(mConnectionId,
                         remoteRtpAddress.data(),
                         remoteRtpPort,
-                        remoteRtcpPort);
+                        remoteRtcpPort,
+                        receiveVideoRtpPort,
+                        receiveVideoRtcpPort);
                     // Set up the remote RTP sockets
 #ifdef TEST_PRINT
                     osPrintf("RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
@@ -907,16 +932,20 @@ UtlBoolean SipConnection::answer()
                         //SdpCodec sndCodec((SdpCodec::SdpCodecTypes)
                         //    sendCodec);
                         mpMediaInterface->startRtpSend(mConnectionId,
-                            numMatchingCodecs, matchingCodecs);
+                            numMatchingCodecs, matchingCodecs, srtpParams);
 
                         // If sipX TAPI, fire audio start event
-                        UtlString codecName;
-                        SIPX_AUDIO_CODEC tapiCodec;
+                        UtlString audioCodecName;
+                        UtlString videoCodecName;
+                        SIPX_CODEC_INFO tapiCodec;
                         if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
-                                                              codecName, 
-                                                              &tapiCodec.iPayloadType) == OS_SUCCESS)
+                                                              audioCodecName, 
+                                                              videoCodecName,
+                                                              &tapiCodec.audioCodec.iPayloadType,
+                                                              &tapiCodec.videoCodec.iPayloadType) == OS_SUCCESS)
                         {
-                            strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                            strncpy(tapiCodec.audioCodec.cName, audioCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                            strncpy(tapiCodec.videoCodec.cName, videoCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                             fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                         }
                     }
@@ -961,6 +990,8 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
+        int receiveVideoRtpPort;
+        int receiveVideoRtcpPort;
         //UtlBoolean receiveCodecSet;
         //UtlBoolean sendCodecSet;
         int numMatchingCodecs = 0;
@@ -969,6 +1000,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
         UtlString replaceCallId;
         UtlString replaceToTag;
         UtlString replaceFromTag;
+        SdpSrtpParameters srtpParams;
 
         // Make sure that this isn't part of a transfer.  If we find a
         // REPLACES header, then we shouldn't accept the call, but rather
@@ -990,7 +1022,10 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
                 rtpAddress,
                 receiveRtpPort,
                 receiveRtcpPort,
-                supportedCodecs);
+                receiveVideoRtpPort,    // VIDEO: TODO
+                receiveVideoRtcpPort,
+                supportedCodecs,
+                srtpParams);
 
             // Get the codecs if SDP is provided
             getInitialSdpCodecs(inviteMsg,
@@ -1003,7 +1038,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
             {
                 SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
                 mpMediaInterface->startRtpReceive(mConnectionId,
-                        numMatchingCodecs, matchingCodecs);
+                        numMatchingCodecs, matchingCodecs, srtpParams);
             }
             ringingSent = TRUE;
             proceedToRinging(inviteMsg, sipUserAgent, -1, mLineAvailableBehavior);
@@ -1127,6 +1162,7 @@ UtlBoolean SipConnection::hangUp()
 UtlBoolean SipConnection::hold()
 {
     UtlBoolean messageSent = FALSE;
+    SdpSrtpParameters srtpParams;
     // If the call is connected and we are not in the middle of a SIP transaction
     if(mpMediaInterface != NULL && 
             inviteMsg && getState() == CONNECTION_ESTABLISHED &&
@@ -1136,12 +1172,17 @@ UtlBoolean SipConnection::hold()
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
+        int receiveVideoRtpPort;
+        int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
             receiveRtcpPort,
-            supportedCodecs);
+            receiveVideoRtpPort,    // VIDEO: TODO
+            receiveVideoRtcpPort,
+            supportedCodecs,
+            srtpParams);
         int numCodecs = 0;
         SdpCodec** codecsArray = NULL;
         supportedCodecs.getCodecs(numCodecs, codecsArray);
@@ -1156,9 +1197,12 @@ UtlBoolean SipConnection::hold()
             "0.0.0.0",
             receiveRtpPort,
             receiveRtcpPort,
+            receiveVideoRtpPort,
+            receiveVideoRtcpPort,
             ++lastLocalSequenceNumber,
             numCodecs,
             codecsArray,
+            srtpParams,
             mDefaultSessionReinviteTimer);
 
         if(inviteMsg) 
@@ -1202,6 +1246,8 @@ UtlBoolean SipConnection::renegotiateCodecs()
 UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
 {
     UtlBoolean messageSent = FALSE;
+    SdpSrtpParameters srtpParams;
+
     // If the call is connected and
     // we are not in the middle of a SIP transaction
     if(mpMediaInterface != NULL && 
@@ -1215,12 +1261,17 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
+        int receiveVideoRtpPort;
+        int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
             receiveRtcpPort,
-            supportedCodecs);
+            receiveVideoRtpPort,    // VIDEO: TODO
+            receiveVideoRtcpPort,
+            supportedCodecs,
+            srtpParams);
 
         int numCodecs = 0;
         SdpCodec** rtpCodecs = NULL;
@@ -1241,9 +1292,12 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
             rtpAddress.data(),
             receiveRtpPort,
             receiveRtcpPort,
+            receiveVideoRtpPort,
+            receiveVideoRtcpPort,
             ++lastLocalSequenceNumber,
             numCodecs,
             rtpCodecs,
+            srtpParams,
             mDefaultSessionReinviteTimer);
 
         // Free up the codec copies and array
@@ -2098,7 +2152,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     if(mConnectionId < 0 && mpMediaInterface != NULL)
     {
         // Create a new connection in the flow graph
-        mpMediaInterface->createConnection(mConnectionId);
+        mpMediaInterface->createConnection(mConnectionId, NULL /* VIDEO: WINDOW HANDLE */);
     }
 
     // It is safer to always set the To field tag regardless
@@ -2445,12 +2499,18 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
+        int receiveVideoRtpPort;
+        int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
+        SdpSrtpParameters srtpParams;
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
             receiveRtcpPort,
-            supportedCodecs);
+            receiveVideoRtpPort,    // VIDEO: TODO
+            receiveVideoRtcpPort,
+            supportedCodecs,
+            srtpParams);
 
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
@@ -2468,7 +2528,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 mpMediaInterface->setConnectionDestination(mConnectionId,
                     remoteRtpAddress.data(),
                     remoteRtpPort,
-                    remoteRtcpPort);
+                    remoteRtcpPort,
+                    receiveVideoRtpPort,
+                    receiveVideoRtcpPort);
 #ifdef TEST_PRINT
                 osPrintf("ReINVITE RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
 #endif
@@ -2496,10 +2558,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 else if(remoteRtpPort > 0)
                 {
                     mpMediaInterface->startRtpReceive(mConnectionId,
-                        numMatchingCodecs, matchingCodecs);
+                        numMatchingCodecs, matchingCodecs, srtpParams);
 
                     mpMediaInterface->startRtpSend(mConnectionId,
-                        numMatchingCodecs, matchingCodecs);
+                        numMatchingCodecs, matchingCodecs, srtpParams);
 
                     // Fire a CALLSTATE_CONNECTED_ACTIVE event for remote side taking 
                     // us off hold
@@ -2513,13 +2575,17 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                     }
 
                     // If sipX TAPI, fire audio start event 
-                    UtlString codecName;
-                    SIPX_AUDIO_CODEC tapiCodec;
+                    UtlString audioCodecName;
+                    UtlString videoCodecName;
+                    SIPX_CODEC_INFO tapiCodec;
                     if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
-                                                          codecName, 
-                                                          &tapiCodec.iPayloadType) == OS_SUCCESS)
+                                                            audioCodecName, 
+                                                            videoCodecName,
+                                                            &tapiCodec.audioCodec.iPayloadType,
+                                                            &tapiCodec.videoCodec.iPayloadType) == OS_SUCCESS)
                     {
-                        strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                        strncpy(tapiCodec.audioCodec.cName, audioCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                        strncpy(tapiCodec.videoCodec.cName, videoCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                         fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                     }
                 }
@@ -2542,8 +2608,12 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
                 SipMessage sipResponse;
                 sipResponse.setInviteOkData(request, rtpAddress.data(),
-                    receiveRtpPort, receiveRtcpPort, numMatchingCodecs,
-                    matchingCodecs, mDefaultSessionReinviteTimer,
+                    receiveRtpPort, receiveRtcpPort, 
+                    receiveVideoRtpPort,
+                    receiveVideoRtcpPort,
+                    numMatchingCodecs,
+                    matchingCodecs,
+                    srtpParams, mDefaultSessionReinviteTimer,
                     mLocalContact.data());
                 if(tagNum >= 0)
                 {
@@ -2600,7 +2670,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
             SipMessage sipResponse;
             sipResponse.setInviteOkData(request, rtpAddress.data(),
-                receiveRtpPort, receiveRtcpPort, numMatchingCodecs, matchingCodecs,
+                receiveRtpPort, receiveRtcpPort, 
+                receiveVideoRtpPort,
+                receiveVideoRtcpPort,
+                numMatchingCodecs, matchingCodecs,
+                srtpParams,
                 mDefaultSessionReinviteTimer, mLocalContact.data());
             if(tagNum >= 0)
             {
@@ -2676,12 +2750,19 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
+        int receiveVideoRtpPort;
+        int receiveVideoRtcpPort;
+
         SdpCodecFactory supportedCodecs;
+        SdpSrtpParameters srtpParams;
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
             receiveRtcpPort,
-            supportedCodecs);
+            receiveVideoRtpPort,        // VIDEO: TODO
+            receiveVideoRtcpPort,
+            supportedCodecs,
+            srtpParams);
 
         // Get the codecs
         int numMatchingCodecs = 0;
@@ -3095,12 +3176,18 @@ void SipConnection::processAckRequest(const SipMessage* request)
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
+        int receiveVideoRtpPort;
+        int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
+        SdpSrtpParameters srtpParams;
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
             receiveRtcpPort,
-            supportedCodecs);
+            receiveVideoRtpPort,    // VIDEO: TODO
+            receiveVideoRtcpPort,
+            supportedCodecs,
+            srtpParams);
 
         // If codecs set ACK in SDP
         // If there is an SDP body find the best
@@ -3117,23 +3204,29 @@ void SipConnection::processAckRequest(const SipMessage* request)
             mpMediaInterface->setConnectionDestination(mConnectionId,
                 remoteRtpAddress.data(),
                 remoteRtpPort,
-                remoteRtcpPort);
+                remoteRtcpPort,
+                receiveVideoRtpPort,
+                receiveVideoRtcpPort);
 
 #ifdef TEST_PRINT
             osPrintf("RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
 #endif
 
             mpMediaInterface->startRtpSend(mConnectionId,
-                numMatchingCodecs, matchingCodecs);
+                numMatchingCodecs, matchingCodecs, srtpParams);
 
             // If sipX TAPI, fire audio start event 
-            UtlString codecName;
-            SIPX_AUDIO_CODEC tapiCodec;
+            UtlString audioCodecName;
+            UtlString videoCodecName;
+            SIPX_CODEC_INFO tapiCodec;
             if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
-                                                  codecName, 
-                                                  &tapiCodec.iPayloadType) == OS_SUCCESS)
+                                                    audioCodecName, 
+                                                    videoCodecName,
+                                                    &tapiCodec.audioCodec.iPayloadType,
+                                                    &tapiCodec.videoCodec.iPayloadType) == OS_SUCCESS)
             {
-                strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                strncpy(tapiCodec.audioCodec.cName, audioCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                strncpy(tapiCodec.videoCodec.cName, videoCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                 fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
             }
         }
@@ -3417,6 +3510,8 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
                                               int& remotePort,
                                               int& remoteRtcpPort) const
 {
+    int videoRtpPort;
+    int videoRtcpPort;
     // Get the RTP info from the message if present
     // Should check the content type first
     const SdpBody* sdpBody = sdpMessage->getSdpBody();
@@ -3430,7 +3525,9 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
             codecsInCommon,
             remoteAddress,
             remotePort, 
-            remoteRtcpPort);
+            remoteRtcpPort,
+            videoRtpPort,
+            videoRtcpPort);
     }
 #ifdef TEST_PRINT
     else
@@ -3762,12 +3859,18 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 UtlString rtpAddress;
                 int receiveRtpPort;
                 int receiveRtcpPort;
+                int receiveVideoRtpPort;
+                int receiveVideoRtcpPort;
                 SdpCodecFactory supportedCodecs;
+                SdpSrtpParameters srtpParams;
                 mpMediaInterface->getCapabilities(mConnectionId,
                     rtpAddress,
                     receiveRtpPort,
                     receiveRtcpPort,
-                    supportedCodecs);
+                    receiveVideoRtpPort,        // VIDEO: TODO
+                    receiveVideoRtcpPort,
+                    supportedCodecs,
+                    srtpParams);
                 // Setup the media channel
                 // The address should be retrieved from the sdpBody
                 int numMatchingCodecs = 0;
@@ -3784,7 +3887,11 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                         remoteRtpAddress.compareTo("0.0.0.0") != 0)
                     {
                         mpMediaInterface->setConnectionDestination(mConnectionId,
-                            remoteRtpAddress.data(), remoteRtpPort, remoteRtcpPort);
+                                remoteRtpAddress.data(), 
+                                remoteRtpPort, 
+                                remoteRtcpPort,
+                                receiveVideoRtpPort,
+                                receiveVideoRtcpPort);
                     }
 
                     if(!remoteRtpAddress.isNull() &&
@@ -3794,16 +3901,21 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                     {
                         mpMediaInterface->startRtpSend(mConnectionId,
                             numMatchingCodecs,
-                            matchingCodecs);
+                            matchingCodecs,
+                            srtpParams);
 
                         // If sipX TAPI, fire audio start event
-                        UtlString codecName;
-                        SIPX_AUDIO_CODEC tapiCodec;
+                        UtlString audioCodecName;
+                        UtlString videoCodecName;
+                        SIPX_CODEC_INFO tapiCodec;
                         if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
-                                                              codecName, 
-                                                              &tapiCodec.iPayloadType) == OS_SUCCESS)
+                                                              audioCodecName, 
+                                                              videoCodecName,
+                                                              &tapiCodec.audioCodec.iPayloadType,
+                                                              &tapiCodec.videoCodec.iPayloadType) == OS_SUCCESS)
                         {
-                            strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                            strncpy(tapiCodec.audioCodec.cName, audioCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                            strncpy(tapiCodec.videoCodec.cName, videoCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
                             fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, &tapiCodec) ;
                         }
                     }
@@ -4163,7 +4275,10 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         UtlString rtpAddress;
         int receiveRtpPort;
         int receiveRtcpPort;
+        int receiveVideoRtpPort;
+        int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
+        SdpSrtpParameters srtpParams;
 
         if (mpMediaInterface != NULL)
         {
@@ -4171,7 +4286,10 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                     rtpAddress,
                     receiveRtpPort,
                     receiveRtcpPort,
-                    supportedCodecs);
+                    receiveVideoRtpPort,        // VIDEO: TODO
+                    receiveVideoRtcpPort,
+                    supportedCodecs,
+                    srtpParams);
         }
         // Setup the media channel
         // The address should be retrieved from the sdpBody
@@ -4189,7 +4307,12 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 remoteRtpAddress.compareTo("0.0.0.0") != 0)
             {
                 mpMediaInterface->setConnectionDestination(mConnectionId,
-                    remoteRtpAddress.data(), remoteRtpPort, remoteRtcpPort);
+                        remoteRtpAddress.data(), 
+                        remoteRtpPort,  
+                        remoteRtcpPort,
+                        receiveVideoRtpPort,
+                        receiveVideoRtcpPort);
+
             }
 
             if(reinviteState == ACCEPT_INVITE)
@@ -4222,20 +4345,26 @@ void SipConnection::processInviteResponse(const SipMessage* response)
             {
                 mpMediaInterface->startRtpReceive(mConnectionId,
                     numMatchingCodecs,
-                    matchingCodecs);
+                    matchingCodecs,
+                    srtpParams);
 
                 mpMediaInterface->startRtpSend(mConnectionId,
                     numMatchingCodecs,
-                    matchingCodecs);
+                    matchingCodecs,
+                    srtpParams);
  
                 // If sipX TAPI, fire an audio start event
-                UtlString codecName;
-                SIPX_AUDIO_CODEC tapiCodec;
+                UtlString audioCodecName;
+                UtlString videoCodecName;
+                SIPX_CODEC_INFO tapiCodec;
                 if (mpMediaInterface->getPrimaryCodec(mConnectionId, 
-                                                      codecName, 
-                                                      &tapiCodec.iPayloadType) == OS_SUCCESS)
+                                                      audioCodecName, 
+                                                      videoCodecName,
+                                                      &tapiCodec.audioCodec.iPayloadType,
+                                                      &tapiCodec.videoCodec.iPayloadType) == OS_SUCCESS)
                 {
-                    strncpy(tapiCodec.cName, codecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                    strncpy(tapiCodec.audioCodec.cName, audioCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
+                    strncpy(tapiCodec.videoCodec.cName, videoCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
 
                     if (mTerminalConnState == PtTerminalConnection::TALKING)
                     {

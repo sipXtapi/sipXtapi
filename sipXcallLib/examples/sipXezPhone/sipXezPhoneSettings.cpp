@@ -32,7 +32,11 @@ sipXezPhoneSettings::sipXezPhoneSettings() :
    mbEnableAEC(false),
    mbEnableOutOfBandDTMF(true),
    mbEnableSRTP(false),
-   mCodecPreference(AUDIO_CODEC_BW_NORMAL)
+   mCodecPreference(AUDIO_CODEC_BW_NORMAL),
+   mVideoCodecPreference(VIDEO_CODEC_BW_NORMAL),
+   mVideoQuality(3),
+   mVideoBitrate(300),
+   mVideoFramerate(30)
 {
     PhoneStateMachine::getInstance().addObserver(this);
 }
@@ -76,6 +80,17 @@ UtlBoolean sipXezPhoneSettings::loadSettings()
     {
         mUseRport = false;
     }
+    
+    configDb.get("AUTO_ANSWER", temp);
+    if (temp == 1)
+    {
+        mAutoAnswer = true;
+    }
+    else
+    {
+        mAutoAnswer = false;
+    }
+    
     configDb.get("ENABLE_AEC", temp);
     mbEnableAEC = (temp == 1) ? true : false;
 
@@ -106,7 +121,34 @@ UtlBoolean sipXezPhoneSettings::loadSettings()
     }
 
     configDb.get("CODEC_PREF", value);
-    mCodecPreference = value;
+    if (value > 0)
+    {
+        mCodecPreference = value;
+    }
+
+    configDb.get("VIDEO_CODEC_PREF", value);
+    if (value > 0)
+    {
+        mVideoCodecPreference = value;
+    }
+
+    configDb.get("VIDEO_QUALITY", value);
+    if (value > 0)
+    {
+        mVideoQuality = value;
+    }
+
+    configDb.get("VIDEO_BITRATE", value);
+    if (value > 0)
+    {
+        mVideoBitrate = value;
+    }
+
+    configDb.get("VIDEO_FRAMERATE", value);
+    if (value > 0)
+    {
+        mVideoFramerate = value;
+    }
 
     int i = 0;
     char szKey[256];
@@ -153,6 +195,16 @@ UtlBoolean sipXezPhoneSettings::saveSettings()
         temp = "1";
     }
     configDb.set("USE_RPORT", temp);
+    
+    if (mAutoAnswer)
+    {
+        temp = "1";
+    }
+    else
+    {
+        temp = "0";
+    }
+    configDb.set("AUTO_ANSWER", temp);
 
     temp = (mbEnableAEC) ? "1" : "0";
     configDb.set("ENABLE_AEC", temp);
@@ -174,7 +226,15 @@ UtlBoolean sipXezPhoneSettings::saveSettings()
     configDb.set("MIC_GAIN", szValue);
     sprintf(szValue, "%d", mCodecPreference);
     configDb.set("CODEC_PREF", szValue);
+    sprintf(szValue, "%d", mVideoCodecPreference);
+    configDb.set("VIDEO_CODEC_PREF", szValue);
 
+    sprintf(szValue, "%d", mVideoQuality);
+    configDb.set("VIDEO_QUALITY", szValue);
+    sprintf(szValue, "%d", mVideoBitrate);
+    configDb.set("VIDEO_BITRATE", szValue);
+    sprintf(szValue, "%d", mVideoFramerate);
+    configDb.set("VIDEO_FRAMERATE", szValue);
 
    // first, get rid of the old Numbers
    while (mRecentNumbers.entries() > RecentNumbersListSize)
@@ -259,4 +319,18 @@ void sipXezPhoneSettings::setTestMode(bool bOn)
 bool sipXezPhoneSettings::getTestMode()
 {
     return mTestMode;
+}
+
+bool sipXezPhoneSettings::addContact(const UtlString& name, const UtlString& url)
+{
+    mContactNames.insert(new UtlString(name));
+    mContactUrls.insert(new UtlString(url));
+    return true;
+
+}
+
+void sipXezPhoneSettings::removeContact(const UtlString& name, const UtlString& url)
+{
+    mContactNames.destroy(& UtlString(name));
+    mContactUrls.destroy(& UtlString(url));    
 }

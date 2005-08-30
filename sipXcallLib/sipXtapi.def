@@ -1,6 +1,6 @@
 EXPORTS 
 	GipsVoiceEngineLib=??_7GipsVoiceEngineLib@@6B@
-	GetGipsVoiceEngineLib
+	GIPSAECTuningWizard=??_7GIPSAECTuningWizard@@6B@
     ?GIPSVE_AddToConference@VEAPI@@UAEHH_N0@Z
     ?GIPSVE_Authenticate@VEAPI@@UAEHPADH@Z
     ?GIPSVE_CheckIfAudioIsAvailable@VEAPI@@UAEHHH@Z
@@ -22,8 +22,8 @@ EXPORTS
     ?GIPSVE_EnableFEC@VEAPI@@UAEHH_NH@Z
     ?GIPSVE_EnableRTCP@VEAPI@@UAEHHH@Z
     ?GIPSVE_EnableRTCP_XR@VEAPI@@UAEHH_N@Z
-    ?GIPSVE_EnableSRTPReceive@VEAPI@@UAEHHHHHHHHQBE@Z
-    ?GIPSVE_EnableSRTPSend@VEAPI@@UAEHHHHHHHHQBE@Z
+    ?GIPSVE_EnableSRTPReceive@VEAPI@@UAEHHHHHHHHPBE@Z
+    ?GIPSVE_EnableSRTPSend@VEAPI@@UAEHHHHHHHHPBE@Z
     ?GIPSVE_EnableVQMon@VEAPI@@UAEHH_N@Z
     ?GIPSVE_Enable_External_Playout@VEAPI@@UAEH_N@Z
     ?GIPSVE_Enable_External_Recording@VEAPI@@UAEH_N@Z
@@ -139,5 +139,6 @@ EXPORTS
     ?GIPSVE_check@VEAPI@@AAEHXZ
     ?GIPSVE_getRemoteRTCPCNAME@VEAPI@@UAEHHPAD@Z
     ?GIPSVE_getRemoteRTCPData@VEAPI@@UAEHHPAK000@Z
+
 
 	

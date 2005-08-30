@@ -267,7 +267,7 @@ class SipSubscriptionTest : public CppUnit::TestCase
                 break;
             }
         }
-        printf("\n");
+        printf("\nstate: %d expecting: %d\n", mLastStateInst1, CALLSTATE_CONNECTED);
 
         CPPUNIT_ASSERT(mLastStateInst1 == CALLSTATE_CONNECTED);
 
@@ -302,16 +302,21 @@ class SipSubscriptionTest : public CppUnit::TestCase
             }
         }
         printf("\n");
+
         mInst1GotSubscribe = FALSE;
 
         // Nothing has been published so we expect no NOTIFY
 #ifdef TEST_PRINT
         printf("%d == %d\n", mInst1SubHandle, subHandle1);
 #endif
-        CPPUNIT_ASSERT(mInst1SubHandle == subHandle1);
-        CPPUNIT_ASSERT(mpInst1NotifyContent == NULL);
-        CPPUNIT_ASSERT(mInst1SubState == SIPX_SUBSCRIPTION_EXPIRED);
-        CPPUNIT_ASSERT(mInst1SubCause == SUBSCRIPTION_CAUSE_NORMAL);
+        CPPUNIT_ASSERT_MESSAGE("Subscription event handle does not match expected handle", 
+            mInst1SubHandle == subHandle1);
+        CPPUNIT_ASSERT_MESSAGE("Unexpected Notification content recieved",
+            mpInst1NotifyContent == NULL);
+        CPPUNIT_ASSERT_MESSAGE("subscription state not the expected: SIPX_SUBSCRIPTION_EXPIRED",
+            mInst1SubState == SIPX_SUBSCRIPTION_EXPIRED);
+        CPPUNIT_ASSERT_MESSAGE("subscription cause not the expected: SUBSCRIPTION_CAUSE_NORMAL",
+            mInst1SubCause == SUBSCRIPTION_CAUSE_NORMAL);
 
         // Publish the content
         SIPX_RESULT pubResult = sipxPublisherCreate(sipxInstance2, 
@@ -342,18 +347,30 @@ class SipSubscriptionTest : public CppUnit::TestCase
                 break;
             }
         }
-        printf("\n");
+        printf("line 350\n");
         mInst1GotSubscribe = FALSE;
 
 #ifdef TEST_PRINT
         printf("mInst1NotifyCount: %d\n", mInst1NotifyCount);
 #endif
-        CPPUNIT_ASSERT(mInst1NotifyCount == 1);
-        CPPUNIT_ASSERT(mpInst1NotifyContent);
+        if(mInst1NotifyCount != 1) printf("Did not recieve NOTIFY request");
+
+        CPPUNIT_ASSERT_MESSAGE("Did not receive NOTIFY request",
+            mInst1NotifyCount == 1);
+
+        if(mpInst1NotifyContent == NULL) printf("Did not receive NOTIFY content");
+
+        CPPUNIT_ASSERT_MESSAGE("Did not receive NOTIFY content",
+            mpInst1NotifyContent);
+
+        if(content.compareTo(mpInst1NotifyContent) != 0) 
+            printf("content differs.  got:\n%s\nexpected: \n%s\n",
+            mpInst1NotifyContent->data(), content.data());
+
         ASSERT_STR_EQUAL(content.data(), mpInst1NotifyContent->data());
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
         printf("%d == %d\n", mInst1NotifySubHandle, subHandle1);
-#endif
+//#endif
         CPPUNIT_ASSERT(mInst1NotifySubHandle == subHandle1);
         CPPUNIT_ASSERT(!mInst1NotifierUserAgent.isNull());
         UtlString userAgentPrefix = mInst1NotifierUserAgent;

@@ -38,6 +38,7 @@ CommunityProjects="\
    sipXportLib \
    sipXtackLib \
    sipXmediaLib \
+   sipXmediaAdapterLib \
    sipXcallLib \
    sipXcommserverLib \
    sipXpublisher \
@@ -53,6 +54,7 @@ RpmProjects="\
    sipXportLib \
    sipXtackLib \
    sipXmediaLib \
+   sipXmediaAdapterLib \
    sipXcallLib \
    sipXcommserverLib \
    sipXpublisher \
@@ -70,6 +72,7 @@ RpmLibraryProjects="\
     sipXportLib \
     sipXtackLib \
     sipXmediaLib \
+    sipXmediaAdapterLib \
     sipXcallLib \
     sipXcommserverLib \
 "

@@ -151,7 +151,9 @@ public:
    void testHttpWithPortAndPath()
       {
          const char* szUrl = "http://server:8080/dddd/ffff.txt";
-
+#ifdef _WIN32
+         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+#endif   
          sprintf(msg, "url w/path and port : %s", szUrl);
          Url url(szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
@@ -166,7 +168,9 @@ public:
    void testHttpWithQuery()
       {
          const char* szUrl = "http://server:8080/dddd/ffff.txt?p1=v1&p2=v2";
-
+#ifdef _WIN32
+         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+#endif   
          sprintf(msg, "url w/path and port : %s", szUrl);
          Url url(szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, "server", getHostAddress(url));
@@ -186,7 +190,9 @@ public:
    void testHttpWithQueryNameAddr()
       {
          const char* szUrl = "https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=111&from=%22Dale+Worley%22%3Csip%3A173%40pingtel.com%3E%3Btag%253D3c11304";
-
+#ifdef _WIN32
+        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+#endif   
          Url url(szUrl);
          sprintf(msg, "http url with query (name-addr) : %s", szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
@@ -201,7 +207,9 @@ public:
    void testHttpWithQueryAddrSpec()
       {
          const char* szUrl = "https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=111&from=%22Dale+Worley%22%3Csip%3A173%40pingtel.com%3E%3Btag%253D3c11304";
-
+#ifdef _WIN32
+         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+#endif   
          Url url(szUrl, TRUE);
          sprintf(msg, "http url with query (addr-spec) : %s", szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));

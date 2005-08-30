@@ -321,7 +321,7 @@ typedef struct
                                          the INFO message */
     const char* szUserAgent;        /**< the User Agent string of the source agent */
     const char* szContentType ;     /**< string indicating the info content type */
-    const char* szContent ;          /**< pointer to the INFO message content */
+    const char* pContent ;          /**< pointer to the INFO message content */
     size_t      nContentLength ;    /**< length of the INFO message content */
   
 } SIPX_INFO_INFO ;

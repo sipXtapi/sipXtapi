@@ -14,6 +14,7 @@
 #include <net/SipUserAgent.h>
 #include <net/SdpCodecFactory.h>
 #include <cp/CpTestSupport.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
 
 
 SipUserAgent *CpTestSupport::newSipUserAgent()
@@ -86,7 +87,7 @@ CallManager *CpTestSupport::newCallManager(SipUserAgent* sua)
           CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
           QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
           10, //maxCalls
-          NULL); //pMediaFactory
+          sipXmediaFactoryFactory(NULL)); //pMediaFactory
 
     return callManager;
 }

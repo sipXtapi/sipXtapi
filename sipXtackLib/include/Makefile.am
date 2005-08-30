@@ -23,8 +23,6 @@ nobase_include_HEADERS =  \
     net/HttpRequestContext.h \
     net/HttpServer.h \
     net/HttpService.h \
-    net/LinePresenceBase.h \
-    net/LinePresenceMonitor.h \
     net/MailAttachment.h \
     net/MailMessage.h \
     net/MimeBodyPart.h \
@@ -86,6 +84,7 @@ nobase_include_HEADERS =  \
     net/SipUserAgentBase.h \
     net/SipUserAgent.h \
     net/SipUserAgentStateless.h \
+    net/SmimeBody.h \
     net/StateChangeNotifier.h \
     net/TapiMgr.h \
     net/Url.h \

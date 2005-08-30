@@ -20,6 +20,7 @@
 #include <net/NetMd5Codec.h>
 #include <net/SipMessage.h>
 #include <cp/SipPresenceMonitor.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <mp/MpMediaTask.h>
 #include <mp/NetInTask.h>
 #ifdef INCLUDE_RTCP
@@ -107,7 +108,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                    CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
                                    QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
                                    MAX_CONNECTIONS,                   // maxCalls
-                                   NULL);                             // CpMediaInterfaceFactory
+                                   sipXmediaFactoryFactory(NULL));    // CpMediaInterfaceFactory
 
    mpDialInServer = new PresenceDialInServer(mpCallManager, configFile);    
    mpCallManager->addTaoListener(mpDialInServer);

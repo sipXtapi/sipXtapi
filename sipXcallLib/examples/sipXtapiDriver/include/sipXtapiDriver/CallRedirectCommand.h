@@ -14,7 +14,7 @@ class CallRedirectCommand : public Command
 {
 public:
 	//Constructor
-	CallRedirectCommand(SIPX_CALL* hCall);
+	CallRedirectCommand() {}
 	/* ============================ MANIPULATORS ============================== */
 
 	virtual int execute(int argc, char* argv[]);
@@ -22,7 +22,5 @@ public:
 	/* ============================ ACCESSORS ================================= */
 
 	virtual void getUsage(const char* commandName, UtlString* usage) const;
-private:
-	SIPX_CALL* privCall;
 };
 #endif //_CallRedirectCommand_h_

@@ -32,6 +32,7 @@
 #include <net/SipMessageEvent.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SipObserverCriteria.h>
+#include <os/HostAdapterAddress.h>
 #include <net/Url.h>
 #ifdef SIP_TLS
 #include <net/SipTlsServer.h>
@@ -151,7 +152,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     if (mTcpPort != PORT_NONE)
     {
         mSipTcpServer = new SipTcpServer(mTcpPort, this, SIP_TRANSPORT_TCP, 
-                "SipTcpServer-%d", bUseNextAvailablePort);
+                "SipTcpServer-%d", bUseNextAvailablePort, defaultAddress);
         mSipTcpServer->startListener();
         mTcpPort = mSipTcpServer->getServerPort() ;
     }
@@ -257,7 +258,23 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         defaultSipUser.append(defaultUser);
         NameValueTokenizer::frontBackTrim(&defaultSipUser, " \t\n\r");
     }
-    if(defaultAddress)
+
+    if (!defaultAddress || strcmp(defaultAddress, "0.0.0.0") == 0)
+    {
+        // get the first local address and
+        // make it the default address
+        const HostAdapterAddress* addresses[MAX_IP_ADDRESSES];
+        int numAddresses = 0;
+        memset(addresses, 0, sizeof(addresses));
+        getAllLocalHostIps(addresses, numAddresses);
+        assert(numAddresses > 0);
+        // Bind to the first address in the list.
+        defaultSipAddress = (char*)addresses[0]->mAddress.data();
+        // Now free up the list.
+        for (int i = 0; i < numAddresses; i++)
+        delete addresses[i];       
+    }
+    else
     {
         defaultSipAddress.append(defaultAddress);
     }
@@ -487,12 +504,17 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
 
 void SipUserAgent::enableStun(const char* szStunServer, 
                               int refreshPeriodInSecs, 
+                              int stunOptions,
                               OsNotification* pNotification,
                               const char* szIp) 
 {
     if (mSipUdpServer)
     {
-        mSipUdpServer->enableStun(szStunServer, szIp, refreshPeriodInSecs, pNotification) ;
+        mSipUdpServer->enableStun(szStunServer, 
+                szIp, 
+                refreshPeriodInSecs, 
+                stunOptions, 
+                pNotification) ;
     }
 }
 
@@ -658,7 +680,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          // mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort
          UtlString contactUri;
          SipMessage::buildSipUrl(&contactUri,
-                                 sipIpAddress.data(),
+                                 message.getLocalIp().data(),
                                  mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort,
                                  NULL, // Unspecified transport protocol
                                  defaultSipUser.data());
@@ -1223,8 +1245,8 @@ UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
 }
 
 UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
-                                                                const char* serverAddress,
-                                                                int port)
+                                 const char* serverAddress,
+                                 int port)
 {
     int sendSucceeded = FALSE;
     int len;
@@ -1234,22 +1256,23 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     // Disallow an address begining with * as it gets broadcasted on NT
     if(!strchr(serverAddress,'*') && *serverAddress)
     {
-        sendSucceeded = mSipTcpServer->send(message, serverAddress, port);
+        if (mSipTcpServer)
+        {
+            sendSucceeded = mSipTcpServer->send(message, serverAddress, port);
+        }
     }
     else if(*serverAddress == '\0')
     {
-       if (   isMessageLoggingEnabled()
-           || OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO)
-           )
-       {
-          message->getBytes(&msgBytes, &len);
-          msgBytes.insert(0, "No send address\n");
-          msgBytes.append("--------------------END--------------------\n");
-          logMessage(msgBytes.data(), msgBytes.length());
-          OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
-       }
-
-       sendSucceeded = FALSE;
+        if (    isMessageLoggingEnabled() ||
+                OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+        {
+            message->getBytes(&msgBytes, &len);
+            msgBytes.insert(0, "No send address\n");
+            msgBytes.append("--------------------END--------------------\n");
+            logMessage(msgBytes.data(), msgBytes.length());
+            OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
+        }
+        sendSucceeded = FALSE;
     }
     else
     {
@@ -1258,14 +1281,15 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
 
     if(sendSucceeded)
     {
-       messageStatusString.append("TCP SIP User Agent sent message:\n");
+        messageStatusString.append("TCP SIP User Agent sent message:\n");
+        //osPrintf("%s", messageStatusString.data());
     }
     else
     {
-       messageStatusString.append("TCP SIP User Agent failed to send message:\n");
-       message->logTimeEvent("FAILED");
+        messageStatusString.append("TCP SIP User Agent failed to send message:\n");
+        //osPrintf("%s", messageStatusString.data());
+        message->logTimeEvent("FAILED");
     }
-
 
     if (   isMessageLoggingEnabled()
         || OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO)
@@ -1289,7 +1313,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
         OsSysLog::add(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
     }
 
-        return(sendSucceeded);
+    return(sendSucceeded);
 }
 
 
@@ -2034,7 +2058,6 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUserAgent::dispatch time log: %s",
                  timeString.data());
 #endif
-
 }
 
 void SipUserAgent::queueMessageToObservers(SipMessage* message,
@@ -2540,51 +2563,59 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       messageProcessed = TRUE;
    }
 
-   garbageCollection();
+   // Only GC if not messages are waiting -- othewise we may delete a timer 
+   // that is queued up for is.
+   if (getMessageQueue()->isEmpty())
+   {
+      garbageCollection();
+   }
    return(messageProcessed);
 }
 
 void SipUserAgent::garbageCollection()
 {
-   OsTime time;
-   OsDateTime::getCurTimeSinceBoot(time);
-   long bootime = time.seconds();
+    OsTime time;
+    OsDateTime::getCurTimeSinceBoot(time);
+    long bootime = time.seconds();
 
-   long then = bootime - (mTransactionStateTimeoutMs / 1000);
-   long tcpThen = bootime - mMaxTcpSocketIdleTime;
-   long oldTransaction = then - (mTransactionStateTimeoutMs / 1000);
-   long oldInviteTransaction = then - mMinInviteTransactionTimeout;
+    long then = bootime - (mTransactionStateTimeoutMs / 1000);
+    long tcpThen = bootime - mMaxTcpSocketIdleTime;
+    long oldTransaction = then - (mTransactionStateTimeoutMs / 1000);
+    long oldInviteTransaction = then - mMinInviteTransactionTimeout;
 
-   // If the timeout is negative we never timeout or garbage collect
-   // tcp connections
-   if(mMaxTcpSocketIdleTime < 0)
-   {
-      tcpThen = -1;
-   }
+    // If the timeout is negative we never timeout or garbage collect
+    // tcp connections
+    if(mMaxTcpSocketIdleTime < 0)
+    {
+        tcpThen = -1;
+    }
 
-   if(mLastCleanUpTime < then)
-   {
+    if(mLastCleanUpTime < then)
+    {
 #ifdef TEST_PRINT
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipUserAgent::garbageCollection"
-                    " bootime: %d then: %d tcpThen: %d"
-                    " oldTransaction: %d oldInviteTransaction: %d",
-                    bootime, then, tcpThen, oldTransaction, oldInviteTransaction);
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            "SipUserAgent::garbageCollection"
+            " bootime: %d then: %d tcpThen: %d"
+            " oldTransaction: %d oldInviteTransaction: %d",
+            bootime, then, tcpThen, oldTransaction, oldInviteTransaction);
 #endif
 
-      mSipTransactions.removeOldTransactions(oldTransaction,
-                                             oldInviteTransaction); //temp double of transaction life
+        mSipTransactions.removeOldTransactions(oldTransaction,
+            oldInviteTransaction); //temp double of transaction life
 
-      mSipUdpServer->removeOldClients(then);
-      mSipTcpServer->removeOldClients(tcpThen);
-#     ifdef SIP_TLS
-      if (mSipTlsServer) // was TLS configured?
-      {
-         mSipTlsServer->removeOldClients(tcpThen);
-      }
-#     endif
-      mLastCleanUpTime = bootime;
-   }
+        mSipUdpServer->removeOldClients(then);
+        if (mSipTcpServer)
+        {
+            mSipTcpServer->removeOldClients(tcpThen);
+        }
+#if 0 // def SIP_TLS
+        if (mSipTlsServer)
+        {
+            mSipTlsServer->removeOldClients(tcpThen);
+        }
+#endif
+        mLastCleanUpTime = bootime;
+    }
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -2645,8 +2676,15 @@ UtlBoolean SipUserAgent::getConfiguredPublicAddress(UtlString* pIpAddress, int* 
 UtlBoolean SipUserAgent::getLocalAddress(UtlString* pIpAddress, int* pPort)
 {
     if (pIpAddress)
-    {
-        OsSocket::getHostIp(pIpAddress) ;
+    {   
+        if (defaultSipAddress.length() > 0)
+        {
+            *pIpAddress = defaultSipAddress;
+        }
+        else
+        {
+            OsSocket::getHostIp(pIpAddress) ;
+        }   
     }
 
     if (pPort)

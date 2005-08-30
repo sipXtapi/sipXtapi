@@ -6,6 +6,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _SipMessage_h_
 #define _SipMessage_h_
@@ -284,15 +285,21 @@ class SipMessage : public HttpMessage
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   // See sipXcall's CpCallManager for more defines
+   static UtlHashBag* mpShortFieldNames;
+   static UtlHashBag* mpLongFieldNames;
+   static UtlHashBag* mpDisallowedUrlHeaders;
 
+
+   // See sipXcall's CpCallManager for more defines
    enum EventSubTypes
    {
        NET_UNSPECIFIED = 0,
        NET_SIP_MESSAGE
    };
 
+
 /* ============================ CREATORS ================================== */
+
 
     //! Construct from a buffer
     SipMessage(const char* messageBytes = NULL,
@@ -313,6 +320,10 @@ public:
     //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
+
+    static void initShortNames();
+
+    static void initDisallowedUrlHeaders();
 
     static UtlBoolean getShortName( const char* longFieldName,
                                    UtlString* shortFieldName );
@@ -422,8 +433,11 @@ public:
                        const char* contactUrl,
                        const char* callId,
                        const char* rtpAddress,
-                       int rtpPort,
-                       int rtcpPort,
+                       int rtpAudioPort,
+                       int rtcpAudioPort,
+                       int rtpVideoPort,
+                       int rtcpVideoPort,
+                       SdpSrtpParameters& srtpParams,
                        int sequenceNumber = 1,
                        int numRtpCodecs = 0,
                        SdpCodec* rtpCodecs[] = NULL,
@@ -438,11 +452,14 @@ public:
                          UtlBoolean inviteFromThisSide,
                          const char* routeField,
                          const char* rtpAddress,
-                         int rtpPort,
-                         int rtcpPort,
+                         int rtpAudioPort,
+                         int rtcpaudioPort,
+                         int rtpVideoPort,
+                         int rtcpVideoPort,
                          int sequenceNumber,
                          int numRtpCodecs,
                          SdpCodec* rtpCodecs[],
+                         SdpSrtpParameters& srtpParams,
                          int sessionReinviteTimer);
 
     void setOptionsData(const SipMessage* inviteRequest,
@@ -539,12 +556,29 @@ public:
     //@}
 
     void addSdpBody(const char* rtpAddress,
-                    int rtpPort,
-                    int rtcpPort,
+                    int rtpAudioPort,
+                    int rtcAudiopPort,
+                    int rtpVideoPort,
+                    int rtcpVideoPort,
                     int numRtpCodecs,
-                    SdpCodec* rtpCodecs[]);
+                    SdpCodec* rtpCodecs[],
+                    SdpSrtpParameters& srtpParams);
 
-    const SdpBody* getSdpBody() const;
+    //! Accessor to get SDP body, optionally decrypting it if key info. is provided
+    /*
+     *  \param derPkcs12PrivateKey - DER format pkcs12 container for the 
+     *         private key and public key/Certificate for a recipent who is 
+     *         allowed to decrypt this pkcs7 (S/MIME) encapsulated body.
+     *  \param derPkcs12PrivateKeyLength - length in bytes of derPkcs12PrivateKey
+     *  \param pkcs12SymmetricKey - symetric key used to protect (encrypt) the
+     *         derPkcs12PrivateKey (the private key is contained in a
+     *         pkcs12 in an encrypted format to protect it from theft).
+     *  \param pkcs12SymmetricKeyLength - the length in bytes of 
+     *         pkcs12SymmetricKey.
+     */
+    const SdpBody* getSdpBody(const char* derPkcs12 = NULL,
+                              int derPkcs12Length = 0,
+                              const char* pkcs12SymmetricKey = NULL) const;
 
 
     //! @name Response builders
@@ -633,19 +667,25 @@ public:
                          const char* callId,                         
                          const SdpBody* inviteSdp,
                          const char* rtpAddress,
-                         int rtpPort,
-                         int rtcpPort,
+                         int rtpAudioPort,
+                         int rtcpAudioPort,
+                         int rtpVideoPort,
+                         int rtcpVideoPort,
                          int numRtpCodecs,
                          SdpCodec* rtpCodecs[],
+                         SdpSrtpParameters& srtpParams,
                          int sequenceNumber = 1,
                          const char* localContact = NULL);
 
     void setInviteOkData(const SipMessage* inviteRequest,                         
                          const char* rtpAddress,
-                         int rtpPort,
-                         int rtcpPort,
+                         int rtpAudioPort,
+                         int rtcpAudioPort,
+                         int rtpVideoPort,
+                         int rtcpVideoPort,
                          int numRtpCodecs,
                          SdpCodec* rtpCodecs[],
+                         SdpSrtpParameters& srtpParams,
                          int maxSessionExpiresSeconds,
                          const char* localContact = NULL);
 
@@ -977,12 +1017,8 @@ public:
 
     UtlBoolean isRequireExtensionSet(const char* extension) const;
 
-    //! Is this a header parameter we want to allow users or apps. to
-    //  pass through in the URL
+    //! Is this a header parameter we want to allow users or apps. to pass through in the URL
     static UtlBoolean isUrlHeaderAllowed(const char*);
-
-    //! Does this header allow multiple values, or only one.
-    static UtlBoolean isUrlHeaderUnique(const char*);
 
     static void parseViaParameters( const char* viaField
                                    ,UtlContainer& viaParameterList
@@ -1002,28 +1038,6 @@ private:
     UtlString m_dnsProtocol ;
     UtlString m_dnsAddress ;
     UtlString m_dnsPort ;
-
-    // Class for the singleton object that carries the field properties
-    class SipMessageFieldProps
-       {
-         public:
-
-          SipMessageFieldProps();
-
-          UtlHashBag mShortFieldNames;
-          UtlHashBag mLongFieldNames;
-          // Headers that may not be referenced in a URI header parameter.
-          UtlHashBag mDisallowedUrlHeaders;
-          // Headers that do not take a list of values.
-          UtlHashBag mUniqueUrlHeaders;
-
-          void initNames();
-          void initDisallowedUrlHeaders();
-          void initUniqueUrlHeaders();
-       };
-
-    // Singleton object to carry the field properties.
-    static SipMessageFieldProps* spSipMessageFieldProps;
 
 };
 

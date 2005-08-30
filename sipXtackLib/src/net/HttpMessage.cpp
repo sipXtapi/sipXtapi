@@ -6,6 +6,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
 #include <string.h>
@@ -27,7 +28,6 @@
 #include <net/NameValuePair.h>
 
 #include <net/NameValueTokenizer.h>
-#include <net/SdpBody.h>
 #include <net/NetAttributeTokenizer.h>
 #include <os/OsDateTime.h>
 #include <os/OsUtil.h>
@@ -132,21 +132,7 @@ HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
         body = NULL;
     if(rHttpMessage.body)
     {
-        const char* bodyType = rHttpMessage.body->getContentType();
-        if(strcmp(bodyType, SDP_CONTENT_TYPE) == 0)
-        {
-            body = new SdpBody(*((SdpBody*)(rHttpMessage.body)));
-            //osPrintf("HttpMessage::HttpMessage SdpBody copy, content-type: %s\n",
-            //    bodyType);
-        }
-        else
-        {
-            body = new HttpBody(*(rHttpMessage.body));
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpMessage::HttpMessage HttpBody copy content-type: %s\n",
-                bodyType);
-#endif
-        }
+        body = HttpBody::copyBody(*(rHttpMessage.body));
     }
         //nameValues = new UtlHashBag(100);
         transportTimeStamp = rHttpMessage.transportTimeStamp;
@@ -231,22 +217,15 @@ HttpMessage::operator=(const HttpMessage& rHttpMessage)
            headerField = NULL;
        }
 
-           if(body)
-           {
-                   delete body;
-                   body = NULL;
-           }
+       if(body)
+       {
+           delete body;
+           body = NULL;
+       }
+
        if(rHttpMessage.body)
        {
-           const char* bodyType = rHttpMessage.body->getContentType();
-           if(strcmp(bodyType, SDP_CONTENT_TYPE) == 0)
-           {
-               body = new SdpBody(*((SdpBody*)rHttpMessage.body));
-           }
-           else
-           {
-               body = new HttpBody(*(rHttpMessage.body));
-           }
+           body = HttpBody::copyBody(*(rHttpMessage.body));
        }
 
       //use copy constructor to copy values
@@ -391,26 +370,22 @@ void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
 
 void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
 {
-        if (bodyLength <= 1 && messageBytesPtr && (messageBytesPtr[0] == '\n' || messageBytesPtr[0] == '\r'))
-                return;
+    if (bodyLength <= 1 && 
+        messageBytesPtr && 
+        (messageBytesPtr[0] == '\n' || 
+         messageBytesPtr[0] == '\r'))
+    {
+        // do nothing
+    }
 
-        // Need to use a body factory
-        const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
-        UtlString contentTypeString;
-        if(contentType)
-        {
-                contentTypeString.append(contentType);
-                contentTypeString.toLower();
-        }
-    if(contentType && strcmp(contentTypeString.data(), SDP_CONTENT_TYPE) == 0)
-        {
-                body = new SdpBody(messageBytesPtr, bodyLength);
-        }
-    else if ((bodyLength  > 1) || (messageBytesPtr[0] != '\n'))
-        {
-                body = new HttpBody(messageBytesPtr, bodyLength,
-                        contentType);
-        }
+    // Need to use a body factory
+    const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
+    const char* contentEncodingString = 
+            getHeaderValue(0, HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
+    body = HttpBody::createBody(messageBytesPtr,
+                                bodyLength,
+                                contentType,
+                                contentEncodingString);
 }
 
 int HttpMessage::findHeaderEnd(const char* headerBytes, int messageLength)

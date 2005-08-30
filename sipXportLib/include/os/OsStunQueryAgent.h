@@ -405,7 +405,7 @@ public:
 
     /* Get the mapped IP address and port for a given local host IP address
        and port */
-    bool getMappedAddress(OsStunDatagramSocket *oDS, UtlString &server, int &port, const OsTime& timeout);
+    bool getMappedAddress(OsStunDatagramSocket *oDS, UtlString &server, int &port, int stunOptions, const OsTime& timeout);
 
     /* Send a stun request on the supplied socket */
     void sendStunRequest(OsDatagramSocket *oDS);
@@ -417,7 +417,7 @@ protected:
     static void buildReqSimple(StunMessage *msg, bool changePort, bool changeIp, UINT id);
 
     /* Send STUN test as specified in the RFC XXXX */
-    static void sendTest (OsDatagramSocket *oDS, StunAddress4& dest, int testNum);
+    static void sendTest (OsDatagramSocket *oDS, StunAddress4& dest, int testNum, int stunOptions = 0);
 
     
 protected:

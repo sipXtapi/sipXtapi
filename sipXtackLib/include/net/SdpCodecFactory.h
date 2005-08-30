@@ -109,6 +109,15 @@ public:
 
    void getCodecs(int& numCodecs,
                   SdpCodec**& codecArray);
+
+   void getCodecs(int& numCodecs,
+                  SdpCodec**& codecArray,
+                  const char* mimeType);
+
+   void getCodecs(int& numCodecs, 
+                  SdpCodec**& codecArray,
+                  const char* mimeType,
+                  const char* subMimeType);
    //: Returns a copy of all the codecs
 
    void toString(UtlString& serializedFactory);

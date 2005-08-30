@@ -15,6 +15,7 @@
 #include "PhoneStateDialing.h"
 #include "PhoneStateRinging.h"
 #include "PhoneStateAccepted.h"
+#include "../sipXezPhoneSettings.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -73,5 +74,11 @@ PhoneState* PhoneStateRinging::Execute()
     }
 #endif
 
+
+    if (sipXezPhoneSettings::getInstance().getAutoAnswer() == true)
+    {
+        // if in Auto Answer mode, go ahead and answer
+        sipxCallAnswer(sipXmgr::getInstance().getCurrentCall());
+    }
     return this;
 }

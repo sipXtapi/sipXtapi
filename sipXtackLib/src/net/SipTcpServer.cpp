@@ -165,10 +165,12 @@ SipTcpServer::SipTcpServer(const SipTcpServer& rSipTcpServer) :
 // Destructor
 SipTcpServer::~SipTcpServer()
 {
+    if (mpServerBrokerListener)
+    {
+        mpServerBrokerListener->requestShutdown();
+        delete mpServerBrokerListener;
+    }
     waitUntilShutDown();
-
-
-
     {
         SipServerBroker* pBroker = NULL;
         UtlHashMapIterator iterator(this->mServerBrokers);
@@ -214,10 +216,6 @@ SipTcpServer::~SipTcpServer()
 */
     mServerSocketMap.destroyAll();
     mServerPortMap.destroyAll();
-    
-    
-    mpServerBrokerListener->requestShutdown();
-    delete mpServerBrokerListener;
     
 }
 
@@ -315,6 +313,11 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
                 OsSysLog::add(FAC_SIP, PRI_ERR, "SIP %s Client failed to start", mpOwner->mProtocolString.data());
             }
             mpOwner->addClient(client);
+            bRet = TRUE;
+        }
+        else
+        {
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SIP %s Client received spurious message", mpOwner->mProtocolString.data());
         }
     }
     

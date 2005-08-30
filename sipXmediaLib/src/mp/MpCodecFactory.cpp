@@ -241,8 +241,7 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       ((MpeGIPSG729ab*) rpEncoder)->setVad(TRUE);
       break;
 #endif /* PLATFORM_SUPPORTS_G729 ] */
-#endif /* HAVE_GIPS ] */
-
+#else /* HAVE_GIPS ] [ */
    case (SdpCodec::SDP_CODEC_GIPS_PCMA):
       rpEncoder = new MpeSipxPcma(payloadType);
       break;
@@ -250,7 +249,7 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
    case (SdpCodec::SDP_CODEC_GIPS_PCMU):
       rpEncoder = new MpeSipxPcmu(payloadType);
       break;
-
+#endif /* HAVE_GIPS*/
    default:
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createEncoder unknown codec type "

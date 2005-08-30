@@ -153,7 +153,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
 
     // Kick off connection
     mSimulatedConnect = FALSE;
-    doConnect(remoteHostPort, remoteHost, mSimulatedConnect) ;
+    doConnect(remoteHostPortNum, remoteHost, mSimulatedConnect) ;
 
 EXIT:
     return;
@@ -206,7 +206,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
     }
 
     // Connect to a remote host if given
-    if(remoteHostPort && remoteHost && !simulateConnect)
+    if(portIsValid(remoteHostPort) && remoteHost && !simulateConnect)
     {
         server = gethostbyname(remoteHost);
         if (server)
@@ -242,7 +242,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
             goto EXIT;
         }
     }
-    else if (remoteHostPort && remoteHost && simulateConnect)
+    else if(portIsValid(remoteHostPort) && remoteHost && simulateConnect)
     {
         mIsConnected = TRUE;
         mSimulatedConnect = TRUE;

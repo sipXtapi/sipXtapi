@@ -179,12 +179,42 @@ public:
     /**
      * Sets current codec preference setting
      */
-    void setCodecPreferences(int codecPref);
+    bool setCodecPreferences(int codecPref);
 
     /**
      * Retrieves current codec preference setting
      */
     bool getCodecList(UtlString& codecList);
+
+    /**
+     * Sets the audio codec by name
+     */
+    bool setAudioCodecByName(const char* name);
+
+    /**
+     * Sets the video codec by name
+     */
+    bool setVideoCodecByName(const char* name);
+
+    /**
+     * Retrieves current video codec preference setting
+     */
+    bool getVideoCodecPreferences(int* pCodecPref);
+
+    /**
+     * Sets current video codec preference setting
+     */
+    bool setVideoCodecPreferences(int codecPref);
+
+    /**
+     * Retrieves current video codec preference setting
+     */
+    bool getVideoCodecList(UtlString& codecList);
+
+    /**
+     * Set video parameters
+     */
+    bool setVideoParameters(int iQuality, int iBitRate, int iFrameRate);
 
     /**
     * Retrieves setting of echo cancellation
@@ -231,7 +261,12 @@ public:
      */
     void clearEventLog() ;
 
+    SIPX_INST getSipxInstance();
     
+    void* getVideoWindow();
+    void* getPreviewWindow();
+    void setVideoWindow(void* pWnd);
+    void setPreviewWindow(void* pWnd);
     /**
     * Destructor.
     */
@@ -338,6 +373,9 @@ private:
      * Circular buffer index for mEventLog
      */
     int mEventLogIndex ;
+    
+    SIPX_VIDEO_DISPLAY* mpPreviewDisplay;
+    SIPX_VIDEO_DISPLAY* mpVideoDisplay;
 
 };
 

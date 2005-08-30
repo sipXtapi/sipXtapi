@@ -141,23 +141,32 @@ typedef enum SIPX_CALLSTATE_EVENT
                                  sipxCallReject() or sipxCallRedirect() in response.  
                                  Not responding will result in an implicit call 
                                  sipXcallReject(). */
-	CALLSTATE_ALERTING        = 7000, /**< An ALERTING state indicates that an inbound call has 
+
+/** VIDEO: The CALLSTATE_INFO should contain supported remote audio and video codecs offered */
+
+                                 
+    CALLSTATE_ALERTING        = 7000, /**< An ALERTING state indicates that an inbound call has 
                                  been accepted and the application layer should alert 
                                  the end user.  The alerting state is limited to 3 
                                  minutes in most configurations; afterwards the call 
                                  will be canceled.  Applications will generally play 
                                  some sort of ringing tone in response to this event. */
-	CALLSTATE_DESTROYED       = 8000, /**< The DESTORYED event indicates the underlying resources 
+
+/** VIDEO: The CALLSTATE_INFO should contain supported remote audio and video codecs offered */
+
+
+    CALLSTATE_DESTROYED       = 8000, /**< The DESTORYED event indicates the underlying resources 
                                  have been removed for a call.  This is the last event 
                                  that the application will receive for any call.  The 
                                  call handle is invalid after this event is received. */
 	CALLSTATE_AUDIO_EVENT      = 9000, /**< The  AUDIO_EVENT event indicates the RTP session has 
                                  either started or stopped. */
-    CALLSTATE_TRANSFER         = 10000 /**< The transfer state indicates a state change in a 
+    CALLSTATE_TRANSFER         = 10000, /**< The transfer state indicates a state change in a 
                                  transfer attempt.  Please see the CALLSTATE_TRANSFER cause 
                                  codes for details on each state transition */
-                                        
-
+    CALLSTATE_SECURITY_EVENT   = 11000 /** The SECURITY_EVENT is sent to the application 
+                                           when S/MIME or SRTP events occur which the application
+                                           should know about. */ 
 } SIPX_CALLSTATE_EVENT;
 
  
@@ -234,8 +243,11 @@ typedef enum SIPX_CALLSTATE_CAUSE
                                                                              the application layer is responsible for 
                                                                              recovering original call to the transferee. 
                                                                              That call is left on hold. */
+    CALLSTATE_SECURITY_SELF_SIGNED_CERT = CALLSTATE_SECURITY_EVENT + 1, /**< A self-signed certificate is being used for S/MIME. */
+    CALLSTATE_SECURITY_SESSION_NOT_SECURED,                             /**< Fired if a secure session could not be made. */
+    CALLSTATE_SECURITY_REMOTE_SMIME_UNSUPPORTED,                        /**< Fired if the remote party's user-agent does not
+                                                                             support S/MIME. */
 } SIPX_CALLSTATE_CAUSE ;
-
 
 /**
  * Enumeration of possible linestate Events.
@@ -352,7 +364,7 @@ typedef struct
                                          Identifies the callstate event. */
     SIPX_CALLSTATE_CAUSE cause;     /**< Callstate cause enum code. 
                                          Identifies the cause of the callstate event. */
-    SIPX_AUDIO_CODEC codec;         /**< Structure containing codec information */
+    SIPX_CODEC_INFO codecs;         /**< Structure containing audio and video codec information */
     SIPX_CALL hAssociatedCall ;     /**< Call associated with this event.  For example, when
                                          a new call is created as part of a consultative 
                                          transfer, this handle contains the handle of the 
@@ -418,7 +430,7 @@ typedef struct
                                          the INFO message */
     const char* szUserAgent;        /**< the User Agent string of the source agent */
     const char* szContentType ;     /**< string indicating the info content type */
-    const char* szContent ;          /**< pointer to the INFO message content */
+    const char* pContent ;          /**< pointer to the INFO message content */
     size_t      nContentLength ;    /**< length of the INFO message content */
   
 } SIPX_INFO_INFO ;

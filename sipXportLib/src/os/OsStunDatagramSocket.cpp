@@ -43,6 +43,7 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
                                            bool bEnableStun, 
                                            const char* szStunServer,
                                            int iRefreshPeriodInSec,
+                                           int iStunOptions,
                                            OsNotification *pNotification) 
         : OsDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost)
 {    
@@ -58,7 +59,8 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
     miDestPort = remoteHostPort ;
     mcDestPriority = 0 ;
     mpNotification = pNotification ;
-      
+    mStunOptions = iStunOptions ;
+
     mpTimer = new OsTimer(pStunAgent->getMessageQueue(), (int) this) ;
 
     // If enabled, kick off first stun request
@@ -304,6 +306,11 @@ void OsStunDatagramSocket::setStunServer(const char* szHostname)
     mStunServer = szHostname ;
 }
 
+void OsStunDatagramSocket::setStunOptions(int stunOptions) 
+{
+    mStunOptions = stunOptions ;
+}
+
 
 void OsStunDatagramSocket::enableStun(bool bEnable) 
 {
@@ -352,7 +359,7 @@ void OsStunDatagramSocket::refreshStunBinding(UtlBoolean bFromReadSocket)
         if (agent.setServer(mStunServer))
         {                  
             // We must touch the socket and look for the next stun packet.
-            bSuccess = agent.getMappedAddress(this, mStunAddress, mStunPort, timeout) ;
+            bSuccess = agent.getMappedAddress(this, mStunAddress, mStunPort, mStunOptions, timeout) ;
         }
 
         // Report status
@@ -367,7 +374,7 @@ void OsStunDatagramSocket::refreshStunBinding(UtlBoolean bFromReadSocket)
     }
     else
     {
-        pStunAgent->sendStunDiscoveryRequest(this, mStunServer, STUN_PORT) ;        
+        pStunAgent->sendStunDiscoveryRequest(this, mStunServer, STUN_PORT, mStunOptions) ;        
     }
 }
 

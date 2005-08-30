@@ -50,6 +50,14 @@
 #define IDR_REMOVE_PARTY_BUTTON                                 937
 #define IDR_CONFERENCE_LIST                                     938
 #define IDR_MUTE_BUTTON                                         939
+#define ID_Video                                                940
+#define ID_VideoPreview                                         941
+#define IDR_VIDEO_BUTTON                                        942
+#define IDR_VIDEO_PANEL                                         943
+#define ID_PREVIEW_CTRL                                         944
+#define ID_VIDEO_CTRL                                           945
+#define IDR_VIDEO_WINDOW                                        946
+#define IDR_PREVIEW_WINDOW                                      947
 
 // MACROS
 // EXTERNAL FUNCTIONS

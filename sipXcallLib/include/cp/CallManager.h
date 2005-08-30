@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include <cp/CpCallManager.h>
 #include <cp/Connection.h>
-#include <cp/CpMediaInterfaceFactoryImpl.h>
+#include <mi/CpMediaInterfaceFactoryImpl.h>
 #include <net/QoS.h>
 
 #include <tao/TaoObjectMap.h>
@@ -124,7 +124,8 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_ID contactId = 0) ;
+                             CONTACT_ID contactId = 0,
+                             const void* pDisplay = NULL) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
@@ -164,14 +165,20 @@ public:
     virtual void bufferPlay(const char* callId, int audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
     virtual void audioStop(const char* callId);
     virtual void stopPremiumSound(const char* callId);
+#ifndef EXCLUDE_STREAMING
     virtual void createPlayer(const char* callid, MpStreamPlaylistPlayer** ppPlayer) ;
     virtual void createPlayer(int type, const char* callid, const char* szStream, int flags, MpStreamPlayer** ppPlayer) ;
     virtual void destroyPlayer(const char* callid, MpStreamPlaylistPlayer* pPlayer)  ;
     virtual void destroyPlayer(int type, const char* callid, MpStreamPlayer* pPlayer)  ;
+#endif
 
 
     // Operations for calls & connections
-    virtual void acceptConnection(const char* callId, const char* address, CONTACT_TYPE contactType = AUTO);
+    virtual void acceptConnection(const char* callId,
+                                  const char* address,
+                                  CONTACT_TYPE contactType = AUTO,
+                                  const void* hWnd = NULL);
+                                  
     virtual void rejectConnection(const char* callId, const char* address);
     virtual PtStatus redirectConnection(const char* callId, const char* address, const char* forwardAddressUrl);
     virtual void dropConnection(const char* callId, const char* address);
@@ -184,7 +191,8 @@ public:
                 int& numConnections, UtlString addresses[]);
 
     // Operations for calls & terminal connections
-    virtual void answerTerminalConnection(const char* callId, const char* address, const char* terminalId);
+    virtual void answerTerminalConnection(const char* callId, const char* address, const char* terminalId, 
+                                          const void* pDisplay = NULL);
     virtual void holdTerminalConnection(const char* callId, const char* address, const char* terminalId);
     virtual void holdAllTerminalConnections(const char* callId);
     virtual void holdLocalTerminalConnection(const char* callId);
@@ -265,6 +273,7 @@ public:
 
     virtual void enableStun(const char* szStunServer, 
                             int iKeepAlivePeriodSecs, 
+                            int stunOptions,
                             OsNotification *pNotification = NULL) ;
     //:Enable STUN for NAT/Firewall traversal
     
@@ -382,10 +391,12 @@ protected:
 
         void addTaoListenerToCall(CpCall* pCall);
 
+#if 0 // TO_BE_REMOVED
         void postTaoListenerMessage(int eventId,
                                     int type,
                                     int cause,
                                     CpMultiStringMessage* pEventMessage);
+#endif
 
         OsStatus addThisListener(OsServerTask* pListener,
                                  char* callId,
@@ -423,7 +434,8 @@ private:
     volatile int mMaxCalls;    
 
     UtlString mStunServer ;
-    int       mStunKeepAlivePeriodSecs ;
+    int mStunOptions ;
+    int mStunKeepAlivePeriodSecs ;
     CpMediaInterfaceFactory* mpMediaFactory;
 
     // Private accessors
@@ -451,7 +463,8 @@ private:
     void doConnect(const char* callId,
                    const char* addressUrl,
                    const char* szDesiredConnectionCallId,
-                   CONTACT_ID contactId = 0) ;
+                   CONTACT_ID contactId = 0,
+                   const void* pDisplay = NULL) ;
     void doSendInfo(const char* callId, 
                            const char* szContentType,
                            UtlString   sContent);
@@ -460,6 +473,7 @@ private:
 
     void doEnableStun(const char* szStunServer, 
                       int iKeepAlivePeriodSecs, 
+                      int stunOptions,
                       OsNotification* pNotification) ;
     //:Enable STUN for NAT/Firewall traversal                           
 

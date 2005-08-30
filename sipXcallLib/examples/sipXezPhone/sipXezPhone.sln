@@ -1,6 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXezPhone", "sipXezPhone.vcproj", "{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}"
 	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\..\..\sipXportLib\sipXportLib.vcproj", "{ABFD2AD0-01D2-4405-A5AD-46DA2274E42F}"
@@ -9,6 +10,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\..\..\sip
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "..\..\sipXcallLib.vcproj", "{B03A87CD-973C-4D87-9754-A0B6755115B7}"
 	ProjectSection(ProjectDependencies) = postProject
+		{441AB1E8-F72F-4C73-9C5E-49A0876A4628} = {441AB1E8-F72F-4C73-9C5E-49A0876A4628}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\..\..\sipXtackLib\sipXtackLib.vcproj", "{E1BC3155-DDD0-4078-9444-33CDE2B5714C}"
@@ -18,10 +20,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\..\..\sip
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi", "..\..\sipXtapi.vcproj", "{85CAC56D-4E3A-4712-91A5-AE724B11AE25}"
 	ProjectSection(ProjectDependencies) = postProject
+		{B03A87CD-973C-4D87-9754-A0B6755115B7} = {B03A87CD-973C-4D87-9754-A0B6755115B7}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaVoiceEngine", "..\..\..\gips\sipXmediaVoiceEngine\sipXmediaVoiceEngine.vcproj", "{441AB1E8-F72F-4C73-9C5E-49A0876A4628}"
 	ProjectSection(ProjectDependencies) = postProject
+		{E1BC3155-DDD0-4078-9444-33CDE2B5714C} = {E1BC3155-DDD0-4078-9444-33CDE2B5714C}
 	EndProjectSection
 EndProject
 Global

@@ -25,9 +25,6 @@
 #include "tao/TaoServerTask.h"
 #include "tao/TaoEvent.h"
 #include "tao/TaoString.h"
-#ifndef SIPXMEDIA_EXCLUDE
-    #include "mp/dtmflib.h"
-#endif
 
 
 //#define EVENT_TRACE(x) osPrintf(x)

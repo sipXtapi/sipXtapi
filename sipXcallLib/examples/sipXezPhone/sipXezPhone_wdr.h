@@ -37,7 +37,7 @@
 #define ID_PROXY_SERVER_CTRL 6005
 #define ID_ENABLE_RPORT_CTRL 6006
 #define ID_STUN_SERVER_CTRL 6007
-
+#define ID_ENABLE_AUTO_ANSWER 6018
 wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
 
 #define ID_STATICBITMAP 10001

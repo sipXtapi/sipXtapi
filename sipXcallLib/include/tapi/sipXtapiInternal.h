@@ -69,13 +69,36 @@ typedef struct
 
 typedef struct 
 {
-    bool              bInitialized;  /**< Is the data valid */
-    int               numCodecs;     /**< Number of codecs */
-    SIPX_BANDWIDTH_ID codecPref;     /**< Numeric Id of codec preference */
-    SIPX_BANDWIDTH_ID fallBack;      /**< Fallback id if codec setting fails */
-    UtlString         sPreferences;  /**< List of preferred codecs */
-    SdpCodec**        sdpCodecArray; /**< Pointer to an array of codecs */
+    bool              bInitialized;    /**< Is the data valid */
+    int               numCodecs;       /**< Number of codecs */
+    SIPX_AUDIO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
+    SIPX_AUDIO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
+    UtlString         sPreferences;    /**< List of preferred codecs */
+    SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
 } AUDIO_CODEC_PREFERENCES;
+
+typedef struct 
+{
+    bool              bInitialized;    /**< Is the data valid */
+    int               numCodecs;       /**< Number of codecs */
+    SIPX_VIDEO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
+    SIPX_VIDEO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
+    UtlString         sPreferences;    /**< List of preferred codecs */
+    SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
+} VIDEO_CODEC_PREFERENCES;
+
+typedef struct 
+{
+    bool        bInitialized;    /**< Is the data valid */
+    bool        bEnabled;        /**< Is SRTP enabled */
+    int         iCipherType;     /**< Cipher type */
+    int         iCipherKeyLen;   /**< Cipher key length */
+    int         iAuthType;       /**< Authentication type */
+    int         iAuthKeyLen;     /**< Authentication key length */
+    int         iAuthTagLen;     /**< Tag length */
+    int         iSecurity;       /**< Protection level */
+    UtlString   sKey;            /**< Key */
+} SRTP_SETTING;
 
 typedef struct
 {
@@ -99,6 +122,8 @@ typedef struct
     SPEAKER_TYPE     enabledSpeaker ;
     AUDIO_CODEC_PREFERENCES 
                      audioCodecSetting;
+    VIDEO_CODEC_PREFERENCES 
+                     videoCodecSetting;
     TONE_STATES      toneStates;
 
     char*            inputAudioDevices[MAX_AUDIO_DEVICES] ;
@@ -137,6 +162,7 @@ typedef struct
     SIPX_INSTANCE_DATA* pInst ;
     OsRWMutex* pMutex ;
     SIPX_CONF hConf ;
+    SIPX_VIDEO_DISPLAY display;
     UtlBoolean bRemoveInsteadOfDrop ;   /** Remove the call instead of dropping it 
                                             -- this is used as part of consultative 
                                             transfer when we are the transfer target 
@@ -173,6 +199,7 @@ typedef struct
     SIPX_INSTANCE_DATA* pInst ;
     OsRWMutex*          pMutex ;
     SIPX_CONTACT_TYPE   contactType ;
+    UtlSList*           pLineAliases ;
 } SIPX_LINE_DATA ;
 
 typedef struct
@@ -397,7 +424,7 @@ SIPXTAPI_API SIPX_RESULT sipxGetActiveCallIds(SIPX_INST hInst, int maxCalls, int
 /**
  * Callback for subscription client state
  */
-void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newState,
+void sipxSubscribeClientSubCallback(enum SipSubscribeClient::SubscriptionState newState,
                                    const char* earlyDialogHandle,
                                    const char* dialogHandle,
                                    void* applicationData,
@@ -444,7 +471,14 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
                                                            
                                                            
 #ifdef VOICE_ENGINE
-    #include "VoiceEngine/interface/GipsVoiceEngineLib.h"
+    #include "GipsVoiceEngineLib.h"
+    #include "GIPSAECTuningWizardAPI.h"
+#ifdef VIDEO
+#ifdef _WIN32       
+    #include <windows.h>
+    #include "GipsVideoEngineWindows.h"
+#endif
+#endif 
     /**
      * For Gips VoiceEngine versions of sipXtapi, this method will
      * return the GipsVoiceEngineLib pointer associated with the
@@ -465,7 +499,26 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
      * @param hInst Instance pointer obtained by sipxInitialize
      */
     SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hInst);
+    
+    /**
+     * For Gips VoiceEngine versions of sipXtapi, this method will
+     * return a Audio Tuning Wizard pointer associated with the
+     * factory implementation.
+     *
+     * @param hInst Instance pointer obtained by sipxInitialize
+     */
+    SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard();
 
+#ifdef VIDEO
+    /**
+     * For Gips VoiceEngine versions of sipXtapi, this method will
+     * return the GipsVoiceEngineLib pointer associated with the
+     * factory implementation.
+     *
+     * @param hInst Instance pointer obtained by sipxInitialize
+     */
+    SIPXTAPI_API GipsVideoEngineWindows* sipxConfigGetVideoEnginePtr(const SIPX_INST hInst);
+#endif VIDEO
 
     /**
      * For Gips VoiceEngine versions of sipXtapi, this method will

@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlDList.h>
 #include <utl/UtlDListIterator.h>
+#include <utl/UtlHashMap.h>
 #include <sipXtapiDriver/Command.h>
 #include <os/OsDefs.h>
 #include <os/OsConfigDb.h>
@@ -69,6 +70,8 @@ void registerCommand(const char* commandName, Command* command);
 
 int executeCommand(const char* commandLine);
 
+void fill();
+
 /* ============================ ACCESSORS ================================= */
 
 int findCommand(const char* commandName, Command** command) const;
@@ -102,7 +105,8 @@ private:
         Command* commands[MAX_COMMANDS];
         UtlDList historyList;
     OsConfigDb mEnvironment;
-
+	UtlHashMap allKeys;
+	const char* decoder(char* shortName);
    CommandProcessor(const CommandProcessor& rCommandProcessor);
      //:Copy constructor
    CommandProcessor& operator=(const CommandProcessor& rhs);

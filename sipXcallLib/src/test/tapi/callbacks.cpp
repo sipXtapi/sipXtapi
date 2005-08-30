@@ -110,6 +110,8 @@ bool AutoAnswerCallback(SIPX_EVENT_CATEGORY category,
                     sipxCallDestroy(hDestroy) ; 
                 }
                 break ;
+            default:
+                break ;
         }
     }     
     
@@ -179,6 +181,8 @@ bool AutoAnswerCallback2(SIPX_EVENT_CATEGORY category,
                     i = 2; 
                 }
                 break ;
+            default:
+                break ;
         }
     }     
     
@@ -225,6 +229,8 @@ bool AutoAnswerHangupCallback(SIPX_EVENT_CATEGORY category,
                     sipxCallDestroy(hDestroy) ;
                 }
                 break ;
+            default:
+                break ;
         }
     }     
     
@@ -269,6 +275,8 @@ bool AutoRejectCallback(SIPX_EVENT_CATEGORY category,
                     sipxCallDestroy(hDestroy) ;
                 }
                 break ;
+            default:
+                break ;
         }
     }     
     
@@ -312,6 +320,8 @@ bool AutoRedirectCallback(SIPX_EVENT_CATEGORY category,
                     SIPX_CALL hDestroy = g_hAutoRedirectCallbackCall ;
                     sipxCallDestroy(hDestroy) ;
                 }
+                break ;
+            default:
                 break ;
         }
     }     
@@ -381,6 +391,8 @@ bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category,
             case CALLSTATE_DISCONNECTED:
                 sipxCallDestroy(hCall) ; 
                 break ;
+            default:
+                break ;
         }
     }     
     
@@ -428,6 +440,8 @@ bool basicCall_CallBack_Receive3(SIPX_EVENT_CATEGORY category,
                 break ;
             case CALLSTATE_DISCONNECTED:
                 sipxCallDestroy(hCall) ; 
+                break ;
+            default:
                 break ;
         }
     }
@@ -479,6 +493,8 @@ bool basicCall_CallBack_Receive3_hangup(SIPX_EVENT_CATEGORY category,
                 break ;
             case CALLSTATE_DISCONNECTED:            
                 break ;
+            default:
+                break ;
         }
     }
     return true;
@@ -521,6 +537,8 @@ bool basicCall_CallBack_Receive3_busy(SIPX_EVENT_CATEGORY category,
                 sipxCallReject(hCall) ;
                 sipxCallDestroy(hCall) ;
                 break ;
+            default:
+                break ;
         }
     }
     return true;
@@ -549,6 +567,8 @@ bool basicCall_CallBack_Receive_Hangup(SIPX_EVENT_CATEGORY category,
                 break ;
             case CALLSTATE_DISCONNECTED:
                 break ;
+            default:
+                break ;
         }
     }
     return true;
@@ -576,6 +596,8 @@ bool basicCall_CallBack_Receive_Reject(SIPX_EVENT_CATEGORY category,
                 break ;
             case CALLSTATE_DISCONNECTED:            
                 break ;
+            default:
+                break ;
         }
     }
     return true;
@@ -589,7 +611,6 @@ bool basicCall_CallBack_Redirect(SIPX_EVENT_CATEGORY category,
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
         SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo;
-        SIPX_LINE hLine = pCallInfo->hLine;
         SIPX_CALL hCall = pCallInfo->hCall;
 
         switch(pCallInfo->event)
@@ -601,6 +622,8 @@ bool basicCall_CallBack_Redirect(SIPX_EVENT_CATEGORY category,
             case CALLSTATE_ALERTING:
                 break ;
             case CALLSTATE_DISCONNECTED:            
+                break ;
+            default:
                 break ;
         }
     }

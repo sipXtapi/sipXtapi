@@ -66,7 +66,7 @@ AM_CONDITIONAL(ENABLE_LOCAL_AUDIO, test x$enable_local_audio = xtrue)
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
-CHECK_GIPS
+CHECK_GIPSNEQ
 
 AC_CONFIG_FILES([
   Makefile 

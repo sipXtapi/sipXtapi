@@ -37,6 +37,7 @@ void AutoAnswerCallbackProc(SIPX_CALL hCall,
 			printf("Call with ID %d failed to be accepted.\n", hCall);
 		}
 		sipxCallAnswer(hCall);
+		printf("Call with ID %d has been answered.\n", hCall);
 	}
 	else if(eMinor == DISCONNECTED_NORMAL)
 	{

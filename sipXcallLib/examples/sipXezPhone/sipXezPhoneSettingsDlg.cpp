@@ -60,6 +60,9 @@ sipXezPhoneSettingsDlg::sipXezPhoneSettingsDlg( wxWindow *parent, wxWindowID id,
     wxCheckBox* pCheck = (wxCheckBox*)sipXezPhoneSettingsDlg::FindWindowById(ID_ENABLE_RPORT_CTRL, this);
     pCheck->SetValue( sipXezPhoneSettings::getInstance().getUseRport() );
 
+    pCheck = (wxCheckBox*)sipXezPhoneSettingsDlg::FindWindowById(ID_ENABLE_AUTO_ANSWER, this);
+    pCheck->SetValue( sipXezPhoneSettings::getInstance().getAutoAnswer() );
+
     pCtrl = (wxTextCtrl*)sipXezPhoneSettingsDlg::FindWindowById(ID_STUN_SERVER_CTRL, this);
     pCtrl->SetValue( sipXezPhoneSettings::getInstance().getStunServer().data() );
 }
@@ -94,6 +97,9 @@ void sipXezPhoneSettingsDlg::OnOk(wxCommandEvent &event)
     
     wxCheckBox* pCheck = (wxCheckBox*)sipXezPhoneSettingsDlg::FindWindowById(ID_ENABLE_RPORT_CTRL, this);
     sipXezPhoneSettings::getInstance().setUseRport(pCheck->GetValue());
+
+    pCheck = (wxCheckBox*)sipXezPhoneSettingsDlg::FindWindowById(ID_ENABLE_AUTO_ANSWER, this);
+    sipXezPhoneSettings::getInstance().setAutoAnswer(pCheck->GetValue());
 
     pCtrl = (wxTextCtrl*)sipXezPhoneSettingsDlg::FindWindowById(ID_STUN_SERVER_CTRL, this);
     x = pCtrl->GetValue();

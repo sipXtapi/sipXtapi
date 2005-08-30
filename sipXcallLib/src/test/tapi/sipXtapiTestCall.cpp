@@ -15,6 +15,7 @@
 extern SIPX_INST g_hInst;
 extern SIPX_INST g_hInst2;
 extern SIPX_INST g_hInst3;
+extern SIPX_INST g_hInst5;
 
 extern bool g_bCallbackCalled;
 
@@ -27,23 +28,23 @@ void sipXtapiTestSuite::testCallMakeAPI()
     {
         printf("\ntestCallMakeAPI (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-   	    SIPX_LINE hLine = NULL;
-	    SIPX_CALL hCall = NULL ;        
+        SIPX_LINE hLine = SIPX_LINE_NULL;
+        SIPX_CALL hCall = SIPX_CALL_NULL ;        
         SIPX_RESULT rc ; 
-	    
+        
         rc = sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", &hLine) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(hLine) ;
+        CPPUNIT_ASSERT(hLine) ;
 
-	    rc = sipxCallCreate(g_hInst, hLine, &hCall) ;
+        rc = sipxCallCreate(g_hInst, hLine, &hCall) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(hCall) ;
+        CPPUNIT_ASSERT(hCall != SIPX_CALL_NULL) ;
 
         rc = sipxCallDestroy(hCall) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(hCall == NULL) ;
+        CPPUNIT_ASSERT(hCall == SIPX_CALL_NULL) ;
 
-	    rc = sipxLineRemove(hLine) ; 
+        rc = sipxLineRemove(hLine) ; 
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
     }
 
@@ -56,25 +57,25 @@ void sipXtapiTestSuite::testCallGetID()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE hLine = NULL ;
-	    SIPX_CALL hCall = NULL ;
+        SIPX_LINE hLine = SIPX_LINE_NULL ;
+        SIPX_CALL hCall = SIPX_CALL_NULL ;
 
         printf("\ntestCallGetID (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    createCall(&hLine, &hCall) ;
+        createCall(&hLine, &hCall) ;
 
-	    char cBuf[128] ;
+        char cBuf[128] ;
 
-	    memset(cBuf, 0, sizeof(cBuf)) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
+        memset(cBuf, 0, sizeof(cBuf)) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
 
-	    memset(cBuf, ' ', sizeof(cBuf)) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
-	    CPPUNIT_ASSERT(cBuf[5] == ' ') ;
+        memset(cBuf, ' ', sizeof(cBuf)) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
+        CPPUNIT_ASSERT(cBuf[5] == ' ') ;
 
-	    destroyCall(hLine, hCall) ;
+        destroyCall(hLine, hCall) ;
     }
     OsTask::delay(TEST_DELAY) ;    
 
@@ -83,24 +84,24 @@ void sipXtapiTestSuite::testCallGetID()
 
 void sipXtapiTestSuite::testCallRapidCallAndHangup()
 {
-	for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE hLine = NULL ;
-	    SIPX_CALL hCall = NULL ;
+        SIPX_LINE hLine = SIPX_LINE_NULL ;
+        SIPX_CALL hCall = SIPX_CALL_NULL ;
 
         printf("\ntestCallRapidCallAndHangup (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
 
         CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", &hLine), SIPX_RESULT_SUCCESS) ;
         
-     	CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, &hCall), SIPX_RESULT_SUCCESS) ;
-		CPPUNIT_ASSERT_EQUAL(sipxCallConnect(hCall, "sip:mike2@cheetah.pingtel.com"), SIPX_RESULT_SUCCESS) ;
-		CPPUNIT_ASSERT_EQUAL(sipxCallDestroy(hCall), SIPX_RESULT_SUCCESS);
-		
-     	CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, &hCall), SIPX_RESULT_SUCCESS) ;
-		CPPUNIT_ASSERT_EQUAL(sipxCallConnect(hCall, "sip:mike2@cheetah.pingtel.com"), SIPX_RESULT_SUCCESS) ;
-		CPPUNIT_ASSERT_EQUAL(sipxCallDestroy(hCall), SIPX_RESULT_SUCCESS);
-		
+         CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, &hCall), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallConnect(hCall, "sip:mike2@cheetah.pingtel.com"), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallDestroy(hCall), SIPX_RESULT_SUCCESS);
+        
+         CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, &hCall), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallConnect(hCall, "sip:mike2@cheetah.pingtel.com"), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallDestroy(hCall), SIPX_RESULT_SUCCESS);
+        
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
         OsTask::delay(CALL_DELAY*2);
     }
@@ -130,7 +131,7 @@ void sipXtapiTestSuite::testCallGetRemoteID()
         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
         sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -165,16 +166,16 @@ void sipXtapiTestSuite::testCallGetRemoteID()
         bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
-	    // Test sipxCallGetRemoteID
+        // Test sipxCallGetRemoteID
         char cBuf[128] ;
-		memset(cBuf, 0, sizeof(cBuf));
-		CPPUNIT_ASSERT_EQUAL( sipxCallGetRemoteID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
-		CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
-		
-		memset(cBuf, ' ', sizeof(cBuf)) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetRemoteID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
-	    CPPUNIT_ASSERT(cBuf[5] == ' ') ;                        
+        memset(cBuf, 0, sizeof(cBuf));
+        CPPUNIT_ASSERT_EQUAL( sipxCallGetRemoteID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
+        
+        memset(cBuf, ' ', sizeof(cBuf)) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetRemoteID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
+        CPPUNIT_ASSERT(cBuf[5] == ' ') ;                        
 
         SIPX_CALL hDestroyedCall = hCall ;
         destroyCall(hCall) ;
@@ -215,25 +216,25 @@ void sipXtapiTestSuite::testCallGetLocalID()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE hLine = NULL ;
-	    SIPX_CALL hCall = NULL ;
+        SIPX_LINE hLine = SIPX_LINE_NULL ;
+        SIPX_CALL hCall = SIPX_CALL_NULL ;
 
         printf("\ntestCallGetLocalID (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    createCall(&hLine, &hCall) ;
+        createCall(&hLine, &hCall) ;
 
-	    char cBuf[128] ;
+        char cBuf[128] ;
 
-	    memset(cBuf, 0, sizeof(cBuf)) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetLocalID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
+        memset(cBuf, 0, sizeof(cBuf)) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetLocalID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
 
-	    memset(cBuf, ' ', sizeof(cBuf)) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetLocalID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
-	    CPPUNIT_ASSERT(cBuf[5] == ' ') ;
+        memset(cBuf, ' ', sizeof(cBuf)) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetLocalID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
+        CPPUNIT_ASSERT(cBuf[5] == ' ') ;
 
-	    destroyCall(hLine, hCall) ;
+        destroyCall(hLine, hCall) ;
     }
     OsTask::delay(TEST_DELAY) ;
 
@@ -243,16 +244,16 @@ void sipXtapiTestSuite::testCallGetLocalID()
 
 void sipXtapiTestSuite::createCall(SIPX_LINE* phLine, SIPX_CALL* phCall)
 {
-	CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", phLine), SIPX_RESULT_SUCCESS) ;
-	CPPUNIT_ASSERT(*phLine) ;
+    CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", phLine), SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(*phLine) ;
 
     createCall(*phLine, phCall) ;
 }
 
 void sipXtapiTestSuite::createCall(SIPX_LINE hLine, SIPX_CALL* phCall) 
 {
-	CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, phCall), SIPX_RESULT_SUCCESS) ;
-	CPPUNIT_ASSERT(*phCall) ;
+    CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, phCall), SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(*phCall) ;
 }
 
 
@@ -260,13 +261,13 @@ void sipXtapiTestSuite::destroyCall(SIPX_LINE& hLine, SIPX_CALL& hCall)
 {
     destroyCall(hCall) ;
     OsTask::delay(250) ;
-	CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
 }
 
 void sipXtapiTestSuite::destroyCall(SIPX_CALL& hCall) 
 {
-    CPPUNIT_ASSERT_EQUAL(sipxCallDestroy(hCall), SIPX_RESULT_SUCCESS) ;	
-	CPPUNIT_ASSERT(hCall == NULL) ;
+    CPPUNIT_ASSERT_EQUAL(sipxCallDestroy(hCall), SIPX_RESULT_SUCCESS) ;    
+    CPPUNIT_ASSERT(hCall == SIPX_CALL_NULL) ;
 }
 
 
@@ -293,7 +294,7 @@ void sipXtapiTestSuite::testCallBasic()
         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
         sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -330,9 +331,9 @@ void sipXtapiTestSuite::testCallBasic()
                 
         int connectionId = -1;
         
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
-	    CPPUNIT_ASSERT(connectionId != -1) ;
-	            
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(connectionId != -1) ;
+                
         SIPX_CALL hDestroyedCall = hCall ;
         destroyCall(hCall) ;
 
@@ -392,7 +393,7 @@ void sipXtapiTestSuite::testCallMute()
         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
         sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -429,16 +430,16 @@ void sipXtapiTestSuite::testCallMute()
                 
         int connectionId = -1;
         
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
-	    CPPUNIT_ASSERT(connectionId != -1) ;
-	    
-	    // loop 10 times, muting and unmuting
-	    for (int i = 0; i < 50; i++)
-	    {
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(connectionId != -1) ;
+        
+        // loop 10 times, muting and unmuting
+        for (int i = 0; i < 50; i++)
+        {
             sipxAudioMute(g_hInst, true);
             sipxAudioMute(g_hInst, false);
-	    }
-	            
+        }
+                
         SIPX_CALL hDestroyedCall = hCall ;
         destroyCall(hCall) ;
 
@@ -496,7 +497,7 @@ void sipXtapiTestSuite::testCallBasic2()
         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
         sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);        
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);        
 
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -590,7 +591,7 @@ void sipXtapiTestSuite::testCallBusy()
         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
         sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);        
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);        
 
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -650,7 +651,7 @@ void sipXtapiTestSuite::testCallRedirect()
     EventValidator validatorRedirector("testCallRedirect.redirector") ;
     EventValidator validatorCalled("testCallRedirected.called") ;
 
-	for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
         printf("\ntestCallRedirect (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
@@ -672,8 +673,8 @@ void sipXtapiTestSuite::testCallRedirect()
         sipxEventListenerAdd(g_hInst3, AutoAnswerCallback, NULL) ;
 
         
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hRedirectLine, CONTACT_AUTO);
-        sipxLineAdd(g_hInst3, "sip:foo@127.0.0.1:10000", &hCalledLine, CONTACT_AUTO);
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hRedirectLine, CONTACT_LOCAL);
+        sipxLineAdd(g_hInst3, "sip:foo@127.0.0.1:10000", &hCalledLine, CONTACT_LOCAL);
 
         bRC = validatorRedirector.waitForLineEvent(hRedirectLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -747,14 +748,14 @@ void sipXtapiTestSuite::testCallRedirect()
         CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst,  UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorRedirector), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoRedirectCallback, NULL), SIPX_RESULT_SUCCESS) ;
-		CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst3, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst3, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS);
         CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst3, AutoAnswerCallback, NULL), SIPX_RESULT_SUCCESS);
         
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hRedirectLine), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hCalledLine), SIPX_RESULT_SUCCESS) ;
-	}
-	OsTask::delay(TEST_DELAY) ;
+    }
+    OsTask::delay(TEST_DELAY) ;
 
     checkForLeaks();
 }
@@ -784,7 +785,7 @@ void sipXtapiTestSuite::testCallHold()
         sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
         
         // Add Line
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hCalledLine, CONTACT_AUTO);        
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hCalledLine, CONTACT_LOCAL);        
         bRC = validatorCalled.waitForLineEvent(hCalledLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -909,7 +910,7 @@ void sipXtapiTestSuite::testSendInfo()
 
         CPPUNIT_ASSERT_EQUAL(sipxConfigSetUserAgentName(g_hInst, "sipXtapiTest", false), SIPX_RESULT_SUCCESS) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -1021,7 +1022,7 @@ void sipXtapiTestSuite::testSendInfoFailure()
 
         CPPUNIT_ASSERT_EQUAL(sipxConfigSetUserAgentName(g_hInst, "sipXtapiTest", false), SIPX_RESULT_SUCCESS) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -1127,7 +1128,7 @@ void sipXtapiTestSuite::testSendInfoTimeout()
 
         CPPUNIT_ASSERT_EQUAL(sipxConfigSetUserAgentName(g_hInst, "sipXtapiTest", false), SIPX_RESULT_SUCCESS) ;
 
-        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
         bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -1202,4 +1203,33 @@ void sipXtapiTestSuite::testSendInfoTimeout()
     pInst->pMessageObserver->setTestResponseCode(0);
 
     checkForLeaks();
+}
+
+
+void sipXtapiTestSuite::testManualCallDialtone()
+{
+    SIPX_CALL hCall ;
+    SIPX_LINE hLine ;
+    
+    // Setup
+    sipxLineAdd(g_hInst, "sip:foo@10.1.1.120", &hLine) ;
+    sipxCallCreate(g_hInst, hLine, &hCall) ;
+
+    sipxCallPlayFileStart(hCall, "c:\\na_dialtone.wav", true, true, false) ;
+    OsTask::delay(1000) ;
+    sipxCallStartTone(hCall, ID_DTMF_0, true, false) ;
+    OsTask::delay(1000) ;
+    sipxCallStartTone(hCall, ID_DTMF_1, true, false) ;
+    OsTask::delay(1000) ;
+    sipxCallStartTone(hCall, ID_DTMF_2, true, false) ;
+    OsTask::delay(1000) ;
+    sipxCallPlayFileStop(hCall) ;
+    OsTask::delay(5000) ;
+    sipxCallPlayFileStart(hCall, "c:\\na_dialtone.wav", true, true, false) ;
+    OsTask::delay(10000) ;
+    sipxCallPlayFileStop(hCall) ;
+
+    // Destory
+    sipxCallDestroy(hCall) ;
+    sipxLineRemove(hLine) ;
 }

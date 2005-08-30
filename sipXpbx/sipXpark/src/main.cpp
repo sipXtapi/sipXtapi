@@ -23,6 +23,7 @@
 #include <net/SipUserAgent.h>
 #include <net/SdpCodecFactory.h>
 #include <cp/CallManager.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <cp/DialogEventPublisher.h>
 #include <ptapi/PtProvider.h>
 #include <net/NameValueTokenizer.h>
@@ -439,7 +440,7 @@ int main(int argc, char* argv[])
                            CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
                            QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
                            MaxSessions,                       // maxCalls
-                           NULL);                             // CpMediaInterfaceFactory
+                           sipXmediaFactoryFactory(NULL));    // CpMediaInterfaceFactory
 
 
 

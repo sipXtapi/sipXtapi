@@ -30,13 +30,13 @@
 #define TEST_DELAY      4000    /**< Time to delay between each test */
 
 #ifdef _WIN32
-  #define TEST_AUDIO              0
-  #define TEST_LINE               0
+  #define TEST_AUDIO              1
+  #define TEST_LINE               1
   #define TEST_CALL               1
-  #define TEST_CONF               0
-  #define TEST_REG                0
-  #define TEST_TRANSFER           0
-  #define TEST_CONFIG             0
+  #define TEST_CONF               1
+  #define TEST_REG                1
+  #define TEST_TRANSFER           1
+  #define TEST_CONFIG             1
   #define TEST_PROBLEMATIC_CASES  0
 #else
   #define TEST_AUDIO              0
@@ -90,22 +90,31 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testLineAPI_GetURI) ;
     CPPUNIT_TEST(testLines) ;
     CPPUNIT_TEST(testLineEvents);
+    CPPUNIT_TEST(testLineAliases);
 #endif /* TEST_LINE ] */
 
 #if TEST_CALL /* [ */
-    // CPPUNIT_TEST(testCallMakeAPI) ;           
-    // CPPUNIT_TEST(testCallGetID) ;
+    CPPUNIT_TEST(testCallMakeAPI) ;           
+    CPPUNIT_TEST(testCallGetID) ;
     CPPUNIT_TEST(testCallGetRemoteID) ;
-    // CPPUNIT_TEST(testCallGetLocalID) ;
+    CPPUNIT_TEST(testCallGetLocalID) ;
     CPPUNIT_TEST(testCallBasic) ;
     CPPUNIT_TEST(testCallBasic2) ;  
-    CPPUNIT_TEST(testCallMute);
+    //CPPUNIT_TEST(testCallMute);
     CPPUNIT_TEST(testCallBusy) ;
-    CPPUNIT_TEST(testCallHold) ;
+    //CPPUNIT_TEST(testCallHold) ;
     CPPUNIT_TEST(testCallRedirect);
     CPPUNIT_TEST(testSendInfo);
     CPPUNIT_TEST(testSendInfoTimeout);
     CPPUNIT_TEST(testSendInfoFailure);
+
+    // 
+    // The following test cases allow you to manually test features and
+    // verify that audio works.  You will need to modify the IP address 
+    // to work for you.
+    //
+    // CPPUNIT_TEST(testManualCallDialtone) ;
+    // CPPUNIT_TEST(testManualPlayFileNoCall);
 #endif /* TEST_CALL ] */
         
 #if TEST_CONF /* [ */
@@ -119,7 +128,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfJoin) ;
     CPPUNIT_TEST(testConfHoldNoBridge) ;
     CPPUNIT_TEST(testConfHoldBridge) ;
-    CPPUNIT_TEST(testConfReAdd) ;
+    //CPPUNIT_TEST(testConfReAdd) ;
 
     // 
     // The following test cases allow you to manually test join/split and
@@ -149,11 +158,11 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testSeqPortSelection) ;    
     CPPUNIT_TEST(testAutoPortSelection) ;
     CPPUNIT_TEST(testSetCallback) ;    
-    CPPUNIT_TEST(testConfigOutOfBand) ;
+    //CPPUNIT_TEST(testConfigOutOfBand) ;
     CPPUNIT_TEST(testTeardown);    
     CPPUNIT_TEST(testConfigEnableStunSuccess);
     CPPUNIT_TEST(testConfigEnableStunFailure);
-    CPPUNIT_TEST(testConfigLog) ;
+    //CPPUNIT_TEST(testConfigLog) ;
 #ifdef VOICE_ENGINE /* [ */
     CPPUNIT_TEST(testConfigCodecPreferences);
 #endif /* VOICE_ENGINE ] */
@@ -195,6 +204,7 @@ public:
     void testCallHold() ;
     void testCallMute();
     void testCallRedirect();
+    void testManualCallDialtone() ;
 
     void testConfBasic1() ;
     void testConfBasic2() ;
@@ -213,6 +223,7 @@ public:
 
     void testLines() ;
     void testLineEvents();
+    void testLineAliases();
     void testRegistration();
     void testBadRegistrarRegistration();
     void testReRegistration();

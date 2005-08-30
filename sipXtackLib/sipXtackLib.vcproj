@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="sipXtackLib"
+	ProjectGUID="{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
 	SccProjectName="Perforce Project"
 	SccLocalPath=".">
 	<Platforms>
@@ -94,7 +95,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\sipXtackLib.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreDefaultLibraryNames="msvcprtd.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -865,6 +867,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\SipDialogEvent.cpp">
+			</File>
+			<File
 				RelativePath="src\net\SipDialogMgr.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -884,6 +889,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\SipDialogMonitor.cpp">
 			</File>
 			<File
 				RelativePath="src\net\SipLine.cpp">
@@ -1162,7 +1170,25 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\net\SipPublishContentMgr.cpp">
+				RelativePath="src\net\SipPublishContentMgr.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\net\SipPublishServer.cpp">
@@ -1171,7 +1197,46 @@
 				RelativePath=".\src\net\SipPublishServerEventStateCompositor.cpp">
 			</File>
 			<File
-				RelativePath=".\src\net\SipRefreshManager.cpp">
+				RelativePath="src\net\SipRefreshManager.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\net\SipRefreshMgr.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\net\SipRequestContext.cpp">
@@ -1264,20 +1329,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-<<<<<<< .working
-				RelativePath=".\src\net\SipSubscribeClient.cpp">
-			</File>
-			<File
-				RelativePath=".\src\net\SipSubscribeServer.cpp">
-			</File>
-			<File
-				RelativePath=".\src\net\SipSubscribeServerEventHandler.cpp">
-			</File>
-			<File
-				RelativePath=".\src\net\SipSubscriptionMgr.cpp">
-			</File>
-			<File
-=======
 				RelativePath="src\net\SipSubscribeClient.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1362,7 +1413,6 @@
 				</FileConfiguration>
 			</File>
 			<File
->>>>>>> .merge-right.r3114
 				RelativePath="src\net\SipTcpServer.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1531,6 +1581,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\SmimeBody.cpp">
+			</File>
+			<File
 				RelativePath=".\src\net\StateChangeNotifier.cpp">
 			</File>
 			<File
@@ -1596,9 +1649,6 @@
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\src\net\XmlRpcResponse.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1647,9 +1697,6 @@
 			</File>
 			<File
 				RelativePath="include\net\NameValuePair.h">
-			</File>
-			<File
-				RelativePath=".\include\net\NameValuePairInsensitive.h">
 			</File>
 			<File
 				RelativePath="include\net\NameValueTokenizer.h">

@@ -928,7 +928,7 @@ void OsStunQueryAgent::buildReqSimple(StunMessage *msg, bool changePort, bool ch
  *  None
  *-----------------------------------------------------------------------------
  */
-void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int testNum) {
+void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int testNum, int stunOptions) {
     /* Check if the destination is a valid one */
     assert( dest.addr != 0 );
     assert(portIsValid(dest.port));
@@ -968,6 +968,16 @@ void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int t
     memset(&req, 0, sizeof(StunMessage));
 
     /* Generate a STUN request */
+    if (stunOptions & STUN_OPTION_CHANGE_PORT)
+    {                 
+        changePort = TRUE ;
+    }
+
+    if (stunOptions & STUN_OPTION_CHANGE_ADDRESS)
+    {
+        changeIP = TRUE ;
+    }
+
     buildReqSimple( &req, changePort , changeIP , 0x00);
 
     /* Encode the message into char array */
@@ -1101,7 +1111,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
             }
 
             if ( (!respTestI2) && respTestI ) { /* We have received a response to Test I but not Test I2 */
-                /* Check the address to send to if valid */
+                /* Check that the address to send to is valid */
                 if (  ( testI2dest.addr != 0 ) &&  ( portIsValid(testI2dest.port) ) ) {
                     /* Send Test I2 */
 #ifdef TEST
@@ -1299,7 +1309,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
  *  The boolean status of the success of the operation
  *-----------------------------------------------------------------------------
  */
-bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &addr, int &port, const OsTime& timeout) 
+bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &addr, int &port, int stunOptions, const OsTime& timeout) 
 {
     UINT ma;
     StunMessage resp;
@@ -1309,7 +1319,7 @@ bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &a
 #ifdef TEST
     cout << "Sending Test I" << endl;
 #endif
-    sendTest(oDS, stunServer, 1);
+    sendTest(oDS, stunServer, 1, stunOptions);
     if (oDS->isReadyToRead(timeout.cvtToMsecs()))
     {
         msgLen = oDS->readStunPacket(msg, msgLen, timeout) ;

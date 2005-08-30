@@ -25,12 +25,13 @@ CallHistoryPanel::CallHistoryPanel(wxWindow* parent, const wxPoint& pos, const w
    wxPanel(parent, IDR_CALL_HISTORY_PANEL, pos, size, wxTAB_TRAVERSAL, "CallHistoryPanel")
 {
         mpNotebook = new wxNotebook(this, IDR_CALL_HISTORY_NOTEBOOK, pos, size);
+        mpContactListPanel = new ContactListPanel(mpNotebook, pos, size);
         mpReceivedCallListCtrl = new ReceivedCallList(mpNotebook, pos, size);
-        mpPlacedCallListCtrl = new PlacedCallList(mpNotebook, pos, size);
-        mpContactListCtrl = new ContactListCtrl(mpNotebook, -1, pos, size);
+        mpPlacedCallListCtrl = new PlacedCallList(mpNotebook, pos, size);        
+        mpNotebook->AddPage(mpContactListPanel, "Contacts");
         mpNotebook->AddPage(mpReceivedCallListCtrl, "Received Calls");
         mpNotebook->AddPage(mpPlacedCallListCtrl, "Placed Calls");
-        mpNotebook->AddPage(mpContactListCtrl, "Contacts");
+        
 
 }
 

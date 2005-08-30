@@ -74,7 +74,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
             // Ignore the loopback address, because opening ports on the
             // loopback interface interferes with STUN operation.
             UtlString address(s);
-            if (address.compareTo("127.0.0.1") != 0)
+            if (address.compareTo("127.0.0.1") != 0 && address.compareTo("0.0.0.0") != 0)
             {
                // Put the interface name and address into a HostAdapterAddress.
                localHostAddresses[j] = new HostAdapterAddress(ifreq_array[i].ifr_name, s);

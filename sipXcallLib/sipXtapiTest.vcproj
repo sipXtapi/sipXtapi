@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib sipXtackLib.lib sipXportLib.lib sipXtapi.lib odbc32.lib odbccp32.lib cppunitd.lib libpcre.a"
+				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib sipXtackLib.lib sipXportLib.lib sipXtapi.lib odbc32.lib odbccp32.lib cppunit.lib libpcre.a"
 				OutputFile=".\sipXtapi\Release/sipXtapiTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -107,11 +107,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/fixed:no /incremental:no"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib Ws2_32.lib sipXtackLib.lib sipXportLib.lib sipXtapid.lib odbc32.lib odbccp32.lib cppunitd.lib libpcre.a"
+				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib Ws2_32.lib sipXtackLib.lib sipXportLib.lib sipXtapid.lib odbc32.lib odbccp32.lib cppunitd.lib libpcre.a nss3.lib smime3.lib"
 				OutputFile=".\sipXtapi\Debug/sipXtapiTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="sipXtapi\Debug\,..\sipXtackLib\debug,..\sipXportLib\debug"
+				AdditionalLibraryDirectories="sipXtapi\Debug\,..\sipXtackLib\debug,..\sipXportLib\debug;..\sipXbuild\vendors\Mozilla\wnt\nss-3.10_dbg\lib;"
 				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/sipXtapiTest.pdb"
@@ -130,6 +130,137 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug_NoVideo|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test;include;..\sipXportLib\include;..\sipXtackLib\include;..\sipXmediaLib\include"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderFile=".\Debug_NoVideo/sipXtapiTest.pch"
+				AssemblerListingLocation=".\Debug_NoVideo/"
+				ObjectFile=".\Debug_NoVideo/"
+				ProgramDataBaseFileName=".\Debug_NoVideo/"
+				BrowseInformation="1"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="4"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/fixed:no /incremental:no"
+				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib Ws2_32.lib sipXtackLib.lib sipXportLib.lib sipXtapid.lib odbc32.lib odbccp32.lib cppunitd.lib libpcre.a"
+				OutputFile=".\sipXtapi\Debug_NoVideo/sipXtapiTest.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories=".\,sipXtapi\Debug_NoVideo\,..\sipXtackLib\debug,..\sipXportLib\debug"
+				IgnoreAllDefaultLibraries="FALSE"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile=".\Debug_NoVideo/sipXtapiTest.pdb"
+				SubSystem="1"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/sipXtapiTest.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release_NoVideo|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,..\sipXmediaLib\include"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderFile=".\Release_NoVideo/sipXtapiTest.pch"
+				AssemblerListingLocation=".\Release_NoVideo/"
+				ObjectFile=".\Release_NoVideo/"
+				ProgramDataBaseFileName=".\Release_NoVideo/"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib sipXtackLib.lib sipXportLib.lib sipXtapi.lib odbc32.lib odbccp32.lib cppunitd.lib libpcre.a"
+				OutputFile=".\sipXtapi\Release_NoVideo/sipXtapiTest.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="sipXtapi\Release_NoVideo\,..\sipXtackLib\release,..\sipXportLib\release"
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames="msvcrtd.lib"
+				ProgramDatabaseFile=".\Release_NoVideo/sipXtapiTest.pdb"
+				SubSystem="1"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/sipXtapiTest.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -178,6 +309,24 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="src\test\tapi\sipXtapiTestCall.cpp">
@@ -198,6 +347,24 @@
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -220,6 +387,27 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\test\tapi\sipXtapiTestConferenceAdv.cpp">
 			</File>
 			<File
 				RelativePath="src\test\tapi\sipXtapiTestConfig.cpp">
@@ -240,6 +428,24 @@
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -262,6 +468,24 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="src\test\tapi\sipXtapiTestTransfer.cpp">
@@ -282,6 +506,24 @@
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
 			<File

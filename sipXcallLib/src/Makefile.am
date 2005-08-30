@@ -3,7 +3,7 @@
 
 EXTRA_DIST = tapi
 
-SUBDIRS = . test 
+SUBDIRS = . test
 
 INCLUDES = -I$(top_srcdir)/include
 
@@ -24,6 +24,9 @@ libsipXcall_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${
 libsipXcall_la_LIBADD = \
 	@SIPXMEDIA_LIBS@ @SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
 
+libsipXcall_la_CXXFLAGS = \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+
 libsipXcall_la_SOURCES = \
     ../config/sipxcalllib-buildstamp.h \
     ../config/sipxcalllib-buildstamp.cpp \
@@ -34,16 +37,12 @@ libsipXcall_la_SOURCES = \
     cp/CpGatewayManager.cpp \
     cp/CpGhostConnection.cpp \
     cp/CpIntMessage.cpp \
-    cp/CpMediaInterface.cpp \
     cp/CpMultiStringMessage.cpp \
     cp/CpPeerCall.cpp \
-    cp/CpPhoneMediaInterface.cpp \
     cp/CpStringMessage.cpp \
     cp/SipConnection.cpp \
-    cp/CpMediaInterfaceFactory.cpp \
-    cp/CpMediaInterfaceFactoryImpl.cpp \
-    cp/sipXmediaFactoryImpl.cpp \
     cp/DialogEventPublisher.cpp \
+    cp/LinePresenceMonitor.cpp \
     cp/PresenceDialInServer.cpp \
     cp/SipPresenceMonitor.cpp \
     ptapi/PtAddessCapabilities.cpp \

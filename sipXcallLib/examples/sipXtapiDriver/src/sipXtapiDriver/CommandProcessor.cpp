@@ -22,6 +22,8 @@
 #include <sipXtapiDriver/CommandProcessor.h>
 #include <net/NameValueTokenizer.h>
 #include <utl/UtlTokenizer.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlString.h>
 
 
 // EXTERNAL FUNCTIONS
@@ -120,13 +122,63 @@ int CommandProcessor::executeCommand(int argc, char* argv[])
         int returnStatus = COMMAND_FAILED;
         Command* command;
 
-        returnStatus = findCommand(argv[0], &command);
+        returnStatus = findCommand(decoder(strlwr(argv[0])), &command);
         if(returnStatus == COMMAND_SUCCESS && command)
         {
                 returnStatus = command->execute(argc, argv);
         }
 
         return(returnStatus);
+}
+
+void CommandProcessor::fill()
+{
+	allKeys.insertKeyAndValue(new UtlString("al"), new UtlString("addline"));
+	allKeys.insertKeyAndValue(new UtlString("aacc"), new UtlString("autoaccept"));
+	allKeys.insertKeyAndValue(new UtlString("aans"), new UtlString("autoanswer"));
+	allKeys.insertKeyAndValue(new UtlString("arej"), new UtlString("autoreject"));
+	allKeys.insertKeyAndValue(new UtlString("cacc"), new UtlString("callaccept"));
+	allKeys.insertKeyAndValue(new UtlString("cans"), new UtlString("callanswer"));
+	allKeys.insertKeyAndValue(new UtlString("cco"), new UtlString("callconnect"));
+	allKeys.insertKeyAndValue(new UtlString("ccr"), new UtlString("callcreate"));
+	allKeys.insertKeyAndValue(new UtlString("cd"), new UtlString("calldestroy"));
+	allKeys.insertKeyAndValue(new UtlString("ch"), new UtlString("callhold"));
+	allKeys.insertKeyAndValue(new UtlString("pf"), new UtlString("callplayfile"));
+	allKeys.insertKeyAndValue(new UtlString("cr"), new UtlString("callredirect"));
+	allKeys.insertKeyAndValue(new UtlString("si"), new UtlString("callsendinfo"));
+	allKeys.insertKeyAndValue(new UtlString("st"), new UtlString("callstarttone"));
+	allKeys.insertKeyAndValue(new UtlString("csub"), new UtlString("callsubscribe"));
+	allKeys.insertKeyAndValue(new UtlString("cu"), new UtlString("callunhold"));
+	allKeys.insertKeyAndValue(new UtlString("cfa"), new UtlString("conferenceadd"));
+	allKeys.insertKeyAndValue(new UtlString("cfcr"), new UtlString("conferencecreate"));
+	allKeys.insertKeyAndValue(new UtlString("cfd"), new UtlString("conferencedestroy"));
+	allKeys.insertKeyAndValue(new UtlString("cfgc"), new UtlString("conferencegetcalls"));
+	allKeys.insertKeyAndValue(new UtlString("cfh"), new UtlString("conferencehold"));
+	allKeys.insertKeyAndValue(new UtlString("cfj"), new UtlString("conferencejoin"));
+	allKeys.insertKeyAndValue(new UtlString("cfu"), new UtlString("conferenceunhold"));
+	allKeys.insertKeyAndValue(new UtlString("cp"), new UtlString("createpublisher"));
+	allKeys.insertKeyAndValue(new UtlString("dp"), new UtlString("destroypublisher"));
+	allKeys.insertKeyAndValue(new UtlString("er"), new UtlString("enablerport"));
+	allKeys.insertKeyAndValue(new UtlString("es"), new UtlString("enablestun"));
+	allKeys.insertKeyAndValue(new UtlString("hi"), new UtlString("history"));
+	allKeys.insertKeyAndValue(new UtlString("up"), new UtlString("updatepublisher"));
+}
+
+const char* CommandProcessor::decoder(char* shortName)
+{	
+	UtlString* pHandle = NULL;
+	UtlString shortN(shortName);
+	//return (new UtlString(allKeys.findValue(new UtlString(shortName)))).data();
+	pHandle = (UtlString*)allKeys.findValue(&shortN);
+	if(pHandle == NULL)
+	{
+		return shortName;
+	}
+	else
+	{
+		return pHandle->data();
+	}
+		
 }
 
 void CommandProcessor::pushHistory(const char* commandLine)

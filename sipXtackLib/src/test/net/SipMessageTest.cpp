@@ -14,10 +14,6 @@
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 
-#if 0
-#include <stdio.h>
-#endif
-
 /**
  * Unittest for SipMessage
  */
@@ -36,9 +32,8 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testProbPort);
       CPPUNIT_TEST(testMultipartBody);
       CPPUNIT_TEST(testCodecError);
-      CPPUNIT_TEST(testSetInviteDataHeaders);
-      CPPUNIT_TEST(testSetInviteDataHeadersUnique);
-      CPPUNIT_TEST(testSetInviteDataHeadersForbidden);
+      CPPUNIT_TEST(testSdpParse);
+      CPPUNIT_TEST(testNonSdpSipMessage);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -783,253 +778,90 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL(agent_expected, agent);
       }
 
-   void testSetInviteDataHeaders()
+ void testSdpParse()
    {
-      // Test that SipMessage::setInviteData applies headers in the
-      // To: URI correctly to the SIP message body.
+        const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/sdp\n\n"
+            "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
 
-      // List of headers that should be settable from the URI.
-      const char* settable_headers[] =
-         {
-            SIP_SUBJECT_FIELD,
-            SIP_ACCEPT_LANGUAGE_FIELD,
-            "Alert-Info",
-            "Call-Info",
-            SIP_WARNING_FIELD,
-            "Error-Info",
-         };
+        SipMessage *msg = new SipMessage(sip);
+        const SdpBody *sdp = msg->getSdpBody();
 
-      // For each field.
-      for (unsigned int i = 0; i < sizeof (settable_headers) / sizeof (settable_headers[0]); i++)
-      {
-         // The name of the header.
-         const char* header_name = settable_headers[i];
+        CPPUNIT_ASSERT_MESSAGE("Null sdp buffer", sdp != NULL);
 
-         // Create an empty SIP message.
-         SipMessage *msg = new SipMessage();
-         
-         // Create a To URI containing the header.
-         char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+        int mediaCount = sdp->getMediaSetCount();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect media count", 1, mediaCount);
 
-         // Create the SIP message.
-         // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField 
-                            to_URI, // toField,
-                            "sip:remotecontact@example.com", // farEndContact
-                            "sip:contact@example.com", // contactUrl
-                            "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
-                            17 // sessionReinviteTimer
-            );
+        const char* referenceSdp = 
+            "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
+        const char* sdpBytes = NULL;
+        int sdpByteLength = 0;
+        sdp->getBytes(&sdpBytes, &sdpByteLength);
+        for(int iii = 0; iii < sdpByteLength; iii++)
+        {
+            if(referenceSdp[iii] != sdpBytes[iii])
+            {
+                printf("index[%d]: expected: %d got: %d\n",
+                    iii, referenceSdp[iii], sdpBytes[iii]);
+            }
+        }
+        CPPUNIT_ASSERT_MESSAGE("Null sdp serialized content", sdpBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpBytes) == 0);
 
-#if 0
-         UtlString p;
-         int l;
-         msg->getBytes(&p, &l);
-         fprintf(stderr,
-                 "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
-                 header_name, p.data());
-#endif
-
-         const char* v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
-
-         // Create a second To URI containing the header.
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", header_name);
-
-         // Update the SIP message, creating a second value for the header.
-         // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField 
-                            to_URI, // toField,
-                            "sip:remotecontact@example.com", // farEndContact
-                            "sip:contact@example.com", // contactUrl
-                            "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
-                            17 // sessionReinviteTimer
-            );
-
-#if 0
-         msg->getBytes(&p, &l);
-         fprintf(stderr,
-                 "testSetInviteDataHeaders for %s after second setInviteData:\n%s\n",
-                 header_name, p.data());
-#endif
-
-         v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
-
-         v = msg->getHeaderValue(1, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value2") == 0);
-
-         delete msg;
-      }
+        SipMessage* msgCopy = new SipMessage(*msg);
+        CPPUNIT_ASSERT_MESSAGE("NULL message copy", msgCopy != NULL);
+        const SdpBody *sdpCopy = msgCopy->getSdpBody();
+        CPPUNIT_ASSERT_MESSAGE("NULL SDP copy", sdpCopy != NULL);
+        const char* sdpCopyBytes = NULL;
+        int sdpCopyLen = 0;
+        sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
+        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
+        CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpCopyBytes) == 0);
    }
 
-   void testSetInviteDataHeadersUnique()
+#define NON_SDP_REFERENCE_CONTENT "<FOOSTUFF>\n   <BAR/>\n\r</FOOSTUFF>\n"
+
+   void testNonSdpSipMessage()
    {
-      // Test that SipMessage::setInviteData applies headers in the
-      // To: URI correctly to the SIP message body.
+        const char* referenceContent = NON_SDP_REFERENCE_CONTENT;
+        const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/fooStuff\n\n"
+            NON_SDP_REFERENCE_CONTENT;
 
-      // List of headers that should be settable from the URI, but are
-      // allowed only one value, so the URI overrides what is already in the
-      // message.
-      const char* settable_unique_headers[] =
-         {
-            SIP_EXPIRES_FIELD,
-         };
+        SipMessage *msg = new SipMessage(sip);
+        const SdpBody *sdp = msg->getSdpBody();
 
-      // For each field.
-      for (unsigned int i = 0; i < sizeof (settable_unique_headers) / sizeof (settable_unique_headers[0]); i++)
-      {
-         // The name of the header.
-         const char* header_name = settable_unique_headers[i];
+        CPPUNIT_ASSERT_MESSAGE("sdp body not expected", sdp == NULL);
 
-         // Create an empty SIP message.
-         SipMessage *msg = new SipMessage();
-         
-         // Create a To URI containing the header.
-         char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+        const HttpBody* fooBody = msg->getBody();
 
-         // Create the SIP message.
-         // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField 
-                            to_URI, // toField,
-                            "sip:remotecontact@example.com", // farEndContact
-                            "sip:contact@example.com", // contactUrl
-                            "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
-                            17 // sessionReinviteTimer
-            );
+        const char* fooBytes = NULL;
+        int fooByteLength = 0;
+        fooBody->getBytes(&fooBytes, &fooByteLength);
+        for(int iii = 0; iii < fooByteLength; iii++)
+        {
+            if(referenceContent[iii] != fooBytes[iii])
+            {
+                printf("index[%d]: expected: %d got: %d\n",
+                    iii, referenceContent[iii], fooBytes[iii]);
+            }
+        }
+        CPPUNIT_ASSERT_MESSAGE("Null foo serialized content", fooBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("serialized content does not match expected content",
+            strcmp(referenceContent, fooBytes) == 0);
 
-#if 0
-         UtlString p;
-         int l;
-         msg->getBytes(&p, &l);
-         fprintf(stderr,
-                 "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
-                 header_name, p.data());
-#endif
-
-         const char* v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
-
-         // Create a second To URI containing the header.
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", header_name);
-
-         // Update the SIP message, creating a second value for the header.
-         // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField 
-                            to_URI, // toField,
-                            "sip:remotecontact@example.com", // farEndContact
-                            "sip:contact@example.com", // contactUrl
-                            "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
-                            17 // sessionReinviteTimer
-            );
-
-#if 0
-         msg->getBytes(&p, &l);
-         fprintf(stderr,
-                 "testSetInviteDataHeaders for %s after second setInviteData:\n%s\n",
-                 header_name, p.data());
-#endif
-
-         v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value2") == 0);
-
-         // Second value must not be present.
-         v = msg->getHeaderValue(1, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name,
-                                v == NULL ||strcmp(v, "") == 0);
-
-         delete msg;
-      }
-   }
-
-   void testSetInviteDataHeadersForbidden()
-   {
-      // Test that SipMessage::setInviteData applies headers in the
-      // To: URI correctly to the SIP message body.
-
-      // List of headers that should not be settable from the URI.
-      const char* non_settable_headers[] =
-         {
-            SIP_CONTACT_FIELD,
-            SIP_FROM_FIELD,
-            SIP_CALLID_FIELD,
-            SIP_CSEQ_FIELD,
-            SIP_VIA_FIELD,
-            SIP_RECORD_ROUTE_FIELD,
-            SIP_ROUTE_FIELD,
-         };
-
-      // For each field.
-      for (unsigned int i = 0; i < sizeof (non_settable_headers) / sizeof (non_settable_headers[0]); i++)
-      {
-         // The name of the header.
-         const char* header_name = non_settable_headers[i];
-
-         // Create an empty SIP message.
-         SipMessage *msg = new SipMessage();
-         
-         // Create a To URI containing the header.
-         char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
-
-         // Create the SIP message.
-         // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField 
-                            to_URI, // toField,
-                            "sip:remotecontact@example.com", // farEndContact
-                            "sip:contact@example.com", // contactUrl
-                            "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
-                            17 // sessionReinviteTimer
-            );
-
-#if 0
-         UtlString p;
-         int l;
-         msg->getBytes(&p, &l);
-         fprintf(stderr,
-                 "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
-                 header_name, p.data());
-#endif
-
-         const char* v = msg->getHeaderValue(0, header_name);
-         // Value must be absent, or NOT the specified value.
-         CPPUNIT_ASSERT_MESSAGE(header_name,
-                                v == NULL || strcmp(v, "value1") != 0);
-
-         delete msg;
-      }
+        SipMessage* msgCopy = new SipMessage(*msg);
+        CPPUNIT_ASSERT_MESSAGE("NULL message copy", msgCopy != NULL);
+        const HttpBody *fooCopy = msgCopy->getBody();
+        CPPUNIT_ASSERT_MESSAGE("NULL foo body copy", fooCopy != NULL);
+        const char* fooCopyBytes = NULL;
+        int fooCopyLen = 0;
+        fooCopy->getBytes(&fooCopyBytes, &fooCopyLen);
+        //printf("foo copy length: %d\n%s\n", fooCopyLen, fooCopyBytes);
+        CPPUNIT_ASSERT_MESSAGE("Null foo copy serialized content", fooCopyBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("foo body copy does not match expected content",
+            strcmp(referenceContent, fooCopyBytes) == 0);
    }
 };
 

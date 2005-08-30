@@ -29,9 +29,6 @@ public:
         // first, create a new contact Db
         SipContactDb* pDb = new SipContactDb();
         
-#ifndef _WIN32
-        KNOWN_FATAL_BUG("assert contact2.id == 0", "PT-13");
-#endif        
         // test the inserting of records
         CONTACT_ADDRESS contact1;
         memset((void*)&contact1, 0, sizeof(CONTACT_ADDRESS));
@@ -51,7 +48,7 @@ public:
         contact2.eContactType = LOCAL;
         contact2.iPort = 9991;
         CPPUNIT_ASSERT(pDb->addContact(contact2) == false);
-        CPPUNIT_ASSERT(contact2.id == 0);
+        CPPUNIT_ASSERT(contact2.id == 1);
         
         // test the addition of same IP, different port
         // (should succeed)

@@ -15,6 +15,7 @@
 #include "cp/CallManager.h"
 #include "net/SdpCodecFactory.h"
 #include "os/OsConfigDb.h"
+#include "mi/CpMediaInterfaceFactoryFactory.h"
 
 //Default constructor (called only indirectly via getTestInstance())
 MpTestConfig* MpTestConfig::spInstance = 0;
@@ -95,7 +96,7 @@ void MpTestConfig::initializeSipUA()
 {
    mUA = new SipUserAgent(5060, // TCP
                 5060, // UDP
-        5061, // TLS
+                5061, // TLS
                 NULL, // public IP address (nopt used in proxy)
                 NULL, // default user (not used in proxy)
                 NULL, // default SIP address (not used in proxy)
@@ -159,7 +160,7 @@ void MpTestConfig::initializeCallManager()
             CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
             QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
             10,                                // maxCalls
-            NULL);                             // CpMediaInterfaceFactory
+            sipXmediaFactoryFactory(NULL));    // CpMediaInterfaceFactory
 
    mCallManager->start() ;
 }

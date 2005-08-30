@@ -30,6 +30,7 @@ BEGIN_EVENT_TABLE(MainPanel, wxPanel)
     EVT_INIT_DIALOG(MainPanel::OnInitDialog)
     EVT_BUTTON(IDR_CALL_HISTORY_BUTTON, MainPanel::OnCallHistoryButton)
     EVT_BUTTON(IDR_CONFERENCING_BUTTON, MainPanel::OnConferencingButton)
+    EVT_BUTTON(IDR_VIDEO_BUTTON,        MainPanel::OnVideoButton)
 END_EVENT_TABLE()
 
 // Constructor
@@ -93,6 +94,9 @@ MainPanel::MainPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size) :
 
     // create conferencing button
     CreateConferencingButton();
+    
+    // create the video panel button
+    CreateVideoButton();
 
     InitDialog();
 }
@@ -106,6 +110,7 @@ MainPanel::~MainPanel()
    {
       PhoneStateMachine::getInstance().OnFlashButton();
    }
+   sipXmgr::getInstance().UnInitialize();
    sipXmgr::release();
 }
 
@@ -131,19 +136,29 @@ void MainPanel::CreateCallHistoryButton()
     wxBitmap bitmap("res/CallHistory.bmp",wxBITMAP_TYPE_BMP);
     bitmap.SetMask(new wxMask(bitmap, * (wxTheColourDatabase->FindColour("RED"))));
 
-    mpCallHistoryBtn = new wxBitmapButton(this, IDR_CALL_HISTORY_BUTTON, bitmap, wxPoint(0, 130), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
+    mpCallHistoryBtn = new wxBitmapButton(this, IDR_CALL_HISTORY_BUTTON, bitmap, wxPoint(0, 190), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
 
     wxColor btnColor = sipXezPhoneSettings::getInstance().getBackgroundColor();
     mpCallHistoryBtn->SetBackgroundColour(btnColor);
 }
 
+void MainPanel::CreateVideoButton()
+{
+    wxBitmap bitmap("res/video.bmp",wxBITMAP_TYPE_BMP);
+    bitmap.SetMask(new wxMask(bitmap, * (wxTheColourDatabase->FindColour("RED"))));
+
+    mpVideoBtn = new wxBitmapButton(this, IDR_VIDEO_BUTTON, bitmap, wxPoint(0, 130), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
+
+    wxColor btnColor = sipXezPhoneSettings::getInstance().getBackgroundColor();
+    mpVideoBtn->SetBackgroundColour(btnColor);
+}
 
 void MainPanel::CreateConferencingButton()
 {
     wxBitmap bitmap("res/Conferencing.bmp",wxBITMAP_TYPE_BMP);
     bitmap.SetMask(new wxMask(bitmap, * (wxTheColourDatabase->FindColour("RED"))));
 
-    mpConferencingBtn = new wxBitmapButton(this, IDR_CONFERENCING_BUTTON, bitmap, wxPoint(229, 150), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
+    mpConferencingBtn = new wxBitmapButton(this, IDR_CONFERENCING_BUTTON, bitmap, wxPoint(219, 150), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
 
     wxColor btnColor = sipXezPhoneSettings::getInstance().getBackgroundColor();
     mpConferencingBtn->SetBackgroundColour(btnColor);
@@ -157,4 +172,16 @@ void MainPanel::OnConferencingButton(wxEvent& event)
 void MainPanel::OnCallHistoryButton(wxEvent& event)
 {
     thePhoneApp->getFrame().setCallHistoryVisible(! thePhoneApp->getFrame().getCallHistoryVisible());
+}
+
+void MainPanel::OnVideoButton(wxEvent& event)
+{
+    if (!thePhoneApp->getFrame().getVideoVisible())
+    {
+        if (thePhoneApp->getFrame().getCallHistoryVisible())
+        {
+            thePhoneApp->getFrame().setCallHistoryVisible(false);
+        }
+    }
+    thePhoneApp->getFrame().setVideoVisible(! thePhoneApp->getFrame().getVideoVisible());
 }

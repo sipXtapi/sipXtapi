@@ -33,8 +33,8 @@
 #define BEGIN_LIST "<list xmlns=\"urn:ietf:params:xml:ns:rlmi\""
 #define END_LIST "</list>\n"
 
-#define URI_EQUAL " uri=\""
-#define FULL_STATE_EQUAL " fullState=\""
+#define URI_EQUAL " uri="
+#define FULL_STATE_EQUAL " fullState="
 
 #define BEGIN_RESOURCE "<resource uri="
 #define END_RESOURCE "</resource>\n"

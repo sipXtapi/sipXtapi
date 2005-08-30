@@ -13,6 +13,8 @@
 #include "os/linux/OsBSemLinux.h"
 #include "os/linux/OsUtilLinux.h"
 #include "os/linux/pt_csem.h"
+#include "os/OsSysLog.h"
+#include "os/OsTask.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -47,7 +49,13 @@ OsBSemLinux::~OsBSemLinux()
    mOptions = 0;
    mTaskId = 0;
 
-   assert(res == POSIX_OK);        // pt_sem_destroy should always return TRUE
+   //assert(res == POSIX_OK);        // pt_sem_destroy should always return TRUE
+   if (res != POSIX_OK)
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                    "OsBSemLinux::~OsBSemLinux OsBemLinx object %p could not be destroyed in task %s with res = %d\n", this,
+                    OsTask::getCurrentTask()->getName().data(), res);
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */

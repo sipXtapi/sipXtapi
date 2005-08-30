@@ -31,7 +31,7 @@
 #include "net/Url.h"
 #include "net/SipUserAgent.h"
 #include "cp/CallManager.h"
-#include "cp/CpMediaInterfaceFactory.h"
+#include "mi/CpMediaInterfaceFactory.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -650,10 +650,26 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
             {
                 delete pData->lineURI ;
             }
+
             if (pData->pMutex)
             {
                 delete pData->pMutex ;
             }
+
+            if (pData->pLineAliases)
+            {
+                UtlVoidPtr* pValue ;
+                while (pValue = (UtlVoidPtr*) pData->pLineAliases->get())
+                {
+                    Url* pUri = (Url*) pValue->getValue() ;
+                    if (pUri)
+                    {
+                        delete pUri ;
+                    }
+                    delete pValue ;
+                }
+            }
+
             delete pData ;
         }
         else
@@ -692,7 +708,7 @@ void sipxInfoFree(SIPX_INFO_DATA* pData)
         {
             delete pData->pMutex ;
         }
-        free((void*)pData->infoData.szContent);
+        free((void*)pData->infoData.pContent);
         free((void*)pData->infoData.szContentType);
         free((void*)pData->infoData.szFromURL);
         free((void*)pData->infoData.szUserAgent);
@@ -721,13 +737,31 @@ SIPX_LINE sipxLineLookupHandle(const char* szLineURI)
         {
             pData = (SIPX_LINE_DATA*) pObj->getValue() ;
             if (pData)
-            {
-                Url urlDataLine(pData->lineURI->toString()) ;
-         
-                if (urlLine.isUserHostPortEqual(urlDataLine))
+            {         
+                // Check main line definition
+                if (urlLine.isUserHostPortEqual(*pData->lineURI))
                 {
                     hLine = pIndex->getValue() ;
                     break ;
+                }
+
+                // Check for line aliases
+                if (pData->pLineAliases)
+                {
+                    UtlVoidPtr* pValue ;
+                    Url* pUrl ;
+                    UtlSListIterator iterator(*pData->pLineAliases) ;
+
+                    while (pValue = (UtlVoidPtr*) iterator()) 
+                    {
+                        pUrl = (Url*) pValue->getValue() ;
+                        
+                        if (urlLine.isUserHostPortEqual(*pUrl))
+                        {
+                            hLine = pIndex->getValue() ;
+                            break ;
+                        }
+                    }
                 }
             }
         }
@@ -843,6 +877,8 @@ void sipxConfFree(const SIPX_CONF hConf)
     
     if (pData)
     {
+        UtlString callId ;
+        SIPX_INSTANCE_DATA* pInst = NULL ;
         const void* pRC = gpConfHandleMap->removeHandle(hConf); 
         if (pRC)
         {
@@ -850,8 +886,10 @@ void sipxConfFree(const SIPX_CONF hConf)
             pData->pInst->nConferences-- ;
             assert(pData->pInst->nConferences >= 0) ;
             pData->pInst->pLock->release() ;
-
-            pData->pInst->pCallManager->drop(pData->strCallId->data()) ;
+            
+            callId = *pData->strCallId ;
+            pInst = pData->pInst ;
+            
             delete pData->pMutex ;
             delete pData->strCallId;
             delete pData ;
@@ -859,6 +897,11 @@ void sipxConfFree(const SIPX_CONF hConf)
         else
         {
             sipxConfReleaseLock(pData, SIPX_LOCK_WRITE) ;
+        }
+        
+        if (pInst && !callId.isNull())
+        {
+            pInst->pCallManager->drop(callId) ;
         }
     }
 }
@@ -1079,6 +1122,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
 {
     SIPX_RESULT sr = SIPX_RESULT_FAILURE;
     int connectionId = -1;
+    UtlString callId ;
+    UtlString remoteAddress ;
     
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
     
@@ -1087,21 +1132,29 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
     
     if (pData && pData->callId && pData->remoteAddress)
     {
-        connectionId = pData->pInst->pCallManager->getMediaConnectionId(pData->callId->data(), pData->remoteAddress->data(), ppInstData);
+        callId = *pData->callId ;
+        remoteAddress = *pData->remoteAddress ;
+    }
+    
+    if (pData)
+    {
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+    }    
+    
+    if (!callId.isNull() && !remoteAddress.isNull())
+    {
+        connectionId = pData->pInst->pCallManager->getMediaConnectionId(callId, remoteAddress, ppInstData);
         if (-1 != connectionId)
         {
             sr = SIPX_RESULT_SUCCESS;
         }
     }
-    if (pData)
-    {
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
-    }
+
     return sr;
 }       
 
 #ifdef VOICE_ENGINE
-#include "VoiceEngineMediaInterface.h"
+#include "include\VoiceEngineMediaInterface.h"
 SIPXTAPI_API GipsVoiceEngineLib* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall)
 {
     VoiceEngineMediaInterface* pMediaInterface = NULL;
@@ -1127,7 +1180,7 @@ SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hIn
     if (pInst)
     {
         VoiceEngineFactoryImpl* pInterface =
-                dynamic_cast<VoiceEngineFactoryImpl*>(pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation());
+                static_cast<VoiceEngineFactoryImpl*>(pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation());
         if (pInterface)
         {
             ptr = pInterface->getVoiceEnginePointer();
@@ -1140,6 +1193,34 @@ SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hIn
     return ptr;
 }
 
+SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard()
+{
+    GIPSAECTuningWizard& wizard = GetGIPSAECTuningWizard();
+    
+    return &wizard;
+}
+
+#ifdef VIDEO
+SIPXTAPI_API GipsVideoEngineWindows* sipxConfigGetVideoEnginePtr(const SIPX_INST hInst)
+{
+    GipsVideoEngineWindows* ptr = NULL;
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
+
+    if (pInst)
+    {
+        VoiceEngineFactoryImpl* pImpl = (VoiceEngineFactoryImpl *) pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+        if (pImpl)
+        {
+            ptr = pImpl->getVideoEnginePointer();
+        }
+    }
+
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigGetVideoEnginePtr hInst=%x, ptr=%08X",
+        hInst, ptr);
+    return ptr;
+}
+#endif
 
 void GIPSVETraceCallback(char *szMsg, int iNum)
 {

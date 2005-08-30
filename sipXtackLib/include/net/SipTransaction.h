@@ -133,8 +133,7 @@ public:
 
     void removeTimer(OsTimer* timer);
 
-    void stopTimers();
-
+    void stopTimers() ;
     void deleteTimers();
 
 /* ============================ Deprecated ============================== */
@@ -291,7 +290,7 @@ protected:
     UtlBoolean findBestResponse(SipMessage& bestResponse);
     // Finds the best final response to return the the server transaction
 
-    enum messageRelationship addResponse(SipMessage* response,
+    enum messageRelationship addResponse(SipMessage*& response,
                                          UtlBoolean isOutGoing,
                                          enum messageRelationship relationship = MESSAGE_UNKNOWN);
     //: Adds the provisional or final response to the transaction

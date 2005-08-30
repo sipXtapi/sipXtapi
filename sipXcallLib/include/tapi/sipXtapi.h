@@ -5,7 +5,6 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-
 /**
  * @mainpage sipXtapi SDK Overview
  * 
@@ -25,6 +24,17 @@
 #include <stddef.h>       // size_t
 
 // SYSTEM INCLUDES
+#ifdef VIDEO
+#ifdef _WIN32
+#if !defined __strmif_h__
+    #include <strmif.h>
+#endif
+#endif
+#endif
+#if !defined (_WIN32) || !defined (VIDEO)
+    typedef void* IBaseFilter;
+#endif
+
 // APPLICATION INCLUDES
 
 // DEFINES
@@ -57,6 +67,15 @@
 
 #define CONF_MAX_CONNECTIONS    32      /**< Max number of conference participants */
 #define SIPX_MAX_IP_ADDRESSES   32      /**< Maximum number of IP addresses on the host */
+
+#define SIPX_STUN_NORMAL            0   /** Default STUN options: Do not request change port 
+                                            or change address. */
+#define SIPX_STUN_CHANGE_PORT       1   /** When sending stun requests for public IP discovery 
+                                            (not ICE), ask the STUN server to send the response
+                                            from a different port. */ 
+#define SIPX_STUN_CHANGE_ADDRESS    2   /** When sending stun requests for for public IP 
+                                            discovery (not ICE), ask the STUN server to send the
+                                            response from a different IP address. */
 
 #define SIPX_PORT_DISABLE       -1      /**< Special value that disables the transport 
                                              type (e.g. UDP, TCP, or TLS) when passed 
@@ -120,14 +139,30 @@ typedef enum SPEAKER_TYPE
  * Codec bandwidth ids are used to select a group of codecs with equal or lower
  * bandwidth requirements
  */
-typedef enum SIPX_BANDWIDTH_ID
+typedef enum SIPX_AUDIO_BANDWIDTH_ID
 {
     AUDIO_CODEC_BW_VARIABLE=0,   /**< ID for codecs with variable bandwidth requirements */
     AUDIO_CODEC_BW_LOW,          /**< ID for codecs with low bandwidth requirements */
     AUDIO_CODEC_BW_NORMAL,       /**< ID for codecs with normal bandwidth requirements */
     AUDIO_CODEC_BW_HIGH,         /**< ID for codecs with high bandwidth requirements */
     AUDIO_CODEC_BW_CUSTOM
-} SIPX_BANDWIDTH_ID;
+} SIPX_AUDIO_BANDWIDTH_ID;
+
+typedef enum SIPX_VIDEO_BANDWIDTH_ID
+{
+    VIDEO_CODEC_BW_VARIABLE=0,   /**< ID for codecs with variable bandwidth requirements */
+    VIDEO_CODEC_BW_LOW,          /**< ID for codecs with low bandwidth requirements */
+    VIDEO_CODEC_BW_NORMAL,       /**< ID for codecs with normal bandwidth requirements */
+    VIDEO_CODEC_BW_HIGH,         /**< ID for codecs with high bandwidth requirements */
+    VIDEO_CODEC_BW_CUSTOM
+} SIPX_VIDEO_BANDWIDTH_ID;
+
+typedef enum SIPX_VIDEO_QUALITY_ID
+{
+    VIDEO_QUALITY_LOW=1,         /**< Low quality video */
+    VIDEO_QUALITY_NORMAL=2,      /**< Normal quality video */
+    VIDEO_QUALITY_HIGH=3         /**< High quality video */
+} SIPX_VIDEO_QUALITY_ID;
 
 
 /**
@@ -242,6 +277,48 @@ typedef enum
 } SIPX_CONTACT_TYPE ;
 
 
+/**
+ * Type for storing a "window object handle" - in Windows,
+ * the application should cast their HWND to a SIPX_WINDOW_HANDLE.
+ */
+typedef void* SIPX_WINDOW_HANDLE;
+
+/**
+ * Enum for specifying the type of display object
+ * to be used for displaying video
+ */
+typedef enum SIPX_VIDEO_DISPLAY_TYPE
+{
+    SIPX_WINDOW_HANDLE_TYPE,     /**< A handle to the window for
+                                      the remote video display */
+    DIRECT_SHOW_FILTER           /**< A DirectShow render filter object for
+                                      handling the remote video display */
+} SIPX_VIDEO_DISPLAY_TYPE;
+
+struct SIPX_VIDEO_DISPLAY
+{
+    SIPX_VIDEO_DISPLAY()
+    {
+        cbSize = sizeof(SIPX_VIDEO_DISPLAY);
+        type = SIPX_WINDOW_HANDLE_TYPE;
+        handle = NULL;
+    }
+    SIPX_VIDEO_DISPLAY(const SIPX_VIDEO_DISPLAY& ref)
+    {
+        this->cbSize = ref.cbSize;
+        this->type = ref.type;
+        this->handle = ref.handle;
+    }
+        
+    int cbSize;
+    SIPX_VIDEO_DISPLAY_TYPE type;
+    union
+    {
+    SIPX_WINDOW_HANDLE handle;
+    IBaseFilter* filter;
+    };
+};
+
 /** Type for storing Contact Record identifiers */
 typedef int SIPX_CONTACT_ID; 
 
@@ -303,15 +380,38 @@ struct SIPX_CONTACT_ADDRESS
 
 /**
  * The SIPX_AUDIO_CODEC structure includes codec name and bandwidth info.
- * In a CALLSTATE_AUDIO_EVENT
+ */
+typedef struct 
+{
+#define SIPXTAPI_CODEC_NAMELEN 32       /**< Maximum length for codec name */
+    char              cName[SIPXTAPI_CODEC_NAMELEN];  /**< Codec name    */
+    SIPX_AUDIO_BANDWIDTH_ID iBandWidth; /**< Bandwidth requirement */
+    int               iPayloadType;     /**< Payload type          */
+} SIPX_AUDIO_CODEC ;
+
+
+/**
+ * The SIPX_VIDEO_CODEC structure includes codec name and bandwidth info.
  */
 typedef struct 
 {
 #define SIPXTAPI_CODEC_NAMELEN 32        /**< Maximum length for codec name */
     char              cName[SIPXTAPI_CODEC_NAMELEN];  /**< Codec name    */
-    SIPX_BANDWIDTH_ID iBandWidth;             /**< Bandwidth requirement */
-    int               iPayloadType;   /**< Payload type          */
-} SIPX_AUDIO_CODEC ;
+    SIPX_VIDEO_BANDWIDTH_ID iBandWidth;  /**< Bandwidth requirement */
+    int               iPayloadType;      /**< Payload type          */
+} SIPX_VIDEO_CODEC ;
+
+
+/**
+* In a CALLSTATE_AUDIO_EVENT the SIPX_CODEC_INFO structure is being passed up 
+* to the event handler and contains information about the negotiated audio
+* and video codec.
+*/
+typedef struct
+{
+    SIPX_AUDIO_CODEC audioCodec;     /**< Audio codec */
+    SIPX_VIDEO_CODEC videoCodec;     /**< Video codec */
+} SIPX_CODEC_INFO;
 
 
 /** 
@@ -480,8 +580,13 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst);
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
  *        a listener interface.
+ * @param pDislay Pointer to an object describing the display object for 
+ *        rendering remote video.
  */
-SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall);
+SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL hCall, SIPX_VIDEO_DISPLAY* const pDisplay = NULL);
+
+/** VIDEO: Insert SIPX_WINDOW_HANDLE here */
+
 
 /**
  * Reject an inbound call (prior to alerting the user).  This method must
@@ -557,11 +662,13 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
  *         (e.g. LOCAL contact of 10.1.1.x or 
  *        192.168.x.x), the NAT-derived address to the target party,
  *        or, local contact addresses of other types.
+ * @param pDislay Pointer to an object describing the display object for 
+ *        rendering remote video.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallConnect(const SIPX_CALL hCall,
                                          const char* szAddress,
-                                         SIPX_CONTACT_ID contactId = 0) ;
-
+                                         SIPX_CONTACT_ID contactId = 0,
+                                         SIPX_VIDEO_DISPLAY* const pDisplay = NULL) ;
 
 /**
  * Placed the specified call on hold.
@@ -729,6 +836,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayFile(const SIPX_CALL hCall,
                                           const bool bLocal,
                                           const bool bRemote) ;
 
+/** VIDEO: sipxCallPlay APIs MUST be renamed to sipxCallAudioPlay */
+
 /**
  * Play the designed file.  The file may be a raw 16 bit signed PCM at
  * 8000 samples/sec, mono, little endian or a .WAV file.
@@ -879,6 +988,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallBlindTransfer(const SIPX_CALL hCall,
  */
 SIPXTAPI_API SIPX_RESULT sipxCallTransfer(const SIPX_CALL hSourceCall,
                                           const SIPX_CALL hTargetCall) ;
+
 //@}
 
 /** @name Publishing Methods */
@@ -1025,12 +1135,15 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceSplit(const SIPX_CONF hConf,
  *         (e.g. LOCAL contact of 10.1.1.x or 
  *        192.168.x.x), the NAT-derived address to the target party,
  *        or, local contact addresses of other types.
+ * @param pDislay Pointer to an object describing the display object for 
+ *        rendering remote video.
  */
 SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                                            const SIPX_LINE hLine,
                                            const char* szAddress,
                                            SIPX_CALL* phNewCall,
-                                           SIPX_CONTACT_ID contactId = 0) ;
+                                           SIPX_CONTACT_ID contactId = 0,
+                                           SIPX_VIDEO_DISPLAY* const pDisplay = NULL);
 
 /**
  * Removes a participant from conference by hanging up on them.
@@ -1282,6 +1395,10 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
  */
 SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
                                                       const char* szDevice) ;
+
+
+/** VIDEO: Add Video config stuff here */
+
 //@}
 /** @name Line / Identity Methods*/
 //@{
@@ -1313,6 +1430,24 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
                                      const char* szLineURL,
                                      SIPX_LINE* phLine,
                                      SIPX_CONTACT_ID contactId = 0) ;
+
+/**
+ * Adds an alias for a line definition.  Line aliases are used to map an 
+ * inbound call request to an existing line definition.  You should only 
+ * need to an a aliase if your network infrastructure directs calls to this
+ * user agent using multiple identities.  For example, if user agent 
+ * registers as "sip:bandreasen@example.com"; however, calls can also be
+ * directed to you via an exention (e.g. sip:122@example.com).
+ *
+ * If sipXtapi receives a call with an unknown line, you can still answer
+ * and interact wtih the call; however, the line handle will be SIPX_LINE_NULL
+ * in all event callbacks.  Adding an aliases allows you to correlate another 
+ * line url with your line definition and receive real line handles with event
+ * callbacks.
+ *
+ * Line aliases are not used for outbound calls.
+ */
+SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szLineURL) ;
 
 /**
  *  Registers a line with the proxy server.  Registrations will be re-registered
@@ -1571,10 +1706,20 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetSubscribeExpiration(const SIPX_INST hInst,
  *        binding.  The most aggressive NAT/Firewall solutions free port 
  *        mappings after 30 seconds of non-use.  We recommend a value of 28 
  *        seconds to be safe.
+ * @param stunOptions This setting is used to modify the bahavior the STUN
+ *        client when using STUN to discover its public IP address.  See
+ *        the SIPX_STUN defines for details.  Multiple options can be 
+ *        combined using "|".  For example: 
+ *        SIPX_STUN_CHANGE_PORT | SIPX_STUN_CHANGE_ADDRESS
+ *         
+ * @see SIPX_STUN_NORMAL
+ * @see SIPX_STUN_CHANGE_PORT
+ * @see SIPX_STUN_CHANGE_ADDRESS 
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
                                               const char* szServer, 
-                                              int iKeepAliveSecs) ;
+                                              int iKeepAliveSecs,
+                                              int stunOptions = SIPX_STUN_NORMAL) ;
 
 /**
  * Disable the use of STUN.  See sipxConfigEnableStun for details on STUN.
@@ -1673,7 +1818,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTlsPort(SIPX_INST hInst, int* pPor
  *
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hInst, 
-                                                            SIPX_BANDWIDTH_ID bandWidth) ;
+                                                            SIPX_AUDIO_BANDWIDTH_ID bandWidth) ;
 
 /**
  * Set the codec by name. The name must match one of the supported codecs
@@ -1698,7 +1843,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
  *        sipxConfigSetAudioCodecByName function.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodecPreferences(const SIPX_INST hInst, 
-                                                            SIPX_BANDWIDTH_ID *pBandWidth);
+                                                            SIPX_AUDIO_BANDWIDTH_ID *pBandWidth);
 
 /**
  * Get the number of audio codecs. 
@@ -1731,6 +1876,90 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetNumAudioCodecs(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst, 
                                                  const int index, 
                                                  SIPX_AUDIO_CODEC* pCodec) ;
+
+/**
+ * Set the preferred bandwidth requirement for codec selection. Whenever 
+ * possible a codec matching that requirement will be selected for a call.
+ * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec
+ * preferences.  SIPX_RESULT_FAILURE is returned if the preference is not set.
+ * 
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param bandWidth Valid bandwidth requirements  are VIDEO_CODEC_BW_LOW, 
+ *        VIDEO_CODEC_BW_NORMAL, and VIDEO_CODEC_BW_HIGH.
+ *
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecPreferences(const SIPX_INST hInst, 
+                                                            SIPX_VIDEO_BANDWIDTH_ID bandWidth) ;
+
+/**
+ * Set the codec by name. The name must match one of the supported codecs
+ * otherwise this functon will fail.
+ * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec.
+ * SIPX_RESULT_FAILURE is returned if the codec is not set.
+ * 
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param szCodecName codec name
+ *
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst, 
+                                                       const char* szCodecName) ;
+
+/**
+ * Get the current codec preference.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param pBandWidth pointer to an integer that will contain AUDIO_CODEC_BW_LOW, 
+ *        AUDIO_CODEC_BW_NORMAL, or AUDIO_CODEC_BW_HIGH. AUDIO_CODEC_BW_CUSTOM
+ *        will be returned if a specific codec was et using the 
+ *        sipxConfigSetAudioCodecByName function.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodecPreferences(const SIPX_INST hInst, 
+                                                            SIPX_VIDEO_BANDWIDTH_ID *pBandWidth);
+
+/**
+ * Get the number of audio codecs. 
+ * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec
+ * preferences.  SIPX_RESULT_FAILURE is returned if the number of codecs can
+ * no be retrieved.
+ * 
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param pNumCodecs Pointer to the number of codecs.  This value must not be NULL. 
+ *
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigGetNumVideoCodecs(const SIPX_INST hInst, 
+                                                     int* pNumCodecs) ;
+
+
+/**
+ * Get the audio codec at a certain index in the list of codecs. Use this 
+ * function in conjunction with sipxConfigGetNumAudioCodecs to enumerate
+ * the list of audio codecs.
+ * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec
+ * preferences.  SIPX_RESULT_FAILURE is returned if the audio codec can not
+ * be retrieved.
+ * 
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param index Index in the list of codecs
+ * @param pCodec SIPX_AUDIO_CODEC structure that holds information
+ *        (name, bandwidth requirement) about the codec.
+ *
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst, 
+                                                 const int index, 
+                                                 SIPX_VIDEO_CODEC* pCodec) ;
+
+/**
+ * Set the codec by name. The name must match one of the supported codecs
+ * otherwise this functon will fail.
+ * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec.
+ * SIPX_RESULT_FAILURE is returned if the codec is not set.
+ * 
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param szCodecName codec name
+ *
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst, 
+                                                       const char* szCodecName) ;
 
 
 /**
@@ -1767,6 +1996,58 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresses[], 
                                                          const char* arrAddressAdapter[],
                                                          int &numAddresses);
+#ifdef VIDEO
+
+/**
+ * Sets the display object for the "video preview".
+ *
+ * @param pDisplay Pointer to a video preview display object.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoPreviewDisplay(const SIPX_INST hInst, SIPX_VIDEO_DISPLAY* const pDisplay);
+
+#ifdef VIDEO
+/**
+ * Updates the Preview window with a new frame buffer.  Should be called
+ * when the window receives a PAINT message.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param hWnd Window handle of the video preview window.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, const SIPX_WINDOW_HANDLE hWnd);
+#endif
+
+
+/**
+ * Updates the Video window with a new frame buffer.  Should be called
+ * when the window receives a PAINT message.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param hWnd Window handle of the video preview window.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd);
+
+/**
+ * Sets the video quality.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param quality Id setting the video quality.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoQuality(const SIPX_INST hInst, const SIPX_VIDEO_QUALITY_ID quality);
+
+/**
+ * Sets the bit rate and frame rate parameters for video.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param bitRate Bit rate parameter
+ * @param frameRate Frame rate parameter
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoParameters(const SIPX_INST hInst, 
+                                                      const int bitRate,
+                                                      const int frameRate);
+
+
+#endif
+
 //@}
 
 #endif // _sipXtapi_h_

@@ -110,10 +110,10 @@ void sipXtapiTestSuite::setUp()
     }
 
 
-    /*    if (g_hInst5 == NULL)
-    {
-	    // sipxInitialize(&g_hInst5, 5060, 5060, 5061, 13000, 32) ;
-    }*/
+    //if (g_hInst5 == NULL)
+    //{
+        //sipxInitialize(&g_hInst5, 5060, 5060, 5061, 13000, 32) ;
+    //}
 
 #ifdef PURIFY
     PurifyClearLeaks();
@@ -123,15 +123,19 @@ void sipXtapiTestSuite::setUp()
 
 void sipXtapiTestSuite::tearDown()
 {
+#ifdef _WIN32
+#ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     static bool bFirstRun = true ;
+#endif
+#endif
     SIPX_RESULT rc ;
 
     suiteLock.acquire();
     
-    #ifdef PURIFY
+#ifdef PURIFY
     Sleep(250000);
     PurifyNewLeaks();
-    #endif
+#endif
         
     if (g_hInst != NULL)
     {
@@ -198,7 +202,7 @@ void sipXtapiTestSuite::checkForLeaks()
     checkForCallLeaks(g_hInst) ;
     checkForCallLeaks(g_hInst2) ;
     checkForCallLeaks(g_hInst3) ;
-    SIPX_RESULT rcLeaks = sipxCheckForHandleLeaks() ;
+    sipxCheckForHandleLeaks() ;
 }
 
 #define MAX_CALL_CHECK  16

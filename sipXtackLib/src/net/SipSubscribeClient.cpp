@@ -95,7 +95,8 @@ void SubscribeClientState::toString(UtlString& dumpString)
 SipSubscribeClient::SipSubscribeClient(SipUserAgent& userAgent, 
                                        SipDialogMgr& dialogMgr,
                                        SipRefreshManager& refreshMgr)
-: mSubcribeClientMutex(OsMutex::Q_FIFO)
+    : OsServerTask("SipSubscribeClient-%d")
+    , mSubcribeClientMutex(OsMutex::Q_FIFO)
 {
     mpUserAgent = &userAgent;
     mpDialogMgr = &dialogMgr;
@@ -870,11 +871,13 @@ void SipSubscribeClient::getNextCallId(const char* resourceId,
                                        const char* contactFieldValue,
                                        UtlString& callId)
 {
-    char callidCountString[20];
+    char callidCountString[256];
     lock();
     mCallIdCount++;
-    sprintf(callidCountString, "%d", mCallIdCount);
+    long epochTime = OsDateTime::getSecsSinceEpoch();
+    sprintf(callidCountString, "%d%d", epochTime, mCallIdCount);
     unlock();
+    
     UtlString left(callidCountString);
     left.append(resourceId);
     left.append(eventHeaderValue);

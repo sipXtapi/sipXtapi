@@ -18,14 +18,13 @@ int CallAcceptCommand::execute(int argc, char* argv[])
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
 	if(argc == 2) 
 	{
-	    SIPX_CALL hCall = atoi(argv[1]);
-		if(sipxCallAccept(hCall) == SIPX_RESULT_SUCCESS)
+		if(sipxCallAccept(atoi(argv[1])) == SIPX_RESULT_SUCCESS)
 		{
-			printf("Call with ID %d has been accepted.\n", hCall);
+			printf("Call with ID %d has been accepted.\n", atoi(argv[1]));
 		}
 		else
 		{
-			printf("Call with ID %d failed to be accepted.\n", hCall);
+			printf("Call with ID %d failed to be accepted.\n", atoi(argv[1]));
 		}
 	}
 	else

@@ -423,7 +423,7 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                             pStateInfo->szFromURL,
                             pStateInfo->szUserAgent,
                             pStateInfo->szContentType,
-                            pStateInfo->szContent,
+                            pStateInfo->pContent,
                             pStateInfo->nContentLength) ;
 
                     m_unprocessedEvents.append(pString) ; 
@@ -659,4 +659,3 @@ bool EventValidator::waitForEvent(const char* szEvent, bool bStrictOrderMatch, i
                 
     return bFound ;
 }
-

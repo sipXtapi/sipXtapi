@@ -21,8 +21,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include,..\..\..\sipXtackLib\include,..\..\..\gips;..\..\..\sipXportLib\include\glib"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;VOICE_ENGINE;GIPS_DLL"
+				AdditionalIncludeDirectories="../../include;..\..\lib\mswd;&quot;\wxWindows-2.4.2\include&quot;;..\..\..\sipXportLib\include;..\..\..\sipXtackLib\include;..\..\..\gips;..\..\..\sipXportLib\include\glib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -41,8 +41,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapid.lib sipXportLib.lib libpcre.a "
-				OutputFile="./sipXezPhone.exe"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapid.lib sipXportLib.lib libpcre.a winmm.lib"
+				OutputFile="debug\sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\sipXtapi\Debug,\wxWindows-2.4.2\lib,..\..\..\sipXportLib\Debug"
@@ -93,7 +93,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include,..\..\..\sipXtackLib\include,..\..\..\gips;..\..\..\sipXportLib\include\glib"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;VOICE_ENGINE"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -112,7 +112,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib wsock32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapi.lib sipXportLib.lib libpcre.a "
-				OutputFile="./sipXezPhone.exe"
+				OutputFile="release\sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\sipXtapi\Release;..\..\Release\;&quot;\wxWindows-2.4.2\lib&quot;;..\..\..\sipXportLib\Release"
@@ -148,6 +148,143 @@
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Release_NoVideo|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include,..\..\..\sipXtackLib\include,..\..\..\gips;..\..\..\sipXportLib\include\glib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;VOICE_ENGINE"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderFile=".\Release_NoVideo/sipXezPhone.pch"
+				AssemblerListingLocation=".\Release_NoVideo/"
+				ObjectFile=".\Release_NoVideo/"
+				ProgramDataBaseFileName=".\Release_NoVideo/"
+				BrowseInformation="1"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib wsock32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapi.lib sipXportLib.lib libpcre.a "
+				OutputFile="release_NoVideo\sipXezPhone.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\..\sipXtapi\Release_NoVideo;..\..\Release_NoVideo\;&quot;\wxWindows-2.4.2\lib&quot;;..\..\..\sipXportLib\Release"
+				ProgramDatabaseFile=".\Release_NoVideo/sipXezPhone.pdb"
+				SubSystem="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/sipXezPhone.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug_NoVideo|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include,..\..\..\sipXtackLib\include,..\..\..\gips;..\..\..\sipXportLib\include\glib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;VOICE_ENGINE;GIPS_DLL"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="stdwx.h"
+				PrecompiledHeaderFile=".\Debug_NoVideo/sipXezPhone.pch"
+				AssemblerListingLocation=".\Debug_NoVideo/"
+				ObjectFile=".\Debug_NoVideo/"
+				ProgramDataBaseFileName=".\Debug_NoVideo/"
+				BrowseInformation="1"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXtapid.lib sipXportLib.lib libpcre.a winmm.lib"
+				OutputFile="debug_NoVideo\sipXezPhone.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\..\sipXtapi\Debug_NoVideo,\wxWindows-2.4.2\lib,..\..\..\sipXportLib\Debug"
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames="msvcrt.lib"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile=".\Debug_NoVideo/sipXezPhone.pdb"
+				SubSystem="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Debug/sipXezPhone.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -155,6 +292,9 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath=".\AddContactDlg.cpp">
+			</File>
 			<File
 				RelativePath="ButtonPanel.cpp">
 				<FileConfiguration
@@ -171,6 +311,24 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
@@ -196,6 +354,24 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="CallList.cpp">
@@ -217,12 +393,33 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ConferencePanel.cpp">
 			</File>
 			<File
 				RelativePath=".\ContactListCtrl.cpp">
+			</File>
+			<File
+				RelativePath=".\ContactListPanel.cpp">
 			</File>
 			<File
 				RelativePath="DialEntryPanel.cpp">
@@ -244,9 +441,30 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\DialerThread.cpp">
+			</File>
+			<File
+				RelativePath=".\DialerThread.h">
 			</File>
 			<File
 				RelativePath="DialPadButton.cpp">
@@ -268,6 +486,24 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="DialPadPanel.cpp">
@@ -285,6 +521,24 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
@@ -313,6 +567,24 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="PlacedCallList.cpp">
@@ -334,6 +606,27 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\PreviewWindow.cpp">
 			</File>
 			<File
 				RelativePath="ReceivedCallList.cpp">
@@ -351,6 +644,24 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
@@ -379,6 +690,27 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sipXezPhone_wdr.h">
 			</File>
 			<File
 				RelativePath="sipXezPhoneAboutDlg.cpp">
@@ -400,6 +732,27 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sipXezPhoneAboutDlg.h">
 			</File>
 			<File
 				RelativePath="sipXezPhoneApp.cpp">
@@ -417,6 +770,24 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
@@ -442,6 +813,24 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="sipXezPhoneSettings.cpp">
@@ -459,6 +848,24 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
@@ -484,6 +891,27 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sipXezPhoneSettingsDlg.h">
 			</File>
 			<File
 				RelativePath="sipXmgr.cpp">
@@ -492,7 +920,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
-						AdditionalIncludeDirectories=""
+						AdditionalIncludeDirectories="C:\dev_Video\gips"
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
@@ -505,6 +933,30 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sipXSrtpSettingsDlg.cpp">
+			</File>
+			<File
+				RelativePath=".\sipXVideoSettingsDlg.cpp">
 			</File>
 			<File
 				RelativePath="stdwx.cpp">
@@ -526,6 +978,30 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\VideoPanel.cpp">
+			</File>
+			<File
+				RelativePath=".\VideoWindow.cpp">
 			</File>
 			<File
 				RelativePath="VolumeControlPanel.cpp">
@@ -543,6 +1019,24 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
@@ -608,6 +1102,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath=".\AddContactDlg.h">
+			</File>
+			<File
 				RelativePath="ButtonPanel.h">
 			</File>
 			<File
@@ -621,6 +1118,9 @@
 			</File>
 			<File
 				RelativePath=".\ContactListCtrl.h">
+			</File>
+			<File
+				RelativePath=".\ContactListPanel.h">
 			</File>
 			<File
 				RelativePath="DialEntryPanel.h">
@@ -641,10 +1141,16 @@
 				RelativePath="PlacedCallList.h">
 			</File>
 			<File
+				RelativePath=".\PreviewWindow.h">
+			</File>
+			<File
 				RelativePath="ReceivedCallList.h">
 			</File>
 			<File
 				RelativePath="resource.h">
+			</File>
+			<File
+				RelativePath=".\sipXAudioSettingsDlg.h">
 			</File>
 			<File
 				RelativePath="sipXezPhoneApp.h">
@@ -659,7 +1165,19 @@
 				RelativePath="sipXmgr.h">
 			</File>
 			<File
+				RelativePath=".\sipXSrtpSettingsDlg.h">
+			</File>
+			<File
+				RelativePath=".\sipXVideoSettingsDlg.h">
+			</File>
+			<File
 				RelativePath="stdwx.h">
+			</File>
+			<File
+				RelativePath=".\VideoPanel.h">
+			</File>
+			<File
+				RelativePath=".\VideoWindow.h">
 			</File>
 			<File
 				RelativePath="VolumeControlPanel.h">

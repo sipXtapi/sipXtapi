@@ -161,7 +161,6 @@ SipTransaction::~SipTransaction()
 #endif
 
     // Optimization: stop timers before doing anything else
-    stopTimers();
     deleteTimers();
 
     if(mpRequest) delete mpRequest;
@@ -283,7 +282,7 @@ void SipTransaction::getNewBranchId(SipMessage& request,
 }
 
 enum SipTransaction::messageRelationship
-SipTransaction::addResponse(SipMessage* response,
+SipTransaction::addResponse(SipMessage*& response,
                             UtlBoolean isOutGoing,  // intravert/extravert
                             enum messageRelationship relationship) // casual/serious
 {
@@ -303,6 +302,7 @@ SipTransaction::addResponse(SipMessage* response,
            OsSysLog::add(FAC_SIP, PRI_WARNING,
                          "SipTransaction::addResponse of request to existing transaction, IGNORED");
             delete response ;
+            response = NULL;
         }
         else
         {
@@ -358,6 +358,7 @@ SipTransaction::addResponse(SipMessage* response,
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipTransaction::addResponse ACK already exists, IGNORED");
             delete response ;
+            response = NULL;
         }
         else
         {
@@ -367,10 +368,11 @@ SipTransaction::addResponse(SipMessage* response,
 
     case MESSAGE_CANCEL:
         if(mpCancel)
-        {
+        {            
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipTransaction::addResponse CANCEL already exists, IGNORED");
             delete response ;
+            response = NULL;
         }
         else
         {
@@ -384,6 +386,7 @@ SipTransaction::addResponse(SipMessage* response,
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipTransaction::addResponse CANCEL response already exists, IGNORED");
             delete response ;
+            response = NULL;
         }
         else
         {
@@ -394,11 +397,12 @@ SipTransaction::addResponse(SipMessage* response,
     case MESSAGE_UNKNOWN:
     case MESSAGE_UNRELATED:
     case MESSAGE_DUPLICATE:
-    default:
+    default:        
         OsSysLog::add(FAC_SIP, PRI_ERR,
                       "SipTransaction::addResponse message with bad relationship: %d",
                       relationship);
         delete response ;
+        response = NULL;
         break;
     }
 
@@ -651,17 +655,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
              // If the header is allowed in a header parameter?
              if(SipMessage::isUrlHeaderAllowed(hdrName.data()))
              {
-                if (SipMessage::isUrlHeaderUnique(hdrName.data()))
-                {
-                   // If the field exists, change it,
-                   // if does not exist, create it.
-                   request.setHeaderValue(hdrName.data(),
-                                          hdrValue.data(), 0);
-                }
-                else
-                {
-                   request.addHeaderField(hdrName.data(), hdrValue.data());
-                }
+                request.addHeaderField(hdrName.data(), hdrValue.data());
              }
              else
              {
@@ -1051,7 +1045,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                       toAddress.data(),
                                       port);
     }
-#   ifdef SIP_TLS
+
     else if(toProtocol == OsSocket::SSL_SOCKET)
     {
 
@@ -1063,7 +1057,6 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                           toAddress.data(),
                                           port);
     }
-#   endif // SIP_TLS
     else
     {
 #       ifdef TEST_PRINT
@@ -3497,7 +3490,8 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             }
         }
 
-        addResponse(new SipMessage(incomingMessage),
+        SipMessage* responseCopy = new SipMessage(incomingMessage);
+        addResponse(responseCopy,
                     FALSE, // Incoming
                     relationship);
 
@@ -3506,7 +3500,8 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
     // Requests, provisional responses, Cancel response
     else
     {
-        addResponse(new SipMessage(incomingMessage),
+       SipMessage* responseCopy = new SipMessage(incomingMessage);
+        addResponse(responseCopy,
                     FALSE, // Incoming
                     relationship);
 
@@ -3737,20 +3732,6 @@ void SipTransaction::removeTimer(OsTimer* timer)
     }
 }
 
-void SipTransaction::stopTimers()
-{
-    UtlSListIterator iterator(mTimers);
-    OsTimer* timer;
-
-    while ((timer = (OsTimer*)iterator()))
-    {
-#ifdef TEST_PRINT
-        osPrintf("SipTransaction::stopTimers stopping timer %p\n", timer);
-#endif
-        timer->stop();
-    }
-}
-
 void SipTransaction::deleteTimers()
 {
     UtlSListIterator iterator(mTimers);
@@ -3763,11 +3744,30 @@ void SipTransaction::deleteTimers()
 #endif
         removeTimer(timer);
         
-        SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData() ;
-        delete pMsgEvent;
-        delete timer;
+        // Only delete the timer if not stopped -- the timer will be cleaned 
+        // up in handle message.  Delete it opens up a race (the timer could
+        // be queued up on the SipUserAgent already).
+        if (timer->getState() != OsTimer::STOPPED)
+        {
+            timer->stop();
+            SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData() ;
+            delete pMsgEvent;
+            delete timer;
+        }
     }
 }
+
+void SipTransaction::stopTimers()
+{
+    UtlSListIterator iterator(mTimers);
+    OsTimer* timer = NULL;
+
+    while ((timer = (OsTimer*)iterator()))
+    {
+        timer->stop();
+    }
+}
+
 
 void SipTransaction::cancel(SipUserAgent& userAgent,
                             SipTransactionList& transactionList)

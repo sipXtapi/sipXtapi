@@ -13,7 +13,7 @@
 // APPLICATION INCLUDES
 #include <cp/Connection.h>
 #include <cp/CpGhostConnection.h>
-#include <cp/CpMediaInterface.h>
+#include <mi/CpMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpCall.h>
 #include <net/SdpCodec.h>
@@ -182,7 +182,9 @@ void Connection::prepareForJoin(CpCall* pNewCall, CpMediaInterface* pNewMediaInt
 {
     mpCall = pNewCall ;
     mpMediaInterface = pNewMediaInterface ;
-    mpMediaInterface->createConnection(mConnectionId) ;
+    mpMediaInterface->createConnection(mConnectionId, NULL) ;
+
+    // VIDEO: Need to include window handle!
 }
 
 

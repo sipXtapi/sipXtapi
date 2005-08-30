@@ -16,9 +16,6 @@
 #include "ps/PsTaoSpeaker.h"
 #include "ps/PsTaoRinger.h"
 #include "ps/PsTaoMicrophone.h"
-#ifndef SIPXMEDIA_EXCLUDE
-#include "mp/MpCodec.h"
-#endif 
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -277,14 +274,9 @@ OsStatus PsTaoComponentGroup::setMicGain(int group, int& level)
         {
             mMicGain = gainNormalize(level);
         }
-        osPrintf("PsTaoComponentGroup::setMicGain: groupt type: %d, level %d mMicGain %d\n", group, level, mMicGain);
         
-        #ifndef SIPXMEDIA_EXCLUDE
-            MpCodec_setGain(mMicGain);
-        #else
-            // TODO
-            // call the MediaInterface to set the gain
-        #endif
+        osPrintf("PsTaoComponentGroup::setMicGain: groupt type: %d, level %d mMicGain %d (is not set)\n", group, level, mMicGain);
+        assert(false);
         return OS_SUCCESS;
     }
 

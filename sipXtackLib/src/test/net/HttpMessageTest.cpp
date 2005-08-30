@@ -175,6 +175,35 @@ public:
 
         int mediaCount = sdp->getMediaSetCount();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect media count", 1, mediaCount);
+
+        const char* referenceSdp = 
+            "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
+        const char* sdpBytes = NULL;
+        int sdpByteLength = 0;
+        sdp->getBytes(&sdpBytes, &sdpByteLength);
+        for(int iii = 0; iii < sdpByteLength; iii++)
+        {
+            if(referenceSdp[iii] != sdpBytes[iii])
+            {
+                printf("index[%d]: expected: %d got: %d\n",
+                    iii, referenceSdp[iii], sdpBytes[iii]);
+            }
+        }
+        CPPUNIT_ASSERT_MESSAGE("Null sdp serialized content", sdpBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpBytes) == 0);
+
+        HttpMessage* msgCopy = new HttpMessage(*msg);
+        CPPUNIT_ASSERT_MESSAGE("NULL message copy", msgCopy != NULL);
+        SdpBody *sdpCopy = (SdpBody *)msgCopy->getBody();
+        CPPUNIT_ASSERT_MESSAGE("NULL SDP copy", sdpCopy != NULL);
+        const char* sdpCopyBytes = NULL;
+        int sdpCopyLen = 0;
+        sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
+        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
+        CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpCopyBytes) == 0);
     }
 
 

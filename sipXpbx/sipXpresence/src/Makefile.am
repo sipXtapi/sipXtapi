@@ -7,6 +7,7 @@ INCLUDES = \
 bin_PROGRAMS = sipxpresence
 
 sipxpresence_LDADD = \
+		@SIPXMEDIA_MP_LIBS@ \
         @SIPXCALL_LIBS@
 
 sipxpresence_CXXFLAGS = \

@@ -9,7 +9,6 @@
 
 // APPLICATION INCLUDES
 #include <sipXtapiDriver/CommandProcessor.h>
-#include <tapi/sipXtapiEvents.h>
 
 class AutoAnswerCommand : public Command
 {

@@ -14,13 +14,12 @@ class CallHoldCommand : public Command
 {
 public:
 	//Constructor
-	CallHoldCommand();
+	CallHoldCommand() {}
 	/* ============================ MANIPULATORS ============================== */
 
 	virtual int execute(int argc, char* argv[]);
 
 	/* ============================ ACCESSORS ================================= */
 	virtual void getUsage(const char* commandName, UtlString* usage) const;
-private:
 };
 #endif //_CallHoldCommand_h

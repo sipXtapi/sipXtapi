@@ -165,7 +165,7 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                     respMsg.mappedAddress.ipv4.addr = htonl(inet_addr(rMsg.getReceivedIp().data())) ;
 
                     UtlString hostIp ;
-                    pSocket->getLocalHostIp(&hostIp) ;
+                    hostIp = pSocket->getLocalIp() ;
                     respMsg.hasSourceAddress = true;
                     respMsg.sourceAddress.ipv4.port = htons(pSocket->getLocalHostPort()) ;
                     respMsg.sourceAddress.ipv4.addr = htonl(inet_addr(hostIp.data())) ;
@@ -293,7 +293,8 @@ UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg)
 
 UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSocket,
                                                      const UtlString& stunServer,
-                                                     int stunPort) 
+                                                     const int stunPort, 
+                                                     const int stunOptions) 
 {    
     OsLock lock(mMapsLock) ;
 
@@ -329,8 +330,21 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
             // A value of zero indicates that this is a normal stun discovery 
             // request.
             reqMsg.msgHdr.id.octet[0] = 0x00 ;
-            reqMsg.hasChangeRequest = 1 ;
-            reqMsg.changeRequest.value = 2 ;  // Change port when replying
+
+            if ((stunOptions & STUN_OPTION_CHANGE_PORT) || (stunOptions & STUN_OPTION_CHANGE_ADDRESS))
+            {
+                reqMsg.hasChangeRequest = 1 ;
+                reqMsg.changeRequest.value = 0 ;
+                if (stunOptions & STUN_OPTION_CHANGE_PORT)
+                {                 
+                    reqMsg.changeRequest.value |= 2 ;  
+                }
+
+                if (stunOptions & STUN_OPTION_CHANGE_ADDRESS)
+                {
+                    reqMsg.changeRequest.value |= 4 ;
+                }
+            }
 
             char buf[STUN_MAX_MESSAGE_SIZE];
             int len = STUN_MAX_MESSAGE_SIZE;
@@ -480,7 +494,6 @@ void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket)
         }
     }
     mResponseMap.destroy(&key) ;
-    mResponseMap.insertKeyAndValue(new UtlVoidPtr(pSocket), NULL) ;
     
     // Remove contents from Connectivity Map
     UtlHashMapIterator itor(mConnectivityMap) ;
@@ -546,3 +559,4 @@ void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+

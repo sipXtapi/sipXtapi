@@ -106,7 +106,8 @@ SipSubscribeServer::SipSubscribeServer(SipUserAgent& defaultUserAgent,
                                        SipPublishContentMgr& defaultContentMgr,
                                        SipSubscriptionMgr& defaultSubscriptionMgr,
                                        SipSubscribeServerEventHandler& defaultEventHandler)
-: mSubscribeServerMutex(OsMutex::Q_FIFO)
+    : OsServerTask("SipSubscribeServer-%d")
+    , mSubscribeServerMutex(OsMutex::Q_FIFO)
 {
     mpDefaultUserAgent = &defaultUserAgent;
     mpDefaultContentMgr = &defaultContentMgr;

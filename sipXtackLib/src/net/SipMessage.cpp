@@ -6,6 +6,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
@@ -23,6 +24,7 @@
 #include <utl/UtlHashMap.h>
 #include <net/SipMessage.h>
 #include <net/MimeBodyPart.h>
+#include <net/SmimeBody.h>
 #include <net/NameValueTokenizer.h>
 #include <net/Url.h>
 #include <net/SipUserAgent.h>
@@ -34,8 +36,11 @@
 // CONSTANTS
 #define MAXIMUM_INTEGER_STRING_LENGTH 20
 
-// STATIC VARIABLES
-SipMessage::SipMessageFieldProps* SipMessage::spSipMessageFieldProps = NULL ;
+// STATIC VARIABLE INITIALIZATIONS
+
+UtlHashBag* SipMessage::mpShortFieldNames = new UtlHashBag();
+UtlHashBag* SipMessage::mpLongFieldNames = new UtlHashBag();
+UtlHashBag* SipMessage::mpDisallowedUrlHeaders = new UtlHashBag();
 
 #ifdef WIN32
 #  define strcasecmp stricmp
@@ -56,11 +61,6 @@ SipMessage::SipMessage(const char* messageBytes, int byteCount) :
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
-
-   if (spSipMessageFieldProps == NULL)
-   {
-      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-   }
 }
 
 SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
@@ -117,6 +117,56 @@ SipMessage::operator=(const SipMessage& rSipMessage)
 }
 
 
+void SipMessage::initShortNames()
+{
+   if(mpLongFieldNames->isEmpty())
+   {
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_TYPE_FIELD, SIP_SHORT_CONTENT_TYPE_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_ENCODING_FIELD, SIP_SHORT_CONTENT_ENCODING_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_FROM_FIELD, SIP_SHORT_FROM_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CALLID_FIELD, SIP_SHORT_CALLID_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTACT_FIELD, SIP_SHORT_CONTACT_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_CONTENT_LENGTH_FIELD, SIP_SHORT_CONTENT_LENGTH_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_REFERRED_BY_FIELD, SIP_SHORT_REFERRED_BY_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_REFER_TO_FIELD, SIP_SHORT_REFER_TO_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_SUBJECT_FIELD, SIP_SHORT_SUBJECT_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_SUPPORTED_FIELD, SIP_SHORT_SUPPORTED_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_TO_FIELD, SIP_SHORT_TO_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_VIA_FIELD, SIP_SHORT_VIA_FIELD));
+      SipMessage::mpLongFieldNames->insert(new NameValuePair(SIP_EVENT_FIELD, SIP_SHORT_EVENT_FIELD));
+
+      UtlHashBagIterator iterator(*mpLongFieldNames);
+      NameValuePair* nvPair;
+      while ((nvPair = (NameValuePair*) iterator()))
+      {
+         mpShortFieldNames->insert(new NameValuePair(nvPair->getValue(),
+            nvPair->data()));
+      }
+   }
+}
+
+void SipMessage::initDisallowedUrlHeaders()
+{
+    // These headers may NOT be passed through in a URL to
+    // be set in a message
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTACT_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTACT_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_LENGTH_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_LENGTH_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_TYPE_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_TYPE_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_CSEQ_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_REFER_TO_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_REFERRED_BY_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_TO_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_TO_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_USER_AGENT_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_VIA_FIELD));
+    SipMessage::mpDisallowedUrlHeaders->insert(new UtlString(SIP_SHORT_VIA_FIELD));
+}
+
 /* ============================ MANIPULATORS ============================== */
 
 UtlBoolean SipMessage::getShortName(const char* longFieldName,
@@ -124,13 +174,17 @@ UtlBoolean SipMessage::getShortName(const char* longFieldName,
 {
    NameValuePair longNV(longFieldName);
    UtlBoolean nameFound = FALSE;
+   initShortNames();
 
-   shortFieldName->remove(0);
-   NameValuePair* shortNV = (NameValuePair*) spSipMessageFieldProps->mLongFieldNames.find(&longNV);
-   if(shortNV)
+   if (mpLongFieldNames)
    {
-      shortFieldName->append(shortNV->getValue());
-      nameFound = TRUE;
+        shortFieldName->remove(0);
+        NameValuePair* shortNV = (NameValuePair*) mpLongFieldNames->find(&longNV);
+        if(shortNV)
+        {
+            shortFieldName->append(shortNV->getValue());
+            nameFound = TRUE;
+        }
    }
    return(nameFound);
 }
@@ -147,8 +201,9 @@ UtlBoolean SipMessage::getLongName(const char* shortFieldName,
     {
         UtlString shortNV(shortFieldName);
 
-       NameValuePair* longNV =
-          (NameValuePair*) spSipMessageFieldProps->mShortFieldNames.find(&shortNV);
+       initShortNames();
+
+       NameValuePair* longNV = (NameValuePair*) mpShortFieldNames->find(&shortNV);
        if(longNV)
        {
           *longFieldName = longNV->getValue();
@@ -220,11 +275,14 @@ void SipMessage::setReinviteData(SipMessage* invite,
                                  UtlBoolean inviteFromThisSide,
                                  const char* routeField,
                                  const char* rtpAddress, 
-                                 int rtpPort,
-                                 int rtcpPort,
+                                 int rtpAudioPort,
+                                 int rtcpAudioPort,
+                                 int rtpVideoPort,
+                                 int rtcpVideoPort,
                                  int sequenceNumber,
                                  int numRtpCodecs,
                                  SdpCodec* rtpCodecs[],
+                                 SdpSrtpParameters& srtpParams,
                                  int sessionReinviteTimer)
 {
     UtlString toField;
@@ -266,8 +324,11 @@ void SipMessage::setReinviteData(SipMessage* invite,
          contactUrl,
          callId,
          rtpAddress, 
-         rtpPort,
-         rtcpPort,
+         rtpAudioPort,
+         rtcpAudioPort,
+         rtpVideoPort,
+         rtcpVideoPort,
+         srtpParams,
          sequenceNumber,
          numRtpCodecs,
          rtpCodecs,
@@ -287,8 +348,11 @@ void SipMessage::setInviteData(const char* fromField,
                                const char* contactUrl,
                                const char* callId,
                                const char* rtpAddress, 
-                               int rtpPort,
-                               int rtcpPort,
+                               int rtpAudioPort,
+                               int rtcpAudioPort,
+                               int rtpVideoPort,
+                               int rtcpVideoPort,
+                               SdpSrtpParameters& srtpParams,
                                int sequenceNumber,
                                int numRtpCodecs,
                                SdpCodec* rtpCodecs[],
@@ -325,15 +389,7 @@ void SipMessage::setInviteData(const char* fromField,
         // If the header is allowed to be passed through
         if(isUrlHeaderAllowed(headerName.data()))
         {
-           if (isUrlHeaderUnique(headerName.data()))
-           {
-              // If the field exists, change it, if does not exist, create it.
-              setHeaderValue(headerName.data(), headerValue.data(), 0);
-           }
-           else
-           {
-              addHeaderField(headerName.data(), headerValue.data());
-           }
+            addHeaderField(headerName.data(), headerValue.data());
 #ifdef TEST_PRINT
             osPrintf("SipMessage::setInviteData: name=%s, value=%s\n",
                     headerName.data(), headerValue.data());
@@ -369,12 +425,16 @@ void SipMessage::setInviteData(const char* fromField,
 #ifdef TEST
    osPrintf("SipMessage::setInviteData rtpAddress: %s\n", rtpAddress);
 #endif
-   addSdpBody(rtpAddress, rtpPort, rtcpPort, numRtpCodecs,
-            rtpCodecs);
+   addSdpBody(rtpAddress, rtpAudioPort, rtcpAudioPort,
+              rtpVideoPort, rtcpVideoPort,
+              numRtpCodecs, rtpCodecs,
+              srtpParams);
 }
 
-void SipMessage::addSdpBody(const char* rtpAddress, int rtpPort, int rtcpPort,
-                     int numRtpCodecs, SdpCodec* rtpCodecs[])
+void SipMessage::addSdpBody(const char* rtpAddress, int rtpAudioPort, int rtcpAudioPort,
+                            int rtpVideoPort, int rtcpVideoPort,
+                            int numRtpCodecs, SdpCodec* rtpCodecs[],
+                            SdpSrtpParameters& srtpParams)
 {
    if(numRtpCodecs > 0)
    {
@@ -384,11 +444,13 @@ void SipMessage::addSdpBody(const char* rtpAddress, int rtpPort, int rtcpPort,
       // Create and add the SDP body
       SdpBody* sdpBody = new SdpBody();
       sdpBody->setStandardHeaderFields("phone-call",
-                            NULL, //"dpetrie@pingtel.com",
-                            NULL,//"+1 781 938 5306",
+                            NULL, //"dpetrie@SIPez.com",
+                            NULL,//"+1 617 273 4000",
                                      rtpAddress); // Originator address
-      sdpBody->addAudioCodecs(rtpAddress, rtpPort, rtcpPort, numRtpCodecs,
-                        rtpCodecs);
+      sdpBody->addAudioCodecs(rtpAddress, rtpAudioPort, rtcpAudioPort, 
+                              rtpVideoPort, rtcpVideoPort,
+                              numRtpCodecs, rtpCodecs,
+                              srtpParams);
 
       setBody(sdpBody);
 
@@ -401,23 +463,60 @@ void SipMessage::addSdpBody(const char* rtpAddress, int rtpPort, int rtcpPort,
    }
 }
 
-const SdpBody* SipMessage::getSdpBody() const
+const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
+                                      int derPkcs12Length,
+                                      const char* pkcs12SymmetricKey) const
 {
-   const SdpBody* body = NULL;
-   UtlString contentType;
-   UtlString sdpType(SDP_CONTENT_TYPE);
+    const SdpBody* body = NULL;
+    UtlString contentType;
+    UtlString sdpType(SDP_CONTENT_TYPE);
+    UtlString smimeType(CONTENT_SMIME_PKCS7);
 
-   getContentType(&contentType);
+    getContentType(&contentType);
 
-   // Make them both lower case so they compare
-   contentType.toLower();
-   sdpType.toLower();
+    // Make them all lower case so they compare
+    contentType.toLower();
+    sdpType.toLower();
+    smimeType.toLower();
 
-   // If the body is of SDP type, return it
-   if(contentType.compareTo(sdpType) == 0)
-   {
-      body = (const SdpBody*) getBody();
-   }
+    // If the body is of SDP type, return it
+    if(contentType.compareTo(sdpType) == 0)
+    {
+        body = (const SdpBody*) getBody();
+    }
+
+    // If we have a private key and this is a S/MIME body
+    else if(derPkcs12 && 
+            derPkcs12Length > 0 &&
+            pkcs12SymmetricKey &&
+            contentType.compareTo(smimeType))
+    {
+        SmimeBody* smimeBody = (SmimeBody*) getBody();
+
+        // Try to decrypt if it has not already been decrypted
+        if(! smimeBody->isDecrypted())
+        {
+            // Try to decrypt using the given private key and cert.
+            smimeBody->decrypt(derPkcs12, 
+                               derPkcs12Length,
+                               pkcs12SymmetricKey);
+        }
+
+        // If it did not get encrypted, act like there is no SDP body
+        if(smimeBody->isDecrypted())
+        {
+            const HttpBody* decryptedHttpBody = smimeBody->getDecyptedBody();
+            // If the decrypted body is an SDP body type, use it
+            if(strcmp(decryptedHttpBody->getContentType(), sdpType) == 0)
+            {
+                body = (const SdpBody*) decryptedHttpBody;
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "Could not decrypt S/MIME body");
+        }
+    }
 
     // Else if this is a multipart MIME body see
     // if there is an SDP part
@@ -436,12 +535,46 @@ const SdpBody* SipMessage::getSdpBody() const
                     body = (const SdpBody*) bodyPart;
                     break;
                 }
+
+                // Check for S/MIME body
+                else if(strcmp(bodyPart->getContentType(), smimeType) == 0 &&
+                        derPkcs12 &&
+                        derPkcs12Length > 0 &&
+                        pkcs12SymmetricKey)
+                {
+                    SmimeBody* smimeBody = (SmimeBody*) bodyPart;
+
+                    // Try to decrypt if it has not already been decrypted
+                    if(! smimeBody->isDecrypted())
+                    {
+                        // Try to decrypt using the given private key and cert.
+                        smimeBody->decrypt(derPkcs12, 
+                                           derPkcs12Length,
+                                           pkcs12SymmetricKey);
+                    }
+
+                    // If it did not get encrypted, act like there is no SDP body
+                    if(smimeBody->isDecrypted())
+                    {
+                        const HttpBody* decryptedHttpBody = smimeBody->getDecyptedBody();
+                        // If the decrypted body is an SDP body type, use it
+                        if(strcmp(decryptedHttpBody->getContentType(), sdpType) == 0)
+                        {
+                            body = (const SdpBody*) decryptedHttpBody;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        OsSysLog::add(FAC_SIP, PRI_WARNING, "Could not decrypt S/MIME body");
+                    }
+                }
                 partIndex++ ;
             }
         }
     }
 
-   return(body);
+    return(body);
 }
 
 void SipMessage::setRequestData(const char* method, const char* uri,
@@ -695,10 +828,13 @@ void SipMessage::setInviteOkData(const char* fromField,
                                  const char* callId,                                  
                                  const SdpBody* inviteSdp,
                                  const char* rtpAddress, 
-                                 int rtpPort,
-                                 int rtcpPort,
+                                 int rtpAudioPort,
+                                 int rtcpAudioPort,
+                                 int rtpVideoPort,
+                                 int rtcpVideoPort,
                                  int numRtpCodecs,
                                  SdpCodec* rtpCodecs[], 
+                                 SdpSrtpParameters& srtpParams,
                                  int sequenceNumber,
                                  const char* localContact)
 {
@@ -719,14 +855,17 @@ void SipMessage::setInviteOkData(const char* fromField,
    // If the INVITE SDP is present pick the best
    if(inviteSdp)
    {
-            sdpBody->addAudioCodecs(rtpAddress, rtpPort, rtcpPort, numRtpCodecs,
-                        rtpCodecs, inviteSdp);
+            sdpBody->addAudioCodecs(rtpAddress, rtpAudioPort, rtcpAudioPort,
+                                    rtpVideoPort, rtcpVideoPort,
+                                    numRtpCodecs, rtpCodecs, srtpParams, inviteSdp);
    }
 
    else
    {
-      sdpBody->addAudioCodecs(rtpAddress, rtpPort, rtcpPort, numRtpCodecs,
-                        rtpCodecs);
+      sdpBody->addAudioCodecs(rtpAddress, rtpAudioPort, rtcpAudioPort,
+                              rtpVideoPort, rtcpVideoPort,
+                              numRtpCodecs, rtpCodecs,
+                              srtpParams);
    }
    setBody(sdpBody);
 
@@ -739,8 +878,10 @@ void SipMessage::setInviteOkData(const char* fromField,
 }
 
 void SipMessage::setInviteOkData(const SipMessage* inviteRequest,                                 
-                const char* rtpAddress, int rtpPort, int rtcpPort,
+                const char* rtpAddress, int rtpAudioPort, int rtcpAudioPort,
+                int rtpVideoPort, int rtcpVideoPort,
                 int numRtpCodecs, SdpCodec* rtpCodecs[],
+                SdpSrtpParameters& srtpParams,
                 int maxSessionExpiresSeconds, const char* localContact)
 {
    UtlString fromField;
@@ -758,8 +899,10 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
    inviteSdp = inviteRequest->getSdpBody();
 
    setInviteOkData(fromField.data(), toField.data(), callId,
-               inviteSdp, rtpAddress, rtpPort, rtcpPort,
+               inviteSdp, rtpAddress, rtpAudioPort, rtcpAudioPort,
+               rtpVideoPort, rtcpVideoPort,
                numRtpCodecs, rtpCodecs,
+               srtpParams,
                sequenceNum, localContact);
 
    setViaFromRequest(inviteRequest);
@@ -4273,19 +4416,14 @@ UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
     UtlString name(headerFieldName);
     name.toUpper();
     UtlString nameCollectable(name);
-
-    return (NULL ==
-            spSipMessageFieldProps->mDisallowedUrlHeaders.find(&nameCollectable));
-}
-
-UtlBoolean SipMessage::isUrlHeaderUnique(const char* headerFieldName)
-{
-    UtlString name(headerFieldName);
-    name.toUpper();
-    UtlString nameCollectable(name);
+    UtlBoolean isAllowed(FALSE);
     
-    return (NULL !=
-            spSipMessageFieldProps->mUniqueUrlHeaders.find(&nameCollectable));
+    if (mpDisallowedUrlHeaders &&
+        NULL == mpDisallowedUrlHeaders->find(&nameCollectable))
+    {
+        isAllowed = TRUE;
+    }
+    return isAllowed;
 }
 
 //SDUA
@@ -4564,75 +4702,3 @@ UtlBoolean SipMessage::getSipETagField(UtlString& sipETagField) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-SipMessage::SipMessageFieldProps::SipMessageFieldProps()
-{
-   // Call the initializer functions.
-   initNames();
-   initDisallowedUrlHeaders();
-   initUniqueUrlHeaders();
-}
-
-void SipMessage::SipMessageFieldProps::initNames()
-{
-   // Load the table to translate long header names to short names.
-
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_TYPE_FIELD, SIP_SHORT_CONTENT_TYPE_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_ENCODING_FIELD, SIP_SHORT_CONTENT_ENCODING_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_FROM_FIELD, SIP_SHORT_FROM_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CALLID_FIELD, SIP_SHORT_CALLID_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTACT_FIELD, SIP_SHORT_CONTACT_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_LENGTH_FIELD, SIP_SHORT_CONTENT_LENGTH_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_REFERRED_BY_FIELD, SIP_SHORT_REFERRED_BY_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_REFER_TO_FIELD, SIP_SHORT_REFER_TO_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_SUBJECT_FIELD, SIP_SHORT_SUBJECT_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_SUPPORTED_FIELD, SIP_SHORT_SUPPORTED_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_TO_FIELD, SIP_SHORT_TO_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_VIA_FIELD, SIP_SHORT_VIA_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_EVENT_FIELD, SIP_SHORT_EVENT_FIELD));
-
-   // Reverse the pairs to load the table to translate short header names to
-   // long ones.
-
-   UtlHashBagIterator iterator(mLongFieldNames);
-   NameValuePair* nvPair;
-   while ((nvPair = (NameValuePair*) iterator()))
-   {
-      mShortFieldNames.insert(new NameValuePair(nvPair->getValue(),
-                                                 nvPair->data()));
-   }
-}
-
-void SipMessage::SipMessageFieldProps::initDisallowedUrlHeaders()
-{
-   // These headers may NOT be passed through in a URL to
-   // be set in a message
-
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTACT_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTACT_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_LENGTH_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_LENGTH_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_TYPE_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_TYPE_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_CSEQ_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_FROM_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_RECORD_ROUTE_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_REFER_TO_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_REFERRED_BY_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_ROUTE_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_TO_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_TO_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_USER_AGENT_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_VIA_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_VIA_FIELD));
-}
-
-void SipMessage::SipMessageFieldProps::initUniqueUrlHeaders()
-{
-   // These headers may occur only once in a message, so a URI header
-   // parameter overrides the existing header in the message.
-
-   mUniqueUrlHeaders.insert(new UtlString(SIP_EXPIRES_FIELD));
-}

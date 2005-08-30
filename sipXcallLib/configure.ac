@@ -59,9 +59,9 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 
 # Conditionally use the GIPS audio libraries
-CHECK_GIPS
-# GIPS needs to be at the end of the list
-LIBS="$LIBS $GIPS_OBJS"
+CHECK_GIPSNEQ
+CHECK_GIPSVE
+CHECK_GIPSCE
 
 SFAC_FEATURE_SIPX_EZPHONE
 
@@ -78,7 +78,7 @@ AC_CONFIG_FILES([
   examples/sipXezPhone/Makefile
   include/Makefile 
   src/Makefile 
-  src/test/Makefile
-  src/test/tapi/Makefile
+  src/test/Makefile 
+  src/test/tapi/Makefile 
 ])
 AC_OUTPUT

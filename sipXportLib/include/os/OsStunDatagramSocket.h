@@ -27,6 +27,9 @@
 
 #define STUN_MSG_TYPE        (OsMsg::USER_START + 1) /**< Stun Msg type/Id */
 
+#define STUN_OPTION_NORMAL                      0   /**< Do not change port and address */
+#define STUN_OPTION_CHANGE_PORT                 1   /**< Request responses send from a different port */
+#define STUN_OPTION_CHANGE_ADDRESS              2   /**< Request responses send from a different IP */
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -89,6 +92,7 @@ public:
                          bool bEnableStun = TRUE,
                          const char* szStunServer = "larry.gloo.net",
                          int iRefreshPeriodInSec = 28,
+                         int iStunOptions = STUN_OPTION_NORMAL,
                          OsNotification* pNotification = NULL) ;
 
     /**
@@ -140,7 +144,13 @@ public:
      *        default STUN port (3478) will be used.
      */
     virtual void setStunServer(const char* szHostname) ;
-      
+
+    /**
+     * Set the STUN client options.
+     *
+     * @param stunOptions See the STUN_ defines for possible options.
+     */
+    virtual void setStunOptions(int stunOptions) ;      
 
     /** 
      * Enable or disable STUN.  Disabling STUN will stop all keep alives
@@ -150,7 +160,6 @@ public:
      * @param bEnable True to enable STUN or false to disable.
      */
     virtual void enableStun(bool bEnable) ;
-
 
     /**
      * When a stun packet is received this socket can either call read again
@@ -165,7 +174,6 @@ public:
      */ 
     virtual void enableTransparentStunReads(bool bEnable) ;
 
-
     /**
      * Refresh the stun binding by sending a stun request and looking at the
      * the results.  This method will block for upto STUN_TIMEOUT_RESPONSE_MS
@@ -178,7 +186,6 @@ public:
      */
     virtual void refreshStunBinding(UtlBoolean bFromReadSocket = false) ;
 
-
     /**
      * Read a STUN packet from the socket.  All non-STUN traffic will be discarded.
      *
@@ -188,7 +195,6 @@ public:
      *        STUN_TIMEOUT_RESPONSE_MS timeout is recommended.
      */
     virtual int readStunPacket(char* buffer, int bufferLength, const OsTime& rTimeout) ;
-
 
     /**
      * Add an alternate destination to this OsStunDatagramSocket.  Alternate 
@@ -203,29 +209,29 @@ public:
      */
     virtual void addAlternateDestination(const char* szAddress, int iPort, unsigned char cPriority) ;
 
-   /**
-    * Sets as notification event that is signaled upon the next successful 
-    * stun response or on failure (did not receive a stun response within 
-    * (STUN_ABORT_THRESHOLD * STUN_TIMEOUT_RESPONSE_MS).  If a notification
-    * event was previous set either by calling this method or via the 
-    * constructor, it will be overridden.  If the initial STUN success/failure
-    * state has already been determined, this method is undefined.
-    *
-    * @param pNotification Notification event signaled on success or failure.
-    */ 
-   virtual void setNotifier(OsNotification* pNotification) ;
+    /**
+     * Sets as notification event that is signaled upon the next successful 
+     * stun response or on failure (did not receive a stun response within 
+     * (STUN_ABORT_THRESHOLD * STUN_TIMEOUT_RESPONSE_MS).  If a notification
+     * event was previous set either by calling this method or via the 
+     * constructor, it will be overridden.  If the initial STUN success/failure
+     * state has already been determined, this method is undefined.
+     * 
+     * @param pNotification Notification event signaled on success or failure.
+     */ 
+    virtual void setNotifier(OsNotification* pNotification) ;
 
 /* ============================ ACCESSORS ================================= */
 
-   /**
-    * Return the external IP address for this socket.  This method will return
-    * false if stun is disabled, it was unable to retrieve a stun binding, or
-    * both the ip and port parameters are null.
-    *
-    * @param ip Buffer to place STUN-discovered IP address
-    * @param port Buffer to place STUN-discovered port number
-    */
-   virtual UtlBoolean getExternalIp(UtlString* ip, int* port) ;
+    /**
+     * Return the external IP address for this socket.  This method will return
+     * false if stun is disabled, it was unable to retrieve a stun binding, or
+     * both the ip and port parameters are null.
+     *
+     * @param ip Buffer to place STUN-discovered IP address
+     * @param port Buffer to place STUN-discovered port number
+     */
+    virtual UtlBoolean getExternalIp(UtlString* ip, int* port) ;
 
 /* ============================ INQUIRY =================================== */
 
@@ -269,6 +275,7 @@ private:
     int mCurrentKeepAlivePeriod;/**< Current keep alive period -- may be 
                                      accelerated under error conditions */
     UtlString mStunServer ;     /**< stun server name */
+    int mStunOptions ;          /**< STUN client options */
     int mStunPort ;             /**< port reported by stun process */
     UtlString mStunAddress ;    /**< ip address reported by stun process */
     OsTimer* mpTimer ;          /**< timer used for keep alives */

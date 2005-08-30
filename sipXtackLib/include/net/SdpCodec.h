@@ -30,18 +30,29 @@
 #define MIME_SUBTYPE_G729A "G729"
 #define MIME_SUBTYPE_G729AB "G729"
 #define MIME_SUBTYPE_G729ACISCO7960 "G729a"
+#define MIME_SUBTYPE_G723 "G723"
 #define MIME_SUBTYPE_DTMF_TONES "telephone-event"
 #define MIME_SUBTYPE_IPCMU "EG711U"
 #define MIME_SUBTYPE_IPCMA "EG711A"
 #define MIME_SUBTYPE_IPCMWB "IPCMWB"
 #define MIME_SUBTYPE_ILBC "ILBC"
 #define MIME_SUBTYPE_ISAC "ISAC"
+#define MIME_SUBTYPE_GSM "GSM"
+#define MIME_SUBTYPE_VP71 "VP71"
+#define MIME_SUBTYPE_IYUV "IYUV"
+#define MIME_SUBTYPE_I420 "I420"
+#define MIME_SUBTYPE_RGB24 "RGB24"
 
 // Bandwidth requirements for SDP Codecs
 #define SDP_CODEC_BANDWIDTH_VARIABLE 0
 #define SDP_CODEC_BANDWIDTH_LOW      1
 #define SDP_CODEC_BANDWIDTH_NORMAL   2
 #define SDP_CODEC_BANDWIDTH_HIGH     3
+
+// Video formats - must be bitmap values
+#define SDP_VIDEO_FORMAT_SQCIF       0x0001
+#define SDP_VIDEO_FORMAT_QCIF        0x0002
+#define SDP_VIDEO_FORMAT_CIF         0x0004
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -101,6 +112,7 @@ public:
         SDP_CODEC_UNKNOWN = -1,
         SDP_CODEC_PCMU = 0, // G.711 mu-law
         SDP_CODEC_GSM = 3,
+        SDP_CODEC_G723 = 4,
         SDP_CODEC_PCMA = 8, // G.711 a-law
         SDP_CODEC_L16_STEREO = 10, // PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_L16_MONO = 11, // PCM 16 bit/sample 44100 samples/sec.
@@ -123,6 +135,18 @@ public:
         SDP_CODEC_GIPS_IPCMWB = 261,
         SDP_CODEC_GIPS_ILBC = 262,
         SDP_CODEC_GIPS_ISAC = 263,
+        SDP_CODEC_VP71_CIF = 264,
+        SDP_CODEC_VP71_QCIF = 265,
+        SDP_CODEC_VP71_SQCIF = 266,
+        SDP_CODEC_IYUV_CIF = 267,
+        SDP_CODEC_IYUV_QCIF = 268,
+        SDP_CODEC_IYUV_SQCIF = 269,
+        SDP_CODEC_I420_CIF = 270,
+        SDP_CODEC_I420_QCIF = 271,
+        SDP_CODEC_I420_SQCIF = 272,
+        SDP_CODEC_RGB24_CIF = 273,
+        SDP_CODEC_RGB24_QCIF = 274,
+        SDP_CODEC_RGB24_SQCIF = 275,
         SDP_CODEC_3RD_PARTY_END = 511
     };
 
@@ -146,7 +170,9 @@ public:
            int numChannels = 1,
            const char* formatSpecificData = "",
            const int CPUCost = SDP_CODEC_CPU_LOW,
-           const int BWCost = SDP_CODEC_BANDWIDTH_NORMAL);
+           const int BWCost = SDP_CODEC_BANDWIDTH_NORMAL,
+           const int videoFormat = SDP_VIDEO_FORMAT_QCIF,
+           const int videoFmtp = 0);
      //:Default constructor
 
    SdpCodec(const SdpCodec& rSdpCodec);
@@ -180,7 +206,7 @@ public:
    virtual void getSdpFmtpField(UtlString& formatSpecificData) const;
    //: Get the format specific parameters for the SDP
    // This is what goes in the SDP "a" field in the
-   // format: "a=fmtp <payloadFormat> <formatSpecificData>"
+   // format: "a=fmtp <payloadFormat> <formatSpecificData>
 
    void getMediaType(UtlString& mimeMajorType) const;
    //: Get the media type for the codec
@@ -194,6 +220,9 @@ public:
 
    int getSampleRate() const;
    //: Get the number of samples per second
+
+   int getVideoFormat() const;
+   //: Return the video format
 
    int getNumChannels() const;
    //: Get the number of channels
@@ -216,6 +245,11 @@ public:
    //:Get the bandwidth cost for this codec.
    //!returns SDP_CODEC_BANDWIDTH_HIGH, SDP_CODEC_BANDWIDTH_NORMAL or SDP_CODEC_BANDWIDTH_LOW
 
+   int getVideoFmtp() const;
+   //:Get the video format bitmap
+
+   void setVideoFmtp(const int videoFmtp);
+   //:Set the video format bitmap
 
 /* ============================ INQUIRY =================================== */
 
@@ -239,6 +273,8 @@ private:
     int mPacketLength; // micro seconds
     int mCPUCost; // relative cost of a SDP codec
     int mBWCost;
+    int mVideoFormat;
+    int mVideoFmtp;
 
 };
 

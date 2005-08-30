@@ -41,29 +41,29 @@ void sipXtapiTestSuite::testGainAPI()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    int iGainLevel ;	
+        int iGainLevel ;    
 
         printf("\ntestGainAPI (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    // Set to min
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MIN), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;	
-	    CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MIN) ;
+        // Set to min
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MIN), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MIN) ;
 
-	    // Set to default
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_DEFAULT), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
-	    
-	    // set to max
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;	
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MAX) ;
+        // Set to default
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_DEFAULT), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
+        
+        // set to max
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MAX) ;
 
-	    // set to max again
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;	
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MAX) ;	
+        // set to max again
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MAX) ;    
     }
 
     // Does not create a call -- no need to pause
@@ -78,39 +78,39 @@ void sipXtapiTestSuite::testMuteAPI()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    int iGainLevel ;
-	    bool bMuted ;
+        int iGainLevel ;
+        bool bMuted ;
 
         printf("\ntestMuteAPI (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         for (int i = 0; i < 10; i++)
         {
-	        // Set gain to known value
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_DEFAULT), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
+            // Set gain to known value
+            CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_DEFAULT), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
 
-	        // Test Mute API
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioMute(g_hInst, true), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioIsMuted(g_hInst, bMuted), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(bMuted, true) ;
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
+            // Test Mute API
+            CPPUNIT_ASSERT_EQUAL(sipxAudioMute(g_hInst, true), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(sipxAudioIsMuted(g_hInst, bMuted), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(bMuted, true) ;
+            CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
 
-	        // Test Unmute API
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioMute(g_hInst, false), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioIsMuted(g_hInst, bMuted), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(bMuted, false) ;
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
+            // Test Unmute API
+            CPPUNIT_ASSERT_EQUAL(sipxAudioMute(g_hInst, false), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(sipxAudioIsMuted(g_hInst, bMuted), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(bMuted, false) ;
+            CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
 
-	        // Test Unmute again
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioMute(g_hInst, false), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioIsMuted(g_hInst, bMuted), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(bMuted, false) ;
-	        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-	        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
-	    }
+            // Test Unmute again
+            CPPUNIT_ASSERT_EQUAL(sipxAudioMute(g_hInst, false), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(sipxAudioIsMuted(g_hInst, bMuted), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(bMuted, false) ;
+            CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
+            CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
+        }
     }
     
     // Does not create a call -- no need to pause
@@ -125,54 +125,54 @@ void sipXtapiTestSuite::testVolumeAPI()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SPEAKER_TYPE type ;
-	    int iLevel ;
+        SPEAKER_TYPE type ;
+        int iLevel ;
 
         printf("\ntestVolumeAPI (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    // Test Enable Speaker
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioEnableSpeaker(g_hInst, SPEAKER), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetEnabledSpeaker(g_hInst, type), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(type, SPEAKER) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioEnableSpeaker(g_hInst, RINGER), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetEnabledSpeaker(g_hInst, type), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(type, RINGER) ;
+        // Test Enable Speaker
+        CPPUNIT_ASSERT_EQUAL(sipxAudioEnableSpeaker(g_hInst, SPEAKER), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetEnabledSpeaker(g_hInst, type), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(type, SPEAKER) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioEnableSpeaker(g_hInst, RINGER), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetEnabledSpeaker(g_hInst, type), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(type, RINGER) ;
 
-	    // Set both RINGER and SPEAKER to know states (cloned below)
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
+        // Set both RINGER and SPEAKER to know states (cloned below)
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
 
-	    // Test SPEAKER making sure RINGER doesn't change
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_MIN), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MIN) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_MAX), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MAX) ;
-	    
-	    // Set both RINGER and SPEAKER to know states (clone of above)
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
+        // Test SPEAKER making sure RINGER doesn't change
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_MIN), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MIN) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_MAX), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MAX) ;
+        
+        // Set both RINGER and SPEAKER to know states (clone of above)
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
 
-	    // Test RINGER making sure SPEAKER doesn't change
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_MIN), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MIN) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_MAX), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MAX) ;
+        // Test RINGER making sure SPEAKER doesn't change
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_MIN), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MIN) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_DEFAULT) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_MAX), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, RINGER, iLevel), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MAX) ;
     }
 
     // Does not create a call -- no need to pause
@@ -182,45 +182,45 @@ void sipXtapiTestSuite::testVolumeAPI()
 
 void sipXtapiTestSuite::testAudioSettings()
 {
-    int i;
+    size_t  i;
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
         printf("\ntestAudioSettings (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    // Test Enable AEC
-		CPPUNIT_ASSERT_EQUAL( sipxAudioEnableAEC(g_hInst, true), SIPX_RESULT_SUCCESS);
-		bool bResult = false;
-		CPPUNIT_ASSERT_EQUAL( sipxAudioIsAECEnabled(g_hInst, bResult), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL( bResult, true);
-		CPPUNIT_ASSERT_EQUAL( sipxAudioEnableAEC(g_hInst, false), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL( sipxAudioIsAECEnabled(g_hInst, bResult), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL( bResult, false);
-		size_t numOfDevices;
-		const char* szDevice;
-		const char* checker = NULL;
-		//Test sipxAudioGetNumInputDevices
-		CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumInputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
-		for(i = 0; i < numOfDevices; i++) 
-		{
-			CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
-		}
-		//checks if there are no more devices
-		CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
-		//szDevice should be NULL
-		CPPUNIT_ASSERT_EQUAL(szDevice, checker);
-		numOfDevices = 0;
-		//Test sipxAudioGetNumOutputDevices
-		CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumOutputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
-		for(i = 0; i < numOfDevices; i++) 
-		{
-			CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
-		}
-		//checks if there are no more devices
-		CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
-		//checker is NULL
-		CPPUNIT_ASSERT_EQUAL(szDevice, checker);
-	}
+        // Test Enable AEC
+        CPPUNIT_ASSERT_EQUAL( sipxAudioEnableAEC(g_hInst, true), SIPX_RESULT_SUCCESS);
+        bool bResult = false;
+        CPPUNIT_ASSERT_EQUAL( sipxAudioIsAECEnabled(g_hInst, bResult), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( bResult, true);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioEnableAEC(g_hInst, false), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioIsAECEnabled(g_hInst, bResult), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( bResult, false);
+        size_t numOfDevices;
+        const char* szDevice;
+        const char* checker = NULL;
+        //Test sipxAudioGetNumInputDevices
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumInputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
+        for(i = 0; i < numOfDevices; i++) 
+        {
+            CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+        }
+        //checks if there are no more devices
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+        //szDevice should be NULL
+        CPPUNIT_ASSERT_EQUAL(szDevice, checker);
+        numOfDevices = 0;
+        //Test sipxAudioGetNumOutputDevices
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumOutputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
+        for(i = 0; i < numOfDevices; i++) 
+        {
+            CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+        }
+        //checks if there are no more devices
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+        //checker is NULL
+        CPPUNIT_ASSERT_EQUAL(szDevice, checker);
+    }
 
     // Does not create a call -- no need to pause
     // OsTask::delay(TEST_DELAY) ;    
@@ -299,7 +299,7 @@ void sipXtapiTestSuite::testAutoPortSelection()
 
         printf("\ntestAutoPortSelection (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-        rc = sipxInitialize(&hHandle, PORT_DEFAULT, PORT_DEFAULT, PORT_DEFAULT,
+        rc = sipxInitialize(&hHandle, SIPX_PORT_AUTO, SIPX_PORT_AUTO, SIPX_PORT_AUTO,
                             1234) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
 
@@ -319,7 +319,15 @@ void sipXtapiTestSuite::testAutoPortSelection()
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT(portIsValid(iPort)) ;
     #endif
-
+        SIPX_CONTACT_ADDRESS addresses[32];
+        size_t actualNum = 0;
+        
+        sipxConfigGetLocalContacts(hHandle, addresses, 32, actualNum);
+        for (size_t i = 0; i < actualNum; i++)
+        {
+            CPPUNIT_ASSERT(addresses[i].iPort > 0);
+        }
+        
         rc = sipxUnInitialize(hHandle) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;        
     }
@@ -369,6 +377,16 @@ void sipXtapiTestSuite::testSeqPortSelection()
         rc = sipxConfigGetLocalSipTcpPort(hHandle2, &iPort) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT(portIsValid(iPort) && iPort > 8100) ;
+        
+        SIPX_CONTACT_ADDRESS addresses[32];
+        size_t actualNum = 0;
+        
+        sipxConfigGetLocalContacts(hHandle2, addresses, 32, actualNum);
+        for (size_t i = 0; i < actualNum; i++)
+        {
+            CPPUNIT_ASSERT(addresses[i].iPort > 8100);
+        }
+        
 
     #if 0
         // Bob 2005-04-06: Wait until TLS is supported/enabled for this
@@ -392,19 +410,19 @@ void sipXtapiTestSuite::testSeqPortSelection()
 
 void sipXtapiTestSuite::testConfigLog() 
 {
-	for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-		printf("\ntestConfigLog (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
-		//tests sipxConfigSetLogLevel
-		CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogLevel(LOG_LEVEL_ERR), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogLevel(LOG_LEVEL_DEBUG), SIPX_RESULT_SUCCESS);
-		//tests sipxConfigSetLogFile
-		CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogFile(NULL), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogFile("C:\\example.log"), SIPX_RESULT_SUCCESS);
-		sipxLogCallback pcallBack = NULL;
-		CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogCallback(pcallBack), SIPX_RESULT_SUCCESS);		
-	}
-	
+        printf("\ntestConfigLog (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        //tests sipxConfigSetLogLevel
+        CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogLevel(LOG_LEVEL_ERR), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogLevel(LOG_LEVEL_DEBUG), SIPX_RESULT_SUCCESS);
+        //tests sipxConfigSetLogFile
+        CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogFile(NULL), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogFile("C:\\example.log"), SIPX_RESULT_SUCCESS);
+        sipxLogCallback pcallBack = NULL;
+        CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogCallback(pcallBack), SIPX_RESULT_SUCCESS);        
+    }
+    
     // Does not create a call -- no need to pause
     // OsTask::delay(TEST_DELAY) ;    
     checkForLeaks() ;
@@ -412,19 +430,19 @@ void sipXtapiTestSuite::testConfigLog()
 
 void sipXtapiTestSuite::testConfigOutOfBand()
 {
-	for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-		printf("\ntestConfigOutOfBand (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
-		//tests sipxConfigEnableOutOfBandDTMF and sipxConfigIsOutOfBandDTMFEnabled
-		CPPUNIT_ASSERT_EQUAL( sipxConfigEnableOutOfBandDTMF(g_hInst,true), SIPX_RESULT_SUCCESS);
-		bool test = false;
-		CPPUNIT_ASSERT_EQUAL( sipxConfigIsOutOfBandDTMFEnabled(g_hInst, test), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL(test, true);
-		CPPUNIT_ASSERT_EQUAL( sipxConfigEnableOutOfBandDTMF(g_hInst, false), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL( sipxConfigIsOutOfBandDTMFEnabled(g_hInst, test), SIPX_RESULT_SUCCESS);
-		CPPUNIT_ASSERT_EQUAL(test, false);
+        printf("\ntestConfigOutOfBand (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        //tests sipxConfigEnableOutOfBandDTMF and sipxConfigIsOutOfBandDTMFEnabled
+        CPPUNIT_ASSERT_EQUAL( sipxConfigEnableOutOfBandDTMF(g_hInst,true), SIPX_RESULT_SUCCESS);
+        bool test = false;
+        CPPUNIT_ASSERT_EQUAL( sipxConfigIsOutOfBandDTMFEnabled(g_hInst, test), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(test, true);
+        CPPUNIT_ASSERT_EQUAL( sipxConfigEnableOutOfBandDTMF(g_hInst, false), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxConfigIsOutOfBandDTMFEnabled(g_hInst, test), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(test, false);
 
-	}
+    }
 
     // Does not create a call -- no need to pause
     // OsTask::delay(TEST_DELAY) ;    
@@ -436,9 +454,9 @@ void sipXtapiTestSuite::testTeardown()
     SIPX_INST hInst1 = NULL ;
     SIPX_INST hInst2 = NULL ;
 
-	for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-		printf("\ntestTeardown (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        printf("\ntestTeardown (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
         // printf("\nInitializing 2 instances\n");
         sipxInitialize(&hInst1, 8000, 8000, 8001, 8050) ;
         sipxInitialize(&hInst2, 9100, 9100, 9101, 9050) ;
@@ -482,7 +500,7 @@ bool codec_CallBack_Place(SIPX_EVENT_CATEGORY category,
         {
             char szMsg[128];
 
-            sprintf(szMsg, "Codec %s", pCallInfo->codec.cName);
+            sprintf(szMsg, "Codec %s", pCallInfo->codecs.audioCodec.cName);
             g_recorder.addMsgString(pCallInfo->hLine, (const char*)szMsg);
         }
     }
@@ -542,11 +560,12 @@ bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category,
                 {
                     char szMsg[128];
 
-                    sprintf(szMsg, "Codec %s", pCallInfo->codec.cName);
+                    sprintf(szMsg, "Codec %s", pCallInfo->codecs.audioCodec.cName);
                     g_recorder2.addMsgString(pCallInfo->hLine, (const char*)szMsg);
                 }
                 break;
-
+            default:
+                break ;
         }
     }     
     
@@ -585,9 +604,9 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
         
         int connectionId = -1;
         
-	    CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
-	    CPPUNIT_ASSERT(connectionId != -1) ;
-	            
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(connectionId != -1) ;
+                
         destroyCall(hCall) ;
         OsTask::delay(CALL_DELAY * 4) ;
 
@@ -632,9 +651,9 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
 
     EventValidator validator("validator") ;
 
-	for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-		printf("\ntestConfigEnableStunSuccess (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+        printf("\ntestConfigEnableStunSuccess (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
 
         rc = sipxInitialize(&hInst, 0, 0, 8031, 8050) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
@@ -669,16 +688,18 @@ void sipXtapiTestSuite::testConfigEnableStunFailure()
 
     EventValidator validator("validator") ;
 
-	for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-		printf("\ntestConfigEnableStunFailure (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+        printf("\ntestConfigEnableStunFailure (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        validator.reset() ;
 
         rc = sipxInitialize(&hInst, 0, 0, 8031, 8050) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
         rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
 
-        validator.addMarker("Waiting for STUN success") ;
+        validator.addMarker("Waiting for STUN failure") ;
         rc = sipxConfigEnableStun(hInst, "www.pingtel.com", 28) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
 
@@ -693,7 +714,7 @@ void sipXtapiTestSuite::testConfigEnableStunFailure()
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    OsTask::delay(TEST_DELAY) ;    
     checkForLeaks() ;   
 }
 

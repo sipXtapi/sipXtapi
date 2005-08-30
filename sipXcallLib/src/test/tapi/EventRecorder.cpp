@@ -109,7 +109,7 @@ void EventRecorder::addEvent(SIPX_INFO_INFO* pInfoInfo)
 {
     char szBuffer[1024] ;
     
-    sprintf(szBuffer, "INFO MSG: %s, %d", pInfoInfo->szContent, pInfoInfo->nContentLength);
+    sprintf(szBuffer, "INFO MSG: %s, %d", pInfoInfo->pContent, pInfoInfo->nContentLength);
     m_events[m_numEvents++] = strdup(szBuffer) ;
     return;
 }
@@ -118,7 +118,7 @@ void EventRecorder::addCompareEvent(SIPX_INFO_INFO* pInfoInfo)
 {
     char szBuffer[1024] ;
     
-    sprintf(szBuffer, "INFO MSG: %s, %d", pInfoInfo->szContent, pInfoInfo->nContentLength);
+    sprintf(szBuffer, "INFO MSG: %s, %d", pInfoInfo->pContent, pInfoInfo->nContentLength);
     m_compareEvents[m_numCompareEvents++] = strdup(szBuffer) ;
     return;
 }

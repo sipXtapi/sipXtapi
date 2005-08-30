@@ -111,9 +111,7 @@ dnl Double the LIBS to deal with recursive dependencies
 LIBS="$LIBS $LIBS"
 
 # Conditionally use the GIPS audio libraries
-CHECK_GIPS
-# GIPS needs to be at the end of the list
-LIBS="$LIBS $GIPS_OBJS"
+CHECK_GIPSNEQ
 
 ## Common flags for pingtel related source
 

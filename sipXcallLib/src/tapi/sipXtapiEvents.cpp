@@ -623,7 +623,7 @@ void sipxFireCallEvent(const void* pSrc,
                     if (minor == CALLSTATE_AUDIO_START)
                     {
                         // Copy codec information into callInfo
-                        memcpy((void*)&callInfo.codec, pEventData, sizeof(SIPX_AUDIO_CODEC));
+                        memcpy((void*)&callInfo.codecs, pEventData, sizeof(SIPX_CODEC_INFO));
                     }
            
                     // callback signature:  typedef bool (*SIPX_EVENT_CALLBACK_PROC)(SIPX_EVENT_CATEGORY category, void* pInfo, void* pUserData);
@@ -989,9 +989,9 @@ SIPXTAPI_API char* sipxConfigEventToString(SIPX_CONFIG_EVENT event,
 
 
 void sipxFireLineEvent(const void* pSrc,
-                        const char* szLineIdentifier,
-                        SIPX_LINE_EVENT_TYPE_MAJOR major,
-                        SIPX_LINE_EVENT_TYPE_MINOR minor)
+                       const char* szLineIdentifier,
+                       SIPX_LINE_EVENT_TYPE_MAJOR major,
+                       SIPX_LINE_EVENT_TYPE_MINOR minor)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireLineEvent pSrc=%p szLineIdentifier=%s major=%d",

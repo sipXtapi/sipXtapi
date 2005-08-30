@@ -8,6 +8,7 @@ check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
+    @SIPXMEDIA_MP_LIBS@ \
     ../../libsipXcall.la
 
 testsuite_SOURCES = \
@@ -21,6 +22,7 @@ testsuite_SOURCES = \
   sipXtapiTest.cpp \
   sipXtapiTestCall.cpp \
   sipXtapiTestConference.cpp \
+  sipXtapiTestConferenceAdv.cpp \
   sipXtapiTestConfig.cpp \
   sipXtapiTestLine.cpp \
   sipXtapiTestTransfer.cpp \

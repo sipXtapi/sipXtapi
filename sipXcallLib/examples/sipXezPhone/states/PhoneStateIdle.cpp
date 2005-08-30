@@ -52,10 +52,18 @@ PhoneState* PhoneStateIdle::Execute()
 
 PhoneState* PhoneStateIdle::OnOffer(SIPX_CALL hCall)
 {
-    sipxCallAccept(hCall);  // just accept the call
+    SIPX_VIDEO_DISPLAY display;
+    
+    display.handle = sipXmgr::getInstance().getVideoWindow();
+    display.type = SIPX_WINDOW_HANDLE_TYPE;
+    
+    sipxCallAccept(hCall, &display);
+                             // just accept the call
                             // We don't need to explicitly change state,
                             // because sipXtapi should now send us
                             // an ALERTING event, which will cause a state
                             // change.
+                            
+                        
     return this;
 }

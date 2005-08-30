@@ -8,8 +8,6 @@
 
 
 // SYSTEM INCLUDES
-#include <string>
-#include <ctype.h>
 
 // APPLICATION INCLUDES
 #include <os/OsDefs.h>

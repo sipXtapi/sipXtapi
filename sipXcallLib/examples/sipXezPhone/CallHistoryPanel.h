@@ -12,7 +12,7 @@
 // APPLICATION INCLUDES
 #include "ReceivedCallList.h"
 #include "PlacedCallList.h"
-#include "ContactListCtrl.h"
+#include "ContactListPanel.h"
 
 // DEFINES
 // MACROS
@@ -53,10 +53,10 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    DECLARE_EVENT_TABLE()
-        wxNotebook* mpNotebook;
-        ReceivedCallList* mpReceivedCallListCtrl;
-        PlacedCallList*   mpPlacedCallListCtrl;
-    ContactListCtrl*  mpContactListCtrl;
+   wxNotebook* mpNotebook;
+   ReceivedCallList* mpReceivedCallListCtrl;
+   PlacedCallList*   mpPlacedCallListCtrl;
+   ContactListPanel* mpContactListPanel;
 
 };
 

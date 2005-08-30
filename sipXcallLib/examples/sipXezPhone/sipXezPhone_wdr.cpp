@@ -79,11 +79,17 @@ wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_s
     wxTextCtrl *item14 = new wxTextCtrl( parent, ID_STUN_SERVER_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
     item0->Add( item14, 0, wxALIGN_CENTER|wxALL, 5 );
 
+    wxStaticText *item15 = new wxStaticText( parent, ID_TEXT, wxT("Auto Answer Mode?"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item15, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxCheckBox *item16 = new wxCheckBox( parent, ID_ENABLE_AUTO_ANSWER, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item16, 0, wxALIGN_CENTER|wxALL, 5 );
+
     item0->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxButton *item15 = new wxButton( parent, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-    item15->SetDefault();
-    item0->Add( item15, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxButton *item17 = new wxButton( parent, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
+    item17->SetDefault();
+    item0->Add( item17, 0, wxALIGN_CENTER|wxALL, 5 );
 
     if (set_sizer)
     {
@@ -105,8 +111,11 @@ wxSizer *sipXezPhoneAboutDlgFunc( wxWindow *parent, bool call_fit, bool set_size
     wxStaticText *item2 = new wxStaticText( parent, ID_TEXT, 
         wxT("sipXezPhone\n")
         wxT("\n")
-        wxT("Copyright (C) 2004, 2005 Pingtel Corp.\n")
-        wxT(""),
+        wxT("Copyright (C) 2005 SIPfoundry Inc.\n")
+        wxT("Licensed by SIPfoundry under the LGPL license.\n")
+        wxT("\n")
+        wxT("Copyright (C) 2005 Pingtel Corp.\n")
+        wxT("Licensed to SIPfoundry under a Contributor Agreement."),
         wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
     item0->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
 

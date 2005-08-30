@@ -69,7 +69,8 @@ UtlBoolean CpGhostConnection::dial(const char* dialString,
                                           const char* callId,
                       const char* callController,
                       const char* originalCallConnection,
-                      UtlBoolean requestQueuedCall)
+                      UtlBoolean requestQueuedCall,
+                      const void* pDisplay)
 {
     unimplemented("CpGhostConnection::dial");
     return(FALSE);
@@ -121,7 +122,7 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
     return(TRUE);
 }
 
-UtlBoolean CpGhostConnection::answer()
+UtlBoolean CpGhostConnection::answer(const void* hWnd)
 {
     unimplemented("CpGhostConnection::answer");
     return(FALSE);

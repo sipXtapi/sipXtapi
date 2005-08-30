@@ -98,11 +98,26 @@ public:
     OsStatus remove(const UtlString& rKey);
 
     /**
+     * Remove all the key/value pairs starting with the designated prefix
+     *
+     * return OS_SUCCESS if one key or more keys were found in the database,
+     * return OS_NOT_FOUND otherwise
+     */
+    OsStatus removeByPrefix(const UtlString& rPrefix) ;
+ 
+    /**
      * Insert the key/value pair into the config database If the
      * database already contains an entry for this key, then set the
      * value for the existing entry to rNewValue.
      */
     void set(const UtlString& rKey, const UtlString& rNewValue);
+
+    /**
+     * Insert the key/value pair into the config database If the
+     * database already contains an entry for this key, then set the
+     * value for the existing entry to iNewValue.
+     */
+    void set(const UtlString& rKey, const int iNewValue) ;
 
     /**
      * Sets rValue to the value in the database associated with rKey.
@@ -196,6 +211,40 @@ public:
      */
     virtual OsStatus getNext(const UtlString& rKey,
                             UtlString& rNextKey, UtlString& rNextValue);
+
+
+    /**
+     * Stores a list of strings to the configuration datadase using the 
+     * designated prefix as the base for the list items.  The prefix is used
+     * to build unique configuration keys.  For example, if you use specify
+     * a prefix of "MYLIST" and supply a list containing ("item 1", "item 2", 
+     * and "item 3"), you will end up with the following:
+     * 
+     * MYLIST.COUNT : 3
+     * MYLIST.1 : item 1
+     * MYLIST.2 : item 2
+     * MYLIST.3 : item 3
+     *
+     * Warning: All items with a key of "[rPrefix]." are removed as a side effect.
+     *
+     * @param rPrefix Configuration name prefix
+     * @param rList List of UtlString values.
+     */
+    virtual void addList(const UtlString& rPrefix,
+                         UtlSList& rList) ;
+
+    /**
+     * Loads a list of strings from the configuration datadase using the 
+     * designated prefix as the base for the list items.  The number of 
+     * list items is returned.
+     *
+     * @param rPrefix Configuration name prefix
+     * @param rList List of UtlString values.
+     *
+     * @see addList
+     */
+    virtual int loadList(const UtlString& rPrefix,
+                         UtlSList& rList) ;
 
 
     /**

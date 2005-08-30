@@ -46,6 +46,11 @@ public:
    void OnButtonClick(wxEvent& event);
 
    /**
+    * Combo box text entry handler
+    */
+   void OnEnter(wxEvent& event);
+
+   /**
     * retrieve the text from the combo box
     */
    const wxString getEnteredText();

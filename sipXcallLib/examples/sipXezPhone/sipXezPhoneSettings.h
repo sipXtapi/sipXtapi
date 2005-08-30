@@ -48,6 +48,16 @@ public:
     */
     UtlBoolean loadSettings(void);
 
+    /** 
+     * Adds a contact name and url to the contact collection.
+     */
+    bool addContact(const UtlString& name, const UtlString& url);
+
+    /** 
+     * Removes a contact name and url to the contact collection.
+     */
+    void removeContact(const UtlString& name, const UtlString& url);
+    
     /**
     * Mutator for mIdentity.
     */
@@ -149,6 +159,17 @@ public:
     void setUseRport(const bool useRport);
 
     /**
+    * Gets a boolean value indicating whether or not the auto answer mode should be enalbed.
+    */
+    const bool& getAutoAnswer() { return mAutoAnswer; }
+
+    /**
+    * Sets a boolean value indicating whether or not the auto answer mode should be enabled.
+    */
+    void setAutoAnswer(const bool bAutoAnswer ) { mAutoAnswer = bAutoAnswer; }
+
+
+    /**
     * Sets a boolean value indicating whether or not to enable AEC
     */
     void setEnableAEC(const bool bEnable) {mbEnableAEC = bEnable;}
@@ -190,6 +211,16 @@ public:
     */
     int getCodecPref() {return mCodecPreference;}
 
+   /**
+    * Sets the video codec preference
+    */
+    void setVideoCodecPref(const int pref) {mVideoCodecPreference = pref;}
+
+    /**
+    * Returns the video codec preference
+    */
+    int getVideoCodecPref() {return mVideoCodecPreference;}
+
     /**
     * Implementation of the IStateTransitions::OnDial method.
     */
@@ -215,6 +246,18 @@ public:
      *
      */
     bool getTestMode();
+
+    /*
+     * Set video parameters
+     */
+    void setVideoParameters(int iQuality, int iBitrate, int iFramerate)
+        {mVideoQuality=iQuality; mVideoBitrate=iBitrate; mVideoFramerate=iFramerate;}
+
+    /*
+     * Get video parameters
+     */
+    void getVideoParameters(int& iQuality, int& iBitrate, int& iFramerate)
+        {iQuality=mVideoQuality; iBitrate=mVideoBitrate; iFramerate=mVideoFramerate;}
 
 
     wxColor getBackgroundColor() const;
@@ -305,10 +348,25 @@ private:
     */
    UtlDList mRecentNumbers;
    
+   /**
+    * Collection of Contact Names
+    */
+   UtlDList mContactNames;
+   
+   /**
+    * Collection of Contact Urls
+    */
+   UtlDList mContactUrls;
+
    /** 
     * Enable the Rport setting of the SipUserAgent.
     */
    bool mUseRport;
+   
+   /**
+    * Enable the AutoAnswer mode
+    */ 
+   bool mAutoAnswer;
    
    /**
     * Turning on test mode enables the "Test" menu
@@ -335,6 +393,25 @@ private:
     */
    int mCodecPreference;
 
+   /**
+    * Codec preference
+    */
+   int mVideoCodecPreference;
+
+   /**
+    * Video quality
+    */
+   int mVideoQuality;
+
+   /**
+    * Video bit rate
+    */
+   int mVideoBitrate;
+
+   /**
+    * Video frame rate
+    */
+   int mVideoFramerate;
 };
 
 #endif

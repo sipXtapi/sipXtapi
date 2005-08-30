@@ -14,30 +14,39 @@
 #include "sipXezPhoneSettingsDlg.h"
 #include "sipXAudioSettingsDlg.h"
 #include "sipXezPhoneSettings.h"
+#include "sipXVideoSettingsDlg.h"
+#include "sipXSrtpSettingsDlg.h"
 #include "EventLogDlg.h"
 #include "sipXmgr.h"
+#include "sipXezPhoneApp.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
+extern sipXezPhoneApp* thePhoneApp;
+
 // CONSTANTS
 enum
 {
     ID_Quit = 1,
-    ID_About = 2,
-    ID_Configuration = 3,
-    ID_Help = 4,    
-    ID_Minimal = 5,
-    ID_TestInfo = 6,
-    ID_TestTeardown = 7,
-    ID_TestLineRemove = 8,
-    ID_TestUnRegister = 9,
-    ID_AudioSettings = 10,
-    ID_TestPlayfile = 11,
-    ID_TestDNS = 12,
-    ID_TestPlayStop = 13,
-    ID_SipLog = 14,
-    ID_EventLog = 15,
-    ID_SysLog = 16,
+    ID_About,
+    ID_Configuration,
+    ID_Help,    
+    ID_Minimal,
+    ID_TestInfo,
+    ID_TestTeardown,
+    ID_TestLineRemove,
+    ID_TestUnRegister,
+    ID_AudioSettings,
+    ID_TestPlayfile,
+    ID_TestDNS,
+    ID_TestPlayStop,
+    ID_SipLog,
+    ID_EventLog,
+    ID_SysLog,
+    ID_VideoSettings,
+    ID_SrtpSettings,
+    ID_AudioWizardTest
 };
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -53,6 +62,11 @@ BEGIN_EVENT_TABLE(sipXezPhoneFrame, wxFrame)
     EVT_MENU(ID_TestPlayfile, sipXezPhoneFrame::OnPlayFile)
     EVT_MENU(ID_TestPlayStop, sipXezPhoneFrame::OnStopFile)
     EVT_MENU(ID_AudioSettings, sipXezPhoneFrame::OnAudioSettings)
+#ifdef VOICE_ENGINE
+    EVT_MENU(ID_AudioWizardTest, sipXezPhoneFrame::OnAudioWizardTest)
+#endif    
+    EVT_MENU(ID_VideoSettings, sipXezPhoneFrame::OnVideoSettings)
+    EVT_MENU(ID_SrtpSettings, sipXezPhoneFrame::OnSrtpSettings)
     EVT_MENU(ID_TestDNS, sipXezPhoneFrame::OnTestDNS)
 #ifdef VOICE_ENGINE
     EVT_MENU(ID_TestVoiceEngine, sipXezPhoneFrame::OnTestVoiceEngine)
@@ -64,18 +78,31 @@ BEGIN_EVENT_TABLE(sipXezPhoneFrame, wxFrame)
     EVT_MOVE(sipXezPhoneFrame::OnMove)
 END_EVENT_TABLE()
 
+
+#ifdef _WIN32
+#include <windows.h>
+//LRESULT CALLBACK sipXezVideoProc(HWND, UINT, WPARAM, LPARAM); 
+//LRESULT CALLBACK sipXezPreviewProc(HWND, UINT, WPARAM, LPARAM); 
+#endif
+
+
+
 // Constructor
 sipXezPhoneFrame::sipXezPhoneFrame(const wxString& title, const wxPoint& pos, const wxSize& size) :
 #ifdef _WIN32
-   wxFrame((wxFrame *)NULL, -1, title, pos, size,  wxMINIMIZE_BOX | wxCAPTION | wxSIMPLE_BORDER | wxSYSTEM_MENU  ),
+   wxFrame((wxFrame *)NULL, -1, title, pos, size,  wxMINIMIZE_BOX | wxCAPTION | wxSIMPLE_BORDER | wxSYSTEM_MENU  | wxFRAME_FLOAT_ON_PARENT),
+//   mhPreviewWnd(NULL),
+//   mhVideoWnd(NULL),
 #else
    wxFrame((wxFrame *)NULL, -1, title, pos, size,    wxCAPTION | wxFRAME_FLOAT_ON_PARENT),
 #endif
    m_pAboutDlg(NULL),
    mpCallHistoryWnd(NULL),
+   mpVideoPanel(NULL),
    mpConferencingWnd(NULL),
    mCallHistoryVisible(false),
    mConferencingVisible(false),
+   mVideoVisible(false),
    mpEventLogDlg(NULL)
    
 {
@@ -91,7 +118,13 @@ sipXezPhoneFrame::sipXezPhoneFrame(const wxString& title, const wxPoint& pos, co
     mpMenuSettings = new wxMenu;
     mpMenuSettings->Append(ID_Configuration, "&Configuration");
     mpMenuSettings->Append(ID_AudioSettings, "&Audio Settings");
+#ifdef VIDEO
+    mpMenuSettings->Append(ID_VideoSettings, "&Video Settings");
+#endif
+    mpMenuSettings->Append(ID_SrtpSettings, "S&rtp Settings");
     mpMenuSettings->Append(ID_Minimal, "Minimal &View");
+//    mpMenuSettings->Append(ID_Video, "Video Window");
+//    mpMenuSettings->Append(ID_VideoPreview, "Preview Window");
 
 
     // Create the Test Menu (if in -test Mode)
@@ -105,9 +138,10 @@ sipXezPhoneFrame::sipXezPhoneFrame(const wxString& title, const wxPoint& pos, co
         mpMenuTest->Append(ID_TestPlayfile, "Play test.wav");
         mpMenuTest->Append(ID_TestPlayStop, "Stop test.wav");
         mpMenuTest->Append(ID_TestDNS, "Toggle DNS SRV Lookups");
-        #ifdef VOICE_ENGINE
-            mpMenuTest->Append(ID_TestVoiceEngine, "Voice Engine Test");
-        #endif
+#ifdef VOICE_ENGINE
+        mpMenuTest->Append(ID_TestVoiceEngine, "Voice Engine Test");
+        mpMenuTest->Append(ID_AudioWizardTest, "Audio &Wizard Test");
+#endif
     }
     
     // Set initial view state to normal
@@ -140,13 +174,28 @@ sipXezPhoneFrame::sipXezPhoneFrame(const wxString& title, const wxPoint& pos, co
     panelSize.SetHeight(295);
     (new CallHistoryPanel(mpCallHistoryWnd, origin, panelSize))->Show();
 
+
+    // create an 'attached' Video window
+    mpVideoPanel = new wxDialog(this, -1, "", wxPoint(appOrigin.x - 330, appOrigin.y - 50),  wxSize(330, 495), wxNO_3D, "");
+
+    // add a call history panel
+    origin.x = 2;
+    origin.y = 0;
+    panelSize.SetWidth(330);
+    panelSize.SetHeight(495);
+    (new VideoPanel(mpVideoPanel, origin, panelSize))->Show();
+
+
     wxSize appSize = this->GetSize();
     
     mpConferencingWnd = new ConferencePanel(this, wxPoint(appOrigin.x + appSize.GetWidth(), appOrigin.y + 45),  wxSize(235, 300));
     if (sipXezPhoneSettings::getInstance().getTestMode())
     {
         setConferencingVisible(true);
-    }    
+    }  
+#ifdef VIDEO
+//    registerVideoWindowClasses();
+#endif
 }
 
 // Event handler for the Configuration menu item
@@ -166,6 +215,28 @@ void sipXezPhoneFrame::OnConfiguration(wxCommandEvent& WXUNUSED(event))
 void sipXezPhoneFrame::OnAudioSettings(wxCommandEvent& WXUNUSED(event))
 {
     sipXAudioSettingsDlg *pDlg = new sipXAudioSettingsDlg(this, -1, "Audio Settings", wxDefaultPosition, wxSize(320, 330));
+    if(pDlg->ShowModal() == wxID_OK )
+    {
+    
+    }
+    delete pDlg;
+}
+
+// Event handler for the video Settings menu item
+void sipXezPhoneFrame::OnVideoSettings(wxCommandEvent& WXUNUSED(event))
+{
+    sipXVideoSettingsDlg *pDlg = new sipXVideoSettingsDlg(this, -1, "Video Settings", wxDefaultPosition, wxSize(320, 330));
+    if(pDlg->ShowModal() == wxID_OK )
+    {
+    
+    }
+    delete pDlg;
+}
+
+// Event handler for the video Settings menu item
+void sipXezPhoneFrame::OnSrtpSettings(wxCommandEvent& WXUNUSED(event))
+{
+    sipXSrtpSettingsDlg *pDlg = new sipXSrtpSettingsDlg(this, -1, "SRTP Settings", wxDefaultPosition, wxSize(320, 330));
     if(pDlg->ShowModal() == wxID_OK )
     {
     
@@ -232,17 +303,20 @@ void sipXezPhoneFrame::OnMove(wxMoveEvent& moveEvent)
 
 void sipXezPhoneFrame::positionPanels()
 {
+    if (mpVideoPanel)
+    {
+        wxPoint appOrigin = this->GetPosition();
+        mpVideoPanel->Move(wxPoint(appOrigin.x - 330, appOrigin.y - 50));
+    }
     if (mpCallHistoryWnd)
     {
         wxPoint appOrigin = this->GetPosition();
-        // create an 'attached' Call History window
         mpCallHistoryWnd->Move(wxPoint(appOrigin.x - 250, appOrigin.y + 45));
     }
     if (mpConferencingWnd)
     {
         wxPoint appOrigin = this->GetPosition();
         wxSize  appSize = this->GetSize();
-        // create an 'attached' Call History window
         mpConferencingWnd->Move(wxPoint(appOrigin.x + appSize.GetWidth(), appOrigin.y + 45));
     }
 }
@@ -263,6 +337,26 @@ void sipXezPhoneFrame::setCallHistoryVisible(const bool bVisible)
     else
     {
         this->mpCallHistoryWnd->Hide();
+    }
+}
+
+
+const bool sipXezPhoneFrame::getVideoVisible() const
+{
+    return mVideoVisible;
+}
+
+void sipXezPhoneFrame::setVideoVisible(const bool bVisible)
+{
+    mVideoVisible = bVisible;
+
+    if (bVisible)
+    {
+        this->mpVideoPanel->Show();
+    }
+    else
+    {
+        this->mpVideoPanel->Hide();
     }
 }
 
@@ -321,7 +415,7 @@ void sipXezPhoneFrame::OnTestUnRegister(wxCommandEvent& WXUNUSED(event))
 }
 
 #ifdef VOICE_ENGINE
-#include "../../../gips/VoiceEngine/interface/GipsVoiceEngineLib.h"
+#include "../../../sipXbuild/vendors/gips/VoiceEngine/interface/GipsVoiceEngineLib.h"
 #include "tapi/sipXtapiInternal.h"
 void sipXezPhoneFrame::OnTestVoiceEngine(wxCommandEvent& WXUNUSED(event))
 {
@@ -331,6 +425,16 @@ void sipXezPhoneFrame::OnTestVoiceEngine(wxCommandEvent& WXUNUSED(event))
     pLib = sipxCallGetVoiceEnginePtr(sipXmgr::getInstance().getCurrentCall());
     pLib->GIPSVE_SetSpeakerVolume(0);
 }
+
+void sipXezPhoneFrame::OnAudioWizardTest(wxCommandEvent& WXUNUSED(event))
+{
+    GIPSAECTuningWizard* pWizard = sipxConfigGetVoiceEngineAudioWizard();
+    int rc = pWizard->GIPS_AEC_TW_Init(NULL, NULL);
+    assert(rc == 0);
+    rc = pWizard->GIPS_AEC_TW_Terminate();
+    assert(rc == 0);
+}
+
 #endif
 
 
@@ -357,3 +461,4 @@ void sipXezPhoneFrame::OnShowSysLog(wxCommandEvent& event)
 {
     wxMessageBox("Not yet implemented.", "Sorry", wxOK, this) ;
 }
+

@@ -623,8 +623,11 @@ public:
     void testRtcpPortParsing()
     {
         SdpBody testBody ;
+        SdpSrtpParameters testSrtp;
         UtlString strBody ;
         int nBody ;
+
+        testSrtp.securityLevel = 0;
 
         SdpCodec* pAudioCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMU, 99, "audio", "superaudio") ;
         SdpCodec* pVideoCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMU, 100, "video", "supervideo") ;
@@ -632,9 +635,9 @@ public:
 
         // This test case isn't exactly valid, but allows us to walk the m lines.
         testBody.setSessionNameField("foo") ;
-        testBody.addAudioCodecs("10.1.1.30", 8700, 8701, 1, &pAudioCodec) ;
-        testBody.addAudioCodecs("10.1.1.31", 8801, 8802, 1, &pVideoCodec) ;
-        testBody.addAudioCodecs("10.1.1.32", 8900, 8999, 1, &pAppCodec) ;
+        testBody.addAudioCodecs("10.1.1.30", 8700, 8701, 0, 0, 1, &pAudioCodec, testSrtp) ;
+        testBody.addAudioCodecs("10.1.1.31", 0, 0, 8801, 8802, 1, &pVideoCodec, testSrtp) ;
+        testBody.addAudioCodecs("10.1.1.32", 8900, 8999, 0, 0, 1, &pAppCodec, testSrtp) ;
 
         const char* testBodyExpected = 
             "v=0\r\n"
@@ -644,9 +647,10 @@ public:
             "t=0 0\r\n"
             "m=audio 8700 RTP/AVP 99\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
-            "m=audio 8801 RTP/AVP 100\r\n"
+            "m=video 8801 RTP/AVP 100\r\n"
             "a=rtcp:8802\r\n"
             "a=rtpmap:100 supervideo/8000/1\r\n"
+            "a=fmtp:100 size:QCIF\r\n"
             "c=IN IP4 10.1.1.31\r\n"
             "m=audio 8900 RTP/AVP 101\r\n"
             "a=rtcp:8999\r\n"

@@ -389,7 +389,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
         case CALLSTATE_AUDIO_EVENT:
             if (pCallInfo->cause == CALLSTATE_AUDIO_START)
             {
-                printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codec.cName, pCallInfo->codec.iPayloadType);
+                printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
             }
             break;
         case CALLSTATE_DESTROYED:

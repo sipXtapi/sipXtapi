@@ -19,7 +19,7 @@
 #include <os/OsEventMsg.h>
 #include "os/OsSysLog.h"
 #include <cp/CpCall.h>
-#include <cp/CpMediaInterface.h>
+#include <mi/CpMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpIntMessage.h>
 #include "ptapi/PtConnection.h"
@@ -235,7 +235,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     CpMultiStringMessage* multiStringMessage = (CpMultiStringMessage*)&eventMessage;
 
     UtlBoolean processedMessage = TRUE;
-    //    osPrintf("CpCall message type: %d subtype %d\n", msgType, msgSubType);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::handleMessage message type: %d subtype %d\n", msgType, msgSubType);
 
     switch(msgType)
     {

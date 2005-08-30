@@ -14,6 +14,7 @@ Source: %name-%version.tar.gz
 Requires: sipxcalllib >= 2.9
 Requires: sipxcommserverlib >= 2.9
 Requires: sipxmedialib >= 2.9
+Requires: sipxmediaadapterlib >= 2.9
 Requires: sipxtacklib >= 2.9
 Requires: sipxportlib >= 2.9
 

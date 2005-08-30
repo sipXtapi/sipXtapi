@@ -38,6 +38,7 @@ sipXvxml_LDADD = \
 	../value/libOSBvalue.la \
 	../VXI/libVXI.la \
 	../../js/libjavascript.la \
+	@SIPXMEDIA_MP_LIBS@ \
 	@SIPXCALL_LIBS@ \
 	@LIBWWW_LIBS@ \
 	@XERCES_LIBS@

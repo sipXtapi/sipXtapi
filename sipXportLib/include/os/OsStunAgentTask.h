@@ -88,7 +88,8 @@ public:
      */
     UtlBoolean sendStunDiscoveryRequest(OsStunDatagramSocket* pSocket,
                                         const UtlString& stunServer,
-                                        const int stunPort) ;
+                                        const int stunPort,
+                                        const int stunOption) ;
 
 
     UtlBoolean sendStunConnectivityRequest(OsStunDatagramSocket* pSocket,

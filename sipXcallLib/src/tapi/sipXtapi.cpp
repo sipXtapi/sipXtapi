@@ -30,9 +30,9 @@
 #include "net/SipUserAgent.h"
 #include "net/SdpCodecFactory.h"
 #include "cp/CallManager.h"
-#include "cp/CpMediaInterfaceFactory.h"
-#include "cp/CpMediaInterfaceFactoryImpl.h"
-#include "cp/CpMediaInterfaceFactoryFactory.h"
+#include "mi/CpMediaInterfaceFactory.h"
+#include "mi/CpMediaInterfaceFactoryImpl.h"
+#include "mi/CpMediaInterfaceFactoryFactory.h"
 
 #include "ptapi/PtProvider.h"
 #include "net/Url.h"
@@ -51,6 +51,7 @@
 #include "net/SipDialogMgr.h"
 #include "net/SipPublishContentMgr.h"
 #include "os/HostAdapterAddress.h"
+#include "utl/UtlSList.h"
 
 // DEFINES
 #define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
@@ -70,7 +71,6 @@ extern SipXHandleMap* gpPubHandleMap ;    // sipXtapiInternal.cpp
 extern SipXHandleMap* gpSubHandleMap ;    // sipXtapiInternal.cpp
 extern UtlDList*      gpSessionList ;     // sipXtapiInternal.cpp
 // EXTERNAL FUNCTIONS
-
 
 // STRUCTURES
 
@@ -293,9 +293,6 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
 
     if (!szBindToAddr || !strcmp(szBindToAddr, DEFAULT_BIND_ADDRESS))
     {
-        // if the user has not specified an address to bind to
-        // then, select the first available IP address returned by
-        // OsSocket::getAllLocalHostIps
         
         const HostAdapterAddress* addresses[MAX_IP_ADDRESSES];
         int numAddresses = 0;
@@ -312,11 +309,12 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
     {
         strcpy(szBindToAddr2, szBindToAddr);
     }
-    // Setup bindTo addr
-    unsigned long bindTo = inet_addr(szBindToAddr2) ;
+
+    unsigned long bindTo = inet_addr(szBindToAddr2);   
+
     if (bindTo != INADDR_NONE)
     {
-        OsSocket::setDefaultBindAddress(bindTo) ;
+        //OsSocket::setDefaultBindAddress(bindTo) ;
 
         SIPX_INSTANCE_DATA* pInst = new SIPX_INSTANCE_DATA;
         memset(pInst, 0, sizeof(SIPX_INSTANCE_DATA)) ;
@@ -339,7 +337,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                 tlsPort,                    // sipTlsPort
                 NULL,                       // publicAddress
                 NULL,                       // defaultUser
-                szBindToAddr2,              // default IP Address
+                szBindToAddr,              // default IP Address
                 NULL,                       // sipProxyServers
                 NULL,                       // sipDirectoryServers
                 NULL,                       // sipRegistryServers
@@ -437,16 +435,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
 
         CpMediaInterfaceFactoryImpl* pInterface = 
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
-        int iRejected;
 
-        if (pInterface)
-        {
-            pInterface->buildCodecFactory(pInst->pCodecFactory,
-                                          "",
-                                          &iRejected);
-            sipxConfigSetAudioCodecPreferences(pInst, AUDIO_CODEC_BW_NORMAL);
-        }
-
+        sipxConfigSetAudioCodecPreferences(pInst, AUDIO_CODEC_BW_NORMAL);
+        sipxConfigSetVideoCodecPreferences(pInst, VIDEO_CODEC_BW_HIGH);
 
 #ifdef _WIN32
         initAudioDevices(pInst) ;
@@ -529,11 +520,12 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
 
             pInst->pCallManager = NULL;
 
-            // Did we previously allocate a codecs array and store it in our codec settings?
+            int codecIndex;
+            // Did we previously allocate an audio codecs array and store it in our codec settings?
             if (pInst->audioCodecSetting.bInitialized)
             {
                 // Free up the previuosly allocated codecs and the array
-                for (int codecIndex = 0; codecIndex < pInst->audioCodecSetting.numCodecs; codecIndex++)
+                for (codecIndex = 0; codecIndex < pInst->audioCodecSetting.numCodecs; codecIndex++)
                 {
                     if (pInst->audioCodecSetting.sdpCodecArray[codecIndex])
                     {
@@ -544,6 +536,22 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
                 delete[] pInst->audioCodecSetting.sdpCodecArray;
                 pInst->audioCodecSetting.sdpCodecArray = NULL;
                 pInst->audioCodecSetting.bInitialized = false;
+            }
+            // Did we previously allocate a video codecs array and store it in our codec settings?
+            if (pInst->videoCodecSetting.bInitialized)
+            {
+                // Free up the previuosly allocated codecs and the array
+                for (codecIndex = 0; codecIndex < pInst->videoCodecSetting.numCodecs; codecIndex++)
+                {
+                    if (pInst->videoCodecSetting.sdpCodecArray[codecIndex])
+                    {
+                        delete pInst->videoCodecSetting.sdpCodecArray[codecIndex];
+                        pInst->videoCodecSetting.sdpCodecArray[codecIndex] = NULL;
+                    }
+                }
+                delete[] pInst->videoCodecSetting.sdpCodecArray;
+                pInst->videoCodecSetting.sdpCodecArray = NULL;
+                pInst->videoCodecSetting.bInitialized = false;
             }
 
             for (int i=0; i<MAX_AUDIO_DEVICES; i++)
@@ -591,9 +599,9 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
             // mistakenly re-creates them when terminating.
             OsTimerTask::destroyTimer() ;
 
+            sipxDestroyMediaFactoryFactory() ;
+
             rc = SIPX_RESULT_SUCCESS ;
-
-
         }
         else
         {
@@ -610,11 +618,12 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
  * Call Related Functions
  ***************************************************************************/
 
-SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall)
+SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
+                                        SIPX_VIDEO_DISPLAY* const pDisplay)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallAccept hCall=%d",
-        hCall);
+        "sipxCallAccept hCall=%d display=%p",
+        hCall, pDisplay);
         
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA* pInst ;
@@ -626,6 +635,18 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall)
         assert(remoteAddress.length()) ;
         if (remoteAddress.length())
         {
+            // set the display object
+            {
+                SIPX_CALL_DATA *pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+                if (pCallData)
+                {
+                    if (pDisplay)
+                    {
+                        pCallData->display = *pDisplay;                 
+                    }
+                    sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
+                }
+            }
             // Only take focus if something doesn't already have it.
             if (!sipxIsCallInFocus())
             {
@@ -638,7 +659,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall)
                 pInst->pCallManager->unholdLocalTerminalConnection(callId.data()) ;
             }            
             pInst->pCallManager->acceptConnection(callId.data(),
-                    remoteAddress.data()) ;
+                    remoteAddress.data(),
+                    AUTO, 
+                    (void*)pDisplay) ;
         }
         sr = SIPX_RESULT_SUCCESS ;
     }
@@ -716,6 +739,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallAnswer(const SIPX_CALL hCall)
         assert(remoteAddress.length()) ;
         if (remoteAddress.length())
         {
+            SIPX_VIDEO_DISPLAY display;
             // Only take focus if something doesn't already have it.
             if (!sipxIsCallInFocus())
             {
@@ -727,7 +751,22 @@ SIPXTAPI_API SIPX_RESULT sipxCallAnswer(const SIPX_CALL hCall)
                 }
                 pInst->pCallManager->unholdLocalTerminalConnection(callId.data()) ;
             }
-            pInst->pCallManager->answerTerminalConnection(callId.data(), remoteAddress.data(), "unused") ;
+            SIPX_CALL_DATA *pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+            if (pCallData)
+            {
+                display = pCallData->display;
+                
+                sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
+            }
+
+            if (display.handle)
+            {
+                pInst->pCallManager->answerTerminalConnection(callId.data(), remoteAddress.data(), "unused", &display) ;
+            }
+            else
+            {
+                pInst->pCallManager->answerTerminalConnection(callId.data(), remoteAddress.data(), "unused") ;
+            }
         }
         sr = SIPX_RESULT_SUCCESS ;
     }
@@ -847,12 +886,18 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
 
 SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                                          const char* szAddress,
-                                         SIPX_CONTACT_ID contactId)
+                                         SIPX_CONTACT_ID contactId,
+                                         SIPX_VIDEO_DISPLAY* const pDisplay)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallConnect hCall=%d szAddress=%s contactId=%d",
         hCall, szAddress, contactId);
-
+#ifdef VIDEO
+    if (pDisplay)
+    {
+        assert(pDisplay->handle);
+    }
+#endif
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
 
     SIPX_INSTANCE_DATA* pInst ;
@@ -905,10 +950,22 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                     delete pData->sessionCallId ;
                 }
                 pData->sessionCallId = new UtlString(sessionId.data()) ;
+                
+                if (pDisplay)
+                {
+                    pData->display = *pDisplay;
+                }
                 sipxCallReleaseLock(pData, SIPX_LOCK_WRITE) ;
             }
 
-            status = pInst->pCallManager->connect(callId.data(), szAddress, NULL, sessionId, (CONTACT_ID) contactId) ;
+            if (pDisplay && pDisplay->handle)
+            {
+                status = pInst->pCallManager->connect(callId.data(), szAddress, NULL, sessionId, (CONTACT_ID) contactId, &pData->display) ;
+            }
+            else
+            {
+                status = pInst->pCallManager->connect(callId.data(), szAddress, NULL, sessionId, (CONTACT_ID) contactId) ;
+            }
             if (status == PT_SUCCESS)
             {
                 int numAddresses = 0 ;
@@ -1309,7 +1366,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
     {
         if (sipxCallGetCommonData(hCall, &pInst, &callId, NULL, NULL))
         {
+#ifndef VOICE_ENGINE
             if (!pInst->toneStates.tonePlaying)
+#endif
             {
                 gpCallHandleMap->addHandleRef(hCall);  // Add a handle reference, so that
                                                      // if the call ends before
@@ -1323,7 +1382,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
                 {
                     pInst->toneStates.bInitialized = true;
                 }
+#ifndef VOICE_ENGINE
                 pInst->toneStates.tonePlaying = true;
+#endif                
             }
         }
     }
@@ -1790,7 +1851,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSendInfo(SIPX_INFO* phInfo,
             pInfoData->infoData.szFromURL = strdup(lineId.data());
             pInfoData->infoData.nContentLength = nContentLength;
             pInfoData->infoData.szContentType = strdup(szContentType);
-            pInfoData->infoData.szContent = strdup(szContent);
+            pInfoData->infoData.pContent = strdup(szContent);
 
             *phInfo = gpInfoHandleMap->allocHandle(pInfoData) ;
             assert(*phInfo != 0) ;
@@ -2391,11 +2452,12 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                                            const SIPX_LINE hLine,
                                            const char* szAddress,
                                            SIPX_CALL* phNewCall,
-                                           SIPX_CONTACT_ID contactId)
+                                           SIPX_CONTACT_ID contactId,
+                                           SIPX_VIDEO_DISPLAY* const pDisplay)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceAdd hConf=%d hLine=%d szAddress=%s contactId=%d",
-        hConf, hLine, szAddress, contactId);
+        "sipxConferenceAdd hConf=%d hLine=%d szAddress=%s contactId=%d, pDisplay=%p",
+        hConf, hLine, szAddress, contactId, pDisplay);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
 
@@ -2418,6 +2480,10 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     // Get data struct for call and store callId as conf Id
                     assert(hNewCall) ;
                     SIPX_CALL_DATA* pCallData = sipxCallLookup(hNewCall, SIPX_LOCK_WRITE) ;
+                    if (pDisplay)
+                    {
+                        pCallData->display = *pDisplay;
+                    }
                     pData->strCallId = new UtlString(pCallData->callId->data()) ;
 
                     // Add the call handle to the conference handle
@@ -2440,7 +2506,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 
                     // Issue connect
                     PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(),
-                            szAddress, NULL, sessionId.data(), (CONTACT_ID) contactId) ;
+                            szAddress, NULL, sessionId.data(), (CONTACT_ID) contactId, &pCallData->display) ;
                     if (status == PT_SUCCESS)
                     {
                         rc = SIPX_RESULT_SUCCESS ;
@@ -2490,7 +2556,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     SipSession session ;
                     sipxFireCallEvent(pData->pInst->pCallManager, sessionId.data(), &session, NULL, DIALTONE, DIALTONE_CONFERENCE) ;   
 
-                    PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(), szAddress, NULL, sessionId.data()) ;
+                    PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(), szAddress, NULL, sessionId.data(), (CONTACT_ID) contactId, pDisplay) ;
                     if (status == PT_SUCCESS)
                     {
                         rc = SIPX_RESULT_SUCCESS ;
@@ -3576,6 +3642,45 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
     return sr ;
 }
 
+
+SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szLineURL) 
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxLineAddAlias hLine=%d szLineURL=%d",
+        hLine, szLineURL);
+
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    if (hLine)
+    {
+        SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_WRITE) ;
+        if (pData)
+        {
+            if (pData->pLineAliases == NULL)
+            {
+                pData->pLineAliases = new UtlSList() ;
+            }
+
+            Url url(szLineURL) ;
+            UtlString strURI;
+            url.getUri(strURI) ;
+            Url uri(strURI) ;
+            UtlString userId ;
+            url.getUserId(userId) ;
+            UtlString displayName;
+            url.getDisplayName(displayName);
+            uri.setDisplayName(displayName);
+
+            pData->pLineAliases->append(new UtlVoidPtr(new Url(uri))) ;
+            
+            sipxLineReleaseLock(pData, SIPX_LOCK_WRITE) ;
+
+            sr = SIPX_RESULT_SUCCESS ;
+        }                
+    }
+
+    return sr;
+}
+
 SIPXTAPI_API SIPX_RESULT sipxLineRegister(const SIPX_LINE hLine, const bool bRegister)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -4030,7 +4135,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetDnsSrvFailoverTimeout(const SIPX_INST hIns
 
 SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
                                               const char* szServer,
-                                              int iKeepAliveInSec)
+                                              int iKeepAliveInSec,
+                                              int stunOptions)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigEnableStun hInst=%p server=%s keepalive=%d",
@@ -4060,7 +4166,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
             pNotification = NULL ;
         }
       
-        pInst->pCallManager->enableStun(szServer, iKeepAliveInSec, pNotification) ;
+        pInst->pCallManager->enableStun(szServer, iKeepAliveInSec, stunOptions, pNotification) ;
         rc = SIPX_RESULT_SUCCESS ;
     }
 
@@ -4081,7 +4187,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigDisableStun(const SIPX_INST hInst)
     assert(pInst);
     if (pInst)
     {
-        pInst->pCallManager->enableStun(NULL, 0) ;
+        pInst->pCallManager->enableStun(NULL, 0, SIPX_STUN_NORMAL) ;
         rc = SIPX_RESULT_SUCCESS ;
     }
 
@@ -4201,7 +4307,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTlsPort(SIPX_INST hInst, int* pPor
 
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hInst, 
-                                                            const SIPX_BANDWIDTH_ID bandWidth)
+                                                            const SIPX_AUDIO_BANDWIDTH_ID bandWidth)
 {
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
 
@@ -4236,11 +4342,12 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                 * a higher bandwidth.
                 */
                 pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                              "", // No preferences
+                                              "", // No audio preferences
+                                              pInst->videoCodecSetting.sPreferences, // Keep video prefs 
                                               &iRejected);
 
                 // Now pick preferences out of all available codecs
-                pInst->pCodecFactory->getCodecs(numCodecs, codecsArray);
+                pInst->pCodecFactory->getCodecs(numCodecs, codecsArray, "audio");
 
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
                               "sipxConfigSetAudioCodecPreferences number of Codec = %d for hInst=%p",
@@ -4279,15 +4386,27 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                     }
                     pInterface->buildCodecFactory(pInst->pCodecFactory, 
                                                   pInst->audioCodecSetting.sPreferences,
+                                                  pInst->videoCodecSetting.sPreferences,
                                                   &iRejected);
 
                     // We've rebuilt the factory, so get the new count of codecs
                     pInst->pCodecFactory->getCodecs(pInst->audioCodecSetting.numCodecs,
-                                                    pInst->audioCodecSetting.sdpCodecArray);
+                                                    pInst->audioCodecSetting.sdpCodecArray,
+                                                    "audio");
                     pInst->audioCodecSetting.fallBack = bandWidth;
                     pInst->audioCodecSetting.codecPref = bandWidth;
                     pInst->audioCodecSetting.bInitialized = true;
                     rc = SIPX_RESULT_SUCCESS;
+                }
+                else
+                {
+                    // Resetting the codec preferences failed but we've already rebuilt the factory
+                    // with all codecs - go to the fallback preferences and rebuild again but return failure
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                            "sipxConfigSetAudioCodecPreferences: Setting %d failed, falling back to preference %d", 
+                            bandWidth, pInst->audioCodecSetting.fallBack);
+                    sipxConfigSetAudioCodecPreferences(hInst, pInst->audioCodecSetting.fallBack);
+
                 }
 
                 // Free up the codecs and the array
@@ -4350,11 +4469,13 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
                 }
                 pInterface->buildCodecFactory(pInst->pCodecFactory, 
                                               pInst->audioCodecSetting.sPreferences,
+                                              pInst->videoCodecSetting.sPreferences,
                                               &iRejected);
 
                 // We've rebuilt the factory, so get the new count of codecs
                 pInst->pCodecFactory->getCodecs(pInst->audioCodecSetting.numCodecs,
-                                                pInst->audioCodecSetting.sdpCodecArray);
+                                                pInst->audioCodecSetting.sdpCodecArray,
+                                                "audio");
                 if (pInst->audioCodecSetting.numCodecs > 1)
                 {
                     pInst->audioCodecSetting.codecPref = AUDIO_CODEC_BW_CUSTOM;
@@ -4381,7 +4502,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
 
 
 SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodecPreferences(const SIPX_INST hInst, 
-                                                            SIPX_BANDWIDTH_ID *pBandWidth)
+                                                            SIPX_AUDIO_BANDWIDTH_ID *pBandWidth)
 {
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
 
@@ -4452,7 +4573,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
             {
                 strncpy(pCodec->cName, codecName, SIPXTAPI_CODEC_NAMELEN-1);
                 pCodec->iBandWidth = 
-                    (SIPX_BANDWIDTH_ID)pInst->audioCodecSetting.sdpCodecArray[index]->getBWCost();
+                    (SIPX_AUDIO_BANDWIDTH_ID)pInst->audioCodecSetting.sdpCodecArray[index]->getBWCost();
 
                 rc = SIPX_RESULT_SUCCESS;
             }                   
@@ -4465,8 +4586,291 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
     return rc;
 }
 
+
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecPreferences(const SIPX_INST hInst, 
+                                                            const SIPX_VIDEO_BANDWIDTH_ID bandWidth)
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;
+
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;   
+
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxConfigSetVideoCodecPreferences hInst=%p bandWidth=%d",
+            hInst, bandWidth);
+
+    if (pInst)
+    {
+        int numCodecs;
+        SdpCodec** codecsArray = NULL;
+        UtlString codecName;
+        int iRejected;
+
+        // Check if bandwidth is legal, do not allow variable bandwidth
+        if (bandWidth >= VIDEO_CODEC_BW_LOW || bandWidth <= VIDEO_CODEC_BW_HIGH)
+        {
+            CpMediaInterfaceFactoryImpl* pInterface = 
+                    pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+
+            pInst->videoCodecSetting.sPreferences = "";
+
+            if (pInterface)
+            {
+                int codecIndex;
+
+                /* Unconditionally rebuild codec factory with all supported codecs. If we 
+                * don't do this first then only the previously preferred codecs will be used to
+                * build the new factory -> that doesn't work for changing from a lower bandwidth to
+                * a higher bandwidth.
+                */
+                pInterface->buildCodecFactory(pInst->pCodecFactory, 
+                                              pInst->audioCodecSetting.sPreferences, // Keep audio prefs 
+                                              "", // No video prefs 
+                                              &iRejected);
+
+                // Now pick preferences out of all available codecs
+                pInst->pCodecFactory->getCodecs(numCodecs, codecsArray, "video");
+
+                for (int i=0; i<numCodecs; i++)
+                {
+                    if (codecsArray[i]->getBWCost() <= bandWidth)
+                    {
+                        if (pInterface->getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
+                        {
+                            pInst->videoCodecSetting.sPreferences = 
+                                pInst->videoCodecSetting.sPreferences + " " + codecName;
+                        }
+                    }
+                }
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                        "sipxConfigSetVideoCodecPreferences: %s", pInst->videoCodecSetting.sPreferences.data());
+
+                if (pInst->videoCodecSetting.sPreferences.length() != 0)
+                {
+                    // Did we previously allocate a codecs array and store it in our settings?
+                    if (pInst->videoCodecSetting.bInitialized)
+                    {
+                        // Free up the previuosly allocated codecs and the array
+                        for (codecIndex = 0; codecIndex < pInst->videoCodecSetting.numCodecs; codecIndex++)
+                        {
+                            if (pInst->videoCodecSetting.sdpCodecArray[codecIndex])
+                            {
+                                delete pInst->videoCodecSetting.sdpCodecArray[codecIndex];
+                                pInst->videoCodecSetting.sdpCodecArray[codecIndex] = NULL;
+                            }
+                        }
+                        delete[] pInst->videoCodecSetting.sdpCodecArray;
+                        pInst->videoCodecSetting.sdpCodecArray = NULL;
+                    }
+                    pInterface->buildCodecFactory(pInst->pCodecFactory, 
+                                                  pInst->audioCodecSetting.sPreferences,
+                                                  pInst->videoCodecSetting.sPreferences,
+                                                  &iRejected);
+
+                    // We've rebuilt the factory, so get the new count of codecs
+                    pInst->pCodecFactory->getCodecs(pInst->videoCodecSetting.numCodecs,
+                                                    pInst->videoCodecSetting.sdpCodecArray,
+                                                    "video");
+                    pInst->videoCodecSetting.fallBack = bandWidth;
+                    pInst->videoCodecSetting.codecPref = bandWidth;
+                    pInst->videoCodecSetting.bInitialized = true;
+                    rc = SIPX_RESULT_SUCCESS;
+                }
+                else
+                {
+                    // Resetting the codec preferences failed but we've already rebuilt the factory
+                    // with all codecs - go to the fallback preferences and rebuild again but return failure
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                            "sipxConfigSetVideoCodecPreferences: Setting %d failed, falling back to preference %d", 
+                            bandWidth, pInst->videoCodecSetting.fallBack);
+                    if (bandWidth != pInst->videoCodecSetting.fallBack)
+                    {
+                        sipxConfigSetVideoCodecPreferences(hInst, pInst->videoCodecSetting.fallBack);
+                    }
+                }
+
+                // Free up the codecs and the array
+                for (codecIndex = 0; codecIndex < numCodecs; codecIndex++)
+                {
+                    delete codecsArray[codecIndex];
+                    codecsArray[codecIndex] = NULL;
+                }
+                delete[] codecsArray;
+                codecsArray = NULL;
+            }
+        }
+    }
+
+    return rc;
+}
+
+
+SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodecPreferences(const SIPX_INST hInst, 
+                                                            SIPX_VIDEO_BANDWIDTH_ID *pBandWidth)
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;
+
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;   
+
+    if (pInst && pInst->videoCodecSetting.bInitialized)
+    {
+        *pBandWidth = pInst->videoCodecSetting.codecPref;
+        rc = SIPX_RESULT_SUCCESS;
+    }
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigGetVideoCodecPreferences hInst=%p bandWidth=%d",
+        hInst, *pBandWidth);
+
+    return rc;
+}
+
+
+SIPXTAPI_API SIPX_RESULT sipxConfigGetNumVideoCodecs(const SIPX_INST hInst, 
+                                                     int* pNumCodecs)
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;
+
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;    
+
+    if (pInst && pNumCodecs)
+    {
+        assert(pInst->videoCodecSetting.bInitialized);
+
+        if (pInst->videoCodecSetting.bInitialized)
+        {
+            *pNumCodecs = pInst->videoCodecSetting.numCodecs;
+            rc = SIPX_RESULT_SUCCESS;
+        }
+    }
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigGetNumVideoCodecs hInst=%p numCodecs=%d",
+        hInst, *pNumCodecs);
+
+    return rc;
+}
+
+
+SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst, 
+                                                 const int index, 
+                                                 SIPX_VIDEO_CODEC* pCodec)
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;
+    UtlString codecName;
+
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;  
+
+    assert(pCodec);
+
+    if (pInst && pCodec)
+    {
+        assert(pInst->videoCodecSetting.bInitialized);
+
+        memset((void*)pCodec, 0, sizeof(SIPX_VIDEO_CODEC));
+        if (index >= 0 && index < pInst->videoCodecSetting.numCodecs)
+        {
+            CpMediaInterfaceFactoryImpl* pInterface = 
+                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+
+            // If a name is found for the codec type, copy name and bandwidth cost
+            if (pInterface->getCodecNameByType(pInst->videoCodecSetting.sdpCodecArray[index]->getCodecType(),
+                                               codecName))
+            {
+                strncpy(pCodec->cName, codecName, SIPXTAPI_CODEC_NAMELEN-1);
+                pCodec->iBandWidth = 
+                    (SIPX_VIDEO_BANDWIDTH_ID)pInst->videoCodecSetting.sdpCodecArray[index]->getBWCost();
+
+                rc = SIPX_RESULT_SUCCESS;
+            }                   
+        }
+    }
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigGetVideoCodec hInst=%p index=%d, codec-%s",
+        hInst, index, codecName.data());
+
+    return rc;
+}
+
+
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst, 
+                                                       const char* szCodecName)
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;
+
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;   
+
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxConfigSetVideoCodecByName hInst=%p codec=%s",
+            hInst, szCodecName);
+
+    if (pInst)
+    {
+        int iRejected;
+
+        CpMediaInterfaceFactoryImpl* pInterface = 
+                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+
+        pInst->videoCodecSetting.sPreferences = szCodecName;
+
+        if (pInterface)
+        {
+            if (pInst->videoCodecSetting.sPreferences.length() != 0)
+            {
+                // Did we previously allocate a codecs array and store it in our settings?
+                if (pInst->videoCodecSetting.bInitialized)
+                {
+                    int codecIndex;
+
+                    // Free up the previuosly allocated codecs and the array
+                    for (codecIndex = 0; codecIndex < pInst->videoCodecSetting.numCodecs; codecIndex++)
+                    {
+                        if (pInst->videoCodecSetting.sdpCodecArray[codecIndex])
+                        {
+                            delete pInst->videoCodecSetting.sdpCodecArray[codecIndex];
+                            pInst->videoCodecSetting.sdpCodecArray[codecIndex] = NULL;
+                        }
+                    }
+                    delete[] pInst->videoCodecSetting.sdpCodecArray;
+                    pInst->videoCodecSetting.sdpCodecArray = NULL;
+                }
+                pInterface->buildCodecFactory(pInst->pCodecFactory, 
+                                              pInst->audioCodecSetting.sPreferences,
+                                              pInst->videoCodecSetting.sPreferences,
+                                              &iRejected);
+
+                // We've rebuilt the factory, so get the new count of codecs
+                pInst->pCodecFactory->getCodecs(pInst->videoCodecSetting.numCodecs,
+                                                pInst->videoCodecSetting.sdpCodecArray,
+                                                "video");
+                if (pInst->videoCodecSetting.numCodecs > 1)
+                {
+                    pInst->videoCodecSetting.codecPref = VIDEO_CODEC_BW_CUSTOM;
+                    rc = SIPX_RESULT_SUCCESS;
+                }
+                else
+                {
+                    // Codec setting by name failed - we have an empty (except for DTMF) codec factory.
+                    // Fall back to previously set bandwidth Id
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                            "sipxConfigSetVideoCodecByName: Setting %s failed, falling back to preference %d", 
+                            szCodecName, pInst->videoCodecSetting.fallBack);
+                    //sipxConfigSetVideoCodecPreferences(hInst, pInst->audioCodecSetting.fallBack);
+                }
+                pInst->videoCodecSetting.bInitialized = true;
+
+            }
+
+        }
+    }
+
+    return rc;
+}
+
+
 SIPXTAPI_API SIPX_RESULT sipxConfigEnableDnsSrv(const bool enable)
 {
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxConfigEnableDnsSrv bEnable=%d",
+            enable);
+            
     UtlBoolean bEnable(enable);
     // The IgnoreSRV option has the opposite sense of bEnable.
     SipSrvLookup::setOption(SipSrvLookup::OptionCodeIgnoreSRV, !bEnable);
@@ -4556,6 +4960,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
             addresses[i].eContactType = (SIPX_CONTACT_TYPE)contacts[i]->eContactType;
             addresses[i].id = contacts[i]->id;
             addresses[i].iPort = contacts[i]->iPort;
+            OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                "sipxConfigGetLocalContacts index=%d contactId=%d contactType=%d port=%d address=%s adpater=%s",
+                i,
+                addresses[i].id,
+                addresses[i].eContactType,
+                addresses[i].iPort,
+                addresses[i].cIpAddress,
+                addresses[i].cInterface);
             nActualAddresses++ ;
         }
         rc = SIPX_RESULT_SUCCESS;
@@ -4589,8 +5001,111 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
         strcpy(szAdapter, utlAddresses[i]->mAdapter.data());
         arrAddresses[i] = szAddress;
         arrAddressAdapter[i] = szAdapter;
+        
+        OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxConfigGetAllLocalNetworkIps index=%d address=%s adapter=%s",
+            i, arrAddresses[i], arrAddressAdapter[i]);
         delete utlAddresses[i];
     }
     
     return rc;
 }
+
+#ifdef VIDEO
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoPreviewDisplay(const SIPX_INST hInst, SIPX_VIDEO_DISPLAY* const pDisplay)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigSetVideoPreviewWindow hInst=%p, hDisplay=%p",
+        hInst, pDisplay);
+        
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;  
+    
+    CpMediaInterfaceFactoryImpl* pImpl = 
+            pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+           
+    pImpl->setVideoPreviewDisplay(pDisplay);
+    
+    return SIPX_RESULT_SUCCESS;
+}
+
+#ifdef VIDEO
+SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, const SIPX_WINDOW_HANDLE hWnd)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigUpdatePreviewWindow hInst=%p, hWnd=%p",
+        hInst, hWnd);
+        
+    #ifdef _WIN32
+        #include <windows.h>
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint((HWND)hWnd, &ps);
+		GipsVideoEngineWindows* pVideoEngine = sipxConfigGetVideoEnginePtr(hInst);
+		pVideoEngine->GIPSVideo_OnPaint(hdc);
+		EndPaint((HWND)hWnd, &ps);
+    #endif
+    return SIPX_RESULT_SUCCESS;
+}
+#endif
+
+SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallUpdateVideoWindow hCall=%d, hWnd=%p",
+        hCall, hWnd);
+        
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    SIPX_INSTANCE_DATA* pInst ;
+    UtlString callId ;
+    UtlString remoteAddress ;
+
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        // for now, just call the sipxConfigUpdatePreviewWindow - it does the same thing
+        sipxConfigUpdatePreviewWindow(pInst, hWnd);
+    }
+    
+    return SIPX_RESULT_SUCCESS;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoQuality(const SIPX_INST hInst, const SIPX_VIDEO_QUALITY_ID quality)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigSetVideoQuality hInst=%d, quality=%d",
+        hInst, quality);
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+
+    if (quality>0 && quality<4)
+    {
+        SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;  
+        
+        CpMediaInterfaceFactoryImpl* pImpl = 
+                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+               
+        pImpl->setVideoQuality(quality);
+        sr = SIPX_RESULT_SUCCESS;
+    }
+    else
+    {
+        sr = SIPX_RESULT_INVALID_ARGS;
+    }
+    return sr;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoParameters(const SIPX_INST hInst,
+                                                      const int bitRate,
+                                                      const int frameRate)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigSetVideoParameters hInst=%d, bitRate=%d, frameRate=%d",
+        hInst, bitRate, frameRate);
+
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;  
+    
+    CpMediaInterfaceFactoryImpl* pImpl = 
+            pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+            
+    pImpl->setVideoParameters(bitRate, frameRate);
+  
+    return SIPX_RESULT_SUCCESS;
+}
+#endif // VIDEO

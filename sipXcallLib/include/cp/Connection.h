@@ -206,7 +206,8 @@ public:
 						  const char* callId,
                           const char* callController = NULL,
                           const char* originalCallConnection = NULL,
-                          UtlBoolean requestQueuedCall = FALSE) = 0;
+                          UtlBoolean requestQueuedCall = FALSE,
+                          const void* pDisplay = NULL) = 0;
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -231,7 +232,7 @@ public:
    // controller side
 
 
-   virtual UtlBoolean answer() = 0;
+   virtual UtlBoolean answer(const void* hWnd = NULL) = 0;
 
    virtual UtlBoolean hangUp() = 0;
 

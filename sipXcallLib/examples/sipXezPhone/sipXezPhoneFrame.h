@@ -11,6 +11,10 @@
 // APPLICATION INCLUDES
 #include "sipXezPhoneAboutDlg.h"
 #include "ConferencePanel.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -86,6 +90,18 @@ public:
     */
     void OnMinimalView(wxCommandEvent& event);
     
+    
+    /** 
+     * View or hide the video preview window
+     */
+    void OnVideoPreview(wxCommandEvent& event);
+    
+
+    /** 
+     * View or hide the video window
+     */
+    void OnVideo(wxCommandEvent& event);
+    
    /** 
     * Event handler for the wxCloseEvent
     */
@@ -100,6 +116,23 @@ public:
     * EventHandler for the Configuration menu item.
     */
     void OnAudioSettings(wxCommandEvent& event);
+
+   /**
+    * EventHandler for the AudioWizardTest menu item
+    */
+#ifdef VOICE_ENGINE    
+    void OnAudioWizardTest(wxCommandEvent& event);
+#endif
+    
+   /**
+    * EventHandler for the video configuration menu item.
+    */
+    void OnVideoSettings(wxCommandEvent& event);
+
+   /**
+    * EventHandler for the video configuration menu item.
+    */
+    void OnSrtpSettings(wxCommandEvent& event);
 
    /**
     * EventHandler for the Playfile menu item.
@@ -135,20 +168,30 @@ public:
     const bool getConferencingVisible() const;
 
     /**
-     * Accessor for the visibility state of the Call History dialog
-     */
-    const bool getCallHistoryVisible() const;
-    
-    /**
      * Mutator for the visibility state of the Conferencing dialog
      */
     void setConferencingVisible(const bool bVisible);
+
+    /**
+     * Accessor for the visibility state of the Call History dialog
+     */
+    const bool getCallHistoryVisible() const;
     
     /**
      * Mutator for the visibility state of the CallHistory dialog
      */
     void setCallHistoryVisible(const bool bVisible);
     
+    /**
+     * Accessor for the visibility state of the Video dialog
+     */
+    const bool getVideoVisible() const;
+    
+    /**
+     * Mutator for the visibility state of the Video dialog
+     */
+    void setVideoVisible(const bool bVisible);
+
     /**
      * Position the Call History and Conferencing panels
      */
@@ -167,10 +210,17 @@ private:
     wxMenu *mpMenuTest;
     bool mBoolMinimalView;
     wxDialog* mpCallHistoryWnd;
+    wxDialog* mpVideoPanel;
     ConferencePanel* mpConferencingWnd;
     bool mCallHistoryVisible;
+    bool mVideoVisible;
     bool mConferencingVisible;
     EventLogDlg* mpEventLogDlg;
+#ifdef _WIN32
+    //void registerVideoWindowClasses();
+    //HWND mhPreviewWnd;
+    //HWND mhVideoWnd;
+#endif    
 
     DECLARE_EVENT_TABLE()    
 };

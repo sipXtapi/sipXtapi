@@ -14,6 +14,7 @@
 #include "sipXezPhoneSettings.h"
 
 
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -53,6 +54,7 @@ bool sipXezPhoneApp::OnInit()
     }
     
     thePhoneApp = this;
+    
     // create a new frame
     mpFrame = new sipXezPhoneFrame( "sipXezPhone", wxDefaultPosition, wxSize(255,378) );
 
@@ -67,7 +69,7 @@ bool sipXezPhoneApp::OnInit()
     mpFrame->Show( TRUE );
     SetTopWindow( mpFrame );
 
-   return TRUE;
+    return TRUE;
 }
 
 void sipXezPhoneApp::addLogMessage(const UtlString message)
@@ -120,3 +122,4 @@ void JNI_LightButton(long)
 }
 
 #endif /* !defined(_WIN32) */
+

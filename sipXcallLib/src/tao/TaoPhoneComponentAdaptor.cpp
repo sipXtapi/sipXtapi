@@ -24,9 +24,7 @@
 #include "ps/PsButtonTask.h"
 #include "ps/PsPhoneTask.h"
 #include "ps/PsHookswTask.h"
-#ifndef SIPXMEDIA_EXCLUDE
-    #include "mp/MpCodec.h"
-#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS

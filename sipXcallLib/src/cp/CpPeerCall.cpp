@@ -21,7 +21,7 @@
 #include <net/SipMessageEvent.h>
 #include <cp/SipConnection.h>
 #include <cp/CpGhostConnection.h>
-#include <cp/CpMediaInterface.h>
+#include <mi/CpMediaInterface.h>
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
 #include <net/Url.h>
@@ -237,6 +237,7 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString1Data(dialString);    
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(desiredCallId);
     contactId = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    void* pDisplay = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
 
 
 #ifdef TEST_PRINT
@@ -271,12 +272,12 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
         if (desiredCallId.length() != 0)
         {
             // Use supplied callId
-            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId);
+            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId, pDisplay);
         }
         else
         {
             // Use default call id
-            addParty(remoteHostName.data(), NULL, NULL, NULL, contactId);
+            addParty(remoteHostName.data(), NULL, NULL, NULL, contactId, pDisplay);
         }        
     } 
 
@@ -810,6 +811,12 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     UtlBoolean connectionFound = FALSE;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     CONTACT_TYPE eType = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    void* hWnd = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
+    
+    if (hWnd && mpMediaInterface)
+    {
+        mpMediaInterface->setVideoWindowDisplay(hWnd);
+    }
 
     // This is a bit of a hack/short cut.
     // Find the first remote connection which is in the OFFERING
@@ -2050,9 +2057,14 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         break;
 
     case CallManager::CP_ANSWER_CONNECTION:
-        offHook();
+    {
+        CpMultiStringMessage* pMessage = (CpMultiStringMessage*)&eventMessage;
+        const void* pDisplay = (void*) pMessage->getInt1Data();
+        offHook(pDisplay);
+        delete pDisplay;
         break;
-
+    }
+    
     case CallManager::CP_BLIND_TRANSFER:
     case CallManager::CP_CONSULT_TRANSFER:
         handleTransfer(&eventMessage) ;
@@ -2479,7 +2491,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  const char* callController,
                                  const char* originalCallConnectionAddress,
                                  const char* newCallId,
-                                 CONTACT_ID contactId)
+                                 CONTACT_ID contactId,
+                                 const void* pDisplay)
 {
     SipConnection* connection = NULL;
 
@@ -2522,7 +2535,9 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
         mLocalAddress.data(), 
         callId.data(),
         callController,
-        originalCallConnectionAddress); 
+        originalCallConnectionAddress, 
+        FALSE,
+        pDisplay); 
 
     addToneListenersToConnection(connection) ;
 
@@ -2918,12 +2933,11 @@ void CpPeerCall::dropDeadConnections()
 }
 
 
-void CpPeerCall::offHook()
+void CpPeerCall::offHook(const void* pDisplay)
 {
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::offHook\n", mName.data());
 #endif
-
     OsReadLock lock(mConnectionMutex);
     Connection* connection = NULL;
 
@@ -2933,7 +2947,7 @@ void CpPeerCall::offHook()
         if(connection &&
             connection->getState() == Connection::CONNECTION_ALERTING)
         {
-            connection->answer();
+            connection->answer(pDisplay);
             mLocalConnectionState = PtEvent::CONNECTION_ESTABLISHED;
         }
     }

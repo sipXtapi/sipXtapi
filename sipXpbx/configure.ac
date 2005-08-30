@@ -61,9 +61,7 @@ SFAC_LIB_MEDIA
 SFAC_LIB_STACK
 
 # Conditionally use the GIPS audio libraries
-CHECK_GIPS
-# GIPS needs to be at the end of the list
-LIBS="$LIBS $GIPS_OBJS"
+CHECK_GIPSNEQ
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([config/sipXcommon.mak])

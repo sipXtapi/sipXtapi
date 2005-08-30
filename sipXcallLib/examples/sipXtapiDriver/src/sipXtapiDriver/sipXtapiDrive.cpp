@@ -56,6 +56,10 @@
 #include <sipXtapiDriver/AutoRedirectCommand.h>
 #include <sipXtapiDriver/UpdatePublisherCommand.h>
 #include <sipXtapiDriver/DestroyPublisherCommand.h>
+#include <sipXtapiDriver/CallUnholdCommand.h>
+#include <sipXtapiDriver/ConferenceGetCallsCommand.h>
+#include <sipXtapiDriver/AutoAcceptCommand.h>
+#include <sipXtapiDriver/KeyCommand.h>
 
 #define MAX_RECORD_EVENTS       16
 
@@ -78,6 +82,7 @@ void usage(const char* szExecutable)
     printf("Options:\n") ;
     printf("   -p SIP port (default = 5060)\n") ;
     printf("   -r RTP port start (default = 9000)\n") ;
+	printf("   -t TCP port (default = %d) \n", DEFAULT_TCP_PORT);
     printf("   -b bind to address (default 0.0.0.0)\n") ;
     printf("\n") ;
 }
@@ -87,11 +92,13 @@ bool parseArgs(int argc,
                char*  argv[],
                int*   pSipPort,
                int*   pRtpPort,
+			   int*   pTcpPort,
                char** bindToAddr)
 {
     bool bRC = true ;
     *pSipPort = 5060 ;
     *pRtpPort = 9000 ;
+	*pTcpPort = DEFAULT_TCP_PORT;
     *bindToAddr = "0.0.0.0";
 
     for (int i=1; i<argc; i++)
@@ -120,6 +127,18 @@ bool parseArgs(int argc,
 			   break ; // Error
            }
        }
+	   else if(strcmp(argv[i], "-t") == 0)
+	   {
+		   if((i+1) < argc)
+		   {
+			   *pRtpPort = atoi(argv[++i]);
+		   }
+		   else
+		   {
+			   bRC = false;
+			   break;
+		   }
+	   }
        else if (strcmp(argv[i], "-b") == 0)
        {
            if ((i+1) < argc)
@@ -147,7 +166,7 @@ void EventCallbackProc( SIPX_CALL hCall,
     char szBuffer[128] ;
     char* szEventDesc = sipxCallEventToString(eMajor, eMinor, szBuffer, sizeof(szBuffer)) ;
 	g_hCall = hCall;
-    printf("<-> Received Event: %s CallHanlde: %d\n", szEventDesc, hCall) ;
+    printf("<-> Received Event: %s CallHandle: %d\n", szEventDesc, hCall) ;
 	if(eMinor == DESTROYED_NORMAL)
 	{
 		g_hCall = 0;
@@ -159,7 +178,7 @@ void EventCallbackProc( SIPX_CALL hCall,
 
 int main(int argc, char* argv[])
 {
-	int iSipPort, iRtpPort;
+	int iSipPort, iRtpPort, iTcpPort;
 	char* bindToAddr;
 	char* szServer = NULL;
 	SIPX_LINE hLine;
@@ -180,9 +199,9 @@ int main(int argc, char* argv[])
 
 	lineMgr->StartLineMgr();
 	lineMgr->initializeRefreshMgr( refreshMgr );
-	if (parseArgs(argc, argv, &iSipPort, &iRtpPort, &bindToAddr)) 
+	if (parseArgs(argc, argv, &iSipPort, &iRtpPort, &iTcpPort, &bindToAddr)) 
 	{
-		sipxInitialize(&g_hInst, iSipPort, iSipPort, -1, iRtpPort, DEFAULT_CONNECTIONS, 
+		sipxInitialize(&g_hInst, iSipPort, iTcpPort, DEFAULT_TLS_PORT, iRtpPort, DEFAULT_CONNECTIONS, 
 						DEFAULT_IDENTITY, bindToAddr);
 		sipxListenerAdd(g_hInst, EventCallbackProc, NULL) ;       
 	}
@@ -190,40 +209,43 @@ int main(int argc, char* argv[])
 	{
 		usage(argv[0]);
 	}
-   
+	processor.fill();
 	processor.registerCommand("help", new HelpCommand(&processor));
 	processor.registerCommand("?", new HelpCommand(&processor));
 	processor.registerCommand("history", new HistoryCommand(&processor));
 	processor.registerCommand("sleep", new SleepCommand());
 	processor.registerCommand("quit", new ExitCommand());
 	processor.registerCommand("exit", new ExitCommand());
-	processor.registerCommand("EnableStun", new EnableStunCommand(g_hInst));
-	processor.registerCommand("EnableRport", new EnableRportCommand(g_hInst));
-	processor.registerCommand("AddLine", new AddLineCommand(g_hInst, &hLine));
-	processor.registerCommand("CallCreate", new CallCreateCommand(g_hInst, &hCall));
-	processor.registerCommand("CallConnect", new CallConnectCommand());
-	processor.registerCommand("CallDestroy", new CallDestroyCommand());
-	processor.registerCommand("CallAccept", new CallAcceptCommand()); 
-	processor.registerCommand("CallAnswer", new CallAnswerCommand());
-	processor.registerCommand("CallHold", new CallHoldCommand());
-	processor.registerCommand("CallRedirect", new CallRedirectCommand(&g_hCall));
-	processor.registerCommand("ConferenceCreate", new ConferenceCreateCommand(g_hInst, &hConf));
-	processor.registerCommand("ConferenceDestroy", new ConferenceDestroyCommand());
-	processor.registerCommand("ConferenceJoin", new ConferenceJoinCommand());
-	processor.registerCommand("ConferenceAdd", new ConferenceAddCommand(&hCall));
-	processor.registerCommand("ConferenceHold", new ConferenceHoldCommand());
-	processor.registerCommand("ConferenceUnhold", new ConferenceUnholdCommand());
-	processor.registerCommand("CallPlayFile", new CallPlayFileCommand());
-	processor.registerCommand("CallStartTone", new CallStartToneCommand());
-	processor.registerCommand("CallSendInfo", new CallSendInfoCommand(&hInfo));
-	processor.registerCommand("CallSubscribe", new CallSubscribeCommand(&hSub));
-	processor.registerCommand("CreatePublisher", new CreatePublisherCommand(g_hInst, &hPub));
-	processor.registerCommand("AutoAnswer", new AutoAnswerCommand(g_hInst, &g_hCall, &isDestroyed));
-	processor.registerCommand("AutoReject", new AutoRejectCommand(g_hInst, &hCall, &isDestroyed));
-	processor.registerCommand("AutoRedirect", new AutoRedirectCommand(g_hInst, hCall, &isDestroyed));
-	processor.registerCommand("UpdatePublisher", new UpdatePublisherCommand());
-	processor.registerCommand("DestroyPublisher", new DestroyPublisherCommand());
-
+	processor.registerCommand("enablestun", new EnableStunCommand(g_hInst));
+	processor.registerCommand("enablerport", new EnableRportCommand(g_hInst));
+	processor.registerCommand("addline", new AddLineCommand(g_hInst, &hLine));
+	processor.registerCommand("callcreate", new CallCreateCommand(g_hInst, &hCall));
+	processor.registerCommand("callconnect", new CallConnectCommand());
+	processor.registerCommand("calldestroy", new CallDestroyCommand());
+	processor.registerCommand("callaccept", new CallAcceptCommand()); 
+	processor.registerCommand("callanswer", new CallAnswerCommand());
+	processor.registerCommand("callhold", new CallHoldCommand());
+	processor.registerCommand("callredirect", new CallRedirectCommand());
+	processor.registerCommand("conferencecreate", new ConferenceCreateCommand(g_hInst, &hConf));
+	processor.registerCommand("conferencedestroy", new ConferenceDestroyCommand());
+	processor.registerCommand("conferencejoin", new ConferenceJoinCommand());
+	processor.registerCommand("conferenceadd", new ConferenceAddCommand(&hCall));
+	processor.registerCommand("conferencehold", new ConferenceHoldCommand());
+	processor.registerCommand("conferenceunhold", new ConferenceUnholdCommand());
+	processor.registerCommand("callplayfile", new CallPlayFileCommand());
+	processor.registerCommand("callstarttone", new CallStartToneCommand());
+	processor.registerCommand("callsendinfo", new CallSendInfoCommand(&hInfo));
+	processor.registerCommand("callsubscribe", new CallSubscribeCommand(&hSub));
+	processor.registerCommand("createpublisher", new CreatePublisherCommand(g_hInst, &hPub));
+	processor.registerCommand("autoanswer", new AutoAnswerCommand(g_hInst, &g_hCall, &isDestroyed));
+	processor.registerCommand("autoreject", new AutoRejectCommand(g_hInst, &hCall, &isDestroyed));
+	processor.registerCommand("autoredirect", new AutoRedirectCommand(g_hInst, hCall, &isDestroyed));
+	processor.registerCommand("updatepublisher", new UpdatePublisherCommand());
+	processor.registerCommand("destroypublisher", new DestroyPublisherCommand());
+	processor.registerCommand("callunhold", new CallUnholdCommand());
+	processor.registerCommand("conferencegetcalls", new ConferenceGetCallsCommand());
+	processor.registerCommand("autoaccept", new AutoAcceptCommand(g_hInst, &g_hCall, &isDestroyed));
+	processor.registerCommand("key", new KeyCommand());
 	
 	//Initialization
 	UtlBoolean doPrompt = isatty(STDIN_FILENO);
@@ -248,6 +270,7 @@ int main(int argc, char* argv[])
       )
 	{
 		//printf("GOT command line:\"%s\"\n", commandLine);
+		
 		commandStatus = processor.executeCommand(commandLine);
 		isDestroyed = FALSE;
 		//printf("command status: %d exit status: %d\n", commandStatus,

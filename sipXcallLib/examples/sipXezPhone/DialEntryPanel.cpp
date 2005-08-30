@@ -23,6 +23,7 @@
 // MACROS
 BEGIN_EVENT_TABLE(DialEntryPanel, wxPanel)
    EVT_BUTTON(IDR_DIAL_ENTRY_BUTTON, DialEntryPanel::OnButtonClick)
+   EVT_TEXT_ENTER(wxID_ANY, DialEntryPanel::OnEnter)
 END_EVENT_TABLE()
 
 
@@ -103,6 +104,17 @@ const wxString DialEntryPanel::getEnteredText()
 void DialEntryPanel::OnButtonClick(wxEvent& event)
 {
    wxString phoneNumber = getEnteredText();
+
+    wxComboBox* pCtrl = dynamic_cast<wxComboBox*>(FindWindowById(IDR_DIAL_ENTRY_TEXT, this));
+    if (phoneNumber != "")
+    {
+        PhoneStateMachine::getInstance().OnDial(phoneNumber);
+    }
+}
+
+void DialEntryPanel::OnEnter(wxEvent& event)
+{
+    wxString phoneNumber = getEnteredText();
 
     wxComboBox* pCtrl = dynamic_cast<wxComboBox*>(FindWindowById(IDR_DIAL_ENTRY_TEXT, this));
     if (phoneNumber != "")

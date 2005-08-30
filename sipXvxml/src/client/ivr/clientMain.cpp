@@ -46,6 +46,7 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #include <net/SipUserAgent.h>
 #include <net/SdpCodecFactory.h>
 #include <cp/CallManager.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <ptapi/PtProvider.h>
 #include "net/NameValueTokenizer.h"
 #include "os/OsFS.h"
@@ -824,7 +825,7 @@ int main(int argc, char *argv[])
                       CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
                       QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
                       maxFlowGraphs,                     // maxCalls
-                      NULL                               // CpMediaInterfaceFactory
+                      sipXmediaFactoryFactory(NULL)      // CpMediaInterfaceFactory
          );
 
    // Create the Media Task monitoring thread if autothrottle.engage is set.

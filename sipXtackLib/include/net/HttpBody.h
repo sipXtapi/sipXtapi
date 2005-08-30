@@ -5,6 +5,7 @@
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
 #ifndef _HttpBody_h_
@@ -65,6 +66,15 @@ public:
 
    HttpBody& operator=(const HttpBody& rhs);
    //:Assignment operator
+
+   //! Copy the source HttpBody using the correct derived class constructor
+   static HttpBody* copyBody(const HttpBody& sourceBody);
+
+   //! Pseudo body factory
+   static HttpBody* HttpBody::createBody(const char* bodyBytes,
+                                           int bodyBytesLength,
+                                           const char* contentType,
+                                           const char* contentEncoding);
 
 /* ============================ ACCESSORS ================================= */
 

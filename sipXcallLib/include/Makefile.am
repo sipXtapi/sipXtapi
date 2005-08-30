@@ -11,19 +11,15 @@ nobase_include_HEADERS =  \
     cp/CpGatewayManager.h \
     cp/CpGhostConnection.h \
     cp/CpIntMessage.h \
-    cp/CpMediaInterface.h \
-    cp/CpMediaInterfaceFactory.h \
-    cp/CpMediaInterfaceFactoryFactory.h \
-    cp/CpMediaInterfaceFactoryImpl.h \
     cp/CpMultiStringMessage.h \
     cp/CpPeerCall.h \
-    cp/CpPhoneMediaInterface.h \
     cp/CpStringMessage.h \
     cp/DialogEventPublisher.h \
+    cp/LinePresenceBase.h \
+    cp/LinePresenceMonitor.h \
     cp/PresenceDialInServer.h \
     cp/SipConnection.h \
     cp/SipPresenceMonitor.h \
-    cp/sipXmediaFactoryImpl.h \
     ps/PsButtonId.h \
     ps/PsButtonInfo.h \
     ps/PsButtonTask.h \

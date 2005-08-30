@@ -49,7 +49,8 @@ SipUdpServer::SipUdpServer(int port,
                            UtlBoolean bUseNextAvailablePort,
                            const char* szBoundIp) :
    SipProtocolServerBase(userAgent, "UDP", "SipUdpServer-%d"),
-   mStunRefreshSecs(28)  
+   mStunRefreshSecs(28), 
+   mStunOptions(0)  
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUdpServer::_ port = %d, bUseNextAvailablePort = %d, szBoundIp = '%s'",
@@ -366,9 +367,11 @@ int SipUdpServer::run(void* runArg)
 void SipUdpServer::enableStun(const char* szStunServer,
                               const char* szLocalIp, 
                               int refreshPeriodInSecs, 
+                              int stunOptions,
                               OsNotification* pNotification) 
 {
     // Store settings
+    mStunOptions = stunOptions ;
     mStunRefreshSecs = refreshPeriodInSecs ;   
     if (szStunServer)
     {
@@ -423,6 +426,7 @@ void SipUdpServer::enableStun(const char* szStunServer,
                 pSocket->setStunServer(mStunServer) ;
                 pSocket->setKeepAlivePeriod(refreshPeriodInSecs) ;
                 pSocket->setNotifier(pNotification) ;
+                pSocket->setStunOptions(mStunOptions) ;
                 pSocket->enableStun(true) ;
             }  
         }
@@ -528,7 +532,7 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort, const char* hostAddress,
     else
     {
         return(new OsStunDatagramSocket(hostPort, hostAddress, 0, localIp, 
-            (mStunServer.length() != 0), mStunServer.data(), mStunRefreshSecs));
+            (mStunServer.length() != 0), mStunServer.data(), mStunRefreshSecs, mStunOptions));
     }
 }
 

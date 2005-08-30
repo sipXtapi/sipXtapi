@@ -238,17 +238,58 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
        strcmp(compareString,"G729B") == 0)
         retType = SdpCodec::SDP_CODEC_G729AB;
     else
+    if (strcmp(compareString,"G723") == 0)
+        retType = SdpCodec::SDP_CODEC_G723;
+    else
     if (strcmp(compareString,"G729A-FOR-CISCO-7960") == 0)
         retType = SdpCodec::SDP_CODEC_G729ACISCO7960;
     else
     if (strcmp(compareString,"ILBC") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_ILBC;
     else
+    if (strcmp(compareString,"GSM") == 0)
+        retType = SdpCodec::SDP_CODEC_GSM;
+   else
     if (strcmp(compareString,"ISAC") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_ISAC;
+   else
+    if (strcmp(compareString,"VP71-CIF") == 0)
+        retType = SdpCodec::SDP_CODEC_VP71_CIF;
+   else
+    if (strcmp(compareString,"VP71-QCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_VP71_QCIF;
+   else
+    if (strcmp(compareString,"VP71-SQCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_VP71_SQCIF;
+   else
+    if (strcmp(compareString,"IYUV-CIF") == 0)
+        retType = SdpCodec::SDP_CODEC_IYUV_CIF;
+   else
+    if (strcmp(compareString,"IYUV-QCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_IYUV_QCIF;
+   else
+    if (strcmp(compareString,"IYUV-SQCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_IYUV_SQCIF;
+   else
+    if (strcmp(compareString,"I420-CIF") == 0)
+        retType = SdpCodec::SDP_CODEC_I420_CIF;
+   else
+    if (strcmp(compareString,"I420-QCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_I420_QCIF;
+   else
+    if (strcmp(compareString,"I420-SQCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_I420_SQCIF;
+   else
+    if (strcmp(compareString,"RGB24-CIF") == 0)
+        retType = SdpCodec::SDP_CODEC_RGB24_CIF;
+   else
+    if (strcmp(compareString,"RGB24-QCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_RGB24_QCIF;
+   else
+    if (strcmp(compareString,"RGB24-SQCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_RGB24_SQCIF;
     else
        retType = SdpCodec::SDP_CODEC_UNKNOWN;
-
     return retType;
 }
 
@@ -553,6 +594,42 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
          }
          break;
 
+      case SdpCodec::SDP_CODEC_GSM:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_GSM,
+                            SdpCodec::SDP_CODEC_GSM,
+                            MIME_TYPE_AUDIO,
+                            MIME_SUBTYPE_GSM,
+                            8000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_NORMAL); // $$$ ???
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_G723:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_G723,
+                            SdpCodec::SDP_CODEC_G723,
+                            MIME_TYPE_AUDIO,
+                            MIME_SUBTYPE_G723,
+                            8000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_NORMAL); // $$$ ???
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
       case SdpCodec::SDP_CODEC_GIPS_IPCMWB:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_GIPS_IPCMWB,
@@ -572,36 +649,228 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
          }
          break;
 
-      case SdpCodec::SDP_CODEC_PCMA:
+      case SdpCodec::SDP_CODEC_VP71_CIF:
          {
-            SdpCodec aCodec(SdpCodec::SDP_CODEC_PCMA,
-                            SdpCodec::SDP_CODEC_PCMA,
-                            MIME_TYPE_AUDIO,
-                            MIME_SUBTYPE_PCMA,
-                            8000,
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_VP71_CIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_VP71,
+                            90000,
                             20000,
                             1,
-                            "",
+                            "size=CIF/QCIF/SQCIF",
                             SdpCodec::SDP_CODEC_CPU_LOW,
-                            SDP_CODEC_BANDWIDTH_NORMAL);
+                            SDP_CODEC_BANDWIDTH_HIGH,
+                            SDP_VIDEO_FORMAT_CIF);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
          }
          break;
 
-      case SdpCodec::SDP_CODEC_PCMU:
+      case SdpCodec::SDP_CODEC_VP71_QCIF:
          {
-            SdpCodec aCodec(SdpCodec::SDP_CODEC_PCMU,
-                            SdpCodec::SDP_CODEC_PCMU,
-                            MIME_TYPE_AUDIO,
-                            MIME_SUBTYPE_PCMU,
-                            8000,
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_VP71_QCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_VP71,
+                            90000,
                             20000,
                             1,
                             "",
                             SdpCodec::SDP_CODEC_CPU_LOW,
-                            SDP_CODEC_BANDWIDTH_NORMAL);
+                            SDP_CODEC_BANDWIDTH_HIGH,
+                            SDP_VIDEO_FORMAT_QCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_VP71_SQCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_VP71_SQCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_VP71,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_HIGH,
+                            SDP_VIDEO_FORMAT_SQCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_IYUV_CIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_IYUV_CIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_IYUV,
+                            90000,
+                            20000,
+                            1,
+                            "size=CIF/QCIF/SQCIF",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_CIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_IYUV_QCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_IYUV_QCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_IYUV,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_QCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_IYUV_SQCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_IYUV_SQCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_IYUV,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_SQCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_I420_CIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_I420_CIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_I420,
+                            90000,
+                            20000,
+                            1,
+                            "size=CIF/QCIF/SQCIF",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_CIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_I420_QCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_I420_QCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_I420,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_QCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_I420_SQCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_I420_SQCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_I420,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_SQCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_RGB24_CIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_RGB24_CIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_RGB24,
+                            90000,
+                            20000,
+                            1,
+                            "size=CIF/QCIF/SQCIF",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_CIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_RGB24_QCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_RGB24_QCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_RGB24,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_QCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_RGB24_SQCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_RGB24_SQCIF,
+                            SdpCodec::SDP_CODEC_UNKNOWN,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_RGB24,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_SQCIF);
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
@@ -766,6 +1035,61 @@ void SdpCodecFactory::getCodecs(int& numCodecs,
           (codecFound = (SdpCodec*) iterator()) != NULL)
     {
         if (codecFound->getCPUCost() <= mCodecCPULimit)
+        {
+            codecArray[index] = new SdpCodec(*codecFound);
+            index++;
+        }
+    }
+
+    numCodecs = index;
+}
+
+void SdpCodecFactory::getCodecs(int& numCodecs, 
+                                SdpCodec**& codecArray,
+                                const char* mimeType)
+{
+    const SdpCodec* codecFound = NULL;
+    OsReadLock lock(mReadWriteMutex);
+    int arrayMaximum = mCodecs.entries();
+    codecArray = new SdpCodec*[arrayMaximum];
+    UtlDListIterator iterator(mCodecs);
+    UtlString sMimeType;
+    int index = 0;
+
+    while(index < arrayMaximum &&
+          (codecFound = (SdpCodec*) iterator()) != NULL)
+    {
+        codecFound->getMediaType(sMimeType);
+        if (codecFound->getCPUCost() <= mCodecCPULimit && sMimeType.compareTo(mimeType) == 0)
+        {
+            codecArray[index] = new SdpCodec(*codecFound);
+            index++;
+        }
+    }
+
+    numCodecs = index;
+}
+
+void SdpCodecFactory::getCodecs(int& numCodecs, 
+                                SdpCodec**& codecArray,
+                                const char* mimeType,
+                                const char* subMimeType)
+{
+    const SdpCodec* codecFound = NULL;
+    OsReadLock lock(mReadWriteMutex);
+    int arrayMaximum = mCodecs.entries();
+    codecArray = new SdpCodec*[arrayMaximum];
+    UtlDListIterator iterator(mCodecs);
+    UtlString sMimeType;
+    UtlString sSubMimeType;
+    int index = 0;
+
+    while(index < arrayMaximum &&
+          (codecFound = (SdpCodec*) iterator()) != NULL)
+    {
+        codecFound->getMediaType(sMimeType);
+        codecFound->getEncodingName(sSubMimeType);
+        if (codecFound->getCPUCost() <= mCodecCPULimit && sMimeType.compareTo(mimeType) == 0 && sSubMimeType.compareTo(subMimeType) == 0)
         {
             codecArray[index] = new SdpCodec(*codecFound);
             index++;

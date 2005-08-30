@@ -18,9 +18,8 @@ int CallAnswerCommand::execute(int argc, char* argv[])
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
 	if(argc == 2)
 	{
-	    SIPX_CALL hCall = atoi(argv[1]);
-		sipxCallAnswer(hCall);
-		printf("Call with ID: %d answered.\n", hCall);
+		sipxCallAnswer(atoi(argv[1]));
+		printf("Call with ID: %d answered.\n", atoi(argv[1]));
 	}
 	else
 	{

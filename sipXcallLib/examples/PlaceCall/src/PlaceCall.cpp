@@ -60,6 +60,7 @@ void usage(const char* szExecutable)
     printf("   -I call input device name\n");
     printf("   -O call output device name\n");
     printf("   -C codec name\n");
+    printf("   -L list all supported codecs\n");
     printf("\n") ;
 }
 
@@ -83,7 +84,8 @@ bool parseArgs(int argc,
                int*   pRepeatCount,
                char** pszInputDevice,
                char** pszOutputDevice,
-               char** pszCodecName)
+               char** pszCodecName,
+               bool*  bCodecList)
 {
     bool bRC = false ;
     char szBuffer[64];
@@ -106,6 +108,7 @@ bool parseArgs(int argc,
     *pszInputDevice = NULL;
     *pszOutputDevice = NULL;
     *pszCodecName = NULL;
+    *bCodecList = false;
 
     for (int i=1; i<argc; i++)
     {
@@ -235,6 +238,11 @@ bool parseArgs(int argc,
         {
             *bUseRport = true ;
         }
+        else if (strcmp(argv[i], "-L") == 0)
+        {
+            *bCodecList = true ;
+            bRC = true ;
+        }
         else if (strcmp(argv[i], "-v") == 0)
         {
             sipxConfigGetVersion(szBuffer, 64);
@@ -315,7 +323,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
 
         if (pCallInfo->cause == CALLSTATE_AUDIO_START)
         {
-            printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codec.cName, pCallInfo->codec.iPayloadType);
+            printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
         }
         g_eRecordEvents[g_iNextEvent] = pCallInfo->event;
         g_iNextEvent = (g_iNextEvent + 1) % MAX_RECORD_EVENTS ;
@@ -547,11 +555,12 @@ int main(int argc, char* argv[])
     char* szInDevice;
     char* szCodec;
     bool bUseRport ;
+    bool bCList;
 
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones, &szFile, &szSipUrl,
             &bUseRport, &szUsername, &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
-            &iRepeatCount, &szInDevice, &szOutDevice, &szCodec) 
+            &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList) 
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         // initialize sipx TAPI-like API
@@ -562,6 +571,54 @@ int main(int argc, char* argv[])
         dumpInputOutputDevices() ;
         sipxEventListenerAdd(g_hInst, EventCallBack, NULL) ;
 
+        if (bCList)
+        {
+            int numAudioCodecs;
+            int numVideoCodecs;
+            int index;
+            SIPX_AUDIO_CODEC audioCodec;
+            SIPX_VIDEO_CODEC videoCodec;
+
+            printf("Audio codecs:\n");
+            if (sipxConfigGetNumAudioCodecs(g_hInst, &numAudioCodecs) == SIPX_RESULT_SUCCESS)
+            {
+                for (index=0; index<numAudioCodecs; ++index)
+                {
+                    if (sipxConfigGetAudioCodec(g_hInst, index, &audioCodec) == SIPX_RESULT_SUCCESS)
+                    {
+                        printf("  audio %02d : %s\n", index, audioCodec.cName);
+                    }
+                    else
+                    {
+                        printf("Error in retrieving audio codec #%d\n");
+                    }
+                }
+            }
+            else
+            {
+                printf("Error in retrieving number of audio codecs\n");
+            }
+            printf("Video codecs:\n");
+            if (sipxConfigGetNumVideoCodecs(g_hInst, &numVideoCodecs) == SIPX_RESULT_SUCCESS)
+            {
+                for (index=0; index<numVideoCodecs; ++index)
+                {
+                    if (sipxConfigGetVideoCodec(g_hInst, index, &videoCodec) == SIPX_RESULT_SUCCESS)
+                    {
+                        printf("  video %02d : %s\n", index, videoCodec.cName);
+                    }
+                    else
+                    {
+                        printf("Error in retrieving video codec #%d\n");
+                    }
+                }
+            }
+            else
+            {
+                printf("Error in retrieving number of video codecs\n");
+            }
+            exit(0);
+        }
         if (szProxy)
         {
             sipxConfigSetOutboundProxy(g_hInst, szProxy);

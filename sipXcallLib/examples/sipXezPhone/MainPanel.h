@@ -14,6 +14,7 @@
 #include "DialEntryPanel.h"
 #include "ButtonPanel.h"
 #include "CallHistoryPanel.h"
+#include "VideoPanel.h"
 
 // DEFINES
 // MACROS
@@ -61,6 +62,11 @@ public:
     * Call History Button event handler
     */
    void OnCallHistoryButton(wxEvent& event);
+   
+   /**
+    * Video button event handler
+    */
+   void OnVideoButton(wxEvent& event);
 
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
@@ -76,6 +82,7 @@ private:
         DialEntryPanel* mpDialEntryPanel;
         ButtonPanel* mpButtonPanel;
         CallHistoryPanel* mpCallHistoryPanel;
+        VideoPanel*       mpVideoPanel;
 
         /**
          * Text control for displaying the phone's state.
@@ -90,8 +97,10 @@ private:
 
    void CreateCallHistoryButton();
    void CreateConferencingButton();
+   void CreateVideoButton();
    wxBitmapButton* mpCallHistoryBtn;
    wxBitmapButton* mpConferencingBtn;
+   wxBitmapButton* mpVideoBtn;
 
 };
 

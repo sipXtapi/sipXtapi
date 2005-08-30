@@ -335,7 +335,8 @@ int main(int argc, char* argv[])
    configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName);
 
    // Create the Sip Presence Monitor
-   UtlString configFile("/usr/local/sipx/etc/sipxpbx/sipxpresence.xml");
+   UtlString configFile(CONFIG_ETC_DIR);
+   configFile.append("/sipxpresence.xml");
     
    SipPresenceMonitor presenceMonitor(userAgent,
                                       domainName,

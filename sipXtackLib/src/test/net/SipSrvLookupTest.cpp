@@ -12,14 +12,17 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sys/types.h>
+#ifndef _WIN32
 #include <unistd.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <resolv.h>
+#endif 
+
+#include <stdlib.h>
+#include <signal.h>
+#include <sys/stat.h>
 
 #include "net/SipSrvLookup.h"
 #include "os/OsSocket.h"
@@ -378,16 +381,16 @@ public:
 
          // Numeric IP address.
          { "1.1.0.1", "sip", OsSocket::SSL_SOCKET, -1, NULL,
-           "" },
+           "1.1.0.1:5061,0,1000.000,0,TLS\n" },
          // Numeric IP address with port.
          { "1.1.0.1", "sip", OsSocket::SSL_SOCKET, 101, NULL,
-           "" },
+           "1.1.0.1:101,0,1000.000,0,TLS\n" },
          // Name with A record.
          { "test2", "sip", OsSocket::SSL_SOCKET, -1, NULL,
-           "" },
+           "1.2.1.0:5061,0,1000.000,0,TLS\n" },
          // Name with A record with port.
          { "test2", "sip", OsSocket::SSL_SOCKET, 102, NULL,
-           "" },
+           "1.2.1.0:102,0,1000.000,0,TLS\n" },
          // Name with UDP SRV record.
          { "test4", "sip", OsSocket::SSL_SOCKET, -1, NULL,
            "" },
@@ -426,7 +429,8 @@ public:
            "2.1.4.0:8000,1,0.174,3,UDP\n" },
          { "test22", "sip", OsSocket::UNKNOWN, -1, NULL,
            "2.1.4.0:8000,1,0.174,1,UDP\n"
-           "2.1.4.0:8001,1,0.930,2,TCP\n" },
+           "2.1.4.0:8001,1,0.930,2,TCP\n"
+           "2.1.4.0:8002,1,0.244,3,TLS\n" },
          { "test23", "sip", OsSocket::UNKNOWN, -1, NULL,
            "2.1.4.0:8000,1,0.174,1,UDP\n"
            "2.1.4.0:8003,1,0.225,1,UDP\n" 

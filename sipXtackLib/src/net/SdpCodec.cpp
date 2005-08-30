@@ -31,7 +31,9 @@ SdpCodec::SdpCodec(enum SdpCodecTypes sdpCodecType,
                    int numChannels,
                    const char* formatSpecificData,
                    const int CPUCost,
-                   const int BWCost)
+                   const int BWCost,
+                   const int videoFormat,
+                   const int videoFmtp)
 {
    setValue(sdpCodecType);
    mCodecPayloadFormat = payloadFormat;
@@ -45,6 +47,8 @@ SdpCodec::SdpCodec(enum SdpCodecTypes sdpCodecType,
    mFormatSpecificData.append(formatSpecificData ? formatSpecificData : "");
    mCPUCost = CPUCost;
    mBWCost = BWCost;
+   mVideoFormat = videoFormat;
+   mVideoFmtp = videoFmtp;
 }
 
 // Copy constructor
@@ -60,6 +64,8 @@ SdpCodec::SdpCodec(const SdpCodec& rSdpCodec)
     mFormatSpecificData = rSdpCodec.mFormatSpecificData;
     mCPUCost  = rSdpCodec.mCPUCost;
     mBWCost  = rSdpCodec.mBWCost;
+    mVideoFormat = rSdpCodec.mVideoFormat;
+    mVideoFmtp = rSdpCodec.mVideoFmtp;
 }
 
 // Destructor
@@ -86,6 +92,8 @@ SdpCodec::operator=(const SdpCodec& rhs)
     mFormatSpecificData = rhs.mFormatSpecificData;
     mCPUCost  = rhs.mCPUCost;
     mBWCost = rhs.mBWCost;
+    mVideoFormat = rhs.mVideoFormat;
+    mVideoFmtp = rhs.mVideoFmtp;
 
    return *this;
 }
@@ -127,6 +135,11 @@ int SdpCodec::getSampleRate() const // samples per second
     return(mSampleRate);
 }
 
+int SdpCodec::getVideoFormat() const // samples per second
+{
+    return(mVideoFormat);
+}
+
 int SdpCodec::getPacketLength() const //micro seconds
 {
     return(mPacketLength);
@@ -135,6 +148,16 @@ int SdpCodec::getPacketLength() const //micro seconds
 int SdpCodec::getNumChannels() const
 {
     return(mNumChannels);
+}
+
+void SdpCodec::setVideoFmtp(const int videoFmtp)
+{
+    mVideoFmtp = videoFmtp;
+}
+
+int SdpCodec::getVideoFmtp() const
+{
+    return mVideoFmtp;
 }
 
 void SdpCodec::toString(UtlString& sdpCodecContents) const

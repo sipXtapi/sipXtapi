@@ -352,7 +352,7 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
 
     MpBufPtr        out = NULL;
     MpBufPtr        in8;
-    MpBufPtr        in32;
+    MpBufPtr        in32 = NULL;
     Sample*         shpMicSig;
 
     static int Frame10msCount;

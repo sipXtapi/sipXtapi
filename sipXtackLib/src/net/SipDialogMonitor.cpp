@@ -418,6 +418,8 @@ void SipDialogMonitor::removeStateChangeNotifier(const char* fileUrl)
 
 void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dialogEvent)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange contact = %s",
+                 contact.data());
 
    // Loop through the notifier list
    UtlHashMapIterator iterator(mStateChangeNotifiers);
@@ -434,6 +436,7 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
       if (dialogEvent->isEmpty())
       {
          notifier->setStatus(contactUrl, StateChangeNotifier::ON_HOOK);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange dialog is empty, setting state to on hook");
       }
       else
       {
@@ -442,19 +445,24 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
          UtlString state, event, code;
          dialog->getState(state, event, code);
             
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange dialog state = %s",
+                       state.data());
          if (state.compareTo(STATE_CONFIRMED) == 0)
          {
             notifier->setStatus(contactUrl, StateChangeNotifier::OFF_HOOK);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange setting state to off hook");
          }
          else
          {     
             if (state.compareTo(STATE_TERMINATED) == 0)
             {
                notifier->setStatus(contactUrl, StateChangeNotifier::ON_HOOK);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange setting state to on hook");
             }
             else
             {
                notifier->setStatus(contactUrl, StateChangeNotifier::RINGING);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange setting state to ringing");
             }
          }
       }

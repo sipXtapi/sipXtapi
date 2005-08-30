@@ -178,10 +178,10 @@ public:
         CP_OUTGOING_INFO,
         CP_GET_MEDIA_CONNECTION_ID,
         CP_ENABLE_STUN,
-        CP_GET_CAN_ADD_PARTY,
+        CP_GET_CAN_ADD_PARTY, //80
         CP_SPLIT_CONNECTION,
         CP_JOIN_CONNECTION,
-        CP_CONSULT_TRANSFER_ADDRESS,
+        CP_CONSULT_TRANSFER_ADDRESS
     };
 
 /*
@@ -306,7 +306,8 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_ID contactId = 0) = 0;
+                             CONTACT_ID contactId = 0,
+                             const void* pDisplay = NULL) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a
@@ -445,7 +446,8 @@ public:
      */
     virtual void acceptConnection(const char* callId,
                                   const char* address,
-                                  CONTACT_TYPE contactType = AUTO) = 0;
+                                  CONTACT_TYPE contactType = AUTO,
+                                  const void* hWnd = NULL) = 0;
 
     virtual void setOutboundLineForCall(const char* callId, 
                                         const char* address, 
@@ -518,7 +520,8 @@ public:
      */
     virtual void answerTerminalConnection(const char* callId,
                                           const char* address,
-                                          const char* terminalId) = 0;
+                                          const char* terminalId,
+                                          const void* pDisplay = NULL) = 0;
 
     //! Put the specified terminal connection on hold
     /*! Change the terminal connection state from TALKING to HELD.

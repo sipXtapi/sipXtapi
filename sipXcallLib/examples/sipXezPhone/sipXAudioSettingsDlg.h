@@ -23,6 +23,7 @@
 #define ID_BANDWIDTH_CHOICE 8002
 #define ID_AUDIO_OK_BUTTON 8003
 #define ID_ENABLE_SRTP 8004
+#define ID_SELECT_SINGLE 8005
 
 // WDR: class declarations
 
@@ -42,6 +43,9 @@ public:
     // WDR: method declarations for sipXAudioSettingsDlg
     static wxGridSizer* grid;
     static wxStaticBox* audio;
+
+    void SelectedCodec();
+    void DeselectedCodec();
     
 private:
     // WDR: member variable declarations for sipXAudioSettingsDlg
@@ -51,6 +55,7 @@ private:
     void OnOk( wxCommandEvent &event );
     void OnCancel( wxCommandEvent &event );
     void OnCodec( wxCommandEvent &event );
+    void OnSelect( wxCommandEvent &event );
 
 private:
     DECLARE_EVENT_TABLE()

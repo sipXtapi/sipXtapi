@@ -95,7 +95,8 @@ public:
 
     Connection* addParty(const char* partyAddress, const char* callController,
         const char* originalCallConnectionAddress, const char* pNewCallId,
-        CONTACT_ID contactId = 0);
+        CONTACT_ID contactId = 0,
+        const void* pDisplay = NULL);
     Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
 
 
@@ -286,7 +287,7 @@ protected:
         int& state);
 
     virtual void onHook();
-    virtual void offHook();
+    virtual void offHook(const void* hWnd = NULL);
 
     // Connection manipulators
     Connection* findHandlingConnection(OsMsg& eventMessage);

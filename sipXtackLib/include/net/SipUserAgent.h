@@ -263,6 +263,7 @@ public:
     //! disable
     virtual void enableStun(const char* szStunServer, 
                             int refreshPeriodInSecs, 
+                            int stunOptions,
                             OsNotification* pNotification = NULL,
                             const char* szIp = NULL) ;
 

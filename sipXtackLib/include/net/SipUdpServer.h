@@ -61,6 +61,7 @@ public:
     void enableStun(const char* szStunServer, 
                     const char* szLocalIp, 
                     int refreshPeriodInSecs, 
+                    int stunOptions,
                     OsNotification* pNotification) ;
       //:Enable stun lookups for UDP signaling
       // Use a NULL szStunServer to disable
@@ -97,6 +98,7 @@ private:
     UtlString mNatPingMethod;
     UtlString mStunServer ;
     int mStunRefreshSecs ;
+    int mStunOptions ;
     OsStatus createServerSocket(const char* localIp,
                                  int& localPort,
                                  const UtlBoolean& bUseNextAvailablePort,

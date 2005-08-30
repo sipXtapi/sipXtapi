@@ -92,7 +92,7 @@ SipxUpgrade() {
 ##########################
 UpgradeCommserver() {
     case $Version in
-        2.8.2 | 2.8.1 | 2.6.2 | 2.6.1)
+        2.8* | 2.6*)
             # add the sipXpark specific variables to an existing modified 2.6.x or 2.8.x config.defs file
             if test -r ${SysConfDir}/sipxpbx/config.defs.rpmnew
             then
@@ -124,6 +124,10 @@ UpgradeCommserver() {
 EOF
             fi
             ;;
+
+        2.9*)
+            ;;
+
         '')
             # New installation needs no upgrade.
             ;;
@@ -140,16 +144,16 @@ EOF
 ##########################
 UpgradeRegistry() {
    case $Version in
-       2.6.*)
+       2.6*)
            UpgradeRegistry2_6To2_8
            UpgradeRegistry2_8To3_0
            ;;
 
-       2.8.*)
+       2.8*)
            UpgradeRegistry2_8To3_0
            ;;
 
-       3.0.*)
+       2.9* | 3.0*)
            ;;
 
        '')
@@ -219,7 +223,7 @@ UpgradeRegistry2_8To3_0() {
 ##########################
 UpgradeProxy() {
     case $Version in
-        2.6.2 | 2.6.1)
+        2.6*)
             # add the namespace to an existing 2.6.x authrules file
             f=${SysConfDir}/sipxpbx/authrules.xml.in
             if test -r $f
@@ -227,6 +231,8 @@ UpgradeProxy() {
                 cp $f $f.OLD
                 sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' $f.OLD > $f
             fi
+            ;;
+        2.8* | 2.9*)
             ;;
 
         '')
@@ -245,12 +251,15 @@ UpgradeProxy() {
 ##########################
 UpgradeSubscriptions() {
    case $Version in
-       2.6.2 | 2.6.1)
+       2.6*)
            # remove file column, add id column
            if test -r ${LocalStateDir}/sipxdata/sipdb/subscription.xml
            then
                perl -pi -e 's|<file>[^<]*</file>|<id></id>|' ${LocalStateDir}/sipxdata/sipdb/subscription.xml
            fi
+           ;;
+
+        2.8* | 2.9*)
            ;;
 
         '')
@@ -269,7 +278,7 @@ UpgradeSubscriptions() {
 ##########################
 UpgradePbx() {
     case $Version in
-        2.6.2 | 2.6.1)
+        2.6*)
             # add the <ivr-prompt-url> field to an existing modified 2.6.x voicemail.xml.in file
             if test -r ${SysConfDir}/sipxpbx/voicemail.xml.in.rpmnew
             then
@@ -283,6 +292,9 @@ UpgradePbx() {
             then
                 mv ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant.wav ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant-internal.wav
             fi
+            ;;
+
+        2.8* | 2.9*)
             ;;
 
         '')
@@ -404,7 +416,7 @@ SplitVersion() {
     Rel=0
     if [ -n "$1" ]; then
         Major=`expr match "$1" '\([0-9]*\).'`
-        Minor=`expr match "$1" '[0-9]*.\([0-9]*\).'`
+        Minor=`expr match "$1" '[0-9]*.\([0-9]*\)'`
         Sub=`expr match "$1" '[0-9]*.[0-9]*.\([0-9]*\).'`
         Rel=`expr match "$1" '[0-9]*.[0-9]*.[0-9]*-\([0-9]*\)'`
     fi

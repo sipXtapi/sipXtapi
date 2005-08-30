@@ -13,6 +13,8 @@
 #include "sipXtapiTest.h"
 #include "TestRegistrar.h"
 #include "EventRecorder.h"
+#include "EventValidator.h"
+#include "callbacks.h"
 
 extern SIPX_INST g_hInst;
 extern EventRecorder g_recorder ;
@@ -36,20 +38,20 @@ void sipXtapiTestSuite::testLineAPI_Add()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE	hLine = NULL ;
-	    SIPX_LINE	hLine2 = NULL ;
+        SIPX_LINE    hLine = SIPX_LINE_NULL ;
+        SIPX_LINE    hLine2 = SIPX_LINE_NULL ;
 
         printf("\ntestLineAPI_Add (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    // Add Line
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", &hLine), SIPX_RESULT_SUCCESS) ;	
-	    CPPUNIT_ASSERT(hLine) ;
+        // Add Line
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", &hLine), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT(hLine) ;
 
-	    // Re-Add Line
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", &hLine2), SIPX_RESULT_FAILURE) ;
-	    CPPUNIT_ASSERT(hLine2 == NULL) ;
+        // Re-Add Line
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:bandreasen@pingtel.com", &hLine2), SIPX_RESULT_FAILURE) ;
+        CPPUNIT_ASSERT(hLine2 == SIPX_LINE_NULL) ;
 
-	    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
     }
 
     OsTask::delay(TEST_DELAY) ;    
@@ -60,20 +62,20 @@ void sipXtapiTestSuite::testLineAPI_Remove()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE	hLine = NULL ;
+        SIPX_LINE    hLine = SIPX_LINE_NULL ;
 
         printf("\ntestLineAPI_Remove (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    // Add a line to remove
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:removeme@pingtel.com", &hLine), SIPX_RESULT_SUCCESS) ;	
-	    CPPUNIT_ASSERT(hLine) ;
+        // Add a line to remove
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:removeme@pingtel.com", &hLine), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT(hLine) ;
 
-	    // Remove it and remove it again
-	    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_FAILURE) ;
+        // Remove it and remove it again
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_FAILURE) ;
 
-	    // Remove something invalid
-	    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(NULL), SIPX_RESULT_INVALID_ARGS) ;
+        // Remove something invalid
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(SIPX_LINE_NULL), SIPX_RESULT_INVALID_ARGS) ;
     }
 
     OsTask::delay(TEST_DELAY) ;    
@@ -84,18 +86,18 @@ void sipXtapiTestSuite::testLineAPI_Credential()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE	hLine = NULL ;
+        SIPX_LINE    hLine = SIPX_LINE_NULL ;
 
         printf("\ntestLineAPI_Credential (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    // Add a line to remove
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:credential@pingtel.com", &hLine), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT(hLine) ;
+        // Add a line to remove
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:credential@pingtel.com", &hLine), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(hLine) ;
 
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAddCredential(hLine, "userID", "passwd", "pingtel.com"), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAddCredential(hLine, "userID", "passwd", "pingtel2.com"), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineAddCredential(hLine, "userID", "passwd", "pingtel.com"), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineAddCredential(hLine, "userID", "passwd", "pingtel2.com"), SIPX_RESULT_SUCCESS) ;
 
-	    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
     }
 
     OsTask::delay(TEST_DELAY) ;    
@@ -106,44 +108,44 @@ void sipXtapiTestSuite::testLineAPI_Get()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE	hLine = NULL ;
-	    SIPX_LINE hLines[32] ;
-	    size_t nLines ;
+        SIPX_LINE    hLine = SIPX_LINE_NULL ;
+        SIPX_LINE hLines[32] ;
+        size_t nLines ;
       size_t i;
-	    const char* szURI = "sip:removeme@pingtel.com" ;
+        const char* szURI = "sip:removeme@pingtel.com" ;
 
         printf("\ntestLineAPI_Get (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
-	    // First clear any lines
-	    CPPUNIT_ASSERT_EQUAL(sipxLineGet(g_hInst, hLines, 32, nLines), SIPX_RESULT_SUCCESS) ;
-	    for (i=0; i<nLines; i++) 
-	    {
-		    CPPUNIT_ASSERT(hLines[i] != NULL) ;
-		    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLines[i]), SIPX_RESULT_SUCCESS) ;
-	    }
+        // First clear any lines
+        CPPUNIT_ASSERT_EQUAL(sipxLineGet(g_hInst, hLines, 32, nLines), SIPX_RESULT_SUCCESS) ;
+        for (i=0; i<nLines; i++) 
+        {
+            CPPUNIT_ASSERT(hLines[i] != SIPX_LINE_NULL) ;
+            CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLines[i]), SIPX_RESULT_SUCCESS) ;
+        }
 
-	    // Make sure the list is empty
-	    nLines = 203431 ;
-	    CPPUNIT_ASSERT_EQUAL(sipxLineGet(g_hInst, hLines, 32, nLines), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(nLines, (size_t) 0) ;
+        // Make sure the list is empty
+        nLines = 203431 ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineGet(g_hInst, hLines, 32, nLines), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(nLines, (size_t) 0) ;
 
-	    // Add and element and verify it is present
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, szURI, &hLine), SIPX_RESULT_SUCCESS) ;	
-	    CPPUNIT_ASSERT(hLine) ;
-	    
-	    CPPUNIT_ASSERT_EQUAL(sipxLineGet(g_hInst, hLines, 32, nLines), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(nLines, (size_t) 1) ;	
-	    CPPUNIT_ASSERT(hLines[0] != NULL) ;
+        // Add and element and verify it is present
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, szURI, &hLine), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT(hLine) ;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxLineGet(g_hInst, hLines, 32, nLines), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(nLines, (size_t) 1) ;    
+        CPPUNIT_ASSERT(hLines[0] != SIPX_LINE_NULL) ;
 
-	    char cBuf[256] ;
-	    size_t nActual ;
-	    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
+        char cBuf[256] ;
+        size_t nActual ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
 #ifdef _WIN32
-	    CPPUNIT_ASSERT(stricmp(cBuf, szURI) == 0) ;
+        CPPUNIT_ASSERT(stricmp(cBuf, szURI) == 0) ;
 #else
-	    CPPUNIT_ASSERT(strcasecmp(cBuf, szURI) == 0) ;
+        CPPUNIT_ASSERT(strcasecmp(cBuf, szURI) == 0) ;
 #endif
-	    CPPUNIT_ASSERT_EQUAL(strlen(cBuf)+1, nActual) ;
+        CPPUNIT_ASSERT_EQUAL(strlen(cBuf)+1, nActual) ;
 
       // Clean up
       CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLines[i]), SIPX_RESULT_SUCCESS) ;
@@ -157,43 +159,43 @@ void sipXtapiTestSuite::testLineAPI_GetURI()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-	    SIPX_LINE	hLine = NULL ;
-	    const char* szURI = "sip:removeme@pingtel.com" ;
+        SIPX_LINE    hLine = SIPX_LINE_NULL ;
+        const char* szURI = "sip:removeme@pingtel.com" ;
 
         printf("\ntestLineAPI_GetURI (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         // Add and element
-	    CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, szURI, &hLine), SIPX_RESULT_SUCCESS) ;	
-	    CPPUNIT_ASSERT(hLine) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, szURI, &hLine), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT(hLine) ;
 
 
-	    // Standard get
-	    char cBuf[256] ;
-	    size_t nActual ;
-	    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
+        // Standard get
+        char cBuf[256] ;
+        size_t nActual ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
 #ifdef _WIN32
-	    CPPUNIT_ASSERT(stricmp(cBuf, szURI) == 0) ;
+        CPPUNIT_ASSERT(stricmp(cBuf, szURI) == 0) ;
 #else
-	    CPPUNIT_ASSERT(strcasecmp(cBuf, szURI) == 0) ;
+        CPPUNIT_ASSERT(strcasecmp(cBuf, szURI) == 0) ;
 #endif
-	    CPPUNIT_ASSERT_EQUAL(strlen(cBuf)+1, nActual) ;
+        CPPUNIT_ASSERT_EQUAL(strlen(cBuf)+1, nActual) ;
 
-	    // Ask for length
-	    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, NULL, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
-	    CPPUNIT_ASSERT_EQUAL(nActual, strlen(szURI) + 1) ;
+        // Ask for length
+        CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, NULL, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(nActual, strlen(szURI) + 1) ;
 
-	    // Small Buffer (doesn't stomp, etc)
-	    strcpy(cBuf, "1234567890") ;
-	    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, 5, nActual), SIPX_RESULT_SUCCESS) ;
+        // Small Buffer (doesn't stomp, etc)
+        strcpy(cBuf, "1234567890") ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, 5, nActual), SIPX_RESULT_SUCCESS) ;
 #ifdef _WIN32
-	    CPPUNIT_ASSERT(stricmp(cBuf, "sip:") == 0) ;
+        CPPUNIT_ASSERT(stricmp(cBuf, "sip:") == 0) ;
 #else
-	    CPPUNIT_ASSERT(strcasecmp(cBuf, "sip:") == 0) ;
+        CPPUNIT_ASSERT(strcasecmp(cBuf, "sip:") == 0) ;
 #endif
-	    CPPUNIT_ASSERT(cBuf[5] == '6') ;
+        CPPUNIT_ASSERT(cBuf[5] == '6') ;
 
-	    // Clean up
-	    CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
+        // Clean up
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
     }
 
     OsTask::delay(TEST_DELAY) ;    
@@ -365,6 +367,167 @@ void sipXtapiTestSuite::testLineEvents()
     checkForLeaks();
 }
 
+
+void sipXtapiTestSuite::testLineAliases() 
+{    
+    bool bRC ;
+    EventValidator validatorCalling("testLineAliases.calling") ;
+    EventValidator validatorCalled("testLineAliases.called") ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestLineAliases (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        SIPX_CALL hCall ;
+        SIPX_LINE hLine ;
+        SIPX_LINE hReceivingLine;
+        SIPX_RESULT rc ;
+
+        validatorCalling.reset() ;
+        validatorCalled.reset() ;
+
+        // Setup Auto-answer call back
+        resetAutoAnswerCallback() ;
+        sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
+        sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
+
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_AUTO);
+        bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        rc = sipxLineAddAlias(hReceivingLine, "sip:alias@127.0.0.1:9100") ;
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+
+        createCall(&hLine, &hCall) ;
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100") ;
+        
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+                
+        int connectionId = -1;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(connectionId != -1) ;
+                
+        SIPX_CALL hDestroyedCall = hCall ;
+        destroyCall(hCall) ;
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+
+        validatorCalling.reset() ;
+        validatorCalled.reset() ;        
+        resetAutoAnswerCallback() ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
+
+        createCall(&hLine, &hCall) ;
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;        
+
+        sipxCallConnect(hCall, "sip:alias@127.0.0.1:9100") ;
+        
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+                
+        connectionId = -1;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(connectionId != -1) ;
+                
+        hDestroyedCall = hCall ;
+        destroyCall(hCall) ;
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(hReceivingLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoAnswerCallback, NULL), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS) ;
+    
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+    }
+
+    OsTask::delay(TEST_DELAY) ;
+
+    checkForLeaks();
+}
 
 
 void sipXtapiTestSuite::testRegistration()

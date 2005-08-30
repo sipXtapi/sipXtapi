@@ -444,7 +444,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
                 {
                     strcpy(szAddr, pNextAddress->String);
                     // ignore the loopback address
-                    if (strcmp(szAddr, "127.0.0.1") == 0)
+                    if (strcmp(szAddr, "127.0.0.1") == 0 || strcmp(szAddr, "0.0.0.0") == 0)
                     {
                         if (pNextInfoRecord->IpAddressList.Next)
                         {

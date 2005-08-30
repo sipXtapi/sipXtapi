@@ -19,6 +19,16 @@
 #include <net/SdpCodec.h>
 
 // DEFINES
+// Crypto suites
+#define AES_CM_128_HMAC_SHA1_80   1
+#define AES_CM_128_HAMC_SHA1_32   2
+#define F8_128_HMAC_SHA1_80       3
+// Protection level
+#define ENCRYPTION                1
+#define AUTHENTICATION            2
+// Key length
+#define SRTP_KEY_LENGTH          30
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -26,6 +36,13 @@
 #define SDP_CONTENT_TYPE "application/sdp"
 // STRUCTS
 // TYPEDEFS
+typedef struct SdpSrtpParameters
+{
+    int cipherType;
+    int securityLevel;
+    unsigned char masterKey[SRTP_KEY_LENGTH+1];
+} SdpSrtpParameters;
+
 // FORWARD DECLARATIONS
 class SdpCodecFactory;
 
@@ -147,16 +164,22 @@ class SdpBody : public HttpBody
    void addAudioCodecs(const char* rtpAddress,
                        int rtpPort,
                        int rtcpPort,
+                       int videoRtpPort,
+                       int videoRtcpPort,
                        int numRtpCodecs,
-                       SdpCodec* rtpCodecs[]
+                       SdpCodec* rtpCodecs[],
+                       SdpSrtpParameters& srtpParams 
                        );
 
    /// Create a response to a set of media codec and address entries.
    void addAudioCodecs(const char* rtpAddress, 
-                       int rtpPort,
-                       int rtcpPort,
+                       int rtpAudioPort,
+                       int rtcpAudioPort,
+                       int rtpVideoPort,
+                       int rtcpVideoPort,
                        int numRtpCodecs, 
                        SdpCodec* rtpCodecs[],
+                       SdpSrtpParameters& srtpParams,
                        const SdpBody* sdpRequest ///< Sdp we are responding to
                        );
    /**<
@@ -179,7 +202,8 @@ class SdpBody : public HttpBody
                      );
 
    void addCodecParameters(int numRtpCodecs,
-                           SdpCodec* rtpCodecs[]
+                           SdpCodec* rtpCodecs[],
+                           const char* szMimeType = "audio"
                            );
 
    /// Set address.
@@ -202,7 +226,9 @@ class SdpBody : public HttpBody
                   int numChannels
                   );
 
-    void addFormatParameters(int payloadType,
+   void addSrtpCryptoField(SdpSrtpParameters& params);
+
+   void addFormatParameters(int payloadType,
                             const char* formatParameters
                             );
 
@@ -307,6 +333,17 @@ class SdpBody : public HttpBody
                                int& sampleRate,        ///< the number of samples/sec. (-1 if not set)
                                int& numChannels        ///< the number of channels (-1 if not set)
                                ) const;
+
+   // Get the fmtp parameter
+   UtlBoolean getPayloadFormat(int payloadType,
+                               UtlString& fmtp,
+                               int& videoFmtp) const;
+
+   // Get the crypto field for SRTP
+   UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
+                                          int index,                       ///< Index inside of media type
+                                          SdpSrtpParameters& params) const;
+
    /**<
     * Find the "a" record containing an rtpmap for the given
     * payload type id, parse it and return the parameters for it.
@@ -330,15 +367,25 @@ class SdpBody : public HttpBody
                            SdpCodec**& codecsInCommonArray,
                            UtlString& rtpAddress, 
                            int& rtpPort,
-                           int& rtcpPort) const;
+                           int& rtcpPort,
+                           int& videoRtpPort,
+                           int& videoRtcpPort) const;
    ///< It is assumed that the best are matches are first in the body.
 
 
-   void getCodecsInCommon(int payloadIdCount,
-                          int payloadTypes[],
+   void getCodecsInCommon(int audioPayloadIdCount,
+                          int videoPayloadCount,
+                          int audioPayloadTypes[],
+                          int videoPayloadTypes[],
                           SdpCodecFactory& codecFactory,
                           int& numCodecsInCommon,
                           SdpCodec* codecs[]) const;
+
+   // Find common encryption suites
+   void getEncryptionInCommon(SdpSrtpParameters& audioParams,
+                              SdpSrtpParameters& videoParams,
+                              SdpSrtpParameters& commonAudioParms,
+                              SdpSrtpParameters& commonVideoParms);
 
     /**
      * Get the candidate attribute per draft-ietf-mmusic-ice-04

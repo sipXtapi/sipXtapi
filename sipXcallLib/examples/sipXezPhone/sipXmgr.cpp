@@ -19,6 +19,8 @@
 #include "utl/UtlInt.h"
 #include "utl/UtlString.h"
 
+#include "tapi/sipXtapiInternal.h"
+
 
 extern sipXezPhoneApp* thePhoneApp;
 
@@ -37,8 +39,16 @@ sipXmgr::sipXmgr() :
    m_hCall(0),
    m_hConf(0),
    m_hTransferInProgress(0),
-   m_hCallController(0)
+   m_hCallController(0),
+   mpVideoDisplay(NULL),
+   mpPreviewDisplay(NULL)
 {
+    mpVideoDisplay = new SIPX_VIDEO_DISPLAY;
+    memset(mpVideoDisplay, 0, sizeof(SIPX_VIDEO_DISPLAY));
+    
+    mpPreviewDisplay = new SIPX_VIDEO_DISPLAY;
+    memset(mpPreviewDisplay, 0, sizeof(SIPX_VIDEO_DISPLAY));
+    
     clearEventLog() ;
 }
 
@@ -106,7 +116,7 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
     {    
         sipxConfigEnableStun(m_hInst,
                              sipXezPhoneSettings::getInstance().getStunServer().data(), 
-                             DEFAULT_STUN_KEEPALIVE); 
+                             DEFAULT_STUN_KEEPALIVE, SIPX_STUN_CHANGE_PORT); 
         //sleep(2000); // kludge alert - wait for the stun response
     }
 
@@ -157,6 +167,11 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
     sipXmgr::getInstance().enableAEC(sipXezPhoneSettings::getInstance().getEnableAEC());
     sipXmgr::getInstance().enableOutOfBandDTMF(sipXezPhoneSettings::getInstance().getEnableOOBDTMF());
     sipXmgr::getInstance().setCodecPreferences(sipXezPhoneSettings::getInstance().getCodecPref());
+
+#ifdef TEST_GSM
+    sipxConfigSetAudioCodecByName(m_hInst, "GSM");
+#endif
+
     return true;
 }
 
@@ -167,13 +182,23 @@ void sipXmgr::UnInitialize()
     {
         sipxEventListenerRemove(sipXmgr::spSipXmgr->m_hInst, SipCallbackProc, NULL);
         sipxLineRemove(sipXmgr::spSipXmgr->m_hLine);
-        sipXmgr::spSipXmgr->m_hLine = 0;
-          
-        sipxUnInitialize(sipXmgr::spSipXmgr->m_hInst);
+        sipXmgr::spSipXmgr->m_hLine = 0;   
+
+        // We need to wait for lines to unregister / calls to drop
+        for (int i=0; i<10; i++)
+        {
+            if (sipxUnInitialize(sipXmgr::spSipXmgr->m_hInst) != SIPX_RESULT_SUCCESS)
+            {
+                OsTask::delay(1000) ;
+            }
+            else
+            {
+                break ;
+            }
+        }
+
         sipXmgr::spSipXmgr->m_hInst = NULL;
     }
-
-    sipxUnInitialize(m_hInst);
 }
 
 
@@ -251,6 +276,25 @@ bool sipXmgr::handleCallstateEvent(void* pInfo, void* pUserData)
         case CALLSTATE_CONNECTED:
             if (pCallInfo->cause == CALLSTATE_CONNECTED_ACTIVE)
             {
+                /*  FOR TESTING THE sipxCallGetVoiceEnginePtr 
+                class fred : public wxThread
+                {
+                    public:
+                        fred(SIPX_CALL hCall) { mhCall = hCall; }
+                        void* Entry()
+                        {   
+                            GipsVoiceEngineLib* pLib = sipxCallGetVoiceEnginePtr(mhCall);
+                            return NULL;
+                        }
+
+                        void OnExit() { }
+                    private:
+                        SIPX_CALL mhCall;
+                };
+                fred* f = new fred(pCallInfo->hCall);
+                f->Create();
+                f->Run();                
+                */
                 PhoneStateMachine::getInstance().OnConnected();
             }
             else if (pCallInfo->cause == CALLSTATE_CONNECTED_ACTIVE_HELD)
@@ -293,12 +337,21 @@ bool sipXmgr::handleCallstateEvent(void* pInfo, void* pUserData)
         case CALLSTATE_AUDIO_EVENT:
             if (pCallInfo->cause == CALLSTATE_AUDIO_START)
             {
-                sprintf(szPayloadType, "%d", pCallInfo->codec.iPayloadType);
-                thePhoneApp->addLogMessage("Using codec " + 
-                                            UtlString(pCallInfo->codec.cName) +
-                                            ", Payload type " +
+                sprintf(szPayloadType, "%d", pCallInfo->codecs.audioCodec.iPayloadType);
+                thePhoneApp->addLogMessage("Audio codec: " + 
+                                            UtlString(pCallInfo->codecs.audioCodec.cName) +
+                                            ", Pl type: " +
                                             UtlString(szPayloadType) +
                                             "\n");
+                if (pCallInfo->codecs.videoCodec.iPayloadType != -1)
+                {
+                    sprintf(szPayloadType, "%d", pCallInfo->codecs.videoCodec.iPayloadType);
+                    thePhoneApp->addLogMessage("Video codec: " + 
+                                                UtlString(pCallInfo->codecs.videoCodec.cName) +
+                                                ", Pl type: " +
+                                                UtlString(szPayloadType) +
+                                                "\n");
+                }
             }
             break;
         default:
@@ -352,7 +405,7 @@ bool sipXmgr::handleInfoEvent(void* pInfo, void* pUserData)
     
     pMsg = (char*)malloc(pInfoMsg->nContentLength+256);
     memset((void*)pMsg, 0, pInfoMsg->nContentLength + 256);
-    UtlString body(pInfoMsg->szContent, pInfoMsg->nContentLength);
+    UtlString body(pInfoMsg->pContent, pInfoMsg->nContentLength);
     
     
     sprintf(pMsg, "type=%s, body=%s", pInfoMsg->szContentType, body.data()); 
@@ -472,7 +525,30 @@ bool sipXmgr::placeCall(const char* szSipUrl, const char* szFromIdentity, const 
     bool bRC = false ;
 
     sipxCallCreate(m_hInst, m_hLine, &m_hCall) ;    
-    sipxCallConnect(m_hCall, szSipUrl) ;
+    
+    SIPX_VIDEO_DISPLAY display;
+    // TODO - clean up the memory leak introduced above   
+    
+    display.handle = sipXmgr::getInstance().getVideoWindow();
+    display.type = SIPX_WINDOW_HANDLE_TYPE;
+        
+    /* for testing of the LOCAL address type
+    size_t numAddresses = 0;
+    SIPX_CONTACT_ADDRESS addresses[32];
+    sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);
+    
+    for (int i = 0; i < numAddresses; i++)
+    {
+        if (addresses[i].eContactType == LOCAL)
+        {
+            break;
+        }
+    }
+    
+    sipxCallConnect(m_hCall, szSipUrl, addresses[i].id, pDisplay) ;
+    */
+
+    sipxCallConnect(m_hCall, szSipUrl, 0, &display) ;
    
     return bRC ;
 }
@@ -680,7 +756,15 @@ bool sipXmgr::addConfParty(const char* const szParty)
     {
         SIPX_CALL hNewCall = 0;
         
-        if (SIPX_RESULT_SUCCESS == sipxConferenceAdd(m_hConf, getCurrentLine(), szParty, &hNewCall))
+        SIPX_VIDEO_DISPLAY* pDisplay = new SIPX_VIDEO_DISPLAY;
+        // TODO - clean up the memory leak introduced above   
+        
+        pDisplay->cbSize = sizeof(SIPX_VIDEO_DISPLAY);
+        pDisplay->handle = sipXmgr::getInstance().getVideoWindow();
+        pDisplay->type = SIPX_WINDOW_HANDLE_TYPE;
+        
+        if (SIPX_RESULT_SUCCESS == sipxConferenceAdd(m_hConf, getCurrentLine(), szParty, &hNewCall, 0,
+                                                     pDisplay ))
         {
             mConfCallHandleMap.insertKeyAndValue(new UtlString(szParty), new UtlInt(hNewCall));
             
@@ -723,7 +807,7 @@ bool sipXmgr::getCodecPreferences(int* pCodecPref)
 
     if (pCodecPref)
     {
-        if (sipxConfigGetAudioCodecPreferences(m_hInst, (SIPX_BANDWIDTH_ID*)pCodecPref) == SIPX_RESULT_SUCCESS)
+        if (sipxConfigGetAudioCodecPreferences(m_hInst, (SIPX_AUDIO_BANDWIDTH_ID*)pCodecPref) == SIPX_RESULT_SUCCESS)
         {
             rc = true;
         }
@@ -770,9 +854,140 @@ bool sipXmgr::getCodecList(UtlString& codecList)
     return rc;
 }
 
-void sipXmgr::setCodecPreferences(int codecPref)
+bool sipXmgr::getVideoCodecPreferences(int* pCodecPref)
 {
-    sipxConfigSetAudioCodecPreferences(m_hInst, (SIPX_BANDWIDTH_ID)codecPref);
+    bool rc = false;
+
+    if (pCodecPref)
+    {
+        if (sipxConfigGetVideoCodecPreferences(m_hInst, (SIPX_VIDEO_BANDWIDTH_ID*)pCodecPref) == SIPX_RESULT_SUCCESS)
+        {
+            rc = true;
+        }
+    }
+    return rc;
+}
+
+bool sipXmgr::getVideoCodecList(UtlString& codecList)
+{
+    bool rc = false;
+
+    int numCodecs;
+    SIPX_VIDEO_CODEC codec;
+    UtlString sBandWidth;
+
+    codecList = "";
+    
+    if (sipxConfigGetNumVideoCodecs(m_hInst, &numCodecs) == SIPX_RESULT_SUCCESS)
+    {
+        for (int i=0; i<numCodecs; i++)
+        {
+            if (sipxConfigGetVideoCodec(m_hInst, i, &codec) == SIPX_RESULT_SUCCESS)
+            {
+                switch (codec.iBandWidth)
+                {
+                case AUDIO_CODEC_BW_VARIABLE:
+                    sBandWidth = " (Variable)";
+                    break;
+                case AUDIO_CODEC_BW_LOW:
+                    sBandWidth = " (Low)";
+                    break;
+                case AUDIO_CODEC_BW_NORMAL:
+                    sBandWidth = " (Normal)";
+                    break;
+                case AUDIO_CODEC_BW_HIGH:
+                    sBandWidth = " (High)";
+                    break;
+                 }
+                codecList = codecList + codec.cName + sBandWidth + "\n"; 
+            }
+        }
+        rc = true;
+    }
+    return rc;
+}
+
+bool sipXmgr::setAudioCodecByName(const char* name)
+{
+    bool rc = false;
+
+    if (sipxConfigSetAudioCodecByName(m_hInst, name) == SIPX_RESULT_SUCCESS)
+    {
+        rc = true;
+    }
+    return rc;
+}
+
+bool sipXmgr::setVideoCodecByName(const char* name)
+{
+    bool rc = false;
+
+    if (sipxConfigSetVideoCodecByName(m_hInst, name) == SIPX_RESULT_SUCCESS)
+    {
+        rc = true;
+    }
+    return rc;
+}
+
+void sipXmgr::setPreviewWindow(void* pWnd)
+{
+    mpPreviewDisplay->type = SIPX_WINDOW_HANDLE_TYPE;
+    mpPreviewDisplay->handle = pWnd;
+#ifdef VIDEO
+    sipxConfigSetVideoPreviewDisplay(sipXmgr::getInstance().getSipxInstance(), mpPreviewDisplay);
+#endif
+}
+
+void* sipXmgr::getPreviewWindow()
+{
+    return mpPreviewDisplay->handle;
+}
+
+void sipXmgr::setVideoWindow(void* pWnd)
+{
+    mpVideoDisplay->handle = pWnd;
+}
+
+void* sipXmgr::getVideoWindow()
+{
+    return mpVideoDisplay->handle;
+}
+
+bool sipXmgr::setCodecPreferences(int codecPref)
+{
+    bool rc = false;
+
+    if (sipxConfigSetAudioCodecPreferences(m_hInst, (SIPX_AUDIO_BANDWIDTH_ID)codecPref) == SIPX_RESULT_SUCCESS)
+    {
+        rc = true;
+    }
+    return rc;
+}
+
+bool sipXmgr::setVideoCodecPreferences(int codecPref)
+{
+    bool rc = false;
+
+    if (sipxConfigSetVideoCodecPreferences(m_hInst, (SIPX_VIDEO_BANDWIDTH_ID)codecPref) == SIPX_RESULT_SUCCESS)
+    {
+        rc = true;
+    }
+    return rc;
+}
+
+bool sipXmgr::setVideoParameters(int iQuality, int iBitRate, int iFrameRate)
+{
+    bool rc = false;
+#ifdef VIDEO
+    if (sipxConfigSetVideoQuality(m_hInst, (SIPX_VIDEO_QUALITY_ID)iQuality) == SIPX_RESULT_SUCCESS)
+    {
+        if (sipxConfigSetVideoParameters(m_hInst, iBitRate, iFrameRate) == SIPX_RESULT_SUCCESS)
+        {
+            rc = true;
+        }
+    }
+#endif
+    return rc;
 }
 
 bool sipXmgr::isAECEnabled()
@@ -869,4 +1084,9 @@ void sipXmgr::clearEventLog()
         mEventLog[i] = wxEmptyString ;
     }
     mEventLogIndex = 0 ;  
+}
+
+SIPX_INST sipXmgr::getSipxInstance()
+{
+    return m_hInst;
 }
