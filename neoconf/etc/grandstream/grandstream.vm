@@ -2,7 +2,7 @@
 # Model $phone.Model.ModelId Maxlines $phone.Model.MaxLineCount
 
 #foreach ($group in $phone.Settings.Values)
-#foreach ($setting in $group.Values)
+#foreach ($setting in $phone.getRealSettings($group))
 ${setting.ProfileName} = $!{setting.Value}
 #end
 #end
