@@ -23,19 +23,20 @@ public class LoginPageTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        tester.beginAt("/app?service=page/TestPage");
+        clickLink("seedTestUser");
+        clickLink("ManageUsers");   // will redirect to login page
     }    
     
     public void testLoginWithUserName() throws Exception {       
         checkLogin(TestPage.TEST_USER_USERNAME);
     }
     
-    /** FIXME XCF-560 */
-    public void _testLoginWithFirstAlias() throws Exception {       
+    public void testLoginWithFirstAlias() throws Exception {       
         checkLogin(TestPage.TEST_USER_ALIAS1);
     }
     
-    /** FIXME XCF-560 */
-    public void _testLoginWithSecondAlias() throws Exception {       
+    public void testLoginWithSecondAlias() throws Exception {       
         checkLogin(TestPage.TEST_USER_ALIAS2);
     }
     
