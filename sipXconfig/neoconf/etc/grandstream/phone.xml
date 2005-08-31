@@ -6,6 +6,18 @@
   <type id="byte">
     <integer min="0" max="255"/>
   </type>
+  <type id="gscodec">
+    <enum>
+      <option><label>PCMU</label><value>0</value></option>
+      <option><label>G.726-32</label><value>2</value></option>
+      <option><label>G.723.1</label><value>4</value></option>
+      <option><label>PCMA</label><value>8</value></option>
+      <option><label>G.728</label><value>15</value></option>
+      <option><label>G.729A/B</label><value>18</value></option>
+      <option><label>iLBC</label><value>98</value></option>
+      <option><label>G.722</label><value>9</value></option>
+    </enum>
+  </type>
   <group name="grandstream">
     <group name="phone">
 	    <group name="network">
@@ -28,145 +40,181 @@
 	        <value></value>
 	        <description>PPPoE password</description>
 	      </setting>
-	      <setting name="P9">
+	      <setting name="__IPAddress-9">
+	        <label>IP Address</label>
+	        <type><ipaddr/></type>
+	        <value></value>
+	        <description>Ignore if DHCP or PPPoE is used</description>
+              </setting>
+	      <setting name="P9" hidden="yes">
 	        <label>IP Address byte 1</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>IP Address byte 1. Ignore if DHCP or PPPoE is used</description>
 	      </setting>
-	      <setting name="P10">
+	      <setting name="P10" hidden="yes">
 	        <label>IP Address byte 2</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>IP Address byte 2</description>
 	      </setting>
-	      <setting name="P11">
+	      <setting name="P11" hidden="yes">
 	        <label>IP Address byte 3</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>IP Address byte 3</description>
 	      </setting>
-	      <setting name="P12">
+	      <setting name="P12" hidden="yes">
 	        <label>IP Address byte 4</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>IP Address byte 4</description>
 	      </setting>
-	      <setting name="P13">
+	      <setting name="__SubnetMask-13">
+	        <label>Subnet mask</label>
+	        <type><ipaddr/></type>
+	        <value>255.255.255.0</value>
+	        <description>Ignore if DHCP or PPPoE is used</description>
+              </setting>
+	      <setting name="P13" hidden="yes">
 	        <label>Subnet mask byte 1</label>
 	        <type refid="byte"/>
 	        <value>255</value>
 	        <description>Subnet mask byte 2. Ignore if DHCP or PPPoE is used</description>
 	      </setting>
-	      <setting name="P14">
+	      <setting name="P14" hidden="yes">
 	        <label>Subnet mask byte 2</label>
 	        <type refid="byte"/>
 	        <value>255</value>
 	        <description>Subnet mask byte 2</description>
 	      </setting>
-	      <setting name="P15">
+	      <setting name="P15" hidden="yes">
 	        <label>Subnet mask byte 3</label>
 	        <type refid="byte"/>
 	        <value>255</value>
 	        <description>Subnet mask byte 3</description>
 	      </setting>
-	      <setting name="P16">
+	      <setting name="P16" hidden="yes">
 	        <label>Subnet mask byte 4</label>
 	        <type refid="byte"/>
 	        <value>0</value>
 	        <description>Subnet mask byte 4</description>
 	      </setting>
-	      <setting name="P17">
+	      <setting name="__Router-17">
+	        <label>Subnet mask</label>
+	        <type><ipaddr/></type>
+	        <value></value>
+	        <description>Ignore if DHCP or PPPoE is used</description>
+              </setting>
+	      <setting name="P17" hidden="yes">
 	        <label>Router byte 1</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>Router IP address byte 1. Ignore if DHCP or PPPoE is used</description>
 	      </setting>
-	      <setting name="P18">
+	      <setting name="P18" hidden="yes">
 	        <label>Router byte 2</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>Router byte 2</description>
 	      </setting>
-	      <setting name="P19">
+	      <setting name="P19" hidden="yes">
 	        <label>Router byte 3</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>Router byte 3</description>
 	      </setting>
-	      <setting name="P20">
+	      <setting name="P20" hidden="yes">
 	        <label>Router byte 4</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>Router byte 4</description>
 	      </setting>
-	      <setting name="P92">
+	      <setting name="__DNSServer-92">
+	        <label>DNS server</label>
+	        <type><ipaddr/></type>
+	        <value></value>
+	        <description>Use this DNS server if specified.</description>
+              </setting>
+	      <setting name="P92" hidden="yes">
 	        <label>DNS server byte 1</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS server IP address byte 1. Use this DNS server if specified.</description>
 	      </setting>
-	      <setting name="P93">
+	      <setting name="P93" hidden="yes">
 	        <label>DNS server byte 2</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS server byte 2</description>
 	      </setting>
-	      <setting name="P94">
+	      <setting name="P94" hidden="yes">
 	        <label>DNS server byte 3</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS server byte 3</description>
 	      </setting>
-	      <setting name="P95">
+	      <setting name="P95" hidden="yes">
 	        <label>DNS server byte 4</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS server byte 4</description>
 	      </setting>
-	      <setting name="P21">
+	      <setting name="__DNS1-21">
+	        <label>DNS 1</label>
+	        <type><ipaddr/></type>
+	        <value></value>
+	        <description>Ignore if DHCP or PPPoE is used</description>
+              </setting>
+	      <setting name="P21" hidden="yes">
 	        <label>DNS 1 byte 1</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS 1 byte 1. Ignore if DHCP or PPPoE is used</description>
 	      </setting>
-	      <setting name="P22">
+	      <setting name="P22" hidden="yes">
 	        <label>DNS 1 byte 2</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS 1 byte 2</description>
 	      </setting>
-	      <setting name="P23">
+	      <setting name="P23" hidden="yes">
 	        <label>DNS 1 byte 3</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS 1 byte 3</description>
 	      </setting>
-	      <setting name="P24">
+	      <setting name="P24" hidden="yes">
 	        <label>DNS 1 byte 4</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS 1 byte 4</description>
 	      </setting>
-	      <setting name="P25">
+	      <setting name="__DNS2-25">
+	        <label>DNS 2</label>
+	        <type><ipaddr/></type>
+	        <value></value>
+	        <description>Ignore if DHCP or PPPoE is used</description>
+              </setting>
+	      <setting name="P25" hidden="yes">
 	        <label>DNS 2 byte 1</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS 2 byte 1. Ignore if DHCP or PPPoE is used</description>
 	      </setting>
-	      <setting name="P26">
+	      <setting name="P26" hidden="yes">
 	        <label>DNS 2 byte 2</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS 2 byte 2</description>
 	      </setting>
-	      <setting name="P27">
+	      <setting name="P27" hidden="yes">
 	        <label>DNS 2 byte 3</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>DNS 2 byte 3</description>
 	      </setting>
-	      <setting name="P28">
+	      <setting name="P28" hidden="yes">
 	        <label>DNS 2 byte 4</label>
 	        <type refid="byte"/>
 	        <value></value>
@@ -180,10 +228,16 @@
 	      </setting>
 	      <setting name="P208">
 	        <label>Syslog Level</label>
-	        <type><integer min="0" max="7"/></type>
+	        <type>
+	          <enum>
+                    <option><label>NONE</label><value>0</value></option>
+                    <option><label>DEBUG</label><value>1</value></option>
+                    <option><label>INFO</label><value>2</value></option>
+                    <option><label>WARNING</label><value>3</value></option>
+                    <option><label>ERROR</label><value>4</value></option>
+	          </enum>
+                </type>
 	        <value>0</value>
-	        <description>Syslog Level (Default setting is NONE) 0 - NONE, 1 - DEBUG, 2 - INFO, 3 - WARNING, 4 -
-	          ERROR</description>
 	      </setting>
 	    </group>
 	    <group name="upgrade">
@@ -194,51 +248,61 @@
 	        <value>0</value>
 	        <description>HTTP Firmware Upgrade, otherwise use TFTP Firmware Upgrade.</description>
 	      </setting>
-	      <setting name="P213">
+	      <setting name="__TFTPServer-213">
+	        <label>TFTP server</label>
+	        <type><ipaddr/></type>
+	        <value></value>
+	        <description>TFTP Server for firmware version 1.0.5.22 and above.</description>
+              </setting>
+	      <setting name="P213" hidden="yes">
 	        <label>TFTP Server byte 1</label>
 	        <type><string/></type>
 	        <value></value>
-	        <description>TFTP Server byte 1 (for remote software upgrade and configuration. For firmware version
-	          1.0.5.22 and above)</description>
+	        <description>TFTP Server byte 1 firmware version 1.0.5.22 and above</description>
 	      </setting>
-	      <setting name="P214">
+	      <setting name="P214" hidden="yes">
 	        <label>TFTP byte 2</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>TFTP byte 2</description>
 	      </setting>
-	      <setting name="P215">
+	      <setting name="P215" hidden="yes">
 	        <label>TFTP byte 3</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>TFTP byte 3</description>
 	      </setting>
-	      <setting name="P216">
+	      <setting name="P216" hidden="yes">
 	        <label>TFTP byte 4</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>TFTP byte 4</description>
 	      </setting>
-	      <setting name="P41">
+	      <setting name="__TFTPServerOld-41">
+	        <label>TFTP server</label>
+	        <type><ipaddr/></type>
+	        <value></value>
+	        <description>TFTP Server for firmware version below 1.0.5.22.</description>
+              </setting>
+	      <setting name="P41" hidden="yes">
 	        <label>TFTP Server byte 1</label>
 	        <type><string/></type>
 	        <value></value>
-	        <description>TFTP Server byte 1(for remote software upgrade and configuration. For firmware version
-	          below 1.0.5.22)</description>
+	        <description>TFTP Server byte 1 for firmware version below 1.0.5.22</description>
 	      </setting>
-	      <setting name="P42">
+	      <setting name="P42" hidden="yes">
 	        <label>TFTP byte 2</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>TFTP byte 2</description>
 	      </setting>
-	      <setting name="P43">
+	      <setting name="P43" hidden="yes">
 	        <label>TFTP byte 3</label>
 	        <type refid="byte"/>
 	        <value></value>
 	        <description>TFTP byte 3</description>
 	      </setting>
-	      <setting name="P44">
+	      <setting name="P44" hidden="yes">
 	        <label>TFTP byte 4</label>
 	        <type refid="byte"/>
 	        <value></value>
@@ -356,52 +420,38 @@
 	      <label>Codec Settings</label>
 	      <setting name="P57">
 	        <label>First codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>0</value>
-	        <description>First codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 -
-	          G.722</description>
 	      </setting>
 	      <setting name="P58">
 	        <label>Second codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>2</value>
-	        <description>Second codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9
-	          - G.722</description>
 	      </setting>
 	      <setting name="P59">
 	        <label>Third codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>4</value>
-	        <description>Third codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 -
-	          G.722</description>
 	      </setting>
 	      <setting name="P60">
 	        <label>Fourth codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>8</value>
-	        <description>Fourth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9
-	          - G.722</description>
 	      </setting>
 	      <setting name="P61">
 	        <label>Fifth codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>15</value>
-	        <description>Fifth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 -
-	          G.722</description>
 	      </setting>
 	      <setting name="P62">
 	        <label>Sixth codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>18</value>
-	        <description>Sixth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9 -
-	          G.722</description>
 	      </setting>
 	      <setting name="P46">
 	        <label>Seventh codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>2</value>
-	        <description>Seventh codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC,
-	          9 - G.722</description>
 	      </setting>
 	      <setting name="P49">
 	        <label>G723 5.3kbps rate</label>
@@ -450,16 +500,21 @@
 	        <label>Layer 2 QoS</label>
 	        <type><integer min="0" max="7"/></type>
 	        <value>0</value>
-	        <description>Layer 2 QoS. 802.1p priority value (0 - 7)</description>
+ 	        <description>Layer 2 QoS. 802.1p priority value (0 - 7)</description>
 	      </setting>
 	    </group>
 	    <group name="dtmf">
 	      <label>DTMF settings</label>
 	      <setting name="P73">
 	        <label>Send DTMF</label>
-	        <type><integer min="0" max="2"/></type>
+	        <type>
+	          <enum>
+                    <option><label>in audio</label><value>0</value></option>
+                    <option><label>via RTP</label><value>1</value></option>
+                    <option><label>via SIP INFO</label><value>2</value></option>
+	          </enum>
+	        </type>
 	        <value>0</value>
-	        <description>Send DTMF. 0 - in audio 1 - via RTP 2 - via SIP INFO</description>
 	      </setting>
 	      <setting name="P79">
 	        <label>DTMF Payload Type</label>
@@ -607,6 +662,7 @@
 	      </setting>
 	    </group>
 	    <group name="sip">
+              <label>SIP Settings</label>
 	      <setting name="P47">
 	        <label>SIP Server</label>
 	        <type><string/></type>
@@ -622,10 +678,8 @@
 	    <group name="codec">
 	      <setting name="P98">
 	        <label>Eighth codec</label>
-	        <type><integer min="0" max="127"/></type>
+	        <type refid="gscodec"/>
 	        <value>9</value>
-	        <description>Eighth codec. 0 - PCMU, 2 - G.726-32, 4 - G.723.1, 8 - PCMA, 15 - G.728, 18 - G.729A/B, 98 - iLBC, 9
-	          - G.722</description>
 	      </setting>
 	    </group>
 	    <group name="budgetone">
@@ -638,17 +692,26 @@
 	      </setting>
 	      <setting name="P102">
 	        <label>Date Display Format</label>
-	        <type><integer min="0" max="2"/></type>
+	        <type>
+	          <enum>
+                    <option><label>Y-M-D</label><value>0</value></option>
+                    <option><label>M-D-Y</label><value>1</value></option>
+                    <option><label>D-M-Y</label><value>2</value></option>
+	          </enum>
+	        </type>
 	        <value>0</value>
-	        <description>Date Display Format. 0 - Year-Month-Day, 1 - Month-Day-Year, 2 -
-	          Day-Month-Year</description>
 	      </setting>
 	      <setting name="P104">
 	        <label>Default Ring Tone</label>
-	        <type><integer min="0" max="3"/></type>
+	        <type>
+	          <enum>
+                    <option><label>system</label><value>0</value></option>
+                    <option><label>custom 1</label><value>1</value></option>
+                    <option><label>custom 2</label><value>2</value></option>
+                    <option><label>custom 3</label><value>3</value></option>
+	          </enum>
+	        </type>
 	        <value>0</value>
-	        <description>Default Ring Tone. 0 - system ring tone, 1 - custom ring tone 1, 2 - custom ring tone 2, 3 - custom
-	          ring tone 3</description>
 	      </setting>
 	      <setting name="P105">
 	        <label>Caller ID for ring tone 1</label>
@@ -677,25 +740,44 @@
 	      <label>HandyTone Specific</label>
 	      <setting name="P86">
 	        <label>FXS Impedence</label>
-	        <type><integer min="0" max="7"/></type>
+	        <type>
+	          <enum>
+                    <option><label>600 Ohm (North America)</label><value>0</value></option>
+                    <option><label>900 Ohm</label><value>1</value></option>
+                    <option><label>600 Ohm + 2.16 uF</label><value>2</value></option>
+                    <option><label>900 Ohm + 2.16 uF</label><value>3</value></option>
+                    <option><label>CTR21</label><value>4</value></option>
+                    <option><label>Australia/New Zealand #1</label><value>5</value></option>
+                    <option><label>Slovakia/Slovenia/South Africa</label><value>6</value></option>
+                    <option><label>New Zealand #2</label><value>7</value></option>
+	          </enum>
+	        </type>
 	        <value>0</value>
-	        <description>FXS Impedence 0- 600 Ohm (North America) 1 - 900 Ohm 2 - 600 Ohm + 2.16uF 3 - 900 Ohm + 2.16uF 4 -
-	          CTR21 (270 Ohm + 750 Ohm||150nF) 5 - Australia/New Zealand #1 (220 Ohm + 820 Ohm||120nF) 6 -
-	          Slovakia/Slovenia/South Africa (220 Ohm + 820 Ohm||115nF) 7 - New Zealand #2 (370 Ohm + 620
-	          Ohm||310nF)</description>
 	      </setting>
 	      <setting name="P200">
 	        <label>Caller ID Scheme</label>
-	        <type><integer min="0" max="3"/></type>
+	        <type>
+	          <enum>
+                    <option><label>Bellcore (North America)</label><value>0</value></option>
+                    <option><label>ETSI-FSK (F, D, N, TW, UK-CCA)</label><value>1</value></option>
+                    <option><label>ETSI-DTMF (FIN, S)</label><value>2</value></option>
+                    <option><label>Denmark-DTMF</label><value>3</value></option>
+	          </enum>
+	        </type>
 	        <value>0</value>
-	        <description>Caller ID Scheme 0 - Bellcore (North America) 1 - ETSI-FSK (France, Germany, Norway,
-	          Taiwan, UK-CCA) 2 - ETSI-DTMF (Finland, Sweden) 3 - Denmark-DTMF</description>
 	      </setting>
 	      <setting name="P206">
 	        <label>Onhook Voltage</label>
-	        <type><integer min="1" max="4"/></type>
+	        <type>
+	          <enum>
+                    <option><label>18V</label><value>1</value></option>
+                    <option><label>24V</label><value>5</value></option>
+                    <option><label>36V</label><value>2</value></option>
+                    <option><label>48V</label><value>3</value></option>
+                    <option><label>51V</label><value>4</value></option>
+	          </enum>
+	        </type>
 	        <value>2</value>
-	        <description>Onhook Voltage 1 - 18V, 5 - 24V, 2 - 36V, 3 - 48V, 4 - 51V</description>
 	      </setting>
 	      <setting name="P205">
 	        <label>Polarity Reversal</label>
@@ -707,7 +789,7 @@
 	        <label>Pass Through FAX Mode</label>
 	        <type><boolean/></type>
 	        <value>0</value>
-	        <description>Enable Pass Through FAX Mode., otherwise use T.38 (Auto Detect)</description>
+	        <description>Enable Pass Through FAX Mode, otherwise use T.38 (Auto Detect)</description>
 	      </setting>
 	    </group>
 	  </group>

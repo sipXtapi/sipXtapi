@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingFilter;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 /**
  * Support for Cisco ATA186/188 and Cisco 7905/7912
@@ -40,13 +42,44 @@ public class CiscoAtaPhone extends CiscoPhone {
     private static final String IMAGE_ID = "imageid";
     
     private static final String NONE = "none";
+
+    private static final int KOLME = 3;
+
+    private static final String NOLLAX = "0x";
     
+    private static final String ALLE = "_";
+    
+    private static final SettingFilter S_REALGROUPS = new SettingFilter() {
+            public boolean acceptSetting(Setting root_, Setting setting) {
+                boolean isLeaf = setting.getValues().isEmpty();            
+                boolean isVirtual = (setting.getName().startsWith(ALLE));            
+                return !isLeaf && !isVirtual;
+            }
+        };        
+
+    private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
+            public boolean acceptSetting(Setting root, Setting setting) {
+                boolean firstGeneration = setting.getParentPath().equals(root.getPath());
+                boolean isLeaf = setting.getValues().isEmpty();            
+                boolean isVirtual = (setting.getName().startsWith(ALLE));            
+                return firstGeneration && isLeaf && !isVirtual;
+            }
+        };        
+
+    private static final SettingFilter S_BITMAPSETTINGS = new SettingFilter() {
+            public boolean acceptSetting(Setting root_, Setting setting) {
+                boolean isLeaf = setting.getValues().isEmpty();            
+                boolean isBitmapped = (setting.getName().startsWith("__"));            
+                return  isLeaf && isBitmapped;
+            }
+        };        
+
     private String m_ptagDat;
     
     private String m_cfgfmtUtility;
 
     private String m_binDir;
-    
+
     public CiscoAtaPhone() {
         super(BEAN_ID);
         init();
@@ -108,6 +141,9 @@ public class CiscoAtaPhone extends CiscoPhone {
         String outputfile = getPhoneFilename();
         String outputTxtfile = outputfile + ".txt";
         FileWriter wtr = null;
+
+        packBitmaps();
+
         try {
             wtr = new FileWriter(outputTxtfile);
             generateProfile(wtr);
@@ -198,8 +234,8 @@ public class CiscoAtaPhone extends CiscoPhone {
             return StringUtils.EMPTY;
         }
 
-        String swimage = swupgrade.getSetting("upgradecode").getValue();
-        String imageid = swupgrade.getSetting(IMAGE_ID).getValue();
+        String swimage = swupgrade.getSetting("upgradecode." + getCfgPrefix()).getValue();
+        String imageid = swupgrade.getSetting(IMAGE_ID + "." + getCfgPrefix()).getValue();
         CiscoModel model = (CiscoModel) getModel();
         String upghex = model.getUpgCode();
 
@@ -223,7 +259,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
 
         String logofile = logoupgrade.getSetting("logofile").getValue();
-        String imageid = logoupgrade.getSetting(IMAGE_ID).getValue();
+        String imageid = logoupgrade.getSetting("logoid").getValue();
 
         if (StringUtils.isBlank(logofile) || logofile.equals(NONE)
                 || imageid.equals(ZERO)) {
@@ -259,5 +295,53 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
 
         return linesSettings;
+    }
+
+    public Collection getRealSettingGroups() {
+        return SettingUtil.filter(S_REALGROUPS, getSettings());
+    }
+
+    public Collection getRealSettings(Setting setting) {
+        return SettingUtil.filter(S_REALSETTINGS, setting);
+    }
+
+    public Collection getBitmapSettings() {
+        return SettingUtil.filter(S_BITMAPSETTINGS, getSettings());
+    }
+
+    private void packBitmaps() {
+        Collection bitmaps = getBitmapSettings();
+        Iterator bmi = bitmaps.iterator();
+        while (bmi.hasNext()) {
+            Setting bset = (Setting) bmi.next();
+            String bname = bset.getName();
+            int bpoint = bname.indexOf('.');
+
+            if (bpoint < KOLME || bpoint == bname.length() - 1) {
+                continue;
+            }
+
+            String tgtname = bname.substring(2, bpoint);
+            String btpath = bset.getParentPath() + Setting.PATH_DELIM + tgtname;
+            Setting btgt = getSettings().getSetting(btpath.substring(1));
+            
+            int bofs = Integer.parseInt(bname.substring(bpoint + 1));
+            
+            String bttype = btgt.getType().getName();
+            if (bttype.equals("integer")) {
+                int btmp = Integer.decode(btgt.getValue()).intValue();
+                btmp = btmp + (Integer.parseInt(bset.getValue()) << bofs);
+                btgt.setValue(Integer.toString(btmp));
+            } else {
+                String btmp = btgt.getValue();
+                if (btmp.startsWith(NOLLAX) || btmp.startsWith("0X")) {
+                    long btx = Long.decode(btmp).longValue();
+                    btx = btx + (Long.parseLong(bset.getValue()) << bofs);
+                    btgt.setValue(NOLLAX + Long.toHexString(btx));
+                } else {
+                    btgt.setValue(btmp + bset.getValue());
+                }
+            }
+        }
     }
 }
