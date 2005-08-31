@@ -2,9 +2,17 @@
 --  Dont use apostrophes in comments
 --  Dont use variable names that match column names when setting variable (see my_* usages)
 --  primative logging by raising notices. level debug is useless w/o modifications to postgres.conf
+--  some functions preserve primary keys from PDS, others do not.  depends on how easy it is to adjust
+--    and if destination table has to merge values from multiple tables in old schema.  if primary keys
+--    are preserved, sequences must be updated manually
+--
+-- todos:
+-- bail on any error
+-- workout logging that can keep a audit trail of migration incase there was a bad translation
+--   discovered post migration AND after users have added new data and running another migration is
+--   not possible and custom repair script can be written
 
--- todo, bail on any error
-
+delete from line;
 delete from phone_group;
 delete from phone;
 
@@ -235,6 +243,7 @@ declare
   phone record;
   my_group_id int;
   my_phone_type record;
+  next_id int;
 begin
 
   -- translation table for phone types
@@ -244,21 +253,35 @@ begin
   insert into phone_type_migration values (''xpressa_strongarm_vxworks'', ''genericPhone'', null);
   insert into phone_type_migration values (''ixpressa_x86_win32'', ''genericPhone'', null);
 
-  for phone in select * from dblink(''select p.id, p.serial_number, p.pg_id, pt.model from logical_phones p, phone_types pt where p.pt_id = pt.id'') as (id int, serial_number text, pg_id int, pt_model text) loop
+  for phone in select * from 
+      dblink(''select p.id, p.serial_number, p.pg_id, p.usrs_id, pt.model 
+      from logical_phones p, phone_types pt where p.pt_id = pt.id'') 
+      as (id int, serial_number text, pg_id int, usrs_id int, pt_model text) loop
 
     select into my_phone_type * from phone_type_migration where pds_model = phone.pt_model; 
 
     raise notice ''importing phone %, %, %...'', phone.serial_number, my_phone_type.bean_id;
 
-    insert into phone (phone_id, serial_number, bean_id, model_id) values (phone.id, phone.serial_number, my_phone_type.bean_id, my_phone_type.model_id);
+    insert into phone (phone_id, serial_number, bean_id, model_id) 
+      values (phone.id, phone.serial_number, my_phone_type.bean_id, my_phone_type.model_id);
 
     select into my_group_id group_id from phone_group_migration where pds_group_id = phone.pg_id;
 
     insert into phone_group (phone_id, group_id) values (phone.id, my_group_id);
 
+    if phone.usrs_id is not null 
+    then
+      insert into line (line_id, phone_id, position, user_id) 
+        values (nextval(''line_seq''), phone.id, 0, phone.usrs_id);
+    end if;
+
     -- todo, phone settings, only cisco? very difficult
 
   end loop; 
+
+  -- update value_storage_seq  
+  next_id := max(phone_id) + 1 from phone;
+  perform setval(''phone_seq'', next_id);
 
   return 1;
 end;
@@ -269,27 +292,75 @@ end;
 create or replace function migrate_polycom_phones() returns integer as '
 declare
   phone record;
-  my_group_id int;
-  my_phone_type record;
+  line record;
+  next_id int;
+  default_group_id int;
 begin
 
-  for phone in select * from dblink(''select p.phone_id, p.serial_number, p.name, p.factory_id, p.storage_id, p.folder_id from phone p'') as (phone_id int, serial_number text, name text, factory_id text, storage_id int, folder_id int) loop
-   
-   -- todo polycom phone
+  select into default_group_id group_id from group_storage where name = ''default'' and resource = ''phone'';
 
-   -- todo phone settings
+  for phone in select * from dblink(''select p.phone_id, p.serial_number, p.name, p.factory_id, p.storage_id, p.folder_id from phone p'') as (id int, serial_number text, name text, factory_id text, storage_id int, folder_id int) loop
+   
+    next_id := nextval(''phone_seq'');
+    insert into phone (phone_id, name, serial_number, value_storage_id, bean_id, model_id) 
+      values (next_id, phone.name, phone.serial_number, phone.storage_id, ''polycom'',
+              substring(phone.factory_id from ''\\\\d*$''));
+
+    for line in select * from dblink(''select position, storage_id, user_id from 
+        line where phone_id ='' || phone.id) as (position int, storage_id int, user_id int) loop
+    
+        insert into line (line_id, phone_id, position, user_id, value_storage_id) 
+          values (nextval(''line_seq''), next_id, line.position, line.user_id, line.storage_id);
+         
+    end loop;
     
   end loop; 
+
+  -- all polycom phones in default group implicitly 
+  insert into phone_group 
+    select p.phone_id, default_group_id from phone p where bean_id = ''polycom'';
 
   return 1;
 end;
 ' language plpgsql;
 
+-- S E T T I N G S
+create or replace function migrate_settings() returns integer as '
+declare
+  next_id int;
+begin
+
+ -- straight migration 
+
+ insert into value_storage select * from 
+   dblink(''select storage_id from storage'') as (value_storage_id int);
+
+  insert into setting_value (value_storage_id, path, value) select * from
+    dblink(''select storage_id, path, value from setting'') 
+    as (storage_id int, path text, value text);
+
+  -- update value_storage_seq  
+  next_id := max(value_storage_id) + 1 from value_storage;
+  perform setval(''storage_seq'', next_id);
+  
+  return 1;
+end;
+' language plpgsql;
+
+
+
+-- ********** END PL/pgSQL **************
+
+
+-- ********** BEGIN SQL ****************
 
 load 'dblink';
 
 select dblink_connect('dbname=PDS');
 
+-- todo migrate folder and folder values
+
+select migrate_settings();
 select migrate_user_groups();
 select migrate_users();
 select migrate_user_group_tree();
@@ -297,4 +368,5 @@ select migrate_phone_groups();
 select migrate_non_polycom_phones();
 select migrate_polycom_phones();
 select migrate_phone_group_tree();
+-- todo lines
 
