@@ -31,11 +31,8 @@ public class NewUserTestUi extends WebTestCase {
         tester.clickLink("resetCoreContext");
         clickLink("seedTestUser");
     }
-    
-    
-    /** FIXME XCF-560 */    
-    public void test___DeleteThisTestWhenFixmeResolved___() {} //  test fails unless at least one test
-    public void _testListUsers() throws Exception {
+       
+    public void testListUsers() throws Exception {
         // Pick a username that is likely to be unique so we can run the test
         //  repeatedly without resetting the DB
         final String NEW_USER_USERNAME = TestPage.TEST_USER_USERNAME + Long.toString(System.currentTimeMillis());
