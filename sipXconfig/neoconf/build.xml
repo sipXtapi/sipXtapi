@@ -150,17 +150,18 @@
 	<!-- D E F A U L T -->
 	<target name="default" depends="jar"/>
     	
+	
 	<!-- J A R -->
-	<target name="jar" depends="compile" description="assemble sipxconfig jar library">
-		<jar file="${sipxconfig.jar}">
+	<target name="jar" depends="compile,manifest" description="assemble sipxconfig jar library">
+		<sipx-jar file="${sipxconfig.jar}">
 			<fileset dir="${classes.dir}"/>
 			<fileset dir="${src.dir}">
 				<include name="**/*.xml"/>
 				<include name="**/*.properties"/>
 			</fileset>
-                        <!-- helpful when turning SQL debugging on -->
-                        <!-- fileset file="${test.src.dir}/spy.properties"/ -->
-	    </jar>
+            <!-- helpful when turning SQL debugging on -->
+            <!-- fileset file="${test.src.dir}/spy.properties"/ -->
+	    </sipx-jar>
 	</target>
 
     <target name="test-all" depends="ant-targets.test-all,test-db,test-models"/>
