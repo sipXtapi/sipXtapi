@@ -65,7 +65,7 @@
     description="create database with schema">    
   </target>  
 
-  <target name="upgrade" description="applied all patched that need to be applied"
+  <target name="upgrade" description="applied all patches that need to be applied"
     depends="patches,version0,initialize"/>
     	
   <target name="initialize" depends="tasks" if="initialize">
@@ -76,7 +76,7 @@
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups,admin-group-and-user,user_name,user_name_constraints,user_aliases,phoneBeanId,meetme,gatewayBeanId"/>
+    depends="initialization_task,user_groups,admin-group-and-user,user_name,user_name_constraints,user_aliases,phoneBeanId,meetme,gatewayBeanId,extension_pool"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -120,7 +120,7 @@
   <!-- 
      Migration Targets Legend
     
-     version0 to version1 - development database to intial version, this can be deleted
+     version0 to version1 - development database to initial version, this can be deleted
                               when all patches are migrated into schema.sql because migration
                               will be solved by a separate process and we're not supporting
                               upgrading from a development database.
@@ -173,6 +173,9 @@
   </target>  
   <target name="meetme" unless="meetme">
     <db-patch patch="meetme"/>
+  </target>  
+  <target name="extension_pool" unless="extension_pool">
+    <db-patch patch="extension_pool"/>
   </target>  
   
   <!--

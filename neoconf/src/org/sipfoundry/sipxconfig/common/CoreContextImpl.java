@@ -30,9 +30,8 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
+public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
         ApplicationListener, DaoEventListener {
 
     private static final String USER_GROUP_RESOURCE_ID = "user";
@@ -178,10 +177,6 @@ public class CoreContextImpl extends HibernateDaoSupport implements CoreContext,
 
     public List loadUsers() {
         return getHibernateTemplate().loadAll(User.class);
-    }
-
-    public Object load(Class c, Integer id) {
-        return getHibernateTemplate().load(c, id);
     }
 
     /**

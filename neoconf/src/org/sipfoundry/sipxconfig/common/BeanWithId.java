@@ -46,7 +46,7 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
     
     /**
      * Checks if the object has been saved to the database
-     * Works becuase hibernate changes id when object is saved
+     * Works because hibernate changes id when object is saved
      * @return true is the object has never been saved
      */
     public boolean isNew() {

@@ -24,12 +24,14 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class UserForm extends BaseComponent {
 
     public abstract CoreContext getCoreContext();
+    public abstract ExtensionPoolContext getExtensionPoolContext();
     
     public abstract User getUser();
     public abstract void setUser(User user);
@@ -44,6 +46,9 @@ public abstract class UserForm extends BaseComponent {
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         
         if (!cycle.isRewinding()) {
+            // Automatically assign a numeric extension if appropriate
+//            assignExtension();
+            
             // Init the aliases string before rendering, if necessary
             if (StringUtils.isEmpty(getAliasesString())) {
                 setAliasesString(getUser().getAliasesString());
@@ -58,22 +63,41 @@ public abstract class UserForm extends BaseComponent {
                 return;
             }
             
-            // Update the user's PIN.
-            // Special case: don't set the PIN to be empty.
-            // In some contexts (creating a new user) an empty PIN is an error, in
-            // other contexts (editing an existing user) we just ignore it.
-            // Leave it up to the containing component to decide whether an empty PIN
-            // is an error or not.
-            if (!StringUtils.isEmpty(getPin())) {
-                CoreContext core = getCoreContext();
-                getUser().setPin(getPin(), core.getAuthorizationRealm());
-            }
-            
-            // Update the user's aliases
+            // Update the user's PIN and aliases
+            updatePin();
             setAliasesFromString(getAliasesString());
         }
     }
-    
+/*    
+    // If the userName is empty and the user extension pool is enabled, then
+    // try to fill in the userName with the next free extension from the pool.
+    private void assignExtension() {
+        if (!StringUtils.isEmpty(getUser().getUserName())) {
+            return;     // there is already a username, don't overwrite it
+        }
+        
+        // Get and use the next free extension
+        ExtensionPoolContext epc = getExtensionPoolContext();
+        Integer extension = epc.getNextFreeUserExtension();
+        if (extension != null) {
+            String extStr = extension.toString();
+            getUser().setUserName(extStr);
+        }
+    }
+*/
+    // Update the user's PIN.
+    // Special case: don't set the PIN to be empty.
+    // In some contexts (creating a new user) an empty PIN is an error, in
+    // other contexts (editing an existing user) we just ignore it.
+    // Leave it up to the containing component to decide whether an empty PIN
+    // is an error or not.
+    private void updatePin() {
+        if (!StringUtils.isEmpty(getPin())) {
+            CoreContext core = getCoreContext();
+            getUser().setPin(getPin(), core.getAuthorizationRealm());
+        }
+    }
+
     /** 
      * Update user aliases from the comma-separated list in aliasesString.
      * Don't validate the format of each alias, that is handled separately.

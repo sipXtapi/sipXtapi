@@ -26,6 +26,29 @@
     </property>
   </bean>
   
+  <!--
+  - E X T E N S I O N  P O O L  C O N T E X T   I M P L
+  -->
+  <bean id="extensionPoolContextImpl" class="org.sipfoundry.sipxconfig.common.ExtensionPoolContextImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="coreContext">
+      <ref bean="coreContext"/>
+    </property>    
+  </bean>
+  <!--
+  - E X T E N S I O N  P O O L  C O N T E X T
+  -->
+  <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.common.ExtensionPoolContext</value>
+    </property>
+    <property name="target">
+      <ref local="extensionPoolContextImpl"/>
+    </property>
+  </bean>
+	
   <bean id="userSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel" singleton="false">
     <property name="resource" value="user-settings.xml"/>
     <property name="modelFilesContext" ref="modelFilesContext"/>

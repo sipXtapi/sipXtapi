@@ -40,9 +40,7 @@
       <value>Please enter a comma-separated list of numbers, for example: 508, 212, 333</value>
     </property>
   </bean>
-  <!-- The username pattern is based on the RFC 2822 spec (http://www.faqs.org/rfcs/rfc2822.html)
-	   for "display-name", which is referenced by the SIP RFC (http://www.ietf.org/rfc/rfc3261.txt).
-	   For simplicity, allow only the "atom" format described in RFC 2822, at least for now. -->
+  <!-- FIXME this is wrong, see bug entry XCF-245 -->
   <bean name="validUsernamePattern" class="org.apache.tapestry.valid.PatternValidator">
     <property name="patternString">
       <value>^[a-zA-Z0-9!#$%&amp;'*+\-/=?^_`{|}~]+$</value>
@@ -52,6 +50,7 @@
     </property>
   </bean>
   <!-- Username sequence validator - comma-separated list of usernames, can be empty -->
+  <!-- FIXME this is wrong, see bug entry XCF-245 (and we can't use a comma delimiter!) -->
   <bean name="validUsernamePatternSequence" class="org.apache.tapestry.valid.PatternValidator">
     <property name="patternString">
       <value>^(([a-zA-Z0-9!#$%&amp;'*+\-/=?^_`{|}~]+)(\s*,?\s*))*$</value>

@@ -31,7 +31,20 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
   </class>
-	  
+
+  <class name="ExtensionPool" table="extension_pool">
+    <id name="id" column="extension_pool_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">extension_pool_seq</param>
+      </generator>
+    </id>
+    <property name="enabled"/>
+    <property name="name"/>
+    <property name="firstExtension"/>
+    <property name="lastExtension"/>
+    <property name="nextExtension"/>
+  </class>
+
   <query name="userByAlias">
     <![CDATA[from User u join u.aliases alias where alias = :alias]]>
   </query>
@@ -43,5 +56,9 @@
   <query name="userGroupMembers">
     <![CDATA[from User u where u.groups.id = :groupId]]>
   </query>
-
+	  
+  <query name="extensionPoolByName">
+    <![CDATA[from ExtensionPool pool where pool.name = :name]]>
+  </query>
+	
 </hibernate-mapping>

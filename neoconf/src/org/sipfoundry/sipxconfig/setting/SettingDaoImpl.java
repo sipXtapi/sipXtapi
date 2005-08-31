@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Use hibernate to perform database operations
  */
-public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
+public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDao {
     
     private static final String RESOURCE_PARAM = "resource";
     
@@ -87,10 +87,6 @@ public class SettingDaoImpl extends HibernateDaoSupport implements SettingDao {
         List groups = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource", 
                 RESOURCE_PARAM, resource);
         return groups;
-    }
-    
-    public Object load(Class c, Integer id) {
-        return getHibernateTemplate().load(c, id);
     }
 
     public Map getGroupMemberCountIndexedByGroupId(Class groupOwner) {

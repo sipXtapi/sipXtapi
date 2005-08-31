@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -34,12 +35,11 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
+public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         PhoneContext, ApplicationListener, DaoEventListener {
 
     private static final String GROUP_RESOURCE_ID = "phone";
@@ -169,10 +169,6 @@ public class PhoneContextImpl extends HibernateDaoSupport implements BeanFactory
         phone.setModelId(model.getModelId());
         
         return phone;
-    }
-
-    public Object load(Class c, Integer id) {
-        return getHibernateTemplate().load(c, id);
     }
 
     public List getGroups() {
