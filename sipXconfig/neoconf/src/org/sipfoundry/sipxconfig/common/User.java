@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,14 +42,13 @@ public class User extends BeanWithGroups {
 
     private String m_userName;
 
-    private Set m_aliases;
+    private Set m_aliases = new LinkedHashSet(0);
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
      * user. To keep the PIN secure, we don't store it.
      */
     public String getPintoken() {
-        // for robustness, return an empty string rather than null
         return (String) ObjectUtils.defaultIfNull(m_pintoken, StringUtils.EMPTY);
     }
 
@@ -122,10 +120,7 @@ public class User extends BeanWithGroups {
     }
 
     public Set getAliases() {
-        // When creating the Set directly, rather than indirectly via Hibernate,
-        // use a LinkedHashSet for stable ordering of the Set, purely to simplify
-        // unit testing.
-        return (Set) ObjectUtils.defaultIfNull(m_aliases, new LinkedHashSet(0));
+        return m_aliases;
     }
 
     public void setAliases(Set aliases) {
@@ -139,9 +134,8 @@ public class User extends BeanWithGroups {
      * user's Set, since it is a separate object.
      */
     public void copyAliases(Set aliases) {
-        getAliases(); // ensure aliases set is not null
-        m_aliases.clear();
-        m_aliases.addAll(aliases);
+        getAliases().clear();
+        getAliases().addAll(aliases);
     }
 
     public void addAlias(String alias) {
@@ -183,13 +177,9 @@ public class User extends BeanWithGroups {
     }
 
     public List getAliasMappings(String domainName) {
-        if (CollectionUtils.safeIsEmpty(m_aliases)) {
-            return Collections.EMPTY_LIST;
-        }
-
         final String contact = getUri(domainName);
-        List mappings = new ArrayList(m_aliases.size());
-        for (Iterator iter = m_aliases.iterator(); iter.hasNext();) {
+        List mappings = new ArrayList(getAliases().size());
+        for (Iterator iter = getAliases().iterator(); iter.hasNext();) {
             String alias = (String) iter.next();
             if (StringUtils.isBlank(alias)) {
                 throw new RuntimeException("Found an empty alias for user " + m_userName);
