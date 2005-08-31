@@ -72,8 +72,7 @@ public class ExtensionsTest extends XMLTestCase {
         control.verify();
     }
     
-    /** FIXME XCF-560 */
-    public void _testGenerate() throws Exception {
+    public void testGenerate() throws Exception {
         MockControl control = MockControl.createControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) control.getMock();
         coreContext.getDomainName();
