@@ -12,7 +12,7 @@
 		type="org.sipfoundry.sipxconfig.common.User" 
     	required="yes"
     	direction="auto"/>    
-        
+    
     <parameter name="pinValidator"
         type="org.apache.tapestry.valid.IValidator"
     	required="no"
@@ -34,6 +34,10 @@
     <property-specification name="coreContext"
         type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
+    
+    <property-specification name="extensionPoolContext"
+        type="org.sipfoundry.sipxconfig.common.ExtensionPoolContext"
+        initial-value="page.global.extensionPoolContext"/>
     
     <property-specification name="pin" type="java.lang.String"/>
     

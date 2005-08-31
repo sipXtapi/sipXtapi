@@ -22,12 +22,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
-// TODO: Sorting should be done by the database, not by Tapestry, for efficiency.
-// See http://jakarta.apache.org/tapestry/3.0.3/doc/ComponentReference/contrib.TableView.html .
-// If we change the userTable component in UserTable.jwc to use IBasicTableModel with the 
-// data source, then we can take control of sorting and pass the sort column as a new param
-// to the data load method.
-
 public abstract class UserTable extends BaseComponent implements PageRenderListener {
     
     public static final String COMPONENT = "UserTable";

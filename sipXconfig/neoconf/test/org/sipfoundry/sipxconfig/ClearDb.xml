@@ -43,6 +43,7 @@
   <table name="line_group"/>
     
   <table name="gateway"/>  
+  <table name="extension_pool"/>  
       
   <!-- forwarding -->
   <table name="ring"/>
