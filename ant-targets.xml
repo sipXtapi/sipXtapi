@@ -121,29 +121,6 @@
     <mkdir dir="${test.classes.dir}"/>
   </target>
 
-
-  <!--
-    - Creates a standard version file 
-    - MUST DEFINE property ${version.file}
-    -->
-  <target name="version.properties" 
-    description="[internal] Generats a properies file w/versioning info">
-
-    <propertyfile file="${version.file}" comment="xpressa build" >
-        <entry  key="version"       value="${xpressa.version}" />
-        <entry  key="buildNumber"   value="${xpressa.build.number}" />
-        <entry  key="built"         value="now"
-                type="date"         pattern="MMM dd yyyy HH:mm:ss" />
-       <entry  key="optionalComment"  value="${xpressa.build.comment}" />
-    </propertyfile>
-  </target>
-
-
-  <!--
-    -  D E F A U L T
-    -->
-
-
   <!-- 
    - C O M P I L E 
    -->
@@ -331,5 +308,31 @@
     <ivy:report todir="${build.dir}"/>    
   </target>
   
+	<!--
+		- J A R  &  M A N I F E S T
+		-->
+	<target name="manifest">
+		<exec executable="${top.build.dir}/bin/sipxconfig-config" outputproperty="version.build" os="Linux">
+			<arg value="--build"/>
+		</exec>
+		<!-- It only works on Linux, on Windows we need a different way of retrieving version.build -->		
+		<sipx-manifest/>
+	</target>	
+		
+  <presetdef name="sipx-manifest">
+		<manifest file="${dist.dir}/MANIFEST.MF">
+			<attribute name="Specification-Title" value="sipXconfig"/>
+			<attribute name="Specification-Version" value="${version}"/>
+			<attribute name="Specification-Vendor" value="SipFoundry"/>
+			<attribute name="Implementation-Title" value="${project.dir}"/>
+			<attribute name="Implementation-Version" value="${version.build}"/> 
+			<attribute name="Implementation-Vendor" value="SipFoundry"/>
+		</manifest>				
+  </presetdef>	
+	
+  <presetdef name="sipx-jar">
+		<jar manifest="${dist.dir}/MANIFEST.MF"/>
+	</presetdef>
+	
 </project>
 

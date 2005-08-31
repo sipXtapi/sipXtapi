@@ -52,8 +52,8 @@ public class LoginPageTestUi extends WebTestCase {
                 
         // we are on the home page now - no errors no login form
         SiteTestHelper.assertNoException(getTester());
-        assertFormNotPresent("login:form");
         assertElementNotPresent("user:error");        
+        assertFormNotPresent("login:form");
     }
     
     // successful login is tested by "home" function

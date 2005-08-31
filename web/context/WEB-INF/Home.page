@@ -6,4 +6,11 @@
 
 <page-specification class="org.sipfoundry.sipxconfig.site.Home">
     <description>Default empty page</description>
+    
+    <bean name="version" class="org.sipfoundry.sipxconfig.common.VersionInfo" lifecycle="page"/>
+    
+    <component id="versionString" type="InsertText">
+        <binding name="value" expression="beans.version.longVersionString"/>
+    </component>
+        
 </page-specification>
