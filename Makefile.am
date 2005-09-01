@@ -33,7 +33,6 @@ EXTRA_DIST = \
     sipxconfig.spec \
     web \
     meta \
-    profilepub_sipagent.dsp \
     lib
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
