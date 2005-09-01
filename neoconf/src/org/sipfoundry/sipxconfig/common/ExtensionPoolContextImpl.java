@@ -15,10 +15,9 @@ import java.util.List;
 
 
 public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements ExtensionPoolContext {
-    public static final String CONTEXT_BEAN_NAME = "extensionPoolContextImpl";
     
     /** Name of the user extension pool */
-    static final String USER_POOL_NAME = "user";
+    public static final String USER_POOL_NAME = "user";
 
     /** Name of the name property */
     private static final String PROP_NAME = "name";
@@ -32,6 +31,9 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
 
     private CoreContext m_coreContext;
     
+    public ExtensionPool getUserExtensionPool() {
+        return getExtensionPool(USER_POOL_NAME);
+    }
     
     public void saveExtensionPool(ExtensionPool pool) {
         getHibernateTemplate().saveOrUpdate(pool);
@@ -43,7 +45,7 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
      */
     public Integer getNextFreeUserExtension() {
         Integer ext = null;     // return value
-        ExtensionPool pool = getExtensionPool(USER_POOL_NAME);
+        ExtensionPool pool = getUserExtensionPool();
         
         // If the pool is disabled or has no firstExtension, then bail out
         if (!pool.isEnabled() || pool.getFirstExtension() == null) {
@@ -74,27 +76,9 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
-
-    /**
-     * Look for the next free user extension in the specified range.
-     * The caller is responsible for ensuring that "start" and "end" lie within
-     * the pool range.
-     */
-    // DO_NOW: search for free extensions in a much more efficient way
-    private Integer getFreeUserExtension(int start, int end) {
-        Integer ext = null;   // the result
-        for (int i = start; i <= end; i++) {
-            if (m_coreContext.loadUserByUserNameOrAlias(Integer.toString(i)) == null) {
-                // No user has that extension, so use it
-                ext = new Integer(i);
-                break;
-            }
-        }
-        return ext;
-    }
     
     /** Return the named extension pool.  Create it if necessary. */
-    ExtensionPool getExtensionPool(String poolName) {
+    private ExtensionPool getExtensionPool(String poolName) {
         List pools = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "extensionPoolByName", PROP_NAME, poolName);
         ExtensionPool pool = null;
@@ -112,6 +96,24 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
             pool = (ExtensionPool) pools.get(0);
         }
         return pool;
+    }
+
+    /**
+     * Look for the next free user extension in the specified range.
+     * The caller is responsible for ensuring that "start" and "end" lie within
+     * the pool range.
+     */
+    // DO_NOW: search for free extensions in a much more efficient way
+    private Integer getFreeUserExtension(int start, int end) {
+        Integer ext = null;   // the result
+        for (int i = start; i <= end; i++) {
+            if (m_coreContext.loadUserByUserNameOrAlias(Integer.toString(i)) == null) {
+                // No user has that extension, so use it
+                ext = new Integer(i);
+                break;
+            }
+        }
+        return ext;
     }
 
 }

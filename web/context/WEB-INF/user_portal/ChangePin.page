@@ -53,7 +53,6 @@
         <binding name="passwordValidator" expression="beans.pinValidator"/>
     </component>
     
-	<!-- Use FormActions to get the Apply button -->    
     <component id="formActions" type="FormActions">
         <binding name="listener" expression="listeners.changePin"/>
     </component>
