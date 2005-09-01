@@ -47,7 +47,7 @@ public abstract class UserForm extends BaseComponent {
         
         if (!cycle.isRewinding()) {
             // Automatically assign a numeric extension if appropriate
-//            assignExtension();
+            assignExtension();
             
             // Init the aliases string before rendering, if necessary
             if (StringUtils.isEmpty(getAliasesString())) {
@@ -68,7 +68,7 @@ public abstract class UserForm extends BaseComponent {
             setAliasesFromString(getAliasesString());
         }
     }
-/*    
+    
     // If the userName is empty and the user extension pool is enabled, then
     // try to fill in the userName with the next free extension from the pool.
     private void assignExtension() {
@@ -84,7 +84,7 @@ public abstract class UserForm extends BaseComponent {
             getUser().setUserName(extStr);
         }
     }
-*/
+
     // Update the user's PIN.
     // Special case: don't set the PIN to be empty.
     // In some contexts (creating a new user) an empty PIN is an error, in

@@ -43,6 +43,7 @@
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="EditUser" specification-path="user/EditUser.page"/>    
+    <page name="ExtensionPools" specification-path="admin/ExtensionPools.page"/>    
     <page name="GroupSettings" specification-path="setting/GroupSettings.page"/>    
     <page name="Home" specification-path="Home.page"/>
     <page name="JobStatusPage" specification-path="admin/JobStatusPage.page"/>    

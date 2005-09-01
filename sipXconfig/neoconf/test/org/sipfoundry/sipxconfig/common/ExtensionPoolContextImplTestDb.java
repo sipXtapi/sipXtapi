@@ -17,22 +17,22 @@ import org.springframework.context.ApplicationContext;
 import junit.framework.TestCase;
 
 public class ExtensionPoolContextImplTestDb extends TestCase {
-    private ExtensionPoolContextImpl m_context;
+    private ExtensionPoolContext m_context;
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext(); 
-        m_context = (ExtensionPoolContextImpl) app.getBean(ExtensionPoolContextImpl.CONTEXT_BEAN_NAME);
+        m_context = (ExtensionPoolContext) app.getBean(ExtensionPoolContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testDefaultUserExtensionPoolCreation() throws Exception {
-        ExtensionPool pool = m_context.getExtensionPool(ExtensionPoolContextImpl.USER_POOL_NAME);
+        ExtensionPool pool = m_context.getUserExtensionPool();
         assertNotNull(pool);
     }
 
     public void testGetFreeUserExtension() throws Exception {
         TestHelper.cleanInsertFlat("common/TestUserExtensionPoolSeed.xml");
-        ExtensionPool pool = m_context.getExtensionPool(ExtensionPoolContextImpl.USER_POOL_NAME);
+        ExtensionPool pool = m_context.getUserExtensionPool();
         
         // Find the first free extension
         assertEquals(5, m_context.getNextFreeUserExtension().intValue());

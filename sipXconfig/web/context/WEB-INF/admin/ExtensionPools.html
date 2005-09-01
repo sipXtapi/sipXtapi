@@ -1,0 +1,31 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+   	<div jwcid="@Border" restricted="false">
+        <h2>User Extension Pool</h2>
+	    <span jwcid="@ErrorMsg"/>
+		<form jwcid="form" id="extPool:form">
+	        <table>
+	            <tr>
+	                <td>
+					    <input jwcid="enableExtensionPool" type="checkbox"
+							id="extPool:enable" checked="checked"/>
+						<label for="extPool:enable">Automatically assign user extensions from the pool</label>
+	                </td>
+	            </tr>
+	        </table>
+	        <table>
+	            <tr jwcid="panelStart" for="extPool:start">
+		            <input jwcid="start" id="extPool:start" type="text"/>
+	            </tr>        
+	            <tr jwcid="panelEnd" for="extPool:end">
+		            <input jwcid="end" id="extPool:end" type="text"/>
+	            </tr>        
+	        </table>
+	    	<ul jwcid="formActions"/>
+		</form>
+    </div>
+</body>
+</html>
