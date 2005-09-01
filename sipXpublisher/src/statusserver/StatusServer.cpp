@@ -309,7 +309,7 @@ StatusServer::startStatusServer (
     tlsPort = configDb.getPort("SIP_STATUS_TLS_PORT") ;
     if ( tlsPort == PORT_NONE )
     {
-       tcpPort = 5111;
+       tlsPort = 5111;
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TLS_PORT : %d", tlsPort);
     
