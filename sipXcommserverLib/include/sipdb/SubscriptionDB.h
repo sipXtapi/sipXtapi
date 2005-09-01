@@ -62,12 +62,15 @@ public:
 
     //delete methods - delete a subscription session
     void removeRow (
-        const UtlString& to,
-        const UtlString& from,
-        const UtlString& callid,
-        const UtlString& eventType,
-        const UtlString& id,
-        const int& subscribeCseq );
+       const UtlString& to,
+       const UtlString& from,
+       const UtlString& callid,
+       const int& subscribeCseq );
+
+    void removeErrorRow (
+       const UtlString& to,
+       const UtlString& from,
+       const UtlString& callid );
 
     void removeRows ( const UtlString& uri );
 

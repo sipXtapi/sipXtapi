@@ -421,8 +421,6 @@ SubscriptionDB::removeRow (
     const UtlString& to,
     const UtlString& from,        
     const UtlString& callid,
-    const UtlString& eventType,
-    const UtlString& id,
     const int& subscribeCseq )
 {
     if ( m_pFastDB != NULL )
@@ -444,8 +442,6 @@ SubscriptionDB::removeRow (
         query="to=",to,
               "and from=",from,
               "and callid=",callid,
-              "eventtype=",eventType,
-              "id=",(id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data()),
               "and subcribecseq <",subscribeCseq;
         if (cursor.select(query) > 0)
         {
@@ -455,15 +451,49 @@ SubscriptionDB::removeRow (
         {
            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeRow row not found:\n"
                          "to='%s' from='%s' callid='%s'\n"
-                         "eventtype='%s' id='%s' cseq='%d'",
+                         "cseq='%d'",
                          to.data(), from.data(), callid.data(),
-                         eventType.data(), id.data(), subscribeCseq
+                         subscribeCseq
                          );
         }
         
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
     }
+}
+
+void
+SubscriptionDB::removeErrorRow (
+   const UtlString& to,
+   const UtlString& from,        
+   const UtlString& callid )
+{
+   if ( m_pFastDB != NULL )
+   {
+      // Thread Local Storage
+      m_pFastDB->attach();
+
+      dbCursor< SubscriptionRow > cursor(dbCursorForUpdate);
+
+      dbQuery query;
+      query="to=",to,
+         "and from=",from,
+         "and callid=",callid;
+      if (cursor.select(query) > 0)
+      {
+         cursor.removeAllSelected();
+      }
+      else
+      {
+         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeErrorRow row not found:\n"
+                       "to='%s' from='%s' callid='%s'\n",
+                       to.data(), from.data(), callid.data()
+                       );
+      }
+        
+      // Commit rows to memory - multiprocess workaround
+      m_pFastDB->detach(0);
+   }
 }
 
 void

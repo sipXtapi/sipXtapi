@@ -110,10 +110,8 @@ protected:
      * 
      * @return
      */
-    int removeSubscription (const UtlString& eventType,
-                            const UtlString& eventId,
-                            const SipMessage& sipMessage
-                            ) const;
+    int removeErrorSubscription(const SipMessage& sipMessage
+                                ) const;
 
 };
 #endif // SUBSCRIBESERVERTHREAD_H

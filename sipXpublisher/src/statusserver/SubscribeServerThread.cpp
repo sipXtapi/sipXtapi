@@ -157,9 +157,6 @@ SubscribeServerThread::initialize (
 UtlBoolean
 SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 {
-    syslog(FAC_SIP, PRI_DEBUG, "SubscribeServerThread::handleMessage() -"
-        " Start processing SUBSCRIBE Message\n");
-
     const SipMessage* message =
         ((SipMessageEvent&)eventMessage).getMessage();
 
@@ -374,33 +371,8 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
        if (   responseCode >= SIP_4XX_CLASS_CODE
            && responseCode != SIP_REQUEST_TIMEOUT_CODE )
        {
-          SipMessage* pRequest = mpSipUserAgent->getRequest(*message);
-          if ( pRequest != NULL )
-          {
-             UtlString eventType;
-             UtlString eventId;
-             message->getEventField( &eventType, &eventId );
-
-             StatusPluginReference* pluginContainer =
-                mPluginTable->getPlugin( eventType );
-
-             if( pluginContainer != NULL )
-             {
-                // fetch the plugin
-                SubscribeServerPluginBase* plugin =
-                   pluginContainer->getPlugin();
-
-                syslog(FAC_SIP, PRI_DEBUG, "SubscribeServerThread::handleMessage() -"
-                       " error (%d) response from UA - removing subscription", responseCode );
-
-                // we should call the plugin to handle the removal
-                plugin->handleNotifyResponse( *message, finalResponse );
-
-                // remove the subscription
-                removeSubscription ( eventType, eventId, *message );
-             }
-             delete pRequest;
-          }
+          // remove the subscription
+          removeErrorSubscription ( *message );
        }
     }
     return TRUE;
@@ -751,17 +723,13 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
                 " Removing subscription for url %s and event %s",
                 toUrl.toString().data(), eventType.data());
 
-            // Ideally the from field should be used to remove
-            // the row also @TODO
             // note that the subscribe's csequence is used
             // as a remove filter here so that all
-            SubscriptionDB::getInstance()->
-                removeRow( toUrl.toString(),
-                           from,
-                           callId,
-                           eventType,
-                           eventId,
-                           subscribeCseqInt );
+            SubscriptionDB::getInstance()->removeRow(toUrl.toString(),
+                                                     from,
+                                                     callId,
+                                                     subscribeCseqInt );
+
             // Changes to the IMDB are reflected in the filesystem immediately
             SubscriptionDB::getInstance()->store();
             return returnStatus;
@@ -777,9 +745,13 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     }
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-        "SubscribeServerThread::addSubscription -"
-        " Adding Subscription for url %s event %s",
-        toUrl.toString().data(), eventType.data());
+                  "SubscribeServerThread::addSubscription -"
+                  " Adding Subscription for url %s event %s to %s",
+                  toUrl.toString().data(), eventType.data(), contactEntry.data());
+
+    // trim the contact to just the uri
+    Url contactUrl(contactEntry);
+    contactUrl.getUri(contactEntry);
 
     // add bindings
     identity.getIdentity( key );
@@ -799,9 +771,9 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
                        1))                  // initial notify cseq (sent to phone)
     {
         // log the error
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SubscribeServerThread::addSubscription -"
-            " Could not insert record in Database");
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SubscribeServerThread::addSubscription -"
+                     " Could not insert record in Database");
     }
 
     // persist the IMDB to its xml file
@@ -809,44 +781,23 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     return returnStatus;
 }
 
-int SubscribeServerThread::removeSubscription (const UtlString& eventType,
-                                               const UtlString& eventId,
-                                               const SipMessage& sipMessage ) const
+int SubscribeServerThread::removeErrorSubscription (const SipMessage& sipMessage ) const
 {
     int returnStatus = STATUS_SUCCESS;
-    int subscribeCseqInt = 0;
     UtlString callId;
-    UtlString contactEntry;
     UtlString to;
     UtlString from;
-    UtlString route;
-    UtlString key;
-    UtlString method;
     sipMessage.getToField(&to);
     sipMessage.getFromField(&from);
     sipMessage.getCallIdField(&callId);
-    sipMessage.getCSeqField(&subscribeCseqInt, &method);
-    sipMessage.getContactEntry(0, &contactEntry);
 
-    sipMessage.buildRouteField(&route);
-    Url toUrl;
-    sipMessage.getToUrl(toUrl);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::removeSubscription -"
-        " Removing subscription for url %s, from %s, callid %s and event %s",
-        toUrl.toString().data(), from.data(), callId.data(), eventType.data());
+    OsSysLog::add(FAC_SIP, PRI_WARNING,
+                  "SubscribeServerThread::removeErrorSubscription %s",
+                  callId.data());
 
-    // Ideally the from field should be used to remove
-    // the row also @TODO
-    // note that the subscribe's csequence is used
-    // as a remove filter here so that we reject
-    // duplicate messages
-    SubscriptionDB::getInstance()->
-        removeRow( toUrl.toString(),
-                   from,
-                   callId,
-                   eventType,
-                   eventId,
-                   subscribeCseqInt );
+    SubscriptionDB::getInstance()->removeErrorRow(from,
+                                                  to,
+                                                  callId);
     // Changes to the IMDB are reflected in the filesystem immediately
     SubscriptionDB::getInstance()->store();
     return returnStatus;
