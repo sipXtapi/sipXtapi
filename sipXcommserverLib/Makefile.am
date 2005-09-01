@@ -12,8 +12,7 @@ EXTRA_DIST = \
     LICENSE \
     BUILDSTAMP \
     SVN-VERSION \
-    sipxcommserverlib.spec \
-    sipXcommserverLib.dsp
+    sipxcommserverlib.spec
 
 unconditional_SUBDIRS = . src include etc meta bin
 

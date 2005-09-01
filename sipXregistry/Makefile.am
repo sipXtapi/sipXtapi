@@ -19,7 +19,6 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
     config/sipXcommon.mak.in \
-    sipXregistry.dsp \
     sipxregistry.spec
 
 .PHONY : rpm

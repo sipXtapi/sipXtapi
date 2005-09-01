@@ -11,8 +11,7 @@ EXTRA_DIST = \
     LICENSE \
     BUILDSTAMP \
 	 SVN-VERSION \
-    sipxmedialib.spec \
-    sipXmediaLib.dsp
+    sipxmedialib.spec
 
 unconditional_SUBDIRS = . src include bin
 

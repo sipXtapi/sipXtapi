@@ -26,7 +26,6 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
     config/sipXcommon.mak.in \
-    sipXpublisher.dsp \
     sipxpublisher.spec
 
 include $(srcdir)/config/sipXprojtop.mak

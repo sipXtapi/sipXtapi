@@ -51,8 +51,6 @@ EXTRA_DIST = \
     config/sipXprojtop.mak \
     config/sipXcommon.mak.in \
     $(editdata_IN) \
-    sipXauthproxy.dsp \
-    sipXforkingProxy.dsp \
     sipxproxy.spec
 
 install-exec-hook : editdata

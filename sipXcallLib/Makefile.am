@@ -11,8 +11,7 @@ EXTRA_DIST = \
     LICENSE \
     BUILDSTAMP \
     SVN-VERSION \
-    sipxcalllib.spec \
-    sipXcallLib.dsp
+    sipxcalllib.spec
 
 unconditional_SUBDIRS = . src examples include bin 
 

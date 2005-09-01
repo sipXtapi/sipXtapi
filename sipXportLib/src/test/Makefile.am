@@ -123,5 +123,5 @@ UtlHashMapPerformance_LDADD = \
     ../libsipXport.la
 
 
-EXTRA_DIST= \
-    sipXportTest.dsp
+EXTRA_DIST=
+
