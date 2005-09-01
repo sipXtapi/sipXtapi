@@ -274,49 +274,14 @@ rpmClean()
     # legend from project name to rpm package name
     RpmPackage=`echo $Project | tr A-Z a-z`
 
-    if ! test -z `rpm -qa $RpmPackage-debug | tr -d [:space:]`
-    then
-        if ! $Sudo rpm -e $RpmPackage-debug
-        then 
-            Success=false
-        fi
-    fi 
-
-    if ! test -z `rpm -qa $RpmPackage-debuginfo | tr -d [:space:]`
-    then
-        if ! $Sudo rpm -e $RpmPackage-debuginfo
-        then 
-            Success=false
-        fi
-    fi 
-
-    if ! test -z `rpm -qa $RpmPackage-devel | tr -d [:space:]`
-    then
-        if ! $Sudo rpm -e $RpmPackage-devel
-        then 
-            Success=false
-        fi
-    fi 
-
-    if ! test -z `rpm -qa $RpmPackage | tr -d [:space:]`
-    then
-        if ! $Sudo rpm -e $RpmPackage
-        then 
-            Success=false
-        fi
-    fi 
-
-    if test "$Success" = "true"
-    then
-        echo "SUCCESS : $Project rpms removed"
-        echo ""
-        return 0
-    else
-        builderr "ERROR : $Project rpms failed to be removed"
-        BuildReturn=-1
-        echo ""
-        return 1
-    fi
+    for pkg in $RpmPackage{-debug,-debuginfo,-devel,}
+    do
+       if rpm -q $pkg > /dev/null
+       then
+           echo "Removing $pkg"
+           $Sudo rpm -e --nodeps $pkg
+       fi 
+    done
 }
 
 ##  Make and install RPM
