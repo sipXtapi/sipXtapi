@@ -27,7 +27,13 @@
     	required="no"
 	    type="boolean"
     	direction="in"
-    	default-value="true"/>    
+    	default-value="true"/>
+    
+    <parameter name="nameValidator"
+    	required="no"
+	    type="org.apache.tapestry.valid.IValidator"
+    	direction="in"
+    	default-value="beans.nameValidator"/>
     
     <!-- P R O P E R T I E S -->
     
@@ -39,8 +45,7 @@
     
     <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
         <set-property name="component" expression="components.description"/>
-    </bean>    
-
+    </bean>
     
     <!-- C O M P O N E N T S -->
     <component id="ifUseEnabled" type="Conditional">
@@ -63,7 +68,7 @@
         <binding name="value" expression="item.name"/>
         <static-binding name="displayName" value="Name"/>
         <binding name="field" expression="components.name"/>
-        <binding name="validator" expression="beans.nameValidator"/>
+        <binding name="validator" expression="nameValidator"/>
     </component>
     
     <component id="ifUseExtension" type="Conditional">

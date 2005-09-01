@@ -116,6 +116,13 @@ public class SiteTestHelper {
             Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
         }
     }
+    
+    public static void assertUserError(WebTester tester) {
+        Element element = tester.getDialog().getElement("user:error");
+        if (null == element) {
+            Assert.fail("Expected user error on the page.");
+        }
+    }    
 
     /**
      * Returns the row count in a table. Don't forget to include +1 in assert count if you have a
