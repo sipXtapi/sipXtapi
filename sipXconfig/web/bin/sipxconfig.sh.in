@@ -123,6 +123,7 @@ databaseCommand() {
         -classpath $Classpath \
         org.apache.tools.ant.launch.Launcher \
         -Dlib.dir=${LibDir} \
+        -Dlog.dir=${LogDir} \
         -f ${DatabaseProject} \
         $@
 }

@@ -1,21 +1,11 @@
 -- notes:
 --  Dont use apostrophes in comments inside functions
---  Double single quote in all function bodies.
+--  Double all single quotes in all function bodies.
 --  Dont use variable names that match tables or column names when setting variable (see my_* usages)
---  primative logging by raising notices. level debug is useless w/o modifications to postgres.conf
+--  primative logging by raising notices.
 --  some functions preserve primary keys from PDS, others do not.  depends on how easy it is to adjust
 --    and if destination table has to merge values from multiple tables in old schema.  if primary keys
 --    are preserved, sequences must be updated manually
---  use environment vars to control output, example
---    
---  > env PGOPTIONS='-c client_min_messages=ERROR' \
---     psql -U postgres SIPXCONFIG_TEST < etc\database\migrate-2.8.sql > /dev/null
--- 
--- todos:
--- bail on any error
--- workout logging that can keep a audit trail of migration incase there was a bad translation
---   discovered post migration AND after users have added new data and running another migration is
---   not possible and custom repair script can be written
 
 -- U S E R   G R O U P S
 create or replace function migrate_user_groups() returns integer as '
@@ -68,14 +58,30 @@ begin
 
    -- todo report user permissions that cannot be handled
 
-   -- todo update user_seq
-
-   -- todo add all groups that was parent to current group
-
   end loop; 
 
   next_id := max(user_id) + 1 from users;
   perform setval(''user_seq'', next_id);
+
+  return 1;
+end;
+' language plpgsql;
+
+
+create or replace function my_template_function() returns integer as '
+begin
+  return 1;
+end;
+' language plpgsql;
+
+
+create or replace function migrate_aliases() returns integer as '
+begin
+
+  -- pds primary key on user and alias, so aliases are not gauronteed to be unique
+  insert into user_alias (user_id, alias) select * from
+    dblink(''select user_id, alias from aliases'') 
+    as (user_id int, alias text);
 
   return 1;
 end;
@@ -307,6 +313,8 @@ begin
          
     end loop;
     
+    -- todo default folder values
+
   end loop; 
 
   -- all polycom phones in default group implicitly 
@@ -335,12 +343,12 @@ begin
   -- update value_storage_seq  
   next_id := max(value_storage_id) + 1 from value_storage;
   perform setval(''storage_seq'', next_id);
+
+  -- todo
   
   return 1;
 end;
 ' language plpgsql;
-
-
 
 -- ********** END PL/pgSQL **************
 
@@ -355,10 +363,11 @@ select dblink_connect('dbname=PDS');
 delete from line;
 delete from phone_group;
 delete from phone;
-
--- todo, translate superuser as well
 delete from user_group;
-delete from users where user_id != 1;
+delete from user_alias;
+delete from users;
+-- todo extensions
+-- todo sip passwords
 
 delete from group_storage;
 delete from setting_value;
@@ -367,10 +376,9 @@ delete from value_storage;
 select migrate_settings();
 select migrate_user_groups();
 select migrate_users();
+select migrate_aliases();
 select migrate_user_group_tree();
 select migrate_phone_groups();
 select migrate_non_polycom_phones();
 select migrate_polycom_phones();
 select migrate_phone_group_tree();
--- todo lines
-

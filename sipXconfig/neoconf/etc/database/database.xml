@@ -23,6 +23,7 @@
   <property name="sql.dir" location="${basedir}"/>
   <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
   <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql"/>
+  <property name="log.dir" value="${basedir}"/>
   
   <target name="patches">
       <!-- ANT BUG: sql task has issues when output=absolute file path -->
@@ -112,8 +113,8 @@
   <target name="migrate-2.8" depends="drop,create,migrate-2.8-setup" 
         description="migrate 2.8 database, note clears all existing 3.0 data">
 
-    <exec executable="psql">
-      <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
+    <exec executable="psql" output="${log.dir}/sipxconfig-2.8-db-migration.log">
+      <arg line="-a -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
     </exec>
   </target>
   
