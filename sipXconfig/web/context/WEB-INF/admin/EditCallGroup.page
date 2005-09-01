@@ -51,6 +51,7 @@
     <component id="common" type="ItemCommon">
         <binding name="item" expression="callGroup"/>
         <binding name="useExtension" expression="true"/>
+        <binding name="nameValidator" expression="global.validSipNameRequired"/>        
     </component>
         
     <component id="ringTable" type="UserRingTable">

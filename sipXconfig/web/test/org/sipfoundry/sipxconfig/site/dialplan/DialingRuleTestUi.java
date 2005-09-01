@@ -39,5 +39,19 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLinkWithText("Emergency");
         //it's a submit link: uses java script, does not have id
         clickLinkWithText("Add Existing Gateway");
+        SiteTestHelper.assertNoException(tester);
     }
+    
+    public void testInvalidName() {
+        GatewaysTestUi.addTestGateways(getTester(), 3);
+        SiteTestHelper.home(getTester());
+        clickLink("FlexibleDialPlan");
+        SiteTestHelper.assertNoException(getTester());
+        clickLinkWithText("Internal");
+        //it's a submit link: uses java script, does not have id
+        setFormElement("name", "invalid name");
+        clickButton("rule:save");
+        // should fail with the error message
+        SiteTestHelper.assertUserError(tester);
+    }    
 }

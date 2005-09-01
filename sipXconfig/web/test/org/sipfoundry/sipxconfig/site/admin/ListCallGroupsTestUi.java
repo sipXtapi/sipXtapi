@@ -37,7 +37,7 @@ public class ListCallGroupsTestUi extends ListWebTestCase {
 
     protected String[] getParamValues(int i) {
         return new String[] {
-            "call group" + i, Integer.toString(400 + i), "Description" + i
+            "call_group" + i, Integer.toString(400 + i), "Description" + i
         };
     }
 

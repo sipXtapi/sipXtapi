@@ -96,15 +96,20 @@
     </property>
   </bean>
   <bean name="validSipUrlUser" class="org.apache.tapestry.valid.PatternValidator">
-    <property name="required">
-      <value>false</value>
-    </property>
+    <property name="required" value="false"/>
     <property name="patternString">
       <value>^([a-zA-Z0-9_.!~*'\(\)&amp;=+$,;?/-]|%[0-9a-fA-F]{2})+$</value>
     </property>
     <property name="patternNotMatchedMessage">
       <value>Only limited set of characters is valid in SIP URLs, for example: 321, joedoe, joe!?~*222</value>
     </property>
+  </bean>
+	<!-- used in item common - most names in sipXconfig have the same limitation as user URL -->
+	<bean name="validSipNameRequired" parent="validSipUrlUser">
+		<property name="required" value="true"/>
+    <property name="patternNotMatchedMessage">
+      <value>Only limited set of characters is valid in name. Spaces and some special characters are not allowed.</value>
+    </property>		
   </bean>
   <bean name="validRule" class="org.sipfoundry.sipxconfig.site.dialplan.RuleValidator">
     <property name="gatewaysRequiredMessage">

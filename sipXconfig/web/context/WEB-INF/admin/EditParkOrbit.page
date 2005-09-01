@@ -41,6 +41,7 @@
     <component id="common" type="ItemCommon">
         <binding name="item" expression="parkOrbit"/>
         <binding name="useExtension" expression="true"/>
+        <binding name="nameValidator" expression="global.validSipNameRequired"/>        
     </component>
     
     <component id="musicOnHoldSelector" type="AssetSelector">
