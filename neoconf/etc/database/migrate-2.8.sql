@@ -1,28 +1,21 @@
 -- notes:
---  Dont use apostrophes in comments
---  Dont use variable names that match column names when setting variable (see my_* usages)
+--  Dont use apostrophes in comments inside functions
+--  Double single quote in all function bodies.
+--  Dont use variable names that match tables or column names when setting variable (see my_* usages)
 --  primative logging by raising notices. level debug is useless w/o modifications to postgres.conf
 --  some functions preserve primary keys from PDS, others do not.  depends on how easy it is to adjust
 --    and if destination table has to merge values from multiple tables in old schema.  if primary keys
 --    are preserved, sequences must be updated manually
---
+--  use environment vars to control output, example
+--    
+--  > env PGOPTIONS='-c client_min_messages=ERROR' \
+--     psql -U postgres SIPXCONFIG_TEST < etc\database\migrate-2.8.sql > /dev/null
+-- 
 -- todos:
 -- bail on any error
 -- workout logging that can keep a audit trail of migration incase there was a bad translation
 --   discovered post migration AND after users have added new data and running another migration is
 --   not possible and custom repair script can be written
-
-delete from line;
-delete from phone_group;
-delete from phone;
-
--- todo, translate superuser as well
-delete from user_group;
-delete from users where user_id != 1;
-
-delete from group_storage;
-delete from setting_value;
-delete from value_storage;
 
 -- U S E R   G R O U P S
 create or replace function migrate_user_groups() returns integer as '
@@ -240,7 +233,7 @@ end;
 -- N O N   P O L Y C O M   P H O N E S
 create or replace function migrate_non_polycom_phones() returns integer as '
 declare
-  phone record;
+  my_phone record;
   my_group_id int;
   my_phone_type record;
   next_id int;
@@ -253,26 +246,26 @@ begin
   insert into phone_type_migration values (''xpressa_strongarm_vxworks'', ''genericPhone'', null);
   insert into phone_type_migration values (''ixpressa_x86_win32'', ''genericPhone'', null);
 
-  for phone in select * from 
+  for my_phone in select * from 
       dblink(''select p.id, p.serial_number, p.pg_id, p.usrs_id, pt.model 
       from logical_phones p, phone_types pt where p.pt_id = pt.id'') 
       as (id int, serial_number text, pg_id int, usrs_id int, pt_model text) loop
 
-    select into my_phone_type * from phone_type_migration where pds_model = phone.pt_model; 
+    select into my_phone_type * from phone_type_migration where pds_model = my_phone.pt_model; 
 
-    raise notice ''importing phone %, %, %...'', phone.serial_number, my_phone_type.bean_id;
+    raise notice ''importing phone %, %...'', my_phone.serial_number, my_phone_type.bean_id;
 
     insert into phone (phone_id, serial_number, bean_id, model_id) 
-      values (phone.id, phone.serial_number, my_phone_type.bean_id, my_phone_type.model_id);
+      values (my_phone.id, my_phone.serial_number, my_phone_type.bean_id, my_phone_type.model_id);
 
-    select into my_group_id group_id from phone_group_migration where pds_group_id = phone.pg_id;
+    select into my_group_id group_id from phone_group_migration where pds_group_id = my_phone.pg_id;
 
-    insert into phone_group (phone_id, group_id) values (phone.id, my_group_id);
+    insert into phone_group (phone_id, group_id) values (my_phone.id, my_group_id);
 
-    if phone.usrs_id is not null 
+    if my_phone.usrs_id is not null 
     then
       insert into line (line_id, phone_id, position, user_id) 
-        values (nextval(''line_seq''), phone.id, 0, phone.usrs_id);
+        values (nextval(''line_seq''), my_phone.id, 0, my_phone.usrs_id);
     end if;
 
     -- todo, phone settings, only cisco? very difficult
@@ -291,26 +284,26 @@ end;
 -- P O L Y C O M   P H O N E S 
 create or replace function migrate_polycom_phones() returns integer as '
 declare
-  phone record;
-  line record;
+  my_phone record;
+  my_line record;
   next_id int;
   default_group_id int;
 begin
 
   select into default_group_id group_id from group_storage where name = ''default'' and resource = ''phone'';
 
-  for phone in select * from dblink(''select p.phone_id, p.serial_number, p.name, p.factory_id, p.storage_id, p.folder_id from phone p'') as (id int, serial_number text, name text, factory_id text, storage_id int, folder_id int) loop
+  for my_phone in select * from dblink(''select p.phone_id, p.serial_number, p.name, p.factory_id, p.storage_id, p.folder_id from phone p'') as (id int, serial_number text, name text, factory_id text, storage_id int, folder_id int) loop
    
     next_id := nextval(''phone_seq'');
     insert into phone (phone_id, name, serial_number, value_storage_id, bean_id, model_id) 
-      values (next_id, phone.name, phone.serial_number, phone.storage_id, ''polycom'',
-              substring(phone.factory_id from ''\\\\d*$''));
+      values (next_id, my_phone.name, my_phone.serial_number, my_phone.storage_id, ''polycom'',
+              substring(my_phone.factory_id from ''\\\\d*$''));
 
-    for line in select * from dblink(''select position, storage_id, user_id from 
-        line where phone_id ='' || phone.id) as (position int, storage_id int, user_id int) loop
+    for my_line in select * from dblink(''select position, storage_id, user_id from 
+        line where phone_id ='' || my_phone.id) as (position int, storage_id int, user_id int) loop
     
         insert into line (line_id, phone_id, position, user_id, value_storage_id) 
-          values (nextval(''line_seq''), next_id, line.position, line.user_id, line.storage_id);
+          values (nextval(''line_seq''), next_id, my_line.position, my_line.user_id, my_line.storage_id);
          
     end loop;
     
@@ -359,6 +352,17 @@ load 'dblink';
 select dblink_connect('dbname=PDS');
 
 -- todo migrate folder and folder values
+delete from line;
+delete from phone_group;
+delete from phone;
+
+-- todo, translate superuser as well
+delete from user_group;
+delete from users where user_id != 1;
+
+delete from group_storage;
+delete from setting_value;
+delete from value_storage;
 
 select migrate_settings();
 select migrate_user_groups();
