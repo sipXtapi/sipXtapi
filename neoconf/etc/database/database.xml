@@ -114,7 +114,7 @@
         description="migrate 2.8 database, note clears all existing 3.0 data">
 
     <exec executable="psql" output="${log.dir}/sipxconfig-2.8-db-migration.log">
-      <arg line="-a -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
+      <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
     </exec>
   </target>
   
