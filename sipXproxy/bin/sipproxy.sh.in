@@ -83,27 +83,31 @@ case ${Action} in
      logfile="@SIPX_LOGDIR@/sipproxy.log"
      if [ -e $logfile -a ! -w $logfile ]
      then
-	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
-	 Status=1
+         echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+         Status=1
      fi
 
-     if [ "${myHostname}" != "${myDomain}" ]
+     myIp=`@SIPX_BINDIR@/get_def_addr`
+     if [ "${myHostname}" != "${myDomain}" -a "${myIp}" != "${myDomain}" ]
      then
          tcpSrv=`dns_sipsrv tcp ${myDomain}`
          udpSrv=`dns_sipsrv udp ${myDomain}`
-         if [ "${myHostname}" != "${tcpSrv}" -a "${myHostname}" != "${udpSrv}" ] 
+         cName=`dns_cname ${myDomain}`
+         AliasMatched="NO"
+         for tryName in ${tcpSrv} ${udpSrv} ${cName}
+         do
+           if [ "${myHostname}" = "${tryName}" ] 
+           then
+               AliasMatched="YES"
+               break
+           fi
+         done
+
+         if [ $AliasMatched = "NO" ]
          then
-             sipAlias=`dns_cname ${myDomain}`
-             if [ "${myHostname}" != "${sipAlias}" ] 
-             then
-                 myIp=`@SIPX_BINDIR@/get_def_addr`
-                 if [ "${myDomain}" != "${myIp}" ]  
-                 then
-                     Status=1
-                     echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}' at ${myIp}" 1>&2
-                     echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
-                 fi
-             fi
+             Status=1
+             echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}' at ${myIp}" 1>&2
+             echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
          fi
      fi
      ;;
