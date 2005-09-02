@@ -307,9 +307,11 @@ done
 for sipName in `rpm -qa | grep sipx`
 do
    echo "" >> ${SystemConfig}
-   echo ======== RPM $d >> ${SystemConfig}
+   echo "======== RPM $d" >> ${SystemConfig}
         rpm -qi $sipName     >> ${SystemConfig}
 done
+echo "======== RPMs" >> ${SystemConfig}
+rpm -qa | sort >> ${SystemConfig}
 
 echo ""       >> ${SystemConfig}
 echo ======== ifconfig >> ${SystemConfig}
