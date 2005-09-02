@@ -1,11 +1,15 @@
--- notes:
 --  Dont use apostrophes in comments inside functions
 --  Double all single quotes in all function bodies.
---  Dont use variable names that match tables or column names when setting variable (see my_* usages)
+--  Dont use variable names that match tables or column names when setting 
+--    variable (see my_* usages)
 --  primative logging by raising notices.
---  some functions preserve primary keys from PDS, others do not.  depends on how easy it is to adjust
---    and if destination table has to merge values from multiple tables in old schema.  if primary keys
+--  some functions preserve primary keys from PDS, others do not.  depends on
+--    how easy it is to adjust
+--    and if destination table has to merge values from multiple tables in 
+--    old schema.  if primary keys
 --    are preserved, sequences must be updated manually
+--  raise notice with prefix string "DATA LOSS:" if records could not be 
+--    translated as an audit trail for admins to handle manually
 
 -- U S E R   G R O U P S
 create or replace function migrate_user_groups() returns integer as '
@@ -46,17 +50,24 @@ declare
 begin
 
   -- avoid SDS and superadmin users
-  for usr in select * from dblink(''select id, first_name, password, last_name, display_id, extension, ug_id from users where ug_id is not null'') as (id int, first_name text, password text, last_name text, display_id text, extension text, ug_id int) loop
+  for usr in select * from dblink(''select id, first_name, password, 
+      last_name, display_id, extension, ug_id 
+     from users where ug_id is not null'') 
+       as (id int, first_name text, password text, last_name text, 
+       display_id text, extension text, ug_id int) loop
 
-   raise notice ''importing user %...'', usr.display_id;
+    raise notice ''importing user %...'', usr.display_id;
 
-   insert into users (user_id, first_name, pintoken, last_name, user_name)
-      values (usr.id, usr.first_name, usr.password, usr.last_name, usr.display_id);
+    insert into users (user_id, first_name, pintoken, last_name, user_name)
+      values (usr.id, usr.first_name, usr.password, usr.last_name, 
+        usr.display_id);
 
-   -- user group
-   insert into user_group (user_id, group_id) values (usr.id, usr.ug_id);
+    -- user group
+    insert into user_group (user_id, group_id) values (usr.id, usr.ug_id);
 
-   -- todo report user permissions that cannot be handled
+    -- todo report user permissions that cannot be handled
+
+    -- todo sip passwords
 
   end loop; 
 
@@ -74,18 +85,68 @@ begin
 end;
 ' language plpgsql;
 
-
+-- U S E R   A L I A S E S
 create or replace function migrate_aliases() returns integer as '
+declare
+  duplicate_alias_query text := ''select a1.alias, a1.user_id from 
+       aliases a1, aliases a2 
+    where a1.alias = a2.alias and a1.user_id != a2.user_id'';
+  duplicate_alias record;
+  user_name_alias_conflict record;
 begin
 
-  -- pds primary key on user and alias, so aliases are not gauronteed to be unique
-  insert into user_alias (user_id, alias) select * from
-    dblink(''select user_id, alias from aliases'') 
-    as (user_id int, alias text);
+  -- pds primary key on user and alias, so aliases are not 
+  -- gauronteed to be unique. spit out bad records for audit trail
+  for duplicate_alias in select * from dblink(duplicate_alias_query) as 
+        (alias text, user_id int) loop
+    raise notice ''DATA LOSS: multiple users for single alias % (user_id=%)'',
+        duplicate_alias.alias, duplicate_alias.user_id;
+  end loop;
+
+  insert into user_alias (alias, user_id) select * from
+    dblink(''select a.alias, a.user_id from aliases a except '' ||
+        duplicate_alias_query) 
+    as (alias text, user_id int);
+ 
+  -- remove aliases that match existing user_names
+  for user_name_alias_conflict in 
+    select au.user_name as user_name, a.alias as alias
+    from user_alias a, users u, users au 
+    where a.alias = u.user_name and a.user_id = au.user_id
+  loop
+    raise notice ''DATA LOSS: user % has alias % matching another user'',
+      user_name_alias_conflict.user_name, user_name_alias_conflict.alias;
+    delete from user_alias where alias = user_name_alias_conflict.alias;
+  end loop;
 
   return 1;
 end;
 ' language plpgsql;
+
+-- U S E R  E X T E N S I O N S
+create or replace function migrate_extensions() returns integer as '
+declare
+  user_extension record;
+  alias_conflict record;
+begin
+
+  for user_extension in select * from dblink(
+      ''select id, extension from users where extension is not null'')
+      as (user_id int, extension text) loop
+
+    select into alias_conflict * from user_alias 
+        where alias = user_extension.extension;
+    if found then
+      raise notice ''DATA LOSS: extension conflicts with alias % '',
+          user_extension.extension;
+    end if;
+     
+  end loop;
+
+  return 1;
+end;
+' language plpgsql;
+
 
 
 -- U S E R  G R O U P  H I E R A R C H Y
@@ -219,6 +280,7 @@ begin
 end;
 ' language plpgsql;
 
+-- helper function to phone group tree function
 create or replace function insert_phones_into_groups(varchar) returns integer as '
 declare
   phone_select alias for $1;
@@ -296,10 +358,15 @@ declare
   default_group_id int;
 begin
 
-  select into default_group_id group_id from group_storage where name = ''default'' and resource = ''phone'';
+  select into default_group_id group_id from group_storage 
+      where name = ''default'' and resource = ''phone'';
 
-  for my_phone in select * from dblink(''select p.phone_id, p.serial_number, p.name, p.factory_id, p.storage_id, p.folder_id from phone p'') as (id int, serial_number text, name text, factory_id text, storage_id int, folder_id int) loop
-   
+  for my_phone in select * from dblink(
+    ''select p.phone_id, p.serial_number, p.name, p.factory_id, 
+        p.storage_id, p.folder_id from phone p'') 
+      as (id int, serial_number text, name text, factory_id text, 
+        storage_id int, folder_id int) 
+  loop
     next_id := nextval(''phone_seq'');
     insert into phone (phone_id, name, serial_number, value_storage_id, bean_id, model_id) 
       values (next_id, my_phone.name, my_phone.serial_number, my_phone.storage_id, ''polycom'',
@@ -313,8 +380,6 @@ begin
          
     end loop;
     
-    -- todo default folder values
-
   end loop; 
 
   -- all polycom phones in default group implicitly 
@@ -333,7 +398,7 @@ begin
 
  -- straight migration 
 
- insert into value_storage select * from 
+  insert into value_storage select * from 
    dblink(''select storage_id from storage'') as (value_storage_id int);
 
   insert into setting_value (value_storage_id, path, value) select * from
@@ -343,12 +408,29 @@ begin
   -- update value_storage_seq  
   next_id := max(value_storage_id) + 1 from value_storage;
   perform setval(''storage_seq'', next_id);
-
-  -- todo
   
   return 1;
 end;
 ' language plpgsql;
+
+-- F O L D E R  V A L U E S
+create or replace function migrate_folder_values() returns integer as '
+declare
+  default_group_id int;
+begin
+
+  select into default_group_id group_id from group_storage 
+      where name = ''default'' and resource = ''phone'';
+
+  insert into setting_value (value_storage_id, path, value) 
+    select default_group_id, * from
+      dblink(''select path, value from folder_setting'') 
+      as (path text, value text);
+
+  return 1;
+end;
+' language plpgsql;
+
 
 -- ********** END PL/pgSQL **************
 
@@ -359,15 +441,12 @@ load 'dblink';
 
 select dblink_connect('dbname=PDS');
 
--- todo migrate folder and folder values
 delete from line;
 delete from phone_group;
 delete from phone;
 delete from user_group;
 delete from user_alias;
 delete from users;
--- todo extensions
--- todo sip passwords
 
 delete from group_storage;
 delete from setting_value;
@@ -377,8 +456,10 @@ select migrate_settings();
 select migrate_user_groups();
 select migrate_users();
 select migrate_aliases();
+select migrate_extensions();
 select migrate_user_group_tree();
 select migrate_phone_groups();
+select migrate_folder_values();
 select migrate_non_polycom_phones();
 select migrate_polycom_phones();
 select migrate_phone_group_tree();
