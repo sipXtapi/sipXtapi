@@ -11,11 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.valid.IValidationDelegate;
 
 public abstract class FormActions extends BaseComponent {
     public abstract ICallback getCallback();
@@ -34,7 +36,9 @@ public abstract class FormActions extends BaseComponent {
     }
 
     public void onApply(IRequestCycle cycle) {
-        getListener().actionTriggered(this, cycle);
+        IValidationDelegate validator = TapestryUtils.getValidator((AbstractComponent) getPage());
+        IActionListener adapter = new TapestryContext.UserExceptionAdapter(validator, getListener());
+        adapter.actionTriggered(this, cycle);
     }
 
     public void onCancel(IRequestCycle cycle) {

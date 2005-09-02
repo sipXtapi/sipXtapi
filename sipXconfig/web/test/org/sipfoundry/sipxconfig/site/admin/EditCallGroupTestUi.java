@@ -25,7 +25,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.seedUser(getTester());
         SiteTestHelper.home(getTester());
-        //clickLink("resetCallGroupContext");
+        // clickLink("resetCallGroupContext");
         clickLink("NewCallGroup");
         setFormData();
     }
@@ -58,10 +58,10 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     public void testMoveRing() throws Exception {
-        for( int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             addUser();
         }
-        
+
         checkCheckbox("selectedRow");
         clickButton("userring:moveDown");
         assertCheckboxNotSelected("selectedRow");
@@ -69,8 +69,8 @@ public class EditCallGroupTestUi extends WebTestCase {
         clickButton("userring:moveUp");
         assertCheckboxSelected("selectedRow");
         assertCheckboxNotSelected("selectedRow$0");
-        
-        for( int i = 0; i < 3; i++) {
+
+        for (int i = 0; i < 3; i++) {
             SiteTestHelper.checkCheckbox(getTester(), "selectedRow", i);
         }
     }
@@ -82,9 +82,27 @@ public class EditCallGroupTestUi extends WebTestCase {
         checkCheckbox("selectedRow");
         clickButton("user:select");
     }
-    
+
     private void setFormData() {
         setFormElement("name", "testName");
         setFormElement("extension", "123");
+    }
+
+    /** Make sure that one cannot enable 2 huntgroups with the same name */
+    public void testEnableDuplicate() throws Exception {
+        checkCheckbox("enabled");
+        setFormElement("name", "xxxx");
+        setFormElement("extension", "123");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickLink("callgroups:add");
+        checkCheckbox("enabled");
+        setFormElement("name", "xxxx");
+        setFormElement("extension", "123");
+        clickButton("form:ok");
+        // this time we expect page will complain
+        SiteTestHelper.assertUserError(tester);
     }
 }
