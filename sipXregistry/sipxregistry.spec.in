@@ -62,6 +62,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipregistrar.sh
 %attr(755,root,root) %{_bindir}/sipregistrar
 %attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
+%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
 %attr(755,root,root) %{_datadir}/sipx/schema/alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/huntgroup.xsd
 
@@ -77,8 +79,8 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %doc %{_datadir}/doc/sipx/%name/*
+%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.a
 %{_includedir}/registry/*
-
 
 %pre
 sipx-upgrade -p sipxregistry -c
