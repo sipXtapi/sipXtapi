@@ -27,6 +27,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class OsConfigEncryption;
+class UtlSList;
 
 /**
  * Class for holding a name/value pair.
