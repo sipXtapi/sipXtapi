@@ -10,6 +10,11 @@
 --    are preserved, sequences must be updated manually
 --  raise notice with prefix string "DATA LOSS:" if records could not be 
 --    translated as an audit trail for admins to handle manually
+--  postgres 8 more picky and error much more informative
+--  when developing and wishing to run w/o installing, I recommend this line:
+/*
+psql -a --set ON_ERROR_STOP=true -U postgres SIPXCONFIG_TEST < migrate-2.8.sql
+*/
 
 -- U S E R   G R O U P S
 create or replace function migrate_user_groups() returns integer as '
@@ -18,19 +23,21 @@ declare
   next_id int;
 begin
 
+  -- todo weights ought to be the lower the depth, the higher to weight
+  -- how do you find the depth though?
+  raise notice ''DATA LOSS: User group inheritance not preserved'';
+
+  -- todo user permissions
+  raise notice ''DATA LOSS: User group permissions not migrated'';
+
   for usrgrp in select * from dblink(''select id, name from user_groups'') as (id int, name text) loop
 
     raise notice ''importing user group %...'', usrgrp.name;
  
     insert into value_storage (value_storage_id) values (usrgrp.id);
 
-    -- todo weights ought to be the lower the depth, the higher to weight
-    -- how do you find the depth though?
-
     insert into group_storage (group_id, name, weight, resource)
         values (usrgrp.id, usrgrp.name, nextval(''group_weight_seq''), ''user'');
-
-    -- todo user permissions
     
   end loop; 
 
@@ -49,6 +56,12 @@ declare
   next_id int;
 begin
 
+  -- todo report user permissions that cannot be handled
+  raise notice ''DATA LOSS: User permissions not migrated'';
+
+  -- todo sip passwords
+  raise notice ''DATA LOSS: SIP passwords not migrated'';
+
   -- avoid SDS and superadmin users
   for usr in select * from dblink(''select id, first_name, password, 
       last_name, display_id, extension, ug_id 
@@ -64,10 +77,6 @@ begin
 
     -- user group
     insert into user_group (user_id, group_id) values (usr.id, usr.ug_id);
-
-    -- todo report user permissions that cannot be handled
-
-    -- todo sip passwords
 
   end loop; 
 
@@ -186,7 +195,7 @@ begin
     g2.parent_ug_id = g3.id and g3.parent_ug_id = g4.id'') 
   as (user_id int, group_id int);
   if found then
-    raise exception ''cannot support group levels 4 parents or deeper'';
+    raise exception ''DATA LOSS: cannot support group levels 4 parents or deeper'';
   end if;
 
   return 1;
@@ -273,7 +282,7 @@ begin
     g2.parent_pg_id = g3.id and g3.parent_pg_id = g4.id'') 
   as (phone_id int, group_id int);
   if found then
-    raise exception ''cannot support group levels 4 parents or deeper'';
+    raise exception ''DATA LOSS: cannot support group levels 4 parents or deeper'';
   end if;
 
   return 1;
@@ -336,9 +345,11 @@ begin
         values (nextval(''line_seq''), my_phone.id, 0, my_phone.usrs_id);
     end if;
 
-    -- todo, phone settings, only cisco? very difficult
 
   end loop; 
+
+  -- todo, phone settings, only cisco? very difficult
+  raise notice ''DATA LOSS: Cisco and (i)xpressa settings not migrated'';
 
   -- update value_storage_seq  
   next_id := max(phone_id) + 1 from phone;
@@ -431,6 +442,116 @@ begin
 end;
 ' language plpgsql;
 
+-- E X T E N S I O N  P O O L S
+create or replace function migrate_extension_pools() returns integer as '
+begin
+  raise notice ''DATA LOSS: Extension pools not migrated'';
+  return 1;
+end;
+' language plpgsql;
+
+
+-- D I A L I N G  P L A N S
+create or replace function migrate_dialing_plans() returns integer as '
+begin
+  insert into custom_dialing_rule 
+     (custom_dialing_rule_id, call_pattern_digits, call_pattern_prefix)
+    select * from 
+     dblink(''select custom_dialing_rule_id, digits, prefix 
+       from custom_dialing_rule'') 
+       as (id int, digit text, prefix text);
+
+  insert into custom_dialing_rule_permission
+     (custom_dialing_rule_id, permission)
+    select * from 
+     dblink(''select custom_dialing_rule_id, permission
+       from custom_dialing_rule_permission'') 
+       as (id int, permission text);
+
+  insert into dial_pattern
+     (custom_dialing_rule_id, element_prefix, element_digits, index)
+    select * from 
+    dblink(''select custom_dialing_rule_id, prefix, digits, index
+       from dial_pattern'') 
+       as (id int, prefix text, digits int, index int);
+
+  insert into dial_plan select * from 
+    dblink(''select * from dial_plan'') as (id int);
+
+  insert into dialing_rule
+     (dialing_rule_id, name, description, enabled, position, dial_plan_id)
+    select * from 
+    dblink(''select dialing_rule_id, name, description, enabled, position, dial_plan_id
+       from dialing_rule'') 
+       as (id int, name text, description text, enabled bool, position int, dial_plan_id int);
+
+  insert into gateway
+     (gateway_id, name, address, description, bean_id)
+    select *, ''gwGeneric'' from 
+    dblink(''select gateway_id, name, address, description
+       from gateway'') 
+       as (id int, name text, address text, description text);
+
+  insert into dialing_rule_gateway
+     (dialing_rule_id, gateway_id, index)
+    select * from 
+    dblink(''select dialing_rule_id, gateway_id, index
+       from dialing_rule_gateway'') 
+       as (id int, gateway_id int, index int);
+
+  insert into emergency_dialing_rule
+     (emergency_dialing_rule_id, optional_prefix, emergency_number, use_media_server)
+    select * from 
+    dblink(''select emergency_dialing_rule_id, optionalprefix, emergencynumber, usemediaserver
+       from emergency_dialing_rule'') 
+       as (id int, prefix text, number text, usemediaserver bool);
+
+  -- todo find operator auto attendant
+  insert into internal_dialing_rule
+     (internal_dialing_rule_id, local_extension_len, voice_mail, voice_mail_prefix)
+    select * from 
+    dblink(''select internal_dialing_rule_id, localextensionlen, voicemail, voicemailprefix
+       from internal_dialing_rule'') 
+       as (id int, xlen int, vm text, vmprefix text);
+  -- insert into initialization_task values (''migrate_auto_attendant'');
+
+  insert into international_dialing_rule
+     (international_dialing_rule_id, international_prefix)
+    select * from 
+    dblink(''select international_dialing_rule_id, internationalprefix
+       from international_dialing_rule'') 
+       as (id int, prefix text);
+
+  insert into local_dialing_rule
+     (local_dialing_rule_id, external_len, pstn_prefix)
+    select * from 
+    dblink(''select local_dialing_rule_id, externallen, pstnprefix
+       from local_dialing_rule'') 
+       as (id int, len int, prefix text);
+
+  insert into long_distance_dialing_rule
+     (international_dialing_rule_id, area_codes, external_len, long_distance_prefix, 
+       permission, pstn_prefix)
+    select * from 
+    dblink(''select international_dialing_rule_id, areacodes, externallen, longdistanceprefix,
+         permission, pstnprefix
+       from long_distance_dialing_rule'') 
+       as (id int, areacodes text, len int, prefix text, 
+         permission text, pstn_prefix text);
+
+  insert into ring
+     (ring_id, number, position, expiration, ring_type, user_id)
+    select * from 
+    dblink(''select ring_id, number, position, expiration, ring_type, user_id
+       from ring'') 
+       as (id int, number text, position int, expiration int, ring_type text, user_id int);
+
+  return 1;
+end;
+' language plpgsql;
+
+
+
 
 -- ********** END PL/pgSQL **************
 
@@ -440,6 +561,20 @@ end;
 load 'dblink';
 
 select dblink_connect('dbname=PDS');
+
+-- delete bottom up
+delete from emergency_dialing_rule;
+delete from internal_dialing_rule;
+delete from international_dialing_rule;
+delete from local_dialing_rule;
+delete from long_distance_dialing_rule;
+delete from ring;
+delete from custom_dialing_rule;
+delete from custom_dialing_rule_permission;
+delete from dial_pattern;
+delete from gateway;
+delete from dialing_rule;
+delete from dial_plan;
 
 delete from line;
 delete from phone_group;
@@ -452,6 +587,7 @@ delete from group_storage;
 delete from setting_value;
 delete from value_storage;
 
+-- migrate top down
 select migrate_settings();
 select migrate_user_groups();
 select migrate_users();
@@ -463,3 +599,6 @@ select migrate_folder_values();
 select migrate_non_polycom_phones();
 select migrate_polycom_phones();
 select migrate_phone_group_tree();
+
+select migrate_dialing_plans();
+select migrate_extension_pools();
