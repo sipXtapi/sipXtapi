@@ -201,27 +201,29 @@ AC_DEFUN([CHECK_SSL],
 
     AC_MSG_CHECKING([for openssl libraries])
     found_ssl_lib="no";
-    for dir in $openssl_path ; do
-        if test -f "$dir/lib/libssl.so" -o "$dir/lib/libssl.a"; then
+    for libsubdir in lib lib64 lib32; do
+      for dir in $openssl_path ; do
+        if test -f "$dir/$libsubdir/libssl.so" -o "$dir/$libsubdir/libssl.a"; then
             found_ssl_lib="yes";
             ssllibdir="$dir/lib"
             break;
         # This test is an ugly hack to make sure that the current builds work.
         # But our test should be improved to allow libssl.so to have any version
         # and let the test succeed, since "-lssl" works with any version number.
-        elif test -f "$dir/lib/libssl.so.4"; then
+        elif test -f "$dir/$libsubdir/libssl.so.4"; then
             found_ssl_lib="yes";
             ssllibdir="$dir/lib"
             break;
-        elif test -f "$dir/lib/openssl/libssl.so"; then
+        elif test -f "$dir/$libsubdir/openssl/libssl.so"; then
             found_ssl_lib="yes";
-            ssllibdir="$dir/lib/openssl"
+            ssllibdir="$dir/$libsubdir/openssl"
             break;
-        elif test -f "$dir/lib/ssl/libssl.so"; then
+        elif test -f "$dir/$libsubdir/ssl/libssl.so"; then
             found_ssl_lib="yes";
-            ssllibdir="$dir/lib/ssl"
+            ssllibdir="$dir/$libsubdir/ssl"
             break;
         fi
+      done
     done
 
     if test x_$found_ssl_lib != x_yes ; then
