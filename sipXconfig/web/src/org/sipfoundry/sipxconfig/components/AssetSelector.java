@@ -47,6 +47,8 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
 
     public void pageBeginRender(PageEvent event_) {
         File assetDir = new File(getAssetDir());
+        // make sure it exists
+        assetDir.mkdirs();
         String[] assets = assetDir.list();
         if (assets == null) {
             assets = new String[0];
@@ -99,9 +101,13 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
      * Only call during validation phase
      * 
      * @param validator
-     * @param errorMsg
+     * @param errorMsg - if empty we will not validate, if not empty we will record this message
+     *        as an error in the validator
      */
     private void validateNotEmpty(IValidationDelegate validator, String errorMsg) {
+        if (StringUtils.isEmpty(errorMsg)) {
+            return;
+        }
         if (StringUtils.isBlank(getAsset()) && !isUploadFileSpecified(getUploadAsset())) {
             validator.record(errorMsg, ValidationConstraint.REQUIRED);
         }
