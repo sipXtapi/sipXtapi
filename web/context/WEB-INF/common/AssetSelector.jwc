@@ -24,7 +24,9 @@
     	default-value="'Upload prompt'"/>
     
     <parameter name="errorMsg" type="java.lang.String" 
-        direction="in" required="yes"/>
+        direction="in"/>
+    
+    <parameter name="submitOnChange" type="boolean" direction="in" default-value="true"/>
 
     <!-- P R O P E R T I E S -->    
 	<property-specification name="uploadAsset" type="org.apache.tapestry.request.IUploadFile"/>
@@ -40,7 +42,7 @@
     <component id="prompt" type="PropertySelection">
         <binding name="model" expression="page.global.tapestry.instructUserToSelect(assetSelectionModel)"/>
         <binding name="value" expression="asset"/>
-        <binding name="submitOnChange" expression="true"/>
+        <binding name="submitOnChange" expression="submitOnChange"/>
     </component>
     <component id="promptUploadLabel" type="FieldLabel">
         <binding name="field" expression="components.prompt"/>
