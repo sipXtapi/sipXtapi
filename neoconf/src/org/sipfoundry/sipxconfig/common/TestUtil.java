@@ -147,6 +147,7 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.domainName", "sipfoundry.org");
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
+        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
