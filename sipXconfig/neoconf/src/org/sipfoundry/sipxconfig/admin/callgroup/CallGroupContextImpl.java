@@ -57,7 +57,11 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     public void removeCallGroups(Collection ids) {
+        if (ids.isEmpty()) {
+            return;
+        }
         removeAll(CallGroup.class, ids);
+        activateCallGroups();
     }
 
     public List getCallGroups() {
@@ -110,7 +114,11 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     public void removeParkOrbits(Collection ids) {
+        if (ids.isEmpty()) {
+            return;
+        }
         removeAll(ParkOrbit.class, ids);
+        activateParkOrbits();
     }
 
     void removeAll(Class klass, Collection ids) {
@@ -133,6 +141,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     public void activateParkOrbits() {
+        m_replicationContext.generate(DataSet.ALIAS);
         try {
             Collection orbits = getParkOrbits();
             BackgroundMusic defaultMusic = getBackgroundMusic();

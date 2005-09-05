@@ -241,16 +241,18 @@ public class SiteTestHelper {
     public static void main(String[] args) {
         Properties sysProps = new Properties();
         s_artificialSystemRoot = args[0];
-
         String systemDirectory = cleanDirectory(args[1]);
         String etcDirectory = systemDirectory + "/etc";
+
+        // generates sipxconfig.properties in classpath (arg 0)
+        TestUtil.setSysDirProperties(sysProps, etcDirectory, args[2]);
+
+        // overwrite several properties that have to have "real" values
         sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory
                 + "/parkserver/music");
 
-        // generates sipxconfig.properties in classpath (arg 0)
-        TestUtil.setSysDirProperties(sysProps, etcDirectory, args[2]);
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
 

@@ -182,7 +182,7 @@
     <input>Press Enter/Return key to shutdown web server...</input>
   </target>
   <target name="test-all" depends="ant-targets.test-all,test-ui" />
-  <target name="test-war" depends="compile.test,war" 
+  <target name="test-war" depends="default.deps,compile.test,war" 
     description="Creates a war file for unittests">
     <property name="test.systemRoot" 
       location="${test.results.dir}/artificial-system-root" />
