@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -50,13 +51,23 @@ public abstract class EditGroup extends BasePage {
     }
 
     public void ok(IRequestCycle cycle) {
-        save();
-        cycle.activate(getReturnPage());
+        if (save()) {
+            cycle.activate(getReturnPage());
+        }
     }
     
-    void save() {
-        Group group = getGroup();
-        getSettingContext().saveGroup(group);
+    /* 
+     * If the input is valid, then save changes to the group and return true.
+     * Otherwise return false.
+     */
+    boolean save() {
+        if (TapestryUtils.isValid(this)) {
+            Group group = getGroup();
+            getSettingContext().saveGroup(group);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void cancel(IRequestCycle cycle) {        
