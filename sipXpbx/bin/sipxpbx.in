@@ -74,6 +74,7 @@ sipxchange_processes=(
     sipxconfig
     sipXvxml
     sipxpark
+    sipxpresence
     sipstatus
     sipregistrar
     sipauthproxy

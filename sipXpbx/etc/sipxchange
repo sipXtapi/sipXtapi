@@ -20,10 +20,12 @@ missingok
 /var/log/sipxpbx/error_log {
 }
 
-/var/log/sipxpbx/http_access_log {
-}
-
-/var/log/sipxpbx/httpd-access_log {
+/var/log/sipxpbx/httpd_access_log {
+    notifempty
+    sharedscripts
+    postrotate
+        /bin/kill -USR1 `cat /var/run/sipxpbx/httpd.pid 2>/dev/null` 2> /dev/null || true
+    endscript
 }
 
 /var/log/sipxpbx/httpd_error_log {
@@ -41,9 +43,6 @@ missingok
 /var/log/sipxpbx/replicationcgi.log {
 }
 
-/var/log/sipxpbx/sds.log {
-}
-
 /var/log/sipxpbx/sipauthproxy.log {
 }
 
@@ -56,7 +55,16 @@ missingok
 /var/log/sipxpbx/sipstatus.log {
 }
 
-/var/log/sipxpbx/ssl_request_log {
+/var/log/sipxpbx/sipxconfig.log {
+}
+
+/var/log/sipxpbx/sipxpark.log {
+}
+
+/var/log/sipxpbx/sipxacd.log {
+}
+
+/var/log/sipxpbx/sipxpresence.log {
 }
 
 /var/log/sipxpbx/vxmlengine.log {

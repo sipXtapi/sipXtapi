@@ -10,8 +10,7 @@ EXTRA_DIST = \
 
 INCLUDES = \
 	-I$(top_srcdir)/include \
-	-I$(top_builddir)/include \
-	-I$(top_srcdir)/../sipXcallLib/include
+	-I$(top_builddir)/include
 
 lib_LTLIBRARIES = libsipXtack.la
 

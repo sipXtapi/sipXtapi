@@ -684,6 +684,7 @@ wwwcontent = \
 	stdprompts/o_two.wav \
 	stdprompts/october.wav \
 	stdprompts/on.wav \
+	stdprompts/operator.wav \
 	stdprompts/outofoffice_greeting_is.wav \
 	stdprompts/outofoffice_selected.wav \
 	stdprompts/p.wav \

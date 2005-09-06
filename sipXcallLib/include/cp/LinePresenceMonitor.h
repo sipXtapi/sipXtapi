@@ -22,7 +22,6 @@
 #include <net/StateChangeNotifier.h>
 #include <net/SipDialogMonitor.h>
 #include <cp/LinePresenceBase.h>
-#include <cp/SipPresenceMonitor.h>
 
 
 // DEFINES
@@ -52,11 +51,12 @@ public:
 /* ============================ CREATORS ================================== */
 
    /// Constructor
-   LinePresenceMonitor(int userAgentPort,     ///< user agent port
-                       UtlString& domainName, ///< sipX domain name
-                       UtlString& groupName,  ///< name of the group to be monitored
-                       bool local,            ///< option for using local or remote monitor
-                       Url& remoteServerUrl); ///< remote server url
+   LinePresenceMonitor(int userAgentPort,       ///< user agent port
+                       UtlString& domainName,   ///< sipX domain name
+                       UtlString& groupName,    ///< name of the group to be monitored
+                       bool local,              ///< option for using local or remote monitor
+                       Url& remoteServerUrl,    ///< remote monitor server url
+                       Url& presenceServerUrl); ///< presence server url
   
    /// Destructor
    virtual ~LinePresenceMonitor();
@@ -85,23 +85,42 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   static void subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
+                                         const char* earlyDialogHandle,
+                                         const char* dialogHandle,
+                                         void* applicationData,
+                                         int responseCode,
+                                         const char* responseText,
+                                         long expiration,
+                                         const SipMessage* subscribeResponse);
+
+   static void notifyEventCallback(const char* earlyDialogHandle,
+                                   const char* dialogHandle,
+                                   void* applicationData,
+                                   const SipMessage* notifyRequest);
+                                   
+   void handleNotifyMessage(const SipMessage* notifyMessage);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    SipUserAgent* mpUserAgent;
    UtlString mGroupName;
    bool mLocal;
+   UtlString mDomainName;
+   UtlString mContact;
    
    SipDialogMonitor* mpDialogMonitor;
-   SipPresenceMonitor* mpPresenceMonitor;
 
    SipDialogMgr mDialogManager;
    SipRefreshManager* mpRefreshMgr;
    SipSubscribeClient* mpSipSubscribeClient;
    
    Url mRemoteServer;
+   UtlString mPresenceServer;
 
    UtlHashMap mSubscribeList;
+   UtlHashMap mDialogHandleList;
 
    OsBSem mLock;                  /**<
                                     * semaphore used to ensure that there

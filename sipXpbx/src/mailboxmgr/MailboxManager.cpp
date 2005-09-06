@@ -42,6 +42,7 @@
 #include "utl/UtlTokenizer.h"
 #include "utl/UtlHashMap.h"
 #include "utl/UtlHashMapIterator.h"
+#include "os/OsDateTime.h"
 
 // DEFINES
 #ifndef O_BINARY        // needed for WIN32
@@ -52,6 +53,7 @@
 // @TODO@ add new pin as part of the message
 #define CONTENT_TYPE_TEXT_XML "text/xml; charset=utf-8"
 
+#ifdef USE_SOAP
 #define _SOAP_MSG_NO_ARG_TEMPLATE_ \
 	"<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"%s\" SOAP-ENV:encoding=\"%s\"" \
 	" xmlns:xsi=\"%s\"" \
@@ -82,6 +84,7 @@ static UtlString soap_env_ns("http://schemas.xmlsoap.org/soap/envelope/");
 static UtlString soap_env_enc("http://schemas.xmlsoap.org/soap/encoding/");
 static UtlString soap_xsi_ns("http://www.w3.org/1999/XMLSchema-instance");
 static UtlString soap_xsd_ns("http://www.w3.org/1999/XMLSchema");
+#endif
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -296,8 +299,16 @@ MailboxManager::createSummaryFile(
             summaryData.data(),
             summaryData.length(),
             bytes_written );
+            
+        if ( result != OS_SUCCESS )
+        {
+           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                         "MailboxManager::createSummaryFile: summaryFile write failed\n");
+        }
+         
         summaryFile.close();
     }
+    
     return result;
 }
 
@@ -467,7 +478,12 @@ MailboxManager::updateMailboxFolderSummary (
         // Adjust the MWI - MWI state only dependent on Inbox
        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                      "MailboxManager::updateMailboxFolderSummary: posting MWI status\n");
-       result = postMWIStatus ( mailboxIdentity );
+       OsStatus ret = postMWIStatus ( mailboxIdentity );
+       if (ret != OS_SUCCESS)
+       {
+          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                        "MailboxManager::updateMailboxFolderSummary: postMWIstatus return error\n");
+       }
     }
 
     return result;
@@ -1448,8 +1464,8 @@ MailboxManager::saveMessage (
                            iUnheardCount,
                            iTotalCount );
 
-                        // Send email notification only for voicemail deposit (nextMessageID not set)
-                        if ( result == OS_SUCCESS && nextMessageID == "-1" )
+                        // Send email notification regardless where it comes from
+                        if ( result == OS_SUCCESS )
                         {
 
                            UtlString from;
@@ -1463,7 +1479,18 @@ MailboxManager::saveMessage (
                            else
                               from = userId;
 
-                           UtlString wavFileName = messageid + "-00.wav" ;
+                           UtlString wavFileName;
+                           
+                           if (nextMessageID == "-1")
+                           {
+                              // Message from direct deposit
+                              wavFileName = messageid + "-00.wav";
+                           }
+                           else
+                           {
+                              // Message from forwarding
+                              wavFileName = messageid + "-FW.wav";
+                           }
 
                            sendEmailNotification ( mailboxIdentity ,
                                                    from,
@@ -5074,7 +5101,14 @@ MailboxManager::saveSystemPrompts (
         else if ( promptType == SPECIAL_OCCASION_SYSTEM_GREETING )
             filename += SPECIAL_OCCASION_SYSTEM_GREETING_FILE ;
         else if ( promptType == RECORDED_AUTOATTENDANT_PROMPT )
-            filename += RECORDED_AUTOATTENDANT_PROMPT_FILE ;
+        {
+            char buffer[256];
+            long epochTime = OsDateTime::getSecsSinceEpoch();
+            sprintf(buffer, "-%ld.wav", epochTime);
+            filename += RECORDED_AUTOATTENDANT_PROMPT_FILE + UtlString(buffer);
+            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                          "saveSystemPrompts filename = %s", filename.data());
+        }
         else
             result = OS_FAILED;
 
@@ -5102,10 +5136,12 @@ MailboxManager::saveSystemPrompts (
                 close(file);
 
                 // 6. Set this prompt as the active prompt.
+                // We will not do it here anymore. The prompt will be set from configure server.
+#if 0
                 result = setActiveSystemPrompt( promptType );
                 if( result != OS_SUCCESS )
                     logContents = "Failed to set " + promptType + " as the active system prompt" ;
-
+#endif                    
             } else
             {
                 logContents = "Unable to create " + filename ;
@@ -5619,6 +5655,7 @@ MailboxManager::setPassword (
    int substrLength = loginString.index("@");
    UtlString userId = loginString(0, substrLength);
 
+#ifdef USE_SOAP
    // Get the superadmin passtoken
    Url mailboxUrl;
    UtlString dbPassToken, dbAuthType;
@@ -5627,11 +5664,22 @@ MailboxManager::setPassword (
                                             mailboxUrl,        // OUT
                                             dbPassToken,       // OUT
                                             dbAuthType );      // OUT
+#else
+   // Get the old passtoken
+   Url mailboxUrl;
+   UtlString dbPassToken, dbAuthType;
+   CredentialDB::getInstance()->getUserPin (userId,            // IN
+                                            m_defaultRealm,    // IN
+                                            mailboxUrl,        // OUT
+                                            dbPassToken,       // OUT
+                                            dbAuthType );      // OUT
+#endif
 
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "Sending the new pin to Config server for user %s\n", userId.data());
 
    // Send to the config server
+#ifdef USE_SOAP   
    Url userServiceUrl(m_configServerSecureUrl + "//pds/soap/services/urn:UserService");
    userServiceUrl.setUserId("superadmin");
    userServiceUrl.setPassword(dbPassToken.data());
@@ -5736,6 +5784,64 @@ MailboxManager::setPassword (
    
    delete pRequest;
    delete pResponse;
+#else
+   Url userServiceUrl(m_configServerSecureUrl + "/sipxconfig/api/change-pintoken");
+
+   // Built a http message and send it to the Config Server via https
+   char buffer[1024];
+   UtlString encodedToken;
+   UtlString textToEncode = userId + ":" + m_defaultRealm + ":" + newPassToken;
+   NetMd5Codec::encode(textToEncode, encodedToken);
+   sprintf(buffer, "%s;%s;%s", userId.data(), dbPassToken.data(), encodedToken.data());
+
+   UtlString httpMessage = UtlString(buffer);    
+
+   HttpMessage *pRequest = new HttpMessage();
+   pRequest->setFirstHeaderLine(HTTP_POST_METHOD, "/sipxconfig/api/change-pintoken", HTTP_PROTOCOL_VERSION_1_1);
+   pRequest->addHeaderField("Connection", "close");
+   pRequest->addHeaderField("Accept", "text/xml");
+   pRequest->addHeaderField("Accept", "multipart/*");
+   pRequest->setUserAgentField("Media-Server");
+
+   HttpBody* body = new HttpBody(httpMessage.data(),
+                                 httpMessage.length(),
+                                 CONTENT_TYPE_TEXT_XML);
+
+   pRequest->setBody(body);
+   pRequest->setContentType(CONTENT_TYPE_TEXT_XML);
+   pRequest->setContentLength(httpMessage.length());
+
+   // Create an empty response object and sent the built up request
+   // via it to the config server
+   HttpMessage *pResponse =
+      new HttpMessage(static_cast< const HttpMessage& >(*pRequest));
+
+   pResponse->get(userServiceUrl, *pRequest, 20*1000);
+
+   UtlString status;
+
+   pResponse->getResponseStatusText(&status);
+   OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                 "setPassword status = %s\n", status.data());
+
+
+   if (status.compareTo("OK") == 0)
+   {
+      OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                    "setPassword successful with status = %s\n", status.data());
+      result = OS_SUCCESS;
+   }
+   else
+   {
+      OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                    "setPassword failed with status = %s\n", status.data());
+      result = OS_FAILED;
+   }
+   
+   delete pRequest;
+   delete pResponse;
+
+#endif
   
    return result;
 }

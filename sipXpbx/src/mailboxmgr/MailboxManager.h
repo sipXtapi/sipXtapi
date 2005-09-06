@@ -127,8 +127,8 @@
 #define STANDARD_SYSTEM_GREETING_FILE           "standard_system_greeting.wav"
 #define AFTER_HOURS_SYSTEM_GREETING_FILE        "afterhours_system_greeting.wav"
 #define SPECIAL_OCCASION_SYSTEM_GREETING_FILE   "special_system_greeting.wav"
-#define RECORDED_AUTOATTENDANT_PROMPT_FILE      "customautoattendant-internal.wav"
-#define GENERIC_AUTOATTENDANT_PROMPT_FILE       "autoattendant-internal.wav"
+#define RECORDED_AUTOATTENDANT_PROMPT_FILE      "customautoattendant"
+#define GENERIC_AUTOATTENDANT_PROMPT_FILE       "autoattendant.wav"
 #define GENERIC_SYSTEM_GREETING_FILE            "welcome.wav"
 
 
@@ -1098,7 +1098,6 @@ private:
     int      m_maxMailboxMessages;
     int      m_housekeepingTimerMinutes;
     int      m_webMessageBlockSize ;
-
 
     /**
      * The following are pointers to the sipdb classes that to be used in the mailbox manager.

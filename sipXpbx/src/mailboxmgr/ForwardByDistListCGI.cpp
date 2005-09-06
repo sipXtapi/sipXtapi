@@ -69,6 +69,7 @@ OsStatus
 ForwardByDistListCGI::execute(UtlString* out) 
 {
    OsStatus result = OS_SUCCESS;
+   bool atLeastOneSucceed = false;
    UtlString dynamicVxml (VXML_BODY_BEGIN);
 
    MailboxManager* pMailboxManager = MailboxManager::getInstance();
@@ -121,17 +122,21 @@ ForwardByDistListCGI::execute(UtlString* out)
                   m_messageIds, 
                   toMailboxIdentity );
 
+               if (result == OS_SUCCESS && !atLeastOneSucceed)
+               {
+                  atLeastOneSucceed = true;
+               }
             }
          }
 
-         if( result == OS_SUCCESS )
+         if(atLeastOneSucceed)
          {
             // Message was forwarded successfully
             dynamicVxml += VXML_SUCCESS_SNIPPET;
          }
          else
          {
-            // Unable to forward the message
+            // We only complain it if nothing has been forwarded
             dynamicVxml += VXML_FAILURE_SNIPPET;
          }
       }

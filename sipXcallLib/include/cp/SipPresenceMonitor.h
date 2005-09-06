@@ -98,6 +98,7 @@ class SipPresenceMonitor : public StateChangeNotifier
    PresenceDialInServer* mpDialInServer;
    SipUserAgent* mpUserAgent;  
    UtlString mDomainName;
+   UtlString mHostAndPort;
    bool mToBePublished;
    
    OsBSem mLock;

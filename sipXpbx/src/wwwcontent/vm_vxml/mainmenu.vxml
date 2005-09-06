@@ -32,7 +32,8 @@
         <field name="mainmenu">
             <grammar>0|1|2|3|4|5|7|8|*</grammar>
             <prompt>
-                <audio expr="mediaserverurl + promptsalias + 'mainmenu.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'mainmenu_no_autoattendant.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'operator.wav'" />
             </prompt>
             <prompt cond="isRecordSystemPromptsEnabled == 'yes'">
                 <audio expr="mediaserverurl + promptsalias + 'for_system_options.wav'" />
@@ -40,6 +41,7 @@
             <filled>
                 <if cond="mainmenu== '0'">
                     <assign name="action" expr="'autoattendant'" />
+                    <assign name="name" expr="'operator'" />
                     <goto nextitem="autoattendant"/>
                 <elseif cond="mainmenu== '1'"/>
                     <!-- User wants to listen to the messages in their inbox. -->
@@ -240,7 +242,7 @@
             </filled>
         </subdialog>
 
-        <subdialog name="autoattendant" cond="mainmenu == '0'" srcexpr="securemediaserverurl + cgiurl"  namelist="action from">
+        <subdialog name="autoattendant" cond="mainmenu == '0'" srcexpr="securemediaserverurl + cgiurl"  namelist="action from name">
         <filled>
             <clear namelist="mainmenu"/>
             <goto nextitem="mainmenu" />
@@ -249,15 +251,13 @@
 
         <!-- Play the prompt for system administration options. -->
         <field name="systemadministrationoptions" cond="isRecordSystemPromptsEnabled == 'yes'">
-            <grammar>1|2|*</grammar>
+            <grammar>1|*</grammar>
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'system_admin_options.wav'" />
                 <audio expr="mediaserverurl + promptsalias + 'return_to_mainmenu.wav'" />
             </prompt>
             <filled>
                 <if cond="systemadministrationoptions == '1'">
-                    <goto nextitem="managesystemgreetings"/>
-                <elseif cond="systemadministrationoptions == '2'"/>
                     <goto nextitem="manageautoattendant"/>
                 <elseif cond="systemadministrationoptions == '*'"/>
                     <clear namelist="systemadministrationoptions mainmenu" />
@@ -284,19 +284,8 @@
             </nomatch>
         </field>
 
-        <!-- Invoke the VXML for managing system-wide greetings  -->
-        <subdialog name="managesystemgreetings" cond="systemadministrationoptions == '1'" src="manage_system_greetings.vxml">
-            <param name="mailbox" expr="mailbox"/>
-            <param name="mediaserverurl" expr="mediaserverurl" />
-            <param name="securemediaserverurl" expr="securemediaserverurl" />
-            <filled>
-                <clear namelist="systemadministrationoptions"/>
-                <goto nextitem="systemadministrationoptions"/>
-            </filled>
-        </subdialog>
-
         <!-- Invoke the VXML for managing auto attendant prompt  -->
-        <subdialog name="manageautoattendant" cond="systemadministrationoptions == '2'" src="manage_autoattendant_prompt.vxml">
+        <subdialog name="manageautoattendant" cond="systemadministrationoptions == '1'" src="manage_autoattendant_prompt.vxml">
             <param name="mailbox" expr="mailbox"/>
             <param name="mediaserverurl" expr="mediaserverurl" />
             <param name="securemediaserverurl" expr="securemediaserverurl" />

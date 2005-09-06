@@ -18,7 +18,7 @@
 
         <!-- Play the manage auto attendant options prompt -->
         <field name="manageautoattendant">
-            <grammar>1|2|*</grammar>
+            <grammar>1|*</grammar>
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'manage_autoattendant_options.wav'"/>
                  <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
@@ -27,9 +27,6 @@
                 <if cond="manageautoattendant == '1'">
                     <!-- Administrator wants to record the auto attendant prompt -->
                     <goto nextitem="playprompt"/>
-                <elseif cond="manageautoattendant == '2'" />
-                    <!-- Administrator wants to select the auto attendant prompt to play -->
-                    <goto nextitem="selectgreeting" />
                 <elseif cond="manageautoattendant == '*'" />
                     <!-- Cancel and return to the System Adminstration Options menu -->
                     <prompt>

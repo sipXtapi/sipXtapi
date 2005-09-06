@@ -2,7 +2,10 @@
 <PresenceDialIn>
   <signInFeatureCode>*88</signInFeatureCode>
   <signOutFeatureCode>*86</signOutFeatureCode>
+  <!-- Provide as a hook for using customized tones as sign-in and sign-out -->
+  <!--
   <signInConfirmationAudio>/usr/local/sipx/var/sipxdata/presenceserver/confirmation.wav</signInConfirmationAudio>
   <signOutConfirmationAudio>/usr/local/sipx/var/sipxdata/presenceserver/na_dialtone.wav</signOutConfirmationAudio>
   <errorAudio>/usr/local/sipx/var/sipxdata/presenceserver/na_busy.wav</errorAudio>  
+  -->
 </PresenceDialIn>

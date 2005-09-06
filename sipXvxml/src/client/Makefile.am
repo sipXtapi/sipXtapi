@@ -3,8 +3,6 @@ AM_CFLAGS = -DCOMPANY_DOMAIN=L\"pingtel.com\"
 AM_CXXFLAGS = -DCOMPANY_DOMAIN=L\"pingtel.com\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\"
 
-INCLUDES = -I$(top_srcdir)/../sipXcallLib/include
-
 noinst_LTLIBRARIES = libOSBclient.la
 
 # do not do versioning for noinst libraries

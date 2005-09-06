@@ -58,6 +58,10 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    mpUserAgent = userAgent;
    mDomainName = domainName;
    mToBePublished = toBePublished;
+   
+   char buffer[80];
+   sprintf(buffer, "@%s:%d", mDomainName.data(), hostPort);
+   mHostAndPort = UtlString(buffer);
 
    UtlString localAddress;
    OsSocket::getHostIp(&localAddress);
@@ -446,7 +450,8 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
    bool result = false;
    
    UtlString contact;
-   aor.getIdentity(contact);
+   aor.getUserId(contact);
+   contact += mHostAndPort;
    
    // Create a presence event package and store it in the publisher
    SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(contact);

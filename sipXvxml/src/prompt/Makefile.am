@@ -2,8 +2,6 @@ noinst_LTLIBRARIES = libOSBprompt.la
 
 # do not do versioning for noinst libraries
 
-INCLUDES = -I$(top_srcdir)/../sipXcallLib/include
-
 libOSBprompt_la_CXXFLAGS = -DCOMPANY_DOMAIN=L\"pingtel.com\"
 
 libOSBprompt_la_SOURCES =  \

@@ -1,9 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/../sipXtackLib/include
-
 bin_PROGRAMS = sipxpresence
 
 sipxpresence_LDADD = \

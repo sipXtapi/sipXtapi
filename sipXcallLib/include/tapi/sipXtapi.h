@@ -261,6 +261,29 @@ typedef enum SIPX_LOG_LEVEL
 } SIPX_LOG_LEVEL ;
 
 
+class SIPX_SECURITY_ATTRIBUTES
+{
+public:
+    SIPX_SECURITY_ATTRIBUTES()
+    {
+    }
+    
+    SIPX_SECURITY_ATTRIBUTES(const SIPX_SECURITY_ATTRIBUTES& ref)
+    {
+    }
+    
+    SIPX_SECURITY_ATTRIBUTES& operator=(const SIPX_SECURITY_ATTRIBUTES& ref)
+    {
+        // Need to be implemented!!!
+        if (this == &ref)
+            return *this;
+   
+        return *this;
+    }
+    
+private:
+};
+
 /**
  * SIPX_CONTACT_TYPE is an enumeration of possible address type for use with
  * SIP contacts and SDP connection information.
