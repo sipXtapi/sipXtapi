@@ -23,10 +23,6 @@ declare
   next_id int;
 begin
 
-  -- todo weights ought to be the lower the depth, the higher to weight
-  -- how do you find the depth though?
-  raise notice ''DATA LOSS: User group inheritance not preserved'';
-
   -- todo user permissions
   raise notice ''DATA LOSS: User group permissions not migrated'';
 
@@ -50,6 +46,45 @@ begin
 end;
 ' language plpgsql;
 
+
+create or replace function migrate_group_weights() returns integer as '
+declare
+  my_group record;
+  my_weight int := 0;
+  next_id int;
+begin
+
+  -- default group has the most members and the lowest weight. 
+  -- sort by member count descending and assign next weight seq.
+  for my_group in 
+    select g.group_id as id from user_group ug
+      left join group_storage g on ug.group_id = g.group_id
+      group by g.group_id order by count(*) desc loop
+
+    update group_storage set weight=my_weight where group_id = my_group.id;
+    my_weight := my_weight + 1;
+
+  end loop;
+
+  my_weight := 0;
+  for my_group in 
+    select g.group_id as id from phone_group pg
+      left join group_storage g on pg.group_id = g.group_id
+      group by g.group_id order by count(*) desc loop
+
+    update group_storage set weight=my_weight where group_id = my_group.id;
+    my_weight := my_weight + 1;
+
+  end loop;
+
+  next_id := max(weight) + 1 from group_storage;
+  perform setval(''group_weight_seq'', next_id);
+
+  return 1;
+end;
+' language plpgsql;
+
+
 -- U S E R S
 create or replace function migrate_users() returns integer as '
 declare
@@ -63,7 +98,7 @@ begin
   -- avoid SDS and superadmin users
   for usr in select * from dblink(''select id, first_name, password, 
       last_name, display_id, extension, ug_id 
-     from users where ug_id is not null'') 
+     from users where display_id != ''''SDS'''''') 
        as (id int, first_name text, password text, last_name text, 
        display_id text, extension text, ug_id int) loop
 
@@ -74,7 +109,9 @@ begin
         usr.display_id);
 
     -- user group
-    insert into user_group (user_id, group_id) values (usr.id, usr.ug_id);
+    if usr.ug_id is not null then
+      insert into user_group (user_id, group_id) values (usr.id, usr.ug_id);
+    end if;
 
   end loop; 
 
@@ -99,9 +136,10 @@ begin
     where 
       u.cs_id = cs.id'') as (user_id int, password text)
   loop
-    raise notice ''sippassword for % = %'', my_sip_password.user_id, my_sip_password.password;
     update users set sip_password = my_sip_password.password where user_id = my_sip_password.user_id;
   end loop;
+
+  
 
   return 1;
 end;
@@ -631,11 +669,13 @@ select migrate_sip_passwords();
 select migrate_aliases();
 select migrate_extensions();
 select migrate_user_group_tree();
+
 select migrate_phone_groups();
 select migrate_folder_values();
 select migrate_non_polycom_phones();
 select migrate_polycom_phones();
 select migrate_phone_group_tree();
 
+select migrate_group_weights();
 select migrate_dialing_plans();
 select migrate_extension_pools();
