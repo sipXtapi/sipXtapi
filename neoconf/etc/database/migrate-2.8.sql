@@ -30,7 +30,8 @@ begin
   -- todo user permissions
   raise notice ''DATA LOSS: User group permissions not migrated'';
 
-  for usrgrp in select * from dblink(''select id, name from user_groups'') as (id int, name text) loop
+  for usrgrp in select * from dblink(''select id, name from user_groups'') 
+      as (id int, name text) loop
 
     raise notice ''importing user group %...'', usrgrp.name;
  
@@ -59,9 +60,6 @@ begin
   -- todo report user permissions that cannot be handled
   raise notice ''DATA LOSS: User permissions not migrated'';
 
-  -- todo sip passwords
-  raise notice ''DATA LOSS: SIP passwords not migrated'';
-
   -- avoid SDS and superadmin users
   for usr in select * from dblink(''select id, first_name, password, 
       last_name, display_id, extension, ug_id 
@@ -82,6 +80,28 @@ begin
 
   next_id := max(user_id) + 1 from users;
   perform setval(''user_seq'', next_id);
+
+  return 1;
+end;
+' language plpgsql;
+
+
+create or replace function migrate_sip_passwords() returns integer as '
+declare
+  my_sip_password record;
+begin
+
+  for my_sip_password in select * from dblink(''select u.usrs_id, 
+      substring(substring(cs.content from ''''line1_password>.*</line1_password'''') 
+      from ''''[0-9]{2,16}'''') 
+    from 
+      config_sets cs, user_cs_assoc u 
+    where 
+      u.cs_id = cs.id'') as (user_id int, password text)
+  loop
+    raise notice ''sippassword for % = %'', my_sip_password.user_id, my_sip_password.password;
+    update users set sip_password = my_sip_password.password where user_id = my_sip_password.user_id;
+  end loop;
 
   return 1;
 end;
@@ -450,10 +470,40 @@ begin
 end;
 ' language plpgsql;
 
-
 -- D I A L I N G  P L A N S
 create or replace function migrate_dialing_plans() returns integer as '
+declare
+  next_id int;
 begin
+  -- GATEWAY
+  insert into gateway
+     (gateway_id, name, address, description, bean_id)
+    select *, ''gwGeneric'' from 
+    dblink(''select gateway_id, name, address, description
+       from gateway'') 
+       as (id int, name text, address text, description text);
+
+  next_id := max(gateway_id) + 1 from gateway;
+  perform setval(''gateway_seq'', next_id);
+
+  -- DIAL PLAN
+  insert into dial_plan select * from 
+    dblink(''select * from dial_plan'') as (id int);
+
+  next_id := max(dial_plan_id) + 1 from dial_plan;
+  perform setval(''dial_plan_seq'', next_id);
+
+  -- DIALING RULES
+  insert into dialing_rule
+     (dialing_rule_id, name, description, enabled, position, dial_plan_id)
+    select * from 
+    dblink(''select dialing_rule_id, name, description, enabled, position, dial_plan_id
+       from dialing_rule'') 
+       as (id int, name text, description text, enabled bool, position int, dial_plan_id int);
+
+  next_id := max(dialing_rule_id) + 1 from dialing_rule;
+  perform setval(''dialing_rule_seq'', next_id);
+
   insert into custom_dialing_rule 
      (custom_dialing_rule_id, call_pattern_digits, call_pattern_prefix)
     select * from 
@@ -474,23 +524,6 @@ begin
     dblink(''select custom_dialing_rule_id, prefix, digits, index
        from dial_pattern'') 
        as (id int, prefix text, digits int, index int);
-
-  insert into dial_plan select * from 
-    dblink(''select * from dial_plan'') as (id int);
-
-  insert into dialing_rule
-     (dialing_rule_id, name, description, enabled, position, dial_plan_id)
-    select * from 
-    dblink(''select dialing_rule_id, name, description, enabled, position, dial_plan_id
-       from dialing_rule'') 
-       as (id int, name text, description text, enabled bool, position int, dial_plan_id int);
-
-  insert into gateway
-     (gateway_id, name, address, description, bean_id)
-    select *, ''gwGeneric'' from 
-    dblink(''select gateway_id, name, address, description
-       from gateway'') 
-       as (id int, name text, address text, description text);
 
   insert into dialing_rule_gateway
      (dialing_rule_id, gateway_id, index)
@@ -546,6 +579,9 @@ begin
        from ring'') 
        as (id int, number text, position int, expiration int, ring_type text, user_id int);
 
+  next_id := max(ring_id) + 1 from ring;
+  perform setval(''ring_seq'', next_id);
+
   return 1;
 end;
 ' language plpgsql;
@@ -591,6 +627,7 @@ delete from value_storage;
 select migrate_settings();
 select migrate_user_groups();
 select migrate_users();
+select migrate_sip_passwords();
 select migrate_aliases();
 select migrate_extensions();
 select migrate_user_group_tree();
