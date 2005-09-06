@@ -36,6 +36,7 @@ class UrlMappingTest : public CppUnit::TestCase
       CPPUNIT_TEST(testVDigits);
       CPPUNIT_TEST(testUserPat);
       CPPUNIT_TEST(testEscape);
+      CPPUNIT_TEST(testSpecials);
       CPPUNIT_TEST_SUITE_END();
 
 
@@ -743,6 +744,92 @@ class UrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( registrations.getSize() == 0 );
          registrations.destroyAll();
 
+
+         delete urlmap;
+      }
+
+   void testSpecials()
+      {
+         /* tests characters that are special in Perl Regular Expressions
+          * but not in a dial string
+          */
+
+         UrlMapping* urlmap;
+         ResultSet registrations;
+         UtlBoolean isPSTNnumber = false;
+         ResultSet permissions;
+         UtlString actual;
+
+         CPPUNIT_ASSERT( urlmap = new UrlMapping() );
+         CPPUNIT_ASSERT( urlmap->loadMappings(TEST_DATA_DIR "mapdata/specials.xml",
+                                              MS, VM, LH
+                                              )
+                        == OS_SUCCESS
+                        );
+
+         // the interface says getContactList returns an OsStatus,
+         // but it is not set so don't test it
+
+         urlmap->getContactList( Url("sip:101@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 0 );
+
+         registrations.destroyAll();
+
+         urlmap->getContactList( Url("sip:101+@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL("sip:OneZeroOnePlus@thisdomain",actual);
+         registrations.destroyAll();
+
+         urlmap->getContactList( Url("sip:1011@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 0 );
+
+         registrations.destroyAll();
+
+         urlmap->getContactList( Url("sip:1012?@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL("sip:OneZeroOneTwoQmark@thisdomain",actual);
+         registrations.destroyAll();
+
+         urlmap->getContactList( Url("sip:(101)@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL("sip:ParenOneZeroOneParen@thisdomain",actual);
+         registrations.destroyAll();
+
+         urlmap->getContactList( Url("sip:1013*@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL("sip:OneZeroOneThreeStar@thisdomain",actual);
+         registrations.destroyAll();
+
+         urlmap->getContactList( Url("sip:101$@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL("sip:OneZeroOneDollar@thisdomain",actual);
+         registrations.destroyAll();
 
          delete urlmap;
       }

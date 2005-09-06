@@ -710,6 +710,54 @@ UrlMapping::convertRegularExpression(const UtlString& source,
                 rRegExp.append(".*");
             }
         }
+        else if(*sourceChar == '+')
+        {
+           if ( specialEscaped )
+           {
+              rRegExp.append("\\");
+           }
+           rRegExp.append("\\+");
+        }
+        else if(*sourceChar == '$')
+        {
+           if ( specialEscaped )
+           {
+              rRegExp.append("\\");
+           }
+           rRegExp.append("\\$");
+        }
+        else if(*sourceChar == '?')
+        {
+           if ( specialEscaped )
+           {
+              rRegExp.append("\\");
+           }
+           rRegExp.append("\\?");
+        }
+        else if(*sourceChar == '*')
+        {
+           if ( specialEscaped )
+           {
+              rRegExp.append("\\");
+           }
+           rRegExp.append("\\*");
+        }
+        else if(*sourceChar == '(')
+        {
+           if ( specialEscaped )
+           {
+              rRegExp.append("\\");
+           }
+           rRegExp.append("\\(");
+        }
+        else if(*sourceChar == ')')
+        {
+           if ( specialEscaped )
+           {
+              rRegExp.append("\\");
+           }
+           rRegExp.append("\\)");
+        }
         else if(*sourceChar == 'x')
         {
             if ( specialEscaped )

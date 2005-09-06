@@ -21,5 +21,6 @@ EXTRA_DIST = \
 	mapdata/escape.xml \
 	mapdata/params.xml \
 	mapdata/simple.xml \
+	mapdata/specials.xml \
 	mapdata/userpat.xml \
 	mapdata/vdigits.xml
