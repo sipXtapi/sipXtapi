@@ -26,6 +26,8 @@ package org.sipfoundry.sipxconfig.admin.commserver;
  */
 public interface ServerSettings {
     
+    public static final String DOMAIN_NAME = "domain/SIPXCHANGE_DOMAIN_NAME";
+    
     public String getDomainName();
 
 }

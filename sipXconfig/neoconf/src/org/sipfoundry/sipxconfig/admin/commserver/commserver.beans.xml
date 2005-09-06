@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans default-dependency-check="objects">
+<beans>
 	<bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer">
 		<property name="configDirectory">
 			<value>${sysdir.etc}</value>
 		</property>
 		<property name="settingModel">
-			<bean class="org.sipfoundry.sipxconfig.setting.SettingModel" dependency-check="none">
+			<bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
 				<property name="resource" value="commserver/server.xml"/>
 				<property name="modelFilesContext">
 					<ref bean="modelFilesContext"/>
 				</property>
 			</bean>
 		</property>
-	</bean>
-	
+		<property name="coreContext" ref="coreContext"/>
+		<property name="phoneDefaults" ref="phoneDefaults"/>
+		<property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+	</bean>	
 	<bean id="sipxReplicationContextImpl" abstract="true"
 		class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
 		<property name="configDirectory" value="${sysdir.etc}"/>
