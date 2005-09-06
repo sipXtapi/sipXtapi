@@ -82,7 +82,7 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
         
     public void testGenerateAliases() throws Exception {
         // park orbits do not generate any aliases
-        List aliases = m_context.getAliases();
+        Collection aliases = m_context.getAliasMappings();
         assertNotNull(aliases);
         assertEquals(0, aliases.size());
     }

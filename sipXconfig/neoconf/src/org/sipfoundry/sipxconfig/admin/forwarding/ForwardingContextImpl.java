@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return (Ring) hibernate.load(Ring.class, id);
     }
 
-    public List getForwardingAliases() {
+    public Collection getAliasMappings() {
         List aliases = new ArrayList();
         List sequences = loadAllCallSequences();
         for (Iterator i = sequences.iterator(); i.hasNext();) {

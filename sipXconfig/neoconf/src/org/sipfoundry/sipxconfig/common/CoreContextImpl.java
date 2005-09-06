@@ -44,7 +44,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private SettingDao m_settingDao;
 
     private Setting m_userSettingModel;
-    
+
     private DaoEventPublisher m_daoEventPublisher;
 
     public CoreContextImpl() {
@@ -71,7 +71,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         getHibernateTemplate().saveOrUpdate(user);
     }
 
-    public void deleteUser(User user) {        
+    public void deleteUser(User user) {
         getHibernateTemplate().delete(user);
     }
 
@@ -114,45 +114,44 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
         return user;
     }
-    
+
     public User loadUserByAlias(String alias) {
         return loadUserByNamedQueryAndNamedParam("userByAlias", "alias", alias);
     }
-    
+
     public User loadUserByUserNameOrAlias(String userNameOrAlias) {
-        return loadUserByNamedQueryAndNamedParam(
-                "userByNameOrAlias", "userNameOrAlias", userNameOrAlias);
+        return loadUserByNamedQueryAndNamedParam("userByNameOrAlias", "userNameOrAlias",
+                userNameOrAlias);
     }
 
-    private User loadUserByNamedQueryAndNamedParam(String queryName, String paramName, Object value) {
-        Collection usersColl = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                queryName, paramName, value);
-        Set users = new HashSet(usersColl);     // eliminate duplicates
+    private User loadUserByNamedQueryAndNamedParam(String queryName, String paramName,
+            Object value) {
+        Collection usersColl = getHibernateTemplate().findByNamedQueryAndNamedParam(queryName,
+                paramName, value);
+        Set users = new HashSet(usersColl); // eliminate duplicates
         if (users.size() > 1) {
             throw new IllegalStateException(
-                    "The database has more than one user matching the query "
-                    + queryName + ", paramName = " + paramName + ", value = " + value);
+                    "The database has more than one user matching the query " + queryName
+                            + ", paramName = " + paramName + ", value = " + value);
         }
         User user = null;
         if (users.size() > 0) {
             user = (User) users.iterator().next();
         }
-        return user;       
+        return user;
     }
-    
+
     /**
-     * Return all users matching the userTemplate example.
-     * Empty properties of userTemplate are ignored in the search.  The empty string is
-     * effectively a search wildcard.  Therefore if you pass in userTemplate with all
-     * properties left empty, the result set contains all users.
-     * Set matchUserNameOrAlias to true to look for userName matches in either the
-     * userName or aliases properties.  For example, if you pass in userTemplate with
-     * matchUserNameOrAlias set to true, and userTemplate.userName = "102", then the 
-     * search will return users with "102" as either the userName or an alias.  Otherwise
-     * matching is only done on the userName and aliases are ignored.
-     * Strings are matched with a wildcard at the end.  For example, if you pass in
-     * userTemplate.firstName = "jo" then you'll get matches on users with first name =
-     * "jo" or "joe" but not "flojo".
+     * Return all users matching the userTemplate example. Empty properties of userTemplate are
+     * ignored in the search. The empty string is effectively a search wildcard. Therefore if you
+     * pass in userTemplate with all properties left empty, the result set contains all users. Set
+     * matchUserNameOrAlias to true to look for userName matches in either the userName or aliases
+     * properties. For example, if you pass in userTemplate with matchUserNameOrAlias set to true,
+     * and userTemplate.userName = "102", then the search will return users with "102" as either
+     * the userName or an alias. Otherwise matching is only done on the userName and aliases are
+     * ignored. Strings are matched with a wildcard at the end. For example, if you pass in
+     * userTemplate.firstName = "jo" then you'll get matches on users with first name = "jo" or
+     * "joe" but not "flojo".
      */
     public List loadUserByTemplateUser(final User userTemplate, final boolean matchUserNameOrAlias) {
         HibernateCallback callback = new HibernateCallback() {
@@ -162,15 +161,15 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             }
         };
         List users = getHibernateTemplate().executeFind(callback);
-        
-        // Eliminate any duplicates in the list.  See http://www.hibernate.org/117.html#A11 --
-        // we can't count on the "distinct" keyword in HQL to fix this, because the query 
+
+        // Eliminate any duplicates in the list. See http://www.hibernate.org/117.html#A11 --
+        // we can't count on the "distinct" keyword in HQL to fix this, because the query
         // sometimes uses outer joins.
         Set usersSet = new HashSet(users);
         users = new ArrayList(usersSet);
         return users;
     }
-   
+
     public List loadUserByTemplateUser(User userTemplate) {
         return loadUserByTemplateUser(userTemplate, true);
     }
@@ -180,9 +179,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     /**
-     * Catch database corruption errors where more than one record exists. In general fields should
-     * have unique indexes set up to protect against this. This method is created as a safe check
-     * only, there have been not been any experiences of corrupt data to date.
+     * Catch database corruption errors where more than one record exists. In general fields
+     * should have unique indexes set up to protect against this. This method is created as a safe
+     * check only, there have been not been any experiences of corrupt data to date.
      * 
      * @param c
      * @param query
@@ -212,7 +211,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
     }
-    
+
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof InitializationTask) {
             InitializationTask task = (InitializationTask) event;
@@ -272,7 +271,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         m_userSettingModel = userSettingModel;
     }
 
-    public List getUserAliases() {
+    public Collection getAliasMappings() {
         List aliases = new ArrayList();
         List users = loadUsers();
         for (Iterator i = users.iterator(); i.hasNext();) {
@@ -309,5 +308,4 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public void onSave(Object entity_) {
     }
-    
 }

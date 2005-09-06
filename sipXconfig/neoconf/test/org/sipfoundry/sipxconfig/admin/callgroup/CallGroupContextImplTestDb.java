@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -168,11 +169,11 @@ public class CallGroupContextImplTestDb extends TestCase {
     }
 
     public void testGenerateAliases() throws Exception {
-        List aliases = m_context.getAliases();
+        Collection aliases = m_context.getAliasMappings();
         assertNotNull(aliases);
         assertEquals(1, aliases.size());
 
-        AliasMapping aliasMapping = (AliasMapping) aliases.get(0);
+        AliasMapping aliasMapping = (AliasMapping) aliases.iterator().next();
         assertTrue(aliasMapping.getIdentity().startsWith("401"));
         assertTrue(aliasMapping.getContact().startsWith("sales"));
     }

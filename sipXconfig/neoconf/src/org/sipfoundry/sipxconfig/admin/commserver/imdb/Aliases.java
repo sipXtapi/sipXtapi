@@ -11,19 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 
 public class Aliases extends DataSetGenerator {
 
-    private ForwardingContext m_forwardingContext;
-
-    private CallGroupContext m_callGroupContext;
+    private AliasProvider m_aliasProvider;
 
     public Aliases() {
     }
@@ -33,12 +30,10 @@ public class Aliases extends DataSetGenerator {
     }
 
     protected void addItems(Element items) {
-        addAliases(items, m_callGroupContext.getAliases());
-        addAliases(items, m_forwardingContext.getForwardingAliases());
-        addAliases(items, getCoreContext().getUserAliases());
+        addAliases(items, m_aliasProvider.getAliasMappings());
     }
 
-    void addAliases(Element items, List aliases) {
+    void addAliases(Element items, Collection aliases) {
         for (Iterator i = aliases.iterator(); i.hasNext();) {
             AliasMapping alias = (AliasMapping) i.next();
             Element item = addItem(items);
@@ -48,12 +43,8 @@ public class Aliases extends DataSetGenerator {
             contact.setText(alias.getContact());
         }
     }
-
-    public void setForwardingContext(ForwardingContext forwardingContext) {
-        m_forwardingContext = forwardingContext;
-    }
-
-    public void setCallGroupContext(CallGroupContext callGroupContext) {
-        m_callGroupContext = callGroupContext;
+    
+    public void setAliasProvider(AliasProvider aliasProvider) {
+        m_aliasProvider = aliasProvider;
     }
 }

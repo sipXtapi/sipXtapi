@@ -14,7 +14,9 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 import java.util.Collection;
 import java.util.List;
 
-public interface CallGroupContext {
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+
+public interface CallGroupContext extends AliasProvider {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
 
     void activateCallGroups();
@@ -32,8 +34,6 @@ public interface CallGroupContext {
     void removeUser(Integer userId);
 
     void clear();
-
-    List getAliases();
 
     ParkOrbit loadParkOrbit(Integer id);
 
