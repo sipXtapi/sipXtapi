@@ -210,9 +210,14 @@ int SipClient::run(void* runArg)
             // clientSocket shouldn't be null
             // in this case some sort of race with the destructor.  This should
             // not actually ever happen.
-            if(clientSocket
-               && ((readAMessage && buffer.length() > MINIMUM_SIP_MESSAGE_SIZE)
-                   || isReadyToRead()))
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient::run readAMessage = %d, "
+                          "buffer.length() = %d, clientSocket = %p",
+                          readAMessage, buffer.length(), clientSocket);
+            if (clientSocket
+                && ((readAMessage
+                     && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
+                    || isReadyToRead()))
             {
 #ifdef LOG_TIME
                 eventTimes.addEvent("locking");
@@ -238,7 +243,9 @@ int SipClient::run(void* runArg)
                                  mRemoteViaAddress.data(),
                                  mReceivedAddress.data(),
                                  clientSocket->ipProtocolString(),
-                                 isReadyToRead() ? "READY" : "NOT READY"
+                                 // isReadyToRead() blocks, so cannot be called
+                                 // here.
+                                 "UNKNOWN" // isReadyToRead() ? "READY" : "NOT READY"
                                  );
 
 #ifdef LOG_TIME
@@ -483,7 +490,11 @@ int SipClient::run(void* runArg)
 
                 if(buffer.length())
                 {
-                    OsSysLog::add(FAC_SIP, PRI_ERR,
+                    OsSysLog::add(FAC_SIP, 
+                                  // For UDP, this is an error, but not
+                                  // for TCP or TLS.
+                                  (clientSocket->getIpProtocol() ==
+                                   OsSocket::UDP) ? PRI_ERR : PRI_DEBUG,
                                   "SipClient::run buffer residual bytes: %d\n===>%s<===\n",
                                   buffer.length(), buffer.data());
                 }
@@ -500,14 +511,14 @@ int SipClient::run(void* runArg)
                 delete message;
             }
             message = NULL;
-                }
-                else
-                {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipClient::run client 0%p socket is NULL yielding",
-                        this);
-            yield();  // I do not know why this yield is here
-                }
-        } // while this client is ok
+        }
+        else
+        {
+           OsSysLog::add(FAC_SIP, PRI_ERR, "SipClient::run client 0%p socket is NULL yielding",
+                         this);
+           yield();  // I do not know why this yield is here
+        }
+    } // while this client is ok
 
     return(0);
 }

@@ -394,7 +394,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
                 OsEvent* waitEvent = new OsEvent;
                 transaction->notifyWhenAvailable(waitEvent);
 
-                // Must unlock while we wait or there is a dead lock
+                // Must unlock while we wait or there is a deadlock
                 unlock();
 
 //#ifdef TEST_PRINT

@@ -98,4 +98,3 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/tao/*
 %{_includedir}/tapi/*
 #%{_includedir}/test/mp/*
-

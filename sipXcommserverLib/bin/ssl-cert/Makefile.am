@@ -38,3 +38,5 @@ install-sipx-scripts: $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(DESTDIR)$(bindi
 
 $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(DESTDIR)$(bindir)/ssl-cert/$(sipxScript)) : $(DESTDIR)$(bindir)/ssl-cert/% : %
 	$(INSTALL) -D -m 755 $< $@
+
+DISTCLEANFILES = ca_rehash check-cert.sh gen-ssl-keys.sh install-cert.sh

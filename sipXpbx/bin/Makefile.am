@@ -64,3 +64,5 @@ bin-scripts: $(sysconfdir)/init.d
 	done
 
 .PHONY: bin-scripts
+
+DISTCLEANFILES = sipxpbx

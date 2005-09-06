@@ -28,9 +28,6 @@
 # "with" arguments for ./configure to the CONFIGURE_FLAGS variable.
 CONFIGURE_FLAGS=
 
-# Build the Tapi.
-CONFIGURE_FLAGS+=--enable-tapi
-
 # If the $(PREFIX)/lib/httpd/modules directory exists, use it as the Apache
 # modules directory.
 ifneq ($(PREFIX),)
@@ -48,7 +45,8 @@ export SPRING_HOME=/opt/spring-framework-1.1.2
 # A list of all the sipX components, in the dependency order that they have
 # to be built in.
 # For the full dependency order, see http://www.sipfoundry.org/sipX/index.html
-COMPONENTS=sipXportLib sipXtackLib sipXmediaLib sipXcallLib \
+COMPONENTS=sipXportLib sipXtackLib sipXmediaLib \
+	sipXmediaAdapterLib sipXcallLib \
 	sipXcommserverLib sipXvxml sipXconfig sipXregistry sipXproxy \
 	sipXpublisher sipXpbx
 
@@ -88,7 +86,7 @@ SUDO=
 
 # Build all the components
 
-build build-check-install: $(COMPONENTS)
+build build-check-install: $(foreach C,$(COMPONENTS),$(C)-build-check-install)
 
 # Command groups to perform various Subversion activities.
 
@@ -97,10 +95,7 @@ build build-check-install: $(COMPONENTS)
 # "tag/2.6.001b", etc.
 BRANCH=main
 checkout:
-	for d in $(COMPONENTS) ; \
-	    do echo svn checkout --quiet $(REPOSITORY)/$$d/$(BRANCH) $$d ; \
-	    svn checkout --quiet $(REPOSITORY)/$$d/$(BRANCH) $$d ; \
-	done
+	svn checkout --quiet $(REPOSITORY)/$(BRANCH) sipX
 
 # "svn switch" all the components
 # The branch identifier to switch to is specified by BRANCH.  (See above.)
@@ -112,105 +107,46 @@ switch:
 
 # Update all the components (that are already checked out)
 update:
-	for d in sipX* ; do echo svn update $$d ; svn update $$d ; done
+	svn update
 
 # Show the status of all the components
 status:
-	-for d in $(COMPONENTS) ; do svn status $$d ; done | \
+	svn status | \
 	grep -Ev '^$$|^Performing status on external item at |^X      '
 status-u:
-	-for d in $(COMPONENTS) ; do svn status -u $$d ; done | \
+	svn status -u | \
 	grep -Ev '^$$|^Performing status on external item at |^X      '
 
 # Clean all the components.
 distclean:
-	for d in $(COMPONENTS) ; do make -C $$d distclean ; done
+	for d in $(COMPONENTS) ; do if [ -f $$d/Makefile ] ; then make -C $$d distclean ; fi ; done
 
 # Print the svnversion info for all the components.
 svnversion:
-	for d in $(COMPONENTS) ; do \
-	    echo -n "$$d: $$( svn info $$d | \
-	                      sed -e '/URL:/!d' -e 's/URL: //' ) " ; \
-	    svnversion $$d ; \
-	done
+	svnversion .
 
 # Print the differences from the BASE revision.
 diff:
-	svn diff $(COMPONENTS)
+	svn diff
 
 # Command groups to build each component
 
-sipXportLib:
-	cd sipXportLib ; autoreconf --install --force
-	cd sipXportLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXportLib ; make
-	cd sipXportLib ; make check
-	cd sipXportLib ; $(SUDO) make install
+$(foreach C,$(COMPONENTS),$(C)): %: %-build-check-install
 
-sipXtackLib:
-	cd sipXtackLib ; autoreconf --install --force
-	cd sipXtackLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXtackLib ; make
-	cd sipXtackLib ; make check
-	cd sipXtackLib ; $(SUDO) make install
+$(foreach C,$(COMPONENTS),$(C)-build-check-install): %-build-check-install: %
+	cd $< ; autoreconf --install --force
+	cd $< ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd $< ; make
+	cd $< ; make check
+	cd $< ; $(SUDO) make install
 
-sipXmediaLib:
-	cd sipXmediaLib ; autoreconf --install --force
-	cd sipXmediaLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXmediaLib ; make
-	cd sipXmediaLib ; make check
-	cd sipXmediaLib ; $(SUDO) make install
-
-sipXcallLib:
-	cd sipXcallLib ; autoreconf --install --force
-	cd sipXcallLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcallLib ; make
-	cd sipXcallLib ; make check
-	cd sipXcallLib ; $(SUDO) make install
-
-sipXcommserverLib:
-	cd sipXcommserverLib ; autoreconf --install --force
-	cd sipXcommserverLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcommserverLib ; make
-	cd sipXcommserverLib ; make check
-	cd sipXcommserverLib ; $(SUDO) make install
-
-sipXvxml:
-	cd sipXvxml ; autoreconf --install --force
-	cd sipXvxml ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXvxml ; make
-	cd sipXvxml ; $(SUDO) make install
-
-sipXconfig:
-	cd sipXconfig ; autoreconf --install --force
-	cd sipXconfig ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXconfig ; make
-	cd sipXconfig ; $(SUDO) make install
-
-sipXregistry:
-	cd sipXregistry ; autoreconf --install --force
-	cd sipXregistry ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXregistry ; make
-	cd sipXregistry ; $(SUDO) make install
-
-sipXproxy:
-	cd sipXproxy ; autoreconf --install --force
-	cd sipXproxy ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXproxy ; make
-	cd sipXproxy ; $(SUDO) make install
-
-sipXpublisher:
-	cd sipXpublisher ; autoreconf --install --force
-	cd sipXpublisher ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpublisher ; make
-	cd sipXpublisher ; $(SUDO) make install
-
-sipXpbx:
-	cd sipXpbx ; autoreconf --install --force
-	cd sipXpbx ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpbx ; make
-	cd sipXpbx ; $(SUDO) make install
-
+#$(COMPONENTS): %:
+#	cd $@ ; autoreconf --install --force
+#	cd $@ ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+#	cd $@ ; make
+#	cd $@ ; make check
+#	cd $@ ; $(SUDO) make install
+	
 # The rpm --install's install both the binary and the devel RPMs of
 # the libraries.
 
@@ -223,6 +159,8 @@ rpms:
 	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxtacklib-*.i386.rpm
 	cd sipXmediaLib ; make rpm
 	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxmedialib-*.i386.rpm
+	cd sipXmediaAdapterLib ; make rpm
+	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxmediaadapterlib-*.i386.rpm
 	cd sipXcallLib ; make rpm
 	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxcalllib-*.i386.rpm
 	cd sipXcommserverLib ; make rpm
@@ -253,6 +191,10 @@ build-check:
 	cd sipXmediaLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
 	cd sipXmediaLib ; make
 	cd sipXmediaLib ; make check
+	cd sipXmediaAdapterLib ; autoreconf --install --force
+	cd sipXmediaAdapterLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd sipXmediaAdapterLib ; make
+	cd sipXmediaAdapterLib ; make check
 	cd sipXcallLib ; autoreconf --install --force
 	cd sipXcallLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
 	cd sipXcallLib ; make
@@ -295,6 +237,10 @@ build-install:
 	cd sipXmediaLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
 	cd sipXmediaLib ; make
 	cd sipXmediaLib ; $(SUDO) make install
+	cd sipXmediaAdapterLib ; autoreconf --install --force
+	cd sipXmediaAdapterLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd sipXmediaAdapterLib ; make
+	cd sipXmediaAdapterLib ; $(SUDO) make install
 	cd sipXcallLib ; autoreconf --install --force
 	cd sipXcallLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
 	cd sipXcallLib ; make
@@ -338,6 +284,9 @@ build-only:
 	cd sipXmediaLib ; autoreconf --install --force
 	cd sipXmediaLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
 	cd sipXmediaLib ; make
+	cd sipXmediaAdapterLib ; autoreconf --install --force
+	cd sipXmediaAdapterLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd sipXmediaAdapterLib ; make
 	cd sipXcallLib ; autoreconf --install --force
 	cd sipXcallLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
 	cd sipXcallLib ; make
@@ -370,6 +319,8 @@ make-install:
 	cd sipXtackLib ; $(SUDO) make install
 	cd sipXmediaLib ; make
 	cd sipXmediaLib ; $(SUDO) make install
+	cd sipXmediaAdapterLib ; make
+	cd sipXmediaAdapterLib ; $(SUDO) make install
 	cd sipXcallLib ; make
 	cd sipXcallLib ; $(SUDO) make install
 	cd sipXcommserverLib ; make
@@ -391,6 +342,7 @@ install:
 	cd sipXportLib ; $(SUDO) make install
 	cd sipXtackLib ; $(SUDO) make install
 	cd sipXmediaLib ; $(SUDO) make install
+	cd sipXmediaAdapterLib ; $(SUDO) make install
 	cd sipXcallLib ; $(SUDO) make install
 	cd sipXcommserverLib ; $(SUDO) make install
 	cd sipXvxml ; $(SUDO) make install

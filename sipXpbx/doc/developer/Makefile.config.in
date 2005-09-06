@@ -31,6 +31,7 @@ default:
 	false
 
 # Prevent the Watchdog from automatically running the media server.
+WD=@SIPX_CONFDIR@/WatchDog.xml
 no-media-server:
 	mv $(WD) $(WD).tmp
 	sed <$(WD).tmp >$(WD) \
@@ -78,6 +79,10 @@ install-test-config:
 	sed -e "s/\[domain]/$$I/" <sipXpbx/doc/developer/test-config/var=sipxdata=sipdb/$$file >$$file.tmp ; \
 	perl sipXcommserverLib/doc/update-passtokens $$file.tmp $$file.2.tmp ; \
 	install $$file.2.tmp @SIPX_DBDIR@/$$file ; \
+	done
+	for file in orbits.xml ; \
+	do \
+	install sipXpbx/doc/developer/test-config/etc=sipxpbx/$$file @SIPX_CONFDIR@/$$file ; \
 	done
 
 # Remove from httpd.conf any LoadModule directives for modules that

@@ -19,3 +19,5 @@ $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd)): $(DESTDIR)@SIPX_SCH
 
 $(foreach xsd,$(schemas),$(xsd)): % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) $< > $@
+
+DISTCLEANFILES = alias.xsd huntgroup.xsd
