@@ -20,6 +20,9 @@
       <pattern>[0-9*#]+</pattern>
     </string>
   </type>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534"/>
+  </type>	
   <group name="domain">
     <label>Domain</label>
     <setting name="SIPXCHANGE_DOMAIN_NAME">
@@ -92,6 +95,30 @@
       <description>Number of seconds that the original call will ring after pickup code is
         dialed.</description>
     </setting>
+	</group>		
+  <group name="presence-config">
+		<label>Presence Server</label>
+		<setting name="SIP_PRESENCE_SIGN_IN_CODE">
+      <label>Presence sign-in</label>
+      <profileName>sipxpresence-config.in</profileName>
+      <type refid="feature-code"/>
+      <value>*88</value>
+      <description>Code that needs to be dialed to sign-in to presence monitor.</description>
+    </setting>
+		<setting name="SIP_PRESENCE_SIGN_OUT_CODE">
+      <label>Presence sign-out</label>
+      <profileName>sipxpresence-config.in</profileName>
+      <type refid="feature-code"/>
+      <value>*86</value>
+      <description>Code that needs to be dialed to sign-out from presence monitor.</description>
+    </setting>
+		<setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
+      <label>SIP port</label>
+      <profileName>config.defs</profileName>
+      <type refid="port-number"/>
+      <value>5130</value>
+      <description>The IP port on which presence server listens to SIP messages.</description>
+    </setting>		
   </group>
   <group name="Logging">
     <setting name="SIP_AUTHPROXY_LOG_LEVEL">
@@ -138,5 +165,12 @@
       <value>NOTICE</value>
       <description>Handling of SUBSCRIBE/NOTIFY messages for voicemail notification control (MWI)</description>
     </setting>
+    <setting name="SIP_PRESENCE_LOG_LEVEL">
+      <label>Presence Server Log Level</label>
+      <profileName>presence-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Monitoring presence events.</description>
+    </setting>		
   </group>
 </model>
