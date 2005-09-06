@@ -56,22 +56,24 @@
       - C O M P O N E N T S
       -->
     
-    <component id="firstNameLabel" type="FieldLabel">
+    <component id="firstNamePanel" type="FieldPanel">
         <binding name="field" expression="components.firstName"/>
-	    <message-binding name="displayName" key="label.firstName"/>
+	    <message-binding name="label" key="label.firstName"/>
     </component>
     <component id="firstName" type="TextField">
 	    <binding name="value" expression="user.firstName"/>
     </component>
-    <component id="lastNameLabel" type="FieldLabel">
+    <component id="lastNamePanel" type="FieldPanel">
         <binding name="field" expression="components.lastName"/>
-	    <message-binding name="displayName" key="label.lastName"/>
+	    <message-binding name="label" key="label.lastName"/>
     </component>
     <component id="lastName" type="TextField">
 	    <binding name="value" expression="user.lastName"/>
     </component>
-    <component id="userIdLabel" type="FieldLabel">
+    <component id="userIdPanel" type="FieldPanel">
         <binding name="field" expression="components.userId"/>
+	    <message-binding name="label" key="label.userId"/>
+	    <message-binding name="description" key="description.userId"/>
     </component>
     <component id="userId" type="ValidField">
 	    <binding name="value" expression="user.userName"/>
@@ -81,13 +83,15 @@
 	<component id="pin" type="ConfirmPassword">
         <binding name="password" expression="pin"/>
         <message-binding name="passwordDisplayName" key="label.pin"/>
+        <message-binding name="passwordDescription" key="description.pin"/>
         <message-binding name="confirmPasswordDisplayName" key="label.pin2"/>
         <message-binding name="passwordMismatchMessage" key="message.pinMismatch"/>
         <binding name="passwordValidator" expression="pinValidator"/>
     </component>
-    <component id="sipPasswordLabel" type="FieldLabel">
+    <component id="sipPasswordPanel" type="FieldPanel">
         <binding name="field" expression="components.sipPassword"/>
-	    <message-binding name="displayName" key="label.sipPassword"/>
+	    <message-binding name="label" key="label.sipPassword"/>
+	    <message-binding name="description" key="description.sipPassword"/>
     </component>
     <component id="sipPassword" type="TextField">
 	    <binding name="value" expression="user.sipPassword"/>
@@ -96,8 +100,10 @@
         <binding name="groups" expression="coreContext.userGroups"/>
         <binding name="values" expression="user.groups"/>
     </component>
-    <component id="aliasesLabel" type="FieldLabel">
+    <component id="aliasesPanel" type="FieldPanel">
         <binding name="field" expression="components.aliases"/>
+	    <message-binding name="label" key="label.aliases"/>
+	    <message-binding name="description" key="description.aliases"/>     
     </component>
     <component id="aliases" type="ValidField">
 	    <binding name="value" expression="aliasesString"/>

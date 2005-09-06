@@ -4,17 +4,19 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
+    <h2>New User</h2>
+    <div class="help">
+		<p>Assign the user to groups by selecting groups from the list.
+			Use ctrl-click to toggle the selection of a single group.</p>
+		<b>Quick Links</b>
+		<ul>
+			<li><a jwcid="extensionPoolsLink" href="#">Extension Pool</a></li>
+		</ul>
+	</div>
         <span jwcid="@ErrorMsg"/>
         <form jwcid="form">
             <span jwcid="userForm"/>
-			<ul class="form-actions">
-				<li>
-                    <input type="submit" jwcid="cancel" id="user:cancel" value="Cancel"/>
-				</li>
-				<li>
-                    <input type="submit" jwcid="save" id="user:save" value="Save"/>
-				</li>
-			</ul>                        
+    		<ul jwcid="formActions"/>
 		</form>    
     </div>
 </body>

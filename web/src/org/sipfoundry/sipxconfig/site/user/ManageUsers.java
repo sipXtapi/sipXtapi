@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -55,8 +57,14 @@ public abstract class ManageUsers extends BasePage
         getCoreContext().deleteUsers(selected);
     }
     
-    public void pageBeginRender(PageEvent event_) {
+    public void pageBeginRender(PageEvent event) {
         CoreContext core = getCoreContext();
         setUsers(core.loadUserByTemplateUser(new User()));
+        
+        // If the user clicks through to the Edit User page, clicking OK or Cancel on that
+        // page should send the user back here
+        ICallback callback = new PageCallback(PAGE);
+        EditUser editUserPage = (EditUser) event.getRequestCycle().getPage(EditUser.PAGE);
+        editUserPage.setCallback(callback);
     }        
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE page-specification
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.admin.ExtensionPools">
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage">
     <description>User Extension Pool</description>
 
     <!--
@@ -13,7 +13,9 @@
     	initial-value="global.extensionPoolContext"/>        
 	<property-specification name="userExtensionPool" 
 		type="org.sipfoundry.sipxconfig.common.ExtensionPool" 
-    	initial-value="global.extensionPoolContext.userExtensionPool"/>        
+    	initial-value="global.extensionPoolContext.userExtensionPool"/>    
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"/>
 
     <!--
       - B E A N S 
@@ -49,7 +51,8 @@
         <message-binding name="displayName" key="label.end"/>
     </component>
     <component id="formActions" type="FormActions">
-        <binding name="listener" expression="listeners.apply"/>
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
     </component>
         
 </page-specification>
