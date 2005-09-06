@@ -12,12 +12,15 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.ExtensionPool;
 import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class ExtensionPools extends BasePage {
+public abstract class ExtensionPoolsPage extends BasePage {
+
+    public static final String PAGE = "ExtensionPools";
 
     /**
      * Properties
@@ -29,10 +32,13 @@ public abstract class ExtensionPools extends BasePage {
     public abstract ExtensionPool getUserExtensionPool();
     public abstract void setUserExtensionPool(ExtensionPool pool);
     
+    public abstract ICallback getCallback();
+    public abstract void setCallback(ICallback callback);
+    
     /**
      * Listeners
      */  
-    public void apply(IRequestCycle cycle_) {
+    public void commit(IRequestCycle cycle_) {
         // Proceed only if Tapestry validation succeeded
         if (!TapestryUtils.isValid(this)) {
             return;

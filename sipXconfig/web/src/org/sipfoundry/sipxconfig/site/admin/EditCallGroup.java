@@ -62,13 +62,13 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
     }
 
     /**
-     * Called when any of the submit componens on the form is activated.
+     * Called when any of the submit components on the form is activated.
      * 
-     * Usually submit components are setting propertied. formSubmit will first check if the form
+     * Usually submit components are setting properties. formSubmit will first check if the form
      * is valid, then it will call all the "action" listeners. Only one of the listeners (the one
-     * that recongnizes the property that is set) will actually do something. This is a bit
-     * strange consequnce of the fact that Tapestry listeners are pretty much usuless because they
-     * are called while the form is still rewinding and not all changes are commited to beans.
+     * that recognizes the property that is set) will actually do something. This is a
+     * strange consequence of the fact that Tapestry listeners are pretty much useless because they
+     * are called while the form is still rewinding and not all changes are committed to beans.
      * 
      * @param cycle current request cycle
      */
