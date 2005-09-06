@@ -10,7 +10,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\..\..\sip
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "..\..\sipXcallLib.vcproj", "{B03A87CD-973C-4D87-9754-A0B6755115B7}"
 	ProjectSection(ProjectDependencies) = postProject
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628} = {441AB1E8-F72F-4C73-9C5E-49A0876A4628}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\..\..\sipXtackLib\sipXtackLib.vcproj", "{E1BC3155-DDD0-4078-9444-33CDE2B5714C}"
@@ -23,9 +22,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi", "..\..\sipXtapi.
 		{B03A87CD-973C-4D87-9754-A0B6755115B7} = {B03A87CD-973C-4D87-9754-A0B6755115B7}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaVoiceEngine", "..\..\..\gips\sipXmediaVoiceEngine\sipXmediaVoiceEngine.vcproj", "{441AB1E8-F72F-4C73-9C5E-49A0876A4628}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\..\..\sipXmediaLib\sipXmediaLib.vcproj", "{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
 	ProjectSection(ProjectDependencies) = postProject
-		{E1BC3155-DDD0-4078-9444-33CDE2B5714C} = {E1BC3155-DDD0-4078-9444-33CDE2B5714C}
 	EndProjectSection
 EndProject
 Global
@@ -98,18 +96,18 @@ Global
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.sipXcallLib TAPI Debug.Build.0 = Debug|Win32
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.sipXcallLib TAPI Release.ActiveCfg = Release|Win32
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.sipXcallLib TAPI Release.Build.0 = Release|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Debug.ActiveCfg = Debug|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Debug.Build.0 = Debug|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Debug_sipXtackLib_TAPI.ActiveCfg = Debug|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Debug_sipXtackLib_TAPI.Build.0 = Debug|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Release.ActiveCfg = Release|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Release.Build.0 = Release|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Release_sipXtackLib_TAPI.ActiveCfg = Release|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Release_sipXtackLib_TAPI.Build.0 = Release|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.sipXcallLib TAPI Debug.ActiveCfg = Debug|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.sipXcallLib TAPI Debug.Build.0 = Debug|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.sipXcallLib TAPI Release.ActiveCfg = Release|Win32
-		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.sipXcallLib TAPI Release.Build.0 = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Debug.ActiveCfg = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Debug.Build.0 = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Debug_sipXtackLib_TAPI.ActiveCfg = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Debug_sipXtackLib_TAPI.Build.0 = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release.ActiveCfg = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release.Build.0 = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release_sipXtackLib_TAPI.ActiveCfg = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release_sipXtackLib_TAPI.Build.0 = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.sipXcallLib TAPI Debug.ActiveCfg = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.sipXcallLib TAPI Debug.Build.0 = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.sipXcallLib TAPI Release.ActiveCfg = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.sipXcallLib TAPI Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection
