@@ -34,6 +34,7 @@
     </component>
     <component id="itemCommon" type="ItemCommon">
         <binding name="item" expression="group"/>
+        <binding name="nameValidator" expression="beans.nameValidator"/>
         <static-binding name="useEnabled" value="false"/>
         <static-binding name="useExtension" value="false"/>
     </component>
