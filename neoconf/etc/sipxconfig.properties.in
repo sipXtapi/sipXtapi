@@ -9,6 +9,7 @@ phoneDefaults.registrationServerPort=${PROXY_SERVER_SIP_PORT}
 phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
 phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
 phoneDefaults.domainName=${SIPXCHANGE_DOMAIN_NAME}
+sipxServer.domainName=${SIPXCHANGE_DOMAIN_NAME}
 # imdb/sipdb location for https access
 registrationContext.server=${MY_FULL_HOSTNAME}
 registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}

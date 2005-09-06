@@ -65,7 +65,8 @@ public class ServerSettingsTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         clickLink("link:domain");               
 
-        // Don't know how to user form element with id setting:SIPXCHANGE_DOMAIN_NAME 
+        // HACK: Don't know how to set user form element with id setting:SIPXCHANGE_DOMAIN_NAME
+        // very difficult Web/Http Unit do not expose some internal attributes. 
         String domainNameElement = "stringField"; 
         
         setFormElement(domainNameElement, "zappa");

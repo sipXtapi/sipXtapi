@@ -134,6 +134,7 @@ public final class TestUtil {
             String outputDirectory) {
 
         // HACK: sysdir.bin is not a real directory when testing
+        String domainName = "sipfoundry.org";
         sysProps.setProperty("sysdir.bin", "/opt/work-2.8/sipx/bin/");
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
@@ -144,7 +145,8 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.registrationServer", "registrar.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", "realm");
-        sysProps.setProperty("phoneDefaults.domainName", "sipfoundry.org");
+        sysProps.setProperty("phoneDefaults.domainName", domainName);        
+        sysProps.setProperty("sipxServer.domainName", domainName);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
