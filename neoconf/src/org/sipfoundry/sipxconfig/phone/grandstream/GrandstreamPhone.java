@@ -75,7 +75,7 @@ public class GrandstreamPhone extends Phone {
 
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
-        return getTftpRoot() + "/cfg" + phoneFilename.toUpperCase();
+        return getTftpRoot() + "/cfg" + phoneFilename.toLowerCase();
     }
 
     public Object getAdapter(Class c) {
