@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -146,7 +147,7 @@ public class ForwardingContextImplTestDb extends TestHelper.TestCaseDb {
         // this just tests that all aliases and excpetions are processed by the context
         // there are separate test that take care of the content testing
         int seedRings = 5;
-        List forwardingAliases = m_context.getForwardingAliases();
+        Collection forwardingAliases = m_context.getAliasMappings();
         assertEquals(seedRings, forwardingAliases.size());
         List authExceptions = m_context.getForwardingAuthExceptions();
 
@@ -161,7 +162,7 @@ public class ForwardingContextImplTestDb extends TestHelper.TestCaseDb {
         m_context.saveCallSequence(callSequence);
         m_context.flush();
 
-        forwardingAliases = m_context.getForwardingAliases();
+        forwardingAliases = m_context.getAliasMappings();
         assertEquals(seedRings + 1, forwardingAliases.size());
         authExceptions = m_context.getForwardingAuthExceptions();
 

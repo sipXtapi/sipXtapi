@@ -97,17 +97,18 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
 
     /**
      * Generate aliases for all call groups
+     * Park orbits do not generate any aliases - registrar handles it directly
      */
-    public List getAliases() {
+    public Collection getAliasMappings() {
         final String dnsDomain = m_coreContext.getDomainName();
-        List callGroups = getCallGroups();
-        List allAliases = new ArrayList();
+        Collection callGroups = getCallGroups();
+        List allAliases = new ArrayList(callGroups.size());
         for (Iterator i = callGroups.iterator(); i.hasNext();) {
             CallGroup cg = (CallGroup) i.next();
             allAliases.addAll(cg.generateAliases(dnsDomain));
         }
         return allAliases;
-    }
+    }    
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
         getHibernateTemplate().saveOrUpdate(parkOrbit);

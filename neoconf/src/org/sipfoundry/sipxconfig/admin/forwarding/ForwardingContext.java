@@ -13,12 +13,13 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
  * ForwardingContext
  */
-public interface ForwardingContext {
+public interface ForwardingContext extends AliasProvider {
     public static final String CONTEXT_BEAN_NAME = "forwardingContext";
 
     public Ring getRing(Integer id);
@@ -30,8 +31,6 @@ public interface ForwardingContext {
     public CallSequence getCallSequenceForUserId(Integer userId);
 
     public void saveCallSequence(CallSequence callSequence);
-
-    public List getForwardingAliases();
 
     public List getForwardingAuthExceptions();
 

@@ -45,11 +45,18 @@
 		<property name="coreContext" ref="coreContext"/>
 	</bean>
 	
+	<!-- aliasCoollector needs to be a named bean - it listens to application events -->
+	<bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector"/>
+	
 	<bean id="extensionDataSet" parent="dataSetGenerator"
 		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions"/>
 	<bean id="aliasDataSet" parent="dataSetGenerator"
-		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases" autowire="byName"
-		dependency-check="objects"/>
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
+		dependency-check="objects">
+		<property name="aliasProvider">
+			<ref local="aliasCollector"/>
+		</property>
+	</bean>
 	<bean id="credentialDataSet" parent="dataSetGenerator"
 		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials"/>
 	<bean id="permissionDataSet" parent="dataSetGenerator"

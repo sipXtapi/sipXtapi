@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -31,7 +32,7 @@ public class CoreContextImplTestDb extends TestCase {
     private CoreContext m_core;
 
     protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext(); 
+        ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
@@ -69,17 +70,17 @@ public class CoreContextImplTestDb extends TestCase {
         user = m_core.loadUserByUserNameOrAlias("two");
         assertNotNull(user);
         assertEquals("userseed2", user.getUserName());
-        
+
         user = m_core.loadUserByUserNameOrAlias("5");
         assertNotNull(user);
         assertEquals("userseed5", user.getUserName());
-        
+
         assertNull(m_core.loadUserByUserNameOrAlias("666"));
-        
+
         user = m_core.loadUserByUserNameOrAlias("userseed2");
         assertNotNull(user);
         assertEquals("userseed2", user.getUserName());
-        
+
         // There was a bug earlier where only users who had aliases could be loaded.
         // Test that a user without aliases can be loaded.
         user = m_core.loadUserByUserNameOrAlias("userwithnoaliases");
@@ -113,7 +114,7 @@ public class CoreContextImplTestDb extends TestCase {
 
         User template = new User();
         template.setUserName("two");
-        
+
         // Pass in false to turn off matching on aliases, so search should return nothing
         List users = m_core.loadUserByTemplateUser(template, false);
         assertEquals(0, users.size());
@@ -141,9 +142,9 @@ public class CoreContextImplTestDb extends TestCase {
         assertEquals("userseed5", user.getUserName());
     }
 
-    // Test that we are doing a logical "AND" not "OR".  There is a user with
+    // Test that we are doing a logical "AND" not "OR". There is a user with
     // the specified first name, and a different user with the specified last
-    // name.  Because of the "AND" we should get no matches.
+    // name. Because of the "AND" we should get no matches.
     public void testSearchByFirstAndLastName() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 
@@ -179,7 +180,7 @@ public class CoreContextImplTestDb extends TestCase {
         // Check that we have the expected number of users
         ITable usersTable = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(NUM_USERS, usersTable.getRowCount());
-        
+
         // Delete two users
         List usersToDelete = new ArrayList();
         usersToDelete.add(new Integer(1001));
@@ -190,45 +191,46 @@ public class CoreContextImplTestDb extends TestCase {
         usersTable = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(NUM_USERS - 2, usersTable.getRowCount());
     }
-    
+
     public void testLoadGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        List groups = m_core.getUserGroups(); 
+        List groups = m_core.getUserGroups();
         assertEquals(1, groups.size());
         Group group = (Group) groups.get(0);
         assertEquals("SeedUserGroup1", group.getName());
     }
-    
+
     public void testGetUserSettingModel() {
         Setting model = m_core.getUserSettingsModel();
         assertNotNull(model.getSetting("permission"));
     }
 
     public void testAliases() throws Exception {
-        List userAliases = m_core.getUserAliases();
+        Collection userAliases = m_core.getAliasMappings();
         assertEquals(0, userAliases.size());
 
         TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
 
-        userAliases = m_core.getUserAliases();
+        userAliases = m_core.getAliasMappings();
         assertEquals(1, userAliases.size());
     }
-    
+
     public void testClear() throws Exception {
         TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
         m_core.clear();
         ITable t = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(0, t.getRowCount());
     }
-    
+
     public void testCreateAdminGroupAndInitialUserTask() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         m_core.createAdminGroupAndInitialUserTask();
 
-        User admin = m_core.loadUserByUserName("superadmin");        
-        Group adminGroup = (Group) admin.getGroups().iterator().next(); 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("common/CreateAdminAndInitialUserExpected.xml");
+        User admin = m_core.loadUserByUserName("superadmin");
+        Group adminGroup = (Group) admin.getGroups().iterator().next();
+        IDataSet expectedDs = TestHelper
+                .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[user_id]", admin.getId());
         expectedRds.addReplacementObject("[group_id]", adminGroup.getId());
@@ -238,7 +240,9 @@ public class CoreContextImplTestDb extends TestCase {
         IDataSet actualDs = TestHelper.getConnection().createDataSet();
 
         Assertion.assertEquals(expectedRds.getTable("users"), actualDs.getTable("users"));
-        Assertion.assertEquals(expectedRds.getTable("group_storage"), actualDs.getTable("group_storage"));
-        Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs.getTable("setting_value"));
+        Assertion.assertEquals(expectedRds.getTable("group_storage"), actualDs
+                .getTable("group_storage"));
+        Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs
+                .getTable("setting_value"));
     }
 }
