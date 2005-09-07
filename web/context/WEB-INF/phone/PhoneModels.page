@@ -24,9 +24,16 @@
         <binding name="source" expression="phoneContext.availablePhoneModels"/>
         <binding name="value" expression="currentPhoneModel"/>
     </component>
+    <component id="isUnmanagedPhone" type="Conditional">
+        <binding name="condition" expression="currentPhoneModel.beanId == 'genericPhone'"/>
+    </component>
+    <component id="isManagedPhone" type="Conditional">
+        <binding name="condition" expression="currentPhoneModel.beanId != 'genericPhone'"/>
+    </component>
     <component id="phoneModel" type="Insert">
         <binding name="value" expression="currentPhoneModel.label"/>
     </component>
+    <component id="unmanagedPhoneModel" copy-of="phoneModel"/>
     <component id="phoneModelLink" type="DirectLink">
         <binding name="listener" expression="listeners.editPhoneDefaults"/>
         <binding name="parameters" expression="currentPhoneModel.name"/>
