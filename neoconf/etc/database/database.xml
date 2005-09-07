@@ -62,7 +62,10 @@
     - NOTE: Creating a database runs all the patches.  Before shipping, update schema.sql
     - then remove version0 from dependencies. 
     -->
-  <target name="create" depends="createdb,schema,patches,version0,initialize"
+  <target name="create-no-init" depends="createdb,schema,patches,version0"
+    description="create database with schema">    
+  </target>  
+  <target name="create" depends="create-no-init,initialize"
     description="create database with schema">    
   </target>  
 
@@ -84,13 +87,27 @@
     </sipx-sql>
   </target>  
 
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
+        description="migrate 2.8 database, note clears all existing 3.0 data"/>
+  
+  <!-- 
+     Migration Targets Legend
+
+     migrate-2.8          - PDS to SIPXCONFIG, 2.8 release to 3.0 release
+    
+     version0 to version1 - development database to initial version, this can be deleted
+                              when all patches are migrated into schema.sql because migration
+                              will be solved by a separate process and we're not supporting
+                              upgrading from a development database.
+    -->	
+
   <!-- 
      2.8 Migration
      Because 2.8 database schema was entirely different than 3.0 schema, we have one giant migration script
      written in PL/pgSQL db language and uses the 'dblink' module, a postgres contrib package to 
      translate data.
     -->
-  <target name="migrate-2.8-setup" description="setup migration">
+  <target name="migrate-2.8-setup">
     <exec executable="createlang">
       <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}"/>
     </exec>
@@ -109,23 +126,12 @@
       <transaction src="${dblink.sql}"/>
     </sipx-sql>
   </target>
-
-  <target name="migrate-2.8" depends="drop,create,migrate-2.8-setup" 
-        description="migrate 2.8 database, note clears all existing 3.0 data">
-
+  <target name="migrate-2.8-run" depends="drop,create-no-init,migrate-2.8-setup">
     <exec executable="psql" output="${log.dir}/sipxconfig-2.8-db-migration.log">
       <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
     </exec>
   </target>
-  
-  <!-- 
-     Migration Targets Legend
-    
-     version0 to version1 - development database to initial version, this can be deleted
-                              when all patches are migrated into schema.sql because migration
-                              will be solved by a separate process and we're not supporting
-                              upgrading from a development database.
-    -->	
+
    <!--
     - version0 patches
     -->
