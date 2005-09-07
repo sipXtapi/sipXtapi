@@ -54,8 +54,8 @@
         <servlet-name>change-pintoken</servlet-name>
         <url-pattern>/api/change-pintoken</url-pattern>
     </servlet-mapping>
-    <!-- Explicitly set session timeout to 2 hours -->
+    <!-- Explicitly set session timeout to 15 minutes -->
     <session-config>
-        <session-timeout>120</session-timeout>
+        <session-timeout>15</session-timeout>
     </session-config>
 </web-app>
