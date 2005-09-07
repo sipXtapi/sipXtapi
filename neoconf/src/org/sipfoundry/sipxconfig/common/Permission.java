@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Permission
+ * Copy of permission setting names exist in user-setting.xml
  */
 public final class Permission extends Enum {    
     public static final String ENABLE = "ENABLE";    

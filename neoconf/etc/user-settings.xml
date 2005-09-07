@@ -32,9 +32,10 @@
 			</description>
       </setting>
     </group>
+    <!-- Copy of permissions exist in Permission.java -->
     <group name="call-handling">
       <label>Call Handling Permissions</label>
-      <setting name="_900Dialing">
+      <setting name="900Dialing">
         <label>900 Dialing</label>
         <type refid="enable-disable"/>
         <value>DISABLE</value>
@@ -46,7 +47,7 @@
         <value>DISABLE</value>
         <description>List user in Auto Attendant</description>
       </setting>
-      <setting name="InternationDialing">
+      <setting name="InternationalDialing">
         <label>International Dialing</label>
         <type refid="enable-disable"/>
         <value>DISABLE</value>
