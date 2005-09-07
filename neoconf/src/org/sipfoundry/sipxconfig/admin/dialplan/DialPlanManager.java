@@ -256,7 +256,20 @@ public class DialPlanManager extends SipxHibernateDaoSupport
             InitializationTask dbEvent = (InitializationTask) event;            
             if (dbEvent.getTask().equals("dial-plans")) {
                 resetToFactoryDefault();
+            } else if (dbEvent.getTask().equals("operator")) {
+                createOperator();
             }
         }
+    }
+    
+    void createOperator() {
+        AutoAttendant operator = getOperator();
+        if (operator == null) {
+            operator = AutoAttendant.createOperator();
+            storeAutoAttendant(operator);
+            DialPlan dialPlan = getDialPlan();
+            dialPlan.setOperator(operator);
+            getHibernateTemplate().saveOrUpdate(dialPlan);
+        }        
     }
 }

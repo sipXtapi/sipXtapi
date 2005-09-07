@@ -80,7 +80,7 @@
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups,admin-group-and-user,user_name,user_name_constraints,user_aliases,phoneBeanId,meetme,gatewayBeanId,extension_pool"/>
+    depends="initialization_task,user_groups,admin-group-and-user,user_name,user_name_constraints,user_aliases,phoneBeanId,meetme,gatewayBeanId,extension_pool,operator"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -147,6 +147,12 @@
     </sipx-sql>
   	<mark-patch-applied patch="admin-group-and-user"/>
   </target>
+  <target name="operator" unless="operator">
+    <sipx-sql>
+      	insert into initialization_task (name) values ('operator');
+    </sipx-sql>
+  	<mark-patch-applied patch="operator"/>
+  </target>  
   <target name="phoneBeanId" unless="phoneBeanId">
     <sipx-sql>
       	alter table phone rename column factory_id to bean_id;
