@@ -1,11 +1,11 @@
 # used in applicationContext-sipxconfig.xml to set system properies
 sip.proxyHost=${PROXY_SERVER_ADDR}
 sip.proxyPort=${PROXY_SERVER_SIP_PORT}
-phoneDefaults.outboundProxy=${PROXY_SERVER_ADDR}
-phoneDefaults.outboundProxyPort=${PROXY_SERVER_SIP_PORT}
+phoneDefaults.outboundProxy=${SIPXCHANGE_DOMAIN_NAME}
+phoneDefaults.outboundProxyPort=5060
 # proxy will forward to registry server.
-phoneDefaults.registrationServer=${PROXY_SERVER_ADDR}
-phoneDefaults.registrationServerPort=${PROXY_SERVER_SIP_PORT}
+phoneDefaults.registrationServer=${SIPXCHANGE_DOMAIN_NAME}
+phoneDefaults.registrationServerPort=5060
 phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
 phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
 phoneDefaults.domainName=${SIPXCHANGE_DOMAIN_NAME}
