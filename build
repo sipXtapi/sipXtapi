@@ -304,10 +304,12 @@ rpmBuild()
     if [ ! -f SVN-VERSION ]; then
         if [ -d .svn ]; then
             svnversion . \
-            | perl -pe 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; }' \
+            | perl -p \
+                -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; }' \
+                -e 's/:/./; s/M/.M/;' \
             > SVN-VERSION
         else 
-            echo "unknown" > SVN-VERSION
+            echo '0.unknown' > SVN-VERSION
         fi
     fi
 
