@@ -133,6 +133,8 @@ int main(int argc, char* argv[])
     //    DebugBreak();
     TiXmlDocument processXMLDoc;
 
+    // need to make sure that osPrint ends up on standard output
+	enableConsoleOutput(true);
     if ( getenv("SERVER_NAME") != NULL ) // are we running as a cgi under a server?
     {
         try
