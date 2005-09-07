@@ -46,8 +46,11 @@ public abstract class NewPhone extends BasePage {
             Phone phone = getPhoneContext().newPhone(getPhoneModel());
             
             // copy over phone settings into subclass's settings.
+            // better way aluding me because we cannot create a concrete
+            // phone object until a phone type is selected.
             phone.setSerialNumber(prototype.getSerialNumber());
             phone.setName(prototype.getName());
+            phone.setGroups(prototype.getGroups());
             
             getPhoneContext().storePhone(phone);        
 
