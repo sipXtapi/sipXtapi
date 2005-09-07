@@ -96,7 +96,7 @@
         dialed.</description>
     </setting>
 	</group>		
-  <group name="presence-config">
+  <group name="presence">
 		<label>Presence Server</label>
 		<setting name="SIP_PRESENCE_SIGN_IN_CODE">
       <label>Presence sign-in</label>
