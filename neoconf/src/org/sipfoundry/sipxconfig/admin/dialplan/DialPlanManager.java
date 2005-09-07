@@ -33,6 +33,8 @@ import org.springframework.context.ApplicationListener;
  */
 public class DialPlanManager extends SipxHibernateDaoSupport 
         implements BeanFactoryAware, DialPlanContext, ApplicationListener {
+    
+    private static final String OPERATOR_CONSTANT = "operator";
 
     private String m_configDirectory;
 
@@ -132,8 +134,8 @@ public class DialPlanManager extends SipxHibernateDaoSupport
 
     public AutoAttendant getOperator() {
         String operatorQuery = "from AutoAttendant a where a.systemId = :operator";
-        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, "operator",
-                AutoAttendant.OPERATOR_ID);
+        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, 
+                OPERATOR_CONSTANT, AutoAttendant.OPERATOR_ID);
 
         AutoAttendant operator = (AutoAttendant) CoreContextImpl.requireOneOrZero(operatorList,
                 operatorQuery);
@@ -256,7 +258,7 @@ public class DialPlanManager extends SipxHibernateDaoSupport
             InitializationTask dbEvent = (InitializationTask) event;            
             if (dbEvent.getTask().equals("dial-plans")) {
                 resetToFactoryDefault();
-            } else if (dbEvent.getTask().equals("operator")) {
+            } else if (dbEvent.getTask().equals(OPERATOR_CONSTANT)) {
                 createOperator();
             }
         }
