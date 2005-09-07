@@ -80,7 +80,17 @@
   </target>
 	
   <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,user_groups,admin-group-and-user,user_name,user_name_constraints,user_aliases,phoneBeanId,meetme,gatewayBeanId,extension_pool,operator"/>
+    depends="initialization_task,
+	  user_groups,
+	  admin-group-and-user,
+	  user_name,
+	  user_name_constraints,
+	  user_aliases,
+	  phoneBeanId,
+	  meetme,
+	  gatewayBeanId,
+	  extension_pool,
+	  operator"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
