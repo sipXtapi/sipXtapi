@@ -48,7 +48,13 @@
 	</bean>
 	
 	<!-- aliasCoollector needs to be a named bean - it listens to application events -->
-	<bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector"/>
+	<bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
+		<property name="aliasProviderBeanIds">
+			<list>
+				<value>sipxServer</value>
+			</list>			
+		</property>
+	</bean>
 	
 	<bean id="extensionDataSet" parent="dataSetGenerator"
 		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions"/>

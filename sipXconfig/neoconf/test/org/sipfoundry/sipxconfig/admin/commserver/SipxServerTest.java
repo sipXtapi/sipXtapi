@@ -12,12 +12,16 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -31,6 +35,8 @@ public class SipxServerTest extends TestCase {
         m_server.setConfigDirectory(TestHelper.getTestDirectory());
         InputStream configDefs = getClass().getResourceAsStream("config.defs");
         TestHelper.copyStreamToDirectory(configDefs, TestHelper.getTestDirectory(), "config.defs");
+        InputStream sipxpresence = getClass().getResourceAsStream("sipxpresence-config.test.in");
+        TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(), "sipxpresence-config.in");        
         m_server.setSettingModel(TestHelper.loadSettings("commserver/server.xml"));
     }    
     
@@ -62,6 +68,7 @@ public class SipxServerTest extends TestCase {
         
         MockControl replicationContextCtrl = MockControl.createControl(SipxReplicationContext.class);
         SipxReplicationContext replicationContext = (SipxReplicationContext) replicationContextCtrl.getMock();
+        replicationContext.generate(DataSet.ALIAS);
         replicationContext.generateAll();
         replicationContextCtrl.replay();
 
@@ -74,6 +81,34 @@ public class SipxServerTest extends TestCase {
         m_server.applySettings();        
 
         replicationContextCtrl.verify();
+        phoneDefaultsCtrl.verify();
+        coreContextCtrl.verify();
+    }
+    
+    public void testGetAliasMappings() {
+        MockControl phoneDefaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
+        PhoneDefaults phoneDefaults = (PhoneDefaults) phoneDefaultsCtrl.getMock();
+        phoneDefaults.getOutboundProxy();
+        phoneDefaultsCtrl.setDefaultReturnValue("presence.com");
+        phoneDefaultsCtrl.replay();
+        
+        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
+        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        coreContext.getDomainName();
+        coreContextCtrl.setDefaultReturnValue("domain.com");        
+        coreContextCtrl.replay();        
+        
+        m_server.setPhoneDefaults(phoneDefaults);
+        m_server.setCoreContext(coreContext);        
+        Collection aliasMappings = m_server.getAliasMappings();
+        
+        assertEquals(2, aliasMappings.size());
+        for (Iterator i = aliasMappings.iterator(); i.hasNext();) {
+            AliasMapping am = (AliasMapping) i.next();
+            assertTrue(am.getIdentity().matches("\\*8\\d@domain.com"));
+            assertTrue(am.getContact().matches("sip:\\*8\\d@presence.com:\\d+"));            
+        }
+        
         phoneDefaultsCtrl.verify();
         coreContextCtrl.verify();
     }

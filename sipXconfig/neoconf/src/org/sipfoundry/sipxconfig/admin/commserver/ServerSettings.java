@@ -11,23 +11,31 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-/***
- * Settings about the sipX servers.  
+/**
+ * Settings about the sipX servers.
  * 
  * <pre>
- * BAD Instead of this:
- *   String value = sipx.getServer().getSettings().getSetting("some/path").getValue();
- *   
- * GOOD Do this:
- *   String value = sipx.getServer().getServerSettings().getDomainName();
- * </pre>    
+ *     BAD Instead of this:
+ *       String value = sipx.getServer().getSettings().getSetting(&quot;some/path&quot;).getValue();
+ *       
+ *     GOOD Do this:
+ *       String value = sipx.getServer().getServerSettings().getDomainName();
+ * </pre>
  * 
  * You will find mapping in SipxProcessContextImpl
  */
 public interface ServerSettings {
-    
-    public static final String DOMAIN_NAME = "domain/SIPXCHANGE_DOMAIN_NAME";
-    
+
+    static final String DOMAIN_NAME = "domain/SIPXCHANGE_DOMAIN_NAME";
+    static final String PRESENCE_SIGN_IN_CODE = "presence/SIP_PRESENCE_SIGN_IN_CODE";
+    static final String PRESENCE_SIGN_OUT_CODE = "presence/SIP_PRESENCE_SIGN_OUT_CODE";
+    static final String PRESENCE_SERVER_SIP_PORT = "presence/PRESENCE_SERVER_SIP_PORT";
+
     public String getDomainName();
 
+    public String getPresenceSignInCode();
+
+    public String getPresenceSignOutCode();
+
+    public String getPresenceServerSipPort();
 }

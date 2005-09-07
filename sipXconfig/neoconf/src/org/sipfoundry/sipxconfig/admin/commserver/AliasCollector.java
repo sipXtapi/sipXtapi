@@ -14,7 +14,9 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanInitializationException;
@@ -32,6 +34,8 @@ public class AliasCollector implements AliasProvider, ApplicationListener {
     private Collection m_aliasProviders;
 
     private ListableBeanFactory m_beanFactory;
+    
+    private List m_aliasProviderBeanIds = Collections.EMPTY_LIST;
 
     public Collection getAliasMappings() {
         Collection aliasProviders = getAliasProviders();
@@ -57,13 +61,20 @@ public class AliasCollector implements AliasProvider, ApplicationListener {
             }
             Map beanMap = m_beanFactory.getBeansOfType(AliasProvider.class, false, true);
             m_aliasProviders = new ArrayList(beanMap.size());
+            // collect all proxies
             for (Iterator i = beanMap.values().iterator(); i.hasNext();) {
                 AliasProvider provider = (AliasProvider) i.next();
                 // only include beans create through Factories - need hibernate support
                 if (provider instanceof Proxy) {
                     m_aliasProviders.add(provider);
                 }
-            }            
+            }
+            // collect additional beans
+            for (Iterator i = m_aliasProviderBeanIds.iterator(); i.hasNext();) {
+                String beanId = (String) i.next();
+                Object bean = m_beanFactory.getBean(beanId, AliasProvider.class);
+                m_aliasProviders.add(bean);                                
+            }
         }
         return m_aliasProviders;
     }
@@ -78,5 +89,8 @@ public class AliasCollector implements AliasProvider, ApplicationListener {
             m_aliasProviders = null;
         }
     }
-
+    
+    public void setAliasProviderBeanIds(List aliasProviderBeanIds) {
+        m_aliasProviderBeanIds = aliasProviderBeanIds;
+    }
 }
