@@ -9,7 +9,6 @@ edit = $(LocalizeSipXconfig) \
 
 
 SUBDIRS = . bin neoconf web $(doc_SUBDIRS)
-RELEASE = 2
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -25,7 +24,7 @@ EXTRA_DIST = \
     acsite.m4 \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN-VERSION \
+    SVN-EXPORT-VERSION \
     LICENSE \
     build.properties.in \
     lib.properties \
@@ -48,10 +47,8 @@ $(top_srcdir)/top.build.dir :
 
 # Alternative is to do svn export, but it's very handy to be able to 
 # create a dist tarball from a working svn checkout
-dist-hook : sipxconfig.spec
+dist-hook :
 	rm -rf `find $(distdir) -type d -name .svn`
-	cp sipxconfig.spec $(distdir)
-
 
 # Override default tarball creation, need to support paths > 99 chars
 # change tar optoions: "chof"  to "chf", implications tarball is not
@@ -62,22 +59,3 @@ dist dist-all : distdir
 	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
 	$(am__remove_distdir)
 
-.PHONY : rpm
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-# Get the revision number
-if USE_BLDNO
-BUILDPARM=--define="buildno 0.$(shell cat $(srcdir)/SVN-VERSION)"
-else
-BUILDPARM=--define="buildno $(RELEASE)"
-endif
-
-rpm : clean dist
-	rpmbuild -ta $(BUILDPARM) $(PACKAGE)-$(VERSION).tar.gz
-	mv -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
-	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/$(PACKAGE)*-$(VERSION)-*.rpm .
-	md5sum $(PACKAGE)-$(VERSION).tar.gz >$(PACKAGE)-$(VERSION).tar.gz.md5
-
-# RPM Spec file
-sipxconfig.spec : sipxconfig.spec.in
-	$(LocalizeSipXconfig) $(srcdir)/sipxconfig.spec.in > sipxconfig.spec

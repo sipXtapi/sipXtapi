@@ -120,6 +120,7 @@ databaseCommand() {
         ${LibDir}/*.jar`
 
     $JavaCmd \
+        -Djava.net.preferIPv4Stack=true \
         -classpath $Classpath \
         org.apache.tools.ant.launch.Launcher \
         -Dlib.dir=${LibDir} \
@@ -197,7 +198,7 @@ postgresSetup() {
 
   # Set up the server.
   Service=`postgresService`
-  ${ServiceDir}/${Service} stop >2 /dev/null
+  ${ServiceDir}/${Service} stop 2> /dev/null
 
   # Custom
   if test -z $PGDATA
