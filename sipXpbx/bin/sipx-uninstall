@@ -25,7 +25,6 @@ SipxLibs="\
   "
 
 SipxAuxils="\
-  sipx-jboss \
   cgicc \
   mod_cplusplus \
   pcre \
@@ -147,8 +146,7 @@ fi
 
 if [ "$RemoveDB" = "yes" ]; then
   echo -n "Clearing database... "
-  sipxdbmgr --drop PDS &>/dev/null
-  sipxdbmgr --drop SDS &>/dev/null
+  dropdb -U postgres SIPXCONFIG &>/dev/null
   echo "done"
 fi
 

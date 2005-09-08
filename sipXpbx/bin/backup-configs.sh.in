@@ -54,7 +54,7 @@ for Set in $Sets; do
 done
 
 dump_database() {
-        pg_dump -U postgres -F t PDS
+        pg_dump -U postgres -F t SIPXCONFIG
 }
 
 if [ ! -f /var/run/postmaster*.pid ]

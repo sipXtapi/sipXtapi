@@ -10,9 +10,6 @@ Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXtackLib
 
 Requires: sipxportlib >= 2.9
-# TODO: Figure out how to require jre OR jdk
-# Requires: j2re >= 1.4
-Requires: j2sdk >= 1.4
 
 Source: %name-%version.tar.gz
 

@@ -84,7 +84,7 @@ tar xzC / $TARFLAGS < $BACKUP_DIR/fs.tar.gz
 echo "done."
 
 echo -n "Restoring database... "
-sipxdbmgr --drop PDS > /dev/null
-createdb -U postgres --encoding=UNICODE PDS > /dev/null
-zcat $BACKUP_DIR/pds.tar.gz | pg_restore -U postgres -d PDS 2> /dev/null
+dropdb -U postgres SIPXCONFIG > /dev/null
+createdb -U postgres --encoding=UNICODE SIPXCONFIG > /dev/null
+zcat $BACKUP_DIR/pds.tar.gz | pg_restore -U postgres -d SIPXCONFIG 2> /dev/null
 echo "done."
