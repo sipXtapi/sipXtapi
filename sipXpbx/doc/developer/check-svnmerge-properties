@@ -1,0 +1,75 @@
+#! /bin/bash
+
+# Range of revisions to check.
+RANGE="$( date --date='1 week ago' +'{%Y-%m-%d}' ):HEAD"
+
+# Base name for temporary files.
+T=${TMPDIR:-/tmp}/$$
+
+function check_repository_rev {
+    local REPOSITORY COMPARISON REV COMMITTER
+    REPOSITORY=$1
+    COMPARISON=$2
+    REV=$3
+    COMMITTER=$4
+
+    svn proplist -r $REV $REPOSITORY |
+    sed -e '/^Properties on /d' -e 's/^  //' -e '/svnmerge-/!d' |
+    sort >$T.file
+
+    if ! cmp -s $T.file $COMPARISON
+    then
+	echo "Differences in $REPOSITORY -r $REV ($COMMITTER)"
+	diff $COMPARISON $T.file
+	echo
+    fi
+}
+
+function check_repository_range {
+    local REPOSITORY COMPARISON RANGE REV COMMITTER
+    REPOSITORY=$1
+    COMPARISON=$2
+    RANGE=$3
+
+    # Get the revision numbers and their committers.
+    svn log -q -r $RANGE $REPOSITORY |
+    sed -e '/^-/d' -e 's/^r\([0-9]*\) | \([^ ]*\) .*$/\1 \2/' |
+    while read REV COMMITTER
+    do
+      check_repository_rev $REPOSITORY $COMPARISON $REV $COMMITTER
+    done
+}
+
+echo Testing range $RANGE
+echo
+
+cat <<EOF >$T.1
+svnmerge-main-merge-2-head
+svnmerge-main-merge-2-revs
+svnmerge-merge-1-head
+svnmerge-merge-1-revs
+svnmerge-mirror-main-head
+svnmerge-mirror-main-revs
+svnmerge-pax737-head
+svnmerge-pax737-revs
+svnmerge-sipxtapi-head
+svnmerge-sipxtapi-revs
+EOF
+
+#check_repository_range https://paradise.pingtel.com/rep/sipX/pingtel/main $T.1 $RANGE
+
+cat <<EOF >$T.1
+svnmerge-pingtel-main-head
+svnmerge-pingtel-main-revs
+svnmerge-sipfoundry-main-head
+svnmerge-sipfoundry-main-revs
+EOF
+
+#check_repository_range https://paradise.pingtel.com/rep/sipX/mirror/main $T.1 $RANGE
+
+cat <<EOF >$T.1
+svnmerge-mirror-main-head
+svnmerge-mirror-main-revs
+EOF
+
+check_repository_range https://scm.sipfoundry.org/rep/sipX/main $T.1 $RANGE

@@ -38,7 +38,7 @@ endif
 
 # Environment variables used by some of the components
 export ANT_HOME=/opt/apache-ant-1.6.2
-export JAVA_HOME=/usr/java/j2sdk1.4.2_03
+export JAVA_HOME=/usr/java/j2sdk1.4.2_09
 export JBOSS_HOME=/opt/jboss-4.0.0
 export SPRING_HOME=/opt/spring-framework-1.1.2
 
@@ -81,12 +81,16 @@ SUDO=
 #SUDO=sudo
 
 .PHONY: checkout update status status-u showversions build build-install \
-	build-check-install build-only rpms \
+	build-check-install build-only make-install install rpm \
 	$(COMPONENTS)
 
-# Build all the components
+## The default action is to build all the components.
+build: build-check-install
 
-build build-check-install: $(foreach C,$(COMPONENTS),$(C)-build-check-install)
+# For every component name, a group to build-check-install it.
+# sipXportLib: sipXportLib-build-check-install
+# ...
+$(foreach C,$(COMPONENTS),$(C)): %: %-build-check-install
 
 # Command groups to perform various Subversion activities.
 
@@ -129,228 +133,90 @@ svnversion:
 diff:
 	svn diff
 
-# Command groups to build each component
+# Command groups to perform various subsets of actions for building
+# each component.
 
-$(foreach C,$(COMPONENTS),$(C)): %: %-build-check-install
+# build-check-install: sipXportLib-build-check-install ...
+build-check-install: $(foreach C,$(COMPONENTS),$(C)-build-check-install)
 
-$(foreach C,$(COMPONENTS),$(C)-build-check-install): %-build-check-install: %
-	cd $< ; autoreconf --install --force
-	cd $< ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd $< ; make
-	cd $< ; make check
-	cd $< ; $(SUDO) make install
+# sipXportLib-build-check-install:
+# ...
+$(foreach C,$(COMPONENTS),$(C)-build-check-install): %-build-check-install:
+	cd $(subst -build-check-install,,$@) ; autoreconf --install --force
+	cd $(subst -build-check-install,,$@) ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd $(subst -build-check-install,,$@) ; make
+	cd $(subst -build-check-install,,$@) ; make check
+	cd $(subst -build-check-install,,$@) ; $(SUDO) make install
 
-#$(COMPONENTS): %:
-#	cd $@ ; autoreconf --install --force
-#	cd $@ ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-#	cd $@ ; make
-#	cd $@ ; make check
-#	cd $@ ; $(SUDO) make install
-	
+# build-install: sipXportLib-build-install ...
+build-install: $(foreach C,$(COMPONENTS),$(C)-build-install)
+
+# sipXportLib-build-install:
+# ...
+$(foreach C,$(COMPONENTS),$(C)-build-install): %-build-install:
+	cd $(subst -build-install,,$@) ; autoreconf --install --force
+	cd $(subst -build-install,,$@) ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd $(subst -build-install,,$@) ; make
+	cd $(subst -build-install,,$@) ; $(SUDO) make install
+
+# make-install: sipXportLib-make-install ...
+make-install: $(foreach C,$(COMPONENTS),$(C)-make-install)
+
+# sipXportLib-make-install:
+# ...
+$(foreach C,$(COMPONENTS),$(C)-make-install): %-make-install:
+	cd $(subst -make-install,,$@) ; make
+	cd $(subst -make-install,,$@) ; $(SUDO) make install
+
+# install: sipXportLib-install ...
+install: $(foreach C,$(COMPONENTS),$(C)-install)
+
+# sipXportLib-install:
+# ...
+$(foreach C,$(COMPONENTS),$(C)-install): %-install:
+	cd $(subst -install,,$@) ; $(SUDO) make install
+
+## Since these targets do not install, these builds use obsolete .h files.
+
+# build-check: sipXportLib-build-check ...
+build-check: $(foreach C,$(COMPONENTS),$(C)-build-check)
+
+# sipXportLib-build-check:
+# ...
+$(foreach C,$(COMPONENTS),$(C)-build-check): %-build-check:
+	cd $(subst -build-check,,$@) ; autoreconf --install --force
+	cd $(subst -build-check,,$@) ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd $(subst -build-check,,$@) ; make
+	cd $(subst -build-check,,$@) ; make check
+
+# We have to call this group 'build-only' because 'build' is a synonym
+# of 'build-check-install'.
+# build-only: sipXportLib-build ...
+build-only: $(foreach C,$(COMPONENTS),$(C)-build)
+
+# sipXportLib-build:
+# ...
+$(foreach C,$(COMPONENTS),$(C)-build): %-build:
+	cd $(subst -build,,$@) ; autoreconf --install --force
+	cd $(subst -build,,$@) ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
+	cd $(subst -build,,$@) ; make
+	cd $(subst -build,,$@) ; make check
+
 # The rpm --install's install both the binary and the devel RPMs of
 # the libraries.
 
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-rpms:
-	cd sipXportLib ; make rpm
-	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxportlib-*.i386.rpm
-	cd sipXtackLib ; make rpm
-	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxtacklib-*.i386.rpm
-	cd sipXmediaLib ; make rpm
-	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxmedialib-*.i386.rpm
-	cd sipXmediaAdapterLib ; make rpm
-	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxmediaadapterlib-*.i386.rpm
-	cd sipXcallLib ; make rpm
-	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxcalllib-*.i386.rpm
-	cd sipXcommserverLib ; make rpm
-	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxcommserverlib-*.i386.rpm
-	cd sipXvxml ; make rpm
-	sudo rpm --install -p $(RPMBUILD_TOPDIR)/RPMS/i386/sipxvxml-*.i386.rpm
-	cd sipXconfig ; make rpm
-	cd sipXregistry ; make rpm
-	cd sipXproxy ; make rpm
-	cd sipXpublisher ; make rpm
-	cd sipXpbx ; make rpm
 
-# Build and test the software, but do not install it.
-# (Which may not work if the installed libraries are too different from the
-# current code, since the links will be done against the installed libraries,
-# not the ones built during this process!)
-# (This should be factored better, as it duplicates the above entries.)
-build-check:
-	cd sipXportLib ; autoreconf --install --force
-	cd sipXportLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXportLib ; make
-	cd sipXportLib ; make check
-	cd sipXtackLib ; autoreconf --install --force
-	cd sipXtackLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXtackLib ; make
-	cd sipXtackLib ; make check
-	cd sipXmediaLib ; autoreconf --install --force
-	cd sipXmediaLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXmediaLib ; make
-	cd sipXmediaLib ; make check
-	cd sipXmediaAdapterLib ; autoreconf --install --force
-	cd sipXmediaAdapterLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXmediaAdapterLib ; make
-	cd sipXmediaAdapterLib ; make check
-	cd sipXcallLib ; autoreconf --install --force
-	cd sipXcallLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcallLib ; make
-	cd sipXcallLib ; make check
-	cd sipXcommserverLib ; autoreconf --install --force
-	cd sipXcommserverLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcommserverLib ; make
-	cd sipXcommserverLib ; make check
-	cd sipXvxml ; autoreconf --install --force
-	cd sipXvxml ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXvxml ; make
-	cd sipXconfig ; autoreconf --install --force
-	cd sipXconfig ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXconfig ; make
-	cd sipXregistry ; autoreconf --install --force
-	cd sipXregistry ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXregistry ; make
-	cd sipXproxy ; autoreconf --install --force
-	cd sipXproxy ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXproxy ; make
-	cd sipXpublisher ; autoreconf --install --force
-	cd sipXpublisher ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpublisher ; make
-	cd sipXpbx ; autoreconf --install --force
-	cd sipXpbx ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpbx ; make
+# rpm: sipXportLib-rpm ...
+rpm: $(foreach C,$(COMPONENTS),$(C)-rpm)
 
-# Build and install the software, but do not test it.
-# (This should be factored better, as it duplicates the above entries.)
-build-install:
-	cd sipXportLib ; autoreconf --install --force
-	cd sipXportLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXportLib ; make
-	cd sipXportLib ; $(SUDO) make install
-	cd sipXtackLib ; autoreconf --install --force
-	cd sipXtackLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXtackLib ; make
-	cd sipXtackLib ; $(SUDO) make install
-	cd sipXmediaLib ; autoreconf --install --force
-	cd sipXmediaLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXmediaLib ; make
-	cd sipXmediaLib ; $(SUDO) make install
-	cd sipXmediaAdapterLib ; autoreconf --install --force
-	cd sipXmediaAdapterLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXmediaAdapterLib ; make
-	cd sipXmediaAdapterLib ; $(SUDO) make install
-	cd sipXcallLib ; autoreconf --install --force
-	cd sipXcallLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcallLib ; make
-	cd sipXcallLib ; $(SUDO) make install
-	cd sipXcommserverLib ; autoreconf --install --force
-	cd sipXcommserverLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcommserverLib ; make
-	cd sipXcommserverLib ; $(SUDO) make install
-	cd sipXvxml ; autoreconf --install --force
-	cd sipXvxml ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXvxml ; make
-	cd sipXvxml ; $(SUDO) make install
-	cd sipXconfig ; autoreconf --install --force
-	cd sipXconfig ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXconfig ; make
-	cd sipXconfig ; $(SUDO) make install
-	cd sipXregistry ; autoreconf --install --force
-	cd sipXregistry ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXregistry ; make
-	cd sipXregistry ; $(SUDO) make install
-	cd sipXproxy ; autoreconf --install --force
-	cd sipXproxy ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXproxy ; make
-	cd sipXproxy ; $(SUDO) make install
-	cd sipXpublisher ; autoreconf --install --force
-	cd sipXpublisher ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpublisher ; make
-	cd sipXpublisher ; $(SUDO) make install
-	cd sipXpbx ; autoreconf --install --force
-	cd sipXpbx ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpbx ; make
-	cd sipXpbx ; $(SUDO) make install
-
-build-only:
-	cd sipXportLib ; autoreconf --install --force
-	cd sipXportLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXportLib ; make
-	cd sipXtackLib ; autoreconf --install --force
-	cd sipXtackLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXtackLib ; make
-	cd sipXmediaLib ; autoreconf --install --force
-	cd sipXmediaLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXmediaLib ; make
-	cd sipXmediaAdapterLib ; autoreconf --install --force
-	cd sipXmediaAdapterLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXmediaAdapterLib ; make
-	cd sipXcallLib ; autoreconf --install --force
-	cd sipXcallLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcallLib ; make
-	cd sipXcommserverLib ; autoreconf --install --force
-	cd sipXcommserverLib ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXcommserverLib ; make
-	cd sipXvxml ; autoreconf --install --force
-	cd sipXvxml ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXvxml ; make
-	cd sipXconfig ; autoreconf --install --force
-	cd sipXconfig ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXconfig ; make
-	cd sipXregistry ; autoreconf --install --force
-	cd sipXregistry ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXregistry ; make
-	cd sipXproxy ; autoreconf --install --force
-	cd sipXproxy ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXproxy ; make
-	cd sipXpublisher ; autoreconf --install --force
-	cd sipXpublisher ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpublisher ; make
-	cd sipXpbx ; autoreconf --install --force
-	cd sipXpbx ; ./configure $(CONFIGURE_FLAGS) $(PREFIX_ARG)
-	cd sipXpbx ; make
-
-make-install:
-	cd sipXportLib ; make
-	cd sipXportLib ; $(SUDO) make install
-	cd sipXtackLib ; make
-	cd sipXtackLib ; $(SUDO) make install
-	cd sipXmediaLib ; make
-	cd sipXmediaLib ; $(SUDO) make install
-	cd sipXmediaAdapterLib ; make
-	cd sipXmediaAdapterLib ; $(SUDO) make install
-	cd sipXcallLib ; make
-	cd sipXcallLib ; $(SUDO) make install
-	cd sipXcommserverLib ; make
-	cd sipXcommserverLib ; $(SUDO) make install
-	cd sipXvxml ; make
-	cd sipXvxml ; $(SUDO) make install
-	cd sipXconfig ; make
-	cd sipXconfig ; $(SUDO) make install
-	cd sipXregistry ; make
-	cd sipXregistry ; $(SUDO) make install
-	cd sipXproxy ; make
-	cd sipXproxy ; $(SUDO) make install
-	cd sipXpublisher ; make
-	cd sipXpublisher ; $(SUDO) make install
-	cd sipXpbx ; make
-	cd sipXpbx ; $(SUDO) make install
-
-install:
-	cd sipXportLib ; $(SUDO) make install
-	cd sipXtackLib ; $(SUDO) make install
-	cd sipXmediaLib ; $(SUDO) make install
-	cd sipXmediaAdapterLib ; $(SUDO) make install
-	cd sipXcallLib ; $(SUDO) make install
-	cd sipXcommserverLib ; $(SUDO) make install
-	cd sipXvxml ; $(SUDO) make install
-	cd sipXconfig ; $(SUDO) make install
-	cd sipXregistry ; $(SUDO) make install
-	cd sipXproxy ; $(SUDO) make install
-	cd sipXpublisher ; $(SUDO) make install
-	cd sipXpbx ; $(SUDO) make install
+# sipXportLib-rpm:
+# ...
+# The RPM name is downcased.
+$(foreach C,$(COMPONENTS),$(C)-rpm): %-rpm:
+	cd $(subst -rpm,,$@) ; make rpm
+	sudo rpm --install -p $(subst -rpm,,$@)/*.i386.rpm
 
 # Command groups to test the code base for various violations of the
 # coding standards.

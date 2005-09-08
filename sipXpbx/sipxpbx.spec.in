@@ -45,7 +45,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserver-devel >= 2.9
+Requires: sipxcommserverlib-devel >= 2.9
 Requires: sipxcalllib-devel >= 2.9
 
 %description devel
