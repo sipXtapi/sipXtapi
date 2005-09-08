@@ -31,6 +31,7 @@ AC_SUBST(BUILDDIR_EXPAND, [`cd $builddir && pwd`])
 # turn off the doxygen support shared from other sipX projects
 AM_CONDITIONAL(DOC,false)
 
+CHECK_JDK
 CHECK_ANT
 CHECK_CLOVER
 

@@ -84,18 +84,27 @@
   <!-- D E F A U L T -->
   <target name="default" depends="war" />
   <!-- W A R -->
+	
+  	
+	
   <!-- FIXME: Remove dependency on compile.test -->	
   <target name="war" depends="compile,compile.test" 
     description="assemble sipxconfig for tapestry war">
+  	<condition property="include.testpage">
+  		<equals arg1="${debug}" arg2="on"/>
+  	</condition>
     <war warfile="${sipxconfig.war}" webxml="context/WEB-INF/web.xml" 
       basedir="${dist.dir}/war-root">
-      <!-- not sure this is nec. -->
+      <!-- include css -->
       <fileset dir="context">
-        <exclude name="WEB-INF/*" />
+        <include name="css/**/*" />
       </fileset>
       <webinf dir="context/WEB-INF">
         <!-- avoid warning about already there -->
         <exclude name="web.xml" />
+        <!-- exclude Test.page unless we debug -->
+      	<present present="srconly" targetdir="${ant.1.4.1}/src/main"/>      	
+        <exclude name="**/TestPage.*" unless="include.testpage"/>
       </webinf>
       <classes dir="${classes.dir}" />
       <classes dir="${src.dir}">

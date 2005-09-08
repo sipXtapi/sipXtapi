@@ -26,8 +26,6 @@
       <replace file="${top.build.dir}/build.properties">
         <replacefilter token="@version@" value="0.0.0"/>
         <replacefilter token="@abs_top_srcdir@" value="${top.dir}"/>
-        <replacefilter token="@JAVA@" value="${java.home.dir}/bin/java"/>
-        <replacefilter token="@JAVA_HOME@" value="${java.home.dir}"/>
         <replacefilter token="@JAVAC_OPTIMIZED@" value="false"/>
         <replacefilter token="@JAVAC_DEBUG@" value="true"/>
         <replacefilter token="@bindir@" value="${install.dir}/bin"/>
