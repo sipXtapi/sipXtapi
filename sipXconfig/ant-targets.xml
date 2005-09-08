@@ -177,7 +177,7 @@
        destdir="${test.classes.dir}"
        classpathref="base.path"
        debug="${debug}"
-       deprecation="on"
+       deprecation="${deprecation}"
        optimize="${optimize}"
        source="1.4"
        target="1.4">
