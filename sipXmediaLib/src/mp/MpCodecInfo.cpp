@@ -20,6 +20,7 @@ MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
                            unsigned int   avgPacketBits,
                            unsigned int   maxPacketBits,
                            unsigned int   numSamplesPerFrame,
+						   unsigned int   preCodecJitterBufferSize,
                            UtlBoolean      signalingCodec,
                            UtlBoolean      doesVadCng)
  : mCodecType(codecType),
@@ -34,8 +35,10 @@ MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
    mMinPacketBits(minPacketBits),
    mAvgPacketBits(avgPacketBits),
    mMaxPacketBits(maxPacketBits),
+   mPreCodecJitterBufferSize(preCodecJitterBufferSize),
    mIsSignalingCodec(signalingCodec),
    mDoesVadCng(doesVadCng)
+   
 {
 }
 
@@ -54,7 +57,9 @@ MpCodecInfo::MpCodecInfo(const MpCodecInfo& rMpCodecInfo)
    mMinPacketBits=rMpCodecInfo.mMinPacketBits;
    mAvgPacketBits=rMpCodecInfo.mAvgPacketBits;
    mMaxPacketBits=rMpCodecInfo.mMaxPacketBits;
+   mPreCodecJitterBufferSize=rMpCodecInfo.mPreCodecJitterBufferSize;
    mDoesVadCng=rMpCodecInfo.mDoesVadCng;
+   
 }
 
 MpCodecInfo::~MpCodecInfo(){}
@@ -138,7 +143,11 @@ unsigned MpCodecInfo::getMaxPacketBits(void) const
    return(mMaxPacketBits);
 }
 
-
+unsigned MpCodecInfo::getPreCodecJitterBufferSize(void) const
+{
+//Returns the maximum number of bits in an encoded frame
+   return(mPreCodecJitterBufferSize);
+}
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean MpCodecInfo::usesNetEq(void) const
