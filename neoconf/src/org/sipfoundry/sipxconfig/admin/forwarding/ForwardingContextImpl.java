@@ -50,16 +50,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public void saveCallSequence(CallSequence callSequence) {
-        saveCallSequence(callSequence, false);
-    }
-
-    private void saveCallSequence(CallSequence callSequence, boolean notify) {
         getHibernateTemplate().update(callSequence);
-        if (notify) {
-            // Notify commserver of ALIAS and AUTH_EXCEPTIONS
-            m_replicationContext.generate(DataSet.ALIAS);
-            m_replicationContext.generate(DataSet.AUTH_EXCEPTION);
-        }
+        // Notify commserver of ALIAS and AUTH_EXCEPTIONS
+        m_replicationContext.generate(DataSet.ALIAS);
+        m_replicationContext.generate(DataSet.AUTH_EXCEPTION);
     }
 
     public void flush() {
@@ -71,10 +65,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return (CallSequence) hibernate.load(CallSequence.class, userId);
     }
 
-    public void removeCallSequenceForUserId(Integer userId, boolean notify) {
+    public void removeCallSequenceForUserId(Integer userId) {
         CallSequence callSequence = getCallSequenceForUserId(userId);
         callSequence.clear();
-        saveCallSequence(callSequence, notify);
+        saveCallSequence(callSequence);
     }
 
     public Ring getRing(Integer id) {
@@ -130,9 +124,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {
-            // false means - do not replicate - since we are deleting the user it'll happen
-            // automatically
-            removeCallSequenceForUserId(user.getId(), false);
+            removeCallSequenceForUserId(user.getId());
         }
     }
 }

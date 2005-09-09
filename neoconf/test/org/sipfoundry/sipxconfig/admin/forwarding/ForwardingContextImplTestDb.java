@@ -179,7 +179,7 @@ public class ForwardingContextImplTestDb extends TestHelper.TestCaseDb {
 
         int remainingRingCount = ringTable.getRowCount() - callSequence.getCalls().size();
 
-        m_context.removeCallSequenceForUserId(user.getId(), false);
+        m_context.removeCallSequenceForUserId(user.getId());
 
         ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
         assertEquals(remainingRingCount, ringTable.getRowCount());
