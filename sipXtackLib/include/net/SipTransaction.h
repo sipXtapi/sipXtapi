@@ -317,14 +317,14 @@ private:
                           SipUserAgent& userAgent,
                           UtlString& toAddress,
                           int& port,
-                          enum OsSocket::SocketProtocolTypes& toProtocol);
+                          OsSocket::IpProtocolSocketType& toProtocol);
 
     void prepareRequestForSend(SipMessage& request,
                                SipUserAgent& userAgent,
                                UtlBoolean& addressRequiresDnsSrvLookup,
                                UtlString& toAddress,
                                int& port,
-                               enum OsSocket::SocketProtocolTypes& toProtocol);
+                               OsSocket::IpProtocolSocketType& toProtocol);
 
     // CallId  + 's' or 'c' (for server or client) is used as
     // the key for the hash (i.e. stored as the string/data in
@@ -342,7 +342,7 @@ private:
     // Address and transport that have been established for this transaction.
     UtlString mSendToAddress;
     int mSendToPort;
-    enum OsSocket::SocketProtocolTypes mSendToProtocol;
+    OsSocket::IpProtocolSocketType mSendToProtocol;
 
     server_t* mpDnsSrvRecords;
     SipMessage* mpRequest;

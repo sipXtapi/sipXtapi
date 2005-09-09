@@ -334,7 +334,7 @@ int OsConnectionSocket::read(char* buffer,
 }
 
 /* ============================ ACCESSORS ================================= */
-int OsConnectionSocket::getIpProtocol() const
+OsSocket::IpProtocolSocketType OsConnectionSocket::getIpProtocol() const
 {
         return(TCP);
 }

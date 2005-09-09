@@ -2654,7 +2654,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
 }
 
 void SipMessage::convertProtocolStringToEnum(const char* protocolString,
-                        enum OsSocket::SocketProtocolTypes& protocolEnum)
+                                             OsSocket::IpProtocolSocketType& protocolEnum)
 {
     if(strcasecmp(protocolString, SIP_TRANSPORT_UDP) == 0)
     {
@@ -2679,32 +2679,10 @@ void SipMessage::convertProtocolStringToEnum(const char* protocolString,
 
 }
 
-void SipMessage::convertProtocolEnumToString(enum OsSocket::SocketProtocolTypes protocolEnum,
+void SipMessage::convertProtocolEnumToString(OsSocket::IpProtocolSocketType protocolEnum,
                                             UtlString& protocolString)
 {
-    switch(protocolEnum)
-    {
-    case OsSocket::UDP:
-        protocolString = SIP_TRANSPORT_UDP;
-            ;
-        break;
-
-    case OsSocket::TCP:
-        protocolString = SIP_TRANSPORT_TCP;
-            ;
-
-        break;
-
-    case OsSocket::SSL_SOCKET:
-        protocolString = SIP_TRANSPORT_TLS;
-            ;
-        break;
-
-    default:
-        protocolString = SIP_TRANSPORT_UDP;
-
-        break;
-    }
+   protocolString = OsSocket::ipProtocolString(protocolEnum);
 }
 
 void SipMessage::getToUri(UtlString* uri) const

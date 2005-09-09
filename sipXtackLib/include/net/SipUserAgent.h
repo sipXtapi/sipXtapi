@@ -521,7 +521,7 @@ public:
 
     UtlBoolean recurseOnlyOne300Contact();
 
-    UtlBoolean isOk(OsSocket::SocketProtocolTypes socketType);
+    UtlBoolean isOk(OsSocket::IpProtocolSocketType socketType);
 
     //! Find out if SipUserAgent has finished shutting down.
     /*! Useful when using the non-blocking form of \ref shutdown.
@@ -557,7 +557,7 @@ protected:
     UtlBoolean sendStatelessRequest(SipMessage& request,
                                     UtlString& address,
                                     int port,
-                                    enum OsSocket::SocketProtocolTypes protocol,
+                                    OsSocket::IpProtocolSocketType protocol,
                                     UtlString& branchId);
 
     UtlBoolean sendTls(SipMessage* message,

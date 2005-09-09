@@ -554,10 +554,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
     SipClient** deleteClientArray = NULL;
 
 
-#ifdef TEST_PRINT
     UtlString clientNames;
-#endif
-
     while ((client = (SipClient*)mClientList.next(iteratorHandle)))
     {
         if(client->isInUseForWrite()) numBusy++;
@@ -570,21 +567,20 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
         // opened as servers for requests from the remote side are
         // explicitly closed on this side when the final response is
         // sent.
-        if(!client->isInUseForWrite() &&
-            (!client->isOk()
-           || client->getLastTouchedTime() < oldTime))
+        if(   ! client->isInUseForWrite() // can't remove it if writing to it...
+           && (   ! client->isOk() // socket is bad
+               || client->getLastTouchedTime() < oldTime // idle for long enough
+               )
+           )
         {
+           client->getClientNames(clientNames);
 #ifdef TEST_PRINT
-            client->getClientNames(clientNames);
             osPrintf("Removing %s client names:\n%s\r\n",
                 mProtocolString.data(), clientNames.data());
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Removing %s client names:\n%s\r",
-                mProtocolString.data(), clientNames.data());
-            int isBusy = client->isInUseForWrite();
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "Sip%sServerBase::removeOldClients %p isInUseForWrite %d",
-                        mProtocolString.data(), client, isBusy);
 #endif
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Removing %s client:\n%s\r",
+                          mProtocolString.data(), clientNames.data());
+
             mClientList.remove(iteratorHandle);
             // Delete the clients after releasing the lock
             if(!deleteClientArray) deleteClientArray =
@@ -597,10 +593,12 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
         }
         else
         {
+#           ifdef TEST_PRINT
             UtlString names;
             client->getClientNames(names);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::removeOldClients leaving client:\n%s",
                 mProtocolString.data(), names.data());
+#           endif
         }
     }
     mClientList.releaseIteratorHandle(iteratorHandle);

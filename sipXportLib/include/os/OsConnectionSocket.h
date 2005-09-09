@@ -82,7 +82,7 @@ public:
    //!param: waitMilliseconds - The maximum number of milliseconds to block. This may be set to zero in which case it does not block.
 
 /* ============================ ACCESSORS ================================= */
-   virtual int getIpProtocol() const;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const;
    //: Returns the protocol type of this socket
 
 

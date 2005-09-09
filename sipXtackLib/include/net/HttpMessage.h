@@ -372,8 +372,8 @@ public:
 
     // Used by the tranport to track reliably which protocol the
     // message was sent over
-    void setSendProtocol(int protocol = OsSocket::TCP);
-    int getSendProtocol() const;
+    void setSendProtocol(OsSocket::IpProtocolSocketType protocol = OsSocket::TCP);
+    OsSocket::IpProtocolSocketType getSendProtocol() const;
 
     void setFirstSent();
     void setSendAddress(const char* address, int port);
@@ -687,7 +687,7 @@ private:
    HttpBody* body;
    long transportTimeStamp;
    int lastResendDuration;
-   int transportProtocol;
+   OsSocket::IpProtocolSocketType transportProtocol;
    int timesSent;
    UtlBoolean mFirstSent;
    UtlString mSendAddress;

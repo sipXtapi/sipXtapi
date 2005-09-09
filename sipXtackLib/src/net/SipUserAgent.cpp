@@ -1202,7 +1202,7 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
 UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
                            UtlString& address,
                            int port,
-                           enum OsSocket::SocketProtocolTypes protocol,
+                           OsSocket::IpProtocolSocketType protocol,
                            UtlString& branchId)
 {
     // Convert the enum to a protocol string
@@ -3317,7 +3317,7 @@ UtlBoolean SipUserAgent::recurseOnlyOne300Contact()
 }
 
 
-UtlBoolean SipUserAgent::isOk(OsSocket::SocketProtocolTypes socketType)
+UtlBoolean SipUserAgent::isOk(OsSocket::IpProtocolSocketType socketType)
 {
     UtlBoolean retval = FALSE;
     switch(socketType)
@@ -3529,7 +3529,7 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
 void SipUserAgent::lookupSRVSipAddress(UtlString protocol, UtlString& sipAddress, int& port)
 {
-    enum OsSocket::SocketProtocolTypes transport = OsSocket::UNKNOWN;
+    OsSocket::IpProtocolSocketType transport = OsSocket::UNKNOWN;
 
     if (sipIpAddress != "127.0.0.1")
     {

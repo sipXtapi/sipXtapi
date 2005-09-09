@@ -1106,7 +1106,7 @@ int HttpMessage::readHeader(OsSocket* inSocket, UtlString& buffer)
    char      ch ;
    int       iBytesRead = 0 ;
    int       iRead;
-   int       socketType = inSocket->getIpProtocol();
+   OsSocket::IpProtocolSocketType socketType = inSocket->getIpProtocol();
    UtlString  remoteHost;
         int       remotePort;
    UtlBoolean bLastWasCr = FALSE;
@@ -1164,7 +1164,7 @@ int HttpMessage::readBody(OsSocket* inSocket, int iLength, GetDataCallbackProc p
    char         buffer[4096] ;
    int          iBytesRead = 0 ;
    unsigned int iRead;
-   int          socketType = inSocket->getIpProtocol();
+   OsSocket::IpProtocolSocketType socketType = inSocket->getIpProtocol();
    UtlString    remoteHost;
    int          remotePort;
 
@@ -1248,7 +1248,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       UtlString remoteHost;
       int remotePort;
       inSocket->getRemoteHostIp(&remoteHost, &remotePort);
-      int socketType = inSocket->getIpProtocol();
+      OsSocket::IpProtocolSocketType socketType = inSocket->getIpProtocol();
       setSendProtocol(socketType);
 
 #ifdef TEST
@@ -1923,12 +1923,12 @@ void HttpMessage::setTimesSent(int times)
         timesSent = times;
 }
 
-void HttpMessage::setSendProtocol(int protocol)
+void HttpMessage::setSendProtocol(OsSocket::IpProtocolSocketType protocol)
 {
         transportProtocol = protocol;
 }
 
-int HttpMessage::getSendProtocol() const
+OsSocket::IpProtocolSocketType HttpMessage::getSendProtocol() const
 {
         return(transportProtocol);
 }

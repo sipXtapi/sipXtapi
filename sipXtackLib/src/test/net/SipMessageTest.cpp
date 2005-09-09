@@ -689,7 +689,7 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("1234-2345", tag);
          ASSERT_STR_EQUAL("sipserver", address);
 
-         OsSocket::SocketProtocolTypes protoNumber;
+         OsSocket::IpProtocolSocketType protoNumber;
          SipMessage::convertProtocolStringToEnum(protocol.data(), protoNumber);
 
          CPPUNIT_ASSERT_EQUAL(OsSocket::TCP, protoNumber);

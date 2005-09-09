@@ -105,19 +105,20 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-        UtlBoolean isReadyToRead();
+    UtlBoolean isReadyToRead();
 
 
-        OsSocket* clientSocket;
-        SipUserAgentBase* sipUserAgent;
-        UtlString mRemoteHostName;
+    OsSocket* clientSocket;
+    OsSocket::IpProtocolSocketType mSocketType;
+    SipUserAgentBase* sipUserAgent;
+    UtlString mRemoteHostName;
     UtlString mRemoteViaAddress;
     UtlString mRemoteSocketAddress;
     UtlString mReceivedAddress;
     int mRemoteViaPort;
     int mRemoteHostPort;
     int mRemoteReceivedPort;
-        long touchedTime;
+    long touchedTime;
     OsBSem mSocketLock;
     int mFirstResendTimeoutMs;
     int mInUseForWrite;

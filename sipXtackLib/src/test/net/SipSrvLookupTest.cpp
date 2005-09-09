@@ -43,7 +43,7 @@
 // Forward references.
 
 // Get a printable representation of a protocol value.
-const char* printable_proto(OsSocket::SocketProtocolTypes type);
+const char* printable_proto(OsSocket::IpProtocolSocketType type);
 
 /**
  * Unit test for SipSrvLookup
@@ -151,7 +151,7 @@ public:
          // Arguments to SipSrvLookup::servers:
          const char* name;
          const char* service;
-         OsSocket::SocketProtocolTypes type;
+         OsSocket::IpProtocolSocketType type;
          int port;
          // List of option values to set for this test, or NULL.
          // If not NULL, is a pointer to a list of int's, which are:
@@ -687,7 +687,7 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSrvLookupTest);
 
 // Get a printable representation of a protocol value.
-const char* printable_proto(OsSocket::SocketProtocolTypes type)
+const char* printable_proto(OsSocket::IpProtocolSocketType type)
 {
    const char* s;
    switch (type)

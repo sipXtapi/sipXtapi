@@ -137,14 +137,14 @@ public:
 
    static UtlBoolean socketInitialized;
 
-   enum SocketProtocolTypes
+   typedef enum 
    {
       UNKNOWN = -1,
       TCP = 0,
       UDP = 1,
       MULTICAST = 2,
       SSL_SOCKET = 3
-   };
+   } IpProtocolSocketType;
    //: Protocol Types
    
 /* ============================ CREATORS ================================== */
@@ -228,11 +228,11 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual int getIpProtocol() const = 0;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const = 0;
    //:Return the protocol type of this socket
 
    /// return the string representation of the SocketProtocolType 
-   const char* ipProtocolString() const;
+   static const char* ipProtocolString(OsSocket::IpProtocolSocketType);
    
    virtual UtlBoolean reconnect() = 0;
    //:Set up the connection again, assuming the connection failed

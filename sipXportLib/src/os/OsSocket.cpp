@@ -679,9 +679,9 @@ const char* socketType_MULTICAST = "MULTICAST";
 const char* socketType_SSL = "TLS";
 const char* socketType_invalid = "INVALID";
 
-const char* OsSocket::ipProtocolString() const
+const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
 {
-   switch (getIpProtocol())
+   switch (type)
    {
    case OsSocket::UNKNOWN:
       return socketType_UNKNOWN;

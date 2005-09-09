@@ -454,7 +454,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
     UtlBoolean addressRequiresDnsSrvLookup(FALSE);
     UtlString toAddress;
     int port = PORT_NONE;
-    enum OsSocket::SocketProtocolTypes protocol = OsSocket::UNKNOWN;
+    OsSocket::IpProtocolSocketType protocol = OsSocket::UNKNOWN;
 
     if(isResponse)
     {
@@ -581,7 +581,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                                            UtlBoolean& addressRequiresDnsSrvLookup,
                                            UtlString& toAddress,
                                            int& port,
-                                           enum OsSocket::SocketProtocolTypes& toProtocol)
+                                           OsSocket::IpProtocolSocketType& toProtocol)
 {
     UtlString protocol;
 
@@ -888,7 +888,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                       SipUserAgent& userAgent,
                                       UtlString& toAddress,
                                       int& port,
-                                      enum OsSocket::SocketProtocolTypes& toProtocol)
+                                      OsSocket::IpProtocolSocketType& toProtocol)
 {
     UtlBoolean sendSucceeded = FALSE;
     UtlBoolean isResponse = message.isResponse();
@@ -896,8 +896,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     UtlString seqMethod;
     int responseCode = -1;
 
-    enum OsSocket::SocketProtocolTypes lastSentProtocol =
-        (enum OsSocket::SocketProtocolTypes) message.getSendProtocol();
+    OsSocket::IpProtocolSocketType lastSentProtocol = message.getSendProtocol();
     int resendDuration;
     int resendTime;
 
@@ -3091,7 +3090,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     // Find out how many times we have tried
     nextTimeout = 0;
     int numTries = resendMessage.getTimesSent();
-    int protocol = resendMessage.getSendProtocol();
+    OsSocket::IpProtocolSocketType protocol = resendMessage.getSendProtocol();
     int lastTimeout = resendMessage.getResendDuration();
     UtlString sendAddress;
 

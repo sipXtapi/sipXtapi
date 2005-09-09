@@ -246,7 +246,7 @@ int OsSSLConnectionSocket::read(char* buffer,
 
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
-int OsSSLConnectionSocket::getIpProtocol() const
+OsSocket::IpProtocolSocketType OsSSLConnectionSocket::getIpProtocol() const
 {
     return(OsSocket::SSL_SOCKET);
 }

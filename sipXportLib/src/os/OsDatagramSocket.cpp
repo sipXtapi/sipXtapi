@@ -436,7 +436,7 @@ int OsDatagramSocket::read(char* buffer, int bufferLength)
 }
 
 /* ============================ ACCESSORS ================================= */
-int OsDatagramSocket::getIpProtocol() const
+OsSocket::IpProtocolSocketType OsDatagramSocket::getIpProtocol() const
 {
     return(UDP);
 }
