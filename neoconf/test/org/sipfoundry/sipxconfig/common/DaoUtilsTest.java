@@ -58,7 +58,7 @@ public class DaoUtilsTest extends TestCase {
             DaoUtils.requireOneOrZero(c, query);
             fail();
         } catch (IllegalStateException expected) {
-            assertTrue(expected.getMessage().contains(query));
+            assertTrue(expected.getMessage().indexOf(query) > 0);
         }
     }
     
