@@ -171,5 +171,8 @@ public class PolycomPhone extends Phone {
         }        
     }
 
+    public void restart() {
+        sendCheckSyncToFirstLine();        
+    }
 }
 

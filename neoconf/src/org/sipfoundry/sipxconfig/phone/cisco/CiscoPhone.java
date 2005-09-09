@@ -45,4 +45,8 @@ public abstract class CiscoPhone extends Phone {
     public int getMaxLineCount() {
         return getModel().getMaxLineCount();
     }
+    
+    public void restart() {
+        sendCheckSyncToFirstLine();        
+    }
 }
