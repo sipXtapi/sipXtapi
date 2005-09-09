@@ -20,7 +20,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
@@ -174,7 +173,7 @@ public class DialPlanManager extends SipxHibernateDaoSupport
         List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, 
                 OPERATOR_CONSTANT, AutoAttendant.OPERATOR_ID);
 
-        AutoAttendant operator = (AutoAttendant) CoreContextImpl.requireOneOrZero(operatorList,
+        AutoAttendant operator = (AutoAttendant) DaoUtils.requireOneOrZero(operatorList,
                 operatorQuery);
 
         return operator;

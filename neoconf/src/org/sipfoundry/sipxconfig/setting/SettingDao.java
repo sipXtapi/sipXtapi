@@ -28,6 +28,8 @@ public interface SettingDao extends DataObjectSource {
     
     public void deleteGroup(Group group);
     
+    public Group getGroupByName(String resource, String name);
+    
     public Group getGroup(Integer id);
     
     public List getGroups(String resource);

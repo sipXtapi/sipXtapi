@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -72,5 +73,30 @@ public final class DaoUtils {
             throw exception;
         }
         return true;
+    }
+
+    /**
+     * Catch database corruption errors where more than one record exists. In general fields
+     * should have unique indexes set up to protect against this. This method is created as a safe
+     * check only, there have been not been any experiences of corrupt data to date.
+     * 
+     * @param c
+     * @param query
+     * 
+     * @return first item from the collection
+     * @throws IllegalStateException if more than one item in collection.
+     */
+    public static Object requireOneOrZero(Collection c, String query) {
+        if (c.size() > 1) {
+            // DatabaseCorruptionException ?
+            // TODO: move error string construction to new UnexpectedQueryResult(?) class, enable
+            // localization
+            StringBuffer error = new StringBuffer().append("read ").append(c.size()).append(
+                    " and expected zero or one. query=").append(query);
+            throw new IllegalStateException(error.toString());
+        }
+        Iterator i = c.iterator();
+
+        return (i.hasNext() ? c.iterator().next() : null);
     }
 }
