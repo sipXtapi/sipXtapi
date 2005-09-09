@@ -106,6 +106,11 @@ public abstract class TestPage extends BasePage {
         Visit visit = (Visit) getVisit();
         visit.setNavigationVisible(!visit.isNavigationVisible());
     }
+    
+    public void hideNavigation(IRequestCycle cycle_) {
+        Visit visit = (Visit) getVisit();
+        visit.setNavigationVisible(false);
+    }    
 
     public void toggleAdmin(IRequestCycle cycle) {
         Visit visit = (Visit) getVisit();

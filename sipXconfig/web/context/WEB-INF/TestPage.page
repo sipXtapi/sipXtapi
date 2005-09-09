@@ -51,6 +51,9 @@
     <component id="toggleNavigation" type="DirectLink">
         <binding name="listener" expression="listeners.toggleNavigation"/>
     </component>    
+    <component id="hideNavigation" type="DirectLink">
+        <binding name="listener" expression="listeners.hideNavigation"/>
+    </component>    
     <component id="toggleAdmin" type="DirectLink">
         <binding name="listener" expression="listeners.toggleAdmin"/>
     </component>    

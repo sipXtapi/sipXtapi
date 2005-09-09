@@ -67,6 +67,7 @@ public class SiteTestHelper {
     public static void home(WebTester tester) {
         tester.beginAt("/app?service=page/TestPage");
         tester.clickLink("login");
+        tester.clickLink("hideNavigation");
         // HACK: Webunit doesn't appear to fully load page, especialy
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
