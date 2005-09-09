@@ -49,8 +49,13 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
+        Line line = getLine();
+        if (line != null) {
+            return;
+        }
+
         PhoneContext context = getPhoneContext();
-        Line line = context.loadLine(getLineId());
+        line = context.loadLine(getLineId());
         setLine(line);
         Setting root = line.getSettings();
         Setting parent = root.getSetting(getParentSettingName());
