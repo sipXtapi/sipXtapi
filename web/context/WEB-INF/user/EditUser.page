@@ -20,7 +20,8 @@
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>    
     <property-specification name="callback" 
-    	type="org.apache.tapestry.callback.ICallback"/>
+    	type="org.apache.tapestry.callback.ICallback"
+    	persistent="yes"/>
 
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
 

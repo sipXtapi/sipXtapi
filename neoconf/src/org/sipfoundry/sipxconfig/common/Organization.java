@@ -17,7 +17,7 @@ import java.io.Serializable;
  * Ultimate parent for all objects. Represent the entire configuration for a particular company or
  * organization
  */
-public class Organization extends BeanWithId implements Serializable {
+public class Organization extends BeanWithId implements Serializable, NamedObject {
 
     private static final long serialVersionUID = 1L;
 

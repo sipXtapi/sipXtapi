@@ -14,9 +14,10 @@ package org.sipfoundry.sipxconfig.conference;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
-public class Bridge extends BeanWithSettings {
+public class Bridge extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceBridge";
 
     private boolean m_enabled;

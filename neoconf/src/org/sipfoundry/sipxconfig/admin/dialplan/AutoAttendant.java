@@ -16,8 +16,9 @@ import java.util.TreeMap;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 
-public class AutoAttendant extends BeanWithId {
+public class AutoAttendant extends BeanWithId implements NamedObject {
 
     public static final String OPERATOR_ID = "operator";
     

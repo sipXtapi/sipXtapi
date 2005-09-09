@@ -43,11 +43,12 @@
     <![CDATA[from UserRing ring where ring.user.id = :userId]]>
   </query>  
   
-  <query name="callGroupIdsEnabledWithName">
-    <![CDATA[select cg.id from CallGroup cg where cg.enabled = 'true' and cg.name = :value]]>
+  <query name="callGroupIdsWithName">
+    <![CDATA[select cg.id from CallGroup cg where cg.name = :value]]>
   </query>  
   
-  <query name="callGroupIdsEnabledWithExtension">
-    <![CDATA[select cg.id from CallGroup cg where cg.enabled = 'true' and cg.extension = :value]]>
-  </query>  
+  <query name="callGroupIdsWithExtension">
+    <![CDATA[select cg.id from CallGroup cg where cg.extension = :value]]>
+  </query>
+	
 </hibernate-mapping>

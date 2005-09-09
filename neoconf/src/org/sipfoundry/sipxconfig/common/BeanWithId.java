@@ -17,7 +17,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Transformer;
 
 /**
- * ObjectIdentity - this is temporary class to simplify implementation of model layer
+ * BeanWithId - simplify implementation of the model layer
  * 
  * Hibernate advises against using object identifiers in equals and hashCode methods
  */
@@ -46,8 +46,8 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
     
     /**
      * Checks if the object has been saved to the database
-     * Works because hibernate changes id when object is saved
-     * @return true is the object has never been saved
+     * Works because hibernate changes id when the object is saved
+     * @return true if the object has never been saved
      */
     public boolean isNew() {
         return UNSAVED_ID.equals(getId());
@@ -88,10 +88,10 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
     }
 
     /**
-     * Assigns unique id to a newly created object.
+     * Assigns a unique id to a newly created object.
      * 
-     * For test only. Most objects are create with id -1 and hibernate sets proper id. We want to
-     * be able to set the id to unique value in tests.
+     * For testing only.  Most objects are created with id -1 and hibernate sets a proper id.
+     * We want to be able to set the id to a unique value in tests.
      * 
      * @return the same object - to allow for chaining calls
      */

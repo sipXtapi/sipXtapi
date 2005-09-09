@@ -12,7 +12,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 
-public class ExtensionPool extends BeanWithId {
+public class ExtensionPool extends BeanWithId implements NamedObject {
     
     private boolean m_enabled;
     private String m_name;

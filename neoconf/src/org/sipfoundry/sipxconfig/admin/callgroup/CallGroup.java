@@ -17,9 +17,10 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class CallGroup extends AbstractCallSequence {
+public class CallGroup extends AbstractCallSequence implements NamedObject {
     private boolean m_enabled;
     private String m_name;
     private String m_extension;

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.gateway;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -22,7 +23,7 @@ import org.sipfoundry.sipxconfig.setting.SettingModel;
 /**
  * Gateway
  */
-public class Gateway extends BeanWithSettings {
+public class Gateway extends BeanWithSettings implements NamedObject {
     private String m_name;
 
     private String m_address;

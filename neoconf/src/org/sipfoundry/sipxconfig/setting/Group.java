@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 
 
 /**
@@ -20,7 +21,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionItem;
  * @author dhubler
  *
  */
-public class Group extends ValueStorage implements Comparable, DataCollectionItem {
+public class Group extends ValueStorage implements Comparable, DataCollectionItem, NamedObject {
 
     private String m_name;
     
