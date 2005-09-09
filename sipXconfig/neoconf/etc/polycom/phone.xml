@@ -522,9 +522,9 @@
 	      <description>Day of week to apply DST. 1=Mon, 2=Tue, ..., 7=Sun</description>
 	    </setting>
 	    <setting name="daylightSavings.start.dayOfWeek.lastInMonth">
-	      <type><integer min="1" max="10"/></type>
+	      <type><boolean/></type>
 	      <value>0</value>
-	      <description>If checked and fixedDayEnable=0, start DST on the last day of the week (specified by dayOfWeek)
+	      <description>If checked and fixedDayEnable is checked, start DST on the last day of the week (specified by dayOfWeek)
 	        in the month, rather than the first in the month.</description>
 	    </setting>
 	    <setting name="daylightSavings.stop.month">
