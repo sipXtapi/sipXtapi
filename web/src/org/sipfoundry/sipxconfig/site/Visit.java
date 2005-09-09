@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-
 /**
  * Tapestry Visit object - session parameters for sipXconfig
  */
@@ -20,8 +19,8 @@ public class Visit {
      * true if we want to display title bar and navigation false for testing and when embedding
      * pages in profilegen
      */
-    private boolean m_navigationVisible;
-    
+    private boolean m_navigationVisible = true;
+
     private boolean m_admin;
 
     /**
@@ -40,16 +39,16 @@ public class Visit {
     public boolean isAdmin() {
         return m_admin;
     }
-    
+
     public Integer getUserId() {
         return m_userId;
     }
-    
+
     public void login(Integer userId, boolean admin) {
         m_userId = userId;
-        m_admin = admin;        
+        m_admin = admin;
     }
-    
+
     public void logout() {
         m_userId = null;
     }
