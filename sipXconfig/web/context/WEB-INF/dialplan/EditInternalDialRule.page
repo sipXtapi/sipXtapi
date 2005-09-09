@@ -22,6 +22,10 @@
     <!-- not used on this page -->
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>
+
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+     	persistent="yes"/>
     
     <!--
      - B E A N S
@@ -93,12 +97,9 @@
         <message-binding name="displayName" key="label.voiceMailPrefix"/>
     </component>
 
-    <component id="onSave" type="Submit">
-        <binding name="listener" expression="listeners.save"/>
-        <message-binding name="value" key="button.ok"/>
-    </component>
-    <component id="onCancel" type="CancelButton">
-        <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
-        <message-binding name="value" key="button.cancel"/>
-    </component>
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
+    </component>    
+
 </page-specification>

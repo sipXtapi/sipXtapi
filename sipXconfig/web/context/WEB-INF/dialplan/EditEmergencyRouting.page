@@ -23,6 +23,10 @@
     <property-specification name="exceptionsMap" type="org.apache.tapestry.form.ListEditMap"/>
     
     <property-specification name="exceptionItem" type="org.sipfoundry.sipxconfig.admin.dialplan.RoutingException"/>
+
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+     	persistent="yes"/>
     
     <!--
      - B E A N S
@@ -80,8 +84,10 @@
         <binding name="exception" expression="exceptionItem"/>
         <binding name="gateways" expression="gatewayContext.gateways"/>
     </component>
-    
-    <component id="apply" type="Submit">
-        <binding name="listener" expression="listeners.apply"/>
+
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
     </component>
+    
 </page-specification>

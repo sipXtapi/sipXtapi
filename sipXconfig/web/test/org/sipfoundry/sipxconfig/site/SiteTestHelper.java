@@ -77,7 +77,7 @@ public class SiteTestHelper {
     }
 
     /**
-     * Login - form based loging for our pages.
+     * Login - form-based login for our pages.
      * 
      */
     public static void login(WebTester tester, String username, String password) {
@@ -96,7 +96,7 @@ public class SiteTestHelper {
     }
 
     /**
-     * Looks for exception stack on tapestry error page Dumps response if there was an exception.
+     * Looks for exception stack on tapestry error page. Dumps response if there was an exception.
      */
     public static void assertNoException(WebTester tester) {
         try {

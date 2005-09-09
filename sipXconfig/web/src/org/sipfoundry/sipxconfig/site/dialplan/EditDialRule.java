@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.IFormComponent;
@@ -32,7 +34,7 @@ import org.sipfoundry.sipxconfig.site.gateway.GatewaysPanel;
 import org.sipfoundry.sipxconfig.site.gateway.SelectGateways;
 
 /**
- * EditCustomeDialRule
+ * EditDialRule
  */
 public abstract class EditDialRule extends BasePage implements PageRenderListener {
     /**
@@ -48,13 +50,14 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     public abstract DialPlanContext getDialPlanManager();
 
+    public abstract Integer getRuleId();
     public abstract void setRuleId(Integer ruleId);
 
-    public abstract Integer getRuleId();
-
     public abstract DialingRule getRule();
-
     public abstract void setRule(DialingRule rule);
+    
+    public abstract ICallback getCallback();
+    public abstract void setCallback(ICallback callback);
 
     public DialingRuleType getRuleType() {
         return m_ruleType;
@@ -77,6 +80,10 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
             rule = createNewRule();
         }
         setRule(rule);
+        
+        // Ignore the callback passed to us for now because we're navigating
+        // to unexpected places.  Always go to the EditFlexibleDialPlan plan.
+        setCallback(new PageCallback(EditFlexibleDialPlan.PAGE));
     }
 
     protected DialingRule createNewRule() {
@@ -116,9 +123,12 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         return !delegate.getHasErrors();
     }
 
-    public void save(IRequestCycle cycle) {
+    public void commit(IRequestCycle cycle) {
         if (isValid()) {
             saveValid();
+            
+            // Ignore the callback for now because we're navigating to unexpected places.
+            // Always go to the EditFlexibleDialPlan plan.
             cycle.activate(EditFlexibleDialPlan.PAGE);
         }
     }
@@ -148,7 +158,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         // is not present
         GatewaysPanel panel = (GatewaysPanel) getComponents().get("gatewaysPanel");
         if (null == panel) {
-            // no componenet - nothing to do
+            // no component - nothing to do
             return;
         }
         if (panel.onFormSubmit()) {

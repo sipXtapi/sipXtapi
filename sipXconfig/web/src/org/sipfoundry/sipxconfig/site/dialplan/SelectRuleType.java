@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 
@@ -69,7 +68,8 @@ public abstract class SelectRuleType extends BasePage {
         EditDialRule page = (EditDialRule) cycle.getPage(pageName);
         page.setRuleId(ruleId);
         page.setRuleType(ruleType);
-        page.setRule(null);
+        page.setRule(null);        
         cycle.activate(page);
     }
+    
 }

@@ -147,7 +147,12 @@ public class GatewaysTestUi extends WebTestCase {
 
         for (int i = 0; i < counter; i++) {
             tester.clickLink("addGateway");
-            addGateway(tester, "gateway" + i);
+            
+            // Give the new gateway a name that is extremely unlikely to collide
+            // with any existing gateway names
+            String gatewayName = "gateway" + i + Long.toString(System.currentTimeMillis());
+            
+            addGateway(tester, gatewayName);
         }
     }
 }

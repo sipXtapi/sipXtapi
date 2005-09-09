@@ -93,7 +93,8 @@
 	  gatewayBeanId,
 	  extension_pool,
 	  operator,
-	  name_uniqueness"/>
+	  name_uniqueness,
+	  dialing_rule_name_uniqueness"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -215,7 +216,10 @@
   <target name="name_uniqueness" unless="name_uniqueness">
     <db-patch patch="name_uniqueness"/>
   </target>  
-  
+  <target name="dialing_rule_name_uniqueness" unless="dialing_rule_name_uniqueness">
+    <db-patch patch="dialing_rule_name_uniqueness"/>
+  </target>  
+	
   <!--
     - SUPPORT UTILITIES
     -->

@@ -20,8 +20,8 @@ public class LazyDaemonTest extends TestCase {
     public void testRun() throws Exception {
         LazyDaemonMock mock = new LazyDaemonMock();
         mock.start();
-        // do not give it more than 1/2 second to complete
-        mock.join(500);
+        // do not give it more than 1 second to complete
+        mock.join(1000);
         assertEquals("xXxXxX", m_testBuffer.toString());
     }
 
