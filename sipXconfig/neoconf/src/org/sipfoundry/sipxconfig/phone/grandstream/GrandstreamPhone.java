@@ -171,4 +171,8 @@ public class GrandstreamPhone extends Phone {
             }
         }
     }
+
+    public void restart() {
+        sendCheckSyncToFirstLine();        
+    }
 }

@@ -33,7 +33,7 @@ public class Phone extends BeanWithGroups {
     // public because of checkstyle
     public static final String PHONE_CONSTANT = "phone";
 
-    public static final PhoneModel MODEL = new PhoneModel("genericPhone", "Generic Phone");
+    public static final PhoneModel MODEL = new PhoneModel("genericPhone", "Unmanaged phone");
     
     public static final String PHONE_GROUP_RESOURCE = PHONE_CONSTANT;
     
@@ -183,6 +183,9 @@ public class Phone extends BeanWithGroups {
     }
 
     public void generateProfile(Writer out) {
+        if (getPhoneTemplate() == null) {
+            return;
+        }
         VelocityProfileGenerator profile = new VelocityProfileGenerator(this);
         generateProfile(profile, getPhoneTemplate(), out);        
     }
@@ -196,6 +199,9 @@ public class Phone extends BeanWithGroups {
      * @throws RestartException is cannot complete operation
      */
     public void restart() {
+    }
+    
+    protected void sendCheckSyncToFirstLine() {
         if (getLines().size() == 0) {
             throw new RestartException("Restart command is sent to first line and "
                     + "first phone line is not valid");

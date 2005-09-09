@@ -100,4 +100,8 @@ public class SnomPhone extends Phone {
         }
         return impl;
     }
+
+    public void restart() {
+        sendCheckSyncToFirstLine();        
+    }
 }
