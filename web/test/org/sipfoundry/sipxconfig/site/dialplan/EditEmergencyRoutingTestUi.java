@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.gateway.GatewaysTestUi;
 
 /**
- * DialPlanEditTestUi
+ * EditEmergencyRoutingTestUi
  */
 public class EditEmergencyRoutingTestUi extends WebTestCase {
     public static Test suite() throws Exception {
@@ -39,7 +39,7 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         clickLink("EmergencyRouting");
         assertLinkPresent("erouting:addException");
         setFormElement("externalNumber", "33");
-        clickButton("erouting:save");
+        clickButton("form:ok");
         // activate dial plans page active
         assertTextPresent("Dial Plan Activation");
     }
@@ -55,22 +55,15 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         setFormElement("externalNumber", "33");
         setFormElement("externalNumber$0", "911");
         setFormElement("callers", "11, 22");
-        clickButton("erouting:save");
+        clickButton("form:ok");
         // activate dial plans page active
         assertTextPresent("Dial Plan Activation");
     }
     
     public void testActivateWithErrors() {
         assertLinkPresent("erouting:addException");
-        clickButton("erouting:save");
+        clickButton("form:ok");
         // activate dial plans page active
         assertElementPresent("user:error");
-    }
-
-    public void testCancel() {
-        assertLinkPresent("erouting:addException");
-        clickButton("erouting:cancel");
-        // still on the same page
-        assertLinkPresent("erouting:addException");
     }
 }

@@ -23,6 +23,7 @@ import com.meterware.httpunit.WebTable;
  * DialPlanEditTestUi
  */
 public class DialPlanEditTestUi extends WebTestCase {
+    
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(DialPlanEditTestUi.class);
     }
@@ -59,7 +60,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickLink("resetDialPlans");
         clickLink("FlexibleDialPlan");
     }
-
+    
     public void testDisplayAndClean() {
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
         // remove all
@@ -83,18 +84,16 @@ public class DialPlanEditTestUi extends WebTestCase {
             assertElementPresent("item:name");
             assertElementPresent("item:enabled");
             assertElementPresent("item:description");
-
-            // all rules except of "internal" have gateways panel
+            // all rules except "internal" have gateways panel
             if (!name.startsWith("Internal")) {
                 checkGateways();
             }
-
             setFormElement("name", "");
-            clickButton("rule:save");
+            clickButton("form:ok");           
             // if validation kicks in we are on the same page
             assertTextPresent("You must enter a value for Name.");
             setFormElement("name", name + "changed");
-            clickButton("rule:save");
+            clickButton("form:ok");
             // a link corresponding to new name should be in now
             SiteTestHelper.assertNoException(getTester());
             assertLinkPresentWithText(name + "changed");
@@ -114,7 +113,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             setFormElement("name", row[0]);
             setFormElement("description", row[2]);
-            // dial patter prefix
+            // dial pattern prefix
             setFormElement("prefix", "333");
             // call pattern prefix
             setFormElement("prefix$0", "444");
@@ -123,8 +122,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             checkGateways();
 
-            clickButton("rule:save");
-
+            clickButton("form:ok");
             assertTextInTable("dialplan:list", row[2]);
             assertLinkPresentWithText(row[0]);
         }
@@ -141,10 +139,10 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             setFormElement("name", name);
             setFormElement("description", description);
-            // dial patter prefix
+            // dial pattern prefix
             setFormElement("internationalPrefix", "100" + i);
 
-            clickButton("rule:save");
+            clickButton("form:ok");
 
             assertTextInTable("dialplan:list", description);
             assertLinkPresentWithText(name);
@@ -204,7 +202,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
-            String gatewayName = "g" + i + Long.toString(System.currentTimeMillis());
+            String gatewayName = "gateway" + i + Long.toString(System.currentTimeMillis());
             
             gateways[i] = GatewaysTestUi.addGateway(tester, gatewayName);
             SiteTestHelper.assertNoException(tester);

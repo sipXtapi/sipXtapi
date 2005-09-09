@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
@@ -35,14 +37,15 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
     public abstract DialPlanContext getDialPlanManager();
 
     public abstract EmergencyRouting getEmergencyRouting();
-
     public abstract void setEmergencyRouting(EmergencyRouting emergencyRouting);
 
     public abstract ListEditMap getExceptionsMap();
-
     public abstract void setExceptionsMap(ListEditMap map);
 
     public abstract void setExceptionItem(RoutingException exception);
+    
+    public abstract ICallback getCallback();
+    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         EmergencyRouting emergencyRouting = getEmergencyRouting();
@@ -57,6 +60,12 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
             map.add(exception.getId(), exception);
         }
         setExceptionsMap(map);
+        
+        // If no callback was set before navigating to this page, then by
+        // default, go back to the ActivateDialPlan page
+        if (getCallback() == null) {
+            setCallback(new PageCallback(ActivateDialPlan.PAGE));
+        }
     }
 
     public void formSubmit(IRequestCycle cycle_) {
@@ -65,15 +74,13 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
         }
     }
 
-    public void apply(IRequestCycle cycle) {
+    public void commit(IRequestCycle cycle_) {
         if (!isValid()) {
             return;
         }
         DialPlanContext manager = getDialPlanManager();
         manager.applyEmergencyRouting();
-        // send users to page that activates dial plans
         manager.generateDialPlan();
-        cycle.activate(ActivateDialPlan.PAGE);
     }
 
     /**

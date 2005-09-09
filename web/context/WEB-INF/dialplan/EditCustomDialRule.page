@@ -24,6 +24,10 @@
 	<property-specification name="removeGateways" 
 		type="java.lang.String"/>    
 
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+     	persistent="yes"/>
+
     <!--
      - B E A N S
      -->
@@ -61,12 +65,10 @@
         <binding name="pattern" expression="rule.callPattern"/>
     </component>
 
-    <component id="onSave" type="Submit">
-        <binding name="listener" expression="listeners.save"/>
-    </component>
-    <component id="onCancel" type="CancelButton">
-        <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
-    </component>
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
+    </component>    
     
     <!-- gateways configuration -->
     

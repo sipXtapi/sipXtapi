@@ -37,6 +37,7 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
         clickLinkWithText("Emergency");
+        SiteTestHelper.assertNoException(tester);
         //it's a submit link: uses java script, does not have id
         clickLinkWithText("Add Existing Gateway");
         SiteTestHelper.assertNoException(tester);
@@ -48,9 +49,10 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
         clickLinkWithText("Internal");
+        SiteTestHelper.assertNoException(tester);
         //it's a submit link: uses java script, does not have id
         setFormElement("name", "invalid name");
-        clickButton("rule:save");
+        clickButton("form:ok");
         // should fail with the error message
         SiteTestHelper.assertUserError(tester);
     }    
