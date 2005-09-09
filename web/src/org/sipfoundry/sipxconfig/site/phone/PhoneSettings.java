@@ -47,9 +47,14 @@ public abstract class PhoneSettings extends BasePage implements PageRenderListen
     public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
-        Phone phone = getPhoneContext().loadPhone(getPhoneId());
+        Phone phone = getPhone();
+        if (phone != null) {
+            return;
+        }
+
+        phone = getPhoneContext().loadPhone(getPhoneId());
         setPhone(phone);
-        Setting root = getPhone().getSettings();
+        Setting root = phone.getSettings();
         Setting parent = root.getSetting(getParentSettingName());
         setParentSetting(parent);
     }

@@ -119,17 +119,24 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
     }
 
     public void pageBeginRender(PageEvent event_) {
+        Group group = getGroup();
+        if (group != null) {
+            return;
+        }
+        
         if (getPhoneModel() == null) {
             throw new IllegalArgumentException("phone factory id required");
         }
-        setGroup(getSettingDao().loadGroup(getGroupId()));
+        
+        group = getSettingDao().loadGroup(getGroupId());
+        setGroup(group);
         
         Phone phone = getPhoneContext().newPhone(getPhoneModel());
-        phone.addGroup(getGroup());
+        phone.addGroup(group);
         
         Line line = phone.createLine();
         phone.addLine(line);
-        line.addGroup(getGroup());
+        line.addGroup(group);
 
         setPhone(phone);
         
@@ -140,7 +147,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
             setEditFormSettingName(((Setting) nav.next()).getName());
         }        
         
-        editSettings();        
+        editSettings();
     }
     
     /**

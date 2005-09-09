@@ -56,7 +56,12 @@ public abstract class GroupSettings extends BasePage implements PageRenderListen
     }
 
     public void pageBeginRender(PageEvent event_) {
-        Group group  = getSettingDao().loadGroup(getGroupId());
+        Group group = getGroup();
+        if (group != null) {
+            return;
+        }
+        
+        group  = getSettingDao().loadGroup(getGroupId());
         setGroup(group);
         String currentSettingName = getParentSettingName();
         if (currentSettingName == null) {
