@@ -28,7 +28,7 @@ public final class PolycomModel extends PhoneModel {
     public static final PolycomModel MODEL_600 = new PolycomModel("600", "Polycom SoundPoint IP 600", 6);
 
     /** conference phone, verify num lines */
-    public static final PolycomModel MODEL_3000 = new PolycomModel("3000", "Polycom SoundPoint IP 3000",  6);
+    public static final PolycomModel MODEL_4000 = new PolycomModel("4000", "Polycom SoundPoint IP 4000",  6);
     
     private PolycomModel(String modelId, String label, int maxLines) {
         super(PolycomPhone.BEAN_ID, modelId, label, maxLines);

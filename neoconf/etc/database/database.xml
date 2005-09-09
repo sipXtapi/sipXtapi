@@ -52,7 +52,7 @@
 
   <!-- creates database void of schema -->
   <target name="createdb">
-    <exec executable="createdb">
+    <exec executable="createdb" failonerror="true">
       <arg line="-U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}"/>
     </exec>
   </target>
@@ -94,6 +94,7 @@
 	  extension_pool,
 	  operator,
 	  name_uniqueness,
+          relax_group_name_uniqueness,
 	  dialing_rule_name_uniqueness"/>
   <target name="schema" unless="schema">
     <sipx-sql>
@@ -131,7 +132,7 @@
      translate data.
     -->
   <target name="migrate-2.8-setup">
-    <exec executable="createlang">
+    <exec executable="createlang" failonerror="true">
       <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}"/>
     </exec>
     <condition property="dblink-present">
@@ -150,7 +151,9 @@
     </sipx-sql>
   </target>
   <target name="migrate-2.8-run" depends="drop,create-no-init,migrate-2.8-setup">
-    <exec executable="psql" output="${log.dir}/sipxconfig-2.8-db-migration.log">
+    <echo>see migration log file for error or potential data loss:</echo>
+    <echo>  ${log.dir}/sipxconfig-2.8-db-migration.log</echo>
+    <exec executable="psql" output="${log.dir}/sipxconfig-2.8-db-migration.log" failonerror="true">
       <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
     </exec>
   </target>
@@ -216,6 +219,13 @@
   <target name="name_uniqueness" unless="name_uniqueness">
     <db-patch patch="name_uniqueness"/>
   </target>  
+  <target name="relax_group_name_uniqueness" unless="relax_group_name_uniqueness">
+    <sipx-sql>
+      alter table group_storage drop constraint uqc_group_storage_name;
+      alter table group_storage add constraint uqc_group_storage_name unique (name, resource);
+    </sipx-sql>
+  	<mark-patch-applied patch="relax_group_name_uniqueness"/>
+  </target>
   <target name="dialing_rule_name_uniqueness" unless="dialing_rule_name_uniqueness">
     <db-patch patch="dialing_rule_name_uniqueness"/>
   </target>  

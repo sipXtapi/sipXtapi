@@ -455,6 +455,9 @@ begin
   insert into phone_group 
     select p.phone_id, default_group_id from phone p where bean_id = ''polycom'';
 
+  -- model 3000 is actually a H323 phone valid model is 4000
+  update phone set model_id = ''4000'' where model_id = ''3000'' and bean_id = ''polycom'';
+
   return 1;
 end;
 ' language plpgsql;

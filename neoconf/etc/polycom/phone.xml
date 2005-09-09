@@ -1591,6 +1591,6 @@
   <group name="polycom300" copy-of="polycom"/>
   <group name="polycom500" copy-of="polycom"/>
   <group name="polycom600" copy-of="polycom"/>
-  <group name="polycom3000" copy-of="polycom"/>
+  <group name="polycom4000" copy-of="polycom"/>
     
 </model>
