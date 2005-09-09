@@ -22,9 +22,9 @@ import org.sipfoundry.sipxconfig.common.UserException;
 /**
  * Use hibernate to perform database operations
  */
-public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDao {
-    
+public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDao {    
     private static final String RESOURCE_PARAM = "resource";
+    private static final String NAME_PARAM = "name";
     
     public Group getGroup(Integer groupId) {
         return (Group) getHibernateTemplate().load(Group.class, groupId);
@@ -61,7 +61,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     void checkDuplicates(Group group) {
         String[] params = new String[] {
             RESOURCE_PARAM,
-            "name"
+            NAME_PARAM
         };
         Object[] values = new Object[] {
                 group.getResource(),
@@ -79,6 +79,20 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         }
     }
     
+    public Group getGroupByName(String resource, String name) {
+        String[] params = new String[] { 
+            RESOURCE_PARAM, 
+            NAME_PARAM 
+        }; 
+        Object[] values = new Object[] { 
+            resource, 
+            name 
+        }; 
+        String query = "groupsByResourceAndName";
+        List groups = getHibernateTemplate().findByNamedQueryAndNamedParam(query, params, values);
+        return (Group) DaoUtils.requireOneOrZero(groups, query);
+    }
+
     public Group loadGroup(Integer id) {
         return (Group) getHibernateTemplate().load(Group.class, id);
     }

@@ -114,4 +114,14 @@ public class GroupTestDb extends TestCase {
         m_dao.saveGroup(newGroup);
         assertNotNull(newGroup.getWeight());
     }
+    
+    public void testGetByName() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
+        
+        Group byName = m_dao.getGroupByName("unittest", "food");
+        assertNotNull(byName);
+        assertEquals("food", byName.getName());
+        assertEquals("unittest", byName.getResource());        
+    }
 }

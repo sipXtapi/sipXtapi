@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Timer;
 
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
-import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -52,8 +52,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     public BackupPlan getBackupPlan() {        
         List plans = getHibernateTemplate().loadAll(BackupPlan.class);
-        BackupPlan plan = (BackupPlan) CoreContextImpl
-                .requireOneOrZero(plans, "all backup plans");
+        BackupPlan plan = (BackupPlan) DaoUtils.requireOneOrZero(plans, "all backup plans");
 
         // create a new one if one doesn't exists, otherwise
         // risk having 2 or more in database

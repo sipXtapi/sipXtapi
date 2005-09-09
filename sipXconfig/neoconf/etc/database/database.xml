@@ -35,7 +35,8 @@
   	  <delete file="patches.properties"/>  	  
   </target>
 	
-  <target name="tasks" description="sets flag if any initialization needs to be done">
+  <!-- sets flag if any initialization needs to be done -->
+  <target name="tasks">
     <sipx-sql print="yes" output="tasks.properties" showheaders="no">
       select 'initialize=true' from initialization_task having count(*) > 0;
     </sipx-sql>    
@@ -49,21 +50,21 @@
     </exec>    
   </target>
 
-  <target name="createdb" description="creates database void of schema">
+  <!-- creates database void of schema -->
+  <target name="createdb">
     <exec executable="createdb">
       <arg line="-U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}"/>
     </exec>
   </target>
   
-  <target name="unittest-reset" depends="drop,createdb,schema,version0" 
-    description="Resets database for unittesting"/>
+  <!-- Resets database for unittesting -->
+  <target name="unittest-reset" depends="drop,createdb,schema,version0"/>
   
   <!-- 
     - NOTE: Creating a database runs all the patches.  Before shipping, update schema.sql
     - then remove version0 from dependencies. 
     -->
-  <target name="create-no-init" depends="createdb,schema,patches,version0"
-    description="create database with schema">    
+  <target name="create-no-init" depends="createdb,schema,patches,version0">    
   </target>  
   <target name="create" depends="create-no-init,initialize"
     description="create database with schema">    
@@ -102,6 +103,15 @@
   <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
         description="migrate 2.8 database, note clears all existing 3.0 data"/>
   
+  <target name="reset-superadmin-initialization-task">
+    <sipx-sql>
+      delete from initialization_task where name = 'admin-group-and-user';
+      insert into initialization_task (name) values ('admin-group-and-user');
+    </sipx-sql>
+  </target>
+  <target name="reset-superadmin" depends="reset-superadmin-initialization-task,upgrade"
+      description="initialize superadmin user, administation group and resets password to blank"/>
+
   <!-- 
      Migration Targets Legend
 
@@ -154,10 +164,10 @@
     <db-patch patch="user_groups"/>
   </target>
   <target name="admin-group-and-user" unless="admin-group-and-user">
-    <sipx-sql>
-      	insert into initialization_task (name) values ('admin-group-and-user');
-    </sipx-sql>
-  	<mark-patch-applied patch="admin-group-and-user"/>
+      <sipx-sql>
+        insert into initialization_task (name) values ('admin-group-and-user');
+      </sipx-sql>
+      <mark-patch-applied patch="admin-group-and-user"/>
   </target>
   <target name="operator" unless="operator">
     <sipx-sql>

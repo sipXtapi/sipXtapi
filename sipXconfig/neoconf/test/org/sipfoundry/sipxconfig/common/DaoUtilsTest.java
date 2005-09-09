@@ -12,6 +12,9 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -44,6 +47,19 @@ public class DaoUtilsTest extends TestCase {
         } catch (UserException expected) {
             assertTrue(true);
         }        
+    }
+    
+    public void testRequireOneOrZero() {
+        String query = "my query";
+        DaoUtils.requireOneOrZero(Collections.EMPTY_LIST, query);
+        DaoUtils.requireOneOrZero(Collections.singleton(new Object()), query);
+        try {
+            Collection c = Arrays.asList(new String[] {"one", "two"});
+            DaoUtils.requireOneOrZero(c, query);
+            fail();
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage().contains(query));
+        }
     }
     
     public void testCheckDuplicatesFoundDuplicateWithoutException() {

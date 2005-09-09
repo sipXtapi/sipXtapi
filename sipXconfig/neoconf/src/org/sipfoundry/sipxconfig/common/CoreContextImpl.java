@@ -36,6 +36,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     private static final String USER_GROUP_RESOURCE_ID = "user";
     private static final String USERNAME_PROP_NAME = "userName";
+    /** nothing special about this name */
+    private static final String ADMIN_GROUP_NAME = "administrators"; 
 
     private String m_authorizationRealm;
 
@@ -110,7 +112,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             }
         };
         List users = getHibernateTemplate().executeFind(callback);
-        User user = (User) requireOneOrZero(users, expression.toString());
+        User user = (User) DaoUtils.requireOneOrZero(users, expression.toString());
 
         return user;
     }
@@ -178,31 +180,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return getHibernateTemplate().loadAll(User.class);
     }
 
-    /**
-     * Catch database corruption errors where more than one record exists. In general fields
-     * should have unique indexes set up to protect against this. This method is created as a safe
-     * check only, there have been not been any experiences of corrupt data to date.
-     * 
-     * @param c
-     * @param query
-     * 
-     * @return first item from the collection
-     * @throws IllegalStateException if more than one item in collection.
-     */
-    public static Object requireOneOrZero(Collection c, String query) {
-        if (c.size() > 2) {
-            // DatabaseCorruptionException ?
-            // TODO: move error string construction to new UnexpectedQueryResult(?) class, enable
-            // localization
-            StringBuffer error = new StringBuffer().append("read ").append(c.size()).append(
-                    " and expected zero or one. query=").append(query);
-            throw new IllegalStateException(error.toString());
-        }
-        Iterator i = c.iterator();
-
-        return (i.hasNext() ? c.iterator().next() : null);
-    }
-
     public void clear() {
         Collection c = getHibernateTemplate().find("from User");
         getHibernateTemplate().deleteAll(c);
@@ -227,10 +204,13 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
      * up and there are no users, then the first user can be created.
      */
     public void createAdminGroupAndInitialUserTask() {
-        Group adminGroup = new Group();
-        adminGroup.setName("administrators"); // nothing special about name
-        adminGroup.setResource(User.GROUP_RESOURCE_ID);
-        adminGroup.setDescription("Users with superadmin privileges");
+        Group adminGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, ADMIN_GROUP_NAME);
+        if (adminGroup == null) {            
+            adminGroup = new Group();
+            adminGroup.setName(ADMIN_GROUP_NAME);
+            adminGroup.setResource(User.GROUP_RESOURCE_ID);
+            adminGroup.setDescription("Users with superadmin privileges");
+        }
         Permission.SUPERADMIN.setEnabled(adminGroup, true);
         Permission.TUI_CHANGE_PIN.setEnabled(adminGroup, false);
 

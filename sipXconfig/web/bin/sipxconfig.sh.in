@@ -293,20 +293,19 @@ do
             Action=SETUP
             ;;
 
-        -h|--help)
-            Action=HELP
-            ;;
-
         -d|--database)
             Action=DATABASE
+            shift
+            Args="${@}"
+            break 2
             ;;    
 
         --nop)
             Action=NOP
             ;;
 
-        *)
-            Args="$Args $1"
+        -h|--help|*)
+            Action=HELP
             ;;
     esac           
 
@@ -351,7 +350,7 @@ Options include:
                        and create initial database. Will most likely need 
                        root permissions.
 
-Database commands include:
+Common Database commands include:
 
    drop                Drops ${Database} database
 
@@ -361,7 +360,7 @@ Database commands include:
                        patches to the database schema.  This will only 
                        upgrade if nec.
 
-   -p                  List all available commands
+   -p                  Full list all available commands
 
 Notable environment variables:
 

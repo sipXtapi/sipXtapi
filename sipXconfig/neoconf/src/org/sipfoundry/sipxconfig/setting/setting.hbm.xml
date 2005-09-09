@@ -37,6 +37,10 @@
     </id>
   </class>
 
+  <query name="groupsByResourceAndName">
+    <![CDATA[from Group g where g.resource = :resource and g.name = :name]]>
+  </query>  
+
   <query name="groupsByResource">
     <![CDATA[from Group g where g.resource = :resource order by g.weight]]>
   </query>  
