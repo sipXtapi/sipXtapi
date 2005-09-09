@@ -22,13 +22,14 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Base class for managed phone subclasses  
  */
-public class Phone extends BeanWithGroups {
+public class Phone extends BeanWithGroups implements NamedObject {
         
     // public because of checkstyle
     public static final String PHONE_CONSTANT = "phone";

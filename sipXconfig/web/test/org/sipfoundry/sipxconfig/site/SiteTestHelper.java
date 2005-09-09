@@ -259,8 +259,8 @@ public class SiteTestHelper {
     /**
      * Utility function to click on Tapestry submit links from JWebUnit
      * 
-     * The linkSubmit component is using a jaa script to set a value of a hiddent field and then
-     * submit a form. HttpUnit/JWebUnit and rhino.jar do not support java script used by Tapesty
+     * The linkSubmit component is using a java script to set a value of a hidden field and then
+     * submit a form. HttpUnit/JWebUnit and rhino.jar do not support java script used by Tapestry
      * so we try to emulate the behavior by using HTTP unit function. See: XCF-349
      * 
      * In addition to that we need to make JWebUnit happy: it does not know we submitted form
@@ -279,7 +279,7 @@ public class SiteTestHelper {
         form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
         WebResponse response = form.submitNoButton();
 
-        // set response directry in current JWebUnit object
+        // set response directly in current JWebUnit object
         Class klass = dialog.getClass();
         Field respField = klass.getDeclaredField("resp");
         respField.setAccessible(true);

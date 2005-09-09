@@ -14,9 +14,10 @@ package org.sipfoundry.sipxconfig.conference;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
-public class Conference extends BeanWithSettings {
+public class Conference extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceConference";
 
     private boolean m_enabled;

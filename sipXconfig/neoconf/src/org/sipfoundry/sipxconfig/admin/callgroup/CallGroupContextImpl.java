@@ -22,20 +22,20 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Hibernate implementation of the call group context
  */
-public class CallGroupContextImpl extends HibernateDaoSupport implements CallGroupContext {
+public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
+    private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
+    private static final String QUERY_CALL_GROUP_IDS_WITH_EXTENSION = "callGroupIdsWithExtension";
     private CoreContext m_coreContext;
-
     private Orbits m_orbitsGenerator;
-
     private SipxReplicationContext m_replicationContext;
 
     public CallGroup loadCallGroup(Integer id) {
@@ -43,16 +43,16 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     public void storeCallGroup(CallGroup callGroup) {
-        // only validate callgroups that are being enabled
-        if (callGroup.isEnabled()) {
-            String name = callGroup.getName();
-            DaoUtils.checkDuplicates(getHibernateTemplate(), callGroup,
-                    "callGroupIdsEnabledWithName", name, new NameInUseException(name));
-            String extension = callGroup.getExtension();
-            DaoUtils.checkDuplicates(getHibernateTemplate(), callGroup,
-                    "callGroupIdsEnabledWithExtension", extension, new ExtensionInUseException(
-                            extension));
-        }
+        // Check for duplicate names or extensions before saving the call group
+        String name = callGroup.getName();
+        DaoUtils.checkDuplicates(getHibernateTemplate(), callGroup,
+                QUERY_CALL_GROUP_IDS_WITH_NAME, name, new NameInUseException(name));
+        String extension = callGroup.getExtension();
+        DaoUtils.checkDuplicates(getHibernateTemplate(), callGroup,
+                QUERY_CALL_GROUP_IDS_WITH_EXTENSION,
+                extension,
+                new ExtensionInUseException(extension));
+
         getHibernateTemplate().saveOrUpdate(callGroup);
     }
 
@@ -71,7 +71,14 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     public void duplicateCallGroups(Collection ids) {
         for (Iterator i = ids.iterator(); i.hasNext();) {
             CallGroup group = loadCallGroup((Integer) i.next());
-            CallGroup groupDup = (CallGroup) group.duplicate();
+            
+            // Create a copy of the call group with a unique name
+            CallGroup groupDup = (CallGroup) duplicateBean(group, QUERY_CALL_GROUP_IDS_WITH_NAME);
+            
+            // Extensions should be unique, so don't copy the extension from the
+            // source call group.  The admin must fill it in explicitly.
+            groupDup.setExtension(null);
+            
             groupDup.setEnabled(false);
             storeCallGroup(groupDup);
         }
@@ -89,7 +96,7 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     /**
-     * Sends notification to progile generator to trigger alias generation
+     * Sends notification to profile generator to trigger alias generation
      */
     public void activateCallGroups() {
         m_replicationContext.generate(DataSet.ALIAS);
@@ -198,8 +205,8 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     private class ExtensionInUseException extends UserException {
-        private static final String ERROR = "Extension {0} is already used in the system. "
-                + "Please choose another extension before enabling this hunt group.";
+        private static final String ERROR = "Extension {0} is already in use. "
+                + "Please choose another extension for this hunt group.";
 
         public ExtensionInUseException(String extension) {
             super(ERROR, extension);
@@ -207,8 +214,8 @@ public class CallGroupContextImpl extends HibernateDaoSupport implements CallGro
     }
 
     private class NameInUseException extends UserException {
-        private static final String ERROR = "Name {0} is already used in the system. "
-                + "Please choose another name before enabling this hunt group.";
+        private static final String ERROR = "The name \"{0}\" is already in use. "
+                + "Please choose another name for this hunt group.";
 
         public NameInUseException(String name) {
             super(ERROR, name);

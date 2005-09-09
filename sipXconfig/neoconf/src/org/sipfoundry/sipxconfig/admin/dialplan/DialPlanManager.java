@@ -21,8 +21,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
@@ -35,6 +38,16 @@ public class DialPlanManager extends SipxHibernateDaoSupport
         implements BeanFactoryAware, DialPlanContext, ApplicationListener {
     
     private static final String OPERATOR_CONSTANT = "operator";
+    private static final String QUERY_DIALING_RULE_IDS_WITH_NAME = "dialingRuleIdsWithName";
+
+    private class NameInUseException extends UserException {
+        private static final String ERROR = "The name \"{0}\" is already in use. "
+                + "Please choose another name for this dialing rule.";
+
+        public NameInUseException(String name) {
+            super(ERROR, name);
+        }
+    }
 
     private String m_configDirectory;
 
@@ -69,6 +82,13 @@ public class DialPlanManager extends SipxHibernateDaoSupport
     }
 
     public void storeRule(DialingRule rule) {
+        // Check for duplicate names before saving the rule
+        String name = rule.getName();
+        DaoUtils.checkDuplicates(getHibernateTemplate(), rule,
+                QUERY_DIALING_RULE_IDS_WITH_NAME, name, new NameInUseException(name));
+
+        // Save the rule.  If it's a new rule then attach it to the dial plan first
+        // and save it via the dial plan.
         if (rule.isNew()) {
             DialPlan dialPlan = getDialPlan();
             dialPlan.addRule(rule);
@@ -94,7 +114,17 @@ public class DialPlanManager extends SipxHibernateDaoSupport
 
     public void duplicateRules(Collection selectedRows) {
         DialPlan dialPlan = getDialPlan();
-        dialPlan.duplicateRules(selectedRows);
+        List rules = dialPlan.getRules();
+        Collection selectedRules = DataCollectionUtil.findByPrimaryKey(rules, selectedRows.toArray());
+        for (Iterator i = selectedRules.iterator(); i.hasNext();) {
+            DialingRule rule = (DialingRule) i.next();
+                        
+            // Create a copy of the rule with a unique name
+            DialingRule ruleDup = (DialingRule) duplicateBean(rule, QUERY_DIALING_RULE_IDS_WITH_NAME);
+            
+            rules.add(ruleDup);
+        }
+        DataCollectionUtil.updatePositions(rules);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
@@ -112,6 +142,13 @@ public class DialPlanManager extends SipxHibernateDaoSupport
         DialPlan dialPlan = getDialPlan();
         // unload all rules
         getHibernateTemplate().delete(dialPlan);
+        
+        // Flush the session to cause the delete to take immediate effect.
+        // Otherwise we can get name collisions on dialing rules when we load the
+        // default dial plan, causing a DB integrity exception, even though the
+        // collisions would go away as soon as the session was flushed.
+        getHibernateTemplate().flush();
+        
         dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");
         AutoAttendant operator = getOperator();
         dialPlan.setOperator(operator);

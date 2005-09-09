@@ -79,6 +79,7 @@
     </java>
   </target>
 	
+  <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version0" description="upgrade from version 0" unless="version1"
     depends="initialization_task,
 	  user_groups,
@@ -90,7 +91,8 @@
 	  meetme,
 	  gatewayBeanId,
 	  extension_pool,
-	  operator"/>
+	  operator,
+	  name_uniqueness"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -199,6 +201,9 @@
   </target>  
   <target name="extension_pool" unless="extension_pool">
     <db-patch patch="extension_pool"/>
+  </target>  
+  <target name="name_uniqueness" unless="name_uniqueness">
+    <db-patch patch="name_uniqueness"/>
   </target>  
   
   <!--

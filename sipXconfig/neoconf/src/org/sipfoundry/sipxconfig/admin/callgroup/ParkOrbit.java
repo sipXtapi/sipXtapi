@@ -12,8 +12,9 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 
-public class ParkOrbit extends BackgroundMusic {
+public class ParkOrbit extends BackgroundMusic implements NamedObject {
     private String m_name;
     private String m_extension;
     private String m_description;

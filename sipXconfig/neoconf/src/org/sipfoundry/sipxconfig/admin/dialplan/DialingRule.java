@@ -23,12 +23,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
- * DialingRule At some point it's be replaced by the IDialingRule interface or made abstract.
+ * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
  */
-public abstract class DialingRule extends BeanWithId implements IDialingRule, DataCollectionItem {
+public abstract class DialingRule extends BeanWithId
+    implements IDialingRule, DataCollectionItem, NamedObject {
+    
     private boolean m_enabled;
     private String m_name;
     private String m_description;

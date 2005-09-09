@@ -201,7 +201,13 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.clickSubmitLink(tester, "addGatewayLink");
-            gateways[i] = GatewaysTestUi.addGateway(tester, "g" + i);
+            
+            // Give the new gateway a name that is extremely unlikely to collide
+            // with any existing gateway names
+            String gatewayName = "g" + i + Long.toString(System.currentTimeMillis());
+            
+            gateways[i] = GatewaysTestUi.addGateway(tester, gatewayName);
+            SiteTestHelper.assertNoException(tester);
         }
 
         assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));

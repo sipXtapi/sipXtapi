@@ -16,11 +16,12 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
 
-public class SettingImpl implements Setting, Cloneable {
+public class SettingImpl implements Setting, Cloneable, NamedObject {
 
     private String m_label;
 

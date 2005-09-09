@@ -30,6 +30,11 @@ public class DaoUtilsTest extends TestCase {
         objs.add(new Integer(subject.getId().intValue()));
         DaoUtils.checkDuplicates(subject, objs, new UserException());
     }
+
+    public void testCheckDuplicatesFoundItselfWithoutException() {
+        objs.add(new Integer(subject.getId().intValue()));
+        assertFalse(DaoUtils.checkDuplicates(subject, objs, null));
+    }
     
     public void testCheckDuplicatesFoundDuplicate() {
         objs.add(new Integer(subject.getId().intValue() + 1));
@@ -39,5 +44,10 @@ public class DaoUtilsTest extends TestCase {
         } catch (UserException expected) {
             assertTrue(true);
         }        
+    }
+    
+    public void testCheckDuplicatesFoundDuplicateWithoutException() {
+        objs.add(new Integer(subject.getId().intValue() + 1));
+        assertTrue(DaoUtils.checkDuplicates(subject, objs, null));
     }
 }

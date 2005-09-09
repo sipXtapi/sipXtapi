@@ -46,16 +46,6 @@ public class DialPlan extends BeanWithId {
         DataCollectionUtil.updatePositions(m_rules);
     }
 
-    public void duplicateRules(Collection selectedRows) {
-        Collection rules = DataCollectionUtil.findByPrimaryKey(m_rules, selectedRows.toArray());
-        for (Iterator i = rules.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
-            BeanWithId ruleDup = rule.duplicate();
-            m_rules.add(ruleDup);
-        }
-        DataCollectionUtil.updatePositions(m_rules);
-    }
-
     public void removeAllRules() {
         m_rules.clear();
     }

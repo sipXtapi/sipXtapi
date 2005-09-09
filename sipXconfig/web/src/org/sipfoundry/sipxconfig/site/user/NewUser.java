@@ -34,13 +34,11 @@ public abstract class NewUser extends BasePage implements PageRenderListener {
     public abstract ICallback getCallback();
     public abstract void setCallback(ICallback callback);
 
-    public void commit(IRequestCycle cycle) {
+    public void commit(IRequestCycle cycle_) {
         if (TapestryUtils.isValid(this)) {
             CoreContext core = getCoreContext();
             User user = getUser();
             core.saveUser(user);
-
-            cycle.activate(ManageUsers.PAGE);
         }
     }
 
@@ -54,5 +52,11 @@ public abstract class NewUser extends BasePage implements PageRenderListener {
         ICallback callback = new PageCallback(PAGE);
         ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) event.getRequestCycle().getPage(ExtensionPoolsPage.PAGE);
         poolsPage.setCallback(callback);
+        
+        // If no callback was set before navigating to this page, then by
+        // default, go back to the ManageUsers page
+        if (getCallback() == null) {
+            setCallback(new PageCallback(ManageUsers.PAGE));
+        }
     }
 }

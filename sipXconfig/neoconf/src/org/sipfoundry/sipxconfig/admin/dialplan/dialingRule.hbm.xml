@@ -92,4 +92,9 @@
     </joined-subclass>
     
   </class>
+	  
+  <query name="dialingRuleIdsWithName">
+    <![CDATA[select dr.id from DialingRule dr where dr.name = :value]]>
+  </query>  
+	
 </hibernate-mapping>
