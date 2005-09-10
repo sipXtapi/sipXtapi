@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.SetNestedPropertiesRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbXmlHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.xml.sax.SAXException;
 
@@ -33,8 +33,6 @@ public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
 
     private static final String REGISTRATION_URL = "https://{0}:{1}/sipdb/registration.xml";
-
-    private static final String PATTERN = "items/item";
 
     private String m_server;
 
@@ -62,7 +60,7 @@ public class RegistrationContextImpl implements RegistrationContext {
     }
 
     List getRegistrations(InputStream is) throws IOException, SAXException {
-        Digester digester = configureDigester();
+        Digester digester = ImdbXmlHelper.configureDigester(RegistrationItem.class);
         return (List) digester.parse(is);
     }
 
@@ -91,22 +89,6 @@ public class RegistrationContextImpl implements RegistrationContext {
             m_server, m_port
         };
         return MessageFormat.format(REGISTRATION_URL, params);
-    }
-
-    private Digester configureDigester() {
-        Digester digester = new Digester();
-        digester.setValidating(false);
-        digester.setNamespaceAware(false);
-
-        digester.push(new ArrayList());
-        digester.addObjectCreate(PATTERN, RegistrationItem.class);
-        SetNestedPropertiesRule rule = new SetNestedPropertiesRule();
-        // ignore all properties that we are not interested in
-        rule.setAllowUnknownChildElements(true);
-        digester.addRule(PATTERN, rule);
-        digester.addSetNext(PATTERN, "add");
-
-        return digester;
     }
 
     public void setPort(String port) {
