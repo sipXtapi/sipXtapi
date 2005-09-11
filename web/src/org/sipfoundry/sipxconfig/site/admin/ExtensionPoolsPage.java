@@ -11,9 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.ExtensionPool;
 import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -44,13 +47,28 @@ public abstract class ExtensionPoolsPage extends BasePage {
             return;
         }
         
+        // Complain if the extension pool upper limit is lower than the lower limit
+        ExtensionPool pool = getUserExtensionPool();
+        if (pool.getFirstExtension() != null && pool.getLastExtension() != null) {
+            if (pool.getLastExtension().intValue() < pool.getFirstExtension().intValue()) {
+                recordError("message.lastExtensionTooSmall");
+            }
+        }
+        
         // For now, we are not letting the user edit the pool's nextExtension value,
         // which controls where to start looking for the next free extension.
         // Set it to be the same as the start of the range.
-        ExtensionPool pool = getUserExtensionPool();
         pool.setNextExtension(pool.getFirstExtension());
         
         getExtensionPoolContext().saveExtensionPool(pool);
     }
-
+    
+    /**
+     * Utilities
+     */  
+    private void recordError(String messageId) {
+        IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
+        delegate.record(getMessage(messageId), ValidationConstraint.TOO_SMALL);
+    }
+    
 }

@@ -41,7 +41,7 @@ public abstract class UserForm extends BaseComponent {
     public abstract String getAliasesString();
     public abstract void setAliasesString(String aliasesString);
     
-    // Update the User object with the PIN that was entered by the user
+    // Update the User object if input data is valid
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         
         if (!cycle.isRewinding()) {
