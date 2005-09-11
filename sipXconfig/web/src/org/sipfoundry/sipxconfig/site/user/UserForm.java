@@ -11,9 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.text.MessageFormat;
+import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.AbstractComponent;
@@ -62,10 +61,18 @@ public abstract class UserForm extends BaseComponent {
             if (!TapestryUtils.isValid((AbstractPage) getPage())) {
                 return;
             }
+
+            // Set the user aliases from the aliases string
+            getUser().setAliasesString(getAliasesString());
+            
+            // Make sure that the user ID and aliases don't collide with any other
+            // user IDs or aliases.  Report an error if there is a collision.
+            if (checkForUserIdOrAliasCollision()) {
+                return;
+            }
             
             // Update the user's PIN and aliases
             updatePin();
-            setAliasesFromString(getAliasesString());
         }
     }
     
@@ -84,7 +91,37 @@ public abstract class UserForm extends BaseComponent {
             getUser().setUserName(extStr);
         }
     }
-
+    
+    // Make sure that the user ID and aliases don't collide with any other
+    // user IDs or aliases.  Report an error if there is a collision.
+    private boolean checkForUserIdOrAliasCollision() {
+        boolean result = false;
+        String dup = getCoreContext().checkForDuplicateNameOrAlias(getUser());
+        if (dup != null) {
+            result = true;
+            boolean internalCollision = false;
+            
+            // Check for a collision within the user itself, of the user ID with an alias,
+            // so we can give more specific error feedback.  Since the aliases are filtered
+            // for duplicates when assigned to the user, we don't have to worry about that
+            // case.  Duplicate aliases are simply discarded.
+            for (Iterator iter = getUser().getAliases().iterator(); iter.hasNext();) {
+                String alias = (String) iter.next();
+                if (getUser().getUserName().equals(alias)) {
+                    recordError("message.userIdEqualsAlias", alias);
+                    internalCollision = true;
+                    break;
+                }
+            }
+            // If it wasn't an internal collision, then the collision is with a different
+            // user.  Record an appropriate error.
+            if (!internalCollision) {
+                recordError("message.duplicateUserIdOrAlias", dup);
+            }
+        }
+        return result;
+    }
+    
     // Update the user's PIN.
     // Special case: don't set the PIN to be empty.
     // In some contexts (creating a new user) an empty PIN is an error, in
@@ -98,69 +135,13 @@ public abstract class UserForm extends BaseComponent {
         }
     }
 
-    /** 
-     * Update user aliases from the comma-separated list in aliasesString.
-     * Don't validate the format of each alias, that is handled separately.
-     * But do make sure that we aren't adding any duplicate aliases, or an
-     * alias that matches the user ID.
-     */
-    private void setAliasesFromString(String aliasesString) {        
-        Set aliases = getUser().getAliases();
-        aliases.clear();
-        if (StringUtils.isEmpty(aliasesString)) {
-            return;
-        }
-
-        // Tokenize the alias list and make sure there are no duplicates in
-        // the list, or a collision with the user ID
-        String[] aliasStrings = aliasesString.split(",");
-        if (complainIfDuplicateAlias(aliasStrings)) {
-            return;
-        }
-        
-        // DO_NOW: check for collisions with the database, so that the aliases
-        // we're adding won't duplicate existing aliases or user IDs.  Note:
-        // the user we're modifying might already have some of these aliases,
-        // that's OK since we're overwriting the aliases list.
-        
-        // Add each alias
-        for (int i = 0; i < aliasStrings.length; i++) {
-            String alias = aliasStrings[i];
-            aliases.add(alias.trim());
-        }
-    }
-
-    /**
-     * Check for duplicate aliases and report an error if there are any.
-     * If an alias matches the user ID, consider that a duplicate as well.
-     * Return true if there were duplicates, false otherwise.
-     */
-    private boolean complainIfDuplicateAlias(String[] aliases) {
-        if (aliases == null || aliases.length == 0) {
-            return false;
-        }
-        final String dupAliasInEdit = "message.dupAliasInEdit";
-        
-        // store each alias in a map and look for collisions
-        Map map = new HashMap(aliases.length);
-        for (int i = 0; i < aliases.length; i++) {
-            String alias = aliases[i];
-            if (map.containsKey(alias)) {
-                recordError(dupAliasInEdit);
-                return true;
-            }
-            map.put(alias, null);
-        }
-        if (map.containsKey(getUser().getUserName())) {
-            recordError(dupAliasInEdit);
-            return true;
-        }
-        return false;
-    }
-
-    private void recordError(String messageId) {
+    private void recordError(String messageId, String arg) {
         IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
-        delegate.record(getMessage(messageId), ValidationConstraint.CONSISTENCY);
+        
+        String message = MessageFormat.format(
+                getMessage(messageId), new Object[] {arg});
+        
+        delegate.record(message, ValidationConstraint.CONSISTENCY);
     }
     
 }

@@ -53,6 +53,10 @@
     <![CDATA[from User u left outer join u.aliases alias where u.userName = :userNameOrAlias or alias = :userNameOrAlias]]>
   </query>
 	  
+  <query name="userIdsByNameOrAlias">
+    <![CDATA[select u.id from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+  </query>  
+	  
   <query name="userGroupMembers">
     <![CDATA[from User u where u.groups.id = :groupId]]>
   </query>

@@ -46,6 +46,20 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
     public User loadUserByAlias(String userName);
 
     public User loadUserByUserNameOrAlias(String userNameOrAlias);
+    
+    /**
+     * Check whether the user has a username or alias that collides with an existing username
+     * or alias.  Check for internal collisions as well, for example, the user has an alias
+     * that is the same as the username.  (Duplication within the aliases is not possible 
+     * because the aliases are stored as a Set.)
+     * If there is a collision, then return the bad name (username or alias).
+     * Otherwise return null.
+     * If there are multiple collisions, then it's arbitrary which name is returned.
+     * 
+     * @param user user to test
+     * @return name that collides
+     */
+    public String checkForDuplicateNameOrAlias(User user);
 
     public String getAuthorizationRealm();
 
