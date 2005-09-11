@@ -77,7 +77,7 @@
     </component>
     <component id="userId" type="ValidField">
 	    <binding name="value" expression="user.userName"/>
-    	<binding name="validator" expression="page.global.validUsernamePattern"/>
+    	<binding name="validator" expression="page.global.validSipNameRequired"/>
 	    <message-binding name="displayName" key="label.userId"/>
     </component>
 	<component id="pin" type="ConfirmPassword">

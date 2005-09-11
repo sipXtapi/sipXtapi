@@ -47,6 +47,19 @@ public final class DaoUtils {
     }
     
     /**
+     * Return true if query returns objects other than obj. Used to check for duplicates.
+     * 
+     * @param hibernate spring hibernate template
+     * @param obj object to be checked
+     * @param queryName name of the query to be executed (define in *.hbm.xml file)
+     * @param value parameter for the query
+     */
+    public static boolean checkDuplicates(HibernateTemplate hibernate, BeanWithId obj,
+            String queryName, Object value) {
+        return checkDuplicates(hibernate, obj, queryName, value, null);
+    }
+    
+    /**
      * Return true if list contains objects other than obj. Used to check for duplicates.
      * If exception is non-null, then throw the exception instead of returning true.
      * 

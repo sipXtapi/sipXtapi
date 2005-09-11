@@ -29,11 +29,11 @@ import org.springframework.context.ApplicationContext;
 public class CoreContextImplTestDb extends TestCase {
 
     private static final int NUM_USERS = 10;
-    private CoreContext m_core;
+    private CoreContextImpl m_core;
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
-        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
+        m_core = (CoreContextImpl) app.getBean(CoreContextImpl.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -88,6 +88,47 @@ public class CoreContextImplTestDb extends TestCase {
         assertEquals("userwithnoaliases", user.getUserName());
     }
 
+    public void testCheckForDuplicateNameOrAlias() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        final String UNIQUE_NAME = "uniqueNameThatDoesntExistInTheUniverseOrBeyond";
+        
+        // Check that a user with a unique name won't collide with any existing users
+        User user = new User();
+        user.setUserName(UNIQUE_NAME);
+        assertNull(m_core.checkForDuplicateNameOrAlias(user));
+        
+        // Check that a user with a duplicate name is found to be a duplicate
+        user.setUserName("userseed4");
+        assertEquals("userseed4", m_core.checkForDuplicateNameOrAlias(user));
+        
+        // Check that a user with an alias that matches an existing username
+        // is found to be a duplicate
+        user.setUserName(UNIQUE_NAME);
+        user.setAliasesString("userseed6");
+        assertEquals("userseed6", m_core.checkForDuplicateNameOrAlias(user));
+        
+        // Check that a user with an alias that matches an existing alias
+        // is found to be a duplicate
+        user.setAliasesString("two");
+        assertEquals("two", m_core.checkForDuplicateNameOrAlias(user));
+        
+        // Check that duplicate checking doesn't get confused by multiple collisions
+        // with both usernames and aliases
+        user.setUserName("userseed4");
+        user.setAliasesString("two,1");
+        assertNotNull(m_core.checkForDuplicateNameOrAlias(user));
+        
+        // Check that collisions internal to the user are caught.
+        // Note that duplicates within the aliases list are ignored.
+        final String WASAWUSU = "wasawusu";
+        user.setUserName(WASAWUSU);
+        user.setAliasesString(WASAWUSU);
+        assertEquals(WASAWUSU, m_core.checkForDuplicateNameOrAlias(user));
+        user.setUserName(UNIQUE_NAME);
+        user.setAliasesString(WASAWUSU + "," + WASAWUSU);
+        assertNull(m_core.checkForDuplicateNameOrAlias(user));        
+    }
+    
     public void testSearchByUserName() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 
@@ -244,5 +285,25 @@ public class CoreContextImplTestDb extends TestCase {
                 .getTable("group_storage"));
         Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs
                 .getTable("setting_value"));
+    }
+    
+    public void testCheckForDuplicateString() {
+        // An empty collection should have no duplicates
+        List strings = new ArrayList();
+        assertNull(m_core.checkForDuplicateString(strings));
+        
+        // Still no duplicates
+        strings.add(new String("a"));
+        strings.add(new String("b"));
+        strings.add(new String("c"));
+        assertNull(m_core.checkForDuplicateString(strings));
+        
+        // Now we have a duplicate
+        strings.add(new String("b"));
+        assertEquals("b", m_core.checkForDuplicateString(strings));
+        
+        // Try multiple duplicates (result is indeterminate but non-null)
+        strings.add(new String("c"));
+        assertNotNull(m_core.checkForDuplicateString(strings));        
     }
 }

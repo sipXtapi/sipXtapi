@@ -104,7 +104,7 @@ public class User extends BeanWithGroups {
     }
 
     public String getUserName() {
-        return m_userName;
+        return (String) ObjectUtils.defaultIfNull(m_userName, StringUtils.EMPTY);
     }
 
     public void setUserName(String userName) {
@@ -138,8 +138,12 @@ public class User extends BeanWithGroups {
         getAliases().addAll(aliases);
     }
 
-    public void addAlias(String alias) {
-        getAliases().add(alias);
+    /**
+     * Add the alias to the set of aliases.
+     * Return true if the alias was added, false if the alias was already in the set.
+     */
+    public boolean addAlias(String alias) {
+        return getAliases().add(alias);
     }
 
     public void addAliases(String[] aliases) {

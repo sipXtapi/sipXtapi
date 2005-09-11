@@ -103,7 +103,7 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
      * The caller is responsible for ensuring that "start" and "end" lie within
      * the pool range.
      */
-    // DO_NOW: search for free extensions in a much more efficient way
+    // TODO (XCF-583): search for free extensions in a much more efficient way
     private Integer getFreeUserExtension(int start, int end) {
         Integer ext = null;   // the result
         for (int i = start; i <= end; i++) {

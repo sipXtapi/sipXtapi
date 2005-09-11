@@ -13,9 +13,11 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -30,15 +32,18 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
         ApplicationListener, DaoEventListener {
 
+    public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final String USER_GROUP_RESOURCE_ID = "user";
     private static final String USERNAME_PROP_NAME = "userName";
     /** nothing special about this name */
     private static final String ADMIN_GROUP_NAME = "administrators"; 
-
+    private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
+    
     private String m_authorizationRealm;
 
     private String m_domainName;
@@ -125,7 +130,66 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return loadUserByNamedQueryAndNamedParam("userByNameOrAlias", "userNameOrAlias",
                 userNameOrAlias);
     }
+    
+    /**
+     * Check whether the user has a username or alias that collides with an existing username
+     * or alias.  Check for internal collisions as well, for example, the user has an alias
+     * that is the same as the username.  (Duplication within the aliases is not possible 
+     * because the aliases are stored as a Set.)
+     * If there is a collision, then return the bad name (username or alias).
+     * Otherwise return null.
+     * If there are multiple collisions, then it's arbitrary which name is returned.
+     * 
+     * @param user user to test
+     * @return name that collides
+     */
+    public String checkForDuplicateNameOrAlias(User user) {
+        HibernateTemplate hibernate = getHibernateTemplate();
+        String result = null;
+        
+        // Check for duplication within the user itself
+        List names = new ArrayList(user.getAliases());
+        names.add(user.getUserName());
+        result = checkForDuplicateString(names);
+        if (result == null) {
+            // Check the username.  If it is the username or alias for a different existing
+            // user, then return it as a bad name.
+            if (DaoUtils.checkDuplicates(hibernate, user,
+                    QUERY_USER_IDS_BY_NAME_OR_ALIAS, user.getUserName())) {
+                result = user.getUserName();
+            } else {
+                // Check the aliases and return any duplicate as a bad name.
+                // 
+                for (Iterator iter = user.getAliases().iterator(); iter.hasNext();) {
+                    String alias = (String) iter.next();
+                    if (DaoUtils.checkDuplicates(hibernate, user,
+                            QUERY_USER_IDS_BY_NAME_OR_ALIAS, alias)) {
+                        result = alias;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return result;
+    }
 
+    /**
+     * Given a collection of strings, look for duplicates.  Return the first
+     * duplicate found, or null if all strings are unique.
+     */
+    String checkForDuplicateString(Collection strings) {
+        Map map = new HashMap(strings.size());
+        for (Iterator iter = strings.iterator(); iter.hasNext();) {
+            String str = (String) iter.next();
+            if (map.containsKey(str)) {
+                return str;
+            }
+            map.put(str, null);            
+        }
+        return null;
+    }
+    
     private User loadUserByNamedQueryAndNamedParam(String queryName, String paramName,
             Object value) {
         Collection usersColl = getHibernateTemplate().findByNamedQueryAndNamedParam(queryName,
