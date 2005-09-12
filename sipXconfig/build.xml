@@ -27,7 +27,7 @@
         <replacefilter token="@version@" value="0.0.0"/>
         <replacefilter token="@abs_top_srcdir@" value="${top.dir}"/>
         <replacefilter token="@JAVAC_OPTIMIZED@" value="false"/>
-        <replacefilter token="@JAVAC_DEBUG@" value="true"/>
+        <replacefilter token="@JAVAC_DEBUG@" value="on"/>
         <replacefilter token="@bindir@" value="${install.dir}/bin"/>
         <replacefilter token="@libdir@" value="${install.dir}/lib"/>
     	  <replacefilter token="@localstatedir@" value="${install.dir}/lib"/>
