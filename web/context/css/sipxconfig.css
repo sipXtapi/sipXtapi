@@ -1,432 +1,507 @@
-/*  Legacy colors
- *    #699  - faded green
- *    #669999 - yet another faded green 
- *    #ffc  - faded yellow
- *    #F0E68C - slightly darker, ugly yellow used as background in tables and forms
- */
+body
+{
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:12px;
+	scrollbar-base-#color:#FFFFCC;
+	scrollbar-track-color:#FFFFCC;
+	scrollbar-face-color:#3D3D3D;
+	scrollbar-highlight-color:#FFFFCC;
+	scrollbar-3dlight-color:#669999;
+	scrollbar-darkshadow-color:#964E2E;
+	scrollbar-shadow-color:#669999;
+	scrollbar-arrow-color:#FFF;
+	margin:0;
+	padding:0;
+	background:#FFFFCC;
+}
+
+a:link
+{
+	font-weight:bold;
+	text-decoration:none;
+	color:#3D3D3D;
+}
+
+a:visited
+{
+	font-weight:bold;
+	text-decoration:none;
+	color:#3D3D3D;
+}
 
-body {
-  padding:      0;
-  margin:       0;
-  font-family:  Verdana, Arial, Helvetica, sans-serif;
-  font-size:    12px;
-  background: #ffc;
+a:hover,a:active
+{
+	text-decoration:underline;
+	color:#3D3D3D;
 }
 
-h1 { font: 170% }
+h1
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:24px;
+	color:#3D3D3D;
+}
 
-/*
- * Legacy green header with underline
- */ 
-h2 { 
-	font-family : Arial, Helvetica, sans-serif;
-	font-size : 24px;
-	font-weight: bolder;
-	color: #669999;
-	width: 23em;
-	padding-bottom: 0.5em;
-	background-color: transparent;
-	border-bottom: solid;
-	border-bottom-width: 2px;
+h2
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:20px;
+	color:#3D3D3D;
 }
 
-/*
- * Legacy h3 header
- */	
-h3 { 
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 18px;
-	font-weight: bolder;
-	color: #669999;
-	background-color : transparent;	
+h3
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:16px;
+	font-weight:bolder;
+	color:#3D3D3D;
 }
-h4 { font: bold 100% }
-h5 { font: italic 100% }
-h6 { font: small-caps 100% }
 
-dt {
-  font-weight: bold;
+h4
+{
+	font:bold 100%;
 }
 
-dd {
-  margin-top: 5px;
-  margin-bottom: 5px;
+h5
+{
+	font:italic 100%;
 }
 
-pre, tt, code, kbd, samp { 
-    color: #009;
-    font-family: monospace; 
+h6
+{
+	font:small-caps 100%;
 }
 
-ul {
-  list-style-type: none;
+dt
+{
+	font-weight:bold;
 }
 
-legend {
-  color: #000; /* IE this is blue by default */
-  font: bold 80%;
+dd
+{
+	margin-top:5px;
+	margin-bottom:5px;
 }
 
-.hack {
-  color: #f60;
+pre,tt,code,kbd,samp
+{
+	color:#009;
+	font-family:monospace;
 }
 
-ul.tabArea {
-  list-style: none;
-  padding: 2px;
+ul
+{
+	list-style-type:none;
 }
 
-ul.tabArea li {
-  white-space: nowrap;    
-  display: inline;
-  padding: 0 .3em 0 0;  
-  margin: 0;
+legend
+{
+	color:#000;
+	font:bold 80%;
+	font-size:120%;
 }
 
-li.tab a:link, li.tab a:hover, li.tab a:visited {   
-   color: #00f;
+.hack
+{
+	color:#f60;
 }
 
-li.tab.active a:link, li.tab.active a:hover, li.tab.active a:visited {
-   text-decoration: none;
-   color: #000;
+ul.tabArea
+{
+	list-style:none;
+	padding:2px;
 }
 
-#lastmodified {
-    align: right;
-    font-style: italic;
+ul.tabArea li
+{
+	white-space:nowrap;
+	display:inline;
+	margin:0;
+	padding:0 .3em 0 0;
 }
 
-#banner {
-    background: #699;
-    padding: 7px;
+li.tab a:link,li.tab a:hover,li.tab a:visited
+{
+	color:#00f;
 }
 
-#banner h1 {
-    margin: 0px;
-    font: 130%;
-    font-style: italic;
-    font-weight: bold;
-    color: #ffc;
+li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
+{
+	text-decoration:none;
+	color:#000;
 }
 
-#banner ul {
-  text-align: right;
+#lastmodified
+{
+	align:right;
+	font-style:italic;
 }
 
-#banner li {
-  display: inline;
-  padding-right: 1em;
-  margin-top: 0px;
-  margin-bottom: 0px;
+#banner
+{
+	height:0;
+	color:#fff;
+	border-bottom:thick solid #669999;
+	font-weight:bold;
+	font-style:italic;
+	padding:55px 0 20px 120px;
+	background:url(/sipxconfig/images/sipxconfig-logo.png) no-repeat left #669999;
 }
 
-#navigation {
-  float : left;
-  background: #699;
-  width: 180px;
-  padding: 2px;
+#banner-links
+{
+	float:right;
+	font-style:normal;
+	padding:0 50px 0 0;
 }
 
-#navigation ul {
-  list-style-type:none;
-  margin: 2px;
-  padding: 5px 5px 5px 5px;
+#banner-links a
+{
+	font-weight:bold;
+	text-decoration:none;
+	color:#fff;
+	padding:0 5px;
 }
 
-#navigation li span {
-  color: #fff;
-  text-decoration: none;
+#banner-links a:hover,a:active
+{
+	text-decoration:underline;
+	color:#3D3D3D;
 }
 
-#navigation li a, li span {
-  color: #fff;
-  text-decoration: none;
+#navigation
+{
+	float:left;
+	width:150px;
+	height:100%;
+	border-right:thick solid #669999;
+	padding:10px;
+	background:#669999;
 }
 
-#navigation li ul li a {
-  font-weight: plain;
+#navigation ul
+{
+	list-style-type:none;
+	margin:2px;
+	padding:5px;
 }
 
-#content {
-  margin-left : 182px; /* navigation.width + navigation.padding */
-  padding: 5px 5px 5px 10px;
+#navigation a {
+        color: #FFFFFF;
 }
 
-#settings-nav {
-  float:left;
+#navigation a:hover {
+        color: #3D3D3D;
 }
 
-#settings-nav ul {
-  margin: 2px;
-  padding: 2px;
-  list-style-type:none;
+.navHeading
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:16px;
+	font-weight:bold;
+        color: #FFFFFF;
 }
 
-#settings-nav a {
-  white-space: nowrap;    
+#content
+{
+	margin-left:180px;
+	padding:5px 5px 5px 10px;
 }
 
-#settings-content {
-  margin-left: 12em;
+#settings-nav
+{
+	float:left;
 }
 
-#footer {
-    clear : both;
-    padding: .5em 1em .25em 1em;
-    font-size: 10px; 
-    margin-top: 3em;
-    font-style: italic;
+#settings-nav ul
+{
+	list-style-type:none;
+	margin:2px;
+	padding:2px;
 }
 
-.pageLabel {
-    font-weight: bold;
+#settings-nav a
+{
+	white-space:nowrap;
 }
 
-p.message {
-    font-weight: bold;
-    color: #f00;
+#settings-content
+{
+	margin-left:12em;
 }
 
-.settingLabel {
+#footer
+{
+	clear:both;
+	color:#fff;
+	border-top:thick solid #3D3D3D;
+	text-align:center;
+	padding:10px;
+	background:#669999;
 }
 
-.settingDefault {
-  font-style: italic;
+.pageLabel
+{
+	font-weight:bold;
 }
 
-.settingDescription {
-  font-style: 80%;
-  color: #555;
+p.message
+{
+	font-weight:bold;
+	color:red;
 }
 
-li {
-  margin-top: 5px;
-  margin-bottom: 5px;
+.settingDefault
+{
+	font-style:italic;
 }
 
-/**
- * term 'component' is can be assocciated with ui that needs 
- * a fixed width for aethetics and/or for alignment to other 
- * fixed width items. 
- *
- * Example:
- *                      
- *                                        component-links
- *  +---------------------------------------------------+
- *  |                                                   | 
- *  |                                                   | 
- *  |     table.component or form.component or ...      |
- *  |                                                   | 
- *  |                                                   | 
- *  +---------------------------------------------------+
- *  component-submit
- *
- *  NOTE: techinally component-submit doesn't need to know the 
- *  width because it's left aligned, but if it changed 
- *  alignment (e.g. center) then it would
- */
+.settingDescription
+{
+	font-style:80%;
+	color:#555;
+}
 
-ul.component-links {
-  width: 40em;
-  list-style-type : none;
-  text-align: right;
+li
+{
+	margin-top:5px;
+	margin-bottom:5px;
 }
 
-ul.component-links li {
-  display: inline;
-  padding-left: 1em; 
+ul.component-links
+{
+	width:40em;
+	list-style-type:none;
+	text-align:right;
 }
 
+ul.component-links li
+{
+	display:inline;
+	padding-left:1em;
+}
 
-ul.component-submit {
-  list-style-type: none;
-  margin: 5px;
-  padding: 0px
+ul.component-submit
+{
+	list-style-type:none;
+	margin:5px;
+	padding:0;
 }
 
-ul.component-submit li {
-  white-space: nowrap;        
-  display: inline;
-  margin: 0 5px;
+ul.component-submit li
+{
+	white-space:nowrap;
+	display:inline;
+	margin:0 5px;
 }
 
-table.component {
-    width: 40em;
-    background: #fff;
-    border-collapse: collapse;
-    border: 1px;
-    border-style : solid;
-    border-color : #ccc;  
+table.component
+{
+	width:40em;
+	border-collapse:collapse;
+	border:1px;
+	border-color:#ccc;
+	border-style:solid;
+	background:#fff;
 }
 
-table.component thead {
-    background-color: #699;
+table.component thead
+{
+	color:#fff;
+	background:#3d3d3d;
 }
 
-tr.component-hdr {
-    background-color: #699;
+tr.component-hdr
+{
+	color:#fff;
+	background:#3d3d3d;
 }
 
-table.component th {
-    border: 1px;
-    border-style : solid;
-    border-color : #ccc;  
-    padding: 3px;
-    white-space: nowrap;        
+table.component th
+{
+	border:1px;
+	white-space:nowrap;
+	border-color:#FFFFCC;
+	border-style:solid;
+	padding:3px;
 }
 
-table.component thead th {
-    border: 1px;
-    border-style : solid;
-    border-color : #ccc;  
-    padding: 3px;
-    white-space: nowrap;        
-    color: #ffc;
+table.component thead th
+{
+	border:1px;
+	white-space:nowrap;
+	color:#FFFFCC;
+	border-color:#FFFFCC;
+	border-style:solid;
+	padding:3px;
 }
-    
-table.component th a {
-    color: #ffc;
+
+table.component th a
+{
+	color:#fff;
 }
 
-table.component td {
-    white-space: nowrap;    
-    border-collapse: collapse;
-    padding-bottom: 3px;
-    padding-top: 3px;
+table.component td
+{
+	white-space:nowrap;
+	border-collapse:collapse;
+	padding-bottom:3px;
+	padding-top:3px;
 }
 
-table.component tfoot td {
-    text-align: center;
-    border: 1px;
-    border-style : solid;
-    border-color : #ccc #ffc #ffc #ffc;  
-    padding: 3px;
-    white-space: nowrap;        
-    background-color: #ffc;
+table.component tfoot td
+{
+	text-align:center;
+	border:1px;
+	white-space:nowrap;
+	border-color:#FFFFCC;
+	border-style:solid;
+	padding:3px;
+	background:#FFFFCC;
 }
 
-ul.component-selection {
-  list-style-type: none;
-  margin: 0px 2px 2px 2px;
-  padding: 0px
+ul.component-selection
+{
+	list-style-type:none;
+	margin:0 2px 2px;
+	padding:0;
 }
 
-ul.component-selection li {
-  display: inline;
-  margin: 0 5px;
+ul.component-selection li
+{
+	display:inline;
+	margin:0 5px;
 }
 
-ul.component-selection li a {
-  text-decoration: none;
-  font-size: .8em;
+ul.component-selection li a
+{
+	text-decoration:none;
+	font-size:.8em;
 }
 
-tr.even {
-    background: #eee;
+tr.even
+{
+	background:#eee;
 }
 
-tr.odd {
-    background: #fff;
+tr.odd
+{
+	background:#fff;
 }
 
-.component-action {
-    font-style: italic;
+.component-action
+{
+	font-style:italic;
 }
 
-ul.component-pager {
-  list-style-type:none
+ul.component-pager
+{
+	list-style-type:none;
 }
 
-ul.component-pager li {
-  display: inline;
-  margin: 0 5px;
+ul.component-pager li
+{
+	display:inline;
+	margin:0 5px;
 }
 
-div.help {
-  float: right;
-  width: 15em;
-  margin-left: 20px;
-  border-collapse: collapse;
-  border: 1px;
-  border-style : solid;
-  border-color : #ccc;  
-  padding: 5px;
-  background: #fff;
+div.help
+{
+	float:right;
+	width:15em;
+	margin-left:20px;
+	border-collapse:collapse;
+	border:1px;
+	border-color:#ccc;
+	border-style:solid;
+	padding:5px;
+	background:#fff;
 }
 
-fieldset {
-  border-style: none;
-  margin-top: 1em; 
+fieldset
+{
+	margin-top:1em;
+	border-style:none;
 }
 
-legend {
-  font-size: 120%;
+label
+{
+	font-size:120%;
+	padding-right:1em;
 }
 
-label {
-  font-size: 120%;
-  padding-right: 1em;
+form.with-sections fieldset
+{
+	border-top-width:2em;
+	border-color:#FFFFCC;
+	border-style:solid !important;
+	background:#FFFFCC;
 }
 
-/* enlarged border allows to have uniform background for fieldset and legend 
-   however it does not work well if fieldsets do not have a legend */
-form.with-sections fieldset {
-  border-style: solid !important;
-  border-top-width: 2em;
-  border-color: #F0E68C;
-  background: #F0E68C;
+fieldset td
+{
+	padding:3px;
 }
 
-fieldset td {
-  padding: 3px;
+form.with-sections legend
+{
+	background:#F0E68C;
 }
 
-form.with-sections legend {
-  background: #F0E68C;
+.page-label
+{
+	font-weight:bold;
+	margin:2px;
+	padding:2px;
 }
 
-.page-label {
-  font-weight: bold;
-  margin: 2px;
-  padding: 2px;
+ul.form-actions
+{
+	list-style-type:none;
+	text-align:left;
 }
 
-ul.form-actions {
-  list-style-type : none;
-  text-align: left;  
+ul.form-actions li
+{
+	display:inline;
 }
 
-ul.form-actions li {
-  display: inline;
+.banner-logo
+{
+	display:none;
 }
 
-.hide {
-  display: none
+.hide
+{
+	display:none;
 }
 
-/* The name of this class is used in: 
- * - org.sipfoundry.sipxconfig.components.SipxValidationDelegate
- * - ErrorMsg component
- */
-.user-error {
-  font-weight: bold;
-  color: #f00;
+.user-error
+{
+	font-weight:bold;
+	color:#3D3D3D;
 }
 
-/* comments sections prototype specific */
-#comments {
-	border-top: solid;
-	color: #08f
+#comments
+{
+	border-top:solid;
+	color:#3D3D3D;
 }
 
-#col1 {
-  float: left;
-  width: 25em;
+#col1
+{
+	float:left;
+	width:25em;
 }
 
-#col2 {
-  float: left;
-  width: 25em;
+#col2
+{
+	float:left;
+	width:25em;
 }
 
+text-align: left; }
+ul.form-actions li
+{
+	display:inline;
+}

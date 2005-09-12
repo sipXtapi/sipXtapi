@@ -2,20 +2,17 @@
 	<body jwcid="@Body">
         <div jwcid="renderNavigation">
 	        <div id="banner">
-				<h1><span key="title">sipXconfig</span></h1>
-                <ul>
-                    <li>
+                <div id="banner-links">
                         <a href="#" jwcid="@PageLink" id="link.home" page="Home">
                             <span key="link.home">Home</span>
                         </a>
-                    </li>
-                    <li>
                         <a href="#" jwcid="logoutLink" id="link.logout">
                             <span key="link.logout">Logout</span>
                         </a>
-                    </li>
-                </ul>    
+                </div>
+				<span class="hide" key="title">sipXconfig</span>
 			</div>
+
             <div jwcid="@contrib:Choose" id="navigation" element="div">
                 <span jwcid="@contrib:When" condition="ognl:page.visit.admin">
 			    	<span jwcid="@AdminNavigation">Navigation bar goes here.</span>

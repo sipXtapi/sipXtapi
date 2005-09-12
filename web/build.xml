@@ -83,10 +83,8 @@
 
   <!-- D E F A U L T -->
   <target name="default" depends="war" />
-  <!-- W A R -->
-	
-  	
-	
+
+  <!-- W A R -->	
   <!-- FIXME: Remove dependency on compile.test -->	
   <target name="war" depends="compile,compile.test" 
     description="assemble sipxconfig for tapestry war">
@@ -95,9 +93,10 @@
   	</condition>
     <war warfile="${sipxconfig.war}" webxml="context/WEB-INF/web.xml" 
       basedir="${dist.dir}/war-root">
-      <!-- include css -->
+      <!-- include assets:css/images -->
       <fileset dir="context">
         <include name="css/**/*" />
+        <include name="images/**/*" />
       </fileset>
       <webinf dir="context/WEB-INF">
         <!-- avoid warning about already there -->
