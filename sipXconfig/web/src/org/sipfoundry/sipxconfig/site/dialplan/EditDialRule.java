@@ -11,6 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.List;
+
+import org.apache.commons.lang.enums.Enum;
+import org.apache.commons.lang.enums.EnumUtils;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
@@ -58,6 +62,10 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     
     public abstract ICallback getCallback();
     public abstract void setCallback(ICallback callback);
+    
+    public Permission[] getCallHandlingPermissions() {
+        return Permission.CALL_HANDLING.getChildren();
+    }
 
     public DialingRuleType getRuleType() {
         return m_ruleType;

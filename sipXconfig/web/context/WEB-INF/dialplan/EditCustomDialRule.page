@@ -36,8 +36,7 @@
     <bean name="permissionsModel" 
         class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
         lifecycle="page">
-        <set-property name="enumClass" 
-        	expression="@org.sipfoundry.sipxconfig.common.Permission@class"/>
+        <set-property name="options" expression="callHandlingPermissions"/>
     </bean>
     
     <!--
