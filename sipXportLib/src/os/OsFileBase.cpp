@@ -1,11 +1,15 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+//////////////////////////////////////////////////////////////////////////////
 
 //Uncomment next line to add syslog messages to debug OsFileBase
 //#define DEBUG_FS
@@ -25,6 +29,7 @@
 const unsigned long CopyBufLen = 32768;
 const unsigned long OsFileLockTimeout = 1000;
 const int INVALID_PID = 0;
+#define READ_BUFFER_SIZE 1024
 
 //needed this so vxworks macros will find OK for the stdio funcs
 #ifdef _VXWORKS
@@ -109,6 +114,23 @@ OsFileBase::~OsFileBase()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+int OsFileBase::openAndRead(const char* filename, UtlString& fileContentsRead)
+{
+    fileContentsRead.remove(0);
+    OsFile fileToRead(filename);
+
+    char buffer[READ_BUFFER_SIZE];
+    unsigned long bytesRead = 0;
+    while(fileToRead.read(buffer, READ_BUFFER_SIZE, bytesRead) == OS_SUCCESS &&
+        bytesRead > 0)
+    {
+        fileContentsRead.append(buffer, bytesRead);
+    }
+
+    return(fileContentsRead.length());
+}
+
 OsStatus OsFileBase::setReadOnly(UtlBoolean isReadOnly)
 {
 #ifdef DEBUG_FS
