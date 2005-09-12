@@ -63,11 +63,17 @@ public class TapestryContext {
             } catch (ApplicationRuntimeException are) {
                 Throwable cause = are.getCause();
                 if (cause instanceof UserException) {
-                    m_validator.record(new ValidatorException(cause.getMessage()));                    
+                    recordUserException((UserException) cause);                    
                 } else {
                     throw are;
                 }
+            } catch (UserException ue) {
+                recordUserException(ue);                                    
             }
+        }
+        
+        private void recordUserException(UserException e) {
+            m_validator.record(new ValidatorException(e.getMessage()));
         }
     }
 }

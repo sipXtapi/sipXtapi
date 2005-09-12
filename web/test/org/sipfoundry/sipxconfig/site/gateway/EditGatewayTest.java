@@ -51,9 +51,8 @@ public class EditGatewayTest extends TestCase {
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
         m_editGatewayPage.setNextPage(ListGateways.PAGE);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();        
         cycleControl.replay();
-        m_editGatewayPage.saveValid(cycle);
+        m_editGatewayPage.saveGateway();
 
         cycleControl.verify();
         contextControl.verify();
@@ -92,9 +91,8 @@ public class EditGatewayTest extends TestCase {
         m_editGatewayPage.pageBeginRender(null);
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
         cycleControl.replay();
-        m_editGatewayPage.saveValid(cycle);
+        m_editGatewayPage.saveGateway();
 
         cycleControl.verify();
         dialPlanContextControl.verify();

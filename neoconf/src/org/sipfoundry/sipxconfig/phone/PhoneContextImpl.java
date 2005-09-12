@@ -113,10 +113,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String serialNumber = phone.getSerialNumber();
-        DaoUtils.checkDuplicates(hibernate, phone, "phoneIdsWithSerialNumber", serialNumber,
+        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, "phoneIdsWithSerialNumber", serialNumber,
                 new DuplicateSerialNumberException(serialNumber));
         String name = phone.getName();
-        DaoUtils.checkDuplicates(hibernate, phone, "phoneIdsWithName", name,
+        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, "phoneIdsWithName", name,
                 new DuplicateNameException(name));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);

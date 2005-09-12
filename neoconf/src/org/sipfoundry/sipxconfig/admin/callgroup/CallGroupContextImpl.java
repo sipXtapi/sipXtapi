@@ -45,10 +45,10 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     public void storeCallGroup(CallGroup callGroup) {
         // Check for duplicate names or extensions before saving the call group
         String name = callGroup.getName();
-        DaoUtils.checkDuplicates(getHibernateTemplate(), callGroup,
+        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
                 QUERY_CALL_GROUP_IDS_WITH_NAME, name, new NameInUseException(name));
         String extension = callGroup.getExtension();
-        DaoUtils.checkDuplicates(getHibernateTemplate(), callGroup,
+        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
                 QUERY_CALL_GROUP_IDS_WITH_EXTENSION,
                 extension,
                 new ExtensionInUseException(extension));
