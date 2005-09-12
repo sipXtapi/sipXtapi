@@ -19,13 +19,26 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext,
         BeanFactoryAware {
+
+    private static final String NAME_PROP_NAME = "name";
+    
+    private class DuplicateNameException extends UserException {
+        private static final String ERROR = "A gateway with name \"{0}\" already exists.";
+
+        public DuplicateNameException(String name) {
+            super(ERROR, name);
+        }
+    }
 
     private DialPlanContext m_dialPlanContext;
 
@@ -35,7 +48,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public GatewayContextImpl() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public List getGateways() {
@@ -49,7 +61,14 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     }
 
     public void storeGateway(Gateway gateway) {
-        getHibernateTemplate().saveOrUpdate(gateway);
+        // Before storing the gateway, make sure that it has a unique name.
+        // Throw an exception if it doesn't.
+        HibernateTemplate hibernate = getHibernateTemplate();
+        DaoUtils.checkDuplicates(hibernate, gateway, NAME_PROP_NAME,
+                new DuplicateNameException(gateway.getName()));
+        
+        // Store the updated gateway
+        hibernate.saveOrUpdate(gateway);
     }
 
     public boolean deleteGateway(Integer id) {
@@ -134,4 +153,5 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     public List getAvailableGatewayModels() {
         return m_availableGatewayModels;
     }
+
 }

@@ -43,7 +43,8 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
             namedCopy.setName(((NamedObject) bean).getName());
             do {
                 namedCopy.setName("CopyOf" + namedCopy.getName());
-            } while (DaoUtils.checkDuplicates(template, copy, queryName, namedCopy.getName()));
+            } while (DaoUtils.checkDuplicatesByNamedQuery(
+                    template, copy, queryName, namedCopy.getName(), null));
         }
                 
         return copy;

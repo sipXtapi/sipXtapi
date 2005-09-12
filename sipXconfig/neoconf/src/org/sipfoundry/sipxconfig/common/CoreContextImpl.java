@@ -154,16 +154,16 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         if (result == null) {
             // Check the username.  If it is the username or alias for a different existing
             // user, then return it as a bad name.
-            if (DaoUtils.checkDuplicates(hibernate, user,
-                    QUERY_USER_IDS_BY_NAME_OR_ALIAS, user.getUserName())) {
+            if (DaoUtils.checkDuplicatesByNamedQuery(hibernate, user,
+                    QUERY_USER_IDS_BY_NAME_OR_ALIAS, user.getUserName(), null)) {
                 result = user.getUserName();
             } else {
                 // Check the aliases and return any duplicate as a bad name.
                 // 
                 for (Iterator iter = user.getAliases().iterator(); iter.hasNext();) {
                     String alias = (String) iter.next();
-                    if (DaoUtils.checkDuplicates(hibernate, user,
-                            QUERY_USER_IDS_BY_NAME_OR_ALIAS, alias)) {
+                    if (DaoUtils.checkDuplicatesByNamedQuery(hibernate, user,
+                            QUERY_USER_IDS_BY_NAME_OR_ALIAS, alias, null)) {
                         result = alias;
                         break;
                     }

@@ -83,7 +83,7 @@ public class DialPlanManager extends SipxHibernateDaoSupport
     public void storeRule(DialingRule rule) {
         // Check for duplicate names before saving the rule
         String name = rule.getName();
-        DaoUtils.checkDuplicates(getHibernateTemplate(), rule,
+        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), rule,
                 QUERY_DIALING_RULE_IDS_WITH_NAME, name, new NameInUseException(name));
 
         // Save the rule.  If it's a new rule then attach it to the dial plan first

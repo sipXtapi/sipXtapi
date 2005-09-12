@@ -104,7 +104,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public void addMenuItem(IRequestCycle cycle_) {
         if (getAddMenuItemAction() == null) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
-            validator.record("You must selection an action for your new attentant menu item",
+            validator.record("You must select an action for your new attendant menu item",
                     ValidationConstraint.REQUIRED);
         } else {
             AttendantMenuItem menuItem = new AttendantMenuItem(getAddMenuItemAction());

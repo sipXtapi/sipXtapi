@@ -12,6 +12,9 @@
 package org.sipfoundry.sipxconfig.site.gateway;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.AbstractComponent;
+import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -19,6 +22,8 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -65,8 +70,14 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
     }
 
     public void save(IRequestCycle cycle) {
+        // If there are no errors, then save the gateway.
         if (isValid()) {
-            saveValid(cycle);
+            saveGatewayWrapper(cycle);
+        }
+        
+        // If there are still no errors (saveGateway may have found a problem)
+        // then navigate to the next page.
+        if (isValid()) {        
             cycle.activate(getNextPage());
         }
     }
@@ -77,7 +88,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
 
     public void apply(IRequestCycle cycle) {
         if (isValid()) {
-            saveValid(cycle);
+            saveGatewayWrapper(cycle);
         }
     }
 
@@ -108,7 +119,23 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         }
     }
 
-    void saveValid(IRequestCycle cycle_) {
+    // TODO: use FormActions, which would automatically handle treating user exceptions
+    // as validation errors, so we could drop the validation wrapper below.
+    private void saveGatewayWrapper(IRequestCycle cycle) {
+        IValidationDelegate validator = TapestryUtils.getValidator((AbstractComponent) getPage());
+        TapestryContext context = new TapestryContext();
+        IActionListener saveListener = new SaveListener();
+        IActionListener adapter = context.treatUserExceptionAsValidationError(validator, saveListener);
+        adapter.actionTriggered(this, cycle);
+    }
+    
+    private class SaveListener implements IActionListener {
+        public void actionTriggered(IComponent component_, IRequestCycle cycle_) {
+            saveGateway();
+        }
+    }
+    
+    void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
         if (gateway.isNew()) {
@@ -128,6 +155,6 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
             DialingRule rule = manager.getRule(ruleId);
             rule.addGateway(gateway);
             manager.storeRule(rule);
-        }
+        }        
     }
 }
