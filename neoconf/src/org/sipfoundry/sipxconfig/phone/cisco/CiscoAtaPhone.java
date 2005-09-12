@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
@@ -48,6 +49,8 @@ public class CiscoAtaPhone extends CiscoPhone {
     private static final String NOLLAX = "0x";
     
     private static final String ALLE = "_";
+    
+    private static final String PHONE_REGISTRATION_SETTING = "sip/Proxy";
     
     private static final SettingFilter S_REALGROUPS = new SettingFilter() {
             public boolean acceptSetting(Setting root_, Setting setting) {
@@ -217,7 +220,6 @@ public class CiscoAtaPhone extends CiscoPhone {
             adapter.addMapping(LineSettings.USER_ID, "port/UID");            
             adapter.addMapping(LineSettings.PASSWORD, "port/PWD");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "port/DisplayName");
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "sip/Proxy");
             // sip/SIPPort for outbound proxy?
             impl = adapter.getImplementation();
         } else {
@@ -225,6 +227,12 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
         
         return impl;
+    }
+
+    protected void defaultSettings() {
+        super.defaultSettings();
+        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        getSettings().getSetting(PHONE_REGISTRATION_SETTING).setValue(defaults.getRegistrationServer());
     }
 
     public String getSoftwareUpgradeConfig() {
