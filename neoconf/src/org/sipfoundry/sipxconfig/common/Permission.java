@@ -11,6 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang.enums.EnumUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -87,5 +92,19 @@ public final class Permission extends Enum {
     public void setEnabled(Group g, boolean enable) {
         String path = Setting.PATH_DELIM + getSettingPath();
         g.getValues().put(path, enable ? ENABLE : DISABLE);
+    }
+    
+    public Permission[] getChildren() {
+        List list = EnumUtils.getEnumList(Permission.class);
+        Iterator i = list.iterator();
+        List children = new ArrayList();
+        while (i.hasNext()) {
+            Permission p = (Permission) i.next();
+            if (p.getParent() == this) {
+                children.add(p);
+            }
+        }
+        
+        return (Permission[]) children.toArray(new Permission[children.size()]);        
     }
 }
