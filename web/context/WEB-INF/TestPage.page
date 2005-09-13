@@ -6,7 +6,7 @@
 
 <page-specification class="org.sipfoundry.sipxconfig.site.TestPage">
     
-	<property-specification name="dialPlanManager" 
+	<property-specification name="dialPlanContext" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>
 	<property-specification name="phoneContext" 

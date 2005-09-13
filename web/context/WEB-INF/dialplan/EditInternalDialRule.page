@@ -6,7 +6,7 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="dialPlanManager" 
+	<property-specification name="dialPlanContext" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>
 
@@ -33,7 +33,7 @@
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
     <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-        <set-property name="collection" expression="dialPlanManager.autoAttendants"/>
+        <set-property name="collection" expression="dialPlanContext.autoAttendants"/>
         <set-property name="labelExpression" expression="'name'"/>            
     </bean>    
     <!--

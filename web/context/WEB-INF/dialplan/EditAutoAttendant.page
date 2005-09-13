@@ -27,6 +27,9 @@
         type="org.sipfoundry.sipxconfig.common.DialPad"/>        
     <property-specification name="addMenuItemAction"
         type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction"/>
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+     	persistent="yes"/>
     
     <!--
       - B E A N S
@@ -151,5 +154,9 @@
     </component>    
     <component id="addMenuItem" type="Submit">
 		<binding name="listener" expression="listeners.addMenuItem"/>
+    </component>    
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
     </component>    
 </page-specification>

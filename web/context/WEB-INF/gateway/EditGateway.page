@@ -17,7 +17,7 @@
 		type="java.lang.Integer"
     	persistent="yes"/>
 
-	<property-specification name="dialPlanManager" 
+	<property-specification name="dialPlanContext" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>
     

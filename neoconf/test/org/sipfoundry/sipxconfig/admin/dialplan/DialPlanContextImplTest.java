@@ -21,12 +21,12 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
- * DialPlanManagerTest
+ * DialPlanContextImplTest
  */
-public class DialPlanManagerTest extends TestCase {
+public class DialPlanContextImplTest extends TestCase {
 
     public void testActivateDialPlan() throws Exception {
-        DialPlanManager manager = new MockDialPlanManager(new DialPlan());
+        DialPlanContextImpl manager = new MockDialPlanContextImpl(new DialPlan());
 
         final ConfigGenerator g1 = manager.getGenerator();
         final ConfigGenerator g2 = manager.generateDialPlan();
@@ -43,15 +43,15 @@ public class DialPlanManagerTest extends TestCase {
         plan.moveRules(Collections.singletonList(new Integer(5)), 3);
         mock.replay();
 
-        MockDialPlanManager manager = new MockDialPlanManager(plan);
+        MockDialPlanContextImpl manager = new MockDialPlanContextImpl(plan);
         manager.moveRules(Collections.singletonList(new Integer(5)), 3);
         mock.verify();
     }
 
-    private static class MockDialPlanManager extends DialPlanManager {
+    private static class MockDialPlanContextImpl extends DialPlanContextImpl {
         private DialPlan m_plan;
 
-        MockDialPlanManager(DialPlan plan) {
+        MockDialPlanContextImpl(DialPlan plan) {
             m_plan = plan;
             MockControl mock = MockClassControl.createNiceControl(HibernateTemplate.class);
             setHibernateTemplate((HibernateTemplate) mock.getMock());

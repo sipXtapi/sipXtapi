@@ -66,7 +66,7 @@ public class SelectGatewaysTest extends TestCase {
         dialPlanContextControl.replay();
         contextControl.replay();
         
-        m_page.setDialPlanManager(dialPlanContext);
+        m_page.setDialPlanContext(dialPlanContext);
         m_page.setGatewayContext(context);
         m_page.setRuleId(rule.getId());
         m_page.selectGateways(gatewaysToAdd);

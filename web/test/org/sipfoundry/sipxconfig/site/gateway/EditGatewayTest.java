@@ -83,7 +83,7 @@ public class EditGatewayTest extends TestCase {
         dialPlanContextControl.replay();
         contextControl.replay();
 
-        m_editGatewayPage.setDialPlanManager(dialPlanContext);
+        m_editGatewayPage.setDialPlanContext(dialPlanContext);
         m_editGatewayPage.setGatewayContext(context);
         m_editGatewayPage.setGateway(g);
         m_editGatewayPage.setRuleId(rule.getId());

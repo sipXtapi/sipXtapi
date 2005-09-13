@@ -32,9 +32,9 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     public static final String PAGE = "SelectGateways";
 
     // virtual properties
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanManager(DialPlanContext manager);
+    public abstract void setDialPlanContext(DialPlanContext manager);
 
     public abstract GatewayContext getGatewayContext();
 
@@ -78,7 +78,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
      * @param gatewayIds list of gateway ids to be added to the dial plan
      */
     void selectGateways(Collection gatewayIds) {
-        DialPlanContext manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanContext();
         Integer ruleId = getRuleId();
         DialingRule rule = manager.getRule(ruleId);
         if (null == rule) {

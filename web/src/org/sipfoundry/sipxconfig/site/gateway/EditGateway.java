@@ -46,9 +46,9 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
 
     public abstract void setRuleId(Integer id);
 
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanManager(DialPlanContext dialPlanManager);
+    public abstract void setDialPlanContext(DialPlanContext dialPlanContext);
 
     public abstract GatewayContext getGatewayContext();
 
@@ -151,7 +151,7 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         // attach gateway to current rule
         Integer ruleId = getRuleId();
         if (null != ruleId) {
-            DialPlanContext manager = getDialPlanManager();
+            DialPlanContext manager = getDialPlanContext();
             DialingRule rule = manager.getRule(ruleId);
             rule.addGateway(gateway);
             manager.storeRule(rule);

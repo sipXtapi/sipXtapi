@@ -31,20 +31,22 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
- * DialPlanManager is an implementation of DialPlanContext with hibernate support.
+ * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
-public class DialPlanManager extends SipxHibernateDaoSupport 
+public class DialPlanContextImpl extends SipxHibernateDaoSupport 
         implements BeanFactoryAware, DialPlanContext, ApplicationListener {
     
+    private static final String NAME_PROP_NAME = "name";
+    private static final String EXTENSION_PROP_NAME = "extension";
     private static final String OPERATOR_CONSTANT = "operator";
     private static final String QUERY_DIALING_RULE_IDS_WITH_NAME = "dialingRuleIdsWithName";
 
     private class NameInUseException extends UserException {
-        private static final String ERROR = "The name \"{0}\" is already in use. "
-                + "Please choose another name for this dialing rule.";
+        private static final String ERROR = "The name \"{1}\" is already in use. "
+                + "Please choose another name for this {0}.";
 
-        public NameInUseException(String name) {
-            super(ERROR, name);
+        public NameInUseException(String objectType, String name) {
+            super(ERROR, objectType, name);
         }
     }
 
@@ -84,7 +86,7 @@ public class DialPlanManager extends SipxHibernateDaoSupport
         // Check for duplicate names before saving the rule
         String name = rule.getName();
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), rule,
-                QUERY_DIALING_RULE_IDS_WITH_NAME, name, new NameInUseException(name));
+                QUERY_DIALING_RULE_IDS_WITH_NAME, name, new NameInUseException("dialing rule", name));
 
         // Save the rule.  If it's a new rule then attach it to the dial plan first
         // and save it via the dial plan.
@@ -164,7 +166,26 @@ public class DialPlanManager extends SipxHibernateDaoSupport
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
+    private class ExtensionInUseException extends UserException {
+        private static final String ERROR = "Extension {0} is already in use. "
+                + "Please choose another extension for this auto attendant.";
+
+        public ExtensionInUseException(String extension) {
+            super(ERROR, extension);
+        }
+    }
+
     public void storeAutoAttendant(AutoAttendant aa) {
+        // Check for duplicate names or extensions before saving the call group
+        String name = aa.getName();
+        final String aaTypeName = "auto attendant";
+        DaoUtils.checkDuplicates(getHibernateTemplate(), aa,
+                NAME_PROP_NAME, new NameInUseException(aaTypeName, name));
+        String extension = aa.getExtension();
+        DaoUtils.checkDuplicates(getHibernateTemplate(), aa,
+                EXTENSION_PROP_NAME,
+                new ExtensionInUseException(extension));
+
         getHibernateTemplate().saveOrUpdate(aa);
     }
 

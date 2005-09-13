@@ -59,7 +59,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         setFormElement("description", "created by EditAutoAttendantTestUi.testNewAttendant");
         setFormElement("extension", "301");
         selectOption("prompt", PROMPT_TEST_FILE);
-        clickButton("attendant:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
     }
         
@@ -75,7 +75,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         File actualFile = new File(actualFilename);
         assertTrue(actualFile.exists());
         getDialog().getForm().setParameter("promptUpload", actualFile);
-        clickButton("attendant:ok");        
+        clickButton("form:ok");        
         SiteTestHelper.assertNoException(tester);
         assertTrue(expectedFile.exists());
         assertEquals(actualFile.length(), expectedFile.length());
@@ -84,7 +84,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     public void testCancel() {
         clickLink("NewAutoAttendant");
         assertFormPresent("attendant:form");
-        clickButton("attendant:cancel");
+        clickButton("form:cancel");
         assertTablePresent("list:attendant");
     }
 
@@ -120,7 +120,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         selectOption("addMenuItemAction", "Auto Attendant");
         clickButton("attendant:addMenuItem");
         selectOption("attendantParameter", "New Attendant");
-        clickButton("attendant:apply");
+        clickButton("form:apply");
 
         ExpectedTable expected = new ExpectedTable(FACTORY_DEFAULT);
         String[][] defaultMenuItems = {
@@ -133,7 +133,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         selectOption("addMenuItemAction", "Deposit Voicemail");
         clickButton("attendant:addMenuItem");
         setFormElement("extensionParameter", "3232");
-        clickButton("attendant:apply");
+        clickButton("form:apply");
         
         String[][] vmDepositRow = {
                 // 3rd column - curious why text fields do not show up text in table when
@@ -166,7 +166,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
                 "created by EditAutoAttendantTestUi.seedAutoAttendant");
         tester.setFormElement("extension", "301");
         tester.selectOption("prompt", PROMPT_TEST_FILE);
-        tester.clickButton("attendant:ok");
+        tester.clickButton("form:ok");
     }
 
     private static final File getCleanPromptsDir(String dir) {

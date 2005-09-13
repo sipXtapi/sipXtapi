@@ -62,7 +62,7 @@
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code"/>
       <value>*78*</value>
-      <description>Code that needs to be dialed to to pick up a ringing call on any phone. Set to empty to disable
+      <description>Code to dial to pick up a ringing call on any phone. Set it to empty to disable
         global call pickup.</description>
     </setting>
     <setting name="SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE">
@@ -70,8 +70,8 @@
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code"/>
       <value>*78</value>
-      <description>Code that needs to be dialed to to pick up a ringing call on an a specific phone. To pick up
-        extention 123 dial this code followed by 123.</description>
+      <description>Code to dial to pick up a ringing call on a specific phone. To pick up
+        extension 123, dial this code followed by 123.</description>
     </setting>
     <setting name="SIP_REGISTRAR_CALL_RETRIEVE_CODE">
       <label>Call park retrieve code</label>
@@ -82,8 +82,8 @@
         </string>
       </type>
       <value>*4</value>
-      <description>Code that needs to be dialed to retrieve parked call. Dial this code followed by call park
-        extension to pick up parked call.</description>
+      <description>Code to dial to retrieve a parked call. Dial this code followed by a call park
+        extension to pick up a parked call.</description>
     </setting>
     <setting name="SIP_REGISTRAR_CALL_PICKUP_WAIT" advanced="yes">
       <label>Call pickup timeout</label>
@@ -92,32 +92,32 @@
         <real min="1" max="30" required="yes"/>
       </type>
       <value>2</value>
-      <description>Number of seconds that the original call will ring after pickup code is
+      <description>Number of seconds that the original call will ring after the pickup code is
         dialed.</description>
     </setting>
 	</group>		
   <group name="presence">
 		<label>Presence Server</label>
 		<setting name="SIP_PRESENCE_SIGN_IN_CODE">
-      <label>Presence sign-in</label>
+      <label>Presence sign in</label>
       <profileName>sipxpresence-config.in</profileName>
       <type refid="feature-code"/>
       <value>*88</value>
-      <description>Code that needs to be dialed to sign-in to presence monitor.</description>
+      <description>Code to dial to sign in to the presence monitor.</description>
     </setting>
 		<setting name="SIP_PRESENCE_SIGN_OUT_CODE">
-      <label>Presence sign-out</label>
+      <label>Presence sign out</label>
       <profileName>sipxpresence-config.in</profileName>
       <type refid="feature-code"/>
       <value>*86</value>
-      <description>Code that needs to be dialed to sign-out from presence monitor.</description>
+      <description>Code to dial to sign out from the presence monitor.</description>
     </setting>
 		<setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
       <label>SIP port</label>
       <profileName>config.defs</profileName>
       <type refid="port-number"/>
       <value>5130</value>
-      <description>The IP port on which presence server listens to SIP messages.</description>
+      <description>The IP port on which the presence server listens to SIP messages.</description>
     </setting>		
   </group>
   <group name="Logging">

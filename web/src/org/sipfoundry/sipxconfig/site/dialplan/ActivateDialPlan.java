@@ -27,10 +27,10 @@ public abstract class ActivateDialPlan extends BasePage {
 
     public abstract ConfigFileType getSelected();
 
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
 
     public String getXml() {
-        ConfigGenerator generator = getDialPlanManager().getGenerator();
+        ConfigGenerator generator = getDialPlanContext().getGenerator();
         ConfigFileType type = getSelected();
         return generator.getFileContent(type);
     }
@@ -40,7 +40,7 @@ public abstract class ActivateDialPlan extends BasePage {
     }
 
     public void activate(IRequestCycle cycle) {
-        DialPlanContext manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanContext();
         manager.activateDialPlan();
         RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
         restartPage.setNextPage(EditFlexibleDialPlan.PAGE);

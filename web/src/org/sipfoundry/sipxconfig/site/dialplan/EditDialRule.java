@@ -48,7 +48,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     private DialingRuleType m_ruleType;
 
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract Integer getRuleId();
     public abstract void setRuleId(Integer ruleId);
@@ -78,7 +78,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         }
         Integer id = getRuleId();
         if (null != id) {
-            DialPlanContext manager = getDialPlanManager();
+            DialPlanContext manager = getDialPlanContext();
             rule = manager.getRule(id);
         } else {
             rule = createNewRule();
@@ -91,7 +91,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     protected DialingRule createNewRule() {
-        DialingRuleFactory ruleFactory = getDialPlanManager().getRuleFactory();
+        DialingRuleFactory ruleFactory = getDialPlanContext().getRuleFactory();
         DialingRuleType ruleType = getRuleType();
         return ruleFactory.create(ruleType);
     }
@@ -139,7 +139,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     private void saveValid() {
         DialingRule rule = getRule();
-        getDialPlanManager().storeRule(rule);
+        getDialPlanContext().storeRule(rule);
         Integer id = getRule().getId();
         setRuleId(id);
     }

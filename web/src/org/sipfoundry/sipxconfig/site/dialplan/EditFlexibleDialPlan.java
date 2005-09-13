@@ -25,7 +25,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     public static final String PAGE = "EditFlexibleDialPlan";
 
     // virtual properties
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract DialingRule getCurrentRow();
 
@@ -64,18 +64,18 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         if (null == rows) {
             return;
         }
-        DialPlanContext manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanContext();
         manager.moveRules(rows, step);
     }
 
     public void activate(IRequestCycle cycle) {
-        DialPlanContext manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanContext();
         manager.generateDialPlan();
         cycle.activate(ActivateDialPlan.PAGE);
     }
 
     public void revert(IRequestCycle cycle_) {
-        DialPlanContext manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanContext();
         manager.resetToFactoryDefault();
     }
 
@@ -85,7 +85,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     private void delete() {
         Collection selectedRows = getSelectedRows();
         if (null != selectedRows) {
-            getDialPlanManager().deleteRules(selectedRows);
+            getDialPlanContext().deleteRules(selectedRows);
         }
     }
 
@@ -95,7 +95,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     private void duplicate() {
         Collection selectedRows = getRowsToDuplicate();
         if (null != selectedRows) {
-            getDialPlanManager().duplicateRules(selectedRows);
+            getDialPlanContext().duplicateRules(selectedRows);
         }
     }
 }

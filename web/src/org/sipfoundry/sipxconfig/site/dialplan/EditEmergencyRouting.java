@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
  */
 public abstract class EditEmergencyRouting extends BasePage implements PageRenderListener {
 
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract EmergencyRouting getEmergencyRouting();
     public abstract void setEmergencyRouting(EmergencyRouting emergencyRouting);
@@ -50,7 +50,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
     public void pageBeginRender(PageEvent event_) {
         EmergencyRouting emergencyRouting = getEmergencyRouting();
         if (emergencyRouting == null) {
-            emergencyRouting = getDialPlanManager().getEmergencyRouting();
+            emergencyRouting = getDialPlanContext().getEmergencyRouting();
             setEmergencyRouting(emergencyRouting);
         }
         Collection exceptions = emergencyRouting.getExceptions();
@@ -78,7 +78,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
         if (!isValid()) {
             return;
         }
-        DialPlanContext manager = getDialPlanManager();
+        DialPlanContext manager = getDialPlanContext();
         manager.applyEmergencyRouting();
         manager.generateDialPlan();
     }
