@@ -32,6 +32,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * Hibernate implementation of the call group context
  */
 public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
+    private static final String NAME_PROP_NAME = "name";
+    private static final String EXTENSION_PROP_NAME = "extension";
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
     private static final String QUERY_CALL_GROUP_IDS_WITH_EXTENSION = "callGroupIdsWithExtension";
     private CoreContext m_coreContext;
@@ -45,13 +47,14 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     public void storeCallGroup(CallGroup callGroup) {
         // Check for duplicate names or extensions before saving the call group
         String name = callGroup.getName();
+        final String huntGroupTypeName = "hunt group";
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
-                QUERY_CALL_GROUP_IDS_WITH_NAME, name, new NameInUseException(name));
+                QUERY_CALL_GROUP_IDS_WITH_NAME, name, new NameInUseException(huntGroupTypeName, name));
         String extension = callGroup.getExtension();
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
                 QUERY_CALL_GROUP_IDS_WITH_EXTENSION,
                 extension,
-                new ExtensionInUseException(extension));
+                new HuntGroupExtensionInUseException(extension));
 
         getHibernateTemplate().saveOrUpdate(callGroup);
     }
@@ -118,6 +121,15 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     }    
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
+        // Check for duplicate names and extensions before saving the park orbit
+        String name = parkOrbit.getName();
+        final String parkOrbitTypeName = "call park extension";
+        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit,
+                NAME_PROP_NAME, new NameInUseException(parkOrbitTypeName, name));
+        String extension = parkOrbit.getExtension();
+        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit,
+                EXTENSION_PROP_NAME, new ParkOrbitExtensionInUseException(extension));
+
         getHibernateTemplate().saveOrUpdate(parkOrbit);
     }
 
@@ -204,21 +216,30 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
-    private class ExtensionInUseException extends UserException {
+    private class NameInUseException extends UserException {
+        private static final String ERROR = "There is already a {0} with the name \"{1}\". "
+                + "Please choose another name for this {0}.";
+
+        public NameInUseException(String objectType, String name) {
+            super(ERROR, objectType, name);
+        }
+    }
+
+    private class HuntGroupExtensionInUseException extends UserException {
         private static final String ERROR = "Extension {0} is already in use. "
                 + "Please choose another extension for this hunt group.";
 
-        public ExtensionInUseException(String extension) {
+        public HuntGroupExtensionInUseException(String extension) {
             super(ERROR, extension);
         }
     }
 
-    private class NameInUseException extends UserException {
-        private static final String ERROR = "The name \"{0}\" is already in use. "
-                + "Please choose another name for this hunt group.";
+    private class ParkOrbitExtensionInUseException extends UserException {
+        private static final String ERROR = "Extension {0} is already in use. "
+                + "Please choose another call park extension.";
 
-        public NameInUseException(String name) {
-            super(ERROR, name);
+        public ParkOrbitExtensionInUseException(String extension) {
+            super(ERROR, extension);
         }
     }
 
