@@ -41,7 +41,7 @@
 	  -->
 	<component id="userTable" type="contrib:TableView">
 		<binding name="source" expression="users"/>
-		<static-binding name="columns" value="* firstName:firstName,lastName:lastName,userName:userName,aliases:aliasesString"/>
+		<static-binding name="columns" value="* userName:userName,lastName:lastName,firstName:firstName,aliases:aliasesString"/>
         <static-binding name="initialSortColumn" value="lastName"/>
         <static-binding name="pageSize" value="20"/>
 	</component>
