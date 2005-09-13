@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -28,14 +30,13 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
     public abstract CallGroupContext getCallGroupContext();
 
     public abstract Integer getParkOrbitId();
-
     public abstract void setParkOrbitId(Integer id);
 
     public abstract ParkOrbit getParkOrbit();
-
     public abstract void setParkOrbit(ParkOrbit parkOrbit);
-
-    public abstract boolean getCommitChanges();
+    
+    public abstract ICallback getCallback();
+    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         ParkOrbit orbit = getParkOrbit();
@@ -50,28 +51,20 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
             orbit = new ParkOrbit();
         }
         setParkOrbit(orbit);
+        
+        // If no callback was set before navigating to this page, then by
+        // default, go back to the ListParkOrbits page
+        if (getCallback() == null) {
+            setCallback(new PageCallback(ListParkOrbits.PAGE));
+        }
     }
 
-    /**
-     * Called when any of the submit components on the form is activated.
-     * 
-     * Usually submit components set properties.  formSubmit will first check if the form
-     * is valid, then it will call all the "action" listeners.  Only one of the listeners (the one
-     * that recognizes the property that is set) will actually do something.  This is a
-     * consequence of the fact that Tapestry listeners are pretty much useless because they
-     * are called while the form is still rewinding and not all changes are committed to beans.
-     * 
-     * @param cycle current request cycle
-     */
-    public void formSubmit(IRequestCycle cycle) {
+    public void commit(IRequestCycle cycle_) {
         if (!isValid()) {
             return;
         }
 
-        if (getCommitChanges()) {
-            saveValid();
-            cycle.activate(ListParkOrbits.PAGE);
-        }
+        saveValid();
     }
 
     private boolean isValid() {
