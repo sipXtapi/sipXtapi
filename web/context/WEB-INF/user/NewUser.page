@@ -27,9 +27,8 @@
       -->
 
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <bean name="pinValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    <bean name="pinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
     	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
 	</bean>    
         
     <!--
