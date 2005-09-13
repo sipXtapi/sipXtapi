@@ -24,24 +24,25 @@
   <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
   <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql"/>
   <property name="log.dir" value="${basedir}"/>
+  <property name="tmp.dir" value="${basedir}"/>
   
   <target name="patches">
       <!-- ANT BUG: sql task has issues when output=absolute file path -->
-      <sipx-sql print="yes" output="patches.properties" showheaders="no">
+      <sipx-sql print="yes" output="${tmp.dir}/patches.properties" showheaders="no">
         select name || '=true' from patch;
         select 'version' || version || '=true' from version_history;
       </sipx-sql>    
-      <loadproperties srcfile="patches.properties"/>
-  	  <delete file="patches.properties"/>  	  
+      <loadproperties srcfile="${tmp.dir}/patches.properties"/>
+  	  <delete file="${tmp.dir}/patches.properties"/>  	  
   </target>
 	
   <!-- sets flag if any initialization needs to be done -->
   <target name="tasks">
-    <sipx-sql print="yes" output="tasks.properties" showheaders="no">
+    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties" showheaders="no">
       select 'initialize=true' from initialization_task having count(*) > 0;
     </sipx-sql>    
-    <loadproperties srcfile="tasks.properties"/>
-    <delete file="tasks.properties"/>
+    <loadproperties srcfile="${tmp.dir}/tasks.properties"/>
+    <delete file="${tmp.dir}/tasks.properties"/>
   </target>
 	
   <target name="drop" description="drops database!">
