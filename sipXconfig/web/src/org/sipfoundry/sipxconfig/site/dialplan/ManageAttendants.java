@@ -28,7 +28,7 @@ public abstract class ManageAttendants extends BasePage {
     
     public static final String PAGE = "ManageAttendants"; 
     
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
     
     public abstract VxmlGenerator getVxmlGenerator();
 
@@ -39,7 +39,7 @@ public abstract class ManageAttendants extends BasePage {
     public void deleteSelected(IRequestCycle cycle_) {        
         Collection selectedRows = getSelections().getAllSelected();
         if (selectedRows != null) {
-            DialPlanContext manager = getDialPlanManager();
+            DialPlanContext manager = getDialPlanContext();
             try {
                 manager.deleteAutoAttendantsByIds(selectedRows, getVxmlGenerator().getScriptsDirectory());
             } catch (AttendantInUseException e) {
@@ -53,7 +53,7 @@ public abstract class ManageAttendants extends BasePage {
         EditAutoAttendant page = (EditAutoAttendant) cycle.getPage(EditAutoAttendant.PAGE);
         
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
-        AutoAttendant attendant = getDialPlanManager().getAutoAttendant(id);
+        AutoAttendant attendant = getDialPlanContext().getAutoAttendant(id);
         page.setAttendant(attendant);
         cycle.activate(page);
     }

@@ -54,7 +54,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
                 QUERY_CALL_GROUP_IDS_WITH_EXTENSION,
                 extension,
-                new HuntGroupExtensionInUseException(extension));
+                new CallGroupExtensionInUseException(extension));
 
         getHibernateTemplate().saveOrUpdate(callGroup);
     }
@@ -225,18 +225,18 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
-    private class HuntGroupExtensionInUseException extends UserException {
-        private static final String ERROR = "Extension {0} is already in use. "
-                + "Please choose another extension for this hunt group.";
+    private class CallGroupExtensionInUseException extends UserException {
+        private static final String ERROR =
+            "Extension {0} is already in use. Please choose another extension for this hunt group.";
 
-        public HuntGroupExtensionInUseException(String extension) {
+        public CallGroupExtensionInUseException(String extension) {
             super(ERROR, extension);
         }
     }
 
     private class ParkOrbitExtensionInUseException extends UserException {
-        private static final String ERROR = "Extension {0} is already in use. "
-                + "Please choose another call park extension.";
+        private static final String ERROR =
+            "Extension {0} is already in use. Please choose another call park extension.";
 
         public ParkOrbitExtensionInUseException(String extension) {
             super(ERROR, extension);

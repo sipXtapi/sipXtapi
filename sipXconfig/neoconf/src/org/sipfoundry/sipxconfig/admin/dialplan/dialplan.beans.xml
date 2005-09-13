@@ -153,7 +153,7 @@
   <!--
   - D I A L P L A N  C O N T E X T
   -->
-  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager">
+  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
     <property name="coreContext">
       <ref bean="coreContext"></ref>
     </property>

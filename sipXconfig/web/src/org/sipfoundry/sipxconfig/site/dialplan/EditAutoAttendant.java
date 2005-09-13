@@ -16,6 +16,8 @@ import java.util.Map;
 
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -36,7 +38,6 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public static final String PAGE = "EditAutoAttendant";
 
     public abstract AutoAttendant getAttendant();
-
     public abstract void setAttendant(AutoAttendant attendant);
 
     public abstract VxmlGenerator getVxmlGenerator();
@@ -46,12 +47,13 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract DialPad getAddMenuItemDialPad();
-
     public abstract void setAddMenuItemDialPad(DialPad dialPad);
 
     public abstract AttendantMenuAction getAddMenuItemAction();
-
     public abstract void setAddMenuItemAction(AttendantMenuAction action);
+    
+    public abstract ICallback getCallback();
+    public abstract void setCallback(ICallback callback);
 
     public void removeMenuItems(IRequestCycle cycle_) {
         Iterator selected = getSelections().getAllSelected().iterator();
@@ -66,18 +68,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         getAttendant().resetToFactoryDefault();
     }
 
-    public void apply(IRequestCycle cycle_) {
-        save();
-    }
-
-    public void ok(IRequestCycle cycle) {
-        if (save()) {
-            returnManageAttendants(cycle);
-        }
-    }
-
-    private boolean save() {
-        boolean saved = false;        
+    public void commit(IRequestCycle cycle_) {
         IValidationDelegate validator = TapestryUtils.getValidator(this);        
         AbstractComponent component = (AbstractComponent) getComponent("common");
         StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
@@ -86,19 +77,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         if (!validator.getHasErrors()) {
             getDialPlanContext().storeAutoAttendant(getAttendant());
             getVxmlGenerator().generate(getAttendant());
-            saved = true;
         }
-
-        return saved;
-    }
-
-    public void cancel(IRequestCycle cycle) {
-        returnManageAttendants(cycle);
-    }
-
-    private void returnManageAttendants(IRequestCycle cycle) {
-        cycle.activate(ManageAttendants.PAGE);
-        setAttendant(null);
     }
 
     public void addMenuItem(IRequestCycle cycle_) {
@@ -132,6 +111,18 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
         }
     }
 
+    /** Wrapper for callback so we can clear the attendant property */
+    private class CallbackWrapper implements ICallback {
+        private ICallback m_callback;
+        public CallbackWrapper(ICallback callback) {
+            m_callback = callback;
+        }
+        public void performCallback(IRequestCycle cycle) {
+            setAttendant(null);
+            m_callback.performCallback(cycle);
+        }        
+    }
+    
     public void pageBeginRender(PageEvent event_) {
         AutoAttendant aa = getAttendant();
         if (aa == null) {
@@ -139,6 +130,18 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
             initializeAttendant();
         }
         selectNextAvailableDialpadKey();
+        
+        // If no callback was set before navigating to this page, then by
+        // default, go back to the ManageAttendants page
+        if (getCallback() == null) {
+            setCallback(new PageCallback(ManageAttendants.PAGE));
+        }
+        
+        // Wrap the callback so we can clear the attendant property when
+        // navigating away from this page
+        if (!(getCallback() instanceof CallbackWrapper)) {  // wrap it only once
+            setCallback(new CallbackWrapper(getCallback()));
+        }
     }
 
     private void initializeAttendant() {

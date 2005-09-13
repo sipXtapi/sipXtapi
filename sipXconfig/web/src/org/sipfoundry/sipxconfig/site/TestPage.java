@@ -50,7 +50,7 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_PIN = "1234";
     
     
-    public abstract DialPlanContext getDialPlanManager();
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayContext getGatewayContext();
 
@@ -65,7 +65,7 @@ public abstract class TestPage extends BasePage {
     public abstract JobContext getJobContext();
     
     public void resetDialPlans(IRequestCycle cycle_) {
-        getDialPlanManager().clear();
+        getDialPlanContext().clear();
         getGatewayContext().clear();
     }
 

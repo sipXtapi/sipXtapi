@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.springframework.context.ApplicationContext;
 
 /**
- * DialPlanManagerTest
+ * DialPlanContextImplTest
  */
 public class DialPlanContextTestDb extends TestCase {
     private DialPlanContext m_context;

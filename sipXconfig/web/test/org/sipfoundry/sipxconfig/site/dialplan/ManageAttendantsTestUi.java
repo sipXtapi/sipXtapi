@@ -51,7 +51,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
         clickLinkWithText("ManageAttendantsTestUi 1");
         assertFormPresent("attendant:form");
         setFormElement("name", "Name edited");
-        clickButton("attendant:ok");
+        clickButton("form:ok");
         String [][] expectedData = {
                 //            Name             Ext     Description
                 { "ManageAttendantsTestUi 0", "300", SEED_DESCRIPTION },
@@ -82,7 +82,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
             setFormElement("description", SEED_DESCRIPTION);
             setFormElement("extension", Integer.toString(300 + i));
             selectOption("prompt", promptTestFile);
-            clickButton("attendant:ok");
+            clickButton("form:ok");
             SiteTestHelper.assertNoException(tester);
         }
     }

@@ -8,7 +8,7 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="dialPlanManager" 
+	<property-specification name="dialPlanContext" 
 		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>
     <property-specification name="vxmlGenerator"
@@ -34,7 +34,7 @@
       - C O M P O N E N T S
       -->
     <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="dialPlanManager.autoAttendants"/>
+        <binding name="source" expression="dialPlanContext.autoAttendants"/>
         <static-binding name="pageSize" value="-1"/>              
         <static-binding name="columns" value="* Name:name,Extension:extension,Description:description"/>
     </component>

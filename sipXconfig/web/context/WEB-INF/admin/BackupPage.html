@@ -8,12 +8,12 @@
 	<body jwcid="$content$">
 		<div jwcid="@Border">
 			<h2>Backup</h2>
-			<p jwcid="ifInitialDescription">To backup system configuration 
+			<p jwcid="ifInitialDescription">To backup the system configuration 
 				select backup options and press <em>Backup Now</em> button. You 
-				can perform partial backup by leaving some options 
+				can perform a partial backup by leaving some options 
 				unselected.<br/> Backup files are available for download once 
 				backup is completed.<br/></p>
-			<p jwcid="ifResultsPresent"> Backup completed sucessfully. Please 
+			<p jwcid="ifResultsPresent"> Backup completed successfully. Please 
 				download archived data by clicking on the links below.                 
 
                 <div class="help"> <p>Click on each link to download all the 
@@ -72,7 +72,7 @@
 							<tr>
 								<td>Number of backups to keep: 
                                     <select jwcid="limitCount"/> <br/> 
-                                <span class="settingDescription">After limit is 
+                                <span class="settingDescription">After the limit is 
 									reached, the oldest backup will be deleted 
 									as each new backup is performed.</span> 
 									</td>
@@ -88,11 +88,11 @@
 				</ul>
 				<fieldset>
 					<legend>Schedule</legend>
-                    <p>Backups are stored in "/var/sipxdata/backups" in a sub-directory 
-                        whose name coresponds to the date and time the backup was made. 
-                        It is recommended you use NFS or similiar mechanism to mount this 
-                        directory to a different machine on your network or at least
-                        have the "/var" directory on a different harddisk partition.</p>
+                    <p>Backups are stored in "/var/sipxdata/backups" in a subdirectory 
+                        whose name corresponds to the date and time the backup was made. 
+                        We recommend that you use NFS or a similar mechanism to mount this 
+                        directory to a different machine on your network, or at least
+                        have the "/var" directory on a different hard disk partition.</p>
                             <span jwcid="schedules">
 									<input jwcid="dailyScheduleEnabled" type="checkbox"/>
 									<select jwcid="dailyScheduledDay"/>
