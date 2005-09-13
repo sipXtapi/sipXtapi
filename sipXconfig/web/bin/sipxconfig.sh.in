@@ -27,6 +27,7 @@ Args=""
 : ${SubstituteUser:=su}
 : ${Chown:=chown}
 : ${LogDir:=@sipxpbx.log.dir@}
+: ${TmpDir:=@sipxpbx.tmp.dir@}
 
 Database=SIPXCONFIG
 
@@ -125,6 +126,7 @@ databaseCommand() {
         org.apache.tools.ant.launch.Launcher \
         -Dlib.dir=${LibDir} \
         -Dlog.dir=${LogDir} \
+        -Dtmp.dir=${TmpDir} \
         -f ${DatabaseProject} \
         $@
 }
