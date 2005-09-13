@@ -17,16 +17,13 @@ PATH=$PATH:$MyDir
 Action=""
 
 # Standard place to find java command
-JavaExecutable='bin/java'
-
-# Standard place to find java compiler command
-JavacExecutable='bin/javac'
+JavaExecutable='jre/bin/java'
 
 # Set when java is found
 JavaCommand=""
 
-# Set when JDK is found
-JdkHome=""
+# Set when JVM is found
+JavaHome=""
 
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
@@ -62,12 +59,12 @@ testJava()
         fi
     fi
 
-    # test javac command
-    if [ $Action = "JDK" ]
+    # test java command
+    if [ $Action = "JAVA_HOME" ]
     then
-        if $JavaPath/$JavacExecutable -help 2> /dev/null
+        if $JavaPath/$JavaExecutable -help 1>& 2> /dev/null
         then
-            JdkHome=$JavaPath
+            JavaHome=$JavaPath
             return 0
         fi
     fi
@@ -90,18 +87,13 @@ findJava()
 
         testJava ${JAVA_HOME}
 
-    elif [ -n "${JDK_HOME}" ]
-    then
-
-        testJava ${JDK_HOME}
-
     # otherwise try to find java
     else
 
         # Portions of this where copied from
         # sipXportLib/config/general.m4. Plans to import general.m4
         # file were scrapped because of carrying all of autoconf
-        TRY_JAVA_HOME=`ls -dr /usr/java/* 2> /dev/null | head -n 1`
+        TRY_JAVA_HOME=`ls -dr /usr/lib/jvm/java-1.* /usr/java/* 2> /dev/null | head -n 1`
         for dir in $TRY_JAVA_HOME /usr /usr/local/jdk /usr/local/java
         do
             if testJava ${dir}
@@ -123,8 +115,8 @@ do
         Action=JAVA
         ;;
 
-        --jdk)
-        Action=JDK
+        --javahome)
+        Action=JAVA_HOME
         ;;
 
         --version)
@@ -158,23 +150,23 @@ NOJAVA
     echo "$JavaCommand"
     exit 0
 
-elif test "$Action" = "JDK"
+elif test "$Action" = "JAVA_HOME"
 then
 
     findJava
 
-    if [ -z $JdkHome ]
+    if [ -z $JavaHome ]
     then
-        cat >&2 <<NOJDK
+        cat >&2 <<NOJAVAHOME
 Cannot locate Java VM on you machine. Please either install the Java
  or set JAVA_HOME environment variable to where you've installed java
 
-NOJDK
+NOJAVAHOME
 
         exit 1
     fi
 
-    echo "$JdkHome"
+    echo "$JavaHome"
     exit 0
 elif test "$Action" = "VERSION"
 then
@@ -198,13 +190,13 @@ Return settings or paths to programs for sipX family of modules
 
 Usage:
 
-    ./sipx-config [--java] [--jdk] [--version]
+    ./sipx-config [--java] [--javahome] [--version]
 
 Options are:
 
      --java     Locate java vm command
 
-     --jdk      Locate path to JDK (Java Development Kit)
+     --javahome Locate path to java vm home directory
 
      --version  Display version of installed sipx packages
 
