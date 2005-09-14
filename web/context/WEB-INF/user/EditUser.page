@@ -11,9 +11,6 @@
     <property-specification name="userId"
         type="java.lang.Integer"
         persistent="yes"/>
-    <property-specification name="returnPage"
-        type="java.lang.String" 
-        persistent="yes"/>    
     <property-specification name="user"
         type="org.sipfoundry.sipxconfig.common.User"/>
 	<property-specification name="coreContext" 
