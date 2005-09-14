@@ -1,11 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+//////////////////////////////////////////////////////////////////////////////
+
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
@@ -17,10 +22,13 @@
 // APPLICATION INCLUDES
 #include <net/HttpBody.h>
 #include <net/SdpBody.h>
+#include <net/PidfBody.h>
 #include <net/SmimeBody.h>
 #include <net/MimeBodyPart.h>
+#include <net/SipDialogEvent.h>
 #include <net/NameValueTokenizer.h>
 #include <net/HttpMessage.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -35,6 +43,8 @@
 HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
     bodyLength(0)
 {
+
+   mClassType = HTTP_BODY_CLASS;
    for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
    {
        mpBodyParts[partIndex] = NULL;
@@ -147,20 +157,28 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
 // Copy constructor
 HttpBody::HttpBody(const HttpBody& rHttpBody)
 {
-        mBody = rHttpBody.mBody;
+    mClassType = HTTP_BODY_CLASS;
 
-        bodyLength = rHttpBody.bodyLength;
+    mBody = rHttpBody.mBody;
 
-        *((UtlString*)this) = rHttpBody;
+    bodyLength = rHttpBody.bodyLength;
+
+    // Set the content type
+    append(rHttpBody);
+
     mMultipartBoundary = rHttpBody.mMultipartBoundary;
 
-   for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
-   {
-           if (rHttpBody.mpBodyParts[partIndex])
-                        mpBodyParts[partIndex] = new MimeBodyPart(*(rHttpBody.mpBodyParts[partIndex]));
-           else
-                   mpBodyParts[partIndex] = NULL;
-   }
+    for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+    {
+        if (rHttpBody.mpBodyParts[partIndex])
+        {
+            mpBodyParts[partIndex] = new MimeBodyPart(*(rHttpBody.mpBodyParts[partIndex]));
+        }
+        else
+        {
+            mpBodyParts[partIndex] = NULL;
+        }
+    }
 }
 
 // Destructor
@@ -190,7 +208,10 @@ HttpBody::operator=(const HttpBody& rhs)
 
     bodyLength = rhs.bodyLength;
 
-    *((UtlString*)this) = rhs;
+    // Set the content type
+    remove(0);
+    append(rhs);
+
     mMultipartBoundary = rhs.mMultipartBoundary;
 
     for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
@@ -210,23 +231,41 @@ HttpBody* HttpBody::copyBody(const HttpBody& sourceBody)
     // TODO:  There should be a type member.  This is dangerous
     // as the class type may not line up with the content type
     HttpBody* body = NULL;
-    const char* bodyType = sourceBody.getContentType();
-    if(strcmp(bodyType, SDP_CONTENT_TYPE) == 0)
+    BodyClassTypes classType = sourceBody.getClassType();
+
+    switch(classType)
     {
+    case SDP_BODY_CLASS:
         body = new SdpBody(((const SdpBody&)sourceBody));
-    }
-    else if(strcmp(bodyType, CONTENT_SMIME_PKCS7) == 0)
-    {
+        break;
+
+    case SMIME_BODY_CLASS:
         body = new SmimeBody(((const SmimeBody&)(sourceBody)));
-    }
-    else
-    {
+        break;
+
+    case PIDF_BODY_CLASS:
+        body = new PidfBody(((const PidfBody&)(sourceBody)));
+        break;
+
+    case DIALOG_EVENT_BODY_CLASS:
+        body = new SipDialogEvent(sourceBody);
+        break;
+
+    case HTTP_BODY_CLASS:
         body = new HttpBody(sourceBody);
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpMessage::HttpMessage HttpBody copy content-type: %s\n",
             bodyType ? bodyType : "<null>");
 #endif
+        break;
+
+    default:
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+            "HttpBody::copyBody unhandled body type: %d", classType);
+        body = new HttpBody(sourceBody);
+        break;
     }
+
     return(body);
 }
 
@@ -254,6 +293,16 @@ HttpBody* HttpBody::createBody(const char* bodyBytes,
     {
         body = new SmimeBody(bodyBytes, bodyLength, contentEncoding);
     }
+    else if(contentType &&
+            strcmp(contentTypeString.data(), CONTENT_TYPE_PIDF) == 0)
+    {
+        body = new PidfBody(bodyBytes, bodyLength, contentEncoding);
+    }
+    //else if(contentTYpe &&
+    //        strcmp(contentTypeString.data(), DIALOG_EVENT_CONTENT_TYPE) == 0)
+    //{
+    //    body = new SipDialogEvent(bodyBytes, bodyLength, contentEncoding);
+    //}
     else if ((bodyLength  > 1) || 
              (bodyBytes[0] != '\n'))
     {
@@ -278,19 +327,31 @@ void HttpBody::getBytes(const char** bytes, int* length) const
 
 void HttpBody::getBytes(UtlString* bytes, int* length) const
 {
-        bytes->remove(0);
-        //bytes->append(mBody);
-        //*length = bodyLength;
+    bytes->remove(0);
+    //bytes->append(mBody);
+    //*length = bodyLength;
     const char* bytePtr;
     getBytes(&bytePtr, length);
     if(*length > 0)
     {
         //hint to the string to change the capacity to the new length.
         //if this fails, we may not have enough ram to complete this operation
-        unsigned int newLength = bytes->capacity()+(*length);
+        unsigned int newLength = (*length);
         if (bytes->capacity(newLength) >= newLength)
+        {
             bytes->append(bytePtr, *length);
+        }
+        else
+        {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                "HttpBody::getBytes allocation failure to reserve %d bytes", newLength);
+        }
     }
+}
+
+HttpBody::BodyClassTypes HttpBody::getClassType() const
+{
+    return(mClassType);
 }
 
 const char* HttpBody::getContentType() const

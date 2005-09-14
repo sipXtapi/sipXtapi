@@ -1,10 +1,18 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie (dpetrie AT SIPez DOTcom)
+
 
 #ifndef _SipPimClient_h_
 #define _SipPimClient_h_
@@ -83,6 +91,19 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    //! Set the Private key and Certificate for the local side
+    /*! 
+     *   \param localPkcs12DerKeyCert DER format PKCS12 container for 
+     *          private key and certificate for the local side.
+     *   \param localPkcs12DerKeyCertLength the length of localPkcs12DerKeyCert
+     *          in bytes
+     *   \param sPkcs12Password password (symmetric key) to decrypt the 
+     *          PKCS12 container/wrapper.
+     */
+    void setLocalKeyCert(const char* localPkcs12DerKeyCert,
+                         int localPkcs12DerKeyCertLength,
+                         const char* sPkcs12Password);
+
     //! Send a pager style instant message to the given destination
     /*! Send a non-session based instant message using the
      * MESSAGE method.
@@ -153,6 +174,9 @@ private:
     Url mPresentityAor;
     UtlString mFromField;
     SipUserAgent* mpUserAgent;
+    UtlString mPkcs12KeyCertContainer;
+    UtlString mPkcs12Password;
+
     void (*mpTextHandlerFunction)(const UtlString& fromAddress,
                                  const char* textMessage,
                                  int textLength,

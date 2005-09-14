@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -57,6 +60,11 @@ SmimeBody::SmimeBody(const char* bytes,
     bodyLength = length;
     mBody.append(bytes, length);
 
+    // Remove to ake sure base class did not already set it
+    remove(0);
+    append(CONTENT_SMIME_PKCS7);
+
+    mClassType = SMIME_BODY_CLASS;
     mContentEncoding = SMIME_ENODING_UNKNOWN;
     if(smimeEncodingType)
     {
@@ -93,6 +101,11 @@ SmimeBody::SmimeBody(const SmimeBody& rSmimeBody)
         mpDecryptedBody = HttpBody::copyBody(*(rSmimeBody.mpDecryptedBody));
     }
 
+    mClassType = SMIME_BODY_CLASS;
+
+    // Remove to ake sure base class did not already set it
+    remove(0);
+    append(CONTENT_SMIME_PKCS7);
     mContentEncoding = rSmimeBody.mContentEncoding;
 }
 
@@ -117,6 +130,9 @@ SmimeBody::operator=(const SmimeBody& rhs)
 
    // Copy the parent
    *((HttpBody*)this) = rhs;
+
+   // Set the class type just to play it safe
+   mClassType = SMIME_BODY_CLASS;
 
    // Remove the decrypted body if one is attached,
    // in case we copy over it

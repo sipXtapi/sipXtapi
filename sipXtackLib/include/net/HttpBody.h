@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
+
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
@@ -22,7 +28,9 @@
 #define CONTENT_TYPE_TEXT_PLAIN "text/plain"
 #define CONTENT_TYPE_TEXT_HTML "text/html"
 #define CONTENT_SMIME_PKCS7 "application/pkcs7-mime"
+#define CONTENT_TYPE_PIDF "application/pidf+xml"
 #define CONTENT_TYPE_MULTIPART "multipart/"
+#define DIALOG_EVENT_CONTENT_TYPE "application/dialog-info+xml"
 
 #define MULTIPART_BOUNDARY_PARAMETER "boundary"
 
@@ -47,6 +55,16 @@ class HttpBody : public UtlString
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+    enum BodyClassTypes
+    {
+        UNKNOWN_BODY_CLASS = 0,
+        HTTP_BODY_CLASS,
+        SMIME_BODY_CLASS,
+        SDP_BODY_CLASS,
+        PIDF_BODY_CLASS,
+        DIALOG_EVENT_BODY_CLASS
+    };
 
 /* ============================ CREATORS ================================== */
 
@@ -91,6 +109,8 @@ public:
 
    const MimeBodyPart* getMultipart(int partIndex) const;
 
+   BodyClassTypes getClassType() const;
+
    const char*  getContentType() const;
 
 /* ============================ INQUIRY =================================== */
@@ -103,6 +123,7 @@ protected:
    UtlString mBody;
    UtlString  mMultipartBoundary;
    MimeBodyPart* mpBodyParts[MAX_HTTP_BODY_PARTS];
+   BodyClassTypes mClassType;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

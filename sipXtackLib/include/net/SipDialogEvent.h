@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -26,7 +29,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-#define DIALOG_EVENT_CONTENT_TYPE "application/dialog-info+xml"
+
 #define DIALOG_EVENT_TYPE "dialog"
 
 #define BEGIN_DIALOG_INFO "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\""

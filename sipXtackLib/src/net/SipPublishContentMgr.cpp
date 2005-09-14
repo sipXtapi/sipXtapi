@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -9,6 +12,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
+
+//#define TEST_PRINT 
 
 // SYSTEM INCLUDES
 
@@ -144,6 +149,11 @@ UtlBoolean SipPublishContentMgr::publish(const char* resourceId,
                                          int& numOldContentTypes,
                                          HttpBody* oldEventContent[])
 {
+#ifdef TEST_PRINT
+    osPrintf("SipPublishContentMgr::publish(%s, %s, %s, %d, [%p], ...)\n",
+        resourceId, eventTypeKey, eventType, numContentTypes, eventContent[0]);
+#endif
+
     UtlBoolean contentAdded = FALSE;
     UtlBoolean resourceIdProvided = FALSE;
     UtlString key;
@@ -395,6 +405,11 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                                           HttpBody*& content,
                                           UtlBoolean& isDefaultContent)
 {
+#ifdef TEST_PRINT
+    osPrintf("SipPublishContentMgr::getContent(%s, %s, %s, ...)\n",
+        resourceId, eventTypeKey, acceptHeaderValue);
+#endif
+
     UtlBoolean foundContent = FALSE;
     UtlString key(resourceId);
     key.append(eventTypeKey);
@@ -431,7 +446,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
             // No MIME types specified, take the first one
             if(!acceptedTypesGiven)
             {
-                content = new HttpBody(*bodyPtr);
+                content = HttpBody::copyBody(*bodyPtr);
                 foundContent = TRUE;
                 break;
             }
@@ -440,7 +455,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
             // in the servers preferred order.
             if(contentTypes.find(bodyPtr))
             {
-                content = new HttpBody(*bodyPtr);
+                content = HttpBody::copyBody(*bodyPtr);
                 foundContent = TRUE;
                 break;
             }

@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -89,6 +92,15 @@ void SubscribeClientState::toString(UtlString& dumpString)
     sprintf(pointerString, "%p", mpNotifyCallback);
     dumpString.append(pointerString);
     dumpString.append('\n');
+}
+
+SipSubscribeClient* SipSubscribeClient::buildBasicClient(SipUserAgent& userAgent)
+{
+    SipDialogMgr* dialogMgr = new SipDialogMgr();
+    SipRefreshManager* refreshMgr = 
+        new SipRefreshManager(userAgent, *dialogMgr);
+    refreshMgr->start();
+    return(new SipSubscribeClient(userAgent, *dialogMgr, *refreshMgr));
 }
 
 // Constructor

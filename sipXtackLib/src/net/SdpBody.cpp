@@ -1,11 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -53,6 +59,7 @@
 // Constructor
 SdpBody::SdpBody(const char* bodyBytes, int byteCount)
 {
+   mClassType = SDP_BODY_CLASS;
    remove(0);
    append(SDP_CONTENT_TYPE);
 
@@ -85,6 +92,7 @@ SdpBody::SdpBody(const char* bodyBytes, int byteCount)
 SdpBody::SdpBody(const SdpBody& rSdpBody) :
    HttpBody(rSdpBody)
 {
+   mClassType = SDP_BODY_CLASS;
    if(rSdpBody.sdpFields)
    {
       sdpFields = new UtlSList();
@@ -184,6 +192,8 @@ SdpBody::operator=(const SdpBody& rhs)
       }
    }
 
+   // Set the class type just to play it safe
+   mClassType = SDP_BODY_CLASS;
    return *this;
 }
 
@@ -1436,7 +1446,8 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
     {
         // Do this for audio first
         destIndex = 0;
-        for(int payloadIndex = 0;
+        int payloadIndex = 0;
+        for(payloadIndex = 0;
             payloadIndex < supportedPayloadCount;
             payloadIndex++)
         {
@@ -1477,7 +1488,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
 
         // Then do this for video
         destIndex = -1;
-        for(int payloadIndex = 0;
+        for(payloadIndex = 0;
             payloadIndex < supportedPayloadCount;
             payloadIndex++)
         {

@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -87,6 +90,9 @@ typedef void (*NotifyEventCallback) (const char* earlyDialogHandle,
                                      const SipMessage* notifyRequest);
 
 /* ============================ CREATORS ================================== */
+
+    //! Create a SipDialogMgr, SipRefreshManager and construct a SipSubscribeClient
+    static SipSubscribeClient* buildBasicClient(SipUserAgent& userAgent);
 
     //! Default Dialog constructor
     SipSubscribeClient(SipUserAgent& userAgent, 
