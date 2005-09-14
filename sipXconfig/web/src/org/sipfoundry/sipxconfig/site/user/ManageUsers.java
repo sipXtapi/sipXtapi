@@ -46,7 +46,13 @@ public abstract class ManageUsers extends BasePage
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, 
                 cycle.getServiceParameters(), 0);        
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
-        page.editUser(userId, PAGE);
+        page.setUserId(userId);
+
+        // When we navigate to the Edit User page, clicking OK or Cancel on that
+        // page should send the user back here
+        ICallback callback = new PageCallback(PAGE);
+        page.setCallback(callback);
+
         cycle.activate(page);        
     }
     
@@ -57,14 +63,8 @@ public abstract class ManageUsers extends BasePage
         getCoreContext().deleteUsers(selected);
     }
     
-    public void pageBeginRender(PageEvent event) {
+    public void pageBeginRender(PageEvent event_) {
         CoreContext core = getCoreContext();
         setUsers(core.loadUserByTemplateUser(new User()));
-        
-        // If the user clicks through to the Edit User page, clicking OK or Cancel on that
-        // page should send the user back here
-        ICallback callback = new PageCallback(PAGE);
-        EditUser editUserPage = (EditUser) event.getRequestCycle().getPage(EditUser.PAGE);
-        editUserPage.setCallback(callback);
     }        
 }
