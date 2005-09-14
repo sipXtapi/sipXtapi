@@ -54,7 +54,7 @@
   </query>
 	  
   <query name="userIdsByNameOrAlias">
-    <![CDATA[select u.id from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+    <![CDATA[select distinct u.id from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
   </query>  
 	  
   <query name="userGroupMembers">
