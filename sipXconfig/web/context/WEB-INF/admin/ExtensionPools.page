@@ -15,7 +15,8 @@
 		type="org.sipfoundry.sipxconfig.common.ExtensionPool" 
     	initial-value="global.extensionPoolContext.userExtensionPool"/>    
     <property-specification name="callback" 
-    	type="org.apache.tapestry.callback.ICallback"/>
+    	type="org.apache.tapestry.callback.ICallback"
+     	persistent="yes"/>
 
     <!--
       - B E A N S 
