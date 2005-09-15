@@ -85,7 +85,7 @@ public abstract class TestPage extends BasePage {
         resetCallGroupContext(cycle);
         getCoreContext().clear();
         Visit visit = (Visit) getVisit();
-        visit.logout();
+        visit.logout(cycle);
     }
 
     public void newGroup(IRequestCycle cycle) {

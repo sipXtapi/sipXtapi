@@ -292,6 +292,7 @@ public class SiteTestHelper {
     public static void seedUser(WebTester tester) {
         home(tester);
         tester.clickLink("resetCoreContext");
+        home(tester);
         tester.clickLink("seedTestUser");
     }
 

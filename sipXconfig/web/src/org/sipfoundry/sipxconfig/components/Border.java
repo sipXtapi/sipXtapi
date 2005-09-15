@@ -53,8 +53,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public void logout(IRequestCycle cycle) {
         Visit visit = getVisit();
-        visit.logout();
-        cycle.activate(Home.PAGE);        
+        visit.logout(cycle);
     }
     
     protected void redirectToLogin(IPage page) {

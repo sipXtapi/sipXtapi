@@ -29,6 +29,7 @@ public class NewUserTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         tester.clickLink("resetCoreContext");
+        SiteTestHelper.home(getTester());
         clickLink("seedTestUser");
     }
        
