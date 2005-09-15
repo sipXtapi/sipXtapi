@@ -64,5 +64,9 @@
   <query name="extensionPoolByName">
     <![CDATA[from ExtensionPool pool where pool.name = :name]]>
   </query>
+  
+  <query name="userCount">
+    <![CDATA[select count(*) from User]]>
+  </query>
 	
 </hibernate-mapping>

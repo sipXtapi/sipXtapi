@@ -6,15 +6,14 @@
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserTable"
     allow-body="no"
     allow-informal-parameters="no">
-    <description>add a description</description>
-    
+    <description>add a description</description>    
     <!--
       - P A R A M E T E R S
       -->    
     <parameter name="users" 
         type="java.util.List"
-        required="yes" 
-        direction="auto">
+        required="no" 
+        direction="in">
     </parameter>
     <parameter name="userListener" 
         type="org.apache.tapestry.IActionListener"
@@ -36,11 +35,15 @@
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel">
+        <set-property name="users" expression="users"/>
+        <set-property name="coreContext" expression="page.global.coreContext"/>
+    </bean>
 	<!--
 	  - C O M P O N E N T S
 	  -->
 	<component id="userTable" type="contrib:TableView">
-		<binding name="source" expression="users"/>
+        <binding name="tableModel" expression="beans.userTableModel.tableModel"/>
 		<static-binding name="columns" value="* userName:userName,lastName:lastName,firstName:firstName,aliases:aliasesString"/>
         <static-binding name="initialSortColumn" value="lastName"/>
         <static-binding name="pageSize" value="20"/>
@@ -72,4 +75,5 @@
     <component id="selectedRow" type="Checkbox">
         <binding name="selected" expression="selections.selected[currentUser.id]"/>
     </component>    
+    <component id="tablePages" type="contrib:TableFormPages"/>
 </component-specification>
