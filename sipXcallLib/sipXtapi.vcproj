@@ -114,11 +114,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib winmm.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib libpcre.a  sipXmediaMediaProcessing.lib"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib libpcre.a sipXmediaLib.lib winmm.lib sipXmediaMediaProcessing.lib"
 				OutputFile=".\sipXtapi\Release/sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\sipXtackLib\Release,..\sipXcallLib\Release,..\gips\sipXmediaVoiceEngine\Release,..\sipXportLib\Release,..\sipXtackLib\Release,..\sipXmediaAdapterLib\sipXmediaMediaProcessing\release"
+				AdditionalLibraryDirectories="..\sipXcallLib\Release,..\sipXportLib\Release,..\sipXtackLib\Release,..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Release,..\sipXmediaLib\Release"
 				IgnoreDefaultLibraryNames="libcpmt.lib,libcpmtd.lib,libc,libcd,libc.lib,libcd.lib,libcmt.lib,msvcrtd.lib,msvcprtd.lib,libcmtd.lib"
 				ModuleDefinitionFile=""
 				ProgramDatabaseFile=".\sipXtapi\Release/sipXtapi.pdb"
