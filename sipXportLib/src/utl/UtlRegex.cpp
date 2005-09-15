@@ -21,22 +21,39 @@
 /////////////////////////////////
 RegEx::RegEx(const char * regex, int options)
 {
-   const char * error = __FILE__ ": unknown PCRE error in RegEx(char*)";
+   const char*  pcre_error;
    int          erroffset;
 
    // compile and study the expression
-   re = pcre_compile(regex, options, &error, &erroffset, NULL);
+   re = pcre_compile(regex, options, &pcre_error, &erroffset, NULL);
    if (re == NULL)
    {
+      UtlString errorMsg("Regular Expression compile error: ");
+      errorMsg.append(pcre_error);
+      errorMsg.append(" at offset ");
+      char offsetStr[10];
+      sprintf(offsetStr, "%9d", erroffset);
+      errorMsg.append(offsetStr);
+      errorMsg.append(" in expression '");
+      errorMsg.append(regex);
+      errorMsg.append("'");
+
+      throw errorMsg.data();
       assert(FALSE); // regex failed to compile
-      throw error;
    }
-   pe = pcre_study(re, 0, &error);
-
-   // save the compilation block sizes for the copy constructor.
-   pcre_fullinfo(re, pe, PCRE_INFO_SIZE, &re_size);
-   pcre_fullinfo(re, pe, PCRE_INFO_STUDYSIZE, &pe_size);
-
+   pe = pcre_study(re, 0, &pcre_error);
+   if ( pcre_error == NULL )
+   {
+      // save the compilation block sizes for the copy constructor.
+      pcre_fullinfo(re, pe, PCRE_INFO_SIZE, &re_size);
+      pcre_fullinfo(re, pe, PCRE_INFO_STUDYSIZE, &pe_size);
+   }
+   else
+   {
+      re_size = 0;
+      pe_size = 0;
+   }
+   
    // allocate space for match results based on how many substrings
    // there are in the expression (+1 for the entire match)
    pcre_fullinfo(re, pe, PCRE_INFO_CAPTURECOUNT, &substrcount);
@@ -48,7 +65,7 @@ RegEx::RegEx(const char * regex, int options)
 /////////////////////////////////
 RegEx::RegEx(const RegEx& regex)
 {
-   const char * error = __FILE__ ": unknown PCRE error in RegEx(RegEx)";
+   const char * error = __FILE__ ": unknown error in RegEx(RegEx)";
 
    // allocate memory for the compiled regular expression information
    re = (pcre*)pcre_malloc(regex.re_size); 
@@ -62,30 +79,28 @@ RegEx::RegEx(const RegEx& regex)
           && (0 < regex.pe_size)
           )
       {
-         // allocate memory for the extra information
-         pe = (pcre_extra*)pcre_malloc(sizeof(pcre_extra));
-         if (pe)
+         // allocate memory for the extra study information
+         char* copied_pe = (char*)pcre_malloc(regex.pe_size);
+         if (copied_pe)
          {
-            // clear the interface part of the extra structure
-            memset(pe, 0, sizeof(pcre_extra)) ;
-            // allocate memory as needed for study data
-            pe->study_data = pcre_malloc(regex.pe_size);
-            if (pe->study_data)
-            {
-               // copy the study data
-               pe_size = regex.pe_size;
-               memcpy(pe->study_data, regex.pe->study_data, pe_size);
-               pe->flags = PCRE_EXTRA_STUDY_DATA;
-            }
-            else
-            {               
-               pcre_free(pe);
-               pe = NULL;
-               pe_size = 0;
-            }
+            // copy the study information
+            memcpy(copied_pe, regex.pe, regex.pe_size) ;
+            pe = (pcre_extra*)copied_pe;
+            pe_size = regex.pe_size;
+            /*
+             * :NOTE: the pe->study_data is really in that same block
+             *        so we need to correct it by calculating the relative
+             *        offset in the original and applying it to our copy.
+             */
+            char*  original_base = (char*)regex.pe;
+            char*  original_data = (char*)regex.pe->study_data;
+            size_t data_offset = original_data - original_base;
+            char*  copied_data = copied_pe + data_offset;
+            pe->study_data     = (void*)copied_data;
          }
          else
          {
+            pe = NULL;
             pe_size = 0;
          }
       }
@@ -114,7 +129,7 @@ RegEx::~RegEx()
   }
   if (pe)
   {
-    pcre_free(pe);
+     pcre_free(pe);
   }
   pcre_free(re);
 }

@@ -92,6 +92,22 @@ public:
          delete TheRegEx;
       }
 
+   void testCopy2()
+      {
+         static const RegEx ConstRegEx("^[a-z]+([0-9]+)$");
+         RegEx TheCopiedRegEx(ConstRegEx);
+         RegEx* TheRegEx = &TheCopiedRegEx;
+         
+         SHOULD_MATCH(2,"foo35");
+         MATCH(0,"foo35");
+         MATCH(1,"35");
+
+         SHOULD_NOT_MATCH( "abc" );
+         SHOULD_NOT_MATCH( "Foo35" );
+         SHOULD_NOT_MATCH( "12Foo35" );
+         SHOULD_NOT_MATCH( "foo35 " );
+      }
+
    void testMatchInfo()
       {
          RegEx matchABCs("A+(B+)(C+)");
