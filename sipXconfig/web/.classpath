@@ -33,7 +33,7 @@
 			<attribute value="http://jakarta.apache.org/tapestry/doc/api" name="javadoc_location"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="LIB_SRC/tapestry/3.0.3/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.3.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/tapestry/3.0.3/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.3.jar"/>
 	<classpathentry sourcepath="LIB_SRC/jetty/src.zip" kind="var" path="SIPX_CONFIG/lib/jetty-5.1.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>

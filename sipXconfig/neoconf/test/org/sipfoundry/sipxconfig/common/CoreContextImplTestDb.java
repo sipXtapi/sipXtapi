@@ -306,4 +306,30 @@ public class CoreContextImplTestDb extends TestCase {
         strings.add(new String("c"));
         assertNotNull(m_core.checkForDuplicateString(strings));        
     }
+    
+    public void testCountUsers() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        assertEquals(10, m_core.getUserCount());
+    }
+    
+    public void testLoadUserPage() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        Collection page = m_core.loadUsersByPage(0, 2, "userName", true);
+        assertEquals(2, page.size());
+        User u = (User) page.iterator().next();
+        assertEquals("alpha", u.getUserName());
+        
+        Collection next = m_core.loadUsersByPage(2, 2, "userName", true);
+        assertEquals(2, next.size());
+        User nextUser = (User) next.iterator().next();
+        assertEquals("charlie", nextUser.getUserName());
+    }
+
+    public void testLoadUserPageDescending() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        // expect third user from bottom
+        Collection page = m_core.loadUsersByPage(2, 2, "userName", false);
+        User u = (User) page.iterator().next();
+        assertEquals("horatio", u.getUserName());
+    }
 }

@@ -16,25 +16,16 @@ import java.util.Collection;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 
-public abstract class ManageUsers extends BasePage 
-        implements PageRenderListener {
+public abstract class ManageUsers extends BasePage {
     
     public static final String PAGE = "ManageUsers";
     private static final String USER_TABLE_COMPONENT_ID = "userTable";
-
-    public abstract Collection getUsers();
-    
-    public abstract void setUsers(Collection users);
-
     public abstract CoreContext getCoreContext();
     
     public void addUser(IRequestCycle cycle) {
@@ -62,9 +53,4 @@ public abstract class ManageUsers extends BasePage
         Collection selected = selections.getAllSelected();
         getCoreContext().deleteUsers(selected);
     }
-    
-    public void pageBeginRender(PageEvent event_) {
-        CoreContext core = getCoreContext();
-        setUsers(core.loadUserByTemplateUser(new User()));
-    }        
 }

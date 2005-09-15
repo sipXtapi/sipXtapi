@@ -253,7 +253,7 @@ begin
     g2.parent_ug_id = g3.id and g3.parent_ug_id = g4.id'') 
   as (user_id int, group_id int);
   if found then
-    raise exception ''DATA LOSS: cannot support group levels 4 parents or deeper'';
+    raise exception ''DATA LOSS: cannot support user group levels 4 parents or deeper'';
   end if;
 
   return 1;
@@ -340,7 +340,7 @@ begin
     g2.parent_pg_id = g3.id and g3.parent_pg_id = g4.id'') 
   as (phone_id int, group_id int);
   if found then
-    raise exception ''DATA LOSS: cannot support group levels 4 parents or deeper'';
+    raise exception ''DATA LOSS: cannot support phone group levels 4 parents or deeper'';
   end if;
 
   return 1;

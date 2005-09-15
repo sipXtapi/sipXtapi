@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -242,6 +244,23 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public List loadUsers() {
         return getHibernateTemplate().loadAll(User.class);
+    }
+    
+    public int getUserCount() {
+        String userCountQuery = "userCount";
+        Collection countCollection = getHibernateTemplate().findByNamedQuery(userCountQuery);
+        Integer count = (Integer) DaoUtils.requireOneOrZero(countCollection, userCountQuery);
+        
+        return count.intValue();
+    }
+    
+    public List loadUsersByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
+        String orderDirection = orderAscending ? " asc" : " desc";
+        Query q = getSession().createQuery("from User order by " + orderBy + orderDirection);
+        q.setFirstResult(firstRow);
+        q.setMaxResults(pageSize);
+        List users = q.list();
+        return users;
     }
 
     public void clear() {
