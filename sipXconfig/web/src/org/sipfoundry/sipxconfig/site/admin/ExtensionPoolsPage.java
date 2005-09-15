@@ -52,6 +52,7 @@ public abstract class ExtensionPoolsPage extends BasePage {
         if (pool.getFirstExtension() != null && pool.getLastExtension() != null) {
             if (pool.getLastExtension().intValue() < pool.getFirstExtension().intValue()) {
                 recordError("message.lastExtensionTooSmall");
+                return;
             }
         }
         
