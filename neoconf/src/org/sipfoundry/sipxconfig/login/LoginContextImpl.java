@@ -51,23 +51,20 @@ public class LoginContextImpl implements LoginContext {
         return null;
     }
 
-    /**
-     * This function will check if logged in user has admin privileges. Current implementation
-     * just checks if user is set, if it is we assume it's NOT admin
-     * 
-     * @return true for user with superadmin privileges
-     */
+    public boolean isAdmin(Integer userId) {
+        User user = m_coreContext.loadUser(userId);
+        return isAdmin(user);
+    }
+
     public boolean isAdmin(User user) {
         if (user == null) {
             return false;
         }
         
         boolean superadmin = user.hasPermission(Permission.SUPERADMIN);
-
         return superadmin;
-
     }
-
+    
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }

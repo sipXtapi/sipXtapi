@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 public class LoginContextImplTest extends TestCase {
     private LoginContextImpl m_impl;
     private User m_user;
+    private static final Integer USER_ID = new Integer(314159);
 
     protected void setUp() throws Exception {
         m_impl = new LoginContextImpl();
@@ -41,6 +42,9 @@ public class LoginContextImplTest extends TestCase {
 
         coreContext.getAuthorizationRealm();
         control.setReturnValue("pingtel.com", 3);
+        
+        coreContext.loadUser(USER_ID);
+        control.setReturnValue(m_user, 1);
         control.replay();
 
         m_impl.setCoreContext(coreContext);
@@ -88,5 +92,10 @@ public class LoginContextImplTest extends TestCase {
         nonAdmin.setSettingModel(TestHelper.loadSettings("user-settings.xml"));
         
         assertFalse(m_impl.isAdmin(nonAdmin));
+    }
+
+    public void testIsAdminUserId() {
+        m_user.setUserName("superadmin");
+        assertTrue(m_impl.isAdmin(USER_ID));        
     }
 }
