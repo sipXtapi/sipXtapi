@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -30,8 +29,7 @@ import org.sipfoundry.sipxconfig.site.Visit;
 /**
  * UserCallForwarding
  */
-public abstract class UserCallForwarding extends BasePage implements IExternalPage,
-        PageRenderListener {
+public abstract class UserCallForwarding extends BasePage implements PageRenderListener {
     private static final String ACTION_ADD = "add";
     private static final String ACTION_APPLY = "apply";
 
@@ -54,12 +52,6 @@ public abstract class UserCallForwarding extends BasePage implements IExternalPa
     public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
-
-    public void activateExternalPage(Object[] parameters, IRequestCycle cycle_) {
-        String userIdAsString = (String) parameters[0];
-        Integer userId = new Integer(userIdAsString);
-        setUserId(userId);
-    }
 
     public void pageBeginRender(PageEvent event_) {
         Integer userId = getUserId();

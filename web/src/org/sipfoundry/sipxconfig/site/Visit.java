@@ -11,6 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.io.IOException;
+
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.engine.IEngineServiceView;
+
 /**
  * Tapestry Visit object - session parameters for sipXconfig
  */
@@ -49,7 +54,22 @@ public class Visit {
         m_admin = admin;
     }
 
-    public void logout() {
+    public void logout(IRequestCycle cycle) {
+        // Clear the visit state so we forget about this user and their admin rights, if any
+        clear();
+        
+        // Invalidate the user session.
+        // See http://wiki.apache.org/jakarta-tapestry/FrequentlyAskedQuestions/LogoutLink .
+        try {
+            IEngineServiceView view = (IEngineServiceView) cycle.getEngine();
+            view.restart(cycle);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void clear() {
         m_userId = null;
+        m_admin = false;
     }
 }

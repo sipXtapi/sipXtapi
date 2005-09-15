@@ -30,8 +30,10 @@ public class VisitTest extends TestCase {
         visit.login(user.getId(), true);
         assertSame(user.getId(), visit.getUserId());
         assertTrue(visit.isAdmin());
-
-        visit.logout();
+        
+        // Call "clear" rather than "logout" because we don't have the request cycle
+        // object that would be needed to call "logout".  
+        visit.clear();
         assertNull(visit.getUserId());
     }
 
