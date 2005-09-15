@@ -55,6 +55,7 @@ libsipXtack_la_SOURCES =  \
     net/NetAttributeTokenizer.cpp \
     net/NetBase64Codec.cpp \
     net/NetMd5Codec.cpp \
+    net/PidfBody.cpp \
     net/SdpBody.cpp \
     net/SdpCodec.cpp \
     net/SdpCodecFactory.cpp \

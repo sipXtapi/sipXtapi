@@ -32,6 +32,7 @@ nobase_include_HEADERS =  \
     net/NetAttributeTokenizer.h \
     net/NetBase64Codec.h \
     net/NetMd5Codec.h \
+    net/PidfBody.h \
     net/QoS.h \
     net/SdpBody.h \
     net/SdpCodecFactory.h \
