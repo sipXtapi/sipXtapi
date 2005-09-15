@@ -24,6 +24,7 @@
   <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
   <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql"/>
   <property name="log.dir" value="${basedir}"/>
+  <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log"/>
   <property name="tmp.dir" value="${basedir}"/>
   
   <target name="patches">
@@ -103,8 +104,11 @@
     </sipx-sql>
   </target>  
 
-  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
-        description="migrate 2.8 database, note clears all existing 3.0 data"/>
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize,migrate-2.8-report" 
+        description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>
+  
+  <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
+        description="import 2.8 PDS database from backup file, note clears all existing 3.0 data"/>
   
   <target name="reset-superadmin-initialization-task">
     <sipx-sql>
@@ -153,10 +157,44 @@
   </target>
   <target name="migrate-2.8-run" depends="drop,create-no-init,migrate-2.8-setup">
     <echo>see migration log file for error or potential data loss:</echo>
-    <echo>  ${log.dir}/sipxconfig-2.8-db-migration.log</echo>
-    <exec executable="psql" output="${log.dir}/sipxconfig-2.8-db-migration.log" failonerror="true">
+    <echo>  ${migration.log}</echo>
+    <exec executable="psql" output="${migration.log}" failonerror="true">
       <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
     </exec>
+  </target>
+  <target name="migrate-2.8-report">
+    <echo>
+ NOTE:  Not all data could be migrated. You may have to re-create data in the
+ following areas
+    </echo>
+    <exec executable="sh">
+      <arg value="-c"/>
+      <arg value="grep 'NOTICE:\s*DATA LOSS' ${migration.log} | sed 's/.*NOTICE://g'"/>
+    </exec>
+  </target>
+  <target name="import-2.8-run">
+    <fail unless="pds.tar.gz">Missing parameter
+
+  You must specify complete path to pds.tar.gz file.  Is one of the output 
+  files from running backup-configs.sh on a 2.8 system.
+
+ Example:
+ sipxconfig.sh -d -Dpds.tar.gz=/var/backup-configs/pds.tar.gz import-2.8
+
+    </fail>
+    <exec executable="createuser" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} --createdb --no-adduser sipxchange"/>
+    </exec>    
+    <exec executable="dropdb">
+      <arg line="-U ${sipxconfig.db.user} PDS"/>
+    </exec>    
+    <exec executable="createdb">
+      <arg line="-U ${sipxconfig.db.user} --encoding=UNICODE PDS"/>
+    </exec>    
+    <exec executable="/bin/sh">
+      <arg value="-c"/>
+      <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS"/>
+    </exec>    
   </target>
 
    <!--
