@@ -34,9 +34,11 @@ public class ExtensionPoolsTestUi extends WebTestCase {
     }
     
     public void testChangeExtensionPool() throws Exception {
-        uncheckCheckbox("enableExtensionPool");
-        setFormElement("start", "8405");
-        setFormElement("end", "8485");
+        final String start = "100";
+        final String end = "199";
+        checkCheckbox("enableExtensionPool");
+        setFormElement("start", start);
+        setFormElement("end", end);
         clickButton("form:apply");        
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
@@ -44,9 +46,9 @@ public class ExtensionPoolsTestUi extends WebTestCase {
         // Go away and back and verify that our changes took effect
         SiteTestHelper.home(getTester());
         clickLink("ExtensionPools");
-        assertCheckboxNotSelected("enableExtensionPool");
-        assertFormElementEquals("start", "8405");
-        assertFormElementEquals("end", "8485");
+        assertCheckboxSelected("enableExtensionPool");
+        assertFormElementEquals("start", start);
+        assertFormElementEquals("end", end);
     }
     
 }

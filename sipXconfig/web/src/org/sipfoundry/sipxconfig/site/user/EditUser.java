@@ -19,6 +19,8 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
 public abstract class EditUser extends BasePage implements PageRenderListener {
     
@@ -37,6 +39,20 @@ public abstract class EditUser extends BasePage implements PageRenderListener {
 
     public void commit(IRequestCycle cycle_) {
         save();
+    }
+    
+    public void editCallForwarding(IRequestCycle cycle) {
+        UserCallForwarding page = (UserCallForwarding) cycle.getPage(UserCallForwarding.PAGE);
+        Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
+                .getServiceParameters(), 0);
+        page.setUserId(userId);
+        
+        // When we navigate to the UserCallForwarding page, clicking OK or Cancel on that
+        // page should send the user back here
+        ICallback callback = new PageCallback(PAGE);
+        page.setCallback(callback);
+        
+        cycle.activate(page);
     }
     
     private void save() {

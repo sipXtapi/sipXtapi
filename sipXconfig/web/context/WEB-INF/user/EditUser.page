@@ -22,6 +22,10 @@
 
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
 
+    <component id="callForwardingLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editCallForwarding"/>
+        <binding name="parameters" expression="userId"/>
+    </component>
     <component id="form" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>

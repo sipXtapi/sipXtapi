@@ -3,12 +3,17 @@
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding">
+    
 	<!--
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="forwardingContext" 
 		type="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext" 
     	initial-value="global.forwardingContext"/>
+        
+    <property-specification name="loginContext" 
+    	type="org.sipfoundry.sipxconfig.login.LoginContext" 
+    	initial-value="global.loginContext"/>
         
     <property-specification name="ringsMap" type="org.apache.tapestry.form.ListEditMap"/>
     
@@ -17,8 +22,12 @@
     <property-specification name="ring" type="org.sipfoundry.sipxconfig.admin.forwarding.Ring"/>
     
     <property-specification name="action" type="java.lang.String"/>
-    
+
     <property-specification name="userId" type="java.lang.Integer" persistent="yes"/>
+    
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+    	persistent="yes"/>
     
      <!--
      - B E A N S
@@ -55,9 +64,9 @@
         <binding name="selected" expression="action"/>        
         <static-binding name="tag" value="add"/>
     </component>
-        
-    <component id="apply" type="Submit">
-        <binding name="selected" expression="action"/>        
-        <static-binding name="tag" value="apply"/>
-    </component>   
+    
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
+    </component>    
 </page-specification>

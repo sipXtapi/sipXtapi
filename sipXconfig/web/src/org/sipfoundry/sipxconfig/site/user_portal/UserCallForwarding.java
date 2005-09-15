@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
@@ -24,44 +25,58 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.Visit;
 
 /**
  * UserCallForwarding
  */
 public abstract class UserCallForwarding extends BasePage implements PageRenderListener {
+    public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
-    private static final String ACTION_APPLY = "apply";
 
     public abstract ForwardingContext getForwardingContext();
+    public abstract LoginContext getLoginContext();
 
     public abstract CallSequence getCallSequence();
-
     public abstract void setCallSequence(CallSequence callSequence);
 
     public abstract ListEditMap getRingsMap();
-
     public abstract void setRingsMap(ListEditMap map);
 
     public abstract Ring getRing();
-
     public abstract void setRing(Ring ring);
 
     public abstract Integer getUserId();
-
     public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
+    
+    public abstract ICallback getCallback();
+    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         Integer userId = getUserId();
-        if (null == userId) {
-            Visit visit = (Visit) getVisit();
-            userId = visit.getUserId();
-            setUserId(userId);
+        Visit visit = (Visit) getVisit();
+        Integer loggedInUserId = visit.getUserId();
+        if (userId == null) {
+            // No userId has been set yet, so make it the logged-in user
+            userId = loggedInUserId;
+        } else {
+            // If the userId is not that of the logged-in user, then make sure
+            // that the logged-in user has admin privileges.  If not, then 
+            // force the userId to be the one for the logged-in user, so non-admin
+            // users can only see/modify their own settings.
+            if (!userId.equals(loggedInUserId)) {
+                if (!getLoginContext().isAdmin(loggedInUserId)) {
+                    userId = loggedInUserId;
+                }
+            }
         }
+        setUserId(userId);
+        
         CallSequence callSequence = getCallSequence();
-        if (null == callSequence) {
+        if (callSequence == null) {
             ForwardingContext forwardingContext = getForwardingContext();
             callSequence = forwardingContext.getCallSequenceForUserId(userId);
             setCallSequence(callSequence);
@@ -96,11 +111,16 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
             callSequence.insertRing();
             getForwardingContext().saveCallSequence(getCallSequence());
         }
-        if (ACTION_APPLY.equals(getAction())) {
-            getForwardingContext().saveCallSequence(getCallSequence());
-        }
     }
 
+    public void commit(IRequestCycle cycle_) {
+        if (!TapestryUtils.isValid(this)) {
+            // do nothing on errors
+            return;
+        }
+        getForwardingContext().saveCallSequence(getCallSequence());
+    }
+    
     /**
      * Called by ListEdit component to retrieve exception object associated with a specific id
      */
