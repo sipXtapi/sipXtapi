@@ -16,8 +16,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
+import org.apache.tapestry.contrib.table.model.ITableColumnModel;
 import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.apache.tapestry.contrib.table.model.common.BasicTableModelWrap;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
@@ -28,15 +30,10 @@ public class UserTableModel implements IBasicTableModel {
     
     static final String USER_NAME_PROPERTY = "userName"; 
     static final String FIRST_NAME_PROPERTY = "firstName"; 
-    static final String LAST_NAME_PROPERTY = "lastName"; 
-
-    static final ITableColumn[] COLUMNS = new ITableColumn[] {
-        new UserTableColumn("User Name", USER_NAME_PROPERTY, USER_NAME_PROPERTY),
-        new UserTableColumn("First Name", FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY),
-        new UserTableColumn("Last Name", LAST_NAME_PROPERTY, LAST_NAME_PROPERTY),
-        new UserTableColumn("Aliases", "aliasesString")
-    };
-
+    static final String LAST_NAME_PROPERTY = "lastName";
+    
+    private int m_pageSize = 10;
+    
     private CoreContext m_coreContext;
 
     // FIXME: will go away when m_user collection goes away
@@ -49,6 +46,16 @@ public class UserTableModel implements IBasicTableModel {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+    
+    /**
+     * For some reason if table model is overridden, page size is ignored when
+     * defined on TableFormView
+     *  
+     * @param pageSize default is 10
+     */
+    public void setPageSize(int pageSize) {
+        m_pageSize = pageSize;
     }
 
     public int getRowCount() {
@@ -75,12 +82,26 @@ public class UserTableModel implements IBasicTableModel {
         List page = m_coreContext.loadUsersByPage(firstRow, pageSize, orderBy, orderAscending);
         return page.iterator();
     }
-        
-    public ITableModel getTableModel() {
-        return new BasicTableModelWrap(this, new SimpleTableColumnModel(Arrays.asList(COLUMNS)));
+    
+    public ITableModel createTableModel(IComponent component) {
+        UserTableColumn[] columns = new UserTableColumn[] {
+            new UserTableColumn(USER_NAME_PROPERTY, USER_NAME_PROPERTY, USER_NAME_PROPERTY),
+            new UserTableColumn(FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY),
+            new UserTableColumn(LAST_NAME_PROPERTY, LAST_NAME_PROPERTY, LAST_NAME_PROPERTY),
+            new UserTableColumn("aliases", "aliasesString")
+        };
+        for (int i = 0; i < columns.length; i++) {
+            columns[i].loadSettings(component);
+        }
+
+        ITableColumnModel colModel = new SimpleTableColumnModel(Arrays.asList(columns));
+        BasicTableModelWrap tableModel = new BasicTableModelWrap(this, colModel);
+        tableModel.getPagingState().setPageSize(m_pageSize);
+
+        return tableModel;
     }
     
-    static  class UserTableColumn extends ExpressionTableColumn {
+    static class UserTableColumn extends ExpressionTableColumn {
         private String m_orderBy;
         
         UserTableColumn(String name, String expression, String orderBy) {
