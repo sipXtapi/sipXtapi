@@ -31,8 +31,9 @@ public class UserTableModel implements IBasicTableModel {
     static final String USER_NAME_PROPERTY = "userName"; 
     static final String FIRST_NAME_PROPERTY = "firstName"; 
     static final String LAST_NAME_PROPERTY = "lastName";
+    static final int DEFAULT_PAGE_SIZE = 10;
     
-    private int m_pageSize = 10;
+    private int m_pageSize = DEFAULT_PAGE_SIZE;
     
     private CoreContext m_coreContext;
 
