@@ -43,6 +43,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         PhoneContext, ApplicationListener, DaoEventListener {
 
     private static final String GROUP_RESOURCE_ID = "phone";
+    private static final String QUERY_PHONE = "from Phone";
 
     private SettingDao m_settingDao;
 
@@ -115,9 +116,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         String serialNumber = phone.getSerialNumber();
         DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, "phoneIdsWithSerialNumber", serialNumber,
                 new DuplicateSerialNumberException(serialNumber));
-        String name = phone.getName();
-        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, "phoneIdsWithName", name,
-                new DuplicateNameException(name));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);
     }
@@ -152,8 +150,22 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return line;
     }
 
+    public int getPhoneCount() {
+        String countQuery = "phoneCount";
+        Collection countCollection = getHibernateTemplate().findByNamedQuery(countQuery);
+        Integer count = (Integer) DaoUtils.requireOneOrZero(countCollection, countQuery);
+        
+        return count.intValue();        
+    }
+    
+    public List loadPhonesByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
+        List phones = DaoUtils.loadByPage(getSession(), QUERY_PHONE, firstRow, 
+                pageSize, orderBy, orderAscending);
+        return phones;
+    }
+    
     public Collection loadPhones() {
-        String phoneQuery = "from Phone p";
+        String phoneQuery = QUERY_PHONE;
         List phones = getHibernateTemplate().find(phoneQuery);
 
         return phones;
@@ -179,7 +191,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
         // not leave hanging references. DB will reject otherwise
-        deleteAll("from Phone");
+        deleteAll(QUERY_PHONE);
         deleteAll("from Group where resource = 'phone'");
     }
     
@@ -212,14 +224,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
         public DuplicateSerialNumberException(String serialNumber) {
             super(ERROR, serialNumber);
-        }
-    }
-
-    private class DuplicateNameException extends UserException {
-        private static final String ERROR = "A phone with name: {0} already exists.";
-
-        public DuplicateNameException(String name) {
-            super(ERROR, name);
         }
     }
 

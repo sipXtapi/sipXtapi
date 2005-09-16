@@ -21,16 +21,17 @@
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="tableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel">
+        <set-property name="phoneContext" expression="page.global.phoneContext"/>
+        <set-property name="pageSize" expression="20"/>
+    </bean>
 	<!--
 	  - C O M P O N E N T S
 	  -->
 	<component id="phoneManagement" type="Form">
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
-		<binding name="source" expression="phones"/>
-		<binding name="columns">'* Phone:serialNumber,' + 
-			'!Lines,Model:model.label'</binding>
-        <static-binding name="pageSize" value="20"/>
+		<binding name="tableModel" expression="beans.tableModel.createTableModel(getThis())"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
@@ -55,7 +56,7 @@
         <binding name="parameters" expression="currentRow.primaryKey"/>
     </component>
     <component id="phoneLabel" type="Insert"> 
-        <binding name="value" expression="currentRow.displayLabel"/>
+        <binding name="value" expression="currentRow.serialNumber"/>
     </component>
     <!-- Column 3: edit lines -->
     <component id="LinesColumnValue" type="Block"/>

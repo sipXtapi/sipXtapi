@@ -378,20 +378,21 @@ begin
   create temporary table phone_type_migration ( pds_model text, bean_id text, model_id text);
   insert into phone_type_migration values (''7960'', ''ciscoIp'', ''7960'');
   insert into phone_type_migration values (''7940'', ''ciscoIp'', ''7940'');
-  insert into phone_type_migration values (''xpressa_strongarm_vxworks'', ''genericPhone'', null);
-  insert into phone_type_migration values (''ixpressa_x86_win32'', ''genericPhone'', null);
+  insert into phone_type_migration values (''xpressa_strongarm_vxworks'', ''unmanagedPhone'', null);
+  insert into phone_type_migration values (''ixpressa_x86_win32'', ''unmanagedPhone'', null);
 
   for my_phone in select * from 
-      dblink(''select p.id, p.serial_number, p.pg_id, p.usrs_id, pt.model 
+      dblink(''select p.id, p.serial_number, p.pg_id, p.usrs_id, pt.model, p.description
       from logical_phones p, phone_types pt where p.pt_id = pt.id'') 
-      as (id int, serial_number text, pg_id int, usrs_id int, pt_model text) loop
+      as (id int, serial_number text, pg_id int, usrs_id int, pt_model text, description text) loop
 
     select into my_phone_type * from phone_type_migration where pds_model = my_phone.pt_model; 
 
     raise notice ''importing phone %, %...'', my_phone.serial_number, my_phone_type.bean_id;
 
-    insert into phone (phone_id, serial_number, bean_id, model_id) 
-      values (my_phone.id, my_phone.serial_number, my_phone_type.bean_id, my_phone_type.model_id);
+    insert into phone (phone_id, serial_number, bean_id, model_id, description) 
+      values (my_phone.id, my_phone.serial_number, my_phone_type.bean_id, my_phone_type.model_id,
+              my_phone.description);
 
     select into my_group_id group_id from phone_group_migration where pds_group_id = my_phone.pg_id;
 
@@ -437,7 +438,7 @@ begin
         storage_id int, folder_id int) 
   loop
     next_id := nextval(''phone_seq'');
-    insert into phone (phone_id, name, serial_number, value_storage_id, bean_id, model_id) 
+    insert into phone (phone_id, description, serial_number, value_storage_id, bean_id, model_id) 
       values (next_id, my_phone.name, my_phone.serial_number, my_phone.storage_id, ''polycom'',
               substring(my_phone.factory_id from ''\\\\d*$''));
 

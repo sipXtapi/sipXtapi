@@ -77,7 +77,7 @@
     </property>
   </bean>
   <!-- Define new phone models here, order is not important -->  
-  <bean id="genericPhone"
+  <bean id="unmanagedPhone"
     class="org.sipfoundry.sipxconfig.phone.Phone" 
     singleton="false">
     <property name="phoneContext">
@@ -111,7 +111,7 @@
   <bean id="kphone" 
     class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" 
     singleton="false"
-    parent="genericPhone">
+    parent="unmanagedPhone">
     <property name="settingModel">
 		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
 			  <property name="resource" value="kphone/phone.xml"/>
@@ -123,7 +123,7 @@
   <bean id="snom" 
     class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone"
     singleton="false"
-    parent="genericPhone">
+    parent="unmanagedPhone">
     <property name="settingModel">
 		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
 			  <property name="resource" value="snom/phone.xml"/>
@@ -135,7 +135,7 @@
   <bean id="polycom" 
     class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
     singleton="false" 
-    parent="genericPhone">
+    parent="unmanagedPhone">
     <property name="settingModel">
 		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
 			  <property name="resource" value="polycom/phone.xml"/>
@@ -147,7 +147,7 @@
   <bean id="ciscoIp" 
     class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" 
     singleton="false" 
-    parent="genericPhone">
+    parent="unmanagedPhone">
     <property name="settingModel">
 		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
 			  <property name="resource" value="cisco/ip-phone.xml"/>
@@ -159,7 +159,7 @@
   <bean id="ciscoAta" 
     class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" 
     singleton="false" 
-    parent="genericPhone">
+    parent="unmanagedPhone">
     <property name="settingModel">
 		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
 			  <property name="resource" value="cisco/ata-phone.xml"/>
@@ -171,7 +171,7 @@
   <bean id="grandstream"
     class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone" 
     singleton="false"
-    parent="genericPhone">
+    parent="unmanagedPhone">
     <property name="settingModel">
 		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
 			  <property name="resource" value="grandstream/phone.xml"/>

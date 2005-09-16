@@ -4,8 +4,8 @@
     <phone 
 		serial_number="999123456" 		
 		phone_id="[phone_id_1]"
-        name="unittest-sample phone1"
+        description="unittest-sample phone1"
 		value_storage_id="[null]"
-      bean_id="genericPhone"
+      bean_id="unmanagedPhone"
       model_id=""/> 
 </dataset>

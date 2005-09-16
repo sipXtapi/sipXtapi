@@ -22,23 +22,22 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
-import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Base class for managed phone subclasses  
  */
-public class Phone extends BeanWithGroups implements NamedObject {
+public class Phone extends BeanWithGroups {
         
     // public because of checkstyle
     public static final String PHONE_CONSTANT = "phone";
 
-    public static final PhoneModel MODEL = new PhoneModel("genericPhone", "Unmanaged phone");
+    public static final PhoneModel MODEL = new PhoneModel("unmanagedPhone", "Unmanaged phone");
     
     public static final String PHONE_GROUP_RESOURCE = PHONE_CONSTANT;
     
-    private String m_name;
+    private String m_description;
 
     private String m_serialNumber;
     
@@ -230,12 +229,12 @@ public class Phone extends BeanWithGroups implements NamedObject {
         return m_model.getModelId();
     }
 
-    public String getName() {
-        return m_name;
+    public String getDescription() {
+        return m_description;
     }
 
-    public void setName(String name) {
-        m_name = name;
+    public void setDescription(String description) {
+        m_description = description;
     }
 
     public String getSerialNumber() {
@@ -251,13 +250,6 @@ public class Phone extends BeanWithGroups implements NamedObject {
         clean = clean.replaceAll("[:\\s]*", "");
         
         return clean;        
-    }
-    
-    /**
-     * @return name if set otherwise serial number, convienent for display purposes
-     */
-    public String getDisplayLabel() {
-        return m_name != null ? m_name : m_serialNumber;
     }
     
     /**

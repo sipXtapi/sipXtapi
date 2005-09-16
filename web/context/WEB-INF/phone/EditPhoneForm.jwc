@@ -49,13 +49,12 @@
     <component id="errors" type="ErrorMsg">        
         <binding name="validator" expression="validator"/>
     </component>
-    <component id="phoneNameLabel" type="FieldLabel">
-        <binding name="field" expression="components.phoneName"/>
+    <component id="phoneDescriptionLabel" type="FieldLabel">
+        <binding name="field" expression="components.phoneDescription"/>
+	    <static-binding name="displayName" value="Description"/>
     </component>
-    <component id="phoneName" type="ValidField">
-	    <binding name="value" expression="phone.name"/>
-    	<binding name="validator" expression="beans.nameValidator"/>
-	    <static-binding name="displayName" value="Alternate label"/>
+    <component id="phoneDescription" type="TextArea">
+	    <binding name="value" expression="phone.description"/>
     </component>
     <component id="serialNumberLabel" type="FieldLabel">
         <binding name="field" expression="components.serialNumber"/>

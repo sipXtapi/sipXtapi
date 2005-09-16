@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -44,6 +43,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     /** nothing special about this name */
     private static final String ADMIN_GROUP_NAME = "administrators"; 
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
+    private static final String QUERY_USER = "from User";
     
     private String m_authorizationRealm;
 
@@ -254,16 +254,13 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
     
     public List loadUsersByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        String orderDirection = orderAscending ? " asc" : " desc";
-        Query q = getSession().createQuery("from User order by " + orderBy + orderDirection);
-        q.setFirstResult(firstRow);
-        q.setMaxResults(pageSize);
-        List users = q.list();
+        List users = DaoUtils.loadByPage(getSession(), QUERY_USER, firstRow, 
+                pageSize, orderBy, orderAscending);
         return users;
     }
 
     public void clear() {
-        Collection c = getHibernateTemplate().find("from User");
+        Collection c = getHibernateTemplate().find(QUERY_USER);
         getHibernateTemplate().deleteAll(c);
     }
 

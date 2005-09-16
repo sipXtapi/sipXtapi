@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
@@ -153,6 +154,17 @@ public final class DaoUtils {
             throw new RuntimeException(e);
         }
         return propValue;
+    }
+    
+    public static List loadByPage(Session session, String query, int firstRow, int pageSize, String orderBy, 
+            boolean orderAscending) {
+        String orderDirection = orderAscending ? " asc" : " desc";
+        Query q = session.createQuery(query + " order by " + orderBy + orderDirection);
+        q.setFirstResult(firstRow);
+        q.setMaxResults(pageSize);
+        List items = q.list();
+        
+        return items;
     }
     
 }

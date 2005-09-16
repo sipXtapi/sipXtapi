@@ -49,8 +49,8 @@ public abstract class NewPhone extends BasePage {
             // better way aluding me because we cannot create a concrete
             // phone object until a phone type is selected.
             phone.setSerialNumber(prototype.getSerialNumber());
-            phone.setName(prototype.getName());
             phone.setGroups(prototype.getGroups());
+            phone.setDescription(prototype.getDescription());
             
             getPhoneContext().storePhone(phone);        
 

@@ -25,10 +25,10 @@
         <binding name="value" expression="currentPhoneModel"/>
     </component>
     <component id="isUnmanagedPhone" type="Conditional">
-        <binding name="condition" expression="currentPhoneModel.beanId == 'genericPhone'"/>
+        <binding name="condition" expression="currentPhoneModel.beanId == 'unmanagedPhone'"/>
     </component>
     <component id="isManagedPhone" type="Conditional">
-        <binding name="condition" expression="currentPhoneModel.beanId != 'genericPhone'"/>
+        <binding name="condition" expression="currentPhoneModel.beanId != 'unmanagedPhone'"/>
     </component>
     <component id="phoneModel" type="Insert">
         <binding name="value" expression="currentPhoneModel.label"/>
