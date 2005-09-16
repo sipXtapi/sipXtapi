@@ -15,7 +15,6 @@
   </bean>
 
   <bean id="forwardingContextUserDelete" 
-    class="org.sipfoundry.sipxconfig.common.event.DaoEventListener" 
     factory-bean="forwardingContextImpl" factory-method="createUserDeleteListener"/>
     
   <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
