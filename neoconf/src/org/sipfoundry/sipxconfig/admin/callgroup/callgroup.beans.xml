@@ -16,7 +16,7 @@
     </property>
   </bean>
   
-  <bean id="callGroupContextUserDelete" class="org.sipfoundry.sipxconfig.common.event.DaoEventListener"
+  <bean id="callGroupContextUserDelete"
     factory-bean="callGroupContextImpl" factory-method="createUserDeleteListener"/>
   
   <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean"
