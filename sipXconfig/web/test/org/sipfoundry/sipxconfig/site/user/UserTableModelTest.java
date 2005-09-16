@@ -39,7 +39,7 @@ public class UserTableModelTest extends TestCase {
 
         UserTableModel model = new UserTableModel();
         model.setCoreContext(coreContext);
-        ITableColumn col = new UserTableModel.UserTableColumn("User Name", "userName", "userName");
+        ITableColumn col = new UserTableModel.OrderByTableColumn("User Name", "userName", "userName");
         Iterator i1 = model.getCurrentPageRows(0, 1, col, true);
         assertEquals(page1Array[0], i1.next());
         assertEquals(page1Array[1], i1.next());

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Collection;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -80,4 +81,19 @@ public class PhoneContextTestDb extends TestCase {
         assertEquals(new Integer(1), counts.get(new Integer(1002)));
         assertNull(counts.get(new Integer(1003)));        
     }
+    
+    /**
+     * this test is really for PhoneTableModel in web context
+     */
+    public void testGetPhonesByPageSortedByModel() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        
+        Collection page1 = m_context.loadPhonesByPage(0, 4, "beanId || modelId", true);
+        Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
+        assertEquals("00003", phones[0].getSerialNumber());
+        assertEquals("00004", phones[1].getSerialNumber());
+        assertEquals("00002", phones[2].getSerialNumber());        
+        assertEquals("00001", phones[3].getSerialNumber());
+    }    
 }

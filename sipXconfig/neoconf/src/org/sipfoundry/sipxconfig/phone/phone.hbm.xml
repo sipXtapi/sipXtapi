@@ -3,7 +3,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.phone" default-lazy="false">
   <!-- P H O N E -->
-  <class name="Phone" table="phone" discriminator-value="genericPhone">
+  <class name="Phone" table="phone" discriminator-value="unmanagedPhone">
     <id name="id" column="phone_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">phone_seq</param>
@@ -12,7 +12,7 @@
     <discriminator column="bean_id"/>
     <property name="beanId" insert="false" update="false"/>
     <property name="modelId"/>
-    <property name="name"/>
+    <property name="description"/>
     <property name="serialNumber"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
@@ -46,10 +46,6 @@
     </set -->
   </class>
   
-  <query name="phoneIdsWithName">
-    <![CDATA[select p.id from Phone p where p.name = :value]]>
-  </query>
-  
   <query name="phoneIdsWithSerialNumber">
     <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>        
   </query>  
@@ -60,6 +56,10 @@
   
   <query name="phonesByUserId">
     <![CDATA[from Phone p where p.lines.user.id = :userId]]>
+  </query>
+
+  <query name="phoneCount">
+    <![CDATA[select count(*) from Phone]]>
   </query>
   
 </hibernate-mapping>

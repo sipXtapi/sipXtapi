@@ -3,12 +3,12 @@
 <dataset>
     <phone serial_number="000000000001"
 		    phone_id="1000"
-        name="unittest-sample phone1"
-        bean_id="genericPhone"
+        description="unittest-sample phone1"
+        bean_id="unmanagedPhone"
         model_id=""/> 
     <phone serial_number="000000000002" 		
 		    phone_id="1001"
-        name="unittest-sample phone2"
-        bean_id="genericPhone"
+        description="unittest-sample phone2"
+        bean_id="unmanagedPhone"
         model_id=""/>
 </dataset>

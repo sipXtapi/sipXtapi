@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
@@ -47,6 +48,10 @@ public abstract class ManagePhones extends BasePage
     public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
     public abstract PhoneContext getPhoneContext();
+    
+    public IComponent getThis() {
+        return this;
+    }
     
     /**
      * When user clicks on link to edit a phone/phone

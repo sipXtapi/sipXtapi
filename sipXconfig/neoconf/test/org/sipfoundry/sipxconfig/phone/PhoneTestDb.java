@@ -53,7 +53,7 @@ public class PhoneTestDb extends TestCase {
         
         Phone phone = context.newPhone(Phone.MODEL);
         phone.setSerialNumber("999123456");
-        phone.setName("unittest-sample phone1");
+        phone.setDescription("unittest-sample phone1");
         context.storePhone(phone);
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("phone");
@@ -93,7 +93,7 @@ public class PhoneTestDb extends TestCase {
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
         Setting model = TestHelper.loadSettings("phone-settings.xml");        
-        model.getSetting("genericPhone/phone").addSetting(new SettingImpl("foo"));
+        model.getSetting("unmanagedPhone/phone").addSetting(new SettingImpl("foo"));
 
         Phone p = context.loadPhone(new Integer(1000));        
         p.setSettingModel(model);
@@ -204,7 +204,7 @@ public class PhoneTestDb extends TestCase {
         Collection phones = context.getPhonesByUserId(new Integer(1000));
         assertEquals(1, phones.size());
         Phone p = (Phone) phones.iterator().next();
-        assertEquals("unittest-sample phone1", p.getName());
+        assertEquals("unittest-sample phone1", p.getDescription());
     }
     
     public void testDeleteUserRemoveLines() throws Exception {
