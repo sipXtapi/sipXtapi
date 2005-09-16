@@ -38,15 +38,14 @@
     <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel">
         <set-property name="users" expression="users"/>
         <set-property name="coreContext" expression="page.global.coreContext"/>
+        <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--
 	  - C O M P O N E N T S
 	  -->
 	<component id="userTable" type="contrib:TableView">
-        <binding name="tableModel" expression="beans.userTableModel.tableModel"/>
-		<static-binding name="columns" value="* userName:userName,lastName:lastName,firstName:firstName,aliases:aliasesString"/>
-        <static-binding name="initialSortColumn" value="lastName"/>
-        <static-binding name="pageSize" value="20"/>
+        <binding name="tableModel" expression="beans.userTableModel.createTableModel(getThis())"/>
+        <static-binding name="initialSortColumn" value="userName"/>
 	</component>
 	<component id="userColumns" type="contrib:TableColumns">
 	</component>

@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

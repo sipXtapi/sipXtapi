@@ -17,6 +17,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -38,12 +39,13 @@ public class UserTableModelTest extends TestCase {
 
         UserTableModel model = new UserTableModel();
         model.setCoreContext(coreContext);
-        Iterator i1 = model.getCurrentPageRows(0, 1, UserTableModel.COLUMNS[0], true);
+        ITableColumn col = new UserTableModel.UserTableColumn("User Name", "userName", "userName");
+        Iterator i1 = model.getCurrentPageRows(0, 1, col, true);
         assertEquals(page1Array[0], i1.next());
         assertEquals(page1Array[1], i1.next());
         assertFalse(i1.hasNext());
         
-        Iterator i2 = model.getCurrentPageRows(1, 1, UserTableModel.COLUMNS[0], true);
+        Iterator i2 = model.getCurrentPageRows(1, 1, col, true);
         assertEquals(page2Array[0], i2.next());
         assertEquals(page2Array[1], i2.next());
         assertFalse(i2.hasNext());
