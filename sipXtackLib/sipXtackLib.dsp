@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXportLib\include\glib" /I "..\sipXcallLib\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "DISABLE_MEM_POOLS" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXportLib\include\glib" /I "..\sipXcallLib\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "DISABLE_MEM_POOLS" /D "ENABLE_OPENSSL_SMIME" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe

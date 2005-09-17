@@ -47,11 +47,33 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-
+#ifdef ENABLE_OPENSSL_SMIME
+static void dumpOpensslError()
+{
+    BIO* bioErrorBuf = BIO_new(BIO_s_mem());
+    ERR_print_errors(bioErrorBuf);
+    BUF_MEM *bioErrorMem;
+    BIO_get_mem_ptr(bioErrorBuf, &bioErrorMem);
+    if(bioErrorMem)
+    {
+        UtlString errorString;
+        errorString.append(bioErrorMem->data, bioErrorMem->length);
+        printf("OPENSSL Error:\n%s\n", errorString.data());
+    }
+}
+#endif
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
+// Default Constructor
+SmimeBody::SmimeBody()
+{
+    mContentEncoding = SMIME_ENODING_BINARY;
+    append(CONTENT_SMIME_PKCS7);
+    mClassType = SMIME_BODY_CLASS;
+    mpDecryptedBody = NULL;
+}
 // Constructor
 SmimeBody::SmimeBody(const char* bytes, 
                      int length,
@@ -95,6 +117,9 @@ SmimeBody::SmimeBody(const char* bytes,
 // Copy constructor
 SmimeBody::SmimeBody(const SmimeBody& rSmimeBody)
 {
+    // Copy the base class stuff
+    this->HttpBody::operator=((const HttpBody&)rSmimeBody);
+
     mpDecryptedBody = NULL;
     if(rSmimeBody.mpDecryptedBody)
     {
@@ -264,12 +289,15 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
         // future reference.
         mpDecryptedBody = bodyToEncrypt;
 
-        UtlString encryptedData;
-
 #ifdef ENABLE_OPENSSL_SMIME
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SmimeBody::opensslSmimeEncrypt not implemented");
-
+        encryptionSucceeded = 
+            opensslSmimeEncrypt(numRecipients,
+                                derPublicKeyCerts,
+                                derPubliceKeyCertLengths,
+                                dataToEncrypt.data(),
+                                dataToEncrypt.length(),
+                                encryptedDataInBase64Format,
+                                mBody);
 #else if ENABLE_NSS_SMIME
         encryptionSucceeded = 
             nssSmimeEncrypt(numRecipients,
@@ -283,7 +311,7 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
 
         // There should always be content if encryption succeeds
         if(encryptionSucceeded &&
-           encryptedData.length() <= 0)
+           mBody.length() <= 0)
         {
             encryptionSucceeded = FALSE;
             OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -291,6 +319,7 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
         }
     }
 
+    bodyLength = mBody.length(); 
     return(encryptionSucceeded);
 }
 
@@ -587,6 +616,101 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
     return(decryptSucceeded);
 }
 
+UtlBoolean SmimeBody::opensslSmimeEncrypt(int numRecipients,
+                                          const char* derPublicKeyCerts[],
+                                          int derPublicKeyCertLengths[],
+                                          const char* dataToEncrypt,
+                                          int dataToEncryptLength,
+                                          UtlBoolean encryptedDataInBase64Format,
+                                          UtlString& encryptedData)
+{
+    UtlBoolean encryptSucceeded = FALSE;
+    encryptedData.remove(0);
+
+#ifdef ENABLE_OPENSSL_SMIME
+
+    // Convert the DER format Certs. to a stack of X509
+    STACK_OF(X509)* recipientX509Certs = sk_X509_new_null();
+    for(int recipIndex = 0; recipIndex < numRecipients; recipIndex++)
+    {
+        X509* oneX509Cert = d2i_X509(NULL, (unsigned char**)&derPublicKeyCerts[recipIndex], 
+                                   derPublicKeyCertLengths[recipIndex]);
+        if(oneX509Cert)
+        {
+            sk_X509_push(recipientX509Certs, oneX509Cert);
+        }
+        else
+        {
+            printf("Invalid DER format cert. Cannot convert to X509 OpenSSL (DER length: %d)\n",
+                derPublicKeyCertLengths[recipIndex]);
+        }
+    }
+
+    // Put the data to be encryped into a BIO that can be used as input to
+    // the PKCS7 encoder
+    BIO* dataToEncryptBio = BIO_new_mem_buf((void*)dataToEncrypt,
+                                            dataToEncryptLength);
+
+    //  Use the X509 certs to create a PKCS7 encoder
+    int encodeOpts = 0;
+    if(encryptedDataInBase64Format)
+    {
+        PKCS7_BINARY;  // binary format, not base64 
+    }
+
+    const EVP_CIPHER* cipher = EVP_des_ede3_cbc();
+    PKCS7* pkcs7Encoder = PKCS7_encrypt(recipientX509Certs, dataToEncryptBio, cipher, encodeOpts);
+
+    BIO* encryptedDataBio = BIO_new(BIO_s_mem());
+    if(pkcs7Encoder && encryptedDataBio)
+    {
+        // Get the raw binary encrypted data out of the encoder
+        i2d_PKCS7_bio(encryptedDataBio, pkcs7Encoder);
+
+        BUF_MEM *encryptedDataBioMem = NULL;
+        BIO_get_mem_ptr(encryptedDataBio, &encryptedDataBioMem);
+
+        if(encryptedDataBioMem)
+        {
+            encryptSucceeded = TRUE;
+            encryptedData.append(encryptedDataBioMem->data,
+                                 encryptedDataBioMem->length);
+
+            BIO_free(encryptedDataBio);
+            encryptedDataBio = NULL;
+        }
+    }
+    else
+    {
+        if(pkcs7Encoder == NULL)
+        {
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                "failed to create openssl PKCS12 encoder");
+        }
+        if(encryptedDataBio)
+        {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                "Failed to allocate openssl BIO");
+        }
+    }
+
+    if(pkcs7Encoder)
+    {
+        // TODO: free up PKCS7
+        pkcs7Encoder = NULL;
+    }
+    if(dataToEncryptBio)
+    {
+        BIO_free(dataToEncryptBio);
+        dataToEncryptBio = NULL;
+    }
+    // Free up the cert stack
+    sk_X509_free(recipientX509Certs);
+#endif
+
+    return(encryptSucceeded);
+}
+
 UtlBoolean SmimeBody::opensslSmimeDecrypt(const char* derPkcs12,
                                int derPkcs12Length,
                                const char* pkcs12Password,
@@ -617,10 +741,12 @@ UtlBoolean SmimeBody::opensslSmimeDecrypt(const char* derPkcs12,
 
     if(privateKey == NULL)
     {
+        dumpOpensslError();
         OsSysLog::add(FAC_SIP, PRI_ERR, "PKCS12 or PKCS12 password invalid or does not contain private key for S/MIME decrypt operation");
     }
     if(publicKeyCert)
     {
+        dumpOpensslError();
         OsSysLog::add(FAC_SIP, PRI_ERR, "PKCS12 or PKCS12 password invalid or does not contain certificate and public key for S/MIME decrypt operation");
     }
 
@@ -711,7 +837,36 @@ UtlBoolean SmimeBody::convertPemToDer(UtlString& pemData,
     UtlBoolean conversionSucceeded = FALSE;
     derData.remove(0);
 
-#ifdef ENABLE_NSS_SMIME
+#ifdef ENABLE_OPENSSL_SMIME
+    // Convert PEM to openssl X509
+    BIO* certPemBioBuf = BIO_new_mem_buf((void*)pemData.data(),
+                                      pemData.length());
+    if(certPemBioBuf)
+    {
+        X509* x509 = PEM_read_bio_X509(certPemBioBuf, NULL, NULL, NULL);
+        BIO* certDerBio = BIO_new(BIO_s_mem());
+
+        if(x509 && certDerBio)
+        {
+            // Convert the X509 to a DER buffer
+            i2d_X509_bio(certDerBio, x509);
+
+            BUF_MEM* certDerBioMem = NULL;
+            BIO_get_mem_ptr(certDerBio, &certDerBioMem);
+            if(certDerBioMem && certDerBioMem->data && certDerBioMem->length > 0)
+            {
+                derData.append(certDerBioMem->data, certDerBioMem->length);
+            }
+            BIO_free(certDerBio);
+            certDerBio = NULL;
+            X509_free(x509);
+            x509 = NULL;
+        }
+        BIO_free(certPemBioBuf);
+        certPemBioBuf = NULL;
+    }
+
+#elif ENABLE_NSS_SMIME
     // Code from NSS secutil.c
 
     char* body = NULL;

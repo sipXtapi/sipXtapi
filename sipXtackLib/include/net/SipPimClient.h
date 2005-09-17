@@ -104,6 +104,15 @@ public:
                          int localPkcs12DerKeyCertLength,
                          const char* sPkcs12Password);
 
+    //! Set the certificate containing the public key for the remote side
+    /*! Setting the remote certificate enable encryption of IM messages
+     *  to the other side.
+     *  \param derFormatCertificate - DER format certificate
+     *  \param derFormatCertificateLength - length of the certificate
+     */
+    void setRemoteCertificate(const char* derFormatCertificate,
+                              int derFormatCertificateLength);
+
     //! Send a pager style instant message to the given destination
     /*! Send a non-session based instant message using the
      * MESSAGE method.
@@ -176,6 +185,7 @@ private:
     SipUserAgent* mpUserAgent;
     UtlString mPkcs12KeyCertContainer;
     UtlString mPkcs12Password;
+    UtlString mDerRemoteCertificate;
 
     void (*mpTextHandlerFunction)(const UtlString& fromAddress,
                                  const char* textMessage,
