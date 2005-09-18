@@ -57,6 +57,15 @@
     <pathelement path="${xml-apis.jar}" />
     <pathelement path="${xmlrpc.jar}" />
     <pathelement path="${antlr.jar}" />
+  	<!-- SOAP -->
+  	<pathelement path="${xfire.jar}" />
+  	<pathelement path="${xfire-spring.jar}" />
+  	<pathelement path="${xfire-aegis.jar}" />
+  	<pathelement path="${stax-api.jar}"/>
+  	<pathelement path="${javamail.jar}"/>
+  	<pathelement path="${yom.jar}"/>
+  	<pathelement path="${wsdl4j.jar}"/>
+  	<pathelement path="${stax-dev.jar}"/>
   </path>
 
   <path id="base.path">
@@ -172,6 +181,15 @@
       <fileset file="${tapestry.jar}" />
       <fileset file="${tapestry-contrib.jar}" />
       <fileset file="${ognl.jar}" />
+      <!-- SOAP -->
+      <fileset file="${xfire.jar}" />
+      <fileset file="${xfire-spring.jar}" />
+      <fileset file="${xfire-aegis.jar}" />
+      <fileset file="${stax-api.jar}"/>
+      <fileset file="${javamail.jar}"/>
+      <fileset file="${yom.jar}"/>
+      <fileset file="${wsdl4j.jar}"/>
+      <fileset file="${stax-dev.jar}"/>
     </copy>
   </target>	
 	
