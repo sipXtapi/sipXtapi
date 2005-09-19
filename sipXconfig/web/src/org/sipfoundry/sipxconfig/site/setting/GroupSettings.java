@@ -49,6 +49,12 @@ public abstract class GroupSettings extends BasePage implements PageRenderListen
     
     public abstract String getReturnPage();
     
+    public void editGroupName(IRequestCycle cycle) {
+        EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
+        page.editGroup(getGroupId(), PAGE);
+        cycle.activate(page);
+    }
+
     public void editGroup(Integer groupId, Setting settings, String returnPage) {
         setSettings(settings);
         setGroupId(groupId);
