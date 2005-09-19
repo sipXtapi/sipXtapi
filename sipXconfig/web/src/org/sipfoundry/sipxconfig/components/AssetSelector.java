@@ -59,7 +59,7 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
     }
 
     private static boolean isUploadFileSpecified(IUploadFile file) {
-        boolean isSpecified = file != null && !StringUtils.isBlank(file.getFileName());
+        boolean isSpecified = file != null && !StringUtils.isBlank(file.getFilePath());
         return isSpecified;
     }
 
@@ -82,19 +82,40 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
         }
 
         FileOutputStream promptWtr = null;
+        String fileName = getSystemIndependentFileName(upload.getFilePath());
         try {
             File promptsDir = new File(getAssetDir());
             promptsDir.mkdirs();
-            File promptFile = new File(promptsDir, upload.getFileName());
+            File promptFile = new File(promptsDir, fileName);
             promptWtr = new FileOutputStream(promptFile);
             CopyUtils.copy(upload.getStream(), promptWtr);
             setAsset(promptFile.getName());
             setUploadAsset(null);
         } catch (IOException ioe) {
-            throw new RuntimeException("Could not upload file " + upload.getFileName(), ioe);
+            throw new RuntimeException("Could not upload file " + fileName, ioe);
         } finally {
             IOUtils.closeQuietly(promptWtr);
         }
+    }
+
+    /**
+     * Extract file name from the path in a system independed way.
+     * 
+     * C:\a\b\c.txt -> c.txt a/b/c.txt => c.txt
+     * 
+     * We cannot use File.getName() here since it only works for filenames from the same operating
+     * system. We have to handle the case when Windows file is downloaded on Linux server and vice
+     * versa
+     * 
+     * @param filePath full name of the downloaded file in a client sytem format
+     * @return base name and extension of the file
+     */
+    static String getSystemIndependentFileName(String filePath) {
+        if (StringUtils.isEmpty(filePath)) {
+            return StringUtils.EMPTY;
+        }
+        String[] parts = StringUtils.split(filePath, ":/\\");
+        return parts[parts.length - 1];
     }
 
     /**
