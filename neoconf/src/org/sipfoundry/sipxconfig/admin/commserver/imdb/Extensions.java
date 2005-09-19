@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,11 +28,11 @@ public class Extensions extends DataSetGenerator {
         List users = getCoreContext().loadUsers();
         for (Iterator i = users.iterator(); i.hasNext();) {
             User user = (User) i.next();
-            Set aliases = user.getAliases();
+            String[] aliases = user.getAliases();
             boolean foundNumericAlias = false;
             Element item = null;
-            for (Iterator iter = aliases.iterator(); iter.hasNext();) {
-                String alias = (String) iter.next();
+            for (int j = 0; j < aliases.length; j++) {
+                String alias = aliases[j];
                 Matcher m = PATTERN_NUMERIC.matcher(alias);
                 if (m.matches()) {
                     if (!foundNumericAlias) {

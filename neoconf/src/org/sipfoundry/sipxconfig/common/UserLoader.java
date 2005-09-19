@@ -79,18 +79,21 @@ public class UserLoader {
      */
     private void handleUserNameAliasesConstraint(final User userTemplate,
                                                  boolean matchUserNameOrAlias) {
+        final String joinUserNameTable = "join u.userNameObject userName ";
         if (!StringUtils.isEmpty(userTemplate.getUserName())) {
             if (matchUserNameOrAlias) {
-                m_queryBuf.append("left outer join u.aliases alias ");
-                m_queryBuf.append("where (u.userName like :");
+                m_queryBuf.append("left outer join u.aliasObjects alias ");
+                m_queryBuf.append(joinUserNameTable);
+                m_queryBuf.append("where (userName.name like :");
                 m_queryBuf.append(PARAM_USER_NAME_OR_ALIAS);
-                m_queryBuf.append(" or alias like :");
+                m_queryBuf.append(" or alias.name like :");
                 m_queryBuf.append(PARAM_USER_NAME_OR_ALIAS);
                 m_queryBuf.append(") ");
                 
                 m_paramNames.add(PARAM_USER_NAME_OR_ALIAS);
             } else {
-                m_queryBuf.append("where u.userName like :");
+                m_queryBuf.append(joinUserNameTable);
+                m_queryBuf.append("where userName.name like :");
                 m_queryBuf.append(PARAM_USER_NAME);
                 m_queryBuf.append(SPACE_CHAR);
                 
@@ -156,7 +159,7 @@ public class UserLoader {
 
     /** Initialize internal state to get ready for a new query */
     private void init() {
-        m_queryBuf = new StringBuffer("from User u ");
+        m_queryBuf = new StringBuffer("select u from User u ");
         m_noWhere = true;
         m_paramNames.clear();
         m_paramValues.clear();       

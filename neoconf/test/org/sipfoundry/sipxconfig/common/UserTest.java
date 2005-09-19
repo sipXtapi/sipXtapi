@@ -11,10 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -33,6 +30,7 @@ public class UserTest extends TestCase {
     private static final String DOMAIN = "sipfoundry.org";
     private static final String ALIAS1 = "mambo";
     private static final String ALIAS2 = "tango";
+    private static final String ALIAS3 = "hora";
     private static final String ALIASES_STRING = ALIAS1 + ", " + ALIAS2;
     
     public void testGetDisplayName() {
@@ -111,19 +109,12 @@ public class UserTest extends TestCase {
     }
     
     public void testGetAliases() {
-        User user = new User();
-        user.setUserName(USERNAME);
-        
-        Set aliases = new LinkedHashSet();  // use LinkedHashSet for stable ordering
-        aliases.add(ALIAS1);
-        aliases.add(ALIAS2);
-        user.setAliases(aliases);
+        User user = createUserWithTwoAliases();
         assertEquals(ALIASES_STRING, user.getAliasesString());
-        checkAliases(user);
+        checkAliases(user, 2);
         
-        user.setAliases(new LinkedHashSet());
         user.setAliasesString(ALIASES_STRING);
-        checkAliases(user);
+        checkAliases(user, 2);
                 
         List aliasMappings = user.getAliasMappings(DOMAIN);
         assertEquals(2, aliasMappings.size());
@@ -136,12 +127,35 @@ public class UserTest extends TestCase {
         assertEquals(CONTACT, alias.getContact());
     }
     
-    private void checkAliases(User user) {
-        Set aliasesCheck = user.getAliases();
-        assertEquals(2, aliasesCheck.size());
-        Iterator i = aliasesCheck.iterator();
-        assertEquals(ALIAS1, i.next());
-        assertEquals(ALIAS2, i.next());        
+    private User createUserWithTwoAliases() {
+        User user = new User();
+        user.setUserName(USERNAME);        
+        String[] aliases = new String[] {ALIAS1, ALIAS2};
+        user.setAliases(aliases);
+        return user;
+    }
+    
+    public void testGetNames() {
+        User user = createUserWithTwoAliases();
+        String names[] = user.getNames();
+        assertEquals(3, names.length);
+        assertEquals(USERNAME, names[0]);
+        assertEquals(ALIAS1, names[1]);
+        assertEquals(ALIAS2, names[2]);        
+    }
+    
+    private void checkAliases(User user, int numExpected) {
+        String[] aliases = user.getAliases();
+        assertEquals(numExpected, aliases.length);
+        if (numExpected > 0) {
+            assertEquals(ALIAS1, aliases[0]);
+        }
+        if (numExpected > 1) {
+            assertEquals(ALIAS2, aliases[1]);
+        }
+        if (numExpected > 2) {
+            assertEquals(ALIAS3, aliases[2]);
+        }        
     }
     
     public void testGetEmptyAliases() {
@@ -149,6 +163,29 @@ public class UserTest extends TestCase {
         user.setUserName(USERNAME);
         List aliasMappings = user.getAliasMappings(DOMAIN);
         assertEquals(0, aliasMappings.size());
+    }
+    
+    public void testAddAlias() {
+        User user = createUserWithTwoAliases();
+        user.addAlias(ALIAS3);
+        String[] aliasesCheck = user.getAliases();
+        assertEquals(3, aliasesCheck.length);
+        assertEquals(ALIAS1, aliasesCheck[0]);
+        assertEquals(ALIAS2, aliasesCheck[1]);        
+        assertEquals(ALIAS3, aliasesCheck[2]);        
+    }
+    
+    public void testAddAliases() {
+        User user = new User();
+        user.addAliases(new String[] {ALIAS1, ALIAS2, ALIAS3});
+        checkAliases(user, 3);
+    }
+
+    public void testHasAlias() {
+        User user = createUserWithTwoAliases();
+        assertTrue(user.hasAlias(ALIAS1));
+        assertTrue(user.hasAlias(ALIAS2));
+        assertFalse(user.hasAlias(ALIAS3));
     }
     
     public void testHasPermission() {

@@ -48,7 +48,7 @@ public class UserTestDb extends TestCase {
         assertEquals(userId, user.getPrimaryKey());
         assertEquals(userId, user.getId());
     }
-
+    
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         User user = new User();
@@ -57,17 +57,18 @@ public class UserTestDb extends TestCase {
         user.setLastName("LastName");
         user.setPintoken("password");
         user.setSipPassword("sippassword");
-        user.getAliases().add("1234");
+        user.addAlias("1234");
         core.saveUser(user);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveUserExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[user_id]", user.getId());
+        expectedRds.addReplacementObject("[user_name_id]", user.getUserNameObject().getId());
         expectedRds.addReplacementObject("[null]", null);
 
         ITable expected = expectedRds.getTable("users");
         ITable actual = TestHelper.getConnection().createQueryTable("users",
-                "select * from users where user_name='userid'");
+                "select u.* from users u inner join user_name un using (user_name_id) where un.name = 'userid'");
 
         Assertion.assertEquals(expected, actual);
     }

@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.ApplicationContext;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class CoreContextImplTestDb extends TestCase {
 
@@ -58,6 +60,23 @@ public class CoreContextImplTestDb extends TestCase {
         assertEquals("userseed5", user.getUserName());
         assertNull(m_core.loadUserByAlias("666"));
         assertNull(m_core.loadUserByAlias("userseed2"));
+    }
+
+    public void testRemoveAlias() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        
+        HibernateTemplate hibernate = ((HibernateDaoSupport) m_core).getHibernateTemplate();
+        List names = hibernate.loadAll(UserName.class);
+        int numAliases = names.size();
+        
+        // Remove one alias => check that the alias got cleaned out of the names table,
+        // not just removed from the User and orphaned in the names table
+        User user = m_core.loadUserByAlias("2");
+        user.removeAlias("2");
+        hibernate.saveOrUpdate(user);
+        names = hibernate.loadAll(UserName.class);
+        assertEquals(1, numAliases - names.size());
     }
 
     public void testLoadUserByUserNameOrAlias() throws Exception {
@@ -274,6 +293,7 @@ public class CoreContextImplTestDb extends TestCase {
                 .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[user_id]", admin.getId());
+        expectedRds.addReplacementObject("[user_name_id]", admin.getUserNameObject().getId());
         expectedRds.addReplacementObject("[group_id]", adminGroup.getId());
         expectedRds.addReplacementObject("[weight]", adminGroup.getWeight());
         expectedRds.addReplacementObject("[null]", null);
@@ -314,21 +334,31 @@ public class CoreContextImplTestDb extends TestCase {
     
     public void testLoadUserPage() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(0, 2, "userName", true);
+        Collection page = m_core.loadUsersByPage(0, 2, User.USER_NAME_PROPERTY, true);
         assertEquals(2, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
         
-        Collection next = m_core.loadUsersByPage(2, 2, "userName", true);
+        Collection next = m_core.loadUsersByPage(2, 2, User.USER_NAME_PROPERTY, true);
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
+        
+        page = m_core.loadUsersByPage(0, 2, User.LAST_NAME_PROPERTY, true);
+        assertEquals(2, page.size());
+        nextUser = (User) page.iterator().next();
+        assertEquals("elephant", nextUser.getUserName());
+        
+        next = m_core.loadUsersByPage(2, 2, User.FIRST_NAME_PROPERTY, false);
+        assertEquals(2, next.size());
+        nextUser = (User) next.iterator().next();
+        assertEquals("gogo", nextUser.getUserName());
     }
 
     public void testLoadUserPageDescending() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         // expect third user from bottom
-        Collection page = m_core.loadUsersByPage(2, 2, "userName", false);
+        Collection page = m_core.loadUsersByPage(2, 2, User.USER_NAME_PROPERTY, false);
         User u = (User) page.iterator().next();
         assertEquals("horatio", u.getUserName());
     }

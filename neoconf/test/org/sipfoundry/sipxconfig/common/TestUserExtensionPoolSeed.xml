@@ -1,28 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
-	<users user_name="1" user_id="1001"/>
-	<users user_name="7" user_id="1002"/>
-	<users user_name="8" user_id="1003"/>
-	<users user_name="9" user_id="1004"/>
-	<users user_name="11" user_id="1005"/>
-	<users user_name="15" user_id="1006"/>
-	<users user_name="16" user_id="1007"/>
-	<users user_name="21" user_id="1008"/>
-	<users user_name="22" user_id="1009"/>
-	<users user_name="33" user_id="1010"/>
+	<!-- User names -->
+	<user_name user_name_id="1001" name="1"/>
+	<user_name user_name_id="1002" name="7"/>
+	<user_name user_name_id="1003" name="8"/>
+	<user_name user_name_id="1004" name="9"/>
+	<user_name user_name_id="1005" name="11"/>
+	<user_name user_name_id="1006" name="15"/>
+	<user_name user_name_id="1007" name="16"/>
+	<user_name user_name_id="1008" name="21"/>
+	<user_name user_name_id="1009" name="22"/>
+	<user_name user_name_id="1010" name="33"/>
 	
-	<user_alias user_id="1001" alias="2"/>
-	<user_alias user_id="1002" alias="3"/>
-	<user_alias user_id="1002" alias="4"/>
-	<user_alias user_id="1003" alias="9"/>
-	<user_alias user_id="1004" alias="12"/>
-	<user_alias user_id="1005" alias="13"/>
-	<user_alias user_id="1005" alias="14"/>
-	<user_alias user_id="1006" alias="19"/>
-	<user_alias user_id="1007" alias="20"/>
-	<user_alias user_id="1008" alias="30"/>
-	<user_alias user_id="1009" alias="31"/>
+	<!-- Alias names -->
+	<user_name user_name_id="2001" name="2"/>
+	<user_name user_name_id="2002" name="3"/>
+	<user_name user_name_id="2003" name="4"/>
+	<user_name user_name_id="2004" name="32"/>
+	<user_name user_name_id="2005" name="12"/>
+	<user_name user_name_id="2006" name="13"/>
+	<user_name user_name_id="2007" name="14"/>
+	<user_name user_name_id="2008" name="19"/>
+	<user_name user_name_id="2009" name="20"/>
+	<user_name user_name_id="2010" name="30"/>
+	<user_name user_name_id="2011" name="31"/>
+	
+	<!-- Users -->
+	<users user_name_id="1001" user_id="1001"/>
+	<users user_name_id="1002" user_id="1002"/>
+	<users user_name_id="1003" user_id="1003"/>
+	<users user_name_id="1004" user_id="1004"/>
+	<users user_name_id="1005" user_id="1005"/>
+	<users user_name_id="1006" user_id="1006"/>
+	<users user_name_id="1007" user_id="1007"/>
+	<users user_name_id="1008" user_id="1008"/>
+	<users user_name_id="1009" user_id="1009"/>
+	<users user_name_id="1010" user_id="1010"/>
+	
+	<!-- Alias join table -->
+	<user_alias user_id="1001" user_name_id="2001"/>
+	<user_alias user_id="1002" user_name_id="2002"/>
+	<user_alias user_id="1002" user_name_id="2003"/>
+	<user_alias user_id="1003" user_name_id="2004"/>
+	<user_alias user_id="1004" user_name_id="2005"/>
+	<user_alias user_id="1005" user_name_id="2006"/>
+	<user_alias user_id="1005" user_name_id="2007"/>
+	<user_alias user_id="1006" user_name_id="2008"/>
+	<user_alias user_id="1007" user_name_id="2009"/>
+	<user_alias user_id="1008" user_name_id="2010"/>
+	<user_alias user_id="1009" user_name_id="2011"/>	
 	
 	<extension_pool enabled="true" name="user" first_extension="1"
 		last_extension="50" next_extension="1" extension_pool_id="1"/>

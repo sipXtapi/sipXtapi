@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
-	<users first_name="" last_name="" user_name="alpha" pintoken="x" user_id="1001"/>
-	<users first_name="" last_name="" user_name="beta" pintoken="x" user_id="1002"/>
-	<users first_name="" last_name="" user_name="charlie" pintoken="x" user_id="1003"/>
-	<users first_name="" last_name="" user_name="delta" pintoken="x" user_id="1004"/>
-	<users first_name="" last_name="" user_name="elephant" pintoken="x" user_id="1005"/>
-	<users first_name="" last_name="" user_name="frank" pintoken="x" user_id="1006"/>
-	<users first_name="" last_name="" user_name="gogo" pintoken="x" user_id="1007"/>
-	<users first_name="" last_name="" user_name="horatio" pintoken="x" user_id="1008"/>
-	<users first_name="" last_name="" user_name="janus" pintoken="x" user_id="1009"/>
-	<users first_name="" last_name="" user_name="kyle" pintoken="x" user_id="1010"/>
+	<user_name name="alpha" user_name_id="1001"/>
+	<user_name name="beta" user_name_id="1002"/>
+	<user_name name="charlie" user_name_id="1003"/>
+	<user_name name="delta" user_name_id="1004"/>
+	<user_name name="elephant" user_name_id="1005"/>
+	<user_name name="frank" user_name_id="1006"/>
+	<user_name name="gogo" user_name_id="1007"/>
+	<user_name name="horatio" user_name_id="1008"/>
+	<user_name name="janus" user_name_id="1009"/>
+	<user_name name="kyle" user_name_id="1010"/>
+	
+	<users first_name="beta" last_name="gogo" user_name_id="1001" pintoken="x" user_id="1001"/>
+	<users first_name="charlie" last_name="horatio" user_name_id="1002" pintoken="x" user_id="1002"/>
+	<users first_name="delta" last_name="janus" user_name_id="1003" pintoken="x" user_id="1003"/>
+	<users first_name="elephant" last_name="kyle" user_name_id="1004" pintoken="x" user_id="1004"/>
+	<users first_name="frank" last_name="alpha" user_name_id="1005" pintoken="x" user_id="1005"/>
+	<users first_name="gogo" last_name="beta" user_name_id="1006" pintoken="x" user_id="1006"/>
+	<users first_name="horatio" last_name="charlie" user_name_id="1007" pintoken="x" user_id="1007"/>
+	<users first_name="janus" last_name="delta" user_name_id="1008" pintoken="x" user_id="1008"/>
+	<users first_name="kyle" last_name="elephant" user_name_id="1009" pintoken="x" user_id="1009"/>
+	<users first_name="alpha" last_name="frank" user_name_id="1010" pintoken="x" user_id="1010"/>
 </dataset>

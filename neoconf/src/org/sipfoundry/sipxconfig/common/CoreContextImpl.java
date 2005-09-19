@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,10 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -39,11 +37,16 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final String USER_GROUP_RESOURCE_ID = "user";
-    private static final String USERNAME_PROP_NAME = "userName";
     /** nothing special about this name */
     private static final String ADMIN_GROUP_NAME = "administrators"; 
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
-    private static final String QUERY_USER = "from User";
+
+    // This string is the starting point for building a user query.
+    // Include "select" at the beginning in case we need to do joins, to ensure
+    // that the query only returns phones and not joined objects as well.
+    private static final String QUERY_USER_PARAM = "u";
+    private static final String QUERY_USER = "select " + QUERY_USER_PARAM + " from User "
+            + QUERY_USER_PARAM;
     
     private String m_authorizationRealm;
 
@@ -105,9 +108,12 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public User loadUserByUserName(String userName) {
-        return loadUserByUniqueProperty(USERNAME_PROP_NAME, userName);
+        return loadUserByNamedQueryAndNamedParam("userByName", "userName", userName);
     }
-
+    
+    // This method is not currently used but could still be useful.
+    // Keep it around for now, commenting it out to suppress checkstyle warnings.
+/*
     private User loadUserByUniqueProperty(String propName, String propValue) {
         final Criterion expression = Restrictions.eq(propName, propValue);
 
@@ -122,7 +128,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
         return user;
     }
-
+*/
     public User loadUserByAlias(String alias) {
         return loadUserByNamedQueryAndNamedParam("userByAlias", "alias", alias);
     }
@@ -149,9 +155,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         String result = null;
         
         // Check for duplication within the user itself
-        List names = new ArrayList(user.getAliases());
-        names.add(user.getUserName());
-        result = checkForDuplicateString(names);
+        String[] names = user.getNames();
+        List namesList = Arrays.asList(names);
+        result = checkForDuplicateString(namesList);
         if (result == null) {
             // Check the username.  If it is the username or alias for a different existing
             // user, then return it as a bad name.
@@ -160,9 +166,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 result = user.getUserName();
             } else {
                 // Check the aliases and return any duplicate as a bad name.
-                // 
-                for (Iterator iter = user.getAliases().iterator(); iter.hasNext();) {
-                    String alias = (String) iter.next();
+                String[] aliases = user.getAliases();
+                for (int i = 0; i < aliases.length; i++) {
+                    String alias = aliases[i];
                     if (DaoUtils.checkDuplicatesByNamedQuery(hibernate, user,
                             QUERY_USER_IDS_BY_NAME_OR_ALIAS, alias, null)) {
                         result = alias;
@@ -254,7 +260,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
     
     public List loadUsersByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        List users = DaoUtils.loadByPage(getSession(), QUERY_USER, firstRow, 
+        List users = DaoUtils.loadByPage(getSession(), QUERY_USER, QUERY_USER_PARAM, firstRow,
                 pageSize, orderBy, orderAscending);
         return users;
     }

@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -29,15 +30,15 @@ public class DaoUtilsTestDb extends TestCase {
     }
 
     public void testCheckDuplicates() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.cleanInsertFlat("gateway/SeedGateway.xml");
 
-        User user = new User();
-        user.setUserName("userseed1");
-        assertTrue(DaoUtils.checkDuplicates(m_hibernate, user, "userName", null));
+        Gateway gateway = new Gateway();
+        gateway.setName("test gateway");
+        assertTrue(DaoUtils.checkDuplicates(m_hibernate, gateway, "name", null));
 
-        user = new User();
-        user.setUserName("wont find this guy");
-        assertFalse(DaoUtils.checkDuplicates(m_hibernate, user, "userName", null));
+        gateway = new Gateway();
+        gateway.setName("won't find this guy");
+        assertFalse(DaoUtils.checkDuplicates(m_hibernate, gateway, "name", null));
     }
 
 }

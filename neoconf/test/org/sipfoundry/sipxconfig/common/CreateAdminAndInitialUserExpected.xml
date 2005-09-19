@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
+	<user_name
+		user_name_id="[user_name_id]"
+		name="superadmin"
+		/>
 	<users 
 		user_id="[user_id]"
 		first_name="[null]"
 		last_name="[null]"
 		pintoken=""
 		sip_password="[null]"
-    user_name="superadmin"
-    value_storage_id="[null]"
+    	user_name_id="[user_name_id]"
+	    value_storage_id="[null]"
 		/>
     <group_storage 
   		resource="user"

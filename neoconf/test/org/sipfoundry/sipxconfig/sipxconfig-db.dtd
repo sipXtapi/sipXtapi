@@ -281,6 +281,12 @@
     user_id CDATA #REQUIRED
 >
 
+<!ELEMENT user_name EMPTY>
+<!ATTLIST user_name
+    user_name_id CDATA #REQUIRED
+    name CDATA #REQUIRED
+>
+
 <!ELEMENT users EMPTY>
 <!ATTLIST users
     user_id CDATA #REQUIRED
@@ -288,7 +294,7 @@
     pintoken CDATA #IMPLIED
     sip_password CDATA #IMPLIED
     last_name CDATA #IMPLIED
-    user_name CDATA #IMPLIED
+    user_name_id CDATA #IMPLIED
     extension CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
 >

@@ -98,7 +98,8 @@
 	  name_uniqueness,
       relax_group_name_uniqueness,
       phone_description,
-	  dialing_rule_name_uniqueness"/>
+	  dialing_rule_name_uniqueness,
+	  user_names"/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -266,9 +267,6 @@
     </sipx-sql>
   	<mark-patch-applied patch="relax_group_name_uniqueness"/>
   </target>
-  <target name="dialing_rule_name_uniqueness" unless="dialing_rule_name_uniqueness">
-    <db-patch patch="dialing_rule_name_uniqueness"/>
-  </target>  
   <target name="phone_description" unless="phone_description">
     <sipx-sql>
 		alter table phone add column description varchar(255);  
@@ -278,6 +276,12 @@
 	</sipx-sql>
   	<mark-patch-applied patch="phone_description"/>
   </target>
+  <target name="dialing_rule_name_uniqueness" unless="dialing_rule_name_uniqueness">
+    <db-patch patch="dialing_rule_name_uniqueness"/>
+  </target>  
+  <target name="user_names" unless="user_names">
+    <db-patch patch="user_names"/>
+  </target>  
 	
   <!--
     - SUPPORT UTILITIES

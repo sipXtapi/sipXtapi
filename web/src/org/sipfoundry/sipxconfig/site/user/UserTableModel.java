@@ -19,13 +19,10 @@ import org.apache.tapestry.IComponent;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.AbstractTableModel;
 
 public class UserTableModel extends AbstractTableModel {
-    
-    static final String USER_NAME_PROPERTY = "userName"; 
-    static final String FIRST_NAME_PROPERTY = "firstName"; 
-    static final String LAST_NAME_PROPERTY = "lastName";
     
     private CoreContext m_coreContext;
 
@@ -61,16 +58,16 @@ public class UserTableModel extends AbstractTableModel {
         }
         
         OrderByTableColumn userCol = (OrderByTableColumn) objSortColumn;
-        String orderBy = userCol != null ? userCol.getOrderBy() : USER_NAME_PROPERTY;
+        String orderBy = userCol != null ? userCol.getOrderBy() : User.USER_NAME_PROPERTY;
         List page = m_coreContext.loadUsersByPage(firstRow, pageSize, orderBy, orderAscending);
         return page.iterator();
     }
     
     public ITableModel createTableModel(IComponent component) {
         OrderByTableColumn[] columns = new OrderByTableColumn[] {
-            new OrderByTableColumn(USER_NAME_PROPERTY, USER_NAME_PROPERTY, USER_NAME_PROPERTY),
-            new OrderByTableColumn(FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY),
-            new OrderByTableColumn(LAST_NAME_PROPERTY, LAST_NAME_PROPERTY, LAST_NAME_PROPERTY),
+            new OrderByTableColumn(User.USER_NAME_PROPERTY, User.USER_NAME_PROPERTY, User.USER_NAME_PROPERTY),
+            new OrderByTableColumn(User.FIRST_NAME_PROPERTY, User.FIRST_NAME_PROPERTY, User.FIRST_NAME_PROPERTY),
+            new OrderByTableColumn(User.LAST_NAME_PROPERTY, User.LAST_NAME_PROPERTY, User.LAST_NAME_PROPERTY),
             new OrderByTableColumn("aliases", "aliasesString")
         };
 

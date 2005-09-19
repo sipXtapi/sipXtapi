@@ -92,9 +92,9 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     }
 
     /**
-     * Create list of aliases that descibe forwarding for this group. All aliases have the form
-     * group_name@domain => user_name@domain with the specific q value In addtion alias extension =>
-     * group name is added to allow calling to extension
+     * Create list of aliases that describe forwarding for this group.  All aliases have the form
+     * group_name@domain => user_name@domain with the specific q value.  Add an alias for the
+     * call group extension to make it possible to reach the call group by calling the extension. 
      * 
      * @return list of AliasMapping objects (identity => contact)
      */

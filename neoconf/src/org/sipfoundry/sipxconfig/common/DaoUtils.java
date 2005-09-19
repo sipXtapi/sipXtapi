@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -31,6 +32,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  */
 public final class DaoUtils {
     private static final String ID_PROPERTY_NAME = "id";
+    private static final String DOT = ".";
+    private static final String SPACE = " ";
     
     private DaoUtils() {
         // Utility class - do not instantiate
@@ -156,15 +159,46 @@ public final class DaoUtils {
         return propValue;
     }
     
-    public static List loadByPage(Session session, String query, int firstRow, int pageSize, String orderBy, 
-            boolean orderAscending) {
-        String orderDirection = orderAscending ? " asc" : " desc";
-        Query q = session.createQuery(query + " order by " + orderBy + orderDirection);
+    // TODO: Consider rewriting this method to use the Criteria API rather than HQL.
+    // Since the method has gotten more complex, there is now too much clever string manipulation.
+    public static List loadByPage(Session session, String query, String objName, int firstRow,
+            int pageSize, String orderBy, boolean orderAscending) {
+        StringBuffer buf = new StringBuffer(query);       
+        addOrderByClause(buf, objName, orderBy, orderAscending);
+        Query q = session.createQuery(buf.toString());
         q.setFirstResult(firstRow);
         q.setMaxResults(pageSize);
         List items = q.list();
         
         return items;
+    }
+
+    private static void addOrderByClause(StringBuffer buf, String objName, String orderBy,
+            boolean orderAscending) {
+        if (StringUtils.isEmpty(orderBy)) {
+            return;     // nothing to add
+        }
+
+        // HACK: To order by userName for the User class, we must join with the user_name table.
+        // TODO: Fix the class-specific hackery in this method, probably by switching to Criteria from HQL.
+        final String userNameObjectAlias = "un";
+        if (orderBy.equals(User.USER_NAME_PROPERTY)) {
+            // add, for example, "join u.userNameObject un"
+            buf.append(" join " + objName + DOT + User.USER_NAME_OBJECT_PROPERTY + SPACE + userNameObjectAlias);
+        }
+        buf.append(" order by ");
+        
+        // Add order by constraints
+        String orderDirection = orderAscending ? " asc" : " desc";
+        if (orderBy.equals(User.USER_NAME_PROPERTY)) {
+            buf.append(userNameObjectAlias + DOT + "name");
+        } else {
+            if (objName != null) {
+                buf.append(objName + DOT);
+            }
+            buf.append(orderBy);
+        }
+        buf.append(orderDirection);
     }
     
 }

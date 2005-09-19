@@ -1,25 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
-	<users first_name="" last_name="" user_name="userseed1" pintoken="x" user_id="1001"/>
-	<users first_name="" last_name="" user_name="userseed2" pintoken="x" user_id="1002"/>
-	<users first_name="" last_name="" user_name="userseed3" pintoken="x" user_id="1003"/>
-	<users first_name="user4" last_name="" user_name="userseed4" pintoken="x" user_id="1004"/>
-	<users first_name="" last_name="seed5" user_name="userseed5" pintoken="x" user_id="1005"/>
-	<users first_name="" last_name="" user_name="userseed6" pintoken="x" user_id="1006"/>
-	<users first_name="" last_name="" user_name="usersee-nofind" pintoken="x" user_id="1007"/>
-	<users first_name="" last_name="" user_name="nofind-userseed" pintoken="x" user_id="1008"/>
-	<users first_name="" last_name="" user_name="u s e r s e e d" pintoken="x" user_id="1009"/>
-	<users first_name="" last_name="" user_name="userwithnoaliases" pintoken="x" user_id="1010"/>
+	<!-- User names -->
+	<user_name user_name_id="1001" name="userseed1"/>
+	<user_name user_name_id="1002" name="userseed2"/>
+	<user_name user_name_id="1003" name="userseed3"/>
+	<user_name user_name_id="1004" name="userseed4"/>
+	<user_name user_name_id="1005" name="userseed5"/>
+	<user_name user_name_id="1006" name="userseed6"/>
+	<user_name user_name_id="1007" name="usersee-nofind"/>
+	<user_name user_name_id="1008" name="nofind-userseed"/>
+	<user_name user_name_id="1009" name="u s e r s e e d"/>
+	<user_name user_name_id="1010" name="userwithnoaliases"/>
 	
-	<user_alias user_id="1001" alias="1"/>
-	<user_alias user_id="1002" alias="2"/>
-	<user_alias user_id="1002" alias="two"/>
-	<user_alias user_id="1003" alias="3"/>
-	<user_alias user_id="1004" alias="4"/>
-	<user_alias user_id="1005" alias="5"/>
-	<user_alias user_id="1006" alias="6"/>
-	<user_alias user_id="1007" alias="7"/>
-	<user_alias user_id="1008" alias="8"/>
-	<user_alias user_id="1009" alias="9"/>
+	<!-- Alias names -->
+	<user_name user_name_id="2001" name="1"/>
+	<user_name user_name_id="2002" name="2"/>
+	<user_name user_name_id="2003" name="two"/>
+	<user_name user_name_id="2004" name="3"/>
+	<user_name user_name_id="2005" name="4"/>
+	<user_name user_name_id="2006" name="5"/>
+	<user_name user_name_id="2007" name="6"/>
+	<user_name user_name_id="2008" name="7"/>
+	<user_name user_name_id="2009" name="8"/>
+	<user_name user_name_id="2010" name="9"/>
+	
+	<!-- Users -->
+	<users first_name="" last_name="" user_name_id="1001" pintoken="x" user_id="1001"/>
+	<users first_name="" last_name="" user_name_id="1002" pintoken="x" user_id="1002"/>
+	<users first_name="" last_name="" user_name_id="1003" pintoken="x" user_id="1003"/>
+	<users first_name="user4" last_name="" user_name_id="1004" pintoken="x" user_id="1004"/>
+	<users first_name="" last_name="seed5" user_name_id="1005" pintoken="x" user_id="1005"/>
+	<users first_name="" last_name="" user_name_id="1006" pintoken="x" user_id="1006"/>
+	<users first_name="" last_name="" user_name_id="1007" pintoken="x" user_id="1007"/>
+	<users first_name="" last_name="" user_name_id="1008" pintoken="x" user_id="1008"/>
+	<users first_name="" last_name="" user_name_id="1009" pintoken="x" user_id="1009"/>
+	<users first_name="" last_name="" user_name_id="1010" pintoken="x" user_id="1010"/>
+	
+	<!-- Alias join table -->
+	<user_alias user_id="1001" user_name_id="2001"/>
+	<user_alias user_id="1002" user_name_id="2002"/>
+	<user_alias user_id="1002" user_name_id="2003"/>
+	<user_alias user_id="1003" user_name_id="2004"/>
+	<user_alias user_id="1004" user_name_id="2005"/>
+	<user_alias user_id="1005" user_name_id="2006"/>
+	<user_alias user_id="1006" user_name_id="2007"/>
+	<user_alias user_id="1007" user_name_id="2008"/>
+	<user_alias user_id="1008" user_name_id="2009"/>
+	<user_alias user_id="1009" user_name_id="2010"/>
 </dataset>

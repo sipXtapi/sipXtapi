@@ -46,7 +46,7 @@ public class ExtensionsTest extends XMLTestCase {
             user.setUserName(userData[2]);
             String extension = userData[3];
             if (!StringUtils.isBlank(extension)) {
-                user.getAliases().add(extension);                
+                user.addAlias(extension);                
             }
             users.add(user);
         }

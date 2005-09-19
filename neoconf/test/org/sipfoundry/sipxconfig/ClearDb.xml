@@ -30,6 +30,7 @@
   <table name="setting_value"/>  
     
   <!-- users -->
+  <table name="user_name"/>  
   <table name="users"/>
   <table name="user_alias"/>
   <table name="user_ring"/>

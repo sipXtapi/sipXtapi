@@ -4,7 +4,12 @@
 <hibernate-mapping package="org.sipfoundry.sipxconfig.common" default-lazy="false">
 
   <!-- 
-    - U S E R
+    - User
+	-
+	- To enforce uniqueness of all SIP usernames, they are all stored in a single table
+	- "user_name".  The userName and aliases for users are SIP usernames so they live in
+	- that table.  That's why we are using entity associations rather than, for example,
+	- storing the userName directly in the user row as was done previously.
 	-
 	- Ideally the table would be named "user" (singular) rather than "users",
 	- like other tables, but "user" exists already as a PostgreSQL internal table.
@@ -19,10 +24,11 @@
     <property name="pintoken"/>
     <property name="sipPassword"/>
     <property name="lastName"/>
-    <property name="userName"/>
-    <set name="aliases" table="user_alias">
+	<many-to-one name="userNameObject" class="UserName"
+		column="user_name_id" cascade="all" unique="true" not-null="true"/>
+    <set name="aliasObjects" table="user_alias" cascade="all-delete-orphan">
       <key column="user_id"/>
-      <element type="string" column="alias" not-null="true" unique="true"/>
+	  <many-to-many class="UserName" column="user_name_id"/>
     </set>	
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
@@ -32,6 +38,23 @@
     </set>
   </class>
 
+  <!-- 
+    - UserName
+	-
+	- Represents SIP usernames for both human users and services like the auto attendant
+    -->
+  <class name="UserName" table="user_name">
+    <id name="id" column="user_name_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_name_seq</param>
+      </generator>
+    </id>
+    <property name="name" unique="true" not-null="true"/>
+  </class>
+
+  <!-- 
+    - ExtensionPool
+    -->
   <class name="ExtensionPool" table="extension_pool">
     <id name="id" column="extension_pool_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -45,16 +68,20 @@
     <property name="nextExtension"/>
   </class>
 
+  <query name="userByName">
+    <![CDATA[select u from User u join u.userNameObject userName where userName.name = :userName]]>
+  </query>
+
   <query name="userByAlias">
-    <![CDATA[from User u join u.aliases alias where alias = :alias]]>
+    <![CDATA[select u from User u join u.aliasObjects alias where alias.name = :alias]]>
   </query>
 	  
   <query name="userByNameOrAlias">
-    <![CDATA[from User u left outer join u.aliases alias where u.userName = :userNameOrAlias or alias = :userNameOrAlias]]>
+    <![CDATA[select u from User u left outer join u.aliasObjects alias join u.userNameObject userName where userName.name = :userNameOrAlias or alias.name = :userNameOrAlias]]>
   </query>
 	  
   <query name="userIdsByNameOrAlias">
-    <![CDATA[select distinct u.id from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+    <![CDATA[select distinct u.id from User u left outer join u.aliasObjects alias join u.userNameObject userName where userName.name = :value or alias.name = :value]]>
   </query>  
 	  
   <query name="userGroupMembers">

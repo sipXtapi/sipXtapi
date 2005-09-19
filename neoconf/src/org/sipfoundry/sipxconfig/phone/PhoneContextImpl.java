@@ -43,6 +43,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         PhoneContext, ApplicationListener, DaoEventListener {
 
     private static final String GROUP_RESOURCE_ID = "phone";
+    
     private static final String QUERY_PHONE = "from Phone";
 
     private SettingDao m_settingDao;
@@ -159,8 +160,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
     
     public List loadPhonesByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        List phones = DaoUtils.loadByPage(getSession(), QUERY_PHONE, firstRow, 
-                pageSize, orderBy, orderAscending);
+        List phones = DaoUtils.loadByPage(getSession(), QUERY_PHONE, null, firstRow, pageSize,
+                orderBy, orderAscending);
         return phones;
     }
     

@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import java.text.MessageFormat;
-import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.AbstractComponent;
@@ -105,8 +104,9 @@ public abstract class UserForm extends BaseComponent {
             // so we can give more specific error feedback.  Since the aliases are filtered
             // for duplicates when assigned to the user, we don't have to worry about that
             // case.  Duplicate aliases are simply discarded.
-            for (Iterator iter = getUser().getAliases().iterator(); iter.hasNext();) {
-                String alias = (String) iter.next();
+            String[] aliases = getUser().getAliases();
+            for (int i = 0; i < aliases.length; i++) {
+                String alias = aliases[i];
                 if (getUser().getUserName().equals(alias)) {
                     recordError("message.userIdEqualsAlias", alias);
                     internalCollision = true;

@@ -131,15 +131,15 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         // HACK: assume that presence server runs on the same machine as SIP proxy
         String presenceServer = m_phoneDefaults.getOutboundProxy();
 
-        aliases.add(createPresenceAliaseMapping(signInCode.trim(), domainName, presenceServer,
+        aliases.add(createPresenceAliasMapping(signInCode.trim(), domainName, presenceServer,
                 presencePort));
-        aliases.add(createPresenceAliaseMapping(signOutCode.trim(), domainName, presenceServer,
+        aliases.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presenceServer,
                 presencePort));
 
         return aliases;
     }
 
-    private AliasMapping createPresenceAliaseMapping(String code, String domainName,
+    private AliasMapping createPresenceAliasMapping(String code, String domainName,
             String presenceServer, int port) {
         AliasMapping mapping = new AliasMapping();
         mapping.setIdentity(AliasMapping.createUri(code, domainName));
