@@ -309,10 +309,6 @@
 	    </group>
 	    <group name="network">
 	      <label>Network parameters</label>
-	      <setting name="directory_url">
-	        <value></value>
-	        <description>URL of the external directory server.</description>
-	      </setting>
 	      <setting name="dyn_dns_addr_1">
 	        <type><ipaddr/></type>
 	        <value></value>
