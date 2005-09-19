@@ -11,10 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -39,12 +43,33 @@ public class GrandstreamPhone extends Phone {
 
     public static final int KOLME = 3;
 
+    public static final int FOUR = 4;
+
+    public static final int VIISI = 5;
+
+    public static final int SIX = 6;
+
+    public static final int SIXTEEN = 16;
+
+    public static final int EIGHT = 8;
+
+    public static final int CR = 0x0d;
+
+    public static final int LF = 0x0a;
+
+    public static final int HEXFF = 0xff;
+
+    public static final int OXIOOOO = 0x10000;
+
+    public static final String EQUALS = "=";
+
+    public static final String ET = "&";
+
     private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
-            public boolean acceptSetting(Setting root, Setting setting) {
-                boolean firstGeneration = setting.getParentPath().equals(root.getPath());
+            public boolean acceptSetting(Setting root_, Setting setting) {
                 boolean isLeaf = setting.getValues().isEmpty();            
                 boolean isVirtual = (setting.getName().startsWith("_"));            
-                return firstGeneration && isLeaf && !isVirtual;
+                return isLeaf && !isVirtual;
             }
         };        
 
@@ -84,6 +109,7 @@ public class GrandstreamPhone extends Phone {
             SettingBeanAdapter adapter = new SettingBeanAdapter(c);
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/P48");
+            adapter.addMapping(PhoneSettings.TFTP_SERVER, "upgrade/__TFTPServer-213");
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
@@ -98,7 +124,7 @@ public class GrandstreamPhone extends Phone {
             SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
             adapter.setSetting(line.getSettings());
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/P36");
-            adapter.addMapping(LineSettings.USER_ID, "port/P35");            
+            adapter.addMapping(LineSettings.USER_ID, "port/P35");
             adapter.addMapping(LineSettings.PASSWORD, "port/P34");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "port/P3");
             adapter.addMapping(LineSettings.REGISTRATION_SERVER, "sip/P47");
@@ -131,12 +157,79 @@ public class GrandstreamPhone extends Phone {
     }
 
     public void generateProfiles() {
+        String outputfile = getPhoneFilename();
+        FileOutputStream wtr = null;
+
         splitIpSettings();
-        super.generateProfiles();
+
+        try {
+            wtr = new FileOutputStream(outputfile);
+            generateGsParaString(wtr);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(wtr);
+        }
     }
 
-    public Collection getRealSettings(Setting setting) {
-        return SettingUtil.filter(S_REALSETTINGS, setting);
+    private void generateGsParaString(FileOutputStream wtr) throws IOException {
+        byte[] gsheader = new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                      0x00, 0x00, 0x00, 0x00, CR, LF, CR, LF};
+        StringBuffer paras = new StringBuffer();
+        
+        String serial = getSerialNumber();
+        
+        for (int si = 0; si < SIX; si++) {
+            gsheader[si + SIX] = (byte) Integer.parseInt(serial.substring(si * 2, si * 2 + 2), SIXTEEN);
+        }
+
+        Collection phoneset = getRealSettings(getSettings());
+        Iterator psi = phoneset.iterator();
+        while (psi.hasNext()) {
+            Setting pset = (Setting) psi.next();
+            paras.append(pset.getName() + EQUALS + pset.getValue() + ET);
+        }
+
+        Collection lines = getProfileLines();
+        Iterator lni = lines.iterator();
+        while (lni.hasNext()) {
+            Collection lineset = getRealSettings((Setting) lni.next());
+            Iterator lsi = lineset.iterator();
+            while (lsi.hasNext()) {
+                Setting lset = (Setting) lsi.next();
+                paras.append(lset.getName() + EQUALS + lset.getValue() + ET);
+            }
+        }
+
+        paras.append("gnkey=0b82");
+
+        if (paras.length() % 2 == 1) {
+            paras.append('\000');
+        }
+
+        int plen = paras.length() / 2;
+        gsheader[2] = (byte) ((plen >> EIGHT) & HEXFF);
+        gsheader[KOLME] = (byte) (plen & HEXFF);
+
+        int checksum = 0;
+        for (int pi = 0; pi < paras.length(); pi++) {
+            checksum += ((int) paras.charAt(pi)) & HEXFF;
+        }
+        for (int pi = 0; pi < SIXTEEN; pi++) {
+            checksum += ((int) gsheader[pi]) & HEXFF;
+        }
+
+        checksum = OXIOOOO - checksum;
+
+        gsheader[FOUR] = (byte) ((checksum >> EIGHT) & HEXFF);
+        gsheader[VIISI] = (byte) (checksum & HEXFF);
+
+        wtr.write(gsheader);
+        wtr.write(paras.toString().getBytes());
+    }
+
+    public Collection getRealSettings(Setting root) {
+        return SettingUtil.filter(S_REALSETTINGS, root);
     }
 
     public Collection getIpSettings() {

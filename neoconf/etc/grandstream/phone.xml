@@ -25,7 +25,7 @@
 	      <setting name="P8">
 	        <label>DHCP support</label>
 	        <type><boolean/></type>
-	        <value>0</value>
+	        <value>1</value>
 	        <description>Enable DHCP support.</description>
 	      </setting>
 	      <setting name="P82">
@@ -514,7 +514,7 @@
                     <option><label>via SIP INFO</label><value>2</value></option>
 	          </enum>
 	        </type>
-	        <value>0</value>
+	        <value>2</value>
 	      </setting>
 	      <setting name="P79">
 	        <label>DTMF Payload Type</label>
@@ -534,7 +534,7 @@
 	      <setting name="P30">
 	        <label>NTP Server</label>
 	        <type><string/></type>
-	        <value>time.gist.gov</value>
+	        <value>pool.ntp.org</value>
 	        <description>NTP Server</description>
 	      </setting>
 	      <setting name="P64">
@@ -591,7 +591,7 @@
 	      <setting name="P99">
 	        <label>SUBSCRIBE for MWI</label>
 	        <type><boolean/></type>
-	        <value>0</value>
+	        <value>1</value>
 	        <description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication.</description>
 	      </setting>
 	      <setting name="P71">
