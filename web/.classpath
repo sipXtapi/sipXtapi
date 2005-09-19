@@ -40,5 +40,14 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jsp.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-io-1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/spring/1.2.3/src.zip" kind="var" path="SIPX_CONFIG/lib/spring-1.2.3.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/xfire/1.0-M5/src.zip" kind="var" path="SIPX_CONFIG/lib/xfire-core-1.0-M5.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/yom-1.0-alpha-2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/stax-api-1.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/stax-1.1.1-dev.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/wstx-asl-2.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/wsdl4j-1.4.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/xfire/1.0-M5/src.zip" kind="var" path="SIPX_CONFIG/lib/xfire-spring-1.0-M5.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/xfire-aegis-1.0-M5.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/javamail-1.3.2.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
