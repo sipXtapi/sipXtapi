@@ -781,7 +781,7 @@ void SipRedirectorPrivateStoragePickUp::processNotify(const char* body)
       (dialog_info = document.FirstChild("dialog-info")) != NULL &&
       dialog_info->Type() == TiXmlNode::ELEMENT)
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorPrivateStoragePickUp::processNotify "
                     "Body parsed, <dialog-info> found");
       // Find all the <dialog> elements.
