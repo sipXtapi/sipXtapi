@@ -273,8 +273,6 @@ public:
          CPPUNIT_ASSERT( matchAs.Match(0, start, length));
          CPPUNIT_ASSERT( start == 4 );
          CPPUNIT_ASSERT( length == 2 );
-
-
       }
 
 };

@@ -408,7 +408,8 @@ class RegEx
   pcre * re;
   size_t re_size;
   pcre_extra * pe;
-  size_t pe_size;
+  bool allocated_study;
+  size_t  study_size;
   int substrcount;         // maximum substrings in pattern
   const char * subjectStr; // original subject
   int subjectLen;          // original length

@@ -644,7 +644,7 @@ AC_DEFUN([CHECK_LIBWWW],
 
 # ============ P C R E ==================
 AC_DEFUN([CHECK_PCRE],
-[   AC_MSG_CHECKING([for pcre >= 4.5])
+[   AC_MSG_CHECKING([for pcre])
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
                 [--with-pcre=PATH path to pcre install directory],
@@ -702,14 +702,12 @@ AC_DEFUN([CHECK_PCRE],
         else
             ## Test for version
             pcre_ver=`pcre-config --version`
-            AX_COMPARE_VERSION([$pcre_ver],[ge],[4.2])
+            AX_COMPARE_VERSION([$pcre_ver],[ge],[4.5],
+                               [AC_MSG_RESULT($pcre_ver is ok)],
+                               [AC_MSG_ERROR([pcre version must be >= 4.5 - found $pcre_ver])])
 
-            if test "x_$ax_compare_version" = "x_false"; then
-               AC_MSG_ERROR(Found pcre version $pcre_ver)
-            else
-               AC_MSG_RESULT($pcre_ver is ok)
-            fi
-            AC_MSG_RESULT($includeval and $libval)
+            AC_MSG_RESULT(pcre includes found in $includeval)
+            AC_MSG_RESULT(pcre libraries found in $libval)
 
             PCRE_CFLAGS="-I$includeval"
             PCRE_CXXFLAGS="-I$includeval"

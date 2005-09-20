@@ -46,12 +46,13 @@ RegEx::RegEx(const char * regex, int options)
    {
       // save the compilation block sizes for the copy constructor.
       pcre_fullinfo(re, pe, PCRE_INFO_SIZE, &re_size);
-      pcre_fullinfo(re, pe, PCRE_INFO_STUDYSIZE, &pe_size);
+      pcre_fullinfo(re, pe, PCRE_INFO_STUDYSIZE, &study_size);
+      allocated_study = false;
    }
    else
    {
       re_size = 0;
-      pe_size = 0;
+      study_size = 0;
    }
    
    // allocate space for match results based on how many substrings
@@ -75,39 +76,46 @@ RegEx::RegEx(const RegEx& regex)
       memcpy(re, regex.re, regex.re_size);
       re_size = regex.re_size;
          
-      if (   (NULL != regex.pe) // did pcre_study return anything?
-          && (0 < regex.pe_size)
+      if (   (regex.pe) // did the original pcre_study return anything?
+          && (0 < regex.study_size)
           )
       {
          // allocate memory for the extra study information
-         char* copied_pe = (char*)pcre_malloc(regex.pe_size);
-         if (copied_pe)
+         pe = (pcre_extra*)pcre_malloc(sizeof(pcre_extra));
+         if (pe)
          {
-            // copy the study information
-            memcpy(copied_pe, regex.pe, regex.pe_size) ;
-            pe = (pcre_extra*)copied_pe;
-            pe_size = regex.pe_size;
-            /*
-             * :NOTE: the pe->study_data is really in that same block
-             *        so we need to correct it by calculating the relative
-             *        offset in the original and applying it to our copy.
-             */
-            char*  original_base = (char*)regex.pe;
-            char*  original_data = (char*)regex.pe->study_data;
-            size_t data_offset = original_data - original_base;
-            char*  copied_data = copied_pe + data_offset;
-            pe->study_data     = (void*)copied_data;
+            void* copied_study_data = pcre_malloc(regex.study_size);
+            if (copied_study_data)
+            {
+               // copy the extra and study information
+               memcpy(pe, regex.pe, sizeof(pcre_extra)) ;
+               pe->study_data = copied_study_data;
+               memcpy(pe->study_data, regex.pe->study_data, regex.study_size) ;
+               study_size = regex.study_size;
+               allocated_study = true;
+            }
+            else
+            {
+               // failed to allocate the study data, so drop pe completely.
+               pcre_free(pe);
+               pe = NULL;
+               study_size = 0;
+               allocated_study = false;
+            }
          }
          else
          {
-            pe = NULL;
-            pe_size = 0;
+            // failed to allocate extra data
+            study_size = 0;
+            allocated_study = false;
          }
       }
       else
       {
+         // no extra or study data to copy
          pe = NULL;
-         pe_size = 0;
+         study_size = 0;
+         allocated_study = false;
       }
       substrcount = regex.substrcount;
       ovector = new int[3*substrcount];
@@ -129,6 +137,10 @@ RegEx::~RegEx()
   }
   if (pe)
   {
+     if (allocated_study && study_size)
+     {
+        pcre_free(pe->study_data);
+     }
      pcre_free(pe);
   }
   pcre_free(re);
