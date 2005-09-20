@@ -13,14 +13,13 @@ package org.sipfoundry.sipxconfig.phone.grandstream;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -64,7 +63,7 @@ public class GrandstreamPhone extends Phone {
     public static final String EQUALS = "=";
 
     public static final String ET = "&";
-
+    
     private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
             public boolean acceptSetting(Setting root_, Setting setting) {
                 boolean isLeaf = setting.getValues().isEmpty();            
@@ -80,6 +79,9 @@ public class GrandstreamPhone extends Phone {
                 return  isLeaf && isBitmapped;
             }
         };        
+
+    private boolean m_isTextFormatEnabled;
+
     public GrandstreamPhone() {
         super(BEAN_ID);
         init();
@@ -92,6 +94,17 @@ public class GrandstreamPhone extends Phone {
     
     private void init() {
         setPhoneTemplate("grandstream/grandstream.vm");        
+    }
+
+
+    /** 
+     * Generate files in text format.  Won't be usable by phone, but you can use 
+     * grandstreams config tool to convert manually.  This is mostly for debugging
+     * 
+     * @param isTextFormat true to save as text, default is false
+     */
+    public void setTextFormatEnabled(boolean isTextFormatEnabled) {
+        m_isTextFormatEnabled = isTextFormatEnabled;
     }
 
     public String getModelLabel() {
@@ -164,25 +177,47 @@ public class GrandstreamPhone extends Phone {
 
         try {
             wtr = new FileOutputStream(outputfile);
-            generateGsParaString(wtr);
+            if (!m_isTextFormatEnabled) {
+                String body = generateGsParaBody();
+                generateGsParaString(wtr, body);
+            } else {
+                writeTextFile(wtr);
+            }
+                
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(wtr);
         }
     }
-
-    private void generateGsParaString(FileOutputStream wtr) throws IOException {
-        byte[] gsheader = new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                      0x00, 0x00, 0x00, 0x00, CR, LF, CR, LF};
-        StringBuffer paras = new StringBuffer();
-        
-        String serial = getSerialNumber();
-        
-        for (int si = 0; si < SIX; si++) {
-            gsheader[si + SIX] = (byte) Integer.parseInt(serial.substring(si * 2, si * 2 + 2), SIXTEEN);
+    
+    void writeTextFile(OutputStream wtr) throws IOException {
+        Collection phoneset = getRealSettings(getSettings());
+        Iterator psi = phoneset.iterator();
+        while (psi.hasNext()) {
+            Setting pset = (Setting) psi.next();
+            writeProfileLine(wtr, pset.getName(), pset.getValue());
         }
 
+        Collection lines = getProfileLines();
+        Iterator lni = lines.iterator();
+        while (lni.hasNext()) {
+            Collection lineset = getRealSettings((Setting) lni.next());
+            Iterator lsi = lineset.iterator();
+            while (lsi.hasNext()) {
+                Setting lset = (Setting) lsi.next();
+                writeProfileLine(wtr, lset.getName(), lset.getValue());
+            }
+        }        
+    }
+    
+    void writeProfileLine(OutputStream wtr, String name, String value) throws IOException {
+        String line = name + " = " + value + (char) LF;
+        wtr.write(line.getBytes());
+    }
+    
+    String generateGsParaBody() {
+        StringBuffer paras = new StringBuffer();
         Collection phoneset = getRealSettings(getSettings());
         Iterator psi = phoneset.iterator();
         while (psi.hasNext()) {
@@ -200,6 +235,22 @@ public class GrandstreamPhone extends Phone {
                 paras.append(lset.getName() + EQUALS + lset.getValue() + ET);
             }
         }
+        
+        return paras.toString();
+    }
+
+    void generateGsParaString(OutputStream wtr, String body) throws IOException {
+        byte[] gsheader = new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                      0x00, 0x00, 0x00, 0x00, CR, LF, CR, LF};
+        StringBuffer paras = new StringBuffer();
+        
+        String serial = getSerialNumber();
+        
+        for (int si = 0; si < SIX; si++) {
+            gsheader[si + SIX] = (byte) Integer.parseInt(serial.substring(si * 2, si * 2 + 2), SIXTEEN);
+        }
+        
+        paras.append(body);
 
         paras.append("gnkey=0b82");
 
