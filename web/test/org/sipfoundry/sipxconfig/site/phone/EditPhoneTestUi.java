@@ -42,7 +42,7 @@ public class EditPhoneTestUi extends WebTestCase {
 
     public void testEditPhone() {
         setFormElement("serialNumber", "a00000000001");
-        clickButton("phone:ok");
+        clickButton("form:ok");
         String[][] table = new String[][] {
             { "a00000000001", "", "Polycom SoundPoint IP 500" },                
         };

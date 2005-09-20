@@ -2,6 +2,7 @@
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
 	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.EditPhone">
+    
 	<!--
 	  - P R O P E R T I E S
 	  -->
@@ -12,10 +13,15 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+    	persistent="yes"/>
+    
     <!--
       - B E A N S
       -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
     <!--
       - C O M P O N E N T S
       -->
@@ -35,13 +41,9 @@
         <binding name="listener" expression="listeners.addLine"/>
         <binding name="parameters" expression="phone.id"/>
     </component>
-    <component id="ok" type="Submit">
-        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.ok)"/>
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
     </component>
-    <component id="apply" type="Submit">
-        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.apply)"/>
-    </component>
-    <component id="cancel" type="Submit">
-        <binding name="listener" expression="listeners.cancel"/>
-    </component>
+    
 </page-specification>

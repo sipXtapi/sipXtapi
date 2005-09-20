@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -44,6 +45,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private static final String GROUP_RESOURCE_ID = "phone";
     private static final String QUERY_PHONE = "from Phone";
+    private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
 
     private SettingDao m_settingDao;
 
@@ -114,8 +116,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String serialNumber = phone.getSerialNumber();
-        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, "phoneIdsWithSerialNumber", serialNumber,
-                new DuplicateSerialNumberException(serialNumber));
+        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER,
+                serialNumber, new DuplicateSerialNumberException(serialNumber));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);
     }
@@ -174,6 +176,20 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public Phone loadPhone(Integer id) {
         Phone phone = (Phone) getHibernateTemplate().load(Phone.class, id);
         return phone;
+    }
+
+    public Integer getPhoneIdBySerialNumber(String serialNumber) {
+        Integer phoneId = null;
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", serialNumber);
+        if (CollectionUtils.safeSize(objs) != 0) {
+            if (objs.size() > 1) {
+                // There is a database uniqueness constraint that should prevent this from ever happening
+                throw new IllegalStateException("Duplicate phone serial number: " + serialNumber);
+            }
+            phoneId = (Integer) objs.get(0);
+        }
+        return phoneId;
     }
 
     public Phone newPhone(PhoneModel model) {

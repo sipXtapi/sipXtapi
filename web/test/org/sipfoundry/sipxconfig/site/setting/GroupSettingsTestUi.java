@@ -46,7 +46,8 @@ public class GroupSettingsTestUi extends WebTestCase {
         clickLinkWithText("seedGroup0");
         clickLink("group:edit");
         assertFormElementEquals("name", "seedGroup0");
-        setFormElement("name", "edit seed test");
+        // Pick a group name that is very unlikely to collide with any previous names
+        setFormElement("name", "edit seed test " + System.currentTimeMillis());
         clickButton("group:ok");
         SiteTestHelper.assertNoException(getTester());
         assertLinkPresent("group:edit");        

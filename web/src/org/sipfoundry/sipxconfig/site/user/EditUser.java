@@ -62,6 +62,8 @@ public abstract class EditUser extends BasePage implements PageRenderListener {
     public void pageBeginRender(PageEvent event_) {
         User user = getCoreContext().loadUser(getUserId());
         setUser(user);
+        
+        // If no callback has been given, then navigate back to Manage Users on OK/Cancel
         if (getCallback() == null) {
             setCallback(new PageCallback(ManageUsers.PAGE));
         }

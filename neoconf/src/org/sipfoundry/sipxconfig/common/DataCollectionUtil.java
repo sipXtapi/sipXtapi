@@ -60,7 +60,7 @@ public final class DataCollectionUtil {
     }
 
     /**
-     * Fixes position fields after a list manipluation such.
+     * Fixes position fields after a list manipulation.
      */
     public static void updatePositions(Collection c) {
         // update positions

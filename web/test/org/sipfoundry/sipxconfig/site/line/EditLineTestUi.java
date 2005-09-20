@@ -45,12 +45,31 @@ public class EditLineTestUi extends WebTestCase {
     }
     
     public void testReturnToEditPhone() {
-        m_helper.seedLine(1);
-        clickLink("ManagePhones");        
-        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
-        clickLinkWithText("Add Line");
+        navigateToAddLine();
         clickButton("user:cancel");
         assertFormPresent("phone:edit");
         SiteTestHelper.assertNoException(tester);        
     }
+    
+    public void testPhoneLinkOnEditLinePage() {
+        navigateToAddLine();
+        
+        // Click on the phone label at the top of the page, which is a link
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
+        assertFormPresent("phone:edit");
+        
+        // Cancel to go back to the add line page
+        clickButton("form:cancel");
+        assertFormPresent("line:add");        
+    }
+    
+    private void navigateToAddLine() {
+        m_helper.seedLine(1);
+        clickLink("ManagePhones");        
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
+        clickLinkWithText("Add Line");
+        SiteTestHelper.assertNoException(tester);        
+        assertFormPresent("line:add");        
+    }
+    
 }
