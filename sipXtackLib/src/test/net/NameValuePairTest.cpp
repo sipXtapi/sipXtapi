@@ -44,7 +44,8 @@ public:
         CPPUNIT_ASSERT_MESSAGE("nv should be != nv_different_case",
                                nv->compareTo(nv_different_case) != 0);
 
-        delete nv, nv_different_case;
+        delete nv;
+        delete nv_different_case;
     }
 };
 

@@ -36,26 +36,12 @@ XmlRpcBody::XmlRpcBody()
    mBody = XML_VERSION_1_0;
 }
 
-// Copy constructor
-XmlRpcBody::XmlRpcBody(const XmlRpcBody& rXmlRpcBody)
-{
-}
-
 // Destructor
 XmlRpcBody::~XmlRpcBody()
 {
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-
-// Assignment operator
-XmlRpcBody&
-XmlRpcBody::operator=(const XmlRpcBody& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-}
 
 
 void XmlRpcBody::append(const char* string)

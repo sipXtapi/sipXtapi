@@ -40,11 +40,6 @@ XmlRpcResponse::XmlRpcResponse()
    mpResponseBody = new XmlRpcBody();
 }
 
-// Copy constructor
-XmlRpcResponse::XmlRpcResponse(const XmlRpcResponse& rXmlRpcResponse)
-{
-}
-
 // Destructor
 XmlRpcResponse::~XmlRpcResponse()
 {
@@ -203,14 +198,6 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
 
 /* ============================ MANIPULATORS ============================== */
 
-
-// Assignment operator
-XmlRpcResponse&
-XmlRpcResponse::operator=(const XmlRpcResponse& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-}
 
 /* ============================ ACCESSORS ================================= */
 

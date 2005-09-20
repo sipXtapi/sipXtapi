@@ -194,7 +194,7 @@ UtlBoolean SmimeBody::decrypt(const char* derPkcs12,
                             mBody.data(),
                             mBody.length(),
                             decryptedData);
-#else if ENABLE_NSS_SMIME
+#elif ENABLE_NSS_SMIME
     OsSysLog::add(FAC_SIP, PRI_ERR, "NSS S/MIME decrypt not implemented");
 #endif
 
@@ -265,9 +265,6 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
     {
         UtlString dataToEncrypt;
         UtlString contentType = bodyToEncrypt->getContentType();
-        // We almost always want to use binary for SIP as it is 
-        // much more efficient than base64.
-        UtlBoolean encryptedDataInBase64Format = FALSE;
 
         // Add the content-type and content-encoding headers to
         // the body to be decrypted so that when the otherside
@@ -298,7 +295,11 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
                                 dataToEncrypt.length(),
                                 encryptedDataInBase64Format,
                                 mBody);
-#else if ENABLE_NSS_SMIME
+#elif ENABLE_NSS_SMIME
+        // We almost always want to use binary for SIP as it is 
+        // much more efficient than base64.
+        UtlBoolean encryptedDataInBase64Format = FALSE;
+
         encryptionSucceeded = 
             nssSmimeEncrypt(numRecipients,
                             derPublicKeyCerts,

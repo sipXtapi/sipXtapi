@@ -45,11 +45,6 @@ XmlRpcRequest::XmlRpcRequest(Url& uri, const char* methodName)
    mpRequestBody->append(BEGIN_PARAMS);   
 }
 
-// Copy constructor
-XmlRpcRequest::XmlRpcRequest(const XmlRpcRequest& rXmlRpcRequest)
-{
-}
-
 // Destructor
 XmlRpcRequest::~XmlRpcRequest()
 {
@@ -118,14 +113,6 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 
 /* ============================ MANIPULATORS ============================== */
 
-
-// Assignment operator
-XmlRpcRequest&
-XmlRpcRequest::operator=(const XmlRpcRequest& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-}
 
 /* ============================ ACCESSORS ================================= */
 

@@ -512,7 +512,7 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_create failed, returned %d in %s (%p) \n", linuxRes, mName.data(), this);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_create failed, returned %d in %s (%p)", linuxRes, mName.data(), this);
       return FALSE;
    }
 }
@@ -525,7 +525,7 @@ void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "OsTaskLinux::doLinuxTerminateTask, deleting task thread: %x,"
-                 " force = %d\n", (int)mTaskId, doForce);
+                 " force = %d", (int)mTaskId, doForce);
 
    // if there is no low-level task, or entry in the name database, just return
    if ((mState != UNINITIALIZED) && ((int)mTaskId != 0))

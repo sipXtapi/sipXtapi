@@ -562,7 +562,7 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
             else
             {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "SipRefreshManager::handleMessage timer: %p does not match states timer: %p",
+                    "SipRefreshManager::handleMessage timer: %x does not match states timer: %p",
                     eventData, state->mpRefreshTimer);
             }
         }

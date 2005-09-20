@@ -887,7 +887,7 @@ void SipSubscribeClient::getNextCallId(const char* resourceId,
     lock();
     mCallIdCount++;
     long epochTime = OsDateTime::getSecsSinceEpoch();
-    sprintf(callidCountString, "%d%d", epochTime, mCallIdCount);
+    sprintf(callidCountString, "%ld%d", epochTime, mCallIdCount);
     unlock();
     
     UtlString left(callidCountString);

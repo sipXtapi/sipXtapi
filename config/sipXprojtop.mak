@@ -29,7 +29,7 @@ SVN-VERSION:
 		echo "Unknown SVN-VERSION"; \
 		echo '0.unknown' > @abs_top_builddir@/SVN-VERSION ; \
 	fi
-	@echo -n "SVN-VERSION=" ; cat @abs_top_builddir@/SVN-VERSION
+	@echo -n "SVN-VERSION=" ; cat @abs_top_builddir@/SVN-VERSION; echo ""
 
 SVN-EXPORT-VERSION: SVN-VERSION
 	cp SVN-VERSION SVN-EXPORT-VERSION

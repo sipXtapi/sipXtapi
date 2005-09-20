@@ -322,9 +322,6 @@ public:
             "</methodCall>\n"
             ;
             
-         const char *ref1 =
-            "<?xml version=\"1.0\"?><methodCall><methodName>addExtension</methodName><params><param><value><struct><member><name>tcp-port</name><value><int>5150</int></value></member><member><name>rtp-port</name><value><int>9100</int></value></member><member><name>upd-port</name><value><int>5150</int></value></member><member><name>server-name</name><value>sipxacd</value></member><member><name>object-class</name><value>acd-server</value></member><member><name>agent-state-server-port</name><value><int>8101</int></value></member></struct></value></param></params></methodCall>";
-
          const char *faultResponse =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<methodResponse>\n"
@@ -375,7 +372,7 @@ public:
          CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
 
          XmlRpcResponse newResponse;
-         char* userData = "AddExtension"; 
+         char userData[] = "AddExtension"; 
          dispatch.addMethod("addExtension", (XmlRpcMethod::Get *)AddExtension::get, (void*)userData);
          result = dispatch.parseXmlRpcRequest(requestContent, method, params, newResponse);
          CPPUNIT_ASSERT(result == true);
@@ -650,7 +647,7 @@ public:
          XmlRpcMethodContainer* method;
          UtlSList params;
 
-         char* userData = "AddExtension"; 
+         const char* userData = "AddExtension"; 
          dispatch.addMethod("addExtension", (XmlRpcMethod::Get *)AddExtension::get, (void*)userData);
          bool result = dispatch.parseXmlRpcRequest(requestContent1, method, params, response1);
          CPPUNIT_ASSERT(result == false);
