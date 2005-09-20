@@ -95,5 +95,13 @@ public class PhoneContextTestDb extends TestCase {
         assertEquals("00004", phones[1].getSerialNumber());
         assertEquals("00002", phones[2].getSerialNumber());        
         assertEquals("00001", phones[3].getSerialNumber());
-    }    
+    }
+    
+    public void testGetPhoneIdBySerialNumber() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        assertEquals(new Integer(1002), m_context.getPhoneIdBySerialNumber("00003"));
+        assertEquals(null, m_context.getPhoneIdBySerialNumber("won't find this guy"));
+    }
+    
 }

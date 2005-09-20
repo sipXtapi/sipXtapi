@@ -23,6 +23,10 @@
     <!--
       - C O M P O N E N T S
       -->
+    <component id="editPhoneLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editPhone"/>
+        <binding name="parameters" expression="phone.serialNumber"/>
+    </component>
     <component id="phoneLabel" type="Insert">
         <binding name="value" expression="phone.serialNumber"/>
     </component>

@@ -98,7 +98,9 @@
 	  name_uniqueness,
       relax_group_name_uniqueness,
       phone_description,
-	  dialing_rule_name_uniqueness"/>
+	  dialing_rule_name_uniqueness,
+	  phone_serial_number_uniqueness
+	  "/>
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -266,9 +268,6 @@
     </sipx-sql>
   	<mark-patch-applied patch="relax_group_name_uniqueness"/>
   </target>
-  <target name="dialing_rule_name_uniqueness" unless="dialing_rule_name_uniqueness">
-    <db-patch patch="dialing_rule_name_uniqueness"/>
-  </target>  
   <target name="phone_description" unless="phone_description">
     <sipx-sql>
 		alter table phone add column description varchar(255);  
@@ -277,6 +276,16 @@
 		update phone set bean_id = 'unmanagedPhone' where bean_id = 'genericPhone';
 	</sipx-sql>
   	<mark-patch-applied patch="phone_description"/>
+  </target>
+  <target name="dialing_rule_name_uniqueness" unless="dialing_rule_name_uniqueness">
+    <db-patch patch="dialing_rule_name_uniqueness"/>
+  </target>  
+  <target name="phone_serial_number_uniqueness" unless="phone_serial_number_uniqueness">
+    <sipx-sql>	
+		alter table phone add constraint uqc_phone_serial_number unique (serial_number);
+		alter table phone alter column serial_number set not null;
+	</sipx-sql>
+  	<mark-patch-applied patch="phone_serial_number_uniqueness"/>
   </target>
 	
   <!--

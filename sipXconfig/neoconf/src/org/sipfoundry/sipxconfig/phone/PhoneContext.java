@@ -68,6 +68,8 @@ public interface PhoneContext extends DataObjectSource {
 
     public Phone loadPhone(Integer id);
     
+    public Integer getPhoneIdBySerialNumber(String serialNumber);
+    
     public Object load(Class c, Integer id);
         
     public void storePhone(Phone phone);

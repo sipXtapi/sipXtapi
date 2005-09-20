@@ -35,5 +35,6 @@
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
         <binding name="listener" expression="listeners.commit"/>
-    </component>    
+    </component>
+    
 </page-specification>
