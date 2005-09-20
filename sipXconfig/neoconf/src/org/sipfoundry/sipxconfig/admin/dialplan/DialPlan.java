@@ -68,12 +68,36 @@ public class DialPlan extends BeanWithId {
      * Run thru dialing rules and set rellevant dial plans that take
      */
     public void setOperator(AutoAttendant operator) {
-        for (Iterator i = m_rules.iterator(); i.hasNext();) {
+        DialingRule[] rules = getDialingRuleByType(m_rules, InternalRule.class);
+        for (int i = 0; i < rules.length; i++) {
+            ((InternalRule) rules[i]).setAutoAttendant(operator);
+        }
+    }
+    
+    /**
+     * There can be multiple internal dialing rules and therefore multiple voicemail
+     * extensions, but pick the most likely one.
+     */
+    public String getLikelyVoiceMailValue() {
+        DialingRule[] rules = getDialingRuleByType(m_rules, InternalRule.class);
+        if (rules.length == 0) {
+            return InternalRule.DEFAULT_VOICEMAIL;
+        }
+
+        // return first, it's the most likely
+        String voicemail = ((InternalRule) rules[0]).getVoiceMail();
+        return voicemail;
+    }
+    
+    static DialingRule[] getDialingRuleByType(List rulesCandidates, Class c) {
+        List rules = new ArrayList();
+        for (Iterator i = rulesCandidates.iterator(); i.hasNext();) {
             DialingRule rule = (DialingRule) i.next();
-            if (rule.getClass().isAssignableFrom(InternalRule.class)) {
-                InternalRule internal = (InternalRule) rule;
-                internal.setAutoAttendant(operator);
+            if (rule.getClass().isAssignableFrom(c)) {
+                rules.add(rule);
             }
-        }        
+        }                       
+
+        return (DialingRule[]) rules.toArray(new DialingRule[rules.size()]);
     }
 }

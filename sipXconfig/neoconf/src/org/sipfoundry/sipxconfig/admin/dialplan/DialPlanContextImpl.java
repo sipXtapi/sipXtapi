@@ -331,4 +331,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
             getHibernateTemplate().saveOrUpdate(dialPlan);
         }        
     }
+    
+    public String getVoiceMail() {
+        return getDialPlan().getLikelyVoiceMailValue();
+    }
 }

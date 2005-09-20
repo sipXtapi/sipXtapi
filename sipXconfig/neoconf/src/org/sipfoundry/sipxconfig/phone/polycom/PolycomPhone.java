@@ -35,8 +35,6 @@ public class PolycomPhone extends Phone {
 
     public static final String CALL = "call";
 
-    private static final String VOICEMAIL_EXT = "101";
-
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
     private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
@@ -166,7 +164,8 @@ public class PolycomPhone extends Phone {
             Setting mwi = line.getSettings().getSetting("msg.mwi");
             String uri = u.getUserName() + '@' + defaults.getDomainName();
             mwi.getSetting("subscribe").setValue(uri);
-            mwi.getSetting("callBack").setValue(VOICEMAIL_EXT + '@' + defaults.getDomainName());
+            String voiceMail = defaults.getVoiceMail();
+            mwi.getSetting("callBack").setValue(voiceMail + '@' + defaults.getDomainName());
             mwi.getSetting("callBackMode").setValue("contact");
         }        
     }
