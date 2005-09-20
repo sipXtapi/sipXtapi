@@ -123,10 +123,6 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         setCallGroupId(id);
     }
 
-    /**
-     * 
-     * CHECKSTYLE: this method should be private, but checkstyle complains it is unused
-     */
     private void delete(UserRingTable ringTable) {
         Collection ids = ringTable.getRowsToDelete();
         if (null == ids) {
@@ -134,6 +130,8 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         }
         CallGroup callGroup = getCallGroup();
         callGroup.removeRings(ids);
+        CallGroupContext context = getCallGroupContext();
+        context.storeCallGroup(callGroup);        
     }
 
     private void move(UserRingTable ringTable) {
