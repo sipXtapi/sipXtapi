@@ -2,7 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.phone.PhoneDefaults"/>
+  <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.phone.PhoneDefaults">
+	<property name="dialPlanContext" ref="dialPlanContext"/>
+  </bean>
    <!--
    - P H O N E  C O N T E X T   I M P L
    -->

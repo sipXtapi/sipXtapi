@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -34,7 +36,13 @@ public class PhoneDefaults {
     private String m_domainName;
     
     private String m_authorizationRealm;
-        
+    
+    private DialPlanContext m_dialPlanContext;
+    
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
+    }
+
     public String getDomainName() {
         return m_domainName;
     }
@@ -102,6 +110,14 @@ public class PhoneDefaults {
         }
     }
     
+    public String getVoiceMail() {
+        if (m_dialPlanContext == null) {
+            return InternalRule.DEFAULT_VOICEMAIL;
+        }
+        
+        return m_dialPlanContext.getVoiceMail();
+    }
+    
     static boolean defaultSipPort(String port) {
         return StringUtils.isBlank(port) || DEFAULT_SIP_PORT.equals(port);
     }
@@ -120,6 +136,7 @@ public class PhoneDefaults {
                 settings.setDisplayName(user.getDisplayName());
                 settings.setPassword(user.getSipPassword());
                 settings.setAuthorizationRealm(m_authorizationRealm);
+                settings.setVoiceMail(getVoiceMail());
             }
         }
         

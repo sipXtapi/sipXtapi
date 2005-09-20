@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
  * InternalRule
  */
 public class InternalRule extends DialingRule {
+    public static final String DEFAULT_VOICEMAIL = "101";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
 
@@ -28,7 +29,7 @@ public class InternalRule extends DialingRule {
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
     private AutoAttendant m_autoAttendant;
     private String m_aaAliases;
-    private String m_voiceMail = "101";
+    private String m_voiceMail = DEFAULT_VOICEMAIL;
 
     public String[] getPatterns() {
         return null;

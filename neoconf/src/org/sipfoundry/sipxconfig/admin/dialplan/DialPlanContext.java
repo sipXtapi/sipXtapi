@@ -67,4 +67,6 @@ public interface DialPlanContext extends DataObjectSource {
     public void resetToFactoryDefault();
     
     public boolean isDialPlanEmpty();
+    
+    public String getVoiceMail();
 }
