@@ -66,9 +66,9 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
      * 
      * Usually submit components are setting properties. formSubmit will first check if the form
      * is valid, then it will call all the "action" listeners. Only one of the listeners (the one
-     * that recognizes the property that is set) will actually do something. This is a
-     * strange consequence of the fact that Tapestry listeners are pretty much useless because they
-     * are called while the form is still rewinding and not all changes are committed to beans.
+     * that recognizes the property that is set) will actually do something. This is a strange
+     * consequence of the fact that Tapestry listeners are pretty much useless because they are
+     * called while the form is still rewinding and not all changes are committed to beans.
      * 
      * @param cycle current request cycle
      */
@@ -77,8 +77,9 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
             return;
         }
         UserRingTable ringTable = getUserRingTable();
-        delete(ringTable);
-        move(ringTable);
+        if (delete(ringTable) || move(ringTable)) {
+            saveValid();
+        }
         addRow(cycle, ringTable);
     }
 
@@ -123,18 +124,17 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         setCallGroupId(id);
     }
 
-    private void delete(UserRingTable ringTable) {
+    private boolean delete(UserRingTable ringTable) {
         Collection ids = ringTable.getRowsToDelete();
         if (null == ids) {
-            return;
+            return false;
         }
         CallGroup callGroup = getCallGroup();
         callGroup.removeRings(ids);
-        CallGroupContext context = getCallGroupContext();
-        context.storeCallGroup(callGroup);        
+        return true;
     }
 
-    private void move(UserRingTable ringTable) {
+    private boolean move(UserRingTable ringTable) {
         int step = -1;
         Collection ids = ringTable.getRowsToMoveUp();
         if (null == ids) {
@@ -142,11 +142,12 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
             ids = ringTable.getRowsToMoveDown();
             if (null == ids) {
                 // nothing to do
-                return;
+                return false;
             }
         }
         CallGroup callGroup = getCallGroup();
         callGroup.moveRings(ids, step);
+        return true;
     }
 
     private UserRingTable getUserRingTable() {
