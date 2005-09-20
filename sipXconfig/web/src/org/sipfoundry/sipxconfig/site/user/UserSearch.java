@@ -61,6 +61,7 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
         // want to perform a search, because the user hasn't entered any search
         // criteria yet.
         if (isFirstRender()) {
+            getUsers().clear();     // clear any results from previous searches
             setFirstRender(false);
         } else {
             search(event.getRequestCycle());
