@@ -23,7 +23,6 @@ orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
 
 # external aliases
 externalAliases.addinsDirectory=@sipxpbx.data.dir@
-# it should be set to dolar_sign{dataset.alias.addins} for backward compatibility but configpp returns errors
 externalAliases.aliasAddins=
 
 # name changes to anything starting w/sysdir need to be reflected in
