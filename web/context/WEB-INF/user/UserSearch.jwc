@@ -25,7 +25,8 @@
 	<property-specification name="user" 
 		type="org.sipfoundry.sipxconfig.common.User"/>   
 	<property-specification name="users" 
-		type="java.util.List"/>
+		type="java.util.List"
+    	persistent="yes"/>
     <property-specification name="firstRender"
         type="boolean" initial-value="true"/>
 
