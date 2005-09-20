@@ -45,7 +45,8 @@ public class RegistrationContextImpl implements RegistrationContext {
         try {
             URL url = new URL(getUrl());
             InputStream is = url.openStream();
-            return getRegistrations(is);
+            List registrations = getRegistrations(is);
+            return cleanRegistrations(registrations);
         } catch (FileNotFoundException e) {
             // we are handling this separately - server returns FileNotFound even if everything is
             // OK but we have no registrations present
