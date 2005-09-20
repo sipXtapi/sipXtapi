@@ -213,10 +213,10 @@ public class GrandstreamPhone extends Phone {
 
         int checksum = 0;
         for (int pi = 0; pi < paras.length(); pi++) {
-            checksum += ((int) paras.charAt(pi)) & HEXFF;
+            checksum += paras.charAt(pi) & HEXFF;
         }
         for (int pi = 0; pi < SIXTEEN; pi++) {
-            checksum += ((int) gsheader[pi]) & HEXFF;
+            checksum += gsheader[pi] & HEXFF;
         }
 
         checksum = OXIOOOO - checksum;
