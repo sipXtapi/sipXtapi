@@ -142,8 +142,9 @@ public class SipServiceImpl implements SipService {
         long l = (long) (Math.random() * RANDOM_MAX);
         return Long.toHexString(l);
     }
-
-    public void sendCheckSync(Line line) {
+    
+    public void sendCheckSync(String uri, String registrationServer, 
+            String registrationServerPort, String userId) {
         // The check-sync message is a flavor of unsolicited NOTIFY
         // this message does not require that the phone be enrolled
         // the message allows us to reboot a specific phone 
@@ -152,10 +153,10 @@ public class SipServiceImpl implements SipService {
                 + "Date: {4}\r\n" + "Call-ID: {5}\r\n" + "CSeq: 1 NOTIFY\r\n"
                 + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
-            getNotifyRequestUri(line), 
+            getNotifyRequestUri(registrationServer, registrationServerPort, userId), 
             getServerVia(),
             getServerUri(), 
-            line.getUri(),
+            uri,
             getCurrentDate(), 
             generateCallId()
         };
@@ -165,29 +166,28 @@ public class SipServiceImpl implements SipService {
         } catch (IOException e) {
             throw new RestartException("Could not send restart SIP message", e);
         }        
+        
     }
-    
+
     /**
      * Doesn't include Display name or angle bracket, 
      * e.g. sip:user@blah.com, not "User Name"&lt;sip:user@blah.com&gt; 
      * NOTE: Unlike request URIs for REGISTER, this apparently requires the user
      * portion.  NOTE: I found this out thru trial and error.
      */
-    String getNotifyRequestUri(Line line) {
-        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-        if (settings == null) {
-            throw new RestartException("Line implementation does not support LineSettings adapter");
-        }
-
+    String getNotifyRequestUri(String registrationServer, String registrationServerPort, String userId) {
         StringBuffer sb = new StringBuffer();        
-        sb.append("sip:").append(settings.getUserId());
+        sb.append("sip:").append(userId);
         // TODO: Should this be outbound proxy
-        sb.append('@').append(settings.getRegistrationServer());
-        String port = settings.getRegistrationServerPort();
+        sb.append('@').append(registrationServer);
+        String port = registrationServerPort;
         if (StringUtils.isNotBlank(port)) {
-            sb.append(':').append(port);
+            int nport = Integer.parseInt(port);
+            if (nport != DEFAULT_SIP_PORT) {
+                sb.append(':').append(port);
+            }
         }
         
-        return sb.toString();
-    }    
+        return sb.toString();        
+    }
 }

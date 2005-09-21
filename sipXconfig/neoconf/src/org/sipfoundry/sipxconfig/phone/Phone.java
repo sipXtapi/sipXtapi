@@ -208,7 +208,13 @@ public class Phone extends BeanWithGroups {
         }
 
         Line line = getLine(0);
-        m_sip.sendCheckSync(line);
+        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+        if (settings == null) {
+            throw new RestartException("Line implementation does not support LineSettings adapter");
+        }
+
+        m_sip.sendCheckSync(line.getUri(), settings.getRegistrationServer(), 
+                settings.getRegistrationServerPort(), settings.getUserId());
     }
     
     /**

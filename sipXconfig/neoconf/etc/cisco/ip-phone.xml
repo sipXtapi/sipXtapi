@@ -544,7 +544,8 @@
 	        <description>For future use, only English is supported.</description>
 	      </setting>
 	      <setting name="sync">
-	        <value></value>
+	        <type><boolean/></type>
+	        <value>1</value>
 	        <description>Value against which to compare the sync value before a remote reboot is
 	          performed.</description>
 	      </setting>
