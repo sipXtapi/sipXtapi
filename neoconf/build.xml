@@ -77,6 +77,7 @@
 		<copy todir="${dest.dir}${sipxpbx.conf.dir}">
 			<fileset dir="etc">
 				<include name="**/*"/>
+				<exclude name="cisco/syncinfo.xml"/> <!-- goes into tftp root, see below -->
 		    </fileset>
 	    </copy>    	
 
@@ -143,6 +144,8 @@
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"/>
     <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>	
+	
+	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/cisco/syncinfo.xml"/>
 
     </target>
 	
@@ -188,7 +191,7 @@
 	
 	<target name="test-models">
 		<xmlvalidate description="validate setting description files">
-			<fileset dir="etc/cisco" includes="**/*.xml"></fileset>
+			<fileset dir="etc/cisco" includes="**/*.xml" excludes="syncinfo.xml"></fileset>
 			<fileset dir="etc/commserver" includes="**/*.xml"></fileset>
 			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
 			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
