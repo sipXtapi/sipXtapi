@@ -47,13 +47,24 @@
       <value>7</value>
       <description>Number of days voice mail messages will be kept on the system.</description>
     </setting>
+		<setting name="EXTENSION_LENGTH">
+			<label>Maximum internal extension length</label>
+			<profileName>config.defs</profileName>
+			<type>
+				<integer min="1" max="99"></integer>
+			</type>
+			<value>3</value>
+			<description>Longest internal extension in the system dialing plan. When user is prompted by
+				autoattendant to enter extension this value is used to determine if entire extension has been
+				entered.</description>
+		</setting>
     <setting name="SMTP_SERVER">
       <label>SMTP server</label>
       <profileName>config.defs</profileName>
       <type></type>
       <value></value>
       <description>IP address or DNS name of SMTP server used for Voice Mail notification</description>
-    </setting>
+    </setting>		
   </group>
   <group name="call-pick-up">
     <label>Call Pickup</label>
