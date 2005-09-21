@@ -23,10 +23,10 @@
 	    <group name="network">
 	      <label>Network Settings</label>
 	      <setting name="P8">
-	        <label>DHCP support</label>
+	        <label>DHCP Off</label>
 	        <type><boolean/></type>
-	        <value>1</value>
-	        <description>Enable DHCP support.</description>
+	        <value>0</value>
+	        <description>Disable DHCP support.</description>
 	      </setting>
 	      <setting name="P82">
 	        <label>PPPoE user ID</label>

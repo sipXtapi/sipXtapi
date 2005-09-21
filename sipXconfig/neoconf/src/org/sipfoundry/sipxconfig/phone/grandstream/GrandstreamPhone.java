@@ -258,19 +258,21 @@ public class GrandstreamPhone extends Phone {
             paras.append('\000');
         }
 
-        int plen = paras.length() / 2;
+        int plen = EIGHT + paras.length() / 2;
         gsheader[2] = (byte) ((plen >> EIGHT) & HEXFF);
         gsheader[KOLME] = (byte) (plen & HEXFF);
 
         int checksum = 0;
-        for (int pi = 0; pi < paras.length(); pi++) {
-            checksum += paras.charAt(pi) & HEXFF;
+        for (int pi = 0; pi < paras.length(); pi += 2) {
+            checksum += (paras.charAt(pi) & HEXFF) << EIGHT;
+            checksum += paras.charAt(pi + 1) & HEXFF;
         }
-        for (int pi = 0; pi < SIXTEEN; pi++) {
-            checksum += gsheader[pi] & HEXFF;
+        for (int pi = 0; pi < SIXTEEN; pi += 2) {
+            checksum += (gsheader[pi] & HEXFF) << EIGHT;
+            checksum += gsheader[pi + 1] & HEXFF;
         }
 
-        checksum = OXIOOOO - checksum;
+        checksum = OXIOOOO - (checksum % OXIOOOO);
 
         gsheader[FOUR] = (byte) ((checksum >> EIGHT) & HEXFF);
         gsheader[VIISI] = (byte) (checksum & HEXFF);
