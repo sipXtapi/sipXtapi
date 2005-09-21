@@ -45,7 +45,6 @@ public final class DaoUtils {
      * @param hibernate spring hibernate template
      * @param obj object to be checked
      * @param propName name of the property to be checked
-     * @param propValue property value
      * @param exception exception to throw if query returns other object than passed in the query
      */
     public static boolean checkDuplicates(final HibernateTemplate hibernate, final BeanWithId obj,
