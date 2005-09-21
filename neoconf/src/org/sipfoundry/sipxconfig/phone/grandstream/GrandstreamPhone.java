@@ -101,7 +101,7 @@ public class GrandstreamPhone extends Phone {
      * Generate files in text format.  Won't be usable by phone, but you can use 
      * grandstreams config tool to convert manually.  This is mostly for debugging
      * 
-     * @param isTextFormat true to save as text, default is false
+     * @param isTextFormatEnabled true to save as text, default is false
      */
     public void setTextFormatEnabled(boolean isTextFormatEnabled) {
         m_isTextFormatEnabled = isTextFormatEnabled;
