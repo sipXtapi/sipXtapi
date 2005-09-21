@@ -36,8 +36,7 @@ int SipTransaction::smTransactionNum = 0;
 UtlString SipTransaction::smBranchIdBase;
 //#define TEST_PRINT
 //#define LOG_FORKING
-
-#define ROUTE_DEBUG 1
+//#define ROUTE_DEBUG
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
