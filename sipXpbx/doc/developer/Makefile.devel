@@ -53,7 +53,7 @@ COMPONENTS=sipXportLib sipXtackLib sipXmediaLib \
 # The Subversion repository from which the source will be fetched by
 # 'checkout'.
 # Use https: access so that changes can be checked back in.
-REPOSITORY=https://scm.sipfoundry.org/rep
+REPOSITORY=https://scm.sipfoundry.org/rep/sipX
 
 # Environment variables for global configuration
 # Example:
