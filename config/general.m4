@@ -706,8 +706,8 @@ AC_DEFUN([CHECK_PCRE],
                                [AC_MSG_RESULT($pcre_ver is ok)],
                                [AC_MSG_ERROR([pcre version must be >= 4.5 - found $pcre_ver])])
 
-            AC_MSG_RESULT(pcre includes found in $includeval)
-            AC_MSG_RESULT(pcre libraries found in $libval)
+            AC_MSG_RESULT([    pcre includes found in $includeval])
+            AC_MSG_RESULT([    pcre libraries found in $libval])
 
             PCRE_CFLAGS="-I$includeval"
             PCRE_CXXFLAGS="-I$includeval"
@@ -996,6 +996,23 @@ AC_DEFUN([CHECK_NAMED],
     if ! test -x $NAMED_PROGRAM; then
         AC_MSG_WARN([Cannot execute $NAMED_PROGRAM.  Tests that require it will not be executed.])
         NAMED_PROGRAM=""
+    fi
+])
+
+
+# ==================== SELinux ====================
+# Is selinux supported on this platform?
+# sets SELINUX_GETENFORCE to either 'NOT_SUPPORTED' or the path to the 'getenforce' program
+AC_DEFUN([CHECK_SELINUX],
+[
+    AC_MSG_CHECKING([for selinux support])
+    AC_PATH_PROG([SELINUX_GETENFORCE], [getenforce], [NOT_SUPPORTED],
+                   [$PATH:/sbin:/usr/sbin:/usr/local/sbin]
+                   )
+    if test "${SELINUX_GETENFORCE}" = "NOT_SUPPORTED"; then
+       AC_MSG_RESULT([selinux not supported - check disabled])
+    else
+       AC_MSG_RESULT([selinux supported - check enabled])
     fi
 ])
 

@@ -330,10 +330,30 @@ do_check() {
     check_rpmnew >> ${steperrfile} 2>&1
     finish_check $?
     
+    ## check that SELinux is not enforcing
+    if [ "@SELINUX_GETENFORCE@" != "NOT_SUPPORTED" ]
+    then
+        start_check "selinux"
+        SELinuxStatus=`@SELINUX_GETENFORCE@ 2> /dev/null`
+        case $SELinuxStatus in
+            Permissive|Disabled)
+                SELinuxOk=0 # pass
+                ;;
+            *)
+                echo " selinux status is '${SELinuxStatus}'"                  >> ${steperrfile}
+                echo "    It must be 'Permissive' or 'Disabled' for sipxpbx;" >> ${steperrfile}
+                echo "    this may cause apache to fail."                     >> ${steperrfile}
+                echo "    Edit /etc/selinux/config and restart your system."  >> ${steperrfile}
+                SELinuxOk=1 # fail
+                ;;
+        esac
+        finish_check ${SELinuxOk}
+    fi
+
     ## check apache configuration files
     start_check "apache"
     @APACHE2_HTTPD@ -t -f @SIPX_CONFDIR@/httpd.conf  >> ${steperrfile} 2>&1 
-    finish_check $?
+    finish_check $? 
 
     ## Verify that the hostname for this machine a fully qualified
     start_check "hostname"

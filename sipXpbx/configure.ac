@@ -53,6 +53,7 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 
 CHECK_APACHE2
 CHECK_MODCPLUSPLUS
+CHECK_SELINUX
 CHECK_CGICC
 
 SFAC_LIB_COMMSERVER
