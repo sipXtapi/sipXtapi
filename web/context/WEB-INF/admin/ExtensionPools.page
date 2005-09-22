@@ -29,7 +29,6 @@
     <component id="form" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>    
-    <component id="errors" type="ErrorMsg"/>    
     <component id="enableExtensionPool" type="Checkbox">
         <binding name="selected" expression="userExtensionPool.enabled"/>
     </component>
