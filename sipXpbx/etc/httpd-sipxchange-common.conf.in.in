@@ -42,7 +42,7 @@ LoadCPPHandler mod_sipxauth @APACHE2_MOD@/libmod_sipxauth.so
     #AllowOverride All  # Commented out by Mike M.
     Order Deny,Allow
     Deny from all
-    Allow from 127.0.0.1
+    Allow from 127.0.0.1 ${CONFIG_SERVER_ADDR}
     Satisfy any
 </Directory>
 
@@ -67,7 +67,7 @@ LoadCPPHandler mod_sipxauth @APACHE2_MOD@/libmod_sipxauth.so
     #AllowOverride All  # Commented out by Mike M.
     Order Deny,Allow
     Deny from all
-    Allow from 127.0.0.1
+    Allow from 127.0.0.1 ${CONFIG_SERVER_ADDR}
     Satisfy any
 </Directory>
 
@@ -92,7 +92,7 @@ LoadCPPHandler mod_sipxauth @APACHE2_MOD@/libmod_sipxauth.so
     #AllowOverride All  # Commented out by Mike M.
     Order Deny,Allow
     Deny from all
-    Allow from 127.0.0.1
+    Allow from 127.0.0.1 ${CONFIG_SERVER_ADDR}
     Satisfy any
 </Directory>
 
