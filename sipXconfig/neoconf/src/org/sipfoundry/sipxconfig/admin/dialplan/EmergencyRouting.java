@@ -24,22 +24,20 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 /**
  * EmergencyRouting
  */
-public class EmergencyRouting {
+public class EmergencyRouting extends BeanWithId {
     private Gateway m_defaultGateway;
     private String m_externalNumber;
 
     private Collection m_exceptions = new ArrayList();
 
     public void addException(RoutingException exception) {
+        exception.setEmergencyRouting(this);
         m_exceptions.add(exception);
     }
 
     public void removeException(RoutingException exception) {
         m_exceptions.remove(exception);
-    }
-
-    public void removeException(Integer exceptionId) {
-        m_exceptions.remove(new BeanWithId(exceptionId));
+        exception.setEmergencyRouting(null);
     }
 
     // getters and setters

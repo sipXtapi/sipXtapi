@@ -22,12 +22,12 @@ public class RoutingException extends BeanWithId {
     private Gateway m_gateway;
     private String m_callers;
     private String m_externalNumber;
+    private EmergencyRouting m_emergencyRouting;
 
     /**
      * Default constructor used for bean creation
      */
     public RoutingException() {
-        setUniqueId();
     }
 
     /**
@@ -70,5 +70,13 @@ public class RoutingException extends BeanWithId {
     public String[] getPatterns(String domainName) {
         String suffix = "@" + domainName;
         return DialPattern.getPatternsFromList(m_callers, suffix);
+    }
+    
+    public void setEmergencyRouting(EmergencyRouting emergencyRouting) {
+        m_emergencyRouting = emergencyRouting;
+    }
+
+    public EmergencyRouting getEmergencyRouting() {
+        return m_emergencyRouting;
     }
 }

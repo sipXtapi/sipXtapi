@@ -37,14 +37,17 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract EmergencyRouting getEmergencyRouting();
+
     public abstract void setEmergencyRouting(EmergencyRouting emergencyRouting);
 
     public abstract ListEditMap getExceptionsMap();
+
     public abstract void setExceptionsMap(ListEditMap map);
 
     public abstract void setExceptionItem(RoutingException exception);
-    
+
     public abstract ICallback getCallback();
+
     public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
@@ -60,7 +63,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
             map.add(exception.getId(), exception);
         }
         setExceptionsMap(map);
-        
+
         // If no callback was set before navigating to this page, then by
         // default, go back to the ActivateDialPlan page
         if (getCallback() == null) {
@@ -79,7 +82,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
             return;
         }
         DialPlanContext manager = getDialPlanContext();
-        manager.applyEmergencyRouting();
+        manager.applyEmergencyRouting(getEmergencyRouting());
         manager.generateDialPlan();
     }
 
@@ -105,7 +108,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
     public void deleteException(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
                 .getServiceParameters(), 0);
-        getEmergencyRouting().removeException(id);
+        getDialPlanContext().removeRoutingException(id);
     }
 
     private boolean isValid() {
