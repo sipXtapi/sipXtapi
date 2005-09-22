@@ -48,8 +48,8 @@
 
 #define LOG_FACILITY                  FAC_ACD
 
-#define DEFAULT_UDP_PORT              5140       // Default UDP port
-#define DEFAULT_TCP_PORT              5140       // Default TCP port
+#define PRESENCE_DEFAULT_UDP_PORT              5140       // Default UDP port
+#define PRESENCE_DEFAULT_TCP_PORT              5140       // Default TCP port
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -318,13 +318,13 @@ int main(int argc, char* argv[])
    int UdpPort;
    if (configDb.get(CONFIG_SETTING_UDP_PORT, UdpPort) != OS_SUCCESS)
    {
-      UdpPort = DEFAULT_UDP_PORT;
+      UdpPort = PRESENCE_DEFAULT_UDP_PORT;
    }
    
    int TcpPort;
    if (configDb.get(CONFIG_SETTING_TCP_PORT, TcpPort) != OS_SUCCESS)
    {
-      TcpPort = DEFAULT_TCP_PORT;
+      TcpPort = PRESENCE_DEFAULT_TCP_PORT;
    }
    
    // Bind the SIP user agent to a port and start it up

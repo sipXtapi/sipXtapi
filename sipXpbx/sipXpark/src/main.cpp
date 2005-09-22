@@ -64,8 +64,8 @@
 
 #define LOG_FACILITY                  FAC_ACD
 
-#define DEFAULT_UDP_PORT              5120       // Default UDP port
-#define DEFAULT_TCP_PORT              5120       // Default TCP port
+#define PARK_DEFAULT_UDP_PORT              5120       // Default UDP port
+#define PARK_DEFAULT_TCP_PORT              5120       // Default TCP port
 #define DEFAULT_RTP_PORT              8000       // Starting RTP port
 
 #define DEFAULT_CODEC_LIST            "pcmu pcma telephone-event"
@@ -377,11 +377,11 @@ int main(int argc, char* argv[])
     // Read the user agent parameters from the config file.
     int UdpPort;
     if (configDb.get(CONFIG_SETTING_UDP_PORT, UdpPort) != OS_SUCCESS)
-        UdpPort = DEFAULT_UDP_PORT;
+        UdpPort = PARK_DEFAULT_UDP_PORT;
 
     int TcpPort;
     if (configDb.get(CONFIG_SETTING_TCP_PORT, TcpPort) != OS_SUCCESS)
-        TcpPort = DEFAULT_TCP_PORT;
+        TcpPort = PARK_DEFAULT_TCP_PORT;
 
     int RtpBase;
     if (configDb.get(CONFIG_SETTING_RTP_PORT, RtpBase) != OS_SUCCESS)
