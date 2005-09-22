@@ -1303,7 +1303,7 @@
 	          <profileName>server.2.address</profileName>
 	          <type><!-- dotted-decimal IP address or host name --></type>
 	          <value></value>
-	          <description>Primary Registration Server. IP address or host name of a SIP server that accepts
+	          <description>Secondary Registration Server. IP address or host name of a SIP server that accepts
 	            registrations.</description>
 	        </setting>
 	        <setting name="port">
@@ -1462,7 +1462,7 @@
 	      </setting>
 	    </group>
 	    <group name="dnd">
-	      <label>On Do No Disturb</label>
+	      <label>On Do Not Disturb</label>
 	      <setting name="enabled">
 	        <type><boolean/></type>
 	        <value>0</value>
