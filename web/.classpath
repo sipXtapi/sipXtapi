@@ -49,5 +49,8 @@
 	<classpathentry sourcepath="/LIB_SRC/xfire/1.0-M5/src.zip" kind="var" path="SIPX_CONFIG/lib/xfire-spring-1.0-M5.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xfire-aegis-1.0-M5.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javamail-1.3.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/xfire-client.v8.zip"/>
+	<classpathentry sourcepath="/LIB_SRC/commons-http/3.0-rc3/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-httpclient-3.0-rc3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-httpclient-2.0.2.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

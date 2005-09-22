@@ -83,6 +83,9 @@
     <pathelement path="${jasper-compiler.jar}" />
     <pathelement path="${tidy.jar}" />
     <pathelement path="${commons-codec.jar}" />
+    <!-- SOAP TEST CLIENT -->
+    <pathelement path="${xfire-client.jar}"/>
+    <pathelement path="${commons-httpclient.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 
