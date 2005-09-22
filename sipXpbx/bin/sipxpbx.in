@@ -253,33 +253,38 @@ stop_sipxchange () {
 }
 
 check_rpmnew() {
-    rpmstatus=0
-    RpmNews_all=`ls @SIPX_CONFDIR@/*.rpmnew 2>/dev/null`
+    rpmstatus=0 # pass
     RpmNews=""
-    for Rpm in $RpmNews_all; do
+    for Rpm in `find @SIPX_CONFDIR@ -name \*.rpmnew -print 2>/dev/null`
+    do
         Name=`expr match "$Rpm" "@SIPX_CONFDIR@/\([a-z]*\)\."`
         case $Name in
-            mappingrules)
-                ;;       
-            fallbackrules)
-                ;;  
-            authrules)
+            mappingrules|fallbackrules|authrules)
+                # these are routinely modified by the configurator, 
+                # so it is responsible for any upgrades
+                rm -f ${Rpm}
                 ;;
             *)
                 RpmNews="$RpmNews $Rpm"
         esac 
     done
     if [ -n "$RpmNews" ]; then
-        echo
-        echo "The following configuration files must be reconciled before starting"
-        echo "sipxpbx. Please refer to the TAC Installation Notes for further"
-        echo "information."
-        echo
+        cat <<EOF
+
+    The rpm installation has provided new versions of some of the
+    configuration files.  Because you had modified your files, they
+    were not overwritten.
+
+    You should compare each of the following files with your version
+    (the same name, with the '.rpmnew' removed).  To reconcile the 
+    differences, check for new settings in the .rpmnew file and copy them 
+    to your file.
+
+EOF
         for Rpm in $RpmNews; do
-            echo $Rpm
+            echo "    $Rpm"
         done
-        echo
-        rpmstatus=1
+        rpmstatus=1 # fail
     fi
     return $rpmstatus
 }
