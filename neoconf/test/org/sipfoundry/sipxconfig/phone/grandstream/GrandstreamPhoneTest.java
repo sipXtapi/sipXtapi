@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class GrandstreamPhoneTest extends TestCase {
@@ -34,7 +35,8 @@ public class GrandstreamPhoneTest extends TestCase {
         ByteArrayOutputStream profile = new ByteArrayOutputStream();
         phone.writeTextFile(profile);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-gsbt.cfg"));
-        assertEquals(expected, profile.toString());
+        String actual = TestUtil.cleanEndOfLines(profile.toString());
+        assertEquals(expected, actual);
     }
 
     /**
