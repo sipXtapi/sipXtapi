@@ -57,4 +57,5 @@ install-exec-hook : editdata
 
 .PHONY : editdata
 
-
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES)

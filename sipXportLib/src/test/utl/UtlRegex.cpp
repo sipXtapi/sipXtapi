@@ -13,11 +13,11 @@
 /**
  * Unit test for RegEx
  *
- * This is designed to test the encapsulation of pcre, not pcre itself.
+ * This is designed to test the encapsulation of PCRE, not PCRE itself.
  * These tests assume that the actual regular expression matching is
- * correct (although most will fail if it is not) because pcre has its
+ * correct (although most will fail if it is not) because PCRE has its
  * own excellent unit tests.  If you are incorporating a modified version
- * of pcre, you must use its unit test to confirm the correctness of
+ * of PCRE, you must use its unit tests to confirm the correctness of
  * the modifications before this test will be useful.
  */
 #include "utl/UtlRegex.h"
@@ -274,7 +274,6 @@ public:
          CPPUNIT_ASSERT( start == 4 );
          CPPUNIT_ASSERT( length == 2 );
       }
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlRegExTest);

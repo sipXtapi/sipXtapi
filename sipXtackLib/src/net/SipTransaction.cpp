@@ -654,7 +654,17 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
              // If the header is allowed in a header parameter?
              if(SipMessage::isUrlHeaderAllowed(hdrName.data()))
              {
-                request.addHeaderField(hdrName.data(), hdrValue.data());
+                if (SipMessage::isUrlHeaderUnique(hdrName.data()))
+                {
+                   // If the field exists, change it,
+                   // if does not exist, create it.
+                   request.setHeaderValue(hdrName.data(),
+                                          hdrValue.data(), 0);
+                }
+                else
+                {
+                   request.addHeaderField(hdrName.data(), hdrValue.data());
+                }
              }
              else
              {

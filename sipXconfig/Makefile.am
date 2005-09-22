@@ -59,3 +59,5 @@ dist dist-all : distdir
 	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
 	$(am__remove_distdir)
 
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES)

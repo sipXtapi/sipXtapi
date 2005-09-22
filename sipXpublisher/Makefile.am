@@ -32,3 +32,5 @@ include $(srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES)

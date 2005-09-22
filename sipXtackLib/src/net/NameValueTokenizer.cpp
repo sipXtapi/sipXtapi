@@ -11,7 +11,7 @@
 
 // APPLICATION INCLUDES
 #include <net/NameValueTokenizer.h>
-
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -134,6 +134,11 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
     UtlBoolean found = FALSE;
     if(textField)
     {
+#if 0
+       printf("NameValueTokenizer::getSubField textField = '%s', textFieldLength = %d, subFieldIndex = %d, subFieldSeparators = '%s'\n",
+              textField, textFieldLength, subFieldIndex,
+              subFieldSeparators);
+#endif
     int subFieldI = -1;
     int subFieldBegin = 0;
     int separatorIndex = -1;
@@ -184,6 +189,10 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
         //subfieldText->remove(separatorIndex - subfieldBegin);
         subFieldPtr = &(textField[subFieldBegin]);
         subFieldLength = separatorIndex - subFieldBegin;
+#if 0
+        printf("NameValueTokenizer::getSubField subField = '%.*s'\n",
+               subFieldLength, subFieldPtr);
+#endif
 
         if(lastCharIndex) *lastCharIndex = separatorIndex;
     }

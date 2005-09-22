@@ -23,6 +23,12 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+#define TIME_LOG /* turns on timestamping of finding and garbage collecting transactions */
+#ifdef TIME_LOG
+#  include <os/OsTimeLog.h>
+#endif
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -194,6 +200,11 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     int deleteCount = 0;
     int busyCount = 0;
 
+#   ifdef TIME_LOG
+    OsTimeLog gcTimes;
+    gcTimes.addEvent("start");
+#   endif
+
     lock();
 
     int numTransactions = mTransactions.entries();
@@ -205,7 +216,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 
 
         // Pull all of the transactions to be deleted out of the list
-        while((transactionFound = (SipTransaction*) iterator()))
+        while ((transactionFound = (SipTransaction*) iterator()))
         {
             if(transactionFound->isBusy()) busyCount++;
 
@@ -253,12 +264,28 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     }
 
     // Delete the transactions in the array
-    for(int txIndex = 0; txIndex < deleteCount; txIndex++)
+    if (transactionsToBeDeleted)
     {
-        delete transactionsToBeDeleted[txIndex];
+#      ifdef TIME_LOG
+       gcTimes.addEvent("start delete");
+#      endif
+
+       for(int txIndex = 0; txIndex < deleteCount; txIndex++)
+       {
+          delete transactionsToBeDeleted[txIndex];
+#         ifdef TIME_LOG
+          gcTimes.addEvent("transaction deleted");
+#         endif
+       }
+
+#      ifdef TIME_LOG
+       gcTimes.addEvent("finish delete");
+#      endif
+
+       delete[] transactionsToBeDeleted;
     }
 
-    if(transactionsToBeDeleted) delete[] transactionsToBeDeleted;
+    return;
 }
 
 void SipTransactionList::stopTransactionTimers()

@@ -33,7 +33,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 OsTimerTask* OsTimerTask::spInstance = 0;
 OsBSem       OsTimerTask::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
-const int    OsTimerTask::TIMER_MAX_REQUEST_MSGS = 1000;
+const int    OsTimerTask::TIMER_MAX_REQUEST_MSGS = 10000;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

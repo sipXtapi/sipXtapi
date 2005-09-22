@@ -619,7 +619,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                 NULL, mLocalContact.data(), callId, rtpAddress.data(),
                 receiveRtpPort, receiveRtcpPort, 
                 receiveVideoRtpPort, receiveVideoRtcpPort,
-                srtpParams,
+                &srtpParams,
                 lastLocalSequenceNumber,
                 numCodecs, rtpCodecsArray, mDefaultSessionReinviteTimer);
 
@@ -1202,7 +1202,7 @@ UtlBoolean SipConnection::hold()
             ++lastLocalSequenceNumber,
             numCodecs,
             codecsArray,
-            srtpParams,
+            &srtpParams,
             mDefaultSessionReinviteTimer);
 
         if(inviteMsg) 
@@ -1297,7 +1297,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
             ++lastLocalSequenceNumber,
             numCodecs,
             rtpCodecs,
-            srtpParams,
+            &srtpParams,
             mDefaultSessionReinviteTimer);
 
         // Free up the codec copies and array

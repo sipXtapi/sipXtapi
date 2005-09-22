@@ -28,3 +28,5 @@ install-data-hook:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/tmp
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/sipxdata/sipdb
 
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES)

@@ -280,9 +280,15 @@ void HttpRequestContext::parseCgiVariables(const char* queryString)
 void HttpRequestContext::parseCgiVariables(const char* queryString,
                                            UtlList& cgiVariableList,
                                            const char* pairSeparator,
-                                           const char* namValueSeparator,
-                                           UtlBoolean nameIsCaseInsensitive)
+                                           const char* nameValueSeparator,
+                                           UtlBoolean nameIsCaseInsensitive,
+                                           UnEscapeFunction unescape)
 {
+#if 0
+   printf("HttpRequestContext::parseCgiVariables queryString = '%s', pairSeparator = '%s', nameValueSeparator = '%s', nameIsCaseInsensitive = %d\n",
+          queryString, pairSeparator, nameValueSeparator,
+          nameIsCaseInsensitive);
+#endif
    //UtlString nameAndValue;
    const char* nameAndValuePtr;
    int nameAndValueLength;
@@ -316,7 +322,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
          NameValueTokenizer::getSubField(nameAndValuePtr,
                                          nameAndValueLength,
                                          0,
-                                         namValueSeparator,
+                                         nameValueSeparator,
                                          namePtr,
                                          nameLength,
                                          &nameValueRelativeIndex);
@@ -333,11 +339,11 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
          if(nameLength > 0)
          {
             //NameValueTokenizer::getSubField(nameAndValue, 1,
-            //              namValueSeparator, &value);
+            //              nameValueSeparator, &value);
             // Ignore any subsequent name value separators should they exist
-            //int nvSeparatorIndex = nameAndValue.index(namValueSeparator);
+            //int nvSeparatorIndex = nameAndValue.index(nameValueSeparator);
             int valueSeparatorOffset = strspn(&(namePtr[nameLength]),
-                                              namValueSeparator);
+                                              nameValueSeparator);
             const char* valuePtr = &(namePtr[nameLength]) + valueSeparatorOffset;
             int valueLength = nameAndValueLength -
                (valuePtr - nameAndValuePtr);
@@ -372,7 +378,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                value.remove(0);
                value.append(valuePtr, valueLength);
                NameValueTokenizer::frontBackTrim(&value, " \t\n\r");
-               HttpMessage::unescape(value);
+               unescape(value);
                newNvPair->setValue(value);
             }
             else
@@ -380,11 +386,11 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                newNvPair->setValue("");
             }
 
-            // Unescape the name and value
-            HttpMessage::unescape(*newNvPair);
+            // Unescape the name.
+            unescape(*newNvPair);
             NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
 
-            // Add a name, value pair to the list
+            // Add the name, value pair to the list
             cgiVariableList.insert(newNvPair);
 
             nameValueIndex++;

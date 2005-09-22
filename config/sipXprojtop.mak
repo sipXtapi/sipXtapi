@@ -87,9 +87,9 @@ doc :
 
 endif
 
-# Use += to add files to DISTCLEANFILES in ../Makefile.am.
-DISTCLEANFILES =
-DISTCLEANFILES += \
+# CONFIG_DISTCLEANFILES are files to be added to DISTCLEANFILES in any
+# makefile that includes config as an external subdirectory.
+CONFIG_DISTCLEANFILES = \
 	config/config.sub \
 	config/depcomp \
 	config/install-sh \

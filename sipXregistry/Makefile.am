@@ -21,3 +21,5 @@ EXTRA_DIST = \
     config/sipXcommon.mak.in \
     sipxregistry.spec
 
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES)

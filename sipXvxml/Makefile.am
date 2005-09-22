@@ -34,3 +34,6 @@ install-data-hook :
 # to create a distribution tarball from a working svn checkout.
 dist-hook :
 	rm -rf `find $(distdir) -type d -name .svn`
+
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES)

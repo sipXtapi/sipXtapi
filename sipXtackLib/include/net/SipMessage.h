@@ -285,21 +285,15 @@ class SipMessage : public HttpMessage
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   static UtlHashBag* mpShortFieldNames;
-   static UtlHashBag* mpLongFieldNames;
-   static UtlHashBag* mpDisallowedUrlHeaders;
-
-
    // See sipXcall's CpCallManager for more defines
+
    enum EventSubTypes
    {
        NET_UNSPECIFIED = 0,
        NET_SIP_MESSAGE
    };
 
-
 /* ============================ CREATORS ================================== */
-
 
     //! Construct from a buffer
     SipMessage(const char* messageBytes = NULL,
@@ -320,10 +314,6 @@ public:
     //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-
-    static void initShortNames();
-
-    static void initDisallowedUrlHeaders();
 
     static UtlBoolean getShortName( const char* longFieldName,
                                    UtlString* shortFieldName );
@@ -437,7 +427,7 @@ public:
                        int rtcpAudioPort,
                        int rtpVideoPort,
                        int rtcpVideoPort,
-                       SdpSrtpParameters& srtpParams,
+                       SdpSrtpParameters* srtpParams,
                        int sequenceNumber = 1,
                        int numRtpCodecs = 0,
                        SdpCodec* rtpCodecs[] = NULL,
@@ -459,7 +449,7 @@ public:
                          int sequenceNumber,
                          int numRtpCodecs,
                          SdpCodec* rtpCodecs[],
-                         SdpSrtpParameters& srtpParams,
+                         SdpSrtpParameters* srtpParams,
                          int sessionReinviteTimer);
 
     void setOptionsData(const SipMessage* inviteRequest,
@@ -562,7 +552,7 @@ public:
                     int rtcpVideoPort,
                     int numRtpCodecs,
                     SdpCodec* rtpCodecs[],
-                    SdpSrtpParameters& srtpParams);
+                    SdpSrtpParameters* srtpParams);
 
     //! Accessor to get SDP body, optionally decrypting it if key info. is provided
     /*
@@ -856,6 +846,9 @@ public:
 
     void setSupportedField(const char* supportedField);
 
+    //! Test whether "token" is present in the Supported: header.
+    UtlBoolean SipMessage::isInSupportedField(const char* token) const;
+
     //! Get the SIP-IF-MATCH field from the PUBLISH request
     UtlBoolean getSipIfMatchField(UtlString& sipIfMatchField) const;
 
@@ -1017,8 +1010,12 @@ public:
 
     UtlBoolean isRequireExtensionSet(const char* extension) const;
 
-    //! Is this a header parameter we want to allow users or apps. to pass through in the URL
+    //! Is this a header parameter we want to allow users or apps. to
+    //  pass through in the URL
     static UtlBoolean isUrlHeaderAllowed(const char*);
+
+    //! Does this header allow multiple values, or only one.
+    static UtlBoolean isUrlHeaderUnique(const char*);
 
     static void parseViaParameters( const char* viaField
                                    ,UtlContainer& viaParameterList
@@ -1038,6 +1035,28 @@ private:
     UtlString m_dnsProtocol ;
     UtlString m_dnsAddress ;
     UtlString m_dnsPort ;
+
+    // Class for the singleton object that carries the field properties
+    class SipMessageFieldProps
+       {
+         public:
+
+          SipMessageFieldProps();
+
+          UtlHashBag mShortFieldNames;
+          UtlHashBag mLongFieldNames;
+          // Headers that may not be referenced in a URI header parameter.
+          UtlHashBag mDisallowedUrlHeaders;
+          // Headers that do not take a list of values.
+          UtlHashBag mUniqueUrlHeaders;
+
+          void initNames();
+          void initDisallowedUrlHeaders();
+          void initUniqueUrlHeaders();
+       };
+
+    // Singleton object to carry the field properties.
+    static SipMessageFieldProps* spSipMessageFieldProps;
 
 };
 

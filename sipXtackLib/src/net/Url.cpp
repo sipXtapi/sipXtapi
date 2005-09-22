@@ -141,15 +141,22 @@ const RegEx HostAndPort(
 //   $1 matches path
 const RegEx UrlPath( "([^?\\s]+)\\??" );
 
-// SemiParams
-//   does not allow leading whitespace
+// UrlParams
+//   allows leading whitespace
 //   is terminated by but does not require a trailing '?' or '>'
 //   $0 matches ;params
 //   $1 matches params
-const RegEx SemiParams( SWS ";([^?>]+)" );
+const RegEx UrlParams( SWS ";([^?>]+)" );
+
+// FieldParams
+//   allows leading whitespace
+//   is terminated by end of string
+//   $0 matches ;params
+//   $1 matches params
+const RegEx FieldParams( SWS ";(.+)$" );
 
 // HeaderOrQueryParams
-//   does not allow leading whitespace
+//   allows leading whitespace
 //   is terminated by but does not require a trailing '>'
 //   $0 matches ?params
 //   $1 matches params
@@ -1075,7 +1082,7 @@ void Url::toString(UtlString& urlString) const
          if(!fieldParamValue.isNull())
          {
             urlString.append("=", 1);
-            HttpMessage::escape(fieldParamValue);
+            Url::gen_value_escape(fieldParamValue);
             urlString.append(fieldParamValue);
          }
       }
@@ -1356,7 +1363,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
           || afterAngleBrackets != UTL_NOT_FOUND // inside angle brackets there may be a url param
           ) 
       {
-         RegEx urlParams(SemiParams);
+         RegEx urlParams(UrlParams);
          if (   (urlParams.SearchAt(urlString, workingOffset))
              && (urlParams.MatchStart(0) == workingOffset)
              )
@@ -1398,7 +1405,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
          workingOffset = afterAngleBrackets;
       }
 
-      RegEx fieldParameters(SemiParams);
+      RegEx fieldParameters(FieldParams);
       if (   (fieldParameters.SearchAt(urlString, workingOffset))
           && (fieldParameters.MatchStart(0) == workingOffset)
           )
@@ -1482,7 +1489,7 @@ bool Url::parseUrlParameters()
 
       HttpRequestContext::parseCgiVariables(mRawUrlParameters,
                                             *mpUrlParameters, ";", "=",
-                                            TRUE);
+                                            TRUE, &HttpMessage::unescape);
       mRawUrlParameters.remove(0);
    }
 
@@ -1497,7 +1504,7 @@ bool Url::parseHeaderOrQueryParameters()
 
       HttpRequestContext::parseCgiVariables(mRawHeaderOrQueryParameters,
                                             *mpHeaderOrQueryParameters, "&", "=",
-                                            TRUE);
+                                            TRUE, &HttpMessage::unescape);
       mRawHeaderOrQueryParameters.remove(0);
    }
 
@@ -1510,13 +1517,157 @@ bool Url::parseFieldParameters()
    {
       mpFieldParameters = new UtlDList();
 
+#if 0
+      printf("Url::parseFieldParameters mRawFieldParameters = '%s'\n",
+             mRawFieldParameters.data());
+#endif
       HttpRequestContext::parseCgiVariables(mRawFieldParameters,
                                             *mpFieldParameters, ";", "=",
-                                            TRUE);
+                                            TRUE, &Url::gen_value_unescape);
       mRawFieldParameters.remove(0);
    }
 
    return mpFieldParameters != NULL;
+}
+
+void Url::gen_value_unescape(UtlString& escapedText)
+{
+#if 0
+   printf("Url::gen_value_unescape before escapedText = '%s'\n",
+          escapedText.data());
+#endif
+
+    //UtlString unescapedText;
+    int numUnescapedChars = 0;
+    const char* unescapedTextPtr = escapedText;
+    // The number of unescaped characters is always less than
+    // or equal to the number of escaped characters.  Therefore
+    // we will cheat a little and used the escapedText as
+    // the destiniation to directly write characters in place
+    // as the append method is very expensive
+    char* resultPtr = new char[escapedText.length() + 1];
+
+    // Skip initial whitespace, which may be before the starting double-quote
+    // of a quoted string.  Tokens and hosts are not allowed to start with
+    // whitespace.
+    while (*unescapedTextPtr &&
+           (*unescapedTextPtr == ' ' || *unescapedTextPtr == '\t'))
+    {
+       // Consume the whitespace character.
+       unescapedTextPtr++;
+       numUnescapedChars++;
+    }
+
+    // Examine the first character to see if it is a double-quote.
+    if (*unescapedTextPtr == '"')
+    {
+       // Skip the initial double-quote.
+       unescapedTextPtr++;
+       while (*unescapedTextPtr)
+       {
+          // Substitute a (backslash-)quoted-pair.
+          if (*unescapedTextPtr == '\\')
+          {
+             // Get the next char.
+             unescapedTextPtr++;
+             // Don't get deceived if there is no next character.
+             if (*unescapedTextPtr)
+             {
+                // The next character is copied unchanged.
+                resultPtr[numUnescapedChars] = *unescapedTextPtr;
+                numUnescapedChars++;
+             }
+          }
+          // A double-quote without backslash ends the string.
+          else if (*unescapedTextPtr == '"')
+          {
+             break;
+          }
+          // Char is face value.
+          else
+          {
+             resultPtr[numUnescapedChars] = *unescapedTextPtr;
+             numUnescapedChars++;
+          }
+          // Go to the next character
+          unescapedTextPtr++;
+       }
+    }
+    else
+    {
+       // It is a token or host, and can be copied unchanged.
+       while (*unescapedTextPtr)
+       {
+          resultPtr[numUnescapedChars] = *unescapedTextPtr;
+          numUnescapedChars++;
+          // Go to the next character
+          unescapedTextPtr++;
+       }
+    }
+    
+    // Copy back into the UtlString.
+    resultPtr[numUnescapedChars] = '\0';
+    escapedText.replace(0, numUnescapedChars, resultPtr);
+    escapedText.remove(numUnescapedChars);
+    delete[] resultPtr;
+
+#if 0
+   printf("Url::gen_value_unescape after escapedText = '%s'\n",
+          escapedText.data());
+#endif
+}
+
+void Url::gen_value_escape(UtlString& unEscapedText)
+{
+   // Check if there are any characters in unEscapedText that need to be
+   // escaped in a field parameter value.
+   if (strspn(unEscapedText.data(),
+              // Alphanumerics
+              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+              "abcdefghijklmnopqrstuvwxyz"
+              "0123456789"
+              // Characters allowed in tokens
+              "-.!%*_+`'~"
+              // Additional characters allowed by the syntax of "host"
+              "[]:") != unEscapedText.length())
+   {
+      // Temporary string to construct the escaped value in.
+      UtlString escapedText;
+      // Pre-size it to the size of the un-escaped test, plus 2 for
+      // the starting and ending double-quotes.
+      escapedText.capacity((size_t) unEscapedText.length() + 2);
+      const char* unescapedTextPtr = unEscapedText.data();
+
+      // Start with double-quote.
+      escapedText.append("\"");
+
+      // Process each character of the un-escaped value.
+      while(*unescapedTextPtr)
+      {
+         char unEscapedChar = *unescapedTextPtr;
+         if (unEscapedChar == '"' || unEscapedChar == '\\')
+         {
+            // Construct a little 2-character string and append it.
+            char escapedChar[2];
+            escapedChar[0] = '\\';
+            escapedChar[1] = *unescapedTextPtr;
+            escapedText.append(&unEscapedChar, 2);
+        }
+        else
+        {
+           // Append the character directly.
+           escapedText.append(&unEscapedChar, 1);
+        }
+         // Consider the next character.
+         unescapedTextPtr++;
+      }
+
+      // End with double-quote.
+      escapedText.append("\"");
+
+      // Write the escaped string into the argumemt.
+      unEscapedText = escapedText;
+   }
 }
 
 /* ============================ FUNCTIONS ================================= */

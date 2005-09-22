@@ -136,11 +136,18 @@ public:
      */
     Url& operator=(const char* urlString);
 
-    //! Serialize this URL to a string
+    //! Serialize this URL to a string in name-addr format, suitable for use
+    //  as a field in a header.
     void toString(UtlString& urlString) const;
 
-    //! Serialize this URL to a string
+    //! Serialize this URL to a string in name-addr format, suitable for use
+    //  as a field in a header.
     UtlString toString() const;
+
+    /// Gets the serialized URL as a string in addr-spec format (with
+    //  no display name or field parameters), suitable for use as a request
+    //  URI.
+    void getUri(UtlString& Uri);
 
     //! Debug dump to STDOUT
     void dump();
@@ -237,7 +244,7 @@ public:
                                int index = 0 
                                );
     /**<
-     * Gets the index occurance of the named parameter (the same parameter name may
+     * Gets the index occurrence of the named parameter (the same parameter name may
      * occur multiple times in a URL).
      * @return TRUE if the indicated parameter exists
      */
@@ -403,9 +410,13 @@ public:
      * possible to omit them.
      */
 
-    /// Gets the serialized URL as a string (with no display name or 
-    //! field parameters)
-    void getUri(UtlString& Uri);
+    /// Escape a string as a gen_value, which is what field-parameters
+    //! use for values.
+    static void Url::gen_value_escape(UtlString& escapedText);
+
+    /// Un-escape a string as a gen_value, which is what field-parameters
+    //! use for values.
+    static void Url::gen_value_unescape(UtlString& escapedText);
 
 /* ============================ INQUIRY =================================== */
 

@@ -60,7 +60,7 @@ OsSysSoftTimer*     OsSysSoftTimer::spInstance = NULL;
 OsBSem              OsSysSoftTimer::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 struct TIMER_NODE * OsSysSoftTimer::timerQ = NULL;
 OsMsgQ*             OsSysSoftTimer::requestQ = NULL;
-const int           OsSysSoftTimer::MAX_REQUEST_MSGS = 1000;
+const int           OsSysSoftTimer::MAX_REQUEST_MSGS = 10000;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

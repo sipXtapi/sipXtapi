@@ -2563,11 +2563,14 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       messageProcessed = TRUE;
    }
 
-   // Only GC if not messages are waiting -- othewise we may delete a timer 
-   // that is queued up for is.
+   // Only GC if no messages are waiting -- othewise we may delete a timer 
+   // that is queued up for us.
    if (getMessageQueue()->isEmpty())
    {
       garbageCollection();
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipUserAgent::handleMessage after GC, queue size = %d",
+                    getMessageQueue()->numMsgs());
    }
    return(messageProcessed);
 }
@@ -2592,29 +2595,37 @@ void SipUserAgent::garbageCollection()
 
     if(mLastCleanUpTime < then)
     {
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-            "SipUserAgent::garbageCollection"
-            " bootime: %d then: %d tcpThen: %d"
-            " oldTransaction: %d oldInviteTransaction: %d",
-            bootime, then, tcpThen, oldTransaction, oldInviteTransaction);
-#endif
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent::garbageCollection"
+                     " bootime: %d then: %d tcpThen: %d"
+                     " oldTransaction: %d oldInviteTransaction: %d",
+                     bootime, then, tcpThen, oldTransaction,
+                     oldInviteTransaction);
 
-        mSipTransactions.removeOldTransactions(oldTransaction,
-            oldInviteTransaction); //temp double of transaction life
+       mSipTransactions.removeOldTransactions(oldTransaction,
+                                              oldInviteTransaction);
 
-        mSipUdpServer->removeOldClients(then);
-        if (mSipTcpServer)
-        {
-            mSipTcpServer->removeOldClients(tcpThen);
-        }
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent::garbageCollection starting removeOldClients(udp)");
+       mSipUdpServer->removeOldClients(then);
+       if (mSipTcpServer)
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipUserAgent::garbageCollection starting removeOldClients(tcp)");
+          mSipTcpServer->removeOldClients(tcpThen);
+       }
 #if 0 // def SIP_TLS
-        if (mSipTlsServer)
-        {
-            mSipTlsServer->removeOldClients(tcpThen);
-        }
+       if (mSipTlsServer)
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipUserAgent::garbageCollection starting removeOldClients(tls)");
+          mSipTlsServer->removeOldClients(tcpThen);
+       }
 #endif
-        mLastCleanUpTime = bootime;
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent::garbageCollection done");
+
+       mLastCleanUpTime = bootime;
     }
 }
 

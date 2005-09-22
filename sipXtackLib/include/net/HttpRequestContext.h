@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "utl/UtlDList.h"
-
+#include "net/HttpMessage.h"
 
 // DEFINES
 
@@ -68,11 +68,14 @@ public:
    void extractPostCgiVariables(const HttpBody& body);
    // Extracts the CGI variables from the request body.
 
+   typedef void (*UnEscapeFunction)(UtlString&);
    static void parseCgiVariables(const char* queryString,
                                  UtlList& cgiVariableList,
                                  const char* pairSeparator = "&",
                                  const char* namValueSeparator = "=",
-                                 UtlBoolean nameIsCaseInsensitive = TRUE);
+                                 UtlBoolean nameIsCaseInsensitive = TRUE,
+                                 UnEscapeFunction unescape =
+                                     &HttpMessage::unescape);
    // If nameIsCaseInsensitive == TRUE, puts NameValuePairInsensitive's
    // into cgiVariableList rather than NameValuePair's.
 

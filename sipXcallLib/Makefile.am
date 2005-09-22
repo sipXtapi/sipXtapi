@@ -19,7 +19,8 @@ include $(srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
-DISTCLEANFILES += \
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES) \
 	BUILDSTAMP \
 	Makefile.in \
 	aclocal.m4 \

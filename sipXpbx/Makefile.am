@@ -33,3 +33,6 @@ install-data-hook :
 
 dist-hook :
 	rm -rf $(distdir)/src/cgilib $(distdir)/include/cgilib
+
+DISTCLEANFILES = \
+	$(CONFIG_DISTCLEANFILES)
